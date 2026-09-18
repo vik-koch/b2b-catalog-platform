@@ -22,6 +22,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-NAV-04](#fr-nav-04) — Contact page with office map
 - [FR-NAV-05](#fr-nav-05) — Contact details in the header
 - [FR-NAV-06](#fr-nav-06) — Contact form
+- [FR-NAV-07](#fr-nav-07) — Links to the shop elsewhere
 
 **[Catalog (FR-CAT)](#fr-cat)**
 
@@ -31,6 +32,9 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-CAT-04](#fr-cat-04) — What a list item shows
 - [FR-CAT-05](#fr-cat-05) — What a product page shows
 - [FR-CAT-06](#fr-cat-06) — Cards or rows, remembered
+- [FR-CAT-07](#fr-cat-07) — A category's mark
+- [FR-CAT-08](#fr-cat-08) — Category description
+- [FR-CAT-09](#fr-cat-09) — A featured row on the main page
 
 **[Units of Sale & Packaging (FR-UNIT)](#fr-unit)**
 
@@ -76,6 +80,8 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-SEARCH-03](#fr-search-03) — Results ordered by relevance
 - [FR-SEARCH-04](#fr-search-04) — Sort controls and shareable URLs
 - [FR-SEARCH-05](#fr-search-05) — Type-ahead suggestions
+- [FR-SEARCH-06](#fr-search-06) — What a suggestion shows
+- [FR-SEARCH-07](#fr-search-07) — Categories among the suggestions
 
 **[Filterable Attributes (FR-ATTR)](#fr-attr)**
 
@@ -111,6 +117,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-16](#fr-adm-16) — A repeated instruction changes nothing
 - [FR-ADM-17](#fr-adm-17) — Claiming an account registered on the shop
 - [FR-ADM-18](#fr-adm-18) — Reading customer accounts outward
+- [FR-ADM-19](#fr-adm-19) — A category counts its subtree
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -229,7 +236,7 @@ A dedicated page displays information about the company.
 
 #### <a id="fr-nav-03"></a>FR-NAV-03 — Payment and delivery conditions page
 
-A dedicated page displays payment and delivery conditions.
+A dedicated page displays payment and delivery conditions. Its prose is admin-editable ([FR-ADM-03](#fr-adm-03)); the conditions themselves are not typed into it but read from the deployment's own configuration — the delivery zones with their terms and free-delivery thresholds ([FR-CART-07](#fr-cart-07)), the pickup points, and the payment methods a customer may choose ([FR-CART-04](#fr-cart-04)) — and are stated as checkout states them, so the page cannot promise something checkout does not offer. Checkout keeps its own hint for the address in front of it; this page is the whole picture, which checkout is not the place to read.
 
 #### <a id="fr-nav-04"></a>FR-NAV-04 — Contact page with office map
 
@@ -242,6 +249,10 @@ Main contact information (phone, email) is displayed in the site header.
 #### <a id="fr-nav-06"></a>FR-NAV-06 — Contact form
 
 A contact form lets a user reach the company by email, with an optional callback phone number.
+
+#### <a id="fr-nav-07"></a>FR-NAV-07 — Links to the shop elsewhere
+
+A deployment can list the places it also exists — a social account, a messenger, a marketplace shop — shown in the footer as icons beside the enquiry button. Each entry names where it goes, the icon that stands for it and the words that stand in for the icon, which are what a screen reader announces and what a reader sees where the icon does not load. The icons are drawn in the site's own colours and to the height of the control beside them, so an added service cannot change the shape of the footer. The list is deployment configuration rather than editable content; an empty one shows nothing.
 
 ---
 
@@ -270,6 +281,18 @@ A product page displays name, price, full rich-text description, an image galler
 #### <a id="fr-cat-06"></a>FR-CAT-06 — Cards or rows, remembered
 
 Product listings (category and search results) can be shown as a grid of cards or as a list of rows; both carry the same buying controls. The choice is remembered across visits and applies to every listing. Where the available width allows only one shape, both are shown in that shape and the choice is not offered.
+
+#### <a id="fr-cat-07"></a>FR-CAT-07 — A category's mark
+
+A category may carry a small square mark in addition to the picture its card shows. The mark is what identifies it wherever the category appears as a chip or a pill rather than as a card — the subcategory navigation of a listing and the main-page overview — and is shown there beside the category's name. A category whose name is a brand its mark says faster can declare that the mark stands **in place of** the name in those places; the name is still what the link is announced and titled by, so nothing is lost to a reader who cannot see the mark. A category with no mark shows its name, as every category does today.
+
+#### <a id="fr-cat-08"></a>FR-CAT-08 — Category description
+
+A category may carry a short plain-text description. Where one is written it introduces the category's listing, above the products, and is what a search engine is offered as that page's summary ([NFR-SEO-01](#nfr-seo-01)). A category without one reads exactly as it does now.
+
+#### <a id="fr-cat-09"></a>FR-CAT-09 — A featured row on the main page
+
+The main page shows a short row of products above the category overview. An admin chooses which; where nobody has chosen any, it falls back to the most recently published products, and where there are none it is absent rather than empty. Each entry is the same list item every listing draws ([FR-CAT-04](#fr-cat-04)), so what can be seen and bought from a listing can be seen and bought from here.
 
 ---
 
@@ -397,7 +420,7 @@ A product search bar is available in the site header on every page.
 
 #### <a id="fr-search-02"></a>FR-SEARCH-02 — Matching on product name
 
-Search matches on product name only. Matching is word-order independent and tolerates minor typos (fuzzy matching).
+Search matches on product name and on category name. Matching is word-order independent and tolerates minor typos (fuzzy matching). The two are never mixed into one ranking: a query answers with the products it matched, and names the categories it matched beside them ([FR-SEARCH-07](#fr-search-07)).
 
 #### <a id="fr-search-03"></a>FR-SEARCH-03 — Results ordered by relevance
 
@@ -410,6 +433,14 @@ Product listings offer sort controls (name, price). Search results additionally 
 #### <a id="fr-search-05"></a>FR-SEARCH-05 — Type-ahead suggestions
 
 As a query is typed into the search bar, a short list of matching product names is suggested; picking one goes straight to that product. Suggestions are an accelerator only — the full result list stays reachable by submitting the query.
+
+#### <a id="fr-search-06"></a>FR-SEARCH-06 — What a suggestion shows
+
+A product suggestion carries the product's picture and its price beside its name, as a list item does — the price the viewer is charged ([FR-AUTH-05](#fr-auth-05)) and stated as a listing states it ([FR-UNIT-08](#fr-unit-08)). A suggestion list is scanned rather than read, and a row of bare names makes a shopper open pages to tell two products apart.
+
+#### <a id="fr-search-07"></a>FR-SEARCH-07 — Categories among the suggestions
+
+Categories the query matches ([FR-SEARCH-02](#fr-search-02)) are suggested as their own short group, ahead of the products, and picking one opens that category's listing. Only categories the storefront shows are offered ([FR-CAT-01](#fr-cat-01)). Where a query matches no category the group is absent, and the product suggestions stand alone as they do today.
 
 ---
 
@@ -561,6 +592,10 @@ The source system can read the shop's customer accounts over the machine endpoin
 
 It reads whether or not an external system owns customers, because the case it exists for is the one where it does not yet. Staff accounts are never included ([FR-ADM-10](#fr-adm-10)). An account the person has deleted is reported as withdrawn and carries nothing but its keys and its dates ([NFR-LEGAL-08](#nfr-legal-08)). The reading is its own capability on the credential, separate from the one that writes.
 
+#### <a id="fr-adm-19"></a>FR-ADM-19 — A category counts its subtree
+
+Wherever the admin panel counts a category's products, it counts everything beneath it — its subcategories included — as the storefront listing does ([FR-CAT-02](#fr-cat-02)), so the two never disagree about what belongs to a category. Filtering the admin product list by a category reads the same way. Where a category holds products directly **and** has subcategories, the list additionally offers the ones held directly by it: a product filed in a parent rather than in one of its children is otherwise invisible in a list of hundreds, and moving it is the point of finding it. The delete guard is unaffected — a category is blocked from deletion by what it holds itself and by having children at all ([FR-ADM-01](#fr-adm-01)), which is a different question from how many products are beneath it.
+
 ---
 
 ### <a id="fr-auth"></a>Accounts, Roles & Pricing (FR-AUTH)
@@ -667,7 +702,7 @@ An order moves through a fixed set of states: awaiting an answer, accepted, read
 
 #### <a id="fr-ord-02"></a>FR-ORD-02 — Moving between states
 
-Staff move an order between states, forwards and — one step at a time — backwards: an order answered by a wrong click must not be stuck at that answer, and correcting it must not require cancelling an order that was never called off. An ended order goes back to awaiting an answer. A customer may cancel their own order only while it is awaiting an answer; after that they contact the shop. Where money has already been recorded against it, both sides are warned before the cancellation that a refund is arranged with the shop directly — the platform records payments ([FR-ORD-04](#fr-ord-04)) and never moves them. Orders are never deleted — a refused or called-off order keeps its record and states a reason, which the customer is told. Where order processing is externally owned ([FR-ADM-10](#fr-adm-10)) the moves arrive from that system instead and staff make none, but the table is the same one: a move it does not allow is refused whoever asks, so an exchange cannot walk an order somewhere a manager could not.
+Staff move an order between states, forwards and — one step at a time — backwards: an order answered by a wrong click must not be stuck at that answer, and correcting it must not require cancelling an order that was never called off. An ended order goes back to awaiting an answer. A customer may cancel their own order only while it is awaiting an answer; after that they contact the shop. Where money has already been recorded against it, both sides are warned before the cancellation that a refund is arranged with the shop directly — the platform records payments ([FR-ORD-04](#fr-ord-04)) and never moves them. Orders are never deleted — a refused or called-off order keeps its record and states a reason, which the customer is told. Where order processing is externally owned ([FR-ADM-10](#fr-adm-10)) the moves arrive from that system instead and staff make none. Such a system reports where an order stands rather than taking a step, so it may name any active state in one move — including reopening an ended order straight to the state it reached over there — and each report records one version. What it may not do is manufacture the steps in between, refuse an order already being worked, cancel one that has been handed over, or move an order the customer called off: that cancellation is theirs and is refused however the area is owned.
 
 #### <a id="fr-ord-03"></a>FR-ORD-03 — Accepting with adjustments
 
@@ -719,7 +754,7 @@ Manager is notified by email when an account closes itself ([FR-AUTH-06](#fr-aut
 
 #### <a id="fr-notif-09"></a>FR-NOTIF-09 — Exchange health emails
 
-The admin is notified by email about an automated exchange ([FR-ADM-07](#fr-adm-07), [FR-ADM-11](#fr-adm-11)): that it has stopped working, that it is working again, that a run is waiting for a decision, and that a run brought records needing their attention. The first three are sent on a **change of state** — what the shop has already been told is not repeated — and a run a person applied themselves is not announced back to that person. **Each area is its own exchange**: its state is read against its own last run, so one area breaking or recovering says nothing about another, and its messages are worded about what it carries — a message about accounts that announced itself as a catalog update would mislead in the one line an inbox shows. The fourth message is likewise an area's own: the catalog's names products that arrived unpublished ([FR-ADM-06](#fr-adm-06)), and the customer exchange has none, because the accounts it invites are written to directly ([FR-ADM-13](#fr-adm-13)) and leave nothing on a person's desk. A deployment may name an operator address, which receives the failure and recovery messages as well. A message that cannot be sent costs the news and not the record: what it was about is still readable in the admin panel ([FR-ADM-09](#fr-adm-09), [FR-WORK-02](#fr-work-02)).
+The admin is notified by email about an automated exchange ([FR-ADM-07](#fr-adm-07), [FR-ADM-08](#fr-adm-08), [FR-ADM-11](#fr-adm-11)): that it has stopped working, that it is working again, that a run is waiting for a decision, and that a run brought records needing their attention. The first three are sent on a **change of state** — what the shop has already been told is not repeated — and a run a person applied themselves is not announced back to that person. **Each area is its own exchange**: its state is read against its own last run, so one area breaking or recovering says nothing about another, and its messages are worded about what it carries — a message about accounts that announced itself as a catalog update would mislead in the one line an inbox shows. The fourth message is likewise an area's own: the catalog's names products that arrived unpublished ([FR-ADM-06](#fr-adm-06)), and the customer exchange has none, because the accounts it invites are written to directly ([FR-ADM-13](#fr-adm-13)) and leave nothing on a person's desk. An area that never stages a run sends only the first two: the order exchange applies what it is sent or refuses it ([FR-ADM-08](#fr-adm-08)), so there is nothing for a person to decide and nothing to announce — but a shop hearing nothing about its orders is the case the failure message exists for, and it says what silence costs there rather than repeating what the catalog's says. A deployment may name an operator address, which receives the failure and recovery messages as well. A message that cannot be sent costs the news and not the record: what it was about is still readable in the admin panel ([FR-ADM-09](#fr-adm-09), [FR-WORK-02](#fr-work-02)).
 
 ---
 
@@ -829,7 +864,7 @@ Address suggestions are proxied by the API, never requested from the browser: th
 
 #### <a id="nfr-sec-09"></a>NFR-SEC-09 — Machine tokens
 
-Machine clients ([FR-ADM-07](#fr-adm-07)) authenticate with tokens that are stored hashed, scoped to what they may do, revocable from the admin panel, and rate-limited independently of the interactive endpoints.
+Machine clients ([FR-ADM-07](#fr-adm-07), [FR-ADM-08](#fr-adm-08), [FR-ADM-11](#fr-adm-11), [FR-ADM-18](#fr-adm-18)) authenticate with tokens that are stored hashed, scoped to what they may do, revocable from the admin panel, and rate-limited independently of the interactive endpoints. Reading an area out and writing it are separate capabilities on a credential, so an operator can hand over one without the other.
 
 #### <a id="nfr-sec-10"></a>NFR-SEC-10 — Credentials kept out of logs
 

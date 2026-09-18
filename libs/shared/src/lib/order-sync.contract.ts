@@ -13,7 +13,7 @@ import { LINE_PIECES_MAX } from './product-units';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
-  SYNC_MAX_ROWS,
+  SYNC_PREVIEW_MAX_ITEMS,
 } from './sync-constants';
 import {
   machineRunErrors,
@@ -170,6 +170,23 @@ export const orderWriteResultSchema = z
     revisionNumber: z.number().int().positive(),
     /** Whether a message went to the customer about it. */
     notified: z.boolean(),
+    /**
+     * Whether a `note` on the instruction was **dropped**.
+     *
+     * A note is what the shop says about a version, so it is only kept where a
+     * version was written. An instruction that turned out to change nothing,
+     * or that only recorded the money, writes none — and the note it carried
+     * went nowhere.
+     *
+     * Reported rather than refused, and decided by what the instruction *did*
+     * rather than by which fields it named. A source re-sending its whole
+     * snapshot every cycle must not be refused for carrying a note it already
+     * delivered; a source that meant to say something new must not be told
+     * `unchanged` and left believing the customer heard it. Both read this
+     * flag and learn the truth: false means the note is on the version, true
+     * means say it again with the move or the change it belongs to.
+     */
+    noteIgnored: z.boolean(),
   })
   .strict();
 export type OrderWriteResult = z.infer<typeof orderWriteResultSchema>;
@@ -197,9 +214,11 @@ export const ORDER_SYNC_ROW_ERROR_CODES = [
    */
   'order-changed',
   /**
-   * The customer called this order off (FR-ORD-02), which they may do however
-   * the area is owned (FR-ADM-10). Refused rather than driven forward over the
-   * top — the alternative is a cancellation that silently never happened.
+   * The **customer** called this order off (FR-ORD-02), which they may do
+   * however the area is owned (FR-ADM-10). Refused rather than driven forward
+   * over the top — the alternative is a cancellation that silently never
+   * happened. An order the owning system itself cancelled is not this: that
+   * one it may reopen, because while the area is owned nobody else can.
    */
   'order-called-off',
   /** `{status}` — the order cannot go there from where it is (FR-ORD-01). */
@@ -210,8 +229,9 @@ export const ORDER_SYNC_ROW_ERROR_CODES = [
   'unknown-product',
   /** `{productSourceId}` — one instruction names a product twice. */
   'duplicate-product',
-  /** Nothing is owed on an order that ended, so nothing can be recorded
-   * against it. */
+  /** Nothing is owed on an order that ended in a refusal, so nothing can be
+   * recorded against it. A completed order is not that: it can perfectly well
+   * be handed over and settled afterwards. */
   'payment-not-recordable',
 ] as const;
 export type OrderSyncRowErrorCode = (typeof ORDER_SYNC_ROW_ERROR_CODES)[number];
@@ -270,7 +290,18 @@ export function isOrderSyncPlan(plan: unknown): plan is OrderSyncPlan {
  */
 export const orderSyncSubmissionSchema = z
   .object({
-    orders: z.array(orderWriteSchema).min(1).max(SYNC_MAX_ROWS),
+    /**
+     * Capped at what a run can *answer* for, which is the one cap that matters
+     * here. The other areas may take fifty thousand rows because their answer
+     * is a set of counts; an order run's answer is a result per order — the
+     * version it now stands on and whether the customer was written to — and
+     * that list is capped at `SYNC_PREVIEW_MAX_ITEMS` so a large batch replies
+     * rather than downloads. A batch longer than it could be applied in full
+     * and read back in part, and what a sender lost that way is unrecoverable:
+     * re-reading the orders finds the versions again, but nothing anywhere
+     * remembers which of them were mailed.
+     */
+    orders: z.array(orderWriteSchema).min(1).max(SYNC_PREVIEW_MAX_ITEMS),
     /** What to call this run in the log, where an upload has a filename. */
     label: z.string().trim().min(1).max(SYNC_LABEL_MAX_LENGTH).optional(),
     /**

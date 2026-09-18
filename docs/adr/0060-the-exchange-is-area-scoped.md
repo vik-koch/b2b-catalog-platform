@@ -90,3 +90,24 @@ with the exchange that needs it, not with a config key.
   The column is already `jsonb` and already per-run-contract-typed, so this is
   a widening rather than a new problem — but it does mean the table cannot be
   read without knowing the area.
+
+## Amendment — 2026-09-18: the third area inherited less than the decision assumed
+
+Orders landed as the third area and cost a value plus a controller, as the
+decision predicted. Two things it assumed every area would have, orders do not:
+
+- **No staged runs, and therefore no work queue.** The decision says the
+  work-awaiting count "becomes one queue per area". An order run is applied as
+  it arrives and can never wait for a person (ADR 0062), so it has no queue, no
+  auto-apply policy and no `requestReview`. `/admin/sync/orders` is a log with
+  no buttons on it, and `syncWaitingMail` answers null for the area rather than
+  a template nobody can trigger.
+- **No staged payload**, so the `rows` column stays null for every order run.
+  The widening the decision accepted in its consequences turned out to be
+  narrower than expected: an area that never stages stores no rows at all.
+
+What did carry over unchanged: the table, the run contract, the run page, the
+per-area machine path, the role→areas readership table (managers read orders,
+as they read customers) and the per-area notification state. The value was
+still the right shape; it is only the machinery hung off it that is optional
+per area.

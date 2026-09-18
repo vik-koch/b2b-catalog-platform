@@ -55,6 +55,77 @@ describe('order transitions', () => {
     }
   });
 
+  /**
+   * The machine row's whole point: an order accepted and packed between two
+   * polls arrives as one fact, and the alternative to allowing it is every
+   * adapter replaying a history the platform never witnessed.
+   */
+  it('lets an owning system name any other state on the chain in one move', () => {
+    expect(canTransition('machine', 'requested', 'ready')).toBe(true);
+    expect(canTransition('machine', 'requested', 'completed')).toBe(true);
+    expect(canTransition('machine', 'approved', 'completed')).toBe(true);
+    // Backwards is the same report, read the other way.
+    expect(canTransition('machine', 'completed', 'approved')).toBe(true);
+    expect(canTransition('machine', 'ready', 'requested')).toBe(true);
+    // And the panel stays one step at a time, which is the difference.
+    expect(canTransition('staff', 'requested', 'ready')).toBe(false);
+    expect(canTransition('staff', 'completed', 'approved')).toBe(false);
+  });
+
+  /**
+   * The gap a skipped move opens on the *other* axis. `nextPaymentState` used
+   * to ask "did this transition accept the order", which only works while
+   * `completed` is unreachable without passing through `approved`.
+   */
+  it('makes an invoiced order due even when the move skipped acceptance', () => {
+    for (const to of ['approved', 'ready', 'completed'] as const) {
+      expect(nextPaymentState('not-due', 'bank-transfer', to)).toBe('awaiting');
+      // And the two readings of the payment axis agree, which is the point:
+      // one of them is what a cleared payment falls back to.
+      expect(paymentStateWithoutPayment(to, 'bank-transfer')).toBe('awaiting');
+    }
+    // Cash is still the exception: it exists at the handover, not at a move.
+    for (const to of ['approved', 'ready', 'completed'] as const) {
+      expect(nextPaymentState('not-due', 'cash', to)).toBe('not-due');
+    }
+    // An ending still un-dues what was never paid, and never walks back `paid`.
+    expect(nextPaymentState('awaiting', 'bank-transfer', 'cancelled')).toBe(
+      'not-due',
+    );
+    expect(nextPaymentState('paid', 'bank-transfer', 'cancelled')).toBe('paid');
+  });
+
+  /** A refused order reopened and accepted over there between two polls comes
+   * back as `approved`; walking it through `requested` would file a version
+   * saying the shop is deciding, which is a state nobody was in. */
+  it('reopens an ended order to any active state for an owning system', () => {
+    for (const from of ['declined', 'cancelled'] as const) {
+      for (const to of [
+        'requested',
+        'approved',
+        'ready',
+        'completed',
+      ] as const) {
+        expect(canTransition('machine', from, to)).toBe(true);
+      }
+      // Staff still reopen to the one state that asks them to answer.
+      expect(allowedTransitions('staff', from)).toEqual(['requested']);
+    }
+    // And the two endings are not interchangeable with each other.
+    expect(canTransition('machine', 'declined', 'cancelled')).toBe(false);
+    expect(canTransition('machine', 'cancelled', 'declined')).toBe(false);
+  });
+
+  it('keeps the two endings meaningful for an owning system too', () => {
+    // A refusal happens before acceptance; an order being worked is stopped.
+    expect(canTransition('machine', 'requested', 'declined')).toBe(true);
+    expect(canTransition('machine', 'approved', 'declined')).toBe(false);
+    expect(canTransition('machine', 'ready', 'declined')).toBe(false);
+    expect(canTransition('machine', 'ready', 'cancelled')).toBe(true);
+    // The goods are gone: whatever happens next is a return, not a state.
+    expect(canTransition('machine', 'completed', 'cancelled')).toBe(false);
+  });
+
   it('refuses the shop’s own endings without a reason', () => {
     expect(transitionNeedsReason('declined', 'staff')).toBe(true);
     expect(transitionNeedsReason('cancelled', 'staff')).toBe(true);
@@ -68,6 +139,10 @@ describe('order transitions', () => {
   it('asks a customer why, without insisting', () => {
     expect(transitionHasReason('cancelled')).toBe(true);
     expect(transitionNeedsReason('cancelled', 'customer')).toBe(false);
+    // An owning system is the shop here, so it owes the same answer.
+    expect(transitionNeedsReason('declined', 'machine')).toBe(true);
+    expect(transitionNeedsReason('cancelled', 'machine')).toBe(true);
+    expect(transitionNeedsReason('ready', 'machine')).toBe(false);
   });
 });
 

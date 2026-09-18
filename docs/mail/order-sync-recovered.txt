@@ -1,0 +1,15 @@
+Order updates are working again
+
+The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps.
+
+Started: 14 Mar 2026, 03:15
+Export: orders-write-back
+Source: ERP order exchange
+Changes: +0 ~18 −0
+
+Open the run: https://shop.example.com/admin/sync/runs/6c1e0b73-9f24-4a65-b8d1-0e5a72c4f381
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com

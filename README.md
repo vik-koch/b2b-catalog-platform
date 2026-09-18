@@ -4,15 +4,19 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.11.0` — customer accounts now travel the same way the catalog does, in both
-> directions: a source system can invite an account into being, approve or refuse a
-> registration, move its price group and switch it off, and can read the accounts back out
-> again — while never issuing a credential and never deleting anybody. Iterations 1–13 are
-> delivered (static pages and infrastructure, catalog + admin panel, search, accounts and
-> tiered pricing, units of sale, attribute filtering, cart and checkout, stock availability
-> and work-awaiting indicators, sold-together sets, product documents, order processing,
-> automated catalog feed, customer exchange). Iteration 14 (order exchange with the source
-> system) is next.
+> **Status:** `v1.12.0` — the third and last area travels the same way: a source system can
+> read the shop's orders out and answer them, writing at most **one** version of an order per
+> exchange whatever it did to it, filing the shop's own invoice against it as bytes, and
+> saying each time whether the customer hears about it. What stays the customer's stays
+> theirs: they place the order, and they may call off one nobody has answered yet, however
+> the area is owned. Iterations 1–14 are delivered (static pages and infrastructure, catalog
+>
+> - admin panel, search, accounts and tiered pricing, units of sale, attribute filtering,
+>   cart and checkout, stock availability and work-awaiting indicators, sold-together sets,
+>   product documents, order processing, automated catalog feed, customer exchange, order
+>   exchange). Iteration 15 turns back to the storefront — what a visitor sees rather than what
+>   an integrator does — and online card payment is deferred until the shop is live and has
+>   handled real orders.
 
 ## Environments
 
@@ -100,12 +104,30 @@ Shipped:
   withdrawal. An account registered here can be **claimed** by address, once and only with
   somebody agreeing to it, which is the one thing no key can do on its own. An operator who
   has no feed yet can upload the same rows from a file instead
+- **Order exchange** — the same machine client working the shop's orders: reading them out
+  whole as the version they stand at, and answering them with what the back office did — the
+  move, the agreed change and the money recorded together, as **one** version of the order,
+  because that is one event to the customer and not three. An instruction that repeats what
+  the order already says writes nothing, which is what a polling source needs; one that
+  answers a version the order has moved past is refused rather than applied to facts that
+  changed underneath it. The shop's real invoice arrives as bytes rather than being redrawn
+  from data. Two things no setting takes from the customer: placing an order, and calling off
+  one nobody has answered yet — which the exchange reads as a fact rather than resolving as a
+  conflict
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:
 
-- **Order exchange** — the same machine client carrying orders back to the source system
-- **Card payment** — online card payment offered after an order is accepted
+- **Storefront presentation** (iteration 15) — links to the shop's other presences in the footer,
+  a small mark identifying a category wherever it appears as a chip, a category description that
+  introduces its listing and tells a crawler what the page is, a featured row on the main page,
+  search suggestions that carry a picture and the viewer's own price and that offer matching
+  categories as well as products, a payment-and-delivery page stating the zones, pickup points and
+  payment methods checkout actually offers, and admin counts that read a category's whole subtree
+  as the storefront does
+- **Card payment** — online card payment offered after an order is accepted. Unscheduled: it
+  needs a merchant account the shop does not have and a live order flow to be designed against,
+  and a card payment arranged with the manager is already a recorded method in the meantime
 
 ## Documentation
 
@@ -115,12 +137,17 @@ Planned:
   were taken; each states the alternatives weighed and what the choice costs
 - [`docs/order-lifecycle.md`](docs/order-lifecycle.md),
   [`docs/account-lifecycle.md`](docs/account-lifecycle.md),
-  [`docs/catalog-sync.md`](docs/catalog-sync.md) and
-  [`docs/customer-sync.md`](docs/customer-sync.md) — what an order, an account, an automated
-  catalog feed and the customer exchange actually do, step by step; the tables and journeys are
-  generated from the rules and the end-to-end tests, so they cannot describe anything unchecked
-- [`docs/catalog-machine-api.md`](docs/catalog-machine-api.md) and
-  [`docs/customer-machine-api.md`](docs/customer-machine-api.md) — the wire-level reference for the
+  [`docs/catalog-sync.md`](docs/catalog-sync.md),
+  [`docs/customer-sync.md`](docs/customer-sync.md) and
+  [`docs/order-sync.md`](docs/order-sync.md) — what an order, an account and each of the three
+  automated exchanges actually do, step by step; the tables and journeys are generated from the
+  rules and the end-to-end tests, so they cannot describe anything unchecked
+- [`docs/exchange-areas.md`](docs/exchange-areas.md) — the three exchanges compared in one table:
+  which reads outward, which can be staged, how far ownership reaches into each, and what only
+  one of them does
+- [`docs/catalog-machine-api.md`](docs/catalog-machine-api.md),
+  [`docs/customer-machine-api.md`](docs/customer-machine-api.md) and
+  [`docs/order-machine-api.md`](docs/order-machine-api.md) — the wire-level reference for the
   system on the other end of an exchange: routes, credentials, row fields, refusal codes, and what
   each of them causes
 - [`docs/mail.md`](docs/mail.md) — every message the platform sends, rendered from the deployment's

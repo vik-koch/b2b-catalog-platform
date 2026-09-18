@@ -58,14 +58,14 @@ function whereItStands() {
   const rows = ORDER_STATUSES.map((status) => {
     const staff = allowedTransitions('staff', status);
     const customer = allowedTransitions('customer', status);
-    return `| \`${status}\` | ${list(staff)} | ${list(customer)} | \`${paymentStateWithoutPayment(
-      status,
-      'bank-transfer',
-    )}\` |`;
+    const machine = allowedTransitions('machine', status);
+    return `| \`${status}\` | ${list(staff)} | ${list(customer)} | ${list(
+      machine,
+    )} | \`${paymentStateWithoutPayment(status, 'bank-transfer')}\` |`;
   });
   return [
-    '| Where the order stands | A manager may move it to | The customer may | Invoiced order owes |',
-    '| --- | --- | --- | --- |',
+    '| Where the order stands | A manager may move it to | The customer may | An owning system may report | Invoiced order owes |',
+    '| --- | --- | --- | --- | --- |',
     ...rows,
   ].join('\n');
 }

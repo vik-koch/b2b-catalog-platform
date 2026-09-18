@@ -20,12 +20,26 @@ gallery (`npx nx mail-previews`), and CI fails if either is stale — but the
 prose around them is written by hand, and keeping it true is part of making the
 change.
 
-Requirements: FR-ORD-01…06 (the states, the moves, adjustments, payment,
+Requirements: FR-ORD-01…05 (the states, the moves, adjustments, payment,
 documents), FR-NOTIF-03/05/06 (what gets written to whom), FR-WORK-01 (what a
-customer's own panel flags). Decisions:
-[ADR 0050](adr/0050-order-status-and-payment-state.md),
-[ADR 0051](adr/0051-order-revisions.md),
-[ADR 0052](adr/0052-order-documents-generated-or-supplied.md).
+customer's own panel flags), FR-ADM-10 (an external system doing this work
+instead). Decisions:
+[ADR 0050](adr/0050-order-lifecycle-and-payment-as-separate-facts.md),
+[ADR 0051](adr/0051-an-order-is-a-thread-of-versions.md),
+[ADR 0052](adr/0052-order-documents-generated-or-supplied.md),
+[ADR 0062](adr/0062-an-order-write-back-is-one-version.md).
+
+**Who is doing the moving.** Everything below is written as though a manager
+were at the screen, because that is the ordinary case. Where an external system
+owns order processing ([FR-ADM-10](requirements.md#fr-adm-10)) the moves arrive
+over the exchange instead and staff make none. The states are the same states,
+the reasons are still owed, and the customer reads an identical page — but the
+moves an exchange may make are **not** the same set, because it reports a state
+where a manager takes a step. The table below has a column for each, and the
+paragraphs under it say why they differ. An exchange also answers an order with
+a single instruction covering the move, the change and the money at once, so
+what the panel would file as three versions it files as one: see [the order
+exchange](order-sync.md).
 
 ## Two axes, not one
 
@@ -80,16 +94,39 @@ it goes back to `requested` and is answered again from the start.
 
 <!-- generated:order-states -->
 
-| Where the order stands | A manager may move it to               | The customer may | Invoiced order owes |
-| ---------------------- | -------------------------------------- | ---------------- | ------------------- |
-| `requested`            | `approved` · `declined` · `cancelled`  | `cancelled`      | `not-due`           |
-| `approved`             | `ready` · `requested` · `cancelled`    | —                | `awaiting`          |
-| `ready`                | `completed` · `approved` · `cancelled` | —                | `awaiting`          |
-| `completed`            | `ready` · `requested`                  | —                | `awaiting`          |
-| `declined`             | `requested`                            | —                | `not-due`           |
-| `cancelled`            | `requested`                            | —                | `not-due`           |
+| Where the order stands | A manager may move it to               | The customer may | An owning system may report                                   | Invoiced order owes |
+| ---------------------- | -------------------------------------- | ---------------- | ------------------------------------------------------------- | ------------------- |
+| `requested`            | `approved` · `declined` · `cancelled`  | `cancelled`      | `approved` · `ready` · `completed` · `declined` · `cancelled` | `not-due`           |
+| `approved`             | `ready` · `requested` · `cancelled`    | —                | `ready` · `completed` · `requested` · `cancelled`             | `awaiting`          |
+| `ready`                | `completed` · `approved` · `cancelled` | —                | `completed` · `approved` · `requested` · `cancelled`          | `awaiting`          |
+| `completed`            | `ready` · `requested`                  | —                | `ready` · `approved` · `requested`                            | `awaiting`          |
+| `declined`             | `requested`                            | —                | `requested` · `approved` · `ready` · `completed`              | `not-due`           |
+| `cancelled`            | `requested`                            | —                | `requested` · `approved` · `ready` · `completed`              | `not-due`           |
 
 <!-- /generated:order-states -->
+
+**The owning system's column is wider, and deliberately so** (FR-ADM-08). A
+manager clicks one step at a time because a click _is_ an event and every event
+needs an undo. An exchange polling every few minutes reports a **state**: an
+order accepted and packed between two polls arrives as one fact, and the states
+it passed through in between were never witnessed here. It may therefore name
+any other position on the chain in one instruction, which writes one version.
+The alternative — refusing it — buys nothing, because the history the adapter
+would then replay is one the platform never saw either.
+
+The same reasoning reopens an ending straight to wherever the order actually
+got to. An order refused here, then reopened and accepted over there between
+two polls, is reported `approved`; making it pass through `requested` first
+would file a version saying the shop is still deciding when somebody already
+decided. A manager reopening in the panel _has_ not decided yet, which is why
+that column still reads `requested` alone.
+
+Three limits survive. `declined` is a refusal _before_ acceptance, so an order
+already being worked is stopped with `cancelled`; a `completed` order cannot be
+cancelled, because the goods are gone and what follows is a return in the
+shop's books rather than a state here; and an order **the customer** called off
+is refused before the table is consulted at all, so none of this is a way to
+drive a called-off order forward.
 
 The last column is what an invoiced order owes before anyone records a payment.
 A cash order is never `awaiting`: cash exists at the handover, which is a

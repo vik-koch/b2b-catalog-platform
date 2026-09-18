@@ -3,9 +3,11 @@
 The wire-level reference for whoever writes the system on the other end of the
 customer exchange — an ERP adapter, a converter, a scheduled puller.
 
-It is the companion to [the catalog machine API](catalog-machine-api.md), and
-the counterpart of [the customer exchange](customer-sync.md), which explains
-what the platform does with a run and why. This file says what to send, what
+It is the companion to [the catalog machine API](catalog-machine-api.md) and
+[the order machine API](order-machine-api.md), and the counterpart of [the
+customer exchange](customer-sync.md), which explains what the platform does with
+a run and why. [The comparison](exchange-areas.md) says how the three areas
+differ. This file says what to send, what
 comes back, and what each of those causes. Where the two overlap, the exchange
 document has the reasoning and this one has the shape.
 
@@ -29,13 +31,13 @@ machine token is not accepted anywhere else.
 **Scopes.** Five exist; a token carries one or more, chosen at issue time and
 **not editable afterwards** (rotate by issuing a new token and revoking the old).
 
-| Scope           | Grants                                     |
-| --------------- | ------------------------------------------ |
-| `catalog-sync`  | the product exchange (out of scope here)   |
-| `customer-sync` | writing customer accounts                  |
-| `customer-read` | reading the customer book                  |
-| `order-read`    | reading the order book (out of scope here) |
-| `order-sync`    | answering orders (out of scope here)       |
+| Scope           | Grants                                                       |
+| --------------- | ------------------------------------------------------------ |
+| `catalog-sync`  | the product exchange (out of scope here)                     |
+| `customer-sync` | writing customer accounts                                    |
+| `customer-read` | reading the customer book                                    |
+| `order-read`    | reading the order book ([its own doc](order-machine-api.md)) |
+| `order-sync`    | answering orders ([its own doc](order-machine-api.md))       |
 
 Reading and writing are deliberately separate powers. An adapter being brought
 up can hold `customer-read` for weeks before anybody grants it `customer-sync`.
@@ -53,10 +55,11 @@ held by exactly one side at a time.
 **Base URL.** All paths below are under the API's global prefix: `/api`.
 So the submit route is really `POST https://<host>/api/machine/sync/customers/runs`.
 
-**There is no machine route that reads a run back.** The submit response is
-the whole of what a client learns about its own run; the run log belongs to
-staff (`/api/admin/sync/runs`, session-authenticated). Keep the `run.id` for
-your own trail, but do not plan to poll it.
+**A run can be read back, one route only** (§3.7): `GET /api/machine/sync/customers/runs/{id}`,
+scoped to the area your token may write. Keep the `run.id` you are given — it
+is the only handle you get. The run _log_ is still staff's
+(`/api/admin/sync/runs`, session-authenticated); there is no machine listing,
+so poll the run you know about and nothing else.
 
 **Rate limit.** 60 requests per minute per client IP across the machine routes.
 A puller paging the customer book at 200 rows a page should stay well inside it;
