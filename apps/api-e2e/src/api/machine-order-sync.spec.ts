@@ -40,6 +40,7 @@ interface WriteResult {
   paymentState: string;
   revisionNumber: number;
   notified: boolean;
+  noteIgnored: boolean;
 }
 interface RowError {
   row: number;
@@ -479,6 +480,256 @@ describe('Order write-back (FR-ADM-08)', () => {
 
         expect((res.data as RunResponse).plan.rowErrors[0]).toMatchObject({
           code: 'order-called-off',
+        });
+        // And the read says which cancellation it was, so an adapter does not
+        // have to find out by being refused.
+        expect((await readOrder(reference)).data).toMatchObject({
+          cancelledBy: 'customer',
+        });
+      });
+
+      /** The machine row of the transition table, where it actually matters:
+       * an order accepted and packed between two polls is one report. */
+      it('takes an order straight to where the owning system says it is', async () => {
+        const reference = await place();
+
+        const res = await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 1, status: 'ready' }),
+          ],
+        });
+
+        const body = res.data as RunResponse;
+        expect(body.plan.rowErrors).toEqual([]);
+        expect(body.plan.orders[0]).toMatchObject({
+          kind: 'transition',
+          status: 'ready',
+          // One report, one version — not one per state it passed through.
+          revisionNumber: 2,
+        });
+        expect(await revisionOf(reference)).toMatchObject({
+          status: 'ready',
+          revisionNumber: 2,
+        });
+      });
+
+      /** Declining is a refusal *before* acceptance, so an order being worked
+       * is stopped with `cancelled` and not with this. */
+      it('refuses to decline an order that is already being worked', async () => {
+        const reference = await place();
+        await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 1, status: 'approved' }),
+          ],
+        });
+
+        const res = await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 2,
+              status: 'declined',
+              statusReason: 'Out of stock until March.',
+            }),
+          ],
+        });
+
+        expect((res.data as RunResponse).plan.rowErrors[0]).toMatchObject({
+          code: 'transition-not-allowed',
+        });
+      });
+
+      /**
+       * The other half of `order-called-off`. While the area is owned the
+       * panel refuses every move, so an order the exchange cancelled by
+       * mistake would be stuck for good if this were refused too.
+       */
+      it('reopens an order it cancelled itself', async () => {
+        const reference = await place();
+        const off = await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 1,
+              status: 'cancelled',
+              statusReason: 'Duplicate of 2026-000430.',
+            }),
+          ],
+        });
+        expect((off.data as RunResponse).plan.rowErrors).toEqual([]);
+        const cancelled = await readOrder(reference);
+        expect(cancelled.data).toMatchObject({
+          status: 'cancelled',
+          cancelledBy: 'shop',
+        });
+
+        const back = await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 2, status: 'requested' }),
+          ],
+        });
+
+        expect((back.data as RunResponse).plan.rowErrors).toEqual([]);
+        expect(await revisionOf(reference)).toMatchObject({
+          status: 'requested',
+          revisionNumber: 3,
+        });
+      });
+
+      /**
+       * A note rides on a version, so the answers that write none have to say
+       * the note went nowhere — by what the instruction *did*, never by which
+       * fields it named. Reported and not refused: a source re-sending its
+       * whole snapshot carries the same note every cycle.
+       */
+      it('says when a note was dropped, and when it was carried', async () => {
+        const reference = await place();
+        const first = instruction({
+          reference,
+          basedOnRevision: 1,
+          status: 'approved',
+          note: 'Half now, half in March.',
+        });
+
+        // Carried: this instruction writes a version.
+        const applied = await write({ orders: [first] });
+        expect((applied.data as RunResponse).plan.orders[0]).toMatchObject({
+          kind: 'transition',
+          noteIgnored: false,
+        });
+
+        // Dropped, but not refused: the same snapshot again changes nothing,
+        // and its note was delivered by the version above.
+        const again = await write({
+          orders: [{ ...first, basedOnRevision: 2 }],
+        });
+        const body = again.data as RunResponse;
+        expect(body.plan.rowErrors).toEqual([]);
+        expect(body.plan.orders[0]).toMatchObject({
+          kind: 'unchanged',
+          revisionNumber: 2,
+          noteIgnored: true,
+        });
+      });
+
+      /** The case a field-presence rule would have got wrong in both
+       * directions: money writes no version, so a note beside it is dropped
+       * even though `paid` was named. */
+      it('drops a note sent beside a payment, and says so', async () => {
+        const reference = await place();
+        await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 1, status: 'approved' }),
+          ],
+        });
+
+        const res = await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 2,
+              paid: true,
+              note: 'Paid by transfer, ref 88120.',
+            }),
+          ],
+        });
+
+        expect((res.data as RunResponse).plan.orders[0]).toMatchObject({
+          kind: 'payment',
+          paymentState: 'paid',
+          // Recording money writes no version — and the revision does not move,
+          // which is why a payment retry is idempotent rather than refused.
+          revisionNumber: 2,
+          noteIgnored: true,
+        });
+      });
+
+      /** The other half of the skipped-transition change: the payment axis has
+       * to land where the *state* says, not where the move says. */
+      it('makes an invoiced order due when the move skipped acceptance', async () => {
+        const reference = await place();
+
+        const res = await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 1, status: 'completed' }),
+          ],
+        });
+
+        expect((res.data as RunResponse).plan.orders[0]).toMatchObject({
+          status: 'completed',
+          // Never approved by a transition, but an invoiced order that has been
+          // handed over is owed money all the same.
+          paymentState: 'awaiting',
+        });
+      });
+
+      /**
+       * A recorded payment is an observation about the world, not a figure
+       * derived from where the order stands: walking a mistaken completion
+       * back must not un-receive the money.
+       */
+      it('keeps a recorded payment through a backward correction', async () => {
+        const reference = await place();
+        await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 1,
+              status: 'completed',
+              paid: true,
+            }),
+          ],
+        });
+        expect((await readOrder(reference)).data).toMatchObject({
+          status: 'completed',
+          paymentState: 'paid',
+        });
+
+        // Completed by mistake — walked back, with the money left alone.
+        const back = await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 2, status: 'approved' }),
+          ],
+        });
+
+        expect((back.data as RunResponse).plan.orders[0]).toMatchObject({
+          kind: 'transition',
+          status: 'approved',
+          paymentState: 'paid',
+        });
+        expect((await readOrder(reference)).data).toMatchObject({
+          paymentState: 'paid',
+        });
+      });
+
+      /** Reopening straight to where the order actually got to over there. */
+      it('reopens a refused order to the state it reached elsewhere', async () => {
+        const reference = await place();
+        await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 1,
+              status: 'declined',
+              statusReason: 'Out of stock until March.',
+            }),
+          ],
+        });
+
+        const back = await write({
+          orders: [
+            instruction({ reference, basedOnRevision: 2, status: 'approved' }),
+          ],
+        });
+
+        expect((back.data as RunResponse).plan.rowErrors).toEqual([]);
+        const order = (await readOrder(reference)).data;
+        expect(order).toMatchObject({
+          status: 'approved',
+          // The refusal's reason belonged to the refusal, and goes with it.
+          statusReason: null,
+          cancelledBy: null,
+          paymentState: 'awaiting',
         });
       });
 

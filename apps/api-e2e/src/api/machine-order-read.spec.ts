@@ -64,6 +64,7 @@ const ORDER_KEYS = [
   'status',
   'statusChangedAt',
   'statusReason',
+  'cancelledBy',
   'tierKey',
   'totalMinor',
   'updatedAt',
@@ -86,6 +87,7 @@ interface MachineOrder {
   revisionNumber: number;
   customer: { accountId: string; sourceId: string | null } | null;
   tierKey: string | null;
+  cancelledBy: 'customer' | 'shop' | null;
   paidAt: string | null;
   updatedAt: string;
   lines: { productSourceId: string }[];
@@ -461,7 +463,16 @@ describe('Outbound order read (FR-ADM-08)', () => {
       expect(order.status).toBe('cancelled');
       expect(order).toMatchObject({
         statusReason: 'Ordered twice by mistake',
+        // The distinction a write-back turns on: this one is protected from
+        // every writer, and the shop's own cancellation is not.
+        cancelledBy: 'customer',
       });
+    });
+
+    /** Every other order says nothing, including a refused one: a decline is
+     * always the shop's, and `statusReason` is the whole of what to read. */
+    it('says nothing about who cancelled an order nobody cancelled', async () => {
+      expect((await found(accountReference)).cancelledBy).toBeNull();
     });
   });
 

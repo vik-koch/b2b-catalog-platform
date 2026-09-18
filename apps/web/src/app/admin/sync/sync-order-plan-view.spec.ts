@@ -38,6 +38,7 @@ const answered = (over: Partial<OrderWriteResult> = {}): OrderWriteResult => ({
   paymentState: 'awaiting',
   revisionNumber: 2,
   notified: false,
+  noteIgnored: false,
   ...over,
 });
 

@@ -204,6 +204,21 @@ const notFound = () =>
     message: 'Order not found',
   });
 
+/**
+ * Whether a cancelled order was called off by the customer themselves, rather
+ * than stopped by the shop or by the system that owns order processing.
+ *
+ * The one distinction the write-back turns on (FR-ADM-08, FR-ADM-10): a
+ * customer's cancellation is protected from every writer, and the shop's own
+ * is a decision the shop may take back. Read off who wrote the version — the
+ * customer's own account for their cancellation, a manager's for the shop's,
+ * and nobody's for one written in from outside, where `source` names the
+ * system instead.
+ */
+function cancelledByCustomer(row: OrderRow): boolean {
+  return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId;
+}
+
 /** Two people writing one order at once. Whichever of the two guards catches
  * it — the version number or the pointer — the loser is told the same thing. */
 const orderMovedOn = () =>
@@ -1558,7 +1573,13 @@ export class OrdersService {
         current: current.revisionNumber,
       });
     }
-    if (current.status === 'cancelled') {
+    // Only the *customer's* cancellation stops the exchange. An order the
+    // owning system called off is its own work, and while the area is owned
+    // the panel refuses every move — so refusing this one too would leave an
+    // order cancelled by mistake with nobody at all able to reopen it. Read
+    // off the version the order stands on, which for a cancelled order is the
+    // one that cancelled it: nothing moves an order without writing a version.
+    if (current.status === 'cancelled' && cancelledByCustomer(current)) {
       throw new ConflictException({
         code: 'order-called-off',
         message: 'The customer called this order off',
@@ -1568,13 +1589,16 @@ export class OrdersService {
     const from = current.status as OrderStatus;
     const to = input.status ?? from;
     const moved = to !== from;
-    if (moved && !canTransition('staff', from, to)) {
+    // As `machine` and not as staff: an exchange reports where the order *is*,
+    // and the states it passed through between two polls were never witnessed
+    // here (see `order-transitions.ts`).
+    if (moved && !canTransition('machine', from, to)) {
       throw new ConflictException({
         code: 'transition-not-allowed',
         message: `The order cannot go from ${from} to ${to}`,
       });
     }
-    if (moved && transitionNeedsReason(to, 'staff') && !input.statusReason) {
+    if (moved && transitionNeedsReason(to, 'machine') && !input.statusReason) {
       throw new BadRequestException({
         code: 'reason-required',
         message: 'Say why, so the customer can be told',
@@ -1603,9 +1627,21 @@ export class OrdersService {
       written !== null &&
       !(await this.saysTheSame(current, snapshot, written.lines));
 
+    // A note rides on a version. These two answers write none — the first
+    // wrote nothing at all, the second recorded money, which is a fact about
+    // the order rather than a reading of it — so a note on either went
+    // nowhere and the result has to say so (`noteIgnored`).
+    //
+    // Said rather than refused, and decided by what the instruction did rather
+    // than by which fields it named. A source re-sending its whole snapshot
+    // every cycle would be refused forever for carrying a note it already
+    // delivered; a source that meant to say something new would be told
+    // `unchanged` and left believing the customer heard it.
+    const droppedNote = Boolean(input.note);
+
     if (!moved && !changed && !paying && !unpaying) {
       // The ordinary answer to a source that cannot remember what it sent.
-      return this.writeResult(current, 'unchanged', false);
+      return this.writeResult(current, 'unchanged', false, droppedNote);
     }
 
     // The money on its own is not a version. Recorded through the one writer
@@ -1613,7 +1649,7 @@ export class OrdersService {
     if (!moved && !changed) {
       await this.setPayment(input.reference, input.paid as boolean, null);
       const after = await this.row(eq(orders.reference, input.reference));
-      return this.writeResult(after, 'payment', false);
+      return this.writeResult(after, 'payment', false, droppedNote);
     }
 
     // Read before the write, because the write is what changes the answer:
@@ -1677,6 +1713,7 @@ export class OrdersService {
     row: OrderRow,
     kind: OrderWriteResult['kind'],
     notified: boolean,
+    noteIgnored = false,
   ): OrderWriteResult {
     return {
       reference: row.reference,
@@ -1685,6 +1722,7 @@ export class OrdersService {
       paymentState: row.paymentState as PaymentState,
       revisionNumber: row.revisionNumber,
       notified,
+      noteIgnored,
     };
   }
 

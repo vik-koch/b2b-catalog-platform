@@ -174,6 +174,12 @@ function orderRows(
       accountSourceId: users.sourceId,
       revisionId: orderRevisions.id,
       revisionNumber: orderRevisions.revisionNumber,
+      // Who wrote the version the order stands on. Only ever read to tell a
+      // customer's own cancellation from the shop's — for a cancelled order
+      // this *is* the version that cancelled it, since nothing moves an order
+      // without writing one.
+      revisionCreatedBy: orderRevisions.createdBy,
+      userId: orders.userId,
       note: orderRevisions.note,
       statusReason: orderRevisions.statusReason,
       contactName: orderRevisions.contactName,
@@ -213,6 +219,21 @@ function orderRows(
 }
 
 type OrderRow = Awaited<ReturnType<typeof orderRows>>[number];
+
+/**
+ * Whose cancellation this was — the one fact a write-back turns on and the
+ * only one a reader cannot derive from the order itself.
+ *
+ * The customer's own account wrote their cancellation; a manager's wrote the
+ * shop's; and a version written in from outside names nobody at all, because
+ * the person acted in another system (`order_revisions.source` carries their
+ * label). All but the first are the shop stopping the order.
+ */
+function cancelledBy(row: OrderRow): 'customer' | 'shop' {
+  return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId
+    ? 'customer'
+    : 'shop';
+}
 
 /**
  * One order as the outside is owed it.
@@ -269,6 +290,7 @@ function toRecord(row: OrderRow, lines: MachineOrderLine[]): MachineOrder {
     preferredDate: row.preferredDate,
     customerNote: row.customerNote,
     statusReason: row.statusReason,
+    cancelledBy: row.status === 'cancelled' ? cancelledBy(row) : null,
     note: row.note,
     tierKey: row.tierKey,
     lines,

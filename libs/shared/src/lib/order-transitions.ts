@@ -1,5 +1,4 @@
 import {
-  ACCEPTED_ORDER_STATUSES,
   ENDED_ORDER_STATUSES,
   ORDER_STATUSES,
   PAYMENT_METHODS,
@@ -30,8 +29,15 @@ type PaymentStateName = (typeof PAYMENT_STATES)[number];
  * order; both staff roles answer orders alike, so a manager and an admin are
  * one actor here. A guest holds a read link, which is not an actor at all: the
  * token opens the summary and moves nothing.
+ *
+ * `machine` is an owning system writing back what has become of an order it
+ * was handed (FR-ADM-08). It is a third actor rather than a second name for
+ * staff because it answers a different question. A manager clicks one step at
+ * a time and each click *is* an event; an exchange polls every few minutes and
+ * reports a **state**, so an order accepted and packed between two polls
+ * arrives as one fact. See the table below for what follows from that.
  */
-export type OrderActor = 'customer' | 'staff';
+export type OrderActor = 'customer' | 'staff' | 'machine';
 
 const NONE: readonly OrderStatusName[] = [];
 
@@ -79,6 +85,44 @@ const TRANSITIONS: Record<
     declined: NONE,
     cancelled: NONE,
   },
+  /**
+   * An owning system reports where an order **is**, so it may name any other
+   * position on the chain in one move — `requested` straight to `ready` for an
+   * order accepted and packed between two polls.
+   *
+   * Staff's one-step rule exists because a click is an event and every event
+   * needs an undo. A poll is not a sequence of events: the states an order
+   * passed through between two of them were never witnessed here, and the
+   * alternative to this row is every adapter keeping an event queue in order
+   * to replay a history the platform would be inventing either way. One report
+   * becomes one version, landing where the order actually is.
+   *
+   * **An ending reopens to anywhere on the chain**, for the same reason. An
+   * order refused here, then reopened and accepted in the other system between
+   * two polls, comes back as `approved`; forcing it through `requested` first
+   * would file a version saying the shop is deciding, which is a state nobody
+   * was ever in. Staff reopen to `requested` alone because a manager clicking
+   * "reopen" has not yet answered it — the exchange is reporting that somebody
+   * over there already did.
+   *
+   * Two limits stay. `declined` is a refusal *before* acceptance, so it is
+   * reachable only from `requested` — an order already being worked is stopped
+   * by `cancelled`, which is reachable from anywhere on the chain. And a
+   * `completed` order cannot be cancelled: the goods are gone, and whatever
+   * happens next is a return in the shop's own books rather than a state here.
+   *
+   * What none of this reaches is a cancellation the **customer** made. That is
+   * refused before this table is consulted, so widening these rows never hands
+   * the exchange a way to drive a called-off order forward.
+   */
+  machine: {
+    requested: ['approved', 'ready', 'completed', 'declined', 'cancelled'],
+    approved: ['ready', 'completed', 'requested', 'cancelled'],
+    ready: ['completed', 'approved', 'requested', 'cancelled'],
+    completed: ['ready', 'approved', 'requested'],
+    declined: ['requested', 'approved', 'ready', 'completed'],
+    cancelled: ['requested', 'approved', 'ready', 'completed'],
+  },
 };
 
 /** What this actor may move this order to, in the order it is offered. */
@@ -115,12 +159,16 @@ export function transitionHasReason(to: OrderStatusName): boolean {
  * useful — somebody may already be packing it — but asking for it is a
  * courtesy asked, not a condition imposed, and a required field there is a
  * customer stuck on their own cancel button.
+ *
+ * An owning system is the shop here, so it owes the same answer: an order
+ * declined or called off by the back office reaches the customer as a refusal,
+ * and one without a reason is a refusal nobody can act on.
  */
 export function transitionNeedsReason(
   to: OrderStatusName,
   actor: OrderActor,
 ): boolean {
-  return actor === 'staff' && transitionHasReason(to);
+  return actor !== 'customer' && transitionHasReason(to);
 }
 
 /**
@@ -214,17 +262,22 @@ export function nextPaymentState(
   method: PaymentMethodName,
   to: OrderStatusName,
 ): PaymentStateName {
-  const dueOnAcceptance = (
-    PAYMENT_METHODS_DUE_ON_ACCEPTANCE as readonly PaymentMethodName[]
-  ).includes(method);
-  const accepted = (
-    ACCEPTED_ORDER_STATUSES as readonly OrderStatusName[]
-  ).includes(to);
   const ended = (ENDED_ORDER_STATUSES as readonly OrderStatusName[]).includes(
     to,
   );
 
-  if (state === 'not-due' && accepted && dueOnAcceptance) return 'awaiting';
+  // What the state the order *lands in* owes, asked of the one function that
+  // answers that — rather than asked of the move. A move may now skip states
+  // (see the `machine` row above), so "did this transition accept the order"
+  // is the wrong question: an order taken straight from `requested` to
+  // `completed` passed through acceptance without a transition saying so, and
+  // an invoiced one owes money all the same.
+  if (
+    state === 'not-due' &&
+    paymentStateWithoutPayment(to, method) === 'awaiting'
+  ) {
+    return 'awaiting';
+  }
   if (state === 'awaiting' && ended) return 'not-due';
   return state;
 }

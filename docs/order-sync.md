@@ -107,6 +107,11 @@ driving it forward over the top. The alternative is a cancellation that
 silently never happened, and a customer watching an order ship after they
 stopped it.
 
+Only **theirs** is protected that way. A cancellation the shop or the owning
+system made is that side's own decision and may be taken back — the read says
+which it was, and the exchange has to be able to reopen its own, because while
+the area is owned the panel cannot move anything at all.
+
 ## What the exchange cannot do
 
 **Write a version that is not an answer about the order.** What the customer
@@ -115,12 +120,15 @@ is theirs, exactly as it is when a manager adjusts an order. A write-back may
 change what the order contains and what it costs; everything else on it came
 _from_ here and is the customer's own answer to the shop's checkout.
 
-**Move an order somewhere a manager could not.** The transition table is the
-same one ([FR-ORD-01](requirements.md#fr-ord-01),
-[FR-ORD-02](requirements.md#fr-ord-02)): a move it does not allow is refused
-whoever asks. The platform's states stay the coarse set, and however many steps
-an order passes through in the other system, the customer reads the one that
-concerns them.
+**Invent a history.** The platform's states stay the coarse set, and however
+many steps an order passes through in the other system, the customer reads the
+ones that concern them ([FR-ORD-01](requirements.md#fr-ord-01),
+[FR-ORD-02](requirements.md#fr-ord-02)). An exchange reports where the order
+**is**: one report, one version, landing where it actually stands. It may
+therefore skip states a manager would have clicked through — an order accepted
+and packed between two polls is one fact — but it cannot manufacture the steps
+in between, and the moves that never made sense still do not: an order being
+worked is stopped rather than refused, and a completed one is not cancelled.
 
 **Act as a person.** A version an exchange writes is authored by the
 integration. Where the other system knows who acted, that name travels as an

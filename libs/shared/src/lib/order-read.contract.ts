@@ -142,6 +142,18 @@ export const machineOrderSchema = z
     /** Why it was declined or called off (FR-ORD-02), null on every other
      * status. */
     statusReason: z.string().nullable(),
+    /**
+     * Who called it off, null unless the order is `cancelled`.
+     *
+     * The one thing an adapter cannot work out for itself and must not guess.
+     * `customer` is the account cancelling their own order, which they may do
+     * however the area is owned (FR-ADM-10) and which no writer may drive
+     * forward over the top. `shop` is the back office stopping it — including
+     * an owning system's own cancellation, which is that system's work and its
+     * to take back. A declined order says null: a refusal is always the
+     * shop's, and `statusReason` is the whole of what there is to read.
+     */
+    cancelledBy: z.enum(['customer', 'shop']).nullable(),
     /** What the shop said about this version, where it was written to say
      * anything — null on a submission and on a plain move. */
     note: z.string().nullable(),

@@ -37,7 +37,7 @@ This document is the map. Each area's own documents are the territory:
 | **What identifies a record**                       | `sourceId`, the source system's own key                                                                         | `sourceId`, or a claim by email or by the platform's account id (FR-ADM-17) | `reference`, which **this** platform issued                                                  |
 | **Concurrency**                                    | last run wins; a staged run is superseded by a fresher one                                                      | same                                                                        | `basedOnRevision` per instruction — a stale one is refused                                   |
 | **What one submission carries**                    | the whole catalog                                                                                               | a set of account rows                                                       | a set of per-order instructions                                                              |
-| **Body limit / cap**                               | 10 MB, 50 000 rows                                                                                              | 10 MB, 50 000 rows                                                          | 10 MB, 50 000 instructions                                                                   |
+| **Body limit / cap**                               | 10 MB, 50 000 rows                                                                                              | 10 MB, 50 000 rows                                                          | 10 MB, **2 000** instructions — the cap is what a run can answer for, one result per order   |
 | **Per-row refusals**                               | yes, never fail the run                                                                                         | yes                                                                         | yes                                                                                          |
 | **Run read-back**                                  | `GET /machine/sync/runs/{id}`                                                                                   | `…/customers/runs/{id}`                                                     | `…/orders/runs/{id}`                                                                         |
 | **Failure report**                                 | `POST /machine/sync/failures`                                                                                   | `…/customers/failures`                                                      | `…/orders/failures`                                                                          |
@@ -97,9 +97,12 @@ customer.
   whether a person may use the shop.
 
 For an adapter, both are facts to read rather than conflicts to resolve. An
-instruction arriving for a cancelled order is refused with `order-called-off`
-rather than driving it forward; the alternative is a cancellation that
-silently never happened.
+instruction arriving for an order **the customer** cancelled is refused with
+`order-called-off` rather than driving it forward; the alternative is a
+cancellation that silently never happened. A cancellation the shop or the
+owning system made is not protected that way — the read says which it was
+(`cancelledBy`), and the owning system may reopen its own, which it has to be
+able to do because while it owns the area nobody in the panel can.
 
 ### 4. Only orders refuse staging
 
