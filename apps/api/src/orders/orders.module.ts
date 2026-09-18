@@ -88,5 +88,9 @@ import { OrdersService } from './orders.service';
     // one of its own (FR-ORD-05).
     { provide: PDF_FONT, useFactory: loadPdfFont },
   ],
+  // The order exchange writes orders back through this same service
+  // (FR-ADM-08): one writer, so an exchange and a manager leave the same
+  // thread behind them.
+  exports: [OrdersService],
 })
 export class OrdersModule {}

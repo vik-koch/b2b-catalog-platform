@@ -23,6 +23,9 @@ import {
   OrderRevisionKind,
   OrderStatus,
   OrderSubmission,
+  OrderSyncLine,
+  OrderWrite,
+  OrderWriteResult,
   OrderSummary,
   OrderTransition,
   Pagination,
@@ -1517,6 +1520,290 @@ export class OrdersService {
   }
 
   /**
+   * An owning system answering an order (FR-ADM-08).
+   *
+   * The admin panel's three buttons in one instruction, and deliberately so:
+   * an order that was accepted, re-priced and paid between two polls is one
+   * thing that happened to it. Three calls would write three versions, ask the
+   * customer's mail question three times, and leave the thread describing a
+   * conversation nobody had.
+   *
+   * So this writes **at most one version** (ADR 0062). At most, because an
+   * instruction that says what the order already says writes none at all
+   * (FR-ADM-16) — a polling source re-sends, and a re-send must not lengthen
+   * the thread — and because recording the money on its own writes none
+   * either: what has been received is a fact about the order rather than a
+   * reading of it, exactly as it is when a manager ticks the box.
+   *
+   * Two things it will not do, both from FR-ADM-10's carve-out. An order the
+   * customer called off is refused rather than driven forward over the top:
+   * they may still do that however the area is owned, and the alternative is a
+   * cancellation that silently never happened. And what the customer wrote in
+   * their own words — their note, their line notes, the day they asked for, the
+   * unit they read each line in — is carried across untouched, as it is when a
+   * manager adjusts an order.
+   */
+  async writeBack(
+    input: OrderWrite,
+    source: string,
+  ): Promise<OrderWriteResult> {
+    const current = await this.row(eq(orders.reference, input.reference));
+    // The version the source answered. Restated here rather than only in the
+    // write, so a stale instruction is told what it is instead of losing a
+    // race it did not know it was in.
+    if (current.revisionNumber !== input.basedOnRevision) {
+      throw new ConflictException({
+        code: 'order-changed',
+        message: `The order now stands at version ${current.revisionNumber}`,
+        current: current.revisionNumber,
+      });
+    }
+    if (current.status === 'cancelled') {
+      throw new ConflictException({
+        code: 'order-called-off',
+        message: 'The customer called this order off',
+      });
+    }
+
+    const from = current.status as OrderStatus;
+    const to = input.status ?? from;
+    const moved = to !== from;
+    if (moved && !canTransition('staff', from, to)) {
+      throw new ConflictException({
+        code: 'transition-not-allowed',
+        message: `The order cannot go from ${from} to ${to}`,
+      });
+    }
+    if (moved && transitionNeedsReason(to, 'staff') && !input.statusReason) {
+      throw new BadRequestException({
+        code: 'reason-required',
+        message: 'Say why, so the customer can be told',
+      });
+    }
+
+    const method = current.paymentMethod as PaymentMethod;
+    const paying = input.paid === true && current.paymentState !== 'paid';
+    const unpaying = input.paid === false && current.paymentState === 'paid';
+    // Nothing is owed on an order nobody is filling, so nothing can be
+    // recorded against it — the same refusal a manager's tick meets.
+    if (paying && transitionHasReason(to)) {
+      throw new BadRequestException({
+        code: 'payment-not-recordable',
+        message: 'Nothing is owed on an order that ends here',
+      });
+    }
+
+    const written = input.lines
+      ? await this.writtenBackLines(input.lines, current)
+      : null;
+    const snapshot = written
+      ? this.rewrittenSnapshot(current, written.priced)
+      : this.carriedSnapshot(current);
+    const changed =
+      written !== null &&
+      !(await this.saysTheSame(current, snapshot, written.lines));
+
+    if (!moved && !changed && !paying && !unpaying) {
+      // The ordinary answer to a source that cannot remember what it sent.
+      return this.writeResult(current, 'unchanged', false);
+    }
+
+    // The money on its own is not a version. Recorded through the one writer
+    // that records it, so an exchange and a manager leave the same record.
+    if (!moved && !changed) {
+      await this.setPayment(input.reference, input.paid as boolean, null);
+      const after = await this.row(eq(orders.reference, input.reference));
+      return this.writeResult(after, 'payment', false);
+    }
+
+    // Read before the write, because the write is what changes the answer:
+    // this is where the customer's account of the changes has to start.
+    const notified = await this.customerThread(current.id);
+    await this.appendRevision(current, {
+      // Why this version exists, in the thread's own words. A version that
+      // both moved the order and changed it is filed as the change: that is
+      // the part a reader cannot work out from the status column.
+      kind: changed ? 'adjustment' : 'transition',
+      status: to,
+      // Only the two refusals carry one, and a move that does not carry a
+      // reason clears the one an earlier move left behind.
+      statusReason: transitionHasReason(to)
+        ? (input.statusReason ?? null)
+        : null,
+      note: input.note ?? null,
+      byUserId: null,
+      source,
+      snapshot: written ? snapshot : undefined,
+      lines: written?.lines,
+      paymentState: paying
+        ? 'paid'
+        : unpaying
+          ? paymentStateWithoutPayment(to, method)
+          : moved
+            ? nextPaymentState(current.paymentState as PaymentState, method, to)
+            : paymentStateAfterAdjustment(
+                current.paymentState as PaymentState,
+                to,
+                method,
+              ),
+      movedAt: moved ? new Date() : null,
+      showCustomer: input.showCustomer,
+      notified: input.notify,
+      paid: paying ? { at: new Date(), by: null } : null,
+      unpaid: unpaying,
+    });
+
+    if (input.notify) {
+      await this.mailCustomer(
+        input.reference,
+        notified.number,
+        changed
+          ? 'changed'
+          : moveDirection(from, to) === 'backward'
+            ? 'corrected'
+            : 'moved',
+      );
+    }
+    const after = await this.row(eq(orders.reference, input.reference));
+    return this.writeResult(
+      after,
+      changed ? 'adjustment' : 'transition',
+      input.notify,
+    );
+  }
+
+  /** What the exchange is told it did, read off the order as it now stands. */
+  private writeResult(
+    row: OrderRow,
+    kind: OrderWriteResult['kind'],
+    notified: boolean,
+  ): OrderWriteResult {
+    return {
+      reference: row.reference,
+      kind,
+      status: row.status as OrderStatus,
+      paymentState: row.paymentState as PaymentState,
+      revisionNumber: row.revisionNumber,
+      notified,
+    };
+  }
+
+  /**
+   * The lines an instruction asks for, priced the way a manager's adjustment
+   * is priced.
+   *
+   * The source system names products by the key it delivered them under
+   * (FR-ADM-02), so they are resolved to the catalog here and the pricer beside
+   * the admin screen is reached unchanged — an order priced by a second code
+   * path is an order priced differently from the one a manager would have
+   * written.
+   *
+   * The unit and the line note are read off the line this one replaces rather
+   * than taken from the wire: both are the customer's own reading of their own
+   * order, and neither is the owning system's to rewrite.
+   */
+  private async writtenBackLines(
+    lines: readonly OrderSyncLine[],
+    current: OrderRow,
+  ): Promise<{
+    priced: PricedAdjustment;
+    lines: Omit<typeof orderItems.$inferInsert, 'revisionId'>[];
+  }> {
+    const keys = lines.map((line) => line.productSourceId);
+    const duplicate = keys.find((key, index) => keys.indexOf(key) !== index);
+    if (duplicate) {
+      throw new BadRequestException({
+        code: 'duplicate-product',
+        message: `${duplicate} is on this order twice`,
+        productSourceId: duplicate,
+      });
+    }
+
+    // The whole catalog, hidden and withdrawn included: an order may already
+    // hold a product the storefront stopped offering, and the shop filling one
+    // from something it no longer lists is ordinary work.
+    const rows = await this.db
+      .select({ sourceId: products.sourceId, slug: products.slug })
+      .from(products)
+      .where(inArray(products.sourceId, keys));
+    const slugs = new Map(rows.map((row) => [row.sourceId, row.slug]));
+    const unknown = keys.find((key) => !slugs.has(key));
+    if (unknown) {
+      throw new BadRequestException({
+        code: 'unknown-product',
+        message: `No product carries the key ${unknown}`,
+        productSourceId: unknown,
+      });
+    }
+
+    // What the customer read each line in, kept: a line they bought by the box
+    // still reads in boxes after the shop re-counts it.
+    const carried = new Map(
+      (await this.items(current.revisionId)).map((item) => [
+        item.productSourceId,
+        item,
+      ]),
+    );
+    const priced = await priceAdjustment(
+      this.db,
+      lines.map((line) => {
+        const before = carried.get(line.productSourceId);
+        return {
+          slug: slugs.get(line.productSourceId) as string,
+          pieces: line.pieces,
+          unit: (before?.unit as ProductUnit | undefined) ?? null,
+          note: before?.note ?? null,
+          priceMinor: line.priceMinor,
+        };
+      }),
+      await this.tierId(current.tierKey),
+    );
+    return {
+      priced,
+      lines: priced.lines.map((line, index) => ({
+        sortOrder: index,
+        productId: line.productId,
+        productSourceId: line.sourceId,
+        slug: line.slug,
+        name: line.name,
+        thumbnail: line.thumbnail,
+        unit: line.unit,
+        quantity: line.quantity,
+        pieces: line.pieces,
+        priceMinor: line.priceMinor,
+        lineTotalMinor: line.lineTotalMinor,
+        note: line.note,
+      })),
+    };
+  }
+
+  /**
+   * The order as a write-back leaves it: every snapshot column carried across,
+   * with the two figures the lines decide recomputed.
+   *
+   * Narrower than `adjustedSnapshot` by everything a manager's screen can
+   * touch, and that is the decision rather than an omission. What the owning
+   * system decides is what is being supplied and at what price; the contact,
+   * the party, the addresses and the fulfilment came *from* this platform in
+   * the first place and are the customer's own answers to its checkout, so a
+   * write-back that could overwrite them would be answering for them.
+   */
+  private rewrittenSnapshot(
+    current: OrderRow,
+    priced: PricedAdjustment,
+  ): OrderSnapshot {
+    return {
+      ...this.carriedSnapshot(current),
+      totalMinor: priced.totalMinor,
+      shipmentCartons: priced.shipment.cartons,
+      shipmentVolume: priced.shipment.volume,
+      shipmentWeight: priced.shipment.weight,
+      shipmentApproximate: priced.shipment.approximate,
+      shipmentUncoveredLines: priced.shipment.uncoveredLines,
+    };
+  }
+
+  /**
    * Whether an adjustment would write a version that says exactly what the one
    * before it says.
    *
@@ -1695,8 +1982,13 @@ export class OrdersService {
        */
       notified: boolean;
       /** The money, where it arrived with this version — the handover of a
-       * cash order, recorded with the move that is the handover. */
-      paid: { at: Date; by: string } | null;
+       * cash order, recorded with the move that is the handover. `by` is null
+       * where no person recorded it. */
+      paid: { at: Date; by: string | null } | null;
+      /** A payment recorded in error, taken back with this version. The record
+       * is cleared rather than contradicted: an order that was never paid must
+       * not keep saying when it was. */
+      unpaid?: boolean;
     },
   ): Promise<void> {
     try {
@@ -1737,6 +2029,7 @@ export class OrdersService {
             ...(change.paid
               ? { paidAt: change.paid.at, paidBy: change.paid.by }
               : {}),
+            ...(change.unpaid ? { paidAt: null, paidBy: null } : {}),
             // Only a real move is a move: the line that says when the order
             // last moved must not be restated by a change that left it where
             // it was.
@@ -1867,7 +2160,9 @@ export class OrdersService {
   async setPayment(
     reference: string,
     paid: boolean,
-    byUserId: string,
+    /** Null where an exchange recorded it: `paidBy` names a person, and an
+     * owning system is not one (FR-ADM-08). */
+    byUserId: string | null,
   ): Promise<AdminOrderDetail> {
     const current = await this.row(eq(orders.reference, reference));
     const cleared = paymentStateWithoutPayment(

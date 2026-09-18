@@ -1,4 +1,6 @@
+import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import { machineAuthErrors } from './api-tokens.contract';
 import { CART_LINES_MAX } from './cart-constants';
 import {
   ORDER_ADJUSTMENT_NOTE_MAX,
@@ -6,13 +8,20 @@ import {
   ORDER_WRITE_ACTOR_MAX,
 } from './order-constants';
 import { orderStatusSchema, paymentStateSchema } from './orders.contract';
+import { ownershipErrors } from './ownership-constants';
 import { LINE_PIECES_MAX } from './product-units';
 import {
   SYNC_FAILURE_MESSAGE_MAX_LENGTH,
   SYNC_LABEL_MAX_LENGTH,
   SYNC_MAX_ROWS,
 } from './sync-constants';
-import { syncRunSchema, syncSummarySchema } from './sync-run.contract';
+import {
+  machineRunErrors,
+  machineSyncRunSchema,
+  syncFailureReportSchema,
+  syncRunSchema,
+  syncSummarySchema,
+} from './sync-run.contract';
 
 /**
  * The write-back (FR-ADM-08, second half): what an owning system says has
@@ -292,3 +301,60 @@ export const orderSyncSubmitResponseSchema = z
 export type OrderSyncSubmitResponse = z.infer<
   typeof orderSyncSubmitResponseSchema
 >;
+
+// --- The routes ----------------------------------------------------------
+
+/**
+ * Its own capability (`order-sync`), separate from `order-read` beside it, for
+ * the reason the customer area's two are separate: a system reads orders for
+ * weeks before anybody lets it answer one, and the guard names one capability
+ * per class.
+ */
+const machine = oc.errors({
+  ...machineAuthErrors,
+  // Nobody has handed order processing over, so the shop is answering its own
+  // orders and a second writer is refused. The mirror of the refusal the admin
+  // panel meets while the area *is* owned.
+  'orders-not-externally-owned': ownershipErrors['orders-not-externally-owned'],
+});
+
+/** Reading a run back is ungated, as in every area: a source whose writes are
+ * being refused is precisely the one that needs to be able to look. */
+const machineRead = oc.errors(machineAuthErrors);
+
+export const machineOrderSyncContract = {
+  submitRun: machine
+    .route({
+      method: 'POST',
+      path: '/machine/sync/orders/runs',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Write orders back (machine)',
+    })
+    .input(z.object({ body: orderSyncSubmissionSchema }))
+    .output(orderSyncSubmitResponseSchema),
+
+  /** What became of one order run (FR-ADM-09) — the same answer the other two
+   * areas give, scoped to this one by the capability on the token. */
+  getRun: machineRead
+    .route({
+      method: 'GET',
+      path: '/machine/sync/orders/runs/{id}',
+      inputStructure: 'detailed',
+      summary: 'Read back one order run (machine)',
+    })
+    .errors(machineRunErrors)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ run: machineSyncRunSchema }).strict()),
+
+  reportFailure: machine
+    .route({
+      method: 'POST',
+      path: '/machine/sync/orders/failures',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Record an order run that failed before it began (machine)',
+    })
+    .input(z.object({ body: syncFailureReportSchema }))
+    .output(z.object({ run: syncRunSchema }).strict()),
+};
