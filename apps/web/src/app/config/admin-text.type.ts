@@ -1104,12 +1104,26 @@ export const adminTextSchema = z
         /** One line per capability a token can carry, keyed by the scope
          * itself — a new scope is a new key here, and a missing one is a
          * config that will not load rather than a blank cell. */
+        /**
+         * The two columns the capabilities are laid out in: what a credential
+         * may read out of the shop, and what it may send into it.
+         */
+        scopeKind: z.object({ read: z.string(), submit: z.string() }).strict(),
+        /** The rows: which area of the shop's data a capability is about. */
+        scopeArea: z
+          .object({
+            catalog: z.string(),
+            customers: z.string(),
+            orders: z.string(),
+          })
+          .strict(),
         scopes: z
           .object({
             'catalog-sync': z.string(),
             'customer-sync': z.string(),
             'customer-read': z.string(),
             'order-read': z.string(),
+            'order-sync': z.string(),
           })
           .strict(),
         /** The panel that shows the value. `{name}` substituted at render. */

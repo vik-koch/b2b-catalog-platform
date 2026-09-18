@@ -662,11 +662,21 @@
     "scope": "Allowed to",
     "scopeHint": "A token can only do what it is allowed to here. To change that, revoke it and issue another.",
     "scopeRequired": "Choose at least one thing this token may do.",
+    "scopeKind": {
+      "read": "Read",
+      "submit": "Submit"
+    },
+    "scopeArea": {
+      "catalog": "Catalog",
+      "customers": "Customer accounts",
+      "orders": "Orders"
+    },
     "scopes": {
       "catalog-sync": "Submit catalog imports",
       "customer-sync": "Submit customer updates",
       "customer-read": "Read customer accounts",
-      "order-read": "Read orders"
+      "order-read": "Read orders",
+      "order-sync": "Submit order updates"
     },
     "createdHeading": "“{name}” created",
     "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",

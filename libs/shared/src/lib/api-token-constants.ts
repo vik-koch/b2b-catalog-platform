@@ -25,6 +25,7 @@ export const API_TOKEN_SCOPES = [
   'customer-sync',
   'customer-read',
   'order-read',
+  'order-sync',
 ] as const;
 export type ApiTokenScope = (typeof API_TOKEN_SCOPES)[number];
 

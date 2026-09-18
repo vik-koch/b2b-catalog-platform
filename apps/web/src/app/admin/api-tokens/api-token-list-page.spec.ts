@@ -1,6 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ApiToken, CreatedApiToken } from '@b2b-catalog-platform/shared';
+import {
+  API_TOKEN_SCOPES,
+  ApiToken,
+  CreatedApiToken,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
@@ -91,11 +95,18 @@ async function render(
   };
   const byLabel = (label: string) =>
     el.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
-  /** Ticks one capability in the create form, by the wording beside its box. */
+  /**
+   * Ticks one capability in the create form, by its accessible name.
+   *
+   * The boxes sit in a grid of areas and columns rather than in a list of
+   * labelled rows, so each carries the full sentence as an `aria-label` — the
+   * label a screen reader reads out, which is the one a test should look for
+   * too.
+   */
   const tick = async (label: string) => {
-    const box = [...el.querySelectorAll('label')]
-      .find((option) => option.textContent?.includes(label))
-      ?.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    const box = el.querySelector<HTMLInputElement>(
+      `input[type="checkbox"][aria-label="${label}"]`,
+    );
     if (!box) throw new Error(`no capability “${label}”`);
     box.click();
     await fixture.whenStable();
@@ -168,6 +179,21 @@ describe('ApiTokenListPage', () => {
 
   /** One credential, several capabilities: an operator who runs one client for
    * both feeds ticks both rather than managing two secrets. */
+  it('lays the capabilities out as areas over read and submit', async () => {
+    const { el, click } = await render();
+    await click('button[appButton]');
+
+    // The column headings, and one box per capability that exists — the
+    // catalog's read square is empty, because nothing reads the catalog
+    // outward and a box for it would be a capability nobody can grant.
+    expect(el.textContent).toContain(text.scopeKind.read);
+    expect(el.textContent).toContain(text.scopeKind.submit);
+    expect(el.textContent).toContain(text.scopeArea.orders);
+    expect(el.querySelectorAll('input[type="checkbox"]')).toHaveLength(
+      API_TOKEN_SCOPES.length,
+    );
+  });
+
   it('sends exactly the capabilities that were ticked', async () => {
     const { service, click, type, tick, submit } = await render();
 

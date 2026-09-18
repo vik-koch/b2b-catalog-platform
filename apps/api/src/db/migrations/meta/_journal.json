@@ -267,6 +267,13 @@
       "when": 1789725137162,
       "tag": "0037_sync_area_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1789725140787,
+      "tag": "0038_api_token_order_sync_scope",
+      "breakpoints": true
     }
   ]
 }
