@@ -1,6 +1,6 @@
 # 0056 — Make external ownership an operator switch with an area, not two toggles
 
-**Status:** accepted (amended 2026-09-16) · **Date:** 2026-09-10
+**Status:** accepted (amended 2026-09-16, 2026-09-18) · **Date:** 2026-09-10
 
 ## Context
 
@@ -183,3 +183,27 @@ renamed. Taken:
 - **A key it has is still the exchange's.** Once bound, the category is back
   under the rule above: its name and key are read-only while the catalog is
   owned.
+
+## Amendment — 2026-09-18: order processing is the third area, and the customer keeps their own two acts
+
+The decision above named `orders` as an area and said the switch would close
+"the staff transitions" for it. Building it showed that transitions are not the
+half worth naming: an order is answered by moving it, by changing what it says,
+by recording what arrived against it and by putting a document on it, and a
+system that owns the work owns all four. Taken:
+
+- **The area closes whole**, as customers do — every staff act on an order
+  refused, every reading of one still answered. There is no field list for
+  order processing and there will not be one: an order is a thread of versions
+  (ADR 0051), not a row of columns, and a list would need extending every time
+  a manager gained a button.
+- **The customer's own two acts stay open**: placing an order, and calling off
+  one nobody has answered. They are theirs in the same way their own name is
+  (FR-AUTH-06), and the switch is about who does the shop's work rather than
+  about whether a person may use the shop. An owned area therefore still
+  acquires orders and still loses them — a fact the exchange reads, not a
+  conflict for it to resolve.
+- **The screens say it once and stop offering, rather than offering and
+  refusing.** The order's page keeps its whole reading and loses every control
+  under one note; the adjustment screen draws no form at all, since every field
+  on it is one the save would refuse.
