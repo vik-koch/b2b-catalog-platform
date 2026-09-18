@@ -1,10 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, desc, eq, lt } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { SyncArea, SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
+import {
+  MachineSyncRun,
+  SyncArea,
+  SyncRun,
+  SyncRunStatus,
+} from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { syncRuns } from '../db/schema';
+import { runNotFound } from './sync-run';
 
 /** Staged rows and finished runs are audit data, not archive data. */
 const RUN_RETENTION_DAYS = 90;
@@ -37,6 +43,31 @@ export class SyncRunLog {
       .orderBy(desc(syncRuns.startedAt))
       .limit(1);
     return row?.status ?? null;
+  }
+
+  /**
+   * One run of this area, for the automated source that produced it
+   * (FR-ADM-09).
+   *
+   * Scoped by **area**, never by the token that submitted the run. A source
+   * rotates its credential and is the same source afterwards, so keying this
+   * to the submitter would need a rule about inheriting a predecessor's
+   * history — and the scope on the token already says which area's work this
+   * client does. The cost is that one source can read another's run in the
+   * same area, which is the definition of them sharing an area.
+   *
+   * A run of another area is *missing* rather than refused: telling a catalog
+   * credential that a customer run exists but is not for it is information it
+   * has no use for and no right to.
+   */
+  async findForMachine(id: string, area: SyncArea): Promise<MachineSyncRun> {
+    const [row] = await this.db
+      .select()
+      .from(syncRuns)
+      .where(and(eq(syncRuns.id, id), eq(syncRuns.area, area)))
+      .limit(1);
+    if (!row) throw runNotFound();
+    return toMachineSyncRun(toSyncRun(row));
   }
 
   /**
@@ -105,4 +136,14 @@ export function toSyncRun(row: typeof syncRuns.$inferSelect): SyncRun {
     error: row.error,
     notice: row.notice,
   };
+}
+
+/**
+ * The same run with the person taken out of it. An automated client is owed
+ * what happened to its run, not the address of the admin who discarded it —
+ * and that address would otherwise leave the shop on every poll.
+ */
+export function toMachineSyncRun(run: SyncRun): MachineSyncRun {
+  const { actorEmail: _person, ...rest } = run;
+  return rest;
 }

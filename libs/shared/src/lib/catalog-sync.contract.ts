@@ -11,6 +11,8 @@ import {
 } from './sync-constants';
 import { ownershipErrors } from './ownership-constants';
 import {
+  machineRunErrors,
+  machineSyncRunSchema,
   syncFailureReportSchema,
   syncRunSchema,
   syncSummarySchema,
@@ -396,8 +398,16 @@ const machine = oc.errors({
 });
 
 /**
- * The machine half of the sync surface: submit a catalog, or report that you
- * could not produce one.
+ * A read carries no instruction, so it is not gated on who owns the catalog.
+ * Reading a run back while the shop has taken the catalog into its own hands
+ * is exactly when a source most needs the answer — its last submission is
+ * being refused, and the log is where it finds out that is deliberate.
+ */
+const machineRead = oc.errors(machineAuthErrors);
+
+/**
+ * The machine half of the sync surface: submit a catalog, report that you
+ * could not produce one, or read back what became of a run.
  *
  * There is deliberately no commit route here. An automated client never
  * presses apply — either its run was within the deployment's policy and
@@ -433,4 +443,34 @@ export const machineCatalogSyncContract = {
     })
     .input(z.object({ body: syncFailureReportSchema }))
     .output(z.object({ run: syncRunSchema }).strict()),
+
+  /**
+   * What became of a run (FR-ADM-09).
+   *
+   * The submission's own answer is only ever the first word: a run within the
+   * deployment's policy applied itself and said so, but one outside it was
+   * staged for a person, and what happens next happens without the sender.
+   * Worse, a staged run is *superseded* by the next submission — which is the
+   * right behaviour, since only the freshest diff is worth applying — so a
+   * source polling every quarter of an hour would go on replacing the run
+   * somebody was about to read and never learn why nothing ever landed. This
+   * is how it finds out, and how it knows to stop sending until a person has
+   * answered.
+   *
+   * Scoped to this credential's **area** rather than to the credential that
+   * submitted the run. A token is rotated, and a source that rotated one last
+   * night is the same source this morning: keying the read to the submitter
+   * would need a rule about inheriting history that nothing else here has.
+   * The area is what the scope on the token already means.
+   */
+  getRun: machineRead
+    .route({
+      method: 'GET',
+      path: '/machine/sync/runs/{id}',
+      inputStructure: 'detailed',
+      summary: 'Read back one catalog run (machine)',
+    })
+    .errors(machineRunErrors)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ run: machineSyncRunSchema }).strict()),
 };

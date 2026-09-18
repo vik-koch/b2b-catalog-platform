@@ -7,6 +7,7 @@ import { MachineClient } from '../api-tokens/machine-client';
 import { refusals } from '../orpc/refusals';
 import { MachineThrottle } from '../throttling/throttle-presets';
 import { CatalogSyncService } from './catalog-sync.service';
+import { SyncRunLog } from './sync-run-log';
 
 /**
  * The headless catalog sync (FR-ADM-07): what an automated client reaches with
@@ -19,13 +20,21 @@ import { CatalogSyncService } from './catalog-sync.service';
  * entry points.
  *
  * Notably absent: a commit route. An automated client never applies a run —
- * either the deployment's policy applied it, or an admin will.
+ * either the deployment's policy applied it, or an admin will. Reading one
+ * back is here, though: knowing that a person has yet to answer is not the
+ * same power as answering for them.
  */
 @Machine('catalog-sync')
 @MachineThrottle()
 @Controller()
 export class MachineSyncController {
-  constructor(private readonly service: CatalogSyncService) {}
+  constructor(
+    private readonly service: CatalogSyncService,
+    // The read-back reaches past the importer to the run log itself: what
+    // became of a run is the same question in every area, and routing it
+    // through each area's service would be two copies of one lookup.
+    private readonly runs: SyncRunLog,
+  ) {}
 
   @Implement(machineCatalogSyncContract.submitRun)
   submitRun(@CurrentMachine() machine: MachineClient) {
@@ -54,5 +63,17 @@ export class MachineSyncController {
           name: machine.name,
         }),
       );
+  }
+
+  @Implement(machineCatalogSyncContract.getRun)
+  getRun() {
+    return implement(machineCatalogSyncContract.getRun)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => ({
+        // The area comes from the class's own scope, not from the caller:
+        // there is no request field here that could widen what this token
+        // reaches.
+        run: await this.runs.findForMachine(params.id, 'catalog'),
+      }));
   }
 }

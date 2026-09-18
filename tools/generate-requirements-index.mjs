@@ -50,6 +50,8 @@ for (const s of sections) {
   out.push('');
 }
 
+out.push('');
+
 const from = doc.indexOf(START);
 const to = doc.indexOf('\n---\n', from);
 const next = doc.slice(0, from) + out.join('\n') + doc.slice(to + 1);

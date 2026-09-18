@@ -15,6 +15,8 @@ import {
   SYNC_MAX_ROWS,
 } from './sync-constants';
 import {
+  machineRunErrors,
+  machineSyncRunSchema,
   syncFailureReportSchema,
   syncRunSchema,
   syncSummarySchema,
@@ -387,6 +389,11 @@ const machine = oc.errors({
     ownershipErrors['customers-not-externally-owned'],
 });
 
+/** Reading is ungated, as it is on the catalog's surface: a read carries no
+ * instruction, and a source whose writes are being refused is precisely the
+ * one that needs to be able to look. */
+const machineRead = oc.errors(machineAuthErrors);
+
 /**
  * The machine half of the customer exchange.
  *
@@ -416,6 +423,25 @@ export const machineCustomerSyncContract = {
 
   /** A run that never happened, recorded so a broken exchange looks like
    * something rather than like silence. */
+  /**
+   * What became of a customer run (FR-ADM-09). The catalog's route next door
+   * is the same answer about the same lifecycle; the reason there are two is
+   * the reason there are two submit routes — a machine route names the one
+   * capability it needs, and the guard checks it before a path parameter is
+   * read. A `customer-sync` credential asking about a catalog run is told the
+   * run does not exist, which is true of every run it may see.
+   */
+  getRun: machineRead
+    .route({
+      method: 'GET',
+      path: '/machine/sync/customers/runs/{id}',
+      inputStructure: 'detailed',
+      summary: 'Read back one customer run (machine)',
+    })
+    .errors(machineRunErrors)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ run: machineSyncRunSchema }).strict()),
+
   reportFailure: machine
     .route({
       method: 'POST',

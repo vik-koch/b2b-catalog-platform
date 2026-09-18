@@ -379,6 +379,72 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
     });
   });
 
+  describe('reading a run back (FR-ADM-09)', () => {
+    const readBack = (id: string, bearer = token) =>
+      axios.get(`/machine/sync/runs/${id}`, {
+        headers: bearer ? { Authorization: `Bearer ${bearer}` } : {},
+        validateStatus: () => true,
+      });
+
+    it('tells a source that its staged run was replaced by its own next one', async () => {
+      // The whole reason this route exists: a quarter-hourly feed supersedes
+      // the run somebody was about to read, and without this it would never
+      // find out — it would keep sending into a queue of one.
+      const first = await submit({ rows: [row(11)], requestReview: true });
+      await submit({ rows: [row(12)], requestReview: true });
+
+      const res = await readBack(first.data.run.id);
+
+      expect(res.status).toBe(200);
+      expect(res.data.run).toMatchObject({
+        id: first.data.run.id,
+        status: 'superseded',
+        area: 'catalog',
+        source: 'api',
+        tokenName: TOKEN_NAME,
+      });
+    });
+
+    it('says why a run is waiting, so the source knows to stop sending', async () => {
+      const staged = await submit({ rows: [row(13)], requestReview: true });
+
+      const res = await readBack(staged.data.run.id);
+
+      expect(res.data.run).toMatchObject({
+        status: 'previewed',
+        stagedReason: 'requested',
+      });
+      expect(res.data.run.summary).toMatchObject({ create: 1 });
+    });
+
+    it('names no person, whoever answered the run', async () => {
+      // An adapter is owed what became of its run, not the address of the
+      // admin who decided it.
+      const staged = await submit({ rows: [row(14)], requestReview: true });
+      const discarded = await asAdmin(
+        'post',
+        `/admin/sync/runs/${staged.data.run.id}/discard`,
+      );
+      expect(discarded.data.run.actorEmail).toBe(ADMIN_EMAIL);
+
+      const res = await readBack(staged.data.run.id);
+
+      expect(res.data.run.status).toBe('discarded');
+      expect(res.data.run).not.toHaveProperty('actorEmail');
+    });
+
+    it('answers a run it has never heard of with 404', async () => {
+      const res = await readBack('00000000-0000-4000-8000-000000000000');
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('run-not-found');
+    });
+
+    it('is refused without a credential', async () => {
+      const staged = await submit({ rows: [row(15)], requestReview: true });
+      expect((await readBack(staged.data.run.id, '')).status).toBe(401);
+    });
+  });
+
   describe('a failure the caller reports', () => {
     /** A feed that has stopped working otherwise looks exactly like a feed
      * with nothing to send (NFR-OPS-07). */

@@ -64,6 +64,7 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
   let managerCookie: string;
   let token: string;
   let catalogToken: string;
+  let readToken: string;
 
   const submit = (body: unknown, bearer = token) =>
     axios.post('/machine/sync/customers/runs', body, {
@@ -139,6 +140,15 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
       { headers: { Cookie: adminCookie } },
     );
     catalogToken = catalogOnly.data.token;
+
+    // The read half, so this spec can check that the identifier a claim names
+    // is the one the outward read actually hands out.
+    const readOnly = await axios.post(
+      '/admin/api-tokens',
+      { name: `${TOKEN_NAME} read`, scopes: ['customer-read'] },
+      { headers: { Cookie: adminCookie } },
+    );
+    readToken = readOnly.data.token;
   });
 
   afterAll(async () => {
@@ -478,6 +488,59 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
 
         expect(res.data.run.status).toBe('no-change');
         expect(res.data.plan.summary).toMatchObject({ claimed: 0 });
+      });
+    });
+
+    describe('reading a run back (FR-ADM-09)', () => {
+      const readBack = (id: string, bearer = token) =>
+        axios.get(`/machine/sync/customers/runs/${id}`, {
+          headers: { Authorization: `Bearer ${bearer}` },
+          validateStatus: () => true,
+        });
+
+      it('answers with the run, and with no person on it', async () => {
+        const run = await submit({
+          rows: [{ sourceId: key(70), email: address(70), access: 'enabled' }],
+        });
+
+        const res = await readBack(run.data.run.id);
+
+        expect(res.status).toBe(200);
+        expect(res.data.run).toMatchObject({
+          id: run.data.run.id,
+          area: 'customers',
+          source: 'api',
+          tokenName: TOKEN_NAME,
+        });
+        expect(res.data.run).not.toHaveProperty('actorEmail');
+      });
+
+      /** The scope is the boundary here as it is on the write routes — and a
+       * run of another area is *missing*, not refused: that a customer run
+       * exists is not something a catalog credential is owed. */
+      it('hides a customer run from a catalog credential', async () => {
+        const run = await submit({
+          rows: [{ sourceId: key(71), email: address(71), access: 'enabled' }],
+        });
+
+        const res = await axios.get(`/machine/sync/runs/${run.data.run.id}`, {
+          headers: { Authorization: `Bearer ${catalogToken}` },
+          validateStatus: () => true,
+        });
+
+        expect(res.status).toBe(404);
+        expect(res.data.code).toBe('run-not-found');
+      });
+
+      it('refuses a catalog token on the customer route outright', async () => {
+        const run = await submit({
+          rows: [{ sourceId: key(72), email: address(72), access: 'enabled' }],
+        });
+
+        const res = await readBack(run.data.run.id, catalogToken);
+
+        expect(res.status).toBe(403);
+        expect(res.data.code).toBe('insufficient-scope');
       });
     });
 

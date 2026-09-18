@@ -180,6 +180,29 @@ export const syncRunSchema = z
 export type SyncRun = z.infer<typeof syncRunSchema>;
 
 /**
+ * A run as the automated source that produced it reads it back (FR-ADM-09).
+ *
+ * Everything the admin panel shows, minus `actorEmail`. What an automated
+ * client is owed is what became of its run — applied, still waiting, replaced
+ * by its own next submission — and not the address of the person who decided
+ * it. That field is the one piece of personal data on an otherwise operational
+ * record, it would travel outward on every poll, and nothing over there can
+ * act on it.
+ */
+export const machineSyncRunSchema = syncRunSchema.omit({ actorEmail: true });
+export type MachineSyncRun = z.infer<typeof machineSyncRunSchema>;
+
+/**
+ * Reading a run back has exactly one refusal, and it is the one that says
+ * nothing rather than the one that explains. A run belonging to another area
+ * answers this too: a `catalog-sync` credential learns that customer run 7 is
+ * not its own by being told it does not exist, which is all it is owed.
+ */
+export const machineRunErrors = {
+  'run-not-found': { status: 404 },
+} as const;
+
+/**
  * A breakage the caller wants recorded (NFR-OPS-07). It is not a refusal the
  * platform issued, so it carries no code: it is the automated client's own
  * account of what went wrong, kept verbatim for a person to read, the way a
