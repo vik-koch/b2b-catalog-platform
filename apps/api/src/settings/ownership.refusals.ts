@@ -52,3 +52,30 @@ export const customersNotExternallyOwned = () =>
     message:
       'Customer accounts are not externally owned; automated customer runs are refused',
   });
+
+/**
+ * Order processing, closed the same way the customer area is and for the same
+ * reason: an owning system answers orders, and a platform that also answered
+ * them would answer them differently.
+ *
+ * `detail` names the act, since there are no columns to report here either.
+ * What it never covers is the customer's own side — placing an order, and
+ * calling off one nobody has answered — which stays open however the area is
+ * owned.
+ */
+export const ordersExternallyOwned = (detail?: string) =>
+  new ConflictException({
+    code: 'orders-externally-owned',
+    message: detail
+      ? `Order processing is externally owned; refused: ${detail}`
+      : 'Order processing is externally owned',
+  });
+
+/** The other half of the pair, for the machine route that writes orders back:
+ * the token is good, nobody has handed the area over. */
+export const ordersNotExternallyOwned = () =>
+  new ConflictException({
+    code: 'orders-not-externally-owned',
+    message:
+      'Order processing is not externally owned; automated order writes are refused',
+  });

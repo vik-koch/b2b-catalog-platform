@@ -34,6 +34,8 @@ import {
   OrderDocumentsService,
   ServedDocument,
 } from './order-documents.service';
+import { ordersExternallyOwned } from '../settings/ownership.refusals';
+import { SettingsService } from '../settings/settings.service';
 import { OrderNotifications } from './order-notifications';
 import { OrdersService } from './orders.service';
 
@@ -58,7 +60,20 @@ export class OrderDocumentsController {
     private readonly documents: OrderDocumentsService,
     private readonly notifications: OrderNotifications,
     private readonly audit: AuditLogger,
+    private readonly settings: SettingsService,
   ) {}
+
+  /**
+   * Supplying a file, sending it and taking it back off are acts on the order
+   * like any other, so they close with the rest of them while an external
+   * system owns order processing (FR-ADM-10). Reading stays open — the
+   * document is part of what staff must be able to see.
+   */
+  private refuseIfOwned(action: string): void {
+    if (this.settings.isExternallyOwned('orders')) {
+      throw ordersExternallyOwned(action);
+    }
+  }
 
   /**
    * Staff and the customer who placed it. Which version the summary is drawn
@@ -133,6 +148,7 @@ export class OrderDocumentsController {
     @Body('notify') notify: string | undefined,
   ) {
     const kind = this.kind(kindParam);
+    this.refuseIfOwned('supply a document');
     if (!file) {
       throw new BadRequestException('No file uploaded (field "file")');
     }
@@ -185,6 +201,7 @@ export class OrderDocumentsController {
     @Param('kind') kindParam: string,
   ): Promise<void> {
     const kind = this.kind(kindParam);
+    this.refuseIfOwned('send a document to the customer');
     const order = await this.orders.getForStaff(reference);
     await this.tell(reference, kind, order, user);
   }
@@ -240,6 +257,7 @@ export class OrderDocumentsController {
     @Param('reference') reference: string,
     @Param('kind') kind: string,
   ): Promise<void> {
+    this.refuseIfOwned('take a document off an order');
     await this.orders.getForStaff(reference);
     await this.documents.remove(reference, this.kind(kind));
     this.audit.record('order.document.removed', user, {
