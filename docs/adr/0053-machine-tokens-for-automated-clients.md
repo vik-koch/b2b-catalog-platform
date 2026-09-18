@@ -82,3 +82,25 @@ rotation a deployment event rather than a click.
 - (−) The token value is unrecoverable. A lost one is replaced, not looked up.
 - (−) Scopes are a closed set in code, so a new capability is a release. That is
   the intended trade: a scope is a security boundary, not deployment data.
+
+## Amendment — 2026-09-18: five scopes, and reading is never the same power as writing
+
+The decision above says `catalog-sync` is the only scope the iteration issues.
+Two iterations have added to it, and the set is now closed at five:
+`catalog-sync`, `customer-sync`, `customer-read`, `order-sync`, `order-read`.
+What the additions taught, recorded here rather than left to be inferred from
+the enum:
+
+- **Reading an area out and writing it are separate capabilities**, never one
+  scope with two verbs. An adapter being brought up holds the read for weeks
+  before anybody grants it the write, and an operator has real reason to hand
+  over one and not the other — which is also what NFR-LEGAL-07 means by a
+  transfer being configured rather than assumed.
+- **A capability is not one route.** `order-sync` covers the write-back and the
+  order-document upload beside it: a credential trusted to say an order is
+  confirmed is trusted to say what its invoice looks like, and a sixth scope
+  would be a box to tick for a decision nobody makes separately.
+- **The catalog has no read**, so the grid of areas against directions has a
+  deliberate hole in it. The admin screen draws it as a grid for that reason —
+  an empty cell says "nothing reads this out" where a missing checkbox would
+  say nothing at all.

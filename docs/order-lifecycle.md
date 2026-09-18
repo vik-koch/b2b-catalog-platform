@@ -20,12 +20,25 @@ gallery (`npx nx mail-previews`), and CI fails if either is stale — but the
 prose around them is written by hand, and keeping it true is part of making the
 change.
 
-Requirements: FR-ORD-01…06 (the states, the moves, adjustments, payment,
+Requirements: FR-ORD-01…05 (the states, the moves, adjustments, payment,
 documents), FR-NOTIF-03/05/06 (what gets written to whom), FR-WORK-01 (what a
-customer's own panel flags). Decisions:
-[ADR 0050](adr/0050-order-status-and-payment-state.md),
-[ADR 0051](adr/0051-order-revisions.md),
-[ADR 0052](adr/0052-order-documents-generated-or-supplied.md).
+customer's own panel flags), FR-ADM-10 (an external system doing this work
+instead). Decisions:
+[ADR 0050](adr/0050-order-lifecycle-and-payment-as-separate-facts.md),
+[ADR 0051](adr/0051-an-order-is-a-thread-of-versions.md),
+[ADR 0052](adr/0052-order-documents-generated-or-supplied.md),
+[ADR 0062](adr/0062-an-order-write-back-is-one-version.md).
+
+**Who is doing the moving.** Everything below is written as though a manager
+were at the screen, because that is the ordinary case and the rules are the
+same either way. Where an external system owns order processing
+([FR-ADM-10](requirements.md#fr-adm-10)) the moves arrive over the exchange
+instead and staff make none — but the table is the same table, a move it does
+not allow is refused whoever asks, and the customer reads an identical page.
+The one difference worth knowing here is that an exchange answers an order with
+a single instruction covering the move, the change and the money at once, so
+what the panel would file as three versions it files as one: see [the order
+exchange](order-sync.md).
 
 ## Two axes, not one
 

@@ -561,3 +561,17 @@ Notes:
   freely while making every address match wait for a person. Both are new scope, so neither can
   ride a patch tag; they are held and released with `v1.12.0` rather than earning an interim
   minor of their own.
+- **The order exchange tells the shop two things, not four** (2026-09-18,
+  [FR-NOTIF-09](requirements.md#fr-notif-09) amended). The requirement described an exchange that
+  breaks, recovers, waits for a decision and brings work to somebody's desk. An order run does
+  neither of the last two — it is applied as it arrives or refused instruction by instruction — so
+  the area ships the failure and recovery messages and nothing else. Worth stating in the
+  requirement rather than leaving as an absence: the wording an area uses is a per-area decision
+  already, and "which messages an area has at all" turns out to be one too.
+- **The three exchanges get one document that compares them** (2026-09-18,
+  [`exchange-areas.md`](exchange-areas.md)). Each area already had a narrative document and, from
+  this iteration, a wire-level one — six files that answer "how does this area work" and none that
+  answers "how is this area different from the one I integrated last month". The differences are
+  where an integrator actually goes wrong: only two areas read outward, only the catalog's
+  ownership is partial, only orders can never stage a run, only orders let the sender decide what
+  the customer hears, and only orders are keyed by something this platform issued.

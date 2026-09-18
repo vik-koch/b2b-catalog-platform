@@ -1,7 +1,7 @@
 # The customer exchange
 
-This document is the companion to [the automated catalog feed](catalog-sync.md),
-and exists for the same reason: what happens when an external system writes the
+This document is the companion to [the automated catalog feed](catalog-sync.md)
+and [the order exchange](order-sync.md), and exists for the same reason: what happens when an external system writes the
 shop's customer accounts is spread across a run log, a policy, a work counter,
 a set of mail templates and the sign-in page, none of which says on its own
 what an account holder actually experiences.
@@ -10,7 +10,8 @@ What follows is the logic **as it currently stands**, not the thinking behind
 it. The reasoning lives in the ADRs; the requirements live in
 `requirements.md`. What to actually send over the wire — routes, row fields,
 error codes, what each one causes — is [the customer machine
-API](customer-machine-api.md).
+API](customer-machine-api.md); how the three areas differ from one another is
+[the comparison](exchange-areas.md).
 
 Requirements: FR-ADM-11 (the exchange itself), FR-ADM-12 (a file an operator
 uploads instead), FR-ADM-13 (no credential is ever issued from outside),

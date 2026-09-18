@@ -3,10 +3,12 @@
 The wire-level reference for whoever writes the system on the other end of the
 catalog feed — an ERP adapter, a converter, a scheduled exporter.
 
-It is the companion to [the customer machine API](customer-machine-api.md), and
-the counterpart of [the automated catalog feed](catalog-sync.md), which explains
-what the platform does with a run and why. This file says what to send, what
-comes back, and what each of those causes.
+It is the companion to [the customer machine API](customer-machine-api.md) and
+[the order machine API](order-machine-api.md), and the counterpart of [the
+automated catalog feed](catalog-sync.md), which explains what the platform does
+with a run and why. This file says what to send, what comes back, and what each
+of those causes; [the comparison](exchange-areas.md) says how the three areas
+differ.
 
 Requirements: FR-ADM-02 (the import contract), FR-ADM-07 (the headless feed),
 FR-ADM-06 (what an imported product still needs), FR-ADM-10 (an external system
@@ -31,8 +33,9 @@ is the full account. In short:
 - Base URL `/api`; 60 requests per minute per IP; refusals carry a top-level
   `code` — match on it, never on `message`.
 - `GET /api/machine/token` → `{ name, scopes }` to check the credential at boot.
-- **There is no machine route that reads a run back**, and no outbound read of
-  the catalog at all. The submit response is the whole of what a client learns.
+- A run **can** be read back (§2.7), scoped to the area the token may write.
+  There is no outbound read of the catalog itself, though: the submit response
+  and that one run route are the whole of what a client learns from here.
 
 | Code                           | Status | Meaning                           |
 | ------------------------------ | ------ | --------------------------------- |
