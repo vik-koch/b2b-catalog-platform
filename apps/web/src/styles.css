@@ -354,6 +354,31 @@ a:active .logo-mark {
 }
 
 /*
+ * The footer's links elsewhere (FR-NAV-07), on the logo's argument: a borrowed
+ * mark painted through a mask takes the site's own colours, so a row of marks
+ * from different services reads as one set rather than as a strip of stickers,
+ * and each answers a pointer the way every other control does.
+ *
+ * The file differs per entry, so the url comes from the element rather than
+ * from here — the call site sets `--elsewhere-icon` from the deployment's
+ * config. Same root-relative mount as the logo.
+ */
+.elsewhere-mark {
+  background-color: var(--color-primary);
+  -webkit-mask: var(--elsewhere-icon) no-repeat center / contain;
+  mask: var(--elsewhere-icon) no-repeat center / contain;
+  transition: background-color 150ms;
+}
+
+a:hover .elsewhere-mark {
+  background-color: var(--color-accent);
+}
+
+a:active .elsewhere-mark {
+  background-color: var(--color-primary-deep);
+}
+
+/*
  * Keep whatever the browser scrolls to clear of the phone's bottom bar.
  *
  * The bar is fixed, so it covers the last few rem of the viewport, and

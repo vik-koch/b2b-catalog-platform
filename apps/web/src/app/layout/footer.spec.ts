@@ -70,6 +70,39 @@ describe('Footer', () => {
     expect(el.textContent).toContain(defaultAppText.nav['licenses']);
   });
 
+  // FR-NAV-07. The mark is a mask, so the link's words are what identifies it;
+  // the icon file reaches CSS as a custom property on the span beside them.
+  it('links the places the deployment also exists, in configured order', async () => {
+    const el = await render(false);
+    const configured = defaultDeploymentConfig.elsewhere ?? [];
+    expect(configured.length).toBeGreaterThan(0);
+
+    const links = Array.from(
+      el.querySelectorAll<HTMLAnchorElement>('a[rel="noopener noreferrer"]'),
+    );
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(
+      configured.map((link) => link.url),
+    );
+    expect(links.map((a) => a.textContent?.trim())).toEqual(
+      configured.map((link) => link.label),
+    );
+    expect(
+      links.map((a) =>
+        a
+          .querySelector<HTMLElement>('.elsewhere-mark')
+          ?.style.getPropertyValue('--elsewhere-icon'),
+      ),
+    ).toEqual(configured.map((link) => `url("/${link.icon}")`));
+  });
+
+  it('shows nothing beside the enquiry button when nothing is configured', async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      elsewhere: [],
+    });
+    expect(el.querySelector('.elsewhere-mark')).toBeNull();
+  });
+
   it('omits the license notice link when the deployment drops it', async () => {
     const { pages } = defaultDeploymentConfig;
     const el = await renderWith({

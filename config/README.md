@@ -86,6 +86,7 @@ config/
     logo.svg
     favicon.svg
     favicon.png
+    marktplatz.svg     # optional: one per "elsewhere" entry
     fonts/             # optional: @font-face css + woff2 files
 ```
 
@@ -112,6 +113,27 @@ logo 40px high, so these are not a display size — they are what lets the brows
 keep the logo's space before the file has arrived, instead of letting the search
 field beside it take the width and hand it straight back. Replace the logo with
 one of another shape and these two go with it.
+
+The **places the shop also exists** (FR-NAV-07) bring one icon each, beside the
+logo and on the same terms — a single-colour mark, painted as a mask so the row
+takes the site's own colours rather than reading as a strip of stickers. Each
+entry in `deployment.json` names the file, where it goes and the words that
+stand in for the mark:
+
+```json
+"elsewhere": [
+  {
+    "label": "Marktplatz",
+    "url": "https://marktplatz.example/shops/coffee-kontor",
+    "icon": "marktplatz.svg"
+  }
+]
+```
+
+The list is also the order the footer draws them in, beside the enquiry button;
+leave it out for a deployment that is only here. Draw the marks square — they
+are boxed to the height of the button beside them, so a tall one is scaled down
+rather than given the room.
 
 A deployment that wants its own typeface adds `branding.font` to
 `deployment.json`:

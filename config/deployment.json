@@ -84,6 +84,18 @@
     "phone": "+49 40 1234567",
     "email": "hallo@coffee-kontor.example"
   },
+  "elsewhere": [
+    {
+      "label": "Bohnenpost",
+      "url": "https://bohnenpost.example/coffee-kontor",
+      "icon": "bohnenpost.svg"
+    },
+    {
+      "label": "Marktplatz",
+      "url": "https://marktplatz.example/shops/coffee-kontor",
+      "icon": "marktplatz.svg"
+    }
+  ],
   "phoneInput": {
     "countryCode": "+49",
     "mask": "(###) ###-####"

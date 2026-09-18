@@ -37,7 +37,7 @@ import { ScrollToTop } from './scroll-to-top';
                quiet links plus one filled button reads as one row either way.
                It closes the row on the right, where the eye lands last. -->
           <div
-            class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
+            class="flex flex-col items-start gap-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
           >
             <!-- Stacked on a phone: four quiet links wrapped across two lines
                  are a paragraph, and these are the ones a reader scans for by
@@ -72,7 +72,39 @@ import { ScrollToTop } from './scroll-to-top';
               }
             </nav>
             <div class="flex items-center gap-4">
-              <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+              <!-- The places the shop also exists ride the enquiry button's
+                   line: they are the same kind of thing — a way to reach the
+                   business — and they are squares the height of the button, so
+                   however many a deployment lists, the row keeps its shape.
+                   An empty list leaves the group out entirely. -->
+              <div class="flex flex-wrap items-center gap-4">
+                <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+                @for (link of elsewhere; track link.url) {
+                  <a
+                    [href]="link.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex h-9 w-auto shrink-0 items-center justify-center"
+                  >
+                    <!-- The words come first and are only hidden while the
+                         mark is there to stand in for them: a screen reader
+                         announces them, and a stylesheet that never arrived
+                         leaves them on the page to read. -->
+                    <span class="sr-only">{{ link.label }}</span>
+                    <span
+                      aria-hidden="true"
+                      class="elsewhere-mark block h-6 w-auto"
+                      [style.--elsewhere-icon]="iconUrl(link.icon)"
+                    >
+                      <!-- Invisible img forces the span to auto-size to the exact SVG aspect ratio -->
+                      <img
+                        [src]="link.icon"
+                        class="invisible h-6 w-auto max-w-none block"
+                        alt=""
+                    /></span>
+                  </a>
+                }
+              </div>
               <span class="hidden sm:block"><app-scroll-to-top /></span>
             </div>
           </div>
@@ -96,6 +128,18 @@ export class Footer {
   protected readonly branding = this.config.branding;
   /** Which pages the legal nav links, and in what order. */
   protected readonly legalSlugs = this.config.pages.footerNav;
+  /** Where else the shop is, in the order configured (FR-NAV-07). */
+  protected readonly elsewhere = this.config.elsewhere ?? [];
+
+  /**
+   * The mark is painted through a mask, so the file is a CSS url rather than a
+   * src: the icon sits in the assets mount served from the site root, like the
+   * logo. Quoted, so a file name with a space or a parenthesis stays one
+   * token.
+   */
+  protected iconUrl(icon: string): string {
+    return `url("/${icon}")`;
+  }
 
   /**
    * "© Coffee Kontor 2025–2026" — the end of the range is always the current
