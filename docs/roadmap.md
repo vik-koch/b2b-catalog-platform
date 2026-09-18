@@ -20,7 +20,8 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 12<br>`v1.10.0` | Automated catalog sync from the source system | [FR-ADM-07](requirements.md#fr-adm-07)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-SEC-09](requirements.md#nfr-sec-09),<br>[NFR-OPS-06](requirements.md#nfr-ops-06)/[07](requirements.md#nfr-ops-07) | [FR-ADM-02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[06](requirements.md#fr-adm-06),<br>[FR-AUTH-05](requirements.md#fr-auth-05),<br>[FR-UNIT-04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10),<br>[FR-WORK-02](requirements.md#fr-work-02),<br>[FR-CAT-01](requirements.md#fr-cat-01) |
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
-| 15<br>`v1.13.0` | Online card payment | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
+| 15<br>`v1.13.0` | Storefront presentation: links elsewhere, category marks, the main page, richer search, the conditions page, subtree counts | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[08](requirements.md#fr-cat-08)/[09](requirements.md#fr-cat-09),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07),<br>[FR-ADM-19](requirements.md#fr-adm-19) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02),<br>[FR-ADM-05](requirements.md#fr-adm-05) |
+| later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
 
@@ -334,13 +335,20 @@ Notes:
   half-applied catalog. What iteration 12 adds is making the failure **visible** — a run that
   died in the adapter, before it ever became a run, is recorded as a failed one rather than
   vanishing.
-- Iteration 15 is online card payment, deferred from 11 (2026-09-06) and pushed twice since — by
-  the iteration-12 split and by the 13/14 swap. It is blocked on something that cannot be built: a merchant account the
+- **Online card payment is deferred indefinitely** (2026-09-18). It had held a numbered row since
+  it was deferred from iteration 11 (2026-09-06) and been pushed twice since — by the
+  iteration-12 split and by the 13/14 swap — which is three rounds of moving a row that was never
+  ready. It is blocked on something that cannot be built: a merchant account the
   shop does not yet have. It is also the least urgent of the three — nothing about the current
   flow needs it, since a card payment arranged with the manager is already a recorded method —
   and the most speculative, since the provider is unchosen. Sequencing it after the source-system
-  exchange means it is designed against a live order flow with real orders in it. `card-later` is
-  therefore **not** renamed in iteration 11: it accurately names an offline arrangement, and an
+  exchange means it is designed against a live order flow with real orders in it, and that flow
+  does not exist yet. So it stops being a row with a tag on it and becomes a **gated**
+  one: it is built when the shop is live, has handled real orders through the manager's hands,
+  and somebody has asked to pay by card — at which point the provider is chosen against a real
+  volume rather than a guess, and the fee is weighed against orders that happened. Nothing about
+  the requirement changes, only when it is answered. `card-later` is
+  therefore **not** renamed: it accurately names an offline arrangement, and an
   online provider adds a second method beside it rather than redefining the first. It is offered
   to a private customer only, though: a company is invoiced, and an offline card arrangement
   leaves no more paper than cash does ([FR-CART-04](requirements.md#fr-cart-04) amended 2026-09-08, ADR 0039).
@@ -575,3 +583,80 @@ Notes:
   where an integrator actually goes wrong: only two areas read outward, only the catalog's
   ownership is partial, only orders can never stage a run, only orders let the sender decide what
   the customer hears, and only orders are keyed by something this platform issued.
+- **Iteration 15 is a presentation pass** (2026-09-18), and it is where the roadmap turns back
+  to the storefront. Iterations 12–14 were spent on the machinery behind it: three exchanges, an
+  ownership switch, a machine credential — none of which a customer can see. With the source
+  system able to fill the catalog, the customer book and the order queue, what is left between
+  the shop and a buyer is what the shop looks like. The items collected here were on nobody's
+  list as requirements because each is too small to have earned an iteration of its own; together
+  they are one: **the storefront states what it has, in the places a visitor already looks.**
+  They are also unusually independent — no item blocks another — so the iteration can be cut
+  short at any point without leaving a half-built mechanism, which is the opposite of how the
+  last three were shaped and the reason this one can absorb whatever the go-live turns up.
+- The **footer's links elsewhere** ([FR-NAV-07](requirements.md#fr-nav-07)) are configuration
+  rather than editable content, on the same argument [FR-ADM-03](requirements.md#fr-adm-03) has
+  made since iteration 2: where the chrome links to is the deployment's decision, not a sentence
+  in a page body. What is new is that the deployment now supplies a **picture**. The icon is a
+  file in the assets mount beside the logo and the fonts, not a path string in `deployment.json`
+  — a JSON field holding SVG geometry is a file with the tooling taken away, and a brand mark is
+  rarely one path. Drawing it as a mask rather than an image is what lets it take the site's
+  accent on hover and keeps a set of borrowed marks reading as one row; a deployment that wants a
+  service's own colours is not served by this and is the case to revisit if it ever appears.
+- A category gets a **mark of its own** ([FR-CAT-07](requirements.md#fr-cat-07)) rather than
+  reusing the picture its card already carries. The two do different work: the card picture is a
+  photograph in a 16:9 frame, cropped to fill, and the mark is a small square that must read at
+  chip size against a coloured pill — a cropped photo at 24px is a smear. The flag that lets the
+  mark **stand in place of** the name is the part worth arguing: a subcategory whose name is a
+  manufacturer is identified faster by its logo than by its name set in 14px, and that is a
+  judgement only the person filing the catalog can make, which is why it is a per-category
+  declaration and not a global rule. The name never actually leaves — it stays the link's
+  accessible name and its title — so the flag changes what is drawn, not what is said.
+- The **category description stops being dead weight**
+  ([FR-CAT-08](requirements.md#fr-cat-08)). It has been on the entity and in the admin editor
+  since iteration 2 and has never been rendered anywhere: the storefront contract does not carry
+  it. The choice was to delete the column or give it a job, and it earns one on the second look —
+  a category listing today has **no meta description at all**, so every category page offers a
+  crawler the site-wide fallback ([NFR-SEO-01](requirements.md#nfr-seo-01)), and the text that
+  would fix that is already typed for several categories. Deleting it would have been the right
+  call for a field with no reader; this one has two.
+- **Admin counts diverge from the storefront, and that is the bug**
+  ([FR-ADM-19](requirements.md#fr-adm-19)). A category listing on the storefront has shown every
+  product beneath a category since iteration 2 (Pattern A), while the admin panel counts and
+  filters only the products filed **directly** in it — so a parent with all its goods in
+  subcategories reads as empty in the panel and full on the website, and the panel is the one
+  people trust. The counts become subtree counts and the product filter follows. Two details
+  keep it honest. The **delete guard is not a count** — it refuses a category that holds products
+  itself or has children at all, which is the foreign key's own rule and stays keyed off the
+  direct figures. And the extra **"directly in this category"** filter is offered exactly where
+  it can say something a subtree filter cannot: where a category has children **and** products of
+  its own. Stated the other way round — a leaf category — the two filters would return the same
+  rows, which is a control that does nothing.
+- The **conditions page joins the contact page** as a code route with an editable body
+  ([FR-NAV-03](requirements.md#fr-nav-03) reworded, ADR 0027 unchanged). It is the same argument
+  that page settled: the prose around the facts is content, and the facts themselves — zones,
+  thresholds, pickup points, payment methods — are structured deployment configuration that
+  checkout already reads. Typing them into a rich-text body would file the shop's delivery terms
+  in two places and let them disagree, and the copy a customer reads before ordering is exactly
+  the one that must not. Checkout keeps its own zone hint, which answers a narrower question — what
+  this address costs — and is not a substitute for the whole table.
+- **Search gains a picture, a price and categories**
+  ([FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07),
+  [FR-SEARCH-02](requirements.md#fr-search-02) reworded). The suggestion list was deliberately
+  bare in iteration 3 — names only, cheap enough to call per keystroke — and the catalog has
+  since grown families of products whose names differ by a word. Two consequences are worth
+  naming in advance. A price is **per viewer** ([FR-AUTH-05](requirements.md#fr-auth-05)), so the
+  suggestion endpoint stops being the same answer for everybody and cannot be cached across
+  accounts; it is the tier resolution the listing already does, on a shorter list. And a
+  searchable category is bound by [FR-CAT-01](requirements.md#fr-cat-01)'s visibility rule — a
+  category with nothing publicly visible beneath it is absent from the overview and the sitemap,
+  and must be absent from the suggestions too, or search becomes the one door into a grouping the
+  rest of the storefront hides.
+- The **main page gets a featured row** ([FR-CAT-09](requirements.md#fr-cat-09)), and it is
+  admin-chosen with a newest-first fallback rather than computed from what sells. Three options
+  were weighed: manual, most recently published, most ordered. "Most ordered" is the one that
+  sounds best and is worst here — it needs order history a fresh deployment has none of, it takes
+  a release to become meaningful, and in a shop where a manager negotiates prices the best-selling
+  line is often the one nobody needs to be shown. Manual is what the client actually wants (this
+  week's arrival, the thing there is a pallet of), and the newest-published fallback means the row
+  is never empty and never needs maintaining by a deployment that ignores it. Deriving it later
+  from order data remains open, and nothing here forecloses it.

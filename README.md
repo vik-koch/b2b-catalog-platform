@@ -14,7 +14,9 @@ catalog management with file-based bulk sync.
 > - admin panel, search, accounts and tiered pricing, units of sale, attribute filtering,
 >   cart and checkout, stock availability and work-awaiting indicators, sold-together sets,
 >   product documents, order processing, automated catalog feed, customer exchange, order
->   exchange). Iteration 15 (online card payment) is next.
+>   exchange). Iteration 15 turns back to the storefront — what a visitor sees rather than what
+>   an integrator does — and online card payment is deferred until the shop is live and has
+>   handled real orders.
 
 ## Environments
 
@@ -116,7 +118,16 @@ Shipped:
 
 Planned:
 
-- **Card payment** — online card payment offered after an order is accepted
+- **Storefront presentation** (iteration 15) — links to the shop's other presences in the footer,
+  a small mark identifying a category wherever it appears as a chip, a category description that
+  introduces its listing and tells a crawler what the page is, a featured row on the main page,
+  search suggestions that carry a picture and the viewer's own price and that offer matching
+  categories as well as products, a payment-and-delivery page stating the zones, pickup points and
+  payment methods checkout actually offers, and admin counts that read a category's whole subtree
+  as the storefront does
+- **Card payment** — online card payment offered after an order is accepted. Unscheduled: it
+  needs a merchant account the shop does not have and a live order flow to be designed against,
+  and a card payment arranged with the manager is already a recorded method in the meantime
 
 ## Documentation
 

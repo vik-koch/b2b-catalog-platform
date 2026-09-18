@@ -22,6 +22,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-NAV-04](#fr-nav-04) — Contact page with office map
 - [FR-NAV-05](#fr-nav-05) — Contact details in the header
 - [FR-NAV-06](#fr-nav-06) — Contact form
+- [FR-NAV-07](#fr-nav-07) — Links to the shop elsewhere
 
 **[Catalog (FR-CAT)](#fr-cat)**
 
@@ -31,6 +32,9 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-CAT-04](#fr-cat-04) — What a list item shows
 - [FR-CAT-05](#fr-cat-05) — What a product page shows
 - [FR-CAT-06](#fr-cat-06) — Cards or rows, remembered
+- [FR-CAT-07](#fr-cat-07) — A category's mark
+- [FR-CAT-08](#fr-cat-08) — Category description
+- [FR-CAT-09](#fr-cat-09) — A featured row on the main page
 
 **[Units of Sale & Packaging (FR-UNIT)](#fr-unit)**
 
@@ -76,6 +80,8 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-SEARCH-03](#fr-search-03) — Results ordered by relevance
 - [FR-SEARCH-04](#fr-search-04) — Sort controls and shareable URLs
 - [FR-SEARCH-05](#fr-search-05) — Type-ahead suggestions
+- [FR-SEARCH-06](#fr-search-06) — What a suggestion shows
+- [FR-SEARCH-07](#fr-search-07) — Categories among the suggestions
 
 **[Filterable Attributes (FR-ATTR)](#fr-attr)**
 
@@ -111,6 +117,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-16](#fr-adm-16) — A repeated instruction changes nothing
 - [FR-ADM-17](#fr-adm-17) — Claiming an account registered on the shop
 - [FR-ADM-18](#fr-adm-18) — Reading customer accounts outward
+- [FR-ADM-19](#fr-adm-19) — A category counts its subtree
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -229,7 +236,7 @@ A dedicated page displays information about the company.
 
 #### <a id="fr-nav-03"></a>FR-NAV-03 — Payment and delivery conditions page
 
-A dedicated page displays payment and delivery conditions.
+A dedicated page displays payment and delivery conditions. Its prose is admin-editable ([FR-ADM-03](#fr-adm-03)); the conditions themselves are not typed into it but read from the deployment's own configuration — the delivery zones with their terms and free-delivery thresholds ([FR-CART-07](#fr-cart-07)), the pickup points, and the payment methods a customer may choose ([FR-CART-04](#fr-cart-04)) — and are stated as checkout states them, so the page cannot promise something checkout does not offer. Checkout keeps its own hint for the address in front of it; this page is the whole picture, which checkout is not the place to read.
 
 #### <a id="fr-nav-04"></a>FR-NAV-04 — Contact page with office map
 
@@ -242,6 +249,10 @@ Main contact information (phone, email) is displayed in the site header.
 #### <a id="fr-nav-06"></a>FR-NAV-06 — Contact form
 
 A contact form lets a user reach the company by email, with an optional callback phone number.
+
+#### <a id="fr-nav-07"></a>FR-NAV-07 — Links to the shop elsewhere
+
+A deployment can list the places it also exists — a social account, a messenger, a marketplace shop — shown in the footer as icons beside the enquiry button. Each entry names where it goes, the icon that stands for it and the words that stand in for the icon, which are what a screen reader announces and what a reader sees where the icon does not load. The icons are drawn in the site's own colours and to the height of the control beside them, so an added service cannot change the shape of the footer. The list is deployment configuration rather than editable content; an empty one shows nothing.
 
 ---
 
@@ -270,6 +281,18 @@ A product page displays name, price, full rich-text description, an image galler
 #### <a id="fr-cat-06"></a>FR-CAT-06 — Cards or rows, remembered
 
 Product listings (category and search results) can be shown as a grid of cards or as a list of rows; both carry the same buying controls. The choice is remembered across visits and applies to every listing. Where the available width allows only one shape, both are shown in that shape and the choice is not offered.
+
+#### <a id="fr-cat-07"></a>FR-CAT-07 — A category's mark
+
+A category may carry a small square mark in addition to the picture its card shows. The mark is what identifies it wherever the category appears as a chip or a pill rather than as a card — the subcategory navigation of a listing and the main-page overview — and is shown there beside the category's name. A category whose name is a brand its mark says faster can declare that the mark stands **in place of** the name in those places; the name is still what the link is announced and titled by, so nothing is lost to a reader who cannot see the mark. A category with no mark shows its name, as every category does today.
+
+#### <a id="fr-cat-08"></a>FR-CAT-08 — Category description
+
+A category may carry a short plain-text description. Where one is written it introduces the category's listing, above the products, and is what a search engine is offered as that page's summary ([NFR-SEO-01](#nfr-seo-01)). A category without one reads exactly as it does now.
+
+#### <a id="fr-cat-09"></a>FR-CAT-09 — A featured row on the main page
+
+The main page shows a short row of products above the category overview. An admin chooses which; where nobody has chosen any, it falls back to the most recently published products, and where there are none it is absent rather than empty. Each entry is the same list item every listing draws ([FR-CAT-04](#fr-cat-04)), so what can be seen and bought from a listing can be seen and bought from here.
 
 ---
 
@@ -397,7 +420,7 @@ A product search bar is available in the site header on every page.
 
 #### <a id="fr-search-02"></a>FR-SEARCH-02 — Matching on product name
 
-Search matches on product name only. Matching is word-order independent and tolerates minor typos (fuzzy matching).
+Search matches on product name and on category name. Matching is word-order independent and tolerates minor typos (fuzzy matching). The two are never mixed into one ranking: a query answers with the products it matched, and names the categories it matched beside them ([FR-SEARCH-07](#fr-search-07)).
 
 #### <a id="fr-search-03"></a>FR-SEARCH-03 — Results ordered by relevance
 
@@ -410,6 +433,14 @@ Product listings offer sort controls (name, price). Search results additionally 
 #### <a id="fr-search-05"></a>FR-SEARCH-05 — Type-ahead suggestions
 
 As a query is typed into the search bar, a short list of matching product names is suggested; picking one goes straight to that product. Suggestions are an accelerator only — the full result list stays reachable by submitting the query.
+
+#### <a id="fr-search-06"></a>FR-SEARCH-06 — What a suggestion shows
+
+A product suggestion carries the product's picture and its price beside its name, as a list item does — the price the viewer is charged ([FR-AUTH-05](#fr-auth-05)) and stated as a listing states it ([FR-UNIT-08](#fr-unit-08)). A suggestion list is scanned rather than read, and a row of bare names makes a shopper open pages to tell two products apart.
+
+#### <a id="fr-search-07"></a>FR-SEARCH-07 — Categories among the suggestions
+
+Categories the query matches ([FR-SEARCH-02](#fr-search-02)) are suggested as their own short group, ahead of the products, and picking one opens that category's listing. Only categories the storefront shows are offered ([FR-CAT-01](#fr-cat-01)). Where a query matches no category the group is absent, and the product suggestions stand alone as they do today.
 
 ---
 
@@ -560,6 +591,10 @@ A row may name the account it claims by the platform's own identifier instead of
 The source system can read the shop's customer accounts over the machine endpoint — their source keys where they have them, their state, the details the account holder maintains, and the price list each is charged ([FR-ADM-15](#fr-adm-15)). Without it a person who registers on the shop is invisible to the system that is supposed to decide about them, and the account details the exchange is documented as sending outward would never leave.
 
 It reads whether or not an external system owns customers, because the case it exists for is the one where it does not yet. Staff accounts are never included ([FR-ADM-10](#fr-adm-10)). An account the person has deleted is reported as withdrawn and carries nothing but its keys and its dates ([NFR-LEGAL-08](#nfr-legal-08)). The reading is its own capability on the credential, separate from the one that writes.
+
+#### <a id="fr-adm-19"></a>FR-ADM-19 — A category counts its subtree
+
+Wherever the admin panel counts a category's products, it counts everything beneath it — its subcategories included — as the storefront listing does ([FR-CAT-02](#fr-cat-02)), so the two never disagree about what belongs to a category. Filtering the admin product list by a category reads the same way. Where a category holds products directly **and** has subcategories, the list additionally offers the ones held directly by it: a product filed in a parent rather than in one of its children is otherwise invisible in a list of hundreds, and moving it is the point of finding it. The delete guard is unaffected — a category is blocked from deletion by what it holds itself and by having children at all ([FR-ADM-01](#fr-adm-01)), which is a different question from how many products are beneath it.
 
 ---
 
