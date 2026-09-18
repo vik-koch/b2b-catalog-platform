@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, gte, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
@@ -9,6 +9,7 @@ import {
   UserStatus,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
+import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 import * as schema from '../db/schema';
 import { customerTiers, users } from '../db/schema';
 
@@ -45,7 +46,7 @@ export class CustomerReadService {
   async listAccounts(
     query: ListCustomerAccountsQuery,
   ): Promise<CustomerAccountsPage> {
-    const after = parseCursor(query.cursor);
+    const after = parseMachineCursor(query.cursor);
     const rows = await this.db
       .select({
         id: users.id,
@@ -62,12 +63,8 @@ export class CustomerReadService {
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
         // The same instant as `updatedAt`, at the precision Postgres actually
-        // stores it. The driver hands the column back as a JS Date, whose
-        // milliseconds are three digits short of a `timestamptz`'s
-        // microseconds — and a cursor built from the rounded-down value
-        // re-selects the row it was meant to move past, so the boundary row of
-        // every page came back twice. Only the cursor needs this; the field
-        // the client reads stays an ordinary ISO timestamp.
+        // stores it — see `machine-cursor` for why the cursor may not be built
+        // from the field the client reads.
         cursorAt: sql<string>`${users.updatedAt}::text`,
       })
       .from(users)
@@ -96,7 +93,7 @@ export class CustomerReadService {
       accounts: page.map(toRecord),
       nextCursor:
         rows.length > query.limit && last
-          ? encodeCursor(last.cursorAt, last.id)
+          ? encodeMachineCursor(last.cursorAt, last.id)
           : null,
     };
   }
@@ -151,42 +148,4 @@ function toRecord(row: AccountRow): CustomerAccountRecord {
 
 function stateOf(status: UserStatus): CustomerAccountState {
   return status === 'anonymized' ? 'withdrawn' : status;
-}
-
-/**
- * The cursor: the ordering, written down and made unappetising to read.
- *
- * Base64 rather than the two values in the clear, so a client that would
- * otherwise have parsed it is not quietly depending on an ordering this route
- * is free to change.
- */
-function encodeCursor(updatedAt: string, id: string): string {
-  return Buffer.from(`${updatedAt}|${id}`).toString('base64url');
-}
-
-function parseCursor(
-  cursor: string | undefined,
-): { updatedAt: string; id: string } | undefined {
-  if (!cursor) return undefined;
-  const [updatedAt, id, ...rest] = Buffer.from(cursor, 'base64url')
-    .toString('utf8')
-    .split('|');
-  // Handed back to Postgres as text and cast there, so the value that comes
-  // out of a row is the value that goes into the next query — no timestamp is
-  // ever parsed and re-printed in between.
-  if (
-    rest.length > 0 ||
-    !id ||
-    !updatedAt ||
-    Number.isNaN(Date.parse(updatedAt))
-  ) {
-    // Said rather than silently restarted from the top: a puller handed a
-    // cursor this route did not issue would otherwise re-read the whole
-    // customer book and never find out why.
-    throw new BadRequestException({
-      code: 'invalid-cursor',
-      message: 'That cursor was not issued by this endpoint',
-    });
-  }
-  return { updatedAt, id };
 }
