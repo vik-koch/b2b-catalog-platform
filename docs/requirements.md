@@ -212,6 +212,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-OPS-05](#nfr-ops-05) — Search observability
 - [NFR-OPS-06](#nfr-ops-06) — Bounded release and downtime
 - [NFR-OPS-07](#nfr-ops-07) — A failed sync leaves consistent state
+
 ---
 
 ## Functional Requirements
@@ -489,9 +490,17 @@ A product is not visible to the public until an admin publishes it. Products cre
 #### <a id="fr-adm-07"></a>FR-ADM-07 — Catalog import over a machine endpoint
 
 Where a deployment configures one, an automated source can submit the same catalog import over an authenticated machine endpoint, producing the same staged run, preview and audit record as a manual upload. A run applies itself where its effect stays within a policy the deployment declares — which counts the categories it adds and the categories it leaves empty as well as the products it creates, hides and rewrites, so a regrouping upstream is read before it lands — and is otherwise staged for an admin to review, which is work awaiting them ([FR-WORK-02](#fr-work-02)) — as is a run whose source the adapter cannot fully vouch for. A machine run is accepted while maintenance mode is active ([FR-ADM-04](#fr-adm-04)), so a deployment can be populated before it opens to the public. The manual upload stays available as the operator's fallback: it is refused only while the catalog is externally owned ([FR-ADM-10](#fr-adm-10)), which an admin can turn off without a deploy.
+
 #### <a id="fr-adm-08"></a>FR-ADM-08 — Order exchange with the source system
 
 Where a deployment configures one, the same automated source can read order requests and write back their processing state and adjustments, so an order can be worked entirely in that system while the platform keeps the customer's view and notifications.
+
+Reading and writing are separate capabilities on the credential, as they are for customers ([FR-ADM-18](#fr-adm-18)). The read is not gated on ownership — a system has to see the orders that are here before anyone can hand it the work — while every write is refused unless order processing is externally owned ([FR-ADM-10](#fr-adm-10)), so the two sides never both hold the pen. An order reads outward as the version it currently stands at, naming the counterparty by the account's own key ([FR-ADM-14](#fr-adm-14)) rather than by the details its checkout happened to carry, and naming that version, so a write-back answers something rather than guessing.
+
+A write-back says what the order now is: its state, its content and what has been recorded against it, together. It records **at most one version** for all of that ([FR-ORD-03](#fr-ord-03)) — an exchange that moved an order and changed it in the same breath is one event to the customer, not three — and it states, as a manager does, whether the customer is written to and whether their view follows it ([FR-NOTIF-03](#fr-notif-03)). An instruction that says what the order already says changes nothing and notifies nobody ([FR-ADM-16](#fr-adm-16)), because a polling source re-sends. The platform's states stay the coarse set [FR-ORD-01](#fr-ord-01) names and the source system's own vocabulary is mapped onto them outside the platform, so however many steps an order moves through over there, the customer reads the one that concerns them.
+
+Two things a write-back does not overwrite. A customer may still call off an order nobody has answered ([FR-ORD-02](#fr-ord-02)) however orders are owned, and an instruction that arrives for an order they called off is refused rather than driving it forward over the top — the shop hears about it, and the alternative is a cancellation that silently never happened. And what the customer wrote in their own words is theirs, exactly as it is when a manager adjusts an order. A write-back is authored by the integration and never by a person: where the other system knows who acted, that name travels as a label and is never resolved to an account here.
+
 #### <a id="fr-adm-09"></a>FR-ADM-09 — Sync activity log
 
 The admin panel shows a log of sync activity in every area — the catalog, customers, orders — and in both directions: what ran, which way, over what, what it changed, and what failed, in enough detail to diagnose a broken or partial exchange without access to the server. An area's runs are readable, and a staged run of theirs reviewable, by whoever may do that area's work by hand: the catalog by admins, customers and orders by managers too ([FR-AUTH-03](#fr-auth-03)). Handing an area over and issuing a machine token ([NFR-SEC-09](#nfr-sec-09)) stay admin-only — they are configuration, not the work.
@@ -505,7 +514,7 @@ What the shop presents rather than stocks stays the shop's however an area is ow
 
 Owning customers or order processing closes the admin panel's side of them completely rather than field by field: the screens stay readable — staff must be able to see what a customer sees, and the counts of work awaiting attention ([FR-WORK-02](#fr-work-02)) are read from them — but every action on them is refused, because the point of the switch is that the work is done in the owning system.
 
-Two things stay outside it. A staff account is not a customer: who holds which role, and the administration of admin and manager accounts, stay the platform's under every setting ([FR-AUTH-03](#fr-auth-03)). And an account holder's own actions on their own account — their name and phone, their password, deleting it ([FR-AUTH-06](#fr-auth-06)) — are never refused, because the switch is about who does the shop's work, not about whether a person may use their own account.
+Two things stay outside it. A staff account is not a customer: who holds which role, and the administration of admin and manager accounts, stay the platform's under every setting ([FR-AUTH-03](#fr-auth-03)). And a customer's own actions are never refused — their name and phone, their password, deleting their account ([FR-AUTH-06](#fr-auth-06)), and equally placing an order and calling off one nobody has answered yet ([FR-ORD-02](#fr-ord-02)) — because the switch is about who does the shop's work, not about whether a person may use the shop. An owned order area therefore still acquires orders and still loses them to a cancellation, which is a fact the exchange has to read rather than a conflict to resolve ([FR-ADM-08](#fr-adm-08)).
 
 Only an admin may change the setting; it takes effect without a deploy, and every change to it — and to maintenance mode ([FR-ADM-04](#fr-adm-04)) — is recorded with who made it and shown in the admin panel.
 
@@ -554,6 +563,7 @@ It reads whether or not an external system owns customers, because the case it e
 #### <a id="fr-auth-01"></a>FR-AUTH-01 — Sign-up and approval
 
 A user signs up with the details a human needs to judge the request — name, email address, phone number, and for a business its registered company name and registration id, both required; the account requires admin/manager approval before use. On approval a customer tier is assigned (not visible to the user) and the account is invited, by a single-use link, to choose its own password. Where an external system owns customers ([FR-ADM-10](#fr-adm-10)) the approval and the tier arrive from it instead of from a manager; the link is still issued and sent from here.
+
 #### <a id="fr-auth-02"></a>FR-AUTH-02 — Password reset
 
 Users can request a password reset via email.
@@ -589,7 +599,6 @@ Where a deployment configures a provider, typing a company's name or registratio
 #### <a id="fr-auth-10"></a>FR-AUTH-10 — Registered address as first address
 
 Where a chosen company suggestion carries a registered address and identifies a legal entity, the account is created with that address as its first saved address. It is an ordinary saved address once the account is active — visible, editable and removable by its owner — and it is never created from the registered address of an individual, which is a personal address rather than a business one.
-
 
 #### <a id="fr-auth-11"></a>FR-AUTH-11 — Declining a registration
 
@@ -653,11 +662,11 @@ An order moves through a fixed set of states: awaiting an answer, accepted, read
 
 #### <a id="fr-ord-02"></a>FR-ORD-02 — Moving between states
 
-Staff move an order between states, forwards and — one step at a time — backwards: an order answered by a wrong click must not be stuck at that answer, and correcting it must not require cancelling an order that was never called off. An ended order goes back to awaiting an answer. A customer may cancel their own order only while it is awaiting an answer; after that they contact the shop. Where money has already been recorded against it, both sides are warned before the cancellation that a refund is arranged with the shop directly — the platform records payments ([FR-ORD-04](#fr-ord-04)) and never moves them. Orders are never deleted — a refused or called-off order keeps its record and states a reason, which the customer is told.
+Staff move an order between states, forwards and — one step at a time — backwards: an order answered by a wrong click must not be stuck at that answer, and correcting it must not require cancelling an order that was never called off. An ended order goes back to awaiting an answer. A customer may cancel their own order only while it is awaiting an answer; after that they contact the shop. Where money has already been recorded against it, both sides are warned before the cancellation that a refund is arranged with the shop directly — the platform records payments ([FR-ORD-04](#fr-ord-04)) and never moves them. Orders are never deleted — a refused or called-off order keeps its record and states a reason, which the customer is told. Where order processing is externally owned ([FR-ADM-10](#fr-adm-10)) the moves arrive from that system instead and staff make none, but the table is the same one: a move it does not allow is refused whoever asks, so an exchange cannot walk an order somewhere a manager could not.
 
 #### <a id="fr-ord-03"></a>FR-ORD-03 — Accepting with adjustments
 
-A manager accepts an order either as submitted or with adjustments, agreed with the customer outside the platform: changed quantities, removed or added lines, and corrected prices — line by line, or by re-pricing the whole order from another price list, which is what a provisionally priced third-party order needs ([FR-CART-09](#fr-cart-09)). The same adjustment covers what the checkout asked: how the order is fulfilled and where it goes, the party it is invoiced to, the payment method ([FR-ORD-04](#fr-ord-04)) and who to contact about it. What the customer wrote — their note, their line notes and their preferred date — is kept as they wrote it. An adjustment records a new version of the order and states what changed; the order keeps its reference, its link and the state it was in. It may be made wherever the order stands, including after it has ended: the platform records what the shop did. Every state change records a version too, so an order's versions are its history and any of them can be read back whole.
+A manager accepts an order either as submitted or with adjustments, agreed with the customer outside the platform: changed quantities, removed or added lines, and corrected prices — line by line, or by re-pricing the whole order from another price list, which is what a provisionally priced third-party order needs ([FR-CART-09](#fr-cart-09)). The same adjustment covers what the checkout asked: how the order is fulfilled and where it goes, the party it is invoiced to, the payment method ([FR-ORD-04](#fr-ord-04)) and who to contact about it. What the customer wrote — their note, their line notes and their preferred date — is kept as they wrote it. An adjustment records a new version of the order and states what changed; the order keeps its reference, its link and the state it was in. It may be made wherever the order stands, including after it has ended: the platform records what the shop did. Every state change records a version too, so an order's versions are its history and any of them can be read back whole. An adjustment may equally arrive from an owning system ([FR-ADM-08](#fr-adm-08)): it is the same operation writing the same kind of version, except that two managers adjusting at once is a hazard a screen guards against by naming the version it was looking at, and a system writing back has nobody to ask — it is answered against the order as it now stands, and an instruction that says nothing new writes nothing at all.
 
 #### <a id="fr-ord-04"></a>FR-ORD-04 — Payment tracked separately
 
@@ -769,10 +778,9 @@ Personal data is stored on infrastructure satisfying the operating business's ap
 
 The open-source components delivered to the browser are attributed, with their license texts, on a dedicated page.
 
-
 #### <a id="nfr-legal-07"></a>NFR-LEGAL-07 — Disclosing a transfer of account details
 
-Where a deployment transfers account details to an external system ([FR-ADM-11](#fr-adm-11), [FR-ADM-18](#fr-adm-18)), the transfer is configured rather than assumed — no credential is issued with the reading capability unless somebody means it — and the privacy page names it, its purpose and the category of recipient.
+Where a deployment transfers account details, or the orders those accounts place, to an external system ([FR-ADM-08](#fr-adm-08), [FR-ADM-11](#fr-adm-11), [FR-ADM-18](#fr-adm-18)), the transfer is configured rather than assumed — no credential is issued with the reading capability unless somebody means it — and the privacy page names it, its purpose and the category of recipient.
 
 #### <a id="nfr-legal-08"></a>NFR-LEGAL-08 — Deletion reaches only this platform
 

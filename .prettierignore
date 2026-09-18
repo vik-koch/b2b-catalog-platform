@@ -11,8 +11,5 @@
 # Rendered exactly as the mailer sends them (tools/generate-mail-previews.mjs)
 /docs/mail
 
-# ID-keyed tables, hand-aligned to a fixed 12-char ID column.
-# Prettier pads every cell to the widest row, so one long requirement rewrites
-# the whole table and the diff stops showing what actually changed.
-/docs/requirements.md
+# ID-keyed table: prettier pads every cell to the widest row.
 /docs/roadmap.md

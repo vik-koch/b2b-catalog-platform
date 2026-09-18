@@ -19,7 +19,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 11<br>`v1.9.0` | Order processing, payment state & order documents | [FR-ORD-01](requirements.md#fr-ord-01)/[02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[04](requirements.md#fr-ord-04)/[05](requirements.md#fr-ord-05),<br>[FR-CART-05](requirements.md#fr-cart-05),<br>[FR-ACC-02](requirements.md#fr-acc-02),<br>[NFR-LEGAL-04](requirements.md#nfr-legal-04),<br>[NFR-SEC-10](requirements.md#nfr-sec-10) | [FR-CART-06](requirements.md#fr-cart-06),<br>[FR-NOTIF-03](requirements.md#fr-notif-03)/[07](requirements.md#fr-notif-07)/[08](requirements.md#fr-notif-08),<br>[FR-WORK-02](requirements.md#fr-work-02)/[04](requirements.md#fr-work-04),<br>[FR-AUTH-04](requirements.md#fr-auth-04),<br>[NFR-OPS-02](requirements.md#nfr-ops-02) |
 | 12<br>`v1.10.0` | Automated catalog sync from the source system | [FR-ADM-07](requirements.md#fr-adm-07)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-SEC-09](requirements.md#nfr-sec-09),<br>[NFR-OPS-06](requirements.md#nfr-ops-06)/[07](requirements.md#nfr-ops-07) | [FR-ADM-02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[06](requirements.md#fr-adm-06),<br>[FR-AUTH-05](requirements.md#fr-auth-05),<br>[FR-UNIT-04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10),<br>[FR-WORK-02](requirements.md#fr-work-02),<br>[FR-CAT-01](requirements.md#fr-cat-01) |
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
-| 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03) |
+| 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Online card payment | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -295,7 +295,8 @@ Notes:
   gets it back when the feed breaks is to turn the ownership off, which needs no deploy.
   Maintenance mode needs no change to sit beside it — [FR-ADM-04](requirements.md#fr-adm-04) has only ever gated the public
   storefront and its read APIs, so a machine run populates a deployment that has not opened yet.
-- Iteration 13 is the order exchange ([FR-ADM-08](requirements.md#fr-adm-08)), deferred out of 12 above. Three rules were
+- Iteration 14 is the order exchange ([FR-ADM-08](requirements.md#fr-adm-08)), deferred out of 12 above and pushed one
+  further by the 13/14 swap below. Three rules were
   agreed when it was first planned and still hold: **ownership, not conflict resolution** — the
   platform records what the customer submitted, the source system owns processing once an order
   has been exported, and nothing is merged; **the platform's status vocabulary stays coarse and
@@ -333,8 +334,8 @@ Notes:
   half-applied catalog. What iteration 12 adds is making the failure **visible** — a run that
   died in the adapter, before it ever became a run, is recorded as a failed one rather than
   vanishing.
-- Iteration 14 is online card payment, deferred from 11 (2026-09-06) and pushed one further by
-  the iteration-12 split. It is blocked on something that cannot be built: a merchant account the
+- Iteration 15 is online card payment, deferred from 11 (2026-09-06) and pushed twice since — by
+  the iteration-12 split and by the 13/14 swap. It is blocked on something that cannot be built: a merchant account the
   shop does not yet have. It is also the least urgent of the three — nothing about the current
   flow needs it, since a card payment arranged with the manager is already a recorded method —
   and the most speculative, since the provider is unchosen. Sequencing it after the source-system
@@ -363,7 +364,8 @@ Notes:
 - UI localization / i18n — both deployments are single-locale; revisit only if a deployment ever needs a second language
 - Automated delivery/courier API integration
 - Live/automatic sync from the legacy source system — in scope: the catalog direction as
-  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the order direction as iteration 13 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
+  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the customer direction as iteration 13 ([FR-ADM-11](requirements.md#fr-adm-11)) and the order
+  direction as iteration 14 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
   any direction in which the platform writes catalog content back into the source system: the
   ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
   offers no such message in any case
@@ -502,3 +504,18 @@ Notes:
   audit row naming no area would leave a gap in the history of the area it moved. So the master
   switch is a read over the areas and an action across them — one request, one transaction, one
   row per area that actually changed, shown as a single entry.
+
+- **The order exchange is two capabilities, gated differently** (iteration 14, planned
+  2026-09-17). Reading orders outward is not gated on ownership and writing them back is, which
+  looks inconsistent and is not: the read exists for the stretch *before* a hand-over — a system
+  cannot be given work it has never been allowed to see — while a write is the work itself, and
+  two writers is the one thing [FR-ADM-10](requirements.md#fr-adm-10) exists to prevent. The customer read settled the
+  same question the same way a release earlier ([FR-ADM-18](requirements.md#fr-adm-18)). Three rules the iteration
+  inherits rather than decides: an exchange writes **at most one version** of an order — status,
+  content and money arrive together and the customer reads one event, not three — every write
+  **states whether the customer hears about it**, since a polling source re-sends and the
+  platform must not infer news from a repeat, and the platform's four states stay coarse with
+  the source system's own vocabulary mapped onto them **outside** the platform. The one genuinely
+  new rule is about what a write-back may *not* do: a customer can still call off an unanswered
+  order however orders are owned, so forward-only write-back has to meet a cancellation and be
+  refused by it rather than silently undoing it.
