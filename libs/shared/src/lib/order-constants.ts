@@ -166,3 +166,15 @@ export const ORDER_PAGE_SIZE = 20;
 
 /** As long as the longest thing anybody pastes in: an email address. */
 export const ORDER_QUERY_MAX_LENGTH = 200;
+
+/**
+ * The most orders one page of the outbound read carries (FR-ADM-08), and also
+ * its default: a puller wants whole pages, and a client that names no limit is
+ * asking for as much as it can get.
+ *
+ * Smaller than the customer read's, because an order is not one row. Each
+ * carries its lines, two address snapshots and its contact, so a page of a
+ * hundred orders is an answer measured in megabytes where a hundred accounts
+ * is not.
+ */
+export const ORDER_READ_MAX_LIMIT = 50;

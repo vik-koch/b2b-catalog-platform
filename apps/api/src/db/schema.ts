@@ -821,10 +821,22 @@ export const orders = pgTable(
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
+    // When anything at all last happened to this order — a version written, a
+    // payment recorded, the customer's view moved on, the account behind it
+    // closed. A column rather than the greatest of the four, because it is
+    // what the outbound read orders and pages by (FR-ADM-08) and a sort over
+    // an expression across two tables is neither indexable nor stable. Every
+    // write to an order sets it; nothing else does.
+    updatedAt: timestamp('updatedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (t) => [
     index('orders_userId_idx').on(t.userId),
     index('orders_createdAt_idx').on(t.createdAt),
+    // The outbound read's ordering, written down once: the index that serves
+    // the sort serves the cursor's seek.
+    index('orders_updatedAt_idx').on(t.updatedAt, t.id),
     check('orders_status_known', oneOf('status', ORDER_STATUSES)),
     check('orders_payment_state_known', oneOf('paymentState', PAYMENT_STATES)),
     // Paid is the one payment state with a story, and it is the whole story:

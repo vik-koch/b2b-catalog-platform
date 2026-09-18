@@ -18,6 +18,7 @@ export * from './lib/catalog-constants';
 export * from './lib/catalog.contract';
 export * from './lib/contact-config';
 export * from './lib/customer-read.contract';
+export * from './lib/order-read.contract';
 export * from './lib/customer-sync-constants';
 export * from './lib/customer-sync.contract';
 export * from './lib/contact-format';

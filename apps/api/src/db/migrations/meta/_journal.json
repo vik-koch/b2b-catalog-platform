@@ -239,6 +239,20 @@
       "when": 1789716687543,
       "tag": "0033_ownership_area_orders",
       "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1789720690751,
+      "tag": "0034_order_updated_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1789720715970,
+      "tag": "0035_api_token_order_read_scope",
+      "breakpoints": true
     }
   ]
 }

@@ -505,7 +505,7 @@ export class OrdersService {
     if (behind) {
       await this.db
         .update(orders)
-        .set({ customerRevisionId: current.revisionId })
+        .set({ customerRevisionId: current.revisionId, updatedAt: new Date() })
         .where(eq(orders.id, current.id));
     }
     if (notify) {
@@ -1713,6 +1713,10 @@ export class OrdersService {
           .update(orders)
           .set({
             currentRevisionId: revision.id,
+            // Whatever else this version did, it happened to the order: the
+            // outbound read (FR-ADM-08) orders and pages by this, so a
+            // version nobody stamped is a version nothing outside ever sees.
+            updatedAt: new Date(),
             ...(change.showCustomer ? { customerRevisionId: revision.id } : {}),
             status: change.status,
             paymentState: change.paymentState,
@@ -1864,8 +1868,18 @@ export class OrdersService {
       .update(orders)
       .set(
         paid
-          ? { paymentState: 'paid', paidAt: new Date(), paidBy: byUserId }
-          : { paymentState: cleared, paidAt: null, paidBy: null },
+          ? {
+              paymentState: 'paid',
+              paidAt: new Date(),
+              paidBy: byUserId,
+              updatedAt: new Date(),
+            }
+          : {
+              paymentState: cleared,
+              paidAt: null,
+              paidBy: null,
+              updatedAt: new Date(),
+            },
       )
       .where(
         and(
