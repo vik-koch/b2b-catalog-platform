@@ -56,12 +56,13 @@ export const conditionsPageSeed: PageSeed = {
  * notice that promised more than the code delivers would be the wrong half of
  * the pair to leave unmaintained.
  *
- * Two sections describe the exchange with the business system (NFR-LEGAL-07,
- * NFR-LEGAL-08) and belong **only to a deployment that has one**. They are
+ * Three sections describe the exchange with the business system (NFR-LEGAL-07,
+ * NFR-LEGAL-08) — the account, the orders it places, and what deleting it
+ * reaches — and belong **only to a deployment that has one**. They are
  * seeded because the demo shop does: a transfer is configured, never assumed —
  * nothing leaves this platform until somebody issues a credential that can read
- * accounts — so an operator who has issued none deletes these two sections, the
- * same edit they make to every other line of this page.
+ * accounts or orders — so an operator who has issued none deletes those
+ * sections, the same edit they make to every other line of this page.
  */
 export const privacyPageSeed: PageSeed = {
   slug: 'privacy',
@@ -103,6 +104,15 @@ export const privacyPageSeed: PageSeed = {
     'the course of maintaining it, and nobody else does. Nothing about your',
     'password ever leaves this shop: it is stored here, and the business',
     'system neither receives it nor can set one for you.</p>',
+    '<h2>Your orders in our business system</h2>',
+    '<p>The orders you place here are transferred to the same system, for the',
+    'same purpose and to the same recipient: what you ordered, what it came',
+    'to, and the details you gave with it — who to contact about it, where it',
+    'goes and who it is invoiced to. That is where the order is actually',
+    'worked: what you read on it here — the state it is in, any agreed',
+    'change, the invoice we send you — is what that system tells this one.',
+    'Nothing else about you travels with it, and nothing about an order is',
+    'passed on beyond what delivering and invoicing it requires.</p>',
     '<h2>If we cannot open an account for you</h2>',
     '<p>A registration we decline is deleted outright, along with everything',
     'you entered on it.</p>',
