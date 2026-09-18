@@ -519,3 +519,19 @@ Notes:
   new rule is about what a write-back may *not* do: a customer can still call off an unanswered
   order however orders are owned, so forward-only write-back has to meet a cancellation and be
   refused by it rather than silently undoing it.
+- **Two edges of the exchanges that already ship are closed at the start of iteration 14**, before
+  any order work, because the adapter is being written against `v1.10.0`/`v1.11.0` now and one of
+  them is a live blocker. A source can **read one of its own runs back** ([FR-ADM-09](requirements.md#fr-adm-09) amended):
+  a fresher submission supersedes a run still waiting to be reviewed, which is the right
+  behaviour and left a scheduled adapter unable to discover that it had happened — it would keep
+  sending, keep replacing the run somebody was about to read, and never learn why. Scoping that
+  read to the credential's **area** rather than to the credential that submitted the run is what
+  keeps token rotation from needing a rule of its own. And a run may **claim an account by the
+  platform's own identifier** ([FR-ADM-17](requirements.md#fr-adm-17) amended), not only by email address — the identifier
+  is what the outward read hands out, so a system that has already looked at the shop's accounts
+  can name the one it means. It gets **its own ceiling** rather than sharing the address one:
+  format is not trust — a wrong local mapping still claims the wrong account — but it is stronger
+  evidence than an address, and one shared number cannot let a deployment allow identifier claims
+  freely while making every address match wait for a person. Both are new scope, so neither can
+  ride a patch tag; they are held and released with `v1.12.0` rather than earning an interim
+  minor of their own.

@@ -197,19 +197,20 @@ large enough to reach either is one to bring in by CSV upload instead.
 Keyed by `sourceId` — your own key, never the email address, never the
 registration id. Both of those change, and two people can share one.
 
-| Field                   | Type                       | Notes                                              |
-| ----------------------- | -------------------------- | -------------------------------------------------- |
-| `sourceId`              | string, req.               | 1–255 chars; the only identity the platform models |
-| `email`                 | string                     | lowercased; required to create; writable after     |
-| `access`                | `enabled`/`disabled`       | see §3.2.1                                         |
-| `tierKey`               | string \| null             | price list key; **null = the base list**           |
-| `customerType`          | `company`/`person` \| null | null = neither is known                            |
-| `companyName`           | string \| null             | company ⇒ name **and** id, or the row is refused   |
-| `companyRegistrationId` | string \| null             | ditto                                              |
-| `firstName`             | string                     | **create only**, ignored on an existing account    |
-| `lastName`              | string                     | create only                                        |
-| `phone`                 | string                     | create only                                        |
-| `sendPasswordLink`      | boolean (false)            | an instruction, not a state — see the warning      |
+| Field                   | Type                       | Notes                                                      |
+| ----------------------- | -------------------------- | ---------------------------------------------------------- |
+| `sourceId`              | string, req.               | 1–255 chars; the only identity the platform models         |
+| `email`                 | string                     | lowercased; required to create; writable after             |
+| `accountId`             | uuid                       | claim target — see §3.3; read only when the key is unknown |
+| `access`                | `enabled`/`disabled`       | see §3.2.1                                                 |
+| `tierKey`               | string \| null             | price list key; **null = the base list**                   |
+| `customerType`          | `company`/`person` \| null | null = neither is known                                    |
+| `companyName`           | string \| null             | company ⇒ name **and** id, or the row is refused           |
+| `companyRegistrationId` | string \| null             | ditto                                                      |
+| `firstName`             | string                     | **create only**, ignored on an existing account            |
+| `lastName`              | string                     | create only                                                |
+| `phone`                 | string                     | create only                                                |
+| `sendPasswordLink`      | boolean (false)            | an instruction, not a state — see the warning              |
 
 **Absent ≠ empty.** A field you omit is left alone. Only `tierKey`,
 `customerType`, `companyName` and `companyRegistrationId` are _nullable_, and
@@ -243,7 +244,7 @@ yours. What that comes to depends on where the account stands:
 
 A declined registration is simply a disabled account; there is no fifth state.
 
-### 3.3 Claiming (`claimByEmail`)
+### 3.3 Claiming (`claimByEmail`, `claimById`)
 
 An account that registered on the storefront has no `sourceId`. A run with
 `claimByEmail: true` may adopt it by matching the address — **once**, only onto
@@ -261,25 +262,59 @@ With `claimByEmail` off, a row that _would_ have claimed is refused with
 `account-unclaimed` rather than `email-taken` — it points at the option that
 was off, not at a collision nobody can resolve.
 
+**Claiming by identifier.** A row may instead name the account outright with
+`accountId` — the platform's own id, exactly as `GET /machine/customers/accounts`
+reports it (§2). That is the preferred form once you have read the accounts out:
+you are naming the row you looked at rather than hoping an address match finds
+the same one, and it works for an account whose address you do not know or do
+not agree about.
+
+It is its own option (`claimById`), its own diff kind (`claim-id`), its own
+count (`summary.claimedById`) and its own ceiling (`maxIdClaims`, **0 by
+default**). Sharing the address ceiling would have been wrong in both
+directions: the evidence here is stronger — this shop issued the identifier and
+you can only have read it from here — but the failure it cannot prevent is the
+one that actually happens, a wrong mapping on your side, and that ends the same
+way whichever field carried it. Two numbers let an operator let identifier
+claims through while making every address match wait for a person.
+
+`accountId` is read **only when the `sourceId` is unknown**. Once an account
+carries a key, that key is what the row is about and a disagreeing identifier
+changes nothing.
+
+Its refusals are its own, because the remedy differs:
+
+- `account-unknown` — no account here has that id. Nothing else in the row is
+  used to guess what you meant.
+- `account-already-keyed` — that account already answers to a source key.
+- `account-unclaimed-by-id` — it could be adopted, but `claimById` was off.
+
+There is no CSV column for it. The operator's file upload (FR-ADM-12) never
+offers this: a person with a spreadsheet does not have the shop's internal ids,
+and the client that does is the one that read them.
+
 ### 3.4 Row errors
 
 One bad row never fails the run. It is skipped, listed in `plan.rowErrors`, and
 counted in `summary.errors`; everything else still applies.
 
-| Code                         | `params`          | Meaning                                                            |
-| ---------------------------- | ----------------- | ------------------------------------------------------------------ |
-| `missing-source-id`          | —                 | no key                                                             |
-| `duplicate-source-id`        | —                 | the same key twice in one run                                      |
-| `duplicate-email`            | `email`           | two rows of this run claim one address                             |
-| `email-taken`                | `email`           | another keyed account already has it                               |
-| `account-unclaimed`          | `email`           | an unkeyed account has it — turn on `claimByEmail`                 |
-| `unknown-tier`               | `key`, `known`    | no price list is keyed that (`known` lists the real ones)          |
-| `cannot-create-account`      | —                 | unknown key asking for access, no address (or `createMissing` off) |
-| `account-withdrawn`          | —                 | the person closed it; permanent                                    |
-| `staff-account`              | (`email`)         | the key or address names an admin/manager                          |
-| `cannot-send-link`           | —                 | a link asked for an account that cannot sign in                    |
-| `company-details-incomplete` | —                 | a company with only one of name/registration id                    |
-| `invalid-value`              | `column`, `value` | **CSV upload only** — a headless body is schema-refused            |
+| Code                         | `params`             | Meaning                                                            |
+| ---------------------------- | -------------------- | ------------------------------------------------------------------ |
+| `missing-source-id`          | —                    | no key                                                             |
+| `duplicate-source-id`        | —                    | the same key twice in one run                                      |
+| `duplicate-email`            | `email`              | two rows of this run claim one address                             |
+| `email-taken`                | `email`              | another keyed account already has it                               |
+| `account-unclaimed`          | `email`              | an unkeyed account has it — turn on `claimByEmail`                 |
+| `account-unknown`            | `accountId`          | `accountId` names no account here                                  |
+| `account-already-keyed`      | `accountId`          | that account already carries a source key                          |
+| `account-unclaimed-by-id`    | `accountId`, `email` | claimable by id, but `claimById` was off                           |
+| `unknown-tier`               | `key`, `known`       | no price list is keyed that (`known` lists the real ones)          |
+| `cannot-create-account`      | —                    | unknown key asking for access, no address (or `createMissing` off) |
+| `account-withdrawn`          | —                    | the person closed it; permanent                                    |
+| `staff-account`              | (`email`)            | the key or address names an admin/manager                          |
+| `cannot-send-link`           | —                    | a link asked for an account that cannot sign in                    |
+| `company-details-incomplete` | —                    | a company with only one of name/registration id                    |
+| `invalid-value`              | `column`, `value`    | **CSV upload only** — a headless body is schema-refused            |
 
 Note the asymmetry deliberately: a malformed _field_ in a headless submission
 refuses the **whole request** (400), because a converter should be fixed, not
@@ -300,7 +335,7 @@ tolerated. Only an operator's uploaded file gets per-cell forgiveness.
   "plan": {
     "summary": {
       "rows": 120, "create": 2, "update": 7, "softDelete": 0, "restore": 1,
-      "claimed": 0, "mailed": 3, "unchanged": 110, "errors": 0,
+      "claimed": 0, "claimedById": 0, "mailed": 3, "unchanged": 110, "errors": 0,
       "fields": ["email", "tier"]
     },
     "accounts": [ { "kind": "invite", "sourceId": "K-1042", "email": "…",
@@ -313,8 +348,10 @@ tolerated. Only an operator's uploaded file gets per-cell forgiveness.
 
 The shared counters read, for this area: `create` = accounts invited,
 `update` = accounts edited, `softDelete` = accounts switched off,
-`restore` = switched back on, `claimed` = adopted, `mailed` = mails sent.
-Change kinds are `invite | update | disable | enable | claim`; a claim outranks
+`restore` = switched back on, `claimed` = adopted by address,
+`claimedById` = adopted by identifier, `mailed` = mails sent.
+Change kinds are `invite | update | disable | enable | claim | claim-id`; a
+claim outranks
 whatever else the row did.
 
 ### 3.6 Run status — did it actually happen?
@@ -341,6 +378,7 @@ A run stages itself when (in this precedence):
 2. `summary.create > maxInvites` (default **25**)
 3. `summary.softDelete > maxDisables` (default **0** — _any_ disable waits)
 4. `summary.claimed > maxClaims` (default **0**)
+5. `summary.claimedById > maxIdClaims` (default **0**)
 
 → `stagedReason: "policy"`. There is no percentage ceiling for customers and no
 category ceiling; the absolute numbers are the whole policy. Mails sent on
@@ -461,7 +499,8 @@ channel that does not depend on SMTP.
 - [ ] Pull with `since` = last seen `updatedAt`, follow `nextCursor` within a
       sweep, treat ingest as idempotent (boundary rows repeat).
 - [ ] Give every storefront registration (`sourceId: null`) a counterparty, then
-      a key — by an admin, or by one deliberate `claimByEmail` run.
+      a key — by an admin, or by one deliberate claim run. Prefer `accountId` +
+      `claimById` over the address match: you read that id out of here.
 - [ ] Record `state: "withdrawn"` and stop writing that key forever.
 - [ ] Send only fields that changed; never resend name/phone; never put
       `sendPasswordLink` in a standing export.
