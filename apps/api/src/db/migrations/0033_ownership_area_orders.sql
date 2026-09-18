@@ -1,0 +1,1 @@
+ALTER TYPE "public"."ownership_area" ADD VALUE 'orders';
