@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { OrderRevision } from '@b2b-catalog-platform/shared';
+import { OrderRevision, OwnershipArea } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -97,6 +98,16 @@ const version: OrderRevision = {
   },
 };
 
+/**
+ * Which areas an external system holds while a case renders (FR-ADM-10). Set
+ * by the case that is about the closure and reset between them, rather than
+ * threaded through every render signature.
+ */
+let owned: OwnershipArea[] = [];
+beforeEach(() => {
+  owned = [];
+});
+
 async function render(answer: OrderRevision | null) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -104,6 +115,7 @@ async function render(answer: OrderRevision | null) {
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
@@ -169,6 +181,20 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     expect(
       el.querySelector(`a[href="/admin/orders/${version.reference}"]`),
     ).not.toBeNull();
+  });
+
+  /**
+   * While an external system answers orders (FR-ADM-10) the screen this one
+   * leads to has no controls either, so the link stops promising them and the
+   * page says why.
+   */
+  it('leads to the order rather than to controls once orders are owned', async () => {
+    owned = ['orders'];
+    const { el } = await render(version);
+
+    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+    expect(el.textContent).toContain(text.revisions.openOrder);
+    expect(el.textContent).not.toContain(text.revisions.openControls);
   });
 
   it('says so where the version is not there', async () => {

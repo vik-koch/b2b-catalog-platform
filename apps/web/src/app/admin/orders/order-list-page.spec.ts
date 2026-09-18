@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { Pagination } from '@b2b-catalog-platform/shared';
+import { OwnershipArea, Pagination } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -37,6 +38,16 @@ function page(overrides: Partial<Pagination> = {}): Pagination {
  * does to a page opened with no query parameters at all — an absent parameter
  * is handed over as undefined rather than as the input's own default.
  */
+/**
+ * Which areas an external system holds while a case renders (FR-ADM-10). Set
+ * by the case that is about the closure and reset between them, rather than
+ * threaded through every render signature.
+ */
+let owned: OwnershipArea[] = [];
+beforeEach(() => {
+  owned = [];
+});
+
 async function render(
   items: StaffOrderSummary[] | 'reject',
   query:
@@ -59,6 +70,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AdminOrdersService, useValue: { list, ...api } },
@@ -281,6 +293,59 @@ describe('AdminOrderListPage row actions', () => {
     expect(list).toHaveBeenCalledTimes(2);
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       actions.error,
+    );
+  });
+});
+
+/**
+ * The list while an external system answers orders (FR-ADM-10). What it loses
+ * is the way in; what it keeps is every way of reading one, because staff have
+ * to be able to see what the customer sees.
+ */
+describe('AdminOrderListPage while orders are externally owned', () => {
+  const actions = defaultAdminText.orderDetail.actions;
+  const labels = (el: HTMLElement) =>
+    [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
+      control.getAttribute('aria-label'),
+    );
+
+  it('drops the way of stopping an order, and stops calling it a decision', async () => {
+    owned = ['orders'];
+    const { el } = await render([placed]);
+
+    expect(labels(el)).toContain(actions.open);
+    expect(labels(el)).not.toContain(actions.answer);
+    expect(labels(el)).not.toContain(actions.decline);
+    expect(labels(el)).not.toContain(actions.cancel);
+  });
+
+  it('says once, above the list, why the rows do less', async () => {
+    owned = ['orders'];
+    const { el } = await render([placed]);
+
+    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+  });
+
+  it('sends the reference at the order itself rather than at a version', async () => {
+    owned = ['orders'];
+    const { el } = await render([placed]);
+
+    const href = el
+      .querySelector('tbody a')
+      ?.getAttribute('href')
+      ?.replace(/\?.*$/, '');
+    expect(href).toBe(`/admin/orders/${placed.reference}`);
+  });
+
+  it('leads at the version it stands at while the shop answers its own', async () => {
+    const { el } = await render([placed]);
+
+    const href = el
+      .querySelector('tbody a')
+      ?.getAttribute('href')
+      ?.replace(/\?.*$/, '');
+    expect(href).toBe(
+      `/admin/orders/${placed.reference}/revisions/${placed.revisionNumber}`,
     );
   });
 });

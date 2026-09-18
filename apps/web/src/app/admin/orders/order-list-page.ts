@@ -42,6 +42,7 @@ import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
 import { injectEditorReturnParams } from '../editor-return';
 import { ConfirmService } from '../../ui/confirm.service';
+import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
@@ -107,15 +108,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
                answered. Two jobs, two links: most of what a manager does with
                a list is look something up. -->
           <td class="truncate font-medium">
-            <a
-              class="hover:text-accent"
-              [routerLink]="[
-                '/admin/orders',
-                order.reference,
-                'revisions',
-                order.revisionNumber,
-              ]"
-            >
+            <a class="hover:text-accent" [routerLink]="titleLink(order)">
               {{ order.reference }}
             </a>
           </td>
@@ -155,6 +148,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
           <td data-keep>
             <app-order-row-actions
               [order]="order"
+              [locked]="locked()"
               [returnParams]="editorFrom()"
               (endRequested)="end($event.order, $event.to)"
             />
@@ -173,12 +167,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
             <a
               class="truncate font-medium"
               [class.opacity-50]="isEnded(order)"
-              [routerLink]="[
-                '/admin/orders',
-                order.reference,
-                'revisions',
-                order.revisionNumber,
-              ]"
+              [routerLink]="titleLink(order)"
               >{{ order.reference }}</a
             >
 
@@ -228,6 +217,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
             <app-order-row-actions
               recordActions
               [order]="order"
+              [locked]="locked()"
               [returnParams]="editorFrom()"
               (endRequested)="end($event.order, $event.to)"
             />
@@ -243,9 +233,15 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 })
 export class AdminOrderListPage {
   private readonly api = inject(AdminOrdersService);
+  private readonly ownership = inject(SettingsService);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   protected readonly text = inject(ADMIN_TEXT).orderList;
+
+  /** Whether an external system answers orders (FR-ADM-10). An answer still in
+   * flight counts as not owned, exactly as the account screens read it; the API
+   * refuses the move either way. */
+  protected readonly locked = computed(() => this.ownership.owns('orders'));
 
   /** Bound from the query parameters; both are narrowed before they reach the
    * API, so a hand-edited URL falls back to the default view. */
@@ -443,6 +439,7 @@ export class AdminOrderListPage {
 
   private readonly confirm = inject(ConfirmService);
   private readonly detailText = inject(ADMIN_TEXT).orderDetail;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly common = inject(ADMIN_TEXT).common;
   /** So the order page opened from here returns to this list, filters and
    * all. */
@@ -510,7 +507,24 @@ export class AdminOrderListPage {
     this.orders.reload();
   }
 
+  /**
+   * Where the reference goes. Normally at the version the order stands at,
+   * rendered as the customer sees it, leaving the row's own action for the
+   * screen where it is answered — two jobs, two links.
+   *
+   * While an external system holds order processing there is no answering to
+   * do, so both go to the order itself: it is the fuller read of the two, and
+   * sending the primary link to the narrower one would cost a click for
+   * nothing. A version is still read back from the history on that page.
+   */
+  protected titleLink(order: StaffOrderSummary): unknown[] {
+    return this.locked()
+      ? ['/admin/orders', order.reference]
+      : ['/admin/orders', order.reference, 'revisions', order.revisionNumber];
+  }
+
   constructor() {
     usePageSeo({ name: () => this.text.title });
+    void this.ownership.load();
   }
 }

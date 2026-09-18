@@ -1471,6 +1471,9 @@ export const adminTextSchema = z
             /** The way from reading a version to answering the order, and
              * back the other way. */
             openControls: z.string(),
+            /** The same link where there is nothing to answer with, because an
+             * external system holds order processing. */
+            openOrder: z.string(),
             openRevision: z.string(),
             /** Row labels for the change list, as on the adjustment screen. */
             line: z.string(),
@@ -2123,6 +2126,14 @@ export const adminTextSchema = z
         accountDecline: z.string(),
         /** The list's deactivate and reactivate dialogs, likewise. */
         accountActive: z.string(),
+        /**
+         * Order processing is closed whole like the customer area, so it is one
+         * banner again — said at the top of every order screen that used to
+         * carry controls, including the adjustment form, which draws itself
+         * dead rather than not at all: the order it is about is still worth
+         * reading.
+         */
+        orderLocked: z.string(),
       })
       .strict(),
     /**

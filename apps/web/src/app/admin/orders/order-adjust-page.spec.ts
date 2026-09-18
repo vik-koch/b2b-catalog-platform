@@ -4,8 +4,10 @@ import {
   AdminOrderDetail,
   OrderAdjustment,
   OrderAdjustmentPreview,
+  OwnershipArea,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -114,6 +116,16 @@ const preview: OrderAdjustmentPreview = {
   shipment: order.shipment,
 };
 
+/**
+ * Which areas an external system holds while a case renders (FR-ADM-10). Set
+ * by the case that is about the closure and reset between them, rather than
+ * threaded through every render signature.
+ */
+let owned: OwnershipArea[] = [];
+beforeEach(() => {
+  owned = [];
+});
+
 function render(
   api: Partial<{
     previewAdjustment: unknown;
@@ -134,6 +146,7 @@ function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
@@ -326,5 +339,30 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
     fixture.detectChanges();
 
     expect(el.textContent).toContain(text.errors['no-change']);
+  });
+});
+
+/**
+ * The adjustment screen while an external system answers orders (FR-ADM-10).
+ * Alone among the order screens it draws nothing at all: every field on it is
+ * one the save would refuse, and the order itself reads better one route up —
+ * the same answer the account editor gives on its "new" route.
+ */
+describe('AdminOrderAdjustPage while orders are externally owned', () => {
+  it('draws no form, says why, and keeps the way back', async () => {
+    owned = ['orders'];
+    const { el } = await settled();
+
+    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+    expect(el.querySelectorAll('input')).toHaveLength(0);
+    expect(el.textContent).not.toContain(text.save);
+    expect(el.textContent).toContain(text.cancel);
+  });
+
+  it('prices nothing, because the route that would price it is refused', async () => {
+    owned = ['orders'];
+    const { previewAdjustment } = await settled();
+
+    expect(previewAdjustment).not.toHaveBeenCalled();
   });
 });

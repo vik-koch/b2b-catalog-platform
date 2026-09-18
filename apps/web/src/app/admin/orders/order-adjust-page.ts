@@ -65,6 +65,8 @@ import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
 import { customerQuantity } from '../../orders/order-view';
+import { LockedNote } from '../ownership/locked-note';
+import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
 
 /** One line as the form holds it, before the server has priced it. */
@@ -154,9 +156,30 @@ const PREVIEW_DEBOUNCE_MS = 250;
     SelectField,
     Skeleton,
     WarningNote,
+    LockedNote,
   ],
   template: `
-    @if (order(); as loaded) {
+    <!-- An order answered by an external system has nothing to propose, so
+         this screen draws no form rather than a dead one: everything on it is
+         a field the save would refuse, and the order itself reads better one
+         route up. The same answer the account editor gives on its "new"
+         route. -->
+    @if (locked()) {
+      <div class="max-w-xl">
+        <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
+        <app-locked-note class="mt-4">{{
+          ownershipText.orderLocked
+        }}</app-locked-note>
+        <a
+          appButton
+          variant="secondary"
+          class="mt-5"
+          [routerLink]="['/admin/orders', reference()]"
+        >
+          {{ text.cancel }}
+        </a>
+      </div>
+    } @else if (order(); as loaded) {
       <div class="@container/adjust">
         <div
           class="grid gap-10 @min-[63.75rem]/adjust:grid-cols-[1fr_20rem] @min-[63.75rem]/adjust:justify-between"
@@ -667,6 +690,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
 })
 export class AdminOrderAdjustPage {
   private readonly api = inject(AdminOrdersService);
+  private readonly ownership = inject(SettingsService);
   private readonly tiersApi = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
@@ -677,6 +701,10 @@ export class AdminOrderAdjustPage {
   protected readonly text = inject(ADMIN_TEXT).orderAdjust;
   protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  /** Whether an external system answers orders (FR-ADM-10) — the one state in
+   * which this screen has nothing to offer at all. */
+  protected readonly locked = computed(() => this.ownership.owns('orders'));
   protected readonly locations = this.config.pickup?.locations ?? [];
   protected readonly billingEnabled = this.config.billingAddressEnabled;
   protected readonly noteMax = ORDER_ADJUSTMENT_NOTE_MAX;
@@ -917,6 +945,7 @@ export class AdminOrderAdjustPage {
   private readonly formVersion = signal(0);
 
   constructor() {
+    void this.ownership.load();
     usePageSeo({ name: () => this.title(), noindex: true });
 
     for (const group of [
@@ -991,7 +1020,9 @@ export class AdminOrderAdjustPage {
    * save, and the manager is told about it now rather than at the end.
    */
   private readonly previewed = resource({
-    params: () => this.settledBody(),
+    // Nothing is priced while the area is owned: the route is refused, and the
+    // screen that would have shown the answer is not drawn.
+    params: () => (this.locked() ? null : this.settledBody()),
     // The draft that was priced travels back with the pricing. Which draft an
     // answer belongs to matters: a price is written into a field only where
     // the field asked for one *in that draft*, and an answer overtaken by a

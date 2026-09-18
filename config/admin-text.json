@@ -902,7 +902,8 @@
       "customerOn": "The customer is on version {seen}",
       "notified": "Emailed {date}",
       "openControls": "Answer this order",
-      "openRevision": "Read this version"
+      "openRevision": "Read this version",
+      "openOrder": "Open this order"
     },
     "actions": {
       "open": "Open the order",
@@ -1298,7 +1299,8 @@
     "accountCreate": "Customer accounts are managed by an external system, so new customers are added there. To add one in the shop, take customer accounts back under Data ownership in the admin panel.",
     "runStranded": "This file was uploaded before the area was handed to an external system, so it can no longer be applied. Discard it, or take the area back under Data ownership in the admin panel.",
     "accountDecline": "Customer accounts are managed by an external system, so registrations are decided there. Decline this one in that system, or take customer accounts back under Data ownership in the admin panel.",
-    "accountActive": "Customer accounts are managed by an external system, so switching one off or back on is done there. Change it in that system, or take customer accounts back under Data ownership in the admin panel."
+    "accountActive": "Customer accounts are managed by an external system, so switching one off or back on is done there. Change it in that system, or take customer accounts back under Data ownership in the admin panel.",
+    "orderLocked": "Orders are managed by an external system, so this one is answered there rather than here. Customers can still place orders and call off ones nobody has answered. To work orders in the shop, take order processing back under Data ownership in the admin panel."
   },
   "operations": {
     "title": "Maintenance and ownership",
