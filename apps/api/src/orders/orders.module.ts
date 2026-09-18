@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AddressBookModule } from '../addresses/address-book.module';
+import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
@@ -28,6 +29,8 @@ import { MailModule } from '../mail/mail.module';
 import { MediaModule } from '../media/media.module';
 import { SettingsModule } from '../settings/settings.module';
 import { AdminOrdersController } from './admin-orders.controller';
+import { MachineOrderDocumentsController } from './machine-order-documents.controller';
+import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
@@ -50,6 +53,8 @@ import { OrdersService } from './orders.service';
     AddressBookModule,
     MailModule,
     MediaModule,
+    // The guard the machine document route is checked by (NFR-SEC-09).
+    ApiTokensModule,
     // Whether an external system holds order processing (FR-ADM-10).
     SettingsModule,
   ],
@@ -58,11 +63,13 @@ import { OrdersService } from './orders.service';
     OrdersController,
     AdminOrdersController,
     OrderDocumentsController,
+    MachineOrderDocumentsController,
   ],
   providers: [
     OrdersService,
     OrderNotifications,
     OrderDocumentsService,
+    OrderDocumentActs,
     OrderPdf,
     AuditLogger,
     { provide: PICKUP_LOCATIONS, useFactory: loadPickupLocations },
