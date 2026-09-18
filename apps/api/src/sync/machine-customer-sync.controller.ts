@@ -7,6 +7,7 @@ import { MachineClient } from '../api-tokens/machine-client';
 import { refusals } from '../orpc/refusals';
 import { MachineThrottle } from '../throttling/throttle-presets';
 import { CustomerSyncService } from './customer-sync.service';
+import { SyncRunLog } from './sync-run-log';
 
 /**
  * The headless customer exchange (FR-ADM-11): what an automated client reaches
@@ -28,7 +29,10 @@ import { CustomerSyncService } from './customer-sync.service';
 @MachineThrottle()
 @Controller()
 export class MachineCustomerSyncController {
-  constructor(private readonly service: CustomerSyncService) {}
+  constructor(
+    private readonly service: CustomerSyncService,
+    private readonly runs: SyncRunLog,
+  ) {}
 
   @Implement(machineCustomerSyncContract.submitRun)
   submitRun(@CurrentMachine() machine: MachineClient) {
@@ -57,5 +61,14 @@ export class MachineCustomerSyncController {
           name: machine.name,
         }),
       );
+  }
+
+  @Implement(machineCustomerSyncContract.getRun)
+  getRun() {
+    return implement(machineCustomerSyncContract.getRun)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => ({
+        run: await this.runs.findForMachine(params.id, 'customers'),
+      }));
   }
 }

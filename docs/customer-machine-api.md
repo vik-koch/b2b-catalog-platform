@@ -352,7 +352,41 @@ customers waits, and _every_ deactivation waits. Plan the go-live around an
 operator raising those numbers deliberately, or around uploading the initial
 book by CSV in the panel instead.
 
-### 3.7 Reporting your own breakage — `POST /api/machine/sync/customers/failures`
+### 3.7 Reading a run back — `GET /api/machine/sync/customers/runs/{id}`
+
+```
+GET /api/machine/sync/customers/runs/{id}
+Authorization: Bearer <token>
+```
+
+→ 200 `{ run }`, the same run object the submission answered with, as it
+stands **now**. → 404 `run-not-found` for an id this credential's area has
+never held.
+
+Keep the run id you were given and ask again on your next cycle whenever the
+submission came back `previewed`. The submission's answer is only the first
+word: a staged run is decided by a person afterwards, and — because your next
+submission **supersedes** the one still waiting — a scheduled feed that simply
+retries will replace the run somebody was about to read and never learn that
+this is what it has been doing. What you are looking for:
+
+| `status`     | What it means for the next cycle                             |
+| ------------ | ------------------------------------------------------------ |
+| `previewed`  | still waiting for a person. Do not resend; wait.             |
+| `applied`    | someone applied it. Carry on normally.                       |
+| `discarded`  | someone said no to it. Do not resend the same thing blindly. |
+| `superseded` | **you** replaced it by submitting again while it waited.     |
+
+The read is scoped to the **area** your token may write, not to the token that
+sent the run: rotate your credential and you still read your own history. It is
+not gated on ownership either — if your writes have started being refused
+because an operator took the area back by hand, this route is how you find out
+that nothing is broken.
+
+There is no `actorEmail` on this response. You are told what became of the run,
+not who decided it.
+
+### 3.8 Reporting your own breakage — `POST /api/machine/sync/customers/failures`
 
 ```json
 { "message": "source export unreadable: …", "label": "nightly customers" }
@@ -432,5 +466,7 @@ channel that does not depend on SMTP.
 - [ ] Send only fields that changed; never resend name/phone; never put
       `sendPasswordLink` in a standing export.
 - [ ] Treat `status: "previewed"` as "a person must act", log it, do not retry.
+- [ ] Keep the run id and poll `GET /machine/sync/customers/runs/{id}` until a
+      staged run is resolved — a retry supersedes it rather than answering it.
 - [ ] Report every failed cycle to `/failures` so the shop is told.
 - [ ] Match on `code`, never on `message`.
