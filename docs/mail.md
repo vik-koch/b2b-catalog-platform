@@ -374,3 +374,25 @@ A run held back for a person. There is deliberately no customer counterpart to �
 **Preheader:** An automatic customer update needs your decision.
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/customer-sync-waiting.html) · [HTML source](mail/customer-sync-waiting.html) · [Plain text](mail/customer-sync-waiting.txt)
+
+<a id="order-sync-failed"></a>
+
+### Order updates failed
+
+The third area, and the one where silence costs the most: customers are waiting to hear where their orders stand and nobody here has been told to answer them by hand.
+
+**Subject:** Order updates failed  
+**Preheader:** An automatic order update did not go through.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-sync-failed.html) · [HTML source](mail/order-sync-failed.html) · [Plain text](mail/order-sync-failed.txt)
+
+<a id="order-sync-recovered"></a>
+
+### Order updates working again
+
+The pair ends here. There is no “waiting” message for orders and no “needs your attention” one: an order run applies itself or refuses, so nothing it does lands on anybody’s desk.
+
+**Subject:** Order updates are working again  
+**Preheader:** The automatic order update went through.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/order-sync-recovered.html) · [HTML source](mail/order-sync-recovered.html) · [Plain text](mail/order-sync-recovered.txt)

@@ -240,6 +240,29 @@ const CUSTOMERS_STAGED_RUN: SyncRun = {
   summary: { ...summary(9, 24, 17), fields: ['tier', 'company'], mailed: 0 },
 };
 
+/** And the third area, which has two of the four messages and not three: an
+ * order run is never staged (ADR 0062), so nothing it does can wait for a
+ * person. */
+const orderRun = {
+  ...baseRun,
+  id: '6c1e0b73-9f24-4a65-b8d1-0e5a72c4f381',
+  area: 'orders',
+  filename: 'orders-write-back',
+  tokenName: 'ERP order exchange',
+} as const satisfies Omit<SyncRun, 'status'>;
+
+const ORDERS_FAILED_RUN: SyncRun = {
+  ...orderRun,
+  status: 'failed',
+  summary: null,
+  error: 'order export ended early: connection reset after 3 of 46 orders',
+};
+const ORDERS_APPLIED_RUN: SyncRun = {
+  ...orderRun,
+  status: 'applied',
+  summary: { ...summary(0, 18, 0), fields: [], mailed: 11 },
+};
+
 /**
  * Every message, in whatever wording it is handed.
  *
@@ -594,6 +617,22 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       title: 'A customer update is waiting',
       note: 'A run held back for a person. There is deliberately no customer counterpart to “new products arrived”: an invited account has already been mailed its own set-a-password link.',
       content: waitingPreview(CUSTOMERS_STAGED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'order-sync-failed',
+      group: 'Running the shop',
+      shows: 'orderSyncFailed',
+      title: 'Order updates failed',
+      note: 'The third area, and the one where silence costs the most: customers are waiting to hear where their orders stand and nobody here has been told to answer them by hand.',
+      content: syncFailedMail(ORDERS_FAILED_RUN, RUN_TIME, text),
+    },
+    {
+      slug: 'order-sync-recovered',
+      group: 'Running the shop',
+      shows: 'orderSyncRecovered',
+      title: 'Order updates working again',
+      note: 'The pair ends here. There is no “waiting” message for orders and no “needs your attention” one: an order run applies itself or refuses, so nothing it does lands on anybody’s desk.',
+      content: syncRecoveredMail(ORDERS_APPLIED_RUN, RUN_TIME, text),
     },
     {
       slug: 'order-document',

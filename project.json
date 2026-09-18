@@ -33,6 +33,11 @@
       "// description": "Rebuilds the generated journeys in docs/customer-sync.md.",
       "cache": false
     },
+    "order-sync": {
+      "command": "node tools/generate-order-sync.mjs",
+      "// description": "Rebuilds the generated journeys in docs/order-sync.md.",
+      "cache": false
+    },
     "account-lifecycle": {
       "command": "node tools/generate-account-lifecycle.mjs",
       "// description": "Rebuilds the generated statuses and journeys in docs/account-lifecycle.md.",
