@@ -409,6 +409,7 @@
         "softDelete": "Switched off",
         "restore": "Switched back on",
         "claimed": "Claimed",
+        "claimedById": "Claimed by ID",
         "mailed": "Links sent",
         "unchanged": "Unchanged",
         "errors": "Skipped"
@@ -418,7 +419,8 @@
         "update": "Updated",
         "disable": "Switched off",
         "enable": "Switched on",
-        "claim": "Claimed"
+        "claim": "Claimed",
+        "claim-id": "Claimed by ID"
       },
       "field": {
         "email": "email",
@@ -434,6 +436,9 @@
         "duplicate-email": "Two rows in this run claim the address {email}; only the first is used.",
         "email-taken": "Another account already uses {email}. Accounts are matched by their sourceId, so this row would need a different address.",
         "account-unclaimed": "Somebody registered here with {email} and carries no source key yet — almost certainly this customer. Turn on “claim accounts by email address” to adopt that account, or give it its key in the account editor.",
+        "account-unknown": "This row names account {accountId}, and no account here has that ID. The source system is pointing at something that is not here — nothing else in the row is used to guess what it meant.",
+        "account-already-keyed": "Account {accountId} already carries a source key of its own, so it is already somebody in the source system. One account cannot answer to two keys.",
+        "account-unclaimed-by-id": "This row names account {accountId} ({email}), which carries no source key yet. Turn on “claim accounts by ID” to adopt it, or give it its key in the account editor.",
         "unknown-tier": "There is no price list “{key}” — this shop has {known}.",
         "cannot-create-account": "This customer has no account here yet, and a new one needs an email address to send the set-a-password link to.",
         "account-withdrawn": "This customer deleted their account. It is not created again from here — they would have to register themselves.",
@@ -443,6 +448,7 @@
         "invalid-value": "The “{column}” column of this row says “{value}”, which is not something that column can hold. The row is skipped; the rest of the file is not."
       },
       "claimWarning": "{count} account(s) registered on the shop will be claimed by this run, matched on their email address. From then on the source key names that person, and the next run can change their price list or switch them off. Check the rows below first.",
+      "claimByIdWarning": "{count} account(s) will be claimed by the ID the source system named. That ID came from this shop, so it is a deliberate choice rather than a guess — but it is only as right as the mapping on the other side. From then on the source key names that person.",
       "disableWarning": "{count} customer(s) will lose access. They stay in the account list and can be switched back on."
     },
     "truncated": "Only the first entries are listed; the counts above cover the whole file.",

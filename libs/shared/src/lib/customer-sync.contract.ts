@@ -97,6 +97,18 @@ export const customerSyncRowSchema = z
      * phone alone), so if the owning system could not, nobody could.
      */
     email: lowercaseEmailField(255).optional(),
+    /**
+     * Which account here this row is about, said outright — the platform's own
+     * identifier, as the outward read reports it (FR-ADM-18).
+     *
+     * Read **only** when the key is unknown, and only to claim (FR-ADM-17):
+     * once an account carries a key, that key is what it is, and an identifier
+     * disagreeing with it changes nothing (FR-ADM-14). It exists because the
+     * identifier is the one handle a keyless account has, so a source system
+     * that read the shop's accounts and decided about one can name it instead
+     * of hoping an address match finds the same row.
+     */
+    accountId: z.uuid().optional(),
     access: customerAccessSchema.optional(),
     /**
      * Which price list this customer is charged, by the same `key` a catalog
@@ -183,6 +195,25 @@ export const customerSyncOptionsSchema = z
      * one may apply itself at all.
      */
     claimByEmail: z.boolean().default(false),
+    /**
+     * The same adoption, decided by `accountId` rather than by the address
+     * (FR-ADM-17).
+     *
+     * Its own option and its own ceiling (`maxIdClaims`), not a relaxation of
+     * the one above. The evidence is genuinely stronger — the platform issued
+     * that identifier and the source can only have read it out of here — but
+     * the failure it cannot prevent is the one that matters, a local mapping
+     * pointing at the wrong account, and that ends the same way whichever
+     * field carried it. Keeping them apart is what lets a deployment let
+     * identifier claims through and still make every address match wait for a
+     * person.
+     *
+     * Not offered on the file upload (FR-ADM-12), which is why no CSV column
+     * carries an identifier: a person with a spreadsheet does not have the
+     * shop's internal ids, and the exchange that does is the one that read
+     * them.
+     */
+    claimById: z.boolean().default(false),
   })
   .strict();
 export type CustomerSyncOptions = z.infer<typeof customerSyncOptionsSchema>;
@@ -210,13 +241,26 @@ export type CustomerFieldChange = z.infer<typeof customerFieldChangeSchema>;
  * of a staged run needs to know is what is about to happen to this person, not
  * which enum value it lands on.
  *
- * A claim wins over the other kinds when a row does several things at once —
+ * A claim of either sort wins over the other kinds when a row does several
+ * things at once —
  * it is the one that changes which account this key means from now on, and the
  * `changes` list still carries whatever else the row rewrote.
  */
 export const customerAccountChangeSchema = z
   .object({
-    kind: z.enum(['invite', 'update', 'disable', 'enable', 'claim']),
+    kind: z.enum([
+      'invite',
+      'update',
+      'disable',
+      'enable',
+      'claim',
+      /** An adoption the row named outright, by identifier. Its own kind and
+       * not a flag on `claim`, because the whole reason the two are separated
+       * is that a reader deciding about a staged run is choosing between two
+       * different pieces of evidence — a list that called them both "claimed"
+       * would hide exactly the difference the ceilings exist for. */
+      'claim-id',
+    ]),
     sourceId: z.string(),
     /** How the account is recognisable to staff: its address. Null on a row
      * that would create an account and carries none — which is a row error, and
@@ -257,6 +301,31 @@ export const CUSTOMER_SYNC_ROW_ERROR_CODES = [
    * nobody can resolve.
    */
   'account-unclaimed',
+  /**
+   * `{accountId}` — the row named an account by identifier and no account here
+   * has it.
+   *
+   * Refused as what it is rather than falling back to the address: an
+   * identifier that names nothing is a stale or wrong mapping in the sending
+   * system, and quietly matching some other account by a field the row also
+   * happened to carry is how a wrong mapping becomes a wrong adoption.
+   */
+  'account-unknown',
+  /**
+   * `{accountId}` — the account it named already carries a source key, so it
+   * is somebody's identity already. Adopting it would hand one account to two
+   * keys, which is the one thing FR-ADM-14 exists to prevent.
+   */
+  'account-already-keyed',
+  /**
+   * `{accountId}` and `{email}` — the identifier named an account that could
+   * be adopted, on a run that was not allowed to adopt by identifier.
+   *
+   * Its own code beside `account-unclaimed` because the remedy is a different
+   * switch, and a refusal whose sentence points at the wrong one is worse than
+   * no sentence at all.
+   */
+  'account-unclaimed-by-id',
   /** `{key}` and `{known}` — no price list is keyed that. */
   'unknown-tier',
   /** An unknown `sourceId` asking for access, with no address to mail. */

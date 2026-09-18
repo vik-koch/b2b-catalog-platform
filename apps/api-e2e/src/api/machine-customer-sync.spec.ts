@@ -491,6 +491,105 @@ describe('Headless customer exchange (FR-ADM-11)', () => {
       });
     });
 
+    describe('claiming by the account identifier (FR-ADM-17)', () => {
+      /** An account that registered here and was never keyed — the only kind
+       * a claim can reach, and the only kind the outward read exists for. */
+      const registered = address(91);
+      let accountId: string;
+
+      beforeAll(async () => {
+        const { rows } = await client.query(
+          `INSERT INTO users (email, "passwordHash", role, status, "firstName")
+           VALUES ($1, $2, 'user', 'pending', 'Ida')
+           RETURNING id`,
+          [registered, await hash(PASSWORD)],
+        );
+        accountId = rows[0].id;
+      });
+
+      afterAll(async () => {
+        await client.query('DELETE FROM users WHERE email = $1', [registered]);
+      });
+
+      it('is the identifier the outward read hands out', async () => {
+        // The two halves have to agree, or the claim names something the
+        // source system could never have learned.
+        const res = await axios.get('/machine/customers/accounts', {
+          headers: { Authorization: `Bearer ${readToken}` },
+          params: { limit: 200 },
+          validateStatus: () => true,
+        });
+
+        const seen = res.data.accounts.find(
+          (a: { email: string | null }) => a.email === registered,
+        );
+        expect(seen).toMatchObject({ id: accountId, sourceId: null });
+      });
+
+      it('points at the ID switch when it is off, whatever the address says', async () => {
+        const res = await submit({
+          rows: [{ sourceId: key(91), accountId, access: 'enabled' }],
+        });
+
+        expect(res.data.plan.rowErrors[0]).toMatchObject({
+          code: 'account-unclaimed-by-id',
+          params: { accountId },
+        });
+      });
+
+      it('waits for a person under its own ceiling, and adopts on apply', async () => {
+        // `maxIdClaims` is zero by default too: the evidence is stronger than
+        // an address, the wrong mapping behind it is just as damaging.
+        const res = await submit({
+          rows: [{ sourceId: key(91), accountId, access: 'enabled' }],
+          options: { claimById: true },
+        });
+
+        expect(res.data.run).toMatchObject({
+          status: 'previewed',
+          stagedReason: 'policy',
+        });
+        expect(res.data.plan.summary).toMatchObject({
+          claimedById: 1,
+          claimed: 0,
+        });
+        expect(res.data.plan.accounts[0]).toMatchObject({ kind: 'claim-id' });
+
+        const applied = await asStaff(
+          managerCookie,
+          'post',
+          `/admin/sync/runs/${res.data.run.id}/commit`,
+        );
+        expect(applied.status).toBe(200);
+
+        const account = await accountByKey(key(91));
+        expect(account).toMatchObject({
+          email: registered,
+          status: 'invited',
+          firstName: 'Ida',
+        });
+      });
+
+      it('refuses an identifier that names nothing', async () => {
+        const res = await submit({
+          rows: [
+            {
+              sourceId: key(92),
+              accountId: '00000000-0000-4000-8000-000000000000',
+              email: address(92),
+              access: 'enabled',
+            },
+          ],
+          options: { claimById: true },
+        });
+
+        expect(res.data.plan.rowErrors[0]).toMatchObject({
+          code: 'account-unknown',
+        });
+        expect(await accountByKey(key(92))).toBeUndefined();
+      });
+    });
+
     describe('reading a run back (FR-ADM-09)', () => {
       const readBack = (id: string, bearer = token) =>
         axios.get(`/machine/sync/customers/runs/${id}`, {
