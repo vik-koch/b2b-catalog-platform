@@ -10,7 +10,9 @@ import { RouterLink } from '@angular/router';
 import {
   CustomerSyncPlan,
   isCustomerSyncPlan,
+  isOrderSyncPlan,
   CatalogSyncPlan,
+  OrderSyncPlan,
   SyncRun,
 } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../auth/auth.service';
@@ -28,6 +30,9 @@ import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
+
+/** Whatever diff this run holds, or none: pruned, or never taken. */
+type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
 
 /**
  * One run: what it was, what it did or would do, and — while it is still
@@ -231,16 +236,20 @@ export class SyncRunPage {
   protected readonly busy = signal(false);
   protected readonly actionError = signal<string | null>(null);
 
-  protected customerPlan(
-    plan: CatalogSyncPlan | CustomerSyncPlan | null,
-  ): CustomerSyncPlan | null {
+  protected customerPlan(plan: AreaPlan): CustomerSyncPlan | null {
     return plan && isCustomerSyncPlan(plan) ? plan : null;
   }
 
-  protected catalogPlan(
-    plan: CatalogSyncPlan | CustomerSyncPlan | null,
-  ): CatalogSyncPlan | null {
-    return plan && !isCustomerSyncPlan(plan) ? plan : null;
+  protected orderPlan(plan: AreaPlan): OrderSyncPlan | null {
+    return plan && isOrderSyncPlan(plan) ? plan : null;
+  }
+
+  /** The catalog's is the one with no shape of its own to ask about — every
+   * plan that is neither of the other two is one. */
+  protected catalogPlan(plan: AreaPlan): CatalogSyncPlan | null {
+    return plan && !isCustomerSyncPlan(plan) && !isOrderSyncPlan(plan)
+      ? plan
+      : null;
   }
 
   protected statusLabel(run: SyncRun): string {

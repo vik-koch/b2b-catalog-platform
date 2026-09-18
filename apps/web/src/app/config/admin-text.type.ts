@@ -898,6 +898,7 @@ export const adminTextSchema = z
           .object({
             catalog: syncAreaTextSchema,
             customers: syncAreaTextSchema,
+            orders: syncAreaTextSchema,
           })
           .strict(),
         /** What ran it, where there is no person: an upload says so, and a

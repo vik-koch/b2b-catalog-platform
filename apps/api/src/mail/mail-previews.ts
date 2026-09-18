@@ -180,6 +180,24 @@ const APPLIED_RUN: SyncRun = {
   status: 'applied',
   summary: summary(0, 128, 0),
 };
+/**
+ * A waiting mail for an area that has one.
+ *
+ * `syncWaitingMail` answers null for an area whose runs are never staged
+ * (orders), and every preview below names a run of an area that can wait — so
+ * a null here is a preview pointing at the wrong area rather than a case a
+ * reader has to think about.
+ */
+function waitingPreview(
+  run: SyncRun,
+  started: string,
+  text: MailText,
+): MailContent {
+  const content = syncWaitingMail(run, started, text);
+  if (!content) throw new Error(`${run.area} runs are never staged`);
+  return content;
+}
+
 const STAGED_RUN: SyncRun = {
   ...baseRun,
   status: 'previewed',
@@ -543,7 +561,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       shows: 'syncWaiting',
       title: 'A catalog update is waiting',
       note: 'A run held back for a person. The reason separates an ordinary large import from one the source itself doubts.',
-      content: syncWaitingMail(STAGED_RUN, RUN_TIME, text),
+      content: waitingPreview(STAGED_RUN, RUN_TIME, text),
     },
     {
       slug: 'sync-created',
@@ -575,7 +593,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       shows: 'customerSyncWaiting',
       title: 'A customer update is waiting',
       note: 'A run held back for a person. There is deliberately no customer counterpart to “new products arrived”: an invited account has already been mailed its own set-a-password link.',
-      content: syncWaitingMail(CUSTOMERS_STAGED_RUN, RUN_TIME, text),
+      content: waitingPreview(CUSTOMERS_STAGED_RUN, RUN_TIME, text),
     },
     {
       slug: 'order-document',

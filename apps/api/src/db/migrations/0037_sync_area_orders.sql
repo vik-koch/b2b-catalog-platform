@@ -1,0 +1,1 @@
+ALTER TYPE "public"."sync_area" ADD VALUE 'orders';

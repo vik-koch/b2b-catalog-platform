@@ -8,6 +8,7 @@ import {
   SyncCommitResponse,
   CustomerSyncPlan,
   CatalogSyncPlan,
+  OrderSyncPlan,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared';
@@ -44,11 +45,20 @@ export class SyncService {
    * is what says which.
    */
   async commit(id: string, actor: Actor): Promise<SyncCommitResponse> {
-    switch (await this.areaOf(id)) {
+    const area = await this.areaOf(id);
+    switch (area) {
       case 'customers':
         return this.customers.commit(id, actor);
       case 'catalog':
         return this.catalog.commit(id, actor);
+      // An order run is applied as it arrives and never staged (ADR 0062), so
+      // there is nothing here to press. Answered as the state conflict it is:
+      // the run exists and is readable, it is simply already finished.
+      case 'orders':
+        throw new ConflictException({
+          code: CONFLICT_CODE['applied'],
+          message: 'An order run is applied when it arrives',
+        });
     }
   }
 
@@ -103,7 +113,7 @@ export class SyncService {
 
   async getRun(id: string): Promise<{
     run: SyncRun;
-    plan: CatalogSyncPlan | CustomerSyncPlan | null;
+    plan: CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
   }> {
     const [run] = await this.db
       .select()

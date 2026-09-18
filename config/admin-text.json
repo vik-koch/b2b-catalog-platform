@@ -546,6 +546,10 @@
       "customers": {
         "title": "Customer sync",
         "runsDescription": "Every customer run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied."
+      },
+      "orders": {
+        "title": "Order sync",
+        "runsDescription": "Every order update your connected system has sent back. These are applied as they arrive — there is nothing here to review, and this is the record of what was answered."
       }
     },
     "sourceUpload": "Uploaded",

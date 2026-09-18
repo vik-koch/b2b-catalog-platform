@@ -108,10 +108,8 @@ export class SyncNotifications {
       // connection, the other is about work on somebody's desk.
     }
     if (now === 'waiting' && before !== 'waiting') {
-      await this.send(
-        syncWaitingMail(run, this.when(run), this.text),
-        'admins',
-      );
+      const waiting = syncWaitingMail(run, this.when(run), this.text);
+      if (waiting) await this.send(waiting, 'admins');
       return;
     }
     // Applied and brought products nobody has published yet (FR-ADM-06). Not a

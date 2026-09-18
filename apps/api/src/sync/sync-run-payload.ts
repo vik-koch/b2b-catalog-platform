@@ -98,6 +98,12 @@ export function stagedPayload(run: RunRow): StagedPayload | null {
   // errors at all, and only an uploaded file can carry any.
   const errors = run.parseErrors ?? [];
   switch (run.area) {
+    // An order write-back is applied as it arrives and stages nothing
+    // (ADR 0062), so there is never a payload to read back. Stated rather than
+    // left to the guard above, which is about a run that *had* one and lost it
+    // to pruning.
+    case 'orders':
+      return null;
     case 'catalog':
       return {
         area: 'catalog',

@@ -260,6 +260,13 @@
       "when": 1789725127482,
       "tag": "0036_order_revision_source",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1789725137162,
+      "tag": "0037_sync_area_orders",
+      "breakpoints": true
     }
   ]
 }
