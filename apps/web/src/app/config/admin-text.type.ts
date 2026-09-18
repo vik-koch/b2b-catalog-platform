@@ -1049,6 +1049,7 @@ export const adminTextSchema = z
             'catalog-sync': z.string(),
             'customer-sync': z.string(),
             'customer-read': z.string(),
+            'order-read': z.string(),
           })
           .strict(),
         /** The panel that shows the value. `{name}` substituted at render. */

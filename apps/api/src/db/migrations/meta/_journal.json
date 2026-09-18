@@ -246,6 +246,13 @@
       "when": 1789720690751,
       "tag": "0034_order_updated_at",
       "breakpoints": true
+    },
+    {
+      "idx": 35,
+      "version": "7",
+      "when": 1789720715970,
+      "tag": "0035_api_token_order_read_scope",
+      "breakpoints": true
     }
   ]
 }
