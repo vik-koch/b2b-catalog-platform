@@ -151,7 +151,7 @@ describe('External data ownership (FR-ADM-10)', () => {
 
     // Nothing may be owned on the way in: a previous crashed run must not
     // decide what this one sees.
-    await setOwned(false, ['catalog', 'customers']);
+    await setOwned(false, ['catalog', 'customers', 'orders']);
 
     const category = await asAdmin('post', '/admin/catalog/categories', {
       name: CATEGORY_NAME,
@@ -220,9 +220,18 @@ describe('External data ownership (FR-ADM-10)', () => {
   afterAll(async () => {
     // Whatever went wrong above, the shared switches go back off.
     await asAdmin('put', '/settings/ownership', {
-      areas: ['catalog', 'customers'],
+      areas: ['catalog', 'customers', 'orders'],
       owned: false,
     });
+    // Before the product and the customer they both point at: an order holds
+    // its account, and nothing deletes an account out from under one.
+    await client.query(
+      `DELETE FROM orders WHERE id IN (
+         SELECT r."orderId" FROM order_items i
+           JOIN order_revisions r ON r.id = i."revisionId"
+          WHERE i."productSourceId" = $1)`,
+      [PRODUCT_SOURCE_ID],
+    );
     await client.query('DELETE FROM sync_runs WHERE "tokenName" LIKE $1', [
       `${TOKEN_NAME}%`,
     ]);
@@ -844,6 +853,204 @@ describe('External data ownership (FR-ADM-10)', () => {
           wholeEdit({ firstName: 'Edited' }),
         );
         expect(res.status).toBe(200);
+      });
+    });
+  });
+
+  /**
+   * Order processing, closed whole like the customer area (FR-ADM-08/10) —
+   * and with two carve-outs the customer area did not have: the shop still
+   * takes orders while they are owned, and the person who placed one can still
+   * call it off. An owned area therefore gains and loses orders on its own,
+   * which the exchange reads rather than resolves.
+   */
+  describe('while order processing is externally owned', () => {
+    const refusal = (res: { status: number; data: { code?: string } }) => ({
+      status: res.status,
+      code: res.data.code,
+    });
+    const refused = { status: 409, code: 'orders-externally-owned' };
+
+    /** A guest order on this spec's own product, placed the way a checkout
+     * places one, so nothing here depends on the seeded catalog. */
+    const place = async (
+      cookie?: string,
+    ): Promise<{ reference: string; publicToken: string }> => {
+      const lines = [{ slug: productSlug, unit: 'piece', pieces: 1 }];
+      const headers = cookie ? { Cookie: cookie } : undefined;
+      const priced = await axios.post(
+        '/cart/preview',
+        { lines },
+        { headers, validateStatus: () => true },
+      );
+      expect(priced.status).toBe(200);
+      const res = await axios.post(
+        '/orders',
+        {
+          lines,
+          contact: {
+            name: 'Ada Lovelace',
+            email: `e2e-own-order-${R}@example.com`,
+            phone: '+49 40 7654321',
+          },
+          fulfilmentMethod: 'delivery',
+          party: { name: 'Kontor GmbH', registrationId: 'DE123456789' },
+          deliveryAddress: {
+            label: null,
+            street: 'Hafenstraße 12',
+            street2: null,
+            postalCode: '20359',
+            city: 'Hamburg',
+            region: null,
+            country: 'DE',
+          },
+          pickupLocationKey: null,
+          // This deployment invoices an address of its own; the same one does.
+          billingAddress: {
+            label: null,
+            street: 'Hafenstraße 12',
+            street2: null,
+            postalCode: '20359',
+            city: 'Hamburg',
+            region: null,
+            country: 'DE',
+          },
+          paymentMethod: 'bank-transfer',
+          preferredDate: null,
+          customerNote: null,
+          expectedTotalMinor: priced.data.totalMinor,
+          acceptPrivacy: true,
+        },
+        { headers, validateStatus: () => true },
+      );
+      expect(res.status).toBe(201);
+      return res.data;
+    };
+
+    let reference: string;
+    let customerCookie: string;
+
+    beforeAll(async () => {
+      // The product has to be sellable before anybody can order it
+      // (FR-ADM-06); it is this spec's own, so publishing it disturbs nothing.
+      const published = await asAdmin(
+        'patch',
+        `/admin/catalog/products/${productSlug}/published`,
+        { published: true },
+      );
+      expect(published.status).toBe(200);
+      reference = (await place()).reference;
+
+      // The account exists but was invited rather than given a password; the
+      // customer's own cancellation is an account's route, so it needs one.
+      await client.query(
+        `UPDATE users SET "passwordHash" = $2, status = 'active' WHERE id = $1`,
+        [customerId, await hash(PASSWORD)],
+      );
+      customerCookie = sessionCookie(
+        (
+          await axios.post('/auth/login', {
+            email: CUSTOMER_EMAIL,
+            password: PASSWORD,
+          })
+        ).headers['set-cookie'],
+      );
+    });
+
+    it('refuses every staff act on an order', async () => {
+      await whileOwning(['orders'], async () => {
+        expect(
+          refusal(
+            await asAdmin('post', `/admin/orders/${reference}/status`, {
+              to: 'approved',
+              reason: null,
+              notify: true,
+              showCustomer: true,
+              markPaid: false,
+            }),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin('post', `/admin/orders/${reference}/payment`, {
+              paid: true,
+            }),
+          ),
+        ).toEqual(refused);
+        expect(
+          refusal(
+            await asAdmin('post', `/admin/orders/${reference}/notify`, {
+              notify: true,
+            }),
+          ),
+        ).toEqual(refused);
+        // The documents are not an oRPC route, and close with the rest of it.
+        const document = await asAdmin(
+          'delete',
+          `/order-documents/${reference}/order-summary`,
+        );
+        expect(refusal(document)).toEqual(refused);
+      });
+    });
+
+    it('refuses a manager as readily as an admin', async () => {
+      await whileOwning(['orders'], async () => {
+        const res = await axios.post(
+          `/admin/orders/${reference}/payment`,
+          { paid: true },
+          { headers: { Cookie: managerCookie }, validateStatus: () => true },
+        );
+        expect(refusal(res)).toEqual(refused);
+      });
+    });
+
+    it('still answers every read, and still counts the work', async () => {
+      await whileOwning(['orders'], async () => {
+        expect((await asAdmin('get', '/admin/orders')).status).toBe(200);
+        expect(
+          (await asAdmin('get', `/admin/orders/${reference}`)).status,
+        ).toBe(200);
+        expect(
+          (await asAdmin('get', `/admin/orders/${reference}/revisions`)).status,
+        ).toBe(200);
+        const work = await asAdmin('get', '/work/counts');
+        expect(work.status).toBe(200);
+        // An order nobody here answers is still work, and the count says whose
+        // record to go and look at in the other system.
+        expect(work.data.orders).toBeGreaterThan(0);
+      });
+    });
+
+    it('still takes an order, and still lets the customer call it off', async () => {
+      await whileOwning(['orders'], async () => {
+        // Both halves are the customer's own act rather than the shop's work,
+        // so neither is refused: the area gains an order and loses one while
+        // it is owned, and the exchange has to read that rather than resolve
+        // it. Calling off is an account's own route — a mailed link reads an
+        // order and never stops one.
+        const placed = await place(customerCookie);
+        const called = await axios.post(
+          `/account/orders/${placed.reference}/cancel`,
+          { reason: null },
+          { headers: { Cookie: customerCookie }, validateStatus: () => true },
+        );
+        expect(called.status).toBe(200);
+      });
+    });
+
+    it('is not closed by handing another area over', async () => {
+      // Three areas, three rules. Asserted as "not this refusal" rather than
+      // as a 200: whether an unanswered order can be recorded as paid is the
+      // payment rule's business, and this case is only about the switch.
+      await whileOwning(['catalog', 'customers'], async () => {
+        const res = await asAdmin('post', `/admin/orders/${reference}/status`, {
+          to: 'approved',
+          reason: null,
+          notify: false,
+          showCustomer: true,
+          markPaid: false,
+        });
+        expect(res.data.code).not.toBe('orders-externally-owned');
       });
     });
   });

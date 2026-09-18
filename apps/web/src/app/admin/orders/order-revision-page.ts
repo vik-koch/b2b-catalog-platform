@@ -24,6 +24,7 @@ import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
 import { AdminOrdersService } from './orders.service';
+import { SettingsService } from '../settings/settings.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
 
@@ -172,13 +173,15 @@ import { revisionKindLabel } from './revision-labels';
 
             <!-- The way from reading to doing, under the card it was read
                  against: everything a manager does to an order is on that
-                 page, and this one deliberately offers none of it. -->
+                 page, and this one deliberately offers none of it. Where there
+                 is nothing to do, it still leads somewhere — the order as it
+                 now stands — and says so instead. -->
             <a
               appButton
               class="mt-5 w-full"
               [routerLink]="['/admin/orders', reference()]"
             >
-              {{ text.openControls }}
+              {{ locked() ? text.openOrder : text.openControls }}
             </a>
             <a
               appButton
@@ -203,6 +206,7 @@ import { revisionKindLabel } from './revision-labels';
 })
 export class AdminOrderRevisionPage {
   private readonly api = inject(AdminOrdersService);
+  private readonly ownership = inject(SettingsService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
   private readonly appText = inject(APP_TEXT);
@@ -211,6 +215,10 @@ export class AdminOrderRevisionPage {
   protected readonly listText = inject(ADMIN_TEXT).orderList;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  /** Whether an external system answers orders (FR-ADM-10). This page never
+   * had controls to take away; what it has is a link that promised some. */
+  protected readonly locked = computed(() => this.ownership.owns('orders'));
 
   readonly reference = input.required<string>();
   /** Bound from the route, and so a string: an unparsed segment. */
@@ -348,6 +356,7 @@ export class AdminOrderRevisionPage {
   });
 
   constructor() {
+    void this.ownership.load();
     usePageSeo({
       name: () => `${this.reference()} · ${this.number()}`,
       noindex: true,

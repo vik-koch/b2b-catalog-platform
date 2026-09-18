@@ -47,6 +47,8 @@ import {
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { LockedNote } from '../ownership/locked-note';
+import { SettingsService } from '../settings/settings.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
@@ -99,6 +101,7 @@ const MARK_PAID = 'markPaid';
     OrderReadBack,
     OrderSummary,
     StatusBadge,
+    LockedNote,
   ],
   template: `
     @if (detail(); as order) {
@@ -116,6 +119,15 @@ const MARK_PAID = 'markPaid';
               </h1>
             </div>
             <p class="mt-2 text-muted">{{ placed(order) }}</p>
+
+            <!-- Above the block whose controls it explains: every one of them
+                 is gone while the order is answered elsewhere, and a card that
+                 quietly lost its buttons teaches nobody why. -->
+            @if (locked()) {
+              <app-locked-note class="mt-4">{{
+                ownershipText.orderLocked
+              }}</app-locked-note>
+            }
 
             <!--
               What only staff see, and what only staff do, in one block: whose
@@ -219,49 +231,55 @@ const MARK_PAID = 'markPaid';
                     }
                   </div>
 
-                  <div [class]="actions">
-                    <!-- Changing what an order says stands with the moves
-                         because it is the other half of answering one, and it
-                         is offered wherever the order stands: a shortage found
-                         while packing, an address corrected on a van, a
-                         completed order somebody recorded wrongly. A link, not
-                         a button: it opens a form, and nothing happens until
-                         that form is saved. -->
-                    <a
-                      appButton
-                      size="sm"
-                      variant="secondary"
-                      class="w-full gap-2 sm:w-auto"
-                      [routerLink]="[
-                        '/admin/orders',
-                        order.reference,
-                        'adjust',
-                      ]"
-                    >
-                      <app-admin-icon name="pencil" class="h-4 w-4" />
-                      {{ text.actions.adjust }}
-                    </a>
-
-                    <!-- The glyph says which way the move runs: on down the
-                         chain, back up it, or off it altogether. Not a bin for
-                         the last of those — orders are never deleted (ADR
-                         0050), and a bin standing for "decline" would one day
-                         be pressed by somebody meaning to tidy a list. -->
-                    @for (move of moves(); track move.to) {
-                      <button
+                  <!-- Nothing to answer the order with while it is answered
+                       elsewhere, so the whole row of controls goes rather than
+                       leaving an empty strip under the status. -->
+                  @if (!locked()) {
+                    <div [class]="actions">
+                      <!-- Changing what an order says stands with the moves
+                           because it is the other half of answering one, and it
+                           is offered wherever the order stands: a shortage
+                           found while packing, an address corrected on a van, a
+                           completed order somebody recorded wrongly. A link,
+                           not a button: it opens a form, and nothing happens
+                           until that form is saved. -->
+                      <a
                         appButton
                         size="sm"
-                        type="button"
+                        variant="secondary"
                         class="w-full gap-2 sm:w-auto"
-                        [variant]="move.variant"
-                        [disabled]="busy()"
-                        (click)="move.run()"
+                        [routerLink]="[
+                          '/admin/orders',
+                          order.reference,
+                          'adjust',
+                        ]"
                       >
-                        <app-admin-icon [name]="move.icon" class="h-4 w-4" />
-                        {{ move.label }}
-                      </button>
-                    }
-                  </div>
+                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                        {{ text.actions.adjust }}
+                      </a>
+
+                      <!-- The glyph says which way the move runs: on down the
+                           chain, back up it, or off it altogether. Not a bin
+                           for the last of those — orders are never deleted
+                           (ADR 0050), and a bin standing for "decline" would
+                           one day be pressed by somebody meaning to tidy a
+                           list. -->
+                      @for (move of moves(); track move.to) {
+                        <button
+                          appButton
+                          size="sm"
+                          type="button"
+                          class="w-full gap-2 sm:w-auto"
+                          [variant]="move.variant"
+                          [disabled]="busy()"
+                          (click)="move.run()"
+                        >
+                          <app-admin-icon [name]="move.icon" class="h-4 w-4" />
+                          {{ move.label }}
+                        </button>
+                      }
+                    </div>
+                  }
                 </dd>
 
                 <!-- What the customer can see, and what they have been told.
@@ -313,6 +331,7 @@ const MARK_PAID = 'markPaid';
                 <dd [class]="value">
                   <app-order-documents-panel
                     [order]="order"
+                    [readOnly]="locked()"
                     (changed)="reload()"
                   />
                 </dd>
@@ -532,6 +551,7 @@ const MARK_PAID = 'markPaid';
 })
 export class AdminOrderDetailPage {
   private readonly api = inject(AdminOrdersService);
+  private readonly ownership = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
@@ -543,6 +563,17 @@ export class AdminOrderDetailPage {
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  /**
+   * Whether an external system answers orders (FR-ADM-10). Read the way the
+   * account screens read their own: an answer still in flight counts as not
+   * owned, and the API refuses the write either way.
+   *
+   * Every control on this page is drawn from a computed that returns nothing
+   * while it holds, so the closure is one rule rather than a condition on each
+   * button — the documents panel already had a reading mode, and takes it.
+   */
+  protected readonly locked = computed(() => this.ownership.owns('orders'));
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   /**
@@ -838,7 +869,7 @@ export class AdminOrderDetailPage {
    */
   protected readonly customerAction = computed(() => {
     const order = this.detail();
-    if (!order) return null;
+    if (!order || this.locked()) return null;
     if (order.customerRevisionNumber < order.revisionNumber) {
       return {
         kind: 'update' as const,
@@ -921,7 +952,7 @@ export class AdminOrderDetailPage {
    */
   protected readonly moves = computed(() => {
     const order = this.detail();
-    if (!order) return [];
+    if (!order || this.locked()) return [];
     return allowedTransitions('staff', order.status)
       .filter((to) => !(to === 'cancelled' && order.status === 'requested'))
       .map((to) => ({
@@ -1132,7 +1163,7 @@ export class AdminOrderDetailPage {
    */
   protected readonly paymentMove = computed(() => {
     const order = this.detail();
-    if (!order) return null;
+    if (!order || this.locked()) return null;
     const ended = order.status === 'declined' || order.status === 'cancelled';
     if (ended) return null;
     const payment = this.text.paymentState;
@@ -1206,6 +1237,7 @@ export class AdminOrderDetailPage {
   private readonly dateTimeFormat = orderDateTimeFormat(this.currency.locale);
 
   constructor() {
+    void this.ownership.load();
     usePageSeo({ name: () => this.reference() });
   }
 }

@@ -33,17 +33,17 @@ import { StaffOrderSummary } from './orders.service';
       [routerLink]="['/admin/orders', order().reference]"
       [queryParams]="returnParams()"
       appIconButton
-      [variant]="unanswered() ? 'marked' : 'default'"
-      [attr.aria-label]="unanswered() ? text.actions.answer : text.actions.open"
-      [title]="unanswered() ? text.actions.answer : text.actions.open"
+      [variant]="answerable() ? 'marked' : 'default'"
+      [attr.aria-label]="answerable() ? text.actions.answer : text.actions.open"
+      [title]="answerable() ? text.actions.answer : text.actions.open"
     >
-      <app-admin-icon [name]="unanswered() ? 'circle-check' : 'pencil'" />
+      <app-admin-icon [name]="answerable() ? 'circle-check' : 'pencil'" />
     </a>
 
     <!-- One slot for "stop this order", with the word the row's state gives
          it: a request the shop will not fill is declined, an order it has
          already taken on is cancelled. An order that has ended has neither. -->
-    @if (ending(); as ending) {
+    @if (!locked() && ending(); as ending) {
       <button
         type="button"
         appIconButton
@@ -64,6 +64,13 @@ export class OrderRowActions {
   /** So the order page opened from a row returns to this list, filters and
    * all. */
   readonly returnParams = input<Params>({});
+  /**
+   * Whether an external system holds order processing (FR-ADM-10). What is
+   * left is the way in: the order is still read, and the glyph stops promising
+   * a decision nobody here makes — an unanswered order is not this shop's to
+   * answer, and stopping one is done over there.
+   */
+  readonly locked = input(false);
 
   readonly endRequested = output<{
     order: StaffOrderSummary;
@@ -72,6 +79,9 @@ export class OrderRowActions {
 
   protected readonly unanswered = computed(
     () => this.order().status === 'requested',
+  );
+  protected readonly answerable = computed(
+    () => this.unanswered() && !this.locked(),
   );
 
   /**

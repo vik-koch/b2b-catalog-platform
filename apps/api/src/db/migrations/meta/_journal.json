@@ -232,6 +232,13 @@
       "when": 1789639756295,
       "tag": "0032_api_token_customer_read_scope",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1789716687543,
+      "tag": "0033_ownership_area_orders",
+      "breakpoints": true
     }
   ]
 }

@@ -24,6 +24,7 @@ import {
   lowercaseEmailField,
 } from './contact-config';
 import { commonAuthErrors } from './api-error';
+import { ownershipErrors } from './ownership-constants';
 import {
   cartLineSchema,
   cartPreviewSchema,
@@ -566,6 +567,21 @@ const submissionErrors = {
 const orderNotFound = { 'order-not-found': { status: 404 } } as const;
 
 /**
+ * What every staff write to an order carries, and no read and no customer
+ * route does: while an external system owns order processing the platform's
+ * own side of them is closed as a whole (FR-ADM-10), and the screens that show
+ * them stay open.
+ *
+ * Placing an order and calling off an unanswered one are the customer's own
+ * acts and are never refused by it — which is why this sits beside the
+ * transition errors rather than inside them: one of the two callers of that
+ * table is the customer.
+ */
+const owned = {
+  'orders-externally-owned': ownershipErrors['orders-externally-owned'],
+} as const;
+
+/**
  * Everything a transition can be refused for (FR-ORD-02).
  *
  * `transition-not-allowed` covers both halves of the table at once — the move
@@ -970,7 +986,7 @@ export const ordersContract = {
       inputStructure: 'detailed',
       summary: 'Accept, refuse, or move on an order (admin, manager)',
     })
-    .errors(transitionErrors)
+    .errors({ ...transitionErrors, ...owned })
     .input(
       z.object({
         params: z.object({ reference: z.string() }),
@@ -1042,7 +1058,7 @@ export const ordersContract = {
       inputStructure: 'detailed',
       summary: 'Price a proposed adjustment without writing it',
     })
-    .errors(adjustmentErrors)
+    .errors({ ...adjustmentErrors, ...owned })
     .input(
       z.object({
         params: z.object({ reference: z.string() }),
@@ -1068,7 +1084,7 @@ export const ordersContract = {
       inputStructure: 'detailed',
       summary: 'Write a new version of the order (admin, manager)',
     })
-    .errors(adjustmentErrors)
+    .errors({ ...adjustmentErrors, ...owned })
     .input(
       z.object({
         params: z.object({ reference: z.string() }),
@@ -1096,6 +1112,7 @@ export const ordersContract = {
     })
     .errors({
       ...orderNotFound,
+      ...owned,
       /** There was nothing left to do: they are on the current version and
        * nobody asked for a message. */
       'nothing-to-tell': { status: 409 },
@@ -1137,6 +1154,7 @@ export const ordersContract = {
     })
     .errors({
       ...orderNotFound,
+      ...owned,
       /** Nothing to change: already recorded, already clear, or an order that
        * ended without being filled. */
       'payment-not-recordable': { status: 409 },

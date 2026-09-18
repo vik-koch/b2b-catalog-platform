@@ -5,6 +5,8 @@ import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
+import { ordersExternallyOwned } from '../settings/ownership.refusals';
+import { SettingsService } from '../settings/settings.service';
 import { OrdersService } from './orders.service';
 
 /**
@@ -22,7 +24,23 @@ export class AdminOrdersController {
   constructor(
     private readonly orders: OrdersService,
     private readonly audit: AuditLogger,
+    private readonly settings: SettingsService,
   ) {}
+
+  /**
+   * Every act on an order, closed in one place while an external system owns
+   * order processing (FR-ADM-10) — the moves, the adjustment and the preview
+   * that only exists to be applied, the payment tick, and telling the customer.
+   *
+   * Not a guard: nothing about the caller decides it, and it is a state the
+   * platform is in rather than a permission they lack. The reads above it stay
+   * open, because staff have to be able to see what the customer sees.
+   */
+  private refuseIfOwned(action: string): void {
+    if (this.settings.isExternallyOwned('orders')) {
+      throw ordersExternallyOwned(action);
+    }
+  }
 
   @Implement(ordersContract.listOrders)
   listOrders() {
@@ -62,6 +80,7 @@ export class AdminOrdersController {
     return implement(ordersContract.transitionOrder)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
+        this.refuseIfOwned('move an order');
         const order = await this.orders.transitionForStaff(
           params.reference,
           body,
@@ -109,9 +128,10 @@ export class AdminOrdersController {
   previewOrderAdjustment() {
     return implement(ordersContract.previewOrderAdjustment)
       .use(refusals)
-      .handler(({ input: { params, body } }) =>
-        this.orders.previewAdjustment(params.reference, body),
-      );
+      .handler(({ input: { params, body } }) => {
+        this.refuseIfOwned('price an adjustment');
+        return this.orders.previewAdjustment(params.reference, body);
+      });
   }
 
   /**
@@ -128,6 +148,7 @@ export class AdminOrdersController {
     return implement(ordersContract.adjustOrder)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
+        this.refuseIfOwned('adjust an order');
         const order = await this.orders.adjust(
           params.reference,
           body,
@@ -150,6 +171,7 @@ export class AdminOrdersController {
     return implement(ordersContract.notifyOrderCustomer)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
+        this.refuseIfOwned("move the customer's view");
         const order = await this.orders.showCustomerCurrent(
           params.reference,
           body.notify,
@@ -167,6 +189,7 @@ export class AdminOrdersController {
     return implement(ordersContract.setOrderPayment)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
+        this.refuseIfOwned('record a payment');
         const order = await this.orders.setPayment(
           params.reference,
           body.paid,

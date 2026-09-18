@@ -26,6 +26,7 @@ import {
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
 import { MediaModule } from '../media/media.module';
+import { SettingsModule } from '../settings/settings.module';
 import { AdminOrdersController } from './admin-orders.controller';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
@@ -44,7 +45,14 @@ import { OrdersService } from './orders.service';
  * service's validation, not the account-scoped controllers.
  */
 @Module({
-  imports: [AuthModule, AddressBookModule, MailModule, MediaModule],
+  imports: [
+    AuthModule,
+    AddressBookModule,
+    MailModule,
+    MediaModule,
+    // Whether an external system holds order processing (FR-ADM-10).
+    SettingsModule,
+  ],
   controllers: [
     CartController,
     OrdersController,

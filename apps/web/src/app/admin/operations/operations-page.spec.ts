@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
   AppSettings,
+  OWNERSHIP_AREAS,
   OwnershipArea,
   SettingChange,
 } from '@b2b-catalog-platform/shared';
@@ -55,7 +56,7 @@ async function render(
   const settings: AppSettings = {
     maintenanceEnabled: options.maintenanceOn ?? false,
     ownedAreas:
-      options.ownedAreas ?? (options.owned ? ['catalog', 'customers'] : []),
+      options.ownedAreas ?? (options.owned ? [...OWNERSHIP_AREAS] : []),
     updatedAt: '2026-09-10T10:00:00.000Z',
   };
   const h: Harness = {
@@ -267,10 +268,7 @@ describe('OperationsPage', () => {
         expect.objectContaining({ heading: ownershipText.all.handTitle }),
       );
       expect(h.setOwnership).toHaveBeenCalledTimes(1);
-      expect(h.setOwnership).toHaveBeenCalledWith(
-        ['catalog', 'customers'],
-        true,
-      );
+      expect(h.setOwnership).toHaveBeenCalledWith([...OWNERSHIP_AREAS], true);
     });
 
     it('reads the master off the areas rather than off a flag of its own', async () => {
@@ -287,7 +285,8 @@ describe('OperationsPage', () => {
 
       expect(el.textContent).toContain(ownershipText.all.statusMixed);
       expect(masterSwitch(el).getAttribute('aria-checked')).toBe('false');
-      expect(switches(el)).toHaveLength(4);
+      // Maintenance, the master, and one row per area now that they disagree.
+      expect(switches(el)).toHaveLength(2 + OWNERSHIP_AREAS.length);
     });
 
     it('keeps the rows shut while the areas agree', async () => {

@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AdminOrderDetail, OrderRevision } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  OrderRevision,
+  OwnershipArea,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -120,6 +125,16 @@ const versions: OrderRevision[] = [
   },
 ];
 
+/**
+ * Which areas an external system holds while a case renders (FR-ADM-10). Set
+ * by the case that is about the closure and reset between them, rather than
+ * threaded through every render signature.
+ */
+let owned: OwnershipArea[] = [];
+beforeEach(() => {
+  owned = [];
+});
+
 async function render(
   answer: AdminOrderDetail | null | 'reject',
   api: Partial<Record<'transition' | 'setPayment' | 'revisions', unknown>> = {},
@@ -136,6 +151,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
@@ -600,5 +616,46 @@ describe('AdminOrderDetailPage answering an order', () => {
       expect(buttons(el)).toContain(text.tellCustomer.email);
       expect(buttons(el)).not.toContain(text.tellCustomer.update);
     });
+  });
+});
+
+/**
+ * The order's own page while an external system answers orders (FR-ADM-10).
+ * The whole of it stays readable — that is the point of the switch, not an
+ * exception to it — and every control on it goes, including the documents
+ * panel's, which already had a reading mode for the version screen.
+ */
+describe('AdminOrderDetailPage while orders are externally owned', () => {
+  const allButtons = (el: HTMLElement) =>
+    [...el.querySelectorAll('button')].map((button) =>
+      button.textContent?.trim(),
+    );
+
+  it('keeps the order readable and says why it does nothing else', async () => {
+    owned = ['orders'];
+    const { el } = await render(placed);
+
+    expect(el.textContent).toContain(placed.reference);
+    expect(el.textContent).toContain('alex@example.com');
+    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
+  });
+
+  it('offers no move, no adjustment, no payment and no word to the customer', async () => {
+    owned = ['orders'];
+    const { el } = await render(placed);
+
+    expect(allButtons(el)).not.toContain(text.actions.approve);
+    expect(allButtons(el)).not.toContain(text.actions.decline);
+    expect(allButtons(el)).not.toContain(text.paymentState.record);
+    expect(allButtons(el)).not.toContain(text.tellCustomer.update);
+    expect(el.textContent).not.toContain(text.actions.adjust);
+  });
+
+  it('leaves the documents as a reading, not an upload', async () => {
+    owned = ['orders'];
+    const { el } = await render(placed);
+
+    expect(allButtons(el)).not.toContain(text.documents.upload);
+    expect(allButtons(el)).not.toContain(text.documents.remove);
   });
 });
