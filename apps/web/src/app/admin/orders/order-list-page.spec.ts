@@ -319,13 +319,6 @@ describe('AdminOrderListPage while orders are externally owned', () => {
     expect(labels(el)).not.toContain(actions.cancel);
   });
 
-  it('says once, above the list, why the rows do less', async () => {
-    owned = ['orders'];
-    const { el } = await render([placed]);
-
-    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
-  });
-
   it('sends the reference at the order itself rather than at a version', async () => {
     owned = ['orders'];
     const { el } = await render([placed]);

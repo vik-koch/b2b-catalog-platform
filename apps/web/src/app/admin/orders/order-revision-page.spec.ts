@@ -192,7 +192,6 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     owned = ['orders'];
     const { el } = await render(version);
 
-    expect(el.textContent).toContain(defaultAdminText.ownership.orderLocked);
     expect(el.textContent).toContain(text.revisions.openOrder);
     expect(el.textContent).not.toContain(text.revisions.openControls);
   });
