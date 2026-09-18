@@ -48,6 +48,18 @@ describe('AuditLogger', () => {
     expect(lines[0]).toContain('name="Cups & Glassware"');
   });
 
+  it('names a machine credential instead of an account, quoted', () => {
+    new AuditLogger().record(
+      'order.document.supplied',
+      { token: 'Back office adapter' },
+      { id: 'ORD-1', name: 'payment-instructions' },
+    );
+
+    expect(lines).toEqual([
+      'order.document.supplied actor=token:"Back office adapter" id=ORD-1 name="payment-instructions"',
+    ]);
+  });
+
   it('omits fields the caller does not have', () => {
     new AuditLogger().record('category.reordered', actor, {});
 

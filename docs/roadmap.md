@@ -532,6 +532,19 @@ Notes:
   checkout, so an exchange overwriting them would be answering for them. Whoever acted in the
   owning system travels as an **opaque label** beside the version, never resolved to an account
   here ([FR-ADM-08](requirements.md#fr-adm-08)).
+- **The shop's own paperwork arrives as bytes, outside the run** (2026-09-18, [FR-ORD-05](requirements.md#fr-ord-05)
+  amended). The source system prints the payment invoice already, and its exchange format has no
+  slot to carry a file — so the adapter posts the real document to a plain upload rather than
+  handing over data for the platform to redraw. Redrawing it would put a second lookalike of the
+  shop's paperwork one container further out, where it could not be reviewed or tested with the
+  rest, and the two layouts would drift. The rule that follows: **drawn from data, the platform
+  draws it; the real paperwork arrives as bytes.** A document writes no version of the order and
+  files no run, which is what keeps "one exchange writes at most one version" intact — so the
+  upload is not a second capability either, but the same pen the write-back uses, opening exactly
+  when the panel's own upload closes. The adapter's ordering rule is to **supply the file before
+  the version that announces it**, so one message carries both; where the back office cannot
+  print the invoice until it has accepted the order, the document sends a message of its own
+  rather than the acceptance mail waiting for a file that may never come.
 - **Two edges of the exchanges that already ship are closed at the start of iteration 14**, before
   any order work, because the adapter is being written against `v1.10.0`/`v1.11.0` now and one of
   them is a live blocker. A source can **read one of its own runs back** ([FR-ADM-09](requirements.md#fr-adm-09) amended):

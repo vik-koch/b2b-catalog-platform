@@ -92,6 +92,25 @@ export type AuditAction =
   | 'apiToken.revoked';
 
 /**
+ * Who did it.
+ *
+ * Usually the account behind the cookie. An automated client has no account at
+ * all (NFR-SEC-09) — it presents a credential, and the credential's name is the
+ * only thing the platform can honestly say about it, so it is logged as such
+ * rather than resolved to somebody who was not there.
+ */
+export type AuditActor = AuthUser | { readonly token: string };
+
+/** The `actor=` value, in a shape that stays one `key=value` token: a token's
+ * name is an operator's label and may well contain spaces. */
+function actorLabel(actor: AuditActor | null): string {
+  if (!actor) return 'guest';
+  return 'token' in actor
+    ? `token:${JSON.stringify(actor.token)}`
+    : actor.email;
+}
+
+/**
  * Domain events for admin mutations — who changed what.
  *
  * Deliberately *not* request logging: Traefik already records method, path,
@@ -115,7 +134,7 @@ export class AuditLogger {
   record(
     action: AuditAction,
     /** Null where the event has no account behind it — a guest's order. */
-    actor: AuthUser | null,
+    actor: AuditActor | null,
     entity: {
       id?: string;
       slug?: string;
@@ -134,7 +153,7 @@ export class AuditLogger {
       scope?: string;
     },
   ): void {
-    const parts = [action, `actor=${actor?.email ?? 'guest'}`];
+    const parts = [action, `actor=${actorLabel(actor)}`];
     if (entity.reference) parts.push(`reference=${entity.reference}`);
     if (entity.status) parts.push(`status=${entity.status}`);
     if (entity.scope) parts.push(`scope=${entity.scope}`);

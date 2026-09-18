@@ -1,42 +1,30 @@
 import {
-  BadRequestException,
   Body,
-  ConflictException,
   Controller,
   Delete,
   Get,
   Param,
   Post,
   Res,
-  UnsupportedMediaTypeException,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type { Response } from 'express';
 import {
-  AdminOrderDetail,
   AuthUser,
-  ORDER_DOCUMENT_FILE_NAME_MAX_LENGTH,
-  ORDER_DOCUMENT_KINDS,
   ORDER_DOCUMENT_MAX_UPLOAD_BYTES,
   OrderDetail,
-  OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
-import { AuditLogger } from '../audit/audit.logger';
-import {
-  documentExtension,
-  sniffAcceptedDocument,
-} from '../media/document-content-type';
+import { OrderDocumentActs, orderDocumentKind } from './order-document-acts';
 import {
   OrderDocumentsService,
   ServedDocument,
 } from './order-documents.service';
 import { ordersExternallyOwned } from '../settings/ownership.refusals';
 import { SettingsService } from '../settings/settings.service';
-import { OrderNotifications } from './order-notifications';
 import { OrdersService } from './orders.service';
 
 /**
@@ -52,22 +40,25 @@ import { OrdersService } from './orders.service';
  * a customer only their own, and a mailed link only through its token. A
  * reader who cannot get the order cannot get the document, and there is no
  * second copy of the rule to fall out of step with the first.
+ *
+ * What the acts themselves do lives in `OrderDocumentActs`, shared with the
+ * machine route an owning system posts to (FR-ADM-08).
  */
 @Controller('order-documents')
 export class OrderDocumentsController {
   constructor(
     private readonly orders: OrdersService,
     private readonly documents: OrderDocumentsService,
-    private readonly notifications: OrderNotifications,
-    private readonly audit: AuditLogger,
+    private readonly acts: OrderDocumentActs,
     private readonly settings: SettingsService,
   ) {}
 
   /**
    * Supplying a file, sending it and taking it back off are acts on the order
    * like any other, so they close with the rest of them while an external
-   * system owns order processing (FR-ADM-10). Reading stays open — the
-   * document is part of what staff must be able to see.
+   * system owns order processing (FR-ADM-10) — which is the same moment that
+   * system's own route opens. Reading stays open: the document is part of what
+   * staff must be able to see.
    */
   private refuseIfOwned(action: string): void {
     if (this.settings.isExternallyOwned('orders')) {
@@ -96,7 +87,7 @@ export class OrderDocumentsController {
       response,
       await this.documents.read(
         reference,
-        this.kind(kind),
+        orderDocumentKind(kind),
         order,
         staff ? 'staff' : 'customer',
       ),
@@ -117,7 +108,7 @@ export class OrderDocumentsController {
       response,
       await this.documents.read(
         order.reference,
-        this.kind(kind),
+        orderDocumentKind(kind),
         order,
         'customer',
       ),
@@ -125,13 +116,12 @@ export class OrderDocumentsController {
   }
 
   /**
-   * File a document against an order. Writes no version (ADR 0051): nothing
-   * about the order changed.
+   * File a document against an order.
    *
    * `notify` is accepted but not what the admin screen uses — telling the
    * customer is its own act, below, and can be repeated. It stays on the
-   * upload for the system that will one day post a file and a message in one
-   * exchange, which has nobody to ask.
+   * upload for the system that posts a file and a message in one exchange,
+   * which has nobody to ask.
    */
   @Auth('admin', 'manager')
   @Post(':reference/:kind')
@@ -147,37 +137,12 @@ export class OrderDocumentsController {
     @UploadedFile() file: Express.Multer.File | undefined,
     @Body('notify') notify: string | undefined,
   ) {
-    const kind = this.kind(kindParam);
+    const kind = orderDocumentKind(kindParam);
     this.refuseIfOwned('supply a document');
-    if (!file) {
-      throw new BadRequestException('No file uploaded (field "file")');
-    }
-    const mime = await sniffAcceptedDocument(file.buffer);
-    if (!mime) {
-      throw new UnsupportedMediaTypeException(
-        'Unsupported document type (allowed: PDF, PNG, JPEG, WebP, GIF)',
-      );
-    }
     // Read before the write, so the refusal for an unknown reference is the
     // 404 the reader expects rather than a file stored against nothing.
-    const order = await this.orders.getForStaff(reference);
-    const document = await this.documents.supply(
-      reference,
-      kind,
-      {
-        bytes: file.buffer,
-        ext: documentExtension(mime),
-        name: file.originalname.slice(0, ORDER_DOCUMENT_FILE_NAME_MAX_LENGTH),
-        contentType: mime,
-      },
-      user.id,
-    );
-    this.audit.record('order.document.supplied', user, {
-      id: reference,
-      name: kind,
-    });
-    if (notify === 'true') await this.tell(reference, kind, order, user);
-    return document;
+    await this.orders.getForStaff(reference);
+    return this.acts.supply(reference, kind, file, user, notify === 'true');
   }
 
   /**
@@ -188,10 +153,6 @@ export class OrderDocumentsController {
    * to be written to, and those are not always the same minute. It can be
    * pressed again — a customer who lost the mail is asking for it a second
    * time, not for a new document.
-   *
-   * Refused while the customer's own page is behind the version the file was
-   * filed against: the message would announce a document they cannot open,
-   * and the way to fix that is to bring them up to date first.
    */
   @Auth('admin', 'manager')
   @Post(':reference/:kind/notify')
@@ -200,56 +161,13 @@ export class OrderDocumentsController {
     @Param('reference') reference: string,
     @Param('kind') kindParam: string,
   ): Promise<void> {
-    const kind = this.kind(kindParam);
+    const kind = orderDocumentKind(kindParam);
     this.refuseIfOwned('send a document to the customer');
     const order = await this.orders.getForStaff(reference);
-    await this.tell(reference, kind, order, user);
+    await this.acts.tell(reference, kind, order, user);
   }
 
-  /** The message itself, shared by the button and the upload's own flag. */
-  private async tell(
-    reference: string,
-    kind: OrderDocumentKind,
-    order: AdminOrderDetail,
-    user: AuthUser,
-  ): Promise<void> {
-    const document = order.documents.find((entry) => entry.kind === kind);
-    if (!document || document.source !== 'supplied') {
-      throw new ConflictException({
-        code: 'document-not-supplied',
-        message: 'There is no supplied document of that kind to send',
-      });
-    }
-    if ((document.suppliedForRevision ?? 0) > order.customerRevisionNumber) {
-      throw new ConflictException({
-        code: 'customer-behind',
-        message: 'The customer has not been shown the version this belongs to',
-      });
-    }
-
-    const { publicToken } = await this.documents.identify(reference);
-    // The instructions travel with the message; a summary is linked, so the
-    // reader always opens the version they are entitled to.
-    const attachment =
-      kind === 'payment-instructions'
-        ? await this.documents.paymentAttachment(reference)
-        : null;
-    await this.notifications.documentSupplied(
-      order,
-      kind,
-      publicToken,
-      attachment ? [attachment] : [],
-    );
-    const { id } = await this.documents.identify(reference);
-    await this.documents.markNotified(id, kind);
-    this.audit.record('order.document.sent', user, {
-      id: reference,
-      name: kind,
-    });
-  }
-
-  /** Take a supplied file back off. The summary falls back to the generated
-   * one; payment instructions stop existing. */
+  /** Take a supplied file back off. */
   @Auth('admin', 'manager')
   @Delete(':reference/:kind')
   async remove(
@@ -259,11 +177,7 @@ export class OrderDocumentsController {
   ): Promise<void> {
     this.refuseIfOwned('take a document off an order');
     await this.orders.getForStaff(reference);
-    await this.documents.remove(reference, this.kind(kind));
-    this.audit.record('order.document.removed', user, {
-      id: reference,
-      name: kind,
-    });
+    await this.acts.remove(reference, orderDocumentKind(kind), user);
   }
 
   /**
@@ -284,11 +198,5 @@ export class OrderDocumentsController {
       // keeping it off the public prefix was for.
       .setHeader('Cache-Control', 'private, no-store')
       .send(document.bytes);
-  }
-
-  private kind(value: string): OrderDocumentKind {
-    const kind = ORDER_DOCUMENT_KINDS.find((known) => known === value);
-    if (!kind) throw new BadRequestException('No such document kind');
-    return kind;
   }
 }
