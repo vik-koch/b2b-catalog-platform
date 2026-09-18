@@ -178,3 +178,11 @@ export const ORDER_QUERY_MAX_LENGTH = 200;
  * is not.
  */
 export const ORDER_READ_MAX_LIMIT = 50;
+
+/**
+ * How much of the owning system's own name for whoever acted is kept
+ * (FR-ADM-08). An opaque label beside a version, never resolved to an account
+ * here — long enough for "Отдел продаж / И. Петров", short enough that a
+ * sending system cannot file a paragraph in the thread.
+ */
+export const ORDER_WRITE_ACTOR_MAX = 200;

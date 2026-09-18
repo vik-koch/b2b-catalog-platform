@@ -748,7 +748,11 @@ export class AdminOrderDetailPage {
       writtenBy: fillText(this.revisionText.writtenBy, {
         date: this.dateTimeFormat.format(new Date(version.revisionCreatedAt)),
         who:
+          // A person here, then the outside system that wrote it, then the
+          // two versions nobody signed: the customer's own submission, and
+          // one whose author has since been deleted.
           version.author ??
+          version.source ??
           (version.revisionNumber === 1
             ? this.revisionText.authorCustomer
             : this.revisionText.authorUnknown),

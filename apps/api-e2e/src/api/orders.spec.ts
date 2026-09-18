@@ -2064,6 +2064,9 @@ describe('Cart and orders (FR-CART-01…04)', () => {
           'note',
           'notifiedAt',
           'revisionCreatedAt',
+          // Who wrote it from outside, where an exchange did (FR-ADM-08).
+          // Null on everything a person here writes.
+          'source',
         ].sort(),
       );
     });

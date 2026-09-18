@@ -457,6 +457,16 @@ export const orderRevisionSchema = adminOrderDetailSchema.extend({
    * customer submitted, and for anything an outside system writes back. */
   revisionCreatedAt: z.iso.datetime(),
   author: z.string().nullable(),
+  /**
+   * Who wrote it from outside, where an owning system did (FR-ADM-08): that
+   * system's own name for whoever acted, or the credential that spoke for
+   * them. Null on everything written in this shop.
+   *
+   * Beside `author` rather than instead of it, and never resolved to an
+   * account: a name from another system is a string, and matching it onto
+   * somebody here would put one person's name on another's work.
+   */
+  source: z.string().nullable(),
   /** Why it was written: placed, moved, or changed. */
   kind: orderRevisionKindSchema,
   /** What the shop said about *this* version, in their words — null on every

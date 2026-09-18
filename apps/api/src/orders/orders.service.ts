@@ -1185,6 +1185,10 @@ export class OrdersService {
       author: row.revisionCreatedBy
         ? (authors.get(row.revisionCreatedBy) ?? null)
         : null,
+      // Who wrote it from outside, where an exchange did (FR-ADM-08). Never
+      // resolved against the accounts here: it is the other system's name for
+      // one of its own users.
+      source: row.source,
       kind: row.revisionKind as OrderRevisionKind,
       note: row.revisionNote,
       customerView: row.customerRevisionNumber === row.revisionNumber,
@@ -1670,6 +1674,9 @@ export class OrdersService {
       statusReason: string | null;
       note?: string | null;
       byUserId: string | null;
+      /** The outside system's own name for whoever acted, where an exchange
+       * wrote this version (FR-ADM-08). Null for everything written here. */
+      source?: string | null;
       snapshot?: OrderSnapshot;
       lines?: Omit<typeof orderItems.$inferInsert, 'revisionId'>[];
       paymentState: PaymentState;
@@ -1706,6 +1713,10 @@ export class OrdersService {
             note: change.note ?? null,
             notifiedAt: change.notified ? new Date() : null,
             ...(change.snapshot ?? this.carriedSnapshot(current)),
+            // After the snapshot, not before it: `source` is a fact about who
+            // wrote this version rather than part of what the order says, and
+            // a snapshot must never be able to carry one across.
+            source: change.source ?? null,
           })
           .returning({ id: orderRevisions.id });
 

@@ -5,6 +5,7 @@ import {
   API_TOKEN_SCOPES,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
+  ORDER_WRITE_ACTOR_MAX,
   ORDER_DOCUMENT_KINDS,
   ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
@@ -889,6 +890,13 @@ export const orderRevisions = pgTable(
     createdBy: uuid('createdBy').references(() => users.id, {
       onDelete: 'set null',
     }),
+    // Who wrote it from outside (FR-ADM-08): the owning system's own name for
+    // whoever acted, or the credential's name where it named nobody. An opaque
+    // label and never a reference — the person is a user of another system,
+    // and matching one of those onto an account here would put one person's
+    // name on another's work. Null on everything written in this shop, which
+    // is what makes this column the answer to "did the exchange write this".
+    source: varchar('source', { length: ORDER_WRITE_ACTOR_MAX }),
     // What this version was written for: the customer's submission, a move
     // through the workflow, or a change to what the order says. Stored rather
     // than derived — a reader should not have to diff two rows to find out why
