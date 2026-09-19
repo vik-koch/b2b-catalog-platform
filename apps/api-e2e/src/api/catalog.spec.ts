@@ -60,6 +60,7 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
     expect(Object.keys(coffee).sort()).toEqual([
       'children',
       'image',
+      'mark',
       'name',
       'shortName',
       'slug',
