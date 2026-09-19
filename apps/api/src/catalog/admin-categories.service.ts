@@ -125,6 +125,7 @@ export class AdminCategoriesService {
           parentId: input.parentId,
           sortOrder,
           image: input.image,
+          mark: input.mark,
           description: input.description,
           updatedBy: actorId,
         })
@@ -142,7 +143,8 @@ export class AdminCategoriesService {
     if (!existing) throw categoryNotFound();
 
     // Only its name and its key belong to the exchange. The rest of this row —
-    // nickname, parent, slug, image, description — is presentation the shop has
+    // nickname, parent, slug, image, mark, description — is presentation the
+    // shop has
     // always owned, so restructuring the tree stays open throughout: a product
     // keeps hanging on the same leaf whatever an admin does above it.
     if (this.settings.isExternallyOwned('catalog')) {
@@ -178,6 +180,7 @@ export class AdminCategoriesService {
           slug: newSlug,
           parentId: input.parentId,
           image: input.image,
+          mark: input.mark,
           sourceId: newSourceId,
           description: input.description,
           updatedAt: new Date(),
@@ -374,6 +377,7 @@ function toAdminCategory(
     parentId: row.parentId,
     sortOrder: row.sortOrder,
     image: row.image,
+    mark: row.mark,
     sourceId: row.sourceId,
     description: row.description,
     shortName: row.shortName,
