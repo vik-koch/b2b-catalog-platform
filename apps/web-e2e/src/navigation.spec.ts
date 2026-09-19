@@ -149,3 +149,25 @@ test('serves the third-party license notice behind the footer link', async ({
   // The list is fetched on hydration, so any entry proves the round trip.
   await expect(page.getByText('@angular/core', { exact: true })).toBeVisible();
 });
+
+// The marks beside the enquiry button are files in the deployment's assets
+// mount, painted as masks. A unit test can only check that the link carries
+// the right url; whether the mount actually answers for it is a question about
+// the container, which is here.
+test('serves the marks for the places the shop also exists', async ({
+  page,
+  request,
+}) => {
+  await page.goto('/');
+  const link = page.getByRole('contentinfo').getByRole('link', {
+    name: 'Marktplatz',
+  });
+  await expect(link).toHaveAttribute(
+    'href',
+    'https://marktplatz.example/shops/coffee-kontor',
+  );
+
+  const icon = await request.get('/marktplatz.svg');
+  expect(icon.status()).toBe(200);
+  expect(await icon.text()).toContain('<svg');
+});

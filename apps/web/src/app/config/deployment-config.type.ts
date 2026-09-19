@@ -102,6 +102,31 @@ export const pickupConfigSchema = z
   .strict();
 
 /**
+ * One place the shop also exists (FR-NAV-07) — a social account, a messenger,
+ * a marketplace listing. Configuration rather than editable content: where the
+ * chrome links to is the deployment's decision.
+ *
+ * `icon` names a file in the assets mount, beside the logo and the fonts. It is
+ * a file rather than geometry in this JSON, and it is painted as a mask rather
+ * than drawn as an image, so a borrowed mark takes the site's own colours and a
+ * row of them reads as one set.
+ *
+ * `label` is the words that stand in for the icon: what a screen reader
+ * announces, and what is left to read if the mark never arrives.
+ */
+export const elsewhereLinkSchema = z
+  .object({
+    label: z.string().min(1),
+    /** Absolute, and off this site by definition. */
+    url: z.string().min(1),
+    /** File name in the assets mount, e.g. "marktplatz.svg". */
+    icon: z.string().min(1),
+  })
+  .strict();
+
+export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
+
+/**
  * Per-deployment configuration for the app chrome — branding/identity and
  * feature flags.
  *
@@ -345,6 +370,12 @@ export const deploymentConfigSchema = z
       })
       .strict()
       .optional(),
+    /**
+     * Where else the shop can be found (FR-NAV-07), in the order the footer
+     * draws them. Optional, and an empty list is the same thing: a deployment
+     * that is only here shows nothing beside the enquiry button.
+     */
+    elsewhere: z.array(elsewhereLinkSchema).optional(),
     /**
      * Phone-number input for the inquiry form. The country code is fixed and
      * shown as a prefix the visitor does not type. The optional mask formats the
