@@ -144,12 +144,14 @@ describe('CategoryGrid', () => {
               name: 'Espresso Roasts Dark',
               shortName: 'Dark',
               image: null,
+              mark: null,
             },
             {
               slug: 'light',
               name: 'Espresso Roasts Light',
               shortName: null,
               image: null,
+              mark: null,
             },
           ],
         },
@@ -174,12 +176,13 @@ describe('CategoryGrid', () => {
     ).toBe('Espresso Roasts Light');
   });
 
-  it('clips the subcategory row to one line and unclips it on show-more', async () => {
+  it('clips the subcategory rows on a phone only, and unclips them on show-more', async () => {
     const subcategories = ['a', 'b', 'c', 'd', 'e', 'f'].map((s) => ({
       slug: s,
       name: s.toUpperCase(),
       shortName: null,
       image: null,
+      mark: null,
     }));
     const f = await render(
       response({
@@ -201,9 +204,12 @@ describe('CategoryGrid', () => {
       el(f).querySelector('a[href="/catalog/a"]')?.closest('ul');
 
     // Every chip is rendered at all times — how many are visible is the
-    // browser's answer, given by clipping the row to one line.
+    // browser's answer, given by clipping the list to two rows.
     expect(chipCount()).toBe(6);
     expect(list()?.className).toContain('overflow-hidden');
+    // ...and only on a phone: from the viewport's `sm` the clip is lifted in
+    // CSS, so the same HTML shows every chip on a wider screen.
+    expect(list()?.className).toContain('sm:max-h-none');
 
     // By its words: the listing header above the chips carries buttons of its
     // own (the layout toggle), so position says nothing.
@@ -219,6 +225,12 @@ describe('CategoryGrid', () => {
 
     expect(list()?.className).not.toContain('overflow-hidden');
     expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
+
+    // The toggle is hidden wherever the clip is lifted — a button offering to
+    // show what is already shown.
+    expect(
+      toggle(defaultAppText.catalog.showLess)?.closest('div')?.className,
+    ).toContain('sm:hidden');
   });
 
   it('shows pagination with prev/next links when there is more than one page', async () => {
@@ -365,6 +377,7 @@ describe('CategoryGrid', () => {
                 name: 'Single Origin',
                 shortName: null,
                 image: null,
+                mark: null,
               },
             ],
           },
