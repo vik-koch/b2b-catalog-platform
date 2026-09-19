@@ -43,4 +43,28 @@ describe('processImage', () => {
       MEDIA_CATALOG_THUMB_WIDTH,
     );
   });
+
+  it('centre-crops to a square when asked (the category mark)', async () => {
+    const out = await processImage(
+      await solidPng(1200, 400),
+      'image/png',
+      MEDIA_CATALOG_THUMB_WIDTH,
+      true,
+    );
+    const meta = await sharp(out).metadata();
+    expect(meta.width).toBe(MEDIA_CATALOG_THUMB_WIDTH);
+    expect(meta.height).toBe(MEDIA_CATALOG_THUMB_WIDTH);
+  });
+
+  it('crops a square to the shorter edge rather than enlarging', async () => {
+    const out = await processImage(
+      await solidPng(400, 120),
+      'image/png',
+      MEDIA_CATALOG_FULL_WIDTH,
+      true,
+    );
+    const meta = await sharp(out).metadata();
+    expect(meta.width).toBe(120);
+    expect(meta.height).toBe(120);
+  });
 });

@@ -42,6 +42,32 @@ describe('MediaController', () => {
     expect(result).toEqual({ url: '/media/abc.webp' });
   });
 
+  it('stores a wide upload as a square pair for a category mark', async () => {
+    const buffer = await sharp({
+      create: { width: 120, height: 40, channels: 3, background: '#334455' },
+    })
+      .png()
+      .toBuffer();
+    const file = {
+      buffer,
+      size: buffer.length,
+      originalname: 'mark.png',
+    } as Express.Multer.File;
+
+    const result = await controller.uploadSquareCatalogImage(file);
+
+    // Both variants, both square: the crop is the route's, not the browser's.
+    expect(store.put).toHaveBeenCalledTimes(2);
+    for (const call of store.put.mock.calls) {
+      const meta = await sharp(call[0].bytes).metadata();
+      expect(meta.width).toBe(meta.height);
+    }
+    expect(result).toEqual({
+      full: '/media/abc.webp',
+      thumb: '/media/abc.webp',
+    });
+  });
+
   it('rejects a missing file', async () => {
     await expect(controller.upload(undefined)).rejects.toThrow(
       BadRequestException,

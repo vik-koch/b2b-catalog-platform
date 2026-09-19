@@ -223,6 +223,14 @@ export const PRODUCT_RICH_TEXT_TAGS = [
  */
 export const shortNameSchema = z.string().nullable();
 
+/**
+ * A category's mark (FR-CAT-07): the small square image shown beside the name
+ * wherever the category appears as a chip rather than as a card. Square by
+ * construction — the upload trims it. Null for the categories that have none,
+ * which is most of them.
+ */
+export const categoryMarkSchema = catalogImageSchema.nullable();
+
 /** A breadcrumb ancestor of the selected category, root-first. Carries the
  * nickname too: a crumb always sits next to its parent. */
 export const categoryCrumbSchema = z
@@ -288,8 +296,8 @@ export type ProductDetail = z.infer<typeof productDetailSchema>;
 
 /**
  * A node in the category tree (FR-CAT-01/02). The structure (name/hierarchy)
- * comes from the sync; `image` and `shortName` are the admin presentation
- * overlay and may be absent. Recursive: subcategories nest
+ * comes from the sync; `image`, `mark` and `shortName` are the admin
+ * presentation overlay and may be absent. Recursive: subcategories nest
  * arbitrarily, though the UI may render only the depth it needs.
  */
 export interface CategoryNode {
@@ -297,6 +305,7 @@ export interface CategoryNode {
   name: string;
   shortName: string | null;
   image: CatalogImage | null;
+  mark: CatalogImage | null;
   children: CategoryNode[];
 }
 export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
@@ -307,6 +316,7 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
         name: z.string(),
         shortName: shortNameSchema,
         image: catalogImageSchema.nullable(),
+        mark: categoryMarkSchema,
         children: z.array(categoryNodeSchema),
       })
       .strict(),
@@ -316,13 +326,14 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
 
 /** A direct child of the selected category, for the drill-down nav
  * (FR-CAT-02). `image` lets the nav render as tiles if wanted; the current grid
- * uses chips and ignores it. */
+ * uses chips and ignores it — the chips carry the `mark` instead (FR-CAT-07). */
 export const subcategoryLinkSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
     shortName: shortNameSchema,
     image: catalogImageSchema.nullable(),
+    mark: categoryMarkSchema,
   })
   .strict();
 export type SubcategoryLink = z.infer<typeof subcategoryLinkSchema>;

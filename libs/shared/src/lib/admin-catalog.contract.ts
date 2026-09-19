@@ -479,6 +479,8 @@ export const adminCategorySchema = z
     /** Optional nickname for contexts where the parent is visible; see the
      * public contract's `shortNameSchema`. */
     shortName: z.string().nullable(),
+    /** The chip mark (FR-CAT-07). */
+    mark: catalogImageSchema.nullable(),
     productCount: z.number().int().nonnegative(),
     childCount: z.number().int().nonnegative(),
   })
@@ -505,6 +507,8 @@ export const categoryInputSchema = z
     slug: slugSchema.optional(),
     parentId: z.uuid().nullable().default(null),
     image: catalogImageSchema.nullable().default(null),
+    /** The mark shown where the category is a chip. */
+    mark: catalogImageSchema.nullable().default(null),
     /**
      * Private sync key. Admin-settable to pre-assign a legacy key for future
      * file reconciliation. Three values, three meanings: omitted keeps what is

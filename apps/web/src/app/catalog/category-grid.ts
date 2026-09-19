@@ -33,6 +33,7 @@ import { ConfirmService } from '../ui/confirm.service';
 import { Icon } from '../ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
+import { CategoryChip } from './category-chip';
 import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
 import { anyAvailability } from './product-availability-badge';
 import { ProductLayoutService } from './product-layout';
@@ -46,21 +47,56 @@ import {
 import { PRODUCT_GRID, ProductTile } from './product-tile';
 
 /**
- * A subcategory chip's height, in px — two lines of `text-sm` plus its padding
- * and border, which is what `h-14` on the chip renders. Collapsed, the row is
- * clipped to exactly this, so the browser decides how many chips fit; the
- * number is here only so the code can ask whether anything was clipped.
+ * What SUBS_CLIP clips to, in px: two `h-16` chip rows and the `gap-3` between
+ * them. Collapsed, the list is clipped to exactly this, so the browser decides
+ * how many chips fit; the number is here only so the code can ask whether
+ * anything was clipped.
  */
-const SUBS_ROW_HEIGHT = 56;
+const SUBS_CLIP_HEIGHT = 140;
 
-/** How many chips are assumed to fit before the first measurement (SSR). */
+/** How many chips are assumed to fit before the first measurement (SSR) — two
+ * rows of two, which is what the narrow widths this clipping is for hold. */
 const SUBS_ASSUMED_FIT = 4;
 
 /**
- * A category's product grid (FR-CAT-03/04): breadcrumb, a compact drill-down
- * nav of subcategories (clipped to one row with a show-more toggle), then a
- * paginated grid of every product in this category and its descendants
- * (Pattern A). A leaf category simply has no subcategory nav.
+ * One wrapped row of chips at every width; what changes below the viewport's
+ * `sm` is only that the chips then share out what the row has left over.
+ *
+ * It asks the window rather than the @container above — the one place on this
+ * page that does — because the phone shape is the phone's, not this section's,
+ * and the container reaches 40rem about 32px after the window does.
+ *
+ * A chip's width is its name's: between 8rem and 16rem, which is what it has
+ * always been and still is from `sm` up. Below `sm` that width becomes a floor
+ * instead of the answer — `grow` hands each chip an equal share of whatever the
+ * row did not use, so a row is always full and no chip is squeezed under the
+ * width its name asked for. Which chips share a row is still decided on those
+ * asked-for widths, so a chip drops to the next row when it no longer fits at
+ * its own size rather than when the row's share falls under it. The cap comes
+ * off there too: a chip may grow past 16rem to fill the row, and a name too
+ * long to fit one takes the row and wraps inside it.
+ */
+const SUBS_LIST = 'flex flex-wrap items-stretch gap-3';
+const SUBS_CHIP = 'flex min-w-32 max-w-64 max-sm:max-w-none max-sm:grow';
+
+/**
+ * Clipped to two chip rows on a phone, open from `sm` up — two rows is enough
+ * to read the shape of the list, where one only ever showed its beginning. A
+ * class rather than a branch: the server has no width to test, and the same
+ * HTML has to be right on both sides of it.
+ */
+const SUBS_CLIP = 'max-h-35 overflow-hidden sm:max-h-none sm:overflow-visible';
+
+/** The toggle goes with the clipping — where nothing is hidden, offering to
+ * show more is a button that does nothing. */
+const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
+
+/**
+ * A category's product grid (FR-CAT-03/04): breadcrumb, a drill-down nav of
+ * subcategory chips (all of them, clipped to two rows with a show-more toggle
+ * on a phone — see SUBS_LIST), then a paginated grid of every product in this
+ * category and its descendants (Pattern A). A leaf category simply has no
+ * subcategory nav.
  */
 @Component({
   selector: 'app-category-grid',
@@ -74,6 +110,7 @@ const SUBS_ASSUMED_FIT = 4;
     ProductSortSelect,
     FacetPanel,
     AppliedFilters,
+    CategoryChip,
     Button,
     EditActions,
     HiddenProductsSection,
@@ -221,14 +258,18 @@ const SUBS_ASSUMED_FIT = 4;
           </div>
 
           @if (data.category.subcategories.length) {
-            <!-- The chips are clipped to one row rather than cut to a count:
-                 how many fit is a question about the width the visitor has,
-                 which only the browser can answer. The toggle sits beside the
-                 list, outside what is clipped, so it stays on screen. -->
-            <div class="mt-5 flex items-start gap-3">
+            <!-- Every subcategory, over as many rows as it takes: the chips are
+                 the way down from here, and a wide screen has no reason to hide
+                 half of them behind a toggle. Only a phone, where the same list
+                 is a column that buries the products, still clips to one row —
+                 and there the toggle sits under the chips, where the gallery
+                 and the description put theirs. -->
+            <div class="mt-5">
               <ul #subsList [class]="subsListClass()">
                 @for (sub of data.category.subcategories; track sub.slug) {
-                  <li class="flex">
+                  <!-- The chip's width lives here, on the item, because it is
+                       the row that decides it — see SUBS_CHIP. -->
+                  <li [class]="subsChipClass">
                     <!-- The selection travels down with the visitor: the
                          values are the catalogue's, not this category's, so
                          narrowing the scope is no reason to forget them. It may
@@ -236,21 +277,21 @@ const SUBS_ASSUMED_FIT = 4;
                          the panel are on screen there to say so and undo it.
                          The sort goes with it: it is the same kind of stated
                          preference, and every listing offers the same orders. -->
-                    <a
-                      [routerLink]="['/catalog', sub.slug]"
+                    <app-category-chip
+                      [category]="sub"
                       [queryParams]="{ sort: sortParam(), attr: attrParam() }"
-                      class="flex h-14 max-w-52 min-w-28 items-center justify-center rounded-xl border border-border bg-stone-100 px-4 text-sm font-medium text-stone-800 transition-colors hover:border-accent hover:text-accent"
-                    >
-                      <span class="line-clamp-2">{{ displayName(sub) }}</span>
-                    </a>
+                    />
                   </li>
                 }
               </ul>
               @if (subsToggle(data.category.subcategories.length)) {
-                <div class="flex shrink-0 items-stretch gap-3">
+                <div [class]="subsToggleClass">
                   <button
                     type="button"
-                    class="h-14 rounded-xl px-3 text-sm font-medium text-accent hover:underline"
+                    appButton
+                    variant="ghost"
+                    size="sm"
+                    [attr.aria-expanded]="showAllSubs()"
                     (click)="showAllSubs.set(!showAllSubs())"
                   >
                     {{ showAllSubs() ? text.showLess : text.showMore }}
@@ -451,9 +492,10 @@ export class CategoryGrid {
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
-  /** Breadcrumb crumbs and subcategory chips are read in the context of their
-   * parent, so they may use the short name; the page heading stays the full
-   * one, which is also what SEO and the delete confirmation use. */
+  /** Breadcrumb crumbs are read in the context of their parent, so they may
+   * use the short name; the page heading stays the full one, which is also what
+   * SEO and the delete confirmation use. The subcategory chips make the same
+   * choice for themselves (see CategoryChip). */
   protected readonly displayName = categoryDisplayName;
 
   slug = input.required<string>();
@@ -499,10 +541,10 @@ export class CategoryGrid {
    * HTML the crawler and the first paint get. */
   private readonly subsOverflow = signal<boolean | null>(null);
   protected readonly subsListClass = computed(() =>
-    this.showAllSubs()
-      ? 'flex min-w-0 flex-1 flex-wrap items-stretch gap-3'
-      : 'flex min-w-0 flex-1 flex-wrap items-stretch gap-3 max-h-14 overflow-hidden',
+    this.showAllSubs() ? SUBS_LIST : `${SUBS_LIST} ${SUBS_CLIP}`,
   );
+  protected readonly subsChipClass = SUBS_CHIP;
+  protected readonly subsToggleClass = SUBS_TOGGLE;
   /** The product whose delete confirmation is open, if any. */
   /** The category (this page's own) whose delete confirmation is open. */
   /** Bumped to re-fetch the edit-mode "Deleted" overlay after a delete/restore. */
@@ -599,7 +641,7 @@ export class CategoryGrid {
     const el = this.subsList()?.nativeElement;
     // scrollHeight is the unclipped height in both states, so one test answers
     // for the collapsed list and the expanded one alike.
-    if (el) this.subsOverflow.set(el.scrollHeight > SUBS_ROW_HEIGHT + 1);
+    if (el) this.subsOverflow.set(el.scrollHeight > SUBS_CLIP_HEIGHT + 1);
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {

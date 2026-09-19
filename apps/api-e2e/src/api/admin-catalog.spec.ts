@@ -58,6 +58,7 @@ const CATEGORY_KEYS = [
   'description',
   'id',
   'image',
+  'mark',
   'name',
   'parentId',
   'productCount',

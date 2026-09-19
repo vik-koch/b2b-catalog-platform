@@ -33,6 +33,7 @@ const category: AdminCategory = {
   parentId: null,
   sortOrder: 0,
   image: null,
+  mark: null,
   sourceId: 'espresso',
   description: null,
   shortName: null,

@@ -32,7 +32,7 @@ import { CategoryPicker } from './category-picker';
  * save, dirty tracking via a route guard — so category editing reads the same
  * as product editing rather than the list's earlier inline expansion. Structure
  * (add/reorder/delete) stays on the list; this page owns the presentation
- * overlay (name, parent, slug, description, image). Browser-only (an admin
+ * overlay (name, parent, slug, description, image, mark). Browser-only (an admin
  * route).
  */
 @Component({
@@ -87,29 +87,31 @@ import { CategoryPicker } from './category-picker';
           />
         </label>
 
-        <label class="block">
-          <span appFieldLabel>{{ text.shortName }}</span>
-          <input
-            type="text"
-            appInput
-            class="w-full"
-            [value]="shortName()"
-            (input)="shortName.set($any($event.target).value)"
-          />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.shortNameHint
-          }}</span>
-        </label>
+        <div class="grid gap-6 sm:grid-cols-2">
+          <label class="block">
+            <span appFieldLabel>{{ text.shortName }}</span>
+            <input
+              type="text"
+              appInput
+              class="w-full"
+              [value]="shortName()"
+              (input)="shortName.set($any($event.target).value)"
+            />
+            <span class="mt-1 block text-xs text-subtle">{{
+              text.shortNameHint
+            }}</span>
+          </label>
 
-        <div class="block">
-          <span appFieldLabel>{{ text.parent }}</span>
-          <app-category-picker
-            [categories]="parentOptions()"
-            [value]="parentId()"
-            [emptyLabel]="text.noParent"
-            [ariaLabel]="text.parent"
-            (valueChange)="parentId.set($event)"
-          />
+          <div class="block">
+            <span appFieldLabel>{{ text.parent }}</span>
+            <app-category-picker
+              [categories]="parentOptions()"
+              [value]="parentId()"
+              [emptyLabel]="text.noParent"
+              [ariaLabel]="text.parent"
+              (valueChange)="parentId.set($event)"
+            />
+          </div>
         </div>
 
         <!-- The category's two identifiers side by side, as the product
@@ -162,13 +164,38 @@ import { CategoryPicker } from './category-picker';
           ></textarea>
         </label>
 
-        <div>
-          <span appFieldLabel>{{ text.image }}</span>
-          <app-image-picker
-            [value]="image()"
-            [label]="text.image"
-            (valueChange)="image.set($event)"
-          />
+        <!-- The category's two pictures side by side from sm up — and on
+             shared tracks, not merely in one row: subgrid puts both labels on
+             one line and both tiles on one line, so a hint under one of them
+             cannot drop its tile half a line below the other's. The row gap is
+             zeroed there because a subgrid inherits it, and three tracks of it
+             would space a label off its own field. One per line below sm, like
+             the identifiers above. -->
+        <div
+          class="grid gap-6 sm:grid-cols-2 sm:grid-rows-[auto_auto_auto] sm:gap-y-0"
+        >
+          <div class="sm:row-span-3 sm:grid sm:grid-rows-subgrid">
+            <span appFieldLabel>{{ text.image }}</span>
+            <p class="mb-2 text-xs text-subtle">{{ text.imageHint }}</p>
+            <app-image-picker
+              [value]="image()"
+              [label]="text.image"
+              (valueChange)="image.set($event)"
+            />
+          </div>
+
+          <div class="sm:row-span-3 sm:grid sm:grid-rows-subgrid">
+            <span appFieldLabel>{{ text.mark }}</span>
+            <p class="mb-2 text-xs text-subtle">{{ text.markHint }}</p>
+            <!-- Cropped to a square on upload, so the square tile beside it is
+                 the stored picture rather than a framing of it. -->
+            <app-image-picker
+              [value]="mark()"
+              [label]="text.mark"
+              [square]="true"
+              (valueChange)="mark.set($event)"
+            />
+          </div>
         </div>
       </div>
 
@@ -254,6 +281,8 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   protected readonly sourceId = signal('');
   protected readonly description = signal('');
   protected readonly image = signal<CatalogImage | null>(null);
+  /** The chip mark (FR-CAT-07). */
+  protected readonly mark = signal<CatalogImage | null>(null);
 
   // JSON snapshot of the form at load, for dirty detection.
   private original = '';
@@ -319,6 +348,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       this.sourceId.set(match.sourceId ?? '');
       this.description.set(match.description ?? '');
       this.image.set(match.image);
+      this.mark.set(match.mark);
       this.original = this.snapshot();
     }
     this.loading.set(false);
@@ -333,6 +363,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       parentId: this.parentId(),
       description: this.description(),
       image: this.image(),
+      mark: this.mark(),
     });
   }
 
@@ -369,6 +400,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       parentId: this.parentId() || null,
       description: this.description().trim() || null,
       image: this.image(),
+      mark: this.mark(),
       ...(slug ? { slug } : {}),
       sourceId,
     };

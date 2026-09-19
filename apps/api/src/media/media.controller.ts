@@ -76,11 +76,46 @@ export class MediaController {
   async uploadCatalogImage(
     @UploadedFile() file: Express.Multer.File | undefined,
   ): Promise<UploadCatalogImageResponse> {
+    return this.storeCatalogImage(file, false);
+  }
+
+  /**
+   * The same upload, centre-cropped to a square — what a category mark is
+   * (FR-CAT-07). A route of its own rather than a flag on the one above: the
+   * shape is a property of what is being uploaded, and the server is where it
+   * has to be decided, since a cropped picture is what everything afterwards
+   * reads.
+   */
+  @Auth('admin')
+  @Post('catalog/square')
+  @UseInterceptors(
+    FileInterceptor('file', { limits: { fileSize: MEDIA_MAX_UPLOAD_BYTES } }),
+  )
+  async uploadSquareCatalogImage(
+    @UploadedFile() file: Express.Multer.File | undefined,
+  ): Promise<UploadCatalogImageResponse> {
+    return this.storeCatalogImage(file, true);
+  }
+
+  private async storeCatalogImage(
+    file: Express.Multer.File | undefined,
+    square: boolean,
+  ): Promise<UploadCatalogImageResponse> {
     const { mime, validatedFile } = await this.validate(file);
 
     const [fullBytes, thumbBytes] = await Promise.all([
-      processImage(validatedFile.buffer, mime, MEDIA_CATALOG_FULL_WIDTH),
-      processImage(validatedFile.buffer, mime, MEDIA_CATALOG_THUMB_WIDTH),
+      processImage(
+        validatedFile.buffer,
+        mime,
+        MEDIA_CATALOG_FULL_WIDTH,
+        square,
+      ),
+      processImage(
+        validatedFile.buffer,
+        mime,
+        MEDIA_CATALOG_THUMB_WIDTH,
+        square,
+      ),
     ]);
     const [full, thumb] = await Promise.all([
       this.store.put({ bytes: fullBytes, ext: STORED_IMAGE_EXT }),
