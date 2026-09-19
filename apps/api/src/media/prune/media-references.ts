@@ -91,6 +91,18 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
       return rows.flatMap((row) => mediaFilenamesInHtml(row.image));
     },
   },
+  {
+    // The chip mark (FR-CAT-07) — a second jsonb pair on the same row,
+    // and a second column to sweep: a category can carry a mark and no
+    // picture, so this cannot ride along with the one above.
+    name: 'category marks',
+    async collect(client) {
+      const { rows } = await client.query<{ mark: string }>(
+        `SELECT mark::text AS mark FROM categories WHERE mark IS NOT NULL`,
+      );
+      return rows.flatMap((row) => mediaFilenamesInHtml(row.mark));
+    },
+  },
 ];
 
 /**
