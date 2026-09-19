@@ -284,7 +284,7 @@ Product listings (category and search results) can be shown as a grid of cards o
 
 #### <a id="fr-cat-07"></a>FR-CAT-07 — A category's mark
 
-A category may carry a small square mark in addition to the picture its card shows. The mark is what identifies it wherever the category appears as a chip or a pill rather than as a card — the subcategory navigation of a listing and the main-page overview — and is shown there beside the category's name. A category whose name is a brand its mark says faster can declare that the mark stands **in place of** the name in those places; the name is still what the link is announced and titled by, so nothing is lost to a reader who cannot see the mark. A category with no mark shows its name, as every category does today.
+A category may carry a small mark in addition to the picture its card shows, trimmed to a square when it is uploaded. Where the category appears as a chip rather than as a card — the subcategory navigation of a listing — the mark is shown beside its name, never instead of it. A category with no mark shows its name, as every category does today.
 
 #### <a id="fr-cat-08"></a>FR-CAT-08 — Category description
 
