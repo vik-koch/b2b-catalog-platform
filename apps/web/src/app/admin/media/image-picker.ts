@@ -74,6 +74,10 @@ export class ImagePicker {
   readonly value = input.required<CatalogImage | null>();
   /** Caption on the empty tile, e.g. "Image". */
   readonly label = input.required<string>();
+  /** Store the upload centre-cropped to a square (a category mark). The tile
+   * below draws every picture cropped to its square anyway, so this is what
+   * makes the preview the truth rather than a framing of it. */
+  readonly square = input(false);
   readonly valueChange = output<CatalogImage | null>();
 
   protected readonly uploading = signal(false);
@@ -88,7 +92,9 @@ export class ImagePicker {
     this.uploading.set(true);
     this.error.set(null);
     try {
-      this.valueChange.emit(await this.media.uploadCatalogImage(file));
+      this.valueChange.emit(
+        await this.media.uploadCatalogImage(file, this.square()),
+      );
     } catch {
       this.error.set(this.common.uploadError);
     } finally {

@@ -30,12 +30,18 @@ export class MediaService {
 
   /**
    * Uploads a product/category gallery image and returns the stored
-   * `{ full, thumb }` pair — the shape a catalog image is stored as.
+   * `{ full, thumb }` pair — the shape a catalog image is stored as. `square`
+   * asks for the centre-cropped variant a category mark is stored as; the crop
+   * happens on the server, so what comes back is already the final shape.
    */
-  async uploadCatalogImage(file: File): Promise<UploadCatalogImageResponse> {
+  async uploadCatalogImage(
+    file: File,
+    square = false,
+  ): Promise<UploadCatalogImageResponse> {
     const form = new FormData();
     form.append('file', file);
-    const url = `${this.document.location.origin}/api/media/catalog`;
+    const path = square ? '/api/media/catalog/square' : '/api/media/catalog';
+    const url = `${this.document.location.origin}${path}`;
     return lastValueFrom(this.http.post<UploadCatalogImageResponse>(url, form));
   }
 }
