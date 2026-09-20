@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import { loadMailBranding, MAIL_BRANDING } from './mail-branding';
 import { MAIL_TEXT, mailTextSchema } from './mail-text';
+import { MailDispatcher } from './mail-dispatcher';
 import { MailService } from './mail.service';
 import {
   loadNotificationAddresses,
@@ -30,6 +31,7 @@ import { SmtpMailer } from './smtp-mailer';
     },
     { provide: MAIL_BRANDING, useFactory: loadMailBranding },
     MailService,
+    MailDispatcher,
     {
       provide: NOTIFICATION_ADDRESSES,
       useFactory: loadNotificationAddresses,
@@ -44,6 +46,7 @@ import { SmtpMailer } from './smtp-mailer';
     MAIL_TEXT,
     MAIL_BRANDING,
     MailService,
+    MailDispatcher,
     {
       provide: NOTIFICATION_ADDRESSES,
       useFactory: loadNotificationAddresses,

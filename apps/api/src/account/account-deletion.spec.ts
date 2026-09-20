@@ -1,6 +1,7 @@
 import { env } from '../env';
 import { MailText } from '../mail/mail-text';
 import { demoMailText } from '../mail/mail-text.fixture';
+import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { LastAdminError, UserRow } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
 
@@ -52,6 +53,10 @@ function build(options: {
       if (options.mailFails) throw new Error('smtp is down');
     }),
   };
+  // A real dispatcher over that stub: the mails are queued, so a spec reading
+  // `calls` has to drain the queue first.
+  const dispatcher = dispatcherOver(mail.send);
+  const settle = () => dispatcher.flush();
 
   // The files supplied for this account's orders (ADR 0052): bytes no
   // column-level scrub can reach, so the deletion removes them itself.
@@ -66,12 +71,21 @@ function build(options: {
     users as never,
     passwords as never,
     tokens as never,
-    mail as never,
+    dispatcher,
     orderDocuments as never,
     demoMailText as MailText,
   );
 
-  return { deletion, users, passwords, tokens, mail, orderDocuments, calls };
+  return {
+    deletion,
+    users,
+    passwords,
+    tokens,
+    mail,
+    orderDocuments,
+    calls,
+    settle,
+  };
 }
 
 describe('AccountDeletion', () => {
@@ -117,9 +131,10 @@ describe('AccountDeletion', () => {
    * did not happen.
    */
   it('mails the original address after the row has been anonymized', async () => {
-    const { deletion, calls } = build({});
+    const { deletion, calls, settle } = build({});
 
     await deletion.delete('u1', 'correct');
+    await settle();
 
     // The documents go after the scrub and before the confirmation: they are
     // part of the deletion, and the mail only reports it. The shop's own
@@ -139,9 +154,10 @@ describe('AccountDeletion', () => {
    * failing inbox must not swallow a message meant for a different one.
    */
   it('still tells the shop when the customer’s confirmation fails', async () => {
-    const { deletion, mail } = build({ mailFails: true });
+    const { deletion, mail, settle } = build({ mailFails: true });
 
     await deletion.delete('u1', 'correct');
+    await settle();
 
     expect(mail.send).toHaveBeenCalledTimes(2);
   });

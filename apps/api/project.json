@@ -65,6 +65,15 @@
         }
       }
     },
+    "serve-e2e": {
+      "executor": "@nx/js:node",
+      "continuous": true,
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "api:build:development",
+        "runBuildTargetDependencies": false
+      }
+    },
     "test": {
       "executor": "@nx/vitest:test",
       "outputs": ["{workspaceRoot}/coverage/apps/api"],

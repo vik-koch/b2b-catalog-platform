@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { invitationMail } from '../mail/templates/invitation.template';
 import { passwordResetMail } from '../mail/templates/password-reset.template';
 import { UsersService } from '../users/users.service';
@@ -27,7 +27,7 @@ export class PasswordResetService {
   constructor(
     private readonly users: UsersService,
     private readonly tokens: PasswordTokenService,
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}
 
@@ -45,7 +45,7 @@ export class PasswordResetService {
     } catch (error) {
       // Never surfaced: the response is uniform by design, so a failure here
       // reaches the operator through the log rather than the visitor.
-      this.logger.error(`Could not send a password link: ${String(error)}`);
+      this.logger.error(`Could not issue a password link: ${String(error)}`);
     }
   }
 
@@ -60,11 +60,13 @@ export class PasswordResetService {
    * ignore it and nothing changes — is true either way round, since a manager
    * pressing the button on somebody's behalf *is* somebody asking.
    *
-   * Callers decide what a failure means. Here it is swallowed, because the
-   * visitor is told nothing either way; from the staff screen the mail **is**
-   * the request, so it is reported. Whether the account may be sent one at all
-   * is the caller's check too — this one is only asked about accounts that
-   * passed it.
+   * What a caller is told about is the *link*, not its delivery: the token is
+   * minted here, and the message itself is queued and sent off the request
+   * (see MailDispatcher). Waiting on a provider would mean a visitor watching
+   * a form for five seconds and a customer sync stalling once per invited
+   * account, for a success that only ever meant "the relay took it". Whether
+   * the account may be sent a link at all is the caller's check — this one is
+   * only asked about accounts that passed it.
    */
   async sendLink(user: {
     id: string;
@@ -75,7 +77,7 @@ export class PasswordResetService {
   }): Promise<void> {
     if (user.status === 'invited') {
       const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
-      await this.mail.send(
+      await this.mail.dispatch(
         // `approved` or `created`, told by how the account came about.
         invitationMail(
           token,
@@ -83,13 +85,16 @@ export class PasswordResetService {
           user.approvedAt ? 'approved' : 'created',
         ),
         { to: user.email },
+        'invitation',
       );
       return;
     }
 
     const token = await this.tokens.issue(user.id, RESET_TTL_MS);
-    await this.mail.send(passwordResetMail(token, this.text), {
-      to: user.email,
-    });
+    await this.mail.dispatch(
+      passwordResetMail(token, this.text),
+      { to: user.email },
+      'password reset',
+    );
   }
 }

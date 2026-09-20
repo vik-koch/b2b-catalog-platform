@@ -54,6 +54,14 @@ const EnvSchema = z
     // reads the same address (it was `ALERT_EMAIL` before the API became its
     // second reader).
     MAIL_OPS_TO: z.string().optional(),
+    // How a message reaches the transport. `queued` (the default, and what a
+    // deployment runs) hands it to MailDispatcher and answers the request
+    // without waiting on the provider. `inline` sends it before the request
+    // returns — the e2e suite's setting, because its assertions are about
+    // *which* mails a move produces and reading an inbox for one that has not
+    // been sent yet is a race, not a test. Never `inline` in a deployment: it
+    // is the five seconds of dead button this exists to remove.
+    MAIL_DELIVERY: z.enum(['queued', 'inline']).default('queued'),
     // Public origin of this deployment (the same value the web app gets), used
     // to build the absolute links every email needs — mail is read outside the
     // app, so nothing relative resolves. Required in server mode.

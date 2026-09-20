@@ -54,6 +54,10 @@ async function bootstrap() {
     app.getHttpAdapter().getInstance().set('trust proxy', env.TRUST_PROXY_HOPS);
   }
 
+  // So queued mail is flushed on SIGTERM rather than dying with the container
+  // when a deploy replaces it (MailDispatcher).
+  app.enableShutdownHooks();
+
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
   const port = env.API_PORT;

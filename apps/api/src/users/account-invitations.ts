@@ -6,7 +6,7 @@ import {
 } from '../auth/password-token.service';
 import { PasswordService } from '../auth/password.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import {
   InvitationKind,
   invitationMail,
@@ -26,7 +26,7 @@ export class AccountInvitations {
     private readonly tokens: PasswordTokenService,
     private readonly passwords: PasswordService,
     private readonly reset: PasswordResetService,
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}
 
@@ -79,16 +79,23 @@ export class AccountInvitations {
   }
 
   /**
-   * Mail the link. Deliberately not allowed to fail the request that caused it:
-   * the account decision is already recorded, and staff can re-send from the
-   * account list. Losing the approval because SMTP hiccuped would be worse.
+   * Mint the link and dispatch it. Deliberately not allowed to fail or delay
+   * the request that caused it: the account decision is already recorded, and
+   * staff can re-send from the account list. Losing the approval because SMTP
+   * hiccuped would be worse — and so would making an admin watch it.
+   *
+   * The token is minted here rather than in the queue: it is a database row
+   * the account screen shows as an outstanding link, so it belongs to the
+   * request, and only the message that carries it is deferred.
    */
   async send(user: StaffUser, kind: InvitationKind): Promise<void> {
     try {
       const token = await this.tokens.issue(user.id, INVITE_TTL_MS);
-      await this.mail.send(invitationMail(token, this.text, kind), {
-        to: user.email,
-      });
+      await this.mail.dispatch(
+        invitationMail(token, this.text, kind),
+        { to: user.email },
+        `invitation to ${user.id}`,
+      );
     } catch (error) {
       this.logger.error(`Could not send the invitation to ${user.id}`, error);
     }

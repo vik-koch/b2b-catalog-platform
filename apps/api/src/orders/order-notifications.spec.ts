@@ -1,6 +1,7 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { MailService } from '../mail/mail.service';
+import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { demoMailText } from '../mail/mail-text.fixture';
 import { env } from '../env';
 import { OrderNotifications } from './order-notifications';
@@ -20,6 +21,10 @@ describe('OrderNotifications', () => {
   let send: Mock;
   let error: MockInstance;
   let notifications: OrderNotifications;
+  let mail: MailDispatcher;
+
+  /** The queue is real: nothing is sent until it drains. */
+  const settle = () => mail.flush();
 
   const staffInbox = env.MAIL_STAFF_TO;
 
@@ -28,17 +33,15 @@ describe('OrderNotifications', () => {
     error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {
       // The failure paths log; the assertions are about what survives them.
     });
-    notifications = new OrderNotifications(
-      { send } as unknown as MailService,
-      demoMailText,
-      currency,
-    );
+    mail = dispatcherOver(send);
+    notifications = new OrderNotifications(mail, demoMailText, currency);
   });
 
   afterEach(() => error.mockRestore());
 
   it('mails the customer and the shop, each to its own address', async () => {
-    await notifications.placed(demoAdminOrder, 'tok-123');
+    notifications.placed(demoAdminOrder, 'tok-123');
+    await settle();
 
     expect(send).toHaveBeenCalledTimes(2);
     const [[, customer], [, staff]] = send.mock.calls;
@@ -55,9 +58,8 @@ describe('OrderNotifications', () => {
     it('does not stop the order, nor the second mail', async () => {
       send.mockRejectedValueOnce(new Error('smtp down'));
 
-      await expect(
-        notifications.placed(demoAdminOrder, 'tok-123'),
-      ).resolves.toBeUndefined();
+      notifications.placed(demoAdminOrder, 'tok-123');
+      await settle();
 
       expect(send).toHaveBeenCalledTimes(2);
       expect(error).toHaveBeenCalled();
@@ -66,9 +68,8 @@ describe('OrderNotifications', () => {
     it('survives both mails failing', async () => {
       send.mockRejectedValue(new Error('smtp down'));
 
-      await expect(
-        notifications.placed(demoAdminOrder, 'tok-123'),
-      ).resolves.toBeUndefined();
+      notifications.placed(demoAdminOrder, 'tok-123');
+      await settle();
 
       expect(error).toHaveBeenCalledTimes(2);
     });
@@ -83,28 +84,31 @@ describe('OrderNotifications', () => {
     const tokenIn = (call: number) => JSON.stringify(send.mock.calls[call][0]);
 
     it('is mailed to a guest, who has no other way back', async () => {
-      await notifications.placed(
+      notifications.placed(
         { ...demoAdminOrder, customerEmail: null },
         'tok-123',
       );
+      await settle();
 
       expect(tokenIn(0)).toContain('tok-123');
     });
 
     it('is not mailed to an account holder', async () => {
-      await notifications.placed(
+      notifications.placed(
         { ...demoAdminOrder, customerEmail: 'alex@example.com' },
         'tok-123',
       );
+      await settle();
 
       expect(tokenIn(0)).not.toContain('tok-123');
     });
 
     it('never reaches the shop’s own copy either way', async () => {
-      await notifications.placed(
+      notifications.placed(
         { ...demoAdminOrder, customerEmail: null },
         'tok-123',
       );
+      await settle();
 
       expect(tokenIn(1)).not.toContain('tok-123');
     });
@@ -117,7 +121,8 @@ describe('OrderNotifications', () => {
    */
   describe('an order the customer calls off', () => {
     it('tells the shop, and replies to the customer', async () => {
-      await notifications.cancelledByCustomer(demoAdminOrder);
+      notifications.cancelledByCustomer(demoAdminOrder);
+      await settle();
 
       expect(send).toHaveBeenCalledTimes(1);
       const [, envelope] = send.mock.calls[0];
@@ -129,7 +134,8 @@ describe('OrderNotifications', () => {
     // They just did this themselves. A confirmation of one's own click is the
     // mail that teaches people to ignore the shop's mail.
     it('writes nothing to the customer', async () => {
-      await notifications.cancelledByCustomer(demoAdminOrder);
+      notifications.cancelledByCustomer(demoAdminOrder);
+      await settle();
 
       const recipients = send.mock.calls.map(([, envelope]) => envelope.to);
       expect(recipients).not.toContain(demoAdminOrder.contact.email);
@@ -138,9 +144,9 @@ describe('OrderNotifications', () => {
     it('does not take the cancellation down with it', async () => {
       send.mockRejectedValue(new Error('smtp down'));
 
-      await expect(
-        notifications.cancelledByCustomer(demoAdminOrder),
-      ).resolves.toBeUndefined();
+      notifications.cancelledByCustomer(demoAdminOrder);
+      await settle();
+
       expect(error).toHaveBeenCalled();
     });
   });

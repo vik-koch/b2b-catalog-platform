@@ -7,7 +7,7 @@
     "e2e": {
       "executor": "@nx/vitest:test",
       "outputs": ["{workspaceRoot}/coverage/api-e2e"],
-      "dependsOn": ["api:build", "api:serve"],
+      "dependsOn": ["api:build", "api:serve-e2e"],
       "options": {
         "passWithNoTests": true,
         "tsConfig": "apps/api-e2e/tsconfig.spec.json"

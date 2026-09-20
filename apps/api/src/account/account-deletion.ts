@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PasswordTokenService } from '../auth/password-token.service';
 import { PasswordService } from '../auth/password.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { accountClosedMail } from '../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
@@ -26,7 +26,7 @@ export class AccountDeletion {
     private readonly users: UsersService,
     private readonly passwords: PasswordService,
     private readonly tokens: PasswordTokenService,
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     private readonly orderDocuments: OrderDocumentFiles,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}
@@ -81,30 +81,25 @@ export class AccountDeletion {
 
     // The deletion is the request, not the mail — unlike an invitation, where
     // the mail *is* the point. A mail that will not send is logged and the
-    // account stays deleted.
-    try {
-      await this.mail.send(accountDeletedMail(this.text), { to: address });
-    } catch (error) {
-      this.logger.error(
-        `Could not send the deletion confirmation: ${String(error)}`,
-      );
-    }
+    // account stays deleted, and nobody watches a spinner while it goes.
+    await this.mail.dispatch(
+      accountDeletedMail(this.text),
+      { to: address },
+      'deletion confirmation',
+    );
 
     // And the shop is told (FR-NOTIF-08). Separately, so one failing inbox does
     // not swallow the other message — and after the customer's, because theirs
-    // is the one they are waiting on the page for.
-    try {
-      const staffInbox = env.MAIL_STAFF_TO;
-      if (!staffInbox) {
-        // env.ts requires this in server mode; this narrows the type.
-        throw new Error('MAIL_STAFF_TO is not configured');
-      }
-      await this.mail.send(accountClosedMail(closed, this.text), {
-        to: staffInbox,
-      });
-    } catch (error) {
-      this.logger.error(
-        `Could not send the staff closure notification: ${String(error)}`,
+    // is the one the queue should reach first.
+    const staffInbox = env.MAIL_STAFF_TO;
+    if (!staffInbox) {
+      // env.ts requires this in server mode; this narrows the type.
+      this.logger.error('MAIL_STAFF_TO is not configured');
+    } else {
+      await this.mail.dispatch(
+        accountClosedMail(closed, this.text),
+        { to: staffInbox },
+        'staff closure notification',
       );
     }
 

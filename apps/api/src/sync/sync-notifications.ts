@@ -1,11 +1,11 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   MoneyFormat,
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared';
 import { MONEY_FORMAT } from '../config/deployment-config';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import {
   NotificationAudience,
@@ -73,10 +73,8 @@ const STATE_OF: Record<SyncRunStatus, FeedState> = {
  */
 @Injectable()
 export class SyncNotifications {
-  private readonly logger = new Logger('Sync');
-
   constructor(
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     private readonly audiences: NotificationAudiences,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
@@ -141,22 +139,19 @@ export class SyncNotifications {
   }
 
   /**
-   * Never allowed to fail the run that caused it, exactly as an order's mails
-   * are not allowed to fail the order: the catalog is written, and the panel
-   * says so whether or not SMTP was reachable.
+   * Never allowed to fail or hold up the run that caused it, exactly as an
+   * order's mails are not allowed to fail the order: the catalog is written,
+   * and the panel says so whether or not SMTP was reachable. An ERP posting a
+   * run gets its answer back without waiting on the shop's provider.
    */
-  private async send(
+  private send(
     content: MailContent,
     audience: NotificationAudience,
   ): Promise<void> {
-    try {
-      for (const to of this.audiences.addressesFor(audience)) {
-        await this.mail.send(content, { to });
-      }
-    } catch (error) {
-      this.logger.error(
-        `sync notification failed: ${(error as Error).message}`,
-      );
-    }
+    return this.mail.dispatchEach(
+      content,
+      this.audiences.addressesFor(audience),
+      `sync ${audience} notification`,
+    );
   }
 }

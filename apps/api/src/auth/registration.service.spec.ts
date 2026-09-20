@@ -4,7 +4,8 @@ import { AddressesService } from '../addresses/addresses.service';
 import { COMPANY_ID_RULE, PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
 import { demoMailText, demoPhoneInput } from '../mail/mail-text.fixture';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
+import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
 import { RegistrationService } from './registration.service';
@@ -20,6 +21,7 @@ describe('RegistrationService', () => {
   const createPending = vi.fn();
   const seed = vi.fn();
   const send = vi.fn<(mail: unknown, to: { to: string }) => Promise<void>>();
+  let mail: MailDispatcher;
   let service: RegistrationService;
 
   // The demo deployment's rule: a German VAT number (see config/deployment.json).
@@ -49,7 +51,7 @@ describe('RegistrationService', () => {
       providers: [
         RegistrationService,
         { provide: UsersService, useValue: { findByEmail, createPending } },
-        { provide: MailService, useValue: { send } },
+        { provide: MailDispatcher, useValue: dispatcherOver(send) },
         { provide: MAIL_TEXT, useValue: demoMailText },
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
         { provide: AddressesService, useValue: { seed } },
@@ -63,12 +65,17 @@ describe('RegistrationService', () => {
       ],
     }).compile();
     service = moduleRef.get(RegistrationService);
+    mail = moduleRef.get(MailDispatcher);
   });
+
+  /** The queue is real: registration returns before the mails go out. */
+  const settle = () => mail.flush();
 
   const recipients = () => send.mock.calls.map(([, envelope]) => envelope.to);
 
   it('creates a pending account and mails the registrant and the shop', async () => {
     await service.register(person);
+    await settle();
 
     expect(createPending).toHaveBeenCalledWith({
       email: 'jane@example.com',
@@ -93,6 +100,7 @@ describe('RegistrationService', () => {
    */
   it('groups the phone number in the notification to the shop', async () => {
     await service.register(person);
+    await settle();
 
     const [staffMail] = send.mock.calls[1] as unknown as [
       { rows?: { label: string; value: string }[] },
@@ -169,6 +177,7 @@ describe('RegistrationService', () => {
     send.mockRejectedValueOnce(new Error('smtp down'));
 
     await expect(service.register(person)).resolves.toBeUndefined();
+    await settle();
 
     expect(createPending).toHaveBeenCalled();
     expect(send).toHaveBeenCalledTimes(2);

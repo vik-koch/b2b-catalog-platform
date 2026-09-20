@@ -17,7 +17,7 @@ import {
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { newRegistrationMail } from '../mail/templates/new-registration.template';
 import { registrationReceivedMail } from '../mail/templates/registration-received.template';
 import { UsersService } from '../users/users.service';
@@ -38,7 +38,7 @@ export class RegistrationService {
   constructor(
     private readonly users: UsersService,
     private readonly passwords: PasswordService,
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(COMPANY_ID_RULE) private readonly companyIdMatches: CompanyIdRule,
     private readonly addresses: AddressesService,
@@ -142,13 +142,15 @@ export class RegistrationService {
   }
 
   /**
-   * The two mails a registration produces. Sent independently and never allowed
-   * to fail the request: the account row is what matters, and staff can see and
-   * approve it from the admin panel whether or not SMTP was reachable.
+   * The two mails a registration produces. Dispatched independently and never
+   * allowed to fail or delay the request: the account row is what matters, and
+   * staff can see and approve it from the admin panel whether or not SMTP was
+   * reachable.
    */
   private async notify(email: string, request: RegisterRequest): Promise<void> {
-    await this.send(
-      () => this.mail.send(registrationReceivedMail(this.text), { to: email }),
+    await this.mail.dispatch(
+      registrationReceivedMail(this.text),
+      { to: email },
       'registration confirmation',
     );
 
@@ -157,30 +159,19 @@ export class RegistrationService {
       // env.ts requires this in server mode; this narrows the type.
       throw new Error('MAIL_STAFF_TO is not configured');
     }
-    await this.send(
-      () =>
-        this.mail.send(
-          newRegistrationMail(
-            {
-              ...request,
-              email,
-              // Stored unmasked; a manager reading this on a phone gets it
-              // grouped the way this deployment writes numbers.
-              phone: formatPhone(request.phone, this.phoneInput),
-            },
-            this.text,
-          ),
-          { to: staffInbox },
-        ),
+    await this.mail.dispatch(
+      newRegistrationMail(
+        {
+          ...request,
+          email,
+          // Stored unmasked; a manager reading this on a phone gets it
+          // grouped the way this deployment writes numbers.
+          phone: formatPhone(request.phone, this.phoneInput),
+        },
+        this.text,
+      ),
+      { to: staffInbox },
       'staff notification',
     );
-  }
-
-  private async send(send: () => Promise<void>, what: string): Promise<void> {
-    try {
-      await send();
-    } catch (error) {
-      this.logger.error(`Could not send the ${what} mail`, error);
-    }
   }
 }

@@ -615,9 +615,11 @@ describe('OrdersService.notifyPlaced', () => {
   it('swallows a notifier that throws for any other reason', async () => {
     const orders = service(testDb(0, {}));
     vi.spyOn(orders, 'getForStaff').mockResolvedValue(demoAdminOrder);
-    vi.spyOn(orders['notifications'], 'placed').mockRejectedValue(
-      new Error('MAIL_STAFF_TO is not configured'),
-    );
+    vi.spyOn(orders['notifications'], 'placed').mockImplementation(() => {
+      // Thrown, not rejected: the mails are queued, so what can still fail
+      // here is building them — a deployment with no staff inbox.
+      throw new Error('MAIL_STAFF_TO is not configured');
+    });
 
     await expect(orders.notifyPlaced(placed)).resolves.toBeUndefined();
     expect(error).toHaveBeenCalled();
