@@ -67,6 +67,8 @@ Thumbs.db
 !.env.example
 !.env.stack.example
 !.env.localtest
+# No secrets: one switch that puts the e2e run's mail back inside the request.
+!.env.serve-e2e
 
 .angular
 

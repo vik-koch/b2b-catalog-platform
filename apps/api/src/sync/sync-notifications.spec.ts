@@ -1,7 +1,8 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { SyncArea, SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
+import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { demoMailText } from '../mail/mail-text.fixture';
 import { NotificationAudiences } from '../mail/notification-audience';
 import { SyncNotifications } from './sync-notifications';
@@ -57,6 +58,10 @@ describe('SyncNotifications', () => {
   let send: Mock;
   let error: MockInstance;
   let notifications: SyncNotifications;
+  let mail: MailDispatcher;
+
+  /** The queue is real: nothing is sent until it drains. */
+  const settle = () => mail.flush();
 
   const subjects = () =>
     send.mock.calls.map((call) => (call[0] as { subject: string }).subject);
@@ -71,8 +76,9 @@ describe('SyncNotifications', () => {
     error = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => {
       // The failure path logs; the assertions are about what survives it.
     });
+    mail = dispatcherOver(send);
     notifications = new SyncNotifications(
-      { send } as unknown as MailService,
+      mail,
       new NotificationAudiences({ admin: ADMIN }),
       demoMailText,
       currency,
@@ -82,25 +88,29 @@ describe('SyncNotifications', () => {
   afterEach(() => error.mockRestore());
 
   it('announces the first failure after the feed was working', async () => {
-    await notifications.announce(run('failed'), 'applied');
+    notifications.announce(run('failed'), 'applied');
+    await settle();
 
     expect(subjects()).toEqual([t.failed.subject]);
   });
 
   it('says nothing about a feed that is still broken', async () => {
-    await notifications.announce(run('failed'), 'failed');
+    notifications.announce(run('failed'), 'failed');
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
 
   it('announces the recovery once', async () => {
-    await notifications.announce(run('applied'), 'failed');
+    notifications.announce(run('applied'), 'failed');
+    await settle();
 
     expect(subjects()).toEqual([t.recovered.subject]);
   });
 
   it('announces a run that starts waiting for a person', async () => {
-    await notifications.announce(run('previewed'), 'applied');
+    notifications.announce(run('previewed'), 'applied');
+    await settle();
 
     expect(subjects()).toEqual([t.waiting.subject]);
   });
@@ -111,27 +121,31 @@ describe('SyncNotifications', () => {
    * panel says so with one count.
    */
   it('says nothing when a staged run replaces a staged run', async () => {
-    await notifications.announce(run('previewed'), 'previewed');
-    await notifications.announce(run('previewed'), 'superseded');
+    notifications.announce(run('previewed'), 'previewed');
+    notifications.announce(run('previewed'), 'superseded');
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
 
   /** A discarded run was answered, so the next one waiting is news again. */
   it('announces a staged run after the last one was discarded', async () => {
-    await notifications.announce(run('previewed'), 'discarded');
+    notifications.announce(run('previewed'), 'discarded');
+    await settle();
 
     expect(subjects()).toEqual([t.waiting.subject]);
   });
 
   it('announces new products a run applied by itself', async () => {
-    await notifications.announce(run('applied', withCreates(12)), 'applied');
+    notifications.announce(run('applied', withCreates(12)), 'applied');
+    await settle();
 
     expect(subjects()).toEqual([t.created.subject]);
   });
 
   it('says nothing about a run that created nothing', async () => {
-    await notifications.announce(run('applied', withCreates(0)), 'applied');
+    notifications.announce(run('applied', withCreates(0)), 'applied');
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
@@ -141,28 +155,32 @@ describe('SyncNotifications', () => {
    * creates; the mail would be the same news twice.
    */
   it('says nothing about creates an admin applied by hand', async () => {
-    await notifications.announce(
+    notifications.announce(
       run('applied', { ...withCreates(12), stagedReason: 'policy' }),
       'applied',
     );
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
 
   it('writes both sentences where one run recovers and creates', async () => {
-    await notifications.announce(run('applied', withCreates(12)), 'failed');
+    notifications.announce(run('applied', withCreates(12)), 'failed');
+    await settle();
 
     expect(subjects()).toEqual([t.recovered.subject, t.created.subject]);
   });
 
   it('treats the very first run as a feed that was working', async () => {
-    await notifications.announce(run('applied'), null);
+    notifications.announce(run('applied'), null);
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
 
   it('writes to the admin, not to the staff inbox', async () => {
-    await notifications.announce(run('previewed'), 'applied');
+    notifications.announce(run('previewed'), 'applied');
+    await settle();
 
     expect(recipients()).toEqual([ADMIN]);
   });
@@ -170,17 +188,21 @@ describe('SyncNotifications', () => {
   /** A fault reaches the operator as well, where a deployment names one — and
    * only a fault: a staged run is nothing they can answer. */
   it('copies the operator on a failure and on nothing else', async () => {
+    mail = dispatcherOver(send);
     notifications = new SyncNotifications(
-      { send } as unknown as MailService,
+      mail,
       new NotificationAudiences({ admin: ADMIN, ops: OPS }),
       demoMailText,
       currency,
     );
 
-    await notifications.announce(run('failed'), 'applied');
-    await notifications.announce(run('previewed'), 'applied');
+    notifications.announce(run('failed'), 'applied');
+    notifications.announce(run('previewed'), 'applied');
+    await settle();
 
-    expect(recipients()).toEqual([ADMIN, OPS, ADMIN]);
+    // Sorted: the queue sends in parallel, so which of the two fault copies
+    // lands first is not a fact about the notification.
+    expect(recipients().sort()).toEqual([ADMIN, ADMIN, OPS]);
   });
 
   /**
@@ -189,11 +211,9 @@ describe('SyncNotifications', () => {
    * line an inbox shows them.
    */
   it('writes a customer run in the customer exchange’s own words', async () => {
-    await notifications.announce(run('failed', inArea('customers')), 'applied');
-    await notifications.announce(
-      run('previewed', inArea('customers')),
-      'applied',
-    );
+    notifications.announce(run('failed', inArea('customers')), 'applied');
+    notifications.announce(run('previewed', inArea('customers')), 'applied');
+    await settle();
 
     expect(subjects()).toEqual([
       customers.failed.subject,
@@ -207,10 +227,11 @@ describe('SyncNotifications', () => {
    * is no queue on anybody's desk to announce.
    */
   it('says nothing about accounts a customer run created', async () => {
-    await notifications.announce(
+    notifications.announce(
       run('applied', { ...inArea('customers'), ...withCreates(12) }),
       'applied',
     );
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
@@ -221,8 +242,9 @@ describe('SyncNotifications', () => {
    * is still down — and cannot clear it.
    */
   it('reads each area against its own previous run', async () => {
-    await notifications.announce(run('applied', inArea('customers')), 'failed');
-    await notifications.announce(run('failed'), 'failed');
+    notifications.announce(run('applied', inArea('customers')), 'failed');
+    notifications.announce(run('failed'), 'failed');
+    await settle();
 
     expect(subjects()).toEqual([customers.recovered.subject]);
   });
@@ -231,9 +253,9 @@ describe('SyncNotifications', () => {
   it('does not let a broken mailer escape into the run', async () => {
     send.mockRejectedValue(new Error('smtp down'));
 
-    await expect(
-      notifications.announce(run('failed'), 'applied'),
-    ).resolves.toBeUndefined();
+    notifications.announce(run('failed'), 'applied');
+    await settle();
+
     expect(error).toHaveBeenCalled();
   });
 });

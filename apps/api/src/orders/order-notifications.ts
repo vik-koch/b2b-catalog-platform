@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   AdminOrderDetail,
   MoneyFormat,
@@ -6,7 +6,7 @@ import {
   OrderNotice,
 } from '@b2b-catalog-platform/shared';
 import { MONEY_FORMAT } from '../config/deployment-config';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { newOrderMail } from '../mail/templates/new-order.template';
 import { orderCancelledMail } from '../mail/templates/order-cancelled.template';
@@ -26,17 +26,15 @@ function staffInbox(): string {
 /**
  * The two mails an order request produces (FR-NOTIF-05/06).
  *
- * Sent independently and never allowed to fail the request, exactly as a
- * registration's are: the order row is what matters, and it is readable in the
- * admin panel whether or not SMTP was reachable. A customer who was shown a
- * reference has an order, mail or no mail.
+ * Dispatched rather than sent, exactly as a registration's are: the order row
+ * is what matters, and it is readable in the admin panel whether or not SMTP
+ * was reachable. A customer who was shown a reference has an order, mail or no
+ * mail — and does not wait on a provider to say so.
  */
 @Injectable()
 export class OrderNotifications {
-  private readonly logger = new Logger('Orders');
-
   constructor(
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
   ) {}
@@ -48,31 +46,28 @@ export class OrderNotifications {
     // The token travels only where it is the only way in. An order placed from
     // an account is linked to that account's own order page instead, so no
     // capability URL is mailed for something the customer can already open.
-    await this.send(
-      () =>
-        this.mail.send(
-          orderReceivedMail(
-            order,
-            order.customerEmail ? null : publicToken,
-            this.currency,
-            this.text,
-          ),
-          { to: order.contact.email },
-        ),
+    await this.mail.dispatch(
+      orderReceivedMail(
+        order,
+        order.customerEmail ? null : publicToken,
+        this.currency,
+        this.text,
+      ),
+      { to: order.contact.email },
       'order confirmation',
     );
 
-    await this.send(
-      () =>
-        this.mail.send(newOrderMail(order, this.currency, this.text), {
-          // env.ts requires this in server mode; asking for it in here means a
-          // deployment that lost it still logs one failed mail rather than
-          // throwing past the customer's own.
-          to: staffInbox(),
-          // A manager reading it on a phone replies to the customer, not to
-          // the shop's own inbox.
-          replyTo: order.contact.email,
-        }),
+    await this.mail.dispatch(
+      newOrderMail(order, this.currency, this.text),
+      {
+        // env.ts requires this in server mode; asking for it in here means a
+        // deployment that lost it still logs one failed mail rather than
+        // throwing past the customer's own.
+        to: staffInbox(),
+        // A manager reading it on a phone replies to the customer, not to
+        // the shop's own inbox.
+        replyTo: order.contact.email,
+      },
       'staff order notification',
     );
   }
@@ -89,14 +84,14 @@ export class OrderNotifications {
    * the shop's mail.
    */
   async cancelledByCustomer(order: AdminOrderDetail): Promise<void> {
-    await this.send(
-      () =>
-        this.mail.send(orderCancelledMail(order, this.currency, this.text), {
-          to: staffInbox(),
-          // As on the arrival notification: a manager reading it on a phone
-          // rings the customer back, not the shop's own inbox.
-          replyTo: order.contact.email,
-        }),
+    await this.mail.dispatch(
+      orderCancelledMail(order, this.currency, this.text),
+      {
+        to: staffInbox(),
+        // As on the arrival notification: a manager reading it on a phone
+        // rings the customer back, not the shop's own inbox.
+        replyTo: order.contact.email,
+      },
       'staff cancellation notification',
     );
   }
@@ -127,21 +122,18 @@ export class OrderNotifications {
     attachments: readonly MailAttachment[] = [],
   ): Promise<void> {
     const status = order.status;
-    await this.send(
-      () =>
-        this.mail.send(
-          orderStatusChangedMail(
-            order,
-            status,
-            notice,
-            order.customerEmail ? null : publicToken,
-            this.currency,
-            this.text,
-            changes,
-            attachments.length > 0,
-          ),
-          { to: order.contact.email, attachments },
-        ),
+    await this.mail.dispatch(
+      orderStatusChangedMail(
+        order,
+        status,
+        notice,
+        order.customerEmail ? null : publicToken,
+        this.currency,
+        this.text,
+        changes,
+        attachments.length > 0,
+      ),
+      { to: order.contact.email, attachments },
       'order status mail',
     );
   }
@@ -161,27 +153,16 @@ export class OrderNotifications {
     publicToken: string,
     attachments: readonly MailAttachment[] = [],
   ): Promise<void> {
-    await this.send(
-      () =>
-        this.mail.send(
-          orderDocumentMail(
-            order,
-            kind,
-            order.customerEmail ? null : publicToken,
-            this.currency,
-            this.text,
-          ),
-          { to: order.contact.email, attachments },
-        ),
+    await this.mail.dispatch(
+      orderDocumentMail(
+        order,
+        kind,
+        order.customerEmail ? null : publicToken,
+        this.currency,
+        this.text,
+      ),
+      { to: order.contact.email, attachments },
       'order document mail',
     );
-  }
-
-  private async send(send: () => Promise<void>, what: string): Promise<void> {
-    try {
-      await send();
-    } catch (error) {
-      this.logger.error(`Could not send the ${what} mail`, error);
-    }
   }
 }

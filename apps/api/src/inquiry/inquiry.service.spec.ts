@@ -9,6 +9,7 @@ import {
   demoMailText,
   demoPhoneInput,
 } from '../mail/mail-text.fixture';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MailService } from '../mail/mail.service';
 import { InquiryService } from './inquiry.service';
 
@@ -17,6 +18,10 @@ import { InquiryService } from './inquiry.service';
 describe('InquiryService', () => {
   const send = vi.fn<(mail: unknown) => Promise<void>>();
   let service: InquiryService;
+  let mail: MailDispatcher;
+
+  /** The queue is real: the submission returns before the mail goes out. */
+  const settle = () => mail.flush();
 
   const base: InquiryRequest = {
     name: 'Jane Doe',
@@ -31,6 +36,7 @@ describe('InquiryService', () => {
       providers: [
         InquiryService,
         MailService,
+        MailDispatcher,
         { provide: MAILER, useValue: { send } satisfies Mailer },
         { provide: MAIL_TEXT, useValue: demoMailText },
         { provide: MAIL_BRANDING, useValue: demoMailBranding },
@@ -38,10 +44,12 @@ describe('InquiryService', () => {
       ],
     }).compile();
     service = moduleRef.get(InquiryService);
+    mail = moduleRef.get(MailDispatcher);
   });
 
   it('sends the shop an email for a clean submission', async () => {
-    await service.submit(base);
+    service.submit(base);
+    await settle();
 
     expect(send).toHaveBeenCalledTimes(1);
     // The recipient is deployment config (MAIL_STAFF_TO); this test only
@@ -52,15 +60,15 @@ describe('InquiryService', () => {
   });
 
   it('silently drops a submission with the honeypot filled — no mail sent', async () => {
-    await expect(
-      service.submit({ ...base, website: 'http://spam.example' }),
-    ).resolves.toBeUndefined();
+    service.submit({ ...base, website: 'http://spam.example' });
+    await settle();
 
     expect(send).not.toHaveBeenCalled();
   });
 
   it('treats a blank honeypot as absent and still sends', async () => {
-    await service.submit({ ...base, website: '' });
+    service.submit({ ...base, website: '' });
+    await settle();
 
     expect(send).toHaveBeenCalledTimes(1);
   });

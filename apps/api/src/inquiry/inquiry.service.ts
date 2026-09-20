@@ -6,7 +6,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { PHONE_INPUT } from '../config/deployment-config';
 import { env } from '../env';
-import { MailService } from '../mail/mail.service';
+import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { inquiryMail } from '../mail/templates/inquiry.template';
 
@@ -15,11 +15,17 @@ export class InquiryService {
   private readonly logger = new Logger('Inquiry');
 
   constructor(
-    private readonly mail: MailService,
+    private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
   ) {}
 
+  /**
+   * Queued, not sent here (FR-NOTIF-04). Nothing is stored either way, so the
+   * visitor's answer has never depended on the provider's — and making them
+   * watch a form for the seconds a real relay takes is the one thing the
+   * screen could get wrong. A message that will not go out is logged.
+   */
   async submit(submission: InquiryRequest): Promise<void> {
     // Honeypot: drop it silently toward the caller — no mail, no error, a
     // normal 200 with no hint the decoy tripped — but log it server-side so
@@ -44,10 +50,14 @@ export class InquiryService {
         : undefined,
     };
 
-    await this.mail.send(inquiryMail(readable, this.text), {
-      to,
-      // The submitter, so the shop can answer by hitting reply.
-      replyTo: submission.email,
-    });
+    await this.mail.dispatch(
+      inquiryMail(readable, this.text),
+      {
+        to,
+        // The submitter, so the shop can answer by hitting reply.
+        replyTo: submission.email,
+      },
+      'inquiry',
+    );
   }
 }
