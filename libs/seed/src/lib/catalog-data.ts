@@ -15,6 +15,9 @@ export interface CategorySeed {
   parentKey: string | null;
   sortOrder: number;
   hasImage: boolean;
+  /** A generated mark (FR-CAT-07). False leaves the category name-only, which
+   * is the fallback every chip has to keep working. */
+  hasMark: boolean;
 }
 
 export interface ProductSeed {
@@ -56,6 +59,7 @@ const top = (
   sourceId: string,
   name: string,
   hasImage = true,
+  hasMark = true,
 ): CategorySeed => ({
   sourceId,
   slug: sourceId,
@@ -63,12 +67,14 @@ const top = (
   parentKey: null,
   sortOrder: order++,
   hasImage,
+  hasMark,
 });
 const sub = (
   sourceId: string,
   name: string,
   parentKey: string,
   hasImage = true,
+  hasMark = true,
 ): CategorySeed => ({
   sourceId,
   slug: sourceId,
@@ -76,6 +82,7 @@ const sub = (
   parentKey,
   sortOrder: order++,
   hasImage,
+  hasMark,
 });
 
 // 12 top-level categories; subcategories only on Coffee Beans and Equipment.
@@ -83,7 +90,8 @@ export const categorySeeds: CategorySeed[] = [
   top('coffee-beans', 'Coffee Beans'),
   sub('espresso', 'Espresso Roasts', 'coffee-beans'),
   sub('filter', 'Filter Roasts', 'coffee-beans'),
-  sub('decaf', 'Decaf', 'coffee-beans', false),
+  // The one category with neither picture nor mark: what a chip falls back to.
+  sub('decaf', 'Decaf', 'coffee-beans', false, false),
   sub('single-origin', 'Single Origin', 'coffee-beans'),
 
   top('tea', 'Tea'),
