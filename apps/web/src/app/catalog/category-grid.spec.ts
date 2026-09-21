@@ -206,7 +206,7 @@ describe('CategoryGrid', () => {
     // Every chip is rendered at all times — how many are visible is the
     // browser's answer, given by clipping the list to two rows.
     expect(chipCount()).toBe(6);
-    expect(list()?.className).toContain('overflow-hidden');
+    expect(list()?.className).toContain('max-h-37');
     // ...and only on a phone: from the viewport's `sm` the clip is lifted in
     // CSS, so the same HTML shows every chip on a wider screen.
     expect(list()?.className).toContain('sm:max-h-none');
@@ -223,14 +223,28 @@ describe('CategoryGrid', () => {
     await f.whenStable();
     f.detectChanges();
 
-    expect(list()?.className).not.toContain('overflow-hidden');
+    // Open, the cap becomes the list's own measured height rather than `none`:
+    // both states are a length, so the movement between them runs.
+    expect(list()?.className).not.toContain('max-h-37');
+    expect(list()?.className).toContain('var(--subs-full');
     expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
 
     // The toggle is hidden wherever the clip is lifted — a button offering to
     // show what is already shown.
     expect(
-      toggle(defaultAppText.catalog.showLess)?.closest('div')?.className,
+      toggle(defaultAppText.catalog.showLess)?.closest('app-show-more-toggle')
+        ?.className,
     ).toContain('sm:hidden');
+  });
+
+  it('counts every product the filters leave, not the page on screen', async () => {
+    const f = await render(
+      response({
+        pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+      }),
+    );
+
+    expect(el(f).textContent).toContain('60 products');
   });
 
   it('shows pagination with prev/next links when there is more than one page', async () => {

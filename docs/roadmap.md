@@ -603,14 +603,23 @@ Notes:
   accent on hover and keeps a set of borrowed marks reading as one row; a deployment that wants a
   service's own colours is not served by this and is the case to revisit if it ever appears.
 - A category gets a **mark of its own** ([FR-CAT-07](requirements.md#fr-cat-07)) rather than
-  reusing the picture its card already carries. The two do different work: the card picture is a
+  reusing the picture its card already carried. The two do different work: the picture was a
   photograph in a 16:9 frame, cropped to fill, and the mark is a small square that must read at
-  chip size against a coloured pill — a cropped photo at 24px is a smear. The flag that lets the
-  mark **stand in place of** the name is the part worth arguing: a subcategory whose name is a
-  manufacturer is identified faster by its logo than by its name set in 14px, and that is a
-  judgement only the person filing the catalog can make, which is why it is a per-category
-  declaration and not a global rule. The name never actually leaves — it stays the link's
-  accessible name and its title — so the flag changes what is drawn, not what is said.
+  chip size — a cropped photo at 24px is a smear. The flag that would have let the mark **stand
+  in place of** the name was dropped while building it: the name is what a visitor reads and what
+  a screen reader announces, and a drawing that replaces it is a drawing that has to be decoded.
+- **The picture went, and the chip became the whole answer** (2026-09-21,
+  [ADR 0063](adr/0063-a-category-is-a-chip.md)), which is the larger half of FR-CAT-07 as it
+  ended up. A category was being drawn three ways — an editorial card on the main page, a picture
+  tile in the index, a chip in a listing's subcategory navigation — so it had to carry two images
+  to be drawn at all, and the picture was the weaker one: a photograph of one arbitrary member
+  reads as a product, and the catalog sync never writes it, so the image a category is drawn from
+  is the one nobody maintains. The chip is now the only drawing, in two sizes, and the index says
+  what it could not before — the **second level by name**, under every top-level chip, with the
+  rest of a long list opening in place. The picture's column and admin field stay: nothing
+  migrates, and removing them is a decision of its own. The main page shows exactly the same index
+  for now, which is honest about what it is until the featured row
+  ([FR-CAT-09](requirements.md#fr-cat-09)) gives it something of its own to put above.
 - The **category description stops being dead weight**
   ([FR-CAT-08](requirements.md#fr-cat-08)). It has been on the entity and in the admin editor
   since iteration 2 and has never been rendered anywhere: the storefront contract does not carry

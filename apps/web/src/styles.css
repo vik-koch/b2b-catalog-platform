@@ -164,6 +164,15 @@
    */
   --color-border: #e7e5e4;
   --color-border-strong: #d6d3d1;
+  /*
+   * A step in Tailwind's stone scale that Tailwind does not ship, for the one
+   * thing the app now fills a lot of surface with: the category chip. stone-100
+   * is barely a shade off the stone-50 page, and stone-150 read as a grey block
+   * once a grid of chips carried it; this sits between the two. It is a shade
+   * rather than a named token on purpose — a chip is an interaction background
+   * like the rest of the raw `stone-*` uses, and hovers to stone-200 from here.
+   */
+  --color-stone-125: #f2f1f0;
 }
 
 /*

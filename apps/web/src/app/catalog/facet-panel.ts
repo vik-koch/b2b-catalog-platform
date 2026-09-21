@@ -45,10 +45,28 @@ const VALUES_COLLAPSED = 8;
  *
  * Exported with the panel's own two states rather than written at each call
  * site, because all three have to name the same width.
+ *
+ * At column width the two are a grid on the listing's own track family — the
+ * 15rem tracks of PRODUCT_GRID — rather than a fixed column beside a flexible
+ * grid: the panel is the first of the five columns the page is drawn on, so it
+ * has to grow with them. Fixed at 15rem it stayed put while the cards beside it
+ * stretched, and the two only agreed at the width where a new column had just
+ * landed. The product grid keeps its own `auto-fill` inside the tracks it is
+ * given, which comes out at the same width: an area of n-1 tracks and their
+ * gaps fits exactly n-1 columns of the same size.
  */
 export const FACET_LAYOUT =
-  'flex flex-col gap-5 @min-[63.75rem]/listing:flex-row @min-[63.75rem]/listing:items-start';
-export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
+  'flex flex-col gap-4 @min-[63.75rem]/listing:grid @min-[63.75rem]/listing:grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] @min-[63.75rem]/listing:items-start';
+export const FACET_COLUMN = 'min-w-0';
+/** The listing beside the panel: everything the panel's one track leaves. A
+ * listing with no facets has no panel either, and takes the lot. */
+/* Start and end rather than one `col-[2/-1]`: a slash in a utility is
+ * Tailwind's modifier separator, so that class is never generated and the
+ * listing silently falls back to a single track. */
+export const FACET_SIBLING =
+  'min-w-0 @min-[63.75rem]/listing:col-start-2 @min-[63.75rem]/listing:col-end-[-1]';
+export const FACET_SIBLING_ALONE =
+  'min-w-0 @min-[63.75rem]/listing:col-span-full';
 
 /**
  * The attribute filter panel (FR-ATTR-04…07) — the left column of the category
@@ -130,7 +148,7 @@ export const FACET_COLUMN = 'shrink-0 @min-[63.75rem]/listing:w-60';
                    catalogue, which is the disclosure's own toggle row at any
                    narrower width. -->
               <div
-                class="hidden items-center justify-between gap-2 @min-[63.75rem]/listing:flex"
+                class="hidden items-center justify-between h-8 gap-2 @min-[63.75rem]/listing:flex"
               >
                 <h2
                   class="text-xs font-medium tracking-wide text-subtle uppercase"

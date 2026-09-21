@@ -9,8 +9,8 @@ import {
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { APP_TEXT } from '../config/app-text';
-import { Button } from '../ui/button';
 import { FRAME, FRAME_HOVER, FRAME_SELECTED } from '../ui/frame';
+import { ShowMoreToggle } from '../ui/show-more-toggle';
 import { ImagePlaceholder } from './image-placeholder';
 
 /** Thumbnails a phone keeps before the show-more toggle takes over — one row
@@ -51,7 +51,7 @@ const THUMBS_BESIDE = 6;
  */
 @Component({
   selector: 'app-product-gallery',
-  imports: [ImagePlaceholder, Button],
+  imports: [ImagePlaceholder, ShowMoreToggle],
   template: `
     <div [class]="frameClass()">
       <!-- A horizontal swipe steps between the photos, the gesture the card
@@ -113,18 +113,13 @@ const THUMBS_BESIDE = 6;
           }
         </ul>
         @if (images().length > THUMBS_COLLAPSED) {
-          <div class="flex justify-center md:hidden">
-            <button
-              type="button"
-              appButton
-              variant="ghost"
-              size="sm"
-              [attr.aria-expanded]="showAllThumbs()"
-              (click)="showAllThumbs.set(!showAllThumbs())"
-            >
-              {{ showAllThumbs() ? text.showLess : text.showMore }}
-            </button>
-          </div>
+          <app-show-more-toggle
+            class="md:hidden"
+            [expanded]="showAllThumbs()"
+            [moreLabel]="text.showMore"
+            [lessLabel]="text.showLess"
+            (toggled)="showAllThumbs.set(!showAllThumbs())"
+          />
         }
       }
     </div>

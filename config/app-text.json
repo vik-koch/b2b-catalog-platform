@@ -36,6 +36,7 @@
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageStatus": "Page {page} of {total}",
+    "productCount": "{count} product|{count} products",
     "availability": {
       "in": "In stock",
       "low": "Few left",
