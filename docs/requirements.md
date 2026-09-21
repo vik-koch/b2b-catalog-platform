@@ -32,7 +32,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-CAT-04](#fr-cat-04) — What a list item shows
 - [FR-CAT-05](#fr-cat-05) — What a product page shows
 - [FR-CAT-06](#fr-cat-06) — Cards or rows, remembered
-- [FR-CAT-07](#fr-cat-07) — A category's mark
+- [FR-CAT-07](#fr-cat-07) — How a category is shown
 - [FR-CAT-08](#fr-cat-08) — Category description
 - [FR-CAT-09](#fr-cat-09) — A featured row on the main page
 
@@ -260,7 +260,7 @@ A deployment can list the places it also exists — a social account, a messenge
 
 #### <a id="fr-cat-01"></a>FR-CAT-01 — Category overview on the main page
 
-The main page displays an overview of all catalog categories. A category is a grouping of products rather than a thing in its own right, so one with no publicly visible product beneath it is not shown, not linked in the navigation and not offered to a crawler — a category the sync has just created (its products not yet published, [FR-ADM-06](#fr-adm-06)) and one the sync has emptied are both absent until there is something to see. It stays editable in the admin panel throughout.
+The main page displays an overview of all catalog categories, as does the catalogue index the navigation leads to: both show every top-level category with the first few of its subcategories named underneath, and a way to open the rest in place. Naming the second level is how a grouping says what is in it — on a phone, where a chip is already a full-width row, the names are left out and the category itself is one tap away. A category is a grouping of products rather than a thing in its own right, so one with no publicly visible product beneath it is not shown, not linked in the navigation and not offered to a crawler — a category the sync has just created (its products not yet published, [FR-ADM-06](#fr-adm-06)) and one the sync has emptied are both absent until there is something to see. It stays editable in the admin panel throughout.
 
 #### <a id="fr-cat-02"></a>FR-CAT-02 — Products grouped by category
 
@@ -268,7 +268,7 @@ Products are grouped by category (incl. subcategories); this grouping is navigab
 
 #### <a id="fr-cat-03"></a>FR-CAT-03 — Paginated category grid
 
-Products within a selected category are shown as a paginated grid.
+Products within a selected category are shown as a paginated grid. Above it, in one row, the listing says how many products the current filters leave — the whole listing rather than the page of it on screen, which the pagination names — and offers the two ways of asking for them differently: the ordering and the choice of shape ([FR-CAT-06](#fr-cat-06)). Where the filters have collapsed into a disclosure the ordering goes with them, since the disclosure is then the one place a narrow screen arranges the listing from. A search's results are headed by the same row, counting what the query and the filters leave together.
 
 #### <a id="fr-cat-04"></a>FR-CAT-04 — What a list item shows
 
@@ -282,9 +282,9 @@ A product page displays name, price, full rich-text description, an image galler
 
 Product listings (category and search results) can be shown as a grid of cards or as a list of rows; both carry the same buying controls. The choice is remembered across visits and applies to every listing. Where the available width allows only one shape, both are shown in that shape and the choice is not offered.
 
-#### <a id="fr-cat-07"></a>FR-CAT-07 — A category's mark
+#### <a id="fr-cat-07"></a>FR-CAT-07 — How a category is shown
 
-A category may carry a small mark in addition to the picture its card shows, trimmed to a square when it is uploaded. Where the category appears as a chip rather than as a card — the subcategory navigation of a listing — the mark is shown beside its name, never instead of it. A category with no mark shows its name, as every category does today.
+Wherever the storefront shows a category it shows the same thing: a chip carrying the category's name, with its mark beside the name and never instead of it — the main page, the catalogue index, the subcategory navigation of a listing, and the category suggestions of a search ([FR-SEARCH-07](#fr-search-07)) alike. A category may carry a mark, trimmed to a square when it is uploaded; one with no mark is its name in the same chip. The chip comes in two sizes, a larger one where categories are what a screen is showing and a smaller one where they sit beside something else, and nothing but the size differs between them ([ADR 0063](adr/0063-a-category-is-a-chip.md)). A category is not drawn as a picture of the products beneath it.
 
 #### <a id="fr-cat-08"></a>FR-CAT-08 — Category description
 
