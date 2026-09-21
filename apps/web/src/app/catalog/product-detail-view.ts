@@ -20,7 +20,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
-import { Button } from '../ui/button';
+import { disclosureState } from '../ui/disclosure-state';
+import { ShowMoreToggle } from '../ui/show-more-toggle';
 import { Icon } from '../ui/icons/icon';
 import { Link } from '../ui/link';
 import { ProductBuyBlock } from './product-buy-block';
@@ -133,7 +134,7 @@ const NARROW = '(max-width: 39.999rem)';
     Icon,
     Link,
     NgTemplateOutlet,
-    Button,
+    ShowMoreToggle,
     ProductDocuments,
   ],
   template: `
@@ -201,7 +202,7 @@ const NARROW = '(max-width: 39.999rem)';
     <!-- Above the columns rather than inside one: with the way to buy in a
          column of its own, a name in the middle column would sit level with the
          price instead of over the whole page. -->
-    <h1 class="mt-4 text-2xl font-medium tracking-tight sm:text-3xl">
+    <h1 class="mt-2 text-2xl font-medium tracking-tight sm:text-3xl">
       {{ item().name }}
     </h1>
 
@@ -280,8 +281,10 @@ const NARROW = '(max-width: 39.999rem)';
           <div class="relative mt-3">
             <div
               #description
+              [id]="descriptionTextId"
               class="prose prose-stone max-w-none"
               [class]="descriptionClass()"
+              [style.--desc-full]="descriptionFullHeight()"
               [innerHTML]="safeDescription(item().descriptionHtml)"
             ></div>
             @if (descriptionFaded()) {
@@ -292,18 +295,14 @@ const NARROW = '(max-width: 39.999rem)';
             }
           </div>
           @if (descriptionToggle()) {
-            <div class="mt-1 flex justify-center">
-              <button
-                type="button"
-                appButton
-                variant="ghost"
-                size="sm"
-                [attr.aria-expanded]="descriptionExpanded()"
-                (click)="descriptionExpanded.set(!descriptionExpanded())"
-              >
-                {{ descriptionExpanded() ? text.showLess : text.showMore }}
-              </button>
-            </div>
+            <app-show-more-toggle
+              class="mt-1"
+              [expanded]="descriptionExpanded()"
+              [moreLabel]="text.showMore"
+              [lessLabel]="text.showLess"
+              [controls]="descriptionTextId"
+              (toggled)="descriptionDisclosure.toggle()"
+            />
           }
         </div>
       }
@@ -495,9 +494,17 @@ export class ProductDetailView {
    * renders the whole description — so crawlers always see the full text. */
   private readonly narrow = signal(false);
 
-  protected readonly descriptionExpanded = signal(false);
+  /** Armed only while the toggle's own movement runs, so turning the phone
+   * changes the clip with no transition on the element. */
+  protected readonly descriptionDisclosure = disclosureState(200);
+  protected readonly descriptionExpanded = this.descriptionDisclosure.open;
   /** Set while the collapsed description actually has more text to reveal. */
   private readonly descriptionOverflows = signal(false);
+  /** The text's unclipped height, as the open state's `max-height`: `none` is
+   * not a length, so a transition to it would not run. Null until measured,
+   * and the fallback then leaves the text unclipped. */
+  protected readonly descriptionFullHeight = signal<string | null>(null);
+  protected readonly descriptionTextId = 'description-text';
 
   /** Collapsed only on a phone, where the description has neither a column of
    * its own nor one beside it and would push everything else below the fold. */
@@ -509,9 +516,32 @@ export class ProductDetailView {
   protected readonly descriptionFaded = computed(
     () => this.descriptionCollapsed() && this.descriptionOverflows(),
   );
-  protected readonly descriptionClass = computed(() =>
-    this.descriptionCollapsed() ? 'max-h-[8.75rem] overflow-hidden' : '',
-  );
+  /**
+   * The clip, and the movement between its two states. Off the phone there is
+   * no clip at all: the description has a column to itself and nothing to
+   * reveal, so neither the cap nor the transition has any business there.
+   */
+  /**
+   * The clip, and the movement between its two states. Off the phone there is
+   * no clip at all: the description has a column to itself and nothing to
+   * reveal, so neither the cap nor the transition has any business there.
+   *
+   * Both states are a length, because a transition to or from `none` does not
+   * run — the open one is the measured height of the text, with slack that
+   * costs no height and keeps the cap clear of the words under it. `-m-1 p-1`
+   * insets the clipped box so `overflow-hidden` does not cut the focus outline
+   * off a link on the last visible line.
+   */
+  protected readonly descriptionClass = computed(() => {
+    if (!this.narrow()) return '';
+    const move = this.descriptionDisclosure.animated()
+      ? ' transition-[max-height] duration-200 ease-out'
+      : '';
+    const cap = this.descriptionCollapsed()
+      ? 'max-h-[8.75rem]'
+      : 'max-h-[calc(var(--desc-full,100rem)+0.5rem)]';
+    return `overflow-hidden -m-1 p-1${move} ${cap}`;
+  });
   protected readonly descriptionToggle = computed(
     () =>
       this.narrow() &&
@@ -554,8 +584,12 @@ export class ProductDetailView {
 
   private measure() {
     const desc = this.description()?.nativeElement;
-    if (desc && this.descriptionCollapsed()) {
+    if (!desc) return;
+    if (this.descriptionCollapsed()) {
       this.descriptionOverflows.set(desc.scrollHeight > desc.clientHeight + 1);
     }
+    // Unclipped in either state — scrollHeight is the whole text's height even
+    // while the cap hides the end of it.
+    this.descriptionFullHeight.set(`${desc.scrollHeight}px`);
   }
 }

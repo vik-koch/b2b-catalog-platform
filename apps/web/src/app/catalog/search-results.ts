@@ -16,7 +16,13 @@ import { LoadErrorView } from '../pages/load-error-view';
 import { Button } from '../ui/button';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
-import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
+import {
+  FACET_COLUMN,
+  FACET_LAYOUT,
+  FACET_SIBLING,
+  FACET_SIBLING_ALONE,
+  FacetPanel,
+} from './facet-panel';
 import { anyAvailability } from './product-availability-badge';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
@@ -78,9 +84,6 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
               >
                 {{ heading() }}
               </h1>
-              <p class="mt-2 text-sm text-subtle">
-                {{ resultCount(data.pagination.total) }}
-              </p>
             </div>
             <!-- The chips share the heading's row rather than getting one of
                  their own: a row that appears with the first selection would
@@ -89,20 +92,6 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
               class="mt-3 hidden min-w-0 flex-1 @min-[38rem]/listing:block"
               [facets]="data.facets"
             />
-            <div
-              class="mt-2 flex w-full items-end justify-end gap-3 @min-[38rem]/listing:w-auto"
-            >
-              <!-- The sort keeps this row only while there is a filter column
-                   beside the results to hold the other copy of it; below that
-                   it moves inside the filter disclosure. -->
-              <app-product-sort-select
-                [class]="data.facets.length ? headerSortAt : ''"
-                [value]="sortKey()"
-                defaultSort="relevance"
-                [withRelevance]="true"
-              />
-              <app-product-layout-toggle />
-            </div>
           </div>
           <!-- Filters left, listing right, from the width where the panel
                costs the listing neither a column nor an arrangement (see
@@ -118,9 +107,32 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                 />
               </aside>
             }
-            <div class="min-w-0 flex-1">
+            <div [class]="data.facets.length ? listingColumn : listingAlone">
               @if (!data.items.length) {
                 <p class="text-muted">{{ filterText.noMatches }}</p>
+              } @else {
+                <!-- How many results there are, and the two ways of asking
+                     for them differently — over the grid and at the height of
+                     the filter column's heading, exactly as the category
+                     listing arranges them. The count lives here rather than
+                     under the heading: it is a fact about the listing below
+                     it, and the listings say it in one place. The sort keeps
+                     this row only while there is a filter column to hold the
+                     other copy of it. -->
+                <div class="mb-4 flex h-8 items-center justify-between gap-4">
+                  <p class="text-sm text-subtle">
+                    {{ resultCount(data.pagination.total) }}
+                  </p>
+                  <div class="flex items-center gap-3">
+                    <app-product-sort-select
+                      [class]="data.facets.length ? headerSortAt : ''"
+                      [value]="sortKey()"
+                      defaultSort="relevance"
+                      [withRelevance]="true"
+                    />
+                    <app-product-layout-toggle />
+                  </div>
+                </div>
               }
               <!-- The same products, drawn the way the visitor last asked for
                    in either listing: fitted cards, or full-width lines. -->
@@ -271,6 +283,8 @@ export class SearchResults {
   protected readonly headerSortAt = 'hidden @min-[63.75rem]/listing:block';
   protected readonly facetLayout = FACET_LAYOUT;
   protected readonly facetColumn = FACET_COLUMN;
+  protected readonly listingColumn = FACET_SIBLING;
+  protected readonly listingAlone = FACET_SIBLING_ALONE;
   private readonly productLayout = inject(ProductLayoutService);
   /** Cards or lines — the visitor's standing choice, shared with the category
    * listing. */

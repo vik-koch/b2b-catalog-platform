@@ -74,6 +74,9 @@ export const appTextSchema = z
         nextPage: z.string(),
         /** `{page}` and `{total}` substituted at render. */
         pageStatus: z.string(),
+        /** How many products the listing is showing, above the grid. Counts,
+         * so it may carry both forms; `{count}` substituted at render. */
+        productCount: z.string(),
         /**
          * The cards/lines toggle (FR-CAT-04). Two glyphs, so these are the
          * buttons' accessible names rather than visible labels.

@@ -15,6 +15,7 @@ import { Params, Router, RouterLink } from '@angular/router';
 import {
   categoryDisplayName,
   encodeAttributeParams,
+  fillText,
   parseAttributeParams,
 } from '@b2b-catalog-platform/shared';
 import { EditActions } from '../admin/edit-actions';
@@ -30,11 +31,20 @@ import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { ConfirmService } from '../ui/confirm.service';
+import { disclosureState } from '../ui/disclosure-state';
+import { ShowMoreToggle } from '../ui/show-more-toggle';
 import { Icon } from '../ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { CategoryChip } from './category-chip';
-import { FACET_COLUMN, FACET_LAYOUT, FacetPanel } from './facet-panel';
+import { CATEGORY_GRID } from './category-index';
+import {
+  FACET_COLUMN,
+  FACET_LAYOUT,
+  FACET_SIBLING,
+  FACET_SIBLING_ALONE,
+  FacetPanel,
+} from './facet-panel';
 import { anyAvailability } from './product-availability-badge';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
@@ -47,49 +57,54 @@ import {
 import { PRODUCT_GRID, ProductTile } from './product-tile';
 
 /**
- * What SUBS_CLIP clips to, in px: two `h-16` chip rows and the `gap-3` between
- * them. Collapsed, the list is clipped to exactly this, so the browser decides
- * how many chips fit; the number is here only so the code can ask whether
- * anything was clipped.
+ * What the collapsed chip list clips to, in px: two `h-16` chip rows, the
+ * `gap-3` between them and the 4px the list is inset by (see SUBS_LIST).
+ * Collapsed, the list is clipped to exactly this, so the browser decides how
+ * many chips fit; the number is here only so the code can ask whether anything
+ * was clipped. It is a phone's figure — the clip is lifted from `sm` up, where
+ * the chips are a grid and every one of them is shown.
  */
-const SUBS_CLIP_HEIGHT = 140;
+const SUBS_CLIP_HEIGHT = 148;
 
-/** How many chips are assumed to fit before the first measurement (SSR) — two
- * rows of two, which is what the narrow widths this clipping is for hold. */
-const SUBS_ASSUMED_FIT = 4;
+/** How many chips are assumed to fit before the first measurement (SSR) — the
+ * two a phone's single column holds inside the clip. */
+const SUBS_ASSUMED_FIT = 2;
 
 /**
- * One wrapped row of chips at every width; what changes below the viewport's
- * `sm` is only that the chips then share out what the row has left over.
+ * The chips stand in the same grid the index puts them in (CATEGORY_GRID) —
+ * fitted 15rem tracks, one column on a phone — rather than in a row that
+ * fitted each chip to its name. A category is the same object here as on the
+ * index, so it is the same width here too, and the chips line up with the
+ * product cards under them instead of with each other.
  *
- * It asks the window rather than the @container above — the one place on this
- * page that does — because the phone shape is the phone's, not this section's,
- * and the container reaches 40rem about 32px after the window does.
- *
- * A chip's width is its name's: between 8rem and 16rem, which is what it has
- * always been and still is from `sm` up. Below `sm` that width becomes a floor
- * instead of the answer — `grow` hands each chip an equal share of whatever the
- * row did not use, so a row is always full and no chip is squeezed under the
- * width its name asked for. Which chips share a row is still decided on those
- * asked-for widths, so a chip drops to the next row when it no longer fits at
- * its own size rather than when the row's share falls under it. The cap comes
- * off there too: a chip may grow past 16rem to fill the row, and a name too
- * long to fit one takes the row and wraps inside it.
+ * `-m-1 p-1` grows the box the clip is applied to by 4px on every side while
+ * leaving the chips exactly where they were: the clip is `overflow-hidden`,
+ * and against a flush edge it cut the focus outline off the chips on the rim.
  */
-const SUBS_LIST = 'flex flex-wrap items-stretch gap-3';
-const SUBS_CHIP = 'flex min-w-32 max-w-64 max-sm:max-w-none max-sm:grow';
+const SUBS_LIST = `${CATEGORY_GRID} -m-1 p-1`;
 
 /**
  * Clipped to two chip rows on a phone, open from `sm` up — two rows is enough
  * to read the shape of the list, where one only ever showed its beginning. A
  * class rather than a branch: the server has no width to test, and the same
  * HTML has to be right on both sides of it.
+ *
+ * Opening and closing move rather than jump, so the products below are seen to
+ * be pushed down rather than found somewhere else. Both states are therefore a
+ * length: the open one is the measured height in a custom property, because
+ * `none` is not a length and a transition between it and the cap — in either
+ * direction — does not run. The slack on top of the measurement costs no
+ * height (a cap is not a size) and keeps the cap clear of the content it
+ * stands over; the fallback before the first measurement is generous for the
+ * same reason. The transition is armed only while a toggle's own movement
+ * runs, so a resize past `sm` lifts the clip with nothing to animate.
  */
-const SUBS_CLIP = 'max-h-35 overflow-hidden sm:max-h-none sm:overflow-visible';
+const SUBS_CLIP = 'overflow-hidden sm:max-h-none sm:overflow-visible';
+const SUBS_CLIPPED = 'max-h-37';
+const SUBS_OPEN = 'max-h-[calc(var(--subs-full,100rem)+0.5rem)]';
+const SUBS_MOVE = 'transition-[max-height] duration-200 ease-out';
 
-/** The toggle goes with the clipping — where nothing is hidden, offering to
- * show more is a button that does nothing. */
-const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
+const SUBS_TOGGLE = 'mt-2 sm:hidden';
 
 /**
  * A category's product grid (FR-CAT-03/04): breadcrumb, a drill-down nav of
@@ -112,6 +127,7 @@ const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
     AppliedFilters,
     CategoryChip,
     Button,
+    ShowMoreToggle,
     EditActions,
     HiddenProductsSection,
     NotFoundView,
@@ -222,7 +238,7 @@ const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
           </div>
 
           <div
-            class="mt-4 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
+            class="mt-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
           >
             <h1
               class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
@@ -237,24 +253,6 @@ const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
               class="hidden min-w-0 flex-1 @min-[38rem]/listing:block"
               [facets]="data.facets"
             />
-
-            <!-- Right-aligned above the grid rather than beside the title: the
-                title row belongs to the breadcrumb and, in edit mode, to the
-                category controls pinned top-right. -->
-            @if (data.items.length) {
-              <!-- The sort keeps this row only while there is a filter column
-                   beside the grid to hold the other copy of it; below that it
-                   moves inside the filter disclosure, so a narrow screen has
-                   one place to arrange the listing rather than two. -->
-              <div class="flex items-end justify-end gap-3">
-                <app-product-sort-select
-                  [class]="data.facets.length ? headerSortAt : ''"
-                  [value]="sortKey()"
-                  defaultSort="name"
-                />
-                <app-product-layout-toggle />
-              </div>
-            }
           </div>
 
           @if (data.category.subcategories.length) {
@@ -264,12 +262,26 @@ const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
                  is a column that buries the products, still clips to one row —
                  and there the toggle sits under the chips, where the gallery
                  and the description put theirs. -->
-            <div class="mt-5">
-              <ul #subsList [class]="subsListClass()">
+            <div class="mt-6">
+              <ul
+                #subsList
+                [id]="subsListId"
+                [class]="subsListClass()"
+                [style.--subs-full]="subsFullHeight()"
+              >
                 @for (sub of data.category.subcategories; track sub.slug) {
-                  <!-- The chip's width lives here, on the item, because it is
-                       the row that decides it — see SUBS_CHIP. -->
-                  <li [class]="subsChipClass">
+                  <li class="relative">
+                    <!-- The same cluster the index puts on its chips: a
+                         subcategory is as editable from the listing it is
+                         reached through as from the catalogue's own index. -->
+                    @if (editControls(); as editText) {
+                      <app-edit-actions
+                        variant="tile"
+                        [editLink]="['/admin/categories', sub.slug, 'edit']"
+                        [editParams]="editorFrom()"
+                        [editLabel]="editText.editCategory"
+                      />
+                    }
                     <!-- The selection travels down with the visitor: the
                          values are the catalogue's, not this category's, so
                          narrowing the scope is no reason to forget them. It may
@@ -285,18 +297,14 @@ const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
                 }
               </ul>
               @if (subsToggle(data.category.subcategories.length)) {
-                <div [class]="subsToggleClass">
-                  <button
-                    type="button"
-                    appButton
-                    variant="ghost"
-                    size="sm"
-                    [attr.aria-expanded]="showAllSubs()"
-                    (click)="showAllSubs.set(!showAllSubs())"
-                  >
-                    {{ showAllSubs() ? text.showLess : text.showMore }}
-                  </button>
-                </div>
+                <app-show-more-toggle
+                  [class]="subsToggleClass"
+                  [expanded]="showAllSubs()"
+                  [moreLabel]="text.showMore"
+                  [lessLabel]="text.showLess"
+                  [controls]="subsListId"
+                  (toggled)="subsDisclosure.toggle()"
+                />
               }
             </div>
           }
@@ -314,8 +322,32 @@ const SUBS_TOGGLE = 'mt-2 flex justify-center sm:hidden';
                 />
               </aside>
             }
-            <div class="min-w-0 flex-1">
+            <div [class]="data.facets.length ? listingColumn : listingAlone">
               @if (data.items.length) {
+                <!-- What the listing is showing, and the two ways of asking
+                     for it differently. The row is the height of the filter
+                     column's own heading and sits over the same gap, so the
+                     first card starts on the line the first facet does. -->
+                <div class="mb-4 flex h-8 items-center justify-between gap-4">
+                  <p class="text-sm text-subtle">
+                    {{ productCount(data.pagination.total) }}
+                  </p>
+                  <div class="flex items-center gap-3">
+                    <!-- The sort keeps this row only while there is a filter
+                         column beside the grid to hold the other copy of it;
+                         below that it moves inside the filter disclosure, so a
+                         narrow screen has one place to arrange the listing
+                         rather than two. The shape control has no second copy
+                         and stays here at every width, down to the one where
+                         both shapes are the same shape and it hides itself. -->
+                    <app-product-sort-select
+                      [class]="data.facets.length ? headerSortAt : ''"
+                      [value]="sortKey()"
+                      defaultSort="name"
+                    />
+                    <app-product-layout-toggle />
+                  </div>
+                </div>
                 <!-- The same products, drawn the way the visitor last asked
                      for: fitted cards, or full-width lines. -->
                 <ul [class]="list()">
@@ -468,6 +500,8 @@ export class CategoryGrid {
   protected readonly headerSortAt = 'hidden @min-[63.75rem]/listing:block';
   protected readonly facetLayout = FACET_LAYOUT;
   protected readonly facetColumn = FACET_COLUMN;
+  protected readonly listingColumn = FACET_SIBLING;
+  protected readonly listingAlone = FACET_SIBLING_ALONE;
   private readonly productLayout = inject(ProductLayoutService);
   /** Cards or lines — the visitor's standing choice, shared with search. */
   protected readonly cards = computed(
@@ -533,17 +567,25 @@ export class CategoryGrid {
     this.hasSelection() ? this.attrParams() : null,
   );
 
-  protected showAllSubs = signal(false);
+  /** Armed only while the toggle's own movement runs, so a resize past `sm`
+   * changes the clip with no transition on the element (see disclosureState). */
+  protected readonly subsDisclosure = disclosureState(200);
+  protected readonly showAllSubs = this.subsDisclosure.open;
+  protected readonly subsListId = 'subcategories';
   private readonly subsList = viewChild<ElementRef<HTMLElement>>('subsList');
   /** Whether the chip list has more than the one row it is clipped to. Null
    * until it has been measured — on the server and before the first layout the
    * chip count stands in for it, so a long list still offers the toggle in the
    * HTML the crawler and the first paint get. */
   private readonly subsOverflow = signal<boolean | null>(null);
-  protected readonly subsListClass = computed(() =>
-    this.showAllSubs() ? SUBS_LIST : `${SUBS_LIST} ${SUBS_CLIP}`,
-  );
-  protected readonly subsChipClass = SUBS_CHIP;
+  /** The unclipped height of the chip list, as the open state's `max-height`.
+   * Null until measured — see SUBS_OPEN. */
+  protected readonly subsFullHeight = signal<string | null>(null);
+  protected readonly subsListClass = computed(() => {
+    const move = this.subsDisclosure.animated() ? ` ${SUBS_MOVE}` : '';
+    const cap = this.showAllSubs() ? SUBS_OPEN : SUBS_CLIPPED;
+    return `${SUBS_LIST} ${SUBS_CLIP}${move} ${cap}`;
+  });
   protected readonly subsToggleClass = SUBS_TOGGLE;
   /** The product whose delete confirmation is open, if any. */
   /** The category (this page's own) whose delete confirmation is open. */
@@ -639,9 +681,18 @@ export class CategoryGrid {
 
   private measureSubs(): void {
     const el = this.subsList()?.nativeElement;
+    if (!el) return;
     // scrollHeight is the unclipped height in both states, so one test answers
-    // for the collapsed list and the expanded one alike.
-    if (el) this.subsOverflow.set(el.scrollHeight > SUBS_CLIP_HEIGHT + 1);
+    // for the collapsed list and the expanded one alike — and the same number
+    // is what the open state is clipped to.
+    this.subsOverflow.set(el.scrollHeight > SUBS_CLIP_HEIGHT + 1);
+    this.subsFullHeight.set(`${el.scrollHeight}px`);
+  }
+
+  /** How many products the current filters leave — the whole listing, not the
+   * page of it on screen: the pagination below says which page this is. */
+  protected productCount(total: number): string {
+    return fillText(this.text.productCount, { count: total });
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {

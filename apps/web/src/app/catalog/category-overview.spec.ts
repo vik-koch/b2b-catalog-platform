@@ -71,49 +71,22 @@ async function render(
 }
 
 describe('CategoryOverview', () => {
-  it('renders a card per top-level category linking into its grid', async () => {
+  it('heads the index with its own title', async () => {
     const el = await render(async () => tree);
 
-    const headings = [...el.querySelectorAll('h2')].map((h) =>
-      h.textContent?.trim(),
+    expect(el.querySelector('h1')?.textContent).toContain(
+      defaultAppText.catalog.overviewTitle,
     );
-    expect(headings).toEqual(['Coffee Beans', 'Tea']);
-
-    const link = el.querySelector('a[href="/catalog/coffee-beans"]');
-    expect(link).not.toBeNull();
   });
 
-  it('renders subcategories as quick links, short name first', async () => {
+  it('shows the categories as the index draws them', async () => {
     const el = await render(async () => tree);
 
-    // 'Espresso Roasts' has a short name; 'Filter Roasts' falls back.
+    // The chips, the subcategory names and their states are CategoryIndex's
+    // own; this page only has to put it under the heading.
+    expect(el.querySelector('app-category-index')).not.toBeNull();
     expect(
-      el.querySelector('a[href="/catalog/espresso"]')?.textContent,
-    ).toContain('Espresso');
-    expect(
-      el.querySelector('a[href="/catalog/filter"]')?.textContent,
-    ).toContain('Filter Roasts');
-  });
-
-  it('shows the placeholder for a category with no image', async () => {
-    const el = await render(async () => tree);
-
-    // 'Coffee Beans' has an image, 'Tea' does not → exactly one placeholder.
-    expect(el.querySelectorAll('img')).toHaveLength(1);
-    expect(el.querySelectorAll('app-image-placeholder')).toHaveLength(1);
-  });
-
-  it('shows an empty-state message when there are no categories', async () => {
-    const el = await render(async () => []);
-
-    expect(el.textContent).toContain(defaultAppText.catalog.emptyCategories);
-  });
-
-  it('shows an error message when the catalogue fails to load', async () => {
-    const el = await render(async () => {
-      throw new Error('boom');
-    });
-
-    expect(el.textContent).toContain(defaultAppText.catalog.loadError);
+      el.querySelector('a[href="/catalog/coffee-beans"]')?.textContent,
+    ).toContain('Coffee Beans');
   });
 });

@@ -1,30 +1,23 @@
-import { Component, computed, inject, resource, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import {
-  categoryDisplayName,
-  CategoryNode,
-} from '@b2b-catalog-platform/shared';
+import { Component, inject, signal } from '@angular/core';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
-import { LoadErrorView } from '../pages/load-error-view';
-import { CatalogService } from './catalog.service';
-import { ImagePlaceholder } from './image-placeholder';
-
-/** How many subcategory links a tile shows before collapsing to "+N". */
-const MAX_CHILD_LINKS = 3;
+import { CategoryIndex } from './category-index';
 
 /**
- * The catalogue landing view: a dense, responsive grid of all top-level
- * categories as image tiles, each linking into its product grid, with a few
- * subcategory quick links beneath (FR-CAT-01/02). Two columns on a phone,
- * widening to six on a large screen.
+ * The catalogue landing view (FR-CAT-01/02): the whole catalogue in one screen
+ * — every top-level category as a chip with the first of its subcategories
+ * named under it (see CategoryIndex).
+ *
+ * The main page shows the same index. What makes this one the index is the
+ * heading and the intro above it; once the main page carries a featured row of
+ * products the two will be worth telling apart again.
  */
 @Component({
   selector: 'app-category-overview',
-  imports: [RouterLink, ImagePlaceholder, EditActions, LoadErrorView],
+  imports: [CategoryIndex, EditActions],
   template: `
     <section class="relative pb-12 sm:pb-16">
       @if (editControls(); as editText) {
@@ -36,156 +29,33 @@ const MAX_CHILD_LINKS = 3;
           [addCategoryLabel]="editText.addCategory"
         />
       }
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 class="text-3xl font-medium tracking-tight">
         {{ text.overviewTitle }}
       </h1>
-      <p class="mt-3 max-w-xl text-lg text-muted">
+      <p class="mt-2 max-w-xl text-lg text-muted">
         {{ text.overviewIntro }}
       </p>
 
-      @if (categories.error()) {
-        <app-load-error-view class="mt-10 block" [message]="text.loadError" />
-      } @else if (shown(); as cats) {
-        @if (cats.length) {
-          <ul
-            class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-          >
-            @for (cat of cats; track cat.slug) {
-              <li class="group relative">
-                @if (editControls(); as editText) {
-                  <app-edit-actions
-                    variant="tile"
-                    [editLink]="['/admin/categories', cat.slug, 'edit']"
-                    [editParams]="editorFrom()"
-                    [editLabel]="editText.editCategory"
-                  />
-                }
-                <a
-                  [routerLink]="['/catalog', cat.slug]"
-                  [attr.aria-label]="viewCategoryLabel(cat.name)"
-                  class="block"
-                >
-                  <div
-                    class="aspect-square overflow-hidden rounded-lg bg-white"
-                  >
-                    @if (cat.image && !failed().has(cat.image.thumb)) {
-                      <img
-                        [src]="cat.image.thumb"
-                        [alt]="cat.name"
-                        class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
-                        (error)="markFailed(cat.image.thumb)"
-                      />
-                    } @else {
-                      <app-image-placeholder [label]="cat.name" />
-                    }
-                  </div>
-                  <h2
-                    class="mt-2 text-sm font-medium tracking-tight group-hover:text-accent sm:text-base"
-                  >
-                    {{ cat.name }}
-                  </h2>
-                </a>
-                @if (cat.children.length) {
-                  @let preview = childPreview(cat);
-                  <ul
-                    class="mt-1 hidden flex-wrap gap-x-2 gap-y-0.5 text-xs text-subtle sm:flex"
-                  >
-                    @for (child of preview.shown; track child.slug) {
-                      <li>
-                        <a
-                          [routerLink]="['/catalog', child.slug]"
-                          class="hover:text-accent"
-                        >
-                          {{ displayName(child) }}
-                        </a>
-                      </li>
-                    }
-                    @if (preview.extra) {
-                      <li class="text-stone-400">+{{ preview.extra }}</li>
-                    }
-                  </ul>
-                }
-              </li>
-            }
-          </ul>
-        } @else {
-          <p class="mt-10 text-muted">{{ text.emptyCategories }}</p>
-        }
-      } @else if (showSkeleton()) {
-        <div
-          class="mt-10 grid grid-cols-2 gap-x-4 gap-y-7 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-          aria-hidden="true"
-        >
-          @for (i of skeletons; track i) {
-            <div>
-              <div
-                class="aspect-square animate-pulse rounded-lg bg-stone-200"
-              ></div>
-              <div
-                class="mt-2 h-4 w-2/3 animate-pulse rounded bg-stone-200"
-              ></div>
-            </div>
-          }
-        </div>
-      }
+      <app-category-index class="mt-4 block" />
     </section>
   `,
 })
 export class CategoryOverview {
-  private catalog = inject(CatalogService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
-  protected readonly skeletons = Array.from({ length: 12 }, (_, i) => i);
-  /** The quick links sit under their parent tile, so they may use the short
-   * name; the tile heading stays the full one. */
-  protected readonly displayName = categoryDisplayName;
-  /** The top-level category whose delete confirmation is open, if any. */
 
-  protected categories = resource({
-    loader: () => this.catalog.getCategoryTree(),
-  });
-
-  /** The tiles and the edit affordances appear together, once the tree and the
-   * visitor's role are both known — see editAwareContent. */
+  /** The page's own controls — a way into the category admin, and adding a
+   * top-level category. The per-category ones live with the chips. */
   private readonly content = editAwareContent({
-    ready: computed(() => this.categories.hasValue()),
+    ready: signal(true),
     section: 'editMode',
   });
   protected readonly editControls = this.content.controls;
-  protected readonly showSkeleton = this.content.showSkeleton;
-  /** The tree, once it may be shown. */
-  protected readonly shown = computed(() =>
-    this.content.ready() ? this.categories.value() : undefined,
-  );
 
   constructor() {
     usePageSeo({
       name: () => this.text.overviewTitle,
       description: () => this.text.overviewIntro,
     });
-  }
-
-  /** Category image URLs that failed to load — shown as the placeholder instead
-   * of the browser's broken-image icon. Keyed by URL. */
-  protected readonly failed = signal(new Set<string>());
-
-  protected markFailed(src: string): void {
-    this.failed.update((set) => new Set(set).add(src));
-  }
-
-  protected viewCategoryLabel(name: string): string {
-    return this.text.viewCategory.replace('{name}', name);
-  }
-
-  /** First few subcategories to show as links, plus how many are hidden. */
-  protected childPreview(cat: CategoryNode): {
-    shown: CategoryNode[];
-    extra: number;
-  } {
-    return {
-      shown: cat.children.slice(0, MAX_CHILD_LINKS),
-      extra: Math.max(0, cat.children.length - MAX_CHILD_LINKS),
-    };
   }
 }
