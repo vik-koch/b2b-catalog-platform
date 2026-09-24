@@ -616,8 +616,9 @@ Notes:
   reads as a product, and the catalog sync never writes it, so the image a category is drawn from
   is the one nobody maintains. The chip is now the only drawing, in two sizes, and the index says
   what it could not before — the **second level by name**, under every top-level chip, with the
-  rest of a long list opening in place. The picture's column and admin field stay: nothing
-  migrates, and removing them is a decision of its own. The main page shows exactly the same index
+  rest of a long list opening in place. The picture itself is gone — column, admin field and
+  contract fields — rather than kept dormant, and nothing turns an old photograph into a mark:
+  a deployment that curated them backs up its media store before upgrading. The main page shows exactly the same index
   for now, which is honest about what it is until the featured row
   ([FR-CAT-09](requirements.md#fr-cat-09)) gives it something of its own to put above.
 - The **category description stops being dead weight**

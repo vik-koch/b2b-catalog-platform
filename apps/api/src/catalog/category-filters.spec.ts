@@ -13,7 +13,7 @@ function category(id: string, parentId: string | null): CategoryRow {
     name: id,
     shortName: null,
     parentId,
-    image: null,
+    mark: null,
     sortOrder: 0,
   };
 }

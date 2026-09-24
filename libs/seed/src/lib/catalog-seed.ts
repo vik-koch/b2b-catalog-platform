@@ -13,7 +13,6 @@ import {
   productSeeds,
 } from './catalog-data';
 import {
-  generateCategoryImage,
   generateCategoryMark,
   generateProductImages,
 } from './catalog-placeholders';
@@ -31,9 +30,6 @@ export async function seedCatalog(
   const idByKey = new Map<string, string>();
 
   for (const category of categorySeeds) {
-    const image = category.hasImage
-      ? await generateCategoryImage(mediaRoot, category.sourceId)
-      : null;
     const mark = category.hasMark
       ? await generateCategoryMark(mediaRoot, category.sourceId)
       : null;
@@ -42,12 +38,12 @@ export async function seedCatalog(
       : null;
 
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO categories ("sourceId", slug, name, "parentId", "sortOrder", image, mark)
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb)
+      `INSERT INTO categories ("sourceId", slug, name, "parentId", "sortOrder", mark)
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb)
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "parentId" = EXCLUDED."parentId", "sortOrder" = EXCLUDED."sortOrder",
-         image = EXCLUDED.image, mark = EXCLUDED.mark
+         mark = EXCLUDED.mark
        RETURNING id`,
       [
         category.sourceId,
@@ -55,7 +51,6 @@ export async function seedCatalog(
         category.name,
         parentId,
         category.sortOrder,
-        image ? JSON.stringify(image) : null,
         mark ? JSON.stringify(mark) : null,
       ],
     );

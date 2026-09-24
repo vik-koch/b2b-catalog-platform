@@ -143,14 +143,12 @@ describe('CategoryGrid', () => {
               slug: 'dark',
               name: 'Espresso Roasts Dark',
               shortName: 'Dark',
-              image: null,
               mark: null,
             },
             {
               slug: 'light',
               name: 'Espresso Roasts Light',
               shortName: null,
-              image: null,
               mark: null,
             },
           ],
@@ -181,7 +179,6 @@ describe('CategoryGrid', () => {
       slug: s,
       name: s.toUpperCase(),
       shortName: null,
-      image: null,
       mark: null,
     }));
     const f = await render(
@@ -390,7 +387,6 @@ describe('CategoryGrid', () => {
                 slug: 'single-origin',
                 name: 'Single Origin',
                 shortName: null,
-                image: null,
                 mark: null,
               },
             ],

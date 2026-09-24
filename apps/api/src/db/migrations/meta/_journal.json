@@ -281,6 +281,13 @@
       "when": 1789800867996,
       "tag": "0039_category_mark",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1790250494281,
+      "tag": "0040_drop_category_image",
+      "breakpoints": true
     }
   ]
 }

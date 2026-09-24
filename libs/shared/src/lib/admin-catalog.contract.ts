@@ -471,7 +471,6 @@ export const adminCategorySchema = z
     name: z.string(),
     parentId: z.uuid().nullable(),
     sortOrder: z.number().int(),
-    image: catalogImageSchema.nullable(),
     /** Null for a category the shop made up: no source system knows it, which
      * is also what leaves its name the shop's to change. */
     sourceId: z.string().nullable(),
@@ -506,7 +505,6 @@ export const categoryInputSchema = z
     /** Optional slug override; see the product schema doc. */
     slug: slugSchema.optional(),
     parentId: z.uuid().nullable().default(null),
-    image: catalogImageSchema.nullable().default(null),
     /** The mark shown where the category is a chip. */
     mark: catalogImageSchema.nullable().default(null),
     /**
@@ -820,7 +818,7 @@ export const adminCatalogContract = {
       'category-not-found': e['category-not-found'],
       'category-cycle': e['category-cycle'],
       // Its name and source id are the exchange's while the catalog is owned;
-      // the rest of the row — nickname, parent, image, description — is the
+      // the rest of the row — nickname, parent, mark, description — is the
       // shop's presentation and stays editable throughout.
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
       ...categoryIdentityErrors,

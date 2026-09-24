@@ -44,7 +44,7 @@ export type OwnedProductField = (typeof OWNED_PRODUCT_FIELDS)[number];
  * The category fields an owning system writes. Far shorter than the product
  * list, and the asymmetry is the point: the exchange says which leaf a product
  * hangs on and what that leaf is called, while the shape of the tree above it
- * — parent, order, nickname, image, description — is presentation the shop has
+ * — parent, order, nickname, mark, description — is presentation the shop has
  * always owned (the export carries no parent path at all).
  */
 export const OWNED_CATEGORY_FIELDS = ['name', 'sourceId'] as const;

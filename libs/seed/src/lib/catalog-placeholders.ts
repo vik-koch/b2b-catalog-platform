@@ -16,7 +16,6 @@ import { CatalogImage, MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
 // the demo images are representative of what an admin upload produces.
 const FULL_PX = 1000;
 const THUMB_PX = 300;
-const CATEGORY_PX = 1000;
 
 function hash(seed: string): number {
   let h = 2166136261;
@@ -89,22 +88,9 @@ export async function generateProductImages(
   return images;
 }
 
-/** A category overlay image as a full + thumb pair (same motif, two sizes). */
-export async function generateCategoryImage(
-  mediaRoot: string,
-  seed: string,
-): Promise<CatalogImage> {
-  const svgSeed = `cat-${seed}`;
-  const [full, thumb] = await Promise.all([
-    store(mediaRoot, placeholderSvg(svgSeed, CATEGORY_PX)),
-    store(mediaRoot, placeholderSvg(svgSeed, THUMB_PX)),
-  ]);
-  return { full, thumb };
-}
-
 /**
- * Category marks (FR-CAT-07). Unlike the pictures above these are drawn as a
- * glyph on a tinted disc with nothing behind it — the mark sits on whatever
+ * Category marks (FR-CAT-07). Unlike the product pictures above these are
+ * drawn as a glyph on a tinted disc with nothing behind it — the mark sits on whatever
  * surface draws the category, so the file has to carry no background of its
  * own. One glyph per demo category, because a mark that varies only by hue
  * identifies nothing; a category the set does not name falls back to the bean.

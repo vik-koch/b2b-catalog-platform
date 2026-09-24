@@ -479,7 +479,6 @@ export class AttributesService {
         name: categories.name,
         shortName: categories.shortName,
         parentId: categories.parentId,
-        image: categories.image,
         mark: categories.mark,
         sortOrder: categories.sortOrder,
       })

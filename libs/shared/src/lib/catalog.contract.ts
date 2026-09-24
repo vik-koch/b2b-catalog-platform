@@ -225,7 +225,7 @@ export const shortNameSchema = z.string().nullable();
 
 /**
  * A category's mark (FR-CAT-07): the small square image shown beside the name
- * wherever the category appears as a chip rather than as a card. Square by
+ * on the chip that draws the category everywhere it appears. Square by
  * construction — the upload trims it. Null for the categories that have none,
  * which is most of them.
  */
@@ -296,7 +296,7 @@ export type ProductDetail = z.infer<typeof productDetailSchema>;
 
 /**
  * A node in the category tree (FR-CAT-01/02). The structure (name/hierarchy)
- * comes from the sync; `image`, `mark` and `shortName` are the admin
+ * comes from the sync; `mark` and `shortName` are the admin
  * presentation overlay and may be absent. Recursive: subcategories nest
  * arbitrarily, though the UI may render only the depth it needs.
  */
@@ -304,7 +304,6 @@ export interface CategoryNode {
   slug: string;
   name: string;
   shortName: string | null;
-  image: CatalogImage | null;
   mark: CatalogImage | null;
   children: CategoryNode[];
 }
@@ -315,7 +314,6 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
         slug: z.string(),
         name: z.string(),
         shortName: shortNameSchema,
-        image: catalogImageSchema.nullable(),
         mark: categoryMarkSchema,
         children: z.array(categoryNodeSchema),
       })
@@ -325,14 +323,12 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
 ) as z.ZodType<CategoryNode>;
 
 /** A direct child of the selected category, for the drill-down nav
- * (FR-CAT-02). `image` lets the nav render as tiles if wanted; the current grid
- * uses chips and ignores it — the chips carry the `mark` instead (FR-CAT-07). */
+ * (FR-CAT-02), drawn as a chip with its `mark` (FR-CAT-07). */
 export const subcategoryLinkSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
     shortName: shortNameSchema,
-    image: catalogImageSchema.nullable(),
     mark: categoryMarkSchema,
   })
   .strict();

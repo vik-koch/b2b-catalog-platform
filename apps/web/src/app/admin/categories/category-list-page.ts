@@ -57,7 +57,7 @@ const EDGE_SLACK = 24;
 
 /**
  * Admin category management: the category tree with add/delete, and reordering
- * and reparenting by drag-drop. Editing a category (name, parent, slug, image,
+ * and reparenting by drag-drop. Editing a category (name, parent, slug, mark,
  * description) is its own screen — the pencil links to
  * `/admin/categories/:slug/edit` — so structure lives here and presentation
  * lives on the editor page, each with its own save semantics. Deletion is

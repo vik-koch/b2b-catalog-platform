@@ -14,7 +14,6 @@ export interface CategorySeed {
   /** Parent's sourceId, or null for a top-level category. */
   parentKey: string | null;
   sortOrder: number;
-  hasImage: boolean;
   /** A generated mark (FR-CAT-07). False leaves the category name-only, which
    * is the fallback every chip has to keep working. */
   hasMark: boolean;
@@ -55,25 +54,18 @@ export interface ProductPackagingSeed {
 }
 
 let order = 0;
-const top = (
-  sourceId: string,
-  name: string,
-  hasImage = true,
-  hasMark = true,
-): CategorySeed => ({
+const top = (sourceId: string, name: string, hasMark = true): CategorySeed => ({
   sourceId,
   slug: sourceId,
   name,
   parentKey: null,
   sortOrder: order++,
-  hasImage,
   hasMark,
 });
 const sub = (
   sourceId: string,
   name: string,
   parentKey: string,
-  hasImage = true,
   hasMark = true,
 ): CategorySeed => ({
   sourceId,
@@ -81,7 +73,6 @@ const sub = (
   name,
   parentKey,
   sortOrder: order++,
-  hasImage,
   hasMark,
 });
 
@@ -90,8 +81,8 @@ export const categorySeeds: CategorySeed[] = [
   top('coffee-beans', 'Coffee Beans'),
   sub('espresso', 'Espresso Roasts', 'coffee-beans'),
   sub('filter', 'Filter Roasts', 'coffee-beans'),
-  // The one category with neither picture nor mark: what a chip falls back to.
-  sub('decaf', 'Decaf', 'coffee-beans', false, false),
+  // The one category without a mark: what a chip falls back to.
+  sub('decaf', 'Decaf', 'coffee-beans', false),
   sub('single-origin', 'Single Origin', 'coffee-beans'),
 
   top('tea', 'Tea'),

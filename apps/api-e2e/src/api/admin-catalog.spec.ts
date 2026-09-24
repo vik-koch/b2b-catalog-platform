@@ -57,7 +57,6 @@ const CATEGORY_KEYS = [
   'childCount',
   'description',
   'id',
-  'image',
   'mark',
   'name',
   'parentId',
