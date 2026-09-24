@@ -54,11 +54,7 @@ export interface ProductPackagingSeed {
 }
 
 let order = 0;
-const top = (
-  sourceId: string,
-  name: string,
-  hasMark = true,
-): CategorySeed => ({
+const top = (sourceId: string, name: string, hasMark = true): CategorySeed => ({
   sourceId,
   slug: sourceId,
   name,
