@@ -59,7 +59,6 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
     // Exactly the contract keys — no internal columns (id, sourceId) leak.
     expect(Object.keys(coffee).sort()).toEqual([
       'children',
-      'image',
       'mark',
       'name',
       'shortName',

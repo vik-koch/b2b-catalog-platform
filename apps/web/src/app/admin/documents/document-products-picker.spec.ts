@@ -32,7 +32,6 @@ const category: AdminCategory = {
   name: 'Espresso Roasts',
   parentId: null,
   sortOrder: 0,
-  image: null,
   mark: null,
   sourceId: 'espresso',
   description: null,

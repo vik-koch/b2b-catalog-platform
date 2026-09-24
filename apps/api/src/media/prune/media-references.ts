@@ -81,20 +81,8 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     },
   },
   {
-    // image is a jsonb { full, thumb } pair; scanning its text form captures
-    // both filenames.
-    name: 'category images',
-    async collect(client) {
-      const { rows } = await client.query<{ image: string }>(
-        `SELECT image::text AS image FROM categories WHERE image IS NOT NULL`,
-      );
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.image));
-    },
-  },
-  {
-    // The chip mark (FR-CAT-07) — a second jsonb pair on the same row,
-    // and a second column to sweep: a category can carry a mark and no
-    // picture, so this cannot ride along with the one above.
+    // The chip mark (FR-CAT-07) is a jsonb { full, thumb } pair; scanning its
+    // text form captures both filenames.
     name: 'category marks',
     async collect(client) {
       const { rows } = await client.query<{ mark: string }>(

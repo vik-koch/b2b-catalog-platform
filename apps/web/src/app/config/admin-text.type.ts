@@ -573,8 +573,6 @@ export const adminTextSchema = z
         sourceId: z.string(),
         sourceIdHint: z.string(),
         description: z.string(),
-        image: z.string(),
-        imageHint: z.string(),
         mark: z.string(),
         markHint: z.string(),
         discardConfirm: z.string(),

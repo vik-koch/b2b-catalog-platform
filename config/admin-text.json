@@ -327,8 +327,6 @@
     "sourceId": "Category number (optional)",
     "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
     "description": "Description",
-    "image": "Image",
-    "imageHint": "The picture on the category's card",
     "mark": "Mark",
     "markHint": "A small logo shown on the category's chip",
     "discardConfirm": "Discard your unsaved changes to this category?",

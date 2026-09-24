@@ -12,7 +12,6 @@ export interface CategoryRow {
   name: string;
   shortName: string | null;
   parentId: string | null;
-  image: CatalogImage | null;
   /** The chip mark (FR-CAT-07). */
   mark: CatalogImage | null;
   sortOrder: number;
@@ -29,7 +28,6 @@ export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
       slug: row.slug,
       name: row.name,
       shortName: row.shortName,
-      image: row.image,
       mark: row.mark,
       children: [],
     });
@@ -106,7 +104,6 @@ export function directChildren(
       slug: row.slug,
       name: row.name,
       shortName: row.shortName,
-      image: row.image,
       mark: row.mark,
     }));
 }

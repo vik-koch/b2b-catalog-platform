@@ -22,7 +22,6 @@ function cat(over: Partial<AdminCategory>): AdminCategory {
     shortName: null,
     parentId: null,
     sortOrder: 0,
-    image: null,
     mark: null,
     sourceId: 'manual:x',
     description: null,

@@ -14,7 +14,6 @@ const node = (
   slug,
   name,
   shortName: null,
-  image: null,
   mark: null,
   children: [],
   ...extra,

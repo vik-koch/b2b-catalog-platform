@@ -79,9 +79,8 @@ export const pages = pgTable('pages', {
 /**
  * Catalog categories, an adjacency-list tree. Structure (name, hierarchy) is
  * file-owned — derived from the import's category paths and keyed by
- * `sourceId` — while `sortOrder`, `image`, `mark`, `description` and
- * `shortName` are admin overlay
- * that survives a re-sync. `slug` is the public URL handle, generated once and
+ * `sourceId` — while `sortOrder`, `mark`, `description` and `shortName` are
+ * admin overlay that survives a re-sync. `slug` is the public URL handle, generated once and
  * kept stable.
  */
 export const categories = pgTable('categories', {
@@ -97,14 +96,11 @@ export const categories = pgTable('categories', {
   parentId: uuid('parentId').references((): AnyPgColumn => categories.id, {
     onDelete: 'set null',
   }),
-  // Overlay fields — admin-owned, never touched by the import. `image` is a
-  // full + thumb media-store pair (thumb for the overview tiles); its URLs
-  // must be covered by the media-prune reference scan.
+  // Overlay fields — admin-owned, never touched by the import.
   sortOrder: integer('sortOrder').notNull().default(0),
-  image: jsonb('image').$type<ProductImageRef>(),
-  // A small square mark (logo) shown where the category is a chip or a pill
-  // rather than a card — the same full + thumb pair, and the same obligation
-  // to be covered by the media-prune reference scan.
+  // A small square mark (logo) drawn beside the name wherever the category is
+  // shown. A full + thumb media-store pair; its URLs must be covered by the
+  // media-prune reference scan.
   mark: jsonb('mark').$type<ProductImageRef>(),
   description: text('description'),
   // An optional nickname shown where the parent category is already visible
@@ -196,7 +192,7 @@ export const products = pgTable(
     // ("state the colour"). Null falls back to the app-wide wording.
     lineNotePrompt: varchar('lineNotePrompt', { length: 200 }),
     // Ordered gallery, each with a full and a thumb media-store URL. The
-    // media-prune reference scan must include these URLs (and categories.image)
+    // media-prune reference scan must include these URLs (and categories.mark)
     // so seeded/uploaded images are not swept.
     images: jsonb('images')
       .$type<ProductImageRef[]>()
@@ -1061,7 +1057,7 @@ export const orderItems = pgTable(
     slug: varchar('slug', { length: 255 }).notNull(),
     name: varchar('name', { length: 512 }).notNull(),
     // The thumb URL only. Covered by the media-prune reference scan, like
-    // `products.images` and `categories.image`.
+    // `products.images` and `categories.mark`.
     thumbnail: text('thumbnail'),
     // The lens the line was bought through, and the piece count it was read
     // out of. `pieces` is the quantity: `quantity` is that reading, frozen, so

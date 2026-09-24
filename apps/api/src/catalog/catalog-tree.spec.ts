@@ -20,7 +20,7 @@ const cat = (
   name: slug.toUpperCase(),
   shortName,
   parentId,
-  image: null,
+  mark: null,
   sortOrder,
 });
 

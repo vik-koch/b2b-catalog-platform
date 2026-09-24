@@ -20,7 +20,6 @@ const cat = (
   shortName: null,
   parentId,
   sortOrder,
-  image: null,
   mark: null,
   sourceId: 'manual:x',
   description: null,
