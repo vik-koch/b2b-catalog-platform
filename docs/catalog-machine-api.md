@@ -104,7 +104,7 @@ clearing the field does that.
 cannot create the category, a name without an id cannot say which one it
 renames. New categories are created **unparented**, as roots, for an admin to
 place in the tree — the export carries no hierarchy, and the tree's shape
-(parent, order, nickname, image, description) has always been the shop's.
+(parent, order, nickname, mark, description) has always been the shop's.
 A rename keeps the slug, so URLs survive.
 
 **Prices are integers in minor units.** The API knows no currency, no locale
