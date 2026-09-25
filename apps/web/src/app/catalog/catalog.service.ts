@@ -87,6 +87,13 @@ export class CatalogService {
     return result.data.items;
   }
 
+  /** The main page's row (FR-CAT-09), drawn afresh by every call. `undefined`
+   * when this render defers prices — see `deferPrices`. */
+  async getFeaturedProducts() {
+    if (this.deferPrices) return undefined;
+    return (await this.client.getFeaturedProducts()).items;
+  }
+
   /** A single product (FR-CAT-05). `null` when it does not exist, `undefined`
    * when this render defers prices — see `deferPrices`. */
   async getProduct(slug: string) {

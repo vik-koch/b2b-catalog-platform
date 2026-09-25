@@ -36,6 +36,7 @@ const PRODUCT_KEYS = [
   'deletedAt',
   'descriptionHtml',
   'documents',
+  'featured',
   'images',
   'lineNoteEnabled',
   'lineNotePrompt',
@@ -1085,6 +1086,79 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(200);
       expect(res.data.lineNoteEnabled).toBe(false);
       expect(res.data.lineNotePrompt).toBeNull();
+    });
+  });
+
+  describe('featured on the main page (FR-CAT-09)', () => {
+    /** Several draws, because each one is random: a product that belongs in
+     * the row has to be in every one of them, and one that does not in none. */
+    async function drawnSlugs(draws = 5): Promise<Set<string>[]> {
+      const rows: Set<string>[] = [];
+      for (let i = 0; i < draws; i++) {
+        const res = await axios.get('/catalog/featured');
+        expect(res.status).toBe(200);
+        rows.push(new Set(res.data.items.map((i: { slug: string }) => i.slug)));
+      }
+      return rows;
+    }
+
+    it('round-trips the mark, and defaults to off', async () => {
+      const marked = await createProduct({
+        name: `Featured ${R}`,
+        featured: true,
+      });
+      const plain = await createProduct({ name: `Not featured ${R}` });
+
+      expect(marked.data.featured).toBe(true);
+      expect(plain.data.featured).toBe(false);
+      const read = await adminGet(
+        `/admin/catalog/products/${marked.data.slug}`,
+      );
+      expect(read.data.featured).toBe(true);
+
+      const cleared = await put(`/admin/catalog/products/${marked.data.slug}`, {
+        name: `Featured ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        featured: false,
+      });
+      expect(cleared.status).toBe(200);
+      expect(cleared.data.featured).toBe(false);
+    });
+
+    // The seed features two products and this one makes three, under the
+    // row's five — so the draw has room for every featured one every time.
+    it('puts a featured product in every draw, and one out of stock in none', async () => {
+      const created = await createProduct({
+        name: `Featured in row ${R}`,
+        featured: true,
+        stockPieces: 500,
+      });
+      const slug = created.data.slug;
+      await publishProduct(slug);
+
+      for (const row of await drawnSlugs()) expect(row.has(slug)).toBe(true);
+
+      const emptied = await put(`/admin/catalog/products/${slug}`, {
+        name: `Featured in row ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        featured: true,
+        stockPieces: 0,
+      });
+      expect(emptied.data.availability).toBe('out');
+
+      for (const row of await drawnSlugs()) expect(row.has(slug)).toBe(false);
+    });
+
+    it('never offers an unpublished product, featured or not', async () => {
+      const created = await createProduct({
+        name: `Featured unpublished ${R}`,
+        featured: true,
+      });
+
+      for (const row of await drawnSlugs())
+        expect(row.has(created.data.slug)).toBe(false);
     });
   });
 

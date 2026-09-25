@@ -40,6 +40,8 @@ export interface ProductSeed {
   /** What one piece is made of, where it is sold as a set (FR-CAT-10). An
    * attribute key naming one of them — "Colour (cup)" — is stored against it. */
   parts?: string[];
+  /** Offered first to the main page's row (FR-CAT-09). */
+  featured?: boolean;
 }
 
 /**
@@ -494,6 +496,7 @@ const allProducts: ProductSeed[] = [
       ],
     ),
     stockPieces: 240,
+    featured: true,
   },
   p(
     'CUP-004',
@@ -525,7 +528,8 @@ const allProducts: ProductSeed[] = [
   // the manufacturer's cartons — cups and lids packed apart — are why it ships
   // as three boxes for a hundred sets. The two colours are what the filter is
   // demonstrated from: found under Black and under White, one product each.
-  // Few left, so a card carries both badges on one line.
+  // Few left, so a card carries both badges on one line. Featured with the
+  // pairing's cup, so both kinds of marker appear on the main page.
   {
     ...p(
       'CUP-006',
@@ -552,6 +556,9 @@ const allProducts: ProductSeed[] = [
       boxCount: 3,
     },
     stockPieces: 60,
+    // Two of the row's five, so the demo shows the featured ones mixed in
+    // among the random fill rather than making up the whole row.
+    featured: true,
   },
 ];
 

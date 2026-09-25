@@ -540,6 +540,13 @@ export const catalogContract = {
       route: { method: 'GET', path: '/catalog/sitemap' },
     },
   },
+  getFeaturedProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/catalog/featured' },
+    },
+  },
   getProduct: {
     '~orpc': {
       errorMap: {},

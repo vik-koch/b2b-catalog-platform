@@ -661,15 +661,25 @@ Notes:
   category with nothing publicly visible beneath it is absent from the overview and the sitemap,
   and must be absent from the suggestions too, or search becomes the one door into a grouping the
   rest of the storefront hides.
-- The **main page gets a featured row** ([FR-CAT-09](requirements.md#fr-cat-09)), and it is
-  admin-chosen with a newest-first fallback rather than computed from what sells. Three options
-  were weighed: manual, most recently published, most ordered. "Most ordered" is the one that
-  sounds best and is worst here — it needs order history a fresh deployment has none of, it takes
-  a release to become meaningful, and in a shop where a manager negotiates prices the best-selling
-  line is often the one nobody needs to be shown. Manual is what the client actually wants (this
-  week's arrival, the thing there is a pallet of), and the newest-published fallback means the row
-  is never empty and never needs maintaining by a deployment that ignores it. Deriving it later
-  from order data remains open, and nothing here forecloses it.
+- The **main page gets a featured row** ([FR-CAT-09](requirements.md#fr-cat-09)): five
+  products, the admin-marked ones first and the rest of the places filled at random, rather than
+  computed from what sells. Three sources were weighed: manual, most recently published, most
+  ordered. "Most ordered" is the one that sounds best and is worst here — it needs order history
+  a fresh deployment has none of, it takes a release to become meaningful, and in a shop where a
+  manager negotiates prices the best-selling line is often the one nobody needs to be shown.
+  Manual is what the client actually wants (this week's arrival, the thing there is a pallet of).
+  The fill was first planned as newest-published and became random on the client's word: the
+  newest items are the ones a returning customer has already seen announced, and a random fill
+  walks the whole range past them over a few visits. Either way the row is never empty and never
+  needs maintaining by a deployment that ignores the mark. Out-of-stock products are excluded
+  outright, the mark included — a row whose job is to invite a purchase must not open on one the
+  shop will refuse. The row is five because five 15rem cards are exactly the page's width: on a
+  wide screen it is the five, and narrower screens scroll the same five sideways rather than
+  choosing fewer. Its cards are a smaller drawing of the listing's — a thumbnail with the badges
+  beside it, a third shorter — because at full size the row took the first screen and left the
+  categories looking like an afterthought. It never moves by itself; a strip that advances on its own needs a pause
+  control, fights a thumb mid-swipe, and is the part of a page people learn to skip. Deriving the
+  mark later from order data remains open, and nothing here forecloses it.
 - **A product can be a set of parts** ([FR-CAT-10](requirements.md#fr-cat-10),
   [FR-ATTR-02](requirements.md#fr-attr-02) amended) — the other half of the sold-together sets
   of iteration 9. A pairing joins two products a cart should hold together; this is one product

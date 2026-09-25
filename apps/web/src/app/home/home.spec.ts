@@ -5,6 +5,7 @@ import { Home } from './home';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { FeaturedRowService } from './featured-row.service';
 
 describe('Home', () => {
   it('renders the placeholder', async () => {
@@ -19,6 +20,7 @@ describe('Home', () => {
           } as unknown as DeploymentConfig,
         },
         provideRouter([]),
+        { provide: FeaturedRowService, useValue: { row: async () => [] } },
       ],
     }).compileComponents();
 

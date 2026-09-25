@@ -19,6 +19,7 @@ describe('CatalogController', () => {
   const getCategoryProducts = vi.fn();
   const searchProducts = vi.fn();
   const getProduct = vi.fn();
+  const getFeaturedProducts = vi.fn();
 
   const listing = {
     category: {
@@ -43,6 +44,7 @@ describe('CatalogController', () => {
             getCategoryProducts,
             searchProducts,
             getProduct,
+            getFeaturedProducts,
             getCategoryTree: async () => [],
             getSearchSuggestions: async () => [],
             getSitemap: async () => ({
@@ -91,6 +93,7 @@ describe('CatalogController', () => {
     getCategoryProducts.mockReset().mockResolvedValue(listing);
     searchProducts.mockReset();
     getProduct.mockReset();
+    getFeaturedProducts.mockReset().mockResolvedValue([]);
   });
 
   /** What the filter panel selected, as the service was told it: one entry per
@@ -181,6 +184,20 @@ describe('CatalogController', () => {
     await fetch(`${baseUrl}/api/catalog/categories/coffee/products`);
 
     expect(getCategoryProducts.mock.calls[0][3]).toBe('tier-wholesale');
+  });
+
+  // The main page's row is priced like any listing, and drawn afresh per
+  // request, so it carries the same caching rules.
+  it('prices the main page row for the caller and says it varies', async () => {
+    signedInTier = 'tier-wholesale';
+
+    const response = await fetch(`${baseUrl}/api/catalog/featured`);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ items: [] });
+    expect(getFeaturedProducts).toHaveBeenCalledWith('tier-wholesale');
+    expect(response.headers.get('vary')).toContain('Cookie');
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
   });
 
   it('answers a declared 404 for a category nothing answers to', async () => {
