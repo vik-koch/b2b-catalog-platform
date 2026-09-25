@@ -198,6 +198,9 @@ export const products = pgTable(
       .array()
       .notNull()
       .default(sql`'{}'::text[]`),
+    // Offered first to the main page's row (FR-CAT-09). Admin-owned like the
+    // parts above: no exchange sets or clears it.
+    featured: boolean('featured').notNull().default(false),
     // Ordered gallery, each with a full and a thumb media-store URL. The
     // media-prune reference scan must include these URLs (and categories.mark)
     // so seeded/uploaded images are not swept.
