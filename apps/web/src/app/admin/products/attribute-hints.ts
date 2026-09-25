@@ -4,6 +4,8 @@ import {
   AttributeType,
   parseAttributeNumber,
   ProductAttribute,
+  splitAttributeKey,
+  strayPart,
 } from '@b2b-catalog-platform/shared';
 
 /**
@@ -74,15 +76,39 @@ export function attributeHints(
  * cheap to fix while it is still being typed.
  */
 export type AttributeRowStatus =
-  'none' | 'unknown' | 'filterable' | 'not-numeric';
+  'none' | 'unknown' | 'filterable' | 'not-numeric' | 'stray-part';
 
+/**
+ * The name the catalog counts a row under — its key without the part a set's
+ * row names (FR-CAT-10): "Colour (cup)" on a cup and lid is a Colour row.
+ */
+export function attributeRowKey(
+  row: ProductAttribute,
+  parts: readonly string[] = [],
+): string {
+  return splitAttributeKey(row.key, parts).key;
+}
+
+/**
+ * `stray-part` is the set's typo: a product sold as a set, a row whose key
+ * ends in a parenthesis naming none of its parts, and a name before it that
+ * the shop filters by — "Colour (Cup)" where the parts are "cup" and "lid".
+ * All three, so it cannot fire on a product that is not a set, on a key the
+ * catalog already carries as it stands ("Volume (ml)" elsewhere), or on a
+ * name nothing filters by, where a parenthesis loses nothing.
+ */
 export function attributeRowStatus(
   row: ProductAttribute,
   hints: ReadonlyMap<string, AttributeHint>,
+  parts: readonly string[] = [],
 ): AttributeRowStatus {
-  const key = row.key.trim();
+  const key = attributeRowKey(row, parts);
   if (!key) return 'none';
   const hint = hints.get(key);
+  if (parts.length > 0 && hint?.type == null && !hint?.productCount) {
+    const stray = strayPart(key, parts);
+    if (stray && hints.get(stray.key)?.type != null) return 'stray-part';
+  }
   if (!hint || !attributeIsKnown(hint)) return 'unknown';
   // A value that does not read as a number drops out of its own facet
   // (FR-ATTR-03) — the one place the editor can say so before it is saved.

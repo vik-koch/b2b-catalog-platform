@@ -177,7 +177,8 @@
       "inTable": "already here",
       "products": "{count} product(s)",
       "filterable": "The shop filters by this attribute.",
-      "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page."
+      "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
+      "strayPart": "“{part}” is not one of this product's parts, so this row is not filtered as “{key}”. Check the spelling against the parts above."
     },
     "images": {
       "heading": "Images",

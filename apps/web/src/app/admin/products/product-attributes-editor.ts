@@ -22,7 +22,9 @@ import {
   AttributeDefinition,
   AttributeKeyUsage,
   PRODUCT_ATTRIBUTES_MAX,
+  fillText,
   ProductAttribute,
+  strayPart,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { injectNarrowScreen } from '../../core/narrow-screen';
@@ -34,6 +36,7 @@ import { FieldLabel } from '../../ui/field-label';
 import {
   AttributeHint,
   attributeHints,
+  attributeRowKey,
   AttributeRowStatus,
   attributeRowStatus,
 } from './attribute-hints';
@@ -98,6 +101,7 @@ import {
         <app-product-attributes-narrow
           [value]="value()"
           [hints]="hints()"
+          [parts]="parts()"
           (valueChange)="valueChange.emit($event)"
         />
       } @else {
@@ -152,7 +156,10 @@ import {
                   data-col="0"
                   class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
                   [class]="
-                    cellFocus($index, 0) + (isFilterable(row) ? ' pr-9' : '')
+                    cellFocus($index, 0) +
+                    (isFilterable(row) || rowStatus(row) === 'stray-part'
+                      ? ' pr-9'
+                      : '')
                   "
                 ></td>
                 <!-- The badge overlaps this cell from the action cell beside it
@@ -174,6 +181,17 @@ import {
                      are positioned back over the cells they belong to rather
                      than inside them: a node inside a cell would be wiped by
                      the next write from the model. -->
+                  @if (rowStatus(row) === 'stray-part') {
+                    <!-- In the funnel's place: the row was meant to be
+                       filterable, and this says why it is not. -->
+                    <app-hint-badge
+                      class="absolute top-1/2 right-2/3 mr-3 -translate-y-1/2"
+                      tone="warning"
+                      [label]="strayLabel(row)"
+                    >
+                      <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+                    </app-hint-badge>
+                  }
                   @if (isFilterable(row)) {
                     <!-- Over the key cell, because it is the *key* that the shop
                        filters by; the value cell says what happens to this
@@ -265,6 +283,9 @@ export class ProductAttributesEditor {
    * only this product uses keeps saying so after it has been saved.
    */
   readonly ownKeys = input<readonly string[]>([]);
+  /** The product's parts, where it is sold as a set (FR-CAT-10): a row named
+   * "Colour (cup)" is then a Colour row, and the badges speak about Colour. */
+  readonly parts = input<readonly string[]>([]);
 
   protected readonly hints = computed<AttributeHint[]>(() =>
     attributeHints(this.knownKeys(), this.definitions(), this.ownKeys()),
@@ -282,7 +303,19 @@ export class ProductAttributesEditor {
 
   /** What this row's key means to the catalog; drives the one status badge. */
   protected rowStatus(row: ProductAttribute): AttributeRowStatus {
-    return attributeRowStatus(row, this.hintsByKey());
+    return attributeRowStatus(row, this.hintsByKey(), this.parts());
+  }
+
+  /** What the warning over a stray part's key says: which part, and which
+   * filter the row is missing. */
+  protected strayLabel(row: ProductAttribute): string {
+    const stray = strayPart(row.key, this.parts());
+    return stray
+      ? fillText(this.text.strayPart, {
+          part: stray.part ?? '',
+          key: stray.key,
+        })
+      : '';
   }
 
   /**
@@ -303,7 +336,7 @@ export class ProductAttributesEditor {
    */
   protected valueMark(row: ProductAttribute): string | null {
     if (this.rowStatus(row) === 'not-numeric') return 'not-numeric';
-    const hint = this.hintsByKey().get(row.key.trim());
+    const hint = this.hintsByKey().get(attributeRowKey(row, this.parts()));
     return hint?.unit ?? null;
   }
 

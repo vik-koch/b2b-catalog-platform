@@ -330,6 +330,9 @@ export const adminTextSchema = z
             /** The row badges: what the shop does with this attribute. */
             filterable: z.string(),
             notNumeric: z.string(),
+            /** A set's row naming a part it does not have (FR-CAT-10);
+             * `{part}` and `{key}`, the filter it misses. */
+            strayPart: z.string(),
           })
           .strict(),
         /**

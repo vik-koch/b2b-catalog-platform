@@ -332,6 +332,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             [knownKeys]="attributeKeys()"
             [definitions]="attributeDefinitions()"
             [ownKeys]="ownAttributeKeys()"
+            [parts]="parts()"
             (valueChange)="attributes.set($event)"
           />
         </div>
