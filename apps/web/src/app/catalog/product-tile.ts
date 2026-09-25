@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { FRAME } from '../ui/frame';
@@ -50,17 +50,17 @@ export const PRODUCT_GRID =
   ],
   host: { class: 'h-full' },
   template: `
-    <div [class]="card">
+    <div [class]="compact() ? compactCard : card">
       <!-- Its own stacking context, so what the caller pins lands on the
            photo's corner rather than the card's — nowhere near it once the
            photo is a thumbnail on the left. It also keeps the projected
            cluster out of the card's flex flow, where an empty slot still took
            a gap. -->
-      <div [class]="photoBox">
+      <div [class]="compact() ? compactPhotoBox : photoBox">
         <!-- The clipping lives here, not on the card: the card has to let
              the stepper's bubble hang below its edge. -->
         <app-tile-gallery
-          [class]="photo"
+          [class]="compact() ? compactPhoto : photo"
           [images]="item().images"
           [link]="['/product', item().slug]"
           [productName]="item().name"
@@ -69,22 +69,29 @@ export const PRODUCT_GRID =
       </div>
       <!-- Grows to fill the tallest card in the row, so the buying controls
            below it sit on one line whatever the names above them do. -->
-      <div [class]="body">
+      <!-- In the compact shape the body steps aside ('contents'), so its
+           three children take the card's grid: the badges beside the photo,
+           the name and the controls under both. -->
+      <div [class]="compact() ? 'contents' : body">
         <!-- Over the name, where the eye lands before it reads: whether the
              thing can be had at all outranks what it is called. -->
         <!-- The two badges at the card's two edges: the stock state where
              the eye enters, the set marker out of its way. -->
         <app-product-status-line
-          class="mb-1.5 justify-between"
+          [class]="compact() ? '' : 'mb-1.5 justify-between'"
+          [stacked]="compact()"
           [availability]="item().availability"
           [parts]="item().parts"
-          [reserve]="reserveStatus()"
+          [reserve]="reserveStatus() && !compact()"
         />
         <!-- The card is not the link — the photo and the name are, and the
              buying controls in between are neither. So the name lights on its
              own hover, not the card's: lighting it from anywhere on the card
              promised a click that only lands on these two lines. -->
-        <a [routerLink]="['/product', item().slug]" class="block">
+        <a
+          [routerLink]="['/product', item().slug]"
+          [class]="compact() ? 'col-span-2 mt-3 block' : 'block'"
+        >
           <h2
             class="line-clamp-2 text-sm text-stone-700 transition-colors hover:text-accent"
             [title]="item().name"
@@ -96,18 +103,20 @@ export const PRODUCT_GRID =
              the names do. The controls the product page carries, at card
              size. -->
         <app-product-buy-controls
-          class="mt-auto pt-2"
+          [class]="compact() ? 'col-span-2 self-end pt-2' : 'mt-auto pt-2'"
           [item]="item()"
           [image]="item().images[0]"
           [compact]="true"
         >
-          <!-- Two lines' worth of room whether or not there are two lines: a
+          @if (!compact()) {
+            <!-- Two lines' worth of room whether or not there are two lines: a
                card a line shorter than its neighbour puts its button
                somewhere else. There is no neighbour in the narrow shape. -->
-          <app-product-unit-facts
-            class="mt-2 @min-[38rem]/listing:min-h-[2lh]"
-            [packagingInfo]="item().packaging"
-          />
+            <app-product-unit-facts
+              [class]="unitFacts()"
+              [packagingInfo]="item().packaging"
+            />
+          }
         </app-product-buy-controls>
       </div>
     </div>
@@ -135,6 +144,29 @@ export class ProductTile {
     NARROW_BODY_IN_GRID;
 
   readonly item = input.required<ProductListItem>();
+  /**
+   * The small card of the main page's row (FR-CAT-09): a thumbnail with the
+   * badges beside it instead of a photo across the top, a fixed width, and
+   * no narrow shape — it stands in a row that scrolls rather than narrows, so
+   * there is no listing around it to ask. The two lines the unit facts hold
+   * open are granted here for the same reason.
+   */
+  readonly compact = input(false);
+  protected readonly unitFacts = computed(() =>
+    this.compact()
+      ? 'mt-2 min-h-[2lh]'
+      : 'mt-2 @min-[38rem]/listing:min-h-[2lh]',
+  );
+
+  /** Two columns, the thumbnail's and the badges'; the name and the controls
+   * span both. The last row takes what is left of the card, so the controls
+   * sit on one line across the row whatever the names above them do. */
+  protected readonly compactCard =
+    'group relative grid h-full grid-cols-[6rem_1fr] grid-rows-[auto_auto_1fr] gap-x-3 rounded-lg bg-white p-3 transition-shadow hover:shadow-md ' +
+    FRAME;
+  protected readonly compactPhotoBox = 'relative flex size-24';
+  protected readonly compactPhoto = `block aspect-square w-full overflow-hidden rounded-md ${FRAME}`;
+
   /** True where some product in this listing has a badge over its name, so
    * every card leaves the line and the names sit level. */
   readonly reserveStatus = input(false);

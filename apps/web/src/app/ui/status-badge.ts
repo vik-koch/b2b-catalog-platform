@@ -68,6 +68,14 @@ const shapes = {
 export class StatusBadge {
   readonly tone = input<StatusTone>('neutral');
   readonly variant = input<StatusBadgeVariant>('solid');
+  /**
+   * Lets a long label break onto a second line — only where a column beside a
+   * thumbnail has the height to spare and not the width (the main page's small
+   * card). The lines sit closer than text does, so two of them still read as
+   * one label, and the dot stays level with the first rather than drifting to
+   * the middle of both.
+   */
+  readonly wrap = input(false);
 
   protected readonly classes = computed(() => {
     const variant = this.variant();
@@ -76,6 +84,9 @@ export class StatusBadge {
     // nowrap for the same reason: a two-word state is one label, and a narrow
     // column — a table the reader has dragged, a phone — should push it out of
     // the way rather than break it across two lines.
-    return `inline-flex items-center text-xs font-medium whitespace-nowrap select-none ${shapes[variant]} ${colours}`;
+    const flow = this.wrap()
+      ? 'items-start leading-tight before:mt-[calc(0.5lh-0.1875rem)]'
+      : 'items-center whitespace-nowrap';
+    return `inline-flex ${flow} text-xs font-medium select-none ${shapes[variant]} ${colours}`;
   });
 }

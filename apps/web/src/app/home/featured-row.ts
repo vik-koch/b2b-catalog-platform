@@ -23,6 +23,18 @@ import { IconButton } from '../ui/icon-button';
 import { FeaturedRowService } from './featured-row.service';
 
 /**
+ * The white band the row stands on, from one edge of the window to the other,
+ * shaded inward from its top edge so it reads as set into the page rather
+ * than lying on it. Painted as a border image
+ * pushed out past the element rather than by widening it: anything sized to
+ * the viewport counts the scrollbar, and the page would scroll sideways by its
+ * width. The outset is paint, not layout, so it cannot — and unlike a spread
+ * shadow it can reach further sideways than up and down.
+ */
+const BAND =
+  'bg-white [border-image:linear-gradient(#f1f1f1,#f8f8f8_2px,#fff_10px,#fff_calc(100%_-_5px),#f7f7f7)_fill_0//0_100vmax]';
+
+/**
  * One card width at every window width: a listing's column, 15rem, which is
  * what a card's buying controls need side by side. Five of them are exactly
  * the page's width, so a wide screen shows the whole row; a narrower one cuts
@@ -108,7 +120,11 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
           >
             @for (item of items; track item.slug) {
               <li class="h-full snap-start">
-                <app-product-tile [item]="item" [reserveStatus]="reserveStatus">
+                <app-product-tile
+                  [item]="item"
+                  [reserveStatus]="reserveStatus"
+                  [compact]="true"
+                >
                   @if (editControls(); as editText) {
                     <app-edit-actions
                       variant="tile"
@@ -156,7 +172,7 @@ export class FeaturedRow {
     'grid grid-flow-col gap-5 overflow-hidden pt-8 pb-5 ' + CARD_WIDTH;
   /** The band, with the room under it the categories need before they
    * start. */
-  protected readonly sectionClass = 'mb-10 pt-5 ';
+  protected readonly sectionClass = 'mb-10 pt-5 ' + BAND;
 
   protected readonly items = resource({
     loader: () => this.featured.row(),

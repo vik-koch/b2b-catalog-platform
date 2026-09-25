@@ -20,7 +20,9 @@ import { StatusBadge, StatusTone } from '../ui/status-badge';
   imports: [StatusBadge],
   template: `
     @if (availability(); as state) {
-      <span appStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
+      <span appStatusBadge variant="dot" [tone]="tone()" [wrap]="wrap()">{{
+        label()
+      }}</span>
     } @else if (reserve()) {
       <!-- The badge's own height, held open by a space rather than a fixed
            figure, so it tracks the pill's line box if that ever changes. -->
@@ -41,6 +43,8 @@ import { StatusBadge, StatusTone } from '../ui/status-badge';
 export class ProductAvailabilityBadge {
   readonly availability = input.required<ProductAvailability | null>();
   readonly reserve = input(false);
+  /** Break a long label rather than overflow — see StatusBadge. */
+  readonly wrap = input(false);
 
   /** Green for what is there, amber for what is nearly gone, and a plain grey
    * for what is not — an empty shelf is a fact, not a refusal. */

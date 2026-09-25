@@ -55,11 +55,15 @@ import { SearchOverlay } from './layout/search-overlay';
            Nothing is meant to be reached by scrolling sideways — what does not
            fit (a wide table, a code block) scrolls inside its own box — and
            clip rather than hidden so this never becomes a scroll container
-           the header's own stickiness would have to answer to. -->
-      <main
-        class="mx-auto mb-4 w-full max-w-[82rem] flex-1 overflow-x-clip p-4"
-      >
-        <router-outlet />
+           the header's own stickiness would have to answer to.
+
+           The clip is the window's width and the page's column is inside it,
+           so a band drawn from edge to edge (the main page's row) reaches the
+           edges on a wide screen too, and is still clipped where they are. -->
+      <main class="mb-4 w-full flex-1 overflow-x-clip">
+        <div class="mx-auto w-full max-w-[82rem] p-4">
+          <router-outlet />
+        </div>
       </main>
       <!-- Admin-only storefront edit-mode toggle; empty for everyone else, and
            for any page with nothing on it to edit. Between the page and the
