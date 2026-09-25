@@ -3,10 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ProductAvailability } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import {
-  anyAvailability,
-  ProductAvailabilityBadge,
-} from './product-availability-badge';
+import { ProductAvailabilityBadge } from './product-availability-badge';
 
 const text = defaultAppText.catalog.availability;
 
@@ -73,21 +70,5 @@ describe('ProductAvailabilityBadge', () => {
     // A blank of the badge's height, so the names on either side sit level —
     // and nothing a screen reader announces.
     expect(spacer?.textContent?.trim()).toBe('');
-  });
-});
-
-describe('anyAvailability', () => {
-  it('is true as soon as one product in the listing states a stock', () => {
-    expect(
-      anyAvailability([{ availability: null }, { availability: 'out' }]),
-    ).toBe(true);
-  });
-
-  it('is false where the whole page is untracked', () => {
-    // What keeps a catalog that tracks nothing from growing a blank line above
-    // every name.
-    expect(
-      anyAvailability([{ availability: null }, { availability: null }]),
-    ).toBe(false);
   });
 });

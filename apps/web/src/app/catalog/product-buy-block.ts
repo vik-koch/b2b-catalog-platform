@@ -14,6 +14,7 @@ import { Input } from '../ui/input';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
+import { ProductSetBadge } from './product-set-badge';
 import { ProductUnitFacts } from './product-unit-facts';
 
 /**
@@ -41,6 +42,7 @@ import { ProductUnitFacts } from './product-unit-facts';
     ProductAvailabilityBadge,
     ProductBuyControls,
     ProductPairings,
+    ProductSetBadge,
     ProductUnitFacts,
   ],
   template: `
@@ -84,6 +86,19 @@ import { ProductUnitFacts } from './product-unit-facts';
              card; the two come to the gap. -->
         <div class="mt-2 mb-1 flex flex-col items-stretch gap-3">
           <app-product-unit-facts [packagingInfo]="packaging()" />
+
+          <!-- Straight under the packaging, because it is what the packaging
+               counts: "100 pcs" is a hundred cups with their lids. Above the
+               pairing link — what one piece is comes before what goes with
+               it. -->
+          @if (item().parts.length > 0) {
+            <app-product-set-badge
+              class="self-start"
+              variant="full"
+              [parts]="item().parts"
+            />
+          }
+
           <!-- After the packaging facts and before the note: it is one more
                thing this product says about itself, and the note is the one
                thing on this panel the customer writes. With the word rather

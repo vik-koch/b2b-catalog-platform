@@ -10,8 +10,8 @@ import {
   NARROW_PADDING_IN_LINE,
   NARROW_PHOTO_IN_LINE,
 } from './listing-narrow';
-import { ProductAvailabilityBadge } from './product-availability-badge';
 import { BuyableProduct, ProductBuyControls } from './product-buy-controls';
+import { ProductStatusLine } from './product-status-line';
 import { TileGallery } from './tile-gallery';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
@@ -44,12 +44,7 @@ export interface RowProduct extends BuyableProduct {
  */
 @Component({
   selector: 'app-product-row',
-  imports: [
-    RouterLink,
-    TileGallery,
-    ProductAvailabilityBadge,
-    ProductBuyControls,
-  ],
+  imports: [RouterLink, TileGallery, ProductStatusLine, ProductBuyControls],
   // The narrow container is the host rather than the line inside it: the line
   // asks it what room to leave, and no element can answer its own container
   // query. Same width either way — the line fills the host.
@@ -106,9 +101,10 @@ export interface RowProduct extends BuyableProduct {
           >
             <!-- Over the name, as on a card: the same fact in the same place
                  whichever way the listing is drawn. -->
-            <app-product-availability-badge
+            <app-product-status-line
               class="mb-1.5"
               [availability]="item().availability ?? null"
+              [parts]="item().parts ?? []"
             />
             <!-- A heading, as on a card: the same product listed two ways is
                  the same document outline either way, down to its size — a

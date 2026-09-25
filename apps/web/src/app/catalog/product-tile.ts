@@ -7,8 +7,8 @@ import {
   NARROW_PADDING_IN_GRID,
   NARROW_PHOTO_IN_GRID,
 } from './listing-narrow';
-import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
+import { ProductStatusLine } from './product-status-line';
 import { ProductUnitFacts } from './product-unit-facts';
 import { TileGallery } from './tile-gallery';
 
@@ -44,7 +44,7 @@ export const PRODUCT_GRID =
   imports: [
     RouterLink,
     TileGallery,
-    ProductAvailabilityBadge,
+    ProductStatusLine,
     ProductBuyControls,
     ProductUnitFacts,
   ],
@@ -72,10 +72,13 @@ export const PRODUCT_GRID =
       <div [class]="body">
         <!-- Over the name, where the eye lands before it reads: whether the
              thing can be had at all outranks what it is called. -->
-        <app-product-availability-badge
-          class="mb-1.5"
+        <!-- The two badges at the card's two edges: the stock state where
+             the eye enters, the set marker out of its way. -->
+        <app-product-status-line
+          class="mb-1.5 justify-between"
           [availability]="item().availability"
-          [reserve]="reserveAvailability()"
+          [parts]="item().parts"
+          [reserve]="reserveStatus()"
         />
         <!-- The card is not the link — the photo and the name are, and the
              buying controls in between are neither. So the name lights on its
@@ -132,7 +135,7 @@ export class ProductTile {
     NARROW_BODY_IN_GRID;
 
   readonly item = input.required<ProductListItem>();
-  /** True where some product in this listing has a state, so every card leaves
-   * the line and the names sit level. */
-  readonly reserveAvailability = input(false);
+  /** True where some product in this listing has a badge over its name, so
+   * every card leaves the line and the names sit level. */
+  readonly reserveStatus = input(false);
 }

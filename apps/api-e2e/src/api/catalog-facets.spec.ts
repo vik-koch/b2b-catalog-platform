@@ -62,17 +62,17 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
 
   async function addProduct(
     suffix: string,
-    attributes: { key: string; value: string }[],
-    options: { published?: boolean; deleted?: boolean } = {},
+    attributes: { key: string; value: string; part?: string }[],
+    options: { published?: boolean; deleted?: boolean; parts?: string[] } = {},
   ) {
-    const { published = true, deleted = false } = options;
+    const { published = true, deleted = false, parts = [] } = options;
     const { rows } = await client.query<{ id: string }>(
       // The price is a row in the badged list, written in the same statement:
       // a published product without one could not exist.
       `WITH p AS (
          INSERT INTO products ("sourceId", slug, name,
-                               "categoryId", "publishedAt", "deletedAt")
-         VALUES ($1, $1, $2, $3, $4, $5) RETURNING id
+                               "categoryId", "publishedAt", "deletedAt", parts)
+         VALUES ($1, $1, $2, $3, $4, $5, $6) RETURNING id
        ), priced AS (
          INSERT INTO product_prices ("productId", "tierId", "priceMinor")
          SELECT p.id, t.id, 100 FROM p, customer_tiers t WHERE t."isDefault"
@@ -84,20 +84,22 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
         categoryId,
         published ? new Date() : null,
         deleted ? new Date() : null,
+        parts,
       ],
     );
     for (const [i, attribute] of attributes.entries()) {
       // valueNumeric mirrors the parse the write path applies.
       await client.query(
         `INSERT INTO product_attributes ("productId", "sortOrder", key, value,
-                                         "valueNumeric")
-         VALUES ($1, $2, $3, $4, $5)`,
+                                         "valueNumeric", part)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
         [
           rows[0].id,
           i,
           attribute.key,
           attribute.value,
           /^-?\d+(\.\d+)?$/.test(attribute.value) ? attribute.value : null,
+          attribute.part ?? null,
         ],
       );
     }
@@ -310,6 +312,68 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
       expect(countOf(facet(facets, colourSlug)?.values, 'Red')).toBe(1);
       // Counted against the other facets only, so Blue keeps its own count.
       expect(countOf(facet(facets, colourSlug)?.values, 'Blue')).toBe(2);
+    });
+  });
+
+  describe('a product sold as a set (FR-CAT-10)', () => {
+    let setSlug = '';
+
+    // Its own product, added and removed here, so the counts the panel tests
+    // above pin stay as they are.
+    beforeAll(async () => {
+      setSlug = await addProduct(
+        'set',
+        [
+          { key: COLOUR, part: 'cup', value: 'Black' },
+          { key: COLOUR, part: 'lid', value: 'White' },
+        ],
+        { parts: ['cup', 'lid'] },
+      );
+    });
+
+    afterAll(async () => {
+      await client.query('DELETE FROM products WHERE slug = $1', [setSlug]);
+    });
+
+    it('is found under either part’s colour, and counted once in each', async () => {
+      const { facets } = await listing();
+      expect(countOf(facet(facets, colourSlug)?.values, 'Black')).toBe(1);
+      expect(countOf(facet(facets, colourSlug)?.values, 'White')).toBe(1);
+
+      expect((await listing([`${colourSlug}:White`])).slugs).toEqual([setSlug]);
+      // One product for two rows of one attribute: both selections together
+      // still list it once.
+      expect(
+        (await listing([`${colourSlug}:Black`, `${colourSlug}:White`])).slugs,
+      ).toEqual([setSlug]);
+    });
+
+    it('shows each row with its part, and links it to the plain attribute', async () => {
+      const product = await get(`/catalog/products/${setSlug}`);
+
+      expect(product.data.parts).toEqual(['cup', 'lid']);
+      expect(product.data.attributes).toEqual([
+        {
+          key: `${COLOUR} (cup)`,
+          value: 'Black',
+          unit: null,
+          filterSlug: colourSlug,
+        },
+        {
+          key: `${COLOUR} (lid)`,
+          value: 'White',
+          unit: null,
+          filterSlug: colourSlug,
+        },
+      ]);
+    });
+
+    it('carries its parts on the tile', async () => {
+      const res = await get(`/catalog/categories/${CATEGORY}/products`);
+      const tile = res.data.items.find(
+        (item: { slug: string }) => item.slug === setSlug,
+      );
+      expect(tile.parts).toEqual(['cup', 'lid']);
     });
   });
 });

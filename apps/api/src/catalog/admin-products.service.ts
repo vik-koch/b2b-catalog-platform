@@ -64,6 +64,7 @@ import {
 import { adminProductOrderBy } from './product-sort';
 import {
   availabilityColumns,
+  partsColumns,
   noteColumns,
   toUnpricedListItem,
   unitColumns,
@@ -606,6 +607,7 @@ export class AdminProductsService {
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
+        ...partsColumns,
         pairedCount: pairedCountOf(),
       })
       .from(products)

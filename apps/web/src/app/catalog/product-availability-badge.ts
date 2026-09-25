@@ -15,17 +15,6 @@ import { StatusBadge, StatusTone } from '../ui/status-badge';
  * badge leaves the line for all of them, so every card's name sits at the same
  * height. A listing where none does leaves nothing.
  */
-/**
- * Whether a listing should leave the line at all — true as soon as one product
- * in it has a state. Asked once per page rather than per card: the answer is a
- * property of the listing, and a card cannot see its neighbours.
- */
-export function anyAvailability(
-  items: readonly { availability: ProductAvailability | null }[],
-): boolean {
-  return items.some((item) => item.availability !== null);
-}
-
 @Component({
   selector: 'app-product-availability-badge',
   imports: [StatusBadge],

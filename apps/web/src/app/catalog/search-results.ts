@@ -23,7 +23,7 @@ import {
   FACET_SIBLING_ALONE,
   FacetPanel,
 } from './facet-panel';
-import { anyAvailability } from './product-availability-badge';
+import { anyStatus } from './product-status-line';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
@@ -154,14 +154,14 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                 <!-- Asked once for the page: a listing where one product
                      states a stock leaves the line for all of them, so the
                      names sit level. -->
-                @let reserveAvailability = anyAvailability(data.items);
+                @let reserveStatus = anyStatus(data.items);
 
                 @for (item of data.items; track item.slug) {
                   <li [class]="cards() ? 'h-full' : ''">
                     @if (cards()) {
                       <app-product-tile
                         [item]="item"
-                        [reserveAvailability]="reserveAvailability"
+                        [reserveStatus]="reserveStatus"
                       >
                         <ng-container
                           [ngTemplateOutlet]="productEdit"
@@ -270,7 +270,7 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
 })
 export class SearchResults {
   /** Whether this page of products states any stock at all — see the badge. */
-  protected readonly anyAvailability = anyAvailability;
+  protected readonly anyStatus = anyStatus;
 
   protected readonly productGrid = PRODUCT_GRID;
 

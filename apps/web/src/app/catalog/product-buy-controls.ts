@@ -79,6 +79,9 @@ export interface BuyableProduct {
    * reading of that until the next pricing call answers.
    */
   pairedCount?: number;
+  /** What one piece is made of, where it is sold as a set (FR-CAT-10).
+   * Optional for the reason `pairedCount` is. */
+  parts?: readonly string[];
 }
 
 /**
@@ -971,6 +974,7 @@ export class ProductBuyControls {
       // does not survive `JSON.stringify`, and a stored line missing one is
       // discarded when it is read back.
       pairedCount: item.pairedCount ?? 0,
+      parts: [...(item.parts ?? [])],
     };
   }
 

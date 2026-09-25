@@ -93,6 +93,17 @@ export const appTextSchema = z
             out: z.string(),
           })
           .strict(),
+        /**
+         * The marker of a product sold as a set of parts (FR-CAT-10). `short`
+         * is the badge on a card or a line, `full` the product page's and the
+         * short badge's tooltip, `{parts}` the parts joined by " + ".
+         */
+        set: z
+          .object({
+            short: z.string(),
+            full: z.string(),
+          })
+          .strict(),
         layout: z
           .object({
             label: z.string(),

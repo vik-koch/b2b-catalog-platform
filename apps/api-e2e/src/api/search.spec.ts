@@ -57,6 +57,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       'name',
       'packaging',
       'pairedCount',
+      'parts',
       'priceMinor',
       'prices',
       'slug',

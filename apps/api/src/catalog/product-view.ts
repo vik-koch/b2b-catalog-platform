@@ -41,6 +41,11 @@ export const noteColumns = {
   lineNotePrompt: products.lineNotePrompt,
 } as const;
 
+/** What a piece is made of, for the set marker (FR-CAT-10). */
+export const partsColumns = {
+  parts: products.parts,
+} as const;
+
 /** The stored state, never the count behind it (FR-STOCK-01). Its own group so
  * that reading a product publicly cannot pick up the figure by accident. */
 export const availabilityColumns = {
@@ -91,6 +96,7 @@ export function toListItem<
     lineNotePrompt: string | null;
     availability: ProductAvailability | null;
     pairedCount: number;
+    parts: string[];
   },
 >(row: T): ProductListItem {
   return {
@@ -104,6 +110,7 @@ export function toListItem<
     lineNotePrompt: row.lineNotePrompt,
     availability: row.availability,
     pairedCount: row.pairedCount,
+    parts: row.parts,
   };
 }
 
@@ -124,6 +131,7 @@ export function toUnpricedListItem<
     lineNotePrompt: string | null;
     availability: ProductAvailability | null;
     pairedCount: number;
+    parts: string[];
   },
 >(
   row: T,
