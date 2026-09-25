@@ -35,6 +35,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-CAT-07](#fr-cat-07) — How a category is shown
 - [FR-CAT-08](#fr-cat-08) — Category description
 - [FR-CAT-09](#fr-cat-09) — A featured row on the main page
+- [FR-CAT-10](#fr-cat-10) — A product sold as a set of parts
 
 **[Units of Sale & Packaging (FR-UNIT)](#fr-unit)**
 
@@ -294,6 +295,10 @@ A category may carry a short plain-text description. Where one is written it int
 
 The main page shows a short row of products above the category overview. An admin chooses which; where nobody has chosen any, it falls back to the most recently published products, and where there are none it is absent rather than empty. Each entry is the same list item every listing draws ([FR-CAT-04](#fr-cat-04)), so what can be seen and bought from a listing can be seen and bought from here.
 
+#### <a id="fr-cat-10"></a>FR-CAT-10 — A product sold as a set of parts
+
+A product may name the parts it is sold as — two or three short words, such as cup and lid — while one listing entry, one price and one piece stand for the whole set. Such a product is marked as a set wherever its buying controls are: on a list item and a cart line beside its availability, naming its parts on hover, and on its page under the packaging facts, naming them in full. An attribute key ending in one of its parts in parentheses — "Colour (cup)" — describes that part: the attribute table shows it as written, but it is filtered and linked as the key before the parentheses ([FR-ATTR-02](#fr-attr-02)), so a black cup with a white lid is found under either colour. A parenthesis naming none of its parts stays part of the key, as any other text does. Parts are maintained in the admin panel only and change nothing about how the product is priced, counted, packed or ordered; its boxes follow [FR-UNIT-11](#fr-unit-11) as any product's do.
+
 ---
 
 ### <a id="fr-unit"></a>Units of Sale & Packaging (FR-UNIT)
@@ -452,7 +457,7 @@ An admin defines the set of filterable attributes. A definition carries the attr
 
 #### <a id="fr-attr-02"></a>FR-ATTR-02 — A product attribute becomes filterable
 
-A product's freetext attribute ([FR-CAT-05](#fr-cat-05)) becomes filterable when its key matches a definition's name. Matching is exact apart from surrounding whitespace, and product attributes are entered and corrected exactly as before — no product has to be re-entered for a definition to take effect.
+A product's freetext attribute ([FR-CAT-05](#fr-cat-05)) becomes filterable when its key matches a definition's name. Matching is exact apart from surrounding whitespace and the part a set's attribute names ([FR-CAT-10](#fr-cat-10)), and product attributes are entered and corrected exactly as before — no product has to be re-entered for a definition to take effect.
 
 #### <a id="fr-attr-03"></a>FR-ATTR-03 — Unreadable number values
 
