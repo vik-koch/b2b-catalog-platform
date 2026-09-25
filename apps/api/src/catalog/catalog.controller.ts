@@ -101,6 +101,14 @@ export class CatalogController {
   }
 
   @TierPriced()
+  @Implement(catalogContract.getFeaturedProducts)
+  getFeaturedProducts(@PricingTier() tierId: string | null) {
+    return implement(catalogContract.getFeaturedProducts).handler(async () => ({
+      items: await this.catalog.getFeaturedProducts(tierId),
+    }));
+  }
+
+  @TierPriced()
   @Implement(catalogContract.getProduct)
   getProduct(@PricingTier() tierId: string | null) {
     return implement(catalogContract.getProduct).handler(

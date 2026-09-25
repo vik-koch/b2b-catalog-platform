@@ -1264,6 +1264,18 @@ export const appTextSchema = z
         eyebrow: z.string(),
         title: z.string(),
         intro: z.string(),
+        /** The row of products above the categories (FR-CAT-09). Its heading
+         * must not promise a selection: most of the row is often drawn at
+         * random. */
+        featured: z
+          .object({
+            heading: z.string(),
+            /** The arrow buttons' accessible names; a mouse has no other way
+             * to move a row that scrolls sideways. */
+            previous: z.string(),
+            next: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     inquiry: z

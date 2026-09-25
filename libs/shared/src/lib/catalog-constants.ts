@@ -33,6 +33,13 @@ export const SEARCH_SORTS = ['relevance', ...PRODUCT_SORTS] as const;
  */
 export const SEARCH_QUERY_MAX_LENGTH = 100;
 
+/**
+ * How many products the main page's row holds (FR-CAT-09): five 15rem columns
+ * are exactly the page's width, so a wide screen shows the whole row and a
+ * narrower one scrolls the same five.
+ */
+export const FEATURED_ROW_SIZE = 5;
+
 /** The name to display where the parent is visible: the nickname, or the full
  * name when there is none. */
 export function categoryDisplayName(category: {

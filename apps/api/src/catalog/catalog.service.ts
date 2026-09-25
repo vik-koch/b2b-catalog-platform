@@ -29,6 +29,7 @@ import {
   SearchSuggestion,
   SubcategoryLink,
   SEARCH_SUGGESTION_LIMIT,
+  FEATURED_ROW_SIZE,
   SitemapEntry,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
@@ -73,6 +74,11 @@ import {
   unitPricesOf,
 } from './product-view';
 import { counterpartOf, involves, pairedCountOf } from './product-pairings';
+import {
+  featuredRowCandidate,
+  featuredRowOrder,
+  shuffled,
+} from './featured-row';
 import {
   buildFacets,
   resolveSelections,
@@ -524,6 +530,33 @@ export class CatalogService {
       .where(involves(product.id))
       .orderBy(asc(products.name));
     return rows.map(toListItem);
+  }
+
+  /**
+   * The main page's row (FR-CAT-09): as many featured products as fit, the
+   * rest of the row drawn from everything else, out-of-stock ones never. The
+   * query takes the featured first; the shuffle then hides that they were.
+   */
+  async getFeaturedProducts(
+    tierId: string | null = null,
+  ): Promise<ProductListItem[]> {
+    const rows = await this.db
+      .select({
+        slug: products.slug,
+        name: products.name,
+        priceMinor: livePriceMinor(tierId),
+        images: products.images,
+        ...unitColumns,
+        ...noteColumns,
+        ...availabilityColumns,
+        ...partsColumns,
+        pairedCount: pairedCountOf(),
+      })
+      .from(products)
+      .where(and(publiclyVisible, featuredRowCandidate))
+      .orderBy(...featuredRowOrder)
+      .limit(FEATURED_ROW_SIZE);
+    return shuffled(rows).map(toListItem);
   }
 
   async getProduct(

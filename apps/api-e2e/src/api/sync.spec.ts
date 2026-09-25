@@ -556,6 +556,22 @@ describe('Catalog sync (FR-ADM-02)', () => {
       expect(product.stockPieces).toBe(50);
       expect(product.availability).toBe('in');
     });
+    // The mark is the shop's own (FR-CAT-09): a run that writes the row it
+    // sits on neither clears it nor has a column to set it from.
+    it('leaves the main page mark alone', async () => {
+      await client.query(
+        'UPDATE products SET featured = true WHERE "sourceId" = $1',
+        [sourceId],
+      );
+
+      await run(`sourceId,name,stock\n${sourceId},Stocked Beans Marked,60\n`);
+
+      const { rows } = await client.query(
+        'SELECT name, featured FROM products WHERE "sourceId" = $1',
+        [sourceId],
+      );
+      expect(rows[0]).toEqual({ name: 'Stocked Beans Marked', featured: true });
+    });
   });
 
   describe('the audit trail', () => {

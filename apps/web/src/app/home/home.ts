@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CategoryIndex } from '../catalog/category-index';
+import { FeaturedRow } from './featured-row';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 
-// The storefront landing (FR-CAT-01): a brief intro, then the categories. The
-// same index /catalog shows, until the main page has a featured row of products
-// of its own to put above it.
+// The storefront landing: a brief intro, a row of products (FR-CAT-09), then
+// the categories — the same index /catalog shows (FR-CAT-01).
 @Component({
-  imports: [CategoryIndex],
+  imports: [CategoryIndex, FeaturedRow],
   selector: 'app-home',
   template: `
     <section class="pb-10">
@@ -23,6 +23,8 @@ import { usePageSeo } from '../core/page-seo';
         {{ text.home.intro }}
       </p>
     </section>
+
+    <app-featured-row />
 
     <app-category-index />
   `,

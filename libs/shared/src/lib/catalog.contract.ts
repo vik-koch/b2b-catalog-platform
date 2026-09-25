@@ -601,6 +601,22 @@ export const catalogContract = {
         .strict(),
     ),
 
+  /**
+   * The main page's row (FR-CAT-09): the featured products first, the rest of
+   * the row filled from the catalog, drawn at random and never out of stock.
+   * Which entries were featured is not said — the row is shuffled, and the
+   * items are the same list items every listing carries.
+   *
+   * An empty list where nothing can be shown; the page leaves the row out.
+   */
+  getFeaturedProducts: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/featured',
+      summary: 'Draw the products for the main page row',
+    })
+    .output(z.object({ items: z.array(productListItemSchema) }).strict()),
+
   /** The full product page (FR-CAT-05). */
   getProduct: oc
     .route({

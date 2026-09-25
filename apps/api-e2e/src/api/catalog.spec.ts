@@ -6,6 +6,7 @@ import {
 } from '@b2b-catalog-platform/seed';
 import {
   CATALOG_PAGE_SIZE,
+  FEATURED_ROW_SIZE,
   parseAttributeNumber,
 } from '@b2b-catalog-platform/shared';
 import axios from 'axios';
@@ -307,6 +308,29 @@ describe('GET /catalog/products/:slug/pairings (FR-SET-05)', () => {
     expect(
       (await get('/catalog/products/no-such-product/pairings')).status,
     ).toBe(404);
+  });
+});
+
+describe('GET /catalog/featured (FR-CAT-09)', () => {
+  it('draws up to a row of distinct list items, none out of stock', async () => {
+    const res = await get('/catalog/featured');
+
+    expect(res.status).toBe(200);
+    const items: { slug: string; availability: string | null }[] =
+      res.data.items;
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.length).toBeLessThanOrEqual(FEATURED_ROW_SIZE);
+    expect(new Set(items.map((i) => i.slug)).size).toBe(items.length);
+    for (const item of items) expect(item.availability).not.toBe('out');
+  });
+
+  // Nothing on the row says which entries were marked: the item is the same
+  // one every listing carries.
+  it('does not say which entries are featured', async () => {
+    const res = await get('/catalog/featured');
+
+    for (const item of res.data.items)
+      expect(item).not.toHaveProperty('featured');
   });
 });
 
