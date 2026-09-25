@@ -299,6 +299,7 @@
     "editProducts": "Edit category products",
     "products": "{count} product(s)",
     "noProducts": "No products yet",
+    "directProducts": "{count} product(s) without subcategories",
     "editFilters": "Edit category filters",
     "edit": "Edit",
     "delete": "Delete",

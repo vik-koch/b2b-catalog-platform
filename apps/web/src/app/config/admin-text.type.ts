@@ -536,6 +536,9 @@ export const adminTextSchema = z
          * `noProducts` is the same fact where there are none. */
         products: z.string(),
         noProducts: z.string(),
+        /** The products filed in a category that also has subcategories,
+         * leaving theirs out. `{count}` substituted. */
+        directProducts: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
         edit: z.string(),
