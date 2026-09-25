@@ -47,6 +47,7 @@ export * from './lib/party.contract';
 export * from './lib/person-name';
 export * from './lib/postal-code';
 export * from './lib/product-availability';
+export * from './lib/product-parts';
 export * from './lib/product-units';
 export * from './lib/search-terms';
 export * from './lib/settings-constants';

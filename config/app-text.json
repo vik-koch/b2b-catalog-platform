@@ -42,6 +42,10 @@
       "low": "Few left",
       "out": "Out of stock"
     },
+    "set": {
+      "short": "Set",
+      "full": "Sold as a set: {parts}"
+    },
     "layout": {
       "label": "Layout",
       "grid": "Show as cards",

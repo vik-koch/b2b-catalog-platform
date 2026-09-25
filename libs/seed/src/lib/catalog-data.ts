@@ -37,6 +37,9 @@ export interface ProductSeed {
   /** A collective item whose cart line may name the variant wanted. */
   lineNoteEnabled?: boolean;
   lineNotePrompt?: string;
+  /** What one piece is made of, where it is sold as a set (FR-CAT-10). An
+   * attribute key naming one of them — "Colour (cup)" — is stored against it. */
+  parts?: string[];
 }
 
 /**
@@ -125,6 +128,9 @@ export const attributeDefinitionSeeds: AttributeDefinitionSeed[] = [
   // demonstrates the unparseable case.
   { name: 'Net weight', slug: 'net-weight', type: 'number', unit: 'g' },
   { name: 'Volume', slug: 'volume', type: 'number', unit: 'ml' },
+  // Only the takeaway cups carry it, and the set carries it twice — once per
+  // part — which is what shows a two-colour set under both colours.
+  { name: 'Colour', slug: 'colour', type: 'text', unit: null },
 ];
 
 const beanAttributes = (
@@ -483,6 +489,7 @@ const allProducts: ProductSeed[] = [
       '<p>Fifty double-walled 300&nbsp;ml takeaway cups, unprinted.</p>',
       [
         { key: 'Volume', value: '300' },
+        { key: 'Colour', value: 'White' },
         { key: 'Pieces', value: '50 cups' },
       ],
     ),
@@ -512,6 +519,40 @@ const allProducts: ProductSeed[] = [
       { key: 'Pieces', value: '50 lids' },
     ],
   ),
+
+  // The set case (FR-CAT-10), the other side of the pairing above: here the
+  // cup and its lid are one product at one price, a piece is the pair, and
+  // the manufacturer's cartons — cups and lids packed apart — are why it ships
+  // as three boxes for a hundred sets. The two colours are what the filter is
+  // demonstrated from: found under Black and under White, one product each.
+  // Few left, so a card carries both badges on one line.
+  {
+    ...p(
+      'CUP-006',
+      'takeaway-cup-lid-set-400',
+      'Takeaway Cup with Lid 400 ml',
+      'cups',
+      38,
+      '<p>A 400&nbsp;ml double-walled takeaway cup in black with a white sip lid, sold together as one set.</p>',
+      [
+        { key: 'Volume', value: '400' },
+        { key: 'Colour (cup)', value: 'Black' },
+        { key: 'Colour (lid)', value: 'White' },
+        { key: 'Material (cup)', value: 'Paper, PE-lined' },
+        { key: 'Material (lid)', value: 'Polystyrene' },
+      ],
+    ),
+    parts: ['cup', 'lid'],
+    packaging: {
+      piecesPerPack: 50,
+      packsPerBox: 2,
+      minPieceQty: 50,
+      boxVolume: '0.096',
+      boxWeight: '5.800',
+      boxCount: 3,
+    },
+    stockPieces: 60,
+  },
 ];
 
 /**

@@ -20,6 +20,7 @@ import { livePriceMinor } from '../catalog/product-price';
 import {
   availabilityColumns,
   packagingOf,
+  partsColumns,
   publiclyVisible,
   unitColumns,
   unitPricesOf,
@@ -81,6 +82,7 @@ type ProductRow = {
   availability: ProductAvailability | null;
   /** How many sellable products this one is sold together with (FR-SET-05). */
   pairedCount: number;
+  parts: string[];
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
@@ -205,6 +207,7 @@ async function loadProducts(
       lineNotePrompt: products.lineNotePrompt,
       ...availabilityColumns,
       ...unitColumns,
+      ...partsColumns,
       pairedCount: pairedCountOf(),
     })
     .from(products)
@@ -237,6 +240,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         boxWeight: null,
         boxCount: null,
         pairedCount: 0,
+        parts: [],
         pairingShortPieces: null,
         lineNoteEnabled: false,
         lineNotePrompt: null,
@@ -308,6 +312,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       prices,
       availability: product.availability,
       pairedCount: product.pairedCount,
+      parts: product.parts,
       // Filled in once the whole cart is known: one line cannot answer it.
       pairingShortPieces: null,
       boxVolume: product.boxVolume,

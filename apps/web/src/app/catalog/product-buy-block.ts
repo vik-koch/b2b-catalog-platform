@@ -14,6 +14,7 @@ import { Input } from '../ui/input';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
+import { ProductSetBadge } from './product-set-badge';
 import { ProductUnitFacts } from './product-unit-facts';
 
 /**
@@ -41,6 +42,7 @@ import { ProductUnitFacts } from './product-unit-facts';
     ProductAvailabilityBadge,
     ProductBuyControls,
     ProductPairings,
+    ProductSetBadge,
     ProductUnitFacts,
   ],
   template: `
@@ -75,46 +77,62 @@ import { ProductUnitFacts } from './product-unit-facts';
         [offerPairings]="false"
         [canAdd]="canAdd()"
       >
-        <app-product-unit-facts class="mt-2" [packagingInfo]="packaging()" />
+        <!-- One column at one spacing, from the packaging facts to the
+             button: whichever of the three below a product has — none, one or
+             all of them — the gaps between them and the gap above the button
+             are the same 12px. Each used to bring its own margin, and the last
+             one sat 8px from the button because nothing knew it was last.
+             mb-1 because the button keeps its own mt-2, which it needs on a
+             card; the two come to the gap. -->
+        <div class="mt-2 mb-1 flex flex-col items-stretch gap-3">
+          <app-product-unit-facts [packagingInfo]="packaging()" />
 
-        <!-- After the packaging facts and before the note: it is one more
-             thing this product says about itself, and the note is the one
-             thing on this panel the customer writes. With the word rather than
-             the glyph alone — there is a line to spare here, and the panel it
-             opens is worth naming before it is pressed.
+          <!-- Straight under the packaging, because it is what the packaging
+               counts: "100 pcs" is a hundred cups with their lids. Above the
+               pairing link — what one piece is comes before what goes with
+               it. -->
+          @if (item().parts.length > 0) {
+            <app-product-set-badge
+              class="self-start"
+              variant="full"
+              [parts]="item().parts"
+            />
+          }
 
-             Where the product takes no note it is the last thing above the
-             button and gives itself the room the note would have had: on its
-             own it stood closer to the button than to the facts above it. -->
-        @if (item().pairedCount > 0) {
-          <app-product-pairings
-            class="mt-3"
-            variant="link"
-            [class.mb-3]="!item().lineNoteEnabled"
-            [slug]="item().slug"
-            [count]="item().pairedCount"
-          />
-        }
+          <!-- After the packaging facts and before the note: it is one more
+               thing this product says about itself, and the note is the one
+               thing on this panel the customer writes. With the word rather
+               than the glyph alone — there is a line to spare here, and the
+               panel it opens is worth naming before it is pressed. -->
+          @if (item().pairedCount > 0) {
+            <app-product-pairings
+              class="self-start"
+              variant="link"
+              [slug]="item().slug"
+              [count]="item().pairedCount"
+            />
+          }
 
-        @if (item().lineNoteEnabled) {
-          <!-- The product's question is the field's placeholder rather than a
-               line under it: it says what to write, and it is read while the
-               field is empty — the only time it has anything to say. -->
-          <label class="mt-3 block">
-            <span appFieldLabel>{{ text.noteLabel }}</span>
-            <textarea
-              appInput
-              appAutoGrow
-              rows="2"
-              class="w-full"
-              [attr.maxlength]="noteMax"
-              [attr.placeholder]="notePrompt()"
-              [value]="note()"
-              (input)="onNoteInput($event)"
-              (change)="saveNote()"
-            ></textarea>
-          </label>
-        }
+          @if (item().lineNoteEnabled) {
+            <!-- The product's question is the field's placeholder rather than
+                 a line under it: it says what to write, and it is read while
+                 the field is empty — the only time it has anything to say. -->
+            <label class="block">
+              <span appFieldLabel>{{ text.noteLabel }}</span>
+              <textarea
+                appInput
+                appAutoGrow
+                rows="2"
+                class="w-full"
+                [attr.maxlength]="noteMax"
+                [attr.placeholder]="notePrompt()"
+                [value]="note()"
+                (input)="onNoteInput($event)"
+                (change)="saveNote()"
+              ></textarea>
+            </label>
+          }
+        </div>
       </app-product-buy-controls>
     </div>
   `,

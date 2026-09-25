@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
   AttributeDefinition,
+  fillText,
   AttributeKeyUsage,
   ProductAttribute,
 } from '@b2b-catalog-platform/shared';
@@ -19,6 +20,7 @@ function render(
     keys?: AttributeKeyUsage[];
     definitions?: AttributeDefinition[];
     ownKeys?: string[];
+    parts?: string[];
   } = {},
 ) {
   TestBed.configureTestingModule({
@@ -33,6 +35,7 @@ function render(
   fixture.componentRef.setInput('knownKeys', catalog.keys ?? []);
   fixture.componentRef.setInput('definitions', catalog.definitions ?? []);
   fixture.componentRef.setInput('ownKeys', catalog.ownKeys ?? []);
+  fixture.componentRef.setInput('parts', catalog.parts ?? []);
   const emitted: ProductAttribute[][] = [];
   fixture.componentInstance.valueChange.subscribe((v) => {
     emitted.push(v);
@@ -415,6 +418,46 @@ describe('ProductAttributesEditor row badges', () => {
     });
 
     expect(h.marks(0)).toEqual([text.filterable]);
+  });
+
+  it('marks a row about one part of a set by its key (FR-CAT-10)', () => {
+    const h = render(
+      [
+        { key: 'Colour (cup)', value: 'black' },
+        { key: 'Colour (straw)', value: 'white' },
+      ],
+      { definitions: [declared('Colour')], parts: ['cup', 'lid'] },
+    );
+
+    expect(h.marks(0)).toEqual([text.filterable]);
+    // "straw" is not one of this product's parts: the row misses the Colour
+    // filter, and says so.
+    expect(h.marks(1)).toEqual([
+      fillText(text.strayPart, { part: 'straw', key: 'Colour' }),
+    ]);
+  });
+
+  it('reads a parenthesis as part of the key on a product that is no set', () => {
+    const h = render([{ key: 'Colour (cup)', value: 'black' }], {
+      definitions: [declared('Colour')],
+    });
+    expect(h.marks(0)).toEqual([]);
+  });
+
+  it('does not warn where the name before the parenthesis filters nothing', () => {
+    const h = render([{ key: 'Finish (Cup)', value: 'matt' }], {
+      parts: ['cup', 'lid'],
+    });
+    expect(h.marks(0)).toEqual([]);
+  });
+
+  it('does not warn about a key the rest of the catalog carries as it stands', () => {
+    const h = render([{ key: 'Volume (ml)', value: '300' }], {
+      keys: [known('Volume (ml)')],
+      definitions: [declared('Volume')],
+      parts: ['cup', 'lid'],
+    });
+    expect(h.marks(0)).toEqual([]);
   });
 
   it('shows a number attribute’s unit beside the value it measures', () => {

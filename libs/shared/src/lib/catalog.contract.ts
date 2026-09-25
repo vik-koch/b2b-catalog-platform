@@ -151,6 +151,9 @@ export const productListItemSchema = z
      * worth fetching only for the one product whose marker is pressed.
      */
     pairedCount: z.number().int().nonnegative(),
+    /** What one piece is made of where it is sold as a set (FR-CAT-10); empty
+     * for a product sold as itself. The marker is drawn from this alone. */
+    parts: z.array(z.string()),
   })
   .strict();
 export type ProductListItem = z.infer<typeof productListItemSchema>;
@@ -275,6 +278,8 @@ export const productDetailSchema = z
      * worth fetching only for the one product whose marker is pressed.
      */
     pairedCount: z.number().int().nonnegative(),
+    /** What one piece is made of where it is sold as a set (FR-CAT-10). */
+    parts: z.array(z.string()),
     /**
      * The documents shown on this product (FR-DOC-03), soonest expiry first.
      * Expired ones are absent: a certificate that has run out is work for the

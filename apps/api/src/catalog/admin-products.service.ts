@@ -26,7 +26,10 @@ import {
   LinkedDocument,
   PairedProduct,
   parseAttributeNumber,
+  joinAttributeKey,
+  PartKey,
   ProductAttribute,
+  splitAttributeKey,
   productAvailability,
   ProductAvailability,
   ProductInput,
@@ -61,6 +64,7 @@ import {
 import { adminProductOrderBy } from './product-sort';
 import {
   availabilityColumns,
+  partsColumns,
   noteColumns,
   toUnpricedListItem,
   unitColumns,
@@ -119,6 +123,7 @@ const adminProductWriteColumns = {
   stockPieces: products.stockPieces,
   lowStockThresholdPieces: products.lowStockThresholdPieces,
   availability: products.availability,
+  parts: products.parts,
 } as const;
 
 /** The same shape as a read sees it — the default list's price included. */
@@ -150,6 +155,7 @@ type ProductRow = {
   stockPieces: number | null;
   lowStockThresholdPieces: number | null;
   availability: ProductAvailability | null;
+  parts: string[];
 };
 
 /**
@@ -362,6 +368,7 @@ export class AdminProductsService {
             images: input.images,
             lineNoteEnabled: input.lineNoteEnabled,
             lineNotePrompt: input.lineNotePrompt,
+            parts: input.parts,
             updatedBy: actorId,
             ...packagingValues(input),
             ...this.stockValues(input),
@@ -370,7 +377,7 @@ export class AdminProductsService {
       );
       await this.writeDefaultPrice(tx, row[0].id, input.priceMinor);
       await this.replaceTierPrices(tx, row[0].id, input.tierPrices);
-      const attributes = storedAttributes(input.attributes);
+      const attributes = storedAttributes(input.attributes, input.parts);
       await this.replaceAttributes(tx, row[0].id, attributes);
       await this.replacePairings(
         tx,
@@ -432,6 +439,7 @@ export class AdminProductsService {
             images: input.images,
             lineNoteEnabled: input.lineNoteEnabled,
             lineNotePrompt: input.lineNotePrompt,
+            parts: input.parts,
             sourceId: newSourceId,
             updatedAt: new Date(),
             updatedBy: actorId,
@@ -450,7 +458,7 @@ export class AdminProductsService {
       );
       await this.writeDefaultPrice(tx, existing.id, input.priceMinor);
       await this.replaceTierPrices(tx, existing.id, input.tierPrices);
-      const attributes = storedAttributes(input.attributes);
+      const attributes = storedAttributes(input.attributes, input.parts);
       await this.replaceAttributes(tx, existing.id, attributes);
       await this.replacePairings(
         tx,
@@ -599,6 +607,7 @@ export class AdminProductsService {
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
+        ...partsColumns,
         pairedCount: pairedCountOf(),
       })
       .from(products)
@@ -765,10 +774,11 @@ export class AdminProductsService {
    * A product's attributes in the grid's row order. `sortOrder` is data, so it
    * has to be asked for — array position no longer carries the order.
    */
-  private async attributesFor(productId: string): Promise<ProductAttribute[]> {
+  private async attributesFor(productId: string): Promise<StoredAttribute[]> {
     return this.db
       .select({
         key: productAttributes.key,
+        part: productAttributes.part,
         value: productAttributes.value,
       })
       .from(productAttributes)
@@ -788,7 +798,7 @@ export class AdminProductsService {
   private async replaceAttributes(
     tx: NodePgDatabase<typeof schema>,
     productId: string,
-    entries: ProductAttribute[],
+    entries: StoredAttribute[],
   ): Promise<void> {
     await tx
       .delete(productAttributes)
@@ -802,6 +812,7 @@ export class AdminProductsService {
           productId,
           sortOrder: index,
           key: entry.key,
+          part: entry.part,
           value: entry.value,
           valueNumeric: numeric === null ? null : String(numeric),
         };
@@ -1018,10 +1029,27 @@ export class AdminProductsService {
  * key picker adds a row per name picked — so they are dropped, not refused, the
  * same way a row with no key is.
  */
-function storedAttributes(entries: ProductAttribute[]): ProductAttribute[] {
+function storedAttributes(
+  entries: ProductAttribute[],
+  parts: readonly string[],
+): StoredAttribute[] {
   // Both sides arrive trimmed from the contract.
-  return entries.filter((entry) => entry.key !== '' && entry.value !== '');
+  return entries
+    .filter((entry) => entry.key !== '' && entry.value !== '')
+    .map((entry) => ({
+      ...splitAttributeKey(entry.key, parts),
+      value: entry.value,
+    }));
 }
+
+/**
+ * An attribute row as stored: "Colour (cup)" on a product sold as a cup and a
+ * lid is key "Colour", part "cup" (FR-CAT-10), so it filters as Colour. The
+ * split is worked out again from the written key on every save, so dropping a
+ * part turns its rows back into plain keys rather than leaving them pointing
+ * at nothing.
+ */
+type StoredAttribute = PartKey & { value: string };
 
 /**
  * The counterparts as the contract serializes them. The resolved rows carry the
@@ -1056,7 +1084,7 @@ function canonicalPair(
 function toAdminProduct(
   row: ProductRow,
   tierPrices: ProductTierPrice[],
-  attributes: ProductAttribute[],
+  attributes: StoredAttribute[],
   pairings: PairedProduct[],
   documents: LinkedDocument[],
 ): AdminProduct {
@@ -1067,7 +1095,12 @@ function toAdminProduct(
     categoryId: row.categoryId,
     sourceId: row.sourceId,
     descriptionHtml: row.descriptionHtml,
-    attributes,
+    // Written back as the admin typed it, so a save round-trips unchanged.
+    attributes: attributes.map((entry) => ({
+      key: joinAttributeKey(entry),
+      value: entry.value,
+    })),
+    parts: row.parts,
     images: row.images,
     tierPrices,
     pairings,

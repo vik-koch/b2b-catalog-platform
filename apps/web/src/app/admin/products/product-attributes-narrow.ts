@@ -14,8 +14,10 @@ import {
   signal,
 } from '@angular/core';
 import {
+  fillText,
   PRODUCT_ATTRIBUTES_MAX,
   ProductAttribute,
+  strayPart,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
@@ -27,7 +29,11 @@ import { Icon } from '../../ui/icons/icon';
 import { Input } from '../../ui/input';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
-import { AttributeHint, attributeRowStatus } from './attribute-hints';
+import {
+  AttributeHint,
+  attributeRowKey,
+  attributeRowStatus,
+} from './attribute-hints';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
@@ -145,6 +151,11 @@ import { AttributeHint, attributeRowStatus } from './attribute-hints';
                    shop filters by this name. Beside the key, because it is the
                    *key* that is filterable — pushed to the far end of the row
                    it read as a property of the buttons under it. -->
+              @if (strayLabel(row); as label) {
+                <app-hint-badge tone="warning" [label]="label">
+                  <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+                </app-hint-badge>
+              }
               @if (isFilterable(row)) {
                 <app-hint-badge tone="neutral" [label]="text.filterable">
                   <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
@@ -214,6 +225,8 @@ export class ProductAttributesNarrow {
   /** What the rest of the catalog carries, for the badges — the same list the
    * key picker above is built from. */
   readonly hints = input<readonly AttributeHint[]>([]);
+  /** The product's parts (FR-CAT-10), as the desktop grid reads them. */
+  readonly parts = input<readonly string[]>([]);
 
   /** Which row is open as fields, if any. */
   protected readonly editing = signal<number | null>(null);
@@ -231,21 +244,37 @@ export class ProductAttributesNarrow {
     this.value().length > 0 ? this.value() : [{ key: '', value: '' }],
   );
 
+  private status(row: ProductAttribute) {
+    return attributeRowStatus(row, this.hintsByKey(), this.parts());
+  }
+
   protected isFilterable(row: ProductAttribute): boolean {
-    const status = attributeRowStatus(row, this.hintsByKey());
+    const status = this.status(row);
     return status === 'filterable' || status === 'not-numeric';
+  }
+
+  /** The stray-part warning's wording, or null — see the desktop editor. */
+  protected strayLabel(row: ProductAttribute): string | null {
+    if (this.status(row) !== 'stray-part') return null;
+    const stray = strayPart(row.key, this.parts());
+    return stray
+      ? fillText(this.text.strayPart, {
+          part: stray.part ?? '',
+          key: stray.key,
+        })
+      : null;
   }
 
   /** The declared unit, or `'not-numeric'` — see the desktop editor. */
   protected valueMark(row: ProductAttribute): string | null {
-    if (attributeRowStatus(row, this.hintsByKey()) === 'not-numeric') {
-      return 'not-numeric';
-    }
+    if (this.status(row) === 'not-numeric') return 'not-numeric';
     return this.unitOf(row);
   }
 
   protected unitOf(row: ProductAttribute): string | null {
-    return this.hintsByKey().get(row.key.trim())?.unit ?? null;
+    return (
+      this.hintsByKey().get(attributeRowKey(row, this.parts()))?.unit ?? null
+    );
   }
 
   protected open(index: number): void {

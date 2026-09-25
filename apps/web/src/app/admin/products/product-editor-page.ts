@@ -7,6 +7,7 @@ import {
   CatalogImage,
   CustomerTier,
   fillText,
+  isValidPartList,
   minimumFitsPacks,
   piecesPerUnit,
   PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH,
@@ -20,6 +21,7 @@ import {
   ProductInput,
   lowStockThreshold,
   slugify,
+  splitAttributeKey,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
 import {
@@ -55,6 +57,7 @@ import { injectEditorReturn } from '../editor-return';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
+import { ProductPartsEditor } from './product-parts-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { ProductDocumentsEditor } from '../documents/product-documents-editor';
 import { ProductPairingsEditor } from './product-pairings-editor';
@@ -87,6 +90,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     ProductAvailabilityBadge,
     CategoryPicker,
     ProductAttributesEditor,
+    ProductPartsEditor,
     ProductPackagingEditor,
     ProductDocumentsEditor,
     ProductPairingsEditor,
@@ -315,12 +319,20 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           />
         </div>
 
+        <!-- Above the attributes, because it changes how they read: a row
+             named "Colour (cup)" is about one of the parts named here. -->
+        <app-product-parts-editor
+          [value]="parts()"
+          (valueChange)="parts.set($event)"
+        />
+
         <div>
           <app-product-attributes-editor
             [value]="attributes()"
             [knownKeys]="attributeKeys()"
             [definitions]="attributeDefinitions()"
             [ownKeys]="ownAttributeKeys()"
+            [parts]="parts()"
             (valueChange)="attributes.set($event)"
           />
         </div>
@@ -610,6 +622,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly documents = signal<LinkedDocument[]>([]);
   protected readonly lineNoteEnabled = signal(false);
   protected readonly lineNotePrompt = signal('');
+  /** What one piece is made of, where it is sold as a set (FR-CAT-10). */
+  protected readonly parts = signal<string[]>([]);
+  protected readonly partsValid = computed(() => isValidPartList(this.parts()));
   /** Kept as strings like the packaging drafts, so a half-typed or
    * deliberately blank figure is not thrown away between keystrokes. */
   protected readonly stockPieces = signal('');
@@ -707,9 +722,10 @@ export class ProductEditorPage implements UnsavedChangesAware {
   }
 
   /** The declared unit for an attribute key, matched as the server matches it:
-   * exactly, apart from surrounding whitespace (FR-ATTR-02). */
+   * exactly, apart from surrounding whitespace (FR-ATTR-02), and without the
+   * part a set's row names (FR-CAT-10). */
   private unitFor(key: string): string | null {
-    const name = key.trim();
+    const name = splitAttributeKey(key, this.parts()).key;
     return (
       this.attributeDefinitions().find((d) => d.name === name)?.unit ?? null
     );
@@ -826,6 +842,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       pairedCount: this.pairings().filter(
         (paired) => !paired.deleted && !paired.unpublished,
       ).length,
+      // Only a list that would save: a half-typed one would draw a marker the
+      // storefront will never show.
+      parts: this.partsValid() ? this.parts() : [],
       // The preview lists no documents: what this form holds is a set of
       // links, not the files behind them, and the section is drawn from the
       // stored file's URL and size. It appears on the saved page.
@@ -903,7 +922,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.sourceId.set(product.sourceId);
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
-      this.ownAttributeKeys.set(product.attributes.map((a) => a.key));
+      this.parts.set(product.parts);
+      // The names the rest of the catalog counts: "Colour", not "Colour (cup)".
+      this.ownAttributeKeys.set(
+        product.attributes.map(
+          (a) => splitAttributeKey(a.key, product.parts).key,
+        ),
+      );
       this.images.set(product.images);
       this.published.set(product.publishedAt !== null);
       this.deleted.set(product.deletedAt !== null);
@@ -976,6 +1001,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       packaging: this.packaging(),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt(),
+      parts: this.parts(),
       stockPieces: this.stockPieces(),
       lowStockThresholdPieces: this.lowStockThresholdInput(),
     });
@@ -1080,6 +1106,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
       tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
 
+    if (!this.partsValid()) return this.error.set(this.text.parts.tooFew);
+
     const packaging = this.packagingInput();
     if (packaging === null) return this.error.set(this.text.packaging.invalid);
     if (!minimumFitsPacks(packaging)) {
@@ -1104,6 +1132,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // Half-filled rows are dropped: a value with no name is meaningless, and
       // a name with no value states nothing.
       attributes: this.storedAttributes(),
+      parts: this.parts(),
       images: this.images(),
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".

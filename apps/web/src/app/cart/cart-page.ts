@@ -601,6 +601,7 @@ export class CartPage {
           lineNoteEnabled: line.noteEnabled,
           lineNotePrompt: line.notePrompt,
           pairedCount: line.pairedCount,
+          parts: line.parts,
           images: line.image ? [line.image] : [],
         },
         name: line.name,

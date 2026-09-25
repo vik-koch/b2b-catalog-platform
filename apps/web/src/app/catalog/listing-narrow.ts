@@ -29,8 +29,11 @@ export const NARROW_PHOTO_IN_GRID =
 export const NARROW_PHOTO_IN_LINE =
   '@max-[38rem]/line:w-auto @max-[38rem]/line:min-w-16 @max-[38rem]/line:max-w-48 @max-[38rem]/line:flex-1 @max-[38rem]/line:shrink @max-[38rem]/line:self-start';
 
-export const NARROW_BODY_IN_GRID = '@max-[38rem]/listing:min-w-52';
-export const NARROW_BODY_IN_LINE = '@max-[38rem]/line:min-w-52';
+/** 13.5rem — what the buying controls take in a card, so the narrow shape
+ * gives the body exactly the room every other shape does and nothing drawn
+ * for a card has to be drawn again for a phone. */
+export const NARROW_BODY_IN_GRID = '@max-[38rem]/listing:min-w-54';
+export const NARROW_BODY_IN_LINE = '@max-[38rem]/line:min-w-54';
 
 export const NARROW_PADDING_IN_GRID = '@max-[38rem]/listing:py-4';
 export const NARROW_PADDING_IN_LINE = '@max-[38rem]/line:py-4';

@@ -33,6 +33,11 @@ import {
   ATTRIBUTE_VALUE_MAX_LENGTH,
 } from './attribute-value';
 import { PRODUCT_AVAILABILITIES } from './product-availability';
+import {
+  isValidPartList,
+  PRODUCT_PART_MAX_LENGTH,
+  PRODUCT_PARTS_MAX,
+} from './product-parts';
 import { slugSchema } from './slug';
 
 /**
@@ -128,6 +133,19 @@ export const productInputSchema = z
     attributes: z
       .array(attributeInputSchema)
       .max(PRODUCT_ATTRIBUTES_MAX)
+      .default([]),
+    /**
+     * The parts one piece is made of, where it is sold as a set (FR-CAT-10):
+     * none, or two to three distinct short words. An attribute key naming one
+     * of them in parentheses — "Colour (cup)" — is stored against that part.
+     */
+    parts: z
+      .array(z.string().trim().max(PRODUCT_PART_MAX_LENGTH))
+      .max(PRODUCT_PARTS_MAX)
+      .refine(
+        isValidPartList,
+        'A set names two or three distinct parts, without + or parentheses',
+      )
       .default([]),
     /** Ordered gallery; array order is display order. Each is a stored
      * `{ full, thumb }` media pair (ADR 0021/0022). */
@@ -270,7 +288,9 @@ export const adminProductSchema = z
     categoryId: z.uuid(),
     sourceId: z.string(),
     descriptionHtml: z.string(),
+    /** Keys as written — "Colour (cup)" — so a save sends them back unchanged. */
     attributes: z.array(productAttributeSchema),
+    parts: z.array(z.string()),
     images: z.array(catalogImageSchema),
     /** Only the tiers priced away from the default list; never it. */
     tierPrices: z.array(productTierPriceSchema),

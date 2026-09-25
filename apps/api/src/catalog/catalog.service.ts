@@ -18,6 +18,7 @@ import {
   Facet,
   CategoryNode,
   isoToday,
+  joinAttributeKey,
   ProductDetailAttribute,
   ProductDetail,
   PublicDocument,
@@ -65,6 +66,7 @@ import {
   packagingOf,
   publiclyVisible,
   availabilityColumns,
+  partsColumns,
   toListItem,
   noteColumns,
   unitColumns,
@@ -199,6 +201,7 @@ export class CatalogService {
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
+        ...partsColumns,
         pairedCount: pairedCountOf(),
       })
       .from(products)
@@ -284,6 +287,7 @@ export class CatalogService {
           ...unitColumns,
           ...noteColumns,
           ...availabilityColumns,
+          ...partsColumns,
           pairedCount: pairedCountOf(),
         })
         .from(products)
@@ -445,6 +449,7 @@ export class CatalogService {
     const rows = await this.db
       .select({
         key: productAttributes.key,
+        part: productAttributes.part,
         value: productAttributes.value,
         numeric: productAttributes.valueNumeric,
         unit: attributeDefinitions.unit,
@@ -460,7 +465,9 @@ export class CatalogService {
       .orderBy(asc(productAttributes.sortOrder));
 
     return rows.map((row) => ({
-      key: row.key,
+      // As the admin wrote it: the part qualifies the row on the page, and
+      // the join above matched on the key alone (FR-CAT-10).
+      key: joinAttributeKey(row),
       value: row.value,
       unit: row.unit,
       // Only where a facet would actually offer this value: a number
@@ -509,6 +516,7 @@ export class CatalogService {
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
+        ...partsColumns,
         pairedCount: pairedCountOf(),
       })
       .from(productPairings)
@@ -538,6 +546,7 @@ export class CatalogService {
         lineNotePrompt: products.lineNotePrompt,
         ...unitColumns,
         ...availabilityColumns,
+        ...partsColumns,
         pairedCount: pairedCountOf(),
       })
       .from(products)
@@ -571,6 +580,7 @@ export class CatalogService {
       lineNotePrompt: product.lineNotePrompt,
       availability: product.availability,
       pairedCount: product.pairedCount,
+      parts: product.parts,
       documents: documentRows,
       category: {
         slug: category.slug,

@@ -44,6 +44,7 @@ const PRODUCT_KEYS = [
   'name',
   'packsPerBox',
   'pairings',
+  'parts',
   'piecesPerPack',
   'priceMinor',
   'publishedAt',
@@ -876,6 +877,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'name',
         'packaging',
         'pairedCount',
+        'parts',
         'priceMinor',
         'prices',
         'slug',
@@ -1086,6 +1088,74 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('parts of a set (FR-CAT-10)', () => {
+    it('stores a part-qualified key split, and reads it back as written', async () => {
+      const res = await createProduct({
+        name: `Cup with lid ${R}`,
+        parts: ['cup', 'lid'],
+        attributes: [
+          { key: 'Colour (cup)', value: 'Black' },
+          { key: 'Colour(lid)', value: 'White' },
+          // Not a part of this product: a key like any other.
+          { key: 'Volume (ml)', value: '300' },
+        ],
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data.parts).toEqual(['cup', 'lid']);
+      expect(res.data.attributes).toEqual([
+        { key: 'Colour (cup)', value: 'Black' },
+        { key: 'Colour (lid)', value: 'White' },
+        { key: 'Volume (ml)', value: '300' },
+      ]);
+
+      const { rows } = await client.query(
+        `SELECT a.key, a.part FROM product_attributes a
+           JOIN products p ON p.id = a."productId"
+          WHERE p.slug = $1 ORDER BY a."sortOrder"`,
+        [res.data.slug],
+      );
+      expect(rows).toEqual([
+        { key: 'Colour', part: 'cup' },
+        { key: 'Colour', part: 'lid' },
+        { key: 'Volume (ml)', part: null },
+      ]);
+
+      const read = await adminGet(`/admin/catalog/products/${res.data.slug}`);
+      expect(read.data.attributes).toEqual(res.data.attributes);
+    });
+
+    it('turns a row back into a plain key once its part is dropped', async () => {
+      const created = await createProduct({
+        name: `Cup losing its lid ${R}`,
+        parts: ['cup', 'lid'],
+        attributes: [{ key: 'Colour (lid)', value: 'White' }],
+      });
+      const res = await put(`/admin/catalog/products/${created.data.slug}`, {
+        name: created.data.name,
+        priceMinor: 1234,
+        categoryId: parentId,
+        parts: [],
+        attributes: created.data.attributes,
+      });
+
+      expect(res.status).toBe(200);
+      const { rows } = await client.query(
+        `SELECT a.key, a.part FROM product_attributes a
+           JOIN products p ON p.id = a."productId" WHERE p.slug = $1`,
+        [created.data.slug],
+      );
+      expect(rows).toEqual([{ key: 'Colour (lid)', part: null }]);
+    });
+
+    it('refuses a single part, a repeated one, or one with parentheses', async () => {
+      for (const parts of [['cup'], ['cup', 'cup'], ['cup (large)', 'lid']]) {
+        const res = await createProduct({ name: `Bad set ${R}`, parts });
+        expect(res.status).toBe(400);
+      }
+    });
+  });
+
   describe('sold-together pairings (FR-SET-01)', () => {
     /** The counterpart list as the editor reads it back, in name order. */
     const pairedSlugs = (data: { pairings: { slug: string }[] }) =>
@@ -1252,6 +1322,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'name',
         'packaging',
         'pairedCount',
+        'parts',
         'priceMinor',
         'prices',
         'slug',

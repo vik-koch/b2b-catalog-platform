@@ -140,6 +140,9 @@ export const cartPreviewLineSchema = z
      * for a product that is gone.
      */
     pairedCount: z.number().int().nonnegative(),
+    /** What one piece is made of where it is sold as a set (FR-CAT-10), so the
+     * line wears the card's marker; empty for a product that is gone. */
+    parts: z.array(z.string()),
     /**
      * How many pieces of cover this line is missing (FR-SET-02/03), or null
      * where it is satisfied — which includes every product that is sold with

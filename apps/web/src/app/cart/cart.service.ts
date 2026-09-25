@@ -136,6 +136,14 @@ export interface CartStoredLine {
    * has priced yet.
    */
   pairingShortPieces: number | null;
+  /**
+   * What one piece is made of where the product is sold as a set (FR-CAT-10) —
+   * the marker the line wears, as the card it was added from did.
+   *
+   * Empty for a cart written before this was recorded, which reads as no
+   * marker until the next pricing says otherwise.
+   */
+  parts: string[];
 }
 
 /** The whole cart as it is written down: the lines, and whose prices they were
@@ -204,6 +212,8 @@ export interface CartAddition {
   /** How many products the view it was added from said this one is sold with
    * (FR-SET-05) — the line wears the marker from the first frame. */
   pairedCount: number;
+  /** What the view it was added from said one piece is made of (FR-CAT-10). */
+  parts: string[];
 }
 
 /** `full` when the cart already holds as many lines as may be priced in one
@@ -399,6 +409,7 @@ export class CartService {
           availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
           pairedCount: addition.pairedCount,
+          parts: addition.parts,
           // Nobody has checked the cart against its pairings yet, and this
           // line is the reason the answer would change: the first preview
           // says it.
@@ -422,6 +433,7 @@ export class CartService {
           availability: addition.availability,
           notePrompt: addition.lineNotePrompt,
           pairedCount: addition.pairedCount,
+          parts: addition.parts,
           ...priceLine(addition, pieces),
         }),
       );
@@ -455,6 +467,7 @@ export class CartService {
         availability: addition.availability,
         notePrompt: addition.lineNotePrompt,
         pairedCount: addition.pairedCount,
+        parts: addition.parts,
         ...priceLine(addition, addition.pieces),
       }),
     );
@@ -548,6 +561,9 @@ export class CartService {
         noteEnabled: fresh.lineNoteEnabled,
         notePrompt: fresh.lineNotePrompt,
         pairedCount: fresh.pairedCount,
+        // Kept where the product is gone, like the photo: what the line was is
+        // still what it was.
+        parts: fresh.name === null ? line.parts : fresh.parts,
         // Taken as answered, not kept: an unavailable line is short of
         // nothing, and there is nothing in the last figure worth showing over
         // a newer one that says so.
@@ -640,6 +656,7 @@ export class CartService {
           .map(withStockState)
           .map(withPairedCount)
           .map(withPairingShortfall)
+          .map(withParts)
           .filter(isStoredLine)
           .slice(0, CART_LINES_MAX),
         pricedFor: readPricedFor(parsed.pricedFor),
@@ -737,6 +754,17 @@ function withPairedCount(line: unknown): unknown {
     : { ...candidate, pairedCount: 0 };
 }
 
+/** Fills in a line stored before the parts were written down. Empty is "no
+ * marker", which is also what a product sold as itself answers. */
+function withParts(line: unknown): unknown {
+  const candidate = line as { parts?: unknown } | null;
+  if (!candidate || typeof candidate !== 'object') return line;
+  return Array.isArray(candidate.parts) &&
+    candidate.parts.every((part) => typeof part === 'string')
+    ? candidate
+    : { ...candidate, parts: [] };
+}
+
 /** Fills in a line stored before the shortfall was written down. Null is
  * "nobody has checked", which is also what a covered line answers — so a cart
  * in a browser today warns about nothing until the first pricing of the visit
@@ -763,6 +791,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.availability === b.availability &&
     a.pairedCount === b.pairedCount &&
     a.pairingShortPieces === b.pairingShortPieces &&
+    same(a.parts, b.parts) &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&
