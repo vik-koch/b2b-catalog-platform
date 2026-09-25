@@ -6,6 +6,7 @@ import {
   descendantIds,
   directChildren,
   stockedCategoryIds,
+  subtreeCounts,
 } from './catalog-tree';
 
 const cat = (
@@ -108,6 +109,31 @@ describe('catalog-tree', () => {
       { ...cat('b', 'b', 'a', 1) },
     ];
     expect(stockedCategoryIds(looped, ['a'])).toEqual(new Set(['a', 'b']));
+  });
+
+  it('counts a category with everything beneath it', () => {
+    const counts = subtreeCounts(
+      rows,
+      new Map([
+        ['cb', 1],
+        ['esp', 3],
+        ['fil', 2],
+      ]),
+    );
+    expect(counts.get('cb')).toBe(6);
+    expect(counts.get('esp')).toBe(3);
+    expect(counts.get('fil')).toBe(2);
+    expect(counts.has('tea')).toBe(false);
+  });
+
+  it('counts through a parent loop once rather than hanging on it', () => {
+    const looped: CategoryRow[] = [
+      cat('a', 'a', 'b', 0),
+      cat('b', 'b', 'a', 1),
+    ];
+    const counts = subtreeCounts(looped, new Map([['a', 2]]));
+    expect(counts.get('a')).toBe(2);
+    expect(counts.get('b')).toBe(2);
   });
 
   it('finds a category by slug', () => {

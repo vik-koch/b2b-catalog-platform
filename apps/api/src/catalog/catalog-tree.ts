@@ -54,10 +54,13 @@ export function categoryBySlug(
 }
 
 /**
- * The category and all its descendants (products live only on leaves, so a
- * parent page shows everything beneath it — Pattern A).
+ * The category and all its descendants: a parent page shows everything beneath
+ * it (Pattern A).
  */
-export function descendantIds(rootId: string, rows: CategoryRow[]): string[] {
+export function descendantIds(
+  rootId: string,
+  rows: Pick<CategoryRow, 'id' | 'parentId'>[],
+): string[] {
   const ids = new Set<string>([rootId]);
   let grew = true;
   while (grew) {
@@ -70,6 +73,31 @@ export function descendantIds(rootId: string, rows: CategoryRow[]): string[] {
     }
   }
   return [...ids];
+}
+
+/**
+ * Each category's products plus everything beneath it, the way the storefront
+ * listing scopes a category (FR-ADM-19): every direct count is added to its
+ * own category and to each ancestor up the chain. A broken chain stops the
+ * walk rather than looping — the reparent guards keep the tree acyclic, and
+ * this must not hang if they ever did not.
+ */
+export function subtreeCounts(
+  rows: { id: string; parentId: string | null }[],
+  direct: Map<string, number>,
+): Map<string, number> {
+  const parentOf = new Map(rows.map((r) => [r.id, r.parentId]));
+  const totals = new Map<string, number>();
+  for (const [categoryId, value] of direct) {
+    const seen = new Set<string>();
+    let current: string | null | undefined = categoryId;
+    while (current && parentOf.has(current) && !seen.has(current)) {
+      seen.add(current);
+      totals.set(current, (totals.get(current) ?? 0) + value);
+      current = parentOf.get(current);
+    }
+  }
+  return totals;
 }
 
 /** Breadcrumb ancestors of a category, root-first, excluding the category. */

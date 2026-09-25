@@ -24,6 +24,7 @@ const cat = (
   sourceId: 'manual:x',
   description: null,
   productCount: 0,
+  directProductCount: 0,
   childCount: 0,
 });
 

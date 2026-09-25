@@ -460,9 +460,8 @@ export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 
 /**
  * A category as the management screen sees it: the structural fields plus the
- * presentation overlay, and the two counts the delete guard needs — a category
- * with products or children cannot be removed (FK is `restrict`).
- * Returned as a flat list; the client shapes the tree (same as the read side).
+ * presentation overlay, and its counts. Returned as a flat list; the client
+ * shapes the tree (same as the read side).
  */
 export const adminCategorySchema = z
   .object({
@@ -480,7 +479,13 @@ export const adminCategorySchema = z
     shortName: z.string().nullable(),
     /** The chip mark (FR-CAT-07). */
     mark: catalogImageSchema.nullable(),
+    /** Everything beneath it, subcategories included — what the storefront
+     * listing shows under it (FR-ADM-19). Soft-deleted products count: this is
+     * the population the admin grid filtered by the category lists. */
     productCount: z.number().int().nonnegative(),
+    /** Only the products filed in it. With `childCount`, what the delete guard
+     * reads — a category with either cannot be removed (FK is `restrict`). */
+    directProductCount: z.number().int().nonnegative(),
     childCount: z.number().int().nonnegative(),
   })
   .strict();
