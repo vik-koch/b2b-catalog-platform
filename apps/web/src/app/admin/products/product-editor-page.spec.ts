@@ -48,6 +48,7 @@ const storedProduct: AdminProduct = {
   sourceId: 'manual:x',
   descriptionHtml: '<p>Dark.</p>',
   attributes: [],
+  parts: [],
   images: [],
   tierPrices: [],
   pairings: [],
@@ -452,6 +453,97 @@ describe('ProductEditorPage', () => {
         lineNoteEnabled: false,
         lineNotePrompt: null,
       });
+    });
+  });
+
+  describe('parts of a set (FR-CAT-10)', () => {
+    const partsText = text.parts;
+    const box = (el: HTMLElement) =>
+      el.querySelector<HTMLElement>('app-product-parts-editor')!;
+    const addField = (el: HTMLElement) =>
+      box(el).querySelector<HTMLInputElement>('input')!;
+
+    it('opens on a set, lists its parts and sends an added one back', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: { ...storedProduct, parts: ['cup', 'lid'] } },
+      );
+
+      const listed = [...box(el).querySelectorAll('li')].map((li) =>
+        li.textContent?.trim(),
+      );
+      expect(listed).toEqual(expect.arrayContaining(['cup', 'lid']));
+
+      setInput(addField(el), 'straw');
+      fixture.detectChanges();
+      buttonByText(box(el), partsText.addButton).click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        parts: ['cup', 'lid', 'straw'],
+      });
+    });
+
+    it('takes "cup + lid" in one go', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: storedProduct },
+      );
+
+      buttonByText(box(el), partsText.heading).click();
+      fixture.detectChanges();
+      setInput(addField(el), 'cup + lid');
+      fixture.detectChanges();
+      buttonByText(box(el), partsText.addButton).click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        parts: ['cup', 'lid'],
+      });
+    });
+
+    it('refuses a single part and says why', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: storedProduct },
+      );
+
+      buttonByText(box(el), partsText.heading).click();
+      fixture.detectChanges();
+      setInput(addField(el), 'cup');
+      fixture.detectChanges();
+      buttonByText(box(el), partsText.addButton).click();
+      fixture.detectChanges();
+      expect(el.textContent).toContain(partsText.tooFew);
+
+      saveButton(el).click();
+      await fixture.whenStable();
+      expect(h.updateProduct).not.toHaveBeenCalled();
+    });
+
+    it('refuses a part it already has, and adds nothing', async () => {
+      const { fixture, el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: { ...storedProduct, parts: ['cup', 'lid'] } },
+      );
+
+      setInput(addField(el), 'lid');
+      fixture.detectChanges();
+      buttonByText(box(el), partsText.addButton).click();
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain(
+        fillText(partsText.rejected, { max: 40 }),
+      );
+      expect(addField(el).value).toBe('lid');
     });
   });
 

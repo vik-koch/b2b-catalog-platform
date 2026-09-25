@@ -183,6 +183,17 @@
       "heading": "Images",
       "add": "Add images"
     },
+    "parts": {
+      "heading": "Sold as a set",
+      "hint": "Where one piece is several things sold together, such as a cup and its lid, name each part. An attribute written as “Colour (cup)” then filters as “Colour”.",
+      "add": "Add a part",
+      "addPlaceholder": "cup, or cup + lid",
+      "addButton": "Add",
+      "remove": "Remove “{name}”",
+      "limit": "A set can have up to {count} parts.",
+      "tooFew": "A set needs at least two parts.",
+      "rejected": "Each part must be new, at most {max} characters, and without +, ( or )."
+    },
     "lineNote": {
       "heading": "Line note",
       "hint": "For a product sold as one article in several variants.",

@@ -357,6 +357,25 @@ export const adminTextSchema = z
          * The per-line note a collective item may ask for (FR-CART-08) — the
          * policy, not the customer's text.
          */
+        /** The parts a product sold as a set is made of (FR-CAT-10). */
+        parts: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            /** The add field's label, and its placeholder. */
+            add: z.string(),
+            addPlaceholder: z.string(),
+            addButton: z.string(),
+            /** A part's remove button; `{name}` is the part. */
+            remove: z.string(),
+            /** Shown in place of the field once the list is full; `{count}`. */
+            limit: z.string(),
+            /** Under a list of one, and the save's refusal of it. */
+            tooFew: z.string(),
+            /** A refused add; `{max}` is the longest part allowed. */
+            rejected: z.string(),
+          })
+          .strict(),
         lineNote: z
           .object({
             heading: z.string(),
