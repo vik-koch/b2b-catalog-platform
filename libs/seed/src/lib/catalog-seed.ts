@@ -4,6 +4,7 @@ import {
   parseAttributeNumber,
   ProductAttribute,
   productAvailability,
+  splitAttributeKey,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import {
@@ -89,8 +90,8 @@ export async function seedCatalog(
       `INSERT INTO products
          ("sourceId", slug, name, "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume", "boxWeight",
-          "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, now())
+          "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, parts, "publishedAt")
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "categoryId" = EXCLUDED."categoryId",
@@ -104,6 +105,7 @@ export async function seedCatalog(
          "lineNotePrompt" = EXCLUDED."lineNotePrompt",
          "stockPieces" = EXCLUDED."stockPieces",
          availability = EXCLUDED.availability,
+         parts = EXCLUDED.parts,
          -- The demo catalog is meant to be on the storefront; a re-seed of an
          -- unpublished row puts it back.
          "publishedAt" = EXCLUDED."publishedAt"
@@ -125,6 +127,7 @@ export async function seedCatalog(
         product.lineNotePrompt ?? null,
         stockPieces,
         availability,
+        product.parts ?? [],
       ],
     );
 
@@ -137,7 +140,12 @@ export async function seedCatalog(
       [productRows[0].id, product.priceMinor],
     );
 
-    await seedProductAttributes(client, productRows[0].id, product.attributes);
+    await seedProductAttributes(
+      client,
+      productRows[0].id,
+      product.attributes,
+      product.parts ?? [],
+    );
   }
 
   await seedAttributeDefinitions(client);
@@ -199,17 +207,21 @@ async function seedProductAttributes(
   client: Client,
   productId: string,
   attributes: ProductAttribute[],
+  parts: readonly string[],
 ): Promise<void> {
   await client.query('DELETE FROM product_attributes WHERE "productId" = $1', [
     productId,
   ]);
   for (const [index, attribute] of attributes.entries()) {
     const numeric = parseAttributeNumber(attribute.value);
+    // Split as the admin save splits it, so a seeded set filters the way an
+    // edited one does.
+    const { key, part } = splitAttributeKey(attribute.key, parts);
     await client.query(
       `INSERT INTO product_attributes
-         ("productId", "sortOrder", key, value, "valueNumeric")
-       VALUES ($1, $2, $3, $4, $5)`,
-      [productId, index, attribute.key, attribute.value, numeric],
+         ("productId", "sortOrder", key, part, value, "valueNumeric")
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [productId, index, key, part, attribute.value, numeric],
     );
   }
 }
