@@ -288,6 +288,13 @@
       "when": 1790250494281,
       "tag": "0040_drop_category_image",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1790328481910,
+      "tag": "0041_product_parts",
+      "breakpoints": true
     }
   ]
 }

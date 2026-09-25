@@ -191,6 +191,13 @@ export const products = pgTable(
     // What to ask for, since the reason for the note differs per product
     // ("state the colour"). Null falls back to the app-wide wording.
     lineNotePrompt: varchar('lineNotePrompt', { length: 200 }),
+    // The parts one piece is made of, where it is sold as a set (FR-CAT-10):
+    // none, or two to three short words. Admin-owned like the note above; it
+    // marks the product and qualifies its attributes, and sells nothing.
+    parts: text('parts')
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
     // Ordered gallery, each with a full and a thumb media-store URL. The
     // media-prune reference scan must include these URLs (and categories.mark)
     // so seeded/uploaded images are not swept.
@@ -317,6 +324,10 @@ export const productAttributes = pgTable(
     sortOrder: integer('sortOrder').notNull(),
     key: varchar('key', { length: 200 }).notNull(),
     value: varchar('value', { length: 2000 }).notNull(),
+    // Which of the product's parts the row describes — "Colour (cup)" is
+    // stored as key "Colour", part "cup", so it filters as Colour. Null for a
+    // row about the whole product.
+    part: varchar('part', { length: 40 }),
     valueNumeric: numeric('valueNumeric', { precision: 18, scale: 6 }),
   },
   (t) => [
