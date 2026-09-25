@@ -20,6 +20,7 @@ function addition(): CartAddition {
     lineNoteEnabled: false,
     lineNotePrompt: null,
     pairedCount: 0,
+    parts: [],
     availability: null,
     prices: {
       piece: 1200,
@@ -48,6 +49,7 @@ function preview(lineTotalMinor: number | null = 6500): CartPreview {
         lineNoteEnabled: false,
         lineNotePrompt: null,
         pairedCount: 0,
+        parts: [],
         pairingShortPieces: null,
         availability: null,
         prices: {

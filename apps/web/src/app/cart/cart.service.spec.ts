@@ -25,6 +25,7 @@ function pieceAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     lineNoteEnabled: false,
     lineNotePrompt: null,
     pairedCount: 0,
+    parts: [],
     availability: null,
     prices: {
       piece: 1250,
@@ -53,6 +54,7 @@ function packAddition(overrides: Partial<CartAddition> = {}): CartAddition {
     lineNoteEnabled: false,
     lineNotePrompt: null,
     pairedCount: 0,
+    parts: [],
     availability: null,
     prices: {
       piece: 1200,
@@ -412,6 +414,7 @@ describe('CartService', () => {
           lineNoteEnabled: false,
           lineNotePrompt: null,
           pairedCount: 0,
+          parts: [],
           pairingShortPieces: null,
           availability: null,
           prices: {

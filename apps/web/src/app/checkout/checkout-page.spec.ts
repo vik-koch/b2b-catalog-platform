@@ -44,6 +44,7 @@ function addition(): CartAddition {
     lineNoteEnabled: false,
     lineNotePrompt: null,
     pairedCount: 0,
+    parts: [],
     availability: null,
     prices: {
       piece: 1200,
