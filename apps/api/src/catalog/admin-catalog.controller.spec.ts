@@ -43,6 +43,7 @@ describe('AdminCatalogController', () => {
     description: null,
     shortName: null,
     productCount: 0,
+    directProductCount: 0,
     childCount: 0,
   };
 

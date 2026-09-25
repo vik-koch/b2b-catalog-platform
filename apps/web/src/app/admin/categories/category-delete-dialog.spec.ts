@@ -26,6 +26,7 @@ function cat(over: Partial<AdminCategory>): AdminCategory {
     sourceId: 'manual:x',
     description: null,
     productCount: 0,
+    directProductCount: 0,
     childCount: 0,
     ...over,
   };
@@ -79,7 +80,12 @@ describe('CategoryDeleteDialog', () => {
   });
 
   it('asks for a reassign destination when the category has products', async () => {
-    const self = cat({ id: 's', slug: 'roasts', productCount: 5 });
+    const self = cat({
+      id: 's',
+      slug: 'roasts',
+      productCount: 5,
+      directProductCount: 5,
+    });
     const other = cat({ id: 'o', slug: 'other' });
     const { ci } = await render([self, other], self);
 
@@ -96,7 +102,12 @@ describe('CategoryDeleteDialog', () => {
   });
 
   it('deletes with the chosen reassign target and emits deleted', async () => {
-    const self = cat({ id: 's', slug: 'roasts', productCount: 5 });
+    const self = cat({
+      id: 's',
+      slug: 'roasts',
+      productCount: 5,
+      directProductCount: 5,
+    });
     const other = cat({ id: 'o', slug: 'other' });
     const { fixture, ci, deleteCategory } = await render([self, other], self);
     const deleted = vi.fn();

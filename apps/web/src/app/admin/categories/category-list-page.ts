@@ -244,6 +244,30 @@ const EDGE_SLACK = 24;
                         } @else {
                           <span>{{ text.noProducts }}</span>
                         }
+                        <!-- The ones filed in a parent rather than in one of
+                             its children, which the count above hides among
+                             everything beneath it. Only where there are both:
+                             in a leaf it would repeat the count. -->
+                        @if (
+                          node.category.childCount &&
+                          node.category.directProductCount
+                        ) {
+                          <a
+                            appLink
+                            routerLink="/admin/products"
+                            [queryParams]="{
+                              categoryId: node.category.id,
+                              categoryScope: 'direct',
+                            }"
+                            [title]="text.editProducts"
+                          >
+                            {{
+                              directProductsLabel(
+                                node.category.directProductCount
+                              )
+                            }}
+                          </a>
+                        }
                       </ng-container>
                       <ng-container recordActions>
                         <a
@@ -339,6 +363,10 @@ export class CategoryListPage {
 
   protected productsLabel(count: number): string {
     return fillText(this.text.products, { count });
+  }
+
+  protected directProductsLabel(count: number): string {
+    return fillText(this.text.directProducts, { count });
   }
 
   private readonly list = viewChild<ElementRef<HTMLElement>>('list');

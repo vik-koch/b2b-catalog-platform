@@ -190,6 +190,8 @@ export class AdminCatalogService {
 export interface ProductGridQuery {
   page?: number;
   categoryId?: string;
+  /** `direct` leaves out the category's subcategories (FR-ADM-19). */
+  categoryScope?: 'subtree' | 'direct';
   state?: AdminProductState;
   /** One of the three stock states (FR-STOCK-02); absent is any. */
   availability?: ProductAvailability;

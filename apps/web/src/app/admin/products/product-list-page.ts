@@ -48,6 +48,10 @@ import { TiersService } from '../tiers/tiers.service';
 import { ProductDeleteDialog } from './product-delete-dialog';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
 
+/** Marks the category filter's "without subcategories" option. A category id
+ * is a uuid, so it can never end this way on its own. */
+const DIRECT_SUFFIX = ':direct';
+
 /**
  * The admin product list: every product including soft-deleted ones
  * (which the storefront never shows), each with edit and delete/restore actions.
@@ -362,8 +366,15 @@ export class ProductListPage {
   );
 
   /** Not narrowed here — an unknown id is a uuid the API answers with an empty
-   * page, and anything that is not one fails contract validation. */
+   * page, and anything that is not one fails contract validation. The category
+   * covers everything beneath it, as the storefront listing does (FR-ADM-19). */
   readonly categoryId = input('');
+  /** `direct` narrows the category to the products filed in it, leaving out
+   * its subcategories'; anything else is the whole subtree. */
+  readonly categoryScope = input('');
+  protected readonly categoryDirect = computed(
+    () => !!this.categoryId() && this.categoryScope() === 'direct',
+  );
 
   /**
    * Where the attribute inventory drills down to (FR-ATTR-09): the products
@@ -467,16 +478,47 @@ export class ProductListPage {
     () => new Map((this.categories.value() ?? []).map((c) => [c.id, c.name])),
   );
 
-  /** The category filter's options: the tree flattened depth-first and
-   * indented, same as the editor's picker, led by the unfiltered choice. */
-  protected readonly categoryOptions = computed<GridFilterOption[]>(() => [
-    { value: '', label: this.text.allCategories },
-    ...flattenCategoryTree(this.categories.value() ?? []).map((node) => ({
-      value: node.category.id,
-      label: node.category.name,
-      depth: node.depth,
-    })),
-  ]);
+  /**
+   * The category filter's options: the tree flattened depth-first and
+   * indented, same as the editor's picker, led by the unfiltered choice.
+   *
+   * A category with subcategories *and* products of its own gets a second
+   * option for those alone, first among its children and indented like one:
+   * they are a part of what it holds, beside its subcategories, not a second
+   * reading of the whole. A product left in a parent is otherwise lost among
+   * everything beneath it. Anywhere else the two options would list the same
+   * rows, so it is not offered — except for the one in effect, which the
+   * select must still be able to show.
+   */
+  protected readonly categoryOptions = computed<GridFilterOption[]>(() => {
+    const options: GridFilterOption[] = [
+      { value: '', label: this.text.allCategories },
+    ];
+    const current = this.categoryDirect() ? this.categoryId() : null;
+    for (const node of flattenCategoryTree(this.categories.value() ?? [])) {
+      const { id, name, childCount, directProductCount } = node.category;
+      options.push({ value: id, label: name, depth: node.depth });
+      if ((childCount > 0 && directProductCount > 0) || id === current) {
+        options.push({
+          value: id + DIRECT_SUFFIX,
+          label: fillText(this.text.categoryDirect, { name }),
+          depth: node.depth + 1,
+        });
+      }
+    }
+    return options;
+  });
+
+  /** Splits the select's value back into the category and its scope. */
+  private readonly categoryParams = (
+    value: string,
+  ): Record<string, string | null> =>
+    value.endsWith(DIRECT_SUFFIX)
+      ? {
+          categoryId: value.slice(0, -DIRECT_SUFFIX.length),
+          categoryScope: 'direct',
+        }
+      : { categoryId: value || null, categoryScope: null };
 
   /**
    * The columns, declared once: the headings on a desktop, the filter sheet and
@@ -504,8 +546,11 @@ export class ProductListPage {
       filter: {
         param: 'categoryId',
         options: this.categoryOptions(),
-        value: this.categoryId(),
+        value: this.categoryDirect()
+          ? this.categoryId() + DIRECT_SUFFIX
+          : this.categoryId(),
         ariaLabel: this.text.filterCategory,
+        toParams: this.categoryParams,
       },
     },
     {
@@ -709,6 +754,7 @@ export class ProductListPage {
       state: this.stateKey(),
       availability: this.availabilityKey(),
       categoryId: this.categoryId() || undefined,
+      categoryScope: this.categoryDirect() ? ('direct' as const) : undefined,
       attributeKey: this.attributeKey() || undefined,
       attributeValue: this.attributeValue() || undefined,
       tierId: this.tierId() || undefined,

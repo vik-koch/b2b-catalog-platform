@@ -20,6 +20,23 @@ export interface GridFilter {
   value: string;
   /** Names the control, since the heading it replaces carries no text. */
   ariaLabel: string;
+  /**
+   * What a choice writes, where one select stands for more than one parameter
+   * — the category filter's "without subcategories" option is a category and a
+   * scope. Absent, a choice writes `param` alone.
+   */
+  toParams?: (value: string) => Record<string, string | null>;
+}
+
+/** The query parameters one choice of a filter writes; the empty value clears
+ * them rather than writing `?x=`. */
+export function filterParams(
+  filter: Pick<GridFilter, 'param' | 'toParams'>,
+  value: string,
+): Record<string, string | null> {
+  return filter.toParams
+    ? filter.toParams(value)
+    : { [filter.param]: value || null };
 }
 
 /**

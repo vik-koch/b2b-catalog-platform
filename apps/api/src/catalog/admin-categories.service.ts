@@ -18,6 +18,7 @@ import { SettingsService } from '../settings/settings.service';
 import { catalogExternallyOwned } from '../settings/ownership.refusals';
 import { changedCategoryFields } from './owned-fields';
 import { hasCycle } from './category-cycle';
+import { subtreeCounts } from './catalog-tree';
 import {
   resolveNewSlug,
   resolveNewCategorySourceId,
@@ -81,7 +82,7 @@ export class AdminCategoriesService {
       .from(categories)
       .groupBy(categories.parentId);
 
-    const products_ = new Map(
+    const direct = new Map(
       productCounts.map((r) => [r.categoryId, Number(r.value)]),
     );
     const children_ = new Map(
@@ -89,9 +90,14 @@ export class AdminCategoriesService {
         .filter((r) => r.parentId)
         .map((r) => [r.parentId as string, Number(r.value)]),
     );
+    const subtree = subtreeCounts(rows, direct);
 
     return rows.map((r) =>
-      toAdminCategory(r, products_.get(r.id) ?? 0, children_.get(r.id) ?? 0),
+      toAdminCategory(r, {
+        productCount: subtree.get(r.id) ?? 0,
+        directProductCount: direct.get(r.id) ?? 0,
+        childCount: children_.get(r.id) ?? 0,
+      }),
     );
   }
 
@@ -130,7 +136,11 @@ export class AdminCategoriesService {
         })
         .returning(),
     );
-    return toAdminCategory(row[0], 0, 0);
+    return toAdminCategory(row[0], {
+      productCount: 0,
+      directProductCount: 0,
+      childCount: 0,
+    });
   }
 
   async updateCategory(
@@ -186,19 +196,11 @@ export class AdminCategoriesService {
         .where(eq(categories.id, id)),
     );
 
-    const [row] = await this.db
-      .select()
-      .from(categories)
-      .where(eq(categories.id, id));
-    const [{ value: productCount }] = await this.db
-      .select({ value: count() })
-      .from(products)
-      .where(eq(products.categoryId, id));
-    const [{ value: childCount }] = await this.db
-      .select({ value: count() })
-      .from(categories)
-      .where(eq(categories.parentId, id));
-    return toAdminCategory(row, Number(productCount), Number(childCount));
+    // Read back through the list: a subtree count is only as good as the
+    // tree it was taken over, and a reparent has just changed it.
+    const saved = (await this.listCategories()).find((c) => c.id === id);
+    if (!saved) throw categoryNotFound();
+    return saved;
   }
 
   /**
@@ -364,8 +366,10 @@ export class AdminCategoriesService {
 
 function toAdminCategory(
   row: typeof categories.$inferSelect,
-  productCount: number,
-  childCount: number,
+  counts: Pick<
+    AdminCategory,
+    'productCount' | 'directProductCount' | 'childCount'
+  >,
 ): AdminCategory {
   return {
     id: row.id,
@@ -377,7 +381,6 @@ function toAdminCategory(
     sourceId: row.sourceId,
     description: row.description,
     shortName: row.shortName,
-    productCount,
-    childCount,
+    ...counts,
   };
 }

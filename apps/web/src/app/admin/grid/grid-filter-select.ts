@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
 import { SelectField } from '../../ui/select-field';
+import { filterParams, GridFilter } from './grid-column';
 import { injectGridNav } from './grid-query';
 
 export interface GridFilterOption {
@@ -73,12 +74,19 @@ export class GridFilterSelect {
   /** The value in effect; the empty string when unfiltered. */
   readonly value = input('');
   readonly ariaLabel = input('');
+  /** What a choice writes, when it is more than `param`. */
+  readonly toParams = input<GridFilter['toParams']>();
 
   /** An empty choice clears the parameter rather than writing `?x=`, so the
    * unfiltered grid keeps the one plain URL it started with. */
   protected onSelect(event: Event): void {
     const selected = (event.target as HTMLSelectElement).value;
-    this.navigate({ [this.param()]: selected || null });
+    this.navigate(
+      filterParams(
+        { param: this.param(), toParams: this.toParams() },
+        selected,
+      ),
+    );
   }
 
   protected indent(depth = 0): string {

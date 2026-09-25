@@ -37,6 +37,7 @@ const category: AdminCategory = {
   description: null,
   shortName: null,
   productCount: 3,
+  directProductCount: 3,
   childCount: 0,
 };
 

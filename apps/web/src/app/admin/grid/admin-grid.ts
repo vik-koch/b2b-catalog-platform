@@ -204,6 +204,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         [options]="filter.options"
                         [value]="filter.value"
                         [ariaLabel]="filter.ariaLabel"
+                        [toParams]="filter.toParams"
                       />
                     } @else if (column.sort; as columnSort) {
                       <app-grid-sort

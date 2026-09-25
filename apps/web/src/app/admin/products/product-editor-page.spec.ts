@@ -36,6 +36,7 @@ const category: AdminCategory = {
   sourceId: 'manual:x',
   description: null,
   productCount: 3,
+  directProductCount: 3,
   childCount: 0,
 };
 
@@ -186,6 +187,7 @@ async function render(
             Promise.resolve({
               tiers: [baseList, ...(options.tiers ?? [])],
               productCount: 0,
+              directProductCount: 0,
             }),
         },
       },

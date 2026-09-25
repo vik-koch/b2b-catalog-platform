@@ -56,6 +56,7 @@ const PRODUCT_KEYS = [
 const CATEGORY_KEYS = [
   'childCount',
   'description',
+  'directProductCount',
   'id',
   'mark',
   'name',
@@ -630,6 +631,98 @@ describe('Admin catalog (FR-ADM-01)', () => {
       for (const item of scoped.items) {
         expect([liveSlug, deletedSlug]).toContain(item.slug);
       }
+    });
+  });
+
+  /**
+   * A category counts and filters its subtree (FR-ADM-19). A parent of this
+   * suite's own with one product filed in it and two in its child — one of
+   * them deleted, since the grid lists deleted rows and the count describes
+   * the grid.
+   */
+  describe('a category counts its subtree (FR-ADM-19)', () => {
+    let parent: string;
+    let child: string;
+    let directSlug: string;
+
+    const total = async (params: string) => {
+      const res = await adminGet(`/admin/catalog/products?${params}`);
+      expect(res.status).toBe(200);
+      return res.data as {
+        items: { slug: string }[];
+        pagination: { total: number };
+      };
+    };
+
+    beforeAll(async () => {
+      parent = (await createCategory({ name: `Subtree ${R}` })).data.id;
+      child = (
+        await createCategory({ name: `Subtree Leaf ${R}`, parentId: parent })
+      ).data.id;
+      directSlug = (
+        await createProduct({
+          name: `Filed In Parent ${R}`,
+          categoryId: parent,
+        })
+      ).data.slug;
+      await createProduct({ name: `Filed In Leaf ${R}`, categoryId: child });
+      const gone = await createProduct({
+        name: `Deleted In Leaf ${R}`,
+        categoryId: child,
+      });
+      await del(`/admin/catalog/products/${gone.data.slug}`);
+    });
+
+    it('counts everything beneath a category, and what it holds itself', async () => {
+      const res = await adminGet('/admin/catalog/categories');
+      expect(res.status).toBe(200);
+      const byId = new Map(
+        (
+          res.data.categories as {
+            id: string;
+            productCount: number;
+            directProductCount: number;
+            childCount: number;
+          }[]
+        ).map((c) => [c.id, c]),
+      );
+      expect(byId.get(parent)).toMatchObject({
+        productCount: 3,
+        directProductCount: 1,
+        childCount: 1,
+      });
+      expect(byId.get(child)).toMatchObject({
+        productCount: 2,
+        directProductCount: 2,
+        childCount: 0,
+      });
+      // The subtree reaches all the way up, not just one level.
+      const top = byId.get(parentId);
+      expect(top?.productCount).toBeGreaterThanOrEqual(
+        (top?.directProductCount ?? 0) + 3,
+      );
+    });
+
+    it('filters the grid by the subtree, the way the count reads', async () => {
+      expect((await total(`categoryId=${parent}`)).pagination.total).toBe(3);
+      expect((await total(`categoryId=${child}`)).pagination.total).toBe(2);
+    });
+
+    it('narrows to the products filed in the category itself', async () => {
+      const direct = await total(`categoryId=${parent}&categoryScope=direct`);
+      expect(direct.items.map((i) => i.slug)).toEqual([directSlug]);
+    });
+
+    it('ignores the scope without a category', async () => {
+      const scoped = await total('categoryScope=direct');
+      const unscoped = await total('');
+      expect(scoped.pagination.total).toBe(unscoped.pagination.total);
+    });
+
+    it('still refuses to delete a parent, whatever it counts', async () => {
+      const res = await del(`/admin/catalog/categories/${parent}`);
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('category-has-subcategories');
     });
   });
 

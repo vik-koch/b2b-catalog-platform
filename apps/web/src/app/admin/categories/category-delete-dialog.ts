@@ -142,7 +142,9 @@ export class CategoryDeleteDialog {
     if (this.loading()) return 'loading';
     const self = this.self();
     if (!self || self.childCount > 0) return 'blocked-children';
-    if (self.productCount > 0) {
+    // What it holds itself, not beneath it: a category with children never
+    // gets this far, and the foreign key only counts its own products.
+    if (self.directProductCount > 0) {
       // Reassigning moves every product's category, which is the exchange's
       // field. An *empty* category still deletes — that writes nothing it
       // owns — so this blocks rather than replacing the whole flow.
@@ -192,7 +194,7 @@ export class CategoryDeleteDialog {
   protected reassignIntro(): string {
     return this.text.deleteReassignIntro
       .replace('{name}', this.name())
-      .replace('{count}', String(this.self()?.productCount ?? 0));
+      .replace('{count}', String(this.self()?.directProductCount ?? 0));
   }
 
   protected async confirm(): Promise<void> {

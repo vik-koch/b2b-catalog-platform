@@ -502,6 +502,9 @@ export const adminTextSchema = z
         stateUnpriced: z.string(),
         stateDeleted: z.string(),
         allCategories: z.string(),
+        /** The category filter's option for the products filed in a category
+         * itself, not in its subcategories. `{name}` is the category. */
+        categoryDirect: z.string(),
         /**
          * The stock column (FR-ADM-05). The cell is the piece count in the
          * badge the storefront's three words colour, so the *states* are not
@@ -533,6 +536,9 @@ export const adminTextSchema = z
          * `noProducts` is the same fact where there are none. */
         products: z.string(),
         noProducts: z.string(),
+        /** The products filed in a category that also has subcategories,
+         * leaving theirs out. `{count}` substituted. */
+        directProducts: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
         edit: z.string(),

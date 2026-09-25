@@ -16,6 +16,7 @@ import { GridClearFilters } from './grid-clear-filters';
 import {
   activeFilterCount,
   filterableColumns,
+  filterParams,
   GridChip,
   GridColumn,
   sortableColumns,
@@ -286,7 +287,7 @@ export class GridNarrowControls {
   protected onFilter(column: GridColumn, event: Event): void {
     if (!column.filter) return;
     const value = (event.target as HTMLSelectElement).value;
-    this.navigate({ [column.filter.param]: value || null });
+    this.navigate(filterParams(column.filter, value));
   }
 
   protected indent(depth = 0): string {
