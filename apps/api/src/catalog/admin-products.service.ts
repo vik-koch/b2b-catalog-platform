@@ -199,8 +199,11 @@ export class AdminProductsService {
   }> {
     const pageSize = ADMIN_CATALOG_PAGE_SIZE;
     const search = parseSearchQuery(query.q);
+    const categoryIds = query.categoryId
+      ? await this.categoryScopeIds(query.categoryId, query.categoryScope)
+      : undefined;
     const where = and(
-      query.categoryId ? eq(products.categoryId, query.categoryId) : undefined,
+      categoryIds ? inArray(products.categoryId, categoryIds) : undefined,
       // `live` is what the storefront shows: published and not deleted.
       query.state === 'live'
         ? and(isNull(products.deletedAt), isNotNull(products.publishedAt))
@@ -290,6 +293,23 @@ export class AdminProductsService {
         },
       };
     });
+  }
+
+  /**
+   * The categories a grid filter covers: the one asked for and everything
+   * beneath it, as the storefront listing and the category list's counts read
+   * a category (FR-ADM-19) — or, narrowed to `direct`, only the one itself. An
+   * unknown id stays in the list on its own and matches nothing.
+   */
+  private async categoryScopeIds(
+    categoryId: string,
+    scope: AdminProductListQuery['categoryScope'],
+  ): Promise<string[]> {
+    if (scope === 'direct') return [categoryId];
+    const rows = await this.db
+      .select({ id: categories.id, parentId: categories.parentId })
+      .from(categories);
+    return descendantIds(categoryId, rows);
   }
 
   /** Loads a product in editable form regardless of soft-delete state. */

@@ -419,7 +419,15 @@ export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
  */
 export const adminProductListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
+  /** The category and everything beneath it, as the storefront listing reads
+   * it (FR-ADM-19). */
   categoryId: z.uuid().optional(),
+  /**
+   * `direct` narrows `categoryId` to the products filed in it, leaving out its
+   * subcategories' — the way to find a product left in a parent. Ignored
+   * without a `categoryId`.
+   */
+  categoryScope: z.enum(['subtree', 'direct']).optional(),
   state: adminProductStateSchema.optional().default('all'),
   /** One of the three stock states, or absent for any (FR-STOCK-02). */
   availability: adminProductAvailabilityFilterSchema.optional(),
