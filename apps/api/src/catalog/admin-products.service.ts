@@ -118,6 +118,7 @@ const adminProductWriteColumns = {
   boxVolume: products.boxVolume,
   boxWeight: products.boxWeight,
   boxCount: products.boxCount,
+  featured: products.featured,
   lineNoteEnabled: products.lineNoteEnabled,
   lineNotePrompt: products.lineNotePrompt,
   stockPieces: products.stockPieces,
@@ -150,6 +151,7 @@ type ProductRow = {
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
+  featured: boolean;
   lineNoteEnabled: boolean;
   lineNotePrompt: string | null;
   stockPieces: number | null;
@@ -366,6 +368,7 @@ export class AdminProductsService {
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
+            featured: input.featured,
             lineNoteEnabled: input.lineNoteEnabled,
             lineNotePrompt: input.lineNotePrompt,
             parts: input.parts,
@@ -437,6 +440,7 @@ export class AdminProductsService {
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
+            featured: input.featured,
             lineNoteEnabled: input.lineNoteEnabled,
             lineNotePrompt: input.lineNotePrompt,
             parts: input.parts,
@@ -1114,6 +1118,7 @@ function toAdminProduct(
     boxVolume: row.boxVolume,
     boxWeight: row.boxWeight,
     boxCount: row.boxCount,
+    featured: row.featured,
     lineNoteEnabled: row.lineNoteEnabled,
     lineNotePrompt: row.lineNotePrompt,
     stockPieces: row.stockPieces,

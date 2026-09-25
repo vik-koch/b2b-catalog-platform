@@ -379,6 +379,14 @@ export const adminTextSchema = z
             rejected: z.string(),
           })
           .strict(),
+        /** The main page's row (FR-CAT-09). */
+        featured: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            enable: z.string(),
+          })
+          .strict(),
         lineNote: z
           .object({
             heading: z.string(),

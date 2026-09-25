@@ -62,6 +62,7 @@ const storedProduct: AdminProduct = {
   boxVolume: null,
   boxWeight: null,
   boxCount: 1,
+  featured: false,
   lineNoteEnabled: false,
   lineNotePrompt: null,
   stockPieces: null,
@@ -452,6 +453,41 @@ describe('ProductEditorPage', () => {
       expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
         lineNoteEnabled: false,
         lineNotePrompt: null,
+      });
+    });
+  });
+
+  describe('featured on the main page (FR-CAT-09)', () => {
+    it('loads the mark and sends it back cleared', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: { ...storedProduct, featured: true } },
+      );
+
+      const box = inputByLabel(el, text.featured.enable);
+      expect(box.checked).toBe(true);
+
+      box.click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        featured: false,
+      });
+    });
+
+    it('marks a product that was not featured', async () => {
+      const { fixture, el, h } = await render({ slug: 'hafen-espresso' });
+
+      inputByLabel(el, text.featured.enable).click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        featured: true,
       });
     });
   });

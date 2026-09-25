@@ -410,7 +410,24 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           </p>
         </fieldset>
 
-        <fieldset>
+        <!-- The shop's own choice, like the note below: open while the
+             catalog is owned, and never written by a run. -->
+        <fieldset class="max-w-xl">
+          <legend appFieldLabel>{{ text.featured.heading }}</legend>
+          <p class="mb-2 text-xs text-subtle">{{ text.featured.hint }}</p>
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              appCheckbox
+              class="mt-0.5"
+              [checked]="featured()"
+              (change)="featured.set($any($event.target).checked)"
+            />
+            <span>{{ text.featured.enable }}</span>
+          </label>
+        </fieldset>
+
+        <fieldset class="max-w-xl">
           <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
           <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
@@ -620,6 +637,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly pairings = signal<PairedProduct[]>([]);
   protected readonly documents = signal<LinkedDocument[]>([]);
+  /** Offered first to the main page's row (FR-CAT-09). */
+  protected readonly featured = signal(false);
   protected readonly lineNoteEnabled = signal(false);
   protected readonly lineNotePrompt = signal('');
   /** What one piece is made of, where it is sold as a set (FR-CAT-10). */
@@ -934,6 +953,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.deleted.set(product.deletedAt !== null);
       this.pairings.set(product.pairings);
       this.documents.set(product.documents);
+      this.featured.set(product.featured);
       this.lineNoteEnabled.set(product.lineNoteEnabled);
       this.lineNotePrompt.set(product.lineNotePrompt ?? '');
       this.stockPieces.set(product.stockPieces?.toString() ?? '');
@@ -999,6 +1019,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       pairings: this.pairings(),
       documents: this.documents(),
       packaging: this.packaging(),
+      featured: this.featured(),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt(),
       parts: this.parts(),
@@ -1143,6 +1164,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // The whole set from this product's side too, and only this side: the
       // document keeps every other product it is shown on (FR-DOC-02).
       documentIds: this.documents().map((d) => d.id),
+      featured: this.featured(),
       lineNoteEnabled: this.lineNoteEnabled(),
       // A prompt is only meaningful with the note on; the server refuses the
       // pair the other way round.

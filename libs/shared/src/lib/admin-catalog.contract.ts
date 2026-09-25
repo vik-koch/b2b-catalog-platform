@@ -179,6 +179,9 @@ export const productInputSchema = z
     boxWeight: boxDimensionInputSchema,
     /** How many boxes the product ships as; informational (FR-UNIT-11). */
     boxCount: z.number().int().positive().default(1),
+    /** Offered first to the main page's row (FR-CAT-09). Never shown as such
+     * on the storefront. */
+    featured: z.boolean().default(false),
     /** Whether a cart line for this product may carry a note (FR-CART-08). */
     lineNoteEnabled: z.boolean().default(false),
     /** What to ask the customer for; null falls back to the app-wide wording. */
@@ -300,6 +303,7 @@ export const adminProductSchema = z
     boxVolume: z.string().nullable(),
     boxWeight: z.string().nullable(),
     boxCount: z.number().int().positive(),
+    featured: z.boolean(),
     lineNoteEnabled: z.boolean(),
     lineNotePrompt: z.string().nullable(),
     /** Staff-facing, and the reason the editor can be trusted to read back what

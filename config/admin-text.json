@@ -195,6 +195,11 @@
       "tooFew": "A set needs at least two parts.",
       "rejected": "Each part must be new, at most {max} characters, and without +, ( or )."
     },
+    "featured": {
+      "heading": "Main page",
+      "hint": "The main page shows five products: featured ones first, the rest of the row drawn at random, all in a random order. A product out of stock is never shown.",
+      "enable": "Feature this product"
+    },
     "lineNote": {
       "heading": "Line note",
       "hint": "For a product sold as one article in several variants.",
