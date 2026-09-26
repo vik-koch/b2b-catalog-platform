@@ -33,11 +33,10 @@ export class FeaturedRowService {
     });
   }
 
-  /** The row, or `undefined` where this render leaves prices to the browser. */
-  async row(): Promise<ProductListItem[] | undefined> {
+  async row(): Promise<ProductListItem[]> {
     if (this.kept) return this.kept;
     const items = await this.catalog.getFeaturedProducts();
-    if (items && this.isBrowser) this.kept = items;
+    if (this.isBrowser) this.kept = items;
     return items;
   }
 }
