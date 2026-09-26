@@ -217,3 +217,49 @@ no longer the same for everyone — a guest's carries prices and the hydration
 data, a signed-in visitor's deliberately carries neither. Serving one to the
 other puts a customer straight back on the default prices, so such a cache must
 vary on the session cookie's presence, or keep price-bearing routes out.
+
+## Amendment — 2026-09-25: the server renders as the visitor
+
+The 2026-08-06 amendment rejected forwarding the cookie on two facts that do not
+hold. httpOnly hides the cookie from browser JavaScript, not from the Node
+process the browser sends it to. And Angular's transfer cache refuses a
+request that carried a cookie or an answer marked `private` only by default —
+`includeRequestsWithAuthHeaders` and `includeNonCacheableRequests` lift both.
+No hand-rolled channel is needed.
+
+**The server render now asks the API as the visitor.** A server-only
+interceptor (`forward-session.server.ts`) passes on the session cookie — only
+that cookie, only to `API_URL`. `AuthService` asks `/auth/me` on the server
+when a session cookie is present, the catalog reads no longer defer, and
+everything the render fetched rides to the browser in the document.
+`deferSessionReads()` is gone.
+
+- **The document is as private as its answers.** The two options are off by
+  default because Angular cannot know whether the HTML passes a shared cache;
+  turning them on is only safe while every document embedding such an answer
+  is itself uncacheable. So the render decides that from what it actually
+  embedded: a read that carried a credential, or an answer marked
+  `private`/`no-store`/`no-cache` or setting a cookie, marks the document
+  `Cache-Control: private, no-store` (`private-page.server.ts`). `server.ts`
+  adds the same header whenever the request carries a session cookie, as a
+  second line, and `Vary: Cookie` on every document. That settles rationale
+  9's concern: customer prices do sit in the HTML, but in HTML no shared cache
+  may keep.
+- **Only our API's answers are transferred at all.** The oRPC client tags its
+  requests, and the transfer cache's `filter` refuses anything untagged, so
+  the widened rules never reach a request made for any other purpose.
+- **A guest's render is unchanged**, and costs no extra call: without a session
+  cookie nothing is forwarded and `/auth/me` is not asked.
+- **What was bought:** a signed-in cold load paints the visitor's own prices,
+  account control and admin view on the first frame, with no second fetch on
+  hydration; a missing product answers **404** for them too.
+- **Still browser-only:** the work-count marker (a nudge, not worth delaying
+  every render for) and edit mode (a choice kept in the admin's browser).
+
+Concessions: a signed-in render waits on `/auth/me` alongside its own reads,
+and a session revoked since the readable hint was written renders signed out
+while the pre-paint hint says otherwise, until `/auth/me` answers in the
+browser — the same window a client-rendered route has always had. The trap in
+the previous amendment still holds, in stronger form: anything that ever
+caches storefront HTML must key on the session cookie or skip documents that
+carry one.

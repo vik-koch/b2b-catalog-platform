@@ -8,9 +8,8 @@ import { createOrpcClient } from '../core/orpc-client';
  * `CartService`, which is the store: the store must keep working — and keep
  * showing its last-seen prices — whether or not this answers.
  *
- * There is no `deferSessionReads()` guard here. The route it serves is
- * client-rendered, so the server never calls it; the request also depends on
- * localStorage, which SSR cannot read at all.
+ * The route it serves is client-rendered, so the server never calls it: the
+ * request depends on localStorage, which SSR cannot read at all.
  */
 @Injectable({ providedIn: 'root' })
 export class CartPreviewService {

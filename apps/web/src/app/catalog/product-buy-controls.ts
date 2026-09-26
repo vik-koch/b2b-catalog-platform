@@ -33,6 +33,7 @@ import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 import { WarningNote } from '../ui/warning-note';
+import { FirstRender } from '../core/first-render';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
@@ -429,6 +430,7 @@ export interface BuyableProduct {
 })
 export class ProductBuyControls {
   private readonly cart = inject(CartService);
+  private readonly firstRender = inject(FirstRender);
   private readonly units = useProductUnits();
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
@@ -506,8 +508,12 @@ export class ProductBuyControls {
   );
 
   /** The cart's line for this product, in whatever unit — the controls are a
-   * view of it wherever there is one. */
-  protected readonly line = computed(() => this.cart.lineFor(this.item().slug));
+   * view of it wherever there is one. Not before the first render: the server
+   * drew these controls for an empty cart, and hydration has to find what it
+   * drew (see FirstRender). */
+  protected readonly line = computed(() =>
+    this.firstRender.over() ? this.cart.lineFor(this.item().slug) : undefined,
+  );
   protected readonly inCart = computed(() => this.line() !== undefined);
 
   /**
@@ -782,7 +788,7 @@ export class ProductBuyControls {
    * the spacing. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} flex w-full items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
+      `${this.row() ? '' : 'mt-2'} flex w-full animate-field-in items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,

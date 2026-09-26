@@ -141,10 +141,10 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
       }
     } @else if (showSkeleton()) {
       <div [class]="sectionClass" aria-hidden="true">
-        <div class="mb-4 h-8 w-48 animate-pulse rounded bg-stone-125"></div>
+        <div class="h-8 w-48 animate-pulse rounded bg-stone-125"></div>
         <ul [class]="skeletonClass">
           @for (i of skeletons; track i) {
-            <li class="h-80 animate-pulse rounded-lg bg-stone-125"></li>
+            <li class="h-78 animate-pulse rounded-lg bg-stone-125"></li>
           }
         </ul>
       </div>
@@ -169,7 +169,7 @@ export class FeaturedRow {
     '-mx-4 px-4 pt-1 pb-8 scroll-px-4 ' +
     CARD_WIDTH;
   protected readonly skeletonClass =
-    'grid grid-flow-col gap-5 overflow-hidden pt-8 pb-5 ' + CARD_WIDTH;
+    'grid grid-flow-col gap-5 overflow-hidden pt-4 pb-5 ' + CARD_WIDTH;
   /** The band, with the room under it the categories need before they
    * start. */
   protected readonly sectionClass = 'mb-10 pt-5 ' + BAND;
@@ -181,8 +181,6 @@ export class FeaturedRow {
   /** The cards and the edit affordances appear together — see
    * editAwareContent. */
   private readonly content = editAwareContent({
-    // `undefined` is also what a render that leaves prices to the browser
-    // answers, and that is not ready either.
     ready: computed(() => this.items.hasValue()),
     section: 'editMode',
   });

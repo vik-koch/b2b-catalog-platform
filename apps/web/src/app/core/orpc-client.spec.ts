@@ -1,17 +1,26 @@
 import {
   HTTP_TRANSFER_CACHE_ORIGIN_MAP,
+  HttpClient,
   HttpRequest,
   provideHttpClient,
+  withInterceptors,
 } from '@angular/common/http';
 import {
   HttpTestingController,
   provideHttpClientTesting,
 } from '@angular/common/http/testing';
-import { PLATFORM_ID, TransferState, makeStateKey } from '@angular/core';
+import {
+  PLATFORM_ID,
+  REQUEST,
+  TransferState,
+  makeStateKey,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideClientHydration } from '@angular/platform-browser';
+import { AUTH_COOKIE } from '@b2b-catalog-platform/shared';
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
+import { forwardSession } from '../auth/forward-session.server';
+import { provideHydration } from './hydration';
 import { createOrpcClient } from './orpc-client';
 
 const API_ORIGIN = 'http://api.internal:3000';
@@ -48,12 +57,16 @@ interface Harness {
   transfer: TransferState;
 }
 
-function setUp(platform: 'browser' | 'server'): Harness {
+/** `cookie` is what the visitor's request carried, for a server render. */
+function setUp(platform: 'browser' | 'server', cookie?: string): Harness {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     providers: [
-      provideClientHydration(),
-      provideHttpClient(),
+      provideHydration(),
+      // The testing backend must come after the client, or the real one wins.
+      platform === 'server'
+        ? provideHttpClient(withInterceptors([forwardSession]))
+        : provideHttpClient(),
       provideHttpClientTesting(),
       { provide: PLATFORM_ID, useValue: platform },
       ...(platform === 'server'
@@ -61,6 +74,12 @@ function setUp(platform: 'browser' | 'server'): Harness {
             {
               provide: HTTP_TRANSFER_CACHE_ORIGIN_MAP,
               useValue: { [new URL(API_URL).origin]: PUBLIC_ORIGIN },
+            },
+            {
+              provide: REQUEST,
+              useValue: new Request(`${PUBLIC_ORIGIN}/`, {
+                headers: cookie ? { cookie } : {},
+              }),
             },
           ]
         : []),
@@ -185,5 +204,56 @@ describe('createOrpcClient', () => {
     await flushMicrotasks();
     // Nothing went to the network.
     browser.httpMock.verify();
+  });
+
+  // The signed-in render: the server asks with the visitor's session cookie,
+  // and the API answers `private, no-store`. Angular skips both by default,
+  // which would leave the browser to ask again and repaint a correct page.
+  it('replays a signed-in GET too, though its request carried the session and its answer is private', async () => {
+    (globalThis as Record<string, unknown>)['ngServerMode'] = true;
+    const server = setUp('server', `consent=all; ${AUTH_COOKIE}=a-token`);
+
+    const rendered = server.client.getPage({ slug: 'privacy' });
+    await flushMicrotasks();
+    const serverRequest = server.httpMock.expectOne(() => true);
+    expect(serverRequest.request.headers.get('cookie')).toBe(
+      `${AUTH_COOKIE}=a-token`,
+    );
+    serverRequest.flush(
+      { title: 'Privacy' },
+      { headers: { 'Cache-Control': 'private, no-store', Vary: 'Cookie' } },
+    );
+    await rendered;
+
+    const transferred = JSON.parse(server.transfer.toJson()) as Record<
+      string,
+      unknown
+    >;
+    expect(Object.keys(transferred)).toHaveLength(1);
+
+    (globalThis as Record<string, unknown>)['ngServerMode'] = false;
+    const browser = setUp('browser');
+    for (const [key, value] of Object.entries(transferred)) {
+      browser.transfer.set(makeStateKey(key), value);
+    }
+
+    await expect(browser.client.getPage({ slug: 'privacy' })).resolves.toEqual({
+      title: 'Privacy',
+    });
+    await flushMicrotasks();
+    browser.httpMock.verify();
+  });
+
+  // The widened rules are about what our API marks; nothing else rides along.
+  it('keeps a read of anything but the API out of the transfer cache', async () => {
+    (globalThis as Record<string, unknown>)['ngServerMode'] = true;
+    const server = setUp('server', `${AUTH_COOKIE}=a-token`);
+
+    TestBed.inject(HttpClient)
+      .get('https://elsewhere.example/data')
+      .subscribe();
+    server.httpMock.expectOne('https://elsewhere.example/data').flush({ a: 1 });
+
+    expect(JSON.parse(server.transfer.toJson())).toEqual({});
   });
 });

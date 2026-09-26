@@ -15,6 +15,11 @@ import {
  * Asserted twice over, because a locator only sees what the page settles on.
  * What it *paints first* is in the HTML the server sent, and painting the
  * default price before correcting it is the failure this spec exists for.
+ *
+ * The server renders as the visitor (ADR 0031, 2026-09-25 amendment), so the
+ * customer's price is in that HTML — which makes the document as personal as
+ * the answers in it. Its cache headers are asserted here too: they are what
+ * keeps one customer's page out of every shared cache.
  */
 
 const PASSWORD = 'e2e-tier-price-password';
@@ -165,24 +170,61 @@ test.describe('tier prices on a server-rendered page', () => {
       amount(fixture.basePriceMinor),
     );
     await expect(page.getByText(money(fixture.basePriceMinor))).toBeVisible();
+
+    // The same for everybody, so a cache may keep it — but only per cookie
+    // jar, so it can never be handed to someone signed in.
+    const headers = response?.headers() ?? {};
+    expect(headers['cache-control'] ?? '').not.toMatch(/private|no-store/);
+    expect(headers['vary'] ?? '').toMatch(/cookie/i);
   });
 
-  test('corrects a cold-loaded product page to the customer’s price', async ({
+  test('server-renders a cold-loaded product page with the customer’s price', async ({
     page,
   }, testInfo) => {
     await logIn(page, testInfo);
 
-    // A fresh document — the server render, which cannot know their tier.
+    const afterLoad: string[] = [];
+    page.on('request', (request) => {
+      if (/\/api\/(catalog|auth\/me)\b/.test(request.url())) {
+        afterLoad.push(request.url());
+      }
+    });
+
+    // The work counts are asked only once the session is known in the
+    // browser, so anything hydration would fetch again has gone out first.
+    const settled = page.waitForResponse((r) =>
+      r.url().includes('/api/work/counts'),
+    );
+    // A fresh document — the server render, asked as this customer.
     const response = await page.goto(`/product/${fixture.slug}`);
 
-    // Never painted, not even for a frame: the price this customer must not be
-    // shown is absent from the markup, so the first thing they see is their own
-    // price arriving rather than the default one being taken back.
-    expect(await documentOf(response)).not.toContain(
-      amount(fixture.basePriceMinor),
-    );
+    // Their own price is in the markup, the default one nowhere — not even
+    // for a frame.
+    const html = await documentOf(response);
+    expect(html).toContain(amount(OVERRIDE_MINOR));
+    expect(html).not.toContain(amount(fixture.basePriceMinor));
     await expect(page.getByText(money(OVERRIDE_MINOR))).toBeVisible();
     await expect(page.getByText(money(fixture.basePriceMinor))).toHaveCount(0);
+
+    // A page holding one customer's prices is theirs alone.
+    const headers = response?.headers() ?? {};
+    expect(headers['cache-control']).toMatch(/private/);
+    expect(headers['cache-control']).toMatch(/no-store/);
+    expect(headers['vary'] ?? '').toMatch(/cookie/i);
+
+    // Hydration replays what the server asked instead of asking again.
+    await settled;
+    expect(afterLoad).toEqual([]);
+  });
+
+  test('answers 404 for a missing product, signed in too', async ({
+    page,
+  }, testInfo) => {
+    await logIn(page, testInfo);
+
+    const response = await page.goto('/product/e2e-no-such-product');
+
+    expect(response?.status()).toBe(404);
   });
 
   test('corrects a cold-loaded category listing too', async ({

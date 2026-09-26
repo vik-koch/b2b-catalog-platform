@@ -16,11 +16,8 @@ import {
 } from '@angular/router';
 import { appRoutes } from './app.routes';
 import { BenignErrorFilter } from './core/benign-errors';
+import { provideHydration } from './core/hydration';
 import { StaticPageReuseStrategy } from './core/route-reuse';
-import {
-  provideClientHydration,
-  withEventReplay,
-} from '@angular/platform-browser';
 import { CartRepricing } from './cart/cart-repricing';
 import { provideAppText } from './config/app-text';
 import { provideDeploymentConfig } from './config/deployment-config';
@@ -28,7 +25,7 @@ import { provideSuggestionsEnabled } from './config/suggestions-enabled';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideClientHydration(withEventReplay()),
+    provideHydration(),
     provideBrowserGlobalErrorListeners(),
     // The listeners above forward every window error to the ErrorHandler,
     // including one the browser raises by design; see BenignErrorFilter.

@@ -21,8 +21,9 @@ import { ChangePasswordForm } from './change-password-form';
  * read the deployment secrets.
  *
  * Lives in the app shell, not on a page, so it follows the account wherever it
- * navigates; it renders nothing for guests, which is also what the server
- * renders (SSR never resolves a session), so it costs public pages nothing.
+ * navigates; it renders nothing for anyone who owes no change, so it costs
+ * public pages nothing. The server never draws the dialog either — the block
+ * is deferred — so it opens once the page has hydrated.
  *
  * A native <dialog> in modal mode: the focus trap, the inert background and the
  * top-layer stacking come from the platform. Esc is deliberately swallowed —

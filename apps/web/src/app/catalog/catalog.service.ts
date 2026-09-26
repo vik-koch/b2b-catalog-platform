@@ -6,18 +6,11 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { catalogContract } from '../core/contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient, deferSessionReads } from '../core/orpc-client';
+import { createOrpcClient } from '../core/orpc-client';
 
 @Injectable({ providedIn: 'root' })
 export class CatalogService {
   private client = createOrpcClient(catalogContract);
-  /**
-   * Prices depend on the caller's tier (FR-AUTH-05), so the reads carrying them
-   * answer `undefined` on a server render for a signed-in visitor: the browser
-   * fills the page in with their own prices instead of the default ones being
-   * painted first. Guests and crawlers are unaffected.
-   */
-  private readonly deferPrices = deferSessionReads();
 
   /** The full category tree for the main-page overview (FR-CAT-01/02). */
   async getCategoryTree() {
@@ -25,15 +18,13 @@ export class CatalogService {
   }
 
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
-   * does not exist, so the caller can render a not-found rather than throw;
-   * `undefined` when this render defers prices — see `deferPrices`. */
+   * does not exist, so the caller can render a not-found rather than throw. */
   async getCategoryProducts(
     slug: string,
     page: number,
     sort: ProductSort,
     attr: string[] = [],
   ) {
-    if (this.deferPrices) return undefined;
     const result = await safe(
       this.client.getCategoryProducts({
         params: { slug },
@@ -53,7 +44,6 @@ export class CatalogService {
     sort: SearchSort,
     attr: string[] = [],
   ) {
-    if (this.deferPrices) return undefined;
     return this.client.searchProducts({ query: { q, page, sort, attr } });
   }
 
@@ -87,17 +77,13 @@ export class CatalogService {
     return result.data.items;
   }
 
-  /** The main page's row (FR-CAT-09), drawn afresh by every call. `undefined`
-   * when this render defers prices — see `deferPrices`. */
+  /** The main page's row (FR-CAT-09), drawn afresh by every call. */
   async getFeaturedProducts() {
-    if (this.deferPrices) return undefined;
     return (await this.client.getFeaturedProducts()).items;
   }
 
-  /** A single product (FR-CAT-05). `null` when it does not exist, `undefined`
-   * when this render defers prices — see `deferPrices`. */
+  /** A single product (FR-CAT-05). `null` when it does not exist. */
   async getProduct(slug: string) {
-    if (this.deferPrices) return undefined;
     const result = await safe(this.client.getProduct({ params: { slug } }));
     if (result.isDefined) return null;
     if (!result.isSuccess) throw result.error;

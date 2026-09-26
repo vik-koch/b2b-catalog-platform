@@ -1,6 +1,6 @@
 import { expect, Page, test } from '@playwright/test';
 import { categorySeeds, productSeeds } from '@b2b-catalog-platform/seed';
-import { localtestEnv } from './support/localtest';
+import { documentOf, localtestEnv } from './support/localtest';
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];
@@ -32,6 +32,18 @@ const product = required(
 const editModeToggle = (page: Page) =>
   page.getByRole('button', { name: 'Edit mode' });
 
+/** What Angular reported through its ErrorHandler — a failed hydration shows
+ * up only here, while the page goes on looking almost right. */
+function angularErrors(page: Page): string[] {
+  const errors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error' && message.text().startsWith('ERROR')) {
+      errors.push(message.text());
+    }
+  });
+  return errors;
+}
+
 async function logIn(page: Page): Promise<void> {
   await page.goto('/login');
   await page.getByLabel('Email').fill(ADMIN_EMAIL);
@@ -41,8 +53,19 @@ async function logIn(page: Page): Promise<void> {
 }
 
 test('a signed-out visitor sees no edit-mode toggle', async ({ page }) => {
-  await page.goto(`/catalog/${category.slug}`);
+  const errors = angularErrors(page);
+  // A guest's browser asks who it is at start-up — the server did not — so
+  // its answer arriving means hydration has run.
+  const hydrated = page.waitForResponse((r) =>
+    r.url().includes('/api/auth/me'),
+  );
+  const response = await page.goto(`/catalog/${category.slug}`);
   await expect(editModeToggle(page)).toBeHidden();
+
+  // Nor does any admin wording ride along in a guest's document.
+  expect(await documentOf(response)).not.toContain('Add product');
+  await hydrated;
+  expect(errors).toEqual([]);
 });
 
 test.describe('as an admin', () => {
@@ -53,7 +76,14 @@ test.describe('as an admin', () => {
   test('reveals product edit affordances on the category grid only in edit mode', async ({
     page,
   }) => {
+    const errors = angularErrors(page);
+    // Asked only once the session is known in the browser: hydration is done.
+    const settled = page.waitForResponse((r) =>
+      r.url().includes('/api/work/counts'),
+    );
     await page.goto(`/catalog/${category.slug}`);
+    await settled;
+    expect(errors).toEqual([]);
 
     // Off by default: nothing to create with, no per-tile edit control.
     await expect(

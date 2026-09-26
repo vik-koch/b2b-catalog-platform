@@ -5,6 +5,7 @@ import {
   inject,
   Injectable,
   PLATFORM_ID,
+  REQUEST,
   signal,
 } from '@angular/core';
 import { safe } from '@orpc/client';
@@ -20,6 +21,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { authContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
+import { sessionCookieIn } from './session-cookie';
 import { readSessionHint } from './session-hint';
 
 /** What the login form needs to distinguish: bad credentials vs. anything else. */
@@ -64,8 +66,8 @@ export class AuthService {
   ).asReadonly();
 
   // `undefined` until /auth/me answers. Callers read it through `user()`, which
-  // folds "not known yet" into "signed out" — so the chrome on a server-rendered
-  // public page matches what the server emitted, which never resolves a session.
+  // folds "not known yet" into "signed out" — the state a guest's render and
+  // the first frames of any client-rendered route are drawn in.
   private readonly session = signal<AuthUser | null | undefined>(undefined);
 
   /** The signed-in user, or `null` when signed out (or not yet resolved). */
@@ -79,14 +81,16 @@ export class AuthService {
    */
   readonly resolved = computed(() => this.session() !== undefined);
 
-  // Kicked off once, at app start, and only in the browser. The server is
-  // deliberately left session-blind: it would have to forward the visitor's
-  // cookie to the API, and the answer would then land in the SSR HTML — making
-  // every rendered page visitor-specific, hence uncacheable. The session-scoped
-  // routes are client-rendered precisely so nothing needs that.
-  private readonly ready: Promise<void> = this.isBrowser
-    ? this.refresh()
-    : Promise.resolve();
+  // Kicked off once, at app start. The server asks too, but only for a render
+  // that carries a session cookie — a guest has nothing to ask about, and the
+  // answer would be a 401 per page view. What the server learns rides to the
+  // browser in the transfer cache, so the chrome it drew is the chrome that
+  // hydrates, and the browser's own ask is answered from the document.
+  private readonly ready: Promise<void> =
+    this.isBrowser ||
+    sessionCookieIn(inject(REQUEST, { optional: true })?.headers.get('cookie'))
+      ? this.refresh()
+      : Promise.resolve();
 
   /** Resolves once the session is known either way; awaited by the guards. */
   whenResolved(): Promise<void> {
