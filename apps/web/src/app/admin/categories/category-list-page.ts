@@ -122,15 +122,27 @@ const EDGE_SLACK = 24;
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
       <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
-      <a
-        appButton
-        routerLink="/admin/categories/new"
-        [queryParams]="editorFrom()"
-        class="gap-2"
-      >
-        <app-admin-icon name="plus" class="h-4 w-4" />
-        {{ text.add }}
-      </a>
+      <div class="flex flex-wrap justify-end gap-2">
+        <a
+          appButton
+          variant="secondary"
+          routerLink="/admin/catalog/filters"
+          [queryParams]="editorFrom()"
+          class="gap-2"
+        >
+          <app-admin-icon name="funnel" class="h-4 w-4" />
+          {{ text.catalogFilters }}
+        </a>
+        <a
+          appButton
+          routerLink="/admin/categories/new"
+          [queryParams]="editorFrom()"
+          class="gap-2"
+        >
+          <app-admin-icon name="plus" class="h-4 w-4" />
+          {{ text.add }}
+        </a>
+      </div>
     </div>
 
     <!-- Narrower than the heading above it: everything below is a column of

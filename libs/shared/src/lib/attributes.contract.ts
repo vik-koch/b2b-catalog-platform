@@ -254,6 +254,16 @@ export type SaveCategoryFiltersRequest = z.infer<
   typeof saveCategoryFiltersSchema
 >;
 
+/**
+ * The whole-catalogue listing's panel (FR-ATTR-12) — the same rows as a
+ * category's, with nothing to inherit from: an attribute without a row is
+ * simply not offered, so `isNew` is never set.
+ */
+export const catalogFiltersSchema = z
+  .object({ filters: z.array(categoryFilterSchema) })
+  .strict();
+export type CatalogFilters = z.infer<typeof catalogFiltersSchema>;
+
 /** A filter panel names a category and the attributes on it; either can be gone. */
 const categoryFilterErrors = {
   'category-not-found': { status: 404 },
@@ -411,6 +421,27 @@ export const attributesContract = {
     .errors(categoryFilterErrors)
     .input(z.object({ params: z.object({ slug: slugSchema }) }))
     .output(categoryFiltersSchema),
+
+  getCatalogFilters: admin
+    .route({
+      method: 'GET',
+      path: '/admin/catalog/filters',
+      summary: "Read the whole-catalogue listing's filter panel (admin)",
+    })
+    .output(catalogFiltersSchema),
+
+  saveCatalogFilters: admin
+    .route({
+      method: 'PUT',
+      path: '/admin/catalog/filters',
+      inputStructure: 'detailed',
+      summary: "Set the whole-catalogue listing's filter panel (admin)",
+    })
+    .errors({
+      'attribute-not-found': attributeErrors['attribute-not-found'],
+    })
+    .input(z.object({ body: saveCategoryFiltersSchema }))
+    .output(catalogFiltersSchema),
 
   deleteAttribute: admin
     .route({

@@ -9,6 +9,7 @@ import { and, asc, countDistinct, eq, inArray, ne, sql } from 'drizzle-orm';
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
+  CatalogFilters,
   CategoryFilters,
   CategoryFilterSource,
   SaveCategoryFiltersRequest,
@@ -24,6 +25,7 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import {
   attributeDefinitions,
+  catalogAttributes,
   categories,
   categoryAttributes,
   productAttributes,
@@ -431,14 +433,7 @@ export class AttributesService {
     const category = rows.find((row) => row.slug === slug);
     if (!category) throw categoryNotFound();
 
-    const ids = request.filters.map((filter) => filter.attributeId);
-    if (ids.length > 0) {
-      const known = await this.db
-        .select({ id: attributeDefinitions.id })
-        .from(attributeDefinitions)
-        .where(inArray(attributeDefinitions.id, ids));
-      if (known.length !== new Set(ids).size) throw notFound();
-    }
+    await this.assertDefinitions(request);
 
     await this.db.transaction(async (tx) => {
       await tx
@@ -470,6 +465,80 @@ export class AttributesService {
     return this.getCategoryFilters(slug);
   }
 
+  /**
+   * The whole-catalogue listing's panel as the editor reads it (FR-ATTR-12).
+   *
+   * The category panel's shape, minus the inheritance: no row means not
+   * offered, so an attribute nobody has ticked is listed unticked after the
+   * placed ones rather than flagged as new. The counts cover every product.
+   */
+  async getCatalogFilters(): Promise<CatalogFilters> {
+    const [definitions, rows, counts] = await Promise.all([
+      this.db
+        .select()
+        .from(attributeDefinitions)
+        .orderBy(
+          asc(attributeDefinitions.sortOrder),
+          asc(attributeDefinitions.name),
+        ),
+      this.db.select().from(catalogAttributes),
+      this.countsInScope(null),
+    ]);
+    const placed = new Map(rows.map((row) => [row.attributeId, row]));
+
+    const filters = definitions
+      .map((definition, index) => {
+        const row = placed.get(definition.id);
+        return {
+          attributeId: definition.id,
+          name: definition.name,
+          slug: definition.slug,
+          type: definition.type,
+          unit: definition.unit,
+          visible: !!row && !row.hidden,
+          productCount: counts.get(definition.name) ?? 0,
+          isNew: false,
+          rank: row ? row.sortOrder : Number.MAX_SAFE_INTEGER - index,
+        };
+      })
+      .sort((a, b) => a.rank - b.rank)
+      .map(({ rank: _rank, ...filter }) => filter);
+
+    return { filters };
+  }
+
+  /** The whole-catalogue panel, written wholesale like a category's. */
+  async saveCatalogFilters(
+    request: SaveCategoryFiltersRequest,
+  ): Promise<CatalogFilters> {
+    await this.assertDefinitions(request);
+    await this.db.transaction(async (tx) => {
+      await tx.delete(catalogAttributes);
+      if (request.filters.length === 0) return;
+      await tx.insert(catalogAttributes).values(
+        request.filters.map((filter, index) => ({
+          attributeId: filter.attributeId,
+          sortOrder: index,
+          hidden: !filter.visible,
+        })),
+      );
+    });
+    return this.getCatalogFilters();
+  }
+
+  /** Refuses a panel naming a definition that has since been deleted. */
+  private async assertDefinitions(
+    request: SaveCategoryFiltersRequest,
+  ): Promise<void> {
+    const ids = request.filters.map((filter) => filter.attributeId);
+    if (ids.length === 0) return;
+    const known = await this.db
+      .select({ id: attributeDefinitions.id })
+      .from(attributeDefinitions)
+      .where(inArray(attributeDefinitions.id, ids));
+    if (known.length !== new Set(ids).size) throw notFound();
+  }
+
   /** The flat category rows the chain and the scope are both computed from. */
   private categoryRows(): Promise<CategoryRow[]> {
     return this.db
@@ -485,11 +554,12 @@ export class AttributesService {
       .from(categories);
   }
 
-  /** Products per attribute key within a set of categories. */
+  /** Products per attribute key within a set of categories — or across the
+   * whole catalogue, for `null`. */
   private async countsInScope(
-    categoryIds: string[],
+    categoryIds: string[] | null,
   ): Promise<Map<string, number>> {
-    if (categoryIds.length === 0) return new Map();
+    if (categoryIds?.length === 0) return new Map();
     const rows = await this.db
       .select({
         key: productAttributes.key,
@@ -497,7 +567,9 @@ export class AttributesService {
       })
       .from(productAttributes)
       .innerJoin(products, eq(products.id, productAttributes.productId))
-      .where(inArray(products.categoryId, categoryIds))
+      .where(
+        categoryIds ? inArray(products.categoryId, categoryIds) : undefined,
+      )
       .groupBy(productAttributes.key);
     return new Map(rows.map((row) => [row.key, row.productCount]));
   }

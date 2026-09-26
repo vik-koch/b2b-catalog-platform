@@ -97,6 +97,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ATTR-09](#fr-attr-09) — Attribute registry and renaming
 - [FR-ATTR-10](#fr-attr-10) — Attribute names offered while typing
 - [FR-ATTR-11](#fr-attr-11) — A category's own attribute list
+- [FR-ATTR-12](#fr-attr-12) — The catalogue's own attribute list
 
 **[Admin & Catalog Sync (FR-ADM)](#fr-adm)**
 
@@ -265,7 +266,7 @@ The main page displays an overview of all catalog categories: every top-level ca
 
 #### <a id="fr-cat-02"></a>FR-CAT-02 — Products grouped by category
 
-Products are grouped by category (incl. subcategories); this grouping is navigable. The catalogue index the navigation leads to is the listing one level above any category: every publicly visible product, with the top-level categories offered where a category offers its subcategories — all of them, at every width, where a category's own list may be shortened on a narrow screen — and its breadcrumb naming only itself, so the page holds the same shape on the way down.
+Products are grouped by category (incl. subcategories); this grouping is navigable. The catalogue index the navigation leads to is the listing one level above any category: every publicly visible product, with the top-level categories offered where a category offers its subcategories — all of them, at every width, where a category's own list may be shortened on a narrow screen — and its breadcrumb naming only itself, so the page holds the same shape on the way down. Its filters are its own ([FR-ATTR-12](#fr-attr-12)).
 
 #### <a id="fr-cat-03"></a>FR-CAT-03 — Paginated category grid
 
@@ -494,6 +495,10 @@ While a product's attributes are being entered, the admin is offered the attribu
 #### <a id="fr-attr-11"></a>FR-ATTR-11 — A category's own attribute list
 
 A category defines which filterable attributes its listing offers and in what order. A category with no definition of its own follows its nearest ancestor that has one, and one with no ancestor either offers every filterable attribute in the registry's order. A category's own list replaces the inherited one entirely, so an attribute declared afterwards is offered only where nothing has been defined. An attribute a category does not offer is not linked from its products' attribute rows either.
+
+#### <a id="fr-attr-12"></a>FR-ATTR-12 — The catalogue's own attribute list
+
+The catalogue index ([FR-CAT-02](#fr-cat-02)) offers only the filterable attributes chosen for it, in the order chosen — typically the few that run across categories, such as a brand, so products of one brand can be found together wherever they are filed. Nothing is offered there until it is chosen: the whole catalogue carries every attribute there is, and offering them all would open the page on a long panel. The list stands alone — no category inherits it, and a category's own list ([FR-ATTR-11](#fr-attr-11)) is unaffected by it. Search results keep offering every filterable attribute, and a product's attribute rows keep linking to its own category's listing.
 
 ---
 
