@@ -121,9 +121,10 @@ export function ancestorsOf(
   return crumbs;
 }
 
-/** Direct children of a category, for the drill-down nav. */
+/** Direct children of a category, for the drill-down nav — of the catalogue
+ * itself for `null`, which is the top level. */
 export function directChildren(
-  categoryId: string,
+  categoryId: string | null,
   rows: CategoryRow[],
 ): SubcategoryLink[] {
   return rows

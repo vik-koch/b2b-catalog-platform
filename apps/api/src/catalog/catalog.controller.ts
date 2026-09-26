@@ -34,6 +34,20 @@ export class CatalogController {
   }
 
   @TierPriced()
+  @Implement(catalogContract.getCatalogProducts)
+  getCatalogProducts(@PricingTier() tierId: string | null) {
+    return implement(catalogContract.getCatalogProducts).handler(
+      ({ input: { query } }) =>
+        this.catalog.getCatalogProducts(
+          query.page,
+          query.sort,
+          tierId,
+          parseAttributeParams(query.attr),
+        ),
+    );
+  }
+
+  @TierPriced()
   @Implement(catalogContract.getCategoryProducts)
   getCategoryProducts(@PricingTier() tierId: string | null) {
     return implement(catalogContract.getCategoryProducts).handler(

@@ -201,9 +201,9 @@ describe('CategoryGrid', () => {
       el(f).querySelector('a[href="/catalog/a"]')?.closest('ul');
 
     // Every chip is rendered at all times — how many are visible is the
-    // browser's answer, given by clipping the list to two rows.
+    // browser's answer, given by clipping the list to four rows.
     expect(chipCount()).toBe(6);
-    expect(list()?.className).toContain('max-h-37');
+    expect(list()?.className).toContain('max-h-75');
     // ...and only on a phone: from the viewport's `sm` the clip is lifted in
     // CSS, so the same HTML shows every chip on a wider screen.
     expect(list()?.className).toContain('sm:max-h-none');
@@ -222,7 +222,7 @@ describe('CategoryGrid', () => {
 
     // Open, the cap becomes the list's own measured height rather than `none`:
     // both states are a length, so the movement between them runs.
-    expect(list()?.className).not.toContain('max-h-37');
+    expect(list()?.className).not.toContain('max-h-75');
     expect(list()?.className).toContain('var(--subs-full');
     expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
 
@@ -452,5 +452,125 @@ describe('CategoryGrid layout', () => {
 
     expect(el(lines).querySelector('app-product-row')).not.toBeNull();
     expect(el(lines).querySelector('app-product-tile')).toBeNull();
+  });
+});
+
+describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
+  type Catalog = Awaited<ReturnType<CatalogService['getCatalogProducts']>>;
+
+  function catalog(overrides: Partial<Catalog> = {}): Catalog {
+    const { category: _category, ...listing } = response();
+    return {
+      ...listing,
+      categories: [
+        {
+          slug: 'coffee-beans',
+          name: 'Coffee Beans',
+          shortName: null,
+          mark: null,
+        },
+        { slug: 'tea', name: 'Tea', shortName: null, mark: null },
+      ],
+      ...overrides,
+    };
+  }
+
+  /** No slug bound, as the `/catalog` route leaves it. */
+  async function renderCatalog(
+    result: Catalog,
+  ): Promise<ComponentFixture<CategoryGrid>> {
+    TestBed.configureTestingModule({
+      imports: [CategoryGrid],
+      providers: [
+        provideRouter([]),
+        { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+        {
+          provide: CatalogService,
+          useValue: {
+            getCatalogProducts: async () => result,
+            getCategoryProducts: async () => {
+              throw new Error('the index is no category');
+            },
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(CategoryGrid);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('heads the page as the catalogue, under a trail of one', async () => {
+    const root = el(await renderCatalog(catalog()));
+    const nav = root.querySelector(
+      `nav[aria-label="${defaultAppText.catalog.catalogRoot}"]`,
+    );
+
+    expect(root.querySelector('h1')?.textContent).toContain(
+      defaultAppText.catalog.catalogRoot,
+    );
+    // Where a category's breadcrumb stands, so nothing moves on the way down —
+    // the current page, not a link to itself.
+    expect(nav?.querySelector('[aria-current="page"]')?.textContent).toContain(
+      defaultAppText.catalog.catalogRoot,
+    );
+    expect(nav?.querySelector('a')).toBeNull();
+    expect(
+      root.querySelector('a[href="/product/hafen-espresso"]'),
+    ).not.toBeNull();
+  });
+
+  it('offers the top-level categories where a category offers its subcategories', async () => {
+    const root = el(await renderCatalog(catalog()));
+    const chips = root.querySelectorAll('#subcategories a');
+
+    expect([...chips].map((a) => a.getAttribute('href'))).toEqual([
+      '/catalog/coffee-beans',
+      '/catalog/tea',
+    ]);
+  });
+
+  it('shows the whole top level on a phone too, with nothing to open', async () => {
+    const categories = 'abcdefgh'.split('').map((s) => ({
+      slug: s,
+      name: s.toUpperCase(),
+      shortName: null,
+      mark: null,
+    }));
+    const root = el(await renderCatalog(catalog({ categories })));
+
+    expect(root.querySelector('#subcategories')?.className).not.toContain(
+      'overflow-hidden',
+    );
+    expect(root.textContent).not.toContain(defaultAppText.catalog.showMore);
+  });
+
+  it('pages within the catalogue', async () => {
+    const root = el(
+      await renderCatalog(
+        catalog({
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+      ),
+    );
+
+    expect(root.querySelector('a[href="/catalog?page=1"]')).not.toBeNull();
+    expect(root.querySelector('a[href="/catalog?page=3"]')).not.toBeNull();
+  });
+
+  it('says the catalogue is being set up when there is nothing in it', async () => {
+    const root = el(
+      await renderCatalog(
+        catalog({
+          categories: [],
+          items: [],
+          pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+        }),
+      ),
+    );
+
+    expect(root.textContent).toContain(defaultAppText.catalog.emptyCategories);
   });
 });
