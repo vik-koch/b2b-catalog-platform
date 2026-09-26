@@ -416,6 +416,26 @@ export const categoryAttributes = pgTable(
 );
 
 /**
+ * The filter panel of the whole-catalogue listing (FR-ATTR-12) — the rows of
+ * `category_attributes` for the one listing that is no category.
+ *
+ * Kept apart rather than stored as a category row with no category, because
+ * it is **not an ancestor**: nothing inherits it, and a category with no
+ * overlay still offers the registry. And it is **opt-in** — no row, no
+ * filter — since the whole catalogue carries every attribute there is, and
+ * the few worth filtering across categories (a brand) are a choice.
+ */
+export const catalogAttributes = pgTable('catalog_attributes', {
+  attributeId: uuid('attributeId')
+    .primaryKey()
+    .references(() => attributeDefinitions.id, { onDelete: 'cascade' }),
+  /** Where the attribute sits in the panel. */
+  sortOrder: integer('sortOrder').notNull(),
+  /** Kept rather than deleted, so an unticked row keeps its place. */
+  hidden: boolean('hidden').notNull().default(false),
+});
+
+/**
  * The customer tiers of FR-AUTH-05 — price lists as rows rather than a
  * code-level enum, because tier names are a deployment's own commercial
  * vocabulary and adding one must not be a release.
