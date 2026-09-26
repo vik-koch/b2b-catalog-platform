@@ -37,6 +37,7 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import {
   attributeDefinitions,
+  catalogAttributes,
   categories,
   categoryAttributes,
   documentProducts,
@@ -169,7 +170,8 @@ export class CatalogService {
   /**
    * Every publicly visible product (FR-CAT-02/03) — the catalogue index as a
    * listing, one level above any category. The same page as a category's,
-   * with the top-level categories as its drill-down nav.
+   * with the top-level categories as its drill-down nav and the
+   * whole-catalogue panel (FR-ATTR-12) as its filters.
    */
   async getCatalogProducts(
     page: number,
@@ -180,7 +182,7 @@ export class CatalogService {
     const price = livePriceMinor(tierId);
     const rows = await this.categoryRows();
     const stocked = stockedCategoryIds(rows, await this.liveCategoryIds());
-    const definitions = await this.attributeDefinitions();
+    const definitions = await this.catalogDefinitions();
     const selections = resolveSelections(attributes, definitions);
     const scope = publiclyVisible;
     const where = and(scope, ...selectionConditions(this.db, selections));
@@ -466,6 +468,24 @@ export class CatalogService {
         asc(attributeDefinitions.sortOrder),
         asc(attributeDefinitions.name),
       );
+  }
+
+  /**
+   * The filterable attributes the whole-catalogue listing offers
+   * (FR-ATTR-12): the ticked rows of its own panel, in its order — none when
+   * nothing has been ticked, since that panel is opt-in.
+   */
+  private async catalogDefinitions(): Promise<DefinitionRow[]> {
+    const rows = await this.db
+      .select({ definition: attributeDefinitions })
+      .from(catalogAttributes)
+      .innerJoin(
+        attributeDefinitions,
+        eq(attributeDefinitions.id, catalogAttributes.attributeId),
+      )
+      .where(eq(catalogAttributes.hidden, false))
+      .orderBy(asc(catalogAttributes.sortOrder));
+    return rows.map((row) => row.definition);
   }
 
   /**
