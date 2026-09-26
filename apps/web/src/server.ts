@@ -14,6 +14,7 @@ import { getAdminText, preloadAdminText } from './app/config/admin-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectCartShell } from './app/cart/cart-shell.server';
 import { injectSessionShell } from './app/auth/session-shell.server';
+import { sessionCookieIn } from './app/auth/session-cookie';
 import { injectShellState } from './app/config/shell-state.server';
 import { injectFontHead } from './app/config/font.server';
 import {
@@ -110,9 +111,8 @@ app.get('/robots.txt', async (_req, res, next) => {
 
 /**
  * The admin half of the UI text (see admin-text.type.ts). Fetched by the client
- * instead of being injected into the document: the SSR tier is session-blind on
- * purpose, so it cannot vary a document by who is asking without forking the
- * page cache per visitor. Not a secret — just wording an anonymous visitor has
+ * instead of being injected into the document, so the wording rides along only
+ * with a session that can use it and a guest's document stays lean. Not a secret — just wording an anonymous visitor has
  * no use for — so it is served unauthenticated and cached like a static asset.
  */
 app.get('/admin-text.json', (_req, res, next) => {
@@ -163,6 +163,31 @@ app.get('/sitemap.xml', async (_req, res, next) => {
 });
 
 /**
+ * Headers for a rewritten document. A render now asks the API as the visitor
+ * (forward-session.server.ts), so a signed-in visitor's document carries their
+ * prices and account, both in the markup and in the hydration data: it must
+ * never reach anyone else. `Vary: Cookie` on every document, so no shared
+ * cache hands one kind of visitor the other's; `private, no-store` on the ones
+ * a session shaped — the same rule the API applies to its own responses.
+ *
+ * The render itself marks the page private from what it actually embedded
+ * (private-page.server.ts); this is the second line, on the cookie alone, in
+ * case a render ever reaches the API by some path that interceptor misses.
+ */
+function documentHeaders(
+  response: Response,
+  cookieHeader: string | undefined,
+): Headers {
+  const headers = new Headers(response.headers);
+  headers.delete('content-length');
+  headers.append('Vary', 'Cookie');
+  if (sessionCookieIn(cookieHeader)) {
+    headers.set('Cache-Control', 'private, no-store');
+  }
+  return headers;
+}
+
+/**
  * Handle all other requests by rendering the Angular application.
  *
  * Every HTML document leaving here — a server-rendered page or the shell for a
@@ -201,10 +226,11 @@ app.use(async (req, res, next) => {
           ),
         ),
       );
-      const headers = new Headers(response.headers);
-      headers.delete('content-length');
       await writeResponseToNodeResponse(
-        new Response(html, { status: 503, headers }),
+        new Response(html, {
+          status: 503,
+          headers: documentHeaders(response, req.headers.cookie),
+        }),
         res,
       );
       return;
@@ -227,10 +253,11 @@ app.use(async (req, res, next) => {
         req.path,
       ),
     );
-    const headers = new Headers(response.headers);
-    headers.delete('content-length');
     await writeResponseToNodeResponse(
-      new Response(html, { status: response.status, headers }),
+      new Response(html, {
+        status: response.status,
+        headers: documentHeaders(response, req.headers.cookie),
+      }),
       res,
     );
   } catch (error) {

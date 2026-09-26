@@ -20,11 +20,11 @@ import { WorkService } from '../work/work.service';
  * label is what actually names the destination, in both navbars. The identity
  * itself is shown on the page the link leads to.
  *
- * **The unresolved state is answered rather than guessed.** The server is
- * session-blind by design (see AuthService) — it renders one document for
- * everybody, so an SSR pass cannot know who is asking. What the browser does
- * know, before `/auth/me` answers, is the readable session hint beside the
- * httpOnly cookie: it decides the label on the first frame, via the pre-paint
+ * **The unresolved state is answered rather than guessed.** A server-rendered
+ * page draws it from the session the render asked about (see AuthService), but
+ * a client-rendered route's shell has no render to draw it from. What the
+ * browser does know, before `/auth/me` answers, is the readable session hint
+ * beside the httpOnly cookie: it decides the label on the first frame, via the pre-paint
  * script for the paint itself (`session-shell.server.ts`) and `hintedRole` for
  * everything Angular renders after it.
  *

@@ -27,6 +27,51 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => localStorage.removeItem('cart'));
 });
 
+// The server draws every set of buy controls for an empty cart. Hydrating a
+// carted product's must replace that picture, never add its own beside it —
+// "Added" stacked on the "Add to cart" it replaced, a card a row taller than
+// its neighbours.
+test('a cold load never shows a carted product both ways at once', async ({
+  page,
+}) => {
+  // The main page's row, where it was seen. `takeaway-cup-lid-set-400` is
+  // seeded featured and in stock, so it is in every draw of the row.
+  await page.goto('/product/takeaway-cup-lid-set-400');
+  await page.getByRole('button', { name: 'Add to cart' }).click();
+  await expect(page.getByText(/Added for/)).toBeVisible();
+
+  // Before any of the page exists: note every moment one set of controls
+  // holds both the button and the label.
+  await page.addInitScript(() => {
+    const w = window as unknown as { doubled: boolean };
+    w.doubled = false;
+    new MutationObserver(() => {
+      for (const controls of document.querySelectorAll(
+        'app-product-buy-controls',
+      )) {
+        const button = [...controls.querySelectorAll('button')].some((b) =>
+          (b.textContent ?? '').includes('Add to cart'),
+        );
+        if (button && controls.querySelector('p[role=status]')) {
+          w.doubled = true;
+        }
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
+
+  // More than one load, because the doubled moment is a race with hydration
+  // and a single load does not always lose it.
+  for (let load = 0; load < 3; load++) {
+    await page.goto('/');
+    await expect(page.getByText(/Added for/)).toBeVisible();
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { doubled: boolean }).doubled,
+      ),
+    ).toBe(false);
+  }
+});
+
 test('adds a chosen unit to the cart, counts it in the header, and keeps it', async ({
   page,
 }) => {

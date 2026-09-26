@@ -30,9 +30,9 @@ export function preloadAdminText(): void {
  * Server provider: the render reads the mounted file directly, so SSR never
  * depends on the fetch the browser uses. Components that merely *inject* the
  * token — the always-mounted edit-mode toggle — must resolve on the server too,
- * even though nothing admin is ever rendered there: the server resolves no
- * session (0019), so every admin affordance stays hidden and no admin wording
- * reaches the document.
+ * even though nothing admin is ever rendered there: edit mode is a choice kept
+ * in the admin's browser, so every affordance stays hidden on the server and
+ * no admin wording reaches the document.
  */
 export function provideServerAdminText(): Provider {
   return { provide: ADMIN_TEXT, useFactory: getAdminText };

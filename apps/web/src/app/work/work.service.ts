@@ -20,10 +20,9 @@ import { createOrpcClient } from '../core/orpc-client';
  * than remembered: every figure is a count over work that is still there, so
  * there is nothing to acknowledge and nothing to keep in step (ADR 0046).
  *
- * **Never on the server.** The counts are session state, and the SSR pass is
- * session-blind by design (see AuthService) — a rendered figure would be the
- * guest's answer painted at a customer. The marker simply appears once the
- * browser has asked.
+ * **Never on the server.** The marker is a nudge, not content: a render that
+ * waited on one more round trip for it would delay every signed-in page for a
+ * dot. It simply appears once the browser has asked.
  *
  * **Re-asked per navigation**, which is what makes it self-correcting: a
  * manager who approves the last pending registration and goes back to the
