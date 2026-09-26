@@ -166,6 +166,24 @@ export class AttributesController {
       });
   }
 
+  @Implement(attributesContract.getCatalogFilters)
+  getCatalogFilters() {
+    return implement(attributesContract.getCatalogFilters)
+      .use(refusals)
+      .handler(() => this.service.getCatalogFilters());
+  }
+
+  @Implement(attributesContract.saveCatalogFilters)
+  saveCatalogFilters(@CurrentUser() user: AuthUser) {
+    return implement(attributesContract.saveCatalogFilters)
+      .use(refusals)
+      .handler(async ({ input: { body } }) => {
+        const result = await this.service.saveCatalogFilters(body);
+        this.audit.record('catalog.filtersSaved', user, {});
+        return result;
+      });
+  }
+
   @Implement(attributesContract.deleteAttribute)
   deleteAttribute(@CurrentUser() user: AuthUser) {
     return implement(attributesContract.deleteAttribute)

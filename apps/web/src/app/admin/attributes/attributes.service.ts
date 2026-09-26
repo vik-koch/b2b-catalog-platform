@@ -5,6 +5,7 @@ import {
   AttributeErrorCode,
   AttributeKeyUsage,
   AttributeValueUsage,
+  CatalogFilters,
   CategoryFilters,
   SaveCategoryFiltersRequest,
   RenameAttributeKeyRequest,
@@ -118,6 +119,21 @@ export class AttributesService {
   /** Drops the overlay, so the category inherits again. */
   async resetCategoryFilters(slug: string): Promise<CategoryFilters | null> {
     return this.panel(this.client.resetCategoryFilters({ params: { slug } }));
+  }
+
+  /** The whole-catalogue listing's panel (FR-ATTR-12). */
+  async catalogFilters(): Promise<CatalogFilters> {
+    return this.client.getCatalogFilters();
+  }
+
+  /** Replaces the whole-catalogue panel; null when an attribute is gone. */
+  async saveCatalogFilters(
+    body: SaveCategoryFiltersRequest,
+  ): Promise<CatalogFilters | null> {
+    const result = await safe(this.client.saveCatalogFilters({ body }));
+    if (result.isDefined && renderable(result.error.code)) return null;
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 
   /**

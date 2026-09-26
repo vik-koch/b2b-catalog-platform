@@ -49,6 +49,7 @@ export const serverRoutes: ServerRoute[] = [
   { path: 'admin/categories/new', renderMode: RenderMode.Client },
   { path: 'admin/categories/:slug/edit', renderMode: RenderMode.Client },
   { path: 'admin/categories/:slug/filters', renderMode: RenderMode.Client },
+  { path: 'admin/catalog/filters', renderMode: RenderMode.Client },
   { path: 'admin/products/new', renderMode: RenderMode.Client },
   { path: 'admin/products/:slug/edit', renderMode: RenderMode.Client },
   { path: 'admin/pages/:slug/edit', renderMode: RenderMode.Client },

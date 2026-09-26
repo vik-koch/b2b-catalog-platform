@@ -385,6 +385,16 @@ export const appRoutes: Route[] = [
         (m) => m.CategoryFiltersPage,
       ),
   },
+  // The whole-catalogue listing's panel (FR-ATTR-12): the same editor with no
+  // category, since nothing inherits it.
+  {
+    path: 'admin/catalog/filters',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/attributes/category-filters-page').then(
+        (m) => m.CategoryFiltersPage,
+      ),
+  },
   {
     path: 'admin/products/new',
     canActivate: [requireAuth('admin'), adminTextGuard],

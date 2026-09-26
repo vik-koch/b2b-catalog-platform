@@ -318,6 +318,7 @@
     "noProducts": "No products yet",
     "directProducts": "{count} product(s) without subcategories",
     "editFilters": "Edit category filters",
+    "catalogFilters": "Catalogue filters",
     "edit": "Edit",
     "delete": "Delete",
     "deleting": "Deleting…",
@@ -777,6 +778,9 @@
     "resetDone": "This category follows the inherited list again.",
     "empty": "No attribute is offered here, so this category shows no filter panel.",
     "noDefinitions": "No attribute is filterable yet. Add one to the attribute list first.",
+    "catalogHeading": "Filters across the catalogue",
+    "catalogIntro": "Which attributes the catalogue page offers as a filter over every product at once, and in what order — a brand, say, that runs through several categories. Nothing is offered here until it is ticked, and categories keep their own filter lists.",
+    "catalogEmpty": "No attribute is offered, so the catalogue page shows no filter panel.",
     "errors": {
       "category-not-found": "This category no longer exists.",
       "attribute-not-found": "One of these attributes no longer exists. Reload the page to see the current list."

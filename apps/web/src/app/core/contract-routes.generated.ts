@@ -385,6 +385,24 @@ export const attributesContract = {
       },
     },
   },
+  getCatalogFilters: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'GET', path: '/admin/catalog/filters' },
+    },
+  },
+  saveCatalogFilters: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/catalog/filters',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   deleteAttribute: {
     '~orpc': {
       errorMap: {},

@@ -14,7 +14,11 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CategoryFilter, CategoryFilters } from '@b2b-catalog-platform/shared';
+import {
+  CatalogFilters,
+  CategoryFilter,
+  CategoryFilters,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
 import { usePageSeo } from '../../core/page-seo';
@@ -31,6 +35,13 @@ import { AttributesService } from './attributes.service';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
+
+/** Either panel this screen edits: a category's, or the whole catalogue's. */
+type Panel = CategoryFilters | CatalogFilters;
+
+function isCategoryPanel(panel: Panel): panel is CategoryFilters {
+  return 'category' in panel;
+}
 
 /**
  * One category's filter panel (FR-ATTR-11) — which filterable attributes it
@@ -49,6 +60,9 @@ const FALLBACK_RETURN = '/admin/categories';
  * to wherever it was opened from — the storefront grid as often as the admin
  * list. Resetting to the inherited list does not: it is an edit to this
  * screen's own subject, and the result is what the screen then shows.
+ *
+ * Without a category it edits the whole-catalogue listing's panel
+ * (FR-ATTR-12) — the same list, with nothing to inherit or reset to.
  */
 @Component({
   selector: 'app-category-filters-page',
@@ -85,7 +99,9 @@ const FALLBACK_RETURN = '/admin/categories';
       </a>
     </div>
 
-    <p class="mb-2 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    <p class="mb-2 max-w-3xl text-sm text-muted">
+      {{ slug() ? text.intro : text.catalogIntro }}
+    </p>
 
     <div class="max-w-3xl">
       @if (filters.error()) {
@@ -95,7 +111,11 @@ const FALLBACK_RETURN = '/admin/categories';
           <!-- Where the list comes from is the first thing to read: an
                inherited panel looks identical to an owned one until it is
                saved, and only this line tells them apart. -->
-          <p class="mb-6 text-sm text-subtle">{{ sourceLabel(panel) }}</p>
+          @if (sourceLabel(panel); as source) {
+            <p class="mb-6 text-sm text-subtle">{{ source }}</p>
+          } @else {
+            <div class="mb-6"></div>
+          }
 
           @if (draft().length === 0) {
             <p class="text-sm text-muted">{{ text.noDefinitions }}</p>
@@ -157,7 +177,9 @@ const FALLBACK_RETURN = '/admin/categories';
             </div>
 
             @if (noneVisible()) {
-              <p class="mt-4 text-sm text-amber-700">{{ text.empty }}</p>
+              <p class="mt-4 text-sm text-amber-700">
+                {{ slug() ? text.empty : text.catalogEmpty }}
+              </p>
             }
 
             <div class="mt-6 flex flex-wrap items-center gap-2">
@@ -182,7 +204,7 @@ const FALLBACK_RETURN = '/admin/categories';
                 <app-admin-icon name="x" class="h-4 w-4" />
                 {{ common.cancel }}
               </button>
-              @if (panel.source === 'own') {
+              @if (isCategoryPanel(panel) && panel.source === 'own') {
                 <button
                   appButton
                   variant="secondary"
@@ -208,7 +230,7 @@ const FALLBACK_RETURN = '/admin/categories';
           }
         } @else {
           <p class="text-muted" role="alert">
-            {{ text.errors['category-not-found'] }}
+            {{ notFound() }}
           </p>
         }
       } @else if (showSkeleton()) {
@@ -226,12 +248,18 @@ export class CategoryFiltersPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
-  /** The category being edited, from the route. */
-  readonly slug = input.required<string>();
+  /** The category being edited, from the route — absent for the whole
+   * catalogue's panel. */
+  readonly slug = input<string>();
 
-  protected readonly filters = resource({
-    params: () => this.slug(),
-    loader: ({ params }) => this.service.categoryFilters(params),
+  protected readonly isCategoryPanel = isCategoryPanel;
+
+  protected readonly filters = resource<Panel | null, { slug?: string }>({
+    params: () => ({ slug: this.slug() }),
+    loader: ({ params }) =>
+      params.slug
+        ? this.service.categoryFilters(params.slug)
+        : this.service.catalogFilters(),
   });
   protected readonly showSkeleton = delayedLoading(this.filters.isLoading);
   /** Null where the slug names no category — the resource itself succeeded. */
@@ -258,11 +286,28 @@ export class CategoryFiltersPage {
   protected readonly error = signal<string | null>(null);
 
   constructor() {
-    usePageSeo({ name: () => this.loaded()?.category.name ?? this.text.title });
+    usePageSeo({
+      name: () => {
+        const panel = this.loaded();
+        return panel && isCategoryPanel(panel)
+          ? panel.category.name
+          : this.text.title;
+      },
+    });
   }
 
-  protected headingFor(panel: CategoryFilters): string {
-    return this.text.heading.replace('{category}', panel.category.name);
+  protected headingFor(panel: Panel): string {
+    return isCategoryPanel(panel)
+      ? this.text.heading.replace('{category}', panel.category.name)
+      : this.text.catalogHeading;
+  }
+
+  /** What a refused save or a missing subject says — the category is gone,
+   * or, for the whole catalogue, one of the attributes is. */
+  protected notFound(): string {
+    return this.slug()
+      ? this.text.errors['category-not-found']
+      : this.text.errors['attribute-not-found'];
   }
 
   /** Leaves without saving. Same target as a save, so both close the same way. */
@@ -270,7 +315,9 @@ export class CategoryFiltersPage {
     void this.returnTo(FALLBACK_RETURN);
   }
 
-  protected sourceLabel(panel: CategoryFilters): string {
+  /** Null for the whole catalogue, whose list comes from nowhere else. */
+  protected sourceLabel(panel: Panel): string | null {
+    if (!isCategoryPanel(panel)) return null;
     return this.text.sources[panel.source].replace(
       '{category}',
       panel.inheritedFrom?.name ?? '',
@@ -311,15 +358,19 @@ export class CategoryFiltersPage {
     const list = this.draft();
     this.busy.set(true);
     this.error.set(null);
+    const body = {
+      filters: list.map((filter) => ({
+        attributeId: filter.attributeId,
+        visible: filter.visible,
+      })),
+    };
+    const slug = this.slug();
     try {
-      const panel = await this.service.saveCategoryFilters(this.slug(), {
-        filters: list.map((filter) => ({
-          attributeId: filter.attributeId,
-          visible: filter.visible,
-        })),
-      });
+      const panel = slug
+        ? await this.service.saveCategoryFilters(slug, body)
+        : await this.service.saveCatalogFilters(body);
       if (!panel) {
-        this.error.set(this.text.errors['category-not-found']);
+        this.error.set(this.notFound());
         return;
       }
       this.edited.set(null);
@@ -337,6 +388,8 @@ export class CategoryFiltersPage {
    * subcategory that was following this one, which is not visible from here.
    */
   protected async reset(): Promise<void> {
+    const slug = this.slug();
+    if (!slug) return;
     const ok = await this.confirm.ask({
       heading: this.text.resetTitle,
       message: this.text.resetConfirm,
@@ -348,7 +401,7 @@ export class CategoryFiltersPage {
     this.busy.set(true);
     this.error.set(null);
     try {
-      const panel = await this.service.resetCategoryFilters(this.slug());
+      const panel = await this.service.resetCategoryFilters(slug);
       if (!panel) {
         this.error.set(this.text.errors['category-not-found']);
         return;

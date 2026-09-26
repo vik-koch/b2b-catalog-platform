@@ -193,7 +193,8 @@ export const adminTextSchema = z
         editCategory: z.string(),
         editCategories: z.string(),
         addCategory: z.string(),
-        /** The way into this category's filter panel (FR-ATTR-11). */
+        /** The way into this category's filter panel (FR-ATTR-11) — or, on
+         * the catalogue index, the whole catalogue's (FR-ATTR-12). */
         editFilters: z.string(),
         /** The overlay under a category grid: everything the storefront hides. */
         hiddenHeading: z.string(),
@@ -571,6 +572,8 @@ export const adminTextSchema = z
         directProducts: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
+        /** The page's way into the whole catalogue's panel (FR-ATTR-12). */
+        catalogFilters: z.string(),
         edit: z.string(),
         delete: z.string(),
         deleting: z.string(),
@@ -1279,6 +1282,12 @@ export const adminTextSchema = z
         empty: z.string(),
         /** Offered nowhere: the registry itself is empty. */
         noDefinitions: z.string(),
+        /** The whole-catalogue panel (FR-ATTR-12): nothing inherits it and it
+         * inherits nothing, so it has its own heading, intro and empty state
+         * in place of `heading`, `intro`, `sources` and `empty`. */
+        catalogHeading: z.string(),
+        catalogIntro: z.string(),
+        catalogEmpty: z.string(),
         errors: z
           .object({
             'category-not-found': z.string(),
