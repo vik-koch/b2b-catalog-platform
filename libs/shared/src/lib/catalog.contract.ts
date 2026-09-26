@@ -500,6 +500,32 @@ export const catalogContract = {
     })
     .output(z.object({ categories: z.array(categoryNodeSchema) }).strict()),
 
+  /**
+   * Every publicly visible product, paginated (FR-CAT-02/03) — the listing
+   * the catalogue index is, one level above any category. The same query as
+   * a category's, and the top-level categories in place of its subcategories;
+   * no ancestors, because nothing is above it.
+   */
+  getCatalogProducts: oc
+    .route({
+      method: 'GET',
+      path: '/catalog/products',
+      inputStructure: 'detailed',
+      summary: 'List every product in the catalogue (paginated)',
+    })
+    .input(z.object({ query: productListQuerySchema }))
+    .output(
+      z
+        .object({
+          /** The top-level categories, for the drill-down nav. */
+          categories: z.array(subcategoryLinkSchema),
+          items: z.array(productListItemSchema),
+          pagination: paginationSchema,
+          facets: z.array(facetSchema),
+        })
+        .strict(),
+    ),
+
   /** Paginated products within a category (FR-CAT-03/04). */
   getCategoryProducts: oc
     .route({

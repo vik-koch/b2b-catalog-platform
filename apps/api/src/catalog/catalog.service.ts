@@ -10,6 +10,7 @@ import {
   inArray,
   isNull,
   or,
+  SQL,
 } from 'drizzle-orm';
 import {
   AttributeSelection,
@@ -91,14 +92,23 @@ import {
 } from './category-filters';
 import { SearchLogger } from './search.logger';
 
+interface Pagination {
+  page: number;
+  pageSize: number;
+  total: number;
+  totalPages: number;
+}
+
 interface SearchResult {
   items: ProductListItem[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
+  pagination: Pagination;
+  facets: Facet[];
+}
+
+interface CatalogProductsResult {
+  categories: SubcategoryLink[];
+  items: ProductListItem[];
+  pagination: Pagination;
   facets: Facet[];
 }
 
@@ -111,12 +121,7 @@ interface CategoryProductsResult {
     subcategories: SubcategoryLink[];
   };
   items: ProductListItem[];
-  pagination: {
-    page: number;
-    pageSize: number;
-    total: number;
-    totalPages: number;
-  };
+  pagination: Pagination;
   facets: Facet[];
 }
 
@@ -162,6 +167,38 @@ export class CatalogService {
   }
 
   /**
+   * Every publicly visible product (FR-CAT-02/03) — the catalogue index as a
+   * listing, one level above any category. The same page as a category's,
+   * with the top-level categories as its drill-down nav.
+   */
+  async getCatalogProducts(
+    page: number,
+    sort: ProductSort,
+    tierId: string | null = null,
+    attributes: AttributeSelection[] = [],
+  ): Promise<CatalogProductsResult> {
+    const price = livePriceMinor(tierId);
+    const rows = await this.categoryRows();
+    const stocked = stockedCategoryIds(rows, await this.liveCategoryIds());
+    const definitions = await this.attributeDefinitions();
+    const selections = resolveSelections(attributes, definitions);
+    const scope = publiclyVisible;
+    const where = and(scope, ...selectionConditions(this.db, selections));
+
+    const listing = await this.listingPage(where, page, sort, price);
+    const facets = await buildFacets(this.db, scope, definitions, selections);
+
+    return {
+      categories: directChildren(
+        null,
+        rows.filter((row) => stocked.has(row.id)),
+      ),
+      ...listing,
+      facets,
+    };
+  }
+
+  /**
    * A category's products (FR-CAT-03/04), narrowed by the attribute selection
    * the caller carries (FR-ATTR-05).
    *
@@ -192,13 +229,37 @@ export class CatalogService {
     const selections = resolveSelections(attributes, definitions);
     const where = and(scope, ...selectionConditions(this.db, selections));
 
+    const listing = await this.listingPage(where, page, sort, price);
+    const facets = await buildFacets(this.db, scope, definitions, selections);
+
+    return {
+      category: {
+        slug: category.slug,
+        name: category.name,
+        shortName: category.shortName,
+        ancestors: ancestorsOf(category.id, rows),
+        subcategories: directChildren(category.id, stockedRows),
+      },
+      ...listing,
+      facets,
+    };
+  }
+
+  /** One page of a browsed listing and the count behind it — a category's or
+   * the whole catalogue's, which differ only in `where`. */
+  private async listingPage(
+    where: SQL | undefined,
+    page: number,
+    sort: ProductSort,
+    price: SQL<number>,
+  ): Promise<{ items: ProductListItem[]; pagination: Pagination }> {
     const [{ value: total }] = await this.db
       .select({ value: count() })
       .from(products)
       .where(where);
 
     const pageSize = CATALOG_PAGE_SIZE;
-    const rowsPage = await this.db
+    const rows = await this.db
       .select({
         slug: products.slug,
         name: products.name,
@@ -215,25 +276,15 @@ export class CatalogService {
       .orderBy(...productOrderBy(sort, undefined, price))
       .limit(pageSize)
       .offset((page - 1) * pageSize);
-    const items = rowsPage.map(toListItem);
-    const facets = await buildFacets(this.db, scope, definitions, selections);
 
     return {
-      category: {
-        slug: category.slug,
-        name: category.name,
-        shortName: category.shortName,
-        ancestors: ancestorsOf(category.id, rows),
-        subcategories: directChildren(category.id, stockedRows),
-      },
-      items,
+      items: rows.map(toListItem),
       pagination: {
         page,
         pageSize,
         total: Number(total),
         totalPages: Math.ceil(Number(total) / pageSize),
       },
-      facets,
     };
   }
 

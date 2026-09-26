@@ -25,8 +25,8 @@ export const CATEGORY_GRID =
 
 /**
  * Every top-level category as a chip, with the first few of its subcategories
- * named underneath (FR-CAT-01/02) — the main page and the catalogue index draw
- * the same thing, so they draw it from here.
+ * named underneath (FR-CAT-01) — the main page's overview. The catalogue index
+ * is a listing (see CategoryGrid) and draws only the top level, as chips.
  *
  * A category is a grouping of products rather than a thing in its own right, so
  * it is shown as a chip and not as a card with a picture of one of its

@@ -500,6 +500,17 @@ export const catalogContract = {
       route: { method: 'GET', path: '/catalog/categories' },
     },
   },
+  getCatalogProducts: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/catalog/products',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   getCategoryProducts: {
     '~orpc': {
       errorMap: {},

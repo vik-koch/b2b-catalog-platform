@@ -13,10 +13,15 @@ import {
 } from '@angular/core';
 import { Params, Router, RouterLink } from '@angular/router';
 import {
+  CategoryCrumb,
   categoryDisplayName,
   encodeAttributeParams,
+  Facet,
   fillText,
   parseAttributeParams,
+  ProductListItem,
+  ProductSort,
+  SubcategoryLink,
 } from '@b2b-catalog-platform/shared';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
@@ -57,18 +62,19 @@ import {
 import { PRODUCT_GRID, ProductTile } from './product-tile';
 
 /**
- * What the collapsed chip list clips to, in px: two `h-16` chip rows, the
- * `gap-3` between them and the 4px the list is inset by (see SUBS_LIST).
+ * What the collapsed chip list clips to, in px: four `h-16` chip rows, the
+ * `gap-3`s between them and the 4px the list is inset by (see SUBS_LIST) —
+ * as many as the main page names under a category.
  * Collapsed, the list is clipped to exactly this, so the browser decides how
  * many chips fit; the number is here only so the code can ask whether anything
  * was clipped. It is a phone's figure — the clip is lifted from `sm` up, where
  * the chips are a grid and every one of them is shown.
  */
-const SUBS_CLIP_HEIGHT = 148;
+const SUBS_CLIP_HEIGHT = 300;
 
 /** How many chips are assumed to fit before the first measurement (SSR) — the
- * two a phone's single column holds inside the clip. */
-const SUBS_ASSUMED_FIT = 2;
+ * four a phone's single column holds inside the clip. */
+const SUBS_ASSUMED_FIT = 4;
 
 /**
  * The chips stand in the same grid the index puts them in (CATEGORY_GRID) —
@@ -84,8 +90,8 @@ const SUBS_ASSUMED_FIT = 2;
 const SUBS_LIST = `${CATEGORY_GRID} -m-1 p-1`;
 
 /**
- * Clipped to two chip rows on a phone, open from `sm` up — two rows is enough
- * to read the shape of the list, where one only ever showed its beginning. A
+ * Clipped to four chip rows on a phone, open from `sm` up — enough to read the
+ * shape of the list, where one row only ever showed its beginning. A
  * class rather than a branch: the server has no width to test, and the same
  * HTML has to be right on both sides of it.
  *
@@ -100,11 +106,28 @@ const SUBS_LIST = `${CATEGORY_GRID} -m-1 p-1`;
  * runs, so a resize past `sm` lifts the clip with nothing to animate.
  */
 const SUBS_CLIP = 'overflow-hidden sm:max-h-none sm:overflow-visible';
-const SUBS_CLIPPED = 'max-h-37';
+const SUBS_CLIPPED = 'max-h-75';
 const SUBS_OPEN = 'max-h-[calc(var(--subs-full,100rem)+0.5rem)]';
 const SUBS_MOVE = 'transition-[max-height] duration-200 ease-out';
 
 const SUBS_TOGGLE = 'mt-2 sm:hidden';
+
+/**
+ * What either listing hands the template: a category's, or — with `category`
+ * null — the whole catalogue's, whose drill-down nav is the top level.
+ */
+interface Listing {
+  category: {
+    slug: string;
+    name: string;
+    shortName: string | null;
+    ancestors: CategoryCrumb[];
+  } | null;
+  subcategories: SubcategoryLink[];
+  items: ProductListItem[];
+  pagination: { page: number; totalPages: number; total: number };
+  facets: Facet[];
+}
 
 /**
  * A category's product grid (FR-CAT-03/04): breadcrumb, a drill-down nav of
@@ -112,6 +135,9 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
  * on a phone — see SUBS_LIST), then a paginated grid of every product in this
  * category and its descendants (Pattern A). A leaf category simply has no
  * subcategory nav.
+ *
+ * Without a slug it is the catalogue index (FR-CAT-02): the same listing one
+ * level up — every product, the top-level categories as its chips.
  */
 @Component({
   selector: 'app-category-grid',
@@ -160,35 +186,51 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                 already the parent either way, and the cluster keeps the
                 gesture in the one place every page puts it. -->
           @if (editControls(); as editText) {
-            <app-edit-actions
-              [filtersLink]="[
-                '/admin/categories',
-                data.category.slug,
-                'filters',
-              ]"
-              [filtersParams]="editorFrom()"
-              [filtersLabel]="editText.editFilters"
-              [editLink]="['/admin/categories', data.category.slug, 'edit']"
-              [editParams]="editorFrom()"
-              [editLabel]="editText.editCategory"
-              [addCategoryLink]="['/admin/categories/new']"
-              [addCategoryParams]="{
-                parent: data.category.slug,
-                from: editorFrom().from,
-              }"
-              [addCategoryLabel]="editText.addCategory"
-              [addProductLabel]="editText.addProduct"
-              (addProduct)="
-                addProduct({
-                  category: data.category.slug,
+            @if (data.category; as category) {
+              <app-edit-actions
+                [filtersLink]="['/admin/categories', category.slug, 'filters']"
+                [filtersParams]="editorFrom()"
+                [filtersLabel]="editText.editFilters"
+                [editLink]="['/admin/categories', category.slug, 'edit']"
+                [editParams]="editorFrom()"
+                [editLabel]="editText.editCategory"
+                [addCategoryLink]="['/admin/categories/new']"
+                [addCategoryParams]="{
+                  parent: category.slug,
                   from: editorFrom().from,
-                })
-              "
-            />
+                }"
+                [addCategoryLabel]="editText.addCategory"
+                [addProductLabel]="editText.addProduct"
+                (addProduct)="
+                  addProduct({
+                    category: category.slug,
+                    from: editorFrom().from,
+                  })
+                "
+              />
+            } @else {
+              <!-- The catalogue's own: its filter panel, the category list,
+                   and a top-level category or a product with no category
+                   chosen yet. -->
+              <app-edit-actions
+                [filtersLink]="['/admin/catalog/filters']"
+                [filtersParams]="editorFrom()"
+                [filtersLabel]="editText.editFilters"
+                [editLink]="['/admin/categories']"
+                [editLabel]="editText.editCategories"
+                [addCategoryLink]="['/admin/categories/new']"
+                [addCategoryParams]="editorFrom()"
+                [addCategoryLabel]="editText.addCategory"
+                [addProductLabel]="editText.addProduct"
+                (addProduct)="addProduct({ from: editorFrom().from })"
+              />
+            }
           }
           <!-- The category's controls share the breadcrumb's row rather than
                being pinned to the section corner: pinned, they landed on top of
                the sort control that sits at the right of the row below. -->
+          <!-- On the catalogue itself too, as a trail of one: the heading then
+               sits where a category's does, and nothing moves on the way down. -->
           <div class="flex items-start justify-between gap-4">
             <nav [attr.aria-label]="text.catalogRoot">
               <!-- Inline flow, not a flex row. Flexed, a crumb is one
@@ -198,12 +240,31 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                    text, a long name wraps where it runs out of room and the
                    trail stays a trail. -->
               <ol role="list" class="text-sm text-subtle">
-                <li class="inline">
-                  <a routerLink="/catalog" class="hover:text-accent">
-                    {{ text.catalogRoot }}
-                  </a>
-                </li>
-                @for (crumb of data.category.ancestors; track crumb.slug) {
+                @if (data.category; as category) {
+                  <li class="inline">
+                    <a routerLink="/catalog" class="hover:text-accent">
+                      {{ text.catalogRoot }}
+                    </a>
+                  </li>
+                  @for (crumb of category.ancestors; track crumb.slug) {
+                    <li aria-hidden="true" class="inline">
+                      <app-icon
+                        name="chevron-right"
+                        class="mx-1 h-4 w-4 align-middle text-stone-300"
+                      />
+                    </li>
+                    <li class="inline">
+                      <!-- Upward too: a wider scope still offers every value the
+                         narrower one did. -->
+                      <a
+                        [routerLink]="['/catalog', crumb.slug]"
+                        [queryParams]="{ sort: sortParam(), attr: attrParam() }"
+                        class="hover:text-accent"
+                      >
+                        {{ displayName(crumb) }}
+                      </a>
+                    </li>
+                  }
                   <li aria-hidden="true" class="inline">
                     <app-icon
                       name="chevron-right"
@@ -211,28 +272,23 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                     />
                   </li>
                   <li class="inline">
-                    <!-- Upward too: a wider scope still offers every value the
-                         narrower one did. -->
-                    <a
-                      [routerLink]="['/catalog', crumb.slug]"
-                      [queryParams]="{ sort: sortParam(), attr: attrParam() }"
-                      class="hover:text-accent"
+                    <span
+                      aria-current="page"
+                      class="font-medium text-stone-700"
                     >
-                      {{ displayName(crumb) }}
-                    </a>
+                      {{ displayName(category) }}
+                    </span>
+                  </li>
+                } @else {
+                  <li class="inline">
+                    <span
+                      aria-current="page"
+                      class="font-medium text-stone-700"
+                    >
+                      {{ text.catalogRoot }}
+                    </span>
                   </li>
                 }
-                <li aria-hidden="true" class="inline">
-                  <app-icon
-                    name="chevron-right"
-                    class="mx-1 h-4 w-4 align-middle text-stone-300"
-                  />
-                </li>
-                <li class="inline">
-                  <span aria-current="page" class="font-medium text-stone-700">
-                    {{ displayName(data.category) }}
-                  </span>
-                </li>
               </ol>
             </nav>
           </div>
@@ -243,7 +299,7 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
             <h1
               class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
             >
-              {{ data.category.name }}
+              {{ data.category?.name ?? text.catalogRoot }}
             </h1>
 
             <!-- The chips share the title's row rather than getting one of
@@ -255,13 +311,13 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
             />
           </div>
 
-          @if (data.category.subcategories.length) {
+          @if (data.subcategories.length) {
             <!-- Every subcategory, over as many rows as it takes: the chips are
                  the way down from here, and a wide screen has no reason to hide
                  half of them behind a toggle. Only a phone, where the same list
-                 is a column that buries the products, still clips to one row —
-                 and there the toggle sits under the chips, where the gallery
-                 and the description put theirs. -->
+                 is a column that buries the products, still clips a category's
+                 to four rows — and there the toggle sits under the chips, where
+                 the gallery and the description put theirs. -->
             <div class="mt-6">
               <ul
                 #subsList
@@ -269,7 +325,7 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                 [class]="subsListClass()"
                 [style.--subs-full]="subsFullHeight()"
               >
-                @for (sub of data.category.subcategories; track sub.slug) {
+                @for (sub of data.subcategories; track sub.slug) {
                   <li class="relative">
                     <!-- The same cluster the index puts on its chips: a
                          subcategory is as editable from the listing it is
@@ -296,7 +352,7 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                   </li>
                 }
               </ul>
-              @if (subsToggle(data.category.subcategories.length)) {
+              @if (subsToggle(data.subcategories.length)) {
                 <app-show-more-toggle
                   [class]="subsToggleClass"
                   [expanded]="showAllSubs()"
@@ -401,7 +457,7 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                   >
                     @if (data.pagination.page > 1) {
                       <a
-                        [routerLink]="['/catalog', slug()]"
+                        [routerLink]="listingLink()"
                         [queryParams]="{
                           page: data.pagination.page - 1,
                           sort: sortParam(),
@@ -422,7 +478,7 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
                     }}</span>
                     @if (data.pagination.page < data.pagination.totalPages) {
                       <a
-                        [routerLink]="['/catalog', slug()]"
+                        [routerLink]="listingLink()"
                         [queryParams]="{
                           page: data.pagination.page + 1,
                           sort: sortParam(),
@@ -443,7 +499,11 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
               } @else {
                 <p class="text-muted">
                   {{
-                    hasSelection() ? filterText.noMatches : text.emptyProducts
+                    hasSelection()
+                      ? filterText.noMatches
+                      : data.category
+                        ? text.emptyProducts
+                        : text.emptyCategories
                   }}
                 </p>
               }
@@ -473,9 +533,9 @@ const SUBS_TOGGLE = 'mt-2 sm:hidden';
            for before drawing the edit affordances, so it must not in turn wait
            for the grid. The slug comes from the route, which is known at once. -->
       @defer (when editMode.enabled()) {
-        @if (editMode.enabled()) {
+        @if (editMode.enabled() && slug(); as categorySlug) {
           <app-hidden-products-section
-            [categorySlug]="slug()"
+            [categorySlug]="categorySlug"
             [reloadToken]="deletedReload()"
             (loaded)="deletedReady.set(true)"
             (restored)="onProductRestored()"
@@ -532,7 +592,13 @@ export class CategoryGrid {
    * choice for themselves (see CategoryChip). */
   protected readonly displayName = categoryDisplayName;
 
-  slug = input.required<string>();
+  /** Absent on `/catalog` itself — the whole-catalogue listing. */
+  slug = input<string>();
+  /** Where pagination links point: this listing, with new query params. */
+  protected readonly listingLink = computed(() => {
+    const slug = this.slug();
+    return slug ? ['/catalog', slug] : ['/catalog'];
+  });
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
   page = input('1');
   protected currentPage = computed(() => {
@@ -582,6 +648,9 @@ export class CategoryGrid {
    * Null until measured — see SUBS_OPEN. */
   protected readonly subsFullHeight = signal<string | null>(null);
   protected readonly subsListClass = computed(() => {
+    // The catalogue's chips are the top level, which a phone shows whole: a
+    // dozen groupings is the page's own content, not a list to page through.
+    if (!this.slug()) return SUBS_LIST;
     const move = this.subsDisclosure.animated() ? ` ${SUBS_MOVE}` : '';
     const cap = this.showAllSubs() ? SUBS_OPEN : SUBS_CLIPPED;
     return `${SUBS_LIST} ${SUBS_CLIP}${move} ${cap}`;
@@ -602,13 +671,7 @@ export class CategoryGrid {
       sort: this.sortKey(),
       attr: this.attrParams(),
     }),
-    loader: ({ params }) =>
-      this.catalog.getCategoryProducts(
-        params.slug,
-        params.page,
-        params.sort,
-        params.attr,
-      ),
+    loader: ({ params }) => this.load(params),
   });
 
   /** Held across reloads, so re-sorting swaps the grid instead of blanking it. */
@@ -626,7 +689,8 @@ export class CategoryGrid {
   private readonly content = editAwareContent({
     ready: computed(() => this.shown() !== undefined),
     section: 'editMode',
-    alsoWaitFor: this.deletedReady,
+    // The catalogue has no "not on the storefront" overlay to wait for.
+    alsoWaitFor: computed(() => !this.slug() || this.deletedReady()),
   });
   protected readonly ready = this.content.ready;
   protected readonly editControls = this.content.controls;
@@ -637,13 +701,43 @@ export class CategoryGrid {
     void this.productCreate.start(queryParams);
   }
 
+  /** Either listing, as the one shape the template reads — `null` when the
+   * slug names no category. */
+  private async load(params: {
+    slug: string | undefined;
+    page: number;
+    sort: ProductSort;
+    attr: string[];
+  }): Promise<Listing | null> {
+    const { slug, page, sort, attr } = params;
+    if (!slug) {
+      const { categories, ...listing } = await this.catalog.getCatalogProducts(
+        page,
+        sort,
+        attr,
+      );
+      return { category: null, subcategories: categories, ...listing };
+    }
+    const result = await this.catalog.getCategoryProducts(
+      slug,
+      page,
+      sort,
+      attr,
+    );
+    if (!result) return null;
+    const { subcategories, ...category } = result.category;
+    return { ...result, category, subcategories };
+  }
+
   constructor() {
     usePageSeo({
       // Guarded: `value()` throws on an errored resource.
-      name: () =>
-        this.products.hasValue()
-          ? this.products.value()?.category.name
-          : undefined,
+      name: () => {
+        if (!this.slug()) return this.text.catalogRoot;
+        return this.products.hasValue()
+          ? this.products.value()?.category?.name
+          : undefined;
+      },
     });
     // Re-arm the gate each time edit mode turns off, so re-entering waits for a
     // fresh overlay load rather than showing the controls from the last session.
@@ -676,6 +770,7 @@ export class CategoryGrid {
 
   /** Whether to offer the show-more toggle for `count` chips. */
   protected subsToggle(count: number): boolean {
+    if (!this.slug()) return false;
     return this.subsOverflow() ?? count > SUBS_ASSUMED_FIT;
   }
 

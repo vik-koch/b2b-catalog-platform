@@ -17,6 +17,16 @@ export class CatalogService {
     return (await this.client.getCategoryTree()).categories;
   }
 
+  /** A page of every product in the catalogue (FR-CAT-02/03), with the
+   * top-level categories as its drill-down nav. */
+  async getCatalogProducts(
+    page: number,
+    sort: ProductSort,
+    attr: string[] = [],
+  ) {
+    return this.client.getCatalogProducts({ query: { page, sort, attr } });
+  }
+
   /** A page of products in a category (FR-CAT-03/04). `null` when the category
    * does not exist, so the caller can render a not-found rather than throw. */
   async getCategoryProducts(

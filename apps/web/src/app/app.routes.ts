@@ -11,7 +11,6 @@ import { ContactPage } from './pages/contact-page';
 import { InquiryPage } from './pages/inquiry-page';
 import { MaintenanceScreen } from './pages/maintenance-screen';
 import { Home } from './home/home';
-import { CategoryOverview } from './catalog/category-overview';
 import { CategoryGrid } from './catalog/category-grid';
 import { SearchResults } from './catalog/search-results';
 import { ProductDetail } from './catalog/product-detail';
@@ -511,7 +510,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'catalog',
-    component: CategoryOverview,
+    component: CategoryGrid,
     canActivate: [maintenanceGate],
   },
   {
