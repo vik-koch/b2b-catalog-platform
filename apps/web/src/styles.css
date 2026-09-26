@@ -63,6 +63,22 @@
    */
   --animate-marker-pop: marker-pop 200ms ease-out;
 
+  /*
+   * A product's "Added" field taking the place of its "Add to cart" button.
+   * The server draws every set of buy controls for an empty cart, so on a
+   * cold load the browser swaps the button for the field of a product already
+   * in the cart the moment it has read the cart; faded in, that reads as the
+   * page finishing rather than as the button being snatched away. The same
+   * swap after a press gets the same fade, which is also where it belongs.
+   */
+  --animate-field-in: field-in 200ms ease-out;
+
+  @keyframes field-in {
+    from {
+      background-color: var(--color-primary);
+    }
+  }
+
   @keyframes marker-pop {
     from {
       opacity: 0;
