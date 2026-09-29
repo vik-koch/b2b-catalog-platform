@@ -13,7 +13,7 @@ import { usePageSeo } from '../core/page-seo';
  * reaches over the page's own padding to meet the header.
  */
 const BAND =
-  'bg-white [border-image:linear-gradient(#fff,#fff_calc(100%_-_5px),#f7f7f7)_fill_0//1rem_100vmax_0]';
+  'bg-white [border-image:linear-gradient(#fff,#fff_calc(100%_-_5px),#f7f7f7)_fill_0/1/1rem_100vmax_0]';
 
 // The storefront landing in two parts: a brief intro and a row of products
 // (FR-CAT-09) on a white band, then the categories — the same index /catalog
@@ -43,7 +43,7 @@ const BAND =
     <section aria-labelledby="categories-heading">
       <h2
         id="categories-heading"
-        class="mb-4 text-xl font-medium tracking-tight"
+        class="mb-5 text-xl font-medium tracking-tight"
       >
         {{ text.home.categoriesHeading }}
       </h2>
@@ -55,7 +55,7 @@ export class Home {
   protected readonly text = inject(APP_TEXT);
   /** The room under the row is the band's, so the edge sits clear of the
    * cards and the categories start below it. */
-  protected readonly band = 'mb-10 ' + BAND;
+  protected readonly band = 'mb-4 ' + BAND;
 
   constructor() {
     // Landing page keeps the bare shop title (name null); adds a description.
