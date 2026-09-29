@@ -785,10 +785,11 @@ export class ProductBuyControls {
    * do not fit on one line. Centred by flex rather than by `text-center`,
    * because the height is now a floor the text sits inside rather than the sum
    * of the padding and the line. In a row the cell above it already carries
-   * the spacing. */
+   * the spacing. Inline-flex like the button: a block-level field's margin
+   * collapses into the one above it, and the row moved up by the difference. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} flex w-full animate-field-in items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
+      `${this.row() ? '' : 'mt-2'} inline-flex w-full animate-field-in items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,
