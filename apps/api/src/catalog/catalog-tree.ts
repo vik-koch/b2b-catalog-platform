@@ -45,6 +45,34 @@ export function buildCategoryTree(rows: CategoryRow[]): CategoryNode[] {
   return roots;
 }
 
+/**
+ * Every category id depth-first — a parent, then each child's subtree in
+ * turn — siblings in the order the rows arrive (`sortOrder`, then name). A row
+ * whose parent is missing counts as a root, as in buildCategoryTree; one no
+ * root reaches (a parent loop) goes last rather than nowhere.
+ */
+export function categoryTreeOrder(
+  rows: Pick<CategoryRow, 'id' | 'parentId'>[],
+): string[] {
+  const ids = new Set(rows.map((row) => row.id));
+  const children = new Map<string | null, string[]>();
+  for (const row of rows) {
+    const parent = row.parentId && ids.has(row.parentId) ? row.parentId : null;
+    children.set(parent, [...(children.get(parent) ?? []), row.id]);
+  }
+  const order: string[] = [];
+  const seen = new Set<string>();
+  const visit = (id: string) => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    order.push(id);
+    for (const child of children.get(id) ?? []) visit(child);
+  };
+  for (const root of children.get(null) ?? []) visit(root);
+  for (const row of rows) visit(row.id);
+  return order;
+}
+
 export function categoryBySlug(
   rows: CategoryRow[],
   slug: string,

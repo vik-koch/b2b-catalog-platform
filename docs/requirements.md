@@ -435,7 +435,7 @@ Search results are ordered by relevance (match score), best match first.
 
 #### <a id="fr-search-04"></a>FR-SEARCH-04 — Sort controls and shareable URLs
 
-Product listings offer sort controls (name, price). Search results additionally offer relevance, and default to it; category listings default to name. Every sort is applied within availability ([FR-STOCK-05](#fr-stock-05)). A deployment can hide the sort controls; the URL parameters keep working and the default order is unchanged. The chosen sort and page are part of the URL, so a listing view can be shared and restored.
+Product listings offer sort controls (name, price). Search results additionally offer relevance, and default to it. A listing with subcategories — a category's, or the catalogue index ([FR-CAT-02](#fr-cat-02)) — additionally offers ordering by category, and defaults to it: products grouped in the order the category tree is arranged in, a category's own products before its subcategories', by name within each group. A listing without subcategories defaults to name. Every sort is applied within availability ([FR-STOCK-05](#fr-stock-05)) — the grouped order within each group. A deployment can hide the sort controls; the URL parameters keep working and the default order is unchanged. The chosen sort and page are part of the URL, so a listing view can be shared and restored.
 
 #### <a id="fr-search-05"></a>FR-SEARCH-05 — Type-ahead suggestions
 

@@ -52,6 +52,7 @@
     "sort": {
       "label": "Sort by",
       "relevance": "Best match",
+      "category": "By category",
       "name": "Name (A–Z)",
       "name_desc": "Name (Z–A)",
       "price": "Price (low to high)",

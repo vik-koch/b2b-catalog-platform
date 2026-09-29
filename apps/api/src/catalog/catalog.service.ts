@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgColumn } from 'drizzle-orm/pg-core';
 import {
   and,
   asc,
@@ -24,7 +25,7 @@ import {
   ProductDetail,
   PublicDocument,
   ProductListItem,
-  ProductSort,
+  CatalogSort,
   publicDocumentSchema,
   SearchSort,
   SearchSuggestion,
@@ -52,6 +53,7 @@ import {
   buildCategoryTree,
   categoryBySlug,
   CategoryRow,
+  categoryTreeOrder,
   descendantIds,
   directChildren,
   stockedCategoryIds,
@@ -64,7 +66,7 @@ import {
   setSearchThreshold,
 } from './product-search';
 import { livePriceMinor } from './product-price';
-import { productOrderBy } from './product-sort';
+import { catalogOrderBy, productOrderBy } from './product-sort';
 import {
   boxDimensionsOf,
   packagingOf,
@@ -178,7 +180,7 @@ export class CatalogService {
    */
   async getCatalogProducts(
     page: number,
-    sort: ProductSort,
+    sort: CatalogSort,
     tierId: string | null = null,
     attributes: AttributeSelection[] = [],
   ): Promise<CatalogProductsResult> {
@@ -190,7 +192,8 @@ export class CatalogService {
     const scope = publiclyVisible;
     const where = and(scope, ...selectionConditions(this.db, selections));
 
-    const listing = await this.listingPage(where, page, sort, price);
+    const orderBy = catalogOrderBy(sort, price, categoryTreeOrder(rows));
+    const listing = await this.listingPage(where, page, price, orderBy);
     const facets = await buildFacets(this.db, scope, definitions, selections);
     const categories = await this.subcategoryLinks(
       null,
@@ -214,7 +217,7 @@ export class CatalogService {
   async getCategoryProducts(
     slug: string,
     page: number,
-    sort: ProductSort,
+    sort: CatalogSort,
     tierId: string | null = null,
     attributes: AttributeSelection[] = [],
   ): Promise<CategoryProductsResult | null> {
@@ -234,7 +237,8 @@ export class CatalogService {
     const selections = resolveSelections(attributes, definitions);
     const where = and(scope, ...selectionConditions(this.db, selections));
 
-    const listing = await this.listingPage(where, page, sort, price);
+    const orderBy = catalogOrderBy(sort, price, categoryTreeOrder(rows));
+    const listing = await this.listingPage(where, page, price, orderBy);
     const facets = await buildFacets(this.db, scope, definitions, selections);
     const subcategories = await this.subcategoryLinks(
       category.id,
@@ -319,8 +323,8 @@ export class CatalogService {
   private async listingPage(
     where: SQL | undefined,
     page: number,
-    sort: ProductSort,
     price: SQL<number>,
+    orderBy: (SQL | PgColumn)[],
   ): Promise<{ items: ProductListItem[]; pagination: Pagination }> {
     const [{ value: total }] = await this.db
       .select({ value: count() })
@@ -342,7 +346,7 @@ export class CatalogService {
       })
       .from(products)
       .where(where)
-      .orderBy(...productOrderBy(sort, undefined, price))
+      .orderBy(...orderBy)
       .limit(pageSize)
       .offset((page - 1) * pageSize);
 

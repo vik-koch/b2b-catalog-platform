@@ -288,26 +288,54 @@ describe('CategoryGrid', () => {
       expect(el(f).querySelector('select')?.value).toBe('price');
     });
 
-    it('defaults to name, and offers no relevance option without a query', async () => {
+    it('asks for grouping by default, and on a leaf shows it as the name order', async () => {
       const asked: string[] = [];
       const f = await render(response(), { spy: (s) => asked.push(s) });
 
-      expect(asked).toEqual(['name']);
-      expect(
-        [...(el(f).querySelector('select')?.options ?? [])].map((o) => o.value),
-      ).not.toContain('relevance');
+      expect(asked).toEqual(['category']);
+      const select = el(f).querySelector('select');
+      expect(select?.value).toBe('name');
+      const options = [...(select?.options ?? [])].map((o) => o.value);
+      expect(options).not.toContain('relevance');
+      expect(options).not.toContain('category');
+    });
+
+    it('offers grouping where there are subcategories', async () => {
+      const f = await render(
+        response({
+          category: {
+            ...response().category,
+            subcategories: [
+              {
+                slug: 'espresso',
+                name: 'Espresso',
+                shortName: null,
+                mark: null,
+                count: 1,
+                attr: [],
+              },
+            ],
+          },
+        }),
+      );
+
+      const select = el(f).querySelector('select');
+      expect(select?.value).toBe('category');
+      expect([...(select?.options ?? [])].map((o) => o.value)).toContain(
+        'category',
+      );
     });
 
     it('falls back to the default rather than forwarding an unknown key', async () => {
       const asked: string[] = [];
       await render(response(), {
-        // Relevance included: the category endpoint would reject it, so the
-        // page must not pass it on just because it is a valid search sort.
+        // The category endpoint would reject relevance, so the page must not
+        // pass it on just because it is a valid search sort.
         sort: 'relevance',
         spy: (s) => asked.push(s),
       });
 
-      expect(asked).toEqual(['name']);
+      expect(asked).toEqual(['category']);
     });
 
     it('carries a non-default sort into the pagination links', async () => {
@@ -562,6 +590,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
   /** No slug bound, as the `/catalog` route leaves it. */
   async function renderCatalog(
     result: Catalog,
+    { sort, spy }: Pick<SortOptions, 'sort' | 'spy'> = {},
   ): Promise<ComponentFixture<CategoryGrid>> {
     TestBed.configureTestingModule({
       imports: [CategoryGrid],
@@ -572,7 +601,10 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
         {
           provide: CatalogService,
           useValue: {
-            getCatalogProducts: async () => result,
+            getCatalogProducts: async (_page: number, s: string) => {
+              spy?.(s);
+              return result;
+            },
             getCategoryProducts: async () => {
               throw new Error('the index is no category');
             },
@@ -581,10 +613,40 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
       ],
     });
     const fixture = TestBed.createComponent(CategoryGrid);
+    if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
     await fixture.whenStable();
     fixture.detectChanges();
     return fixture;
   }
+
+  it('groups by category unless asked otherwise, and offers that order', async () => {
+    const asked: string[] = [];
+    const root = el(
+      await renderCatalog(catalog(), { spy: (s) => asked.push(s) }),
+    );
+
+    expect(asked).toEqual(['category']);
+    const select = root.querySelector('select');
+    expect(select?.value).toBe('category');
+    expect([...(select?.options ?? [])].map((o) => o.value)).toContain(
+      'category',
+    );
+  });
+
+  it('writes a name sort into the URL, since it is not the default here', async () => {
+    const root = el(
+      await renderCatalog(
+        catalog({
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+        { sort: 'name' },
+      ),
+    );
+
+    expect(
+      root.querySelector('a[href="/catalog?page=3&sort=name"]'),
+    ).not.toBeNull();
+  });
 
   it('heads the page as the catalogue, under a trail of one', async () => {
     const root = el(await renderCatalog(catalog()));

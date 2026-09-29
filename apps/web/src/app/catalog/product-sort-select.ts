@@ -1,8 +1,10 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
+  CATALOG_SORTS,
+  CatalogSort,
+  ListingSort,
   PRODUCT_SORTS,
-  ProductSort,
   SEARCH_SORTS,
   SearchSort,
 } from '@b2b-catalog-platform/shared';
@@ -100,18 +102,14 @@ export class ProductSortSelect {
   protected readonly id = this.fieldId;
 
   /** The sort in effect — already resolved to a valid key by the host. */
-  readonly value = input.required<SearchSort>();
+  readonly value = input.required<ListingSort>();
   /**
-   * Whether relevance is on offer. Only search can rank by it, so the category
-   * listing omits it rather than showing an option its endpoint would reject.
+   * What this listing's endpoint accepts: relevance only where there is a
+   * query to rank by, by category only on the whole catalogue.
    */
-  readonly withRelevance = input(false);
+  readonly options = input<readonly ListingSort[]>(PRODUCT_SORTS);
   /** The default for this listing, which is left out of the URL. */
-  readonly defaultSort = input.required<SearchSort>();
-
-  protected readonly options = computed<readonly SearchSort[]>(() =>
-    this.withRelevance() ? SEARCH_SORTS : PRODUCT_SORTS,
-  );
+  readonly defaultSort = input.required<ListingSort>();
 
   /**
    * Writes the choice to the URL, which is what actually re-fetches — the
@@ -122,7 +120,7 @@ export class ProductSortSelect {
    * of the default view.
    */
   protected onSelect(event: Event): void {
-    const sort = (event.target as HTMLSelectElement).value as SearchSort;
+    const sort = (event.target as HTMLSelectElement).value as ListingSort;
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { sort: sortParam(sort, this.defaultSort()), page: null },
@@ -138,9 +136,9 @@ export class ProductSortSelect {
  * default view has exactly one URL rather than two that render the same page.
  */
 export function sortParam(
-  sort: SearchSort,
-  defaultSort: SearchSort,
-): SearchSort | null {
+  sort: ListingSort,
+  defaultSort: ListingSort,
+): ListingSort | null {
   return sort === defaultSort ? null : sort;
 }
 
@@ -151,10 +149,10 @@ export function sortParam(
  * rather than becoming a request the API would reject.
  */
 
-export function resolveCategorySort(raw: string): ProductSort {
-  return PRODUCT_SORTS.includes(raw as ProductSort)
-    ? (raw as ProductSort)
-    : 'name';
+export function resolveCatalogSort(raw: string): CatalogSort {
+  return CATALOG_SORTS.includes(raw as CatalogSort)
+    ? (raw as CatalogSort)
+    : 'category';
 }
 
 export function resolveSearchSort(raw: string): SearchSort {

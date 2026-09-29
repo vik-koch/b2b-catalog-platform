@@ -3,7 +3,8 @@ import {
   Facet,
   FacetValue,
   formatAttributeValue,
-  SearchSort,
+  ListingSort,
+  PRODUCT_SORTS,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -167,7 +168,7 @@ export const FACET_SIBLING_ALONE =
                     fieldId="facet-panel-sort"
                     [value]="value"
                     [defaultSort]="defaultSort()"
-                    [withRelevance]="withRelevance()"
+                    [options]="sortOptions()"
                   />
                 </div>
               }
@@ -305,9 +306,9 @@ export class FacetPanel {
    * above the grid has no room for it. Absent leaves it out — a listing with
    * nothing to sort passes nothing.
    */
-  readonly sort = input<SearchSort | null>(null);
-  readonly defaultSort = input<SearchSort>('name');
-  readonly withRelevance = input(false);
+  readonly sort = input<ListingSort | null>(null);
+  readonly defaultSort = input<ListingSort>('name');
+  readonly sortOptions = input<readonly ListingSort[]>(PRODUCT_SORTS);
 
   /**
    * The ordering this panel actually draws: what the listing passed, unless

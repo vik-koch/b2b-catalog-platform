@@ -5,7 +5,12 @@ import {
   productSortSchema,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
-import { adminProductOrderBy, productOrderBy } from './product-sort';
+import {
+  adminProductOrderBy,
+  catalogOrderBy,
+  productOrderBy,
+} from './product-sort';
+import { resolvedPriceMinor } from './product-price';
 
 /** Renders an order-by list the way the query builder would, as one string. */
 function render(clauses: ReturnType<typeof productOrderBy>): string {
@@ -104,6 +109,30 @@ describe('productOrderBy', () => {
 
       expect(ordered).toContain('"dt"."isDefault"');
       expect(ordered).toMatch(new RegExp(`${direction} nulls last`));
+    },
+  );
+});
+
+describe('catalogOrderBy', () => {
+  const price = resolvedPriceMinor(null);
+
+  it('groups by the category order first, availability and name within', () => {
+    const text = render(catalogOrderBy('category', price, ['a', 'b']));
+
+    expect(text).toMatch(
+      /^array_position\(\$1::uuid\[\], "products"\."categoryId"\) asc, case/,
+    );
+    expect(text).toMatch(
+      /end asc, "products"\."name" asc, "products"\."id" asc$/,
+    );
+  });
+
+  it.each(productSortSchema.options)(
+    'delegates %s to the shared ordering',
+    (option) => {
+      expect(render(catalogOrderBy(option, price, ['a']))).toBe(
+        render(productOrderBy(option, undefined, price)),
+      );
     },
   );
 });

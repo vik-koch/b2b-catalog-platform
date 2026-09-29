@@ -1,6 +1,10 @@
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import { AdminProductSort, SearchSort } from '@b2b-catalog-platform/shared';
+import {
+  AdminProductSort,
+  CatalogSort,
+  SearchSort,
+} from '@b2b-catalog-platform/shared';
 import { products } from '../db/schema';
 import { resolvedPriceMinor } from './product-price';
 
@@ -52,6 +56,27 @@ export function productOrderBy(
   price: PriceExpression = resolvedPriceMinor(null),
 ): OrderBy {
   return [asc(availabilityLast), ...sortKeys(sort, score, price)];
+}
+
+/**
+ * The whole-catalogue listing's ordering: the storefront's, plus `category` —
+ * the products grouped in `categoryOrder` (every category id, in tree order;
+ * see categoryTreeOrder), the availability lead and the name order applied
+ * within each group rather than across the whole catalogue.
+ */
+export function catalogOrderBy(
+  sort: CatalogSort,
+  price: PriceExpression,
+  categoryOrder: string[],
+): OrderBy {
+  if (sort !== 'category') return productOrderBy(sort, undefined, price);
+  const position = sql<number>`array_position(${sql.param(categoryOrder)}::uuid[], ${products.categoryId})`;
+  return [
+    asc(position),
+    asc(availabilityLast),
+    asc(products.name),
+    asc(products.id),
+  ];
 }
 
 /**

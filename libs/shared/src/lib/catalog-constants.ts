@@ -25,6 +25,13 @@ export const PRODUCT_SORTS = [
 export const SEARCH_SORTS = ['relevance', ...PRODUCT_SORTS] as const;
 
 /**
+ * The same, plus by category — a browsed listing's default: grouped in the
+ * category tree's order, by name within each group. Offered only where there
+ * are subcategories; on a leaf it is the name order.
+ */
+export const CATALOG_SORTS = ['category', ...PRODUCT_SORTS] as const;
+
+/**
  * Upper bound on a search term. Longer than any real product query,
  * short enough that no caller can hand the matcher an expensive string.
  * Rejected at the contract rather than truncated, so an over-long query is an
