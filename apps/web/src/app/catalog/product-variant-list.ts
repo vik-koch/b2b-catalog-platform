@@ -89,15 +89,14 @@ export class ProductVariantList {
   private readonly base =
     'inline-flex min-w-0 items-center gap-1 rounded-md px-2 py-1 text-sm leading-tight';
 
-  /** A hairline either way, answering a pointer with accent. The chosen one
-   * is told apart by colour and a tint rather than weight: a row of these is
-   * read beside a gallery whose own chosen thumbnail already wears the heavy
-   * frame, and two of them would compete for the eye. */
+  /** A hairline at rest, answering a pointer with accent. The chosen one is
+   * filled in the secondary colour, which is the one the pictures' labels
+   * wear, so the name picked here and the name on the photo read as one. */
   protected chip(chosen: boolean): string {
-    return `${this.base} text-left ring-1 transition-colors hover:text-accent hover:ring-accent ${
+    return `${this.base} text-left ring-1 transition-colors ${
       chosen
-        ? 'bg-primary/8 ring-primary animate-variant-chosen motion-reduce:animate-none'
-        : 'bg-white ring-border-strong'
+        ? 'bg-secondary text-white ring-secondary animate-variant-chosen motion-reduce:animate-none'
+        : 'bg-white ring-border-strong hover:text-accent hover:ring-accent'
     }`;
   }
 
