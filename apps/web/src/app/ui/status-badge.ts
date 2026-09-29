@@ -47,7 +47,7 @@ export type StatusBadgeVariant = 'solid' | 'dot';
 const shapes = {
   solid: 'rounded-full px-2 py-0.5',
   dot:
-    'gap-x-1.5 rounded-md border border-border bg-white px-2 py-0.5 text-muted ' +
+    'gap-x-1.5 rounded-md border border-border bg-white px-1.5 py-0.5 text-muted ' +
     "before:size-1.5 before:shrink-0 before:rounded-full before:content-['']",
 } as const;
 

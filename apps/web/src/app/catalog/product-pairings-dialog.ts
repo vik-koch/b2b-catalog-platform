@@ -4,9 +4,14 @@ import {
   computed,
   ElementRef,
   inject,
+  linkedSignal,
   resource,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router } from '@angular/router';
+import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { filter } from 'rxjs';
 import { APP_TEXT } from '../config/app-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { Button } from '../ui/button';
@@ -37,6 +42,10 @@ import { WarningNote } from '../ui/warning-note';
  * The rows inside carry no marker of their own. The counterpart of a lid is the
  * cup that was already on screen, so a second hop walks back to where it
  * started — and a modal has no history to walk back through.
+ *
+ * Following a row's link moves the panel with the page: the product now on
+ * screen is the one whose counterparts it lists. The rows it had stay up until
+ * the new ones arrive, so the panel neither closes and reopens nor empties.
  *
  * It opens on its content, not before it. The marker starts the request and
  * the panel appears with the rows already in it — a modal that arrives empty
@@ -71,9 +80,9 @@ import { WarningNote } from '../ui/warning-note';
         </h2>
         <p class="mt-2 text-sm text-muted">{{ text.intro }}</p>
 
-        @if (items.hasValue() && items.value().length) {
+        @if (rows(); as rows) {
           <ul [class]="rowList" class="mt-4">
-            @for (item of items.value(); track item.slug) {
+            @for (item of rows; track item.slug) {
               <li>
                 <!-- No marker on these: the counterpart of a lid is the cup
                      that opened this panel. -->
@@ -112,6 +121,7 @@ export class ProductPairingsDialog {
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairings = inject(PairingsService);
   private readonly catalog = inject(CatalogService);
+  private readonly router = inject(Router);
 
   /**
    * Asked when the panel opens and not before: every card in a listing carries
@@ -139,10 +149,41 @@ export class ProductPairingsDialog {
   private readonly answered = computed(
     () => this.items.hasValue() || this.items.error() !== undefined,
   );
-  protected readonly visible = computed(
-    () =>
-      this.pairings.open() !== null && (this.answered() || this.showSkeleton()),
-  );
+  /** Once up, up until closed: moving to another product must not take it
+   * down while the new rows load — a <dialog> drawn again opens again, and
+   * focus starts over. */
+  protected readonly visible = linkedSignal<
+    { open: boolean; ready: boolean },
+    boolean
+  >({
+    source: () => ({
+      open: this.pairings.open() !== null,
+      ready: this.answered() || this.showSkeleton(),
+    }),
+    computation: ({ open, ready }, previous) =>
+      open && (ready || previous?.value === true),
+  });
+
+  /**
+   * The rows on screen: the answer once it is in, the last one while the next
+   * is on its way. Cleared on close, so a panel opened for another product
+   * never starts on the rows of the one before.
+   */
+  protected readonly rows = linkedSignal<
+    { open: boolean; failed: boolean; value: ProductListItem[] | undefined },
+    ProductListItem[] | undefined
+  >({
+    source: () => ({
+      open: this.pairings.open() !== null,
+      failed: this.items.error() !== undefined,
+      value: this.items.hasValue() ? this.items.value() : undefined,
+    }),
+    computation: ({ open, failed, value }, previous) => {
+      if (!open || failed) return undefined;
+      const rows = value ?? previous?.value;
+      return rows?.length ? rows : undefined;
+    },
+  });
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');
 
@@ -154,6 +195,26 @@ export class ProductPairingsDialog {
       const dialog = this.dialog()?.nativeElement;
       if (dialog && !dialog.open) dialog.showModal();
     });
+
+    this.router.events
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe((event) => this.follow(event.urlAfterRedirects));
+  }
+
+  /** After a row's link: list the counterparts of the product it opened, or
+   * close if it has none. Any other navigation leaves the panel as it is. */
+  private follow(url: string): void {
+    if (this.pairings.open() === null) return;
+    const [page, slug] =
+      this.router.parseUrl(url).root.children['primary']?.segments ?? [];
+    if (page?.path !== 'product' || !slug) return;
+    const row = this.rows()?.find((item) => item.slug === slug.path);
+    if (!row) return;
+    if (row.pairedCount > 0) this.pairings.show(row.slug, row.pairedCount);
+    else this.pairings.close();
   }
 
   /**
