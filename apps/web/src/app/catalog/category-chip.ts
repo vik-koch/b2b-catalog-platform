@@ -30,7 +30,7 @@ export interface CategoryChipTarget {
 export type CategoryChipSize = 'responsive' | 'small';
 
 const CHIP_BASE =
-  'flex w-full items-center gap-3 pr-3 overflow-hidden rounded-xl bg-stone-125 text-base transition-colors hover:bg-stone-200 hover:text-accent';
+  'flex w-full items-center pl-3 overflow-hidden rounded-xl bg-stone-125 text-base tracking-tight transition-colors hover:bg-stone-200 hover:text-accent';
 
 /** The mark is the chip's full height and square — the upload stores a square
  * — so nothing is cropped here; only how much of the chip it takes changes. */
@@ -50,7 +50,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
  * know it, so the name never leaves, and a category with no mark is simply a
  * name in the same box.
  *
- * The mark runs edge to edge over the chip's left end and the chip's corners
+ * The mark runs edge to edge over the chip's right end and the chip's corners
  * clip it. Any margin around the artwork is the picture's own, which is what
  * lets a mark sit its drawing against the chip's bottom edge if it wants to.
  *
@@ -72,6 +72,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
       [queryParams]="queryParams()"
       [class]="linkClass()"
     >
+      <span [class]="nameClass()">{{ label() }}</span>
       @if (shownMark(); as mark) {
         <img
           [src]="mark.thumb"
@@ -81,7 +82,6 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
           (error)="markFailed.set(true)"
         />
       }
-      <span [class]="nameClass()">{{ label() }}</span>
     </a>
   `,
 })
@@ -123,14 +123,14 @@ export class CategoryChip {
    * two lines: the chip's height is fixed, so a long name has to end somewhere
    * rather than push the row open.
    *
-   * With no mark it starts a mark's own gap further in than the padding would
-   * put it: a name alone on the left edge reads as a chip that lost something,
-   * and the indent makes it a chip that never had one.
+   * The name starts at the same place whether or not a mark follows it, so
+   * names line up down a column of chips. With no mark it keeps a gap off the
+   * right edge instead of running into it.
    */
   protected readonly nameClass = computed(
     () =>
       `line-clamp-3 min-w-0 flex-1 [overflow-wrap:anywhere]${
-        this.shownMark() ? '' : ' pl-6'
+        this.shownMark() ? '' : ' pr-3'
       }`,
   );
 }
