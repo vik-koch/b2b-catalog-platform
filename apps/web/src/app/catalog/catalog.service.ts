@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {
-  ProductSort,
+  CatalogSort,
   SearchSort,
   SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
@@ -21,7 +21,7 @@ export class CatalogService {
    * top-level categories as its drill-down nav. */
   async getCatalogProducts(
     page: number,
-    sort: ProductSort,
+    sort: CatalogSort,
     attr: string[] = [],
   ) {
     return this.client.getCatalogProducts({ query: { page, sort, attr } });
@@ -32,7 +32,7 @@ export class CatalogService {
   async getCategoryProducts(
     slug: string,
     page: number,
-    sort: ProductSort,
+    sort: CatalogSort,
     attr: string[] = [],
   ) {
     const result = await safe(

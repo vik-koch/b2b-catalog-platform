@@ -2,7 +2,12 @@ import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
+  CATALOG_SORTS,
+  catalogSortSchema,
+  ListingSort,
+  PRODUCT_SORTS,
   productSortSchema,
+  SEARCH_SORTS,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
@@ -17,15 +22,15 @@ import { ProductSortSelect, sortParam } from './product-sort-select';
   template: `<app-product-sort-select
     [value]="'name'"
     defaultSort="name"
-    [withRelevance]="withRelevance"
+    [options]="options"
   />`,
 })
 class Host {
-  withRelevance = false;
+  options: readonly ListingSort[] = PRODUCT_SORTS;
 }
 
 async function render(
-  withRelevance: boolean,
+  options: readonly ListingSort[],
   startUrl = '/catalog/espresso',
   sortControlsEnabled = true,
 ) {
@@ -47,7 +52,7 @@ async function render(
   await router.navigateByUrl(startUrl);
 
   const fixture = TestBed.createComponent(Host);
-  fixture.componentInstance.withRelevance = withRelevance;
+  fixture.componentInstance.options = options;
   fixture.detectChanges();
   await fixture.whenStable();
 
@@ -74,25 +79,36 @@ describe('ProductSortSelect', () => {
    */
   it('draws nothing where the deployment has turned the control off', async () => {
     await expect(
-      render(false, '/catalog/espresso?sort=price', false),
+      render(PRODUCT_SORTS, '/catalog/espresso?sort=price', false),
     ).rejects.toThrow(/should render a select/);
   });
 
   it('offers relevance only where a query can rank it', async () => {
-    const withoutQuery = await render(false);
+    const withoutQuery = await render(PRODUCT_SORTS);
     expect([...withoutQuery.select.options].map((o) => o.value)).toEqual([
       ...productSortSchema.options,
     ]);
 
     TestBed.resetTestingModule();
-    const withQuery = await render(true);
+    const withQuery = await render(SEARCH_SORTS);
     expect([...withQuery.select.options].map((o) => o.value)).toEqual([
       ...searchSortSchema.options,
     ]);
   });
 
+  it('offers by category where the listing is the whole catalogue', async () => {
+    const { select } = await render(CATALOG_SORTS, '/catalog');
+
+    expect([...select.options].map((o) => o.value)).toEqual([
+      ...catalogSortSchema.options,
+    ]);
+    expect(select.options[0].textContent?.trim()).toBe(
+      defaultAppText.catalog.sort.category,
+    );
+  });
+
   it('labels every option from the deployment text', async () => {
-    const { select } = await render(true);
+    const { select } = await render(SEARCH_SORTS);
 
     expect([...select.options].map((o) => o.textContent?.trim())).toEqual(
       searchSortSchema.options.map((o) => defaultAppText.catalog.sort[o]),
@@ -102,7 +118,7 @@ describe('ProductSortSelect', () => {
   it('marks the current sort as an attribute, which is what SSR serialises', async () => {
     // A property write alone leaves the server's HTML with nothing selected,
     // and the rendered page shows the first option until hydration fixes it.
-    const { select } = await render(false);
+    const { select } = await render(PRODUCT_SORTS);
 
     const marked = [...select.options].filter((o) =>
       o.hasAttribute('selected'),
@@ -111,7 +127,7 @@ describe('ProductSortSelect', () => {
   });
 
   it('puts the chosen sort in the URL', async () => {
-    const { router, choose } = await render(false);
+    const { router, choose } = await render(PRODUCT_SORTS);
 
     await choose('price_desc');
 
@@ -119,7 +135,10 @@ describe('ProductSortSelect', () => {
   });
 
   it('returns to the first page, which the new order has renumbered', async () => {
-    const { router, choose } = await render(false, '/catalog/espresso?page=3');
+    const { router, choose } = await render(
+      PRODUCT_SORTS,
+      '/catalog/espresso?page=3',
+    );
 
     await choose('price');
 
@@ -128,7 +147,7 @@ describe('ProductSortSelect', () => {
 
   it('leaves the default out of the URL', async () => {
     const { router, choose } = await render(
-      false,
+      PRODUCT_SORTS,
       '/catalog/espresso?sort=price',
     );
 
@@ -138,7 +157,7 @@ describe('ProductSortSelect', () => {
   });
 
   it('keeps the rest of the query string, so a search stays a search', async () => {
-    const { router, choose } = await render(true, '/search?q=espresso');
+    const { router, choose } = await render(SEARCH_SORTS, '/search?q=espresso');
 
     await choose('price');
 

@@ -5,6 +5,7 @@ import {
   encodeAttributeParams,
   fillText,
   parseAttributeParams,
+  SEARCH_SORTS,
 } from '@b2b-catalog-platform/shared';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
@@ -103,7 +104,7 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                   [facets]="data.facets"
                   [sort]="sortKey()"
                   defaultSort="relevance"
-                  [withRelevance]="true"
+                  [sortOptions]="sortOptions"
                 />
               </aside>
             }
@@ -128,7 +129,7 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                       [class]="data.facets.length ? headerSortAt : ''"
                       [value]="sortKey()"
                       defaultSort="relevance"
-                      [withRelevance]="true"
+                      [options]="sortOptions"
                     />
                     <app-product-layout-toggle />
                   </div>
@@ -273,6 +274,7 @@ export class SearchResults {
   protected readonly anyStatus = anyStatus;
 
   protected readonly productGrid = PRODUCT_GRID;
+  protected readonly sortOptions = SEARCH_SORTS;
 
   /**
    * The sort above the grid is hidden wherever the filter panel is a disclosure

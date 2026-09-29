@@ -19,8 +19,11 @@ import {
   Facet,
   fillText,
   parseAttributeParams,
+  CATALOG_SORTS,
+  CatalogSort,
+  ListingSort,
+  PRODUCT_SORTS,
   ProductListItem,
-  ProductSort,
   SubcategoryLink,
 } from '@b2b-catalog-platform/shared';
 import { EditActions } from '../admin/edit-actions';
@@ -56,7 +59,7 @@ import { ProductLayoutToggle } from './product-layout-toggle';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
 import {
   ProductSortSelect,
-  resolveCategorySort,
+  resolveCatalogSort,
   sortParam,
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from './product-tile';
@@ -376,8 +379,9 @@ interface Listing {
               <aside [class]="facetColumn">
                 <app-facet-panel
                   [facets]="data.facets"
-                  [sort]="sortKey()"
-                  defaultSort="name"
+                  [sort]="shownSort()"
+                  [defaultSort]="defaultSort()"
+                  [sortOptions]="sortOptions()"
                 />
               </aside>
             }
@@ -401,8 +405,9 @@ interface Listing {
                          both shapes are the same shape and it hides itself. -->
                     <app-product-sort-select
                       [class]="data.facets.length ? headerSortAt : ''"
-                      [value]="sortKey()"
-                      defaultSort="name"
+                      [value]="shownSort()"
+                      [defaultSort]="defaultSort()"
+                      [options]="sortOptions()"
                     />
                     <app-product-layout-toggle />
                   </div>
@@ -611,10 +616,28 @@ export class CategoryGrid {
   /** Bound from the `sort` query param; an unknown key falls back to the
    * default rather than being sent on to the API (FR-SEARCH-04). */
   sort = input('');
-  protected readonly sortKey = computed(() => resolveCategorySort(this.sort()));
-  /** The sort as pagination links should carry it — absent when default. */
+  /** What the API is asked for: grouped by category unless asked otherwise. */
+  protected readonly sortKey = computed(() => resolveCatalogSort(this.sort()));
+  /** The sort as links should carry it — absent when default. */
   protected readonly sortParam = computed(() =>
-    sortParam(this.sortKey(), 'name'),
+    sortParam(this.sortKey(), 'category'),
+  );
+  /**
+   * Grouping is offered only where there are groups. On a leaf it is the name
+   * order, so the control says so, and choosing name there writes the plain
+   * URL rather than a second one for the same listing.
+   */
+  private readonly grouped = computed(
+    () => (this.shown()?.subcategories.length ?? 0) > 0,
+  );
+  protected readonly sortOptions = computed(() =>
+    this.grouped() ? CATALOG_SORTS : PRODUCT_SORTS,
+  );
+  protected readonly defaultSort = computed<ListingSort>(() =>
+    this.grouped() ? 'category' : 'name',
+  );
+  protected readonly shownSort = computed<ListingSort>(() =>
+    !this.grouped() && this.sortKey() === 'category' ? 'name' : this.sortKey(),
   );
 
   /**
@@ -709,7 +732,7 @@ export class CategoryGrid {
   private async load(params: {
     slug: string | undefined;
     page: number;
-    sort: ProductSort;
+    sort: CatalogSort;
     attr: string[];
   }): Promise<Listing | null> {
     const { slug, page, sort, attr } = params;
