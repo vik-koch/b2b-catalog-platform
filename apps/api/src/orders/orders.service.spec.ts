@@ -39,6 +39,7 @@ const product = {
   sourceId: 'ERP-1',
   priceMinor: 199,
   images: [],
+  variants: [],
   boxVolume: null,
   boxWeight: null,
   boxCount: 1,

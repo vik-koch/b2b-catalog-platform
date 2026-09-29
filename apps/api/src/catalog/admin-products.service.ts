@@ -612,7 +612,7 @@ export class AdminProductsService {
         slug: products.slug,
         name: products.name,
         priceMinor: resolvedPriceMinor(null),
-        images: products.images,
+        ...pictureColumns,
         deletedAt: products.deletedAt,
         publishedAt: products.publishedAt,
         ...unitColumns,

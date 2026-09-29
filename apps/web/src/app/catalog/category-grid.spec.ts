@@ -16,6 +16,7 @@ type Products = NonNullable<
 const image = (n: number) => ({
   full: `https://img.example/full/${n}.jpg`,
   thumb: `https://img.example/thumb/${n}.jpg`,
+  variant: null,
 });
 
 function response(overrides: Partial<Products> = {}): Products {

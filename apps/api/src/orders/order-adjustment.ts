@@ -9,6 +9,7 @@ import {
   ShipmentLineInput,
   piecesPerUnit,
   shipmentEstimate,
+  shownPictures,
   totalMinor,
   unitQuantity,
 } from '@b2b-catalog-platform/shared';
@@ -67,6 +68,7 @@ type ProductRow = {
    * the price on the line. */
   priceMinor: number | null;
   images: schema.ProductImageRef[];
+  variants: schema.ProductVariantRef[];
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
@@ -122,6 +124,7 @@ async function loadProducts(
       sourceId: products.sourceId,
       priceMinor: resolvedPriceMinor(tierId),
       images: products.images,
+      variants: products.variants,
       boxVolume: products.boxVolume,
       boxWeight: products.boxWeight,
       boxCount: products.boxCount,
@@ -183,7 +186,9 @@ function priceLine(
     productId: product.id,
     sourceId: product.sourceId,
     name: product.name,
-    thumbnail: product.images[0]?.thumb ?? null,
+    // What the customer would have been shown, as a cart line takes it.
+    thumbnail:
+      shownPictures(product.images, product.variants)[0]?.thumb ?? null,
     unit,
     pieces,
     quantity: unitQuantity(packaging, unit, pieces) ?? pieces,
