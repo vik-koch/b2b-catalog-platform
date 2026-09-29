@@ -41,6 +41,12 @@ const BAND =
     </div>
 
     <section aria-labelledby="categories-heading">
+      <h2
+        id="categories-heading"
+        class="mb-4 text-xl font-medium tracking-tight"
+      >
+        {{ text.home.categoriesHeading }}
+      </h2>
       <app-category-index />
     </section>
   `,

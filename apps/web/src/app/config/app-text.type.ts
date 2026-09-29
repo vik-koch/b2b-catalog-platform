@@ -1263,6 +1263,8 @@ export const appTextSchema = z
         eyebrow: z.string(),
         title: z.string(),
         intro: z.string(),
+        /** Over the category index, below the white band. */
+        categoriesHeading: z.string(),
         /** The row of products above the categories (FR-CAT-09). Its heading
          * must not promise a selection: most of the row is often drawn at
          * random. */
