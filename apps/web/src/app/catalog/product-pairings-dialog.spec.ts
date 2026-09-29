@@ -1,5 +1,6 @@
+import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Router } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
@@ -24,6 +25,9 @@ const LID = productListItem({
   pairedCount: 1,
 });
 
+@Component({ template: '' })
+class Page {}
+
 async function render(
   answer: (slug: string) => Promise<ProductListItem[] | null>,
 ) {
@@ -32,7 +36,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductPairingsDialog],
     providers: [
-      provideRouter([]),
+      provideRouter([{ path: 'product/:slug', component: Page }]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
@@ -151,6 +155,39 @@ describe('the sold-together panel (FR-SET-05)', () => {
     // Keyed on the slug: one product's counterparts must never be shown under
     // another's marker.
     expect(asked).toEqual(['takeaway-cup-300', 'takeaway-lid-flat']);
+  });
+
+  it('moves with the page when one of its rows is followed', async () => {
+    const CUP = productListItem({
+      slug: 'takeaway-cup-300',
+      name: 'Takeaway Cup, 300 ml',
+      pairedCount: 1,
+    });
+    const { pairings, settle, asked, el } = await render(async (slug) =>
+      slug === 'takeaway-cup-300' ? [LID] : [CUP],
+    );
+
+    pairings.show('takeaway-cup-300', 1);
+    await settle();
+    await TestBed.inject(Router).navigateByUrl('/product/takeaway-lid-flat');
+    await settle();
+
+    expect(pairings.open()).toEqual({ slug: 'takeaway-lid-flat', count: 1 });
+    expect(asked).toEqual(['takeaway-cup-300', 'takeaway-lid-flat']);
+    expect(el.textContent).toContain(CUP.name);
+    expect(el.textContent).not.toContain(LID.name);
+  });
+
+  it('stays put on a navigation that is not one of its rows', async () => {
+    const { pairings, settle, asked } = await render(async () => [LID]);
+
+    pairings.show('takeaway-cup-300', 1);
+    await settle();
+    await TestBed.inject(Router).navigateByUrl('/product/something-else');
+    await settle();
+
+    expect(pairings.open()?.slug).toBe('takeaway-cup-300');
+    expect(asked).toEqual(['takeaway-cup-300']);
   });
 
   it('says so when the counterparts cannot be fetched', async () => {
