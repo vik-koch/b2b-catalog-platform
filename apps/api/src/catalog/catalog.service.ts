@@ -55,6 +55,7 @@ import {
   descendantIds,
   directChildren,
   stockedCategoryIds,
+  subtreeCounts,
 } from './catalog-tree';
 import {
   parseSearchQuery,
@@ -83,9 +84,11 @@ import {
 } from './featured-row';
 import {
   buildFacets,
+  ResolvedSelection,
   resolveSelections,
   selectionConditions,
 } from './product-facets';
+import { carriedSelections, selectionParams } from './subcategory-links';
 import {
   categoryChain,
   DefinitionRow,
@@ -189,15 +192,15 @@ export class CatalogService {
 
     const listing = await this.listingPage(where, page, sort, price);
     const facets = await buildFacets(this.db, scope, definitions, selections);
+    const categories = await this.subcategoryLinks(
+      null,
+      rows,
+      stocked,
+      selections,
+      await this.categoryPanels(rows),
+    );
 
-    return {
-      categories: directChildren(
-        null,
-        rows.filter((row) => stocked.has(row.id)),
-      ),
-      ...listing,
-      facets,
-    };
+    return { categories, ...listing, facets };
   }
 
   /**
@@ -226,13 +229,20 @@ export class CatalogService {
     // nothing else is visible in — while the drill-down nav reads the pruned
     // set, so it never offers a subcategory with an empty grid behind it.
     const stocked = stockedCategoryIds(rows, await this.liveCategoryIds());
-    const stockedRows = rows.filter((row) => stocked.has(row.id));
-    const definitions = await this.categoryDefinitions(category.id, rows);
+    const panelOf = await this.categoryPanels(rows);
+    const definitions = panelOf(category.id);
     const selections = resolveSelections(attributes, definitions);
     const where = and(scope, ...selectionConditions(this.db, selections));
 
     const listing = await this.listingPage(where, page, sort, price);
     const facets = await buildFacets(this.db, scope, definitions, selections);
+    const subcategories = await this.subcategoryLinks(
+      category.id,
+      rows,
+      stocked,
+      selections,
+      panelOf,
+    );
 
     return {
       category: {
@@ -240,11 +250,68 @@ export class CatalogService {
         name: category.name,
         shortName: category.shortName,
         ancestors: ancestorsOf(category.id, rows),
-        subcategories: directChildren(category.id, stockedRows),
+        subcategories,
       },
       ...listing,
       facets,
     };
+  }
+
+  /**
+   * A listing's chips (FR-CAT-02): its stocked direct children, each with the
+   * part of the selection its own panel offers and what that part leaves
+   * beneath it (FR-ATTR-13). One grouped count per distinct part — usually
+   * one for the whole row.
+   */
+  private async subcategoryLinks(
+    parentId: string | null,
+    rows: CategoryRow[],
+    stocked: Set<string>,
+    selections: ResolvedSelection[],
+    panelOf: (categoryId: string) => DefinitionRow[],
+  ): Promise<SubcategoryLink[]> {
+    const totalsBy = new Map<string, Promise<Map<string, number>>>();
+    const children = directChildren(
+      parentId,
+      rows.filter((row) => stocked.has(row.id)),
+    );
+    const links: SubcategoryLink[] = [];
+    for (const child of children) {
+      const carried = carriedSelections(selections, panelOf(child.id));
+      const attr = selectionParams(carried);
+      const key = JSON.stringify(attr);
+      let totals = totalsBy.get(key);
+      if (!totals) {
+        totals = this.subtreeTotals(carried, rows);
+        totalsBy.set(key, totals);
+      }
+      links.push({
+        slug: child.slug,
+        name: child.name,
+        shortName: child.shortName,
+        mark: child.mark,
+        count: (await totals).get(child.id) ?? 0,
+        attr,
+      });
+    }
+    return links;
+  }
+
+  /** Publicly visible products under each category, subtree included, that
+   * `selections` leaves. */
+  private async subtreeTotals(
+    selections: ResolvedSelection[],
+    rows: CategoryRow[],
+  ): Promise<Map<string, number>> {
+    const direct = await this.db
+      .select({ id: products.categoryId, value: count() })
+      .from(products)
+      .where(and(publiclyVisible, ...selectionConditions(this.db, selections)))
+      .groupBy(products.categoryId);
+    return subtreeCounts(
+      rows,
+      new Map(direct.map((row) => [row.id, Number(row.value)])),
+    );
   }
 
   /** One page of a browsed listing and the count behind it — a category's or
@@ -497,13 +564,24 @@ export class CatalogService {
     categoryId: string,
     rows: CategoryRow[],
   ): Promise<DefinitionRow[]> {
-    const chain = categoryChain(categoryId, rows);
-    const definitions = await this.attributeDefinitions();
-    const overlay = await this.db
-      .select()
-      .from(categoryAttributes)
-      .where(inArray(categoryAttributes.categoryId, chain));
-    return resolveCategoryDefinitions(chain, definitions, overlay);
+    return (await this.categoryPanels(rows))(categoryId);
+  }
+
+  /** Any category's panel, from one read of the registry and the overlays —
+   * a listing asks it for itself and for each of its chips. */
+  private async categoryPanels(
+    rows: CategoryRow[],
+  ): Promise<(categoryId: string) => DefinitionRow[]> {
+    const [definitions, overlay] = await Promise.all([
+      this.attributeDefinitions(),
+      this.db.select().from(categoryAttributes),
+    ]);
+    return (categoryId) =>
+      resolveCategoryDefinitions(
+        categoryChain(categoryId, rows),
+        definitions,
+        overlay,
+      );
   }
 
   /**

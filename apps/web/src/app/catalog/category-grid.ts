@@ -338,16 +338,19 @@ interface Listing {
                         [editLabel]="editText.editCategory"
                       />
                     }
-                    <!-- The selection travels down with the visitor: the
-                         values are the catalogue's, not this category's, so
-                         narrowing the scope is no reason to forget them. It may
-                         leave the subcategory with no matches — the chips and
-                         the panel are on screen there to say so and undo it.
-                         The sort goes with it: it is the same kind of stated
-                         preference, and every listing offers the same orders. -->
+                    <!-- The selection travels down with the visitor, as much
+                         of it as the subcategory's own panel offers — the rest
+                         it could neither show nor clear. A chip that part
+                         leaves empty is greyed and leads in unfiltered. The
+                         sort goes with it: it is the same kind of stated
+                         preference. -->
                     <app-category-chip
                       [category]="sub"
-                      [queryParams]="{ sort: sortParam(), attr: attrParam() }"
+                      [muted]="sub.count === 0"
+                      [queryParams]="{
+                        sort: sortParam(),
+                        attr: sub.count && sub.attr.length ? sub.attr : null,
+                      }"
                     />
                   </li>
                 }

@@ -144,12 +144,16 @@ describe('CategoryGrid', () => {
               name: 'Espresso Roasts Dark',
               shortName: 'Dark',
               mark: null,
+              count: 1,
+              attr: [],
             },
             {
               slug: 'light',
               name: 'Espresso Roasts Light',
               shortName: null,
               mark: null,
+              count: 1,
+              attr: [],
             },
           ],
         },
@@ -180,6 +184,8 @@ describe('CategoryGrid', () => {
       name: s.toUpperCase(),
       shortName: null,
       mark: null,
+      count: 1,
+      attr: [] as string[],
     }));
     const f = await render(
       response({
@@ -388,6 +394,8 @@ describe('CategoryGrid', () => {
                 name: 'Single Origin',
                 shortName: null,
                 mark: null,
+                count: 1,
+                attr: ['grind:fine'],
               },
             ],
           },
@@ -404,6 +412,73 @@ describe('CategoryGrid', () => {
       // The sort is the same kind of stated preference and travels with it.
       expect(href('Single Origin')).toContain('sort=price_desc');
       expect(href('Coffee Beans')).toContain('sort=price_desc');
+    });
+
+    it('carries into a subcategory only what its own panel offers', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          category: {
+            ...response().category,
+            subcategories: [
+              {
+                slug: 'tea',
+                name: 'Tea',
+                shortName: null,
+                mark: null,
+                count: 4,
+                attr: [],
+              },
+            ],
+          },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      expect(
+        el(f).querySelector('#subcategories a')?.getAttribute('href'),
+      ).toBe('/catalog/tea');
+    });
+
+    it('greys a subcategory the filters leave empty, and leads in unfiltered', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          category: {
+            ...response().category,
+            subcategories: [
+              {
+                slug: 'decaf',
+                name: 'Decaf',
+                shortName: null,
+                mark: null,
+                count: 0,
+                attr: ['grind:fine'],
+              },
+              {
+                slug: 'dark',
+                name: 'Dark',
+                shortName: null,
+                mark: null,
+                count: 2,
+                attr: ['grind:fine'],
+              },
+            ],
+          },
+        }),
+        { attr: 'grind:fine', sort: 'price' },
+      );
+
+      const chip = (slug: string) =>
+        el(f).querySelector<HTMLAnchorElement>(
+          `#subcategories a[href^="/catalog/${slug}"]`,
+        );
+      expect(chip('decaf')?.getAttribute('href')).toBe(
+        '/catalog/decaf?sort=price',
+      );
+      expect(chip('decaf')?.className).toContain('text-stone-400');
+      expect(chip('dark')?.getAttribute('href')).toContain('attr=grind:fine');
+      expect(chip('dark')?.className).not.toContain('text-stone-400');
     });
 
     it('keeps the panel on screen when the selection matches nothing', async () => {
@@ -468,8 +543,17 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
           name: 'Coffee Beans',
           shortName: null,
           mark: null,
+          count: 1,
+          attr: [],
         },
-        { slug: 'tea', name: 'Tea', shortName: null, mark: null },
+        {
+          slug: 'tea',
+          name: 'Tea',
+          shortName: null,
+          mark: null,
+          count: 1,
+          attr: [],
+        },
       ],
       ...overrides,
     };
@@ -538,6 +622,8 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
       name: s.toUpperCase(),
       shortName: null,
       mark: null,
+      count: 1,
+      attr: [] as string[],
     }));
     const root = el(await renderCatalog(catalog({ categories })));
 

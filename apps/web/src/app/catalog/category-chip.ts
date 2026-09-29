@@ -30,7 +30,7 @@ export interface CategoryChipTarget {
 export type CategoryChipSize = 'responsive' | 'small';
 
 const CHIP_BASE =
-  'flex w-full items-center gap-3 px-3 rounded-xl bg-stone-125 text-base text-stone-800 transition-colors hover:bg-stone-200 hover:text-accent';
+  'flex w-full items-center gap-3 px-3 rounded-xl bg-stone-125 text-base transition-colors hover:bg-stone-200 hover:text-accent';
 
 /** The box and the picture are the same shape — the upload stores a square —
  * so nothing is cropped here; only how much of the chip it takes changes. */
@@ -86,6 +86,10 @@ export class CategoryChip {
   /** Carried through so a chip can keep the listing's sort and filters. */
   readonly queryParams = input<Params | null>(null);
   readonly size = input<CategoryChipSize>('responsive');
+  /** Greyed like a facet value with no matches: nothing under the listing's
+   * filters is in it. Still a link — it is the category that is empty, not
+   * the way into it. */
+  readonly muted = input(false);
 
   /** A mark whose file 404s is no mark at all — the fallback is the name, not
    * the browser's broken-image icon in a chip that says nothing else. */
@@ -99,10 +103,16 @@ export class CategoryChip {
   );
 
   protected readonly linkClass = computed(
-    () => `${CHIP_BASE} ${CHIP_SIZES[this.size()].link}`,
+    () =>
+      `${CHIP_BASE} ${CHIP_SIZES[this.size()].link} ${
+        this.muted() ? 'text-stone-400' : 'text-stone-800'
+      }`,
   );
   protected readonly markClass = computed(
-    () => `shrink-0 rounded-md object-cover ${CHIP_SIZES[this.size()].mark}`,
+    () =>
+      `shrink-0 rounded-md object-cover ${CHIP_SIZES[this.size()].mark}${
+        this.muted() ? ' opacity-40' : ''
+      }`,
   );
   /**
    * The name takes whatever the mark leaves and wraps inside it, clipped at
