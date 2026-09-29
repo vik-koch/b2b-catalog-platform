@@ -98,6 +98,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ATTR-10](#fr-attr-10) — Attribute names offered while typing
 - [FR-ATTR-11](#fr-attr-11) — A category's own attribute list
 - [FR-ATTR-12](#fr-attr-12) — The catalogue's own attribute list
+- [FR-ATTR-13](#fr-attr-13) — Subcategories under a selection
 
 **[Admin & Catalog Sync (FR-ADM)](#fr-adm)**
 
@@ -503,6 +504,10 @@ The catalogue index ([FR-CAT-02](#fr-cat-02)) offers only the filterable attribu
 ---
 
 ### <a id="fr-adm"></a>Admin & Catalog Sync (FR-ADM)
+
+#### <a id="fr-attr-13"></a>FR-ATTR-13 — Subcategories under a selection
+
+A listing's subcategories — the top-level categories on the catalogue index — carry the current selection into their own listing, but only the part of it their own list offers ([FR-ATTR-11](#fr-attr-11)). A subcategory that part leaves without products is shown greyed, as a filter value with no matches is ([FR-ATTR-05](#fr-attr-05)); it still leads to its listing, unfiltered.
 
 #### <a id="fr-adm-01"></a>FR-ADM-01 — Editing a product by hand
 
