@@ -6,7 +6,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { ProductImage } from '@b2b-catalog-platform/shared';
 import { ImagePlaceholder } from './image-placeholder';
 import { swipeStep, touchX } from './swipe';
 
@@ -21,6 +21,11 @@ import { swipeStep, touchX } from './swipe';
  * them (and suppresses the tap so a swipe never navigates). The whole thing is
  * a link to the product, so with no JS (or before hydration) it is simply the
  * first image behind a working link.
+ *
+ * A picture showing one of the product's variants carries its name against
+ * the photo's left edge (FR-CAT-11), so scrubbing through the pictures names
+ * them. `labels` is off where the photo is too small to carry one — a row's —
+ * and the variants are reached through a mark beside it instead (FR-CAT-13).
  */
 @Component({
   selector: 'app-tile-gallery',
@@ -51,7 +56,7 @@ import { swipeStep, touchX } from './swipe';
                the page URL and fetch). -->
           <img
             [attr.src]="sourceFor($index)"
-            [alt]="productName()"
+            [alt]="altFor(img)"
             class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
             [class.opacity-0]="$index !== selected()"
@@ -61,6 +66,29 @@ import { swipeStep, touchX } from './swipe';
         }
       } @empty {
         <app-image-placeholder [label]="productName()" />
+      }
+
+      <!-- Against the left edge and clear of the top, a ribbon pinned to the
+           picture rather than a badge floating on it; one line, shortened,
+           since the name in full is in the picture's alt text. The alt text is
+           what a screen reader gets, so this is hidden from it.
+
+           One per picture, fading with it: a single label swapping its text
+           changed a beat before the photo under it had. -->
+      @if (labels()) {
+        @for (img of images(); track $index) {
+          @if (img.variant) {
+            <span
+              [class]="labelClass"
+              [class.opacity-100]="$index === selected()"
+              [class.opacity-0]="$index !== selected()"
+              aria-hidden="true"
+              data-variant-label
+            >
+              {{ img.variant }}
+            </span>
+          }
+        }
       }
 
       @if (hasMultiple()) {
@@ -81,14 +109,30 @@ import { swipeStep, touchX } from './swipe';
   `,
 })
 export class TileGallery {
-  images = input.required<readonly CatalogImage[]>();
+  images = input.required<readonly ProductImage[]>();
   /** Router commands for the product this tile links to. */
   link = input.required<unknown[]>();
   /** Product name — the link's accessible label and each image's alt text. */
   productName = input.required<string>();
+  /** Whether a picture showing a variant is labelled with it. */
+  labels = input(true);
+
+  /** Square against the photo's edge and pointed at the other end — a
+   * ribbon's cut, drawn by the clip rather than a border trick, so the point
+   * is the label's own colour whatever the photo behind it is. The padding on
+   * the right is the point's depth plus the text's own. */
+  protected readonly labelClass =
+    'pointer-events-none absolute top-2 left-0 max-w-[75%] truncate bg-secondary py-0.5 pr-3.5 pl-2 text-xs text-white transition-opacity duration-200 [clip-path:polygon(0_0,calc(100%-0.5rem)_0,100%_50%,calc(100%-0.5rem)_100%,0_100%)]';
+
+  /** The product, and the variant where the picture shows one. */
+  protected altFor(image: ProductImage): string {
+    return image.variant
+      ? `${this.productName()} — ${image.variant}`
+      : this.productName();
+  }
 
   /** Resets to the first image when the tile shows a different product. */
-  protected selected = linkedSignal<readonly CatalogImage[], number>({
+  protected selected = linkedSignal<readonly ProductImage[], number>({
     source: this.images,
     computation: () => 0,
   });
@@ -102,7 +146,7 @@ export class TileGallery {
    * pointer/touch entering the tile gets a head start on.
    */
   private readonly revealed = linkedSignal<
-    readonly CatalogImage[],
+    readonly ProductImage[],
     Set<number>
   >({
     source: this.images,

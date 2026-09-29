@@ -1,8 +1,9 @@
 import { Component, computed, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  CatalogImage,
   ProductAvailability,
+  ProductImage,
+  ProductVariant,
 } from '@b2b-catalog-platform/shared';
 import { FRAME } from '../ui/frame';
 import {
@@ -20,7 +21,10 @@ export const PRODUCT_ROWS = 'divide-y divide-border border-y border-border';
 
 /** What a row needs: the little that makes a product buyable, plus its photos. */
 export interface RowProduct extends BuyableProduct {
-  images: CatalogImage[];
+  images: ProductImage[];
+  /** Opened from a mark beside the name, since the photo is too small to
+   * label them (FR-CAT-13). */
+  variants: ProductVariant[];
   /** Null where stock is untracked, and null for a cart line, whose product
    * shape does not carry one. */
   availability?: ProductAvailability | null;
@@ -79,6 +83,7 @@ export interface RowProduct extends BuyableProduct {
             [images]="item().images"
             [link]="link()"
             [productName]="item().name"
+            [labels]="false"
           />
           <ng-content select="[rowOverlay]" />
         </div>
@@ -105,6 +110,9 @@ export interface RowProduct extends BuyableProduct {
               class="mb-1.5"
               [availability]="item().availability ?? null"
               [parts]="item().parts ?? []"
+              [variants]="item().variants"
+              [images]="item().images"
+              [productName]="item().name"
             />
             <!-- A heading, as on a card: the same product listed two ways is
                  the same document outline either way, down to its size — a

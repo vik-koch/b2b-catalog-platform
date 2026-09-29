@@ -4,9 +4,10 @@ import {
   inject,
   input,
   linkedSignal,
+  output,
   signal,
 } from '@angular/core';
-import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { ProductImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
 import { APP_TEXT } from '../config/app-text';
 import { FRAME, FRAME_HOVER, FRAME_SELECTED } from '../ui/frame';
@@ -48,6 +49,13 @@ const THUMBS_BESIDE = 6;
  * Narrower than `md` the photo is 15rem and there is no column to stand a
  * strip in, so the thumbnails are always a row under it — and there only the
  * first five are kept, with a toggle for the rest.
+ *
+ * `compact` is that narrow shape at every width, every thumbnail kept — what a
+ * bubble holding the gallery has room for, whatever the window around it.
+ *
+ * Nothing is printed over a picture here: where a product names variants the
+ * list beside the gallery says which one is on show (FR-CAT-11), and a label
+ * would cover part of the photo this gallery is for.
  */
 @Component({
   selector: 'app-product-gallery',
@@ -61,7 +69,7 @@ const THUMBS_BESIDE = 6;
            scrolling under a vertical drag. -->
       <div
         data-main-image
-        [class]="mainImage"
+        [class]="mainImage()"
         (touchstart)="onTouchStart($event)"
         (touchend)="onTouchEnd($event)"
       >
@@ -74,7 +82,7 @@ const THUMBS_BESIDE = 6;
                    in-body images instead of at their priority. -->
             <img
               [src]="img.full"
-              [alt]="productName()"
+              [alt]="altFor(img)"
               class="h-full w-full object-cover"
               fetchpriority="high"
               (error)="markFailed(img.full)"
@@ -94,8 +102,8 @@ const THUMBS_BESIDE = 6;
                 [class]="thumb($index === selected())"
                 [attr.aria-current]="$index === selected() || null"
                 [attr.aria-label]="thumbLabel($index)"
-                (click)="selected.set($index)"
-                (mouseenter)="selected.set($index)"
+                (click)="select($index)"
+                (mouseenter)="select($index)"
               >
                 @if (failed().has(img.thumb)) {
                   <app-image-placeholder />
@@ -112,7 +120,7 @@ const THUMBS_BESIDE = 6;
             </li>
           }
         </ul>
-        @if (images().length > THUMBS_COLLAPSED) {
+        @if (!compact() && images().length > THUMBS_COLLAPSED) {
           <app-show-more-toggle
             class="md:hidden"
             [expanded]="showAllThumbs()"
@@ -139,7 +147,12 @@ export class ProductGallery {
    * its 25rem by `shrink-0`, a tight column pushed the strip of thumbnails
    * off the left edge instead — the strip is the flex item that gives way in a
    * reversed row, and it went where nothing could scroll to it. */
-  protected readonly mainImage = `aspect-square w-full min-w-0 touch-pan-y overflow-hidden rounded-xl bg-white md:w-100 ${FRAME}`;
+  protected readonly mainImage = computed(
+    () =>
+      `aspect-square w-full min-w-0 touch-pan-y overflow-hidden bg-white ${FRAME} ${
+        this.compact() ? 'rounded-lg' : 'rounded-xl md:w-100'
+      }`,
+  );
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
 
@@ -152,6 +165,7 @@ export class ProductGallery {
    * gallery's height, and a taller stack of small squares next to a picture
    * reads as the squares being the point. */
   protected readonly beside = computed(() => {
+    if (this.compact()) return false;
     const count = this.images().length;
     return count > 1 && count <= THUMBS_BESIDE;
   });
@@ -175,12 +189,14 @@ export class ProductGallery {
    */
   protected readonly frameClass = computed(() => {
     const base = 'flex min-w-0 flex-col gap-3';
+    if (this.compact()) return base;
     return this.beside()
       ? `${base} md:max-w-120 md:flex-row-reverse md:items-start md:gap-4`
       : `${base} md:max-w-100`;
   });
 
   protected readonly thumbsClass = computed(() => {
+    if (this.compact()) return 'grid grid-cols-5 gap-2';
     // Under the photo, six to a row at the width the photo gives them; beside
     // it, one column of 4rem squares.
     const beside = this.shared()
@@ -195,15 +211,43 @@ export class ProductGallery {
       : `${base} [&>li:nth-child(n+6)]:max-md:hidden`;
   });
 
-  images = input.required<readonly CatalogImage[]>();
+  images = input.required<readonly ProductImage[]>();
   /** Product name, used as the main image's alt text. */
   productName = input<string>('');
+  /** The narrow shape at every width; see the class comment. */
+  readonly compact = input(false);
+
+  /** Which picture is on show, whoever chose it — a thumbnail, a swipe, or
+   * the variant list beside the gallery through `show`. */
+  readonly selectedChange = output<number>();
 
   /** Resets to the first image whenever the product (its images) changes. */
-  protected selected = linkedSignal<readonly CatalogImage[], number>({
+  protected selected = linkedSignal<readonly ProductImage[], number>({
     source: this.images,
     computation: () => 0,
   });
+
+  /** Brings a picture into view from outside — the variant list. */
+  show(index: number): void {
+    if (index < 0 || index >= this.images().length) return;
+    this.select(index);
+    // A picture the collapsed strip is not showing opens the rest, as a swipe
+    // that reached it does.
+    if (index >= THUMBS_COLLAPSED) this.showAllThumbs.set(true);
+  }
+
+  protected select(index: number): void {
+    if (index === this.selected()) return;
+    this.selected.set(index);
+    this.selectedChange.emit(index);
+  }
+
+  /** The product, and the variant where the picture shows one. */
+  protected altFor(image: ProductImage): string {
+    return image.variant
+      ? `${this.productName()} — ${image.variant}`
+      : this.productName();
+  }
 
   protected current = computed(() => {
     const imgs = this.images();
@@ -250,7 +294,7 @@ export class ProductGallery {
       0,
       Math.min(this.selected() + step, this.images().length - 1),
     );
-    this.selected.set(next);
+    this.select(next);
     // A swipe can reach a photo the collapsed strip is not showing, and a
     // strip that does not mark the photo on screen is worse than a longer
     // one. Reaching it opens the rest for good: the visitor is past the

@@ -79,6 +79,21 @@
     }
   }
 
+  /*
+   * A variant name becoming the chosen one (FR-CAT-11): it starts in the
+   * accent it wears under a pointer and settles into the chosen style, so a
+   * choice made by pointing does not snap from one colour to another as the
+   * pointer leaves, and one made by a swipe is still seen to happen.
+   */
+  --animate-variant-chosen: variant-chosen 600ms ease-out;
+
+  @keyframes variant-chosen {
+    from {
+      color: var(--color-accent);
+      box-shadow: 0 0 0 1px var(--color-accent);
+    }
+  }
+
   @keyframes marker-pop {
     from {
       opacity: 0;

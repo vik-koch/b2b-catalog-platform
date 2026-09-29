@@ -44,6 +44,13 @@
       "short": "Set",
       "full": "Sold as a set: {parts}"
     },
+    "variants": {
+      "heading": "Variants",
+      "unavailable": "currently unavailable",
+      "mark": "Variants",
+      "markLabel": "Show the {count} variants",
+      "close": "Close"
+    },
     "layout": {
       "label": "Layout",
       "grid": "Show as cards",

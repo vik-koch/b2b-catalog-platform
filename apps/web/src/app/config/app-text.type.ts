@@ -101,6 +101,23 @@ export const appTextSchema = z
             full: z.string(),
           })
           .strict(),
+        /**
+         * A product's variants (FR-CAT-11/12/13). `heading` names the list
+         * beside the product page's gallery; `unavailable` is appended to a
+         * variant marked currently unavailable; `mark` is the badge a row
+         * opens the list with, and `markLabel` its accessible name, where
+         * `{count}` is how many variants there are; `close` ends the list's
+         * dialog on a phone.
+         */
+        variants: z
+          .object({
+            heading: z.string(),
+            unavailable: z.string(),
+            mark: z.string(),
+            markLabel: z.string(),
+            close: z.string(),
+          })
+          .strict(),
         layout: z
           .object({
             label: z.string(),

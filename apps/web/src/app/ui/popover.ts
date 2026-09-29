@@ -74,6 +74,9 @@ export class Popover {
   /** A bubble that holds a control rather than a sentence: wide enough to type
    * in, and its content reads from the left rather than being centred. */
   readonly roomy = input(false);
+  /** Roomier still: a bubble holding pictures, which need the width to be
+   * worth looking at. */
+  readonly wide = input(false);
   /** Milliseconds after which it dismisses itself; 0 waits for the customer.
    * A statement can time out, a question may not. */
   readonly duration = input(0);
@@ -123,9 +126,11 @@ export class Popover {
     // than the smaller of them, and the arbitrary value won: every sentence
     // bubble was drawn a third wider than the cap it was given. `min()` says
     // what was meant, and says it in one declaration nothing can outrank.
-    const size = this.roomy()
-      ? 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left'
-      : 'w-max max-w-[min(13rem,calc(100vw-2rem))] px-3 py-2 text-center';
+    const size = this.wide()
+      ? 'w-[36rem] max-w-[calc(100vw-2rem)] p-3 text-left'
+      : this.roomy()
+        ? 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left'
+        : 'w-max max-w-[min(13rem,calc(100vw-2rem))] px-3 py-2 text-center';
     return `absolute rounded-md border border-border-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
   });
 

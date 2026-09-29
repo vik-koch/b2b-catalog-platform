@@ -2,9 +2,12 @@ import { Component, computed, input } from '@angular/core';
 import {
   PRODUCT_PARTS_MIN,
   ProductAvailability,
+  ProductImage,
+  ProductVariant,
 } from '@b2b-catalog-platform/shared';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductSetBadge } from './product-set-badge';
+import { ProductVariantsMark } from './product-variants-mark';
 
 /** What the line over a listed product's name is drawn from. */
 export interface StatusLineProduct {
@@ -29,7 +32,9 @@ function isSet(item: StatusLineProduct): boolean {
 
 /**
  * The line over a listed product's name: whether it can be had (FR-STOCK-03),
- * then whether it is sold as a set (FR-CAT-10).
+ * then whether it is sold as a set (FR-CAT-10), then — on a row, whose photo
+ * is too small to label — the mark its variants open from (FR-CAT-13). A card
+ * passes no variants: its pictures carry their names themselves.
  *
  * `reserve` holds it open on a product with nothing to say, so every card's
  * name sits at one height. Both badges fit a card's 13.5rem in the wordings
@@ -39,7 +44,7 @@ function isSet(item: StatusLineProduct): boolean {
  */
 @Component({
   selector: 'app-product-status-line',
-  imports: [ProductAvailabilityBadge, ProductSetBadge],
+  imports: [ProductAvailabilityBadge, ProductSetBadge, ProductVariantsMark],
   template: `
     <!-- The stock badge keeps the line open when nothing else does; the set
          badge holds it itself where it is there. -->
@@ -51,18 +56,30 @@ function isSet(item: StatusLineProduct): boolean {
     @if (set()) {
       <app-product-set-badge [parts]="parts()" />
     }
+    @if (variants().length) {
+      <app-product-variants-mark
+        [variants]="variants()"
+        [images]="images()"
+        [productName]="productName()"
+      />
+    }
   `,
   // Out of the flow entirely when it has nothing to render, so a margin the
   // caller set on it does not leave a gap under a plain, untracked product.
   host: {
     class: 'flex min-w-0 flex-wrap items-start gap-1',
-    '[style.display]': "availability() || set() || reserve() ? null : 'none'",
+    '[style.display]':
+      "availability() || set() || variants().length || reserve() ? null : 'none'",
   },
 })
 export class ProductStatusLine {
   readonly availability = input.required<ProductAvailability | null>();
   readonly parts = input<readonly string[]>([]);
   readonly reserve = input(false);
+  /** Where given, the variants the mark opens, and the pictures they show. */
+  readonly variants = input<readonly ProductVariant[]>([]);
+  readonly images = input<readonly ProductImage[]>([]);
+  readonly productName = input('');
 
   protected readonly set = computed(() =>
     isSet({ availability: null, parts: this.parts() }),
