@@ -28,13 +28,13 @@ import { Icon } from '../ui/icons/icon';
   host: { class: 'flex min-w-0' },
   template: `
     @if (variant() === 'short') {
-      <span [class]="pill + ' px-1 whitespace-nowrap'" [title]="full()">
+      <span [class]="pill + ' whitespace-nowrap'" [title]="full()">
         <app-icon name="layers-2" class="h-3.5 w-3.5 shrink-0" />
         <span class="truncate" aria-hidden="true">{{ text.short }}</span>
         <span class="sr-only">{{ full() }}</span>
       </span>
     } @else {
-      <span [class]="pill + ' px-2'">
+      <span [class]="pill + ' items-start leading-tight'">
         <app-icon name="layers-2" class="h-3.5 w-3.5 shrink-0" />
         <span>{{ full() }}</span>
       </span>
@@ -57,5 +57,5 @@ export class ProductSetBadge {
    * all but vanished on the stone-50 page a row and the product panel sit on.
    */
   protected readonly pill =
-    'inline-flex min-w-0 items-center gap-1 rounded-md border border-transparent bg-ink/5 py-0.5 text-xs font-medium text-muted select-none';
+    'inline-flex min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-ink/5 px-1.5 py-0.5 text-xs font-medium text-muted select-none';
 }
