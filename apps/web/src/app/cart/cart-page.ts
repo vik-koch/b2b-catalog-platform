@@ -602,7 +602,14 @@ export class CartPage {
           lineNotePrompt: line.notePrompt,
           pairedCount: line.pairedCount,
           parts: line.parts,
-          images: line.image ? [line.image] : [],
+          // The line's own pictures where it knows them — the mark opens them
+          // (FR-CAT-13) — else the one photo it was added with.
+          images: line.images.length
+            ? line.images
+            : line.image
+              ? [{ ...line.image, variant: null }]
+              : [],
+          variants: line.variants,
         },
         name: line.name,
         note: line.note,

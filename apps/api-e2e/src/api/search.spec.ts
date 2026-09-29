@@ -61,6 +61,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
       'priceMinor',
       'prices',
       'slug',
+      'variants',
     ]);
   });
 

@@ -4,9 +4,9 @@ import {
   AdminCategory,
   AttributeDefinition,
   AttributeKeyUsage,
-  CatalogImage,
   CustomerTier,
   fillText,
+  hasDistinctVariants,
   isValidPartList,
   minimumFitsPacks,
   piecesPerUnit,
@@ -18,8 +18,11 @@ import {
   LinkedDocument,
   PairedProduct,
   ProductDetail,
+  ProductImageInput,
   ProductInput,
+  ProductVariantInput,
   lowStockThreshold,
+  shownPictures,
   slugify,
   splitAttributeKey,
   totalMinor,
@@ -58,6 +61,7 @@ import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductPartsEditor } from './product-parts-editor';
+import { ProductVariantsEditor } from './product-variants-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { ProductDocumentsEditor } from '../documents/product-documents-editor';
 import { ProductPairingsEditor } from './product-pairings-editor';
@@ -91,6 +95,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     CategoryPicker,
     ProductAttributesEditor,
     ProductPartsEditor,
+    ProductVariantsEditor,
     ProductPackagingEditor,
     ProductDocumentsEditor,
     ProductPairingsEditor,
@@ -427,37 +432,47 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           </label>
         </fieldset>
 
-        <fieldset class="max-w-xl">
-          <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
-          <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
-            <input
-              type="checkbox"
-              appCheckbox
-              class="mt-0.5"
-              [checked]="lineNoteEnabled()"
-              (change)="onLineNoteToggle($any($event.target).checked)"
-            />
-            <span>{{ text.lineNote.enable }}</span>
-          </label>
-          @if (lineNoteEnabled()) {
-            <label class="mt-3 block max-w-xl">
-              <span appFieldLabel>{{ text.lineNote.prompt }}</span>
+        <!-- The variants and the note in one box: the note is how a customer
+             picks among the variants, so the two are set up together — each
+             with its own switch, since either stands without the other. -->
+        <app-product-variants-editor
+          [value]="variants()"
+          [images]="images()"
+          [projectedInUse]="lineNoteEnabled()"
+          (valueChange)="setVariants($event)"
+        >
+          <fieldset>
+            <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
+            <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
+            <label class="flex cursor-pointer items-start gap-2 text-sm">
               <input
-                type="text"
-                appInput
-                class="w-full"
-                [attr.maxlength]="lineNotePromptMaxLength"
-                [value]="lineNotePrompt()"
-                [placeholder]="text.lineNote.promptPlaceholder"
-                (input)="lineNotePrompt.set($any($event.target).value)"
+                type="checkbox"
+                appCheckbox
+                class="mt-0.5"
+                [checked]="lineNoteEnabled()"
+                (change)="onLineNoteToggle($any($event.target).checked)"
               />
-              <span class="mt-1 block text-xs text-subtle">{{
-                text.lineNote.promptHint
-              }}</span>
+              <span>{{ text.lineNote.enable }}</span>
             </label>
-          }
-        </fieldset>
+            @if (lineNoteEnabled()) {
+              <label class="mt-3 block max-w-xl">
+                <span appFieldLabel>{{ text.lineNote.prompt }}</span>
+                <input
+                  type="text"
+                  appInput
+                  class="w-full"
+                  [attr.maxlength]="lineNotePromptMaxLength"
+                  [value]="lineNotePrompt()"
+                  [placeholder]="text.lineNote.promptPlaceholder"
+                  (input)="lineNotePrompt.set($any($event.target).value)"
+                />
+                <span class="mt-1 block text-xs text-subtle">{{
+                  text.lineNote.promptHint
+                }}</span>
+              </label>
+            }
+          </fieldset>
+        </app-product-variants-editor>
 
         <app-product-pairings-editor
           [value]="pairings()"
@@ -473,6 +488,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <div>
           <app-product-image-gallery
             [value]="images()"
+            [variants]="variants()"
             (valueChange)="images.set($event)"
           />
         </div>
@@ -633,7 +649,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly description = signal('');
   protected readonly attributes = signal<ProductAttribute[]>([]);
   protected readonly tierPrices = signal<TierPriceDraft[]>([]);
-  protected readonly images = signal<CatalogImage[]>([]);
+  protected readonly images = signal<ProductImageInput[]>([]);
+  protected readonly variants = signal<ProductVariantInput[]>([]);
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly pairings = signal<PairedProduct[]>([]);
   protected readonly documents = signal<LinkedDocument[]>([]);
@@ -851,7 +868,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
               count: packaging.boxCount,
             },
       descriptionHtml: this.description(),
-      images: this.images(),
+      // What the storefront will show: unavailable variants' pictures
+      // withheld, the rest labelled (FR-CAT-11/12).
+      images: shownPictures(this.images(), this.variants()),
+      variants: this.variants().map(({ name, unavailable }) => ({
+        name: name.trim(),
+        unavailable,
+      })),
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt().trim() || null,
       availability: this.previewAvailability(),
@@ -949,6 +972,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
         ),
       );
       this.images.set(product.images);
+      this.variants.set(product.variants);
       this.published.set(product.publishedAt !== null);
       this.deleted.set(product.deletedAt !== null);
       this.pairings.set(product.pairings);
@@ -1015,6 +1039,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       description: this.description(),
       attributes: this.attributes(),
       images: this.images(),
+      variants: this.variants(),
       tierPrices: this.tierPrices(),
       pairings: this.pairings(),
       documents: this.documents(),
@@ -1085,6 +1110,28 @@ export class ProductEditorPage implements UnsavedChangesAware {
     };
   }
 
+  /**
+   * A deleted variant's pictures stay in the gallery, showing none — deleting a
+   * name never deletes an upload (FR-CAT-12).
+   */
+  protected setVariants(next: ProductVariantInput[]): void {
+    const ids = new Set(next.map((variant) => variant.id));
+    // The first variant switches the note on: naming colours is nearly always
+    // so a customer can ask for one. Only a suggestion — it can be switched
+    // off again for goods sold assorted only.
+    if (this.variants().length === 0 && next.length > 0) {
+      this.lineNoteEnabled.set(true);
+    }
+    this.variants.set(next);
+    this.images.update((images) =>
+      images.map((image) =>
+        image.variantId !== null && !ids.has(image.variantId)
+          ? { ...image, variantId: null }
+          : image,
+      ),
+    );
+  }
+
   /** Turning the note off drops the prompt with it — that is what a save
    * stores, and leaving the text behind would show the form as unsaved. */
   protected onLineNoteToggle(enabled: boolean): void {
@@ -1128,6 +1175,16 @@ export class ProductEditorPage implements UnsavedChangesAware {
     }
 
     if (!this.partsValid()) return this.error.set(this.text.parts.tooFew);
+    const variants = this.variants().map((variant) => ({
+      ...variant,
+      name: variant.name.trim(),
+    }));
+    if (
+      variants.some((variant) => variant.name === '') ||
+      !hasDistinctVariants(variants)
+    ) {
+      return this.error.set(this.text.variants.duplicate);
+    }
 
     const packaging = this.packagingInput();
     if (packaging === null) return this.error.set(this.text.packaging.invalid);
@@ -1155,6 +1212,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       attributes: this.storedAttributes(),
       parts: this.parts(),
       images: this.images(),
+      variants,
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".
       tierPrices,

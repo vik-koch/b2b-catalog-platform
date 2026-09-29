@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
@@ -39,7 +39,7 @@ class Host {
   available = true;
 }
 
-async function render(available = true) {
+async function render(available = true, given = item) {
   // The row carries real buying controls, which read the cart out of
   // localStorage. A line left behind by anything that ran before makes them
   // render as "Added for …" instead of "Add to cart" — a failure that lands on
@@ -56,6 +56,7 @@ async function render(available = true) {
   });
   const fixture = TestBed.createComponent(Host);
   fixture.componentInstance.available = available;
+  fixture.componentInstance.item = given;
   await fixture.whenStable();
   fixture.detectChanges();
   return fixture.nativeElement as HTMLElement;
@@ -137,5 +138,57 @@ describe('ProductRow', () => {
 
     expect(el.textContent).toContain(text.noPrice);
     expect(el.textContent).not.toContain('12,50');
+  });
+
+  // A row's photo is a reminder, not the way to look at the product: its
+  // variants are behind a mark, never printed over it (FR-CAT-13).
+  describe('with variants', () => {
+    const cups = productListItem({
+      slug: 'cappuccino-cup-set',
+      name: 'Cappuccino Cup Set',
+      images: [
+        {
+          full: '/media/sand.jpg',
+          thumb: '/media/sand-t.jpg',
+          variant: 'Sand',
+        },
+      ],
+      variants: [
+        { name: 'Sand', unavailable: false },
+        { name: 'Terracotta', unavailable: true },
+      ],
+    });
+    const variantsText = defaultAppText.catalog.variants;
+
+    it('labels no picture and offers the mark instead', async () => {
+      const el = await render(true, cups);
+
+      expect(el.querySelector('[data-variant-label]')).toBeNull();
+      const mark = el.querySelector<HTMLButtonElement>(
+        'app-product-variants-mark button',
+      );
+      expect(mark?.textContent).toContain(variantsText.mark);
+      expect(mark?.getAttribute('aria-expanded')).toBe('false');
+    });
+
+    it('opens the list with the pictures when the mark is pressed', async () => {
+      const el = await render(true, cups);
+
+      el.querySelector<HTMLButtonElement>(
+        'app-product-variants-mark button',
+      )?.click();
+      await TestBed.inject(ApplicationRef).whenStable();
+
+      const bubble = el.querySelector('app-popover');
+      expect(bubble?.querySelector('app-product-gallery')).not.toBeNull();
+      expect(bubble?.textContent).toContain('Sand');
+      expect(bubble?.textContent).toContain(variantsText.unavailable);
+    });
+
+    it('has no mark for a product that names no variants', async () => {
+      const el = await render();
+
+      expect(el.querySelector('app-product-variants-mark')).toBeNull();
+    });
   });
 });

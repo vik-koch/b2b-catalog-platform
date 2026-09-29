@@ -46,7 +46,9 @@ import {
   productAttributes,
   productPairings,
   productPrices,
+  ProductImageRef,
   products,
+  ProductVariantRef,
 } from '../db/schema';
 import { SettingsService } from '../settings/settings.service';
 import { catalogExternallyOwned } from '../settings/ownership.refusals';
@@ -65,6 +67,7 @@ import { adminProductOrderBy } from './product-sort';
 import {
   availabilityColumns,
   partsColumns,
+  pictureColumns,
   noteColumns,
   toUnpricedListItem,
   unitColumns,
@@ -109,6 +112,7 @@ const adminProductWriteColumns = {
   sourceId: products.sourceId,
   descriptionHtml: products.descriptionHtml,
   images: products.images,
+  variants: products.variants,
   deletedAt: products.deletedAt,
   publishedAt: products.publishedAt,
   updatedAt: products.updatedAt,
@@ -141,7 +145,8 @@ type ProductRow = {
   categoryId: string;
   sourceId: string;
   descriptionHtml: string;
-  images: { full: string; thumb: string }[];
+  images: ProductImageRef[];
+  variants: ProductVariantRef[];
   deletedAt: Date | null;
   publishedAt: Date | null;
   updatedAt: Date;
@@ -368,6 +373,7 @@ export class AdminProductsService {
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
+            variants: input.variants,
             featured: input.featured,
             lineNoteEnabled: input.lineNoteEnabled,
             lineNotePrompt: input.lineNotePrompt,
@@ -440,6 +446,7 @@ export class AdminProductsService {
             categoryId: input.categoryId,
             descriptionHtml: sanitizeProductRichText(input.descriptionHtml),
             images: input.images,
+            variants: input.variants,
             featured: input.featured,
             lineNoteEnabled: input.lineNoteEnabled,
             lineNotePrompt: input.lineNotePrompt,
@@ -605,7 +612,7 @@ export class AdminProductsService {
         slug: products.slug,
         name: products.name,
         priceMinor: resolvedPriceMinor(null),
-        images: products.images,
+        ...pictureColumns,
         deletedAt: products.deletedAt,
         publishedAt: products.publishedAt,
         ...unitColumns,
@@ -1105,7 +1112,13 @@ function toAdminProduct(
       value: entry.value,
     })),
     parts: row.parts,
-    images: row.images,
+    // Pictures stored before variants existed carry no reference at all.
+    images: row.images.map(({ full, thumb, variantId }) => ({
+      full,
+      thumb,
+      variantId: variantId ?? null,
+    })),
+    variants: row.variants,
     tierPrices,
     pairings,
     documents,

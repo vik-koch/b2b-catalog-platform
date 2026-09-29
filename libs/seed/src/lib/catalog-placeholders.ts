@@ -88,6 +88,62 @@ export async function generateProductImages(
   return images;
 }
 
+/** A cup and saucer in one glaze, on a plain warm ground; `angle` tilts it, so
+ * two pictures of one variant are two pictures rather than one file. */
+function cupSvg(
+  glaze: string,
+  x: number,
+  y: number,
+  scale: number,
+  angle: number,
+): string {
+  return `<g transform="translate(${x} ${y}) rotate(${angle}) scale(${scale})" stroke="rgba(0,0,0,0.18)" stroke-width="1.2">
+    <ellipse cx="0" cy="17" rx="27" ry="6" fill="${glaze}"/>
+    <path d="M-17 -12h34v14a17 17 0 0 1-34 0z" fill="${glaze}"/>
+    <path d="M17 -7h5a7 7 0 0 1 0 14h-5" fill="none" stroke="${glaze}" stroke-width="3.5"/>
+  </g>`;
+}
+
+/** One glaze large, or the range in rows of two, so no saucer overlaps the
+ * next and no handle runs off the edge. */
+function glazeSvg(glazes: readonly string[], seed: string, px: number): string {
+  const angle = -8 + (hash(seed) % 16);
+  const rows = Math.ceil(glazes.length / 2);
+  const cups =
+    glazes.length === 1
+      ? cupSvg(glazes[0], 50, 56, 1.3, angle)
+      : glazes
+          .map((glaze, i) => {
+            const row = Math.floor(i / 2);
+            const inRow = Math.min(2, glazes.length - row * 2);
+            const x = inRow === 1 ? 50 : i % 2 === 0 ? 29 : 71;
+            const y = rows === 1 ? 56 : 34 + row * 34;
+            return cupSvg(glaze, x, y, 0.62, 0);
+          })
+          .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100">
+  <rect width="100" height="100" fill="hsl(34, 30%, 90%)"/>
+  <rect y="74" width="100" height="26" fill="hsl(34, 22%, 82%)"/>
+  ${cups}
+</svg>`;
+}
+
+/**
+ * A picture of glazed cups as a full + thumb pair: one glaze is a variant's
+ * picture (FR-CAT-11), several side by side the picture of the whole range.
+ */
+export async function generateGlazeImage(
+  mediaRoot: string,
+  seed: string,
+  glazes: readonly string[],
+): Promise<CatalogImage> {
+  const [full, thumb] = await Promise.all([
+    store(mediaRoot, glazeSvg(glazes, seed, FULL_PX)),
+    store(mediaRoot, glazeSvg(glazes, seed, THUMB_PX)),
+  ]);
+  return { full, thumb };
+}
+
 /**
  * Category marks (FR-CAT-07). Unlike the product pictures above these are
  * drawn as a glyph on a tinted disc with nothing behind it — the mark sits on whatever

@@ -3,12 +3,15 @@ import {
   ProductAvailability,
   ProductListItem,
   ProductPackagingInfo,
+  ProductImage,
+  ProductVariant,
   UnitPrices,
   piecesPerUnit,
+  shownPictures,
   totalMinor,
 } from '@b2b-catalog-platform/shared';
 import { and, isNotNull, isNull } from 'drizzle-orm';
-import { ProductImageRef, products } from '../db/schema';
+import { ProductImageRef, ProductVariantRef, products } from '../db/schema';
 
 /**
  * Stored product rows → the prices and packaging the read contract publishes.
@@ -40,6 +43,36 @@ export const noteColumns = {
   lineNoteEnabled: products.lineNoteEnabled,
   lineNotePrompt: products.lineNotePrompt,
 } as const;
+
+/** The gallery and the variants it shows (FR-CAT-11) — read together, because
+ * neither can be published without the other deciding what is withheld. */
+export const pictureColumns = {
+  images: products.images,
+  variants: products.variants,
+} as const;
+
+export interface PictureRow {
+  images: ProductImageRef[];
+  variants: ProductVariantRef[];
+}
+
+/**
+ * What the storefront is shown of a product's pictures: the ones it may see,
+ * each labelled with its variant, and every variant by name — the unavailable
+ * ones marked rather than dropped (FR-CAT-12), and their ids left behind.
+ */
+export function picturesOf(row: PictureRow): {
+  images: ProductImage[];
+  variants: ProductVariant[];
+} {
+  return {
+    images: shownPictures(row.images, row.variants),
+    variants: row.variants.map(({ name, unavailable }) => ({
+      name,
+      unavailable,
+    })),
+  };
+}
 
 /** What a piece is made of, for the set marker (FR-CAT-10). */
 export const partsColumns = {
@@ -92,6 +125,7 @@ export function toListItem<
     slug: string;
     name: string;
     images: ProductImageRef[];
+    variants: ProductVariantRef[];
     lineNoteEnabled: boolean;
     lineNotePrompt: string | null;
     availability: ProductAvailability | null;
@@ -105,7 +139,7 @@ export function toListItem<
     priceMinor: row.priceMinor,
     prices: unitPricesOf(row),
     packaging: packagingOf(row),
-    images: row.images,
+    ...picturesOf(row),
     lineNoteEnabled: row.lineNoteEnabled,
     lineNotePrompt: row.lineNotePrompt,
     availability: row.availability,
@@ -127,6 +161,7 @@ export function toUnpricedListItem<
     slug: string;
     name: string;
     images: ProductImageRef[];
+    variants: ProductVariantRef[];
     lineNoteEnabled: boolean;
     lineNotePrompt: string | null;
     availability: ProductAvailability | null;

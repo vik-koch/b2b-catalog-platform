@@ -42,6 +42,21 @@ export interface ProductSeed {
   parts?: string[];
   /** Offered first to the main page's row (FR-CAT-09). */
   featured?: boolean;
+  /**
+   * The variants an assorted article comes in (FR-CAT-11), each drawn as its
+   * own pictures after the `imageCount` pictures of the whole range.
+   */
+  variants?: VariantSeed[];
+}
+
+/** One variant of an assorted article, and the glaze its pictures show. */
+export interface VariantSeed {
+  name: string;
+  /** A CSS colour the placeholder cup is drawn in. */
+  glaze: string;
+  pictures: number;
+  /** Currently unavailable (FR-CAT-12): its pictures are withheld. */
+  unavailable?: boolean;
 }
 
 /**
@@ -458,9 +473,25 @@ const allProducts: ProductSeed[] = [
         { key: 'Volume', value: '190' },
         { key: 'Pieces', value: '6 cups + saucers' },
       ],
+      // One picture of the whole range; the rest are the variants'.
+      1,
     ),
     lineNoteEnabled: true,
-    lineNotePrompt: 'Which glaze colours? Sand, slate or off-white.',
+    lineNotePrompt: 'Which glazes, and how many of each?',
+    // Assorted, not three articles: the price, stock and box are the same
+    // whichever glazes are packed. Two pictures of sand, a name long enough
+    // to be shortened on a card, and a glaze that is out for now.
+    variants: [
+      { name: 'Sand', glaze: '#d8c3a0', pictures: 2 },
+      { name: 'Slate', glaze: '#5b6670', pictures: 1 },
+      { name: 'Speckled off-white', glaze: '#efe9df', pictures: 1 },
+      {
+        name: 'Terracotta',
+        glaze: '#b5623f',
+        pictures: 1,
+        unavailable: true,
+      },
+    ],
   },
   p(
     'CUP-002',

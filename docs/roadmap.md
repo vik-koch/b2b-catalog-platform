@@ -20,7 +20,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 12<br>`v1.10.0` | Automated catalog sync from the source system | [FR-ADM-07](requirements.md#fr-adm-07)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-SEC-09](requirements.md#nfr-sec-09),<br>[NFR-OPS-06](requirements.md#nfr-ops-06)/[07](requirements.md#nfr-ops-07) | [FR-ADM-02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[06](requirements.md#fr-adm-06),<br>[FR-AUTH-05](requirements.md#fr-auth-05),<br>[FR-UNIT-04](requirements.md#fr-unit-04)/[10](requirements.md#fr-unit-10),<br>[FR-WORK-02](requirements.md#fr-work-02),<br>[FR-CAT-01](requirements.md#fr-cat-01) |
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
-| 15<br>`v1.13.0` | Storefront presentation: links elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[08](requirements.md#fr-cat-08)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07),<br>[FR-ADM-19](requirements.md#fr-adm-19),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-05](requirements.md#fr-adm-05),<br>[FR-ATTR-02](requirements.md#fr-attr-02) |
+| 15<br>`v1.13.0` | Storefront presentation: links elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets, variants | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[08](requirements.md#fr-cat-08)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10)/[11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07),<br>[FR-ADM-19](requirements.md#fr-adm-19),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-05](requirements.md#fr-adm-05)/[10](requirements.md#fr-adm-10),<br>[FR-ATTR-02](requirements.md#fr-attr-02),<br>[FR-CART-08](requirements.md#fr-cart-08) |
 | later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -675,8 +675,8 @@ Notes:
   outright, the mark included — a row whose job is to invite a purchase must not open on one the
   shop will refuse. The row is five because five 15rem cards are exactly the page's width: on a
   wide screen it is the five, and narrower screens scroll the same five sideways rather than
-  choosing fewer. Its cards are a smaller drawing of the listing's — a thumbnail with the badges
-  beside it, a third shorter — because at full size the row took the first screen and left the
+  choosing fewer. Its cards are a narrower drawing of the listing's — the picture set in from the edges, the
+  unit facts left off — because at full size the row took the first screen and left the
   categories looking like an afterthought. It never moves by itself; a strip that advances on its own needs a pause
   control, fights a thumb mid-swipe, and is the part of a page people learn to skip. Deriving the
   mark later from order data remains open, and nothing here forecloses it.
@@ -715,3 +715,20 @@ Notes:
   still a link, but unfiltered. The index and every category with subcategories now open grouped
   in the category tree's order rather than alphabetically across the whole scope, where
   neighbouring products had nothing to do with each other.
+- **A product names its variants on its pictures**
+  ([FR-CAT-11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),
+  [FR-CART-08](requirements.md#fr-cart-08) and
+  [FR-ADM-10](requirements.md#fr-adm-10) amended, [ADR 0064](adr/0064-a-variant-is-a-name-on-a-picture.md))
+  (2026-09-29). The cart-line note of iteration 7 lets a customer ask for a colour; nothing
+  on the page said which picture showed which. A variant is a name a picture points to, not
+  an article: the source system sells these goods as one, and a variant with its own stock or
+  its own cart line would be a structure nothing outside fills and nothing outside can read
+  back. It is display only and the shop's own under any ownership. A colour that runs out
+  is marked unavailable rather than deleted, so its pictures come back without being uploaded
+  again. How the variants are shown follows the size of the picture rather than the
+  screen: a list beside the product page's gallery, a label over a card's picture, and a mark
+  that opens the list where a picture is too small to be read — a row in the lines listing, a
+  cart line, where the note is typed. A phone changes only the bubble into a dialog, as it
+  already does for the note.
+  Having a chosen variant fill in the note is the obvious next step, and it is cart logic,
+  so it is left for later.

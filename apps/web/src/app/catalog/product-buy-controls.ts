@@ -13,8 +13,10 @@ import {
   exactLineTotal,
   fillText,
   ProductAvailability,
+  ProductImage,
   ProductPackagingInfo,
   ProductUnit,
+  ProductVariant,
   UnitPrices,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
@@ -83,6 +85,11 @@ export interface BuyableProduct {
   /** What one piece is made of, where it is sold as a set (FR-CAT-10).
    * Optional for the reason `pairedCount` is. */
   parts?: readonly string[];
+  /** The variants and the pictures they are shown with (FR-CAT-11), recorded
+   * with the line so its mark is there from the first frame (FR-CAT-13).
+   * Optional for the reason `pairedCount` is. */
+  variants?: readonly ProductVariant[];
+  images?: readonly ProductImage[];
 }
 
 /**
@@ -969,7 +976,7 @@ export class ProductBuyControls {
       // product with none has no first element. What is written down has to
       // survive `JSON.stringify`, which drops an undefined field — and a
       // stored line missing one is discarded when it is read back.
-      image: this.image() ?? null,
+      image: this.storedImage(),
       prices: item.prices,
       packaging: item.packaging,
       // What the card or the page said when the line was written: the baseline
@@ -982,7 +989,16 @@ export class ProductBuyControls {
       // discarded when it is read back.
       pairedCount: item.pairedCount ?? 0,
       parts: [...(item.parts ?? [])],
+      variants: [...(item.variants ?? [])],
+      images: [...(item.images ?? [])],
     };
+  }
+
+  /** The photo as a line stores it: the pair alone, since the line's own
+   * pictures carry the variant it shows. */
+  private storedImage(): CatalogImage | null {
+    const image = this.image();
+    return image ? { full: image.full, thumb: image.thumb } : null;
   }
 
   /** Any change to the selection drops whatever the last action said about it. */

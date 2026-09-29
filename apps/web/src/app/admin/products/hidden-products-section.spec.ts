@@ -19,7 +19,7 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
     slug: 'old-roast',
     name: 'Old Roast',
     priceMinor: 990,
-    images: [{ full: 'f.jpg', thumb: 't.jpg' }],
+    images: [{ full: 'f.jpg', thumb: 't.jpg', variant: null }],
   }),
   deleted: true,
   unpublished: false,

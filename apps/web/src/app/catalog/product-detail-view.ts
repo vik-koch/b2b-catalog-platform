@@ -26,7 +26,7 @@ import { Icon } from '../ui/icons/icon';
 import { Link } from '../ui/link';
 import { ProductBuyBlock } from './product-buy-block';
 import { ProductDocuments } from './product-documents';
-import { ProductGallery } from './product-gallery';
+import { ProductVariantGallery, ProductVariantList } from './product-variants';
 import { useProductUnits } from './product-units-view';
 
 /**
@@ -129,7 +129,8 @@ const NARROW = '(max-width: 39.999rem)';
   host: { class: 'block @container/product max-w-7xl' },
   imports: [
     RouterLink,
-    ProductGallery,
+    ProductVariantGallery,
+    ProductVariantList,
     ProductBuyBlock,
     Icon,
     Link,
@@ -208,9 +209,12 @@ const NARROW = '(max-width: 39.999rem)';
 
     <div [class]="columnsClass">
       <div [class]="imageColumnClass">
-        <app-product-gallery
+        <app-product-variant-gallery
+          #variantGallery
           [images]="item().images"
+          [variants]="item().variants"
           [productName]="item().name"
+          listWhere="@min-[65rem]/product:hidden"
         />
       </div>
 
@@ -218,39 +222,56 @@ const NARROW = '(max-width: 39.999rem)';
            table below, not a second one, which is what its heading and the
            link under it say between them. Gone entirely where there is no
            third column, since everything in it is still on the page a screen
-           further down. -->
-      @if (mainAttributes().length) {
+           further down.
+
+           The variants stand under them (FR-CAT-11): beside the pictures they
+           move, where a wide page has room, rather than under the gallery
+           pushing the description down. Once the column goes, the gallery
+           draws the list under itself instead. -->
+      @if (mainAttributes().length || item().variants.length) {
         <div class="hidden @min-[65rem]/product:block">
-          <h2 [class]="sectionHeading">{{ text.mainSpecifications }}</h2>
-          <table class="mt-3 w-full border-t border-border text-sm">
-            <tbody class="divide-y divide-border">
-              @for (attr of mainAttributes(); track $index) {
-                <tr>
-                  <th
-                    scope="row"
-                    class="py-2 pr-4 text-left font-normal text-subtle"
-                  >
-                    {{ attr.key }}
-                  </th>
-                  <td class="py-2 text-right text-stone-700">
-                    <ng-container
-                      [ngTemplateOutlet]="attributeValue"
-                      [ngTemplateOutletContext]="{ $implicit: attr }"
-                    />
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-          <a
-            appLink
-            class="mt-3 inline-block text-sm"
-            [routerLink]="[]"
-            [fragment]="specsId"
-            queryParamsHandling="preserve"
-          >
-            {{ text.allSpecifications }}
-          </a>
+          @if (mainAttributes().length) {
+            <h2 [class]="sectionHeading">{{ text.mainSpecifications }}</h2>
+            <table class="mt-3 w-full border-t border-border text-sm">
+              <tbody class="divide-y divide-border">
+                @for (attr of mainAttributes(); track $index) {
+                  <tr>
+                    <th
+                      scope="row"
+                      class="py-2 pr-4 text-left font-normal text-subtle"
+                    >
+                      {{ attr.key }}
+                    </th>
+                    <td class="py-2 text-right text-stone-700">
+                      <ng-container
+                        [ngTemplateOutlet]="attributeValue"
+                        [ngTemplateOutletContext]="{ $implicit: attr }"
+                      />
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <a
+              appLink
+              class="mt-3 inline-block text-sm"
+              [routerLink]="[]"
+              [fragment]="specsId"
+              queryParamsHandling="preserve"
+            >
+              {{ text.allSpecifications }}
+            </a>
+          }
+          @if (item().variants.length) {
+            <app-product-variant-list
+              class="block contain-inline-size"
+              [class.mt-8]="mainAttributes().length > 0"
+              [variants]="item().variants"
+              [images]="item().images"
+              [current]="variantGallery.current()"
+              (pick)="variantGallery.show($event)"
+            />
+          }
         </div>
       }
 

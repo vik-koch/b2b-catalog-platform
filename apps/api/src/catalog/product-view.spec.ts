@@ -2,6 +2,7 @@ import {
   boxDimensionsOf,
   packagingOf,
   PricedProductRow,
+  picturesOf,
   unitPricesOf,
 } from './product-view';
 
@@ -75,5 +76,54 @@ describe('the projection', () => {
         boxCount: 2,
       }),
     ).toEqual({ volume: null, weight: null, count: 2 });
+  });
+});
+
+describe('picturesOf', () => {
+  const sand = { id: 'v-sand', name: 'Sand', unavailable: false };
+  const clay = { id: 'v-clay', name: 'Terracotta', unavailable: true };
+  const range = { full: '/media/range.webp', thumb: '/media/range-t.webp' };
+  const sandShot = {
+    full: '/media/sand.webp',
+    thumb: '/media/sand-t.webp',
+    variantId: 'v-sand',
+  };
+  const clayShot = {
+    full: '/media/clay.webp',
+    thumb: '/media/clay-t.webp',
+    variantId: 'v-clay',
+  };
+
+  it('labels each picture with the variant it shows, and a range shot with none', () => {
+    expect(
+      picturesOf({ images: [range, sandShot], variants: [sand] }).images,
+    ).toEqual([
+      { full: range.full, thumb: range.thumb, variant: null },
+      { full: sandShot.full, thumb: sandShot.thumb, variant: 'Sand' },
+    ]);
+  });
+
+  it('withholds an unavailable variant’s pictures but keeps its name, marked', () => {
+    const shown = picturesOf({
+      images: [clayShot, range, sandShot],
+      variants: [sand, clay],
+    });
+
+    expect(shown.images.map((image) => image.variant)).toEqual([null, 'Sand']);
+    expect(shown.variants).toEqual([
+      { name: 'Sand', unavailable: false },
+      { name: 'Terracotta', unavailable: true },
+    ]);
+  });
+
+  it('reads a picture naming a variant that is gone as showing none', () => {
+    expect(picturesOf({ images: [clayShot], variants: [sand] }).images).toEqual(
+      [{ full: clayShot.full, thumb: clayShot.thumb, variant: null }],
+    );
+  });
+
+  it('never publishes a variant’s id', () => {
+    const shown = picturesOf({ images: [sandShot], variants: [sand] });
+    expect(JSON.stringify(shown)).not.toContain('v-sand');
   });
 });

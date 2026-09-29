@@ -94,13 +94,18 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       'priceMinor',
       'prices',
       'slug',
+      'variants',
     ]);
     // Some seed products ship without photos (the no-image placeholder case), so
     // assert the image shape against one that has images rather than items[0].
     const withImage = res.data.items.find(
       (i: { images: unknown[] }) => i.images.length > 0,
     );
-    expect(Object.keys(withImage.images[0]).sort()).toEqual(['full', 'thumb']);
+    expect(Object.keys(withImage.images[0]).sort()).toEqual([
+      'full',
+      'thumb',
+      'variant',
+    ]);
 
     // A leaf: ancestors up to the root, no subcategories. The nickname is an
     // admin overlay, so assert that a crumb carries the field, not its value.
@@ -357,6 +362,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       'priceMinor',
       'prices',
       'slug',
+      'variants',
     ]);
     expect(res.data.name).toBe(seed.name);
     expect(res.data.priceMinor).toBe(seed.priceMinor);

@@ -3,8 +3,10 @@ import { seedPages } from '@b2b-catalog-platform/seed';
 import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
+  MEDIA_MAX_UPLOAD_BYTES,
 } from '@b2b-catalog-platform/shared';
 import axios from 'axios';
+import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { basename, join } from 'node:path';
 import { Client } from 'pg';
@@ -48,6 +50,15 @@ const png = (size = 32): Promise<Buffer> =>
     create: { width: size, height: size, channels: 3, background: '#6f4e37' },
   })
     .png()
+    .toBuffer();
+
+/** A phone-sized photo: noise does not compress, so 3000×2000 lands at a few
+ * megabytes, which is what a real upload weighs. */
+const noisyJpeg = (): Promise<Buffer> =>
+  sharp(randomBytes(3000 * 2000 * 3), {
+    raw: { width: 3000, height: 2000, channels: 3 },
+  })
+    .jpeg({ quality: 80 })
     .toBuffer();
 
 const upload = (data: FormData | undefined, cookie?: string) =>
@@ -155,6 +166,32 @@ describe('POST /media (0021)', () => {
       expect(res.data.full).not.toBe(res.data.thumb);
       expect(await storedWidth(res.data.full)).toBe(MEDIA_CATALOG_FULL_WIDTH);
       expect(await storedWidth(res.data.thumb)).toBe(MEDIA_CATALOG_THUMB_WIDTH);
+    });
+
+    it('accepts a photo of several megabytes, up to the limit', async () => {
+      const jpeg = await noisyJpeg();
+      expect(jpeg.length).toBeGreaterThan(2 * 1024 * 1024);
+      expect(jpeg.length).toBeLessThan(MEDIA_MAX_UPLOAD_BYTES);
+
+      const res = await uploadCatalog(
+        form(jpeg, 'photo.jpg', 'image/jpeg'),
+        adminCookie,
+      );
+
+      expect(res.status).toBe(201);
+      expect(await storedWidth(res.data.full)).toBe(MEDIA_CATALOG_FULL_WIDTH);
+    });
+
+    it('refuses a file over the limit as too large', async () => {
+      const res = await uploadCatalog(
+        form(
+          Buffer.alloc(MEDIA_MAX_UPLOAD_BYTES + 1),
+          'huge.jpg',
+          'image/jpeg',
+        ),
+        adminCookie,
+      );
+      expect(res.status).toBe(413);
     });
 
     it('rejects an unauthenticated catalog upload', async () => {

@@ -180,3 +180,58 @@ describe('TileGallery', () => {
     expect(root.querySelectorAll('span').length).toBe(0);
   });
 });
+
+describe('TileGallery labels (FR-CAT-11)', () => {
+  const shot = (n: number, variant: string | null) => ({
+    ...img(n),
+    variant,
+  });
+
+  function renderLabelled(labels = true): ComponentFixture<TileGallery> {
+    const f = render([shot(1, null), shot(2, 'Speckled off-white')]);
+    f.componentRef.setInput('labels', labels);
+    f.detectChanges();
+    return f;
+  }
+
+  const label = (f: ComponentFixture<TileGallery>) =>
+    (f.nativeElement as HTMLElement)
+      .querySelector('[data-variant-label].opacity-100')
+      ?.textContent?.trim() ?? null;
+
+  it('names the variant of the picture on show, and nothing over a range shot', () => {
+    const f = renderLabelled();
+    expect(label(f)).toBeNull();
+
+    const link = (f.nativeElement as HTMLElement).querySelector(
+      'a',
+    ) as HTMLElement;
+    link.dispatchEvent(touchEvent('touchstart', 200));
+    link.dispatchEvent(touchEvent('touchend', 100));
+    f.detectChanges();
+
+    expect(label(f)).toBe('Speckled off-white');
+  });
+
+  it('names the variant in the picture’s text alternative', () => {
+    const f = renderLabelled();
+    const alts = [
+      ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
+    ].map((image) => image.alt);
+
+    expect(alts).toEqual(['Test product', 'Test product — Speckled off-white']);
+  });
+
+  it('prints no label where the photo is too small to carry one', () => {
+    const f = renderLabelled(false);
+
+    const link = (f.nativeElement as HTMLElement).querySelector(
+      'a',
+    ) as HTMLElement;
+    link.dispatchEvent(touchEvent('touchstart', 200));
+    link.dispatchEvent(touchEvent('touchend', 100));
+    f.detectChanges();
+
+    expect(label(f)).toBeNull();
+  });
+});

@@ -42,6 +42,26 @@ export const catalogImageSchema = z
 export type CatalogImage = z.infer<typeof catalogImageSchema>;
 
 /**
+ * A product's picture, with the name of the variant it shows (FR-CAT-11) — null
+ * for a picture of the whole range, and for every picture of a product that
+ * names no variants. A picture of an unavailable variant is never sent
+ * (FR-CAT-12).
+ */
+export const productImageSchema = catalogImageSchema
+  .extend({ variant: z.string().nullable() })
+  .strict();
+export type ProductImage = z.infer<typeof productImageSchema>;
+
+/** One of the variants a product names, in the shop's order (FR-CAT-11/12). */
+export const productVariantSchema = z
+  .object({
+    name: z.string(),
+    unavailable: z.boolean(),
+  })
+  .strict();
+export type ProductVariant = z.infer<typeof productVariantSchema>;
+
+/**
  * Price as an integer in the currency's minor unit (e.g. cents). The currency
  * and its formatting are a per-deployment concern (deployment config), not part
  * of this contract — the API stays currency-agnostic and free of float
@@ -131,7 +151,10 @@ export const productListItemSchema = z
     priceMinor: priceMinorSchema,
     prices: unitPricesSchema,
     packaging: productPackagingSchema,
-    images: z.array(catalogImageSchema),
+    images: z.array(productImageSchema),
+    /** Every variant, unavailable ones included: a row's mark opens the list
+     * (FR-CAT-13), and a card's labels are read off the images. */
+    variants: z.array(productVariantSchema),
     /** Whether this product's line takes a free-text note (FR-CART-08). A
      * listing sells as readily as the product page does, so it has to know:
      * the buying controls ask for the note before the first add. */
@@ -259,7 +282,8 @@ export const productDetailSchema = z
     boxDimensions: boxDimensionsSchema.nullable(),
     /** Sanitized rich text, server-owned (same discipline as page bodies). */
     descriptionHtml: z.string(),
-    images: z.array(catalogImageSchema),
+    images: z.array(productImageSchema),
+    variants: z.array(productVariantSchema),
     attributes: z.array(productDetailAttributeSchema),
     /** Whether the buying block offers a free-text note (FR-CART-08). */
     lineNoteEnabled: z.boolean(),

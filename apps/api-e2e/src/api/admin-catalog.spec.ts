@@ -54,6 +54,7 @@ const PRODUCT_KEYS = [
   'stockPieces',
   'tierPrices',
   'updatedAt',
+  'variants',
 ];
 const CATEGORY_KEYS = [
   'childCount',
@@ -883,6 +884,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'prices',
         'slug',
         'unpublished',
+        'variants',
       ]);
     });
 
@@ -1230,6 +1232,84 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('variants on the pictures (FR-CAT-11/12)', () => {
+    const sand = '11111111-1111-4111-8111-111111111111';
+    const clay = '22222222-2222-4222-8222-222222222222';
+    const range = { full: '/media/range.webp', thumb: '/media/range-t.webp' };
+    const sandShot = {
+      full: '/media/sand.webp',
+      thumb: '/media/sand-t.webp',
+      variantId: sand,
+    };
+    const clayShot = {
+      full: '/media/clay.webp',
+      thumb: '/media/clay-t.webp',
+      variantId: clay,
+    };
+    const variants = [
+      { id: sand, name: 'Sand', unavailable: false },
+      { id: clay, name: 'Terracotta', unavailable: true },
+    ];
+
+    it('stores the variants and which picture shows which, and reads them back', async () => {
+      const res = await createProduct({
+        name: `Assorted cups ${R}`,
+        images: [clayShot, range, sandShot],
+        variants,
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.data.variants).toEqual(variants);
+      expect(res.data.images).toEqual([
+        clayShot,
+        { ...range, variantId: null },
+        sandShot,
+      ]);
+    });
+
+    it('shows the storefront every name but withholds an unavailable one’s pictures', async () => {
+      const created = await createProduct({
+        name: `Assorted mugs ${R}`,
+        images: [clayShot, range, sandShot],
+        variants,
+      });
+      await publishProduct(created.data.slug);
+
+      const page = await axios.get(`/catalog/products/${created.data.slug}`);
+
+      expect(page.data.variants).toEqual([
+        { name: 'Sand', unavailable: false },
+        { name: 'Terracotta', unavailable: true },
+      ]);
+      expect(page.data.images).toEqual([
+        { ...range, variant: null },
+        { full: sandShot.full, thumb: sandShot.thumb, variant: 'Sand' },
+      ]);
+      // The admin's handle on a variant is the editor's, never the shop's.
+      expect(JSON.stringify(page.data)).not.toContain(sand);
+    });
+
+    it('refuses a picture naming a variant the product does not list', async () => {
+      const res = await createProduct({
+        name: `Stray picture ${R}`,
+        images: [clayShot],
+        variants: variants.slice(0, 1),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('refuses two variants of one name, whatever their case', async () => {
+      const res = await createProduct({
+        name: `Twin glazes ${R}`,
+        variants: [
+          { id: sand, name: 'Sand', unavailable: false },
+          { id: clay, name: ' sand', unavailable: false },
+        ],
+      });
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('sold-together pairings (FR-SET-01)', () => {
     /** The counterpart list as the editor reads it back, in name order. */
     const pairedSlugs = (data: { pairings: { slug: string }[] }) =>
@@ -1400,6 +1480,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'priceMinor',
         'prices',
         'slug',
+        'variants',
       ]);
       // Read from the other side too: the lid is sold with the cup.
       expect(

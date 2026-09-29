@@ -124,8 +124,21 @@ export const categories = pgTable('categories', {
  * One gallery image, stored as two media-store URLs: `thumb` for the grid/list
  * (and search) so those views load little, `full` for the product page. No alt
  * is kept — the UI uses the product name. Order is the array order.
+ * `variantId` is the variant it shows (FR-CAT-11); absent on every picture
+ * stored before variants existed, which reads as showing none.
  */
-export type ProductImageRef = { full: string; thumb: string };
+export type ProductImageRef = {
+  full: string;
+  thumb: string;
+  variantId?: string | null;
+};
+
+/** One of a product's variants (FR-CAT-11/12), in the storefront's order. */
+export type ProductVariantRef = {
+  id: string;
+  name: string;
+  unavailable: boolean;
+};
 
 /** The three states a stock figure resolves to (FR-STOCK-02). */
 export const productAvailabilityEnum = pgEnum('product_availability', [
@@ -136,9 +149,8 @@ export const productAvailabilityEnum = pgEnum('product_availability', [
  * Catalog products. `sourceId` (the legacy system's private id) is the sync
  * upsert key and is never serialized to the API. `name`, the prices (see
  * product_prices) and `categoryId` are file-owned; `descriptionHtml`, the
- * attributes (see
- * product_attributes) and the images are admin overlay that a re-sync leaves
- * untouched.
+ * attributes (see product_attributes), the images and their variants are admin
+ * overlay that a re-sync leaves untouched.
  * Missing-from-source rows are soft-deleted via `deletedAt`, never removed.
  */
 export const products = pgTable(
@@ -206,6 +218,12 @@ export const products = pgTable(
     // so seeded/uploaded images are not swept.
     images: jsonb('images')
       .$type<ProductImageRef[]>()
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    // The variants the pictures above show (FR-CAT-11). Admin-owned like the
+    // images: no exchange reads or writes them, however the catalog is owned.
+    variants: jsonb('variants')
+      .$type<ProductVariantRef[]>()
       .notNull()
       .default(sql`'[]'::jsonb`),
     deletedAt: timestamp('deletedAt', { withTimezone: true }),

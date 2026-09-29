@@ -20,6 +20,7 @@ const product: Product = productDetail({
     {
       full: 'https://img.example/full/1.jpg',
       thumb: 'https://img.example/thumb/1.jpg',
+      variant: null,
     },
   ],
   attributes: [

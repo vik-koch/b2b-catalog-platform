@@ -28,6 +28,8 @@ function addition(overrides: Partial<CartAddition> = {}): CartAddition {
     lineNotePrompt: null,
     pairedCount: 0,
     parts: [],
+    variants: [],
+    images: [],
     availability: null,
     image: null,
     prices: {
