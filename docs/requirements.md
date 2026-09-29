@@ -501,13 +501,13 @@ A category defines which filterable attributes its listing offers and in what or
 
 The catalogue index ([FR-CAT-02](#fr-cat-02)) offers only the filterable attributes chosen for it, in the order chosen — typically the few that run across categories, such as a brand, so products of one brand can be found together wherever they are filed. Nothing is offered there until it is chosen: the whole catalogue carries every attribute there is, and offering them all would open the page on a long panel. The list stands alone — no category inherits it, and a category's own list ([FR-ATTR-11](#fr-attr-11)) is unaffected by it. Search results keep offering every filterable attribute, and a product's attribute rows keep linking to its own category's listing.
 
----
-
-### <a id="fr-adm"></a>Admin & Catalog Sync (FR-ADM)
-
 #### <a id="fr-attr-13"></a>FR-ATTR-13 — Subcategories under a selection
 
 A listing's subcategories — the top-level categories on the catalogue index — carry the current selection into their own listing, but only the part of it their own list offers ([FR-ATTR-11](#fr-attr-11)). A subcategory that part leaves without products is shown greyed, as a filter value with no matches is ([FR-ATTR-05](#fr-attr-05)); it still leads to its listing, unfiltered.
+
+---
+
+### <a id="fr-adm"></a>Admin & Catalog Sync (FR-ADM)
 
 #### <a id="fr-adm-01"></a>FR-ADM-01 — Editing a product by hand
 

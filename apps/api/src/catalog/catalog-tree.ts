@@ -2,7 +2,6 @@ import {
   CatalogImage,
   CategoryCrumb,
   CategoryNode,
-  SubcategoryLink,
 } from '@b2b-catalog-platform/shared';
 
 /** A flat category row as stored, the input to every tree computation below. */
@@ -126,15 +125,8 @@ export function ancestorsOf(
 export function directChildren(
   categoryId: string | null,
   rows: CategoryRow[],
-): SubcategoryLink[] {
-  return rows
-    .filter((row) => row.parentId === categoryId)
-    .map((row) => ({
-      slug: row.slug,
-      name: row.name,
-      shortName: row.shortName,
-      mark: row.mark,
-    }));
+): CategoryRow[] {
+  return rows.filter((row) => row.parentId === categoryId);
 }
 
 /**

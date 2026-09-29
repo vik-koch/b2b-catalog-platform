@@ -328,13 +328,19 @@ export const categoryNodeSchema: z.ZodType<CategoryNode> = z.lazy(
 ) as z.ZodType<CategoryNode>;
 
 /** A direct child of the selected category, for the drill-down nav
- * (FR-CAT-02), drawn as a chip with its `mark` (FR-CAT-07). */
+ * (FR-CAT-02), drawn as a chip with its `mark` (FR-CAT-07).
+ *
+ * `attr` is the part of the listing's selection the child's own panel offers
+ * — what its link carries — and `count` the products that part leaves beneath
+ * it (FR-ATTR-13). */
 export const subcategoryLinkSchema = z
   .object({
     slug: z.string(),
     name: z.string(),
     shortName: shortNameSchema,
     mark: categoryMarkSchema,
+    count: z.number().int().nonnegative(),
+    attr: z.array(z.string()),
   })
   .strict();
 export type SubcategoryLink = z.infer<typeof subcategoryLinkSchema>;
