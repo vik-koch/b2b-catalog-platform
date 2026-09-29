@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { Client } from 'pg';
 import {
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
@@ -11,10 +12,12 @@ import {
   attributeDefinitionSeeds,
   categorySeeds,
   pairingSeeds,
+  ProductSeed,
   productSeeds,
 } from './catalog-data';
 import {
   generateCategoryMark,
+  generateGlazeImage,
   generateProductImages,
 } from './catalog-placeholders';
 
@@ -65,11 +68,7 @@ export async function seedCatalog(
         `Seed product ${product.sourceId} references unknown category ${product.categoryKey}`,
       );
     }
-    const images = await generateProductImages(
-      mediaRoot,
-      product.slug,
-      product.imageCount,
-    );
+    const { images, variants } = await productPictures(mediaRoot, product);
 
     const packaging = product.packaging ?? {};
     // The seed writes rows directly, so it owns the recompute the admin save
@@ -90,13 +89,15 @@ export async function seedCatalog(
       `INSERT INTO products
          ("sourceId", slug, name, "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume", "boxWeight",
-          "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, parts, featured, "publishedAt")
-       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, now())
+          "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, parts, featured,
+          variants, "publishedAt")
+       VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
+               $19::jsonb, now())
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "categoryId" = EXCLUDED."categoryId",
          "descriptionHtml" = EXCLUDED."descriptionHtml",
-         images = EXCLUDED.images,
+         images = EXCLUDED.images, variants = EXCLUDED.variants,
          "piecesPerPack" = EXCLUDED."piecesPerPack", "packsPerBox" = EXCLUDED."packsPerBox",
          "minPieceQty" = EXCLUDED."minPieceQty",
          "boxVolume" = EXCLUDED."boxVolume", "boxWeight" = EXCLUDED."boxWeight",
@@ -130,6 +131,7 @@ export async function seedCatalog(
         availability,
         product.parts ?? [],
         product.featured ?? false,
+        JSON.stringify(variants),
       ],
     );
 
@@ -152,6 +154,68 @@ export async function seedCatalog(
 
   await seedAttributeDefinitions(client);
   await seedPairings(client);
+}
+
+/**
+ * A product's gallery: its own pictures first, then each variant's (FR-CAT-11).
+ * A product with variants is drawn as glazed cups — the range side by side,
+ * then one glaze per picture — so each label names what the picture shows.
+ */
+async function productPictures(
+  mediaRoot: string,
+  product: ProductSeed,
+): Promise<{
+  images: { full: string; thumb: string; variantId?: string }[];
+  variants: { id: string; name: string; unavailable: boolean }[];
+}> {
+  const seeds = product.variants ?? [];
+  if (seeds.length === 0) {
+    return {
+      images: await generateProductImages(
+        mediaRoot,
+        product.slug,
+        product.imageCount,
+      ),
+      variants: [],
+    };
+  }
+
+  const glazes = seeds.map((variant) => variant.glaze);
+  const images: { full: string; thumb: string; variantId?: string }[] = [];
+  for (let i = 1; i <= product.imageCount; i++) {
+    images.push(
+      await generateGlazeImage(mediaRoot, `${product.slug}-${i}`, glazes),
+    );
+  }
+  const variants = seeds.map((variant) => ({
+    id: seedVariantId(product.sourceId, variant.name),
+    name: variant.name,
+    unavailable: variant.unavailable ?? false,
+  }));
+  for (const [index, variant] of seeds.entries()) {
+    for (let i = 1; i <= variant.pictures; i++) {
+      const image = await generateGlazeImage(
+        mediaRoot,
+        `${product.slug}-${variant.name}-${i}`,
+        [variant.glaze],
+      );
+      images.push({ ...image, variantId: variants[index].id });
+    }
+  }
+  return { images, variants };
+}
+
+/** The same id on every re-seed, so a re-seed rewrites rather than renames. */
+function seedVariantId(sourceId: string, name: string): string {
+  const hex = createHash('sha256').update(`${sourceId}:${name}`).digest('hex');
+  // Shaped as a version-4 UUID, which is what the admin contract accepts.
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    `4${hex.slice(13, 16)}`,
+    `${((parseInt(hex[16], 16) & 0x3) | 0x8).toString(16)}${hex.slice(17, 20)}`,
+    hex.slice(20, 32),
+  ].join('-');
 }
 
 /**
