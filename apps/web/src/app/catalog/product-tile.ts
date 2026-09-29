@@ -64,6 +64,7 @@ export const PRODUCT_GRID =
           [images]="item().images"
           [link]="['/product', item().slug]"
           [productName]="item().name"
+          [labelsOutside]="inset()"
         />
         <ng-content />
       </div>
@@ -146,8 +147,8 @@ export class ProductTile {
   readonly inset = input(false);
 
   protected readonly insetPhotoBox = 'relative m-3 mb-0 flex';
-  protected readonly insetPhoto =
-    'block aspect-square w-full overflow-hidden rounded-md';
+  /** Unclipped, so a variant's label can reach the card's edge. */
+  protected readonly insetPhoto = 'block aspect-square w-full rounded-md';
 
   /** True where some product in this listing has a badge over its name, so
    * every card leaves the line and the names sit level. */
