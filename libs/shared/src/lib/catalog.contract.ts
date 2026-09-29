@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import {
+  CATALOG_SORTS,
   PRODUCT_SORTS,
   SEARCH_QUERY_MAX_LENGTH,
   SEARCH_SORTS,
@@ -362,6 +363,12 @@ export type ProductSort = (typeof PRODUCT_SORTS)[number];
 export const searchSortSchema = z.enum(SEARCH_SORTS);
 export type SearchSort = (typeof SEARCH_SORTS)[number];
 
+export const catalogSortSchema = z.enum(CATALOG_SORTS);
+export type CatalogSort = (typeof CATALOG_SORTS)[number];
+
+/** Any listing's sort — what the shared sort control speaks. */
+export type ListingSort = SearchSort | CatalogSort;
+
 /** Longest `attr` entry: a slug, the separator, and a value. */
 const ATTRIBUTE_FILTER_PARAM_MAX_LENGTH =
   ATTRIBUTE_NAME_MAX_LENGTH + 1 + ATTRIBUTE_VALUE_MAX_LENGTH;
@@ -433,11 +440,12 @@ export type Facet = z.infer<typeof facetSchema>;
  * Query for the grid: 1-based page and a sort. Coerced — query values arrive as
  * strings. Both default here rather than in the UI, so an omitted parameter and
  * an explicit default mean the same thing and the shared default sort has one
- * definition. A category listing defaults to name (FR-SEARCH-04).
+ * definition. A listing defaults to grouping by category (FR-SEARCH-04), which
+ * on a category with no subcategories is its name order.
  */
 export const productListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional().default(1),
-  sort: productSortSchema.optional().default('name'),
+  sort: catalogSortSchema.optional().default('category'),
   attr: attributeParamSchema,
 });
 

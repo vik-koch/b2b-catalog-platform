@@ -150,7 +150,7 @@ describe('CatalogController', () => {
     await fetch(`${baseUrl}/api/catalog/categories/coffee/products`);
 
     const [slug, page, sort] = getCategoryProducts.mock.calls[0];
-    expect([slug, page, sort]).toEqual(['coffee', 1, 'name']);
+    expect([slug, page, sort]).toEqual(['coffee', 1, 'category']);
     expect(selectedAttributes()).toEqual([]);
   });
 

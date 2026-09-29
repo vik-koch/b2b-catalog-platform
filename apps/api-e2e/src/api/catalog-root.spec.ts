@@ -24,8 +24,12 @@ const UNTOUCHED = `E2E Untouched ${R}`;
 const TOOLS = `e2e-root-tools-${R}`;
 const GARDEN = `e2e-root-garden-${R}`;
 const HIDDEN = `e2e-root-hidden-${R}`;
+const PLAIN = `e2e-root-plain-${R}`;
+const SHEDS = `e2e-root-sheds-${R}`;
+const BEDS = `e2e-root-beds-${R}`;
 
 type Facet = { slug: string; name: string; values: { value: string }[] };
+type Chip = { slug: string; count: number; attr: string[] };
 
 async function loginAs(email: string): Promise<string> {
   const res = await axios.post('/auth/login', { email, password: PASSWORD });
@@ -72,7 +76,23 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
       categories: res.data.categories.map(
         (c: { slug: string }) => c.slug,
       ) as string[],
+      chips: res.data.categories as Chip[],
     }));
+
+  /** Every product slug of the whole listing in its order, page by page. */
+  async function allSlugs(query = ''): Promise<string[]> {
+    const slugs: string[] = [];
+    for (let page = 1; ; page++) {
+      const res = await request(
+        'get',
+        `/catalog/products?page=${page}${query}`,
+        undefined,
+        '',
+      );
+      slugs.push(...res.data.items.map((i: { slug: string }) => i.slug));
+      if (page >= res.data.pagination.totalPages) return slugs;
+    }
+  }
 
   async function define(name: string) {
     const { rows } = await client.query<{ id: string; slug: string }>(
@@ -84,11 +104,15 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     return rows[0];
   }
 
-  async function addCategory(slug: string) {
+  async function addCategory(
+    slug: string,
+    sortOrder = 0,
+    parentId: string | null = null,
+  ) {
     const { rows } = await client.query<{ id: string }>(
-      `INSERT INTO categories ("sourceId", slug, name)
-       VALUES ($1, $1, $1) RETURNING id`,
-      [slug],
+      `INSERT INTO categories ("sourceId", slug, name, "sortOrder", "parentId")
+       VALUES ($1, $1, $1, $2, $3) RETURNING id`,
+      [slug, sortOrder, parentId],
     );
     categoryIds.push(rows[0].id);
     return rows[0].id;
@@ -149,9 +173,10 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     colourId = (await define(COLOUR)).id;
     untouchedId = (await define(UNTOUCHED)).id;
 
-    // One brand across two categories — the case the panel exists for.
-    const tools = await addCategory(TOOLS);
-    const garden = await addCategory(GARDEN);
+    // One brand across two categories — the case the panel exists for. Tools
+    // is ordered ahead of garden, against the alphabet.
+    const tools = await addCategory(TOOLS, 1);
+    const garden = await addCategory(GARDEN, 2);
     const hidden = await addCategory(HIDDEN);
     await addProduct(`${TOOLS}-acme`, tools, {
       [BRAND]: 'Acme',
@@ -166,6 +191,24 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
       [COLOUR]: 'Green',
     });
     await addProduct(`${HIDDEN}-acme`, hidden, { [BRAND]: 'Acme' }, false);
+    await client.query(
+      `UPDATE products SET availability = 'out', "stockPieces" = 0 WHERE slug = $1`,
+      [`${TOOLS}-acme`],
+    );
+
+    // Beds sits under garden; plain has no Acme; sheds has none either, but
+    // its own panel does not offer the brand at all.
+    const beds = await addCategory(BEDS, 0, garden);
+    await addProduct(`${BEDS}-rose`, beds, { [COLOUR]: 'Red' });
+    const plain = await addCategory(PLAIN);
+    await addProduct(`${PLAIN}-other`, plain, { [BRAND]: 'Other' });
+    const sheds = await addCategory(SHEDS);
+    await addProduct(`${SHEDS}-other`, sheds, { [BRAND]: 'Other' });
+    await client.query(
+      `INSERT INTO category_attributes ("categoryId", "attributeId", "sortOrder")
+       VALUES ($1, $2, 0)`,
+      [sheds, colourId],
+    );
   });
 
   afterAll(async () => {
@@ -212,6 +255,94 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
 
     it('offers no filter until one is ticked', async () => {
       expect((await listing()).facets).toEqual([]);
+    });
+
+    it('groups by category in tree order, stock and name within', async () => {
+      const ours = (await allSlugs()).filter((slug) =>
+        [TOOLS, GARDEN, BEDS].some((prefix) => slug.startsWith(prefix)),
+      );
+      expect(ours).toEqual([
+        `${TOOLS}-other`,
+        `${TOOLS}-acme`,
+        `${GARDEN}-acme`,
+        `${BEDS}-rose`,
+      ]);
+
+      const byName = (await allSlugs('&sort=name')).filter((slug) =>
+        [TOOLS, GARDEN, BEDS].some((prefix) => slug.startsWith(prefix)),
+      );
+      expect(byName.indexOf(`${GARDEN}-acme`)).toBeLessThan(
+        byName.indexOf(`${TOOLS}-other`),
+      );
+    });
+
+    it('groups a category listing by its subcategories too', async () => {
+      const slugs = async (query: string) =>
+        (
+          await request(
+            'get',
+            `/catalog/categories/${GARDEN}/products${query}`,
+            undefined,
+            '',
+          )
+        ).data.items.map((i: { slug: string }) => i.slug);
+
+      expect(await slugs('')).toEqual([`${GARDEN}-acme`, `${BEDS}-rose`]);
+      expect(await slugs('?sort=name')).toEqual([
+        `${BEDS}-rose`,
+        `${GARDEN}-acme`,
+      ]);
+    });
+  });
+
+  describe('the chips under a selection (FR-ATTR-13)', () => {
+    beforeAll(async () => {
+      await client.query(
+        `INSERT INTO catalog_attributes ("attributeId", "sortOrder")
+         VALUES ($1, 0)`,
+        [brandId],
+      );
+    });
+    afterAll(async () => {
+      await client.query('DELETE FROM catalog_attributes');
+    });
+
+    const chip = (chips: Chip[], slug: string) =>
+      chips.find((c) => c.slug === slug);
+
+    it('counts each chip under what its own panel offers', async () => {
+      const acme = `${brandSlug}:Acme`;
+      const { chips } = await listing(`?attr=${encodeURIComponent(acme)}`);
+
+      expect(chip(chips, TOOLS)).toMatchObject({ count: 1, attr: [acme] });
+      expect(chip(chips, GARDEN)).toMatchObject({ count: 1, attr: [acme] });
+      expect(chip(chips, PLAIN)).toMatchObject({ count: 0, attr: [acme] });
+      // Its panel has no brand, so the brand neither travels nor counts.
+      expect(chip(chips, SHEDS)).toMatchObject({ count: 1, attr: [] });
+    });
+
+    it('counts a subtree whole, with nothing selected', async () => {
+      const { chips } = await listing();
+      expect(chip(chips, GARDEN)).toMatchObject({ count: 2, attr: [] });
+    });
+
+    it("counts a category listing's subcategories the same way", async () => {
+      const colourSlug = COLOUR.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const res = await request(
+        'get',
+        `/catalog/categories/${GARDEN}/products?attr=${encodeURIComponent(
+          `${colourSlug}:Green`,
+        )}`,
+        undefined,
+        '',
+      );
+      expect(res.data.category.subcategories).toEqual([
+        expect.objectContaining({
+          slug: BEDS,
+          count: 0,
+          attr: [`${colourSlug}:Green`],
+        }),
+      ]);
     });
   });
 

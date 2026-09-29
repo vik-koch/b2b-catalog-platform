@@ -3,6 +3,7 @@ import {
   buildCategoryTree,
   categoryBySlug,
   CategoryRow,
+  categoryTreeOrder,
   descendantIds,
   directChildren,
   stockedCategoryIds,
@@ -40,6 +41,36 @@ describe('catalog-tree', () => {
     expect(tree.map((n) => n.slug)).toEqual(['coffee-beans', 'tea']);
     expect(tree[0].children.map((n) => n.slug)).toEqual(['espresso', 'filter']);
     expect(tree[1].children).toEqual([]);
+  });
+
+  it('orders categories depth-first, siblings as they arrive', () => {
+    expect(categoryTreeOrder(rows)).toEqual(['cb', 'esp', 'fil', 'tea']);
+    // A child sorted ahead of its parent still follows it.
+    expect(categoryTreeOrder([rows[1], rows[3], rows[0], rows[2]])).toEqual([
+      'tea',
+      'cb',
+      'esp',
+      'fil',
+    ]);
+  });
+
+  it('orders an orphan as a root and a loop last, never dropping one', () => {
+    const odd: CategoryRow[] = [
+      cat('a', 'a', 'b', 0),
+      cat('b', 'b', 'a', 1),
+      cat('orphan', 'orphan', 'gone', 2),
+      ...rows,
+    ];
+
+    expect(categoryTreeOrder(odd)).toEqual([
+      'orphan',
+      'cb',
+      'esp',
+      'fil',
+      'tea',
+      'a',
+      'b',
+    ]);
   });
 
   it('collects a category and all its descendants', () => {
