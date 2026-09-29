@@ -21,6 +21,8 @@ import {
   availabilityColumns,
   packagingOf,
   partsColumns,
+  pictureColumns,
+  picturesOf,
   publiclyVisible,
   unitColumns,
   unitPricesOf,
@@ -73,6 +75,7 @@ type ProductRow = {
   sourceId: string;
   priceMinor: number;
   images: schema.ProductImageRef[];
+  variants: schema.ProductVariantRef[];
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
@@ -199,7 +202,7 @@ async function loadProducts(
       name: products.name,
       sourceId: products.sourceId,
       priceMinor: livePriceMinor(tierId),
-      images: products.images,
+      ...pictureColumns,
       boxVolume: products.boxVolume,
       boxWeight: products.boxWeight,
       boxCount: products.boxCount,
@@ -233,6 +236,8 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         note,
         name: null,
         image: null,
+        variants: [],
+        images: [],
         packaging: null,
         prices: null,
         availability: null,
@@ -252,7 +257,11 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
 
   const packaging = packagingOf(product);
   const prices = unitPricesOf(product);
-  const image = product.images[0] ?? null;
+  // The thumbnail is the first picture the storefront shows, which is not the
+  // first stored where that one's variant is unavailable (FR-CAT-12).
+  const pictures = picturesOf(product);
+  const first = pictures.images[0];
+  const image = first ? { full: first.full, thumb: first.thumb } : null;
 
   // A note on a product that no longer takes one is dropped here rather than
   // refused — the policy can be turned off after the note was written, and the
@@ -308,6 +317,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       note: keptNote,
       name: product.name,
       image,
+      ...pictures,
       packaging,
       prices,
       availability: product.availability,

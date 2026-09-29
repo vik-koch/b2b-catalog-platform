@@ -4,7 +4,9 @@ import * as z from 'zod';
 import {
   availabilitySchema,
   catalogImageSchema,
+  productImageSchema,
   productPackagingSchema,
+  productVariantSchema,
   unitPricesSchema,
 } from './catalog.contract';
 import { LINE_PIECES_MAX, PRODUCT_UNITS } from './product-units';
@@ -100,6 +102,13 @@ export const cartPreviewLineSchema = z
      * beyond the slug, which the browser already has. */
     name: z.string().nullable(),
     image: catalogImageSchema.nullable(),
+    /**
+     * The product's variants and the pictures they are shown with (FR-CAT-13),
+     * so the line's mark opens the list without a second request. Both empty
+     * for a product that names none, and for a product that is gone.
+     */
+    variants: z.array(productVariantSchema),
+    images: z.array(productImageSchema),
     packaging: productPackagingSchema.nullable(),
     prices: unitPricesSchema.nullable(),
     /**

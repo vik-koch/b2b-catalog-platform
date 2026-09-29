@@ -204,7 +204,7 @@ test('carries a line note through to the cart', async ({ page }) => {
   const note = page.getByRole('textbox', { name: 'Note' });
   await expect(note).toHaveAttribute(
     'placeholder',
-    'Which glaze colours? Sand, slate or off-white.',
+    'Which glazes, and how many of each?',
   );
   await note.fill('Three sand, three slate');
   await page.getByRole('button', { name: 'Add to cart' }).click();
@@ -239,7 +239,7 @@ test('writes a note from a listing card, beside the price', async ({
   const field = panel.getByRole('textbox');
   await expect(field).toHaveAttribute(
     'placeholder',
-    'Which glaze colours? Sand, slate or off-white.',
+    'Which glazes, and how many of each?',
   );
 
   await field.fill('Sand only');

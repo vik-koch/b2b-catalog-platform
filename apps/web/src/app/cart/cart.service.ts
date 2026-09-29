@@ -19,8 +19,10 @@ import {
   LineUnitPrices,
   PRODUCT_AVAILABILITIES,
   ProductAvailability,
+  ProductImage,
   ProductPackagingInfo,
   ProductUnit,
+  ProductVariant,
   shipmentEstimate,
   ShipmentSummary,
   UnitPrices,
@@ -144,6 +146,15 @@ export interface CartStoredLine {
    * marker until the next pricing says otherwise.
    */
   parts: string[];
+  /**
+   * The product's variants and the pictures they are shown with (FR-CAT-13) —
+   * what the line's mark opens, kept for the reason the parts are.
+   *
+   * Empty for a cart written before this was recorded, which reads as no mark
+   * until the next pricing says otherwise.
+   */
+  variants: ProductVariant[];
+  images: ProductImage[];
 }
 
 /** The whole cart as it is written down: the lines, and whose prices they were
@@ -214,6 +225,9 @@ export interface CartAddition {
   pairedCount: number;
   /** What the view it was added from said one piece is made of (FR-CAT-10). */
   parts: string[];
+  /** Its variants and their pictures, as that view showed them (FR-CAT-11). */
+  variants: ProductVariant[];
+  images: ProductImage[];
 }
 
 /** `full` when the cart already holds as many lines as may be priced in one
@@ -410,6 +424,8 @@ export class CartService {
           notePrompt: addition.lineNotePrompt,
           pairedCount: addition.pairedCount,
           parts: addition.parts,
+          variants: addition.variants,
+          images: addition.images,
           // Nobody has checked the cart against its pairings yet, and this
           // line is the reason the answer would change: the first preview
           // says it.
@@ -434,6 +450,8 @@ export class CartService {
           notePrompt: addition.lineNotePrompt,
           pairedCount: addition.pairedCount,
           parts: addition.parts,
+          variants: addition.variants,
+          images: addition.images,
           ...priceLine(addition, pieces),
         }),
       );
@@ -468,6 +486,8 @@ export class CartService {
         notePrompt: addition.lineNotePrompt,
         pairedCount: addition.pairedCount,
         parts: addition.parts,
+        variants: addition.variants,
+        images: addition.images,
         ...priceLine(addition, addition.pieces),
       }),
     );
@@ -564,6 +584,8 @@ export class CartService {
         // Kept where the product is gone, like the photo: what the line was is
         // still what it was.
         parts: fresh.name === null ? line.parts : fresh.parts,
+        variants: fresh.name === null ? line.variants : fresh.variants,
+        images: fresh.name === null ? line.images : fresh.images,
         // Taken as answered, not kept: an unavailable line is short of
         // nothing, and there is nothing in the last figure worth showing over
         // a newer one that says so.
@@ -657,6 +679,7 @@ export class CartService {
           .map(withPairedCount)
           .map(withPairingShortfall)
           .map(withParts)
+          .map(withVariants)
           .filter(isStoredLine)
           .slice(0, CART_LINES_MAX),
         pricedFor: readPricedFor(parsed.pricedFor),
@@ -765,6 +788,41 @@ function withParts(line: unknown): unknown {
     : { ...candidate, parts: [] };
 }
 
+/** Fills in a line stored before the variants were written down, or one whose
+ * copy of them was edited out of shape. Empty is "no mark", which is also what
+ * a product that names no variants answers. */
+function withVariants(line: unknown): unknown {
+  const candidate = line as { variants?: unknown; images?: unknown } | null;
+  if (!candidate || typeof candidate !== 'object') return line;
+  const variants =
+    Array.isArray(candidate.variants) && candidate.variants.every(isVariant)
+      ? candidate.variants
+      : [];
+  const images =
+    Array.isArray(candidate.images) && candidate.images.every(isLabelledImage)
+      ? candidate.images
+      : [];
+  return { ...candidate, variants, images };
+}
+
+function isVariant(value: unknown): value is ProductVariant {
+  const candidate = value as ProductVariant | null;
+  return (
+    !!candidate &&
+    typeof candidate.name === 'string' &&
+    typeof candidate.unavailable === 'boolean'
+  );
+}
+
+function isLabelledImage(value: unknown): value is ProductImage {
+  const candidate = value as ProductImage | null;
+  return (
+    isImage(candidate) &&
+    candidate !== null &&
+    (candidate.variant === null || typeof candidate.variant === 'string')
+  );
+}
+
 /** Fills in a line stored before the shortfall was written down. Null is
  * "nobody has checked", which is also what a covered line answers — so a cart
  * in a browser today warns about nothing until the first pricing of the visit
@@ -792,6 +850,8 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.pairedCount === b.pairedCount &&
     a.pairingShortPieces === b.pairingShortPieces &&
     same(a.parts, b.parts) &&
+    same(a.variants, b.variants) &&
+    same(a.images, b.images) &&
     a.boxVolume === b.boxVolume &&
     a.boxWeight === b.boxWeight &&
     a.boxCount === b.boxCount &&

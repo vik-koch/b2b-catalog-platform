@@ -36,6 +36,7 @@ const coffee = {
   sourceId: 'ERP-1',
   priceMinor: 199,
   images: [{ full: '/media/a.jpg', thumb: '/media/a-thumb.jpg' }],
+  variants: [],
   boxVolume: '0.240',
   boxWeight: '12.500',
   boxCount: 1,
@@ -66,6 +67,49 @@ describe('priceCart', () => {
       priceMinor: 199,
       pieces: 30,
     });
+  });
+
+  it('carries the variants, and takes its photo from the pictures on show', async () => {
+    const cups = {
+      ...coffee,
+      images: [
+        {
+          full: '/media/clay.jpg',
+          thumb: '/media/clay-t.jpg',
+          variantId: 'v2',
+        },
+        {
+          full: '/media/sand.jpg',
+          thumb: '/media/sand-t.jpg',
+          variantId: 'v1',
+        },
+      ],
+      variants: [
+        { id: 'v1', name: 'Sand', unavailable: false },
+        { id: 'v2', name: 'Terracotta', unavailable: true },
+      ],
+    };
+    const { db } = dbWith([cups]);
+
+    const { preview, lines } = await priceCart(
+      db,
+      [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
+      null,
+    );
+
+    // The first stored picture is of a glaze that is out for now (FR-CAT-12).
+    expect(preview.lines[0].image).toEqual({
+      full: '/media/sand.jpg',
+      thumb: '/media/sand-t.jpg',
+    });
+    expect(lines[0].row?.thumbnail).toBe('/media/sand-t.jpg');
+    expect(preview.lines[0].images).toEqual([
+      { full: '/media/sand.jpg', thumb: '/media/sand-t.jpg', variant: 'Sand' },
+    ]);
+    expect(preview.lines[0].variants).toEqual([
+      { name: 'Sand', unavailable: false },
+      { name: 'Terracotta', unavailable: true },
+    ]);
   });
 
   // The lens cannot change what a quantity costs: the same thirty pieces
