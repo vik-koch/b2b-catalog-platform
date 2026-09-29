@@ -355,6 +355,38 @@ export const adminTextSchema = z
           .object({
             heading: z.string(),
             add: z.string(),
+            /** The picker under a picture: its accessible name, and the
+             * choice for a picture of the whole range (FR-CAT-11). */
+            variant: z.string(),
+            noVariant: z.string(),
+          })
+          .strict(),
+        /** The variants an assorted product's pictures show (FR-CAT-11/12). */
+        variants: z
+          .object({
+            heading: z.string(),
+            hint: z.string(),
+            /** A variant's name field, for a screen reader. */
+            name: z.string(),
+            add: z.string(),
+            addPlaceholder: z.string(),
+            addButton: z.string(),
+            /** A variant's remove button; `{name}` is the variant. */
+            remove: z.string(),
+            unavailable: z.string(),
+            /** The pictures column's heading, where the row has columns. */
+            picturesHeading: z.string(),
+            /** How many pictures show a variant; `{count}`. */
+            pictures: z.string(),
+            /** Shown in place of the field once the list is full; `{count}`. */
+            limit: z.string(),
+            /** Under a list with a blank or repeated name, and the save's
+             * refusal of it. */
+            duplicate: z.string(),
+            /** Under the add field, refusing a name the list already has. */
+            exists: z.string(),
+            /** Where every picture shows an unavailable variant. */
+            allWithheld: z.string(),
           })
           .strict(),
         /**

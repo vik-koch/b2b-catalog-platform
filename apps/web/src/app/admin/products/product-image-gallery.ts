@@ -1,6 +1,7 @@
 import {
   CdkDrag,
   CdkDragDrop,
+  CdkDragHandle,
   CdkDragPlaceholder,
   CdkDropList,
   moveItemInArray,
@@ -9,10 +10,13 @@ import { Component, inject, input, output, signal } from '@angular/core';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
   ProductImageInput,
+  ProductVariantInput,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Input } from '../../ui/input';
+import { SelectField } from '../../ui/select-field';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { MediaService } from '../media/media.service';
 
@@ -21,10 +25,24 @@ import { MediaService } from '../media/media.service';
  * catalog media endpoint, which returns the stored `{ full, thumb }` pair; the
  * list order is the display order. Reordering is by CDK drag-drop, shared in
  * spirit with the category tree; the upload tile is excluded from the drop list.
+ *
+ * Where the product names variants, each picture says under it which one it
+ * shows, or none for a picture of the whole range (FR-CAT-11). The photo is
+ * the drag handle then, so the picker under it can be used without starting a
+ * drag.
  */
 @Component({
   selector: 'app-product-image-gallery',
-  imports: [AdminIcon, CdkDropList, CdkDrag, CdkDragPlaceholder, FieldLabel],
+  imports: [
+    AdminIcon,
+    CdkDropList,
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPlaceholder,
+    FieldLabel,
+    Input,
+    SelectField,
+  ],
   template: `
     <fieldset class="max-w-xl">
       <legend appFieldLabel>{{ text.heading }}</legend>
@@ -36,17 +54,7 @@ import { MediaService } from '../media/media.service';
         (cdkDropListDropped)="onDrop($event)"
       >
         @for (image of value(); track image.thumb) {
-          <li
-            cdkDrag
-            [cdkDragData]="image"
-            class="relative h-26 w-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
-            [attr.aria-label]="common.reorder"
-          >
-            <img
-              [src]="image.thumb"
-              alt=""
-              class="pointer-events-none h-full w-full object-cover"
-            />
+          <li cdkDrag [cdkDragData]="image" class="flex w-26 flex-col gap-1.5">
             <!-- A thin insertion caret rather than a full-size box: in the
                  single horizontal row it reads as "drops here"; when the row
                  wraps on narrow screens it simply sits at the row it lands in. -->
@@ -55,20 +63,58 @@ import { MediaService } from '../media/media.service';
               class="h-26 w-1 self-center rounded-full bg-primary"
             ></div>
             <div
-              class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
+              cdkDragHandle
+              class="relative h-26 w-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
+              [attr.aria-label]="common.reorder"
             >
-              <span class="p-1.5 inline-flex text-white/70 md:p-1">
-                <app-admin-icon name="grip-vertical" class="size-5 md:size-4" />
-              </span>
-              <button
-                type="button"
-                class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
-                [attr.aria-label]="common.remove"
-                (click)="remove($index)"
+              <img
+                [src]="image.thumb"
+                alt=""
+                class="pointer-events-none h-full w-full object-cover"
+              />
+              <div
+                class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
               >
-                <app-admin-icon name="trash-2" class="size-5 md:size-4" />
-              </button>
+                <span class="p-1.5 inline-flex text-white/70 md:p-1">
+                  <app-admin-icon
+                    name="grip-vertical"
+                    class="size-5 md:size-4"
+                  />
+                </span>
+                <button
+                  type="button"
+                  class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
+                  [attr.aria-label]="common.remove"
+                  (click)="remove($index)"
+                >
+                  <app-admin-icon name="trash-2" class="size-5 md:size-4" />
+                </button>
+              </div>
             </div>
+            @if (variants().length) {
+              <app-select-field size="sm">
+                <select
+                  appInput
+                  size="sm"
+                  class="w-full truncate"
+                  [attr.aria-label]="text.variant"
+                  [title]="variantName(image.variantId)"
+                  (change)="setVariant($index, $any($event.target).value)"
+                >
+                  <option value="" [selected]="!image.variantId">
+                    {{ text.noVariant }}
+                  </option>
+                  @for (variant of variants(); track variant.id) {
+                    <option
+                      [value]="variant.id"
+                      [selected]="variant.id === image.variantId"
+                    >
+                      {{ variant.name }}
+                    </option>
+                  }
+                </select>
+              </app-select-field>
+            }
           </li>
         }
 
@@ -112,6 +158,7 @@ export class ProductImageGallery {
 
   readonly value = input.required<ProductImageInput[]>();
   /** The variants a picture may show; none hides the picker. */
+  readonly variants = input<readonly ProductVariantInput[]>([]);
   readonly valueChange = output<ProductImageInput[]>();
 
   protected readonly uploading = signal(false);
@@ -141,6 +188,22 @@ export class ProductImageGallery {
 
   protected remove(index: number): void {
     this.valueChange.emit(this.value().filter((_, i) => i !== index));
+  }
+
+  /** The picker's tooltip: its own box shortens a long name to a word. */
+  protected variantName(id: string | null): string {
+    return (
+      this.variants().find((variant) => variant.id === id)?.name ??
+      this.text.noVariant
+    );
+  }
+
+  protected setVariant(index: number, variantId: string): void {
+    this.valueChange.emit(
+      this.value().map((image, i) =>
+        i === index ? { ...image, variantId: variantId || null } : image,
+      ),
+    );
   }
 
   protected onDrop(event: CdkDragDrop<ProductImageInput[]>): void {

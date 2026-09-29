@@ -53,3 +53,27 @@ export function picturesNameKnownVariants(
     (picture) => picture.variantId == null || ids.has(picture.variantId),
   );
 }
+
+/**
+ * The pictures a storefront shows, in gallery order, each with the name of the
+ * variant it shows: a picture of an unavailable variant is withheld (FR-CAT-12),
+ * and one naming a variant that no longer exists reads as showing none, so a
+ * stale reference cannot take the whole response down with it.
+ */
+export function shownPictures(
+  pictures: readonly StoredPicture[],
+  variants: readonly StoredVariant[],
+): { full: string; thumb: string; variant: string | null }[] {
+  const byId = new Map(variants.map((variant) => [variant.id, variant]));
+  return pictures.flatMap((picture) => {
+    const variant = picture.variantId ? byId.get(picture.variantId) : undefined;
+    if (variant?.unavailable) return [];
+    return [
+      {
+        full: picture.full,
+        thumb: picture.thumb,
+        variant: variant?.name ?? null,
+      },
+    ];
+  });
+}

@@ -399,6 +399,9 @@ describe('ProductEditorPage', () => {
     it('keeps the prompt field out of the form until the note is enabled', async () => {
       const { fixture, el } = await render({ slug: 'hafen-espresso' });
 
+      // In the variants box, closed on a product with neither.
+      buttonByText(el, text.variants.heading).click();
+      fixture.detectChanges();
       expect(() => inputByLabel(el, text.lineNote.prompt)).toThrow();
 
       inputByLabel(el, text.lineNote.enable).click();
@@ -581,6 +584,213 @@ describe('ProductEditorPage', () => {
         fillText(partsText.rejected, { max: 40 }),
       );
       expect(addField(el).value).toBe('lid');
+    });
+  });
+
+  describe('variants (FR-CAT-11/12)', () => {
+    const variantsText = text.variants;
+    const sandId = '11111111-1111-4111-8111-111111111111';
+    const slateId = '22222222-2222-4222-8222-222222222222';
+    const withVariants: AdminProduct = {
+      ...storedProduct,
+      images: [
+        {
+          full: '/media/range.webp',
+          thumb: '/media/range-t.webp',
+          variantId: null,
+        },
+        {
+          full: '/media/sand.webp',
+          thumb: '/media/sand-t.webp',
+          variantId: sandId,
+        },
+        {
+          full: '/media/slate.webp',
+          thumb: '/media/slate-t.webp',
+          variantId: slateId,
+        },
+      ],
+      variants: [
+        { id: sandId, name: 'Sand', unavailable: false },
+        { id: slateId, name: 'Slate', unavailable: false },
+      ],
+    };
+    const box = (el: HTMLElement) =>
+      el.querySelector('app-product-variants-editor') as HTMLElement;
+    const pickers = (el: HTMLElement) => [
+      ...el.querySelectorAll<HTMLSelectElement>(
+        'app-product-image-gallery select',
+      ),
+    ];
+
+    it('says under each picture which variant it shows', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: withVariants },
+      );
+
+      expect(pickers(el).map((select) => select.value)).toEqual([
+        '',
+        sandId,
+        slateId,
+      ]);
+    });
+
+    it('offers no picker for a product that names no variants', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          product: {
+            ...storedProduct,
+            images: [{ full: '/a.webp', thumb: '/a-t.webp', variantId: null }],
+          },
+        },
+      );
+
+      expect(pickers(el)).toEqual([]);
+    });
+
+    it('keeps a deleted variant’s pictures, showing none', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: withVariants },
+      );
+
+      (
+        box(el).querySelector(
+          `[aria-label="${fillText(variantsText.remove, { name: 'Slate' })}"]`,
+        ) as HTMLButtonElement
+      ).click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      const body = h.updateProduct.mock.calls[0][1];
+      expect(body.variants).toEqual([
+        { id: sandId, name: 'Sand', unavailable: false },
+      ]);
+      expect(
+        body.images.map(
+          (image: { variantId: string | null }) => image.variantId,
+        ),
+      ).toEqual([null, sandId, null]);
+    });
+
+    it('marks a variant unavailable rather than removing it', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: withVariants },
+      );
+
+      const checkbox = box(el).querySelectorAll<HTMLInputElement>(
+        'input[type="checkbox"]',
+      )[1];
+      checkbox.checked = true;
+      checkbox.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        variants: [
+          { id: sandId, name: 'Sand', unavailable: false },
+          { id: slateId, name: 'Slate', unavailable: true },
+        ],
+      });
+    });
+
+    it('warns where every picture shows an unavailable variant', async () => {
+      const { el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        {
+          product: {
+            ...withVariants,
+            images: withVariants.images.slice(1, 2),
+            variants: [{ id: sandId, name: 'Sand', unavailable: true }],
+          },
+        },
+      );
+
+      expect(box(el).textContent).toContain(variantsText.allWithheld);
+    });
+
+    it('switches the note on with the first variant, and lets it be switched off', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: storedProduct },
+      );
+
+      buttonByText(el, variantsText.heading).click();
+      fixture.detectChanges();
+      setInput(
+        box(el).querySelector(
+          `input[placeholder="${variantsText.addPlaceholder}"]`,
+        ) as HTMLInputElement,
+        'Sand',
+      );
+      fixture.detectChanges();
+      buttonByText(box(el), variantsText.addButton).click();
+      fixture.detectChanges();
+      expect(inputByLabel(el, text.lineNote.enable).checked).toBe(true);
+
+      // Sold assorted only: the customer gets no say.
+      inputByLabel(el, text.lineNote.enable).click();
+      fixture.detectChanges();
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+        lineNoteEnabled: false,
+        variants: [expect.objectContaining({ name: 'Sand' })],
+      });
+    });
+
+    it('says why a name the list already has is not added', async () => {
+      const { fixture, el } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: withVariants },
+      );
+
+      const field = box(el).querySelector(
+        `input[placeholder="${variantsText.addPlaceholder}"]`,
+      ) as HTMLInputElement;
+      setInput(field, 'slate');
+      fixture.detectChanges();
+      buttonByText(box(el), variantsText.addButton).click();
+      fixture.detectChanges();
+
+      expect(box(el).textContent).toContain(variantsText.exists);
+      expect(field.getAttribute('aria-invalid')).toBe('true');
+      expect(field.value).toBe('slate');
+      expect(
+        box(el).querySelectorAll(`input[aria-label="${variantsText.name}"]`),
+      ).toHaveLength(2);
+    });
+
+    it('refuses two variants of one name and does not call the server', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: withVariants },
+      );
+
+      const name = box(el).querySelectorAll<HTMLInputElement>(
+        `input[aria-label="${variantsText.name}"]`,
+      )[1];
+      setInput(name, ' sand ');
+      fixture.detectChanges();
+      expect(box(el).textContent).toContain(variantsText.duplicate);
+
+      saveButton(el).click();
+      await fixture.whenStable();
+      expect(h.updateProduct).not.toHaveBeenCalled();
     });
   });
 
