@@ -309,6 +309,13 @@
       "when": 1790408630480,
       "tag": "0043_catalog_attributes",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1790672661666,
+      "tag": "0044_product_variants",
+      "breakpoints": true
     }
   ]
 }
