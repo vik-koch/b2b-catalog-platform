@@ -148,8 +148,10 @@ export async function generateGlazeImage(
  * Category marks (FR-CAT-07). Unlike the product pictures above these are
  * drawn as a glyph on a tinted disc with nothing behind it — the mark sits on whatever
  * surface draws the category, so the file has to carry no background of its
- * own. One glyph per demo category, because a mark that varies only by hue
- * identifies nothing; a category the set does not name falls back to the bean.
+ * own. The chip draws the file edge to edge, so the margin is in the file: the
+ * disc takes three quarters of the square, centred. One glyph per demo
+ * category, because a mark that varies only by hue identifies nothing; a
+ * category the set does not name falls back to the bean.
  *
  * Demo art, deliberately plain: real marks come from the client.
  */
@@ -181,8 +183,10 @@ function markSvg(sourceId: string, px: number): string {
   const hue = 16 + (hash(sourceId) % 30);
   const glyph = markGlyphs[sourceId] ?? markGlyphs['coffee-beans'];
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100">
-  <circle cx="50" cy="50" r="50" fill="hsl(${hue}, 40%, 80%)"/>
-  <g fill="none" stroke="hsl(${hue}, 42%, 30%)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${glyph}</g>
+  <g transform="translate(12.5 12.5) scale(0.75)">
+    <circle cx="50" cy="50" r="50" fill="hsl(${hue}, 40%, 80%)"/>
+    <g fill="none" stroke="hsl(${hue}, 42%, 30%)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">${glyph}</g>
+  </g>
 </svg>`;
 }
 

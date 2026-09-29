@@ -30,16 +30,16 @@ export interface CategoryChipTarget {
 export type CategoryChipSize = 'responsive' | 'small';
 
 const CHIP_BASE =
-  'flex w-full items-center gap-3 px-3 rounded-xl bg-stone-125 text-base transition-colors hover:bg-stone-200 hover:text-accent';
+  'flex w-full items-center pl-3 overflow-hidden rounded-xl bg-stone-125 text-base tracking-tight transition-colors hover:bg-stone-200 hover:text-accent';
 
-/** The box and the picture are the same shape — the upload stores a square —
- * so nothing is cropped here; only how much of the chip it takes changes. */
+/** The mark is the chip's full height and square — the upload stores a square
+ * — so nothing is cropped here; only how much of the chip it takes changes. */
 const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
   responsive: {
     link: 'h-16 sm:h-24',
-    mark: 'h-10 w-10 sm:h-18 sm:w-18',
+    mark: 'h-16 w-16 sm:h-24 sm:w-24',
   },
-  small: { link: 'h-16', mark: 'h-10 w-10' },
+  small: { link: 'h-16', mark: 'h-16 w-16' },
 };
 
 /**
@@ -49,6 +49,10 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
  * identifies a category faster than its name does, but only once you already
  * know it, so the name never leaves, and a category with no mark is simply a
  * name in the same box.
+ *
+ * The mark runs edge to edge over the chip's right end and the chip's corners
+ * clip it. Any margin around the artwork is the picture's own, which is what
+ * lets a mark sit its drawing against the chip's bottom edge if it wants to.
  *
  * The chip has no width of its own; it fills whatever its <li> was given, which
  * is where the row decides how wide a chip is (see SUBS_LIST in CategoryGrid
@@ -68,6 +72,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
       [queryParams]="queryParams()"
       [class]="linkClass()"
     >
+      <span [class]="nameClass()">{{ label() }}</span>
       @if (shownMark(); as mark) {
         <img
           [src]="mark.thumb"
@@ -77,7 +82,6 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
           (error)="markFailed.set(true)"
         />
       }
-      <span [class]="nameClass()">{{ label() }}</span>
     </a>
   `,
 })
@@ -110,7 +114,7 @@ export class CategoryChip {
   );
   protected readonly markClass = computed(
     () =>
-      `shrink-0 rounded-md object-cover ${CHIP_SIZES[this.size()].mark}${
+      `shrink-0 object-cover ${CHIP_SIZES[this.size()].mark}${
         this.muted() ? ' opacity-40' : ''
       }`,
   );
@@ -119,14 +123,14 @@ export class CategoryChip {
    * two lines: the chip's height is fixed, so a long name has to end somewhere
    * rather than push the row open.
    *
-   * With no mark it starts a mark's own gap further in rather than against the
-   * chip's padding: a name alone on the left edge reads as a chip that lost
-   * something, and the indent makes it a chip that never had one.
+   * The name starts at the same place whether or not a mark follows it, so
+   * names line up down a column of chips. With no mark it keeps a gap off the
+   * right edge instead of running into it.
    */
   protected readonly nameClass = computed(
     () =>
       `line-clamp-3 min-w-0 flex-1 [overflow-wrap:anywhere]${
-        this.shownMark() ? '' : ' pl-3'
+        this.shownMark() ? '' : ' pr-3'
       }`,
   );
 }

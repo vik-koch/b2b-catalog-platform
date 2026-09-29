@@ -366,7 +366,7 @@
     "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
     "description": "Description",
     "mark": "Mark",
-    "markHint": "A small logo shown on the category's chip",
+    "markHint": "A square picture filling the right end of the category's chip, edge to edge. Leave the margin you want inside the picture; a transparent background shows the chip through.",
     "discardConfirm": "Discard your unsaved changes to this category?",
     "nameRequired": "Please enter a category name.",
     "saveError": "This category could not be saved. Please try again."
