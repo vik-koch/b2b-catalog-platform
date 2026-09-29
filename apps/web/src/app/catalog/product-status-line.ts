@@ -47,7 +47,6 @@ function isSet(item: StatusLineProduct): boolean {
       class="shrink-0"
       [availability]="availability()"
       [reserve]="reserve() && !set()"
-      [wrap]="stacked()"
     />
     @if (set()) {
       <app-product-set-badge [parts]="parts()" />
@@ -56,8 +55,7 @@ function isSet(item: StatusLineProduct): boolean {
   // Out of the flow entirely when it has nothing to render, so a margin the
   // caller set on it does not leave a gap under a plain, untracked product.
   host: {
-    '[class]':
-      "stacked() ? 'flex min-w-0 flex-col items-start gap-y-2' : 'flex min-w-0 flex-wrap items-start gap-x-1.5 gap-y-1'",
+    class: 'flex min-w-0 flex-wrap items-start gap-1',
     '[style.display]': "availability() || set() || reserve() ? null : 'none'",
   },
 })
@@ -65,13 +63,6 @@ export class ProductStatusLine {
   readonly availability = input.required<ProductAvailability | null>();
   readonly parts = input<readonly string[]>([]);
   readonly reserve = input(false);
-  /**
-   * One badge under the other in the column beside a thumbnail (the main
-   * page's small card), where there is height to spare and little width: a
-   * long stock label may break onto a second line, and the two sit further
-   * apart than on a card's top edge.
-   */
-  readonly stacked = input(false);
 
   protected readonly set = computed(() =>
     isSet({ availability: null, parts: this.parts() }),

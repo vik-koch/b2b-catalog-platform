@@ -123,7 +123,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                 <app-product-tile
                   [item]="item"
                   [reserveStatus]="reserveStatus"
-                  [compact]="true"
+                  [inset]="true"
                 >
                   @if (editControls(); as editText) {
                     <app-edit-actions
@@ -144,7 +144,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
         <div class="h-8 w-48 animate-pulse rounded bg-stone-125"></div>
         <ul [class]="skeletonClass">
           @for (i of skeletons; track i) {
-            <li class="h-78 animate-pulse rounded-lg bg-stone-125"></li>
+            <li class="h-116 animate-pulse rounded-lg bg-stone-125"></li>
           }
         </ul>
       </div>

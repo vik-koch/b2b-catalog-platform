@@ -54,14 +54,16 @@ describe('FeaturedRow', () => {
     expect(names).toEqual(['Hafen Espresso', 'Filter Blend', 'Takeaway Cup']);
   });
 
-  it('draws the small card: a thumbnail with the badges beside it', async () => {
+  it('draws a listing card with the photo inset and no packaging facts', async () => {
     const el = await render(async () => items);
 
     const tile = el.querySelector('app-product-tile')!;
-    expect(tile.querySelector('.size-24 app-tile-gallery')).not.toBeNull();
+    const photoBox = tile.querySelector('app-tile-gallery')?.parentElement;
+    expect(photoBox?.className.split(' ')).toContain('m-3');
     expect(
-      tile.querySelector('app-product-status-line')?.className.split(' '),
-    ).toContain('flex-col');
+      tile.querySelector('app-tile-gallery')?.className.split(' '),
+    ).not.toContain('ring-1');
+    expect(tile.querySelector('app-product-unit-facts')).toBeNull();
   });
 
   it('is absent, not empty, where there is nothing to show', async () => {
