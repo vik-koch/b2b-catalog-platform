@@ -38,6 +38,12 @@ import {
   PRODUCT_PART_MAX_LENGTH,
   PRODUCT_PARTS_MAX,
 } from './product-parts';
+import {
+  hasDistinctVariants,
+  picturesNameKnownVariants,
+  PRODUCT_VARIANT_NAME_MAX_LENGTH,
+  PRODUCT_VARIANTS_MAX,
+} from './product-variants';
 import { slugSchema } from './slug';
 
 /**
@@ -101,6 +107,27 @@ export const pairedProductSchema = z
 export type PairedProduct = z.infer<typeof pairedProductSchema>;
 
 /**
+ * A variant as the editor writes it (FR-CAT-11). The id is the editor's own,
+ * minted when the variant is added, so a rename keeps every picture pointing
+ * at it; the storefront never sees it.
+ */
+export const productVariantInputSchema = z
+  .object({
+    id: z.uuid(),
+    name: z.string().trim().min(1).max(PRODUCT_VARIANT_NAME_MAX_LENGTH),
+    unavailable: z.boolean().default(false),
+  })
+  .strict();
+export type ProductVariantInput = z.infer<typeof productVariantInputSchema>;
+
+/** A gallery picture as the editor writes it: the stored pair, and the
+ * variant it shows, if any. */
+export const productImageInputSchema = catalogImageSchema
+  .extend({ variantId: z.uuid().nullable().default(null) })
+  .strict();
+export type ProductImageInput = z.infer<typeof productImageInputSchema>;
+
+/**
  * What create and update accept.
  *
  * `slug` is optional and defaults to stability: omitted on create → the server
@@ -148,8 +175,21 @@ export const productInputSchema = z
       )
       .default([]),
     /** Ordered gallery; array order is display order. Each is a stored
-     * `{ full, thumb }` media pair (ADR 0021/0022). */
-    images: z.array(catalogImageSchema).max(PRODUCT_IMAGES_MAX).default([]),
+     * `{ full, thumb }` media pair (ADR 0021/0022), and names at most one of
+     * the variants below. */
+    images: z
+      .array(productImageInputSchema)
+      .max(PRODUCT_IMAGES_MAX)
+      .default([]),
+    /**
+     * The variants the pictures show, in the order the storefront lists them
+     * (FR-CAT-11). Maintained here only — no exchange reads or writes them.
+     */
+    variants: z
+      .array(productVariantInputSchema)
+      .max(PRODUCT_VARIANTS_MAX)
+      .refine(hasDistinctVariants, 'Each variant needs a name of its own')
+      .default([]),
     /** Private sync key. Admin-settable to pre-assign a legacy key for future
      * file reconciliation; omit to let the server generate `manual:<uuid>`. */
     sourceId: z.string().trim().min(1).max(SOURCE_ID_MAX_LENGTH).optional(),
@@ -257,6 +297,10 @@ export const productInputSchema = z
     message: 'A box count needs a box',
     path: ['boxCount'],
   })
+  .refine((input) => picturesNameKnownVariants(input.images, input.variants), {
+    message: 'A picture names a variant the product does not list',
+    path: ['images'],
+  })
   .refine((input) => input.lineNoteEnabled || input.lineNotePrompt === null, {
     message: 'A note prompt needs the note enabled',
     path: ['lineNotePrompt'],
@@ -294,7 +338,14 @@ export const adminProductSchema = z
     /** Keys as written — "Colour (cup)" — so a save sends them back unchanged. */
     attributes: z.array(productAttributeSchema),
     parts: z.array(z.string()),
-    images: z.array(catalogImageSchema),
+    images: z.array(
+      catalogImageSchema.extend({ variantId: z.string().nullable() }).strict(),
+    ),
+    variants: z.array(
+      z
+        .object({ id: z.string(), name: z.string(), unavailable: z.boolean() })
+        .strict(),
+    ),
     /** Only the tiers priced away from the default list; never it. */
     tierPrices: z.array(productTierPriceSchema),
     piecesPerPack: z.number().int().positive().nullable(),

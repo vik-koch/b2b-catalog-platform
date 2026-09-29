@@ -18,6 +18,7 @@ import {
   LinkedDocument,
   PairedProduct,
   ProductDetail,
+  ProductImageInput,
   ProductInput,
   lowStockThreshold,
   slugify,
@@ -633,7 +634,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly description = signal('');
   protected readonly attributes = signal<ProductAttribute[]>([]);
   protected readonly tierPrices = signal<TierPriceDraft[]>([]);
-  protected readonly images = signal<CatalogImage[]>([]);
+  protected readonly images = signal<ProductImageInput[]>([]);
   protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly pairings = signal<PairedProduct[]>([]);
   protected readonly documents = signal<LinkedDocument[]>([]);
@@ -1155,6 +1156,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       attributes: this.storedAttributes(),
       parts: this.parts(),
       images: this.images(),
+      variants: [],
       // The full set: a tier the admin cleared is absent here, and the server
       // takes that as "remove the override".
       tierPrices,

@@ -50,6 +50,7 @@ const storedProduct: AdminProduct = {
   attributes: [],
   parts: [],
   images: [],
+  variants: [],
   tierPrices: [],
   pairings: [],
   documents: [],

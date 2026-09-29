@@ -41,6 +41,13 @@ export const noteColumns = {
   lineNotePrompt: products.lineNotePrompt,
 } as const;
 
+/** The gallery and the variants it shows (FR-CAT-11) — read together, because
+ * neither can be published without the other deciding what is withheld. */
+export const pictureColumns = {
+  images: products.images,
+  variants: products.variants,
+} as const;
+
 /** What a piece is made of, for the set marker (FR-CAT-10). */
 export const partsColumns = {
   parts: products.parts,

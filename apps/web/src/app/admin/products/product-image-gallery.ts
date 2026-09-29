@@ -8,7 +8,7 @@ import {
 import { Component, inject, input, output, signal } from '@angular/core';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
-  CatalogImage,
+  ProductImageInput,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { FieldLabel } from '../../ui/field-label';
@@ -110,8 +110,9 @@ export class ProductImageGallery {
    * the document editor wear at their own. */
   protected readonly tileClass = `h-26 w-26 ${DROP_ZONE} ${dropZoneState(false)}`;
 
-  readonly value = input.required<CatalogImage[]>();
-  readonly valueChange = output<CatalogImage[]>();
+  readonly value = input.required<ProductImageInput[]>();
+  /** The variants a picture may show; none hides the picker. */
+  readonly valueChange = output<ProductImageInput[]>();
 
   protected readonly uploading = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -125,9 +126,10 @@ export class ProductImageGallery {
     this.uploading.set(true);
     this.error.set(null);
     try {
-      const uploaded: CatalogImage[] = [];
+      const uploaded: ProductImageInput[] = [];
       for (const file of files) {
-        uploaded.push(await this.media.uploadCatalogImage(file));
+        const stored = await this.media.uploadCatalogImage(file);
+        uploaded.push({ ...stored, variantId: null });
       }
       this.valueChange.emit([...this.value(), ...uploaded]);
     } catch {
@@ -141,7 +143,7 @@ export class ProductImageGallery {
     this.valueChange.emit(this.value().filter((_, i) => i !== index));
   }
 
-  protected onDrop(event: CdkDragDrop<CatalogImage[]>): void {
+  protected onDrop(event: CdkDragDrop<ProductImageInput[]>): void {
     if (event.previousIndex === event.currentIndex) return;
     const images = [...this.value()];
     moveItemInArray(images, event.previousIndex, event.currentIndex);
