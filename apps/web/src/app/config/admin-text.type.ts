@@ -413,6 +413,9 @@ export const adminTextSchema = z
           })
           .strict(),
         /** The main page's row (FR-CAT-09). */
+        /** What a shut feature box says where the feature is on, as the
+         * list-shaped ones say how many. */
+        switchedOn: z.string(),
         featured: z
           .object({
             heading: z.string(),

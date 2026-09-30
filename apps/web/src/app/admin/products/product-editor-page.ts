@@ -61,6 +61,7 @@ import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductPartsEditor } from './product-parts-editor';
+import { FeatureDisclosure } from './feature-disclosure';
 import { ProductVariantsEditor } from './product-variants-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { ProductDocumentsEditor } from '../documents/product-documents-editor';
@@ -95,6 +96,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     CategoryPicker,
     ProductAttributesEditor,
     ProductPartsEditor,
+    FeatureDisclosure,
     ProductVariantsEditor,
     ProductPackagingEditor,
     ProductDocumentsEditor,
@@ -415,10 +417,14 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           </p>
         </fieldset>
 
-        <!-- The shop's own choice, like the note below: open while the
-             catalog is owned, and never written by a run. -->
-        <fieldset class="max-w-xl">
-          <legend appFieldLabel>{{ text.featured.heading }}</legend>
+        <!-- The optional extras, one box each and in the order the grid
+             draws their glyphs: open where the product uses one, shut where
+             it does not. All six are the shop's own, open while the catalog
+             is owned and never written by a run. -->
+        <app-feature-disclosure
+          [label]="text.featured.heading"
+          [on]="featured()"
+        >
           <p class="mb-2 text-xs text-subtle">{{ text.featured.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
@@ -430,7 +436,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             />
             <span>{{ text.featured.enable }}</span>
           </label>
-        </fieldset>
+        </app-feature-disclosure>
 
         <!-- The variants and the note in one box: the note is how a customer
              picks among the variants, so the two are set up together — each
