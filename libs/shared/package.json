@@ -12,6 +12,7 @@
     "vitest": "^4.0.8",
     "vite-tsconfig-paths": "^6.1.1",
     "slugify": "^1.6.9",
-    "@orpc/contract": "^1.15.0"
+    "@orpc/contract": "^1.15.0",
+    "convert-layout": "^0.11.1"
   }
 }
