@@ -243,7 +243,7 @@ A dedicated page displays information about the company.
 
 #### <a id="fr-nav-03"></a>FR-NAV-03 — Payment and delivery conditions page
 
-A dedicated page displays payment and delivery conditions. Its prose is admin-editable ([FR-ADM-03](#fr-adm-03)); the conditions themselves are not typed into it but read from the deployment's own configuration — the delivery zones with their terms and free-delivery thresholds ([FR-CART-07](#fr-cart-07)), the pickup points, and the payment methods a customer may choose ([FR-CART-04](#fr-cart-04)) — and are stated as checkout states them, so the page cannot promise something checkout does not offer. Checkout keeps its own hint for the address in front of it; this page is the whole picture, which checkout is not the place to read.
+A dedicated page displays payment and delivery conditions. Its prose is admin-editable ([FR-ADM-03](#fr-adm-03)); the conditions themselves are not typed into it but read from where checkout reads them — the delivery zones with their terms and free-delivery thresholds ([FR-CART-07](#fr-cart-07)) and the pickup points from the deployment's configuration, and the payment methods from the platform's own rule of which party may pay how ([FR-CART-04](#fr-cart-04)) — and are stated as checkout states them, so the page cannot promise something checkout does not offer. Checkout keeps its own hint for the address in front of it; this page is the whole picture, which checkout is not the place to read.
 
 #### <a id="fr-nav-04"></a>FR-NAV-04 — Contact page with office map
 

@@ -740,3 +740,12 @@ Notes:
   already does for the note.
   Having a chosen variant fill in the note is the obvious next step, and it is cart logic,
   so it is left for later.
+- **The conditions page states what checkout offers**
+  ([FR-NAV-03](requirements.md#fr-nav-03) reworded, ADR 0027 and 0039 amended) (2026-09-30).
+  Built as planned above, with one correction to the wording: the payment methods are not
+  deployment configuration but the platform's own rule — a company pays by bank transfer, a
+  private person in cash — and they stay that way. Which method a party may use is a
+  question about invoicing, not a shop preference, so the page states the rule in checkout's
+  words instead of reading a list. A deployment that already has a conditions body keeps it
+  on upgrade; one that typed its zones or pickup points into it now shows them twice until
+  someone trims the prose.

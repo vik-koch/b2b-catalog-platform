@@ -1,6 +1,6 @@
 # 0027 — Keep a fixed page set, make publication and placement per-deployment
 
-**Status:** accepted · **Date:** 2026-07-31
+**Status:** accepted (amended 2026-09-30) · **Date:** 2026-07-31
 
 ## Context
 
@@ -70,3 +70,17 @@ bending it.
   rather than a 404 in the footer of every page.
 - (−) `PAGE_SLUGS` and `STANDALONE_PAGE_SLUGS` must be kept in step; the latter
   is `satisfies readonly PageSlug[]`, so a typo is a compile error.
+
+## Amendment — 2026-09-30: conditions joins contact on a code route
+
+The conditions page (FR-NAV-03) now states the delivery zones, their
+free-delivery thresholds, the pickup points and the payment methods, read from
+what checkout reads rather than typed into the body. That is the argument
+contact was given a code route for, so conditions gets one too: it leaves
+`STANDALONE_PAGE_SLUGS` and keeps its editable body, which renders above the
+structured sections. Publication governs it exactly as before.
+
+A body that restates those facts by hand files them in two places, and the page
+a customer reads before ordering is the one that must not disagree with
+checkout. The body keeps what configuration cannot say — payment terms, what
+happens after an order is placed.

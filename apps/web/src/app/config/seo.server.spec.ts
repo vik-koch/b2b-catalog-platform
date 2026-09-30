@@ -221,4 +221,31 @@ describe('renderSitemap', () => {
     // The DB-backed page carries its real lastmod; code routes carry none.
     expect(xml).toContain('<lastmod>2026-04-04T08:00:00.000Z</lastmod>');
   });
+
+  it('lists a page on its own code route once, with its lastmod', async () => {
+    process.env['SEO_INDEXABLE'] = 'true';
+    stubFetch({
+      sitemap: {
+        status: 200,
+        body: {
+          categories: [],
+          products: [],
+          pages: [
+            { slug: 'contact', updatedAt: '2026-05-05T08:00:00.000Z' },
+            { slug: 'conditions', updatedAt: '2026-06-06T08:00:00.000Z' },
+          ],
+        },
+      },
+    });
+    const { renderSitemap } = await load();
+    const result = await renderSitemap();
+    const xml = result.kind === 'xml' ? result.body : '';
+
+    for (const slug of ['contact', 'conditions']) {
+      expect(
+        xml.split(`<loc>https://shop.example/${slug}</loc>`).length - 1,
+      ).toBe(1);
+    }
+    expect(xml).toContain('<lastmod>2026-06-06T08:00:00.000Z</lastmod>');
+  });
 });

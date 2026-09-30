@@ -747,8 +747,7 @@ export const appTextSchema = z
             deliveryTitle: z.string(),
             pickupTitle: z.string(),
             pickupDescription: z.string(),
-            /** Opens the zone list. The binding long form stays on the
-             * conditions page, which the dialog links to. */
+            /** Opens the zone list, which the conditions page also shows. */
             conditionsLink: z.string(),
             conditionsHeading: z.string(),
             /** Says the zones are advisory: a threshold is quoted, never
@@ -763,6 +762,9 @@ export const appTextSchema = z
             /** Shown for a zone that quotes no minimum — said out loud, so an
              * absent line does not read as an unstated free threshold. */
             noFreeDelivery: z.string(),
+            /** Shown for a zone the deployment does not deliver to, in place
+             * of a threshold. */
+            noDelivery: z.string(),
             /** Heading of the office list, which stands under the cards as
              * the pickup answer to the delivery address — not inside the card,
              * where it would be a second question asked in the margin. */
@@ -1353,6 +1355,20 @@ export const appTextSchema = z
             privacyRequired: z.string(),
           })
           .strict(),
+      })
+      .strict(),
+    /**
+     * The conditions page's own words (FR-NAV-03). Only what checkout has no
+     * sentence for: the zones, the pickup points and the payment rows reuse
+     * checkout's text, so the page cannot word a condition differently.
+     */
+    conditions: z
+      .object({
+        /** Checkout asks a question here; a page needs a heading. */
+        paymentHeading: z.string(),
+        /** Checkout words cash for the hand-over in front of it; the page
+         * covers both. */
+        cashDescription: z.string(),
       })
       .strict(),
     /**

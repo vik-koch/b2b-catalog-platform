@@ -28,22 +28,24 @@ export const aboutPageSeed: PageSeed = {
   ].join('\n'),
 };
 
+/**
+ * Prose only. The zones, pickup points and payment methods render under it
+ * from what checkout reads (FR-NAV-03); restating them here would be a second
+ * copy free to disagree with checkout.
+ */
 export const conditionsPageSeed: PageSeed = {
   slug: 'conditions',
   title: 'Payment & delivery',
   bodyHtml: [
-    '<h2>Ordering &amp; payment</h2>',
-    '<p>We sell wholesale to businesses. Orders are invoiced — payment by',
-    'bank transfer within 14 days of the invoice date. Recurring customers',
-    'receive individually agreed prices and payment terms; contact us to set',
-    'up an account.</p>',
-    '<h2>Delivery</h2>',
-    '<ul>',
-    '<li>Hamburg metropolitan area: own delivery, typically within two',
-    'working days</li>',
-    '<li>Germany and EU: freight partners, three to five working days</li>',
-    '<li>Pickup at our Speicherstadt warehouse by arrangement</li>',
-    '</ul>',
+    '<h2>Ordering</h2>',
+    '<p>We sell wholesale to businesses and to anyone buying in quantity.',
+    'Every order is a request first: we confirm it, with the delivery date and',
+    'its cost, before anything is roasted or packed.</p>',
+    '<h2>Invoices and payment terms</h2>',
+    '<p>An invoice to a company is payable by bank transfer within 14 days of',
+    'its date. Recurring customers receive individually agreed prices and',
+    'payment terms; contact us to set up an account.</p>',
+    '<h2>Freshness</h2>',
     '<p>Roast dates are printed on every bag; we ship no coffee older than',
     'ten days past roast.</p>',
   ].join('\n'),

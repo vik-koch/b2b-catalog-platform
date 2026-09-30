@@ -1,6 +1,6 @@
 # 0039 — One prefilled checkout form, and the party it is invoiced to
 
-**Status:** accepted (amended 2026-08-29, 2026-09-08) · **Date:** 2026-08-23
+**Status:** accepted (amended 2026-08-29, 2026-09-08, 2026-09-30) · **Date:** 2026-08-23
 
 ## Context
 
@@ -271,3 +271,15 @@ Nothing changes at checkout, which never offered the card: what changes is the
 staff screen that adjusts an order, which did, and the server rule behind both.
 The refusal keeps its code (`cash-not-available`) and gains the other half in
 its wording. FR-CART-04 is amended to match.
+
+## Amendment — 2026-09-30: the conditions page reads the same zones
+
+The popup was described above as the summary and the conditions page as the
+binding long form. The page now draws the same zone list from the same
+configuration (FR-NAV-03, ADR 0027 amended), alongside the pickup points and the
+payment rule, so the two show one set of facts in two places rather than a
+summary of prose that could drift from it. The popup still links there for
+everything else the page says.
+
+A zone that does not deliver now says so in the list, as the per-address hint
+already did, instead of reading as a zone without free delivery.

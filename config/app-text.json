@@ -313,6 +313,7 @@
       "close": "Close",
       "freeFrom": "Free delivery from {amount}",
       "noFreeDelivery": "Delivery is quoted per order",
+      "noDelivery": "We do not deliver to this area.",
       "pickupHeading": "Where would you like to collect your order?",
       "pickupRequired": "Please choose where you would like to collect your order.",
       "mapLink": "Find on map"
@@ -634,6 +635,10 @@
       "phoneIncomplete": "Please enter a complete phone number.",
       "privacyRequired": "Please accept the privacy policy to continue."
     }
+  },
+  "conditions": {
+    "paymentHeading": "Payment",
+    "cashDescription": "Paid when the order is handed over — at your door or at our counter."
   },
   "licenses": {
     "intro": "This site is built with open source software. The packages below are part of the code your browser downloads, and are used under the licenses shown.",
