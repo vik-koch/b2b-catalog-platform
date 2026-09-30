@@ -10,6 +10,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../ui/checkbox';
+import { Collapsible } from '../ui/collapsible';
 import { disclosureState } from '../ui/disclosure-state';
 import {
   DISCLOSURE_FRAME,
@@ -20,7 +21,7 @@ import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
-import { Link } from '../ui/link';
+import { ShowMoreToggle } from '../ui/show-more-toggle';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;
@@ -89,11 +90,12 @@ export const FACET_SIBLING_ALONE =
   imports: [
     NgTemplateOutlet,
     Checkbox,
+    Collapsible,
     DisclosureToggle,
     Icon,
     IconButton,
     ProductSortSelect,
-    Link,
+    ShowMoreToggle,
   ],
   providers: [FacetSelection],
   template: `
@@ -180,55 +182,49 @@ export const FACET_SIBLING_ALONE =
                       {{ facet.name }}
                     </h3>
                     <ul class="mt-2 space-y-1.5">
-                      @for (value of shownValues(facet); track value.value) {
-                        <li>
-                          <!-- A zero-count value is disabled rather than hidden
-                       (FR-ATTR-05): a list that reshuffles as it is clicked
-                       cannot be read, and the greyed row is the answer to
-                       "why can I not combine these two?". -->
-                          <label
-                            class="flex cursor-pointer items-start gap-2 text-sm"
-                            [class.text-muted]="disabled(value)"
-                            [class.cursor-not-allowed]="disabled(value)"
-                          >
-                            <input
-                              type="checkbox"
-                              appCheckbox
-                              class="mt-0.5"
-                              [checked]="value.selected"
-                              [attr.checked]="value.selected ? '' : null"
-                              [disabled]="disabled(value)"
-                              (change)="toggle(facet, value)"
-                            />
-                            <span class="min-w-0 flex-1">
-                              {{ label(facet, value) }}
-                            </span>
-                            <!-- leading-5 so the smaller count shares the
-                                 label's line box: the row is top-aligned for
-                                 the sake of a value that wraps, and a 1rem
-                                 line box in a 1.25rem row sat visibly high. -->
-                            <span
-                              class="text-xs px-2 leading-5 text-subtle tabular-nums"
-                            >
-                              {{ value.count }}
-                            </span>
-                          </label>
-                        </li>
+                      @for (
+                        value of facet.values.slice(0, VALUES_COLLAPSED);
+                        track value.value
+                      ) {
+                        <ng-container
+                          [ngTemplateOutlet]="valueRow"
+                          [ngTemplateOutletContext]="{
+                            $implicit: value,
+                            facet,
+                          }"
+                        />
                       }
                     </ul>
                     @if (facet.values.length > VALUES_COLLAPSED) {
-                      <button
-                        type="button"
-                        appLink
-                        class="mt-2 text-xs"
-                        (click)="toggleExpanded(facet)"
+                      <app-collapsible
+                        [open]="expanded(facet)"
+                        [id]="'facet-rest-' + facet.slug"
                       >
-                        {{
-                          expanded(facet)
-                            ? catalogText.showLess
-                            : catalogText.showMore
-                        }}
-                      </button>
+                        <ul class="space-y-1.5 pt-1.5">
+                          @for (
+                            value of facet.values.slice(VALUES_COLLAPSED);
+                            track value.value
+                          ) {
+                            <ng-container
+                              [ngTemplateOutlet]="valueRow"
+                              [ngTemplateOutletContext]="{
+                                $implicit: value,
+                                facet,
+                              }"
+                            />
+                          }
+                        </ul>
+                      </app-collapsible>
+                      <!-- Pulled out by the button's own padding, so its word
+                           starts on the line the checkboxes do. -->
+                      <app-show-more-toggle
+                        class="mt-1 -ml-3 justify-start"
+                        [expanded]="expanded(facet)"
+                        [moreLabel]="catalogText.showMore"
+                        [lessLabel]="catalogText.showLess"
+                        [controls]="'facet-rest-' + facet.slug"
+                        (toggled)="toggleExpanded(facet)"
+                      />
                     }
                   </li>
                 }
@@ -237,6 +233,39 @@ export const FACET_SIBLING_ALONE =
           </div>
         </div>
       </div>
+
+      <!-- One value's row, drawn the same in the first few and in the rest. -->
+      <ng-template #valueRow let-value let-facet="facet">
+        <li>
+          <!-- A zero-count value is disabled rather than hidden (FR-ATTR-05):
+               a list that reshuffles as it is clicked cannot be read, and the
+               greyed row is the answer to "why can I not combine these two?". -->
+          <label
+            class="flex cursor-pointer items-start gap-2 text-sm"
+            [class.text-muted]="disabled(value)"
+            [class.cursor-not-allowed]="disabled(value)"
+          >
+            <input
+              type="checkbox"
+              appCheckbox
+              class="mt-0.5"
+              [checked]="value.selected"
+              [attr.checked]="value.selected ? '' : null"
+              [disabled]="disabled(value)"
+              (change)="toggle(facet, value)"
+            />
+            <span class="min-w-0 flex-1">
+              {{ label(facet, value) }}
+            </span>
+            <!-- leading-5 so the smaller count shares the label's line box:
+                 the row is top-aligned for the sake of a value that wraps, and
+                 a 1rem line box in a 1.25rem row sat visibly high. -->
+            <span class="text-xs px-2 leading-5 text-subtle tabular-nums">
+              {{ value.count }}
+            </span>
+          </label>
+        </li>
+      </ng-template>
 
       <!-- Beside the disclosure rather than inside it, where the admin grids
            put the same control: it undoes what the box holds, so it cannot be
@@ -385,12 +414,6 @@ export class FacetPanel {
       this.manuallyExpanded().has(facet.slug) ||
       facet.values.slice(VALUES_COLLAPSED).some((v) => v.selected)
     );
-  }
-
-  protected shownValues(facet: Facet): readonly FacetValue[] {
-    return this.expanded(facet)
-      ? facet.values
-      : facet.values.slice(0, VALUES_COLLAPSED);
   }
 
   protected toggleExpanded(facet: Facet): void {

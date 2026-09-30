@@ -1,11 +1,11 @@
-import { Component, computed, inject, input } from '@angular/core';
+import { Component, computed, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   categoryDisplayName,
   CategoryNode,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
-import { disclosureState } from '../ui/disclosure-state';
+import { Collapsible } from '../ui/collapsible';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
 
 /** How many subcategories stand under a chip before the rest are behind the
@@ -23,14 +23,13 @@ const SHOWN = 4;
  * make it a different shape here than everywhere else.
  *
  * The rest open in place: the cell grows, its row grows with it, and everything
- * below moves down by that much. The movement is the `0fr`→`1fr` row the app's
- * other disclosures use, armed only while the toggle's own movement runs.
+ * below moves down by that much (see Collapsible).
  */
 @Component({
   selector: 'app-category-children',
-  imports: [RouterLink, ShowMoreToggle],
+  imports: [Collapsible, RouterLink, ShowMoreToggle],
   template: `
-    <ul [class]="listClass">
+    <ul [class]="'mt-2 ' + listClass">
       @for (child of shown(); track child.slug) {
         <li>
           <a [routerLink]="['/catalog', child.slug]" [class]="lineClass">
@@ -40,11 +39,8 @@ const SHOWN = 4;
       }
     </ul>
     @if (rest().length) {
-      <!-- The overflow row. Its content hides its own overflow so a zero
-           track actually hides it; the list above stays out of the row, so
-           the first few names never move. -->
-      <div [class]="restRowClass()" [id]="restId()">
-        <ul class="overflow-hidden">
+      <app-collapsible [open]="open()" [id]="restId()">
+        <ul [class]="listClass">
           @for (child of rest(); track child.slug) {
             <li>
               <a [routerLink]="['/catalog', child.slug]" [class]="lineClass">
@@ -53,14 +49,14 @@ const SHOWN = 4;
             </li>
           }
         </ul>
-      </div>
+      </app-collapsible>
       <app-show-more-toggle
         class="mt-1 justify-start"
-        [expanded]="disclosure.open()"
+        [expanded]="open()"
         [moreLabel]="text.showMore"
         [lessLabel]="text.showLess"
         [controls]="restId()"
-        (toggled)="disclosure.toggle()"
+        (toggled)="open.set(!open())"
       />
     }
   `,
@@ -69,7 +65,7 @@ export class CategoryChildren {
   readonly parent = input.required<CategoryNode>();
 
   protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly disclosure = disclosureState(200);
+  protected readonly open = signal(false);
   /** The parent's own slug, so several cells' toggles point at their own row. */
   protected readonly restId = computed(() => `children-${this.parent().slug}`);
 
@@ -82,16 +78,7 @@ export class CategoryChildren {
   );
   protected readonly rest = computed(() => this.parent().children.slice(SHOWN));
 
-  protected readonly listClass = 'mt-2 px-3 text-sm text-muted';
+  protected readonly listClass = 'px-3 text-sm text-muted';
   protected readonly lineClass =
     'block py-0.5 hover:text-accent [overflow-wrap:anywhere]';
-
-  protected readonly restRowClass = computed(() => {
-    const move = this.disclosure.animated()
-      ? 'transition-[grid-template-rows] duration-200 ease-out '
-      : '';
-    return `grid px-3 text-sm text-muted ${move}${
-      this.disclosure.open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
-    }`;
-  });
 }
