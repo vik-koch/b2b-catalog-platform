@@ -1,5 +1,6 @@
 import { oc } from '@orpc/contract';
 import {
+  MAINTENANCE_REFUSED,
   PASSWORD_MIN_LENGTH,
   PASSWORD_TOKEN_INVALID,
   USER_ROLES,
@@ -209,6 +210,15 @@ const passwordRejections = {
 /** A set-a-password link that is no good — unknown, used and expired alike. */
 const badToken = { [PASSWORD_TOKEN_INVALID]: { status: 404 } } as const;
 
+/**
+ * A customer's way in while maintenance mode is on. Only told once the
+ * credentials (or the link) have proved whose account it is, so it reveals
+ * nothing the right answer would not.
+ */
+const closedForMaintenance = {
+  [MAINTENANCE_REFUSED]: { status: 503 },
+} as const;
+
 export const authContract = {
   register: oc
     .route({
@@ -249,7 +259,7 @@ export const authContract = {
       inputStructure: 'detailed',
       summary: 'Check a set-a-password link before showing the form',
     })
-    .errors(badToken)
+    .errors({ ...badToken, ...closedForMaintenance })
     .input(z.object({ params: z.object({ token: z.string() }) }))
     .output(
       z
@@ -268,7 +278,7 @@ export const authContract = {
       inputStructure: 'detailed',
       summary: 'Redeem a link and set the account password',
     })
-    .errors({ ...passwordRejections, ...badToken })
+    .errors({ ...passwordRejections, ...badToken, ...closedForMaintenance })
     .input(z.object({ body: setPasswordSchema }))
     // Signs the visitor in: they have just proved control of the address and
     // chosen a password, so a login form here would be ceremony.
@@ -283,7 +293,7 @@ export const authContract = {
     })
     // Deliberately one code for a wrong address, a wrong password and an
     // account that may not sign in: the form says the same thing to all three.
-    .errors({ 'invalid-credentials': { status: 401 } })
+    .errors({ 'invalid-credentials': { status: 401 }, ...closedForMaintenance })
     .input(z.object({ body: loginSchema }))
     .output(authUserSchema),
 

@@ -10,6 +10,7 @@ import { env } from '../env';
 import { MailModule } from '../mail/mail.module';
 import { AddressBookModule } from '../addresses/address-book.module';
 import { UsersModule } from '../users/users.module';
+import { SettingsStateModule } from '../settings/settings-state.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { RegistrationService } from './registration.service';
@@ -49,6 +50,8 @@ function jwtSecret(): string {
     // Registration seeds the account's first address from the company the
     // registrant picked (FR-AUTH-10).
     AddressBookModule,
+    // Whether the shop is closed, which a customer's sign-in is refused on.
+    SettingsStateModule,
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: jwtSecret(),

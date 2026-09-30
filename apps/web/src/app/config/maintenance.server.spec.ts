@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isAdminPreview, isGatedPath } from './maintenance.server';
+import { isGatedPath, isStaffPreview } from './maintenance.server';
 
 /**
  * Which paths maintenance mode hides. The gate is fail-safe by default — an
@@ -23,12 +23,28 @@ describe('isGatedPath', () => {
     }
   });
 
-  it('leaves the session-scoped roots ungated', () => {
+  // The shop is closed to customers too: their account pages go with it, and
+  // only the staff hint lets a cold load through (see isStaffPreview).
+  it('gates a customer’s own pages', () => {
+    for (const path of [
+      '/account',
+      '/account/orders',
+      '/account/addresses/new',
+      '/change-password',
+      '/register',
+      '/cart',
+      '/checkout',
+    ]) {
+      expect(isGatedPath(path), path).toBe(true);
+    }
+  });
+
+  it('leaves the staff way in ungated', () => {
     for (const path of [
       '/login',
+      '/forgot-password',
+      '/set-password',
       '/admin',
-      '/account',
-      '/change-password',
       '/maintenance',
     ]) {
       expect(isGatedPath(path), path).toBe(false);
@@ -65,26 +81,26 @@ describe('isGatedPath', () => {
 
 /**
  * Who the SSR gate waves past. The hint is a rendering signal, not an
- * authorization one — the point of these cases is that only the exact admin
- * value counts, so a customer's cookie never turns the storefront back on.
+ * authorization one — the point of these cases is that only the exact staff
+ * values count, so a customer's cookie never turns the storefront back on.
  */
-describe('isAdminPreview', () => {
-  it('recognises an admin among other cookies', () => {
-    expect(isAdminPreview('cart=x; session_role=admin; consent=all')).toBe(
+describe('isStaffPreview', () => {
+  it('recognises staff among other cookies', () => {
+    expect(isStaffPreview('cart=x; session_role=admin; consent=all')).toBe(
       true,
     );
+    expect(isStaffPreview('session_role=manager')).toBe(true);
   });
 
   it('gates everyone else', () => {
     for (const cookies of [
       undefined,
       '',
-      'session_role=manager',
       'session_role=user',
       'session_role=',
       'last_session_role=admin',
     ]) {
-      expect(isAdminPreview(cookies), String(cookies)).toBe(false);
+      expect(isStaffPreview(cookies), String(cookies)).toBe(false);
     }
   });
 });

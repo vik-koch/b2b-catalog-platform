@@ -88,12 +88,45 @@ describe('MaintenanceGuard', () => {
     expect(setHeader).toHaveBeenCalledWith('Retry-After', '3600');
   });
 
-  it('exempts a route carrying @Auth role metadata (even an empty list)', async () => {
+  it('exempts a staff-only @Auth route', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
-    metadata.roles = [];
+    metadata.roles = ['admin', 'manager'];
 
     await expect(guard.canActivate(contextWith({}))).resolves.toBe(true);
     expect(verifyAsync).not.toHaveBeenCalled();
+  });
+
+  // A bare `@Auth()` is where a customer's account pages live: open to a
+  // staff session, closed to everyone else.
+  it('does not exempt a bare @Auth route by structure', async () => {
+    isMaintenanceEnabled.mockReturnValue(true);
+    metadata.roles = [];
+
+    await expect(guard.canActivate(contextWith({}))).rejects.toThrow(
+      ServiceUnavailableException,
+    );
+  });
+
+  it('closes a bare @Auth route to a customer session', async () => {
+    isMaintenanceEnabled.mockReturnValue(true);
+    metadata.roles = [];
+    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'user' });
+    findById.mockResolvedValue(adminRow({ role: 'user' }));
+
+    await expect(
+      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
+    ).rejects.toThrow(ServiceUnavailableException);
+  });
+
+  it('opens a bare @Auth route to a staff session', async () => {
+    isMaintenanceEnabled.mockReturnValue(true);
+    metadata.roles = [];
+    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'manager' });
+    findById.mockResolvedValue(adminRow({ role: 'manager' }));
+
+    await expect(
+      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
+    ).resolves.toBe(true);
   });
 
   it('exempts a route carrying @Machine scope metadata', async () => {
@@ -121,7 +154,17 @@ describe('MaintenanceGuard', () => {
     ).resolves.toBe(true);
   });
 
-  it('does not exempt a non-admin session', async () => {
+  it('lets a valid manager session preview a public route', async () => {
+    isMaintenanceEnabled.mockReturnValue(true);
+    verifyAsync.mockResolvedValue({ ...adminClaims, role: 'manager' });
+    findById.mockResolvedValue(adminRow({ role: 'manager' }));
+
+    await expect(
+      guard.canActivate(contextWith({ [AUTH_COOKIE]: 'good' })),
+    ).resolves.toBe(true);
+  });
+
+  it('does not exempt a customer session', async () => {
     isMaintenanceEnabled.mockReturnValue(true);
     verifyAsync.mockResolvedValue({ ...adminClaims, role: 'user' });
     findById.mockResolvedValue(adminRow({ role: 'user' }));

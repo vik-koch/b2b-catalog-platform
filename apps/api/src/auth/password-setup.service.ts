@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PasswordTokenPurpose } from '@b2b-catalog-platform/shared';
+import { PasswordTokenPurpose, UserRole } from '@b2b-catalog-platform/shared';
 import { UserRow, UsersService } from '../users/users.service';
 import { PasswordPolicy } from './password-policy';
 import { PasswordTokenService } from './password-token.service';
@@ -27,11 +27,14 @@ export class PasswordSetupService {
   /**
    * What the form needs before it renders: which account, and whether this is
    * a first password or a replacement — derived from the account's status, not
-   * from anything stored on the token.
+   * from anything stored on the token. The role rides along for the caller,
+   * which turns a customer away while the shop is closed.
    */
-  async describe(
-    token: string,
-  ): Promise<{ purpose: PasswordTokenPurpose; email: string } | null> {
+  async describe(token: string): Promise<{
+    purpose: PasswordTokenPurpose;
+    email: string;
+    role: UserRole;
+  } | null> {
     const userId = await this.tokens.userIdFor(token);
     if (!userId) return null;
 
@@ -41,6 +44,7 @@ export class PasswordSetupService {
     return {
       purpose: user.status === 'invited' ? 'set' : 'reset',
       email: user.email,
+      role: user.role,
     };
   }
 

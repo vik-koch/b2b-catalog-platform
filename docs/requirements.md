@@ -542,7 +542,7 @@ Admin can edit the rich-text content of a fixed set of static pages (about, cond
 
 #### <a id="fr-adm-04"></a>FR-ADM-04 — Maintenance mode
 
-Admin can toggle a site-wide maintenance mode from the admin panel. While active, the public storefront (catalog, product, and static pages) and its read APIs are unavailable to visitors and crawlers — served with an HTTP 503 status and a minimal maintenance notice.
+Admin can toggle a site-wide maintenance mode from the admin panel. While active, the shop is open to staff only: the public storefront (catalog, product, and static pages) and its read APIs are unavailable to visitors and crawlers — served with an HTTP 503 status and a minimal maintenance notice — and customers can neither sign in nor reach their account, which tells them the shop is closed rather than that their password was wrong. Staff sign in as usual and see the storefront as it will open.
 
 #### <a id="fr-adm-05"></a>FR-ADM-05 — Admin product list
 

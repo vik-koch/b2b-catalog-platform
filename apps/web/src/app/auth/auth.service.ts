@@ -13,6 +13,7 @@ import {
   AuthUser,
   ChangePasswordRequest,
   LoginRequest,
+  MAINTENANCE_REFUSED,
   PasswordRejectionCode,
   PASSWORD_TOKEN_INVALID,
   PasswordTokenPurpose,
@@ -25,7 +26,7 @@ import { sessionCookieIn } from './session-cookie';
 import { readSessionHint } from './session-hint';
 
 /** What the login form needs to distinguish: bad credentials vs. anything else. */
-export type LoginResult = 'ok' | 'invalid' | 'error';
+export type LoginResult = 'ok' | 'invalid' | 'closed' | 'error';
 
 /**
  * What the change-password form needs to distinguish. Two of these are 400s
@@ -124,15 +125,21 @@ export class AuthService {
   /**
    * What a set-a-password link is for, or null when it is no good — expired,
    * already used, or never issued, which the API deliberately does not
-   * distinguish.
+   * distinguish. `closed` is a customer's link while the shop is in
+   * maintenance: good, but not usable yet.
    */
   async checkPasswordToken(
     token: string,
-  ): Promise<{ purpose: PasswordTokenPurpose; email: string } | null> {
-    const { error, data } = await safe(
+  ): Promise<
+    { purpose: PasswordTokenPurpose; email: string } | 'closed' | null
+  > {
+    const result = await safe(
       this.client.checkPasswordToken({ params: { token } }),
     );
-    return error ? null : data;
+    if (result.isSuccess) return result.data;
+    return result.isDefined && result.error.code === MAINTENANCE_REFUSED
+      ? 'closed'
+      : null;
   }
 
   /**
@@ -142,7 +149,7 @@ export class AuthService {
    * the one failure the visitor can act on by typing something else.
    */
   async setPassword(request: SetPasswordRequest): Promise<{
-    result: 'ok' | 'rejected' | 'expired' | 'error';
+    result: 'ok' | 'rejected' | 'expired' | 'closed' | 'error';
     code?: PasswordRejectionCode;
   }> {
     const result = await safe(this.client.setPassword({ body: request }));
@@ -152,9 +159,10 @@ export class AuthService {
       return { result: 'ok' };
     }
     if (!result.isDefined) return { result: 'error' };
-    return result.error.code === PASSWORD_TOKEN_INVALID
-      ? { result: 'expired' }
-      : { result: 'rejected', code: result.error.code };
+    const { code } = result.error;
+    if (code === PASSWORD_TOKEN_INVALID) return { result: 'expired' };
+    if (code === MAINTENANCE_REFUSED) return { result: 'closed' };
+    return { result: 'rejected', code };
   }
 
   async login(credentials: LoginRequest): Promise<LoginResult> {
@@ -165,8 +173,10 @@ export class AuthService {
     }
     // `invalid-credentials` is the deliberately vague "invalid email or
     // password"; anything else (429 from the login throttle, 5xx) is not the
-    // visitor's fault and must not be phrased as though it were.
-    return result.isDefined ? 'invalid' : 'error';
+    // visitor's fault and must not be phrased as though it were. A customer
+    // with the right password is told the shop is closed instead.
+    if (!result.isDefined) return 'error';
+    return result.error.code === MAINTENANCE_REFUSED ? 'closed' : 'invalid';
   }
 
   /**

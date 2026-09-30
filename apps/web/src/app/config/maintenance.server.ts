@@ -1,3 +1,4 @@
+import { passesMaintenance } from '@b2b-catalog-platform/shared';
 import { requireEnv } from '../../env';
 import { readSessionHint } from '../auth/session-hint';
 
@@ -37,20 +38,23 @@ export async function isMaintenanceOn(): Promise<boolean> {
   return value;
 }
 
-// The client-rendered, session-scoped route *roots* plus the maintenance screen
-// itself. Everything else the Node process server-renders is public storefront
-// content and is gated. Keyed off this small closed set rather than re-listing
-// every public route, so a new public page is gated by default.
+// The staff way in plus the maintenance screen itself. Everything else the
+// Node process server-renders is gated — the storefront, and a customer's own
+// account pages with it, since the shop is closed to customers too. Keyed off
+// this small closed set rather than re-listing every public route, so a new
+// page is gated by default.
 //
 // These are prefixes, not exact paths: the admin routes are flat siblings
 // (`/admin/products/:slug/edit`, `/admin/sync`, …), and gating them would 503 a
 // cold load of an editor during exactly the window they exist for — the admin
-// populates catalog and content behind a gated storefront (FR-ADM-01…03).
+// populates catalog and content behind a gated storefront (FR-ADM-01…03). The
+// password links stay open because a staff member locked out needs them; the
+// API turns a customer's link away itself.
 const UNGATED_ROOTS = [
   '/login',
+  '/forgot-password',
+  '/set-password',
   '/admin',
-  '/account',
-  '/change-password',
   '/maintenance',
 ];
 
@@ -65,17 +69,18 @@ export function isGatedPath(path: string): boolean {
 }
 
 /**
- * Whether this request's readable session hint claims an admin, who previews
- * the live storefront rather than the gate (mirrors the API guard's identity
+ * Whether this request's readable session hint claims staff, who preview the
+ * live storefront rather than the gate (mirrors the API guard's identity
  * exemption). The httpOnly session cookie says who is really signed in, but the
  * SSR tier never forwards it, so the hint beside it is the only thing the Node
  * process can read — and, like every hint, it is a rendering decision and not
  * an authorization one. A hand-forged value buys nothing: every read the page
  * makes still goes through the API's own gate.
  *
- * Without this an admin's cold load — the first visit, and every F5 after —
- * paints the maintenance screen before the client-side gate lets them through.
+ * Without this a staff member's cold load — the first visit, and every F5
+ * after — paints the maintenance screen before the client-side gate lets them
+ * through.
  */
-export function isAdminPreview(cookies: string | undefined): boolean {
-  return readSessionHint(cookies) === 'admin';
+export function isStaffPreview(cookies: string | undefined): boolean {
+  return passesMaintenance(readSessionHint(cookies));
 }

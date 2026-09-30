@@ -4,6 +4,7 @@ import { Test } from '@nestjs/testing';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import {
   AUTH_COOKIE,
+  MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
   SESSION_HINT_COOKIE,
 } from '@b2b-catalog-platform/shared';
@@ -182,6 +183,79 @@ describe('AuthController', () => {
     const response = await post('/auth/login', credentials);
 
     expect(response.status).toBe(200);
+  });
+
+  // The shop is open to staff only: a customer's right password is answered
+  // with the reason, and no session.
+  it('turns a customer away at sign-in while maintenance is on', async () => {
+    maintenanceOn = true;
+    auth.validate.mockResolvedValue({ ...user, role: 'user' });
+
+    const response = await post('/auth/login', credentials);
+
+    expect(response.status).toBe(503);
+    expect(await response.json()).toMatchObject({
+      defined: true,
+      code: MAINTENANCE_REFUSED,
+    });
+    expect(response.headers.getSetCookie()).toEqual([]);
+    expect(auth.signToken).not.toHaveBeenCalled();
+  });
+
+  // Before the link is spent, so it still works once the shop opens.
+  it('keeps a customer’s link unspent while maintenance is on', async () => {
+    maintenanceOn = true;
+    passwordSetup.describe.mockResolvedValue({
+      purpose: 'set',
+      email: user.email,
+      role: 'user',
+    });
+
+    const check = await fetch(`${baseUrl}/api/auth/password-token/a-token`);
+    const set = await post('/auth/set-password', {
+      token: 'a-token',
+      password: 'a-long-enough-password',
+    });
+
+    expect(check.status).toBe(503);
+    expect(await check.json()).toMatchObject({ code: MAINTENANCE_REFUSED });
+    expect(set.status).toBe(503);
+    expect(await set.json()).toMatchObject({ code: MAINTENANCE_REFUSED });
+    expect(passwordSetup.redeem).not.toHaveBeenCalled();
+  });
+
+  it('describes a staff link while maintenance is on, without its role', async () => {
+    maintenanceOn = true;
+    passwordSetup.describe.mockResolvedValue({
+      purpose: 'set',
+      email: 'staff@example.com',
+      role: 'manager',
+    });
+
+    const response = await fetch(`${baseUrl}/api/auth/password-token/a-token`);
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      purpose: 'set',
+      email: 'staff@example.com',
+    });
+  });
+
+  // `me` stays open so the web gate can tell a customer from staff; the
+  // account routes behind a bare `@Auth()` do not.
+  it('answers a customer’s /auth/me but not their account routes while maintenance is on', async () => {
+    maintenanceOn = true;
+    signedInAs = { ...user };
+
+    const me = await fetch(`${baseUrl}/api/auth/me`);
+    const change = await post('/auth/change-password', {
+      currentPassword: 'old-one',
+      newPassword: 'a-long-enough-password',
+    });
+
+    expect(me.status).toBe(200);
+    expect(change.status).toBe(503);
+    expect(auth.changePassword).not.toHaveBeenCalled();
   });
 
   // Registration is not exempt: while the storefront is down there is nothing

@@ -154,6 +154,21 @@ describe('LoginPage', () => {
     expect(el.textContent).not.toContain(text.invalid);
   });
 
+  // Maintenance mode keeps customers out; the message must say that, not
+  // suggest the password was wrong.
+  it('tells a customer the shop is closed rather than that they got it wrong', async () => {
+    const { el, navigateByUrl, sync } = await render('closed');
+
+    setInput(el, '#email', 'jane@example.com');
+    setInput(el, '#password', 'right-one');
+    submitForm(el);
+    await sync();
+
+    expect(el.textContent).toContain(text.closed);
+    expect(el.textContent).not.toContain(text.invalid);
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
   // The only route to registration: a visitor who has no account has to be
   // offered one here, not left to guess the URL.
   it('offers signing up, as a link to the register page', async () => {

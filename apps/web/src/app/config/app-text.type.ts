@@ -970,6 +970,9 @@ export const appTextSchema = z
         submit: z.string(),
         submitting: z.string(),
         invalid: z.string(),
+        /** A customer's right password while maintenance mode is on — the
+         * shop is open to staff only. */
+        closed: z.string(),
         error: z.string(),
         /**
          * The account holder's own area. Sections rather than one flat list,
@@ -1215,6 +1218,10 @@ export const appTextSchema = z
             /** The link was expired, already used, or never valid. */
             expiredHeading: z.string(),
             expired: z.string(),
+            /** A customer's good link while maintenance mode is on. It is
+             * left unspent, to be used once the shop opens. */
+            closedHeading: z.string(),
+            closed: z.string(),
             error: z.string(),
           })
           .strict(),
