@@ -830,6 +830,110 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('the content filter (FR-ADM-20)', () => {
+    let contentCategoryId: string;
+    const slugs: Record<string, string> = {};
+
+    const byContent = async (params = '') => {
+      const res = await adminGet(
+        `/admin/catalog/products?categoryId=${contentCategoryId}&${params}`,
+      );
+      expect(res.status).toBe(200);
+      return (
+        res.data as {
+          items: { slug: string; gaps: string[]; features: string[] }[];
+        }
+      ).items;
+    };
+    const slugsOf = (rows: { slug: string }[]) =>
+      rows.map((row) => row.slug).sort();
+
+    beforeAll(async () => {
+      const category = await createCategory({ name: `Content ${R}` });
+      contentCategoryId = category.data.id;
+      const picture = { full: '/media/cup.webp', thumb: '/media/cup-t.webp' };
+      const attributes = [{ key: 'Origin', value: 'Brazil' }];
+
+      const bare = await createProduct({
+        name: `Content bare ${R}`,
+        categoryId: contentCategoryId,
+      });
+      // An empty paragraph is what the editor saves for a cleared box, and
+      // reads as no description.
+      const emptyText = await createProduct({
+        name: `Content empty text ${R}`,
+        categoryId: contentCategoryId,
+        images: [picture],
+        descriptionHtml: '<p></p>',
+        attributes,
+      });
+      const complete = await createProduct({
+        name: `Content complete ${R}`,
+        categoryId: contentCategoryId,
+        images: [picture],
+        descriptionHtml: '<p>Roasted in Hamburg.</p>',
+        attributes,
+        featured: true,
+      });
+      slugs['bare'] = bare.data.slug;
+      slugs['emptyText'] = emptyText.data.slug;
+      slugs['complete'] = complete.data.slug;
+    });
+
+    it('names what keeps each row incomplete', async () => {
+      const rows = await byContent();
+      const gaps = Object.fromEntries(rows.map((r) => [r.slug, r.gaps]));
+
+      expect(gaps[slugs['bare']]).toEqual([
+        'picture',
+        'description',
+        'attributes',
+      ]);
+      expect(gaps[slugs['emptyText']]).toEqual(['description']);
+      expect(gaps[slugs['complete']]).toEqual([]);
+    });
+
+    it('reads incomplete as any of the three gaps', async () => {
+      expect(slugsOf(await byContent('missing=incomplete'))).toEqual(
+        [slugs['bare'], slugs['emptyText']].sort(),
+      );
+    });
+
+    it('narrows to one gap', async () => {
+      expect(slugsOf(await byContent('missing=picture'))).toEqual([
+        slugs['bare'],
+      ]);
+    });
+
+    it('asks about packaging without counting it as incomplete', async () => {
+      // None of the three has a pack, so all three lack one — the complete
+      // one included, which is why packaging stays out of "incomplete".
+      expect(await byContent('missing=packaging')).toHaveLength(3);
+    });
+
+    it('narrows to what a product carries, and names it on the row', async () => {
+      const rows = await byContent('has=featured');
+      expect(slugsOf(rows)).toEqual([slugs['complete']]);
+      expect(rows[0].features).toEqual(['featured']);
+      expect(await byContent('has=pairings')).toHaveLength(0);
+    });
+
+    it('requires every chip that is on', async () => {
+      // Two gaps: only the product lacking both.
+      expect(
+        slugsOf(await byContent('missing=picture&missing=description')),
+      ).toEqual([slugs['bare']]);
+      // A gap and a feature: the featured one has a picture, so nothing.
+      expect(await byContent('missing=picture&has=featured')).toHaveLength(0);
+    });
+
+    it('refuses a gap that is not one of them', async () => {
+      const res = await adminGet(`/admin/catalog/products?missing=price`);
+
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('GET /admin/catalog/categories/:slug/hidden-products', () => {
     it('lists everything the storefront hides across the subtree, with its reason', async () => {
       // Deleted directly under the parent and deleted under a child — both must
