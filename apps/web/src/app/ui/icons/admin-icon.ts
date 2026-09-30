@@ -67,6 +67,15 @@ export type AdminIconName =
 @Component({
   selector: 'app-admin-icon',
   host: { class: 'inline-flex' },
+  // Sized as Icon is — see there for why this is not left to a class.
+  styles: `
+    @layer components {
+      :host {
+        width: var(--icon-size, 1em);
+        height: var(--icon-size, 1em);
+      }
+    }
+  `,
   template: `
     <svg
       xmlns="http://www.w3.org/2000/svg"
