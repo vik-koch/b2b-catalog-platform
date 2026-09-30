@@ -5,6 +5,8 @@ import {
   SEARCH_SUGGESTION_LIMIT,
 } from '@b2b-catalog-platform/shared';
 import axios from 'axios';
+import { Client } from 'pg';
+import { requireEnv } from '../support/env';
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
 const search = (q: string, page?: number) =>
@@ -276,5 +278,70 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
     const res = await suggest('x'.repeat(SEARCH_QUERY_MAX_LENGTH + 1));
 
     expect(res.status).toBe(400);
+  });
+});
+
+/**
+ * FR-SEARCH-07. Categories are matched on their own names, beside the
+ * products rather than ranked among them, and only where every word of the
+ * query describes the category — sharing one word with it is not naming it.
+ */
+describe('GET /catalog/search/suggestions — categories (FR-SEARCH-07)', () => {
+  const categoriesFor = async (q: string) =>
+    (await get(`/catalog/search/suggestions?q=${encodeURIComponent(q)}`)).data
+      .categories as { slug: string; parent: string | null }[];
+
+  it('suggests the categories a query names, each with its parent', async () => {
+    const categories = await categoriesFor('espresso');
+
+    expect(categories).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ slug: 'espresso', parent: 'Coffee Beans' }),
+        expect.objectContaining({ slug: 'machines', parent: 'Equipment' }),
+      ]),
+    );
+  });
+
+  it('offers a top-level category with no parent', async () => {
+    const categories = await categoriesFor('coffee');
+
+    expect(categories).toContainEqual(
+      expect.objectContaining({ slug: 'coffee-beans', parent: null }),
+    );
+  });
+
+  it('tolerates typos like the product half does', async () => {
+    const categories = await categoriesFor('grindrs');
+
+    expect(categories.map((c) => c.slug)).toContain('grinders');
+  });
+
+  it('suggests nothing for a query that only shares a word with a category', async () => {
+    // "hafen espresso" names a product; the Espresso categories are not what
+    // was asked for.
+    expect(await categoriesFor('hafen espresso')).toEqual([]);
+  });
+
+  describe('a category the storefront does not show (FR-CAT-01)', () => {
+    let client: Client;
+    const slug = `e2e-empty-search-${Date.now()}`;
+
+    beforeAll(async () => {
+      client = new Client({ connectionString: requireEnv('DATABASE_URL') });
+      await client.connect();
+      await client.query(
+        'INSERT INTO categories (slug, name) VALUES ($1, $2)',
+        [slug, 'Zyxwvut Empty Shelf'],
+      );
+    });
+
+    afterAll(async () => {
+      await client.query('DELETE FROM categories WHERE slug = $1', [slug]);
+      await client.end();
+    });
+
+    it('is not suggested, though its name matches', async () => {
+      expect(await categoriesFor('zyxwvut')).toEqual([]);
+    });
   });
 });

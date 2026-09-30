@@ -385,6 +385,7 @@
     "suggestionsLabel": "Product suggestions",
     "suggestionCount": "{count} suggestion available. Use the arrow keys to review it.|{count} suggestions available. Use the arrow keys to review them.",
     "noSuggestions": "Nothing found",
+    "categoriesLabel": "Matching categories",
     "showAllResults": "Show all results",
     "addSuggestion": "Add {name} to cart",
     "suggestionInCart": "{name} is in your cart",

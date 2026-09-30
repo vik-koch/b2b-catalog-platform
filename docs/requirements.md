@@ -466,7 +466,7 @@ A product suggestion carries the product's picture and its price beside its name
 
 #### <a id="fr-search-07"></a>FR-SEARCH-07 — Categories among the suggestions
 
-Categories the query matches ([FR-SEARCH-02](#fr-search-02)) are suggested as their own short group, ahead of the products, and picking one opens that category's listing. Only categories the storefront shows are offered ([FR-CAT-01](#fr-cat-01)). Where a query matches no category the group is absent, and the product suggestions stand alone as they do today.
+Categories the query matches ([FR-SEARCH-02](#fr-search-02)) are suggested as their own short group, ahead of the products, and picking one opens that category's listing. A category matches only where every word of the query matches its name — a query that merely shares a word with a category does not name it — and each is shown with the category it sits in, since a name alone may occur in more than one branch. Only categories the storefront shows are offered ([FR-CAT-01](#fr-cat-01)). Where a query matches no category the group is absent, and the product suggestions stand alone as they do today.
 
 ---
 

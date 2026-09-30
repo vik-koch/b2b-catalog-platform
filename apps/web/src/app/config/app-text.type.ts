@@ -937,6 +937,8 @@ export const appTextSchema = z
          * results page's fuller "nothing matched" explanation.
          */
         noSuggestions: z.string(),
+        /** Accessible name of the row of category chips (FR-SEARCH-07). */
+        categoriesLabel: z.string(),
         /** The panel's way to the results page — the same place submitting
          * the query goes. */
         showAllResults: z.string(),
