@@ -83,7 +83,7 @@ import { CategoryPicker } from './category-picker';
             class="w-full"
             [value]="name()"
             [disabled]="fieldsLocked()"
-            (input)="name.set($any($event.target).value)"
+            (input)="onNameInput($any($event.target).value)"
           />
         </label>
 
@@ -244,7 +244,12 @@ export class CategoryEditorPage implements UnsavedChangesAware {
    * "fall back to the full name". */
   protected readonly shortName = signal('');
   protected readonly slug = signal('');
-  private readonly slugTouched = signal(false);
+  /** Where the slug comes from. A new record follows its name from the start.
+   * An emptied box stays empty until the name is next edited, then follows
+   * it, so clearing the box does not refill it from the current name. */
+  private readonly slugSource = signal<'typed' | 'emptied' | 'name'>(
+    this.isNew ? 'name' : 'typed',
+  );
   protected readonly parentId = signal('');
   protected readonly sourceId = signal('');
   /** The chip mark (FR-CAT-07). */
@@ -256,9 +261,12 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly close = injectEditorReturn();
   private readonly dirty = computed(() => this.snapshot() !== this.original);
 
-  /** For a new category the slug tracks the name until the admin edits it. */
   protected readonly effectiveSlug = computed(() =>
-    this.isNew && !this.slugTouched() ? slugify(this.name()) : this.slug(),
+    this.slugSource() === 'name'
+      ? slugify(this.name())
+      : this.slugSource() === 'emptied'
+        ? ''
+        : this.slug(),
   );
 
   /** Parents this category may move under: everyone except itself and its
@@ -330,28 +338,27 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   }
 
   protected onSlugInput(value: string): void {
-    this.slugTouched.set(true);
+    this.slugSource.set(value.trim() ? 'typed' : 'emptied');
     this.slug.set(value);
+  }
+
+  protected onNameInput(value: string): void {
+    this.name.set(value);
+    if (this.slugSource() === 'emptied') this.slugSource.set('name');
   }
 
   protected async save(): Promise<void> {
     const current = this.category();
     if (!this.isNew && !current) return;
-    // A category is found by its name everywhere else in the admin UI, so an
-    // unnamed one is not a useful thing to create.
-    if (!this.name().trim()) {
-      this.error.set(this.text.nameRequired);
-      return;
-    }
-    this.saving.set(true);
-    this.error.set(null);
-    // A hand-typed slug is sent as an override; for a new category left
-    // untouched we omit it so the server derives and de-duplicates it.
-    const slug = this.isNew
-      ? this.slugTouched() && this.slug().trim()
-        ? this.slug().trim()
-        : undefined
-      : this.slug().trim() || undefined;
+    // An emptied box saves the name's slug, as a following one does. For a
+    // new category it is omitted, so the server derives and de-duplicates it;
+    // an existing one sends it, because omitting it there keeps the stored one.
+    const slug =
+      this.slugSource() !== 'typed'
+        ? this.isNew
+          ? undefined
+          : slugify(this.name()) || undefined
+        : this.slug().trim() || undefined;
     // Always sent, never omitted: an emptied box detaches the category from
     // the exchange, which is the only way to undo a key typed by mistake.
     const sourceId = this.sourceId().trim() || null;

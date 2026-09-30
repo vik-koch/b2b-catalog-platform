@@ -180,7 +180,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             class="w-full"
             [value]="name()"
             [disabled]="catalogOwned()"
-            (input)="name.set($any($event.target).value)"
+            (input)="onNameInput($any($event.target).value)"
           />
         </label>
 
@@ -642,7 +642,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   protected readonly name = signal('');
   protected readonly slug = signal('');
-  private readonly slugTouched = signal(false);
+  /** Where the slug comes from. A new record follows its name from the start.
+   * An emptied box stays empty until the name is next edited, then follows
+   * it, so clearing the box does not refill it from the current name. */
+  private readonly slugSource = signal<'typed' | 'emptied' | 'name'>(
+    this.isNew ? 'name' : 'typed',
+  );
   protected readonly priceInput = signal('');
   protected readonly categoryId = signal('');
   protected readonly sourceId = signal('');
@@ -681,9 +686,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private navigatingAway = false;
   private readonly close = injectEditorReturn();
 
-  /** For a new product the slug tracks the name until the admin edits it. */
   protected readonly effectiveSlug = computed(() =>
-    this.isNew && !this.slugTouched() ? slugify(this.name()) : this.slug(),
+    this.slugSource() === 'name'
+      ? slugify(this.name())
+      : this.slugSource() === 'emptied'
+        ? ''
+        : this.slug(),
   );
 
   /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
@@ -1140,8 +1148,13 @@ export class ProductEditorPage implements UnsavedChangesAware {
   }
 
   protected onSlugInput(value: string): void {
-    this.slugTouched.set(true);
+    this.slugSource.set(value.trim() ? 'typed' : 'emptied');
     this.slug.set(value);
+  }
+
+  protected onNameInput(value: string): void {
+    this.name.set(value);
+    if (this.slugSource() === 'emptied') this.slugSource.set('name');
   }
 
   protected async save(andPublish = false): Promise<void> {
@@ -1192,14 +1205,15 @@ export class ProductEditorPage implements UnsavedChangesAware {
       return this.error.set(this.text.packaging.minMustFitPacks);
     }
 
-    // A hand-typed slug (or, when new, the name-derived one) is sent as an
-    // override; for a new product left untouched we omit it so the server
-    // derives and de-duplicates it.
-    const slug = this.isNew
-      ? this.slugTouched() && this.slug().trim()
-        ? this.slug().trim()
-        : undefined
-      : this.slug().trim() || undefined;
+    // An emptied box saves the name's slug, as a following one does. For a
+    // new product it is omitted, so the server derives and de-duplicates it;
+    // an existing one sends it, because omitting it there keeps the stored one.
+    const slug =
+      this.slugSource() !== 'typed'
+        ? this.isNew
+          ? undefined
+          : slugify(this.name()) || undefined
+        : this.slug().trim() || undefined;
     const sourceId = this.sourceId().trim() || undefined;
 
     const body: ProductInput = {
