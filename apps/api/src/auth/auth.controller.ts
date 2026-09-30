@@ -4,7 +4,10 @@ import { Implement, implement } from '@orpc/nest';
 import {
   authContract,
   AuthUser,
+  MAINTENANCE_REFUSED,
   PASSWORD_TOKEN_INVALID,
+  passesMaintenance,
+  UserRole,
 } from '@b2b-catalog-platform/shared';
 import {
   AuthThrottle,
@@ -18,6 +21,7 @@ import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
+import { SettingsService } from '../settings/settings.service';
 import { refusals } from '../orpc/refusals';
 import { endSession, issueSession } from './session-cookie';
 
@@ -28,7 +32,17 @@ export class AuthController {
     private readonly registration: RegistrationService,
     private readonly passwordSetup: PasswordSetupService,
     private readonly passwordReset: PasswordResetService,
+    private readonly settings: SettingsService,
   ) {}
+
+  /**
+   * Whether this account is kept out by maintenance mode. The routes below are
+   * exempt from the gate so staff can get in; a customer is only turned away
+   * once their credentials or link have said whose account it is.
+   */
+  private closedTo(role: UserRole): boolean {
+    return this.settings.isMaintenanceEnabled() && !passesMaintenance(role);
+  }
 
   // Not maintenance-exempt, unlike login: while the storefront is down there is
   // nothing to register for, and the admin who needs to get in already can.
@@ -83,7 +97,12 @@ export class AuthController {
             message: 'This link is no longer valid',
           });
         }
-        return account;
+        if (this.closedTo(account.role)) {
+          throw errors[MAINTENANCE_REFUSED]({
+            message: 'Service under maintenance',
+          });
+        }
+        return { purpose: account.purpose, email: account.email };
       },
     );
   }
@@ -94,6 +113,13 @@ export class AuthController {
   setPassword(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return implement(authContract.setPassword).handler(
       async ({ input: { body }, errors }) => {
+        // Before the link is spent, so it still works once the shop opens.
+        const account = await this.passwordSetup.describe(body.token);
+        if (account && this.closedTo(account.role)) {
+          throw errors[MAINTENANCE_REFUSED]({
+            message: 'Service under maintenance',
+          });
+        }
         let user;
         try {
           user = await this.passwordSetup.redeem(body.token, body.password);
@@ -133,6 +159,11 @@ export class AuthController {
             message: 'Invalid email or password',
           });
         }
+        if (this.closedTo(user.role)) {
+          throw errors[MAINTENANCE_REFUSED]({
+            message: 'Service under maintenance',
+          });
+        }
         const token = await this.auth.signToken(user);
         issueSession(req, res, token, user.role);
         return this.auth.toAuthUser(user);
@@ -149,6 +180,10 @@ export class AuthController {
     });
   }
 
+  // Exempt so a customer's session still says who it is while the shop is
+  // closed: it reveals nothing of the shop, and the web gate needs it to tell
+  // staff from customers.
+  @MaintenanceExempt()
   @Auth()
   @Implement(authContract.me)
   me(@CurrentUser() user: AuthUser) {

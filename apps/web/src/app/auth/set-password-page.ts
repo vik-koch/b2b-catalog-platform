@@ -19,7 +19,8 @@ import { AuthService } from './auth.service';
 import { landingFor } from './auth.guard';
 import { Link } from '../ui/link';
 
-type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
+type Status =
+  'checking' | 'ready' | 'expired' | 'closed' | 'submitting' | 'done';
 
 /**
  * Where an invitation or a reset mail lands (FR-AUTH-01/02). The link in the
@@ -65,6 +66,12 @@ type Status = 'checking' | 'ready' | 'expired' | 'submitting' | 'done';
               {{ auth.login }}
             </a>
           </div>
+        }
+        @case ('closed') {
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+            {{ text.closedHeading }}
+          </h1>
+          <p class="text-muted">{{ text.closed }}</p>
         }
         @case ('done') {
           <h1 class="mb-4 text-3xl font-medium tracking-tight">
@@ -230,8 +237,8 @@ export class SetPasswordPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const account = await this.service.checkPasswordToken(this.token());
-    if (!account) {
-      this.status.set('expired');
+    if (!account || account === 'closed') {
+      this.status.set(account ?? 'expired');
       return;
     }
     this.purpose.set(account.purpose);
@@ -280,8 +287,8 @@ export class SetPasswordPage implements OnInit {
       await this.router.navigateByUrl(user ? landingFor(user.role) : '/');
       return;
     }
-    if (result === 'expired') {
-      this.status.set('expired');
+    if (result === 'expired' || result === 'closed') {
+      this.status.set(result);
       return;
     }
     this.status.set('ready');

@@ -22,7 +22,7 @@ function setInput(root: HTMLElement, selector: string, value: string): void {
 
 async function render(
   options: {
-    account?: { purpose: 'set' | 'reset'; email: string } | null;
+    account?: { purpose: 'set' | 'reset'; email: string } | 'closed' | null;
     outcome?: Awaited<ReturnType<AuthService['setPassword']>>;
   } = {},
 ) {
@@ -86,6 +86,15 @@ describe('SetPasswordPage', () => {
 
     expect(el.querySelector('form')).toBeNull();
     expect(el.textContent).toContain(text.expiredHeading);
+  });
+
+  // A customer's link while the shop is in maintenance: good, but not yet.
+  it('says the shop is not open yet instead of a form', async () => {
+    const { el } = await render({ account: 'closed' });
+
+    expect(el.querySelector('form')).toBeNull();
+    expect(el.textContent).toContain(text.closedHeading);
+    expect(el.textContent).not.toContain(text.expiredHeading);
   });
 
   it('words itself as a first password for an invited account', async () => {

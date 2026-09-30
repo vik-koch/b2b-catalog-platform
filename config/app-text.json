@@ -401,6 +401,7 @@
     "submit": "Log in",
     "submitting": "Logging in…",
     "invalid": "Invalid email or password.",
+    "closed": "The shop is closed for maintenance, so customer accounts cannot sign in right now. Please try again later.",
     "error": "Something went wrong logging you in. Please try again.",
     "myAccount": {
       "detailsHeading": "My details",
@@ -553,6 +554,8 @@
       "success": "Your password is saved and you are signed in.",
       "expiredHeading": "This link no longer works",
       "expired": "Links can only be used once, and expire after a while. Ask for a new one below, or use “Forgot your password?” on the sign-in page.",
+      "closedHeading": "Not open yet",
+      "closed": "Customer accounts open with the shop, which is being worked on right now. Come back to this link once we are back — if it has expired by then, ask for a new one.",
       "error": "Something went wrong saving your password. Please try again."
     },
     "changePassword": {

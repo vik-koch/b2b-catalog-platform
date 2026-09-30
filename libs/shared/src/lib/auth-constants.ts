@@ -41,6 +41,18 @@ export const SESSION_HINT_COOKIE = 'session_role';
 export const USER_ROLES = ['admin', 'manager', 'user'] as const;
 
 /**
+ * Who the shop stays open to while maintenance mode is on (FR-ADM-04): staff,
+ * who fill the catalog behind the gate and preview it. A customer is a visitor
+ * like any other until the shop opens — no sign-in, no account pages.
+ */
+export function passesMaintenance(role: string | null | undefined): boolean {
+  return role === 'admin' || role === 'manager';
+}
+
+/** The refusal a customer's sign-in meets while maintenance mode is on. */
+export const MAINTENANCE_REFUSED = 'maintenance' as const;
+
+/**
  * Length is the only password rule this contract carries, so the browser can
  * check the same floor the server does. Twelve rather than eight because
  * length is what actually resists guessing; there are deliberately **no**

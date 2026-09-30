@@ -5,6 +5,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { passesMaintenance } from '@b2b-catalog-platform/shared';
 import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
 import { MachineScope } from '../api-tokens/machine-scope.decorator';
@@ -23,20 +24,21 @@ const RETRY_AFTER_SECONDS = 3600;
  * Global gate for maintenance mode (FR-ADM-04, ADR 0023). The SSR tier mirrors
  * this for documents rather than API calls (see web's maintenance.server.ts);
  * an exemption added here usually needs its counterpart there. When the flag is off
- * it does nothing. When on, it answers a request with 503 unless the request is
- * exempt on one of these grounds:
+ * it does nothing. When on, the shop is open to staff only, and a request is
+ * answered with 503 unless it is exempt on one of these grounds:
  *
- *  - route-structural: the route carries `@Auth(...)` role metadata (the admin
- *    panel and its APIs) or `@Machine(...)` scope metadata (the automated
- *    clients), or is explicitly `@MaintenanceExempt()` (login, health probes).
- *    Those routes' own guards still enforce authentication.
- *  - identity: the request carries a valid admin session cookie, so an admin
- *    previews the live storefront exactly as it will appear at launch.
+ *  - route-structural: the route is staff-only by its `@Auth(...)` roles (the
+ *    admin panel and its APIs), carries `@Machine(...)` scope metadata (the
+ *    automated clients), or is explicitly `@MaintenanceExempt()` (login, health
+ *    probes). Those routes' own guards still enforce authentication. A bare
+ *    `@Auth()` does not count: a customer's account pages sit behind it.
+ *  - identity: the request carries a valid staff session, so an admin or a
+ *    manager previews the live storefront exactly as it will appear at launch.
  *
- * Everything else — an anonymous visitor or crawler hitting a public route — is
- * gated. The default is therefore fail-safe: a route nobody exempted stays
- * hidden. This is only a bypass check; real authorization lives in JwtAuthGuard
- * and RolesGuard, which run afterwards on the routes that require them.
+ * Everything else — a visitor, a crawler or a signed-in customer — is gated.
+ * The default is therefore fail-safe: a route nobody exempted stays hidden.
+ * This is only a bypass check; real authorization lives in JwtAuthGuard and
+ * RolesGuard, which run afterwards on the routes that require them.
  */
 @Injectable()
 export class MaintenanceGuard implements CanActivate {
@@ -55,10 +57,10 @@ export class MaintenanceGuard implements CanActivate {
     const targets = [context.getHandler(), context.getClass()];
 
     // Route-structural exemptions. `@Auth(...)` attaches Roles metadata (an
-    // array, empty for a bare `@Auth()`); its presence means the route is
-    // behind authentication and stays reachable.
+    // array, empty for a bare `@Auth()`); a list naming staff alone means the
+    // route is out of a customer's reach and stays open.
     const roles = this.reflector.getAllAndOverride(Roles, targets);
-    if (roles !== undefined) {
+    if (roles?.length && roles.every(passesMaintenance)) {
       return true;
     }
     // `@Machine(...)` is the same kind of proof for the other authentication
@@ -75,9 +77,9 @@ export class MaintenanceGuard implements CanActivate {
       return true;
     }
 
-    // Identity exemption: a valid admin session bypasses the gate everywhere.
+    // Identity exemption: a valid staff session bypasses the gate everywhere.
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    if (await this.isAdminRequest(request)) {
+    if (await this.isStaffRequest(request)) {
       return true;
     }
 
@@ -87,12 +89,12 @@ export class MaintenanceGuard implements CanActivate {
   }
 
   /**
-   * Best-effort check that the request comes from an authenticated admin. Any
-   * failure — no cookie, bad signature, stale token version, gone user, or a
-   * non-admin role — simply means "no bypass" and is swallowed; this grants a
-   * preview exemption, it never authorizes anything.
+   * Best-effort check that the request comes from an authenticated staff
+   * member. Any failure — no cookie, bad signature, stale token version, gone
+   * user, or a customer's role — simply means "no bypass" and is swallowed;
+   * this grants a preview exemption, it never authorizes anything.
    */
-  private async isAdminRequest(
+  private async isStaffRequest(
     request: AuthenticatedRequest,
   ): Promise<boolean> {
     const token = request.cookies?.[AUTH_COOKIE];
@@ -105,7 +107,7 @@ export class MaintenanceGuard implements CanActivate {
       return (
         !!user &&
         user.tokenVersion === payload.tokenVersion &&
-        user.role === 'admin'
+        passesMaintenance(user.role)
       );
     } catch {
       return false;

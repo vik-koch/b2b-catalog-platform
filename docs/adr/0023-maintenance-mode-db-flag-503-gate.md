@@ -1,6 +1,6 @@
 # 0023 — Maintenance mode is a DB-persisted flag enforced as a server-side 503 gate
 
-**Status:** accepted · **Date:** 2026-07-28
+**Status:** accepted (amended 2026-09-30) · **Date:** 2026-07-28
 
 ## Context
 
@@ -113,3 +113,28 @@ us to that.
 - (−) Introduces the first runtime-settings table — a small new persistence
   concern distinct from the `config/` mechanism, and the boundary between the two
   ("boot identity vs. runtime state") must stay clear to avoid future confusion.
+
+## Amendment — 2026-09-30 (v1.13.0): the shop is closed to customers, not only to visitors
+
+The route-structural exemption read "behind authentication" as "privileged",
+and a customer's own routes are behind authentication too. So a customer could
+sign in while the shop was closed, and open their account, orders and
+addresses. The gate now treats staff as the only people the shop is open to:
+
+- **Route-structural** covers a route whose `@Auth(...)` roles are staff only.
+  A bare `@Auth()` — any signed-in account — no longer counts; its routes pass
+  on the identity ground or not at all. `me` is exempt by name, so a
+  customer's session still says who it is and the web gate can tell them from
+  staff.
+- **Identity** is a valid staff session — admin **or manager** — rather than an
+  admin one. A manager works the approvals and orders behind the gate too.
+- **Sign-in stays exempt, and refuses a customer after the fact.** Login and
+  the set-a-password link check the account's role once the credentials or the
+  link have said whose it is, and answer a customer with a `maintenance`
+  refusal — no session, and the link left unspent for when the shop opens.
+  Only the rightful owner learns anything from it.
+
+The SSR gate follows: the account pages and `/change-password` are gated
+unless the session hint names staff, while `/forgot-password` and
+`/set-password` join `/login` as ungated, so a staff member locked out during
+a closed window still has the way back in.

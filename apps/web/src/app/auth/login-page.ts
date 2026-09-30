@@ -73,10 +73,8 @@ import { Link } from '../ui/link';
           }
         </div>
 
-        @if (status() === 'invalid' || status() === 'error') {
-          <p class="text-sm text-red-600" role="alert">
-            {{ status() === 'invalid' ? text.invalid : text.error }}
-          </p>
+        @if (failure(); as message) {
+          <p class="text-sm text-red-600" role="alert">{{ message }}</p>
         }
 
         <div class="flex flex-wrap items-center gap-4">
@@ -118,6 +116,19 @@ export class LoginPage {
   protected readonly status = signal<'idle' | 'submitting' | LoginResult>(
     'idle',
   );
+
+  protected failure(): string | null {
+    switch (this.status()) {
+      case 'invalid':
+        return this.text.invalid;
+      case 'closed':
+        return this.text.closed;
+      case 'error':
+        return this.text.error;
+      default:
+        return null;
+    }
+  }
 
   /** Set by the guards when they bounce a deep link here (query param). */
   readonly returnUrl = input<string>();

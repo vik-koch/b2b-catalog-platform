@@ -18,7 +18,7 @@ import { sessionCookieIn } from './app/auth/session-cookie';
 import { injectShellState } from './app/config/shell-state.server';
 import { injectFontHead } from './app/config/font.server';
 import {
-  isAdminPreview,
+  isStaffPreview,
   isGatedPath,
   isMaintenanceOn,
 } from './app/config/maintenance.server';
@@ -203,12 +203,12 @@ app.use(async (req, res, next) => {
     // above has already matched the original path, so this only affects what
     // Angular renders. The engine derives the route from `originalUrl` (Express
     // sets it), so both must be rewritten or the original page renders behind
-    // the 503. An admin is recognised by the readable session hint and gets the
+    // the 503. Staff are recognised by the readable session hint and get the
     // storefront straight away, so previewing survives a reload; the
     // client-side gate corrects a stale hint on hydration.
     const gated =
       isGatedPath(req.path) &&
-      !isAdminPreview(req.headers.cookie) &&
+      !isStaffPreview(req.headers.cookie) &&
       (await isMaintenanceOn());
     if (gated) {
       req.url = '/maintenance';

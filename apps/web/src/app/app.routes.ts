@@ -425,15 +425,16 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/pages/page-editor-page').then((m) => m.PageEditorPage),
   },
+  // The customer's own area closes with the shop while maintenance is on.
   {
     path: 'account',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
       import('./account/account-page').then((m) => m.AccountPage),
   },
   {
     path: 'account/edit',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
       import('./account/account-edit-page').then((m) => m.AccountEditPage),
   },
@@ -442,7 +443,7 @@ export const appRoutes: Route[] = [
   // and nothing about one is editable once it is sent.
   {
     path: 'account/orders',
-    canActivate: [requireAuth(), staffToAdminOrder()],
+    canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
       import('./orders/order-list-page').then((m) => m.OrderListPage),
   },
@@ -450,14 +451,14 @@ export const appRoutes: Route[] = [
     // The reference is the identity a customer was quoted and a mail links to,
     // so it is what the URL carries — never the row's id.
     path: 'account/orders/:reference',
-    canActivate: [requireAuth(), staffToAdminOrder()],
+    canActivate: [requireAuth(), staffToAdminOrder(), maintenanceGate],
     loadComponent: () =>
       import('./orders/order-detail-page').then((m) => m.OrderDetailPage),
   },
   // `new` stays ahead of `:id/edit` so it is never read as an address id.
   {
     path: 'account/addresses/new',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
       import('./addresses/address-editor-page').then(
         (m) => m.AddressEditorPage,
@@ -465,7 +466,7 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'account/addresses/:id/edit',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
       import('./addresses/address-editor-page').then(
         (m) => m.AddressEditorPage,
@@ -473,13 +474,13 @@ export const appRoutes: Route[] = [
   },
   {
     path: 'account/delete',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
       import('./account/account-delete-page').then((m) => m.AccountDeletePage),
   },
   {
     path: 'change-password',
-    canActivate: [requireAuth()],
+    canActivate: [requireAuth(), maintenanceGate],
     loadComponent: () =>
       import('./auth/change-password-page').then((m) => m.ChangePasswordPage),
   },

@@ -9,7 +9,11 @@ import {
 } from '@angular/router';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../auth/auth.service';
-import { adminUser as admin, plainUser } from '../../auth/auth-user.fixture';
+import {
+  adminUser as admin,
+  managerUser as manager,
+  plainUser,
+} from '../../auth/auth-user.fixture';
 import { maintenanceGate } from './maintenance.guard';
 import { MaintenanceService } from './maintenance.service';
 
@@ -77,6 +81,12 @@ describe('maintenanceGate', () => {
     expect(await run(router)).toBe(true);
   });
 
+  it('lets a manager through to preview while it is on', async () => {
+    const router = setup(true, manager);
+
+    expect(await run(router)).toBe(true);
+  });
+
   it('trusts an admin hint before the session resolves', async () => {
     const router = setup(true, null, { resolved: false, hintedRole: 'admin' });
 
@@ -89,7 +99,7 @@ describe('maintenanceGate', () => {
     expect(await run(router)).toBe('/maintenance');
   });
 
-  it('still hides the shop from a signed-in non-admin', async () => {
+  it('still hides the shop from a signed-in customer', async () => {
     const router = setup(true, plainUser);
 
     expect(await run(router)).toBe('/maintenance');

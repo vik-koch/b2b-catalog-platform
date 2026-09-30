@@ -181,14 +181,34 @@ describe('settings (maintenance toggle)', () => {
       });
     });
 
-    it('does not let an ordinary account through', async () => {
-      // The bypass is a preview for whoever is launching the shop, not a
-      // back door for everyone who happens to be signed in.
+    it('closes the shop to a customer, signed in or not', async () => {
+      // The bypass is a preview for staff, not a back door for everyone who
+      // happens to be signed in. A session from before the gate went on keeps
+      // saying who it is, and gets nothing else.
+      const cookie = await login(USER_EMAIL);
       await whileInMaintenance(async () => {
-        const cookie = await login(USER_EMAIL);
-        const res = await publicRequest(cookie);
+        const headers = { Cookie: cookie };
+        const shop = await publicRequest(cookie);
+        const account = await axios.get('/account/profile', {
+          headers,
+          validateStatus: () => true,
+        });
+        const me = await axios.get('/auth/me', {
+          headers,
+          validateStatus: () => true,
+        });
+        const signIn = await axios.post(
+          '/auth/login',
+          { email: USER_EMAIL, password: PASSWORD },
+          { validateStatus: () => true },
+        );
 
-        expect(res.status).toBe(503);
+        expect(shop.status).toBe(503);
+        expect(account.status).toBe(503);
+        expect(me.status).toBe(200);
+        expect(signIn.status).toBe(503);
+        expect(signIn.data).toMatchObject({ code: 'maintenance' });
+        expect(signIn.headers['set-cookie']).toBeUndefined();
       });
     });
 
