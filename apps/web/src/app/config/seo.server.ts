@@ -1,7 +1,4 @@
-import {
-  SitemapEntry,
-  STANDALONE_PAGE_SLUGS,
-} from '@b2b-catalog-platform/shared';
+import { SitemapEntry } from '@b2b-catalog-platform/shared';
 import { requireEnv } from '../../env';
 import { getDeploymentConfig } from './deployment-config.server';
 import { isMaintenanceOn } from './maintenance.server';
@@ -24,9 +21,8 @@ export function isIndexable(): boolean {
 
 // Code routes that belong in the sitemap but have no content timestamp, so
 // they carry no <lastmod> (deliberately — see the DB-backed entries below,
-// which do). The static *page* slugs (about/privacy/…) are not here: they come
-// from the API with their real updatedAt. `/contact` is a code route even
-// though it now has an editable body, so it stays in this list.
+// which do). The page slugs are not here: they come from the API with their
+// real updatedAt.
 const CODE_PATHS = ['/', '/catalog'];
 
 // Session/admin routes: client-rendered shells with no crawler value. Kept out
@@ -84,16 +80,6 @@ function publishes(slug: string): boolean {
   );
 }
 
-/** Published page slugs that have their own `/:slug` route. */
-function standalonePagePaths(): Set<string> {
-  const published = new Set<string>(getDeploymentConfig().pages.published);
-  return new Set(
-    (STANDALONE_PAGE_SLUGS as readonly string[]).filter((slug) =>
-      published.has(slug),
-    ),
-  );
-}
-
 export async function renderSitemap(): Promise<SitemapResult> {
   if (!isIndexable()) {
     return { kind: 'status', status: 404 };
@@ -120,14 +106,12 @@ export async function renderSitemap(): Promise<SitemapResult> {
   const origin = requireEnv('APP_ORIGIN').replace(/\/+$/, '');
   const urls = [
     ...CODE_PATHS.map((path) => urlEntry(origin, path)),
-    // `/contact` is a code route, but publishing governs it like a page.
-    ...(publishes('contact') ? [urlEntry(origin, '/contact')] : []),
     // The API returns every page row; only the ones this deployment publishes
-    // on their own route belong in the sitemap. Without this filter an
-    // unpublished page would keep being advertised to crawlers while its route
-    // 404s, and `/contact` would be listed twice (it is in CODE_PATHS).
+    // belong in the sitemap. Without this filter an unpublished page would keep
+    // being advertised to crawlers while its route 404s. Every page is served
+    // at its slug, by the generic route or its own code route alike.
     ...data.pages
-      .filter((p) => standalonePagePaths().has(p.slug))
+      .filter((p) => publishes(p.slug))
       .map((p) => urlEntry(origin, `/${p.slug}`, p.updatedAt)),
     ...data.categories.map((c) =>
       urlEntry(origin, `/catalog/${c.slug}`, c.updatedAt),

@@ -1,8 +1,8 @@
 import {
   aboutPageSeed,
-  conditionsPageSeed,
   imprintPageSeed,
   privacyPageSeed,
+  withdrawalPageSeed,
 } from '@b2b-catalog-platform/seed';
 import { expect, test } from '@playwright/test';
 
@@ -64,8 +64,8 @@ test('navigates between legal pages client-side without a full reload', async ({
 }) => {
   const legal = page.getByRole('navigation', { name: 'Legal' });
 
-  await page.goto('/conditions');
-  await expect(page.locator('h1')).toHaveText(conditionsPageSeed.title);
+  await page.goto('/withdrawal');
+  await expect(page.locator('h1')).toHaveText(withdrawalPageSeed.title);
 
   // Marker that a full document reload would wipe — lets us assert the hops
   // below stay within the SPA instead of round-tripping to the server.

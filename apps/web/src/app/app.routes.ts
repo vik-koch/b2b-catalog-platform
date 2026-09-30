@@ -500,13 +500,22 @@ export const appRoutes: Route[] = [
   { path: 'maintenance', component: MaintenanceScreen },
   // Code pages are declared before the generic :slug route. Each public route
   // carries the maintenance gate so the storefront is hidden when it is on.
-  // A code route, but its prose is a page body — so publishing governs it the
-  // same way, and a deployment without a contact page has no dangling route.
+  // Code routes, but their prose is a page body — so publishing governs them
+  // the same way, and a deployment without the page has no dangling route.
   {
     path: 'contact',
     component: ContactPage,
     canMatch: [publishesPage('contact')],
     canActivate: [maintenanceGate],
+  },
+  // Lazy: read before a first order rather than on every visit, so it stays
+  // out of the first load.
+  {
+    path: 'conditions',
+    canMatch: [publishesPage('conditions')],
+    canActivate: [maintenanceGate],
+    loadComponent: () =>
+      import('./pages/conditions-page').then((m) => m.ConditionsPage),
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
   // Open-source attribution (see LicensesPage). Not a page slug and not
