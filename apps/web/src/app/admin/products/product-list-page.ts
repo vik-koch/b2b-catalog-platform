@@ -11,8 +11,12 @@ import {
   AdminProductSort,
   fillText,
   formatAttributeValue,
+  IncompleteGap,
+  PRODUCT_FEATURES,
+  PRODUCT_GAP_FILTERS,
   ProductAvailability,
 } from '@b2b-catalog-platform/shared';
+import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../catalog/price.pipe';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
@@ -30,7 +34,7 @@ import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../editor-return';
 import { AdminGrid } from '../grid/admin-grid';
-import { GridChip, GridColumn } from '../grid/grid-column';
+import { GridChip, GridColumn, GridToggleGroup } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
 import { GridPagination } from '../grid/grid-pagination';
 import {
@@ -47,10 +51,23 @@ import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductDeleteDialog } from './product-delete-dialog';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
+import {
+  PRODUCT_FEATURE_GLYPHS,
+  ProductFeatureGlyphs,
+} from './product-feature-glyphs';
 
 /** Marks the category filter's "without subcategories" option. A category id
  * is a uuid, so it can never end this way on its own. */
 const DIRECT_SUFFIX = ':direct';
+
+/** The entries of a list parameter that are one of `known`, in its order. */
+function knownValues<T extends string>(
+  raw: string | readonly string[] | undefined,
+  known: readonly T[],
+): T[] {
+  const given = raw === undefined ? [] : typeof raw === 'string' ? [raw] : raw;
+  return known.filter((value) => given.includes(value));
+}
 
 /**
  * The admin product list: every product including soft-deleted ones
@@ -62,8 +79,10 @@ const DIRECT_SUFFIX = ':direct';
 @Component({
   selector: 'app-product-list-page',
   imports: [
+    NgTemplateOutlet,
     RouterLink,
     PricePipe,
+    ProductFeatureGlyphs,
     AdminIcon,
     Button,
     ProductDeleteDialog,
@@ -108,6 +127,7 @@ const DIRECT_SUFFIX = ':direct';
         [sort]="headerSort()"
         [defaultSortLabel]="catalogText.sort.relevance"
         [chips]="chips()"
+        [toggles]="toggles()"
         [busy]="products.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
@@ -143,6 +163,10 @@ const DIRECT_SUFFIX = ':direct';
                 >{{ item.sourceId }}</span
               >
             </div>
+            <ng-container
+              [ngTemplateOutlet]="content"
+              [ngTemplateOutletContext]="{ $implicit: item }"
+            />
           </td>
           <td>
             <div class="flex items-center">
@@ -245,6 +269,10 @@ const DIRECT_SUFFIX = ':direct';
               [class.opacity-50]="isDeleted(item)"
               >{{ item.sourceId }}</span
             >
+            <ng-container
+              [ngTemplateOutlet]="content"
+              [ngTemplateOutletContext]="{ $implicit: item, card: true }"
+            />
             <ng-container recordMeta>
               <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
                 @if (item.priceMinor === null) {
@@ -286,6 +314,32 @@ const DIRECT_SUFFIX = ':direct';
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }
+
+    <!-- Under the name, in the table and in the card alike (FR-ADM-20): the
+         glyphs of what the product carries, and in words what keeps it
+         incomplete. Amber and smaller than everything else in the cell, so
+         the gaps read as work rather than as another fact about the row. -->
+    <ng-template #content let-item let-card="card">
+      @if (item.features.length || item.gaps.length) {
+        <!-- Its own line under the name in the table; in the card it flows
+             beside the sync key, and a top margin there would lift it off
+             that line's centre. -->
+        <div
+          class="flex flex-wrap items-center gap-x-2 gap-y-1"
+          [class.mt-1]="!card"
+          [class.opacity-50]="isDeleted(item)"
+        >
+          @if (item.features.length) {
+            <app-product-feature-glyphs [features]="item.features" />
+          }
+          @if (item.gaps.length) {
+            <span class="text-xs text-amber-700">{{
+              gapsLabel(item.gaps)
+            }}</span>
+          }
+        </div>
+      }
+    </ng-template>
 
     @if (deletingProduct(); as target) {
       <app-product-delete-dialog
@@ -403,6 +457,45 @@ export class ProductListPage {
    * like the two above — a product row says nothing about its documents.
    */
   readonly documentId = input('');
+
+  /**
+   * What the product's own content lacks or carries (FR-ADM-20), each a list:
+   * one entry arrives as a bare string, more as an array. Entries that are
+   * not one of the values are dropped, like a hand-edited state.
+   */
+  readonly missing = input<string | readonly string[] | undefined>(undefined);
+  readonly has = input<string | readonly string[] | undefined>(undefined);
+  protected readonly missingKeys = computed(() =>
+    knownValues(this.missing(), PRODUCT_GAP_FILTERS),
+  );
+  protected readonly hasKeys = computed(() =>
+    knownValues(this.has(), PRODUCT_FEATURES),
+  );
+
+  /** The content filter as two rows of chips: what a product has, with the
+   * glyphs its row draws, then the gaps. */
+  protected readonly toggles = computed<GridToggleGroup[]>(() => [
+    {
+      label: this.text.hasGroup,
+      param: 'has',
+      options: PRODUCT_FEATURES.map((feature) => ({
+        value: feature,
+        label: this.text.has[feature],
+        icon: PRODUCT_FEATURE_GLYPHS[feature],
+      })),
+      selected: this.hasKeys(),
+    },
+    {
+      label: this.text.missingGroup,
+      param: 'missing',
+      options: PRODUCT_GAP_FILTERS.map((gap) => ({
+        value: gap,
+        label: this.text.missing[gap],
+      })),
+      selected: this.missingKeys(),
+    },
+  ]);
+
   /** The document, for the chip's title alone — fetched only while the chip is
    * on screen, and a failure leaves the chip absent rather than the list
    * broken, exactly as the tier's does. */
@@ -468,6 +561,8 @@ export class ProductListPage {
       !!this.attributeFilter() ||
       !!this.tierId() ||
       !!this.documentId() ||
+      this.missingKeys().length > 0 ||
+      this.hasKeys().length > 0 ||
       this.stateKey() !== DEFAULT_ADMIN_STATE,
   );
 
@@ -738,6 +833,12 @@ export class ProductListPage {
     { value: 'in', label: this.availabilityText.in },
   ];
 
+  protected gapsLabel(gaps: readonly IncompleteGap[]): string {
+    return fillText(this.text.gapsLabel, {
+      gaps: gaps.map((gap) => this.text.gap[gap]).join(', '),
+    });
+  }
+
   protected readonly stateOptions: GridFilterOption[] = [
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
@@ -760,6 +861,8 @@ export class ProductListPage {
       tierId: this.tierId() || undefined,
       tierPriced: this.tierPriced() === 'no' ? ('no' as const) : undefined,
       documentId: this.documentId() || undefined,
+      missing: this.missingKeys().length ? this.missingKeys() : undefined,
+      has: this.hasKeys().length ? this.hasKeys() : undefined,
     }),
     loader: ({ params }) => this.admin.listProducts(params),
   });

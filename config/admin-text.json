@@ -325,7 +325,31 @@
     "tierPricedNo": "Not priced in this list",
     "unpricedBadge": "No price",
     "noPrice": "—",
-    "stateUnpriced": "No price"
+    "stateUnpriced": "No price",
+    "missingGroup": "Missing",
+    "hasGroup": "Has",
+    "missing": {
+      "incomplete": "Incomplete",
+      "picture": "No picture",
+      "description": "No description",
+      "attributes": "No attributes",
+      "packaging": "No packaging",
+      "boxFacts": "No box volume or weight"
+    },
+    "has": {
+      "featured": "Featured",
+      "set": "Sold as a set",
+      "variants": "Variants",
+      "pairings": "Sold together",
+      "documents": "Documents",
+      "note": "Line note"
+    },
+    "gapsLabel": "No {gaps}",
+    "gap": {
+      "picture": "picture",
+      "description": "description",
+      "attributes": "attributes"
+    }
   },
   "categoryList": {
     "title": "Categories",

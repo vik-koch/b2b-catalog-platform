@@ -587,6 +587,41 @@ export const adminTextSchema = z
         /** The cell of a product whose stock nobody is counting — a word, not
          * an empty cell, so "untracked" and "none left" cannot be confused. */
         stockUntracked: z.string(),
+        /**
+         * The content filter (FR-ADM-20): its two groups of chips, and the
+         * line under a product's name naming what keeps it incomplete.
+         * `{gaps}` is the `gap` words joined.
+         */
+        missingGroup: z.string(),
+        hasGroup: z.string(),
+        missing: z
+          .object({
+            incomplete: z.string(),
+            picture: z.string(),
+            description: z.string(),
+            attributes: z.string(),
+            packaging: z.string(),
+            boxFacts: z.string(),
+          })
+          .strict(),
+        has: z
+          .object({
+            featured: z.string(),
+            set: z.string(),
+            variants: z.string(),
+            pairings: z.string(),
+            documents: z.string(),
+            note: z.string(),
+          })
+          .strict(),
+        gapsLabel: z.string(),
+        gap: z
+          .object({
+            picture: z.string(),
+            description: z.string(),
+            attributes: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** The category list screen (FR-ADM-01): the tree, its row actions and the

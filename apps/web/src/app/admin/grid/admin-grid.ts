@@ -23,9 +23,11 @@ import {
   columnMinWidth,
   flexibleColumns,
   GridChip,
+  GridToggleGroup,
   GridColumn,
 } from './grid-column';
 import { GridFilterSelect } from './grid-filter-select';
+import { GridToggles } from './grid-toggles';
 import { GridNarrowControls } from './grid-narrow-controls';
 import { DEFAULT_ADMIN_SORT } from './grid-query';
 import { fitWidths, resizeBoundary } from './grid-resize';
@@ -77,6 +79,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
     GridSortHeader,
     GridFilterSelect,
     GridNarrowControls,
+    GridToggles,
   ],
   template: `
     @if (narrow()) {
@@ -90,6 +93,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         <app-grid-narrow-controls
           [columns]="columns()"
           [chips]="chips()"
+          [toggles]="toggles()"
           [sort]="sort()"
           [defaultSort]="defaultSort()"
           [defaultSortLabel]="defaultSortLabel() || common.sortDefault"
@@ -119,6 +123,9 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         }
       </div>
     } @else {
+      @if (toggles().length) {
+        <app-grid-toggles class="mb-4" [groups]="toggles()" />
+      }
       <!-- The narrowings with no column of their own. On a phone they are
            inside the filter panel, which is the one row that screen can spare;
            here they sit above the table they are narrowing. -->
@@ -313,6 +320,9 @@ export class AdminGrid<T> {
   /** The narrowings this grid has no column for; shown as chips and counted
    * with the column filters. */
   readonly chips = input<readonly GridChip[]>([]);
+  /** Questions switched on and off by themselves, above the table on a desk
+   * and inside the filter panel on a phone. */
+  readonly toggles = input<readonly GridToggleGroup[]>([]);
   /**
    * Where this grid gives up on columns. `lg` for all of them: six or seven
    * columns squeezed into the width between `md` and `lg` are legible only in

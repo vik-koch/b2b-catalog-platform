@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ProductFeature } from '@b2b-catalog-platform/shared';
+import { ADMIN_TEXT } from '../../config/admin-text';
 import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 
 /**
@@ -28,8 +29,9 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
     @if (features().length) {
       <ul class="flex items-center gap-1.5 text-subtle">
         @for (feature of features(); track feature) {
-          <li class="flex">
+          <li class="flex" [title]="text[feature]">
             <app-admin-icon [name]="glyphs[feature]" class="h-3.5 w-3.5" />
+            <span class="sr-only">{{ text[feature] }}</span>
           </li>
         }
       </ul>
@@ -37,6 +39,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
   `,
 })
 export class ProductFeatureGlyphs {
+  protected readonly text = inject(ADMIN_TEXT).productList.has;
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
 
   readonly features = input.required<readonly ProductFeature[]>();
