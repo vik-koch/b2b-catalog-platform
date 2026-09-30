@@ -97,6 +97,8 @@ import { SyncService } from './sync.service';
         [busy]="runs.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="text.historyEmpty"
+        [total]="data.pagination.total"
+        [countLabel]="text.historyCount"
       >
         <ng-template appGridRow [of]="data.runs" let-run>
           <!-- When it ran is what a run is called: there is no other name for

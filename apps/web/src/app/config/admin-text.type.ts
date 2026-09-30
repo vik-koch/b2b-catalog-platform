@@ -526,6 +526,8 @@ export const adminTextSchema = z
     productList: z
       .object({
         title: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         deletedBadge: z.string(),
         /** Marks a product that is not on the storefront yet (FR-ADM-06). */
         unpublishedBadge: z.string(),
@@ -1037,6 +1039,7 @@ export const adminTextSchema = z
         discard: z.string(),
         /** The run log's empty state + the dashboard's last-sync line. */
         historyEmpty: z.string(),
+        historyCount: z.string(),
         col: z
           .object({
             date: z.string(),
@@ -1409,6 +1412,8 @@ export const adminTextSchema = z
     documentList: z
       .object({
         title: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         add: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
@@ -1531,6 +1536,8 @@ export const adminTextSchema = z
     orderList: z
       .object({
         title: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),
@@ -2023,6 +2030,8 @@ export const adminTextSchema = z
          * name the distinction. */
         titleCustomers: z.string(),
         titleStaff: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),

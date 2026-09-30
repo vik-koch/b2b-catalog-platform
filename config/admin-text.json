@@ -292,6 +292,7 @@
   },
   "productList": {
     "title": "Products",
+    "count": "{count} product(s)",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
     "empty": "No products yet.",
@@ -564,6 +565,7 @@
     "applied": "Applied.",
     "discard": "Discard",
     "historyEmpty": "No sync has run yet.",
+    "historyCount": "{count} run(s)",
     "lastSyncNever": "Never synced",
     "mode": {
       "full": "Complete catalog export",
@@ -850,6 +852,7 @@
   },
   "documentList": {
     "title": "Documents",
+    "count": "{count} document(s)",
     "add": "Add document",
     "searchLabel": "Find a document",
     "searchPlaceholder": "Search by title or file name",
@@ -927,6 +930,7 @@
   },
   "orderList": {
     "title": "Orders",
+    "count": "{count} order(s)",
     "searchLabel": "Search orders",
     "searchPlaceholder": "Reference, name, email...",
     "clearSearch": "Clear search",
@@ -1216,6 +1220,7 @@
   "userList": {
     "titleCustomers": "Customers",
     "titleStaff": "Staff",
+    "count": "{count} account(s)",
     "searchLabel": "Search accounts",
     "searchPlaceholder": "Search by name, email, etc...",
     "clearSearch": "Clear search",

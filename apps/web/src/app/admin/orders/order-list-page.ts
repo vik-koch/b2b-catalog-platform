@@ -101,6 +101,8 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
         [busy]="orders.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
+        [total]="data.pagination.total"
+        [countLabel]="text.count"
       >
         <ng-template appGridRow [of]="data.items" let-order>
           <!-- The reference opens the order as it stands to be read; the

@@ -148,6 +148,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
         [busy]="users.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
+        [countLabel]="text.count"
       >
         <ng-template appGridRow [of]="data" let-user>
           <!-- Who to call, and underneath the address to write to — the same

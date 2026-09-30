@@ -131,6 +131,8 @@ function knownValues<T extends string>(
         [busy]="products.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
+        [total]="data.pagination.total"
+        [countLabel]="text.count"
       >
         <ng-template appGridRow [of]="data.items" let-item>
           <td>

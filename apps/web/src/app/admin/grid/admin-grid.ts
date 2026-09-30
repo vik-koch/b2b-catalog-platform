@@ -18,6 +18,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { injectNarrowScreen, NarrowBreakpoint } from '../../core/narrow-screen';
 import { IconButton } from '../../ui/icon-button';
+import { Link } from '../../ui/link';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import {
   columnMinWidth,
@@ -76,6 +77,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
     RouterLink,
     AdminIcon,
     IconButton,
+    Link,
     GridSortHeader,
     GridFilterSelect,
     GridNarrowControls,
@@ -99,6 +101,12 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           [defaultSortLabel]="defaultSortLabel() || common.sortDefault"
           [filtered]="filtered()"
         />
+
+        <!-- Always there, so the live region is in place before the text
+             it announces changes. -->
+        <p class="mb-2 text-sm text-subtle" aria-live="polite">
+          {{ countText() }}
+        </p>
 
         <!-- A list, not a table with its cells stacked: on a phone these are
            records read down, and the column headings that would be announced
@@ -152,21 +160,18 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         </ul>
       }
 
-      <div class="relative">
-        <!-- In the margin the heading above already leaves, and out of the
-             flow: a link that appeared in the flow when the first column was
-             dragged would push the whole table down mid-gesture. -->
-        @if (customised()) {
-          <div class="absolute right-0 bottom-full -mb-2">
-            <button
-              type="button"
-              class="cursor-pointer text-xs text-subtle hover:text-accent"
-              (click)="resetWidths()"
-            >
+      <div>
+        <!-- One line kept for both, whether or not either has anything to
+             say: a reset link that appeared in the flow when the first column
+             was dragged would push the whole table down mid-gesture. -->
+        <div class="flex h-6 items-center justify-between gap-4 text-sm">
+          <p class="text-subtle" aria-live="polite">{{ countText() }}</p>
+          @if (customised()) {
+            <button type="button" appLink (click)="resetWidths()">
               {{ common.resetWidths }}
             </button>
-          </div>
-        }
+          }
+        </div>
 
         <div class="overflow-x-auto">
           <!-- The table renders even with no rows: its header carries the
@@ -338,6 +343,21 @@ export class AdminGrid<T> {
   /** What to call an ordering that belongs to no column — the product grid's
    * relevance ranking. Defaults to the shared wording. */
   readonly defaultSortLabel = input('');
+  /**
+   * How many rows the list holds with every narrowing applied, across all its
+   * pages. Only a paged list knows more than it shows; an unpaged one leaves
+   * this out and its rows are counted.
+   */
+  readonly total = input<number | null>(null);
+  /** The count as the list words it — "{count} product(s)". None, no line. */
+  readonly countLabel = input('');
+
+  /** Absent while the list is empty: the empty message already says so. */
+  protected readonly countText = computed(() => {
+    const count = this.total() ?? this.rows().length;
+    if (!this.countLabel() || count === 0) return '';
+    return fillText(this.countLabel(), { count });
+  });
 
   protected readonly cells =
     contentChild.required<GridRowTemplate<T>>(GridRowTemplate);

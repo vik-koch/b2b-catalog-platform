@@ -552,7 +552,7 @@ Admin can toggle a site-wide maintenance mode from the admin panel. While active
 
 #### <a id="fr-adm-05"></a>FR-ADM-05 — Admin product list
 
-The admin product list can be filtered by publication state (all / live / unpublished / soft-deleted), by category and by an attribute key or key/value pair, by availability ([FR-STOCK-02](#fr-stock-02)), by what its content lacks or carries ([FR-ADM-20](#fr-adm-20)), searched by name or by the private sync key, and sorted (name, price, most recently updated). It shows each product's stock figure ([FR-STOCK-01](#fr-stock-01)) in the badge its availability colours — the state alone answers whether a product can be sold, and restocking asks how many.
+The admin product list can be filtered by publication state (all / live / unpublished / soft-deleted), by category and by an attribute key or key/value pair, by availability ([FR-STOCK-02](#fr-stock-02)), by what its content lacks or carries ([FR-ADM-20](#fr-adm-20)), searched by name or by the private sync key, and sorted (name, price, most recently updated). It shows each product's stock figure ([FR-STOCK-01](#fr-stock-01)) in the badge its availability colours — the state alone answers whether a product can be sold, and restocking asks how many. Like every admin list, it says how many records match what narrows it, across all its pages, so a filter is judged by what it leaves rather than by one page of it.
 
 #### <a id="fr-adm-06"></a>FR-ADM-06 — Publication gate
 
