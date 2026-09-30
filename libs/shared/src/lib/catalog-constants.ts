@@ -56,6 +56,12 @@ export function categoryDisplayName(category: {
   return category.shortName || category.name;
 }
 
+/**
+ * How many categories the search bar suggests beside the products
+ * (FR-SEARCH-07). A handful of shortcuts, not a second list to scan.
+ */
+export const SEARCH_CATEGORY_LIMIT = 3;
+
 /** Admin grid page size — denser than the storefront's, for scanning. */
 export const ADMIN_CATALOG_PAGE_SIZE = 50;
 

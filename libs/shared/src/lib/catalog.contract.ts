@@ -505,6 +505,23 @@ export const searchSuggestionQuerySchema = z.object({
 });
 
 /**
+ * A category whose name the query matched (FR-SEARCH-07), drawn as a chip. The
+ * parent's name is its context: a leaf's own name is often not unique across
+ * the tree ("Accessories" under two branches), and its short name is the one
+ * written for a place where the parent is visible. Null for a top-level one.
+ */
+export const searchCategorySchema = z
+  .object({
+    slug: z.string(),
+    name: z.string(),
+    shortName: shortNameSchema,
+    mark: categoryMarkSchema,
+    parent: z.string().nullable(),
+  })
+  .strict();
+export type SearchCategory = z.infer<typeof searchCategorySchema>;
+
+/**
  * One indexable URL for the sitemap (NFR-SEO-02): a slug and the row's
  * `updatedAt` as an ISO string, used for `<lastmod>`. The SSR server turns
  * these into absolute `/catalog/:slug` and `/product/:slug` URLs;
@@ -616,7 +633,8 @@ export const catalogContract = {
     ),
 
   /**
-   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06). The same
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06/07), with the
+   * categories whose names the query matched beside them. The same
    * matcher, the same ordering and the same tier-resolved tiles as
    * `searchProducts`, so the list is a truthful prefix of what submitting the
    * query would show — without the total count and the facets, which is what
@@ -630,10 +648,17 @@ export const catalogContract = {
       method: 'GET',
       path: '/catalog/search/suggestions',
       inputStructure: 'detailed',
-      summary: 'Suggest products for a partial query',
+      summary: 'Suggest products and categories for a partial query',
     })
     .input(z.object({ query: searchSuggestionQuerySchema }))
-    .output(z.object({ items: z.array(productListItemSchema) }).strict()),
+    .output(
+      z
+        .object({
+          items: z.array(productListItemSchema),
+          categories: z.array(searchCategorySchema),
+        })
+        .strict(),
+    ),
 
   /**
    * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all

@@ -4,6 +4,7 @@ import {
   CatalogImage,
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared';
+import { HighlightedLine } from '../core/highlighted-line';
 
 /**
  * What the chip needs of a category — the shape both the public tree node and
@@ -60,7 +61,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
  */
 @Component({
   selector: 'app-category-chip',
-  imports: [RouterLink],
+  imports: [RouterLink, HighlightedLine],
   // The host is a flex item of the <li> it sits in and a flex box for the link
   // it holds. `w-full` is what carries the item's width through to the link:
   // without it the host collapses around its own content and the width the
@@ -72,7 +73,26 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
       [queryParams]="queryParams()"
       [class]="linkClass()"
     >
-      <span [class]="nameClass()">{{ label() }}</span>
+      @if (context(); as context) {
+        <!-- The name over the category it sits in, where the chip stands
+             away from the tree that would otherwise say so. Tighter lines
+             than a bare name, so two lines of it and the parent's fit the
+             small chip whole: 2 × 20px + 16px leaves 4px either side of 64. -->
+        <span [class]="contextClass()">
+          <span class="line-clamp-2 leading-5">
+            <app-highlighted-line [line]="label()" [query]="query()" />
+          </span>
+          <span class="truncate text-xs leading-4 text-subtle">{{
+            context
+          }}</span>
+        </span>
+      } @else if (query()) {
+        <span [class]="nameClass()">
+          <app-highlighted-line [line]="label()" [query]="query()" />
+        </span>
+      } @else {
+        <span [class]="nameClass()">{{ label() }}</span>
+      }
       @if (shownMark(); as mark) {
         <img
           [src]="mark.thumb"
@@ -94,6 +114,11 @@ export class CategoryChip {
    * filters is in it. Still a link — it is the category that is empty, not
    * the way into it. */
   readonly muted = input(false);
+  /** The category this one sits in, as a second line — for a chip shown away
+   * from the tree, as a search suggestion is (FR-SEARCH-07). */
+  readonly context = input<string | null>(null);
+  /** Marks the part of the name a query matched, as a suggestion row does. */
+  readonly query = input('');
 
   /** A mark whose file 404s is no mark at all — the fallback is the name, not
    * the browser's broken-image icon in a chip that says nothing else. */
@@ -127,6 +152,12 @@ export class CategoryChip {
    * names line up down a column of chips. With no mark it keeps a gap off the
    * right edge instead of running into it.
    */
+  protected readonly contextClass = computed(
+    () =>
+      `flex min-w-0 flex-1 flex-col [overflow-wrap:anywhere]${
+        this.shownMark() ? ' pr-2' : ' pr-3'
+      }`,
+  );
   protected readonly nameClass = computed(
     () =>
       `line-clamp-3 min-w-0 flex-1 [overflow-wrap:anywhere]${

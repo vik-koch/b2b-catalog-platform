@@ -6,8 +6,9 @@ import {
 import { products } from '../db/schema';
 
 /**
- * Product name matching  — shared by the storefront search and the admin
- * grid's find-a-product box, so "matches this name" has one definition.
+ * Name matching — shared by the storefront search, the admin grid's
+ * find-a-product box and the category suggestions (FR-SEARCH-07), so "matches
+ * this name" has one definition.
  *
  * Two mechanisms:
  * - full-text search gives word-order independence and prefix;
@@ -67,8 +68,13 @@ export function parseSearchQuery(input: string): SearchQuery | null {
   };
 }
 
-/** The product name as both indexes see it: unaccented, lower-cased. */
-const foldedName = sql`lower(search_unaccent(${products.name}))`;
+/** A name as both halves of the matcher see it: unaccented, lower-cased. */
+const folded = (name: SQL | typeof products.name) =>
+  sql`lower(search_unaccent(${name}))`;
+
+/** Whether `tsv` holds every term of the query, each as a word prefix. */
+const fullText = (tsv: SQL | typeof products.nameTsv, tsquery: string) =>
+  sql`(${tsv} @@ to_tsquery('simple', search_unaccent(${tsquery})))`;
 
 /**
  * Which rows are candidates. Every branch is index-backed — the tsvector GIN
@@ -79,10 +85,38 @@ export function searchCondition(query: SearchQuery): SQL {
   const fuzzy = query.terms.map(
     (term) => sql`search_unaccent(${products.name}) %> ${term}`,
   );
-  return or([
-    sql`(${products.nameTsv} @@ to_tsquery('simple', search_unaccent(${query.tsquery})))`,
-    ...fuzzy,
-  ]);
+  return or([fullText(products.nameTsv, query.tsquery), ...fuzzy]);
+}
+
+/**
+ * Whether a category's name answers the query (FR-SEARCH-07). Stricter than
+ * the product condition on purpose: *every* term has to match, each either as
+ * a word prefix or as a typo of a word. Products are ranked, so a product
+ * sharing one word with the query sinks to the bottom of a long list; a
+ * category offered beside them is a claim that the query names it, and "hafen
+ * espresso" does not name the category *Espresso*.
+ *
+ * Unindexed — the category table is a few hundred rows, and the tsvector is
+ * built on the fly rather than stored.
+ */
+export function categoryNameCondition(query: SearchQuery, name: SQL): SQL {
+  const tsv = sql`to_tsvector('simple', search_unaccent(${name}))`;
+  return sql.join(
+    query.terms.map(
+      (term) =>
+        sql`(${fullText(tsv, `${term}:*`)} or search_unaccent(${name}) %> ${term})`,
+    ),
+    sql` and `,
+  );
+}
+
+/** `relevanceScore` for a category name, as matched above. */
+export function categoryNameScore(query: SearchQuery, name: SQL): SQL<number> {
+  return nameScore(
+    query,
+    name,
+    sql`to_tsvector('simple', search_unaccent(${name}))`,
+  );
 }
 
 /**
@@ -104,6 +138,15 @@ function or(conditions: SQL[]): SQL {
  * containing every term from one containing a single common word.
  */
 export function relevanceScore(query: SearchQuery): SQL<number> {
+  return nameScore(query, products.name, products.nameTsv);
+}
+
+function nameScore(
+  query: SearchQuery,
+  name: SQL | typeof products.name,
+  tsv: SQL | typeof products.nameTsv,
+): SQL<number> {
+  const foldedName = folded(name);
   const perTerm = sql.join(
     query.terms.map((term) => sql`word_similarity(${term}, ${foldedName})`),
     sql` + `,
@@ -115,7 +158,7 @@ export function relevanceScore(query: SearchQuery): SQL<number> {
       when position(${query.normalized} in ${foldedName}) > 0 then 2
       else 0
     end)
-    + (case when ${products.nameTsv} @@ to_tsquery('simple', search_unaccent(${query.tsquery})) then 1 else 0 end)
+    + (case when ${fullText(tsv, query.tsquery)} then 1 else 0 end)
     + (${perTerm}) / ${query.terms.length}
   `;
 }

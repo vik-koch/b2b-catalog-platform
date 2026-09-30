@@ -46,7 +46,7 @@ describe('CatalogController', () => {
             getProduct,
             getFeaturedProducts,
             getCategoryTree: async () => [],
-            getSearchSuggestions: async () => [],
+            getSearchSuggestions: async () => ({ items: [], categories: [] }),
             getSitemap: async () => ({
               categories: [],
               products: [],

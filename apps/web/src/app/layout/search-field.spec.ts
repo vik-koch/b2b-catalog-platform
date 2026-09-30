@@ -3,7 +3,7 @@ import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { provideRouter, Router } from '@angular/router';
-import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { ProductListItem, SearchCategory } from '@b2b-catalog-platform/shared';
 import { CartAddition, CartService } from '../cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { productListItem } from '../catalog/product.fixture';
@@ -21,6 +21,8 @@ const row = (slug: string, name: string, overrides: Partial<Suggestion> = {}) =>
 
 /** What the stubbed API offers for any query. Set per test via `render`. */
 let suggestions: Suggestion[] = [];
+/** The categories offered beside them (FR-SEARCH-07). */
+let categories: SearchCategory[] = [];
 
 /**
  * When set, the next request hangs until the test resolves it — which is how
@@ -49,10 +51,12 @@ const cartStub = {
  * driven without an HTTP layer under it. */
 const catalogStub = {
   getSearchSuggestions: async () => {
-    if (!holdNext) return suggestions;
-    return new Promise<Suggestion[]>((resolve) => {
-      hold = resolve;
-    });
+    if (!holdNext) return { items: suggestions, categories };
+    return new Promise<{ items: Suggestion[]; categories: SearchCategory[] }>(
+      (resolve) => {
+        hold = (items) => resolve({ items, categories: [] });
+      },
+    );
   },
 };
 
@@ -257,6 +261,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     cartLines.set([]);
     cartAdditions = [];
     cartFull = false;
+    categories = [];
   });
 
   /** Types, then waits out the debounce and the stubbed request. Real timers:
@@ -288,7 +293,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
   const options = (el: HTMLElement) =>
     Array.from(
       el.querySelectorAll<HTMLElement>(
-        '[role="row"] [role="gridcell"]:first-child',
+        '[role="rowgroup"] [role="gridcell"]:first-child',
       ),
     );
   const names = (el: HTMLElement) =>
@@ -296,7 +301,9 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
       o.querySelector('app-highlighted-line')?.textContent?.trim(),
     );
   const addButtons = (el: HTMLElement) =>
-    Array.from(el.querySelectorAll<HTMLButtonElement>('[role="row"] button'));
+    Array.from(
+      el.querySelectorAll<HTMLButtonElement>('[role="rowgroup"] button'),
+    );
 
   const press = (el: HTMLElement, key: string): KeyboardEvent => {
     const event = new KeyboardEvent('keydown', { key, cancelable: true });
@@ -438,6 +445,101 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
 
     expect(navigate).toHaveBeenCalledWith(['/search'], {
       queryParams: { q: 'espresso' },
+    });
+  });
+
+  describe('categories among them (FR-SEARCH-07)', () => {
+    const category = (slug: string, name: string, parent: string | null) => ({
+      slug,
+      name,
+      shortName: null,
+      mark: null,
+      parent,
+    });
+    const chips = (el: HTMLElement) =>
+      Array.from(el.querySelectorAll<HTMLElement>('app-category-chip'));
+
+    beforeEach(() => {
+      categories = [
+        category('espresso', 'Espresso Roasts', 'Coffee Beans'),
+        category('machines', 'Espresso Machines', 'Equipment'),
+      ];
+    });
+
+    it('offers them as chips ahead of the products, each with its parent', async () => {
+      const { el, fixture } = await render();
+
+      await typeQuery(fixture, el, 'espresso');
+
+      const rows = el.querySelectorAll('[role="row"]');
+      expect(rows[0].querySelectorAll('app-category-chip')).toHaveLength(2);
+      expect(chips(el)[0].textContent).toContain('Espresso Roasts');
+      expect(chips(el)[0].textContent).toContain('Coffee Beans');
+      expect(chips(el)[0].querySelector('mark')?.textContent).toBe('Espresso');
+      expect(names(el)).toEqual(['Hafen Espresso', 'Espresso Dolce']);
+    });
+
+    it('leaves the strip out where the query names no category', async () => {
+      categories = [];
+      const { el, fixture } = await render();
+
+      await typeQuery(fixture, el, 'espresso');
+
+      expect(chips(el)).toHaveLength(0);
+    });
+
+    it('walks the chips sideways and opens the one Enter is on', async () => {
+      const { el, fixture, navigate } = await render();
+      await typeQuery(fixture, el, 'espresso');
+      const input = el.querySelector('input') as HTMLInputElement;
+
+      press(el, 'ArrowDown');
+      await fixture.whenStable();
+      expect(input.getAttribute('aria-activedescendant')).toMatch(/-0-0$/);
+
+      press(el, 'ArrowRight');
+      // Stops at the last chip rather than running off the strip.
+      press(el, 'ArrowRight');
+      await fixture.whenStable();
+      expect(input.getAttribute('aria-activedescendant')).toMatch(/-0-1$/);
+
+      expect(press(el, 'Enter').defaultPrevented).toBe(true);
+      expect(navigate).toHaveBeenCalledWith(['/catalog', 'machines']);
+    });
+
+    it('goes on from the strip to the products below it', async () => {
+      const { el, fixture, navigate } = await render();
+      await typeQuery(fixture, el, 'espresso');
+
+      press(el, 'ArrowDown');
+      press(el, 'ArrowDown');
+      press(el, 'Enter');
+
+      expect(navigate).toHaveBeenCalledWith(['/product', 'hafen-espresso']);
+    });
+
+    it('closes when the chip pressed is the category already open', async () => {
+      // The link goes nowhere, and a panel left open over the page it asked
+      // for reads as a press that did nothing.
+      const { el, fixture } = await renderAt('/catalog/espresso');
+      await typeQuery(fixture, el, 'espresso');
+
+      chips(el)[0].querySelector('a')?.click();
+      await fixture.whenStable();
+
+      expect(
+        (el.querySelector('input') as HTMLInputElement).getAttribute(
+          'aria-expanded',
+        ),
+      ).toBe('false');
+    });
+
+    it('counts the categories in what it announces', async () => {
+      const { el, fixture } = await render();
+
+      await typeQuery(fixture, el, 'espresso');
+
+      expect(el.querySelector('[aria-live]')?.textContent).toContain('4');
     });
   });
 

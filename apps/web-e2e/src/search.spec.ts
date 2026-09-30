@@ -99,6 +99,25 @@ test('adds a product to the cart from its suggestion without leaving the field (
   ).toBeVisible();
 });
 
+test('offers the categories a query names and opens one (FR-SEARCH-07)', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto('/');
+  const field = await openSearch(page, isMobile);
+
+  await field.fill('espresso');
+  const strip = page.getByRole('row', { name: 'Matching categories' });
+  // Its parent under the name, since a leaf's name alone may not be unique.
+  const chip = strip.getByRole('link', { name: /Espresso Roasts/ });
+  await expect(chip).toContainText('Coffee Beans');
+
+  await chip.click();
+
+  await expect(page).toHaveURL(/\/catalog\/espresso$/);
+  await expect(strip).toBeHidden();
+});
+
 test('keeps the full result list reachable by submitting the query', async ({
   page,
   isMobile,

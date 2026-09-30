@@ -1,6 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
   afterNextRender,
+  afterRenderEffect,
   Component,
   computed,
   effect,
@@ -13,15 +14,19 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NavigationEnd, NavigationSkipped, Router } from '@angular/router';
+import { filter } from 'rxjs';
 import {
   fillText,
   pieceFloor,
   ProductListItem,
   SEARCH_QUERY_MAX_LENGTH,
+  SearchCategory,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
+import { CategoryChip } from '../catalog/category-chip';
 import { ImagePlaceholder } from '../catalog/image-placeholder';
 import { useProductUnits } from '../catalog/product-units-view';
 import { APP_TEXT } from '../config/app-text';
@@ -30,6 +35,7 @@ import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
 import { HighlightedLine } from '../core/highlighted-line';
 import { Button } from '../ui/button';
+import { IconButton } from '../ui/icon-button';
 import { FRAME } from '../ui/frame';
 import { Icon } from '../ui/icons/icon';
 import { WarningNote } from '../ui/warning-note';
@@ -37,6 +43,10 @@ import { WarningNote } from '../ui/warning-note';
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
 const SUGGEST_DEBOUNCE_MS = 200;
+
+/** What the panel shows; also its answer while nothing is being asked. */
+type Suggestions = { items: ProductListItem[]; categories: SearchCategory[] };
+const NONE: Suggestions = { items: [], categories: [] };
 
 /** Ids have to be unique per instance: the header renders this field twice —
  * inline on desktop, inside the panel on mobile — and `aria-controls` pointing
@@ -67,7 +77,15 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-search-field',
-  imports: [Icon, HighlightedLine, ImagePlaceholder, Button, WarningNote],
+  imports: [
+    Icon,
+    HighlightedLine,
+    ImagePlaceholder,
+    Button,
+    WarningNote,
+    CategoryChip,
+    IconButton,
+  ],
   host: { class: 'block' },
   template: `
     <!-- action and method are what make the no-JS path real rather than
@@ -166,112 +184,198 @@ let nextId = 0;
                 {{ text.noSuggestions }}
               </p>
             }
-            <!-- Scrolls rather than grows: ten rows would cover the page the
-                 visitor is on. About four and a half fit, the half saying
-                 there is more below. -->
             <div
               [id]="listId"
               role="grid"
               [attr.aria-label]="text.suggestionsLabel"
-              class="max-h-[min(22.5rem,60dvh)] overflow-y-auto overscroll-contain"
+              class="flex min-h-0 flex-col"
             >
-              @for (item of suggestions(); track item.slug; let i = $index) {
-                <div
-                  role="row"
-                  class="flex items-center gap-3 py-2 pr-3 pl-2"
-                  [class.bg-stone-100]="i === activeIndex()"
-                  (mouseenter)="hover(i)"
-                >
+              @if (categories().length) {
+                <!-- The categories the query names (FR-SEARCH-07), ahead of
+                     the products and held above their scrolling: a shortcut
+                     that scrolled away behind ten products would be found by
+                     nobody. One row of chips, sideways when they do not fit —
+                     three stacked chips would take half the panel. The same
+                     chip the catalogue draws everywhere else.
+
+                     Scrolled the way the main page's featured row is: no
+                     scrollbar, a chip cut at the edge for a thumb, and arrows
+                     for a mouse, which has no sideways gesture to find — in a
+                     heading row over the chips, as the featured row has them,
+                     rather than laid on the chips' names. They stay out of the
+                     accessibility tree: the keyboard walks the chips with the
+                     arrow keys, and each one it reaches is scrolled into view. -->
+                <div class="shrink-0 border-b border-border pt-2">
+                  <div class="flex h-7 items-center justify-between gap-2 px-3">
+                    <span
+                      [id]="listId + '-categories'"
+                      class="text-xs font-medium text-subtle"
+                      >{{ text.categoriesLabel }}</span
+                    >
+                    @if (stripBack() || stripForward()) {
+                      <span class="hidden gap-1 pointer-fine:flex">
+                        <button
+                          appIconButton
+                          size="sm"
+                          type="button"
+                          tabindex="-1"
+                          aria-hidden="true"
+                          [disabled]="!stripBack()"
+                          (click)="pageStrip(-1)"
+                        >
+                          <app-icon name="chevron-right" class="rotate-180" />
+                        </button>
+                        <button
+                          appIconButton
+                          size="sm"
+                          type="button"
+                          tabindex="-1"
+                          aria-hidden="true"
+                          [disabled]="!stripForward()"
+                          (click)="pageStrip(1)"
+                        >
+                          <app-icon name="chevron-right" />
+                        </button>
+                      </span>
+                    }
+                  </div>
                   <div
-                    role="gridcell"
-                    [id]="cellId(i, 0)"
-                    [attr.aria-selected]="isActive(i, 0)"
-                    class="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
-                    (mousedown)="go(item.slug)"
+                    #strip
+                    role="row"
+                    [attr.aria-labelledby]="listId + '-categories'"
+                    [class]="stripClass"
+                    (scroll)="measureStrip()"
                   >
-                    <!-- Decorative: the name beside it says what it shows. -->
-                    <span [class]="thumb">
-                      @if (
-                        item.images[0] && !failed().has(item.images[0].thumb)
-                      ) {
-                        <img
-                          [src]="item.images[0].thumb"
-                          alt=""
-                          class="h-full w-full object-cover"
-                          (error)="markFailed(item.images[0].thumb)"
+                    @for (
+                      category of categories();
+                      track category.slug;
+                      let j = $index
+                    ) {
+                      <div
+                        role="gridcell"
+                        [id]="cellId(0, j)"
+                        [attr.aria-selected]="isActive(0, j)"
+                        class="flex rounded-xl"
+                        [class.outline-2]="isActive(0, j)"
+                        [class.-outline-offset-2]="isActive(0, j)"
+                      >
+                        <app-category-chip
+                          size="small"
+                          [category]="category"
+                          [context]="category.parent"
+                          [query]="query()"
                         />
-                      } @else {
-                        <app-image-placeholder aria-hidden="true" />
-                      }
-                    </span>
-                    <span class="flex min-w-0 flex-col gap-0.5">
-                      <!-- The same marked run the address and company fields
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- Scrolls rather than grows: ten rows would cover the page the
+                   visitor is on. About four and a half fit, the half saying
+                   there is more below. -->
+              <div
+                role="rowgroup"
+                class="max-h-[min(22.5rem,60dvh)] overflow-y-auto overscroll-contain"
+              >
+                @for (item of suggestions(); track item.slug; let i = $index) {
+                  <div
+                    role="row"
+                    class="flex items-center gap-3 py-2 pr-3 pl-2"
+                    [class.bg-stone-100]="i + offset() === activeIndex()"
+                    (mouseenter)="hover(i + offset())"
+                  >
+                    <div
+                      role="gridcell"
+                      [id]="cellId(i + offset(), 0)"
+                      [attr.aria-selected]="isActive(i + offset(), 0)"
+                      class="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
+                      (mousedown)="go(item.slug)"
+                    >
+                      <!-- Decorative: the name beside it says what it shows. -->
+                      <span [class]="thumb">
+                        @if (
+                          item.images[0] && !failed().has(item.images[0].thumb)
+                        ) {
+                          <img
+                            [src]="item.images[0].thumb"
+                            alt=""
+                            class="h-full w-full object-cover"
+                            (error)="markFailed(item.images[0].thumb)"
+                          />
+                        } @else {
+                          <app-image-placeholder aria-hidden="true" />
+                        }
+                      </span>
+                      <span class="flex min-w-0 flex-col gap-0.5">
+                        <!-- The same marked run the address and company fields
                            draw: one query should look like one query wherever
                            it is typed. Highlighted against the settled query
                            rather than the live one — the names on screen
                            answered that query, and marking them against later
                            keystrokes would flicker a highlight the list has
                            not caught up with. -->
-                      <span class="line-clamp-2 text-sm text-stone-800">
-                        <app-highlighted-line
-                          [line]="item.name"
-                          [query]="query()"
-                        />
-                      </span>
-                      <!-- The per-piece price, as a listing leads with it
+                        <span class="line-clamp-2 text-sm text-stone-800">
+                          <app-highlighted-line
+                            [line]="item.name"
+                            [query]="query()"
+                          />
+                        </span>
+                        <!-- The per-piece price, as a listing leads with it
                            (FR-UNIT-08) — and the viewer's own, since the API
                            resolves it for their tier (FR-AUTH-05). -->
-                      <span
-                        class="text-sm font-semibold whitespace-nowrap text-ink"
-                      >
-                        {{ price(item).price }}
-                        <span class="text-xs font-normal text-subtle">{{
-                          price(item).label
-                        }}</span>
+                        <span
+                          class="text-sm font-semibold whitespace-nowrap text-ink"
+                        >
+                          {{ price(item).price }}
+                          <span class="text-xs font-normal text-subtle">{{
+                            price(item).label
+                          }}</span>
+                        </span>
                       </span>
-                    </span>
-                  </div>
+                    </div>
 
-                  <div
-                    role="gridcell"
-                    [id]="cellId(i, 1)"
-                    [attr.aria-selected]="isActive(i, 1)"
-                    class="shrink-0"
-                  >
-                    @if (inCart(item)) {
-                      <!-- A mark, not a button: the line is in the cart, and
+                    <div
+                      role="gridcell"
+                      [id]="cellId(i + offset(), 1)"
+                      [attr.aria-selected]="isActive(i + offset(), 1)"
+                      class="shrink-0"
+                    >
+                      @if (inCart(item)) {
+                        <!-- A mark, not a button: the line is in the cart, and
                            its quantity is changed there — pressing again here
                            would add to it without saying by how much. Drawn as
                            the listing's "added" field is, in the box the
                            button had, so the row does not move. -->
-                      <span
-                        role="img"
-                        [attr.aria-label]="inCartLabel(item)"
-                        [class]="addBox + ' ' + addedMark"
-                      >
-                        <app-icon name="circle-check" class="h-4 w-4" />
-                      </span>
-                    } @else {
-                      <!-- Out of the tab order: the caret stays in the field
+                        <span
+                          role="img"
+                          [attr.aria-label]="inCartLabel(item)"
+                          [class]="addBox + ' ' + addedMark"
+                        >
+                          <app-icon name="circle-check" class="h-4 w-4" />
+                        </span>
+                      } @else {
+                        <!-- Out of the tab order: the caret stays in the field
                            and the keyboard reaches this with the arrows, so it
                            wears the focus ring while it is the active cell. -->
-                      <button
-                        type="button"
-                        appButton
-                        tabindex="-1"
-                        [class]="addBox + ' px-0'"
-                        [class.outline-2]="isActive(i, 1)"
-                        [class.outline-offset-2]="isActive(i, 1)"
-                        [attr.aria-label]="addLabel(item)"
-                        [disabled]="item.availability === 'out'"
-                        (click)="add(item)"
-                      >
-                        <app-icon name="shopping-basket" class="h-4 w-4" />
-                      </button>
-                    }
+                        <button
+                          type="button"
+                          appButton
+                          tabindex="-1"
+                          [class]="addBox + ' px-0'"
+                          [class.outline-2]="isActive(i + offset(), 1)"
+                          [class.outline-offset-2]="isActive(i + offset(), 1)"
+                          [attr.aria-label]="addLabel(item)"
+                          [disabled]="item.availability === 'out'"
+                          (click)="add(item)"
+                        >
+                          <app-icon name="shopping-basket" class="h-4 w-4" />
+                        </button>
+                      }
+                    </div>
                   </div>
-                </div>
-              }
+                }
+              </div>
             </div>
 
             @if (full()) {
@@ -362,10 +466,12 @@ export class SearchField {
    * results someone just asked for would be in their way.
    */
   private readonly typing = signal(false);
-  /** Which row the keyboard is on; -1 is "none, Enter submits the query". */
+  /** Which row the keyboard is on; -1 is "none, Enter submits the query".
+   * Row 0 is the category strip where there is one, then the products. */
   protected readonly activeIndex = signal(-1);
-  /** Which of the row's two cells: 0 the product, 1 its add button. */
-  private readonly activeCell = signal<0 | 1>(0);
+  /** Which cell of it: a chip of the strip, or a product row's 0 (the
+   * product) and 1 (its add button). */
+  private readonly activeCell = signal(0);
   /** Set when the last add was refused because the cart is at its line limit;
    * cleared by the next keystroke. */
   protected readonly full = signal(false);
@@ -377,6 +483,16 @@ export class SearchField {
   /** The add button's box, and the mark's that replaces it — one size, so a
    * row does not move when one becomes the other. */
   protected readonly addBox = 'inline-flex h-9 w-9 items-center justify-center';
+  /** 18rem a chip, whatever the panel's width: one match does not stretch
+   * across a wide panel, and two lines of name beside a mark have the room
+   * they need on a narrow one. */
+  protected readonly stripClass =
+    'grid auto-cols-[18rem] grid-flow-col gap-2 overflow-x-auto overscroll-x-contain px-2 pt-1 pb-2 ' +
+    'snap-x snap-mandatory scroll-px-2 motion-safe:scroll-smooth ' +
+    '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden';
+  private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');
+  protected readonly stripBack = signal(false);
+  protected readonly stripForward = signal(false);
   protected readonly addedMark =
     'animate-field-in rounded-md bg-secondary text-white select-none';
 
@@ -396,21 +512,27 @@ export class SearchField {
   });
 
   /**
-   * The names on screen. A loading `resource` reports no value at all, and
+   * The answer on screen. A loading `resource` reports no value at all, and
    * rendering that directly makes the panel vanish and come back on every
    * keystroke — the previous answer is a far better placeholder for the next
    * one than nothing is, since one more letter usually narrows the same list.
    * So the last answer stays up until the new one replaces it, and only an
    * idle resource (nothing being asked) clears it.
    */
-  protected readonly suggestions = linkedSignal<
-    ProductListItem[] | undefined,
-    ProductListItem[]
-  >({
+  private readonly answer = linkedSignal<Suggestions | undefined, Suggestions>({
     source: () =>
-      this.suggested.status() === 'idle' ? [] : this.suggested.value(),
-    computation: (value, previous) => value ?? previous?.value ?? [],
+      this.suggested.status() === 'idle' ? NONE : this.suggested.value(),
+    computation: (value, previous) => value ?? previous?.value ?? NONE,
   });
+  protected readonly suggestions = computed(() => this.answer().items);
+  protected readonly categories = computed(() => this.answer().categories);
+  /** The products' first row: after the category strip, where there is one. */
+  protected readonly offset = computed(() =>
+    this.categories().length ? 1 : 0,
+  );
+  private readonly rowCount = computed(
+    () => this.offset() + this.suggestions().length,
+  );
 
   /**
    * Whether the query on screen has been answered. Distinguishes "no matches"
@@ -430,7 +552,7 @@ export class SearchField {
   /** An empty list, once the panel is up — a pending first query is neither
    * open nor "nothing found", and must not say so before the reply lands. */
   protected readonly noMatches = computed(
-    () => this.panelOpen() && this.suggestions().length === 0,
+    () => this.panelOpen() && this.rowCount() === 0,
   );
 
   /**
@@ -449,7 +571,7 @@ export class SearchField {
     return this.noMatches()
       ? this.text.noSuggestions
       : fillText(this.text.suggestionCount, {
-          count: this.suggestions().length,
+          count: this.suggestions().length + this.categories().length,
         });
   });
 
@@ -463,23 +585,59 @@ export class SearchField {
       if (this.suggested.status() === 'idle') this.opened.set(false);
       else if (this.answered()) this.opened.set(true);
     });
+    // Whether the strip has anywhere to go changes with its chips and with
+    // the panel's width, not only with scrolling.
+    afterRenderEffect(() => {
+      this.categories();
+      this.panelOpen();
+      this.measureStrip();
+    });
+    // Any navigation ends the query — a chip is a plain link, and the page it
+    // opens is the answer, not something to keep a panel open over. A skipped
+    // one too: a chip for the category already open goes nowhere, and a panel
+    // left open over the page it asked for reads as a press that did nothing.
+    this.router.events
+      .pipe(
+        filter(
+          (event) =>
+            event instanceof NavigationEnd ||
+            event instanceof NavigationSkipped,
+        ),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => this.close());
     // The list scrolls, so a row the arrow keys reach may be out of sight —
     // `nearest` leaves a visible one where it is.
     effect(() => {
       const id = this.activeOptionId();
       if (!id) return;
+      // The cell rather than its row: the strip scrolls sideways.
       this.host.nativeElement
         .querySelector(`#${id}`)
-        ?.closest('[role="row"]')
-        ?.scrollIntoView?.({ block: 'nearest' });
+        ?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
     });
   }
 
-  protected cellId(row: number, cell: 0 | 1): string {
+  protected measureStrip(): void {
+    const strip = this.strip()?.nativeElement;
+    // A pixel's slack: a scroll position can land a fraction short of the end.
+    this.stripBack.set(!!strip && strip.scrollLeft > 1);
+    this.stripForward.set(
+      !!strip && strip.scrollLeft + strip.clientWidth < strip.scrollWidth - 1,
+    );
+  }
+
+  /** A panel's width at a time; the snap lands it on a chip's edge. */
+  protected pageStrip(direction: 1 | -1): void {
+    const strip = this.strip()?.nativeElement;
+    strip?.scrollBy({ left: direction * strip.clientWidth });
+  }
+
+  protected cellId(row: number, cell: number): string {
     return `${this.listId}-${row}-${cell}`;
   }
 
-  protected isActive(row: number, cell: 0 | 1): boolean {
+  protected isActive(row: number, cell: number): boolean {
     return this.activeIndex() === row && this.activeCell() === cell;
   }
 
@@ -567,7 +725,13 @@ export class SearchField {
         // is what they are for in a text field.
         if (this.panelOpen() && this.activeIndex() >= 0) {
           event.preventDefault();
-          this.activeCell.set(event.key === 'ArrowRight' ? 1 : 0);
+          const step = event.key === 'ArrowRight' ? 1 : -1;
+          this.activeCell.set(
+            Math.min(
+              Math.max(this.activeCell() + step, 0),
+              this.lastCell(this.activeIndex()),
+            ),
+          );
         }
         break;
       case 'Enter':
@@ -578,7 +742,18 @@ export class SearchField {
           // Read through the list rather than trusting the index: rows on
           // screen can be replaced by a later answer, and Enter must never
           // reach for a row that is no longer there.
-          const selected = this.suggestions()[this.activeIndex()];
+          const row = this.activeIndex();
+          const category =
+            row === 0 && this.offset() === 1
+              ? this.categories()[this.activeCell()]
+              : undefined;
+          if (category) {
+            event.preventDefault();
+            this.close();
+            void this.router.navigate(['/catalog', category.slug]);
+            break;
+          }
+          const selected = this.suggestions()[row - this.offset()];
           if (selected) {
             event.preventDefault();
             if (this.activeCell() === 1) this.add(selected);
@@ -604,16 +779,23 @@ export class SearchField {
   /** Moves the selection, wrapping at both ends and passing through "nothing
    * selected" on the way — so the typed query is always one key away again. */
   private move(delta: number, event: KeyboardEvent): void {
-    if (!this.panelOpen() || !this.suggestions().length) return;
+    if (!this.panelOpen() || !this.rowCount()) return;
     event.preventDefault();
 
-    const count = this.suggestions().length;
+    const count = this.rowCount();
     const next = this.activeIndex() + delta;
     const row = next < -1 ? count - 1 : next >= count ? -1 : next;
     this.activeIndex.set(row);
-    // The column is kept from row to row, as a grid keeps it — but back in
-    // the field there is no row to keep it for.
-    if (row < 0) this.activeCell.set(0);
+    // The column is kept from row to row, as a grid keeps it, as far as the
+    // new row reaches — but back in the field there is no row to keep it for.
+    this.activeCell.set(
+      row < 0 ? 0 : Math.min(this.activeCell(), this.lastCell(row)),
+    );
+  }
+
+  /** The last cell of a row: the strip's last chip, or a product's button. */
+  private lastCell(row: number): number {
+    return row === 0 && this.offset() === 1 ? this.categories().length - 1 : 1;
   }
 
   protected go(slug: string): void {

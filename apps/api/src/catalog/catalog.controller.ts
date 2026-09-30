@@ -87,9 +87,8 @@ export class CatalogController {
   @Implement(catalogContract.getSearchSuggestions)
   getSearchSuggestions(@PricingTier() tierId: string | null) {
     return implement(catalogContract.getSearchSuggestions).handler(
-      async ({ input: { query } }) => ({
-        items: await this.catalog.getSearchSuggestions(query.q, tierId),
-      }),
+      ({ input: { query } }) =>
+        this.catalog.getSearchSuggestions(query.q, tierId),
     );
   }
 

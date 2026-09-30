@@ -11,6 +11,7 @@ import {
   inArray,
   isNull,
   or,
+  sql,
   SQL,
 } from 'drizzle-orm';
 import {
@@ -29,7 +30,9 @@ import {
   publicDocumentSchema,
   SearchSort,
   SubcategoryLink,
+  SEARCH_CATEGORY_LIMIT,
   SEARCH_SUGGESTION_LIMIT,
+  SearchCategory,
   FEATURED_ROW_SIZE,
   SitemapEntry,
 } from '@b2b-catalog-platform/shared';
@@ -60,6 +63,8 @@ import {
 } from './catalog-tree';
 import {
   parseSearchQuery,
+  categoryNameCondition,
+  categoryNameScore,
   relevanceScore,
   searchCondition,
   setSearchThreshold,
@@ -456,13 +461,17 @@ export class CatalogService {
    * the dropdown is a truthful prefix of the result page and a row is the tile
    * it would show — only the count, the offset and the facets are dropped,
    * which is what makes this cheap enough to run per keystroke.
+   *
+   * Beside them, the categories whose names the query matched (FR-SEARCH-07),
+   * within the same transaction because the typo tolerance reads the same
+   * trigram threshold.
    */
   async getSearchSuggestions(
     rawQuery: string,
     tierId: string | null = null,
-  ): Promise<ProductListItem[]> {
+  ): Promise<{ items: ProductListItem[]; categories: SearchCategory[] }> {
     const query = parseSearchQuery(rawQuery);
-    if (!query) return [];
+    if (!query) return { items: [], categories: [] };
     const price = livePriceMinor(tierId);
 
     return this.db.transaction(async (tx) => {
@@ -484,8 +493,53 @@ export class CatalogService {
         .where(and(publiclyVisible, searchCondition(query)))
         .orderBy(...productOrderBy('relevance', relevanceScore(query), price))
         .limit(SEARCH_SUGGESTION_LIMIT);
-      return rows.map(toListItem);
+
+      const categoryName = sql`concat_ws(' ', ${categories.name}, ${categories.shortName})`;
+      const matched = await tx
+        .select({ id: categories.id })
+        .from(categories)
+        .where(categoryNameCondition(query, categoryName))
+        .orderBy(
+          desc(categoryNameScore(query, categoryName)),
+          asc(categories.name),
+          asc(categories.id),
+        );
+
+      return {
+        items: rows.map(toListItem),
+        categories: await this.shownCategories(matched.map((row) => row.id)),
+      };
     });
+  }
+
+  /**
+   * The first few of `ids` the storefront shows (FR-CAT-01) — a category with
+   * nothing publicly visible beneath it is absent from the overview, and must
+   * not be the one door into it — each with its parent's name.
+   */
+  private async shownCategories(ids: string[]): Promise<SearchCategory[]> {
+    if (!ids.length) return [];
+    const rows = await this.categoryRows();
+    const stocked = stockedCategoryIds(rows, await this.liveCategoryIds());
+    const byId = new Map(rows.map((row) => [row.id, row]));
+
+    return ids
+      .filter((id) => stocked.has(id))
+      .slice(0, SEARCH_CATEGORY_LIMIT)
+      .flatMap((id) => {
+        const row = byId.get(id);
+        if (!row) return [];
+        const parent = row.parentId ? byId.get(row.parentId) : undefined;
+        return [
+          {
+            slug: row.slug,
+            name: row.name,
+            shortName: row.shortName,
+            mark: row.mark,
+            parent: parent?.name ?? null,
+          },
+        ];
+      });
   }
 
   /**
