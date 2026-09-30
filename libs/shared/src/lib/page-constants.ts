@@ -26,17 +26,17 @@ export const PAGE_SLUGS = [
 export type PageSlug = (typeof PAGE_SLUGS)[number];
 
 /**
- * The subset served by the generic `/:slug` route. `contact` is deliberately
- * absent: it has an editable body like the others, but a code route renders it
- * so the office list and map embeds — structured deployment config, not
- * content — keep their own markup around the prose.
+ * The subset served by the generic `/:slug` route. `contact` and `conditions`
+ * are deliberately absent: they have an editable body like the others, but a
+ * code route renders each so what it states from configuration — the office
+ * list and map embeds, the delivery zones, pickup points and payment methods —
+ * keeps its own markup around the prose.
  *
  * Which of these a given deployment actually publishes is a separate,
  * per-deployment decision (see the `pages` block in the deployment config).
  */
 export const STANDALONE_PAGE_SLUGS = [
   'about',
-  'conditions',
   'privacy',
   'imprint',
   'withdrawal',
