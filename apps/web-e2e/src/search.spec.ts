@@ -137,14 +137,49 @@ test.describe('without JavaScript', () => {
 });
 
 /**
- * FR-SEARCH-04. The control is one native <select> shared by both listings, so
- * these cover the two things that are not the API's job: the choice reaches the
- * URL, and the URL is what the page reads back — which is what makes a sorted
- * listing shareable.
+ * FR-SEARCH-04. The control is shared by both listings, so these cover the two
+ * things that are not the API's job: the choice reaches the URL, and the URL is
+ * what the page reads back — which is what makes a sorted listing shareable.
+ *
+ * It takes two shapes: a row of segments above a wide listing, where the
+ * chosen field turns round when pressed again, and a native <select> on a
+ * phone. Each viewport drives the one it shows.
  */
 test.describe('sort controls (FR-SEARCH-04)', () => {
   const sortBy = (page: Page) =>
     page.getByRole('combobox', { name: 'Sort by' });
+  const segments = (page: Page) => page.getByRole('group', { name: 'Sort by' });
+
+  async function sortByPrice(
+    page: Page,
+    isMobile: boolean,
+    sort: 'price' | 'price_desc',
+  ): Promise<void> {
+    if (isMobile) {
+      await sortBy(page).selectOption(sort);
+      return;
+    }
+    const price = () => segments(page).getByRole('button', { name: /^Price/ });
+    await price().click();
+    if (sort === 'price_desc') {
+      await expect(page).toHaveURL(/sort=price(&|$)/);
+      await price().click();
+    }
+  }
+
+  /** The accessible name of the order the control says is in effect. */
+  async function shownSort(page: Page, isMobile: boolean): Promise<string> {
+    if (isMobile) {
+      return sortBy(page)
+        .locator('option:checked')
+        .evaluate((o) => o.textContent?.trim() ?? '');
+    }
+    return (
+      (await segments(page)
+        .getByRole('button', { pressed: true })
+        .getAttribute('aria-label')) ?? ''
+    );
+  }
 
   /**
    * Tile prices in render order, as numbers — the formatting is a deployment
@@ -177,10 +212,11 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
 
   test('sorts a category listing and keeps the choice in the URL', async ({
     page,
+    isMobile,
   }) => {
     await page.goto('/catalog/espresso');
 
-    await sortBy(page).selectOption('price');
+    await sortByPrice(page, isMobile, 'price');
 
     await expect(page).toHaveURL(/sort=price/);
     const ascending = await prices(page);
@@ -188,25 +224,44 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
 
     // The shareable half: the same URL, opened cold, renders the same order.
     await page.reload();
-    await expect(sortBy(page)).toHaveValue('price');
+    expect(await shownSort(page, isMobile)).toBe('Price (low to high)');
     expect(await prices(page)).toEqual(ascending);
+  });
+
+  test('turns the chosen field round on a second press', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'a phone offers the orders as a select');
+    await page.goto('/catalog/espresso');
+
+    await sortByPrice(page, isMobile, 'price_desc');
+
+    await expect(page).toHaveURL(/sort=price_desc/);
+    expect(await shownSort(page, isMobile)).toBe('Price (high to low)');
+    const descending = await prices(page);
+    expect(descending).toEqual([...descending].sort((a, b) => b - a));
   });
 
   test('returns to the first page, which the new order has renumbered', async ({
     page,
+    isMobile,
   }) => {
     await page.goto('/catalog/espresso?page=2');
 
-    await sortBy(page).selectOption('price_desc');
+    await sortByPrice(page, isMobile, 'price_desc');
 
     await expect(page).toHaveURL(/sort=price_desc/);
     await expect(page).not.toHaveURL(/page=/);
   });
 
-  test('sorts search results without losing the query', async ({ page }) => {
+  test('sorts search results without losing the query', async ({
+    page,
+    isMobile,
+  }) => {
     await page.goto('/search?q=espresso');
 
-    await sortBy(page).selectOption('price');
+    await sortByPrice(page, isMobile, 'price');
 
     // Both halves of the URL, and the sort first: `q=espresso` is already there
     // from the navigation, so asserting only that would let the read happen
@@ -219,13 +274,18 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
 
   test('offers relevance on search only, where a query can rank it', async ({
     page,
+    isMobile,
   }) => {
     await page.goto('/search?q=espresso');
-    await expect(sortBy(page)).toHaveValue('relevance');
+    expect(await shownSort(page, isMobile)).toBe('Best match');
 
     await page.goto('/catalog/espresso');
+    const control = isMobile ? sortBy(page) : segments(page);
+    if (!isMobile) await expect(control).toBeVisible();
     await expect(
-      sortBy(page).getByRole('option', { name: 'Best match' }),
+      control.getByRole(isMobile ? 'option' : 'button', {
+        name: 'Best match',
+      }),
     ).toHaveCount(0);
   });
 });

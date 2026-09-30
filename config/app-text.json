@@ -63,7 +63,13 @@
       "name": "Name (A–Z)",
       "name_desc": "Name (Z–A)",
       "price": "Price (low to high)",
-      "price_desc": "Price (high to low)"
+      "price_desc": "Price (high to low)",
+      "fields": {
+        "relevance": "Best match",
+        "category": "Category",
+        "name": "Name",
+        "price": "Price"
+      }
     },
     "filters": {
       "title": "Filters",
