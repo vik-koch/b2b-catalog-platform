@@ -36,7 +36,6 @@ const category: AdminCategory = {
   sortOrder: 0,
   mark: null,
   sourceId: 'espresso',
-  description: null,
   shortName: null,
   productCount: 3,
   directProductCount: 3,

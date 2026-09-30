@@ -377,7 +377,6 @@ function toAdminCategory(
     sortOrder: row.sortOrder,
     mark: row.mark,
     sourceId: row.sourceId,
-    description: '',
     shortName: row.shortName,
     ...counts,
   };

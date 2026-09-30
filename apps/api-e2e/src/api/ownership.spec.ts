@@ -159,7 +159,6 @@ describe('External data ownership (FR-ADM-10)', () => {
       shortName: null,
       parentId: null,
       mark: null,
-      description: null,
     });
     expect(category.status).toBe(201);
     categoryId = category.data.id;
@@ -443,7 +442,6 @@ describe('External data ownership (FR-ADM-10)', () => {
           shortName: null,
           parentId: null,
           mark: null,
-          description: null,
           sourceId: categorySourceId,
         };
         const renamed = await asAdmin(
@@ -475,7 +473,6 @@ describe('External data ownership (FR-ADM-10)', () => {
           shortName: null,
           parentId: null,
           mark: null,
-          description: null,
         });
         expect(own.status).toBe(201);
         expect(own.data.sourceId).toBeNull();
@@ -484,7 +481,6 @@ describe('External data ownership (FR-ADM-10)', () => {
           shortName: null,
           parentId: null,
           mark: null,
-          description: null,
         };
         const renamed = await asAdmin(
           'put',
@@ -528,7 +524,6 @@ describe('External data ownership (FR-ADM-10)', () => {
           shortName: null,
           parentId: null,
           mark: null,
-          description: null,
         });
         // Creating a category stays open: the shop still arranges the tree.
         expect(other.status).toBe(201);

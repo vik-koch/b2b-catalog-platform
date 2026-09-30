@@ -32,7 +32,7 @@ import { CategoryPicker } from './category-picker';
  * save, dirty tracking via a route guard — so category editing reads the same
  * as product editing rather than the list's earlier inline expansion. Structure
  * (add/reorder/delete) stays on the list; this page owns the presentation
- * overlay (name, parent, slug, description, mark). Browser-only (an admin
+ * overlay (name, parent, slug, mark). Browser-only (an admin
  * route).
  */
 @Component({
@@ -63,8 +63,8 @@ import { CategoryPicker } from './category-picker';
       <div class="max-w-3xl space-y-6">
         <!-- Only two of this form's fields are locked, so the banner names the
              rest rather than letting the marks imply a whole read-only page:
-             the nickname, the parent, the picture and the description stay the
-             shop's, which is what keeps the tree rearrangeable. -->
+             the nickname, the parent and the mark stay the shop's, which is
+             what keeps the tree rearrangeable. -->
         @if (fieldsLocked()) {
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
@@ -152,17 +152,6 @@ import { CategoryPicker } from './category-picker';
             }}</span>
           </label>
         </div>
-
-        <label class="block">
-          <span appFieldLabel>{{ text.description }}</span>
-          <textarea
-            rows="3"
-            appInput
-            class="w-full"
-            [value]="description()"
-            (input)="description.set($any($event.target).value)"
-          ></textarea>
-        </label>
 
         <div>
           <span appFieldLabel>{{ text.mark }}</span>
@@ -258,7 +247,6 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly slugTouched = signal(false);
   protected readonly parentId = signal('');
   protected readonly sourceId = signal('');
-  protected readonly description = signal('');
   /** The chip mark (FR-CAT-07). */
   protected readonly mark = signal<CatalogImage | null>(null);
 
@@ -324,7 +312,6 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       this.slug.set(match.slug);
       this.parentId.set(match.parentId ?? '');
       this.sourceId.set(match.sourceId ?? '');
-      this.description.set(match.description ?? '');
       this.mark.set(match.mark);
       this.original = this.snapshot();
     }
@@ -338,7 +325,6 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       slug: this.effectiveSlug(),
       sourceId: this.sourceId(),
       parentId: this.parentId(),
-      description: this.description(),
       mark: this.mark(),
     });
   }
@@ -374,7 +360,6 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       name: this.name().trim(),
       shortName: this.shortName().trim() || null,
       parentId: this.parentId() || null,
-      description: this.description().trim() || null,
       mark: this.mark(),
       ...(slug ? { slug } : {}),
       sourceId,

@@ -40,7 +40,6 @@ describe('AdminCatalogController', () => {
     sortOrder: 0,
     mark: null,
     sourceId: 'ERP-CAT-1',
-    description: null,
     shortName: null,
     productCount: 0,
     directProductCount: 0,

@@ -34,7 +34,6 @@ const category: AdminCategory = {
   sortOrder: 0,
   mark: null,
   sourceId: 'manual:x',
-  description: null,
   productCount: 3,
   directProductCount: 3,
   childCount: 0,

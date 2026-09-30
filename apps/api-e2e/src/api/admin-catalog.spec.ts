@@ -58,7 +58,6 @@ const PRODUCT_KEYS = [
 ];
 const CATEGORY_KEYS = [
   'childCount',
-  'description',
   'directProductCount',
   'id',
   'mark',

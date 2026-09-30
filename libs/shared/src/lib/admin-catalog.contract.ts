@@ -556,7 +556,6 @@ export const adminCategorySchema = z
     /** Null for a category the shop made up: no source system knows it, which
      * is also what leaves its name the shop's to change. */
     sourceId: z.string().nullable(),
-    description: z.string().nullable(),
     /** Optional nickname for contexts where the parent is visible; see the
      * public contract's `shortNameSchema`. */
     shortName: z.string().nullable(),
@@ -610,11 +609,6 @@ export const categoryInputSchema = z
       .max(SOURCE_ID_MAX_LENGTH)
       .nullable()
       .optional(),
-    description: z
-      .string()
-      .max(PRODUCT_DESCRIPTION_MAX_LENGTH)
-      .nullable()
-      .default(null),
   })
   .strict();
 export type CategoryInput = z.infer<typeof categoryInputSchema>;
@@ -906,7 +900,7 @@ export const adminCatalogContract = {
       'category-not-found': e['category-not-found'],
       'category-cycle': e['category-cycle'],
       // Its name and source id are the exchange's while the catalog is owned;
-      // the rest of the row — nickname, parent, mark, description — is the
+      // the rest of the row — nickname, parent, mark — is the
       // shop's presentation and stays editable throughout.
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
       ...categoryIdentityErrors,

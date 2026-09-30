@@ -364,7 +364,6 @@
     "slugHint": "Used in the category's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
     "sourceId": "Category number (optional)",
     "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
-    "description": "Description",
     "mark": "Mark",
     "markHint": "A square picture filling the right end of the category's chip, edge to edge. Leave the margin you want inside the picture; a transparent background shows the chip through.",
     "discardConfirm": "Discard your unsaved changes to this category?",
