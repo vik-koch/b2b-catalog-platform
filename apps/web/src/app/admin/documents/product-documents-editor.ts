@@ -24,6 +24,7 @@ import {
 import { FieldLabel } from '../../ui/field-label';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { PRODUCT_FEATURE_GLYPHS } from '../products/product-feature-glyphs';
 import { Input } from '../../ui/input';
 import { Link } from '../../ui/link';
 import { DocumentsService } from './documents.service';
@@ -75,7 +76,13 @@ const SUGGESTIONS_SHOWN = 8;
         [open]="open()"
         [panelId]="panelId"
         (toggled)="open.set(!open())"
-      />
+      >
+        <app-admin-icon
+          disclosureLead
+          [name]="glyph"
+          class="h-4 w-4 text-subtle"
+        />
+      </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-border p-4">
           <p class="text-xs text-subtle">{{ text.hint }}</p>
@@ -180,6 +187,7 @@ export class ProductDocumentsEditor implements OnInit {
   private readonly service = inject(DocumentsService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.documents;
+  protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
 
   readonly value = input.required<readonly LinkedDocument[]>();
   readonly valueChange = output<LinkedDocument[]>();

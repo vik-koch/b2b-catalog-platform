@@ -33,6 +33,7 @@ import {
 import { FieldLabel } from '../../ui/field-label';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../ui/input';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
@@ -80,7 +81,13 @@ let nextId = 0;
         [open]="open()"
         [panelId]="panelId"
         (toggled)="open.set(!open())"
-      />
+      >
+        <app-admin-icon
+          disclosureLead
+          [name]="glyph"
+          class="h-4 w-4 text-subtle"
+        />
+      </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-border p-4">
           <p class="text-xs text-subtle">{{ text.hint }}</p>
@@ -225,6 +232,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.variants;
+  protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();
   /** The gallery, read for how many pictures each variant has. */

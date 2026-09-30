@@ -48,6 +48,7 @@ import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../ui/input';
 import { NumericField } from '../../ui/numeric-field';
 import { PriceField } from '../../ui/price-field';
@@ -416,6 +417,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              is owned and never written by a run. -->
         <app-feature-disclosure
           [label]="text.featured.heading"
+          [glyph]="glyphs.featured"
           [on]="featured()"
         >
           <p class="mb-2 text-xs text-subtle">{{ text.featured.hint }}</p>
@@ -442,6 +444,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              too. -->
         <app-feature-disclosure
           [label]="text.lineNote.heading"
+          [glyph]="glyphs.note"
           [on]="lineNoteEnabled()"
         >
           <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
@@ -602,6 +605,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
+  /** The grid's glyphs, on the sections that set what they stand for. */
+  protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** The badge wording, shared with the storefront's hidden-products overlay. */
   protected readonly editText = inject(ADMIN_TEXT).editMode;

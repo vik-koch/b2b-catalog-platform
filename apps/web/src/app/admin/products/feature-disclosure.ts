@@ -5,7 +5,7 @@ import {
   disclosureBorder,
   DisclosureToggle,
 } from '../../ui/disclosure-toggle';
-import { AdminIconName } from '../../ui/icons/admin-icon';
+import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
 
 /** `aria-controls` must name one panel, and a page holds several. */
 let nextId = 0;
@@ -22,7 +22,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-feature-disclosure',
-  imports: [DisclosureToggle],
+  imports: [AdminIcon, DisclosureToggle],
   host: { class: 'block' },
   template: `
     <div
@@ -36,7 +36,13 @@ let nextId = 0;
         [open]="open()"
         [panelId]="panelId"
         (toggled)="open.set(!open())"
-      />
+      >
+        <app-admin-icon
+          disclosureLead
+          [name]="glyph()"
+          class="h-4 w-4 text-subtle"
+        />
+      </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-border p-4">
           <ng-content />
@@ -52,6 +58,7 @@ export class FeatureDisclosure implements OnInit {
   protected readonly panelId = `feature-disclosure-${nextId++}`;
 
   readonly label = input.required<string>();
+  readonly glyph = input.required<AdminIconName>();
   /** Whether the feature is switched on. */
   readonly on = input(false);
 

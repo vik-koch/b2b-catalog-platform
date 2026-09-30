@@ -46,11 +46,17 @@ export function disclosureBorder(open: boolean): string {
       [attr.aria-controls]="panelId()"
       (click)="toggled.emit()"
     >
-      <span>
-        {{ label() }}
-        @if (count()) {
-          <span class="ml-1 text-accent">{{ countLabel() }}</span>
-        }
+      <!-- A glyph may lead the name: the product editor's sections wear the
+           one the grid draws for the same thing. Projected, so the admin
+           glyphs never enter the storefront bundle this control is part of. -->
+      <span class="flex items-center gap-2">
+        <ng-content select="[disclosureLead]" />
+        <span>
+          {{ label() }}
+          @if (count()) {
+            <span class="ml-1 text-accent">{{ countLabel() }}</span>
+          }
+        </span>
       </span>
       <!-- The chevron answers the pointer with the label it belongs to: the
            button recolours itself on hover, and a glyph carrying a colour of
