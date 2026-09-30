@@ -30,11 +30,14 @@ import { swipeStep, touchX } from './swipe';
 @Component({
   selector: 'app-tile-gallery',
   imports: [RouterLink, ImagePlaceholder],
+  host: { class: 'relative' },
   template: `
+    <!-- The link clips the photos to the caller's rounding, so the box around
+         it need not clip what hangs past its edge. -->
     <a
       [routerLink]="link()"
       [attr.aria-label]="productName()"
-      class="relative block h-full overflow-hidden bg-white"
+      class="relative block h-full overflow-hidden bg-white [border-radius:inherit]"
       (pointerenter)="revealNext()"
       (pointermove)="onScrub($event)"
       (pointerleave)="onPointerLeave($event)"
@@ -68,29 +71,6 @@ import { swipeStep, touchX } from './swipe';
         <app-image-placeholder [label]="productName()" />
       }
 
-      <!-- Against the left edge and clear of the top, a ribbon pinned to the
-           picture rather than a badge floating on it; one line, shortened,
-           since the name in full is in the picture's alt text. The alt text is
-           what a screen reader gets, so this is hidden from it.
-
-           One per picture, fading with it: a single label swapping its text
-           changed a beat before the photo under it had. -->
-      @if (labels()) {
-        @for (img of images(); track $index) {
-          @if (img.variant) {
-            <span
-              [class]="labelClass"
-              [class.opacity-100]="$index === selected()"
-              [class.opacity-0]="$index !== selected()"
-              aria-hidden="true"
-              data-variant-label
-            >
-              {{ img.variant }}
-            </span>
-          }
-        }
-      }
-
       @if (hasMultiple()) {
         <div
           class="pointer-events-none absolute inset-x-2 bottom-2 flex gap-1"
@@ -106,6 +86,29 @@ import { swipeStep, touchX } from './swipe';
         </div>
       }
     </a>
+
+    <!-- Against the left edge and clear of the top, a ribbon pinned to the
+         picture rather than a badge floating on it; one line, shortened,
+         since the name in full is in the picture's alt text. The alt text is
+         what a screen reader gets, so this is hidden from it.
+
+         One per picture, fading with it: a single label swapping its text
+         changed a beat before the photo under it had. -->
+    @if (labels()) {
+      @for (img of images(); track $index) {
+        @if (img.variant) {
+          <span
+            [class]="labelClass()"
+            [class.opacity-100]="$index === selected()"
+            [class.opacity-0]="$index !== selected()"
+            aria-hidden="true"
+            data-variant-label
+          >
+            {{ img.variant }}
+          </span>
+        }
+      }
+    }
   `,
 })
 export class TileGallery {
@@ -117,12 +120,19 @@ export class TileGallery {
   /** Whether a picture showing a variant is labelled with it. */
   labels = input(true);
 
-  /** Square against the photo's edge and pointed at the other end — a
-   * ribbon's cut, drawn by the clip rather than a border trick, so the point
-   * is the label's own colour whatever the photo behind it is. The padding on
-   * the right is the point's depth plus the text's own. */
-  protected readonly labelClass =
-    'pointer-events-none absolute top-2 left-0 max-w-[75%] truncate bg-secondary py-0.5 pr-3.5 pl-2 text-xs text-white transition-opacity duration-200 [clip-path:polygon(0_0,calc(100%-0.5rem)_0,100%_50%,calc(100%-0.5rem)_100%,0_100%)]';
+  /** Whether the label hangs from the card's edge rather than the photo's —
+   * where the photo stands inset by the card's padding. The caller then leaves
+   * its box unclipped. */
+  labelsOutside = input(false);
+
+  /** Square against the edge and pointed at the other end — a ribbon's cut,
+   * drawn by the clip rather than a border trick, so the point is the label's
+   * own colour whatever the photo behind it is. The padding on the right is the
+   * point's depth plus the text's own. */
+  protected readonly labelClass = computed(
+    () =>
+      `pointer-events-none absolute ${this.labelsOutside() ? '-top-1 -left-3' : 'top-2 left-0'} max-w-[75%] truncate bg-secondary py-0.5 pr-3.5 pl-2 text-xs text-white transition-opacity duration-200 [clip-path:polygon(0_0,calc(100%-0.5rem)_0,100%_50%,calc(100%-0.5rem)_100%,0_100%)]`,
+  );
 
   /** The product, and the variant where the picture shows one. */
   protected altFor(image: ProductImage): string {

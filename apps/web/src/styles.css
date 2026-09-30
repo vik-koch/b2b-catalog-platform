@@ -85,11 +85,12 @@
    * choice made by pointing does not snap from one colour to another as the
    * pointer leaves, and one made by a swipe is still seen to happen.
    */
-  --animate-variant-chosen: variant-chosen 600ms ease-out;
+  --animate-variant-chosen: variant-chosen 200ms ease-out;
 
   @keyframes variant-chosen {
     from {
       color: var(--color-accent);
+      background-color: white;
       box-shadow: 0 0 0 1px var(--color-accent);
     }
   }

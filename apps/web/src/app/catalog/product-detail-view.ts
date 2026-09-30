@@ -26,7 +26,8 @@ import { Icon } from '../ui/icons/icon';
 import { Link } from '../ui/link';
 import { ProductBuyBlock } from './product-buy-block';
 import { ProductDocuments } from './product-documents';
-import { ProductVariantGallery, ProductVariantList } from './product-variants';
+import { ProductVariantGallery } from './product-variant-gallery';
+import { ProductVariantList } from './product-variant-list';
 import { useProductUnits } from './product-units-view';
 
 /**

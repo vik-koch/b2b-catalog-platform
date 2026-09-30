@@ -21,7 +21,7 @@ import { DialogPanel } from '../ui/dialog-panel';
 import { Icon } from '../ui/icons/icon';
 import { LINK_BASE, LINK_TONES } from '../ui/link';
 import { Popover } from '../ui/popover';
-import { ProductVariantGallery } from './product-variants';
+import { ProductVariantGallery } from './product-variant-gallery';
 
 /**
  * Says a product comes in variants, where its picture is too small to label

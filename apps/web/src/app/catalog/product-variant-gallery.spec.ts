@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductImage, ProductVariant } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import { ProductVariantGallery } from './product-variants';
+import { ProductVariantGallery } from './product-variant-gallery';
 
 const text = defaultAppText.catalog.variants;
 
