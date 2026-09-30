@@ -19,7 +19,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
  * Both are the same pill and have to stay looking like it.
  */
 const SEGMENT_BASE =
-  'rounded text-center transition-colors select-none has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
+  'text-center transition-colors select-none has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
 
 /**
  * The pill around the segments, sized to its content.
@@ -31,6 +31,21 @@ const SEGMENT_BASE =
  */
 export const SEGMENTED_GROUP =
   'inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1';
+
+/**
+ * The quiet pill: a stone track with no edge, the chosen segment lifted out of
+ * it as a white chip. For a control that arranges what is already on the page
+ * — the listing's layout and order — rather than one that decides something,
+ * so it stays out of the brand colour the buying controls beside it speak in.
+ *
+ * `p-0.5` against `rounded-lg` puts the segment at `rounded-md`, for the same
+ * concentric-corner reason as above.
+ */
+export const SEGMENTED_GROUP_NEUTRAL =
+  'inline-flex gap-0.5 rounded-lg bg-stone-100 p-0.5';
+
+/** Which pill a segment sits in — see the two groups above. */
+export type SegmentTone = 'brand' | 'neutral';
 
 /** What a segment is: the chosen one, one that can be chosen, or one the
  * product is not sold in — shown rather than hidden, so every card offers the
@@ -64,11 +79,17 @@ export interface SegmentOptions {
    * drops every affordance: no pointer, no hover, nothing to press.
    */
   locked?: boolean;
+  tone?: SegmentTone;
 }
 
 export function segmentClass(
   state: SegmentState,
-  { size = 'sm', grow = false, locked = false }: SegmentOptions = {},
+  {
+    size = 'sm',
+    grow = false,
+    locked = false,
+    tone = 'brand',
+  }: SegmentOptions = {},
 ): string {
   /*
    * The app's one hover language, said on a segment: a fill lightens to accent
@@ -92,10 +113,20 @@ export function segmentClass(
     available: 'text-stone-400',
     unavailable: 'text-stone-400',
   };
+  // The quiet pill says the same things in stone: the chip is the fill, and
+  // the hover language is a ghost button's on both.
+  const neutralStates: Record<SegmentState, string> = {
+    selected:
+      'bg-white text-ink shadow-xs hover:text-accent active:text-primary-deep',
+    available:
+      'text-muted hover:bg-stone-200 hover:text-accent active:bg-stone-300 active:text-primary-deep',
+    unavailable: 'text-stone-400 hover:bg-stone-200 active:bg-stone-300',
+  };
   const look = locked
     ? `cursor-not-allowed ${lockedStates[state]}`
-    : `cursor-pointer ${states[state]}`;
-  return `${SEGMENT_BASE} ${SIZES[size]} ${look}${grow ? ' flex-auto' : ''}`;
+    : `cursor-pointer ${(tone === 'neutral' ? neutralStates : states)[state]}`;
+  const radius = tone === 'neutral' ? 'rounded-md' : 'rounded';
+  return `${SEGMENT_BASE} ${radius} ${SIZES[size]} ${look}${grow ? ' flex-auto' : ''}`;
 }
 
 /** Radio names have to be unique per group: two pills on one page sharing a

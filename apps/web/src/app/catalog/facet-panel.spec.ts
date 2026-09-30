@@ -174,16 +174,28 @@ describe('FacetPanel', () => {
         ),
       });
 
+    // Past the eighth, the values are folded rather than left out: there to
+    // open in place, and out of sight and out of the tab order until then.
+    const rest = (host: HTMLElement) =>
+      host.querySelector('app-collapsible') as HTMLElement;
+    const folded = (host: HTMLElement) =>
+      rest(host).className.includes('grid-rows-[0fr]') &&
+      (rest(host).firstElementChild as HTMLElement).className.includes(
+        'invisible',
+      );
+
     const collapsed = await render([many(null)]);
-    expect(collapsed.boxes()).toHaveLength(8);
+    expect(collapsed.boxes()).toHaveLength(12);
+    expect(rest(collapsed.host).querySelectorAll('input')).toHaveLength(4);
+    expect(folded(collapsed.host)).toBe(true);
     collapsed.buttonWith(defaultAppText.catalog.showMore)?.click();
     collapsed.fixture.detectChanges();
-    expect(collapsed.boxes()).toHaveLength(12);
+    expect(folded(collapsed.host)).toBe(false);
 
     TestBed.resetTestingModule();
     // The eleventh value is ticked, so the facet cannot open collapsed: a
     // shared link would otherwise hide part of its own filter.
     const shared = await render([many(10)]);
-    expect(shared.boxes()).toHaveLength(12);
+    expect(folded(shared.host)).toBe(false);
   });
 });

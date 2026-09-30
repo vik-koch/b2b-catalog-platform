@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CATALOG_SORTS,
@@ -11,6 +11,7 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Input } from '../ui/input';
+import { SEGMENTED_GROUP_NEUTRAL, segmentClass } from '../ui/segmented';
 import { SelectField } from '../ui/select-field';
 
 /**
@@ -28,10 +29,14 @@ const SORT_FIELD_ID = 'product-sort';
  * category grid and the search results, so both offer the same vocabulary in
  * the same place.
  *
- * A native `<select>`: one of a handful of mutually exclusive options is
- * exactly what the element is for, and it comes with keyboard support, an
- * accessible name and a usable mobile picker that a custom popup would have to
- * re-earn.
+ * Two shapes. Above a listing it is a row of segments, one per thing to sort
+ * by, where the ordered ones carry their direction as an arrow and pressing
+ * the chosen one again turns it round: every order is in view, and there is
+ * room for them once the listing is wide enough. Below that width, and inside
+ * the filter disclosure, it is a native `<select>`: one of a handful of
+ * mutually exclusive options is exactly what the element is for, and it comes
+ * with keyboard support, an accessible name and a usable mobile picker that a
+ * custom popup would have to re-earn.
  *
  * The control owns its own navigation rather than emitting upward. Sort lives
  * in the URL (FR-SEARCH-04), and merging one query parameter into the current
@@ -49,7 +54,44 @@ const SORT_FIELD_ID = 'product-sort';
   imports: [Input, SelectField],
   template: `
     @if (enabled) {
-      <div class="flex items-center gap-2">
+      @if (shape() === 'segments') {
+        <!-- The segments where the listing has room for them; the select
+             below that, on the same figure the layout toggle hides at. -->
+        <div
+          role="group"
+          [attr.aria-label]="text.sort.label"
+          class="hidden items-center gap-2 @min-[38rem]/listing:flex"
+        >
+          <span
+            class="text-sm whitespace-nowrap text-subtle"
+            aria-hidden="true"
+          >
+            {{ text.sort.label }}
+          </span>
+          <div [class]="group">
+            @for (field of fields(); track field.key) {
+              <button
+                type="button"
+                [class]="segment(field.active)"
+                [attr.aria-pressed]="field.active"
+                [attr.aria-label]="text.sort[field.shows]"
+                [title]="text.sort[field.shows]"
+                (click)="press(field.key)"
+              >
+                {{ text.sort.fields[field.key] }}
+                @if (field.arrow) {
+                  <span
+                    aria-hidden="true"
+                    [class]="field.active ? '' : 'text-stone-400'"
+                    >{{ field.arrow }}</span
+                  >
+                }
+              </button>
+            }
+          </div>
+        </div>
+      }
+      <div [class]="selectRow()">
         <label
           [attr.for]="id()"
           class="text-sm whitespace-nowrap text-subtle"
@@ -110,6 +152,53 @@ export class ProductSortSelect {
   readonly options = input<readonly ListingSort[]>(PRODUCT_SORTS);
   /** The default for this listing, which is left out of the URL. */
   readonly defaultSort = input.required<ListingSort>();
+  /** Segments above a listing, the select inside the filter disclosure. */
+  readonly shape = input<'segments' | 'select'>('select');
+
+  protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
+  protected readonly selectRow = computed(
+    () =>
+      `flex items-center gap-2${this.shape() === 'segments' ? ' @min-[38rem]/listing:hidden' : ''}`,
+  );
+
+  /**
+   * One segment per thing to sort by. A field offered both ways is one
+   * segment with an arrow for its direction — ascending until it is chosen
+   * and turned round — and `shows` is the order the segment stands for, whose
+   * full wording is its accessible name.
+   */
+  protected readonly fields = computed(() => {
+    const options = this.options();
+    const value = this.value();
+    const seen = new Set<SortField>();
+    return options.flatMap((option) => {
+      const key = sortField(option);
+      if (seen.has(key)) return [];
+      seen.add(key);
+      const turns = options.includes(`${key}_desc` as ListingSort);
+      const active = sortField(value) === key;
+      const shows: ListingSort = active ? value : (key as ListingSort);
+      const arrow = turns ? (shows.endsWith('_desc') ? '↓' : '↑') : '';
+      return [{ key, active, shows, arrow }];
+    });
+  });
+
+  protected segment(active: boolean): string {
+    return `${segmentClass(active ? 'selected' : 'available', { tone: 'neutral' })} flex h-full items-center gap-1 px-2.5 whitespace-nowrap`;
+  }
+
+  /** A new field starts ascending; the chosen one turns round. */
+  protected press(key: SortField): void {
+    const current = this.value();
+    const turns = this.options().includes(`${key}_desc` as ListingSort);
+    if (sortField(current) !== key) {
+      this.navigate(key as ListingSort);
+    } else if (turns) {
+      this.navigate(
+        (current.endsWith('_desc') ? key : `${key}_desc`) as ListingSort,
+      );
+    }
+  }
 
   /**
    * Writes the choice to the URL, which is what actually re-fetches — the
@@ -120,13 +209,23 @@ export class ProductSortSelect {
    * of the default view.
    */
   protected onSelect(event: Event): void {
-    const sort = (event.target as HTMLSelectElement).value as ListingSort;
+    this.navigate((event.target as HTMLSelectElement).value as ListingSort);
+  }
+
+  private navigate(sort: ListingSort): void {
     void this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { sort: sortParam(sort, this.defaultSort()), page: null },
       queryParamsHandling: 'merge',
     });
   }
+}
+
+/** What a sort orders by, whichever way round. */
+type SortField = 'relevance' | 'category' | 'name' | 'price';
+
+function sortField(sort: ListingSort): SortField {
+  return sort.replace(/_desc$/, '') as SortField;
 }
 
 /**

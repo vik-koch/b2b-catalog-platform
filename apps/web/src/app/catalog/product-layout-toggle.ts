@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
 import { Icon } from '../ui/icons/icon';
-import { SEGMENTED_GROUP, segmentClass } from '../ui/segmented';
+import { SEGMENTED_GROUP_NEUTRAL, segmentClass } from '../ui/segmented';
 import { ProductLayout, ProductLayoutService } from './product-layout';
 
 /**
- * Cards or lines (FR-CAT-06) — the same pill the unit selector uses, so a
- * choice between two ways of seeing the same thing looks like the app's other
- * choice between two ways of buying the same thing.
+ * Cards or lines (FR-CAT-06), on the quiet pill the sort beside it uses: both
+ * arrange the listing rather than decide anything, so neither borrows the
+ * brand colour the unit selector on the cards below speaks in.
  *
  * Two glyphs and no words: the two layouts are what the icons draw, the choice
  * is undone by pressing the other one, and a listing header already carries a
@@ -61,10 +61,10 @@ export class ProductLayoutToggle {
   private readonly layout = inject(ProductLayoutService);
   protected readonly text = inject(APP_TEXT).catalog.layout;
   protected readonly chosen = this.layout.layout;
-  protected readonly group = `${SEGMENTED_GROUP} h-8.5 items-center`;
+  protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
 
   protected segment(layout: ProductLayout): string {
-    return `${segmentClass(this.chosen() === layout ? 'selected' : 'available')} flex h-full items-center px-2`;
+    return `${segmentClass(this.chosen() === layout ? 'selected' : 'available', { tone: 'neutral' })} flex h-full items-center px-2`;
   }
 
   protected choose(layout: ProductLayout): void {

@@ -100,7 +100,7 @@ describe('CategoryIndex', () => {
     // Every child is in the HTML from the start — the fifth and sixth are in a
     // row that is collapsed, which is what the crawler and the toggle both need.
     expect(link(f, 'capsules')).not.toBeNull();
-    const row = () => link(f, 'capsules')?.closest('div');
+    const row = () => link(f, 'capsules')?.closest('app-collapsible');
     expect(row()?.className).toContain('grid-rows-[0fr]');
 
     toggle(f, defaultAppText.catalog.showMore)?.click();

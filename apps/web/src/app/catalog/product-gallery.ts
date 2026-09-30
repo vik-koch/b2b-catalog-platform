@@ -96,7 +96,10 @@ const THUMBS_BESIDE = 6;
       @if (images().length > 1) {
         <ul [class]="thumbsClass()">
           @for (img of images(); track $index) {
-            <li>
+            <!-- Folded on the thumb itself, not by an nth-child rule on the
+                 list: a class naming an ancestor is lost from the critical CSS
+                 a server-rendered page paints with first (see Icon). -->
+            <li [class]="folded($index) ? 'max-md:hidden' : ''">
               <button
                 type="button"
                 [class]="thumb($index === selected())"
@@ -195,6 +198,13 @@ export class ProductGallery {
       : `${base} md:max-w-100`;
   });
 
+  /** A thumb past the first row, while a phone shows only that row. */
+  protected folded(index: number): boolean {
+    return (
+      index >= THUMBS_COLLAPSED && !this.compact() && !this.showAllThumbs()
+    );
+  }
+
   protected readonly thumbsClass = computed(() => {
     if (this.compact()) return 'grid grid-cols-5 gap-2';
     // Under the photo, six to a row at the width the photo gives them; beside
@@ -203,12 +213,9 @@ export class ProductGallery {
       ? // The photo's 25rem less the five gutters between six squares.
         'grid grid-cols-5 gap-2 md:w-[calc((25rem-5*0.75rem)/6)] md:shrink-0 md:grid-cols-1 md:gap-3'
       : 'grid grid-cols-5 gap-2 md:w-16 md:shrink-0 md:grid-cols-1 md:gap-3';
-    const base = this.beside()
+    return this.beside()
       ? beside
       : 'grid grid-cols-5 gap-2 md:grid-cols-6 md:gap-3';
-    return this.showAllThumbs()
-      ? base
-      : `${base} [&>li:nth-child(n+6)]:max-md:hidden`;
   });
 
   images = input.required<readonly ProductImage[]>();

@@ -142,6 +142,19 @@ export const appTextSchema = z
             name_desc: z.string(),
             price: z.string(),
             price_desc: z.string(),
+            /**
+             * The segments above a listing: what is sorted by, with the
+             * direction drawn as an arrow beside it. The full wording above
+             * stays each segment's accessible name.
+             */
+            fields: z
+              .object({
+                relevance: z.string(),
+                category: z.string(),
+                name: z.string(),
+                price: z.string(),
+              })
+              .strict(),
           })
           .strict(),
         /**

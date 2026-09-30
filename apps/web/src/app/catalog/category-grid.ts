@@ -404,6 +404,7 @@ interface Listing {
                          and stays here at every width, down to the one where
                          both shapes are the same shape and it hides itself. -->
                     <app-product-sort-select
+                      shape="segments"
                       [class]="data.facets.length ? headerSortAt : ''"
                       [value]="shownSort()"
                       [defaultSort]="defaultSort()"

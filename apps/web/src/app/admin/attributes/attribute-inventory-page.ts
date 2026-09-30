@@ -333,9 +333,11 @@ type RenameTarget =
                                   ></span>
                                 </span>
                                 <ng-container recordActions>
+                                  <!-- The glyph's own size, which the button
+                                       hands its icon as --icon-size. -->
                                   <span appIconButton>
                                     <span
-                                      class="block rounded bg-stone-200"
+                                      class="block size-(--icon-size) rounded bg-stone-200"
                                     ></span>
                                   </span>
                                 </ng-container>
