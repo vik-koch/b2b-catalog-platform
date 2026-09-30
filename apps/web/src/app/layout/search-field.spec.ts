@@ -1,14 +1,23 @@
 import { Location } from '@angular/common';
-import { ApplicationRef } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { vi } from 'vitest';
 import { provideRouter, Router } from '@angular/router';
+import { ProductListItem } from '@b2b-catalog-platform/shared';
+import { CartAddition, CartService } from '../cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
+import { productListItem } from '../catalog/product.fixture';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { SearchField } from './search-field';
 
-type Suggestion = { slug: string; name: string };
+type Suggestion = ProductListItem;
+
+/** A suggestion row — a whole tile, as the API sends it (FR-SEARCH-06). */
+const row = (slug: string, name: string, overrides: Partial<Suggestion> = {}) =>
+  productListItem({ slug, name, ...overrides });
 
 /** What the stubbed API offers for any query. Set per test via `render`. */
 let suggestions: Suggestion[] = [];
@@ -20,6 +29,21 @@ let suggestions: Suggestion[] = [];
  */
 let hold: ((items: Suggestion[]) => void) | null = null;
 let holdNext = false;
+
+/** What the stubbed cart holds, and what it was asked to add. */
+const cartLines = signal<string[]>([]);
+let cartAdditions: CartAddition[] = [];
+let cartFull = false;
+const cartStub = {
+  lineFor: (slug: string) =>
+    cartLines().includes(slug) ? { slug } : undefined,
+  add: (addition: CartAddition) => {
+    if (cartFull) return 'full';
+    cartAdditions.push(addition);
+    cartLines.update((lines) => [...lines, addition.slug]);
+    return 'added';
+  },
+};
 
 /** A catalog service that answers from `suggestions`, so the field can be
  * driven without an HTTP layer under it. */
@@ -46,6 +70,8 @@ async function renderAt(url?: string) {
       provideRouter([{ path: '**', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: CatalogService, useValue: catalogStub },
+      { provide: CartService, useValue: cartStub },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
   if (url) await TestBed.inject(Router).navigateByUrl(url);
@@ -138,6 +164,8 @@ describe('SearchField', () => {
         provideRouter([{ path: '**', children: [] }]),
         { provide: APP_TEXT, useValue: defaultAppText },
         { provide: CatalogService, useValue: catalogStub },
+        { provide: CartService, useValue: cartStub },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       ],
     });
     TestBed.inject(Location).go('/search', 'q=espresso');
@@ -214,11 +242,11 @@ describe('SearchField', () => {
  * these cover both halves of that: that picking one is a shortcut to a
  * product, and that the plain query submit underneath it stays reachable.
  */
-describe('SearchField suggestions (FR-SEARCH-05)', () => {
+describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
   beforeEach(() => {
     suggestions = [
-      { slug: 'hafen-espresso', name: 'Hafen Espresso' },
-      { slug: 'espresso-dolce', name: 'Espresso Dolce' },
+      row('hafen-espresso', 'Hafen Espresso'),
+      row('espresso-dolce', 'Espresso Dolce'),
     ];
   });
 
@@ -226,6 +254,9 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     suggestions = [];
     hold = null;
     holdNext = false;
+    cartLines.set([]);
+    cartAdditions = [];
+    cartFull = false;
   });
 
   /** Types, then waits out the debounce and the stubbed request. Real timers:
@@ -253,8 +284,19 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
 
+  /** Each row's product cell — the part that goes to the product. */
   const options = (el: HTMLElement) =>
-    Array.from(el.querySelectorAll('[role="option"]'));
+    Array.from(
+      el.querySelectorAll<HTMLElement>(
+        '[role="row"] [role="gridcell"]:first-child',
+      ),
+    );
+  const names = (el: HTMLElement) =>
+    options(el).map((o) =>
+      o.querySelector('app-highlighted-line')?.textContent?.trim(),
+    );
+  const addButtons = (el: HTMLElement) =>
+    Array.from(el.querySelectorAll<HTMLButtonElement>('[role="row"] button'));
 
   const press = (el: HTMLElement, key: string): KeyboardEvent => {
     const event = new KeyboardEvent('keydown', { key, cancelable: true });
@@ -262,16 +304,150 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     return event;
   };
 
+  it('shows each suggestion with its picture and per-piece price (FR-SEARCH-06)', async () => {
+    suggestions = [
+      row('hafen-espresso', 'Hafen Espresso', {
+        images: [{ full: '/f.webp', thumb: '/t.webp', variant: null }],
+        prices: { piece: 1250, pack: 7500, box: null },
+      }),
+    ];
+    const { el, fixture } = await render();
+
+    await typeQuery(fixture, el, 'espresso');
+
+    const cell = options(el)[0];
+    expect(cell.querySelector('img')?.getAttribute('src')).toBe('/t.webp');
+    // The piece price, not the pack's: a listing leads with it (FR-UNIT-08).
+    expect(cell.textContent).toContain('12');
+    expect(cell.textContent).toContain('50');
+    expect(cell.textContent).not.toContain('75');
+  });
+
+  it('draws the placeholder for a product without a picture', async () => {
+    const { el, fixture } = await render();
+
+    await typeQuery(fixture, el, 'espresso');
+
+    expect(
+      options(el)[0].querySelector('app-image-placeholder'),
+    ).not.toBeNull();
+  });
+
+  it('adds the smallest order to the cart and keeps the list open', async () => {
+    suggestions = [
+      row('hafen-espresso', 'Hafen Espresso', {
+        packaging: { piecesPerPack: 6, packsPerBox: 4, minPieceQty: 6 },
+      }),
+    ];
+    const { el, fixture, navigate } = await render();
+    await typeQuery(fixture, el, 'espresso');
+
+    addButtons(el)[0].click();
+    await fixture.whenStable();
+
+    expect(cartAdditions).toHaveLength(1);
+    expect(cartAdditions[0]).toMatchObject({
+      slug: 'hafen-espresso',
+      unit: 'piece',
+      pieces: 6,
+      note: null,
+    });
+    // Filling a cart from one query: the panel is still there for the next.
+    expect(navigate).not.toHaveBeenCalled();
+    expect(
+      (el.querySelector('input') as HTMLInputElement).getAttribute(
+        'aria-expanded',
+      ),
+    ).toBe('true');
+  });
+
+  it('marks a product already in the cart instead of offering it again', async () => {
+    cartLines.set(['espresso-dolce']);
+    const { el, fixture } = await render();
+
+    await typeQuery(fixture, el, 'espresso');
+
+    expect(addButtons(el)).toHaveLength(1);
+    const mark = el.querySelector(
+      '[role="row"]:nth-child(2) [role="gridcell"]:last-child [role="img"]',
+    );
+    expect(mark?.getAttribute('aria-label')).toContain('Espresso Dolce');
+  });
+
+  it('switches the button off for a product out of stock', async () => {
+    suggestions = [
+      row('hafen-espresso', 'Hafen Espresso', { availability: 'out' }),
+    ];
+    const { el, fixture } = await render();
+
+    await typeQuery(fixture, el, 'espresso');
+
+    expect(addButtons(el)[0].disabled).toBe(true);
+  });
+
+  it('says so when the cart is full', async () => {
+    cartFull = true;
+    const { el, fixture } = await render();
+    await typeQuery(fixture, el, 'espresso');
+
+    addButtons(el)[0].click();
+    await fixture.whenStable();
+
+    expect(el.textContent).toContain(defaultAppText.cart.full);
+  });
+
+  it('reaches the add button from the keyboard with the right arrow', async () => {
+    const { el, fixture, navigate } = await render();
+    await typeQuery(fixture, el, 'espresso');
+    const input = el.querySelector('input') as HTMLInputElement;
+
+    press(el, 'ArrowDown');
+    expect(press(el, 'ArrowRight').defaultPrevented).toBe(true);
+    await fixture.whenStable();
+    expect(input.getAttribute('aria-activedescendant')).toMatch(/-0-1$/);
+
+    const enter = press(el, 'Enter');
+    await fixture.whenStable();
+
+    expect(enter.defaultPrevented).toBe(true);
+    expect(cartAdditions.map((a) => a.slug)).toEqual(['hafen-espresso']);
+    expect(navigate).not.toHaveBeenCalled();
+
+    // And back to the product, which Enter opens.
+    press(el, 'ArrowLeft');
+    press(el, 'Enter');
+    expect(navigate).toHaveBeenCalledWith(['/product', 'hafen-espresso']);
+  });
+
+  it('leaves the arrows to the caret while no row is selected', async () => {
+    const { el, fixture } = await render();
+    await typeQuery(fixture, el, 'espresso');
+
+    expect(press(el, 'ArrowRight').defaultPrevented).toBe(false);
+    expect(press(el, 'ArrowLeft').defaultPrevented).toBe(false);
+  });
+
+  it('goes to the results page from the panel footer', async () => {
+    const { el, fixture, navigate } = await render();
+    await typeQuery(fixture, el, 'espresso');
+
+    const showAll = Array.from(el.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes(defaultAppText.search.showAllResults),
+    );
+    showAll?.click();
+
+    expect(navigate).toHaveBeenCalledWith(['/search'], {
+      queryParams: { q: 'espresso' },
+    });
+  });
+
   it('offers matching product names once a query is typed', async () => {
     const { el, fixture } = await render();
 
     expect(options(el)).toHaveLength(0);
     await typeQuery(fixture, el, 'espresso');
 
-    expect(options(el).map((o) => o.textContent?.trim())).toEqual([
-      'Hafen Espresso',
-      'Espresso Dolce',
-    ]);
+    expect(names(el)).toEqual(['Hafen Espresso', 'Espresso Dolce']);
   });
 
   it('marks the part of the name the query matched', async () => {
@@ -291,14 +467,12 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     // The segments are adjacent runs of one word: any whitespace between them
     // in the template renders as a space, and "Grinder" would come out as
     // "Grinde r" on screen.
-    suggestions = [
-      { slug: 'kontor-hand-grinder', name: 'Kontor Hand Grinder' },
-    ];
+    suggestions = [row('kontor-hand-grinder', 'Kontor Hand Grinder')];
     const { el, fixture } = await render();
 
     await typeQuery(fixture, el, 'grinde');
 
-    expect(options(el)[0].textContent?.trim()).toBe('Kontor Hand Grinder');
+    expect(names(el)[0]).toBe('Kontor Hand Grinder');
   });
 
   it('goes straight to the product when one is picked', async () => {
@@ -347,7 +521,12 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     const activeName = async () => {
       await fixture.whenStable();
       const id = input.getAttribute('aria-activedescendant');
-      return id ? el.querySelector(`#${id}`)?.textContent?.trim() : null;
+      return id
+        ? el
+            .querySelector(`#${id}`)
+            ?.querySelector('app-highlighted-line')
+            ?.textContent?.trim()
+        : null;
     };
 
     expect(await activeName()).toBeNull();
@@ -391,7 +570,7 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
   it('exposes the field as a combobox over its list', async () => {
     const { el, fixture } = await render();
     const input = el.querySelector('input') as HTMLInputElement;
-    const list = el.querySelector('[role="listbox"]') as HTMLElement;
+    const list = el.querySelector('[role="grid"]') as HTMLElement;
 
     expect(input.getAttribute('role')).toBe('combobox');
     expect(input.getAttribute('aria-controls')).toBe(list.id);
@@ -429,19 +608,14 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     await typePending(el, 'espresso d');
     fixture.detectChanges();
 
-    expect(options(el).map((o) => o.textContent?.trim())).toEqual([
-      'Hafen Espresso',
-      'Espresso Dolce',
-    ]);
+    expect(names(el)).toEqual(['Hafen Espresso', 'Espresso Dolce']);
 
     holdNext = false;
-    hold?.([{ slug: 'espresso-dolce', name: 'Espresso Dolce' }]);
+    hold?.([row('espresso-dolce', 'Espresso Dolce')]);
     await fixture.whenStable();
     await TestBed.inject(ApplicationRef).whenStable();
 
-    expect(options(el).map((o) => o.textContent?.trim())).toEqual([
-      'Espresso Dolce',
-    ]);
+    expect(names(el)).toEqual(['Espresso Dolce']);
   });
 
   it('does not flash "nothing found" on the way to a first answer', async () => {
@@ -482,12 +656,10 @@ describe('SearchField suggestions (FR-SEARCH-05)', () => {
     ).toBe('true');
 
     holdNext = false;
-    hold?.([{ slug: 'espresso-dolce', name: 'Espresso Dolce' }]);
+    hold?.([row('espresso-dolce', 'Espresso Dolce')]);
     await fixture.whenStable();
     await TestBed.inject(ApplicationRef).whenStable();
 
-    expect(options(el).map((o) => o.textContent?.trim())).toEqual([
-      'Espresso Dolce',
-    ]);
+    expect(names(el)).toEqual(['Espresso Dolce']);
   });
 });

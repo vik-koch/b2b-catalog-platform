@@ -16,7 +16,7 @@ async function openSearch(page: Page, isMobile: boolean) {
   return page.getByRole('combobox', { name: 'Search products' });
 }
 
-test('suggests product names while typing and jumps straight to the product (FR-SEARCH-05)', async ({
+test('suggests products while typing and jumps straight to the product (FR-SEARCH-05)', async ({
   page,
   isMobile,
 }) => {
@@ -25,7 +25,10 @@ test('suggests product names while typing and jumps straight to the product (FR-
 
   await field.fill('hafen');
 
-  const option = page.getByRole('option', { name: product.name });
+  const option = page
+    .getByRole('row', { name: product.name })
+    .getByRole('gridcell')
+    .first();
   await expect(option).toBeVisible();
   // The typed part is marked in place, so the row explains its own match —
   // the same <mark> the address and company fields draw.
@@ -46,7 +49,7 @@ test('drives the suggestion list from the keyboard alone', async ({
   const field = await openSearch(page, isMobile);
 
   await field.fill('hafen');
-  await expect(page.getByRole('option', { name: product.name })).toBeVisible();
+  await expect(page.getByRole('row', { name: product.name })).toBeVisible();
 
   await field.press('ArrowDown');
   // The combobox reports its selection by id rather than by moving focus,
@@ -57,7 +60,7 @@ test('drives the suggestion list from the keyboard alone', async ({
   await expect(field).toHaveAttribute('aria-activedescendant', /.+/);
   const activeId = await field.getAttribute('aria-activedescendant');
   const highlighted = String(
-    await page.locator(`#${activeId}`).textContent(),
+    await page.locator(`#${activeId} app-highlighted-line`).textContent(),
   ).trim();
   expect(highlighted).not.toBe('');
 
@@ -70,6 +73,32 @@ test('drives the suggestion list from the keyboard alone', async ({
   await expect(page.locator('h1')).toHaveText(highlighted);
 });
 
+test('adds a product to the cart from its suggestion without leaving the field (FR-SEARCH-06)', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto('/');
+  const field = await openSearch(page, isMobile);
+
+  await field.fill('hafen');
+  await page
+    .getByRole('button', { name: `Add ${product.name} to cart` })
+    .click();
+
+  // The row says so in place, and the query is still being answered — the
+  // next product is one press away.
+  await expect(
+    page.getByRole('img', { name: `${product.name} is in your cart` }),
+  ).toBeVisible();
+  await expect(field).toBeFocused();
+  await expect(field).toHaveAttribute('aria-expanded', 'true');
+
+  await page.goto('/cart');
+  await expect(
+    page.getByRole('heading', { name: product.name, level: 2 }),
+  ).toBeVisible();
+});
+
 test('keeps the full result list reachable by submitting the query', async ({
   page,
   isMobile,
@@ -80,7 +109,7 @@ test('keeps the full result list reachable by submitting the query', async ({
   // Suggestions are an accelerator only: Enter with no suggestion selected
   // still searches, even while the list is showing.
   await field.fill('espresso');
-  await expect(page.getByRole('option').first()).toBeVisible();
+  await expect(page.getByRole('row').first()).toBeVisible();
   await field.press('Enter');
 
   await expect(page).toHaveURL(/\/search\?q=espresso$/);
@@ -103,7 +132,7 @@ test('says so when a query matches nothing, rather than hiding the list', async 
   await expect(
     page.locator('p:not([aria-live])', { hasText: 'Nothing found' }),
   ).toBeVisible();
-  await expect(page.getByRole('option')).toHaveCount(0);
+  await expect(page.getByRole('row')).toHaveCount(0);
 });
 
 test.describe('without JavaScript', () => {

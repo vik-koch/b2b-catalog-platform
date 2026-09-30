@@ -16,16 +16,23 @@ import {
 import { Router } from '@angular/router';
 import {
   fillText,
+  pieceFloor,
+  ProductListItem,
   SEARCH_QUERY_MAX_LENGTH,
-  SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
+import { CartAddResult, CartService } from '../cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
+import { ImagePlaceholder } from '../catalog/image-placeholder';
+import { useProductUnits } from '../catalog/product-units-view';
 import { APP_TEXT } from '../config/app-text';
 import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
 import { HighlightedLine } from '../core/highlighted-line';
+import { Button } from '../ui/button';
+import { FRAME } from '../ui/frame';
 import { Icon } from '../ui/icons/icon';
+import { WarningNote } from '../ui/warning-note';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -42,14 +49,25 @@ let nextId = 0;
  * box without JavaScript. Submitting navigates to `/search?q=…`.
  *
  * With JavaScript it is also a combobox (FR-SEARCH-05): typing offers a short
- * list of matching product names, and picking one goes straight to that
- * product. Suggestions are an accelerator layered on top and never become the
- * only way through — which is why the form underneath is untouched, and why
- * Enter still submits the typed query whenever no suggestion is selected.
+ * list of matching products, and picking one goes straight to that product.
+ * Suggestions are an accelerator layered on top and never become the only way
+ * through — which is why the form underneath is untouched, and why Enter still
+ * submits the typed query whenever no suggestion is selected.
+ *
+ * A row carries the picture and the price (FR-SEARCH-06), and a button that
+ * puts the product in the cart without leaving the field — a cart can be
+ * filled from one query and settled on the cart page. Only that: the unit,
+ * the quantity, the note and the counterparts are the cart's business, and a
+ * row that offered them would be a listing squeezed into a dropdown.
+ *
+ * Because a row holds two things to act on, the popup is a grid rather than a
+ * listbox (the ARIA grid-combobox pattern): a listbox option may not contain a
+ * button. The caret stays in the field throughout; the arrow keys walk the
+ * rows, and right and left step between the product and its button.
  */
 @Component({
   selector: 'app-search-field',
-  imports: [Icon, HighlightedLine],
+  imports: [Icon, HighlightedLine, ImagePlaceholder, Button, WarningNote],
   host: { class: 'block' },
   template: `
     <!-- action and method are what make the no-JS path real rather than
@@ -126,45 +144,156 @@ let nextId = 0;
 
           <!-- Kept in the DOM and hidden rather than removed: the element
                aria-controls names should not vanish from under the input
-               between queries. The message is a sibling of the listbox, not a
-               row inside it — a listbox may only contain options, and
-               "nothing found" is not something to pick. -->
+               between queries. The message is a sibling of the grid, not a
+               row inside it — "nothing found" is not something to pick.
+
+               Every press inside the panel is kept from taking focus, so the
+               caret never leaves the field: a blur would close the panel under
+               the pointer before the click landed, and adding a product would
+               end the query it was found by.
+
+               At least 22rem wide, spilling past the field's end where the
+               header leaves it narrow: a picture, a name and a price do not
+               fit in the field's own width there, and a row broken into one
+               word per line is a row nobody scans. -->
           <div
             [class.hidden]="!panelOpen()"
-            class="absolute top-full right-0 left-0 z-20 mt-1 overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg"
+            class="absolute top-full right-0 left-0 z-20 mt-1 flex min-w-[min(22rem,100vw_-_2rem)] flex-col overflow-hidden rounded-md border border-border-strong bg-white shadow-lg"
+            (mousedown)="$event.preventDefault()"
           >
             @if (noMatches()) {
-              <p class="px-3 py-2 text-sm text-subtle">
+              <p class="px-3 py-3 text-sm text-subtle">
                 {{ text.noSuggestions }}
               </p>
             }
-            <ul
+            <!-- Scrolls rather than grows: ten rows would cover the page the
+                 visitor is on. About four and a half fit, the half saying
+                 there is more below. -->
+            <div
               [id]="listId"
-              role="listbox"
+              role="grid"
               [attr.aria-label]="text.suggestionsLabel"
+              class="max-h-[min(22.5rem,60dvh)] overflow-y-auto overscroll-contain"
             >
               @for (item of suggestions(); track item.slug; let i = $index) {
-                <li
-                  [id]="listId + '-' + i"
-                  role="option"
-                  [attr.aria-selected]="i === activeIndex()"
-                  class="cursor-pointer truncate px-3 py-2 text-sm text-stone-800"
+                <div
+                  role="row"
+                  class="flex items-center gap-3 py-2 pr-3 pl-2"
                   [class.bg-stone-100]="i === activeIndex()"
-                  (mouseenter)="activeIndex.set(i)"
-                  (mousedown)="pick($event, item.slug)"
+                  (mouseenter)="hover(i)"
                 >
-                  <!-- The same marked run the address and company fields
-                       draw: one query should look like one query wherever it
-                       is typed, and the tint reads as a hit where the old
-                       bolding read as emphasis. Highlighted against the
-                       settled query rather than the live one — the names on
-                       screen answered that query, and marking them against
-                       later keystrokes would flicker a highlight the list has
-                       not caught up with. -->
-                  <app-highlighted-line [line]="item.name" [query]="query()" />
-                </li>
+                  <div
+                    role="gridcell"
+                    [id]="cellId(i, 0)"
+                    [attr.aria-selected]="isActive(i, 0)"
+                    class="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
+                    (mousedown)="go(item.slug)"
+                  >
+                    <!-- Decorative: the name beside it says what it shows. -->
+                    <span [class]="thumb">
+                      @if (
+                        item.images[0] && !failed().has(item.images[0].thumb)
+                      ) {
+                        <img
+                          [src]="item.images[0].thumb"
+                          alt=""
+                          class="h-full w-full object-cover"
+                          (error)="markFailed(item.images[0].thumb)"
+                        />
+                      } @else {
+                        <app-image-placeholder aria-hidden="true" />
+                      }
+                    </span>
+                    <span class="flex min-w-0 flex-col gap-0.5">
+                      <!-- The same marked run the address and company fields
+                           draw: one query should look like one query wherever
+                           it is typed. Highlighted against the settled query
+                           rather than the live one — the names on screen
+                           answered that query, and marking them against later
+                           keystrokes would flicker a highlight the list has
+                           not caught up with. -->
+                      <span class="line-clamp-2 text-sm text-stone-800">
+                        <app-highlighted-line
+                          [line]="item.name"
+                          [query]="query()"
+                        />
+                      </span>
+                      <!-- The per-piece price, as a listing leads with it
+                           (FR-UNIT-08) — and the viewer's own, since the API
+                           resolves it for their tier (FR-AUTH-05). -->
+                      <span
+                        class="text-sm font-semibold whitespace-nowrap text-ink"
+                      >
+                        {{ price(item).price }}
+                        <span class="text-xs font-normal text-subtle">{{
+                          price(item).label
+                        }}</span>
+                      </span>
+                    </span>
+                  </div>
+
+                  <div
+                    role="gridcell"
+                    [id]="cellId(i, 1)"
+                    [attr.aria-selected]="isActive(i, 1)"
+                    class="shrink-0"
+                  >
+                    @if (inCart(item)) {
+                      <!-- A mark, not a button: the line is in the cart, and
+                           its quantity is changed there — pressing again here
+                           would add to it without saying by how much. Drawn as
+                           the listing's "added" field is, in the box the
+                           button had, so the row does not move. -->
+                      <span
+                        role="img"
+                        [attr.aria-label]="inCartLabel(item)"
+                        [class]="addBox + ' ' + addedMark"
+                      >
+                        <app-icon name="circle-check" class="h-4 w-4" />
+                      </span>
+                    } @else {
+                      <!-- Out of the tab order: the caret stays in the field
+                           and the keyboard reaches this with the arrows, so it
+                           wears the focus ring while it is the active cell. -->
+                      <button
+                        type="button"
+                        appButton
+                        tabindex="-1"
+                        [class]="addBox + ' px-0'"
+                        [class.outline-2]="isActive(i, 1)"
+                        [class.outline-offset-2]="isActive(i, 1)"
+                        [attr.aria-label]="addLabel(item)"
+                        [disabled]="item.availability === 'out'"
+                        (click)="add(item)"
+                      >
+                        <app-icon name="shopping-basket" class="h-4 w-4" />
+                      </button>
+                    }
+                  </div>
+                </div>
               }
-            </ul>
+            </div>
+
+            @if (full()) {
+              <app-warning-note class="mx-3 my-2" role="status">
+                {{ cartText.full }}
+              </app-warning-note>
+            }
+
+            @if (suggestions().length) {
+              <!-- Where submitting the query goes, for a pointer that is
+                   already down here. Enter without a selection does the same
+                   from the keyboard, so this stays out of the tab order. -->
+              <button
+                type="button"
+                tabindex="-1"
+                class="flex cursor-pointer items-center justify-center gap-1 border-t border-border px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-stone-100 hover:text-accent active:text-primary-deep"
+                (click)="showAll()"
+              >
+                {{ text.showAllResults }}
+                <app-icon name="chevron-right" class="h-4 w-4" />
+              </button>
+            }
           </div>
         </div>
         <!-- The one control that overrides the app's focus outline: secondary
@@ -191,6 +320,9 @@ export class SearchField {
    * bottom bar's search tab is lit from. */
   protected readonly mobileSearch = inject(MobileSearch);
   private readonly catalog = inject(CatalogService);
+  private readonly cart = inject(CartService);
+  private readonly units = useProductUnits();
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
 
@@ -208,6 +340,7 @@ export class SearchField {
   });
 
   protected readonly text = inject(APP_TEXT).search;
+  protected readonly cartText = inject(APP_TEXT).cart;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly listId = `search-suggestions-${nextId++}`;
 
@@ -229,8 +362,23 @@ export class SearchField {
    * results someone just asked for would be in their way.
    */
   private readonly typing = signal(false);
-  /** Which option the keyboard is on; -1 is "none, Enter submits the query". */
+  /** Which row the keyboard is on; -1 is "none, Enter submits the query". */
   protected readonly activeIndex = signal(-1);
+  /** Which of the row's two cells: 0 the product, 1 its add button. */
+  private readonly activeCell = signal<0 | 1>(0);
+  /** Set when the last add was refused because the cart is at its line limit;
+   * cleared by the next keystroke. */
+  protected readonly full = signal(false);
+
+  /** Photos that failed to load, drawn as the placeholder instead. */
+  protected readonly failed = signal<ReadonlySet<string>>(new Set());
+
+  protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden rounded-md ${FRAME}`;
+  /** The add button's box, and the mark's that replaces it — one size, so a
+   * row does not move when one becomes the other. */
+  protected readonly addBox = 'inline-flex h-9 w-9 items-center justify-center';
+  protected readonly addedMark =
+    'animate-field-in rounded-md bg-secondary text-white select-none';
 
   /**
    * Suggestions for the settled query. Idle unless the visitor is typing,
@@ -256,8 +404,8 @@ export class SearchField {
    * idle resource (nothing being asked) clears it.
    */
   protected readonly suggestions = linkedSignal<
-    SearchSuggestion[] | undefined,
-    SearchSuggestion[]
+    ProductListItem[] | undefined,
+    ProductListItem[]
   >({
     source: () =>
       this.suggested.status() === 'idle' ? [] : this.suggested.value(),
@@ -293,7 +441,7 @@ export class SearchField {
   protected readonly panelOpen = computed(() => this.typing() && this.opened());
   protected readonly activeOptionId = computed(() =>
     this.panelOpen() && this.activeIndex() >= 0
-      ? `${this.listId}-${this.activeIndex()}`
+      ? this.cellId(this.activeIndex(), this.activeCell())
       : null,
   );
   protected readonly announcement = computed(() => {
@@ -315,6 +463,84 @@ export class SearchField {
       if (this.suggested.status() === 'idle') this.opened.set(false);
       else if (this.answered()) this.opened.set(true);
     });
+    // The list scrolls, so a row the arrow keys reach may be out of sight —
+    // `nearest` leaves a visible one where it is.
+    effect(() => {
+      const id = this.activeOptionId();
+      if (!id) return;
+      this.host.nativeElement
+        .querySelector(`#${id}`)
+        ?.closest('[role="row"]')
+        ?.scrollIntoView?.({ block: 'nearest' });
+    });
+  }
+
+  protected cellId(row: number, cell: 0 | 1): string {
+    return `${this.listId}-${row}-${cell}`;
+  }
+
+  protected isActive(row: number, cell: 0 | 1): boolean {
+    return this.activeIndex() === row && this.activeCell() === cell;
+  }
+
+  protected price(item: ProductListItem) {
+    // A piece always has a price, so this is never null.
+    return (
+      this.units.priceRow(item.prices, 'piece') ?? { price: '', label: '' }
+    );
+  }
+
+  protected inCart(item: ProductListItem): boolean {
+    return this.cart.lineFor(item.slug) !== undefined;
+  }
+
+  protected addLabel(item: ProductListItem): string {
+    return fillText(this.text.addSuggestion, { name: item.name });
+  }
+
+  protected inCartLabel(item: ProductListItem): string {
+    return fillText(this.text.suggestionInCart, { name: item.name });
+  }
+
+  protected markFailed(src: string): void {
+    this.failed.update((failed) => new Set(failed).add(src));
+  }
+
+  /** The pointer takes the row, and the product cell with it: the button's
+   * own hover says when it is the one under the pointer. */
+  protected hover(row: number): void {
+    this.activeIndex.set(row);
+    this.activeCell.set(0);
+  }
+
+  /**
+   * Puts the product in the cart as the smallest order it takes, in pieces —
+   * what the buying controls would add untouched. The panel stays open, so the
+   * next product is one press away; the unit and the quantity are settled on
+   * the cart page.
+   */
+  protected add(item: ProductListItem): void {
+    if (item.availability === 'out' || this.inCart(item)) return;
+    const result: CartAddResult = this.cart.add({
+      slug: item.slug,
+      name: item.name,
+      unit: 'piece',
+      pieces: pieceFloor(item.packaging),
+      note: null,
+      prices: item.prices,
+      packaging: item.packaging,
+      image: item.images[0]
+        ? { full: item.images[0].full, thumb: item.images[0].thumb }
+        : null,
+      availability: item.availability,
+      lineNoteEnabled: item.lineNoteEnabled,
+      lineNotePrompt: item.lineNotePrompt,
+      pairedCount: item.pairedCount,
+      parts: [...item.parts],
+      variants: [...item.variants],
+      images: [...item.images],
+    });
+    this.full.set(result === 'full');
   }
 
   /** Every keystroke reopens the list and drops the keyboard selection — the
@@ -323,6 +549,8 @@ export class SearchField {
     this.value.set(value);
     this.typing.set(true);
     this.activeIndex.set(-1);
+    this.activeCell.set(0);
+    this.full.set(false);
   }
 
   protected keydown(event: KeyboardEvent): void {
@@ -333,18 +561,28 @@ export class SearchField {
       case 'ArrowUp':
         this.move(-1, event);
         break;
+      case 'ArrowRight':
+      case 'ArrowLeft':
+        // Only while a row is selected: otherwise these move the caret, which
+        // is what they are for in a text field.
+        if (this.panelOpen() && this.activeIndex() >= 0) {
+          event.preventDefault();
+          this.activeCell.set(event.key === 'ArrowRight' ? 1 : 0);
+        }
+        break;
       case 'Enter':
-        // Intercepted only when an option is selected; otherwise the form
-        // submits the typed query, which is what keeps the full result list
-        // reachable from the keyboard alone.
+        // Intercepted only when a row is selected; otherwise the form submits
+        // the typed query, which is what keeps the full result list reachable
+        // from the keyboard alone.
         {
-          // Read through the list rather than trusting the index: names on
+          // Read through the list rather than trusting the index: rows on
           // screen can be replaced by a later answer, and Enter must never
           // reach for a row that is no longer there.
           const selected = this.suggestions()[this.activeIndex()];
           if (selected) {
             event.preventDefault();
-            this.go(selected.slug);
+            if (this.activeCell() === 1) this.add(selected);
+            else this.go(selected.slug);
           }
         }
         break;
@@ -371,17 +609,14 @@ export class SearchField {
 
     const count = this.suggestions().length;
     const next = this.activeIndex() + delta;
-    this.activeIndex.set(next < -1 ? count - 1 : next >= count ? -1 : next);
+    const row = next < -1 ? count - 1 : next >= count ? -1 : next;
+    this.activeIndex.set(row);
+    // The column is kept from row to row, as a grid keeps it — but back in
+    // the field there is no row to keep it for.
+    if (row < 0) this.activeCell.set(0);
   }
 
-  /** `mousedown`, not `click`: the field would otherwise blur first, close the
-   * list, and take the option out from under the pointer before it lands. */
-  protected pick(event: MouseEvent, slug: string): void {
-    event.preventDefault();
-    this.go(slug);
-  }
-
-  private go(slug: string): void {
+  protected go(slug: string): void {
     this.close();
     void this.router.navigate(['/product', slug]);
   }
@@ -397,6 +632,8 @@ export class SearchField {
     this.typing.set(false);
     this.opened.set(false);
     this.activeIndex.set(-1);
+    this.activeCell.set(0);
+    this.full.set(false);
   }
 
   protected submit(event: Event): void {
@@ -404,6 +641,10 @@ export class SearchField {
     // the browser would also navigate on its own — preventing that is what
     // hands the navigation to the router instead of a full page load.
     event.preventDefault();
+    this.showAll();
+  }
+
+  protected showAll(): void {
     const q = this.value().trim();
     if (!q) return;
     this.close();
