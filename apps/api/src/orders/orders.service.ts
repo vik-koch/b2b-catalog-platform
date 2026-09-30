@@ -41,6 +41,8 @@ import {
   transitionHasReason,
   transitionNeedsReason,
   TransitionTarget,
+  alternateLayoutQuery,
+  KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
 import {
   BadRequestException,
@@ -78,6 +80,7 @@ import {
   PAIRINGS_ENFORCED,
   PICKUP_LOCATIONS,
   PickupLocation,
+  ALTERNATE_LAYOUT,
 } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -316,6 +319,8 @@ export class OrdersService {
     private readonly pairingsEnforced: boolean,
     private readonly notifications: OrderNotifications,
     private readonly documents: OrderDocumentsService,
+    @Inject(ALTERNATE_LAYOUT)
+    private readonly alternateLayout: KeyboardLayout | null,
   ) {}
 
   /**
@@ -2286,19 +2291,24 @@ export class OrdersService {
   private searchCondition(q: string | undefined): SQL | undefined {
     const term = q?.trim();
     if (!term) return undefined;
-    const like = `%${term}%`;
+    const mapped = alternateLayoutQuery(term, this.alternateLayout);
     return or(
-      ilike(orders.reference, like),
-      ilike(orderRevisions.contactName, like),
-      ilike(orderRevisions.contactEmail, like),
-      ilike(orderRevisions.partyName, like),
-      inArray(
-        orders.userId,
-        this.db
-          .select({ id: users.id })
-          .from(users)
-          .where(ilike(users.email, like)),
-      ),
+      ...[term, ...(mapped === null ? [] : [mapped])].flatMap((text) => {
+        const like = `%${text}%`;
+        return [
+          ilike(orders.reference, like),
+          ilike(orderRevisions.contactName, like),
+          ilike(orderRevisions.contactEmail, like),
+          ilike(orderRevisions.partyName, like),
+          inArray(
+            orders.userId,
+            this.db
+              .select({ id: users.id })
+              .from(users)
+              .where(ilike(users.email, like)),
+          ),
+        ];
+      }),
     );
   }
 

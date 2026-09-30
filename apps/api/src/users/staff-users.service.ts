@@ -27,8 +27,13 @@ import {
   UpdateUserRequest,
   UserKind,
   UserRole,
+  alternateLayoutQuery,
+  KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
-import { COMPANY_ID_FORMATS } from '../config/deployment-config';
+import {
+  ALTERNATE_LAYOUT,
+  COMPANY_ID_FORMATS,
+} from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
@@ -113,6 +118,8 @@ export class StaffUsersService {
     private readonly users: UsersService,
     @Inject(COMPANY_ID_FORMATS)
     private readonly companyIdFormats: readonly CompanyIdFormat[],
+    @Inject(ALTERNATE_LAYOUT)
+    private readonly alternateLayout: KeyboardLayout | null,
   ) {}
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
@@ -143,17 +150,24 @@ export class StaffUsersService {
       );
     }
     if (filters.q) {
-      const like = `%${filters.q}%`;
+      const mapped = alternateLayoutQuery(filters.q, this.alternateLayout);
       // The same "one box, several columns" idea as the product grid: staff
       // look people up by whatever they happen to have — an address, a name
       // from a phone call, a number from an invoice.
       conditions.push(
         or(
-          ilike(users.email, like),
-          ilike(users.firstName, like),
-          ilike(users.lastName, like),
-          ilike(users.companyName, like),
-          ilike(users.companyRegistrationId, like),
+          ...[filters.q, ...(mapped === null ? [] : [mapped])].flatMap(
+            (text) => {
+              const like = `%${text}%`;
+              return [
+                ilike(users.email, like),
+                ilike(users.firstName, like),
+                ilike(users.lastName, like),
+                ilike(users.companyName, like),
+                ilike(users.companyRegistrationId, like),
+              ];
+            },
+          ),
         ) as SQL,
       );
     }

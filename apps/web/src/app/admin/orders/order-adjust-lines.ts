@@ -14,6 +14,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { currencySymbol } from '../../catalog/price';
 import { HighlightedLine } from '../../core/highlighted-line';
+import { AlternateLayout } from '../../core/alternate-layout';
 import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { FieldLabel } from '../../ui/field-label';
@@ -259,6 +260,7 @@ export interface AdjustLineRow {
                   <app-highlighted-line
                     [line]="item.name"
                     [query]="list.query()"
+                    [alternateQuery]="alternateQuery()"
                   />
                 </span>
                 @if (item.publishedAt === null) {
@@ -299,6 +301,10 @@ export class OrderAdjustLines {
       this.catalog.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
   });
+  private readonly layout = inject(AlternateLayout);
+  protected readonly alternateQuery = computed(() =>
+    this.layout.of(this.list.query()),
+  );
 
   /** A product already on the order is not offered again: a product in a given
    * unit is one line, and a second one would be two lines to reconcile. */

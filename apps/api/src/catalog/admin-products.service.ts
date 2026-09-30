@@ -34,6 +34,7 @@ import {
   ProductAvailability,
   ProductInput,
   ProductTierPrice,
+  KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
@@ -75,7 +76,10 @@ import {
 import { counterpartOf, involves, pairedCountOf } from './product-pairings';
 import { defaultTierId } from './default-tier';
 import { resolvedPriceMinor } from './product-price';
-import { LOW_STOCK_THRESHOLD_PIECES } from '../config/deployment-config';
+import {
+  ALTERNATE_LAYOUT,
+  LOW_STOCK_THRESHOLD_PIECES,
+} from '../config/deployment-config';
 import {
   resolveNewSlug,
   resolveNewProductSourceId,
@@ -180,6 +184,8 @@ export class AdminProductsService {
     // deployment rule is — a spec hands over a figure without a config file.
     @Inject(LOW_STOCK_THRESHOLD_PIECES) private lowStockFallback: number,
     private readonly settings: SettingsService,
+    @Inject(ALTERNATE_LAYOUT)
+    private readonly alternateLayout: KeyboardLayout | null,
   ) {}
 
   /**
@@ -211,7 +217,7 @@ export class AdminProductsService {
     };
   }> {
     const pageSize = ADMIN_CATALOG_PAGE_SIZE;
-    const search = parseSearchQuery(query.q);
+    const search = parseSearchQuery(query.q, this.alternateLayout);
     const categoryIds = query.categoryId
       ? await this.categoryScopeIds(query.categoryId, query.categoryScope)
       : undefined;
@@ -250,7 +256,7 @@ export class AdminProductsService {
       // Where the document list's product count leads: the products showing
       // one certificate, declaration or data sheet.
       documentCondition(this.db, query.documentId),
-      adminSearchCondition(query.q) ?? undefined,
+      adminSearchCondition(query.q, this.alternateLayout) ?? undefined,
     );
     // Only rank when the box holds something the name matcher could score; a
     // sync-key-only lookup has no meaningful relevance and falls back to name.

@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
+  ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
+  loadAlternateLayout,
   loadCompanyIdFormats,
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
@@ -28,6 +30,7 @@ import { StaffUsersService } from './staff-users.service';
     AuditLogger,
     // The shapes the list's "which kind of number" filter can name.
     { provide: COMPANY_ID_FORMATS, useFactory: loadCompanyIdFormats },
+    { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
   ],
   exports: [StaffUsersService],
 })

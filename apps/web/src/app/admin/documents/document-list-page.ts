@@ -19,6 +19,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { delayedLoading } from '../../core/delayed-loading';
+import { AlternateLayout } from '../../core/alternate-layout';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { ConfirmService } from '../../ui/confirm.service';
@@ -275,6 +276,7 @@ export class DocumentListPage {
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly layout = inject(AlternateLayout);
   private readonly dayFormat = adminDayFormat(this.locale);
 
   /**
@@ -312,14 +314,19 @@ export class DocumentListPage {
   protected readonly rows = computed(() => {
     const all = this.documents.value();
     if (!all) return undefined;
-    const term = this.term().toLocaleLowerCase(this.locale);
+    const term = this.term();
     const status = this.statusFilter();
     if (!term && !status) return all;
+    const terms = this.layout
+      .readings(term)
+      .map((reading) => reading.toLocaleLowerCase(this.locale));
+    const found = (text: string) =>
+      terms.some((reading) =>
+        text.toLocaleLowerCase(this.locale).includes(reading),
+      );
     return all.filter(
       (document) =>
-        (!term ||
-          document.title.toLocaleLowerCase(this.locale).includes(term) ||
-          document.file.name.toLocaleLowerCase(this.locale).includes(term)) &&
+        (!term || found(document.title) || found(document.file.name)) &&
         (!status || this.matchesStatus(document, status)),
     );
   });

@@ -586,6 +586,11 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(body.items.map((i) => i.slug)).toEqual([liveSlug]);
     });
 
+    it('reads the query on the second keyboard layout too (FR-SEARCH-08)', async () => {
+      const res = await adminGet(`/admin/catalog/products?q=zirga`);
+      expect(res.data.items[0]?.name).toBe('Yirgacheffe Filter');
+    });
+
     it('searches by the private sync key, punctuation and all', async () => {
       // A key fragment the name half cannot match on any term — the point is
       // that the slashes and the case survive to reach the sourceId.

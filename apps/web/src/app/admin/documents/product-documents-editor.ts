@@ -14,6 +14,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { HighlightedLine } from '../../core/highlighted-line';
+import { AlternateLayout } from '../../core/alternate-layout';
 import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
 import {
   DISCLOSURE_FRAME,
@@ -154,6 +155,7 @@ const SUGGESTIONS_SHOWN = 8;
                           <app-highlighted-line
                             [line]="item.title"
                             [query]="list.query()"
+                            [alternateQuery]="alternateQuery()"
                           />
                         </span>
                         <span class="block text-xs text-subtle">
@@ -211,13 +213,20 @@ export class ProductDocumentsEditor implements OnInit {
 
   protected readonly list = new SuggestList<LinkedDocument>({
     load: async (q) => {
-      const term = q.trim().toLocaleLowerCase(this.locale);
-      return (this.documents.value() ?? []).filter((document) =>
-        document.title.toLocaleLowerCase(this.locale).includes(term),
-      );
+      const terms = this.layout
+        .readings(q.trim())
+        .map((term) => term.toLocaleLowerCase(this.locale));
+      return (this.documents.value() ?? []).filter((document) => {
+        const title = document.title.toLocaleLowerCase(this.locale);
+        return terms.some((term) => title.includes(term));
+      });
     },
     minLength: 1,
   });
+  private readonly layout = inject(AlternateLayout);
+  protected readonly alternateQuery = computed(() =>
+    this.layout.of(this.list.query()),
+  );
 
   /** What is offerable: everything not already on this product. */
   protected readonly options = computed(() => {
