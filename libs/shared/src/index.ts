@@ -51,6 +51,7 @@ export * from './lib/product-parts';
 export * from './lib/product-variants';
 export * from './lib/product-units';
 export * from './lib/search-terms';
+export * from './lib/keyboard-layout';
 export * from './lib/settings-constants';
 export * from './lib/settings.contract';
 export * from './lib/shipment-estimate';
