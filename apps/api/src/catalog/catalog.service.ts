@@ -28,7 +28,6 @@ import {
   CatalogSort,
   publicDocumentSchema,
   SearchSort,
-  SearchSuggestion,
   SubcategoryLink,
   SEARCH_SUGGESTION_LIMIT,
   FEATURED_ROW_SIZE,
@@ -452,29 +451,40 @@ export class CatalogService {
   }
 
   /**
-   * Type-ahead suggestions for the search bar (FR-SEARCH-05). Deliberately the
-   * same candidate set and the same ordering as `searchProducts`, so the
-   * dropdown is a truthful prefix of the result page — only the count, the
-   * offset and the tile columns are dropped, which is what makes this cheap
-   * enough to run per keystroke.
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06). Deliberately
+   * the same candidate set, ordering and tile columns as `searchProducts`, so
+   * the dropdown is a truthful prefix of the result page and a row is the tile
+   * it would show — only the count, the offset and the facets are dropped,
+   * which is what makes this cheap enough to run per keystroke.
    */
-  async getSearchSuggestions(rawQuery: string): Promise<SearchSuggestion[]> {
+  async getSearchSuggestions(
+    rawQuery: string,
+    tierId: string | null = null,
+  ): Promise<ProductListItem[]> {
     const query = parseSearchQuery(rawQuery);
     if (!query) return [];
+    const price = livePriceMinor(tierId);
 
     return this.db.transaction(async (tx) => {
       await tx.execute(setSearchThreshold);
 
-      return tx
-        .select({ slug: products.slug, name: products.name })
+      const rows = await tx
+        .select({
+          slug: products.slug,
+          name: products.name,
+          priceMinor: price,
+          ...pictureColumns,
+          ...unitColumns,
+          ...noteColumns,
+          ...availabilityColumns,
+          ...partsColumns,
+          pairedCount: pairedCountOf(),
+        })
         .from(products)
         .where(and(publiclyVisible, searchCondition(query)))
-        .orderBy(
-          desc(relevanceScore(query)),
-          asc(products.name),
-          asc(products.id),
-        )
+        .orderBy(...productOrderBy('relevance', relevanceScore(query), price))
         .limit(SEARCH_SUGGESTION_LIMIT);
+      return rows.map(toListItem);
     });
   }
 

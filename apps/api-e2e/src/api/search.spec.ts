@@ -213,14 +213,16 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
   const suggest = (q: string) =>
     get(`/catalog/search/suggestions?q=${encodeURIComponent(q)}`);
 
-  it('offers names and slugs only', async () => {
+  it('offers the same tile the result page shows (FR-SEARCH-06)', async () => {
+    // Picture, price and what the cart needs to take it, all of it: a row
+    // states the price the viewer is charged and can be added from where it
+    // is, so it cannot be a narrower shape than the tile it stands for.
     const res = await suggest('Hafen Espresso');
+    const results = await search('Hafen Espresso');
 
     expect(res.status).toBe(200);
-    expect(res.data.items[0]).toEqual({
-      slug: slugOf('Hafen Espresso'),
-      name: 'Hafen Espresso',
-    });
+    expect(res.data.items[0].slug).toBe(slugOf('Hafen Espresso'));
+    expect(res.data.items[0]).toEqual(results.data.items[0]);
   });
 
   // Several words on purpose: candidates are an OR across terms, so a query

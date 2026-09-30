@@ -462,7 +462,7 @@ As a query is typed into the search bar, a short list of matching product names 
 
 #### <a id="fr-search-06"></a>FR-SEARCH-06 — What a suggestion shows
 
-A product suggestion carries the product's picture and its price beside its name, as a list item does — the price the viewer is charged ([FR-AUTH-05](#fr-auth-05)) and stated as a listing states it ([FR-UNIT-08](#fr-unit-08)). A suggestion list is scanned rather than read, and a row of bare names makes a shopper open pages to tell two products apart.
+A product suggestion carries the product's picture and its price beside its name, as a list item does — the price the viewer is charged ([FR-AUTH-05](#fr-auth-05)) and stated as a listing states it ([FR-UNIT-08](#fr-unit-08)). A suggestion list is scanned rather than read, and a row of bare names makes a shopper open pages to tell two products apart. A suggestion can also put its product in the cart, as the smallest order it takes, without leaving the field — so a cart can be filled from one query; the unit, the quantity and the note are settled in the cart.
 
 #### <a id="fr-search-07"></a>FR-SEARCH-07 — Categories among the suggestions
 

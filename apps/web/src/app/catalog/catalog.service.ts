@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import {
   CatalogSort,
+  ProductListItem,
   SearchSort,
-  SearchSuggestion,
 } from '@b2b-catalog-platform/shared';
 import { catalogContract } from '../core/contract-routes.generated';
 import { safe } from '@orpc/client';
@@ -58,12 +58,12 @@ export class CatalogService {
   }
 
   /**
-   * Type-ahead suggestions for the search bar (FR-SEARCH-05). Failures are
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06). Failures are
    * answered with an empty list rather than thrown: suggestions are an
    * accelerator, and a dropdown that cannot load is a reason to show nothing,
    * not to interrupt someone mid-query.
    */
-  async getSearchSuggestions(q: string): Promise<SearchSuggestion[]> {
+  async getSearchSuggestions(q: string): Promise<ProductListItem[]> {
     const { error, data } = await safe(
       this.client.getSearchSuggestions({ query: { q } }),
     );

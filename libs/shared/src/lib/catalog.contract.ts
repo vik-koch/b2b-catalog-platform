@@ -488,12 +488,13 @@ export const productSearchQuerySchema = z.object({
 });
 
 /**
- * How many names the search bar's suggestion list offers (FR-SEARCH-05).
+ * How many products the search bar's suggestion list offers (FR-SEARCH-05).
  * Enforced server-side and exported so the UI can size the list without
- * guessing. Short on purpose: suggestions are an accelerator, and a list long
- * enough to need scanning is slower than reading the result page.
+ * guessing. More than the panel shows at once — it scrolls — because a row
+ * can be added to the cart from where it is (FR-SEARCH-06), and filling a cart
+ * from one query is worth a few rows more than a glance's worth.
  */
-export const SEARCH_SUGGESTION_LIMIT = 5;
+export const SEARCH_SUGGESTION_LIMIT = 10;
 
 /**
  * Query for the suggestion list. Just `q`: there is no paging past the first
@@ -502,17 +503,6 @@ export const SEARCH_SUGGESTION_LIMIT = 5;
 export const searchSuggestionQuerySchema = z.object({
   q: z.string().max(SEARCH_QUERY_MAX_LENGTH).optional().default(''),
 });
-
-/**
- * One suggestion: the name to show and the slug to go to. No price or image —
- * picking a suggestion navigates straight to the product, so the row only has
- * to be recognizable, and keeping it this narrow is what makes the query cheap
- * enough to run while the visitor is still typing.
- */
-export const searchSuggestionSchema = z
-  .object({ slug: z.string(), name: z.string() })
-  .strict();
-export type SearchSuggestion = z.infer<typeof searchSuggestionSchema>;
 
 /**
  * One indexable URL for the sitemap (NFR-SEO-02): a slug and the row's
@@ -626,22 +616,24 @@ export const catalogContract = {
     ),
 
   /**
-   * Type-ahead suggestions for the search bar (FR-SEARCH-05). The same matcher
-   * and the same ordering as `searchProducts`, so the list is a truthful prefix
-   * of what submitting the query would show — but without the total count or
-   * the tile payload, which is what keeps it cheap enough to call per
-   * keystroke. Suggestions are an accelerator only: the full result list stays
-   * reachable by submitting.
+   * Type-ahead suggestions for the search bar (FR-SEARCH-05/06). The same
+   * matcher, the same ordering and the same tier-resolved tiles as
+   * `searchProducts`, so the list is a truthful prefix of what submitting the
+   * query would show — without the total count and the facets, which is what
+   * keeps it cheap enough to call per keystroke. Whole tiles, because a row
+   * shows the picture and the price and can put the product in the cart.
+   * Suggestions are an accelerator only: the full result list stays reachable
+   * by submitting.
    */
   getSearchSuggestions: oc
     .route({
       method: 'GET',
       path: '/catalog/search/suggestions',
       inputStructure: 'detailed',
-      summary: 'Suggest product names for a partial query',
+      summary: 'Suggest products for a partial query',
     })
     .input(z.object({ query: searchSuggestionQuerySchema }))
-    .output(z.object({ items: z.array(searchSuggestionSchema) }).strict()),
+    .output(z.object({ items: z.array(productListItemSchema) }).strict()),
 
   /**
    * Every indexable slug for the sitemap (NFR-SEO-02) — all categories and all

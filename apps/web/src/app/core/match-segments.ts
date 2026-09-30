@@ -27,31 +27,82 @@ export interface NameSegment {
  *   typo-tolerant on both sides, so "espreso" legitimately returns *Hafen
  *   Espresso* with nothing to mark — that line is then returned as a single
  *   unmatched segment. Highlighting degrades to plain text; it never guesses.
+ *
+ * Within that, a hit is marked as the visitor typed it rather than letter run
+ * by letter run. Each space-separated chunk of the query is looked for whole
+ * first, punctuation included — product names are full of `3.5"`, `0,5 l`,
+ * `(white)` and `2+1`, and marking the digits around a point but not the point
+ * reads as two hits where there was one. Only a chunk that is not in the name
+ * as typed falls back to its terms. And where two hits from different chunks
+ * are separated by nothing but spaces and punctuation, the gap is marked too,
+ * so "cup lid" over *Cup, lid* is one run and not two islands.
  */
 export function matchSegments(name: string, query: string): NameSegment[] {
   // Composed form throughout: offsets are computed on the folded copy and
   // applied to this string, so the two must agree on how an accented letter is
   // spelled. Rendering the composed form is visually identical.
   const source = name.normalize('NFC');
-  const terms = searchTerms(query);
-  if (!terms.length) return [{ text: source, match: false }];
+  const chunks = query
+    .normalize('NFC')
+    .split(/\s+/u)
+    .map((chunk) => fold(chunk))
+    .filter((chunk) => searchTerms(chunk).length > 0);
+  if (!chunks.length) return [{ text: source, match: false }];
 
   const folded = fold(source);
-  const matched = new Array<boolean>(source.length).fill(false);
+  // Which chunk marked each character, or -1 — the gap rule needs to know
+  // whether two neighbouring hits came from one chunk or two.
+  const owner = new Array<number>(source.length).fill(-1);
 
-  for (const term of terms) {
-    const needle = fold(term);
-    if (!needle) continue;
+  chunks.forEach((chunk, index) => {
+    const whole = markAll(folded, chunk, owner, index);
+    if (whole) return;
+    for (const term of searchTerms(chunk)) markAll(folded, term, owner, index);
+  });
 
-    for (let at = folded.indexOf(needle); at >= 0;) {
-      if (startsWord(folded, at)) {
-        matched.fill(true, at, at + needle.length);
-      }
-      at = folded.indexOf(needle, at + 1);
+  bridgeGaps(folded, owner);
+  return collapse(
+    source,
+    owner.map((chunk) => chunk >= 0),
+  );
+}
+
+/** Marks every word-start occurrence of `needle` for `chunk`; says whether
+ * there was one. */
+function markAll(
+  folded: string,
+  needle: string,
+  owner: number[],
+  chunk: number,
+): boolean {
+  let found = false;
+  for (let at = folded.indexOf(needle); at >= 0;) {
+    if (startsWord(folded, at)) {
+      owner.fill(chunk, at, at + needle.length);
+      found = true;
     }
+    at = folded.indexOf(needle, at + 1);
   }
+  return found;
+}
 
-  return collapse(source, matched);
+/** Marks what lies between two hits from different chunks, where that is
+ * only separators — spaces and punctuation, never a letter or a digit. One
+ * chunk's own repeats are left apart: "cup" over *Cup - Cup* is two hits. */
+function bridgeGaps(folded: string, owner: number[]): void {
+  let lastEnd = -1;
+  for (let i = 0; i < owner.length; i++) {
+    if (owner[i] < 0) continue;
+    if (
+      lastEnd >= 0 &&
+      i > lastEnd + 1 &&
+      owner[lastEnd] !== owner[i] &&
+      !/[\p{L}\p{N}]/u.test(folded.slice(lastEnd + 1, i))
+    ) {
+      owner.fill(owner[i], lastEnd + 1, i);
+    }
+    lastEnd = i;
+  }
 }
 
 /**
