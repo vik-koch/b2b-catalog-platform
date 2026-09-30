@@ -438,47 +438,48 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           </label>
         </app-feature-disclosure>
 
-        <!-- The variants and the note in one box: the note is how a customer
-             picks among the variants, so the two are set up together — each
-             with its own switch, since either stands without the other. -->
         <app-product-variants-editor
           [value]="variants()"
           [images]="images()"
-          [projectedInUse]="lineNoteEnabled()"
           (valueChange)="setVariants($event)"
+        />
+
+        <!-- Its own box, though the first variant switches it on: the note is
+             how a customer picks among variants, and it stands without them
+             too. -->
+        <app-feature-disclosure
+          [label]="text.lineNote.heading"
+          [on]="lineNoteEnabled()"
         >
-          <fieldset>
-            <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
-            <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
-            <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              appCheckbox
+              class="mt-0.5"
+              [checked]="lineNoteEnabled()"
+              (change)="onLineNoteToggle($any($event.target).checked)"
+            />
+            <span>{{ text.lineNote.enable }}</span>
+          </label>
+          @if (lineNoteEnabled()) {
+            <label class="mt-3 block">
+              <span appFieldLabel>{{ text.lineNote.prompt }}</span>
               <input
-                type="checkbox"
-                appCheckbox
-                class="mt-0.5"
-                [checked]="lineNoteEnabled()"
-                (change)="onLineNoteToggle($any($event.target).checked)"
+                type="text"
+                appInput
+                class="w-full"
+                [attr.maxlength]="lineNotePromptMaxLength"
+                [value]="lineNotePrompt()"
+                [placeholder]="text.lineNote.promptPlaceholder"
+                (input)="lineNotePrompt.set($any($event.target).value)"
               />
-              <span>{{ text.lineNote.enable }}</span>
+              <span class="mt-1 block text-xs text-subtle">{{
+                text.lineNote.promptHint
+              }}</span>
             </label>
-            @if (lineNoteEnabled()) {
-              <label class="mt-3 block max-w-xl">
-                <span appFieldLabel>{{ text.lineNote.prompt }}</span>
-                <input
-                  type="text"
-                  appInput
-                  class="w-full"
-                  [attr.maxlength]="lineNotePromptMaxLength"
-                  [value]="lineNotePrompt()"
-                  [placeholder]="text.lineNote.promptPlaceholder"
-                  (input)="lineNotePrompt.set($any($event.target).value)"
-                />
-                <span class="mt-1 block text-xs text-subtle">{{
-                  text.lineNote.promptHint
-                }}</span>
-              </label>
-            }
-          </fieldset>
-        </app-product-variants-editor>
+          }
+        </app-feature-disclosure>
 
         <app-product-pairings-editor
           [value]="pairings()"

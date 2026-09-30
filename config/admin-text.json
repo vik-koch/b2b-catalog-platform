@@ -187,7 +187,7 @@
       "noVariant": "No variant"
     },
     "variants": {
-      "heading": "Variants and line note",
+      "heading": "Variants",
       "hint": "For an assorted article whose colours or designs are not separate articles. Name each variant, then choose under each picture which one it shows. A picture of the whole range shows none. Mark a variant currently unavailable to hide its pictures until it is back; delete it only if it will never be offered again.",
       "name": "Variant name",
       "add": "Add a variant",
