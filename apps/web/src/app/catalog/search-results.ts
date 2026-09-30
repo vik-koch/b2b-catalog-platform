@@ -126,6 +126,7 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                   </p>
                   <div class="flex items-center gap-3">
                     <app-product-sort-select
+                      shape="segments"
                       [class]="data.facets.length ? headerSortAt : ''"
                       [value]="sortKey()"
                       defaultSort="relevance"
