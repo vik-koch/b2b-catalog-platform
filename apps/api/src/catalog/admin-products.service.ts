@@ -23,6 +23,8 @@ import {
   AdminProductListItem,
   AdminProductListQuery,
   HiddenProduct,
+  INCOMPLETE_GAPS,
+  PRODUCT_FEATURES,
   LinkedDocument,
   PairedProduct,
   parseAttributeNumber,
@@ -56,6 +58,12 @@ import { catalogExternallyOwned } from '../settings/ownership.refusals';
 import { changedProductFields } from './owned-fields';
 import { attributeFilterCondition } from './attribute-filter';
 import { documentCondition } from './document-filter';
+import {
+  featureColumns,
+  featureCondition,
+  incompleteGapColumns,
+  missingCondition,
+} from './content-filter';
 import { tierPriceCondition } from './tier-price-filter';
 import { categoryBySlug, descendantIds } from './catalog-tree';
 import {
@@ -256,6 +264,9 @@ export class AdminProductsService {
       // Where the document list's product count leads: the products showing
       // one certificate, declaration or data sheet.
       documentCondition(this.db, query.documentId),
+      // What the product's own content lacks or carries (FR-ADM-20).
+      missingCondition(this.db, query.missing),
+      featureCondition(this.db, query.has),
       adminSearchCondition(query.q, this.alternateLayout) ?? undefined,
     );
     // Only rank when the box holds something the name matcher could score; a
@@ -283,6 +294,8 @@ export class AdminProductsService {
           updatedAt: products.updatedAt,
           availability: products.availability,
           stockPieces: products.stockPieces,
+          gaps: incompleteGapColumns(this.db),
+          features: featureColumns(this.db),
         })
         .from(products)
         .where(where)
@@ -300,6 +313,8 @@ export class AdminProductsService {
           thumb: r.images[0]?.thumb ?? null,
           availability: r.availability,
           stockPieces: r.stockPieces,
+          gaps: INCOMPLETE_GAPS.filter((gap) => r.gaps[gap]),
+          features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),

@@ -413,6 +413,9 @@ export const adminTextSchema = z
           })
           .strict(),
         /** The main page's row (FR-CAT-09). */
+        /** What a shut feature box says where the feature is on, as the
+         * list-shaped ones say how many. */
+        switchedOn: z.string(),
         featured: z
           .object({
             heading: z.string(),
@@ -523,6 +526,8 @@ export const adminTextSchema = z
     productList: z
       .object({
         title: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         deletedBadge: z.string(),
         /** Marks a product that is not on the storefront yet (FR-ADM-06). */
         unpublishedBadge: z.string(),
@@ -584,6 +589,41 @@ export const adminTextSchema = z
         /** The cell of a product whose stock nobody is counting — a word, not
          * an empty cell, so "untracked" and "none left" cannot be confused. */
         stockUntracked: z.string(),
+        /**
+         * The content filter (FR-ADM-20): its two groups of chips, and the
+         * line under a product's name naming what keeps it incomplete.
+         * `{gaps}` is the `gap` words joined.
+         */
+        missingGroup: z.string(),
+        hasGroup: z.string(),
+        missing: z
+          .object({
+            incomplete: z.string(),
+            picture: z.string(),
+            description: z.string(),
+            attributes: z.string(),
+            packaging: z.string(),
+            boxFacts: z.string(),
+          })
+          .strict(),
+        has: z
+          .object({
+            featured: z.string(),
+            set: z.string(),
+            variants: z.string(),
+            pairings: z.string(),
+            documents: z.string(),
+            note: z.string(),
+          })
+          .strict(),
+        gapsLabel: z.string(),
+        gap: z
+          .object({
+            picture: z.string(),
+            description: z.string(),
+            attributes: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** The category list screen (FR-ADM-01): the tree, its row actions and the
@@ -999,6 +1039,7 @@ export const adminTextSchema = z
         discard: z.string(),
         /** The run log's empty state + the dashboard's last-sync line. */
         historyEmpty: z.string(),
+        historyCount: z.string(),
         col: z
           .object({
             date: z.string(),
@@ -1371,6 +1412,8 @@ export const adminTextSchema = z
     documentList: z
       .object({
         title: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         add: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
@@ -1493,6 +1536,8 @@ export const adminTextSchema = z
     orderList: z
       .object({
         title: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),
@@ -1985,6 +2030,8 @@ export const adminTextSchema = z
          * name the distinction. */
         titleCustomers: z.string(),
         titleStaff: z.string(),
+        /** How many rows the list holds, filters applied. */
+        count: z.string(),
         searchLabel: z.string(),
         searchPlaceholder: z.string(),
         clearSearch: z.string(),

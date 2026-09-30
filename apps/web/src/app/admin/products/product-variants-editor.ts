@@ -33,6 +33,7 @@ import {
 import { FieldLabel } from '../../ui/field-label';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../ui/input';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
@@ -48,10 +49,10 @@ let nextId = 0;
  * Deleting is for a variant that will never be offered again, and leaves its
  * pictures in the gallery without a label.
  *
- * The line note goes in the same box (projected by the editor), since it is
- * how a customer picks among them. It keeps its own switch: an assorted
- * article may name variants the customer has no say in, and a product may ask
- * for a colour before its colours are photographed.
+ * The line note, which is how a customer picks among them, has its own box
+ * beside this one: an assorted article may name variants the customer has no
+ * say in, and a product may ask for a colour before its colours are
+ * photographed.
  */
 @Component({
   selector: 'app-product-variants-editor',
@@ -80,7 +81,13 @@ let nextId = 0;
         [open]="open()"
         [panelId]="panelId"
         (toggled)="open.set(!open())"
-      />
+      >
+        <app-admin-icon
+          disclosureLead
+          [name]="glyph"
+          class="h-4 w-4 text-subtle"
+        />
+      </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-border p-4">
           <p class="text-xs text-subtle">{{ text.hint }}</p>
@@ -215,12 +222,6 @@ let nextId = 0;
               }
             </div>
           }
-
-          <!-- What the caller keeps beside the variants: the line note, which
-               is how a customer says which of them they want (FR-CART-08). -->
-          <div class="mt-4 border-t border-border pt-4">
-            <ng-content />
-          </div>
         </div>
       }
     </div>
@@ -231,13 +232,12 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.variants;
+  protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();
   /** The gallery, read for how many pictures each variant has. */
   readonly images = input.required<readonly ProductImageInput[]>();
   readonly valueChange = output<ProductVariantInput[]>();
-  /** Whether what the caller projects is set, which also opens the box. */
-  readonly projectedInUse = input(false);
 
   protected readonly max = PRODUCT_VARIANTS_MAX;
   protected readonly nameMax = PRODUCT_VARIANT_NAME_MAX_LENGTH;
@@ -280,7 +280,7 @@ export class ProductVariantsEditor implements OnInit {
 
   /** Open where there is something to see; read once, as the parts do. */
   ngOnInit(): void {
-    this.open.set(this.value().length > 0 || this.projectedInUse());
+    this.open.set(this.value().length > 0);
   }
 
   protected type(value: string): void {

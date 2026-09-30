@@ -419,8 +419,8 @@ describe('ProductEditorPage', () => {
     it('keeps the prompt field out of the form until the note is enabled', async () => {
       const { fixture, el } = await render({ slug: 'hafen-espresso' });
 
-      // In the variants box, closed on a product with neither.
-      buttonByText(el, text.variants.heading).click();
+      // In its own box, shut on a product without a note.
+      buttonByText(el, text.lineNote.heading).click();
       fixture.detectChanges();
       expect(() => inputByLabel(el, text.lineNote.prompt)).toThrow();
 
@@ -505,6 +505,10 @@ describe('ProductEditorPage', () => {
     it('marks a product that was not featured', async () => {
       const { fixture, el, h } = await render({ slug: 'hafen-espresso' });
 
+      // Its box is shut on a product that is not featured.
+      expect(() => inputByLabel(el, text.featured.enable)).toThrow();
+      buttonByText(el, text.featured.heading).click();
+      fixture.detectChanges();
       inputByLabel(el, text.featured.enable).click();
       fixture.detectChanges();
       saveButton(el).click();
@@ -746,6 +750,8 @@ describe('ProductEditorPage', () => {
         { product: storedProduct },
       );
 
+      // The note's box beside it, opened while the note is still off.
+      buttonByText(el, text.lineNote.heading).click();
       buttonByText(el, variantsText.heading).click();
       fixture.detectChanges();
       setInput(

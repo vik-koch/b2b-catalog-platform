@@ -1,3 +1,4 @@
+import type { AdminIconName } from '../../ui/icons/admin-icon';
 import { GridFilterOption } from './grid-filter-select';
 
 /** How a column is ordered: the key each direction writes to `sort`. */
@@ -125,14 +126,38 @@ export interface GridChip {
   clearLabel: string;
 }
 
+/**
+ * A set of independent questions with no column to live in, each switched on
+ * and off on its own — the product grid's content filter. Unlike a column's
+ * select, several can hold at once, and they must all hold.
+ */
+export interface GridToggleGroup {
+  /** What the group asks: "Missing", "Has". */
+  label: string;
+  /** The query parameter it writes, as a list. */
+  param: string;
+  options: readonly GridToggleOption[];
+  /** The values in effect. */
+  selected: readonly string[];
+}
+
+export interface GridToggleOption {
+  value: string;
+  label: string;
+  icon?: AdminIconName;
+}
+
 /** How many filters are narrowing the grid, for the disclosure's badge — the
  * ones in column headings and the ones with no column, which narrow the list
  * exactly as much. */
 export function activeFilterCount(
   columns: readonly GridColumn[],
   chips: readonly GridChip[] = [],
+  toggles: readonly GridToggleGroup[] = [],
 ): number {
   return (
-    columns.filter((c) => c.filter && c.filter.value).length + chips.length
+    columns.filter((c) => c.filter && c.filter.value).length +
+    chips.length +
+    toggles.reduce((sum, group) => sum + group.selected.length, 0)
   );
 }

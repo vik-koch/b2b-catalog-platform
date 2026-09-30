@@ -110,6 +110,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [busy]="documents.isLoading()"
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
+        [countLabel]="text.count"
       >
         <ng-template appGridRow [of]="data" let-document>
           <!-- The title is the way to the file: what the row is called and

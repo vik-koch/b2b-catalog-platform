@@ -33,6 +33,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Icon } from '../../ui/icons/icon';
 import { HintBadge } from '../../ui/hint-badge';
 import { FieldLabel } from '../../ui/field-label';
+import { Link } from '../../ui/link';
 import {
   AttributeHint,
   attributeHints,
@@ -83,6 +84,7 @@ import {
     CdkDragHandle,
     CdkDragPreview,
     FieldLabel,
+    Link,
   ],
   template: `
     <!-- min-w-0 because a <fieldset> defaults to min-width:min-content, which
@@ -90,12 +92,6 @@ import {
          picker above it was dragged out past the screen edge with it. -->
     <fieldset class="min-w-0">
       <legend appFieldLabel>{{ text.heading }}</legend>
-
-      <app-attribute-key-picker
-        [hints]="hints()"
-        [used]="usedKeys()"
-        (add)="addKeys($event)"
-      />
 
       @if (narrow()) {
         <app-product-attributes-narrow
@@ -258,6 +254,27 @@ import {
           </tbody>
         </table>
       }
+
+      <!-- A link under the grid rather than a box above it: the boxes
+           further down are the product's optional extras, and this only
+           fills the grid. -->
+      <button
+        type="button"
+        appLink
+        class="mt-2 inline-flex items-center gap-1.5 text-sm"
+        (click)="picking.set(true)"
+      >
+        <app-admin-icon name="plus" class="h-4 w-4" />
+        {{ text.addKeys }}
+      </button>
+      @if (picking()) {
+        <app-attribute-key-picker
+          [hints]="hints()"
+          [used]="usedKeys()"
+          (add)="addKeys($event); picking.set(false)"
+          (closed)="picking.set(false)"
+        />
+      }
     </fieldset>
   `,
 })
@@ -273,6 +290,9 @@ export class ProductAttributesEditor {
 
   readonly value = input.required<ProductAttribute[]>();
   readonly valueChange = output<ProductAttribute[]>();
+
+  /** Whether the dialog of names the catalog already uses is open. */
+  protected readonly picking = signal(false);
 
   /** What the rest of the catalog carries, for the picker and the badges. */
   readonly knownKeys = input<readonly AttributeKeyUsage[]>([]);

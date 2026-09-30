@@ -34,6 +34,11 @@ import {
 } from './attribute-value';
 import { PRODUCT_AVAILABILITIES } from './product-availability';
 import {
+  INCOMPLETE_GAPS,
+  PRODUCT_FEATURES,
+  PRODUCT_GAP_FILTERS,
+} from './product-content';
+import {
   isValidPartList,
   PRODUCT_PART_MAX_LENGTH,
   PRODUCT_PARTS_MAX,
@@ -399,6 +404,11 @@ export const adminProductListItemSchema = z
      * into the editor row by row to read one number is not a way to work.
      */
     stockPieces: z.number().int().nullable(),
+    /** What keeps it incomplete (FR-ADM-20), empty when nothing does — so a
+     * row filtered to "incomplete" says why it is there. */
+    gaps: z.array(z.enum(INCOMPLETE_GAPS)),
+    /** What it carries beyond a name and a price, drawn as glyphs. */
+    features: z.array(z.enum(PRODUCT_FEATURES)),
     deletedAt: z.iso.datetime().nullable(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
@@ -484,6 +494,20 @@ export const adminProductSortSchema = z.enum([
 export type AdminProductSort = z.infer<typeof adminProductSortSchema>;
 
 /**
+ * A query parameter holding a set of values. A query string has no array type,
+ * so a single entry arrives bare and more arrive as a list — read both as a
+ * list, as the storefront's attribute filter does.
+ */
+function listParam<const T extends readonly [string, ...string[]]>(values: T) {
+  return z
+    .union([z.enum(values), z.array(z.enum(values))])
+    .optional()
+    .transform((value) =>
+      value === undefined ? [] : Array.isArray(value) ? value : [value],
+    );
+}
+
+/**
  * Admin grid query (FR-ADM-05): 1-based page, publication state, category, a
  * free-text box and a sort.
  *
@@ -538,6 +562,15 @@ export const adminProductListQuerySchema = z.object({
    * says anything about.
    */
   documentId: z.uuid().optional(),
+  /**
+   * What the product's own content lacks (FR-ADM-20), each entry one gap or
+   * `incomplete` for any of the three every product page needs. Several
+   * entries must all hold, and so must `has` beside them: "featured, without
+   * a picture" is one question.
+   */
+  missing: listParam(PRODUCT_GAP_FILTERS),
+  /** What the product carries beyond a name and a price; all must hold. */
+  has: listParam(PRODUCT_FEATURES),
 });
 export type AdminProductListQuery = z.infer<typeof adminProductListQuerySchema>;
 

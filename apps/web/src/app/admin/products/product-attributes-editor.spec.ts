@@ -491,13 +491,21 @@ describe('ProductAttributesEditor row badges', () => {
 });
 
 describe('ProductAttributesEditor key picker', () => {
-  /** Opens the picker and returns its checkbox rows. */
+  /** jsdom's <dialog> has no showModal, and the picker opens one. */
+  beforeAll(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn();
+  });
+
+  /** Opens the picker from the link under the grid and returns its rows. */
   function open(h: ReturnType<typeof render>) {
+    const link = [...h.el.querySelectorAll('button')].find(
+      (b) => b.textContent?.trim() === text.addKeys,
+    ) as HTMLButtonElement;
+    link.click();
+    h.fixture.detectChanges();
     const picker = h.el.querySelector(
       'app-attribute-key-picker',
     ) as HTMLElement;
-    (picker.querySelector('button') as HTMLButtonElement).click();
-    h.fixture.detectChanges();
     return {
       picker,
       labels: [...picker.querySelectorAll('label')],
@@ -556,6 +564,16 @@ describe('ProductAttributesEditor key picker', () => {
       { key: 'Colour', value: '' },
       { key: 'Origin', value: '' },
     ]);
+  });
+
+  it('closes once the names are added, so the new rows can be seen', () => {
+    const h = render([], { definitions: [declared('Colour')] });
+
+    const picker = open(h);
+    check(picker.labels[0], h.fixture);
+    picker.apply();
+
+    expect(h.el.querySelector('app-attribute-key-picker')).toBeNull();
   });
 
   it('drops a checked name once the grid holds it, so it is not added twice', () => {

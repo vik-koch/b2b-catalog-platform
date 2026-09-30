@@ -62,7 +62,13 @@ export type AdminIconName =
   | 'funnel-x'
   | 'circle-alert'
   | 'file-text'
-  | 'external-link';
+  | 'external-link'
+  // The product features (FR-ADM-20); the first three are the storefront's own.
+  | 'package-plus'
+  | 'layers-2'
+  | 'palette'
+  | 'message-circle'
+  | 'star';
 
 @Component({
   selector: 'app-admin-icon',
@@ -362,6 +368,43 @@ export type AdminIconName =
           <path d="M10 9H8" />
           <path d="M16 13H8" />
           <path d="M16 17H8" />
+        }
+        @case ('package-plus') {
+          <path d="M12 22V12" />
+          <path d="M16 17h6" />
+          <path d="M19 14v6" />
+          <path
+            d="M21 10.535V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.729l7 4a2 2 0 0 0 2 .001l1.675-.955"
+          />
+          <path d="M3.29 7 12 12l8.71-5" />
+          <path d="m7.5 4.27 8.997 5.148" />
+        }
+        @case ('layers-2') {
+          <path
+            d="M13 13.74a2 2 0 0 1-2 0L2.5 8.87a1 1 0 0 1 0-1.74L11 2.26a2 2 0 0 1 2 0l8.5 4.87a1 1 0 0 1 0 1.74z"
+          />
+          <path
+            d="m20 14.285 1.5.845a1 1 0 0 1 0 1.74L13 21.74a2 2 0 0 1-2 0l-8.5-4.87a1 1 0 0 1 0-1.74l1.5-.845"
+          />
+        }
+        @case ('palette') {
+          <path
+            d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z"
+          />
+          <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+          <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+          <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+          <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+        }
+        @case ('message-circle') {
+          <path
+            d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719"
+          />
+        }
+        @case ('star') {
+          <path
+            d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
+          />
         }
         @case ('external-link') {
           <path d="M15 3h6v6" />

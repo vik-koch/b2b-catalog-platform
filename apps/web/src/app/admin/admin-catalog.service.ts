@@ -7,6 +7,8 @@ import {
   AdminProductState,
   CategoryInput,
   ProductAvailability,
+  ProductFeature,
+  ProductGapFilter,
   ProductInput,
   HiddenProduct,
   ReorderCategoriesRequest,
@@ -202,6 +204,11 @@ export interface ProductGridQuery {
   attributeValue?: string;
   /** The tier list's drill-down: products priced for one tier. */
   tierId?: string;
+  tierPriced?: 'yes' | 'no';
+  documentId?: string;
+  /** What the product's own content lacks or carries (FR-ADM-20). */
+  missing?: ProductGapFilter[];
+  has?: ProductFeature[];
 }
 
 /**

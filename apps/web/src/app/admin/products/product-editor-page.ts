@@ -48,6 +48,7 @@ import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../ui/input';
 import { NumericField } from '../../ui/numeric-field';
 import { PriceField } from '../../ui/price-field';
@@ -61,6 +62,7 @@ import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
 import { ProductPartsEditor } from './product-parts-editor';
+import { FeatureDisclosure } from './feature-disclosure';
 import { ProductVariantsEditor } from './product-variants-editor';
 import { ProductImageGallery } from './product-image-gallery';
 import { ProductDocumentsEditor } from '../documents/product-documents-editor';
@@ -95,6 +97,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     CategoryPicker,
     ProductAttributesEditor,
     ProductPartsEditor,
+    FeatureDisclosure,
     ProductVariantsEditor,
     ProductPackagingEditor,
     ProductDocumentsEditor,
@@ -324,13 +327,6 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           />
         </div>
 
-        <!-- Above the attributes, because it changes how they read: a row
-             named "Colour (cup)" is about one of the parts named here. -->
-        <app-product-parts-editor
-          [value]="parts()"
-          (valueChange)="parts.set($event)"
-        />
-
         <div>
           <app-product-attributes-editor
             [value]="attributes()"
@@ -415,10 +411,15 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           </p>
         </fieldset>
 
-        <!-- The shop's own choice, like the note below: open while the
-             catalog is owned, and never written by a run. -->
-        <fieldset class="max-w-xl">
-          <legend appFieldLabel>{{ text.featured.heading }}</legend>
+        <!-- The optional extras, one box each and in the order the grid
+             draws their glyphs: open where the product uses one, shut where
+             it does not. All six are the shop's own, open while the catalog
+             is owned and never written by a run. -->
+        <app-feature-disclosure
+          [label]="text.featured.heading"
+          [glyph]="glyphs.featured"
+          [on]="featured()"
+        >
           <p class="mb-2 text-xs text-subtle">{{ text.featured.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
@@ -430,49 +431,56 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             />
             <span>{{ text.featured.enable }}</span>
           </label>
-        </fieldset>
+        </app-feature-disclosure>
 
-        <!-- The variants and the note in one box: the note is how a customer
-             picks among the variants, so the two are set up together — each
-             with its own switch, since either stands without the other. -->
         <app-product-variants-editor
           [value]="variants()"
           [images]="images()"
-          [projectedInUse]="lineNoteEnabled()"
           (valueChange)="setVariants($event)"
+        />
+
+        <!-- Its own box, though the first variant switches it on: the note is
+             how a customer picks among variants, and it stands without them
+             too. -->
+        <app-feature-disclosure
+          [label]="text.lineNote.heading"
+          [glyph]="glyphs.note"
+          [on]="lineNoteEnabled()"
         >
-          <fieldset>
-            <legend appFieldLabel>{{ text.lineNote.heading }}</legend>
-            <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
-            <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              appCheckbox
+              class="mt-0.5"
+              [checked]="lineNoteEnabled()"
+              (change)="onLineNoteToggle($any($event.target).checked)"
+            />
+            <span>{{ text.lineNote.enable }}</span>
+          </label>
+          @if (lineNoteEnabled()) {
+            <label class="mt-3 block">
+              <span appFieldLabel>{{ text.lineNote.prompt }}</span>
               <input
-                type="checkbox"
-                appCheckbox
-                class="mt-0.5"
-                [checked]="lineNoteEnabled()"
-                (change)="onLineNoteToggle($any($event.target).checked)"
+                type="text"
+                appInput
+                class="w-full"
+                [attr.maxlength]="lineNotePromptMaxLength"
+                [value]="lineNotePrompt()"
+                [placeholder]="text.lineNote.promptPlaceholder"
+                (input)="lineNotePrompt.set($any($event.target).value)"
               />
-              <span>{{ text.lineNote.enable }}</span>
+              <span class="mt-1 block text-xs text-subtle">{{
+                text.lineNote.promptHint
+              }}</span>
             </label>
-            @if (lineNoteEnabled()) {
-              <label class="mt-3 block max-w-xl">
-                <span appFieldLabel>{{ text.lineNote.prompt }}</span>
-                <input
-                  type="text"
-                  appInput
-                  class="w-full"
-                  [attr.maxlength]="lineNotePromptMaxLength"
-                  [value]="lineNotePrompt()"
-                  [placeholder]="text.lineNote.promptPlaceholder"
-                  (input)="lineNotePrompt.set($any($event.target).value)"
-                />
-                <span class="mt-1 block text-xs text-subtle">{{
-                  text.lineNote.promptHint
-                }}</span>
-              </label>
-            }
-          </fieldset>
-        </app-product-variants-editor>
+          }
+        </app-feature-disclosure>
+
+        <app-product-parts-editor
+          [value]="parts()"
+          (valueChange)="parts.set($event)"
+        />
 
         <app-product-pairings-editor
           [value]="pairings()"
@@ -597,6 +605,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor;
+  /** The grid's glyphs, on the sections that set what they stand for. */
+  protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** The badge wording, shared with the storefront's hidden-products overlay. */
   protected readonly editText = inject(ADMIN_TEXT).editMode;

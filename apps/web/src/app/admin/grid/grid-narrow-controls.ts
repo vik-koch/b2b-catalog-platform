@@ -13,11 +13,13 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { SelectField } from '../../ui/select-field';
 import { GridClearFilters } from './grid-clear-filters';
+import { GridToggles } from './grid-toggles';
 import {
   activeFilterCount,
   filterableColumns,
   filterParams,
   GridChip,
+  GridToggleGroup,
   GridColumn,
   sortableColumns,
 } from './grid-column';
@@ -62,6 +64,7 @@ interface SortOption {
     Input,
     SelectField,
     GridClearFilters,
+    GridToggles,
   ],
   template: `
     @if (anything()) {
@@ -158,6 +161,10 @@ interface SortOption {
                   </label>
                 }
 
+                @if (toggles().length) {
+                  <app-grid-toggles [groups]="toggles()" />
+                }
+
                 <!-- The narrowings with no column of their own, arrived at from
                      the screen that asks the question — the attribute
                      inventory, the tier list. They are counted with the rest,
@@ -213,6 +220,7 @@ export class GridNarrowControls {
 
   readonly columns = input.required<readonly GridColumn[]>();
   readonly chips = input<readonly GridChip[]>([]);
+  readonly toggles = input<readonly GridToggleGroup[]>([]);
   /** The sort in effect, already resolved — null where no column owns it. */
   readonly sort = input.required<string | null>();
   /** The key written as an absent parameter. */
@@ -244,7 +252,7 @@ export class GridNarrowControls {
     filterableColumns(this.columns()),
   );
   protected readonly activeCount = computed(() =>
-    activeFilterCount(this.columns(), this.chips()),
+    activeFilterCount(this.columns(), this.chips(), this.toggles()),
   );
 
   /** Nothing to open and nothing to clear means no row at all: the sync

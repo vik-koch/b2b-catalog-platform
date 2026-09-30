@@ -187,7 +187,7 @@
       "noVariant": "No variant"
     },
     "variants": {
-      "heading": "Variants and line note",
+      "heading": "Variants",
       "hint": "For an assorted article whose colours or designs are not separate articles. Name each variant, then choose under each picture which one it shows. A picture of the whole range shows none. Mark a variant currently unavailable to hide its pictures until it is back; delete it only if it will never be offered again.",
       "name": "Variant name",
       "add": "Add a variant",
@@ -213,8 +213,9 @@
       "tooFew": "A set needs at least two parts.",
       "rejected": "Each part must be new, at most {max} characters, and without +, ( or )."
     },
+    "switchedOn": "(on)",
     "featured": {
-      "heading": "Main page",
+      "heading": "Featured",
       "hint": "The main page shows five products: featured ones first, the rest of the row drawn at random, all in a random order. A product out of stock is never shown.",
       "enable": "Feature this product"
     },
@@ -291,6 +292,7 @@
   },
   "productList": {
     "title": "Products",
+    "count": "{count} product(s)",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
     "empty": "No products yet.",
@@ -324,7 +326,31 @@
     "tierPricedNo": "Not priced in this list",
     "unpricedBadge": "No price",
     "noPrice": "—",
-    "stateUnpriced": "No price"
+    "stateUnpriced": "No price",
+    "missingGroup": "Missing",
+    "hasGroup": "Has",
+    "missing": {
+      "incomplete": "Incomplete",
+      "picture": "No picture",
+      "description": "No description",
+      "attributes": "No attributes",
+      "packaging": "No packaging",
+      "boxFacts": "No box volume or weight"
+    },
+    "has": {
+      "featured": "Featured",
+      "set": "Sold as a set",
+      "variants": "Variants",
+      "pairings": "Sold together",
+      "documents": "Documents",
+      "note": "Line note"
+    },
+    "gapsLabel": "No {gaps}",
+    "gap": {
+      "picture": "picture",
+      "description": "description",
+      "attributes": "attributes"
+    }
   },
   "categoryList": {
     "title": "Categories",
@@ -539,6 +565,7 @@
     "applied": "Applied.",
     "discard": "Discard",
     "historyEmpty": "No sync has run yet.",
+    "historyCount": "{count} run(s)",
     "lastSyncNever": "Never synced",
     "mode": {
       "full": "Complete catalog export",
@@ -825,6 +852,7 @@
   },
   "documentList": {
     "title": "Documents",
+    "count": "{count} document(s)",
     "add": "Add document",
     "searchLabel": "Find a document",
     "searchPlaceholder": "Search by title or file name",
@@ -902,6 +930,7 @@
   },
   "orderList": {
     "title": "Orders",
+    "count": "{count} order(s)",
     "searchLabel": "Search orders",
     "searchPlaceholder": "Reference, name, email...",
     "clearSearch": "Clear search",
@@ -1191,6 +1220,7 @@
   "userList": {
     "titleCustomers": "Customers",
     "titleStaff": "Staff",
+    "count": "{count} account(s)",
     "searchLabel": "Search accounts",
     "searchPlaceholder": "Search by name, email, etc...",
     "clearSearch": "Clear search",
