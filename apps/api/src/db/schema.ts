@@ -79,7 +79,7 @@ export const pages = pgTable('pages', {
 /**
  * Catalog categories, an adjacency-list tree. Structure (name, hierarchy) is
  * file-owned — derived from the import's category paths and keyed by
- * `sourceId` — while `sortOrder`, `mark`, `description` and `shortName` are
+ * `sourceId` — while `sortOrder`, `mark` and `shortName` are
  * admin overlay that survives a re-sync. `slug` is the public URL handle, generated once and
  * kept stable.
  */
@@ -102,7 +102,6 @@ export const categories = pgTable('categories', {
   // shown. A full + thumb media-store pair; its URLs must be covered by the
   // media-prune reference scan.
   mark: jsonb('mark').$type<ProductImageRef>(),
-  description: text('description'),
   // An optional nickname shown where the parent category is already visible
   // (tiles, subcategory chips, breadcrumbs) — "Arabica" under "Coffee Beans"
   // for an imported "Coffee Beans Arabica". Null means: use `name`.

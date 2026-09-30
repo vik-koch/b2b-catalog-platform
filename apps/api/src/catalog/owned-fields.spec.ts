@@ -137,7 +137,7 @@ describe('changedCategoryFields', () => {
   const category = { name: 'Mugs', sourceId: 'GRP-1' };
 
   it('lets the presentation overlay through', () => {
-    // Nickname, parent, slug, image and description are not in the owned list
+    // Nickname, parent, slug and mark are not in the owned list
     // at all, so a save that moves only those has nothing to report — which is
     // what keeps the tree restructurable while the catalog is owned.
     expect(changedCategoryFields(category, { name: 'Mugs' })).toEqual([]);

@@ -24,7 +24,6 @@ function cat(over: Partial<AdminCategory>): AdminCategory {
     sortOrder: 0,
     mark: null,
     sourceId: 'manual:x',
-    description: null,
     productCount: 0,
     directProductCount: 0,
     childCount: 0,

@@ -34,7 +34,6 @@ const category: AdminCategory = {
   sortOrder: 0,
   mark: null,
   sourceId: 'manual:x',
-  description: null,
   productCount: 3,
   directProductCount: 3,
   childCount: 0,
@@ -334,6 +333,27 @@ describe('ProductEditorPage', () => {
     expect(h.updateProduct.mock.calls[0][0]).toBe('hafen-espresso');
     expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
       name: 'Hafen Espresso Reserve',
+      slug: 'hafen-espresso',
+    });
+  });
+
+  it('lets an emptied slug follow the name again on an existing product', async () => {
+    const { fixture, el, h } = await render({ slug: 'hafen-espresso' });
+
+    setInput(inputByLabel(el, text.slug), '');
+    fixture.detectChanges();
+    // Emptied, it stays empty rather than refilling from the current name.
+    expect(inputByLabel(el, text.slug).value).toBe('');
+
+    setInput(inputByLabel(el, text.name), 'Hafen Espresso Reserve');
+    fixture.detectChanges();
+    expect(inputByLabel(el, text.slug).value).toBe('hafen-espresso-reserve');
+
+    saveButton(el).click();
+    await fixture.whenStable();
+
+    expect(h.updateProduct.mock.calls[0][1]).toMatchObject({
+      slug: 'hafen-espresso-reserve',
     });
   });
   it('shows the box count a product ships with, one included', async () => {

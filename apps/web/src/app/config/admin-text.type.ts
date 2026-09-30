@@ -643,7 +643,6 @@ export const adminTextSchema = z
         slugHint: z.string(),
         sourceId: z.string(),
         sourceIdHint: z.string(),
-        description: z.string(),
         mark: z.string(),
         markHint: z.string(),
         discardConfirm: z.string(),
