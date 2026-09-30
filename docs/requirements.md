@@ -86,6 +86,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-SEARCH-05](#fr-search-05) — Type-ahead suggestions
 - [FR-SEARCH-06](#fr-search-06) — What a suggestion shows
 - [FR-SEARCH-07](#fr-search-07) — Categories among the suggestions
+- [FR-SEARCH-08](#fr-search-08) — Typed on the other keyboard layout
 
 **[Filterable Attributes (FR-ATTR)](#fr-attr)**
 
@@ -467,6 +468,10 @@ A product suggestion carries the product's picture and its price beside its name
 #### <a id="fr-search-07"></a>FR-SEARCH-07 — Categories among the suggestions
 
 Categories the query matches ([FR-SEARCH-02](#fr-search-02)) are suggested as their own short group, ahead of the products, and picking one opens that category's listing. A category matches only where every word of the query matches its name — a query that merely shares a word with a category does not name it — and each is shown with the category it sits in, since a name alone may occur in more than one branch. Only categories the storefront shows are offered ([FR-CAT-01](#fr-cat-01)). Where a query matches no category the group is absent, and the product suggestions stand alone as they do today.
+
+#### <a id="fr-search-08"></a>FR-SEARCH-08 — Typed on the other keyboard layout
+
+A deployment may name a second keyboard layout, for visitors who switch between two and type with the wrong one active. A query is then also read as if its keys had been pressed on that layout, and matches in either reading. Product and category search read each word on its own, so a query typed partly on each layout matches as if it had been typed right; where a word matches equally well both ways, the reading as typed ranks first, and a suggestion marks the part of its name that either reading matched. The staff search boxes — products, orders, accounts, documents — read the query the same way, the ones that match plain text reading it whole. Only key positions are read, never the sound of a word: a name spelled out in another alphabet is not a match. A deployment that names no second layout searches only what was typed.
 
 ---
 

@@ -22,6 +22,7 @@
           }
         ],
         "styles": ["apps/web/src/styles.css"],
+        "allowedCommonJsDependencies": ["convert-layout"],
         "server": "apps/web/src/main.server.ts",
         "ssr": {
           "entry": "apps/web/src/server.ts"

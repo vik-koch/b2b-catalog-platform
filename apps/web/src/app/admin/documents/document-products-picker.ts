@@ -15,6 +15,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { debounced } from '../../core/debounced';
+import { AlternateLayout } from '../../core/alternate-layout';
 import { Checkbox } from '../../ui/checkbox';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
@@ -150,6 +151,7 @@ type View = 'all' | 'linked';
 })
 export class DocumentProductsPicker {
   private readonly service = inject(AdminCatalogService);
+  private readonly layout = inject(AlternateLayout);
   protected readonly text = inject(ADMIN_TEXT).documentEditor.products;
 
   readonly value = input.required<readonly DocumentProduct[]>();
@@ -235,9 +237,14 @@ export class DocumentProductsPicker {
    * the other view is — thirty ticks are easier to find one in when typed at.
    */
   private linkedRows(): (DocumentProduct & { category: string })[] {
-    const term = this.debouncedQuery().trim().toLocaleLowerCase();
+    const terms = this.layout
+      .readings(this.debouncedQuery().trim())
+      .map((term) => term.toLocaleLowerCase());
     return this.value()
-      .filter((p) => !term || p.name.toLocaleLowerCase().includes(term))
+      .filter((p) => {
+        const name = p.name.toLocaleLowerCase();
+        return terms.some((term) => name.includes(term));
+      })
       .map((p) => ({ ...p, category: '' }));
   }
 

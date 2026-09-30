@@ -6,6 +6,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { DocumentProductsPicker } from './document-products-picker';
 
@@ -72,6 +74,7 @@ async function render(
     imports: [DocumentProductsPicker],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AdminCatalogService,
         useValue: { listProducts, listCategories },

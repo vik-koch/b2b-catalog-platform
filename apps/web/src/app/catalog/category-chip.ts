@@ -80,7 +80,11 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
              small chip whole: 2 × 20px + 16px leaves 4px either side of 64. -->
         <span [class]="contextClass()">
           <span class="line-clamp-2 leading-5">
-            <app-highlighted-line [line]="label()" [query]="query()" />
+            <app-highlighted-line
+              [line]="label()"
+              [query]="query()"
+              [alternateQuery]="alternateQuery()"
+            />
           </span>
           <span class="truncate text-xs leading-4 text-subtle">{{
             context
@@ -88,7 +92,11 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
         </span>
       } @else if (query()) {
         <span [class]="nameClass()">
-          <app-highlighted-line [line]="label()" [query]="query()" />
+          <app-highlighted-line
+            [line]="label()"
+            [query]="query()"
+            [alternateQuery]="alternateQuery()"
+          />
         </span>
       } @else {
         <span [class]="nameClass()">{{ label() }}</span>
@@ -119,6 +127,7 @@ export class CategoryChip {
   readonly context = input<string | null>(null);
   /** Marks the part of the name a query matched, as a suggestion row does. */
   readonly query = input('');
+  readonly alternateQuery = input<string | null>(null);
 
   /** A mark whose file 404s is no mark at all — the fallback is the name, not
    * the browser's broken-image icon in a chip that says nothing else. */

@@ -38,6 +38,9 @@
     "pairingsEnforced": false,
     "sortControlsEnabled": true
   },
+  "search": {
+    "alternateLayout": "de"
+  },
   "sync": {
     "autoApply": {
       "maxCreates": 100,

@@ -51,6 +51,7 @@ describe('CatalogService.getSitemap', () => {
         [{ id: 'cb' }],
       ]),
       new SearchLogger(),
+      null,
     );
 
     const result = await service.getSitemap();
@@ -83,6 +84,7 @@ describe('CatalogService.getSitemap', () => {
         [{ id: 'esp' }],
       ]),
       new SearchLogger(),
+      null,
     );
 
     const result = await service.getSitemap();
@@ -97,6 +99,7 @@ describe('CatalogService.getSitemap', () => {
     const service = new CatalogService(
       dbReturning([[], [], [], []]),
       new SearchLogger(),
+      null,
     );
 
     await expect(service.getSitemap()).resolves.toEqual({

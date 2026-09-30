@@ -345,3 +345,39 @@ describe('GET /catalog/search/suggestions — categories (FR-SEARCH-07)', () => 
     });
   });
 });
+
+/**
+ * FR-SEARCH-08, against the demo deployment's `de` layout: a German keyboard
+ * typed with a US layout active. Each row is one typo tolerance does not
+ * already catch — a whole word with its Y and Z swapped mostly is.
+ */
+describe('a query typed on the other keyboard layout (FR-SEARCH-08)', () => {
+  const suggestions = async (q: string) =>
+    (await get(`/catalog/search/suggestions?q=${encodeURIComponent(q)}`))
+      .data as {
+      items: { slug: string }[];
+    };
+
+  it.each([
+    ['a prefix while typing', 'zirga', 'Yirgacheffe Filter'],
+    ['a letter kept on a punctuation key', "F'hrmann", 'Fährmann'],
+  ])('ranks the product first for %s', async (_label, query, expected) => {
+    const res = await search(query);
+
+    expect(res.status).toBe(200);
+    expect(res.data.items[0]?.slug).toBe(slugOf(expected));
+  });
+
+  it('suggests the product while the word is still being typed', async () => {
+    const { items } = await suggestions('zirg');
+    expect(items[0]?.slug).toBe(slugOf('Yirgacheffe Filter'));
+  });
+
+  it('matches a word on the other layout beside one typed right', async () => {
+    // Out of stock, so it sorts below the in-stock filters (FR-STOCK-05).
+    const res = await search('zirga filter');
+    expect(res.data.items.map((i: { slug: string }) => i.slug)).toContain(
+      slugOf('Yirgacheffe Filter'),
+    );
+  });
+});

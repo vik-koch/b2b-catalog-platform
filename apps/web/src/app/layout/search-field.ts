@@ -34,6 +34,7 @@ import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../core/current-url';
 import { debounced } from '../core/debounced';
 import { HighlightedLine } from '../core/highlighted-line';
+import { AlternateLayout } from '../core/alternate-layout';
 import { Button } from '../ui/button';
 import { IconButton } from '../ui/icon-button';
 import { FRAME } from '../ui/frame';
@@ -264,6 +265,7 @@ let nextId = 0;
                           [category]="category"
                           [context]="category.parent"
                           [query]="query()"
+                          [alternateQuery]="alternateQuery()"
                         />
                       </div>
                     }
@@ -319,6 +321,7 @@ let nextId = 0;
                           <app-highlighted-line
                             [line]="item.name"
                             [query]="query()"
+                            [alternateQuery]="alternateQuery()"
                           />
                         </span>
                         <!-- The per-piece price, as a listing leads with it
@@ -503,6 +506,10 @@ export class SearchField {
    * answer for an early prefix cannot overwrite a later one.
    */
   protected readonly query = debounced(this.value, SUGGEST_DEBOUNCE_MS);
+  private readonly layout = inject(AlternateLayout);
+  protected readonly alternateQuery = computed(() =>
+    this.layout.of(this.query()),
+  );
   private readonly suggested = resource({
     params: () => {
       const q = this.query().trim();

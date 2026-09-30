@@ -10,6 +10,8 @@ import {
   DEFAULT_SYNC_POLICY,
   DeliveryConfig,
   deliveryConfigSchema,
+  KEYBOARD_LAYOUTS,
+  KeyboardLayout,
   MoneyFormat,
   OrderReferenceConfig,
   orderReferenceConfigSchema,
@@ -134,6 +136,11 @@ export const apiDeploymentConfigSchema = z
          */
         pairingsEnforced: z.boolean().optional(),
       })
+      .passthrough()
+      .optional(),
+    /** The keyboard layout a query is also read on (FR-SEARCH-08). */
+    search: z
+      .object({ alternateLayout: z.enum(KEYBOARD_LAYOUTS).optional() })
       .passthrough()
       .optional(),
     /**
@@ -362,6 +369,13 @@ export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
     loadApiDeploymentConfig().sync?.customerAutoApply ??
     DEFAULT_CUSTOMER_SYNC_POLICY
   );
+}
+
+/** The second keyboard layout searches read a query on, or null for none. */
+export const ALTERNATE_LAYOUT = 'ALTERNATE_LAYOUT';
+
+export function loadAlternateLayout(): KeyboardLayout | null {
+  return loadApiDeploymentConfig().search?.alternateLayout ?? null;
 }
 
 export function loadPairingsEnforced(): boolean {

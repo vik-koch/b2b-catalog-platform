@@ -4,6 +4,8 @@ import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
+  ALTERNATE_LAYOUT,
+  loadAlternateLayout,
   BILLING_ADDRESS_ENABLED,
   COMPANY_ID_RULE,
   DELIVERY_CONFIG,
@@ -94,6 +96,7 @@ import { OrdersService } from './orders.service';
     // The face the order summary is printed in, where the deployment names
     // one of its own (FR-ORD-05).
     { provide: PDF_FONT, useFactory: loadPdfFont },
+    { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
   ],
   // The order exchange writes orders back through this same service
   // (FR-ADM-08): one writer, so an exchange and a manager leave the same

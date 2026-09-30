@@ -3,6 +3,7 @@ import {
   companyIdInputSchema,
   customerSyncPolicySchema,
   deliveryConfigSchema,
+  KEYBOARD_LAYOUTS,
   orderReferenceConfigSchema,
   PAGE_SLUGS,
   pageSlugSchema,
@@ -348,6 +349,15 @@ export const deploymentConfigSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * Search (FR-SEARCH-08). `alternateLayout` names the keyboard layout a
+     * query is also read on, for visitors who type with the wrong one active;
+     * absent, a query is read only as typed.
+     */
+    search: z
+      .object({ alternateLayout: z.enum(KEYBOARD_LAYOUTS).optional() })
+      .strict()
+      .optional(),
     /**
      * Offices shown on the contact page.
      */

@@ -15,6 +15,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { HighlightedLine } from '../../core/highlighted-line';
+import { AlternateLayout } from '../../core/alternate-layout';
 import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
 import {
   DISCLOSURE_FRAME,
@@ -163,6 +164,7 @@ const SUGGESTIONS_SHOWN = 8;
                             <app-highlighted-line
                               [line]="item.name"
                               [query]="list.query()"
+                              [alternateQuery]="alternateQuery()"
                             />
                           </span>
                           @if (item.publishedAt === null) {
@@ -218,6 +220,10 @@ export class ProductPairingsEditor implements OnInit {
       this.service.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
   });
+  private readonly layout = inject(AlternateLayout);
+  protected readonly alternateQuery = computed(() =>
+    this.layout.of(this.list.query()),
+  );
 
   /**
    * What is actually offerable: not this product, not one already paired, and
