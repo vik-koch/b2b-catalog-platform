@@ -326,13 +326,6 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
           />
         </div>
 
-        <!-- Above the attributes, because it changes how they read: a row
-             named "Colour (cup)" is about one of the parts named here. -->
-        <app-product-parts-editor
-          [value]="parts()"
-          (valueChange)="parts.set($event)"
-        />
-
         <div>
           <app-product-attributes-editor
             [value]="attributes()"
@@ -480,6 +473,11 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             </label>
           }
         </app-feature-disclosure>
+
+        <app-product-parts-editor
+          [value]="parts()"
+          (valueChange)="parts.set($event)"
+        />
 
         <app-product-pairings-editor
           [value]="pairings()"
