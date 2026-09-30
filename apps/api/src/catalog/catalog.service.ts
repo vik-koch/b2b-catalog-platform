@@ -35,7 +35,9 @@ import {
   SearchCategory,
   FEATURED_ROW_SIZE,
   SitemapEntry,
+  KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
+import { ALTERNATE_LAYOUT } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import {
@@ -142,6 +144,8 @@ export class CatalogService {
   constructor(
     @Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>,
     private readonly searchLog: SearchLogger,
+    @Inject(ALTERNATE_LAYOUT)
+    private readonly alternateLayout: KeyboardLayout | null,
   ) {}
 
   private categoryRows(): Promise<CategoryRow[]> {
@@ -388,7 +392,7 @@ export class CatalogService {
   ): Promise<SearchResult> {
     const price = livePriceMinor(tierId);
     const pageSize = CATALOG_PAGE_SIZE;
-    const query = parseSearchQuery(rawQuery);
+    const query = parseSearchQuery(rawQuery, this.alternateLayout);
     if (!query) {
       return {
         items: [],
@@ -470,7 +474,7 @@ export class CatalogService {
     rawQuery: string,
     tierId: string | null = null,
   ): Promise<{ items: ProductListItem[]; categories: SearchCategory[] }> {
-    const query = parseSearchQuery(rawQuery);
+    const query = parseSearchQuery(rawQuery, this.alternateLayout);
     if (!query) return { items: [], categories: [] };
     const price = livePriceMinor(tierId);
 

@@ -8,8 +8,8 @@ const rendered = (name: string, query: string) =>
     .join('');
 
 /** The name with its matched runs wrapped, for readable expectations. */
-const marked = (name: string, query: string) =>
-  matchSegments(name, query)
+const marked = (name: string, query: string, alternate: string | null = null) =>
+  matchSegments(name, query, alternate)
     .map((s) => (s.match ? `[${s.text}]` : s.text))
     .join('');
 
@@ -88,6 +88,17 @@ describe('matchSegments', () => {
   it('does not bridge between two repeats of the same word', () => {
     // One word found twice is two hits, not a phrase.
     expect(marked('Cup - Cup', 'cup')).toBe('[Cup] - [Cup]');
+  });
+
+  it('marks a word in its other-layout reading where it marks nothing as typed', () => {
+    expect(marked('Yirgacheffe Filter', 'zirga filter', 'yirga filter')).toBe(
+      '[Yirga]cheffe [Filter]',
+    );
+    expect(marked('Fährmann', "f'hrmann", 'fährmann')).toBe('[Fährmann]');
+  });
+
+  it('prefers the typed reading of a word that marks either way', () => {
+    expect(marked('Yellow Zest', 'yel', 'zel')).toBe('[Yel]low Zest');
   });
 
   it('leaves the name whole when there is nothing to match on', () => {

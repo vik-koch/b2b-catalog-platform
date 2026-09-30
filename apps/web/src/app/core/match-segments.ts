@@ -36,17 +36,30 @@ export interface NameSegment {
  * as typed falls back to its terms. And where two hits from different chunks
  * are separated by nothing but spaces and punctuation, the gap is marked too,
  * so "cup lid" over *Cup, lid* is one run and not two islands.
+ *
+ * `alternate` is the query read on a second keyboard layout (FR-SEARCH-08),
+ * word for word. A word is marked in its other reading only where it marks
+ * nothing as typed, as the matcher reads each word either way.
  */
-export function matchSegments(name: string, query: string): NameSegment[] {
+export function matchSegments(
+  name: string,
+  query: string,
+  alternate: string | null = null,
+): NameSegment[] {
   // Composed form throughout: offsets are computed on the folded copy and
   // applied to this string, so the two must agree on how an accented letter is
   // spelled. Rendering the composed form is visually identical.
   const source = name.normalize('NFC');
-  const chunks = query
-    .normalize('NFC')
-    .split(/\s+/u)
-    .map((chunk) => fold(chunk))
-    .filter((chunk) => searchTerms(chunk).length > 0);
+  const words = (text: string) =>
+    text
+      .normalize('NFC')
+      .split(/\s+/u)
+      .map((chunk) => fold(chunk));
+  // Whitespace is never remapped, so the two split into the same words.
+  const others = alternate === null ? [] : words(alternate);
+  const chunks = words(query)
+    .map((chunk, i) => [chunk, others[i] ?? ''])
+    .filter((pair) => pair.some((chunk) => searchTerms(chunk).length > 0));
   if (!chunks.length) return [{ text: source, match: false }];
 
   const folded = fold(source);
@@ -54,10 +67,11 @@ export function matchSegments(name: string, query: string): NameSegment[] {
   // whether two neighbouring hits came from one chunk or two.
   const owner = new Array<number>(source.length).fill(-1);
 
-  chunks.forEach((chunk, index) => {
-    const whole = markAll(folded, chunk, owner, index);
-    if (whole) return;
-    for (const term of searchTerms(chunk)) markAll(folded, term, owner, index);
+  chunks.forEach((readings, index) => {
+    // The first reading the name holds whole, or every term of; failing
+    // both, whatever the typed one marks, as a query without a second reading.
+    const full = readings.find((chunk) => holds(folded, chunk));
+    markChunk(folded, full ?? readings[0], owner, index);
   });
 
   bridgeGaps(folded, owner);
@@ -65,6 +79,35 @@ export function matchSegments(name: string, query: string): NameSegment[] {
     source,
     owner.map((chunk) => chunk >= 0),
   );
+}
+
+/** Marks a chunk whole where the name has it as typed, else term by term. */
+function markChunk(
+  folded: string,
+  chunk: string,
+  owner: number[],
+  index: number,
+): void {
+  if (markAll(folded, chunk, owner, index)) return;
+  for (const term of searchTerms(chunk)) markAll(folded, term, owner, index);
+}
+
+/** Whether the name has the chunk whole, or every one of its terms. */
+function holds(folded: string, chunk: string): boolean {
+  const terms = searchTerms(chunk);
+  return (
+    terms.length > 0 &&
+    (startsWordAt(folded, chunk) ||
+      terms.every((term) => startsWordAt(folded, term)))
+  );
+}
+
+function startsWordAt(folded: string, needle: string): boolean {
+  for (let at = folded.indexOf(needle); at >= 0;) {
+    if (startsWord(folded, at)) return true;
+    at = folded.indexOf(needle, at + 1);
+  }
+  return false;
 }
 
 /** Marks every word-start occurrence of `needle` for `chunk`; says whether

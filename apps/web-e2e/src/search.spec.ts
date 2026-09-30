@@ -118,6 +118,23 @@ test('offers the categories a query names and opens one (FR-SEARCH-07)', async (
   await expect(strip).toBeHidden();
 });
 
+test('reads a query typed on the other keyboard layout (FR-SEARCH-08)', async ({
+  page,
+  isMobile,
+}) => {
+  await page.goto('/');
+  const field = await openSearch(page, isMobile);
+
+  // The demo's German keyboard with a US layout active: the key marked Y
+  // types a z. The row marks what the other reading matched.
+  await field.fill('zirga');
+  const option = page
+    .getByRole('row', { name: 'Yirgacheffe Filter' })
+    .getByRole('gridcell')
+    .first();
+  await expect(option.locator('mark')).toHaveText('Yirga');
+});
+
 test('keeps the full result list reachable by submitting the query', async ({
   page,
   isMobile,

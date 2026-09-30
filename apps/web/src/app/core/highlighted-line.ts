@@ -37,8 +37,10 @@ export class HighlightedLine {
   readonly line = input.required<string>();
   /** The settled query the line answered, not the one being typed. */
   readonly query = input.required<string>();
+  /** The same query on the deployment's other keyboard layout, if any. */
+  readonly alternateQuery = input<string | null>(null);
 
   protected readonly segments = computed(() =>
-    matchSegments(this.line(), this.query()),
+    matchSegments(this.line(), this.query(), this.alternateQuery()),
   );
 }

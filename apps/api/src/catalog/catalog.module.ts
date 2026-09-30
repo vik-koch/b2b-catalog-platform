@@ -9,7 +9,9 @@ import { AuthModule } from '../auth/auth.module';
 import { SettingsModule } from '../settings/settings.module';
 import { SearchLogger } from './search.logger';
 import {
+  ALTERNATE_LAYOUT,
   LOW_STOCK_THRESHOLD_PIECES,
+  loadAlternateLayout,
   loadLowStockThresholdPieces,
 } from '../config/deployment-config';
 
@@ -33,6 +35,7 @@ import {
       provide: LOW_STOCK_THRESHOLD_PIECES,
       useFactory: loadLowStockThresholdPieces,
     },
+    { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
   ],
 })
 export class CatalogModule {}

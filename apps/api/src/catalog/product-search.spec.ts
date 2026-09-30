@@ -39,7 +39,7 @@ function isOneGroup(text: string): boolean {
  */
 describe('parseSearchQuery', () => {
   it('splits on punctuation and emits an AND of prefix terms', () => {
-    expect(parseSearchQuery('hafen espresso')).toEqual({
+    expect(parseSearchQuery('hafen espresso')).toMatchObject({
       normalized: 'hafen espresso',
       terms: ['hafen', 'espresso'],
       tsquery: 'hafen:* & espresso:*',
@@ -47,7 +47,7 @@ describe('parseSearchQuery', () => {
   });
 
   it('lower-cases and collapses separators of every kind', () => {
-    expect(parseSearchQuery('  Roastery   No. 7 ')).toEqual({
+    expect(parseSearchQuery('  Roastery   No. 7 ')).toMatchObject({
       normalized: 'roastery no 7',
       terms: ['roastery', 'no', '7'],
       tsquery: 'roastery:* & no:* & 7:*',
@@ -102,6 +102,51 @@ describe('parseSearchQuery', () => {
   });
 });
 
+describe('parseSearchQuery on a second layout (FR-SEARCH-08)', () => {
+  it('reads each word both ways, and requires every word in either', () => {
+    expect(parseSearchQuery('zirga filter', 'de')).toEqual({
+      normalized: 'zirga filter',
+      otherNormalized: 'yirga filter',
+      terms: ['zirga', 'filter'],
+      words: [
+        { typed: ['zirga'], other: ['yirga'] },
+        { typed: ['filter'], other: [] },
+      ],
+      tsquery: '((zirga:*) | (yirga:*)) & filter:*',
+    });
+  });
+
+  it('reads a letter the other layout keeps on a punctuation key', () => {
+    expect(parseSearchQuery("F'hrmann", 'de')).toMatchObject({
+      otherNormalized: 'fährmann',
+      words: [{ typed: ['f', 'hrmann'], other: ['fährmann'] }],
+      tsquery: '((f:* & hrmann:*) | (fährmann:*))',
+    });
+  });
+
+  it('keeps a word typed on each layout apart, so a mixed query matches', () => {
+    expect(parseSearchQuery('kafes καφεσ', 'gr')?.words).toEqual([
+      { typed: ['kafes'], other: ['καφεσ'] },
+      { typed: ['καφεσ'], other: ['kafes'] },
+    ]);
+  });
+
+  it('adds no reading where the other layout reads the same', () => {
+    const parsed = parseSearchQuery('espresso', 'de');
+    expect(parsed?.otherNormalized).toBeUndefined();
+    expect(parsed?.tsquery).toBe('espresso:*');
+    expect(parseSearchQuery('zirga')?.otherNormalized).toBeUndefined();
+  });
+
+  it('runs the other reading alone where the typed keys were punctuation', () => {
+    expect(parseSearchQuery('[[', 'de')).toMatchObject({
+      normalized: '',
+      otherNormalized: 'üü',
+      tsquery: 'üü:*',
+    });
+  });
+});
+
 describe('searchCondition', () => {
   it('ORs the full-text match with one fuzzy predicate per term', () => {
     const query = parseSearchQuery('hafen espresso');
@@ -125,6 +170,16 @@ describe('searchCondition', () => {
     const condition = build();
     if (!condition) throw new Error('fixture should produce a condition');
     expect(isOneGroup(toQuery(condition).sql)).toBe(true);
+  });
+});
+
+describe('searchCondition on a second layout', () => {
+  it('adds a fuzzy predicate per other-layout term, inside one group', () => {
+    const query = parseSearchQuery('zirga filter', 'de');
+    if (!query) throw new Error('fixture query should parse');
+    const { sql } = toQuery(searchCondition(query));
+    expect(isOneGroup(sql)).toBe(true);
+    expect(sql.match(/%>/g)).toHaveLength(3);
   });
 });
 
