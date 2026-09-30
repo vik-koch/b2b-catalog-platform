@@ -125,6 +125,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-17](#fr-adm-17) — Claiming an account registered on the shop
 - [FR-ADM-18](#fr-adm-18) — Reading customer accounts outward
 - [FR-ADM-19](#fr-adm-19) — A category counts its subtree
+- [FR-ADM-20](#fr-adm-20) — Finding what a product's content lacks
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -551,7 +552,7 @@ Admin can toggle a site-wide maintenance mode from the admin panel. While active
 
 #### <a id="fr-adm-05"></a>FR-ADM-05 — Admin product list
 
-The admin product list can be filtered by publication state (all / live / unpublished / soft-deleted), by category and by an attribute key or key/value pair, by availability ([FR-STOCK-02](#fr-stock-02)), searched by name or by the private sync key, and sorted (name, price, most recently updated). It shows each product's stock figure ([FR-STOCK-01](#fr-stock-01)) in the badge its availability colours — the state alone answers whether a product can be sold, and restocking asks how many.
+The admin product list can be filtered by publication state (all / live / unpublished / soft-deleted), by category and by an attribute key or key/value pair, by availability ([FR-STOCK-02](#fr-stock-02)), by what its content lacks or carries ([FR-ADM-20](#fr-adm-20)), searched by name or by the private sync key, and sorted (name, price, most recently updated). It shows each product's stock figure ([FR-STOCK-01](#fr-stock-01)) in the badge its availability colours — the state alone answers whether a product can be sold, and restocking asks how many.
 
 #### <a id="fr-adm-06"></a>FR-ADM-06 — Publication gate
 
@@ -634,6 +635,12 @@ It reads whether or not an external system owns customers, because the case it e
 #### <a id="fr-adm-19"></a>FR-ADM-19 — A category counts its subtree
 
 Wherever the admin panel counts a category's products, it counts everything beneath it — its subcategories included — as the storefront listing does ([FR-CAT-02](#fr-cat-02)), so the two never disagree about what belongs to a category. Filtering the admin product list by a category reads the same way. Where a category holds products directly **and** has subcategories, the list additionally offers the ones held directly by it: a product filed in a parent rather than in one of its children is otherwise invisible in a list of hundreds, and moving it is the point of finding it. The delete guard is unaffected — a category is blocked from deletion by what it holds itself and by having children at all ([FR-ADM-01](#fr-adm-01)), which is a different question from how many products are beneath it.
+
+#### <a id="fr-adm-20"></a>FR-ADM-20 — Finding what a product's content lacks
+
+The admin product list ([FR-ADM-05](#fr-adm-05)) can be narrowed by what a product's own content lacks: a picture, a description, an attribute, its packaging ([FR-UNIT-02](#fr-unit-02)), or both its box volume and weight. The first three make a product **incomplete**, because every product page shows them. Incomplete is a choice of its own that matches a product lacking any of the three, and each row names in words what keeps it incomplete, so the narrowed list is a queue that says what to do next. Packaging and box facts can be asked about but never make a product incomplete, because a product sold by the piece rightly has neither. A description holding only empty markup counts as missing. A price is not among the gaps, because an unpriced product is already a publication state of its own ([FR-ADM-06](#fr-adm-06)).
+
+The list can equally be narrowed by what a product carries beyond its name and price: the featured mark ([FR-CAT-09](#fr-cat-09)), parts of a set ([FR-CAT-10](#fr-cat-10)), variants ([FR-CAT-11](#fr-cat-11)), products it is sold together with ([FR-SET-01](#fr-set-01)), documents ([FR-DOC-02](#fr-doc-02)) or a line note ([FR-CART-08](#fr-cart-08)). Each of these has one glyph, used wherever the admin panel refers to it: on the product's row under its name, on the filter that asks for it, and on the editor section that sets it. The glyph is named in words for anyone who cannot see it. All three places list the features in one order, and in the editor each feature is a box of its own after the product's own facts, open where the product uses it and shut where it does not. Every gap and every feature is a separate choice, all in view at once, and the choices made must all hold, so "featured, without a picture" is one question.
 
 ---
 
