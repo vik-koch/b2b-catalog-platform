@@ -33,7 +33,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-CAT-05](#fr-cat-05) — What a product page shows
 - [FR-CAT-06](#fr-cat-06) — Cards or rows, remembered
 - [FR-CAT-07](#fr-cat-07) — How a category is shown
-- [FR-CAT-08](#fr-cat-08) — Category description
+- [FR-CAT-08](#fr-cat-08) — Category description (withdrawn)
 - [FR-CAT-09](#fr-cat-09) — A featured row on the main page
 - [FR-CAT-10](#fr-cat-10) — A product sold as a set of parts
 - [FR-CAT-11](#fr-cat-11) — Variants named on a product's pictures
@@ -293,9 +293,9 @@ Product listings (category and search results) can be shown as a grid of cards o
 
 Wherever the storefront shows a category it shows the same thing: a chip carrying the category's name, with its mark beside the name and never instead of it — the main page, the catalogue index, the subcategory navigation of a listing, and the category suggestions of a search ([FR-SEARCH-07](#fr-search-07)) alike. A category may carry a mark, trimmed to a square when it is uploaded; one with no mark is its name in the same chip. The chip comes in two sizes, a larger one where categories are what a screen is showing and a smaller one where they sit beside something else, and nothing but the size differs between them ([ADR 0063](adr/0063-a-category-is-a-chip.md)). A category is not drawn as a picture of the products beneath it.
 
-#### <a id="fr-cat-08"></a>FR-CAT-08 — Category description
+#### <a id="fr-cat-08"></a>FR-CAT-08 — Category description (withdrawn)
 
-A category may carry a short plain-text description. Where one is written it introduces the category's listing, above the products, and is what a search engine is offered as that page's summary ([NFR-SEO-01](#nfr-seo-01)). A category without one reads exactly as it does now.
+Withdrawn before it was built. A category carries no description: no page had a place for one, and a search engine writes its own summary of a category listing. The number is not reused.
 
 #### <a id="fr-cat-09"></a>FR-CAT-09 — A featured row on the main page
 
