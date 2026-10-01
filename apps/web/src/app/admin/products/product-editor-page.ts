@@ -119,22 +119,26 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
       <h1 class="text-3xl font-medium tracking-tight">
         {{ isNew ? text.newTitle : text.editTitle }}
       </h1>
-      <!-- Where the product stands, beside its name — the same three badges
-           the hidden-products overlay puts on a tile, in the one place all
-           three can be changed. The price one tracks the field rather than
-           what is stored: it says what the product will be after a save, which
-           is the question somebody editing it is actually asking. -->
+      <!-- Where the product stands, beside its name — the same badges the
+           hidden-products overlay puts on a tile. Deleted alone where it
+           applies: restoring is the only step back from there (FR-ADM-01).
+           The price one tracks the field rather than what is stored: it says
+           what the product will be after a save, which is the question
+           somebody editing it is actually asking. -->
       @if (!isNew && !loading() && !notFound()) {
         @if (deleted()) {
           <span appStatusBadge tone="danger">{{ editText.deletedBadge }}</span>
-        }
-        @if (!published()) {
-          <span appStatusBadge tone="waiting">{{
-            editText.unpublishedBadge
-          }}</span>
-        }
-        @if (priceCleared()) {
-          <span appStatusBadge tone="danger">{{ editText.unpricedBadge }}</span>
+        } @else {
+          @if (!published()) {
+            <span appStatusBadge tone="waiting">{{
+              editText.unpublishedBadge
+            }}</span>
+          }
+          @if (priceCleared()) {
+            <span appStatusBadge tone="danger">{{
+              editText.unpricedBadge
+            }}</span>
+          }
         }
       }
     </div>
@@ -531,7 +535,9 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              and a button whose only outcome is that refusal is a worse way of
              saying so than not offering it. The refusal still stands behind
              it — this is the screen agreeing with the rule, not enforcing it. -->
-        @if (!published() && !newAndOwned() && !priceCleared()) {
+        <!-- Nor on a deleted product, which is restored before it is
+             published (FR-ADM-01). -->
+        @if (!published() && !deleted() && !newAndOwned() && !priceCleared()) {
           <button
             appButton
             variant="secondary"
@@ -575,7 +581,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              discards the same way and lands on the page itself. Only where
              there is a page to land on: the storefront 404s an unpublished
              product. -->
-        @if (!isNew && published()) {
+        @if (!isNew && published() && !deleted()) {
           <button
             appButton
             variant="secondary"

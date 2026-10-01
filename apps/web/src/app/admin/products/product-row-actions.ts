@@ -4,6 +4,8 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { IconButton } from '../../ui/icon-button';
+import { SettingsService } from '../settings/settings.service';
+import { mayRestore } from './product-removal';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -11,6 +13,9 @@ export interface ProductRowState {
   name: string;
   publishedAt: string | null;
   deletedAt: string | null;
+  /** Deleted by a sync run: while the catalog is owned, only a run restores
+   * it (FR-ADM-10). */
+  deletedByRun: boolean;
   /** Null where no price list prices it, which is the one thing that stops it
    * being published (FR-ADM-06). */
   priceMinor: number | null;
@@ -21,9 +26,12 @@ export interface ProductRowState {
  * appears in — a table cell on a desktop, the foot of a card on a phone.
  *
  * A component rather than a shared `<ng-template>` so the row keeps its type:
- * every one of these buttons switches on publication or deletion, and those two
- * are independent (a restored product does not go back on sale by itself),
- * which is exactly the pair a typo would confuse.
+ * every one of these buttons switches on publication or deletion, which is
+ * exactly the pair a typo would confuse.
+ *
+ * Removal goes in steps (FR-ADM-01): unpublish, then delete. A deleted row
+ * offers only restore — it is shown as deleted and nothing else, and it is
+ * published again only once it is back.
  */
 @Component({
   selector: 'app-product-row-actions',
@@ -40,44 +48,60 @@ export interface ProductRowState {
       <app-admin-icon name="pencil" />
     </a>
 
-    <!-- Publication is independent of deletion, so a deleted row still shows
-         where it stands: restoring it does not put it back on the storefront by
-         itself. -->
-    <!-- Present and live on a product nothing prices: it explains instead of
-         acting, the way the delete dialog explains an externally owned
-         catalog. A dead button says only that something is wrong with it. -->
-    <button
-      type="button"
-      appIconButton
-      [disabled]="busy()"
-      [attr.aria-label]="publishLabel()"
-      [title]="cannotPublish() ? editText.unpricedHint : publishLabel()"
-      (click)="onPublishClick()"
-    >
-      <app-admin-icon
-        [name]="product().publishedAt ? 'book-dashed' : 'book-check'"
-      />
-    </button>
-
-    <!-- Kept while an external system owns the catalog, rather than hidden:
-         the same rule greys the editor's fields instead of removing them, and a
-         control that vanishes teaches nobody why. The click opens the dialog,
-         which explains — see ProductDeleteDialog. -->
+    <!-- Three fixed places, so a column of rows reads as one grid: edit,
+         then the step that brings a product forward (publish, restore), then
+         the step that takes it back (unpublish, delete). Removal goes in
+         steps (FR-ADM-01), so each state offers only its neighbours; a place
+         a state has nothing for keeps its width. -->
     @if (product().deletedAt) {
+      <!-- Kept on a product a run deleted while the catalog is owned, rather
+           than hidden: the click says that only the run brings it back. -->
       <button
         type="button"
         appIconButton
         [attr.aria-label]="common.restore"
         [title]="common.restore"
-        (click)="restored.emit(product())"
+        (click)="onRestoreClick()"
       >
         <app-admin-icon name="rotate-ccw" />
       </button>
+      <span appIconButton class="invisible" aria-hidden="true">
+        <app-admin-icon name="trash-2" />
+      </span>
+    } @else if (product().publishedAt) {
+      <span appIconButton class="invisible" aria-hidden="true">
+        <app-admin-icon name="book-check" />
+      </span>
+      <button
+        type="button"
+        appIconButton
+        [disabled]="busy()"
+        [attr.aria-label]="editText.unpublishProduct"
+        [title]="editText.unpublishProduct"
+        (click)="publishToggled.emit(product())"
+      >
+        <app-admin-icon name="book-dashed" />
+      </button>
     } @else {
+      <!-- Present and live on a product nothing prices: it explains instead of
+           acting. A dead button says only that something is wrong with it. -->
+      <button
+        type="button"
+        appIconButton
+        [disabled]="busy()"
+        [attr.aria-label]="editText.publishProduct"
+        [title]="
+          cannotPublish() ? editText.unpricedHint : editText.publishProduct
+        "
+        (click)="onPublishClick()"
+      >
+        <app-admin-icon name="book-check" />
+      </button>
       <button
         type="button"
         appIconButton
         variant="danger"
+        [disabled]="busy()"
         [attr.aria-label]="editText.deleteProduct"
         [title]="editText.deleteProduct"
         (click)="deleteRequested.emit(product())"
@@ -89,8 +113,10 @@ export interface ProductRowState {
 })
 export class ProductRowActions {
   private readonly confirm = inject(ConfirmService);
+  private readonly settings = inject(SettingsService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
+  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
 
   readonly product = input.required<ProductRowState>();
   /** So an editor opened from a row returns to this list, filters and all. */
@@ -102,11 +128,9 @@ export class ProductRowActions {
   readonly restored = output<ProductRowState>();
   readonly deleteRequested = output<ProductRowState>();
 
-  /** An unpublished product with no price cannot go on the storefront; one
-   * already published can always come off. */
+  /** An unpublished product with no price cannot go on the storefront. */
   protected cannotPublish(): boolean {
-    const product = this.product();
-    return product.publishedAt === null && product.priceMinor === null;
+    return this.product().priceMinor === null;
   }
 
   /** Publishing an unpriced product is refused by the server, so the click
@@ -123,12 +147,14 @@ export class ProductRowActions {
     this.publishToggled.emit(this.product());
   }
 
-  /** Names what the button is for. It says "Publish" on a product nothing
-   * prices too: that is what the click is aimed at, and the tooltip beside it
-   * is where the reason it will not happen is said. */
-  protected publishLabel(): string {
-    return this.product().publishedAt
-      ? this.editText.unpublishProduct
-      : this.editText.publishProduct;
+  protected async onRestoreClick(): Promise<void> {
+    const allowed = await mayRestore(
+      this.confirm,
+      this.ownershipText,
+      this.common.close,
+      this.product(),
+      async () => (await this.settings.load()).includes('catalog'),
+    );
+    if (allowed) this.restored.emit(this.product());
   }
 }

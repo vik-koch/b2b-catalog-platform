@@ -126,6 +126,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-18](#fr-adm-18) — Reading customer accounts outward
 - [FR-ADM-19](#fr-adm-19) — A category counts its subtree
 - [FR-ADM-20](#fr-adm-20) — Finding what a product's content lacks
+- [FR-ADM-21](#fr-adm-21) — Deleting a product permanently
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -538,9 +539,11 @@ A listing's subcategories — the top-level categories on the catalogue index �
 
 Admin can add, modify, and delete individual products via the admin panel, and publish or unpublish them ([FR-ADM-06](#fr-adm-06)).
 
+Removing a product goes in steps: unpublish it, delete it, and where [FR-ADM-21](#fr-adm-21) allows, delete it permanently. Only an unpublished product can be deleted; on a live product the delete action stays visible and says to unpublish first. Deleting hides the product without erasing it and asks for no confirmation, because restoring it undoes it in one step. Restoring leaves the product's publication as it was. A deleted product is shown as deleted only, not also as unpublished.
+
 #### <a id="fr-adm-02"></a>FR-ADM-02 — Bulk catalog sync
 
-Admin can trigger a bulk sync (file upload or endpoint) that upserts products by their catalogue ID and deletes products missing from the source. A run states which fields it writes — all of them, or a subset such as prices only or stock only — so an export that does not carry a field cannot blank it. Intended for periodic price and stock updates. The upload is refused while an external system owns the catalog ([FR-ADM-10](#fr-adm-10)).
+Admin can trigger a bulk sync (file upload or endpoint) that upserts products by their catalogue ID and deletes products missing from the source. A product that returns to the source is restored only if a run deleted it; one an admin deleted stays deleted. A run states which fields it writes — all of them, or a subset such as prices only or stock only — so an export that does not carry a field cannot blank it. Intended for periodic price and stock updates. The upload is refused while an external system owns the catalog ([FR-ADM-10](#fr-adm-10)).
 
 #### <a id="fr-adm-03"></a>FR-ADM-03 — Editing static pages
 
@@ -557,6 +560,8 @@ The admin product list can be filtered by publication state (all / live / unpubl
 #### <a id="fr-adm-06"></a>FR-ADM-06 — Publication gate
 
 A product is not visible to the public until an admin publishes it. Products created by the bulk sync arrive unpublished, so new items are reviewed — their price, their category and the packaging the sync does not carry — before they can be seen or bought. A product the default price list ([FR-AUTH-05](#fr-auth-05)) does not price cannot be published at all, and clearing a published product's price takes it off the storefront: a page cannot quote a price that does not exist. A price of zero is that same state, stored as no price rather than as a product that costs nothing.
+
+An admin can open the page of a product the public cannot see: unpublished, unpriced or deleted. The page says why it is hidden and offers the action that undoes it: publish, price it in the editor, or restore. Where [FR-ADM-21](#fr-adm-21) allows, it also offers deleting the product permanently. For everyone else the page does not exist, and it is never indexed.
 
 #### <a id="fr-adm-07"></a>FR-ADM-07 — Catalog import over a machine endpoint
 
@@ -582,9 +587,9 @@ It can also read one run back afterwards, in any area it may write: what the run
 
 #### <a id="fr-adm-10"></a>FR-ADM-10 — External ownership of an area
 
-Where an external system owns an area of the platform's data — the catalog, customers, order processing — an admin can say so from the admin panel — area by area, or for the whole shop in one switch — and take it back. The shop-wide switch is a reading of the areas and an action across them, not a setting of its own. While an area is externally owned, the fields that system writes are read-only in the admin panel and refused by the API — as is adding or removing the records it owns — and the platform's own way into that area — the manual bulk upload, every staff action on a customer account or an order — is refused; while it is not owned, the automated exchange for that area is refused instead.
+Where an external system owns an area of the platform's data — the catalog, customers, order processing — an admin can say so from the admin panel — area by area, or for the whole shop in one switch — and take it back. The shop-wide switch is a reading of the areas and an action across them, not a setting of its own. While an area is externally owned, the fields that system writes are read-only in the admin panel and refused by the API — as is adding or removing the records it owns, except deleting and restoring a product (below) — and the platform's own way into that area — the manual bulk upload, every staff action on a customer account or an order — is refused; while it is not owned, the automated exchange for that area is refused instead.
 
-What the shop presents rather than stocks stays the shop's however an area is owned: a product's publication and the variants its pictures show ([FR-CAT-11](#fr-cat-11)), and how its categories are named for display, pictured and arranged. A category the external system never named — one the shop made up, carrying no source key — stays the shop's entirely, its name included, because nothing outside writes it; giving it that key is how it joins the exchange, after which it is read-only like any other. A price list stays the shop's to name, add and remove — only the key the external system addresses it by is frozen, because that key is how its prices arrive.
+What the shop presents rather than stocks stays the shop's however an area is owned: a product's publication and the variants its pictures show ([FR-CAT-11](#fr-cat-11)), and how its categories are named for display, pictured and arranged. Whether a product is shown at all is part of that: an admin may delete a product the source still sends, and restore it. A run never restores a product an admin deleted, and while the catalog is owned, an admin does not restore one a run deleted either: each side undoes only its own deletion. Only a product a run deleted can be deleted permanently ([FR-ADM-21](#fr-adm-21)), because one the source still sends would arrive again as new. A category the external system never named — one the shop made up, carrying no source key — stays the shop's entirely, its name included, because nothing outside writes it; giving it that key is how it joins the exchange, after which it is read-only like any other. A price list stays the shop's to name, add and remove — only the key the external system addresses it by is frozen, because that key is how its prices arrive.
 
 Owning customers or order processing closes the admin panel's side of them completely rather than field by field: the screens stay readable — staff must be able to see what a customer sees, and the counts of work awaiting attention ([FR-WORK-02](#fr-work-02)) are read from them — but every action on them is refused, because the point of the switch is that the work is done in the owning system.
 
@@ -641,6 +646,10 @@ Wherever the admin panel counts a category's products, it counts everything bene
 The admin product list ([FR-ADM-05](#fr-adm-05)) can be narrowed by what a product's own content lacks: a picture, a description, an attribute, its packaging ([FR-UNIT-02](#fr-unit-02)), or both its box volume and weight. The first three make a product **incomplete**, because every product page shows them. Incomplete is a choice of its own that matches a product lacking any of the three, and each row names in words what keeps it incomplete, so the narrowed list is a queue that says what to do next. Packaging and box facts can be asked about but never make a product incomplete, because a product sold by the piece rightly has neither. A description holding only empty markup counts as missing. A price is not among the gaps, because an unpriced product is already a publication state of its own ([FR-ADM-06](#fr-adm-06)).
 
 The list can equally be narrowed by what a product carries beyond its name and price: the featured mark ([FR-CAT-09](#fr-cat-09)), parts of a set ([FR-CAT-10](#fr-cat-10)), variants ([FR-CAT-11](#fr-cat-11)), products it is sold together with ([FR-SET-01](#fr-set-01)), documents ([FR-DOC-02](#fr-doc-02)) or a line note ([FR-CART-08](#fr-cart-08)). Each of these has one glyph, used wherever the admin panel refers to it: on the product's row under its name, on the filter that asks for it, and on the editor section that sets it. The glyph is named in words for anyone who cannot see it. All three places list the features in one order, and in the editor each feature is a box of its own after the product's own facts, open where the product uses it and shut where it does not. Every gap and every feature is a separate choice, all in view at once, and the choices made must all hold, so "featured, without a picture" is one question.
+
+#### <a id="fr-adm-21"></a>FR-ADM-21 — Deleting a product permanently
+
+An admin can delete a deleted product permanently, removing it with everything that belongs only to it: its prices, attributes, pairings and document links. Its picture files are not removed at once; the regular clean-up of unreferenced uploads removes them later. It is refused for a product that has ever been ordered, which stays deleted instead. While the catalog is externally owned, it is also refused for a product an admin deleted ([FR-ADM-10](#fr-adm-10)). Its slug and source key become free again. It asks for confirmation, because it cannot be undone.
 
 ---
 

@@ -25,6 +25,7 @@ const listItem = (
   gaps: [],
   features: [],
   deletedAt: null,
+  deletedByRun: false,
   publishedAt: '2026-09-01T00:00:00.000Z',
   updatedAt: '2026-09-01T00:00:00.000Z',
   ...overrides,

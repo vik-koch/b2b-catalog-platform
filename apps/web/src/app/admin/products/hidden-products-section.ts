@@ -24,6 +24,8 @@ import { StatusBadge } from '../../ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
 
+import { SettingsService } from '../settings/settings.service';
+import { mayRestore } from './product-removal';
 /**
  * The edit-mode overlay under a category grid (FR-ADM-01/06): what this category
  * holds that the storefront does not show — soft-deleted, unpublished, or both.
@@ -65,25 +67,27 @@ import { injectEditorReturnParams } from '../editor-return';
                     </div>
                   </div>
                   <div [class]="body">
-                    <!-- Both reasons where both apply: the tile has to say why
-                         one action will not be enough to bring it back. -->
+                    <!-- Deleted says it all: the removal steps are taken back
+                         one at a time, and restoring is the only one open to
+                         a deleted product (FR-ADM-01). Otherwise both reasons
+                         where both apply, so the tile says why publishing
+                         alone will not bring it back. -->
                     <p class="mb-1 flex flex-wrap gap-1">
                       @if (item.deleted) {
                         <span appStatusBadge tone="danger">{{
                           text.deletedBadge
                         }}</span>
-                      }
-                      @if (item.unpublished) {
+                      } @else {
                         <span appStatusBadge tone="waiting">{{
                           text.unpublishedBadge
                         }}</span>
-                      }
-                      <!-- The third reason, and the one the button below
-                           cannot resolve: nothing prices this product. -->
-                      @if (item.priceMinor === null) {
-                        <span appStatusBadge tone="danger">{{
-                          text.unpricedBadge
-                        }}</span>
+                        <!-- The second reason, and the one the button below
+                             cannot resolve: nothing prices this product. -->
+                        @if (item.priceMinor === null) {
+                          <span appStatusBadge tone="danger">{{
+                            text.unpricedBadge
+                          }}</span>
+                        }
                       }
                     </p>
                     <h3
@@ -150,8 +154,10 @@ export class HiddenProductsSection {
   private readonly confirm = inject(ConfirmService);
   /** So the editor's cancel lands back on the page the tile was on. */
   protected readonly editorFrom = injectEditorReturnParams();
+  private readonly settings = inject(SettingsService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).editMode;
+  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
 
   readonly categorySlug = input.required<string>();
   /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */
@@ -202,12 +208,10 @@ export class HiddenProductsSection {
     });
   }
 
-  /** Restore comes first: a deleted product is not a candidate for publishing
-   * until it exists again. */
   /**
-   * A deleted product can always be restored — restoring says nothing about
-   * publication — but an unpriced one cannot be put on the storefront, and the
-   * server refuses it. The button explains rather than disappearing.
+   * An unpriced product cannot be put on the storefront, and the server
+   * refuses it; a deleted one is restored first, whatever its price. The
+   * button explains rather than disappearing.
    */
   protected cannotPublish(item: HiddenProduct): boolean {
     return !item.deleted && item.priceMinor === null;
@@ -227,6 +231,18 @@ export class HiddenProductsSection {
         message: this.common.catalogErrors['product-has-no-price'],
         closeLabel: this.common.close,
       });
+      return;
+    }
+    if (
+      item.deleted &&
+      !(await mayRestore(
+        this.confirm,
+        this.ownershipText,
+        this.common.close,
+        item,
+        async () => (await this.settings.load()).includes('catalog'),
+      ))
+    ) {
       return;
     }
     this.busy.set(item.slug);

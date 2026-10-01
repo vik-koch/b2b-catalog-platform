@@ -375,6 +375,10 @@ export const adminProductSchema = z
     documents: z.array(linkedDocumentSchema),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.iso.datetime().nullable(),
+    /** Deleted by a sync run rather than by a person (FR-ADM-10): only a run
+     * brings it back while the catalog is externally owned. False while not
+     * deleted. */
+    deletedByRun: z.boolean(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
     updatedAt: z.iso.datetime(),
@@ -410,6 +414,8 @@ export const adminProductListItemSchema = z
     /** What it carries beyond a name and a price, drawn as glyphs. */
     features: z.array(z.enum(PRODUCT_FEATURES)),
     deletedAt: z.iso.datetime().nullable(),
+    /** As on the full product: who undoes the deletion. */
+    deletedByRun: z.boolean(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
     updatedAt: z.iso.datetime(),
@@ -429,6 +435,8 @@ export const hiddenProductSchema = productListItemSchema.extend({
   priceMinor: priceMinorSchema.nullable(),
   prices: unitPricesSchema.nullable(),
   deleted: z.boolean(),
+  /** As on the full product: who undoes the deletion. */
+  deletedByRun: z.boolean(),
   unpublished: z.boolean(),
 });
 export type HiddenProduct = z.infer<typeof hiddenProductSchema>;
@@ -701,6 +709,11 @@ export const CATALOG_ERROR_CODES = [
   /** Publishing a product no price list prices (FR-ADM-06). The storefront
    * shows every visitor the default list's figure, and there is none. */
   'product-has-no-price',
+  /** Deleting a product that is on the storefront (FR-ADM-01): removal goes
+   * in steps, and taking it off sale is the first. */
+  'product-published',
+  /** Publishing a deleted product: it is restored first, then published. */
+  'product-deleted',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
 
@@ -725,6 +738,8 @@ const e = {
   'source-id-taken': { status: 409 },
   'slug-or-source-id-taken': { status: 409 },
   'product-has-no-price': { status: 409 },
+  'product-published': { status: 409 },
+  'product-deleted': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
 /** Saving a product can collide on either unique column, or name a gone tier,
@@ -827,14 +842,16 @@ export const adminCatalogContract = {
   deleteProduct: admin
     .route({
       method: 'DELETE',
-      // No body; soft delete only (sets deletedAt).
+      // No body; soft delete only (sets deletedAt). Refused for a product on
+      // the storefront: it is unpublished first (FR-ADM-01). Open while the
+      // catalog is externally owned — whether a product is shown is the shop's.
       path: '/admin/catalog/products/{slug}',
       inputStructure: 'detailed',
       summary: 'Soft-delete a product (admin; reversible via restore)',
     })
     .errors({
       'product-not-found': e['product-not-found'],
-      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+      'product-published': e['product-published'],
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
@@ -846,6 +863,8 @@ export const adminCatalogContract = {
       inputStructure: 'detailed',
       summary: 'Restore a soft-deleted product (admin)',
     })
+    // `catalog-externally-owned` for a product a run deleted while the catalog
+    // is owned: each side undoes only its own deletion (FR-ADM-10).
     .errors({
       'product-not-found': e['product-not-found'],
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
@@ -857,9 +876,9 @@ export const adminCatalogContract = {
    * Put a product on the storefront, or take it off (FR-ADM-06).
    *
    * The body names the state rather than the action, because this is one
-   * reversible switch rather than a pair — and unlike restore, it says
-   * nothing about whether the product is deleted: the two are independent,
-   * so restoring an unpublished product leaves it unpublished.
+   * reversible switch rather than a pair. Publishing a deleted product is
+   * refused — it is restored first — but the two stay independent in storage,
+   * so restoring leaves publication as it was.
    */
   setProductPublished: admin
     .route({
@@ -871,6 +890,7 @@ export const adminCatalogContract = {
     .errors({
       'product-not-found': e['product-not-found'],
       'product-has-no-price': e['product-has-no-price'],
+      'product-deleted': e['product-deleted'],
     })
     .input(
       z.object({

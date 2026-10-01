@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { HiddenProduct } from '@b2b-catalog-platform/shared';
+import { HiddenProduct, OwnershipArea } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -10,6 +10,7 @@ import { DeploymentConfig } from '../../config/deployment-config.type';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { productListItem } from '../../catalog/product.fixture';
+import { provideOwnership } from '../settings/settings.fixture';
 import { HiddenProductsSection } from './hidden-products-section';
 
 const text = defaultAdminText.editMode;
@@ -22,6 +23,7 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
     images: [{ full: 'f.jpg', thumb: 't.jpg', variant: null }],
   }),
   deleted: true,
+  deletedByRun: false,
   unpublished: false,
   ...overrides,
 });
@@ -32,7 +34,10 @@ const config = {
 
 const tell = vi.fn(async () => undefined);
 
-function provide(admin: Partial<AdminCatalogService>) {
+function provide(
+  admin: Partial<AdminCatalogService>,
+  owned: OwnershipArea[] = [],
+) {
   tell.mockClear();
   TestBed.configureTestingModule({
     imports: [HiddenProductsSection],
@@ -44,19 +49,23 @@ function provide(admin: Partial<AdminCatalogService>) {
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AdminCatalogService, useValue: admin },
       { provide: ConfirmService, useValue: { tell } },
+      provideOwnership(...owned),
     ],
   });
   return TestBed.createComponent(HiddenProductsSection);
 }
 
-async function render(items: HiddenProduct[]) {
+async function render(items: HiddenProduct[], owned: OwnershipArea[] = []) {
   const restoreProduct = vi.fn().mockResolvedValue({});
   const setProductPublished = vi.fn().mockResolvedValue({});
-  const fixture = provide({
-    listHiddenProducts: vi.fn().mockResolvedValue(items),
-    restoreProduct,
-    setProductPublished,
-  } as unknown as Partial<AdminCatalogService>);
+  const fixture = provide(
+    {
+      listHiddenProducts: vi.fn().mockResolvedValue(items),
+      restoreProduct,
+      setProductPublished,
+    } as unknown as Partial<AdminCatalogService>,
+    owned,
+  );
   fixture.componentRef.setInput('categorySlug', 'espresso');
   await fixture.whenStable();
   fixture.detectChanges();
@@ -100,11 +109,52 @@ describe('HiddenProductsSection', () => {
     expect(el.textContent).not.toContain(text.deletedBadge);
   });
 
-  it('shows both reasons when both apply, since one action will not be enough', async () => {
-    const { el } = await render([hidden({ deleted: true, unpublished: true })]);
+  it('shows a deleted product as deleted only — restoring is the one step back', async () => {
+    const { el } = await render([
+      hidden({ deleted: true, unpublished: true, priceMinor: null }),
+    ]);
 
     expect(el.textContent).toContain(text.deletedBadge);
+    expect(el.textContent).not.toContain(text.unpublishedBadge);
+    expect(el.textContent).not.toContain(text.unpricedBadge);
+  });
+
+  it('shows both reasons on a product that is unpublished and unpriced', async () => {
+    const { el } = await render([
+      hidden({ deleted: false, unpublished: true, priceMinor: null }),
+    ]);
+
     expect(el.textContent).toContain(text.unpublishedBadge);
+    expect(el.textContent).toContain(text.unpricedBadge);
+  });
+
+  it('explains instead of restoring what a run deleted while the catalog is owned', async () => {
+    const { fixture, el, restoreProduct } = await render(
+      [hidden({ deletedByRun: true })],
+      ['catalog'],
+    );
+
+    actionButton(el, defaultAdminText.common.restore)?.click();
+    await fixture.whenStable();
+
+    expect(restoreProduct).not.toHaveBeenCalled();
+    expect(tell).toHaveBeenCalledWith(
+      expect.objectContaining({
+        heading: defaultAdminText.ownership.productRestoreTitle,
+      }),
+    );
+  });
+
+  it('restores what an admin deleted, owned or not', async () => {
+    const { fixture, el, restoreProduct } = await render(
+      [hidden({ deletedByRun: false })],
+      ['catalog'],
+    );
+
+    actionButton(el, defaultAdminText.common.restore)?.click();
+    await fixture.whenStable();
+
+    expect(restoreProduct).toHaveBeenCalledWith('old-roast');
   });
 
   it('restores a deleted product and emits restored', async () => {
@@ -164,11 +214,12 @@ describe('HiddenProductsSection', () => {
   });
 
   it('offers restore first for a product that is both — publishing a deleted product shows nobody anything', async () => {
-    const { el, setProductPublished, restoreProduct } = await render([
+    const { fixture, el, setProductPublished, restoreProduct } = await render([
       hidden({ deleted: true, unpublished: true }),
     ]);
 
     actionButton(el, defaultAdminText.common.restore)?.click();
+    await fixture.whenStable();
 
     expect(restoreProduct).toHaveBeenCalled();
     expect(setProductPublished).not.toHaveBeenCalled();

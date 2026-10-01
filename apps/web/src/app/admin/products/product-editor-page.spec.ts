@@ -54,6 +54,7 @@ const storedProduct: AdminProduct = {
   pairings: [],
   documents: [],
   deletedAt: null,
+  deletedByRun: false,
   publishedAt: '2026-07-30T10:00:00.000Z',
   updatedAt: '2026-07-30T10:00:00.000Z',
   piecesPerPack: null,
@@ -947,7 +948,7 @@ describe('ProductEditorPage', () => {
       expect(el.textContent).not.toContain(editText.deletedBadge);
     });
 
-    it('badges a product that is off the storefront and deleted', async () => {
+    it('badges a deleted product as deleted only, and offers no publish', async () => {
       const { el } = await render(
         { slug: 'hafen-espresso' },
         {},
@@ -959,8 +960,11 @@ describe('ProductEditorPage', () => {
         },
       );
 
-      expect(el.textContent).toContain(editText.unpublishedBadge);
+      // Restoring is the one step back from deleted (FR-ADM-01), so the
+      // unpublished badge and the publish button would only point past it.
       expect(el.textContent).toContain(editText.deletedBadge);
+      expect(el.textContent).not.toContain(editText.unpublishedBadge);
+      expect(el.textContent).not.toContain(text.saveAndPublish);
     });
 
     it('follows the price field rather than what is stored', async () => {

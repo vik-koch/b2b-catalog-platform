@@ -126,6 +126,7 @@ const adminProductWriteColumns = {
   images: products.images,
   variants: products.variants,
   deletedAt: products.deletedAt,
+  deletedBy: products.deletedBy,
   publishedAt: products.publishedAt,
   updatedAt: products.updatedAt,
   piecesPerPack: products.piecesPerPack,
@@ -160,6 +161,7 @@ type ProductRow = {
   images: ProductImageRef[];
   variants: ProductVariantRef[];
   deletedAt: Date | null;
+  deletedBy: string | null;
   publishedAt: Date | null;
   updatedAt: Date;
   piecesPerPack: number | null;
@@ -290,6 +292,7 @@ export class AdminProductsService {
           sourceId: products.sourceId,
           images: products.images,
           deletedAt: products.deletedAt,
+          deletedBy: products.deletedBy,
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
           availability: products.availability,
@@ -316,6 +319,7 @@ export class AdminProductsService {
           gaps: INCOMPLETE_GAPS.filter((gap) => r.gaps[gap]),
           features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
+          deletedByRun: deletedByRun(r),
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),
@@ -513,12 +517,13 @@ export class AdminProductsService {
    * idempotent — re-deleting an already-deleted product is a no-op that leaves
    * its original `deletedAt`/`updatedAt` untouched (coalesce keeps the first
    * timestamp; `updatedAt` only moves on the live→deleted transition).
+   *
+   * Only an unpublished product: removal goes in steps, and taking it off sale
+   * is the first (FR-ADM-01). Open while the catalog is externally owned —
+   * whether a product is shown is the shop's, and the actor it records is what
+   * keeps the next run from restoring it (FR-ADM-10).
    */
   async deleteProduct(slug: string, actorId: string): Promise<AdminProduct> {
-    // Existence is the exchange's to say too: it is the delete sweep's job to
-    // take a product out of the catalog, and an admin doing it by hand would
-    // be undone by the next full import anyway.
-    if (this.catalogIsOwned) throw catalogExternallyOwned('delete');
     const now = new Date();
     const rows = await this.db
       .update(products)
@@ -529,9 +534,22 @@ export class AdminProductsService {
         // does not rewrite who actually removed it.
         deletedBy: sql`case when ${products.deletedAt} is null then ${actorId}::uuid else ${products.deletedBy} end`,
       })
-      .where(eq(products.slug, slug))
+      .where(
+        and(
+          eq(products.slug, slug),
+          or(isNull(products.publishedAt), isNotNull(products.deletedAt)),
+        ),
+      )
       .returning(adminProductColumns);
-    if (!rows[0]) throw productNotFound();
+    if (!rows[0]) {
+      throw (await this.productBySlug(slug))
+        ? new ConflictException({
+            code: 'product-published',
+            message:
+              'A product on the storefront is unpublished before it is deleted',
+          })
+        : productNotFound();
+    }
     // Soft delete leaves the tier prices alone — they belong to the product,
     // and hiding it is reversible.
     return toAdminProduct(
@@ -543,8 +561,12 @@ export class AdminProductsService {
     );
   }
 
+  /**
+   * While the catalog is externally owned, only what a person deleted: a
+   * product a run deleted is gone from the source, and the run that finds it
+   * there again is what brings it back (FR-ADM-10).
+   */
   async restoreProduct(slug: string, actorId: string): Promise<AdminProduct> {
-    if (this.catalogIsOwned) throw catalogExternallyOwned('restore');
     const rows = await this.db
       .update(products)
       .set({
@@ -553,9 +575,20 @@ export class AdminProductsService {
         updatedAt: new Date(),
         updatedBy: actorId,
       })
-      .where(eq(products.slug, slug))
+      .where(
+        and(
+          eq(products.slug, slug),
+          this.catalogIsOwned
+            ? or(isNull(products.deletedAt), isNotNull(products.deletedBy))
+            : undefined,
+        ),
+      )
       .returning(adminProductColumns);
-    if (!rows[0]) throw productNotFound();
+    if (!rows[0]) {
+      throw (await this.productBySlug(slug))
+        ? catalogExternallyOwned('restore')
+        : productNotFound();
+    }
     return toAdminProduct(
       rows[0],
       await this.tierPricesFor(rows[0].id),
@@ -568,8 +601,9 @@ export class AdminProductsService {
   /**
    * Put a product on the storefront, or take it off (FR-ADM-06).
    *
-   * Independent of soft deletion: publishing a deleted product does not restore
-   * it, and restoring an unpublished one does not publish it. `publishedBy`
+   * Independent of soft deletion in storage — restoring leaves publication as
+   * it was — but a deleted product is restored before it is published, the
+   * removal steps taken back in order (FR-ADM-01). `publishedBy`
    * records who accepted the price going public, and is cleared on the way back
    * so it never names somebody for a decision that has been undone.
    *
@@ -584,7 +618,10 @@ export class AdminProductsService {
     published: boolean,
     actorId: string,
   ): Promise<AdminProduct> {
-    if (published) await this.assertPriced(slug);
+    if (published) {
+      await this.assertPriced(slug);
+      await this.assertNotDeleted(slug);
+    }
     const rows = await this.db
       .update(products)
       .set({
@@ -635,6 +672,7 @@ export class AdminProductsService {
         priceMinor: resolvedPriceMinor(null),
         ...pictureColumns,
         deletedAt: products.deletedAt,
+        deletedBy: products.deletedBy,
         publishedAt: products.publishedAt,
         ...unitColumns,
         ...noteColumns,
@@ -653,6 +691,7 @@ export class AdminProductsService {
     return hidden.map((row) => ({
       ...toUnpricedListItem(row),
       deleted: row.deletedAt !== null,
+      deletedByRun: deletedByRun(row),
       unpublished: row.publishedAt === null,
     }));
   }
@@ -688,6 +727,17 @@ export class AdminProductsService {
       .where(eq(products.slug, slug))
       .limit(1);
     return row;
+  }
+
+  /** Refuses publishing a deleted product: it is restored first (FR-ADM-01). */
+  private async assertNotDeleted(slug: string): Promise<void> {
+    const row = await this.productBySlug(slug);
+    if (row?.deletedAt) {
+      throw new ConflictException({
+        code: 'product-deleted',
+        message: 'A deleted product is restored before it is published',
+      });
+    }
   }
 
   /** Refuses a product the default list does not price (FR-ADM-06). */
@@ -1113,6 +1163,18 @@ function canonicalPair(
     : { productAId: other, productBId: one };
 }
 
+/**
+ * A deletion nobody signed: a run's sweep writes no actor, a person's delete
+ * always does (FR-ADM-10). Staff accounts are anonymized rather than removed,
+ * so the foreign key's `set null` never turns a person's deletion into a run's.
+ */
+function deletedByRun(row: {
+  deletedAt: Date | null;
+  deletedBy: string | null;
+}): boolean {
+  return row.deletedAt !== null && row.deletedBy === null;
+}
+
 function toAdminProduct(
   row: ProductRow,
   tierPrices: ProductTierPrice[],
@@ -1144,6 +1206,7 @@ function toAdminProduct(
     pairings,
     documents,
     deletedAt: row.deletedAt?.toISOString() ?? null,
+    deletedByRun: deletedByRun(row),
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
     piecesPerPack: row.piecesPerPack,
