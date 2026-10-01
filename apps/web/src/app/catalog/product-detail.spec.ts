@@ -257,9 +257,9 @@ describe('ProductDetail', () => {
       expect(el(fixture).textContent).not.toContain(
         defaultAppText.catalog.productNotFound,
       );
-      expect(
-        TestBed.inject(Meta).getTag('name="robots"')?.content,
-      ).toBe('noindex');
+      expect(TestBed.inject(Meta).getTag('name="robots"')?.content).toBe(
+        'noindex',
+      );
     });
 
     it('says beside the name why it is hidden, drawn with the page', async () => {

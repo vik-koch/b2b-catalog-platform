@@ -166,7 +166,9 @@ test.describe('as an admin', () => {
       await expect(heading).toContainText('Not published');
     } finally {
       await page.request.delete(`/api/admin/catalog/products/${slug}`);
-      await page.request.delete(`/api/admin/catalog/products/${slug}/permanent`);
+      await page.request.delete(
+        `/api/admin/catalog/products/${slug}/permanent`,
+      );
     }
   });
 

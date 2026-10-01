@@ -788,7 +788,9 @@ export class CatalogService {
     slug: string,
     tierId: string | null = null,
   ): Promise<ProductDetail | null> {
-    return (await this.readProduct(slug, tierId, publiclyVisible))?.product ?? null;
+    return (
+      (await this.readProduct(slug, tierId, publiclyVisible))?.product ?? null
+    );
   }
 
   /**

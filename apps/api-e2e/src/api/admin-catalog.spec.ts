@@ -591,9 +591,12 @@ describe('Admin catalog (FR-ADM-01)', () => {
       );
       expect(missing.status).toBe(404);
 
-      const anon = await axios.get(`/admin/catalog/products/no-such-${R}/page`, {
-        validateStatus: () => true,
-      });
+      const anon = await axios.get(
+        `/admin/catalog/products/no-such-${R}/page`,
+        {
+          validateStatus: () => true,
+        },
+      );
       expect(anon.status).toBe(401);
     });
   });
