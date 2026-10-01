@@ -5,7 +5,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { IconButton } from '../../ui/icon-button';
 import { SettingsService } from '../settings/settings.service';
-import { mayRestore } from './product-removal';
+import { mayRestore, purgeRefusal } from './product-removal';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -154,12 +154,14 @@ export class ProductRowActions {
   );
 
   private refusalFor(catalogOwned: boolean): string | null {
-    const product = this.product();
-    if (product.ordered) return this.common.catalogErrors['product-ordered'];
-    if (catalogOwned && !product.deletedByRun) {
-      return this.ownershipText.productPurge;
-    }
-    return null;
+    return purgeRefusal(
+      {
+        ordered: this.common.catalogErrors['product-ordered'],
+        owned: this.ownershipText.productPurge,
+      },
+      this.product(),
+      catalogOwned,
+    );
   }
 
   protected async onPurgeClick(): Promise<void> {

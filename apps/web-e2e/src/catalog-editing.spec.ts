@@ -123,6 +123,53 @@ test.describe('as an admin', () => {
     ).toHaveCount(0);
   });
 
+  test('shows an admin a hidden product page, and unpublishing stays on it (FR-ADM-06)', async ({
+    page,
+  }) => {
+    // Its own product, so no other spec sees a seed product go off sale.
+    const categories = await page.request.get('/api/admin/catalog/categories');
+    const categoryId = (
+      (await categories.json()).categories as { id: string; slug: string }[]
+    ).find((c) => c.slug === category.slug)?.id;
+    const created = await page.request.post('/api/admin/catalog/products', {
+      data: {
+        name: `Hidden page ${Date.now().toString(36)}`,
+        priceMinor: 990,
+        categoryId,
+        descriptionHtml: '',
+        attributes: [],
+        images: [],
+        tierPrices: [],
+      },
+    });
+    expect(created.status()).toBe(201);
+    const { slug } = (await created.json()) as { slug: string };
+
+    try {
+      await page.goto(`/product/${slug}`);
+      // Beside the name, with edit mode off too: the page is one no customer
+      // can reach, and the badge says why it is not what they would see.
+      const heading = page.locator('h1').locator('..');
+      await expect(heading).toContainText('Not published');
+
+      await editModeToggle(page).click();
+      await page.getByRole('button', { name: 'Publish' }).click();
+      await expect(heading).not.toContainText('Not published');
+
+      // Unpublishing from the page keeps the admin on it, now hidden again.
+      await page.getByRole('button', { name: 'Unpublish' }).click();
+      await page
+        .getByRole('dialog')
+        .getByRole('button', { name: 'Unpublish' })
+        .click();
+      await expect(page).toHaveURL(new RegExp(`/product/${slug}$`));
+      await expect(heading).toContainText('Not published');
+    } finally {
+      await page.request.delete(`/api/admin/catalog/products/${slug}`);
+      await page.request.delete(`/api/admin/catalog/products/${slug}/permanent`);
+    }
+  });
+
   test('opens the product editor with the category preselected, and cancels without saving', async ({
     page,
   }) => {

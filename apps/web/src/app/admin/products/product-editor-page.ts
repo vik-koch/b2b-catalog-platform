@@ -578,10 +578,10 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
         <!-- Cancel puts the admin back where they came from, which for an
              editor opened from the admin list is the admin list — so seeing
              the product as a customer sees it meant saving first. This exit
-             discards the same way and lands on the page itself. Only where
-             there is a page to land on: the storefront 404s an unpublished
-             product. -->
-        @if (!isNew && published() && !deleted()) {
+             discards the same way and lands on the page itself, which an
+             admin is shown whether or not it is on the storefront
+             (FR-ADM-06). -->
+        @if (!isNew) {
           <button
             appButton
             variant="secondary"

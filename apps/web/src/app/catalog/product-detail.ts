@@ -5,9 +5,21 @@ import {
   Injector,
   input,
   resource,
+  effect,
+  DestroyRef,
+  PLATFORM_ID,
+  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
+import {
+  ProductDetail as ProductDetailModel,
+  ProductPage,
+} from '@b2b-catalog-platform/shared';
+import { Meta } from '@angular/platform-browser';
+import { adminText, loadAdminText } from '../config/admin-text';
+import { StatusBadge } from '../ui/status-badge';
+import { isPlatformBrowser } from '@angular/common';
+import { AuthService } from '../auth/auth.service';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { injectEditorReturnParams } from '../admin/editor-return';
@@ -28,13 +40,27 @@ import {
  * through the shared presentational view, with load/not-found states and SEO.
  * In admin edit mode it shows edit/delete icons anchored to the section's
  * top-right corner (a consistent spot across the storefront) — edit links to
- * the editor, and unpublish beside it — a page that renders at all is a
- * published product, so removal starts there (FR-ADM-01). Its one admin write
- * is imported on demand, so the public bundle carries no admin write client.
+ * the editor, and unpublish beside it, since removal starts there
+ * (FR-ADM-01).
+ *
+ * An admin also gets the page of a product the public cannot see — unpublished,
+ * unpriced or deleted (FR-ADM-06): where the public read finds nothing, it asks
+ * the admin read. A badge beside the name says why it is hidden, drawn with
+ * the page — which waits for the fetched admin wording to do so, so nothing
+ * jumps — and the edit actions publish it again. Deleting, restoring and
+ * deleting permanently stay in the admin list. Everyone else gets the
+ * not-found page. The admin client is imported on demand, so the public bundle
+ * carries no admin write client.
  */
 @Component({
   selector: 'app-product-detail',
-  imports: [ProductDetailView, NotFoundView, EditActions, LoadErrorView],
+  imports: [
+    ProductDetailView,
+    NotFoundView,
+    EditActions,
+    LoadErrorView,
+    StatusBadge,
+  ],
   template: `
     <!-- The section keeps the frame's full width, because the edit-mode icons
          are anchored to its top-right corner and that corner is the same one
@@ -53,17 +79,41 @@ import {
           />
         } @else {
           @if (editText(); as editText) {
+            <!-- Publication is the one step taken from the page, either way;
+                 a deleted product goes back through the admin list. -->
             <app-edit-actions
               [editLink]="['/admin/products', item.slug, 'edit']"
               [editParams]="editorFrom()"
               [editLabel]="editText.editProduct"
-              [publishLabel]="editText.unpublishProduct"
-              [published]="true"
-              (togglePublished)="unpublish(item)"
+              [publishLabel]="publishLabel(loaded.hidden, editText)"
+              [published]="!loaded.hidden"
+              (togglePublished)="togglePublished(item, loaded.hidden)"
             />
           }
 
-          <app-product-detail-view [item]="item" />
+          <!-- Nothing hidden can be bought, so nobody adds it from here. -->
+          <app-product-detail-view [item]="item" [canAdd]="!loaded.hidden">
+            <span productStatus class="flex flex-wrap gap-1">
+              @if (loaded.hidden; as hidden) {
+                @if (statusText(); as status) {
+                  @if (hidden.deleted) {
+                    <span appStatusBadge tone="danger">{{
+                      status.deletedBadge
+                    }}</span>
+                  } @else {
+                    <span appStatusBadge tone="waiting">{{
+                      status.unpublishedBadge
+                    }}</span>
+                    @if (hidden.unpriced) {
+                      <span appStatusBadge tone="danger">{{
+                        status.unpricedBadge
+                      }}</span>
+                    }
+                  }
+                }
+              }
+            </span>
+          </app-product-detail-view>
         }
       } @else if (showSkeleton()) {
         <div
@@ -105,6 +155,7 @@ export class ProductDetail {
   private readonly injector = inject(Injector);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly columns = PRODUCT_PAGE_COLUMNS;
   protected readonly sectionCell = PRODUCT_PAGE_SECTION_CELL;
@@ -114,13 +165,40 @@ export class ProductDetail {
 
   protected product = resource({
     params: () => ({ slug: this.slug() }),
-    loader: ({ params }) => this.catalog.getProduct(params.slug),
+    loader: async ({ params }): Promise<LoadedProduct | null> => {
+      const item = await this.catalog.getProduct(params.slug);
+      if (item) return { item, hidden: null };
+      // Nothing the public may see. An admin may still see it, hidden: the
+      // session decides, so the answer waits for it.
+      await this.auth.whenResolved();
+      if (this.auth.user()?.role !== 'admin') return null;
+      const { AdminCatalogService } =
+        await import('../admin/admin-catalog.service');
+      const page = await this.injector
+        .get(AdminCatalogService)
+        .getProductPage(params.slug);
+      return page && { item: page.product, hidden: page.hidden };
+    },
   });
+
+  /** The badge wording, fetched like every admin word: null until it has
+   * arrived, or for good where fetching it failed. */
+  protected readonly statusText = computed(() => adminText()?.editMode ?? null);
+  private readonly textFailed = signal(false);
+  private readonly statusSettled = computed(
+    () => this.statusText() !== null || this.textFailed(),
+  );
 
   /** The product and its edit affordances appear together, once the product
    * and the visitor's role are both known — see editAwareContent. */
   private readonly content = editAwareContent({
-    ready: computed(() => this.product.hasValue()),
+    // A hidden page is drawn with its badge or not at all, so the name does
+    // not move when the badge arrives. Only an admin reaches one.
+    ready: computed(
+      () =>
+        this.product.hasValue() &&
+        (!this.product.value()?.hidden || this.statusSettled()),
+    ),
     section: 'editMode',
   });
   protected readonly editText = this.content.controls;
@@ -129,49 +207,117 @@ export class ProductDetail {
    * The answer, once it may be shown — boxed, because the answer itself may be
    * `null` (no such product) and a bare null would read as "not ready".
    */
-  protected readonly shown = computed(() =>
-    this.content.ready() ? { item: this.product.value() } : undefined,
-  );
+  protected readonly shown = computed(() => {
+    if (!this.content.ready()) return undefined;
+    const value = this.product.value();
+    return { item: value?.item ?? null, hidden: value?.hidden ?? null };
+  });
+
+  /** Publish on a hidden page — unless it is deleted, which goes back through
+   * the admin list — and unpublish on a live one. */
+  protected publishLabel(
+    hidden: ProductPage['hidden'] | null,
+    text: { publishProduct: string; unpublishProduct: string },
+  ): string | null {
+    if (!hidden) return text.unpublishProduct;
+    return hidden.deleted ? null : text.publishProduct;
+  }
 
   /**
-   * Only ever *un*publish here: a page that renders at all is a published
-   * product — the storefront 404s the rest. Confirmed, because taking a product
-   * off sale is the weight of a delete, and it leaves for the category
-   * afterwards for the same reason a delete does.
+   * Publication from the page, either way, and the page stays where it is and
+   * reads again — for the admin unpublishing, the same product with its badge
+   * now saying it is hidden. Unpublishing is confirmed, because taking a
+   * product off sale is the weight of a delete; publishing an unpriced product
+   * says why it cannot be, as the admin list does.
    */
-  protected async unpublish(item: ProductDetailModel): Promise<void> {
+  protected async togglePublished(
+    item: ProductDetailModel,
+    hidden: ProductPage['hidden'] | null,
+  ): Promise<void> {
     const text = this.editText();
-    if (!text) return;
-    const ok = await this.confirm.ask({
-      heading: text.unpublishProduct,
-      message: text.unpublishConfirm.replace('{name}', item.name),
-      confirmLabel: text.unpublishProduct,
-      cancelLabel: text.cancel,
-      confirmVariant: 'danger',
-    });
-    if (!ok) return;
-    // Imported here, not at the top: this is the one admin call a storefront
-    // page makes, and a static import would put the admin catalog service —
-    // and the whole admin contract behind it — in every visitor's first load.
+    const all = adminText();
+    if (!text || !all) return;
+    if (hidden?.unpriced) {
+      await this.confirm.tell({
+        heading: text.unpricedTitle,
+        message: all.common.catalogErrors['product-has-no-price'],
+        closeLabel: all.common.close,
+      });
+      return;
+    }
+    if (
+      !hidden &&
+      !(await this.confirm.ask({
+        heading: text.unpublishProduct,
+        message: text.unpublishConfirm.replace('{name}', item.name),
+        confirmLabel: text.unpublishProduct,
+        cancelLabel: text.cancel,
+        confirmVariant: 'danger',
+      }))
+    ) {
+      return;
+    }
+    // Imported here, not at the top: the admin catalog service — and the
+    // whole admin contract behind it — stays out of every visitor's first
+    // load.
     const { AdminCatalogService } =
       await import('../admin/admin-catalog.service');
     await this.injector
       .get(AdminCatalogService)
-      .setProductPublished(item.slug, false);
-    void this.router.navigate(['/catalog', item.category.slug]);
+      .setProductPublished(item.slug, !!hidden);
+    this.product.reload();
   }
 
   /** Value only when there is one — `value()` throws on an errored resource. */
   private readonly loaded = computed(() =>
-    this.product.hasValue() ? this.product.value() : undefined,
+    this.product.hasValue() ? this.product.value()?.item : undefined,
   );
 
   constructor() {
+    // Fetched only once a hidden page is in hand, which only an admin has; in
+    // the browser only, where the file is served — the server's render keeps
+    // the placeholder, and the browser's first frame matches it.
+    if (isPlatformBrowser(inject(PLATFORM_ID))) {
+      effect(() => {
+        if (this.product.hasValue() && this.product.value()?.hidden) {
+          loadAdminText().catch(() => this.textFailed.set(true));
+        }
+      });
+    }
     usePageSeo({
       name: () => this.loaded()?.name,
       description: () => plainTextExcerpt(this.loaded()?.descriptionHtml),
     });
+    // A hidden page is an admin's only, and never indexed. Only crawlers read
+    // it, and they have no session to be shown one with; this is the second
+    // line, in the document itself.
+    // Removed again when the same page goes live (an admin publishing it) or
+    // is left, so an ordinary page reached afterwards does not inherit it.
+    // Only a tag this page added is taken away: a deployment that is itself
+    // non-indexable carries its own (seo.server.ts), which must stay.
+    const meta = inject(Meta);
+    let added = false;
+    const unmark = () => {
+      if (added) meta.removeTag('name="robots"');
+      added = false;
+    };
+    effect(() => {
+      const hidden = this.product.hasValue() && !!this.product.value()?.hidden;
+      if (hidden && !meta.getTag('name="robots"')) {
+        meta.addTag({ name: 'robots', content: 'noindex' });
+        added = true;
+      } else if (!hidden) {
+        unmark();
+      }
+    });
+    inject(DestroyRef).onDestroy(unmark);
   }
+}
+
+/** The page, and why the public cannot see it — null for a live product. */
+interface LoadedProduct {
+  item: ProductDetailModel;
+  hidden: ProductPage['hidden'] | null;
 }
 
 /** A meta-description excerpt from a product's rich-text description: tags
