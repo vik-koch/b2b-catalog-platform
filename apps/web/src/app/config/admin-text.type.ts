@@ -120,6 +120,7 @@ export const adminTextSchema = z
             'slug-or-source-id-taken': z.string(),
             'product-has-no-price': z.string(),
             'product-published': z.string(),
+            'product-deleted': z.string(),
           })
           .strict(),
       })

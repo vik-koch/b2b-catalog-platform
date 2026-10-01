@@ -65,25 +65,27 @@ import { injectEditorReturnParams } from '../editor-return';
                     </div>
                   </div>
                   <div [class]="body">
-                    <!-- Both reasons where both apply: the tile has to say why
-                         one action will not be enough to bring it back. -->
+                    <!-- Deleted says it all: the removal steps are taken back
+                         one at a time, and restoring is the only one open to
+                         a deleted product (FR-ADM-01). Otherwise both reasons
+                         where both apply, so the tile says why publishing
+                         alone will not bring it back. -->
                     <p class="mb-1 flex flex-wrap gap-1">
                       @if (item.deleted) {
                         <span appStatusBadge tone="danger">{{
                           text.deletedBadge
                         }}</span>
-                      }
-                      @if (item.unpublished) {
+                      } @else {
                         <span appStatusBadge tone="waiting">{{
                           text.unpublishedBadge
                         }}</span>
-                      }
-                      <!-- The third reason, and the one the button below
-                           cannot resolve: nothing prices this product. -->
-                      @if (item.priceMinor === null) {
-                        <span appStatusBadge tone="danger">{{
-                          text.unpricedBadge
-                        }}</span>
+                        <!-- The second reason, and the one the button below
+                             cannot resolve: nothing prices this product. -->
+                        @if (item.priceMinor === null) {
+                          <span appStatusBadge tone="danger">{{
+                            text.unpricedBadge
+                          }}</span>
+                        }
                       }
                     </p>
                     <h3
@@ -202,12 +204,10 @@ export class HiddenProductsSection {
     });
   }
 
-  /** Restore comes first: a deleted product is not a candidate for publishing
-   * until it exists again. */
   /**
-   * A deleted product can always be restored — restoring says nothing about
-   * publication — but an unpriced one cannot be put on the storefront, and the
-   * server refuses it. The button explains rather than disappearing.
+   * An unpriced product cannot be put on the storefront, and the server
+   * refuses it; a deleted one is restored first, whatever its price. The
+   * button explains rather than disappearing.
    */
   protected cannotPublish(item: HiddenProduct): boolean {
     return !item.deleted && item.priceMinor === null;

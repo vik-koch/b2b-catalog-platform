@@ -44,7 +44,8 @@
       "pairing-self": "A product cannot be sold together with itself.",
       "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
       "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
-      "product-published": "This product is on the storefront. Unpublish it first, then delete it."
+      "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
+      "product-deleted": "This product is deleted. Restore it first, then publish it."
     }
   },
   "panel": {

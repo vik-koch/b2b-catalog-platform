@@ -704,6 +704,8 @@ export const CATALOG_ERROR_CODES = [
   /** Deleting a product that is on the storefront (FR-ADM-01): removal goes
    * in steps, and taking it off sale is the first. */
   'product-published',
+  /** Publishing a deleted product: it is restored first, then published. */
+  'product-deleted',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
 
@@ -729,6 +731,7 @@ const e = {
   'slug-or-source-id-taken': { status: 409 },
   'product-has-no-price': { status: 409 },
   'product-published': { status: 409 },
+  'product-deleted': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
 /** Saving a product can collide on either unique column, or name a gone tier,
@@ -863,9 +866,9 @@ export const adminCatalogContract = {
    * Put a product on the storefront, or take it off (FR-ADM-06).
    *
    * The body names the state rather than the action, because this is one
-   * reversible switch rather than a pair — and unlike restore, it says
-   * nothing about whether the product is deleted: the two are independent,
-   * so restoring an unpublished product leaves it unpublished.
+   * reversible switch rather than a pair. Publishing a deleted product is
+   * refused — it is restored first — but the two stay independent in storage,
+   * so restoring leaves publication as it was.
    */
   setProductPublished: admin
     .route({
@@ -877,6 +880,7 @@ export const adminCatalogContract = {
     .errors({
       'product-not-found': e['product-not-found'],
       'product-has-no-price': e['product-has-no-price'],
+      'product-deleted': e['product-deleted'],
     })
     .input(
       z.object({

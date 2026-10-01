@@ -582,8 +582,9 @@ export class AdminProductsService {
   /**
    * Put a product on the storefront, or take it off (FR-ADM-06).
    *
-   * Independent of soft deletion: publishing a deleted product does not restore
-   * it, and restoring an unpublished one does not publish it. `publishedBy`
+   * Independent of soft deletion in storage — restoring leaves publication as
+   * it was — but a deleted product is restored before it is published, the
+   * removal steps taken back in order (FR-ADM-01). `publishedBy`
    * records who accepted the price going public, and is cleared on the way back
    * so it never names somebody for a decision that has been undone.
    *
@@ -598,7 +599,10 @@ export class AdminProductsService {
     published: boolean,
     actorId: string,
   ): Promise<AdminProduct> {
-    if (published) await this.assertPriced(slug);
+    if (published) {
+      await this.assertPriced(slug);
+      await this.assertNotDeleted(slug);
+    }
     const rows = await this.db
       .update(products)
       .set({
@@ -702,6 +706,17 @@ export class AdminProductsService {
       .where(eq(products.slug, slug))
       .limit(1);
     return row;
+  }
+
+  /** Refuses publishing a deleted product: it is restored first (FR-ADM-01). */
+  private async assertNotDeleted(slug: string): Promise<void> {
+    const row = await this.productBySlug(slug);
+    if (row?.deletedAt) {
+      throw new ConflictException({
+        code: 'product-deleted',
+        message: 'A deleted product is restored before it is published',
+      });
+    }
   }
 
   /** Refuses a product the default list does not price (FR-ADM-06). */

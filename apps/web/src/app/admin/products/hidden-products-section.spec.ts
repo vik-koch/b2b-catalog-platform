@@ -100,11 +100,14 @@ describe('HiddenProductsSection', () => {
     expect(el.textContent).not.toContain(text.deletedBadge);
   });
 
-  it('shows both reasons when both apply, since one action will not be enough', async () => {
-    const { el } = await render([hidden({ deleted: true, unpublished: true })]);
+  it('shows a deleted product as deleted only — restoring is the one step back', async () => {
+    const { el } = await render([
+      hidden({ deleted: true, unpublished: true, priceMinor: null }),
+    ]);
 
     expect(el.textContent).toContain(text.deletedBadge);
-    expect(el.textContent).toContain(text.unpublishedBadge);
+    expect(el.textContent).not.toContain(text.unpublishedBadge);
+    expect(el.textContent).not.toContain(text.unpricedBadge);
   });
 
   it('restores a deleted product and emits restored', async () => {

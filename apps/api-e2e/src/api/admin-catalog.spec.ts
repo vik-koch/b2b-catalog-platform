@@ -452,20 +452,32 @@ describe('Admin catalog (FR-ADM-01)', () => {
   });
 
   describe('soft delete / restore', () => {
-    it('hides a deleted product from the storefront but keeps it for the admin, then restores it', async () => {
+    it('removes a product in steps, and takes them back in order (FR-ADM-01)', async () => {
       const created = await createProduct({ name: `Delete ${R}` });
       const slug = created.data.slug;
       await publishProduct(slug);
 
-      // Visible on the public read before deletion.
+      // Visible on the public read before anything is taken away.
       const before = await axios.get(`/catalog/products/${slug}`, {
         validateStatus: () => true,
       });
       expect(before.status).toBe(200);
 
+      // A product on the storefront is unpublished before it is deleted.
+      const tooSoon = await del(`/admin/catalog/products/${slug}`);
+      expect(tooSoon.status).toBe(409);
+      expect(tooSoon.data.code).toBe('product-published');
+
+      const off = await patch(`/admin/catalog/products/${slug}/published`, {
+        published: false,
+      });
+      expect(off.status).toBe(200);
+
       const deleted = await del(`/admin/catalog/products/${slug}`);
       expect(deleted.status).toBe(200);
       expect(deleted.data.deletedAt).not.toBeNull();
+      // A person's deletion, which only a person undoes while owned.
+      expect(deleted.data.deletedByRun).toBe(false);
 
       // Gone from the storefront...
       const publicRead = await axios.get(`/catalog/products/${slug}`, {
@@ -487,6 +499,15 @@ describe('Admin catalog (FR-ADM-01)', () => {
       );
       expect(listed).toBeDefined();
       expect(listed.deletedAt).not.toBeNull();
+      expect(listed.deletedByRun).toBe(false);
+
+      // Back in order: a deleted product is restored before it is published.
+      const publishedDeleted = await patch(
+        `/admin/catalog/products/${slug}/published`,
+        { published: true },
+      );
+      expect(publishedDeleted.status).toBe(409);
+      expect(publishedDeleted.data.code).toBe('product-deleted');
 
       const restored = await post(
         `/admin/catalog/products/${slug}/restore`,
@@ -494,7 +515,10 @@ describe('Admin catalog (FR-ADM-01)', () => {
       );
       expect(restored.status).toBe(200);
       expect(restored.data.deletedAt).toBeNull();
+      // Restoring leaves publication as it was.
+      expect(restored.data.publishedAt).toBeNull();
 
+      await publishProduct(slug);
       const after = await axios.get(`/catalog/products/${slug}`, {
         validateStatus: () => true,
       });
