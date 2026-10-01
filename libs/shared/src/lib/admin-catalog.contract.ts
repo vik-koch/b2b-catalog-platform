@@ -21,6 +21,7 @@ import {
   priceInputMinorSchema,
   priceMinorSchema,
   productAttributeSchema,
+  productDetailSchema,
   productListItemSchema,
   unitPricesSchema,
 } from './catalog.contract';
@@ -442,6 +443,30 @@ export const hiddenProductSchema = productListItemSchema.extend({
   unpublished: z.boolean(),
 });
 export type HiddenProduct = z.infer<typeof hiddenProductSchema>;
+
+/**
+ * A product's page as an admin is shown it (FR-ADM-06): the storefront's own
+ * shape, for any product, with why the public cannot see it. Every reason
+ * false is a live product. An unpriced product's price reads as zero, as the
+ * editor's preview draws it; `unpriced` is what says it has none.
+ */
+export const productPageSchema = z
+  .object({
+    product: productDetailSchema,
+    hidden: z
+      .object({
+        deleted: z.boolean(),
+        /** Who undoes the deletion (FR-ADM-10). */
+        deletedByRun: z.boolean(),
+        unpublished: z.boolean(),
+        unpriced: z.boolean(),
+        /** On some order: never deleted permanently (FR-ADM-21). */
+        ordered: z.boolean(),
+      })
+      .strict(),
+  })
+  .strict();
+export type ProductPage = z.infer<typeof productPageSchema>;
 
 /**
  * Which publication states the grid shows (FR-ADM-05). `all` is the default —
@@ -881,6 +906,22 @@ export const adminCatalogContract = {
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
+
+  /**
+   * A product's page for an admin, whether or not the storefront shows it
+   * (FR-ADM-06) — what the product route falls back to when the public read
+   * answers that there is no such product.
+   */
+  getProductPage: admin
+    .route({
+      method: 'GET',
+      path: '/admin/catalog/products/{slug}/page',
+      inputStructure: 'detailed',
+      summary: 'Read any product as its page shows it, and why it is hidden',
+    })
+    .errors({ 'product-not-found': e['product-not-found'] })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(productPageSchema),
 
   /**
    * Remove a deleted product for good (FR-ADM-21), with what belongs only to

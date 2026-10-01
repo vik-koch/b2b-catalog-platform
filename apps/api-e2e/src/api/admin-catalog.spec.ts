@@ -541,6 +541,63 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('GET /admin/catalog/products/:slug/page (FR-ADM-06)', () => {
+    it('reads a product the public cannot see, saying why', async () => {
+      const created = await createProduct({ name: `Page ${R}` });
+      const slug = created.data.slug;
+
+      const publicRead = await axios.get(`/catalog/products/${slug}`, {
+        validateStatus: () => true,
+      });
+      expect(publicRead.status).toBe(404);
+
+      const page = await adminGet(`/admin/catalog/products/${slug}/page`);
+      expect(page.status).toBe(200);
+      expect(page.data.product.slug).toBe(slug);
+      expect(page.data.hidden).toEqual({
+        deleted: false,
+        deletedByRun: false,
+        unpublished: true,
+        unpriced: false,
+        ordered: false,
+      });
+      // The storefront's own shape, so the page renders it as it renders any.
+      expect(page.data.product).not.toHaveProperty('sourceId');
+
+      expect((await del(`/admin/catalog/products/${slug}`)).status).toBe(200);
+      const deleted = await adminGet(`/admin/catalog/products/${slug}/page`);
+      expect(deleted.data.hidden).toMatchObject({
+        deleted: true,
+        deletedByRun: false,
+      });
+    });
+
+    it('reads an unpriced product with a zero price, flagged as having none', async () => {
+      const created = await createProduct({
+        name: `Unpriced page ${R}`,
+        priceMinor: null,
+      });
+      const page = await adminGet(
+        `/admin/catalog/products/${created.data.slug}/page`,
+      );
+      expect(page.status).toBe(200);
+      expect(page.data.product.priceMinor).toBe(0);
+      expect(page.data.hidden.unpriced).toBe(true);
+    });
+
+    it('answers 404 for no such product, and only to an admin', async () => {
+      const missing = await adminGet(
+        `/admin/catalog/products/no-such-${R}/page`,
+      );
+      expect(missing.status).toBe(404);
+
+      const anon = await axios.get(`/admin/catalog/products/no-such-${R}/page`, {
+        validateStatus: () => true,
+      });
+      expect(anon.status).toBe(401);
+    });
+  });
+
   describe('deleting a product permanently (FR-ADM-21)', () => {
     it('refuses a product that is not deleted yet', async () => {
       const created = await createProduct({ name: `Not yet ${R}` });

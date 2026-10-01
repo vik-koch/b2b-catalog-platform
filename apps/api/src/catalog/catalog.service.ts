@@ -24,6 +24,7 @@ import {
   joinAttributeKey,
   ProductDetailAttribute,
   ProductDetail,
+  ProductPage,
   PublicDocument,
   ProductListItem,
   CatalogSort,
@@ -51,6 +52,7 @@ import {
   productAttributes,
   productPairings,
   products,
+  orderItems,
 } from '../db/schema';
 import {
   ancestorsOf,
@@ -786,6 +788,37 @@ export class CatalogService {
     slug: string,
     tierId: string | null = null,
   ): Promise<ProductDetail | null> {
+    return (await this.readProduct(slug, tierId, publiclyVisible))?.product ?? null;
+  }
+
+  /**
+   * Any product as its page shows it, with why the storefront does not
+   * (FR-ADM-06) — for an admin, whose page falls back to this when the public
+   * read finds nothing. Default-list prices, as staff have no tier; an
+   * unpriced product's price reads as zero, and `unpriced` says it has none.
+   */
+  async getProductPage(slug: string): Promise<ProductPage | null> {
+    const read = await this.readProduct(slug, null, undefined);
+    if (!read) return null;
+    const { row, product } = read;
+    return {
+      product,
+      hidden: {
+        deleted: row.deletedAt !== null,
+        deletedByRun: row.deletedAt !== null && row.deletedBy === null,
+        unpublished: row.publishedAt === null,
+        unpriced: row.priceMinor === null,
+        ordered: row.orderLines > 0,
+      },
+    };
+  }
+
+  /** One product's page, under whatever visibility the caller asks for. */
+  private async readProduct(
+    slug: string,
+    tierId: string | null,
+    visibility: SQL | undefined,
+  ) {
     const [product] = await this.db
       .select({
         id: products.id,
@@ -804,9 +837,18 @@ export class CatalogService {
         ...availabilityColumns,
         ...partsColumns,
         pairedCount: pairedCountOf(),
+        deletedAt: products.deletedAt,
+        deletedBy: products.deletedBy,
+        publishedAt: products.publishedAt,
+        // `$count` rather than a hand-written `exists`: inside an `sql`
+        // template the outer `products.id` would bind unqualified.
+        orderLines: this.db.$count(
+          orderItems,
+          eq(orderItems.productId, products.id),
+        ),
       })
       .from(products)
-      .where(and(eq(products.slug, slug), publiclyVisible))
+      .where(and(eq(products.slug, slug), visibility))
       .limit(1);
     if (!product) return null;
 
@@ -822,11 +864,13 @@ export class CatalogService {
 
     const documentRows = await this.documentsFor(product.id);
 
-    return {
+    // Only an admin's read reaches a product with no price; it reads as zero.
+    const priced = { ...product, priceMinor: product.priceMinor ?? 0 };
+    const detail: ProductDetail = {
       slug: product.slug,
       name: product.name,
-      priceMinor: product.priceMinor,
-      prices: unitPricesOf(product),
+      priceMinor: priced.priceMinor,
+      prices: unitPricesOf(priced),
       packaging: packagingOf(product),
       boxDimensions: boxDimensionsOf(product),
       descriptionHtml: product.descriptionHtml,
@@ -845,6 +889,7 @@ export class CatalogService {
         ancestors: ancestorsOf(category.id, rows),
       },
     };
+    return { product: detail, row: product };
   }
 
   /**

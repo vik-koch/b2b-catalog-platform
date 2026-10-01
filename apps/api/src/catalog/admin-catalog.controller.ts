@@ -7,6 +7,7 @@ import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
 import { AdminCategoriesService } from './admin-categories.service';
 import { AdminProductsService } from './admin-products.service';
+import { CatalogService } from './catalog.service';
 
 /**
  * The admin catalog write surface. Every route is admin-only; the service
@@ -21,6 +22,7 @@ export class AdminCatalogController {
   constructor(
     private readonly products: AdminProductsService,
     private readonly categories: AdminCategoriesService,
+    private readonly catalog: CatalogService,
     private readonly audit: AuditLogger,
   ) {}
 
@@ -41,6 +43,19 @@ export class AdminCatalogController {
           throw errors['product-not-found']({ message: 'Product not found' });
         }
         return product;
+      });
+  }
+
+  @Implement(adminCatalogContract.getProductPage)
+  getProductPage() {
+    return implement(adminCatalogContract.getProductPage)
+      .use(refusals)
+      .handler(async ({ input: { params }, errors }) => {
+        const page = await this.catalog.getProductPage(params.slug);
+        if (!page) {
+          throw errors['product-not-found']({ message: 'Product not found' });
+        }
+        return page;
       });
   }
 
