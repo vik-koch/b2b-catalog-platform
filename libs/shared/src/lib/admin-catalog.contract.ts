@@ -375,6 +375,10 @@ export const adminProductSchema = z
     documents: z.array(linkedDocumentSchema),
     /** ISO 8601, or null when live. Drives the greyed-out admin styling. */
     deletedAt: z.iso.datetime().nullable(),
+    /** Deleted by a sync run rather than by a person (FR-ADM-10): only a run
+     * brings it back while the catalog is externally owned. False while not
+     * deleted. */
+    deletedByRun: z.boolean(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
     updatedAt: z.iso.datetime(),
@@ -410,6 +414,8 @@ export const adminProductListItemSchema = z
     /** What it carries beyond a name and a price, drawn as glyphs. */
     features: z.array(z.enum(PRODUCT_FEATURES)),
     deletedAt: z.iso.datetime().nullable(),
+    /** As on the full product: who undoes the deletion. */
+    deletedByRun: z.boolean(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
     updatedAt: z.iso.datetime(),
@@ -429,6 +435,8 @@ export const hiddenProductSchema = productListItemSchema.extend({
   priceMinor: priceMinorSchema.nullable(),
   prices: unitPricesSchema.nullable(),
   deleted: z.boolean(),
+  /** As on the full product: who undoes the deletion. */
+  deletedByRun: z.boolean(),
   unpublished: z.boolean(),
 });
 export type HiddenProduct = z.infer<typeof hiddenProductSchema>;

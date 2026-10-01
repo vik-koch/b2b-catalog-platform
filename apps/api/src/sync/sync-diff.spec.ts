@@ -41,6 +41,7 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
   tierPrices: { default: 1890 },
   categoryId: beans.id,
   deletedAt: null,
+  deletedBy: null,
   stockPieces: null,
   piecesPerPack: null,
   packsPerBox: null,

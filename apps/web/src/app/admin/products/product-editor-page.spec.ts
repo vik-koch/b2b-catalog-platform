@@ -54,6 +54,7 @@ const storedProduct: AdminProduct = {
   pairings: [],
   documents: [],
   deletedAt: null,
+  deletedByRun: false,
   publishedAt: '2026-07-30T10:00:00.000Z',
   updatedAt: '2026-07-30T10:00:00.000Z',
   piecesPerPack: null,

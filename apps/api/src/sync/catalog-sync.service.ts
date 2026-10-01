@@ -396,6 +396,7 @@ export class CatalogSyncService {
           name: products.name,
           categoryId: products.categoryId,
           deletedAt: products.deletedAt,
+          deletedBy: products.deletedBy,
           // Read for the availability recompute: a figure alone does not say
           // which state it lands in.
           stockPieces: products.stockPieces,
@@ -594,16 +595,21 @@ export class CatalogSyncService {
 
     // Slug stays fixed across a rename (a changed URL breaks links), so
     // nothing here touches it — see ADR 0022.
+    //
+    // A run signs neither its deletion nor its restore: an empty `deletedBy`
+    // is how a deletion is known to be a run's, which only a run undoes while
+    // the catalog is owned — and which the next sweep must not inherit from a
+    // person's earlier one.
     if (actions.softDeleteProductIds.length > 0) {
       await tx
         .update(products)
-        .set({ deletedAt: new Date(), updatedAt: new Date() })
+        .set({ deletedAt: new Date(), deletedBy: null, updatedAt: new Date() })
         .where(inArray(products.id, actions.softDeleteProductIds));
     }
     if (actions.restoreProductIds.length > 0) {
       await tx
         .update(products)
-        .set({ deletedAt: null, updatedAt: new Date() })
+        .set({ deletedAt: null, deletedBy: null, updatedAt: new Date() })
         .where(inArray(products.id, actions.restoreProductIds));
     }
   }

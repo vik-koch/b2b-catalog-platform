@@ -34,6 +34,7 @@ const PRODUCT_KEYS = [
   'boxWeight',
   'categoryId',
   'deletedAt',
+  'deletedByRun',
   'descriptionHtml',
   'documents',
   'featured',
@@ -1005,6 +1006,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(Object.keys(items[0]).sort()).toEqual([
         'availability',
         'deleted',
+        'deletedByRun',
         'images',
         'lineNoteEnabled',
         'lineNotePrompt',

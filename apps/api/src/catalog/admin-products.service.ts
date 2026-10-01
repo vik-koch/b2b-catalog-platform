@@ -126,6 +126,7 @@ const adminProductWriteColumns = {
   images: products.images,
   variants: products.variants,
   deletedAt: products.deletedAt,
+  deletedBy: products.deletedBy,
   publishedAt: products.publishedAt,
   updatedAt: products.updatedAt,
   piecesPerPack: products.piecesPerPack,
@@ -160,6 +161,7 @@ type ProductRow = {
   images: ProductImageRef[];
   variants: ProductVariantRef[];
   deletedAt: Date | null;
+  deletedBy: string | null;
   publishedAt: Date | null;
   updatedAt: Date;
   piecesPerPack: number | null;
@@ -290,6 +292,7 @@ export class AdminProductsService {
           sourceId: products.sourceId,
           images: products.images,
           deletedAt: products.deletedAt,
+          deletedBy: products.deletedBy,
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
           availability: products.availability,
@@ -316,6 +319,7 @@ export class AdminProductsService {
           gaps: INCOMPLETE_GAPS.filter((gap) => r.gaps[gap]),
           features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
+          deletedByRun: deletedByRun(r),
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),
@@ -653,6 +657,7 @@ export class AdminProductsService {
         priceMinor: resolvedPriceMinor(null),
         ...pictureColumns,
         deletedAt: products.deletedAt,
+        deletedBy: products.deletedBy,
         publishedAt: products.publishedAt,
         ...unitColumns,
         ...noteColumns,
@@ -671,6 +676,7 @@ export class AdminProductsService {
     return hidden.map((row) => ({
       ...toUnpricedListItem(row),
       deleted: row.deletedAt !== null,
+      deletedByRun: deletedByRun(row),
       unpublished: row.publishedAt === null,
     }));
   }
@@ -1142,6 +1148,18 @@ function canonicalPair(
     : { productAId: other, productBId: one };
 }
 
+/**
+ * A deletion nobody signed: a run's sweep writes no actor, a person's delete
+ * always does (FR-ADM-10). Staff accounts are anonymized rather than removed,
+ * so the foreign key's `set null` never turns a person's deletion into a run's.
+ */
+function deletedByRun(row: {
+  deletedAt: Date | null;
+  deletedBy: string | null;
+}): boolean {
+  return row.deletedAt !== null && row.deletedBy === null;
+}
+
 function toAdminProduct(
   row: ProductRow,
   tierPrices: ProductTierPrice[],
@@ -1173,6 +1191,7 @@ function toAdminProduct(
     pairings,
     documents,
     deletedAt: row.deletedAt?.toISOString() ?? null,
+    deletedByRun: deletedByRun(row),
     publishedAt: row.publishedAt?.toISOString() ?? null,
     updatedAt: row.updatedAt.toISOString(),
     piecesPerPack: row.piecesPerPack,

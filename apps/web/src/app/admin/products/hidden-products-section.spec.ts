@@ -22,6 +22,7 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
     images: [{ full: 'f.jpg', thumb: 't.jpg', variant: null }],
   }),
   deleted: true,
+  deletedByRun: false,
   unpublished: false,
   ...overrides,
 });

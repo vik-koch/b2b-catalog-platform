@@ -59,6 +59,10 @@ export interface ExistingProduct {
   tierPrices: Record<string, number>;
   categoryId: string;
   deletedAt: Date | null;
+  /** Who deleted it: null for a run, a user for a person. A run restores only
+   * what a run deleted — a product an admin hid stays hidden however often
+   * the source sends it (FR-ADM-02). */
+  deletedBy: string | null;
   /** Null where this product's stock is not tracked. */
   stockPieces: number | null;
   /** What the resolved state depends on besides the figure: the packaging the
