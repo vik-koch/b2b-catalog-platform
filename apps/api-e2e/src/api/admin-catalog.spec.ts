@@ -1598,6 +1598,10 @@ describe('Admin catalog (FR-ADM-01)', () => {
 
       // Withdrawing the counterpart takes the marker down without touching the
       // edge — the admin's set is unchanged, the offer is not.
+      // In steps, as any removal: off the storefront first (FR-ADM-01).
+      await patch(`/admin/catalog/products/${onSale.data.slug}/published`, {
+        published: false,
+      });
       await del(`/admin/catalog/products/${onSale.data.slug}`);
       const after = await anon(`/catalog/products/${cup.data.slug}`);
       expect(after.data.pairedCount).toBe(0);

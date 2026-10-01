@@ -513,12 +513,13 @@ export class AdminProductsService {
    * idempotent — re-deleting an already-deleted product is a no-op that leaves
    * its original `deletedAt`/`updatedAt` untouched (coalesce keeps the first
    * timestamp; `updatedAt` only moves on the live→deleted transition).
+   *
+   * Only an unpublished product: removal goes in steps, and taking it off sale
+   * is the first (FR-ADM-01). Open while the catalog is externally owned —
+   * whether a product is shown is the shop's, and the actor it records is what
+   * keeps the next run from restoring it (FR-ADM-10).
    */
   async deleteProduct(slug: string, actorId: string): Promise<AdminProduct> {
-    // Existence is the exchange's to say too: it is the delete sweep's job to
-    // take a product out of the catalog, and an admin doing it by hand would
-    // be undone by the next full import anyway.
-    if (this.catalogIsOwned) throw catalogExternallyOwned('delete');
     const now = new Date();
     const rows = await this.db
       .update(products)
@@ -529,9 +530,22 @@ export class AdminProductsService {
         // does not rewrite who actually removed it.
         deletedBy: sql`case when ${products.deletedAt} is null then ${actorId}::uuid else ${products.deletedBy} end`,
       })
-      .where(eq(products.slug, slug))
+      .where(
+        and(
+          eq(products.slug, slug),
+          or(isNull(products.publishedAt), isNotNull(products.deletedAt)),
+        ),
+      )
       .returning(adminProductColumns);
-    if (!rows[0]) throw productNotFound();
+    if (!rows[0]) {
+      throw (await this.productBySlug(slug))
+        ? new ConflictException({
+            code: 'product-published',
+            message:
+              'A product on the storefront is unpublished before it is deleted',
+          })
+        : productNotFound();
+    }
     // Soft delete leaves the tier prices alone — they belong to the product,
     // and hiding it is reversible.
     return toAdminProduct(

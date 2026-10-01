@@ -119,6 +119,7 @@ export const adminTextSchema = z
             'pairing-self': z.string(),
             'slug-or-source-id-taken': z.string(),
             'product-has-no-price': z.string(),
+            'product-published': z.string(),
           })
           .strict(),
       })

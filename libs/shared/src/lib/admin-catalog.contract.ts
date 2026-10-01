@@ -701,6 +701,9 @@ export const CATALOG_ERROR_CODES = [
   /** Publishing a product no price list prices (FR-ADM-06). The storefront
    * shows every visitor the default list's figure, and there is none. */
   'product-has-no-price',
+  /** Deleting a product that is on the storefront (FR-ADM-01): removal goes
+   * in steps, and taking it off sale is the first. */
+  'product-published',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
 
@@ -725,6 +728,7 @@ const e = {
   'source-id-taken': { status: 409 },
   'slug-or-source-id-taken': { status: 409 },
   'product-has-no-price': { status: 409 },
+  'product-published': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
 /** Saving a product can collide on either unique column, or name a gone tier,
@@ -827,14 +831,16 @@ export const adminCatalogContract = {
   deleteProduct: admin
     .route({
       method: 'DELETE',
-      // No body; soft delete only (sets deletedAt).
+      // No body; soft delete only (sets deletedAt). Refused for a product on
+      // the storefront: it is unpublished first (FR-ADM-01). Open while the
+      // catalog is externally owned — whether a product is shown is the shop's.
       path: '/admin/catalog/products/{slug}',
       inputStructure: 'detailed',
       summary: 'Soft-delete a product (admin; reversible via restore)',
     })
     .errors({
       'product-not-found': e['product-not-found'],
-      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+      'product-published': e['product-published'],
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
