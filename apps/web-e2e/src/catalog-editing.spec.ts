@@ -104,22 +104,23 @@ test.describe('as an admin', () => {
     ).toBeVisible();
   });
 
-  test('shows edit/delete controls on the product page in edit mode', async ({
+  test('shows edit and unpublish on the product page in edit mode, and no delete', async ({
     page,
   }) => {
     await page.goto(`/product/${product.slug}`);
-    await expect(
-      page.getByRole('button', { name: 'Delete product' }),
-    ).toBeHidden();
+    await expect(page.getByRole('link', { name: 'Edit product' })).toBeHidden();
 
     await editModeToggle(page).click();
 
     await expect(
       page.getByRole('link', { name: 'Edit product' }),
     ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Unpublish' })).toBeVisible();
+    // A page that renders is a published product, and removal goes in steps:
+    // unpublish first (FR-ADM-01).
     await expect(
       page.getByRole('button', { name: 'Delete product' }),
-    ).toBeVisible();
+    ).toHaveCount(0);
   });
 
   test('opens the product editor with the category preselected, and cancels without saving', async ({

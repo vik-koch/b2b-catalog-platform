@@ -76,7 +76,6 @@
     "editProduct": "Edit product",
     "addProduct": "Add product",
     "deleteProduct": "Delete product",
-    "deleteConfirm": "Delete “{name}”? It stays recoverable from the admin panel.",
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "addCategory": "Add category",

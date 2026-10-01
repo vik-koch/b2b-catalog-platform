@@ -5,14 +5,12 @@ import {
   Injector,
   input,
   resource,
-  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProductDetail as ProductDetailModel } from '@b2b-catalog-platform/shared';
 import { EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { injectEditorReturnParams } from '../admin/editor-return';
-import { ProductDeleteDialog } from '../admin/products/product-delete-dialog';
 import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -30,18 +28,13 @@ import {
  * through the shared presentational view, with load/not-found states and SEO.
  * In admin edit mode it shows edit/delete icons anchored to the section's
  * top-right corner (a consistent spot across the storefront) — edit links to
- * the editor; delete opens a confirmation modal lazy-loaded via `@defer`, so the
- * public bundle carries no admin write client.
+ * the editor, and unpublish beside it — a page that renders at all is a
+ * published product, so removal starts there (FR-ADM-01). Its one admin write
+ * is imported on demand, so the public bundle carries no admin write client.
  */
 @Component({
   selector: 'app-product-detail',
-  imports: [
-    ProductDetailView,
-    ProductDeleteDialog,
-    NotFoundView,
-    EditActions,
-    LoadErrorView,
-  ],
+  imports: [ProductDetailView, NotFoundView, EditActions, LoadErrorView],
   template: `
     <!-- The section keeps the frame's full width, because the edit-mode icons
          are anchored to its top-right corner and that corner is the same one
@@ -64,8 +57,6 @@ import {
               [editLink]="['/admin/products', item.slug, 'edit']"
               [editParams]="editorFrom()"
               [editLabel]="editText.editProduct"
-              [deleteLabel]="editText.deleteProduct"
-              (remove)="confirmingDelete.set(true)"
               [publishLabel]="editText.unpublishProduct"
               [published]="true"
               (togglePublished)="unpublish(item)"
@@ -73,17 +64,6 @@ import {
           }
 
           <app-product-detail-view [item]="item" />
-
-          @defer (when confirmingDelete()) {
-            @if (confirmingDelete()) {
-              <app-product-delete-dialog
-                [slug]="item.slug"
-                [name]="item.name"
-                (deleted)="onDeleted(item)"
-                (cancelled)="confirmingDelete.set(false)"
-              />
-            }
-          }
         }
       } @else if (showSkeleton()) {
         <div
@@ -131,7 +111,6 @@ export class ProductDetail {
   protected readonly editorFrom = injectEditorReturnParams();
 
   slug = input.required<string>();
-  protected readonly confirmingDelete = signal(false);
 
   protected product = resource({
     params: () => ({ slug: this.slug() }),
@@ -153,12 +132,6 @@ export class ProductDetail {
   protected readonly shown = computed(() =>
     this.content.ready() ? { item: this.product.value() } : undefined,
   );
-
-  /** After a soft-delete from the product page, return to its category (the
-   * product's public page will now 404). Restore lives in the admin panel. */
-  protected onDeleted(item: ProductDetailModel): void {
-    void this.router.navigate(['/catalog', item.category.slug]);
-  }
 
   /**
    * Only ever *un*publish here: a page that renders at all is a published

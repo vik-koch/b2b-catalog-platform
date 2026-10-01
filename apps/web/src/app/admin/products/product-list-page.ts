@@ -49,7 +49,6 @@ import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';
 import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
-import { ProductDeleteDialog } from './product-delete-dialog';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
 import {
   PRODUCT_FEATURE_GLYPHS,
@@ -85,7 +84,6 @@ function knownValues<T extends string>(
     ProductFeatureGlyphs,
     AdminIcon,
     Button,
-    ProductDeleteDialog,
     ProductRowActions,
     AdminListHeader,
     AdminGrid,
@@ -223,7 +221,7 @@ function knownValues<T extends string>(
               [busy]="publishing() === item.slug"
               (publishToggled)="togglePublished($event)"
               (restored)="restore($event)"
-              (deleteRequested)="deletingProduct.set($event)"
+              (deleteRequested)="remove($event)"
             />
           </td>
         </ng-template>
@@ -306,7 +304,7 @@ function knownValues<T extends string>(
               [busy]="publishing() === item.slug"
               (publishToggled)="togglePublished($event)"
               (restored)="restore($event)"
-              (deleteRequested)="deletingProduct.set($event)"
+              (deleteRequested)="remove($event)"
             />
           </app-record-row>
         </ng-template>
@@ -342,15 +340,6 @@ function knownValues<T extends string>(
         </div>
       }
     </ng-template>
-
-    @if (deletingProduct(); as target) {
-      <app-product-delete-dialog
-        [slug]="target.slug"
-        [name]="target.name"
-        (deleted)="onProductDeleted()"
-        (cancelled)="deletingProduct.set(null)"
-      />
-    }
   `,
 })
 export class ProductListPage {
@@ -878,17 +867,6 @@ export class ProductListPage {
    * reach it — a reload still has the previous rows on screen. */
   protected readonly showSkeleton = delayedLoading(this.products.isLoading);
 
-  /** The product whose delete confirmation modal is open, if any. */
-  protected readonly deletingProduct = signal<{
-    slug: string;
-    name: string;
-  } | null>(null);
-
-  protected onProductDeleted(): void {
-    this.deletingProduct.set(null);
-    this.products.reload();
-  }
-
   protected readonly publishing = signal<string | null>(null);
 
   /**
@@ -921,6 +899,13 @@ export class ProductListPage {
   /** The header's ＋: a new product's editor, or the reason there is none. */
   protected addProduct(): void {
     void this.productCreate.start(this.editorFrom());
+  }
+
+  /** Unconfirmed: the row has already said why a live product cannot go, and
+   * restore undoes the rest in one click (FR-ADM-01). */
+  protected async remove(item: ProductRowState): Promise<void> {
+    await this.admin.deleteProduct(item.slug);
+    this.products.reload();
   }
 
   protected async restore(item: ProductRowState): Promise<void> {

@@ -189,7 +189,6 @@ export const adminTextSchema = z
         editProduct: z.string(),
         addProduct: z.string(),
         deleteProduct: z.string(),
-        deleteConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
         addCategory: z.string(),
