@@ -90,11 +90,17 @@ import { mayRestore } from './product-removal';
                         }
                       }
                     </p>
+                    <!-- The page an admin is shown even while it is hidden,
+                         saying why (FR-ADM-06). -->
                     <h3
                       class="line-clamp-2 text-sm text-subtle"
                       [title]="item.name"
                     >
-                      {{ item.name }}
+                      <a
+                        [routerLink]="['/product', item.slug]"
+                        class="hover:text-accent"
+                        >{{ item.name }}</a
+                      >
                     </h3>
                     <p class="mt-auto pt-2 font-emphasis text-stone-400">
                       @if (item.priceMinor === null) {
@@ -130,7 +136,7 @@ import { mayRestore } from './product-removal';
                         (click)="reveal(item)"
                       >
                         <app-admin-icon
-                          [name]="item.deleted ? 'rotate-ccw' : 'circle-check'"
+                          [name]="item.deleted ? 'rotate-ccw' : 'book-check'"
                           class="h-4 w-4"
                         />
                         {{ actionLabel(item) }}

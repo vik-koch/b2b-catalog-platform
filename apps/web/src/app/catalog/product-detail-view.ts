@@ -204,9 +204,15 @@ const NARROW = '(max-width: 39.999rem)';
     <!-- Above the columns rather than inside one: with the way to buy in a
          column of its own, a name in the middle column would sit level with the
          price instead of over the whole page. -->
-    <h1 class="mt-2 text-2xl font-medium tracking-tight sm:text-3xl">
-      {{ item().name }}
-    </h1>
+    <!-- Whatever the host projects as productStatus sits beside the name:
+         an admin's page of a product the public cannot see says so here,
+         drawn with the page rather than after it (FR-ADM-06). -->
+    <div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+      <h1 class="text-2xl font-medium tracking-tight sm:text-3xl">
+        {{ item().name }}
+      </h1>
+      <ng-content select="[productStatus]" />
+    </div>
 
     <div [class]="columnsClass">
       <div [class]="imageColumnClass">

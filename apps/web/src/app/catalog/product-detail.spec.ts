@@ -1,4 +1,11 @@
+import { signal } from '@angular/core';
+import { Meta } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
+import { ProductPage } from '@b2b-catalog-platform/shared';
+import { AdminCatalogService } from '../admin/admin-catalog.service';
+import { AuthService } from '../auth/auth.service';
+import { loadAdminText } from '../config/admin-text';
+import { defaultAdminText } from '../config/admin-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -37,6 +44,7 @@ const product: Product = productDetail({
 
 async function render(
   result: Product | null,
+  admin?: { getProductPage: () => Promise<ProductPage | null> },
 ): Promise<ComponentFixture<ProductDetail>> {
   const config = {
     branding: { title: 'Test Shop' },
@@ -49,6 +57,18 @@ async function render(
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: CatalogService, useValue: { getProduct: async () => result } },
+      // An admin session where the test names an admin read, a guest's
+      // otherwise.
+      {
+        provide: AuthService,
+        useValue: {
+          user: signal(admin ? { role: 'admin' } : null),
+          resolved: signal(true),
+          hintedRole: signal(admin ? 'admin' : null),
+          whenResolved: async () => undefined,
+        },
+      },
+      ...(admin ? [{ provide: AdminCatalogService, useValue: admin }] : []),
     ],
   });
   const fixture = TestBed.createComponent(ProductDetail);
@@ -217,5 +237,75 @@ describe('ProductDetail', () => {
     const root = el(await render(null));
 
     expect(root.textContent).toContain(defaultAppText.catalog.productNotFound);
+  });
+
+  describe('a product the public cannot see (FR-ADM-06)', () => {
+    const hidden: ProductPage['hidden'] = {
+      deleted: false,
+      deletedByRun: false,
+      unpublished: true,
+      unpriced: false,
+      ordered: false,
+    };
+
+    it('shows an admin the page, kept out of the index', async () => {
+      const getProductPage = vi.fn(async () => ({ product, hidden }));
+      const fixture = await render(null, { getProductPage });
+
+      expect(getProductPage).toHaveBeenCalled();
+      expect(el(fixture).textContent).toContain('Hafen Espresso');
+      expect(el(fixture).textContent).not.toContain(
+        defaultAppText.catalog.productNotFound,
+      );
+      expect(TestBed.inject(Meta).getTag('name="robots"')?.content).toBe(
+        'noindex',
+      );
+    });
+
+    it('says beside the name why it is hidden, drawn with the page', async () => {
+      vi.stubGlobal('fetch', () =>
+        Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(defaultAdminText),
+        }),
+      );
+      try {
+        await loadAdminText();
+        const fixture = await render(null, {
+          getProductPage: async () => ({
+            product,
+            hidden: { ...hidden, unpriced: true },
+          }),
+        });
+
+        const heading = el(fixture).querySelector('h1')?.parentElement;
+        expect(heading?.textContent).toContain(
+          defaultAdminText.editMode.unpublishedBadge,
+        );
+        expect(heading?.textContent).toContain(
+          defaultAdminText.editMode.unpricedBadge,
+        );
+      } finally {
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it('answers an admin not-found where there is no such product at all', async () => {
+      const fixture = await render(null, {
+        getProductPage: async () => null,
+      });
+
+      expect(el(fixture).textContent).toContain(
+        defaultAppText.catalog.productNotFound,
+      );
+    });
+
+    it('never asks the admin read for a live product', async () => {
+      const getProductPage = vi.fn(async () => null);
+      await render(product, { getProductPage });
+
+      expect(getProductPage).not.toHaveBeenCalled();
+      expect(TestBed.inject(Meta).getTag('name="robots"')).toBeNull();
+    });
   });
 });

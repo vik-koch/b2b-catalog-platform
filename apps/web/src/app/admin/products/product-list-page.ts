@@ -49,6 +49,8 @@ import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';
 import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
+import { purgeWithConfirmation, PurgeText } from './product-removal';
+import { SettingsService } from '../settings/settings.service';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
 import {
   PRODUCT_FEATURE_GLYPHS,
@@ -153,7 +155,7 @@ function knownValues<T extends string>(
                  belong together. -->
             <div class="line-clamp-3 wrap-break-word [word-spacing:0.25rem]">
               <a
-                [routerLink]="storefrontOrEditor(item)"
+                [routerLink]="pageOf(item)"
                 [queryParams]="editorFrom()"
                 class="align-middle font-medium text-stone-700 hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
@@ -251,7 +253,7 @@ function knownValues<T extends string>(
               }
             </div>
             <a
-              [routerLink]="storefrontOrEditor(item)"
+              [routerLink]="pageOf(item)"
               [queryParams]="editorFrom()"
               class="font-medium wrap-break-word line-clamp-2 text-stone-700"
               [class.opacity-50]="isDeleted(item)"
@@ -353,7 +355,15 @@ export class ProductListPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
-  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  private readonly settings = inject(SettingsService);
+  private readonly purgeText: PurgeText = {
+    ...this.editText,
+    cancel: this.common.cancel,
+    close: this.common.close,
+    ordered: this.common.catalogErrors['product-ordered'],
+    owned: inject(ADMIN_TEXT).ownership.productPurge,
+    errors: this.common.catalogErrors,
+  };
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
@@ -802,16 +812,11 @@ export class ProductListPage {
     });
   }
 
-  /** Where a row's name goes: the storefront page for a product a customer can
-   * see, the editor for one they cannot. */
-  protected storefrontOrEditor(item: {
-    slug: string;
-    publishedAt: string | null;
-    deletedAt: string | null;
-  }): string[] {
-    return item.publishedAt && !item.deletedAt
-      ? ['/product', item.slug]
-      : ['/admin/products', item.slug, 'edit'];
+  /** Where a row's name goes: the product's page, which an admin is shown
+   * whether or not the storefront offers it — with a banner saying why not
+   * (FR-ADM-06). */
+  protected pageOf(item: { slug: string }): string[] {
+    return ['/product', item.slug];
   }
 
   /**
@@ -911,29 +916,16 @@ export class ProductListPage {
     this.products.reload();
   }
 
-  /** Confirmed, being the one removal step that cannot be undone (FR-ADM-21).
-   * A refusal the row could not foresee — an order placed since the list
-   * loaded — is explained rather than swallowed. */
+  /** The row has already said why a product cannot go; this asks before the
+   * one removal step that cannot be undone (FR-ADM-21). */
   protected async purge(item: ProductRowState): Promise<void> {
-    const confirmed = await this.confirm.ask({
-      heading: this.editText.purgeProduct,
-      message: fillText(this.editText.purgeConfirm, { name: item.name }),
-      confirmLabel: this.editText.purgeProduct,
-      cancelLabel: this.common.cancel,
-      confirmVariant: 'danger',
-    });
-    if (!confirmed) return;
-    const result = await this.admin.purgeProduct(item.slug);
-    if (!result.ok) {
-      await this.confirm.tell({
-        heading: this.editText.purgeProduct,
-        message:
-          result.code === 'catalog-externally-owned'
-            ? this.ownershipText.productPurge
-            : this.common.catalogErrors[result.code],
-        closeLabel: this.common.close,
-      });
-    }
+    await purgeWithConfirmation(
+      this.confirm,
+      this.admin,
+      this.purgeText,
+      item,
+      async () => (await this.settings.load()).includes('catalog'),
+    );
     this.products.reload();
   }
 

@@ -159,6 +159,17 @@ export const adminCatalogContract = {
       },
     },
   },
+  getProductPage: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/products/{slug}/page',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   purgeProduct: {
     '~orpc': {
       errorMap: {},

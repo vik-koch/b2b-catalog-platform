@@ -11,6 +11,7 @@ import {
   ProductGapFilter,
   ProductInput,
   HiddenProduct,
+  ProductPage,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared';
 import { adminCatalogContract } from '../core/contract-routes.generated';
@@ -89,6 +90,17 @@ export class AdminCatalogService {
 
   deleteProduct(slug: string): Promise<AdminProduct> {
     return this.afterWork(this.client.deleteProduct({ params: { slug } }));
+  }
+
+  /** Any product as its page shows it, and why the storefront does not
+   * (FR-ADM-06). `null` when there is no such product at all. */
+  async getProductPage(slug: string): Promise<ProductPage | null> {
+    const result = await safe(this.client.getProductPage({ params: { slug } }));
+    if (result.isDefined && result.error.code === 'product-not-found') {
+      return null;
+    }
+    if (!result.isSuccess) throw result.error;
+    return result.data;
   }
 
   /**
