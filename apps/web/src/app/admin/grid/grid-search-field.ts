@@ -93,12 +93,28 @@ export class GridSearchField {
    * link, the back button — still takes it back, while the navigation this
    * field itself caused leaves the typed text exactly as typed (trailing space
    * included, which the URL does not carry).
+   *
+   * "This field caused it" is the query it sent, not the query matching the
+   * text: letters typed while a navigation is in flight make the two differ,
+   * and taking the arriving query then swallowed them.
    */
   protected readonly value = linkedSignal<string, string>({
     source: () => this.query(),
-    computation: (query, previous) =>
-      previous && query === previous.value.trim() ? previous.value : query,
+    computation: (query, previous) => {
+      const own = this.sent.indexOf(query);
+      if (own >= 0) {
+        // Navigations land in order, so any sent before this one is overtaken.
+        this.sent.splice(0, own + 1);
+        if (previous) return previous.value;
+      }
+      return previous && query === previous.value.trim()
+        ? previous.value
+        : query;
+    },
   });
+
+  /** Queries this field navigated to that have not arrived back yet. */
+  private readonly sent: string[] = [];
 
   private readonly settled = debounced(this.value, SEARCH_DEBOUNCE_MS);
 
@@ -110,6 +126,7 @@ export class GridSearchField {
       // be a redundant round trip, and would reset the page of a URL that was
       // just opened on page 3.
       if (untracked(this.value).trim() === untracked(this.query).trim()) return;
+      this.sent.push(q);
       this.navigate({ searchTerm: q || null }, { replaceUrl: true });
     });
   }
