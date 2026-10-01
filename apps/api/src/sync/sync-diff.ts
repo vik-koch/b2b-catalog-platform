@@ -475,7 +475,13 @@ export function planSync(
 
     // A product returning to the file is restored — the inverse of the delete
     // sweep, and the reason a soft delete is reversible in the first place.
-    const restoring = Boolean(existing.deletedAt) && options.restoreReturning;
+    // Only the sweep's own deletion, though: one an admin made is the shop's
+    // decision about what it shows, and the file saying the product exists
+    // does not overrule it. Its fields are still written below.
+    const restoring =
+      Boolean(existing.deletedAt) &&
+      existing.deletedBy === null &&
+      options.restoreReturning;
     if (restoring) {
       actions.restoreProductIds.push(existing.id);
       productChanges.push({

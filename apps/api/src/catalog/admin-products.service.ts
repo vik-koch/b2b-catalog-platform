@@ -561,8 +561,12 @@ export class AdminProductsService {
     );
   }
 
+  /**
+   * While the catalog is externally owned, only what a person deleted: a
+   * product a run deleted is gone from the source, and the run that finds it
+   * there again is what brings it back (FR-ADM-10).
+   */
   async restoreProduct(slug: string, actorId: string): Promise<AdminProduct> {
-    if (this.catalogIsOwned) throw catalogExternallyOwned('restore');
     const rows = await this.db
       .update(products)
       .set({
@@ -571,9 +575,20 @@ export class AdminProductsService {
         updatedAt: new Date(),
         updatedBy: actorId,
       })
-      .where(eq(products.slug, slug))
+      .where(
+        and(
+          eq(products.slug, slug),
+          this.catalogIsOwned
+            ? or(isNull(products.deletedAt), isNotNull(products.deletedBy))
+            : undefined,
+        ),
+      )
       .returning(adminProductColumns);
-    if (!rows[0]) throw productNotFound();
+    if (!rows[0]) {
+      throw (await this.productBySlug(slug))
+        ? catalogExternallyOwned('restore')
+        : productNotFound();
+    }
     return toAdminProduct(
       rows[0],
       await this.tierPricesFor(rows[0].id),

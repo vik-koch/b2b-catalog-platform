@@ -863,6 +863,8 @@ export const adminCatalogContract = {
       inputStructure: 'detailed',
       summary: 'Restore a soft-deleted product (admin)',
     })
+    // `catalog-externally-owned` for a product a run deleted while the catalog
+    // is owned: each side undoes only its own deletion (FR-ADM-10).
     .errors({
       'product-not-found': e['product-not-found'],
       'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],

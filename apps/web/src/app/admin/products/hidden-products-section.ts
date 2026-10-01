@@ -24,6 +24,8 @@ import { StatusBadge } from '../../ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
 
+import { SettingsService } from '../settings/settings.service';
+import { mayRestore } from './product-removal';
 /**
  * The edit-mode overlay under a category grid (FR-ADM-01/06): what this category
  * holds that the storefront does not show — soft-deleted, unpublished, or both.
@@ -152,8 +154,10 @@ export class HiddenProductsSection {
   private readonly confirm = inject(ConfirmService);
   /** So the editor's cancel lands back on the page the tile was on. */
   protected readonly editorFrom = injectEditorReturnParams();
+  private readonly settings = inject(SettingsService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).editMode;
+  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
 
   readonly categorySlug = input.required<string>();
   /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */
@@ -227,6 +231,18 @@ export class HiddenProductsSection {
         message: this.common.catalogErrors['product-has-no-price'],
         closeLabel: this.common.close,
       });
+      return;
+    }
+    if (
+      item.deleted &&
+      !(await mayRestore(
+        this.confirm,
+        this.ownershipText,
+        this.common.close,
+        item,
+        async () => (await this.settings.load()).includes('catalog'),
+      ))
+    ) {
       return;
     }
     this.busy.set(item.slug);

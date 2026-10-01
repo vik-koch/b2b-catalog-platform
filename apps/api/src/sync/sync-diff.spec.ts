@@ -469,6 +469,25 @@ describe('planSync', () => {
     expect(actions.restoreProductIds).toEqual([]);
   });
 
+  it('keeps a product an admin deleted hidden, writing its fields all the same', () => {
+    const { plan, actions } = planSync(
+      [row({ prices: { default: 1990 } })],
+      options(),
+      state({
+        products: [product({ deletedAt: new Date(), deletedBy: 'admin-1' })],
+      }),
+    );
+
+    // The shop decided not to show it; the file saying it exists does not
+    // overrule that (FR-ADM-02). Its price still follows the source.
+    expect(actions.restoreProductIds).toEqual([]);
+    expect(actions.updateProducts).toEqual([
+      { id: 'p-1', tierPrices: [{ tierId: 'tier-d', priceMinor: 1990 }] },
+    ]);
+    expect(plan.products[0].kind).toBe('update');
+    expect(plan.summary.restore).toBe(0);
+  });
+
   it('carries parse errors into the plan and counts them', () => {
     const { plan } = planSync([row()], options(), state(), [
       { row: 4, sourceId: null, code: 'missing-source-id' },

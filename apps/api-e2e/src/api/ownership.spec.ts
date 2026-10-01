@@ -394,7 +394,7 @@ describe('External data ownership (FR-ADM-10)', () => {
       });
     });
 
-    it('refuses creating, deleting and restoring a product', async () => {
+    it('refuses creating a product', async () => {
       await whileOwned(async () => {
         const created = await asAdmin('post', '/admin/catalog/products', {
           name: `${PRODUCT_NAME} second`,
@@ -407,18 +407,94 @@ describe('External data ownership (FR-ADM-10)', () => {
         });
         expect(created.status).toBe(409);
         expect(created.data.code).toBe('catalog-externally-owned');
+      });
+    });
 
+    it('lets the shop hide a product the source still sends, which no run brings back', async () => {
+      // Whether a product is shown is the shop's (FR-ADM-10): the source may
+      // carry items the shop never means to offer.
+      await whileOwned(async () => {
         const deleted = await asAdmin(
           'delete',
           `/admin/catalog/products/${productSlug}`,
         );
-        expect(deleted.status).toBe(409);
+        expect(deleted.status).toBe(200);
+        expect(deleted.data.deletedAt).not.toBeNull();
+        expect(deleted.data.deletedByRun).toBe(false);
 
+        // The source sends it again; the run writes its price and leaves it
+        // hidden (FR-ADM-02).
+        const run = await axios.post(
+          '/machine/sync/runs',
+          {
+            rows: [{ sourceId: PRODUCT_SOURCE_ID, prices: { default: 1550 } }],
+            label: `${TOKEN_NAME} hidden`,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            validateStatus: () => true,
+          },
+        );
+        expect(run.status).toBe(201);
+        expect(run.data.run.status).toBe('applied');
+
+        const read = await asAdmin(
+          'get',
+          `/admin/catalog/products/${productSlug}`,
+        );
+        expect(read.data.deletedAt).not.toBeNull();
+        expect(read.data.priceMinor).toBe(1550);
+
+        // And the shop takes its own decision back.
         const restored = await asAdmin(
           'post',
           `/admin/catalog/products/${productSlug}/restore`,
         );
-        expect(restored.status).toBe(409);
+        expect(restored.status).toBe(200);
+        expect(restored.data.deletedAt).toBeNull();
+      });
+      stored = { ...stored, priceMinor: 1550 };
+    });
+
+    it("leaves a run's deletion to a run", async () => {
+      // As the sweep leaves it: deleted, and signed by nobody.
+      await client.query(
+        `UPDATE products SET "deletedAt" = now(), "deletedBy" = NULL
+          WHERE "sourceId" = $1`,
+        [PRODUCT_SOURCE_ID],
+      );
+      await whileOwned(async () => {
+        const read = await asAdmin(
+          'get',
+          `/admin/catalog/products/${productSlug}`,
+        );
+        expect(read.data.deletedByRun).toBe(true);
+
+        const refused = await asAdmin(
+          'post',
+          `/admin/catalog/products/${productSlug}/restore`,
+        );
+        expect(refused.status).toBe(409);
+        expect(refused.data.code).toBe('catalog-externally-owned');
+
+        // The source sending it again is what brings it back.
+        const run = await axios.post(
+          '/machine/sync/runs',
+          {
+            rows: [{ sourceId: PRODUCT_SOURCE_ID, prices: { default: 1550 } }],
+            label: `${TOKEN_NAME} returning`,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+            validateStatus: () => true,
+          },
+        );
+        expect(run.status).toBe(201);
+        const back = await asAdmin(
+          'get',
+          `/admin/catalog/products/${productSlug}`,
+        );
+        expect(back.data.deletedAt).toBeNull();
       });
     });
 

@@ -2300,8 +2300,10 @@ export const adminTextSchema = z
         fieldLockedShort: z.string(),
         /** The delete dialog, where reassigning would move products. */
         categoryHasProducts: z.string(),
-        /** The product delete dialog, which explains instead of asking. */
-        productDelete: z.string(),
+        /** Restore on a product a run deleted while the catalog is owned: only
+         * a run brings it back (FR-ADM-10). */
+        productRestoreTitle: z.string(),
+        productRestore: z.string(),
         /** The product editor, opened on the "new" route. */
         productCreate: z.string(),
         /** The tier list, where only an existing list's sync key is locked. */
