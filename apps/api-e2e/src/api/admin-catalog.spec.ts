@@ -541,6 +541,56 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
   });
 
+  describe('deleting a product permanently (FR-ADM-21)', () => {
+    it('refuses a product that is not deleted yet', async () => {
+      const created = await createProduct({ name: `Not yet ${R}` });
+
+      const res = await del(
+        `/admin/catalog/products/${created.data.slug}/permanent`,
+      );
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('product-not-deleted');
+    });
+
+    it('removes a deleted product with what is only its, and frees its keys', async () => {
+      const sourceId = `e2e-purge-${R}`;
+      const created = await createProduct({
+        name: `Purged ${R}`,
+        sourceId,
+        tierPrices: [{ tierId, priceMinor: 700 }],
+        attributes: [{ key: 'Colour', value: 'Black' }],
+      });
+      expect(created.status).toBe(201);
+      const slug = created.data.slug;
+      const { rows: before } = await client.query(
+        'SELECT id FROM products WHERE slug = $1',
+        [slug],
+      );
+      const id = before[0].id;
+
+      expect((await del(`/admin/catalog/products/${slug}`)).status).toBe(200);
+      const purged = await del(`/admin/catalog/products/${slug}/permanent`);
+      expect(purged.status).toBe(200);
+      expect(purged.data).toEqual({ slug, name: `Purged ${R}` });
+
+      expect((await adminGet(`/admin/catalog/products/${slug}`)).status).toBe(
+        404,
+      );
+      // Its prices and attributes went with it.
+      for (const table of ['product_prices', 'product_attributes']) {
+        const { rows } = await client.query(
+          `SELECT 1 FROM ${table} WHERE "productId" = $1`,
+          [id],
+        );
+        expect(rows).toHaveLength(0);
+      }
+
+      // And its source key is free for the next product to carry.
+      const again = await createProduct({ name: `Purged ${R}`, sourceId });
+      expect(again.status).toBe(201);
+    });
+  });
+
   /**
    * The grid's filter/search/sort surface (FR-ADM-05). Every case scopes to the
    * test parent category, so the assertions hold no matter what else the seeded

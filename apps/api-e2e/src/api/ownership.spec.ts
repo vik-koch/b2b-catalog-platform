@@ -237,8 +237,8 @@ describe('External data ownership (FR-ADM-10)', () => {
     await client.query('DELETE FROM api_tokens WHERE name LIKE $1', [
       `${TOKEN_NAME}%`,
     ]);
-    await client.query('DELETE FROM products WHERE "sourceId" = $1', [
-      PRODUCT_SOURCE_ID,
+    await client.query('DELETE FROM products WHERE "sourceId" LIKE $1', [
+      `${PRODUCT_SOURCE_ID}%`,
     ]);
     await client.query('DELETE FROM customer_tiers WHERE key LIKE $1', [
       `${TIER_KEY}%`,
@@ -495,6 +495,47 @@ describe('External data ownership (FR-ADM-10)', () => {
           `/admin/catalog/products/${productSlug}`,
         );
         expect(back.data.deletedAt).toBeNull();
+      });
+    });
+
+    it('deletes permanently only what a run deleted', async () => {
+      // Its own product: this one is about to stop existing.
+      const created = await asAdmin('post', '/admin/catalog/products', {
+        name: `${PRODUCT_NAME} purged`,
+        priceMinor: 100,
+        categoryId,
+        sourceId: `${PRODUCT_SOURCE_ID}-purged`,
+        descriptionHtml: '',
+        attributes: [],
+        images: [],
+        tierPrices: [],
+      });
+      expect(created.status).toBe(201);
+      const slug = created.data.slug;
+      expect(
+        (await asAdmin('delete', `/admin/catalog/products/${slug}`)).status,
+      ).toBe(200);
+
+      await whileOwned(async () => {
+        // An admin hid it while the source still sends it: purged, it would
+        // only arrive again as new (FR-ADM-21).
+        const refused = await asAdmin(
+          'delete',
+          `/admin/catalog/products/${slug}/permanent`,
+        );
+        expect(refused.status).toBe(409);
+        expect(refused.data.code).toBe('catalog-externally-owned');
+
+        // Gone from the source, as the sweep leaves it: that one may go.
+        await client.query(
+          'UPDATE products SET "deletedBy" = NULL WHERE slug = $1',
+          [slug],
+        );
+        const purged = await asAdmin(
+          'delete',
+          `/admin/catalog/products/${slug}/permanent`,
+        );
+        expect(purged.status).toBe(200);
       });
     });
 

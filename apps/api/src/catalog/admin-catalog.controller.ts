@@ -95,6 +95,17 @@ export class AdminCatalogController {
       });
   }
 
+  @Implement(adminCatalogContract.purgeProduct)
+  purgeProduct(@CurrentUser() user: AuthUser) {
+    return implement(adminCatalogContract.purgeProduct)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        const product = await this.products.purgeProduct(params.slug);
+        this.audit.record('product.purged', user, product);
+        return product;
+      });
+  }
+
   @Implement(adminCatalogContract.setProductPublished)
   setProductPublished(@CurrentUser() user: AuthUser) {
     return implement(adminCatalogContract.setProductPublished)

@@ -45,7 +45,9 @@
       "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
       "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
       "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
-      "product-deleted": "This product is deleted. Restore it first, then publish it."
+      "product-deleted": "This product is deleted. Restore it first, then publish it.",
+      "product-not-deleted": "Only a deleted product can be deleted permanently. Delete it first.",
+      "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
     }
   },
   "panel": {
@@ -78,6 +80,8 @@
     "editProduct": "Edit product",
     "addProduct": "Add product",
     "deleteProduct": "Delete product",
+    "purgeProduct": "Delete permanently",
+    "purgeConfirm": "Delete “{name}” permanently? Its prices, attributes, pairings and document links are removed with it. This cannot be undone.",
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "addCategory": "Add category",
@@ -1406,6 +1410,7 @@
     "fieldLocked": "The catalog is managed by an external system, so this is set there rather than here. To edit it in the shop, take the catalog back under Data ownership in the admin panel.",
     "fieldLockedShort": "Set by the external system that manages the catalog.",
     "categoryHasProducts": "This category still has products in it. While the catalog is managed by an external system, products cannot be moved between categories here — empty it in that system first, or take the catalog back under Data ownership in the admin panel.",
+    "productPurge": "The external system still sends this product, so deleting it permanently would only bring it back as a new one. It stays deleted.",
     "productRestoreTitle": "Removed by the external system",
     "productRestore": "The external system removed this product because it no longer sends it. It comes back by itself when that system sends it again. To restore it here, take the catalog back under Data ownership in the admin panel.",
     "productCreate": "The catalog is managed by an external system, so new products are added there. To add one in the shop, take the catalog back under Data ownership in the admin panel.",

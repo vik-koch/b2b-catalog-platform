@@ -222,6 +222,7 @@ function knownValues<T extends string>(
               (publishToggled)="togglePublished($event)"
               (restored)="restore($event)"
               (deleteRequested)="remove($event)"
+              (purgeRequested)="purge($event)"
             />
           </td>
         </ng-template>
@@ -305,6 +306,7 @@ function knownValues<T extends string>(
               (publishToggled)="togglePublished($event)"
               (restored)="restore($event)"
               (deleteRequested)="remove($event)"
+              (purgeRequested)="purge($event)"
             />
           </app-record-row>
         </ng-template>
@@ -351,6 +353,7 @@ export class ProductListPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
+  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
   protected readonly productText = inject(ADMIN_TEXT).productEditor;
@@ -905,6 +908,32 @@ export class ProductListPage {
    * restore undoes the rest in one click (FR-ADM-01). */
   protected async remove(item: ProductRowState): Promise<void> {
     await this.admin.deleteProduct(item.slug);
+    this.products.reload();
+  }
+
+  /** Confirmed, being the one removal step that cannot be undone (FR-ADM-21).
+   * A refusal the row could not foresee — an order placed since the list
+   * loaded — is explained rather than swallowed. */
+  protected async purge(item: ProductRowState): Promise<void> {
+    const confirmed = await this.confirm.ask({
+      heading: this.editText.purgeProduct,
+      message: fillText(this.editText.purgeConfirm, { name: item.name }),
+      confirmLabel: this.editText.purgeProduct,
+      cancelLabel: this.common.cancel,
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+    const result = await this.admin.purgeProduct(item.slug);
+    if (!result.ok) {
+      await this.confirm.tell({
+        heading: this.editText.purgeProduct,
+        message:
+          result.code === 'catalog-externally-owned'
+            ? this.ownershipText.productPurge
+            : this.common.catalogErrors[result.code],
+        closeLabel: this.common.close,
+      });
+    }
     this.products.reload();
   }
 

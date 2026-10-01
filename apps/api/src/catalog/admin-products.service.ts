@@ -46,6 +46,7 @@ import {
   customerTiers,
   documentProducts,
   documents,
+  orderItems,
   productAttributes,
   productPairings,
   productPrices,
@@ -293,6 +294,12 @@ export class AdminProductsService {
           images: products.images,
           deletedAt: products.deletedAt,
           deletedBy: products.deletedBy,
+          // `$count` rather than a hand-written `exists`: inside an `sql`
+          // template the outer `products.id` would bind unqualified.
+          orderLines: this.db.$count(
+            orderItems,
+            eq(orderItems.productId, products.id),
+          ),
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
           availability: products.availability,
@@ -320,6 +327,7 @@ export class AdminProductsService {
           features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
           deletedByRun: deletedByRun(r),
+          ordered: r.orderLines > 0,
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),
@@ -596,6 +604,56 @@ export class AdminProductsService {
       await this.pairingsFor(rows[0].id),
       await this.documentsFor(rows[0].id),
     );
+  }
+
+  /**
+   * Delete a product permanently (FR-ADM-21): the last of the removal steps,
+   * so only a product already deleted. Its prices, attributes, pairings and
+   * document links go with it by cascade; its picture files are left to the
+   * unreferenced-upload sweep, which removes them once nothing points at them.
+   *
+   * Refused for a product on an order — the order line's foreign key is
+   * `restrict`, and is the backstop for one placed while this runs — and,
+   * while the catalog is externally owned, for one an admin deleted: the
+   * source still sends it, and the next run would create it again as new.
+   * What it frees is its slug and its source key.
+   */
+  async purgeProduct(slug: string): Promise<{ slug: string; name: string }> {
+    return this.db.transaction(async (tx) => {
+      const [row] = await tx
+        .select({
+          id: products.id,
+          slug: products.slug,
+          name: products.name,
+          deletedAt: products.deletedAt,
+          deletedBy: products.deletedBy,
+        })
+        .from(products)
+        .where(eq(products.slug, slug))
+        .for('update');
+      if (!row) throw productNotFound();
+      if (!row.deletedAt) {
+        throw new ConflictException({
+          code: 'product-not-deleted',
+          message: 'Only a deleted product can be deleted permanently',
+        });
+      }
+      if (this.catalogIsOwned && row.deletedBy !== null) {
+        throw catalogExternallyOwned('delete permanently');
+      }
+      const orderLines = await tx.$count(
+        orderItems,
+        eq(orderItems.productId, row.id),
+      );
+      if (orderLines > 0) throw productOrdered();
+      try {
+        await tx.delete(products).where(eq(products.id, row.id));
+      } catch (error) {
+        if (isForeignKeyViolation(error)) throw productOrdered();
+        throw error;
+      }
+      return { slug: row.slug, name: row.name };
+    });
   }
 
   /**
@@ -1161,6 +1219,18 @@ function canonicalPair(
   return one < other
     ? { productAId: one, productBId: other }
     : { productAId: other, productBId: one };
+}
+
+const productOrdered = () =>
+  new ConflictException({
+    code: 'product-ordered',
+    message: 'A product somebody ordered is never deleted permanently',
+  });
+
+/** Drizzle wraps the driver's error, so the Postgres code is on `cause`. */
+function isForeignKeyViolation(error: unknown): boolean {
+  const cause = (error as { cause?: { code?: string } })?.cause;
+  return cause?.code === '23503';
 }
 
 /**
