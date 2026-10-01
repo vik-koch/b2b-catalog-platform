@@ -121,6 +121,8 @@ export const adminTextSchema = z
             'product-has-no-price': z.string(),
             'product-published': z.string(),
             'product-deleted': z.string(),
+            'product-not-deleted': z.string(),
+            'product-ordered': z.string(),
           })
           .strict(),
       })

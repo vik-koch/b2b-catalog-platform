@@ -159,6 +159,17 @@ export const adminCatalogContract = {
       },
     },
   },
+  purgeProduct: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/catalog/products/{slug}/permanent',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   setProductPublished: {
     '~orpc': {
       errorMap: {},

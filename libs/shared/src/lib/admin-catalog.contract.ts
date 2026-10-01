@@ -714,6 +714,12 @@ export const CATALOG_ERROR_CODES = [
   'product-published',
   /** Publishing a deleted product: it is restored first, then published. */
   'product-deleted',
+  /** Deleting permanently a product that is not deleted (FR-ADM-21): it goes
+   * the same steps as any removal. */
+  'product-not-deleted',
+  /** Deleting permanently a product somebody has ordered: an order line must
+   * never lose its product, so it stays deleted instead. */
+  'product-ordered',
 ] as const;
 export type CatalogErrorCode = (typeof CATALOG_ERROR_CODES)[number];
 
@@ -740,6 +746,8 @@ const e = {
   'product-has-no-price': { status: 409 },
   'product-published': { status: 409 },
   'product-deleted': { status: 409 },
+  'product-not-deleted': { status: 409 },
+  'product-ordered': { status: 409 },
 } as const satisfies Record<CatalogErrorCode, { status: number }>;
 
 /** Saving a product can collide on either unique column, or name a gone tier,
@@ -871,6 +879,29 @@ export const adminCatalogContract = {
     })
     .input(z.object({ params: z.object({ slug: z.string() }) }))
     .output(adminProductSchema),
+
+  /**
+   * Remove a deleted product for good (FR-ADM-21), with what belongs only to
+   * it — prices, attributes, pairings, document links. Its picture files are
+   * left to the unreferenced-upload sweep. Refused for one somebody ordered,
+   * and while the catalog is externally owned for one an admin deleted: the
+   * source still sends it, and it would only arrive again as new.
+   */
+  purgeProduct: admin
+    .route({
+      method: 'DELETE',
+      path: '/admin/catalog/products/{slug}/permanent',
+      inputStructure: 'detailed',
+      summary: 'Delete a soft-deleted product permanently (admin)',
+    })
+    .errors({
+      'product-not-found': e['product-not-found'],
+      'product-not-deleted': e['product-not-deleted'],
+      'product-ordered': e['product-ordered'],
+      'catalog-externally-owned': ownershipErrors['catalog-externally-owned'],
+    })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(z.object({ slug: z.string(), name: z.string() }).strict()),
 
   /**
    * Put a product on the storefront, or take it off (FR-ADM-06).

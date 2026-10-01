@@ -7,6 +7,9 @@ export type AuditAction =
   | 'product.updated'
   | 'product.deleted'
   | 'product.restored'
+  // Deleted permanently (FR-ADM-21): the one removal that cannot be undone,
+  // and the only record left that the product existed.
+  | 'product.purged'
   // Publication (FR-ADM-06) — who let a price reach the storefront.
   | 'product.published'
   | 'product.unpublished'
