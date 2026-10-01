@@ -193,6 +193,10 @@ export const adminTextSchema = z
         editProduct: z.string(),
         addProduct: z.string(),
         deleteProduct: z.string(),
+        /** The last removal step (FR-ADM-21), confirmed because it is the one
+         * that cannot be undone. `{name}`. */
+        purgeProduct: z.string(),
+        purgeConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
         addCategory: z.string(),
@@ -2305,6 +2309,9 @@ export const adminTextSchema = z
         /** Restore on a product a run deleted while the catalog is owned: only
          * a run brings it back (FR-ADM-10). */
         productRestoreTitle: z.string(),
+        /** Delete permanently refused for a product an admin hid while the
+         * source still sends it (FR-ADM-21). */
+        productPurge: z.string(),
         productRestore: z.string(),
         /** The product editor, opened on the "new" route. */
         productCreate: z.string(),

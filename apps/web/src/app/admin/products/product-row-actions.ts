@@ -1,4 +1,4 @@
-import { Component, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { ConfirmService } from '../../ui/confirm.service';
@@ -16,6 +16,8 @@ export interface ProductRowState {
   /** Deleted by a sync run: while the catalog is owned, only a run restores
    * it (FR-ADM-10). */
   deletedByRun: boolean;
+  /** On some order: never deleted permanently (FR-ADM-21). */
+  ordered: boolean;
   /** Null where no price list prices it, which is the one thing that stops it
    * being published (FR-ADM-06). */
   priceMinor: number | null;
@@ -65,9 +67,22 @@ export interface ProductRowState {
       >
         <app-admin-icon name="rotate-ccw" />
       </button>
-      <span appIconButton class="invisible" aria-hidden="true">
+      <!-- On every deleted row, since the deleted state offers this step.
+           Where this product cannot take it — somebody ordered it, or the
+           source still sends it while the catalog is owned (FR-ADM-21) — it
+           stays live, muted rather than red, and the click says why, as an
+           unpriced product's publish button does. A disabled button would
+           give no reason on a phone and be skipped by the keyboard. -->
+      <button
+        type="button"
+        appIconButton
+        [variant]="purgeRefusal() ? 'default' : 'danger'"
+        [attr.aria-label]="editText.purgeProduct"
+        [title]="purgeRefusal() ?? editText.purgeProduct"
+        (click)="onPurgeClick()"
+      >
         <app-admin-icon name="trash-2" />
-      </span>
+      </button>
     } @else if (product().publishedAt) {
       <span appIconButton class="invisible" aria-hidden="true">
         <app-admin-icon name="book-check" />
@@ -127,6 +142,39 @@ export class ProductRowActions {
   readonly publishToggled = output<ProductRowState>();
   readonly restored = output<ProductRowState>();
   readonly deleteRequested = output<ProductRowState>();
+  readonly purgeRequested = output<ProductRowState>();
+
+  /**
+   * Why deleting permanently would be refused, or null where it can succeed.
+   * An unknown ownership answer reads as owned, as the editors read it, for
+   * the look of the button only; the click asks for the real answer.
+   */
+  protected readonly purgeRefusal = computed(() =>
+    this.refusalFor(this.settings.ownedAreas()?.includes('catalog') ?? true),
+  );
+
+  private refusalFor(catalogOwned: boolean): string | null {
+    const product = this.product();
+    if (product.ordered) return this.common.catalogErrors['product-ordered'];
+    if (catalogOwned && !product.deletedByRun) {
+      return this.ownershipText.productPurge;
+    }
+    return null;
+  }
+
+  protected async onPurgeClick(): Promise<void> {
+    const owned = (await this.settings.load()).includes('catalog');
+    const refusal = this.refusalFor(owned);
+    if (refusal) {
+      await this.confirm.tell({
+        heading: this.editText.purgeProduct,
+        message: refusal,
+        closeLabel: this.common.close,
+      });
+      return;
+    }
+    this.purgeRequested.emit(this.product());
+  }
 
   /** An unpublished product with no price cannot go on the storefront. */
   protected cannotPublish(): boolean {

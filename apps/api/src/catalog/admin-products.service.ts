@@ -294,6 +294,12 @@ export class AdminProductsService {
           images: products.images,
           deletedAt: products.deletedAt,
           deletedBy: products.deletedBy,
+          // `$count` rather than a hand-written `exists`: inside an `sql`
+          // template the outer `products.id` would bind unqualified.
+          orderLines: this.db.$count(
+            orderItems,
+            eq(orderItems.productId, products.id),
+          ),
           publishedAt: products.publishedAt,
           updatedAt: products.updatedAt,
           availability: products.availability,
@@ -321,6 +327,7 @@ export class AdminProductsService {
           features: PRODUCT_FEATURES.filter((feature) => r.features[feature]),
           deletedAt: r.deletedAt?.toISOString() ?? null,
           deletedByRun: deletedByRun(r),
+          ordered: r.orderLines > 0,
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),

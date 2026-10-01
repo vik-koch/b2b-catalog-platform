@@ -17,6 +17,7 @@ const product = (
   publishedAt: null,
   deletedAt: null,
   deletedByRun: false,
+  ordered: false,
   priceMinor: 990,
   ...overrides,
 });
@@ -40,6 +41,8 @@ async function render(state: ProductRowState, owned: OwnershipArea[] = []) {
   fixture.componentInstance.deleteRequested.subscribe(deleteRequested);
   const restored = vi.fn();
   fixture.componentInstance.restored.subscribe(restored);
+  const purgeRequested = vi.fn();
+  fixture.componentInstance.purgeRequested.subscribe(purgeRequested);
   await fixture.whenStable();
   fixture.detectChanges();
 
@@ -59,6 +62,7 @@ async function render(state: ProductRowState, owned: OwnershipArea[] = []) {
     byLabel,
     deleteRequested,
     restored,
+    purgeRequested,
   };
 }
 
@@ -108,6 +112,7 @@ describe('ProductRowActions', () => {
         text.unpublishProduct,
         text.deleteProduct,
         defaultAdminText.common.restore,
+        text.purgeProduct,
       ].filter((label) => byLabel(label) !== null);
 
     it('offers a published product only unpublish', async () => {
@@ -127,7 +132,7 @@ describe('ProductRowActions', () => {
       ]);
     });
 
-    it('offers a deleted product only restore, published or not', async () => {
+    it('offers a deleted product restore and permanent delete, published or not', async () => {
       const { byLabel } = await render(
         product({
           deletedAt: '2026-08-03T09:00:00.000Z',
@@ -135,7 +140,53 @@ describe('ProductRowActions', () => {
         }),
       );
 
-      expect(offered(byLabel)).toEqual([defaultAdminText.common.restore]);
+      expect(offered(byLabel)).toEqual([
+        defaultAdminText.common.restore,
+        text.purgeProduct,
+      ]);
+    });
+
+    it('keeps permanent delete on a product somebody ordered, and explains', async () => {
+      const { fixture, byLabel, purgeRequested, tell } = await render(
+        product({ deletedAt: '2026-08-03T09:00:00.000Z', ordered: true }),
+      );
+
+      // Present on every deleted row: the deleted state offers the step, and
+      // the click is where this product's reason is said (FR-ADM-21).
+      byLabel(text.purgeProduct)?.click();
+      await fixture.whenStable();
+
+      expect(purgeRequested).not.toHaveBeenCalled();
+      expect(tell).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: defaultAdminText.common.catalogErrors['product-ordered'],
+        }),
+      );
+    });
+
+    it('deletes permanently under ownership only what a run deleted', async () => {
+      const hidden = await render(
+        product({ deletedAt: '2026-08-03T09:00:00.000Z' }),
+        ['catalog'],
+      );
+      // The source still sends it: it would come back as new.
+      hidden.byLabel(text.purgeProduct)?.click();
+      await hidden.fixture.whenStable();
+      expect(hidden.purgeRequested).not.toHaveBeenCalled();
+      expect(hidden.tell).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: defaultAdminText.ownership.productPurge,
+        }),
+      );
+      TestBed.resetTestingModule();
+
+      const swept = await render(
+        product({ deletedAt: '2026-08-03T09:00:00.000Z', deletedByRun: true }),
+        ['catalog'],
+      );
+      swept.byLabel(text.purgeProduct)?.click();
+      await swept.fixture.whenStable();
+      expect(swept.purgeRequested).toHaveBeenCalled();
     });
 
     it('keeps the place a state has nothing for, so the columns line up', async () => {

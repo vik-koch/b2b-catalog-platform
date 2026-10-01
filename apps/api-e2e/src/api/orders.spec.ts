@@ -2840,4 +2840,61 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(asCustomer.status).toBe(403);
     });
   });
+
+  /**
+   * The order line's side of deleting a product permanently (FR-ADM-21): an
+   * order must never lose its product, so the product stays deleted instead.
+   * Last in the file, because it takes `boxed` off the catalog.
+   */
+  describe('a product somebody ordered', () => {
+    const ADMIN = `e2e-orders-admin-${SUFFIX}@example.com`;
+
+    afterAll(async () => {
+      await client.query(
+        `UPDATE products SET "deletedAt" = NULL, "deletedBy" = NULL
+          WHERE slug = $1`,
+        [slugs.boxed],
+      );
+      await client.query('DELETE FROM users WHERE email = $1', [ADMIN]);
+    });
+
+    it('is never deleted permanently', async () => {
+      const placed = await post('/orders', submission());
+      expect(placed.status).toBe(201);
+
+      await client.query(
+        `INSERT INTO users (email, "passwordHash", role, status)
+         VALUES ($1, $2, 'admin', 'active')`,
+        [ADMIN, await hash(PASSWORD)],
+      );
+      const admin = await loginAs(ADMIN);
+      // Taken down as a run takes a product down: deleted, signed by nobody.
+      await client.query(
+        `UPDATE products SET "deletedAt" = now(), "deletedBy" = NULL,
+                "publishedAt" = NULL
+          WHERE slug = $1`,
+        [slugs.boxed],
+      );
+
+      const purged = await axios.delete(
+        `/admin/catalog/products/${slugs.boxed}/permanent`,
+        { headers: { Cookie: admin }, validateStatus: () => true },
+      );
+      expect(purged.status).toBe(409);
+      expect(purged.data.code).toBe('product-ordered');
+
+      // Found by its sync key, which the grid's search reads.
+      const { rows } = await client.query(
+        'SELECT "sourceId" FROM products WHERE slug = $1',
+        [slugs.boxed],
+      );
+      const list = await axios.get(
+        `/admin/catalog/products?state=deleted&q=${encodeURIComponent(rows[0].sourceId)}`,
+        { headers: { Cookie: admin } },
+      );
+      expect(
+        list.data.items.find((i: { slug: string }) => i.slug === slugs.boxed),
+      ).toMatchObject({ ordered: true, deletedByRun: true });
+    });
+  });
 });

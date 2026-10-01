@@ -91,6 +91,22 @@ export class AdminCatalogService {
     return this.afterWork(this.client.deleteProduct({ params: { slug } }));
   }
 
+  /**
+   * Deletes a deleted product permanently (FR-ADM-21). A refusal comes back as
+   * its code — on an order, owned by the source — for the list to explain.
+   */
+  async purgeProduct(
+    slug: string,
+  ): Promise<{ ok: true } | { ok: false; code: CategorySaveErrorCode }> {
+    const result = await safe(this.client.purgeProduct({ params: { slug } }));
+    void this.work.refresh();
+    if (result.isDefined && renderableCategory(result.error.code)) {
+      return { ok: false, code: result.error.code };
+    }
+    if (!result.isSuccess) throw result.error;
+    return { ok: true };
+  }
+
   /** The soft-deleted products in a category subtree — the edit-mode overlay. */
   async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
     const result = await safe(

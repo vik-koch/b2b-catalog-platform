@@ -416,6 +416,8 @@ export const adminProductListItemSchema = z
     deletedAt: z.iso.datetime().nullable(),
     /** As on the full product: who undoes the deletion. */
     deletedByRun: z.boolean(),
+    /** On some order, which rules out deleting it permanently (FR-ADM-21). */
+    ordered: z.boolean(),
     /** Null while the product is not on the storefront (FR-ADM-06). */
     publishedAt: z.iso.datetime().nullable(),
     updatedAt: z.iso.datetime(),
