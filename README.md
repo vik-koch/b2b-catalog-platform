@@ -4,7 +4,7 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.13.0` — after three releases spent on what an integrator does, this one is
+> **Status:** `v1.13.1` — after three releases spent on what an integrator does, `v1.13.0` was
 > about what a visitor sees: a category is one chip everywhere, the main page opens on a
 > featured row, search suggests categories and shows the price beside each product, and a
 > product can be sold as a set of parts or come in variants named on its pictures. The admin
@@ -14,8 +14,10 @@ catalog management with file-based bulk sync.
 > accounts and tiered pricing, units of sale, attribute filtering, cart and checkout, stock
 > availability and work-awaiting indicators, sold-together sets, product documents, order
 > processing, automated catalog feed, customer exchange, order exchange, storefront
-> presentation). Online card payment stays deferred until the shop is live and has handled
-> real orders.
+> presentation). `v1.13.1` follows up with picture handling in the admin panel: pasting a copied
+> file, framing a product photo in a white square before it is uploaded, and storefront pictures
+> shown whole instead of cropped. Online card payment stays deferred until the shop is live
+> and has handled real orders.
 
 ## Key features
 
