@@ -72,6 +72,11 @@ export const adminTextSchema = z
          * in every engine, so the app draws its own. */
         datePlaceholder: z.string(),
         uploadError: z.string(),
+        /** Under a file target's own wording; `{keys}` is the shortcut as
+         * this keyboard writes it. */
+        pasteHint: z.string(),
+        /** Beside an image tile, too small to say it on: `{keys}` as above. */
+        imageTileHint: z.string(),
         /** The way back to an unfiltered grid, on every admin list. */
         clearFilters: z.string(),
         /*

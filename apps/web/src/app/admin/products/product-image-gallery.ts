@@ -9,6 +9,7 @@ import {
 import { Component, inject, input, output, signal } from '@angular/core';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
+  fillText,
   ProductImageInput,
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared';
@@ -18,6 +19,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Input } from '../../ui/input';
 import { SelectField } from '../../ui/select-field';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../ui/file-target';
 import { MediaService } from '../media/media.service';
 
 /**
@@ -40,6 +42,7 @@ import { MediaService } from '../media/media.service';
     CdkDragHandle,
     CdkDragPlaceholder,
     FieldLabel,
+    FileTarget,
     Input,
     SelectField,
   ],
@@ -129,9 +132,13 @@ import { MediaService } from '../media/media.service';
           />
           <button
             type="button"
-            [class]="tileClass"
+            #target="appFileTarget"
+            [appFileTarget]="accept"
+            [fileTargetMultiple]="true"
+            [class]="tileClass(target.dragging())"
             [disabled]="uploading()"
             (click)="fileInput.click()"
+            (filesReceived)="upload($event)"
           >
             <app-admin-icon name="image-plus" class="h-6 w-6" />
             <span class="text-xs">
@@ -140,6 +147,10 @@ import { MediaService } from '../media/media.service';
           </button>
         </li>
       </ul>
+      <!-- A pointer's hint: a phone has no shortcut, and drops nothing. -->
+      <p class="mt-2 hidden text-xs text-subtle pointer-fine:block">
+        {{ tileHint }}
+      </p>
 
       @if (error()) {
         <p class="mt-2 text-sm text-red-700" role="alert">{{ error() }}</p>
@@ -152,9 +163,15 @@ export class ProductImageGallery {
   protected readonly text = inject(ADMIN_TEXT).productEditor.images;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
+  protected readonly tileHint = fillText(this.common.imageTileHint, {
+    keys: pasteKeys(),
+  });
+
   /** The shared dashed target at tile size — the same one the sync screen and
    * the document editor wear at their own. */
-  protected readonly tileClass = `h-26 w-26 ${DROP_ZONE} ${dropZoneState(false)}`;
+  protected tileClass(dragging: boolean): string {
+    return `h-26 w-26 ${DROP_ZONE} ${dropZoneState(dragging)}`;
+  }
 
   readonly value = input.required<ProductImageInput[]>();
   /** The variants a picture may show; none hides the picker. */
@@ -168,8 +185,11 @@ export class ProductImageGallery {
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     input.value = ''; // allow re-selecting the same file
-    if (files.length === 0) return;
+    await this.upload(files);
+  }
 
+  protected async upload(files: File[]): Promise<void> {
+    if (files.length === 0) return;
     this.uploading.set(true);
     this.error.set(null);
     try {

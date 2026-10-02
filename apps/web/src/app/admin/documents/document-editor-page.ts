@@ -5,6 +5,7 @@ import {
   DOCUMENT_LINK_MAX_LENGTH,
   DocumentInput,
   DocumentProduct,
+  fillText,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -21,6 +22,7 @@ import { injectEditorReturn } from '../editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 
@@ -49,6 +51,7 @@ import { DocumentsService } from './documents.service';
     DateField,
     DocumentProductsPicker,
     FieldLabel,
+    FileTarget,
     Input,
     Skeleton,
   ],
@@ -131,8 +134,10 @@ import { DocumentsService } from './documents.service';
                   variant="secondary"
                   type="button"
                   class="shrink-0 gap-2"
+                  [appFileTarget]="accept"
                   [disabled]="uploading()"
                   (click)="fileInput.click()"
+                  (filesReceived)="upload($event[0])"
                 >
                   <app-admin-icon name="upload" class="h-4 w-4" />
                   {{ uploading() ? common.uploading : text.replace }}
@@ -159,18 +164,21 @@ import { DocumentsService } from './documents.service';
             <button
               type="button"
               class="w-full p-4"
-              [class]="dropZoneClass()"
+              #target="appFileTarget"
+              [appFileTarget]="accept"
+              [class]="dropZoneClass(target.dragging())"
               [disabled]="uploading()"
               (click)="fileInput.click()"
-              (dragover)="onDragOver($event)"
-              (dragleave)="dragging.set(false)"
-              (drop)="onDrop($event)"
+              (filesReceived)="upload($event[0])"
             >
               <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
               <span class="font-medium">{{
                 uploading() ? common.uploading : text.dropHint
               }}</span>
               <span class="text-sm">{{ text.choose }}</span>
+              <span class="hidden text-xs pointer-fine:block">{{
+                pasteHint
+              }}</span>
             </button>
           }
           <span class="mt-1 block text-xs text-subtle">{{
@@ -361,28 +369,12 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     });
   }
 
-  /**
-   * The bytes go up on choice, not on save: an upload that fails has to say so
-   * while the admin is still looking at the file picker, and the save that
-   * follows is then a plain JSON write like every other record's.
-   */
-  /** Whether a file is over the empty picker. */
-  protected readonly dragging = signal(false);
+  protected readonly pasteHint = fillText(this.common.pasteHint, {
+    keys: pasteKeys(),
+  });
 
-  protected dropZoneClass(): string {
-    return `${DROP_ZONE} ${dropZoneState(this.dragging())}`;
-  }
-
-  protected onDragOver(event: DragEvent): void {
-    event.preventDefault();
-    this.dragging.set(true);
-  }
-
-  protected onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.dragging.set(false);
-    const dropped = event.dataTransfer?.files?.[0];
-    if (dropped) void this.upload(dropped);
+  protected dropZoneClass(dragging: boolean): string {
+    return `${DROP_ZONE} ${dropZoneState(dragging)}`;
   }
 
   protected async onFile(event: Event): Promise<void> {
@@ -393,7 +385,12 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     await this.upload(chosen);
   }
 
-  private async upload(chosen: File): Promise<void> {
+  /**
+   * The bytes go up on choice, not on save: an upload that fails has to say so
+   * while the admin is still looking at the file picker, and the save that
+   * follows is then a plain JSON write like every other record's.
+   */
+  protected async upload(chosen: File): Promise<void> {
     this.uploading.set(true);
     this.error.set(null);
     try {

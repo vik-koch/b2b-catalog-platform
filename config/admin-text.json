@@ -18,6 +18,8 @@
     "uploading": "Uploading…",
     "datePlaceholder": "Select a date…",
     "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+    "pasteHint": "or paste a copied file with {keys}",
+    "imageTileHint": "Drop a picture on the tile, or paste a copied one with {keys}.",
     "clearFilters": "Clear filters",
     "resizeColumn": "Drag to resize. Double-click to fit the columns to their content.",
     "resizeColumnOf": "Resize {column}",
