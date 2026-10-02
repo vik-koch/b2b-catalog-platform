@@ -2,6 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import type { ElsewhereLink } from '../config/deployment-config.type';
 import { ConsentService } from '../consent/consent.service';
 import { Button } from '../ui/button';
 import { ScrollToTop } from './scroll-to-top';
@@ -91,17 +92,15 @@ import { ScrollToTop } from './scroll-to-top';
                          announces them, and a stylesheet that never arrived
                          leaves them on the page to read. -->
                     <span class="sr-only">{{ link.label }}</span>
+                    <!-- Sized from config, not from the file: the box is
+                         there at first paint, so neither the mark nor the
+                         button beside it moves when the file arrives. -->
                     <span
                       aria-hidden="true"
-                      class="elsewhere-mark block h-6 w-auto"
+                      class="elsewhere-mark block h-6"
+                      [style.aspect-ratio]="iconRatio(link)"
                       [style.--elsewhere-icon]="iconUrl(link.icon)"
-                    >
-                      <!-- Invisible img forces the span to auto-size to the exact SVG aspect ratio -->
-                      <img
-                        [src]="link.icon"
-                        class="invisible h-6 w-auto max-w-none block"
-                        alt=""
-                    /></span>
+                    ></span>
                   </a>
                 }
               </div>
@@ -139,6 +138,10 @@ export class Footer {
    */
   protected iconUrl(icon: string): string {
     return `url("/${icon}")`;
+  }
+
+  protected iconRatio(link: ElsewhereLink): string {
+    return link.width && link.height ? `${link.width} / ${link.height}` : '1';
   }
 
   /**

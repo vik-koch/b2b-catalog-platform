@@ -95,6 +95,29 @@ describe('Footer', () => {
     ).toEqual(configured.map((link) => `url("/${link.icon}")`));
   });
 
+  it("keeps each mark's room before its file arrives", async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      elsewhere: [
+        { label: 'Square', url: 'https://a.example', icon: 'a.svg' },
+        {
+          label: 'Wide',
+          url: 'https://b.example',
+          icon: 'b.svg',
+          width: 96,
+          height: 24,
+        },
+      ],
+    });
+    const marks = Array.from(
+      el.querySelectorAll<HTMLElement>('.elsewhere-mark'),
+    );
+    expect(marks.map((mark) => mark.style.aspectRatio)).toEqual([
+      '1 / 1',
+      '96 / 24',
+    ]);
+  });
+
   it('shows nothing beside the enquiry button when nothing is configured', async () => {
     const el = await renderWith({
       ...defaultDeploymentConfig,

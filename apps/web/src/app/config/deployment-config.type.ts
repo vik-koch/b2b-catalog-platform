@@ -122,8 +122,21 @@ export const elsewhereLinkSchema = z
     url: z.string().min(1),
     /** File name in the assets mount, e.g. "marktplatz.svg". */
     icon: z.string().min(1),
+    /**
+     * The mark's shape, as for the logo: a mask has no size of its own, so the
+     * box is given one before the file arrives and the row does not shift
+     * when it does. Left out, the mark is square.
+     */
+    width: z.number().int().positive().optional(),
+    height: z.number().int().positive().optional(),
   })
-  .strict();
+  .strict()
+  .refine(
+    (link) => (link.width === undefined) === (link.height === undefined),
+    {
+      message: 'width and height go together',
+    },
+  );
 
 export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
 
