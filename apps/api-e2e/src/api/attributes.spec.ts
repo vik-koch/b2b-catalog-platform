@@ -760,6 +760,24 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       expect(reset.data.source).toBe('inherited');
     });
 
+    it('counts the products carrying a key, unpublished ones apart', async () => {
+      await addProduct('panel-live', [{ key: PANEL_A, value: 'x' }], {
+        published: true,
+      });
+      await addProduct('panel-draft', [{ key: PANEL_A, value: 'y' }]);
+      await addProduct('panel-gone', [{ key: PANEL_A, value: 'z' }], {
+        deleted: true,
+      });
+
+      const res = await get(parentPath());
+      expect(res.data.category.id).toBe(categoryId);
+      const row = res.data.filters.find(
+        (f: { attributeId: string }) => f.attributeId === panelA,
+      );
+      expect(row.productCount).toBe(2);
+      expect(row.unpublishedProductCount).toBe(1);
+    });
+
     it('404s on a category nobody has', async () => {
       expect(
         (await get('/admin/categories/no-such-category/filters')).status,

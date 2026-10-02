@@ -931,7 +931,7 @@ export class ProductListPage {
       !publish &&
       !(await this.confirm.ask({
         heading: this.editText.unpublishProduct,
-        message: await this.unpublishMessage(item),
+        message: await this.admin.unpublishMessage(item, this.editText),
         confirmLabel: this.editText.unpublishProduct,
         cancelLabel: this.common.cancel,
         confirmVariant: 'danger',
@@ -946,14 +946,6 @@ export class ProductListPage {
     } finally {
       this.publishing.set(null);
     }
-  }
-
-  private async unpublishMessage(item: ProductRowState): Promise<string> {
-    const message = this.editText.unpublishConfirm.replace('{name}', item.name);
-    const stranded = await this.admin.strandedPairingNames(item.slug);
-    return stranded.length === 0
-      ? message
-      : `${message} ${this.editText.unpublishStranded.replace('{names}', stranded.join(', '))}`;
   }
 
   /** The header's ＋: a new product's editor, or the reason there is none.

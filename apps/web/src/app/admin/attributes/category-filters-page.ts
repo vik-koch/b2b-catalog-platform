@@ -27,9 +27,11 @@ import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { IconButton } from '../../ui/icon-button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Link } from '../../ui/link';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { injectEditorReturn } from '../editor-return';
+import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
 
@@ -77,6 +79,8 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     AdminIcon,
     RecordRow,
     Skeleton,
+    Link,
+    UnpublishedCount,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
@@ -149,13 +153,27 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                         {{ filter.name }}
                       </span>
                       <ng-container recordMeta>
-                        <span>
-                          @if (filter.productCount === 0) {
-                            {{ text.notPresent }}
-                          } @else {
+                        @if (filter.productCount === 0) {
+                          <span>{{ text.notPresent }}</span>
+                        } @else {
+                          <a
+                            appLink
+                            routerLink="/admin/products"
+                            [queryParams]="{
+                              categoryId: categoryIdOf(panel),
+                              attributeKey: filter.name,
+                            }"
+                          >
                             {{ productsLabel(filter.productCount) }}
-                          }
-                        </span>
+                          </a>
+                          <app-unpublished-count
+                            [count]="filter.unpublishedProductCount"
+                            [query]="{
+                              categoryId: categoryIdOf(panel),
+                              attributeKey: filter.name,
+                            }"
+                          />
+                        }
                         @if (filter.isNew) {
                           <span class="text-amber-700">{{ text.isNew }}</span>
                         }
@@ -322,6 +340,13 @@ export class CategoryFiltersPage {
       '{category}',
       panel.inheritedFrom?.name ?? '',
     );
+  }
+
+  /** What a count's link narrows the grid to besides the key: this
+   * category's subtree, or nothing across the catalogue (null drops the
+   * parameter). */
+  protected categoryIdOf(panel: Panel): string | null {
+    return isCategoryPanel(panel) ? panel.category.id : null;
   }
 
   protected productsLabel(count: number): string {
