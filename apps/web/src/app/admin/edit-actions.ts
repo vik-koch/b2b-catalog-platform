@@ -47,6 +47,20 @@ const variants = {
   imports: [RouterLink, DiscButton, Icon],
   template: `
     <div [class]="style().box">
+      <!-- First, being the one that leaves this page rather than acting on
+           it: the same products as admin rows. -->
+      @if (listLink(); as link) {
+        <a
+          appDiscButton
+          [size]="style().size"
+          [routerLink]="link"
+          [queryParams]="listParams()"
+          [attr.aria-label]="listLabel()"
+          [attr.title]="listLabel()"
+        >
+          <app-icon name="table" [class]="style().icon" />
+        </a>
+      }
       <!-- Creating comes before editing, and a container before what goes in
            it: folder, file, then the pencil that acts on this page itself. -->
       @if (addCategoryLink(); as link) {
@@ -133,6 +147,11 @@ const variants = {
 })
 export class EditActions {
   readonly variant = input<keyof typeof variants>('page');
+  /** The admin product list narrowed to what this page shows — the way back
+   * from the storefront that a product's name in the list is the way out. */
+  readonly listLink = input<unknown[] | null>(null);
+  readonly listParams = input<Params | undefined>(undefined);
+  readonly listLabel = input<string>('');
   /**
    * "New category here" and "new product here" — the two creation affordances,
    * each optional. They live in the cluster rather than as a tile

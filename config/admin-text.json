@@ -79,6 +79,7 @@
     "enable": "Edit mode",
     "disable": "Editing on",
     "editProduct": "Edit product",
+    "showInList": "Show in product list",
     "addProduct": "Add product",
     "deleteProduct": "Delete product",
     "purgeProduct": "Delete permanently",

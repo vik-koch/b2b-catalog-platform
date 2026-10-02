@@ -191,6 +191,9 @@ interface Listing {
           @if (editControls(); as editText) {
             @if (data.category; as category) {
               <app-edit-actions
+                [listLink]="['/admin/products']"
+                [listParams]="{ category: category.slug }"
+                [listLabel]="editText.showInList"
                 [filtersLink]="['/admin/categories', category.slug, 'filters']"
                 [filtersParams]="editorFrom()"
                 [filtersLabel]="editText.editFilters"
@@ -216,6 +219,8 @@ interface Listing {
                    and a top-level category or a product with no category
                    chosen yet. -->
               <app-edit-actions
+                [listLink]="['/admin/products']"
+                [listLabel]="editText.showInList"
                 [filtersLink]="['/admin/catalog/filters']"
                 [filtersParams]="editorFrom()"
                 [filtersLabel]="editText.editFilters"

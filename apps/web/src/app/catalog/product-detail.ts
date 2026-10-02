@@ -80,8 +80,13 @@ import {
         } @else {
           @if (editText(); as editText) {
             <!-- Publication is the one step taken from the page, either way;
-                 a deleted product goes back through the admin list. -->
+                 a deleted product goes back through the admin list. The list
+                 is narrowed by name, the one thing the storefront knows that
+                 it searches, so a near namesake may come along. -->
             <app-edit-actions
+              [listLink]="['/admin/products']"
+              [listParams]="{ searchTerm: item.name }"
+              [listLabel]="editText.showInList"
               [editLink]="['/admin/products', item.slug, 'edit']"
               [editParams]="editorFrom()"
               [editLabel]="editText.editProduct"

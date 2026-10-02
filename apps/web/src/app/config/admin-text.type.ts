@@ -194,6 +194,9 @@ export const adminTextSchema = z
         enable: z.string(),
         disable: z.string(),
         editProduct: z.string(),
+        /** The way from a storefront page into the admin product list,
+         * narrowed to what the page shows. */
+        showInList: z.string(),
         addProduct: z.string(),
         deleteProduct: z.string(),
         /** The last removal step (FR-ADM-21), confirmed because it is the one

@@ -9,7 +9,7 @@ import { Component, input } from '@angular/core';
  * by every visitor on every cold hit. The admin glyphs live in their own
  * component precisely so the editor's toolbar does not ride along.
  *
- * `pencil`, `trash-2`, `folder-plus` and `file-plus` are here despite being
+ * `pencil`, `table`, `trash-2`, `folder-plus` and `file-plus` are here despite being
  * edit-mode affordances (EditActions): they sit in ordinary `@if` blocks inside eagerly
  * loaded storefront components, and `@if` is a rendering condition, not a code
  * split. Moving them out would mean deferring the affordances themselves, which
@@ -34,6 +34,7 @@ export type IconName =
   | 'map-pin'
   | 'lock'
   | 'pencil'
+  | 'table'
   | 'funnel'
   | 'funnel-x'
   | 'trash-2'
@@ -166,6 +167,12 @@ export type IconName =
             d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"
           />
           <path d="m15 5 4 4" />
+        }
+        @case ('table') {
+          <path d="M12 3v18" />
+          <rect width="18" height="18" x="3" y="3" rx="2" />
+          <path d="M3 9h18" />
+          <path d="M3 15h18" />
         }
         @case ('book-check') {
           <path
