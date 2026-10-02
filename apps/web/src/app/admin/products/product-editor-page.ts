@@ -46,6 +46,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
+import { ConfirmService } from '../../ui/confirm.service';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
@@ -603,6 +604,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly attributesService = inject(AttributesService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly confirm = inject(ConfirmService);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   /** The last rung of the "few left" ladder; the API applies the same figure
    * from the same key. */
@@ -1269,9 +1271,29 @@ export class ProductEditorPage implements UnsavedChangesAware {
       ...(sourceId ? { sourceId } : {}),
     };
 
+    // Clearing the price takes the product off sale in the same write, so it
+    // is asked as an unpublish is, with the same wording.
+    const existingSlug = this.slugParam;
+    if (
+      existingSlug !== null &&
+      this.priceCleared() &&
+      this.published() &&
+      !(await this.confirm.ask({
+        heading: this.editText.unpublishProduct,
+        message: await this.service.unpublishMessage(
+          { slug: existingSlug, name: body.name },
+          this.editText,
+        ),
+        confirmLabel: this.text.saveAndUnpublish,
+        cancelLabel: this.common.cancel,
+        confirmVariant: 'danger',
+      }))
+    ) {
+      return;
+    }
+
     this.saving.set(true);
     this.error.set(null);
-    const existingSlug = this.slugParam;
     const result =
       existingSlug === null
         ? await this.service.createProduct(body)

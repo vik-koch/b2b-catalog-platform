@@ -261,14 +261,9 @@ export class ProductDetail {
       await import('../admin/admin-catalog.service');
     const admin = this.injector.get(AdminCatalogService);
     if (!hidden) {
-      const stranded = await admin.strandedPairingNames(item.slug);
-      const message = text.unpublishConfirm.replace('{name}', item.name);
       const confirmed = await this.confirm.ask({
         heading: text.unpublishProduct,
-        message:
-          stranded.length === 0
-            ? message
-            : `${message} ${text.unpublishStranded.replace('{names}', stranded.join(', '))}`,
+        message: await admin.unpublishMessage(item, text),
         confirmLabel: text.unpublishProduct,
         cancelLabel: text.cancel,
         confirmVariant: 'danger',
