@@ -156,7 +156,7 @@ import { SyncService } from './sync/sync.service';
                       <app-work-note
                         [label]="fill(panelText.workUnpricedProducts, count)"
                         link="/admin/products"
-                        [queryParams]="{ state: 'unpriced' }"
+                        [queryParams]="{ missing: 'price' }"
                       />
                     }
                   </div>

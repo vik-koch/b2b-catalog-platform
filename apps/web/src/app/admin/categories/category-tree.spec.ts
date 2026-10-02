@@ -23,7 +23,9 @@ const cat = (
   mark: null,
   sourceId: 'manual:x',
   productCount: 0,
+  liveProductCount: 0,
   directProductCount: 0,
+  deletedProductCount: 0,
   childCount: 0,
 });
 

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { AdminCategory } from '@b2b-catalog-platform/shared';
+import { AdminCategory, OwnershipArea } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
@@ -25,7 +25,9 @@ function cat(over: Partial<AdminCategory>): AdminCategory {
     mark: null,
     sourceId: 'manual:x',
     productCount: 0,
+    liveProductCount: 0,
     directProductCount: 0,
+    deletedProductCount: 0,
     childCount: 0,
     ...over,
   };
@@ -42,13 +44,14 @@ async function render(
   categories: AdminCategory[],
   target: AdminCategory,
   deleteCategory = vi.fn().mockResolvedValue({ ok: true }),
+  owned: OwnershipArea[] = [],
 ) {
   TestBed.configureTestingModule({
     imports: [CategoryDeleteDialog],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      provideOwnership(),
+      provideOwnership(...owned),
       {
         provide: AdminCatalogService,
         useValue: {
@@ -83,7 +86,9 @@ describe('CategoryDeleteDialog', () => {
       id: 's',
       slug: 'roasts',
       productCount: 5,
+      liveProductCount: 0,
       directProductCount: 5,
+      deletedProductCount: 0,
     });
     const other = cat({ id: 'o', slug: 'other' });
     const { ci } = await render([self, other], self);
@@ -91,6 +96,42 @@ describe('CategoryDeleteDialog', () => {
     expect(ci.mode()).toBe('reassign');
     // The category being deleted is never a valid destination for its products.
     expect(ci.destinations().map((c) => c.id)).toEqual(['o']);
+  });
+
+  // Deleted products count nowhere, but they still hold the category, so the
+  // dialog has to name them and move them (FR-ADM-22).
+  it('moves deleted products too, and says so', async () => {
+    const self = cat({
+      id: 's',
+      slug: 'archive',
+      name: 'Archive',
+      deletedProductCount: 2,
+    });
+    const other = cat({ id: 'o', slug: 'other' });
+    const { fixture, ci } = await render([self, other], self);
+
+    expect(ci.mode()).toBe('reassign');
+    const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(shown).toContain(
+      defaultAdminText.categoryList.deleteReassignDeleted.replace(
+        '{count}',
+        '2',
+      ),
+    );
+  });
+
+  it('names the deleted products that keep an owned category', async () => {
+    const self = cat({ id: 's', slug: 'archive', deletedProductCount: 2 });
+    const { fixture, ci } = await render([self], self, undefined, ['catalog']);
+
+    expect(ci.mode()).toBe('blocked-owned');
+    const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
+    expect(shown).toContain(
+      defaultAdminText.ownership.categoryHasDeletedProducts.replace(
+        '{count}',
+        '2',
+      ),
+    );
   });
 
   it('offers a plain confirm for an empty category', async () => {
@@ -105,7 +146,9 @@ describe('CategoryDeleteDialog', () => {
       id: 's',
       slug: 'roasts',
       productCount: 5,
+      liveProductCount: 0,
       directProductCount: 5,
+      deletedProductCount: 0,
     });
     const other = cat({ id: 'o', slug: 'other' });
     const { fixture, ci, deleteCategory } = await render([self, other], self);

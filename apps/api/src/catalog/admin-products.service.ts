@@ -15,6 +15,7 @@ import {
   isNull,
   notInArray,
   or,
+  SQL,
   sql,
 } from 'drizzle-orm';
 import {
@@ -22,6 +23,7 @@ import {
   AdminProduct,
   AdminProductListItem,
   AdminProductListQuery,
+  AdminProductState,
   HiddenProduct,
   INCOMPLETE_GAPS,
   PRODUCT_FEATURES,
@@ -210,7 +212,8 @@ export class AdminProductsService {
   /**
    * The admin grid (FR-ADM-05): filtered by publication state and category,
    * searched by name or sync key, sorted. Unlike the storefront listing this
-   * shows soft-deleted rows by default — `state` narrows, it does not widen.
+   * shows unpublished rows by default; deleted rows only under their own state
+   * (FR-ADM-22), because they are out of the catalog.
    *
    * Runs in a transaction for the same reason the storefront search does: the
    * trigram threshold is set with `SET LOCAL`, so the matcher's recall cannot
@@ -220,6 +223,7 @@ export class AdminProductsService {
    */
   async listProducts(query: AdminProductListQuery): Promise<{
     items: AdminProductListItem[];
+    deletedMatches?: number;
     pagination: {
       page: number;
       pageSize: number;
@@ -232,22 +236,10 @@ export class AdminProductsService {
     const categoryIds = query.categoryId
       ? await this.categoryScopeIds(query.categoryId, query.categoryScope)
       : undefined;
-    const where = and(
+    // Every narrowing but the state, so the archive can be counted under the
+    // same search when the catalog itself has nothing.
+    const narrowing = and(
       categoryIds ? inArray(products.categoryId, categoryIds) : undefined,
-      // `live` is what the storefront shows: published and not deleted.
-      query.state === 'live'
-        ? and(isNull(products.deletedAt), isNotNull(products.publishedAt))
-        : undefined,
-      query.state === 'unpublished'
-        ? and(isNull(products.deletedAt), isNull(products.publishedAt))
-        : undefined,
-      // Its own state rather than a price filter the caller has to name a
-      // list for: "not priced" is about the default list by definition, since
-      // that is the one publication needs.
-      query.state === 'unpriced'
-        ? and(isNull(products.deletedAt), isNull(resolvedPriceMinor(null)))
-        : undefined,
-      query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
       // The stored state, not the count: the threshold that decides "few left"
       // follows the packaging, and a filter that re-derived it here would go
       // out of step with the badge beside it the first time a box changed size.
@@ -272,6 +264,7 @@ export class AdminProductsService {
       featureCondition(this.db, query.has),
       adminSearchCondition(query.q, this.alternateLayout) ?? undefined,
     );
+    const where = and(stateCondition(query.state), narrowing);
     // Only rank when the box holds something the name matcher could score; a
     // sync-key-only lookup has no meaningful relevance and falls back to name.
     const score = search ? relevanceScore(search) : undefined;
@@ -283,6 +276,12 @@ export class AdminProductsService {
         .select({ value: count() })
         .from(products)
         .where(where);
+      // Only a search can be looking for one product that turns out to be
+      // deleted; a filter alone narrowing to nothing is an answer.
+      const deletedMatches =
+        Number(total) === 0 && query.q.trim() && query.state !== 'deleted'
+          ? await tx.$count(products, and(stateCondition('deleted'), narrowing))
+          : 0;
 
       const rows = await tx
         .select({
@@ -331,6 +330,7 @@ export class AdminProductsService {
           publishedAt: r.publishedAt?.toISOString() ?? null,
           updatedAt: r.updatedAt.toISOString(),
         })),
+        ...(deletedMatches > 0 && { deletedMatches }),
         pagination: {
           page: query.page,
           pageSize,
@@ -1238,6 +1238,25 @@ function isForeignKeyViolation(error: unknown): boolean {
  * always does (FR-ADM-10). Staff accounts are anonymized rather than removed,
  * so the foreign key's `set null` never turns a person's deletion into a run's.
  */
+/**
+ * A publication state as a condition (FR-ADM-05). `all` is the catalog, live
+ * and unpublished; deleted products are only ever their own state, because
+ * they are out of the catalog (FR-ADM-22).
+ */
+function stateCondition(state: AdminProductState): SQL | undefined {
+  switch (state) {
+    case 'all':
+      return isNull(products.deletedAt);
+    // What the storefront shows: published and not deleted.
+    case 'live':
+      return and(isNull(products.deletedAt), isNotNull(products.publishedAt));
+    case 'unpublished':
+      return and(isNull(products.deletedAt), isNull(products.publishedAt));
+    case 'deleted':
+      return isNotNull(products.deletedAt);
+  }
+}
+
 function deletedByRun(row: {
   deletedAt: Date | null;
   deletedBy: string | null;

@@ -366,6 +366,7 @@ const known = (key: string, productCount = 3): AttributeKeyUsage => ({
   key,
   productCount,
   valueCount: 2,
+  deletedProductCount: 0,
   definition: null,
 });
 

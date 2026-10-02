@@ -574,8 +574,12 @@ export const adminTextSchema = z
         state: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
-        stateUnpriced: z.string(),
         stateDeleted: z.string(),
+        /** Under the empty list when a search found nothing in the catalog but
+         * matches deleted products (FR-ADM-22): `{count}`, then the link that
+         * switches to them. */
+        deletedMatches: z.string(),
+        showDeleted: z.string(),
         allCategories: z.string(),
         /** The category filter's option for the products filed in a category
          * itself, not in its subcategories. `{name}` is the category. */
@@ -606,6 +610,7 @@ export const adminTextSchema = z
         missing: z
           .object({
             incomplete: z.string(),
+            price: z.string(),
             picture: z.string(),
             description: z.string(),
             attributes: z.string(),
@@ -626,6 +631,7 @@ export const adminTextSchema = z
         gapsLabel: z.string(),
         gap: z
           .object({
+            price: z.string(),
             picture: z.string(),
             description: z.string(),
             attributes: z.string(),
@@ -649,6 +655,9 @@ export const adminTextSchema = z
         /** The products filed in a category that also has subcategories,
          * leaving theirs out. `{count}` substituted. */
         directProducts: z.string(),
+        /** Beside a category with no live product beneath it, which the
+         * storefront leaves out of its navigation (FR-ADM-19). */
+        notShown: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
         /** The page's way into the whole catalogue's panel (FR-ATTR-12). */
@@ -665,6 +674,9 @@ export const adminTextSchema = z
         deleteTitle: z.string(),
         deleteConfirm: z.string(),
         deleteReassignIntro: z.string(),
+        /** After the intro when some of them are deleted products, which move
+         * too (FR-ADM-22). `{count}` substituted. */
+        deleteReassignDeleted: z.string(),
         reassignLabel: z.string(),
         reassignPlaceholder: z.string(),
         deleteBlockedChildren: z.string(),
@@ -1406,6 +1418,9 @@ export const adminTextSchema = z
         renameTitle: z.string(),
         renameConfirm: z.string(),
         mergeConfirm: z.string(),
+        /** After either, when deleted products carry the text too: they are
+         * rewritten as well (FR-ADM-22). `{count}` substituted. */
+        renameDeleted: z.string(),
         renameError: z.string(),
         empty: z.string(),
       })
@@ -2306,6 +2321,9 @@ export const adminTextSchema = z
         fieldLockedShort: z.string(),
         /** The delete dialog, where reassigning would move products. */
         categoryHasProducts: z.string(),
+        /** The same, where only deleted products are left in it, which no run
+         * will move (FR-ADM-22). `{count}` substituted. */
+        categoryHasDeletedProducts: z.string(),
         /** Restore on a product a run deleted while the catalog is owned: only
          * a run brings it back (FR-ADM-10). */
         productRestoreTitle: z.string(),

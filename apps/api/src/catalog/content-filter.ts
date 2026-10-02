@@ -1,6 +1,7 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq, exists, isNull, not, or, SQL, sql } from 'drizzle-orm';
 import {
+  INCOMPLETE_GAPS,
   IncompleteGap,
   PRODUCT_FEATURES,
   ProductFeature,
@@ -14,6 +15,7 @@ import {
   productPairings,
   products,
 } from '../db/schema';
+import { resolvedPriceMinor } from './product-price';
 
 type Db = NodePgDatabase<typeof schema>;
 
@@ -23,10 +25,13 @@ type Db = NodePgDatabase<typeof schema>;
  * can name the ones it has from the same expressions.
  *
  * A description counts as missing when nothing but markup is left: the editor
- * can save an empty paragraph, which is no description to a reader.
+ * can save an empty paragraph, which is no description to a reader. A price is
+ * the default list's, the one publication needs.
  */
 export function gapCondition(db: Db, gap: ProductGap): SQL {
   switch (gap) {
+    case 'price':
+      return isNull(resolvedPriceMinor(null));
     case 'picture':
       return sql`${products.images} = '[]'::jsonb`;
     case 'description':
@@ -57,25 +62,19 @@ export function missingCondition(
   return and(...missing.map((entry) => missingEntry(db, entry)));
 }
 
-/** One entry: a gap, or `incomplete` for any of the three. */
+/** One entry: a gap, or `incomplete` for any of the four. */
 function missingEntry(db: Db, missing: ProductGapFilter): SQL | undefined {
   if (missing !== 'incomplete') return gapCondition(db, missing);
-  return or(
-    gapCondition(db, 'picture'),
-    gapCondition(db, 'description'),
-    gapCondition(db, 'attributes'),
-  );
+  return or(...INCOMPLETE_GAPS.map((gap) => gapCondition(db, gap)));
 }
 
 /** The select-list form: one boolean column per gap a row names. */
 export function incompleteGapColumns(
   db: Db,
 ): Record<IncompleteGap, SQL<boolean>> {
-  return {
-    picture: gapCondition(db, 'picture') as SQL<boolean>,
-    description: gapCondition(db, 'description') as SQL<boolean>,
-    attributes: gapCondition(db, 'attributes') as SQL<boolean>,
-  };
+  return Object.fromEntries(
+    INCOMPLETE_GAPS.map((gap) => [gap, gapCondition(db, gap) as SQL<boolean>]),
+  ) as Record<IncompleteGap, SQL<boolean>>;
 }
 
 /** The filter form of the other half: every feature asked for must hold. */

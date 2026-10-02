@@ -5,12 +5,14 @@
  */
 
 /**
- * The gaps. The first three make a product incomplete: every product page
- * needs a picture, a description and an attribute. Packaging and box facts
+ * The gaps. The first four make a product incomplete: every product page
+ * shows a price, a picture, a description and an attribute, and an unpriced
+ * product cannot even be published. Packaging and box facts
  * are gaps only for goods sold by the pack or box, and a product sold by the
  * piece rightly has neither, so they can be asked about but never count.
  */
 export const PRODUCT_GAPS = [
+  'price',
   'picture',
   'description',
   'attributes',
@@ -21,13 +23,14 @@ export type ProductGap = (typeof PRODUCT_GAPS)[number];
 
 /** The gaps that make a product incomplete, and the ones a row names. */
 export const INCOMPLETE_GAPS = [
+  'price',
   'picture',
   'description',
   'attributes',
 ] as const satisfies readonly ProductGap[];
 export type IncompleteGap = (typeof INCOMPLETE_GAPS)[number];
 
-/** A gap filter's values: one gap, or `incomplete` for any of the three. */
+/** A gap filter's values: one gap, or `incomplete` for any of the four. */
 export const PRODUCT_GAP_FILTERS = [...PRODUCT_GAPS, 'incomplete'] as const;
 export type ProductGapFilter = (typeof PRODUCT_GAP_FILTERS)[number];
 

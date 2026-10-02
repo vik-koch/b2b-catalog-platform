@@ -12,7 +12,13 @@ const usage = (
   key: string,
   productCount: number,
   definition: AttributeKeyUsage['definition'] = null,
-): AttributeKeyUsage => ({ key, productCount, valueCount: 1, definition });
+): AttributeKeyUsage => ({
+  key,
+  productCount,
+  valueCount: 1,
+  deletedProductCount: 0,
+  definition,
+});
 
 const definition = (
   name: string,

@@ -1,6 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, desc, eq, inArray, notInArray } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, notInArray } from 'drizzle-orm';
 import {
   DocumentDetail,
   DocumentInput,
@@ -171,11 +171,23 @@ export class DocumentsService {
    * a hand-written subquery: inside an `sql` template drizzle emits column
    * names unqualified, so the outer `documents.id` would silently bind to
    * `document_products.documentId`'s table instead.
+   *
+   * Deleted products are out of the catalog, so out of the count (FR-ADM-22);
+   * their links stay, and the editor lists them marked.
    */
   private productCount() {
     return this.db.$count(
       documentProducts,
-      eq(documentProducts.documentId, documents.id),
+      and(
+        eq(documentProducts.documentId, documents.id),
+        inArray(
+          documentProducts.productId,
+          this.db
+            .select({ id: products.id })
+            .from(products)
+            .where(isNull(products.deletedAt)),
+        ),
+      ),
     );
   }
 

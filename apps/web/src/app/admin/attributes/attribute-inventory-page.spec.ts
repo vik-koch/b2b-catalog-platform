@@ -23,6 +23,7 @@ function key(overrides: Partial<AttributeKeyUsage> = {}): AttributeKeyUsage {
     key: 'Colour',
     productCount: 4,
     valueCount: 2,
+    deletedProductCount: 0,
     definition: null,
     ...overrides,
   };
@@ -31,7 +32,13 @@ function key(overrides: Partial<AttributeKeyUsage> = {}): AttributeKeyUsage {
 function value(
   overrides: Partial<AttributeValueUsage> = {},
 ): AttributeValueUsage {
-  return { value: 'Blue', productCount: 3, numeric: false, ...overrides };
+  return {
+    value: 'Blue',
+    productCount: 3,
+    deletedProductCount: 0,
+    numeric: false,
+    ...overrides,
+  };
 }
 
 async function render(
@@ -286,6 +293,29 @@ describe('AttributeInventoryPage', () => {
       from: 'Lenght',
       to: 'Length',
     });
+  });
+
+  // Deleted products are counted nowhere, but a rename rewrites them, so the
+  // confirmation names them (FR-ADM-22).
+  it('says a rename also rewrites the deleted products carrying it', async () => {
+    const { confirm, press, type, submit } = await render({
+      keys: [key({ key: 'Lenght', deletedProductCount: 2 })],
+    });
+
+    await press(text.renameKey);
+    await type('Length');
+    await submit();
+
+    expect(confirm.ask).toHaveBeenCalledWith(
+      expect.objectContaining({
+        message:
+          text.renameConfirm
+            .replace('{from}', 'Lenght')
+            .replace('{to}', 'Length') +
+          ' ' +
+          text.renameDeleted.replace('{count}', '2'),
+      }),
+    );
   });
 
   it('warns that renaming onto an existing key merges the two', async () => {

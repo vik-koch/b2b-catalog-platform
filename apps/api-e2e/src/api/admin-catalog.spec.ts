@@ -59,8 +59,10 @@ const PRODUCT_KEYS = [
 ];
 const CATEGORY_KEYS = [
   'childCount',
+  'deletedProductCount',
   'directProductCount',
   'id',
+  'liveProductCount',
   'mark',
   'name',
   'parentId',
@@ -492,7 +494,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(adminRead.data.deletedAt).not.toBeNull();
 
       const list = await adminGet(
-        `/admin/catalog/products?categoryId=${parentId}`,
+        `/admin/catalog/products?categoryId=${parentId}&state=deleted`,
       );
       expect(list.data.pagination.pageSize).toBe(ADMIN_CATALOG_PAGE_SIZE);
       const listed = list.data.items.find(
@@ -659,6 +661,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
    */
   describe('GET /admin/catalog/products (FR-ADM-05)', () => {
     let liveSlug: string;
+    let unpublishedSlug: string;
     let deletedSlug: string;
     let gridCategoryId: string;
 
@@ -669,6 +672,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(res.status).toBe(200);
       return res.data as {
         items: { slug: string; name: string; sourceId: string }[];
+        deletedMatches?: number;
         pagination: { total: number };
       };
     };
@@ -695,17 +699,50 @@ describe('Admin catalog (FR-ADM-01)', () => {
       });
       deletedSlug = deleted.data.slug;
       await del(`/admin/catalog/products/${deletedSlug}`);
+
+      // Created last, so it is the most recently touched row the default view
+      // shows; and it gives that view a second row to sort.
+      const unpublished = await createProduct({
+        name: `Grid Lungo Roast ${R}`,
+        categoryId: gridCategoryId,
+        priceMinor: 700,
+        sourceId: `grid:${R}-DRAFT/3`,
+      });
+      unpublishedSlug = unpublished.data.slug;
     });
 
-    it('shows both live and soft-deleted rows by default', async () => {
-      const body = await grid('state=all');
-      expect(body.items.map((i) => i.slug).sort()).toEqual(
-        [liveSlug, deletedSlug].sort(),
+    // Deleted products are out of the catalog, so only their own state shows
+    // them (FR-ADM-22).
+    it('leaves deleted rows out of the default view', async () => {
+      for (const params of ['', 'state=all']) {
+        const body = await grid(params);
+        expect(body.items.map((i) => i.slug).sort()).toEqual(
+          [liveSlug, unpublishedSlug].sort(),
+        );
+      }
+    });
+
+    it('says how many deleted products a search finds nothing else for', async () => {
+      const body = await grid('q=filter blend');
+      expect(body.items).toEqual([]);
+      expect(body.deletedMatches).toBe(1);
+
+      // In the archive itself, or where the catalog matched, there is
+      // nothing to point to.
+      expect((await grid('q=filter blend&state=deleted')).deletedMatches).toBe(
+        undefined,
       );
+      expect((await grid('q=esspreso')).deletedMatches).toBe(undefined);
+    });
+
+    it('no longer reads unpriced as a state', async () => {
+      const res = await adminGet(`/admin/catalog/products?state=unpriced`);
+      expect(res.status).toBe(400);
     });
 
     it.each([
       ['live', () => liveSlug, () => deletedSlug],
+      ['unpublished', () => unpublishedSlug, () => liveSlug],
       ['deleted', () => deletedSlug, () => liveSlug],
     ])('filters to %s only', async (state, wanted, excluded) => {
       const body = await grid(`state=${state}`);
@@ -714,7 +751,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(body.pagination.total).toBe(1);
     });
 
-    it('searches by name, typo included, across the delete state', async () => {
+    it('searches by name, typo included', async () => {
       // "esspreso" is a misspelling — the fuzzy half has to carry it.
       const body = await grid('q=esspreso');
       expect(body.items.map((i) => i.slug)).toEqual([liveSlug]);
@@ -728,8 +765,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
     it('searches by the private sync key, punctuation and all', async () => {
       // A key fragment the name half cannot match on any term — the point is
       // that the slashes and the case survive to reach the sourceId.
-      const body = await grid(`q=${encodeURIComponent('GONE/2')}`);
-      expect(body.items.map((i) => i.slug)).toEqual([deletedSlug]);
+      const body = await grid(`q=${encodeURIComponent('DRAFT/3')}`);
+      expect(body.items.map((i) => i.slug)).toEqual([unpublishedSlug]);
     });
 
     it('combines the search box with the state filter', async () => {
@@ -739,23 +776,22 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it.each([
-      ['price', ['Espresso', 'Filter']],
-      ['price_desc', ['Filter', 'Espresso']],
-      ['name', ['Espresso', 'Filter']],
-      ['name_desc', ['Filter', 'Espresso']],
+      ['price', ['Espresso', 'Lungo']],
+      ['price_desc', ['Lungo', 'Espresso']],
+      ['name', ['Espresso', 'Lungo']],
+      ['name_desc', ['Lungo', 'Espresso']],
     ])('sorts by %s', async (sort, expected) => {
       const body = await grid(`sort=${sort}`);
       expect(
         body.items.map((i) =>
-          i.name.includes('Espresso') ? 'Espresso' : 'Filter',
+          i.name.includes('Espresso') ? 'Espresso' : 'Lungo',
         ),
       ).toEqual(expected);
     });
 
     it('sorts by recency, most recently updated first', async () => {
-      // The deleted row was touched last (the delete moved its updatedAt).
       const body = await grid('sort=updated_desc');
-      expect(body.items[0].slug).toBe(deletedSlug);
+      expect(body.items[0].slug).toBe(unpublishedSlug);
       const oldest = await grid('sort=updated');
       expect(oldest.items[0].slug).toBe(liveSlug);
     });
@@ -771,16 +807,16 @@ describe('Admin catalog (FR-ADM-01)', () => {
         scoped.pagination.total,
       );
       for (const item of scoped.items) {
-        expect([liveSlug, deletedSlug]).toContain(item.slug);
+        expect([liveSlug, unpublishedSlug]).toContain(item.slug);
       }
     });
   });
 
   /**
    * A category counts and filters its subtree (FR-ADM-19). A parent of this
-   * suite's own with one product filed in it and two in its child — one of
-   * them deleted, since the grid lists deleted rows and the count describes
-   * the grid.
+   * suite's own with one product filed in it and three in its child: one live,
+   * one unpublished and one deleted, which the count leaves out like the grid
+   * does (FR-ADM-22).
    */
   describe('a category counts its subtree (FR-ADM-19)', () => {
     let parent: string;
@@ -808,6 +844,11 @@ describe('Admin catalog (FR-ADM-01)', () => {
         })
       ).data.slug;
       await createProduct({ name: `Filed In Leaf ${R}`, categoryId: child });
+      const live = await createProduct({
+        name: `Live In Leaf ${R}`,
+        categoryId: child,
+      });
+      await publishProduct(live.data.slug);
       const gone = await createProduct({
         name: `Deleted In Leaf ${R}`,
         categoryId: child,
@@ -830,12 +871,16 @@ describe('Admin catalog (FR-ADM-01)', () => {
       );
       expect(byId.get(parent)).toMatchObject({
         productCount: 3,
+        liveProductCount: 1,
         directProductCount: 1,
+        deletedProductCount: 0,
         childCount: 1,
       });
       expect(byId.get(child)).toMatchObject({
         productCount: 2,
+        liveProductCount: 1,
         directProductCount: 2,
+        deletedProductCount: 1,
         childCount: 0,
       });
       // The subtree reaches all the way up, not just one level.
@@ -992,6 +1037,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       const bare = await createProduct({
         name: `Content bare ${R}`,
         categoryId: contentCategoryId,
+        priceMinor: null,
       });
       // An empty paragraph is what the editor saves for a cleared box, and
       // reads as no description.
@@ -1020,6 +1066,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       const gaps = Object.fromEntries(rows.map((r) => [r.slug, r.gaps]));
 
       expect(gaps[slugs['bare']]).toEqual([
+        'price',
         'picture',
         'description',
         'attributes',
@@ -1028,7 +1075,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(gaps[slugs['complete']]).toEqual([]);
     });
 
-    it('reads incomplete as any of the three gaps', async () => {
+    it('reads incomplete as any of the four gaps', async () => {
       expect(slugsOf(await byContent('missing=incomplete'))).toEqual(
         [slugs['bare'], slugs['emptyText']].sort(),
       );
@@ -1036,6 +1083,10 @@ describe('Admin catalog (FR-ADM-01)', () => {
 
     it('narrows to one gap', async () => {
       expect(slugsOf(await byContent('missing=picture'))).toEqual([
+        slugs['bare'],
+      ]);
+      // A price is a gap like the others (FR-ADM-20).
+      expect(slugsOf(await byContent('missing=price'))).toEqual([
         slugs['bare'],
       ]);
     });
@@ -1063,7 +1114,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it('refuses a gap that is not one of them', async () => {
-      const res = await adminGet(`/admin/catalog/products?missing=price`);
+      const res = await adminGet(`/admin/catalog/products?missing=stock`);
 
       expect(res.status).toBe(400);
     });
@@ -1928,6 +1979,30 @@ describe('Admin catalog (FR-ADM-01)', () => {
         (c: { id: string }) => c.id === cat.data.id,
       );
       expect(mine.productCount).toBe(1);
+    });
+
+    it('counts a category holding only deleted products as empty, and still refuses its delete', async () => {
+      const cat = await createCategory({ name: `Only deleted ${R}` });
+      const gone = await createProduct({
+        name: `Only deleted product ${R}`,
+        categoryId: cat.data.id,
+      });
+      await del(`/admin/catalog/products/${gone.data.slug}`);
+
+      const list = await adminGet('/admin/catalog/categories');
+      const mine = list.data.categories.find(
+        (c: { id: string }) => c.id === cat.data.id,
+      );
+      expect(mine).toMatchObject({
+        productCount: 0,
+        directProductCount: 0,
+        deletedProductCount: 1,
+      });
+
+      // The deleted product still holds the foreign key (FR-ADM-22).
+      const res = await del(`/admin/catalog/categories/${cat.data.id}`);
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('category-has-products');
     });
 
     it('refuses to delete a category that still has products (409)', async () => {

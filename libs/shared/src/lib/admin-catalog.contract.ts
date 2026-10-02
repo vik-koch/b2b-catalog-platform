@@ -469,19 +469,17 @@ export const productPageSchema = z
 export type ProductPage = z.infer<typeof productPageSchema>;
 
 /**
- * Which publication states the grid shows (FR-ADM-05). `all` is the default —
- * the admin sees the whole catalog, soft-deleted rows included and greyed out —
- * with the rest as narrowing filters rather than the storefront's implicit
- * "live only". `live` means on the storefront: published and not deleted.
- * `unpublished` is the review queue a sync fills (FR-ADM-06), and `unpriced`
- * the narrower queue inside it: products no price list prices, which nobody
- * can publish until somebody prices them.
+ * Which publication states the grid shows (FR-ADM-05). `all` is the default:
+ * the catalog, live and unpublished, rather than the storefront's implicit
+ * "live only". `live` means on the storefront, and `unpublished` is the review
+ * queue a sync fills (FR-ADM-06). `deleted` is the archive (FR-ADM-22): out of
+ * the catalog, so never part of `all`, and the one place deleted rows appear.
+ * An unpriced product is a content gap, not a state (FR-ADM-20).
  */
 export const adminProductStateSchema = z.enum([
   'all',
   'live',
   'unpublished',
-  'unpriced',
   'deleted',
 ]);
 export type AdminProductState = z.infer<typeof adminProductStateSchema>;
@@ -599,7 +597,7 @@ export const adminProductListQuerySchema = z.object({
   documentId: z.uuid().optional(),
   /**
    * What the product's own content lacks (FR-ADM-20), each entry one gap or
-   * `incomplete` for any of the three every product page needs. Several
+   * `incomplete` for any of the four every product page needs. Several
    * entries must all hold, and so must `has` beside them: "featured, without
    * a picture" is one question.
    */
@@ -629,13 +627,19 @@ export const adminCategorySchema = z
     shortName: z.string().nullable(),
     /** The chip mark (FR-CAT-07). */
     mark: catalogImageSchema.nullable(),
-    /** Everything beneath it, subcategories included — what the storefront
-     * listing shows under it (FR-ADM-19). Soft-deleted products count: this is
-     * the population the admin grid filtered by the category lists. */
+    /** Everything beneath it, subcategories included (FR-ADM-19), live and
+     * unpublished: the population the admin grid filtered by the category
+     * lists. Deleted products are out of the catalog (FR-ADM-22). */
     productCount: z.number().int().nonnegative(),
-    /** Only the products filed in it. With `childCount`, what the delete guard
-     * reads — a category with either cannot be removed (FK is `restrict`). */
+    /** Of `productCount`, the ones on the storefront. None means the
+     * storefront leaves the category out of its navigation. */
+    liveProductCount: z.number().int().nonnegative(),
+    /** Only the products filed in it, live and unpublished. */
     directProductCount: z.number().int().nonnegative(),
+    /** The deleted products filed in it. Counted nowhere else, but they hold
+     * the foreign key, so with `directProductCount` and `childCount` this is
+     * what the delete guard reads (FK is `restrict`). */
+    deletedProductCount: z.number().int().nonnegative(),
     childCount: z.number().int().nonnegative(),
   })
   .strict();
@@ -813,13 +817,20 @@ export const adminCatalogContract = {
       method: 'GET',
       path: '/admin/catalog/products',
       inputStructure: 'detailed',
-      summary: 'List products for the admin grid (includes soft-deleted)',
+      summary: 'List products for the admin grid',
     })
     .input(z.object({ query: adminProductListQuerySchema }))
     .output(
       z
         .object({
           items: z.array(adminProductListItemSchema),
+          /**
+           * Set only when nothing matched a search outside the archive: how
+           * many deleted products the same search and filters do match
+           * (FR-ADM-22). A product looked up by name would otherwise seem
+           * not to exist.
+           */
+          deletedMatches: z.number().int().positive().optional(),
           pagination: z
             .object({
               page: z.number().int().positive(),

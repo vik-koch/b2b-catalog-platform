@@ -28,8 +28,8 @@ import { categoryDescendantIds } from './category-tree';
  * of the public bundle — and figures out for itself what the delete needs:
  * loads the categories to read this one's counts, then shows
  *  - a hard block if it has subcategories (resolve the subtree first),
- *  - a destination picker to move its products (incl. soft-deleted) if it has
- *    any (the reassign-then-delete flow), or
+ *  - a destination picker to move its products if it has any, deleted ones
+ *    included, which still hold it (the reassign-then-delete flow), or
  *  - a plain confirm when it is empty.
  * A native `<dialog>` in modal mode (as `ProductDeleteDialog`). Emits `deleted`
  * or `cancelled`; it never navigates itself.
@@ -63,9 +63,12 @@ import { categoryDescendantIds } from './category-tree';
       } @else if (mode() === 'blocked-children') {
         <p class="mt-3 text-muted">{{ blockedChildrenMessage() }}</p>
       } @else if (mode() === 'blocked-owned') {
-        <p class="mt-3 text-muted">{{ ownershipText.categoryHasProducts }}</p>
+        <p class="mt-3 text-muted">{{ ownedMessage() }}</p>
       } @else if (mode() === 'reassign') {
         <p class="mt-3 text-muted">{{ reassignIntro() }}</p>
+        @if (self()?.deletedProductCount; as deleted) {
+          <p class="mt-2 text-muted">{{ reassignDeleted(deleted) }}</p>
+        }
         <div class="mt-4">
           <span appFieldLabel>{{ text.reassignLabel }}</span>
           <app-category-picker
@@ -130,7 +133,7 @@ export class CategoryDeleteDialog {
   readonly cancelled = output<void>();
 
   private readonly all = signal<AdminCategory[]>([]);
-  private readonly self = signal<AdminCategory | null>(null);
+  protected readonly self = signal<AdminCategory | null>(null);
   private readonly loading = signal(true);
   protected readonly deleting = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -143,8 +146,9 @@ export class CategoryDeleteDialog {
     const self = this.self();
     if (!self || self.childCount > 0) return 'blocked-children';
     // What it holds itself, not beneath it: a category with children never
-    // gets this far, and the foreign key only counts its own products.
-    if (self.directProductCount > 0) {
+    // gets this far, and the foreign key only counts its own products —
+    // deleted ones included, which no count elsewhere shows (FR-ADM-22).
+    if (heldBy(self) > 0) {
       // Reassigning moves every product's category, which is the exchange's
       // field. An *empty* category still deletes — that writes nothing it
       // owns — so this blocks rather than replacing the whole flow.
@@ -192,9 +196,27 @@ export class CategoryDeleteDialog {
   }
 
   protected reassignIntro(): string {
+    const self = this.self();
     return this.text.deleteReassignIntro
       .replace('{name}', this.name())
-      .replace('{count}', String(this.self()?.directProductCount ?? 0));
+      .replace('{count}', String(self ? heldBy(self) : 0));
+  }
+
+  protected reassignDeleted(count: number): string {
+    return this.text.deleteReassignDeleted.replace('{count}', String(count));
+  }
+
+  /** Only deleted products left is its own sentence: emptying it in the
+   * source system, which the general one advises, has already happened. */
+  protected ownedMessage(): string {
+    const self = this.self();
+    if (!self || self.directProductCount > 0) {
+      return this.ownershipText.categoryHasProducts;
+    }
+    return this.ownershipText.categoryHasDeletedProducts.replace(
+      '{count}',
+      String(self.deletedProductCount),
+    );
   }
 
   protected async confirm(): Promise<void> {
@@ -216,4 +238,9 @@ export class CategoryDeleteDialog {
     }
     this.deleting.set(false);
   }
+}
+
+/** The products filed in a category, deleted ones included: what holds it. */
+function heldBy(category: AdminCategory): number {
+  return category.directProductCount + category.deletedProductCount;
 }

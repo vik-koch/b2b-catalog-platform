@@ -231,8 +231,12 @@ const EDGE_SLACK = 24;
                            The name is the way to the shelf it heads, the way
                            every other admin list makes its title the link to
                            the thing itself. -->
+                      <!-- Greyed like a deleted product where the storefront
+                           leaves it out, because nothing beneath it is live
+                           (FR-ADM-19); the words in its meta say so too. -->
                       <a
                         class="break-words font-medium text-stone-700 hover:text-accent"
+                        [class.opacity-50]="!node.category.liveProductCount"
                         [routerLink]="['/catalog', node.category.slug]"
                         [title]="text.seeProducts"
                       >
@@ -279,6 +283,9 @@ const EDGE_SLACK = 24;
                               )
                             }}
                           </a>
+                        }
+                        @if (!node.category.liveProductCount) {
+                          <span class="text-subtle">{{ text.notShown }}</span>
                         }
                       </ng-container>
                       <ng-container recordActions>

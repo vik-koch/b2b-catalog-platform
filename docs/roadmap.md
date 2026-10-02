@@ -773,5 +773,18 @@ Notes:
   which a run sets to empty. Deleting permanently is for mistakes, such as a test product
   or an item exported from an internal group. It is refused for anything ever ordered, and
   under ownership for anything the source still sends, which would only come back as new.
-  An admin can open a hidden product's page, which says why it is hidden and offers the
-  action that undoes it.
+  An admin can open a hidden product's page, which shows beside its name why it is hidden.
+  Deleting and restoring stay in the admin product list, never on a storefront page.
+- **Deleted products are kept apart**
+  ([FR-ADM-22](requirements.md#fr-adm-22), [FR-ADM-05](requirements.md#fr-adm-05)/[19](requirements.md#fr-adm-19)/[20](requirements.md#fr-adm-20) amended)
+  (planned 2026-10-01). Deleted products still counted everywhere, so "how many lack a
+  picture" or "products in this category" included things that are not in the catalog.
+  Deleted is now an archive rather than a state among states. The list's state filter
+  reads all, live, unpublished and deleted, where "all" means live plus unpublished, and
+  choosing "deleted" is the archive view: no separate switch, and every other filter works
+  inside it. A missing price leaves the states and becomes a gap beside a missing picture,
+  description or attribute, and it counts toward incomplete. It only ever split
+  "unpublished" in two, since an unpriced product cannot be published. Counts leave
+  deleted products out, but an attribute rename still rewrites them, so a restored
+  product carries the current name. A category with no live product beneath it is dimmed
+  in the admin list, because the storefront already leaves it out.

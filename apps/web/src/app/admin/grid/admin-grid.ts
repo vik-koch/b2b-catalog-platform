@@ -282,6 +282,8 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
 
     @if (rows().length === 0) {
       <p class="mt-6 text-muted">{{ emptyMessage() }}</p>
+      <!-- What the page knows beyond "nothing", such as where else to look. -->
+      <ng-content select="[gridEmpty]" />
     }
   `,
 })
