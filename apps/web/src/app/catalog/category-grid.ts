@@ -545,9 +545,9 @@ interface Listing {
         @if (editMode.enabled() && slug(); as categorySlug) {
           <app-hidden-products-section
             [categorySlug]="categorySlug"
-            [reloadToken]="deletedReload()"
-            (loaded)="deletedReady.set(true)"
-            (restored)="onProductRestored()"
+            [reloadToken]="hiddenReload()"
+            (loaded)="hiddenReady.set(true)"
+            (published)="onProductPublished()"
           />
         }
       }
@@ -683,13 +683,11 @@ export class CategoryGrid {
     return `${SUBS_LIST} ${SUBS_CLIP}${move} ${cap}`;
   });
   protected readonly subsToggleClass = SUBS_TOGGLE;
-  /** The product whose delete confirmation is open, if any. */
-  /** The category (this page's own) whose delete confirmation is open. */
-  /** Bumped to re-fetch the edit-mode "Deleted" overlay after a delete/restore. */
-  protected readonly deletedReload = signal(0);
-  /** True once the deleted-products overlay has loaded for the current edit-mode
+  /** Bumped to re-fetch the edit-mode unpublished overlay after a publish. */
+  protected readonly hiddenReload = signal(0);
+  /** True once the unpublished overlay has loaded for the current edit-mode
    * session; re-armed whenever edit mode turns off. */
-  protected readonly deletedReady = signal(false);
+  protected readonly hiddenReady = signal(false);
 
   protected products = resource({
     params: () => ({
@@ -717,7 +715,7 @@ export class CategoryGrid {
     ready: computed(() => this.shown() !== undefined),
     section: 'editMode',
     // The catalogue has no "not on the storefront" overlay to wait for.
-    alsoWaitFor: computed(() => !this.slug() || this.deletedReady()),
+    alsoWaitFor: computed(() => !this.slug() || this.hiddenReady()),
   });
   protected readonly ready = this.content.ready;
   protected readonly editControls = this.content.controls;
@@ -769,7 +767,7 @@ export class CategoryGrid {
     // Re-arm the gate each time edit mode turns off, so re-entering waits for a
     // fresh overlay load rather than showing the controls from the last session.
     effect(() => {
-      if (!this.editMode.enabled()) this.deletedReady.set(false);
+      if (!this.editMode.enabled()) this.hiddenReady.set(false);
     });
 
     // How many chips fit is a width question, so it is re-asked whenever the
@@ -789,10 +787,10 @@ export class CategoryGrid {
     }
   }
 
-  /** A product was restored from the overlay — it returns to the live grid. */
-  protected onProductRestored(): void {
+  /** A product was published from the overlay — it joins the live grid. */
+  protected onProductPublished(): void {
     this.products.reload();
-    this.deletedReload.update((v) => v + 1);
+    this.hiddenReload.update((v) => v + 1);
   }
 
   /** Whether to offer the show-more toggle for `count` chips. */

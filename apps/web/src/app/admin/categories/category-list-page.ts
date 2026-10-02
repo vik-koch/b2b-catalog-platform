@@ -33,6 +33,7 @@ import { Link } from '../../ui/link';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
 import { RecordRow } from '../records/record-row';
+import { UnpublishedCount } from '../products/unpublished-count';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 import {
   CategoryDropTarget,
@@ -92,6 +93,7 @@ const EDGE_SLACK = 24;
     CdkDrag,
     CdkDragHandle,
     Skeleton,
+    UnpublishedCount,
   ],
   styles: `
     /* Both of these are the CDK's clone of the row, so they carry its exact
@@ -257,6 +259,13 @@ const EDGE_SLACK = 24;
                           >
                             {{ productsLabel(node.category.productCount) }}
                           </a>
+                          <app-unpublished-count
+                            [count]="
+                              node.category.productCount -
+                              node.category.liveProductCount
+                            "
+                            [query]="{ categoryId: node.category.id }"
+                          />
                         } @else {
                           <span>{{ text.noProducts }}</span>
                         }

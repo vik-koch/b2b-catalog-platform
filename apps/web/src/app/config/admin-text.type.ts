@@ -62,6 +62,9 @@ export const adminTextSchema = z
         edit: z.string(),
         done: z.string(),
         remove: z.string(),
+        /** Beside a product count, how many of those are not on the
+         * storefront: "{count} unpublished". Shown only above zero. */
+        unpublishedProducts: z.string(),
         restore: z.string(),
         reorder: z.string(),
         uploading: z.string(),

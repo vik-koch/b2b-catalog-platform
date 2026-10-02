@@ -12,6 +12,7 @@
     "edit": "Edit",
     "done": "Done",
     "remove": "Remove",
+    "unpublishedProducts": "{count} unpublished",
     "restore": "Restore",
     "reorder": "Drag to reorder",
     "uploading": "Uploading…",
@@ -98,7 +99,7 @@
     "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
     "unpublishStranded": "It is the last product on sale that these are paired with, so they will be on sale with no counterpart: {names}.",
     "cancel": "Cancel",
-    "revealError": "Could not bring this product back. Please try again."
+    "revealError": "Could not publish this product. Please try again."
   },
   "pageEditor": {
     "edit": "Edit page",
