@@ -43,6 +43,8 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
   const HEIGHT = nameFor('Height');
   const DOOMED = nameFor('Doomed');
   const SIZES = nameFor('Size');
+  /** Carried only by a deleted product, so out of the catalog with it. */
+  const GHOST = nameFor('Ghost');
   const DRILL = nameFor('Drill');
   let categoryId = '';
   /** A subcategory, so inheritance has somewhere to be inherited from. */
@@ -160,8 +162,8 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
     ]);
     await addProduct('drill-2', [{ key: DRILL, value: 'other' }]);
     // Three products carry Width: one numeric value, one that reads as text
-    // ("ca. 30"), and a soft-deleted one — which counts, because a rename
-    // rewrites it and the admin grid shows it.
+    // ("ca. 30"), and a deleted one — which no count includes (FR-ADM-22),
+    // though a rename still rewrites it.
     await addProduct('a', [
       { key: WIDTH, value: '30', numeric: 30 },
       // Two keys no definition holds yet, for the rename and the delete.
@@ -169,9 +171,14 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       { key: DOOMED, value: 'x' },
     ]);
     await addProduct('b', [{ key: WIDTH, value: 'ca. 30' }]);
-    await addProduct('gone', [{ key: WIDTH, value: '99', numeric: 99 }], {
-      deleted: true,
-    });
+    await addProduct(
+      'gone',
+      [
+        { key: WIDTH, value: '99', numeric: 99 },
+        { key: GHOST, value: 'boo' },
+      ],
+      { deleted: true },
+    );
 
     adminCookie = await loginAs(ADMIN_EMAIL);
     managerCookie = await loginAs(MANAGER_EMAIL);
@@ -240,12 +247,12 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       });
 
       expect(res.status).toBe(201);
-      // All three, the soft-deleted one included: these counts describe the
-      // catalog as stored, which is the set a rename rewrites and the set the
-      // drill-down lands on. "ca. 30" is a value like any other, and reported
-      // as the one with no numeric form.
-      expect(res.data.productCount).toBe(3);
-      expect(res.data.valueCount).toBe(3);
+      // Two of the three: the deleted one is out of the catalog, and these
+      // counts describe the set the drill-down lands on (FR-ADM-22). "ca. 30"
+      // is a value like any other, and reported as the one with no numeric
+      // form.
+      expect(res.data.productCount).toBe(2);
+      expect(res.data.valueCount).toBe(2);
       expect(res.data.unparsedCount).toBe(1);
     });
 
@@ -422,12 +429,20 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       expect([...keys]).toEqual([...keys].sort());
     });
 
+    it('leaves out a key only deleted products carry', async () => {
+      const res = await get('/admin/attributes/inventory');
+      const keys = res.data.keys.map((k: { key: string }) => k.key);
+      expect(keys).not.toContain(GHOST);
+    });
+
     it('reports the definition a key matches, with its type', async () => {
       const res = await get('/admin/attributes/inventory');
       const entry = res.data.keys.find((k: { key: string }) => k.key === WIDTH);
 
-      expect(entry.productCount).toBe(3);
-      expect(entry.valueCount).toBe(3);
+      // The deleted product is counted apart, for the rename to name.
+      expect(entry.productCount).toBe(2);
+      expect(entry.valueCount).toBe(2);
+      expect(entry.deletedProductCount).toBe(1);
       expect(entry.definition).toEqual({
         id: expect.any(String),
         type: 'number',
@@ -449,14 +464,34 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       // 9 before 100 — a list of sizes ordered as text is unusable — and the
       // unparseable one last.
       expect(res.data.values).toEqual([
-        { value: '9', productCount: 1, numeric: true },
-        { value: '100', productCount: 1, numeric: true },
-        { value: 'ca. 30', productCount: 1, numeric: false },
+        { value: '9', productCount: 1, deletedProductCount: 0, numeric: true },
+        {
+          value: '100',
+          productCount: 1,
+          deletedProductCount: 0,
+          numeric: true,
+        },
+        {
+          value: 'ca. 30',
+          productCount: 1,
+          deletedProductCount: 0,
+          numeric: false,
+        },
       ]);
       expect(product).toEqual(expect.any(String));
     });
 
-    it('renames a key across every product, deleted ones included', async () => {
+    it('renames a key on deleted products too, though it lists none', async () => {
+      const res = await post('/admin/attributes/inventory/rename-key', {
+        from: GHOST,
+        to: `${GHOST} fixed`,
+      });
+
+      // A restored product must carry the spelling the catalog moved to.
+      expect(res.data.updated).toBe(1);
+    });
+
+    it('renames a key across every product', async () => {
       const res = await post('/admin/attributes/inventory/rename-key', {
         from: HEIGHT,
         to: `${HEIGHT} fixed`,
@@ -485,10 +520,10 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       const entry = (await get('/admin/attributes/inventory')).data.keys.find(
         (k: { key: string }) => k.key === WIDTH,
       );
-      // The merged product joins the three that already carried the key, and
+      // The merged product joins the two that already carried the key, and
       // its "30" is a value one of them had, so the value count holds.
-      expect(entry.productCount).toBe(4);
-      expect(entry.valueCount).toBe(3);
+      expect(entry.productCount).toBe(3);
+      expect(entry.valueCount).toBe(2);
     });
 
     it('re-parses a renamed value, so a corrected number rejoins the filter', async () => {

@@ -5,7 +5,17 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, asc, countDistinct, eq, inArray, ne, sql } from 'drizzle-orm';
+import {
+  and,
+  asc,
+  countDistinct,
+  eq,
+  gt,
+  inArray,
+  isNull,
+  ne,
+  sql,
+} from 'drizzle-orm';
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
@@ -51,6 +61,13 @@ const categoryNotFound = () =>
     message: 'Category not found',
   });
 
+/** Products in the catalog carrying the grouped text, and deleted ones. */
+const liveProducts = sql<number>`count(distinct ${productAttributes.productId})
+  filter (where ${products.deletedAt} is null)`.mapWith(Number);
+const deletedProducts =
+  sql<number>`count(distinct ${productAttributes.productId})
+  filter (where ${products.deletedAt} is not null)`.mapWith(Number);
+
 /** What the counts are taken over: the catalog as staff see it. */
 type Usage = {
   productCount: number;
@@ -93,9 +110,10 @@ function numericColumnValue(value: string): string | null {
  * so a definition whose name is mistyped matches nothing, and the earliest
  * place that can be seen is this list.
  *
- * Every count on this surface is taken over the catalog as stored —
- * unpublished and soft-deleted products included — so that counting, renaming
- * and drilling down all describe the same set of products. See `usageFor`.
+ * Every count on this surface is taken over the catalog: live and
+ * unpublished products, never deleted ones (FR-ADM-22), so that counting and
+ * drilling down describe the same set of products. A rename reaches deleted
+ * products too, and the inventory says how many. See `usageFor`.
  */
 @Injectable()
 export class AttributesService {
@@ -234,11 +252,16 @@ export class AttributesService {
       this.db
         .select({
           key: productAttributes.key,
-          productCount: countDistinct(productAttributes.productId),
-          valueCount: countDistinct(productAttributes.value),
+          productCount: liveProducts,
+          valueCount: sql<number>`count(distinct ${productAttributes.value})
+            filter (where ${products.deletedAt} is null)`.mapWith(Number),
+          deletedProductCount: deletedProducts,
         })
         .from(productAttributes)
+        .innerJoin(products, eq(products.id, productAttributes.productId))
         .groupBy(productAttributes.key)
+        // A key only deleted products carry is out of the catalog with them.
+        .having(gt(liveProducts, 0))
         .orderBy(asc(productAttributes.key)),
       this.db
         .select({
@@ -267,25 +290,31 @@ export class AttributesService {
     const rows = await this.db
       .select({
         value: productAttributes.value,
-        productCount: countDistinct(productAttributes.productId),
+        productCount: liveProducts,
+        deletedProductCount: deletedProducts,
         numeric: sql<boolean>`bool_or(${productAttributes.valueNumeric} is not null)`,
         // Grouped by text, so every row of a group shares one numeric form;
         // max() is just how a group carries it into the ordering.
         sortValue: sql<string | null>`max(${productAttributes.valueNumeric})`,
       })
       .from(productAttributes)
+      .innerJoin(products, eq(products.id, productAttributes.productId))
       .where(eq(productAttributes.key, key))
       .groupBy(productAttributes.value)
+      .having(gt(liveProducts, 0))
       .orderBy(
         sql`max(${productAttributes.valueNumeric}) asc nulls last`,
         asc(productAttributes.value),
       );
 
-    return rows.map(({ value, productCount, numeric }) => ({
-      value,
-      productCount,
-      numeric,
-    }));
+    return rows.map(
+      ({ value, productCount, deletedProductCount, numeric }) => ({
+        value,
+        productCount,
+        deletedProductCount,
+        numeric,
+      }),
+    );
   }
 
   /**
@@ -293,9 +322,9 @@ export class AttributesService {
    * onto a key already in use merges the two, which is the usual reason for
    * doing it.
    *
-   * Soft-deleted products are rewritten too — a restored product must not come
-   * back carrying the spelling the rest of the catalog has left behind — which
-   * is exactly the set the counts describe.
+   * Deleted products are rewritten too — a restored product must not come
+   * back carrying the spelling the rest of the catalog has left behind — and
+   * the inventory says how many beside the count it shows (FR-ADM-22).
    */
   async renameAttributeKey(
     request: RenameAttributeKeyRequest,
@@ -568,7 +597,10 @@ export class AttributesService {
       .from(productAttributes)
       .innerJoin(products, eq(products.id, productAttributes.productId))
       .where(
-        categoryIds ? inArray(products.categoryId, categoryIds) : undefined,
+        and(
+          isNull(products.deletedAt),
+          categoryIds ? inArray(products.categoryId, categoryIds) : undefined,
+        ),
       )
       .groupBy(productAttributes.key);
     return new Map(rows.map((row) => [row.key, row.productCount]));
@@ -586,13 +618,10 @@ export class AttributesService {
    * Usage per attribute key, in one grouped pass over the rows of the named
    * keys.
    *
-   * Counted over the catalog **as stored** — unpublished and soft-deleted
-   * products included. That is the rule every admin-side attribute number
-   * follows, and it is chosen so the three things an admin does with these
-   * counts agree: a rename rewrites exactly the rows counted here (a
-   * soft-deleted product must not come back carrying a spelling the rest of
-   * the catalog has left behind), and the drill-down lands on the admin
-   * product grid, whose own default shows unpublished and deleted rows too.
+   * Counted over the catalog — live and unpublished products, not deleted
+   * ones (FR-ADM-22). That is the rule every admin-side attribute number
+   * follows, and it is chosen so a count agrees with the drill-down it leads
+   * to: the admin product grid, whose default shows exactly those.
    *
    * The storefront's facet counts are the opposite and must stay so: they
    * apply the publication gate and the soft delete, because they describe what
@@ -614,7 +643,10 @@ export class AttributesService {
         ),
       })
       .from(productAttributes)
-      .where(inArray(productAttributes.key, names))
+      .innerJoin(products, eq(products.id, productAttributes.productId))
+      .where(
+        and(inArray(productAttributes.key, names), isNull(products.deletedAt)),
+      )
       .groupBy(productAttributes.key);
 
     return new Map(rows.map(({ key, ...usage }) => [key, usage]));

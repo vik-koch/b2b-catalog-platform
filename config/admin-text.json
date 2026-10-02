@@ -842,7 +842,7 @@
   },
   "attributeInventory": {
     "title": "Attributes in use",
-    "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts and renames cover the whole catalog, including unpublished and deleted products.",
+    "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts cover live and unpublished products; a rename also rewrites deleted ones.",
     "toDefinitions": "Filterable attributes",
     "toDefinition": "Filterable — show its definition",
     "notFilterable": "Not filterable",
@@ -857,6 +857,7 @@
     "renameTitle": "Rename across the catalog",
     "renameConfirm": "Rename “{from}” to “{to}” on every product carrying it?",
     "mergeConfirm": "“{to}” is already in use. Renaming “{from}” merges the two — every product carrying “{from}” will carry “{to}” instead. Continue?",
+    "renameDeleted": "It also rewrites {count} deleted product(s), so they carry the new text if restored.",
     "renameError": "This rename could not be saved. Please try again.",
     "empty": "No product carries an attribute yet."
   },

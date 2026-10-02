@@ -530,13 +530,23 @@ export class AttributeInventoryPage {
     if (!to || to === from) return this.cancel();
 
     const merges = this.existingTexts(target).includes(to);
+    // Deleted products are not counted here, but a restored one must carry
+    // the new text, so the rename reaches them and says so (FR-ADM-22).
+    const deleted = this.deletedCarrying(target);
     const confirmed = await this.confirm.ask({
       heading: this.text.renameTitle,
-      message: (merges ? this.text.mergeConfirm : this.text.renameConfirm)
-        // An empty value has to be named here too, or the sentence has a hole
-        // in it where the thing being renamed should be.
-        .replace('{from}', from || this.text.emptyValue)
-        .replace('{to}', to),
+      message: [
+        (merges ? this.text.mergeConfirm : this.text.renameConfirm)
+          // An empty value has to be named here too, or the sentence has a
+          // hole in it where the thing being renamed should be.
+          .replace('{from}', from || this.text.emptyValue)
+          .replace('{to}', to),
+        deleted
+          ? this.text.renameDeleted.replace('{count}', String(deleted))
+          : '',
+      ]
+        .filter(Boolean)
+        .join(' '),
       confirmLabel: this.common.save,
       cancelLabel: this.common.cancel,
     });
@@ -560,6 +570,20 @@ export class AttributeInventoryPage {
     } finally {
       this.busy.set(false);
     }
+  }
+
+  /** How many deleted products carry what is being renamed. */
+  private deletedCarrying(target: RenameTarget): number {
+    if (target.kind === 'key') {
+      return (
+        (this.keys.value() ?? []).find((entry) => entry.key === target.key)
+          ?.deletedProductCount ?? 0
+      );
+    }
+    return (
+      (this.values.value() ?? []).find((value) => value.value === target.value)
+        ?.deletedProductCount ?? 0
+    );
   }
 
   /** The texts a rename could collide with — its siblings in the same list. */

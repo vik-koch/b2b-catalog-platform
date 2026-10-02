@@ -119,8 +119,12 @@ const attributeErrors = {
 export const attributeKeyUsageSchema = z
   .object({
     key: z.string(),
-    productCount: z.number().int().nonnegative(),
+    /** Products in the catalog carrying it; deleted ones are not counted
+     * (FR-ADM-22), and a key only they carry is not listed. */
+    productCount: z.number().int().positive(),
     valueCount: z.number().int().nonnegative(),
+    /** Deleted products carrying it, which a rename rewrites too. */
+    deletedProductCount: z.number().int().nonnegative(),
     /**
      * The definition matching this key exactly, if there is one. Its type
      * comes along because it decides what the values mean here: under a number
@@ -138,7 +142,9 @@ export type AttributeKeyUsage = z.infer<typeof attributeKeyUsageSchema>;
 export const attributeValueUsageSchema = z
   .object({
     value: z.string(),
-    productCount: z.number().int().nonnegative(),
+    productCount: z.number().int().positive(),
+    /** Deleted products carrying it, which a rename rewrites too. */
+    deletedProductCount: z.number().int().nonnegative(),
     /** Whether the value has a numeric form — a number facet drops the rest. */
     numeric: z.boolean(),
   })

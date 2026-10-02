@@ -1418,6 +1418,9 @@ export const adminTextSchema = z
         renameTitle: z.string(),
         renameConfirm: z.string(),
         mergeConfirm: z.string(),
+        /** After either, when deleted products carry the text too: they are
+         * rewritten as well (FR-ADM-22). `{count}` substituted. */
+        renameDeleted: z.string(),
         renameError: z.string(),
         empty: z.string(),
       })
