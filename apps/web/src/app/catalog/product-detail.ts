@@ -245,26 +245,28 @@ export class ProductDetail {
       });
       return;
     }
-    if (
-      !hidden &&
-      !(await this.confirm.ask({
-        heading: text.unpublishProduct,
-        message: text.unpublishConfirm.replace('{name}', item.name),
-        confirmLabel: text.unpublishProduct,
-        cancelLabel: text.cancel,
-        confirmVariant: 'danger',
-      }))
-    ) {
-      return;
-    }
     // Imported here, not at the top: the admin catalog service — and the
     // whole admin contract behind it — stays out of every visitor's first
     // load.
     const { AdminCatalogService } =
       await import('../admin/admin-catalog.service');
-    await this.injector
-      .get(AdminCatalogService)
-      .setProductPublished(item.slug, !!hidden);
+    const admin = this.injector.get(AdminCatalogService);
+    if (!hidden) {
+      const stranded = await admin.strandedPairingNames(item.slug);
+      const message = text.unpublishConfirm.replace('{name}', item.name);
+      const confirmed = await this.confirm.ask({
+        heading: text.unpublishProduct,
+        message:
+          stranded.length === 0
+            ? message
+            : `${message} ${text.unpublishStranded.replace('{names}', stranded.join(', '))}`,
+        confirmLabel: text.unpublishProduct,
+        cancelLabel: text.cancel,
+        confirmVariant: 'danger',
+      });
+      if (!confirmed) return;
+    }
+    await admin.setProductPublished(item.slug, !!hidden);
     this.product.reload();
   }
 
