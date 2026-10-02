@@ -108,15 +108,8 @@ import { SyncService } from './sync/sync.service';
                 [label]="syncText.areas.orders.title"
                 link="/admin/sync/orders"
               >
-                @if (orderRuns.isLoading()) {
-                  <span
-                    class="block h-3 w-24 animate-pulse rounded bg-stone-200"
-                    aria-hidden="true"
-                  ></span>
-                } @else {
-                  <span class="flex text-xs text-muted">{{
-                    lastOrderSync()
-                  }}</span>
+                @if (lastOrderSync(); as moment) {
+                  <span class="flex text-xs text-muted">{{ moment }}</span>
                 }
               </app-panel-row>
             </ul>
@@ -189,11 +182,9 @@ import { SyncService } from './sync/sync.service';
                 <!-- Two readings on one right-hand axis, as the documents
                      row has: what is waiting to be decided, over when the
                      catalog last moved. The run it reports is the one this row
-                     starts again. The audit trail's newest applied run is the
-                     whole answer; until it arrives, hold the line's space
-                     rather than showing "never synced" and correcting it — and
-                     hold exactly the width the answer takes, which is one
-                     timestamp. -->
+                     starts again. Nothing until the audit trail answers, and
+                     nothing where no run was ever applied: the row's name
+                     already says what the date would be of. -->
                 <app-panel-row
                   [label]="syncText.areas.catalog.title"
                   link="/admin/sync/catalog"
@@ -206,15 +197,8 @@ import { SyncService } from './sync/sync.service';
                         [queryParams]="{ status: 'previewed' }"
                       />
                     }
-                    @if (runs.isLoading()) {
-                      <span
-                        class="block h-3 w-24 animate-pulse rounded bg-stone-200"
-                        aria-hidden="true"
-                      ></span>
-                    } @else {
-                      <span class="flex text-xs text-muted">{{
-                        lastSync()
-                      }}</span>
+                    @if (lastSync(); as moment) {
+                      <span class="flex text-xs text-muted">{{ moment }}</span>
                     }
                   </div>
                 </app-panel-row>
@@ -291,15 +275,8 @@ import { SyncService } from './sync/sync.service';
                       [queryParams]="{ status: 'previewed' }"
                     />
                   }
-                  @if (customerRuns.isLoading()) {
-                    <span
-                      class="block h-3 w-24 animate-pulse rounded bg-stone-200"
-                      aria-hidden="true"
-                    ></span>
-                  } @else {
-                    <span class="flex text-xs text-muted">{{
-                      lastCustomerSync()
-                    }}</span>
+                  @if (lastCustomerSync(); as moment) {
+                    <span class="flex text-xs text-muted">{{ moment }}</span>
                   }
                 </div>
               </app-panel-row>
@@ -547,9 +524,8 @@ export class AdminPanelPage {
    * When the catalog was last synced — the timestamp and nothing else.
    *
    * No "Last sync:" in front of it: the row it sits on is already the sync
-   * row, and the label would be the row's own name said twice. The one reading
-   * that is not a date says so in words, because an empty-looking line there
-   * would read as a figure that failed to load.
+   * row, and the label would be the row's own name said twice. Null — and no
+   * line at all — while it loads and where nothing was ever applied.
    */
   protected readonly lastSync = computed(() =>
     this.syncMoment(this.runs.value()?.lastApplied?.finishedAt),
@@ -571,8 +547,8 @@ export class AdminPanelPage {
     this.syncMoment(this.orderRuns.value()?.lastApplied?.finishedAt),
   );
 
-  private syncMoment(finishedAt: string | null | undefined): string {
-    if (!finishedAt) return this.syncText.lastSyncNever;
+  private syncMoment(finishedAt: string | null | undefined): string | null {
+    if (!finishedAt) return null;
     return adminMomentFormat(this.currency.locale).format(new Date(finishedAt));
   }
 

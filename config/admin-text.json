@@ -578,7 +578,6 @@
     "discard": "Discard",
     "historyEmpty": "No sync has run yet.",
     "historyCount": "{count} run(s)",
-    "lastSyncNever": "Never synced",
     "mode": {
       "full": "Complete catalog export",
       "fullHint": "The file lists every product. Names, prices and categories are updated, new products are added, and products missing from the file can be hidden.",
