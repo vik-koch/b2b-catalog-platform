@@ -60,6 +60,7 @@ export function firstPictureOf(
         </li>
       }
     </ul>
+    <p class="mt-2 text-xs text-subtle">{{ text.note }}</p>
   `,
 })
 export class ProductVariantList {

@@ -47,6 +47,7 @@
     "variants": {
       "heading": "Variants",
       "unavailable": "currently unavailable",
+      "note": "Variants carry no stock of their own; which are available is confirmed with you after the order is placed.",
       "mark": "Variants",
       "markLabel": "Show the {count} variants",
       "close": "Close"
