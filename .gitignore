@@ -7,6 +7,7 @@ out-tsc
 node_modules
 
 # IDEs and editors
+.idea
 .idea/
 .vscode/*
 !.vscode/settings.json
@@ -89,3 +90,6 @@ __screenshots__/
 
 # Editor backup copies
 *~
+
+# Per-machine agent instructions
+CLAUDE.local.md

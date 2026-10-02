@@ -116,10 +116,12 @@ let nextId = 0;
                        name takes a line of its own and the controls go under
                        it, lined up with the field rather than the grip. No
                        ground of its own: only the copy under the pointer while
-                       dragging needs one, and gets it as its preview. -->
+                       dragging needs one, and gets it as its preview — as a
+                       list: the CDK adds a string as one token, and a space
+                       in it throws before the drag starts. -->
                   <li
                     cdkDrag
-                    cdkDragPreviewClass="bg-surface shadow-md"
+                    [cdkDragPreviewClass]="previewClass"
                     class="flex flex-wrap items-center gap-x-2 gap-y-1.5 py-1.5 text-sm"
                   >
                     <span
@@ -241,6 +243,7 @@ export class ProductVariantsEditor implements OnInit {
 
   protected readonly max = PRODUCT_VARIANTS_MAX;
   protected readonly nameMax = PRODUCT_VARIANT_NAME_MAX_LENGTH;
+  protected readonly previewClass = ['bg-surface', 'shadow-md'];
   protected readonly open = signal(false);
   protected readonly draft = signal('');
   /** Set by a refused add and cleared by the next keystroke, as the parts

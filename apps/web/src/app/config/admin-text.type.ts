@@ -194,6 +194,9 @@ export const adminTextSchema = z
         enable: z.string(),
         disable: z.string(),
         editProduct: z.string(),
+        /** The way from a storefront page into the admin product list,
+         * narrowed to what the page shows. */
+        showInList: z.string(),
         addProduct: z.string(),
         deleteProduct: z.string(),
         /** The last removal step (FR-ADM-21), confirmed because it is the one
@@ -202,7 +205,6 @@ export const adminTextSchema = z
         purgeConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
-        addCategory: z.string(),
         /** The way into this category's filter panel (FR-ATTR-11) — or, on
          * the catalogue index, the whole catalogue's (FR-ATTR-12). */
         editFilters: z.string(),
@@ -1147,9 +1149,6 @@ export const adminTextSchema = z
         stagedReason: z
           .object({ policy: z.string(), requested: z.string() })
           .strict(),
-        /** Where nothing has ever been synced. The run's own timestamp needs
-         * no wording — the row it sits on says what the date is about. */
-        lastSyncNever: z.string(),
       })
       .strict(),
     /**

@@ -42,7 +42,7 @@ import { Params, RouterLink } from '@angular/router';
            way in rather than a note about the card. -->
       <span
         aria-hidden="true"
-        class="transition-transform group-hover/note:translate-x-0.5"
+        class="font-bold transition-transform group-hover/note:translate-x-0.5"
         >&rarr;</span
       >
     </a>

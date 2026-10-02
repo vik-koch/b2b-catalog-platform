@@ -80,8 +80,13 @@ import {
         } @else {
           @if (editText(); as editText) {
             <!-- Publication is the one step taken from the page, either way;
-                 a deleted product goes back through the admin list. -->
+                 a deleted product goes back through the admin list. The list
+                 is narrowed by name, the one thing the storefront knows that
+                 it searches, so a near namesake may come along. -->
             <app-edit-actions
+              [listLink]="['/admin/products']"
+              [listParams]="{ searchTerm: item.name }"
+              [listLabel]="editText.showInList"
               [editLink]="['/admin/products', item.slug, 'edit']"
               [editParams]="editorFrom()"
               [editLabel]="editText.editProduct"
@@ -92,7 +97,11 @@ import {
           }
 
           <!-- Nothing hidden can be bought, so nobody adds it from here. -->
-          <app-product-detail-view [item]="item" [canAdd]="!loaded.hidden">
+          <app-product-detail-view
+            [item]="item"
+            [canAdd]="!loaded.hidden"
+            [crumbInset]="!!editText()"
+          >
             <span productStatus class="flex flex-wrap gap-1">
               @if (loaded.hidden; as hidden) {
                 @if (statusText(); as status) {

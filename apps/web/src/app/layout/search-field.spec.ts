@@ -577,15 +577,35 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     expect(names(el)[0]).toBe('Kontor Hand Grinder');
   });
 
-  it('goes straight to the product when one is picked', async () => {
-    const { el, fixture, navigate } = await render();
+  it('links each suggestion to its product', async () => {
+    const { el, fixture } = await render();
 
     await typeQuery(fixture, el, 'espresso');
-    options(el)[1].dispatchEvent(
-      new MouseEvent('mousedown', { bubbles: true, cancelable: true }),
-    );
 
-    expect(navigate).toHaveBeenCalledWith(['/product', 'espresso-dolce']);
+    expect(options(el)[1].querySelector('a')?.getAttribute('href')).toBe(
+      '/product/espresso-dolce',
+    );
+  });
+
+  it('does not leave the page on a press that is not a click', async () => {
+    const { el, fixture, navigate } = await render();
+    const navigateByUrl = vi.spyOn(TestBed.inject(Router), 'navigateByUrl');
+
+    // A right press opens the context menu, where "open in a new tab" lives;
+    // leaving the page under it would make that menu unreachable.
+    await typeQuery(fixture, el, 'espresso');
+    options(el)[1]
+      .querySelector('a')
+      ?.dispatchEvent(
+        new MouseEvent('mousedown', {
+          bubbles: true,
+          cancelable: true,
+          button: 2,
+        }),
+      );
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('still submits the typed query when no suggestion is selected', async () => {

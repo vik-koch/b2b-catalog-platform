@@ -213,8 +213,6 @@ describe('AdminPanelPage work counts', () => {
  * the states an admin can leave on without the shop telling them.
  */
 describe('AdminPanelPage sync rows', () => {
-  const syncText = defaultAdminText.sync;
-
   /** Two areas, two logs, two answers — the customer row used to carry no
    * reading at all, which read as an area that had never moved. */
   it('dates each area from its own log', async () => {
@@ -233,7 +231,7 @@ describe('AdminPanelPage sync rows', () => {
     expect(el.textContent).toMatch(/02\.09\.2026/);
   });
 
-  it('says so for an area that has never run', async () => {
+  it('shows no line for an area that has never run', async () => {
     const el = await render(
       { version: null, deployedAt: null },
       adminUser,
@@ -242,7 +240,8 @@ describe('AdminPanelPage sync rows', () => {
       syncStub({ catalog: '2026-08-01T10:00:00Z' }),
     );
 
-    expect(el.textContent).toContain(syncText.lastSyncNever);
+    // The catalog's date alone: the customer and order rows stay blank.
+    expect(el.textContent?.match(/\d{2}\.\d{2}\.\d{4}/g)).toHaveLength(1);
   });
 });
 

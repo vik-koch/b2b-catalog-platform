@@ -131,9 +131,10 @@ stand in for the mark:
 ```
 
 The list is also the order the footer draws them in, beside the enquiry button;
-leave it out for a deployment that is only here. Draw the marks square — they
-are boxed to the height of the button beside them, so a tall one is scaled down
-rather than given the room.
+leave it out for a deployment that is only here. A mark is boxed to the height
+of the button beside it and drawn square; a mark of another shape states its
+own with `"width"` and `"height"` (any unit, only the ratio counts — the
+`viewBox` size will do), so its room is kept before the file loads.
 
 A deployment that wants its own typeface adds `branding.font` to
 `deployment.json`:

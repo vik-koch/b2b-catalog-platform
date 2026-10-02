@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   input,
   resource,
@@ -110,7 +111,7 @@ function knownValues<T extends string>(
     >
       <!-- Kept while the catalog is externally owned: the click then explains
            who owns it instead of opening an editor that could only refuse the
-           save. The storefront's own ＋ disc makes the same gesture. -->
+           save. -->
       <button appButton type="button" class="gap-2" (click)="addProduct()">
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
@@ -188,10 +189,17 @@ function knownValues<T extends string>(
             />
           </td>
           <td>
+            <!-- A name leads where the visitor sees it, as the product's
+                 own does. -->
             <div class="flex items-center">
-              <span class="line-clamp-2 wrap-break-word text-subtle">
-                {{ categoryName().get(item.categoryId) }}
-              </span>
+              @if (categoryOf().get(item.categoryId); as category) {
+                <a
+                  [routerLink]="['/catalog', category.slug]"
+                  [queryParams]="editorFrom()"
+                  class="line-clamp-2 wrap-break-word text-subtle hover:text-accent"
+                  >{{ category.name }}</a
+                >
+              }
             </div>
           </td>
           <td class="text-stone-700">
@@ -590,9 +598,18 @@ export class ProductListPage {
   private readonly categories = resource({
     loader: () => this.admin.listCategories(),
   });
-  protected readonly categoryName = computed(
-    () => new Map((this.categories.value() ?? []).map((c) => [c.id, c.name])),
+  protected readonly categoryOf = computed(
+    () => new Map((this.categories.value() ?? []).map((c) => [c.id, c])),
   );
+
+  /**
+   * A category named by slug, which is all the storefront knows of one: its
+   * edit-mode way into this grid. Swapped for the id once the tree is here,
+   * so the URL ends up as the filter select would have written it; the rows
+   * wait for that rather than loading the whole catalogue first. An unknown
+   * slug just leaves the grid unfiltered.
+   */
+  readonly category = input('');
 
   /**
    * The category filter's options: the tree flattened depth-first and
@@ -868,22 +885,28 @@ export class ProductListPage {
   ];
 
   protected products = resource({
-    params: () => ({
-      page: this.currentPage(),
-      q: this.query(),
-      sort: this.sortKey(),
-      state: this.stateKey(),
-      availability: this.availabilityKey(),
-      categoryId: this.categoryId() || undefined,
-      categoryScope: this.categoryDirect() ? ('direct' as const) : undefined,
-      attributeKey: this.attributeKey() || undefined,
-      attributeValue: this.attributeValue() || undefined,
-      tierId: this.tierId() || undefined,
-      tierPriced: this.tierPriced() === 'no' ? ('no' as const) : undefined,
-      documentId: this.documentId() || undefined,
-      missing: this.missingKeys().length ? this.missingKeys() : undefined,
-      has: this.hasKeys().length ? this.hasKeys() : undefined,
-    }),
+    params: () =>
+      this.category()
+        ? undefined
+        : {
+            page: this.currentPage(),
+            q: this.query(),
+            sort: this.sortKey(),
+            state: this.stateKey(),
+            availability: this.availabilityKey(),
+            categoryId: this.categoryId() || undefined,
+            categoryScope: this.categoryDirect()
+              ? ('direct' as const)
+              : undefined,
+            attributeKey: this.attributeKey() || undefined,
+            attributeValue: this.attributeValue() || undefined,
+            tierId: this.tierId() || undefined,
+            tierPriced:
+              this.tierPriced() === 'no' ? ('no' as const) : undefined,
+            documentId: this.documentId() || undefined,
+            missing: this.missingKeys().length ? this.missingKeys() : undefined,
+            has: this.hasKeys().length ? this.hasKeys() : undefined,
+          },
     loader: ({ params }) => this.admin.listProducts(params),
   });
 
@@ -933,9 +956,11 @@ export class ProductListPage {
       : `${message} ${this.editText.unpublishStranded.replace('{names}', stranded.join(', '))}`;
   }
 
-  /** The header's ＋: a new product's editor, or the reason there is none. */
+  /** The header's ＋: a new product's editor, or the reason there is none.
+   * A grid narrowed to one category starts the product in it. */
   protected addProduct(): void {
-    void this.productCreate.start(this.editorFrom());
+    const category = this.categoryOf().get(this.categoryId())?.slug;
+    void this.productCreate.start({ category, ...this.editorFrom() });
   }
 
   /** Unconfirmed: the row has already said why a live product cannot go, and
@@ -967,6 +992,17 @@ export class ProductListPage {
     // This screen is certain to need the ownership answer — its ＋ is always on
     // screen — so it is asked for on load rather than on the click.
     this.productCreate.prepare();
+    effect(() => {
+      const slug = this.category();
+      const tree = this.categories.value();
+      if (!slug || (!tree && !this.categories.error())) return;
+      const id = tree?.find((c) => c.slug === slug)?.id ?? null;
+      void this.router.navigate(['/admin/products'], {
+        queryParams: { category: null, categoryId: id, categoryScope: null },
+        queryParamsHandling: 'merge',
+        replaceUrl: true,
+      });
+    });
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({ name: () => this.text.title });

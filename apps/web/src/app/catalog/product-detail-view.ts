@@ -18,6 +18,7 @@ import {
   formatAttributeValue,
   ProductDetail,
 } from '@b2b-catalog-platform/shared';
+import { EDIT_ACTIONS_INSET } from '../admin/edit-actions';
 import { APP_TEXT } from '../config/app-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { disclosureState } from '../ui/disclosure-state';
@@ -140,7 +141,10 @@ const NARROW = '(max-width: 39.999rem)';
     ProductDocuments,
   ],
   template: `
-    <nav [attr.aria-label]="text.catalogRoot">
+    <nav
+      [attr.aria-label]="text.catalogRoot"
+      [class]="crumbInset() ? editActionsInset : ''"
+    >
       <!-- Inline flow, not a flex row. Flexed, a crumb is one unbreakable box:
            a category whose name does not fit the line drops whole onto the next
            one and leaves the gap it came from, which on a wide screen is half a
@@ -474,6 +478,9 @@ export class ProductDetailView {
    * sees the units and the note prompt they just configured, but adding to a
    * cart from a preview of an unsaved product is not a thing to offer. */
   readonly canAdd = input(true);
+  /** Edit mode's cluster is pinned beside the breadcrumb: keep clear of it. */
+  readonly crumbInset = input(false);
+  protected readonly editActionsInset = EDIT_ACTIONS_INSET;
 
   /** Crumbs sit next to their parent, so the nickname is enough. */
   protected readonly displayName = categoryDisplayName;
