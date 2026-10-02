@@ -24,6 +24,7 @@ const inList = (document: LinkedDocument): ProductDocument => ({
   },
   issuedAt: null,
   productCount: 1,
+  unpublishedProductCount: 0,
   updatedAt: '2026-08-01T00:00:00.000Z',
 });
 

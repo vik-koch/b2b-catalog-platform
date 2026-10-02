@@ -26,6 +26,7 @@ function document(overrides: Partial<ProductDocument> = {}): ProductDocument {
     issuedAt: '2026-01-15',
     expiresAt: '2027-01-15',
     productCount: 0,
+    unpublishedProductCount: 0,
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,
   };
@@ -105,6 +106,22 @@ describe('DocumentListPage', () => {
     // The file's type and size, formatted where they are shown.
     expect(el.textContent).toContain('PDF');
     expect(el.textContent).toContain('2 kB');
+  });
+
+  it('says how many of its products are unpublished, and leads to them', async () => {
+    const { el } = await render({
+      documents: [document({ productCount: 5, unpublishedProductCount: 4 })],
+    });
+
+    const label = defaultAdminText.common.unpublishedProducts.replace(
+      '{count}',
+      '4',
+    );
+    const link = [...el.querySelectorAll('tbody a')].find(
+      (a) => a.textContent?.trim() === label,
+    );
+    expect(link?.getAttribute('href')).toContain('documentId=doc-1');
+    expect(link?.getAttribute('href')).toContain('state=unpublished');
   });
 
   it('says so when a document never expires', async () => {

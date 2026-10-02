@@ -24,17 +24,15 @@ import { StatusBadge } from '../../ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
 
-import { SettingsService } from '../settings/settings.service';
-import { mayRestore } from './product-removal';
 /**
- * The edit-mode overlay under a category grid (FR-ADM-01/06): what this category
- * holds that the storefront does not show — soft-deleted, unpublished, or both.
- * Without it the grid looks like the whole category, and a product awaiting
- * review is invisible to the person who has to review it.
+ * The edit-mode overlay under a category grid (FR-ADM-06): what this category
+ * holds that the storefront does not show, its unpublished products. Without
+ * it the grid looks like the whole category, and a product awaiting review is
+ * invisible to the person who has to review it. Deleted products are out of
+ * the catalog (FR-ADM-22) and are restored from the admin product list.
  *
- * Each tile carries why it is hidden and the one action that undoes that
- * reason — restore for a deleted product, publish for an unpublished one. A
- * product that is both needs both, so its action is whichever it still has.
+ * Each tile carries the action that puts it on the storefront: publish, which
+ * explains itself where nothing prices the product.
  *
  * Owns `AdminCatalogService` and is only ever rendered inside a storefront
  * `@defer (when editMode)` block, so the admin write client stays out of the
@@ -67,27 +65,16 @@ import { mayRestore } from './product-removal';
                     </div>
                   </div>
                   <div [class]="body">
-                    <!-- Deleted says it all: the removal steps are taken back
-                         one at a time, and restoring is the only one open to
-                         a deleted product (FR-ADM-01). Otherwise both reasons
-                         where both apply, so the tile says why publishing
-                         alone will not bring it back. -->
                     <p class="mb-1 flex flex-wrap gap-1">
-                      @if (item.deleted) {
+                      <span appStatusBadge tone="waiting">{{
+                        text.unpublishedBadge
+                      }}</span>
+                      <!-- The second reason, and the one the button below
+                           cannot resolve: nothing prices this product. -->
+                      @if (item.priceMinor === null) {
                         <span appStatusBadge tone="danger">{{
-                          text.deletedBadge
+                          text.unpricedBadge
                         }}</span>
-                      } @else {
-                        <span appStatusBadge tone="waiting">{{
-                          text.unpublishedBadge
-                        }}</span>
-                        <!-- The second reason, and the one the button below
-                             cannot resolve: nothing prices this product. -->
-                        @if (item.priceMinor === null) {
-                          <span appStatusBadge tone="danger">{{
-                            text.unpricedBadge
-                          }}</span>
-                        }
                       }
                     </p>
                     <!-- The page an admin is shown even while it is hidden,
@@ -133,12 +120,9 @@ import { mayRestore } from './product-removal';
                         class="w-full gap-2"
                         [disabled]="busy() === item.slug"
                         [title]="cannotPublish(item) ? text.unpricedHint : null"
-                        (click)="reveal(item)"
+                        (click)="publish(item)"
                       >
-                        <app-admin-icon
-                          [name]="item.deleted ? 'rotate-ccw' : 'book-check'"
-                          class="h-4 w-4"
-                        />
+                        <app-admin-icon name="book-check" class="h-4 w-4" />
                         {{ actionLabel(item) }}
                       </button>
                     </div>
@@ -160,16 +144,14 @@ export class HiddenProductsSection {
   private readonly confirm = inject(ConfirmService);
   /** So the editor's cancel lands back on the page the tile was on. */
   protected readonly editorFrom = injectEditorReturnParams();
-  private readonly settings = inject(SettingsService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).editMode;
-  private readonly ownershipText = inject(ADMIN_TEXT).ownership;
 
   readonly categorySlug = input.required<string>();
   /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */
   readonly reloadToken = input(0);
-  /** A product came back onto the storefront, so the host reloads its grid. */
-  readonly restored = output<void>();
+  /** A product went onto the storefront, so the host reloads its grid. */
+  readonly published = output<void>();
   /** Fires once the set has settled (loaded or errored). The host gates its
    * edit affordances on this so they and this overlay appear together. */
   readonly loaded = output<void>();
@@ -216,19 +198,19 @@ export class HiddenProductsSection {
 
   /**
    * An unpriced product cannot be put on the storefront, and the server
-   * refuses it; a deleted one is restored first, whatever its price. The
-   * button explains rather than disappearing.
+   * refuses it. The button explains rather than disappearing.
    */
   protected cannotPublish(item: HiddenProduct): boolean {
-    return !item.deleted && item.priceMinor === null;
+    return item.priceMinor === null;
   }
 
   protected actionLabel(item: HiddenProduct): string {
-    if (this.busy() === item.slug) return this.common.saving;
-    return item.deleted ? this.common.restore : this.text.publishProduct;
+    return this.busy() === item.slug
+      ? this.common.saving
+      : this.text.publishProduct;
   }
 
-  protected async reveal(item: HiddenProduct): Promise<void> {
+  protected async publish(item: HiddenProduct): Promise<void> {
     // Live but refusing on an unpriced product: the click is answered with the
     // reason, which a dead button cannot give.
     if (this.cannotPublish(item)) {
@@ -239,27 +221,11 @@ export class HiddenProductsSection {
       });
       return;
     }
-    if (
-      item.deleted &&
-      !(await mayRestore(
-        this.confirm,
-        this.ownershipText,
-        this.common.close,
-        item,
-        async () => (await this.settings.load()).includes('catalog'),
-      ))
-    ) {
-      return;
-    }
     this.busy.set(item.slug);
     this.error.set(null);
     try {
-      if (item.deleted) {
-        await this.admin.restoreProduct(item.slug);
-      } else {
-        await this.admin.setProductPublished(item.slug, true);
-      }
-      this.restored.emit();
+      await this.admin.setProductPublished(item.slug, true);
+      this.published.emit();
     } catch {
       this.error.set(this.text.revealError);
     } finally {

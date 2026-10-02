@@ -35,7 +35,11 @@ type DocumentRow = typeof documents.$inferSelect;
  * object, because the file is what an admin replaces in a single step and
  * nothing outside this table uses them apart.
  */
-function toDocument(row: DocumentRow, productCount: number): ProductDocument {
+function toDocument(
+  row: DocumentRow,
+  productCount: number,
+  unpublishedProductCount: number,
+): ProductDocument {
   return {
     id: row.id,
     title: row.title,
@@ -48,6 +52,7 @@ function toDocument(row: DocumentRow, productCount: number): ProductDocument {
     issuedAt: row.issuedAt,
     expiresAt: row.expiresAt,
     productCount,
+    unpublishedProductCount,
     updatedAt: row.updatedAt.toISOString(),
   };
 }
@@ -79,20 +84,26 @@ export class DocumentsService {
    */
   async listDocuments(): Promise<ProductDocument[]> {
     const rows = await this.db
-      .select({ row: documents, productCount: this.productCount() })
+      .select(this.columns())
       .from(documents)
       .orderBy(asc(documents.expiresAt), desc(documents.updatedAt));
-    return rows.map(({ row, productCount }) => toDocument(row, productCount));
+    return rows.map(({ row, productCount, unpublishedProductCount }) =>
+      toDocument(row, productCount, unpublishedProductCount),
+    );
   }
 
   async getDocument(id: string): Promise<DocumentDetail> {
     const [found] = await this.db
-      .select({ row: documents, productCount: this.productCount() })
+      .select(this.columns())
       .from(documents)
       .where(eq(documents.id, id));
     if (!found) throw notFound();
     return {
-      ...toDocument(found.row, found.productCount),
+      ...toDocument(
+        found.row,
+        found.productCount,
+        found.unpublishedProductCount,
+      ),
       products: await this.productsFor(id),
     };
   }
@@ -141,7 +152,7 @@ export class DocumentsService {
       .where(eq(documents.id, id))
       .returning();
     if (!row) throw notFound();
-    return toDocument(row, 0);
+    return toDocument(row, 0, 0);
   }
 
   /** The products showing one document, in name order — the order the editor
@@ -175,7 +186,7 @@ export class DocumentsService {
    * Deleted products are out of the catalog, so out of the count (FR-ADM-22);
    * their links stay, and the editor lists them marked.
    */
-  private productCount() {
+  private productCount(unpublished = false) {
     return this.db.$count(
       documentProducts,
       and(
@@ -185,10 +196,24 @@ export class DocumentsService {
           this.db
             .select({ id: products.id })
             .from(products)
-            .where(isNull(products.deletedAt)),
+            .where(
+              and(
+                isNull(products.deletedAt),
+                unpublished ? isNull(products.publishedAt) : undefined,
+              ),
+            ),
         ),
       ),
     );
+  }
+
+  /** The row and both its counts, as the list and the single read select it. */
+  private columns() {
+    return {
+      row: documents,
+      productCount: this.productCount(),
+      unpublishedProductCount: this.productCount(true),
+    };
   }
 
   /**

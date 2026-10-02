@@ -35,6 +35,7 @@ import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
+import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../editor-return';
 import { DocumentsService } from './documents.service';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
@@ -74,6 +75,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     RecordRow,
     Skeleton,
     StatusBadge,
+    UnpublishedCount,
   ],
   template: `
     <app-admin-list-header
@@ -240,6 +242,13 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         >
           {{ productCount(document) }}
         </a>
+        @if (document.unpublishedProductCount) {
+          ·
+          <app-unpublished-count
+            [count]="document.unpublishedProductCount"
+            [query]="{ documentId: document.id }"
+          />
+        }
       } @else {
         <span class="text-subtle">{{ text.noProducts }}</span>
       }

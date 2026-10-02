@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { HiddenProduct, OwnershipArea } from '@b2b-catalog-platform/shared';
+import { HiddenProduct } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -10,7 +10,6 @@ import { DeploymentConfig } from '../../config/deployment-config.type';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { productListItem } from '../../catalog/product.fixture';
-import { provideOwnership } from '../settings/settings.fixture';
 import { HiddenProductsSection } from './hidden-products-section';
 
 const text = defaultAdminText.editMode;
@@ -22,9 +21,6 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
     priceMinor: 990,
     images: [{ full: 'f.jpg', thumb: 't.jpg', variant: null }],
   }),
-  deleted: true,
-  deletedByRun: false,
-  unpublished: false,
   ...overrides,
 });
 
@@ -34,10 +30,7 @@ const config = {
 
 const tell = vi.fn(async () => undefined);
 
-function provide(
-  admin: Partial<AdminCatalogService>,
-  owned: OwnershipArea[] = [],
-) {
+function provide(admin: Partial<AdminCatalogService>) {
   tell.mockClear();
   TestBed.configureTestingModule({
     imports: [HiddenProductsSection],
@@ -49,30 +42,23 @@ function provide(
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AdminCatalogService, useValue: admin },
       { provide: ConfirmService, useValue: { tell } },
-      provideOwnership(...owned),
     ],
   });
   return TestBed.createComponent(HiddenProductsSection);
 }
 
-async function render(items: HiddenProduct[], owned: OwnershipArea[] = []) {
-  const restoreProduct = vi.fn().mockResolvedValue({});
+async function render(items: HiddenProduct[]) {
   const setProductPublished = vi.fn().mockResolvedValue({});
-  const fixture = provide(
-    {
-      listHiddenProducts: vi.fn().mockResolvedValue(items),
-      restoreProduct,
-      setProductPublished,
-    } as unknown as Partial<AdminCatalogService>,
-    owned,
-  );
+  const fixture = provide({
+    listHiddenProducts: vi.fn().mockResolvedValue(items),
+    setProductPublished,
+  } as unknown as Partial<AdminCatalogService>);
   fixture.componentRef.setInput('categorySlug', 'espresso');
   await fixture.whenStable();
   fixture.detectChanges();
   return {
     fixture,
     el: fixture.nativeElement as HTMLElement,
-    restoreProduct,
     setProductPublished,
   };
 }
@@ -91,102 +77,37 @@ describe('HiddenProductsSection', () => {
     expect(el.textContent).not.toContain(text.hiddenHeading);
   });
 
-  it('lists what the storefront hides, and says why', async () => {
+  it('lists what the storefront hides, badged unpublished', async () => {
     const { el } = await render([hidden()]);
 
     expect(el.textContent).toContain(text.hiddenHeading);
     expect(el.textContent).toContain('Old Roast');
-    expect(el.textContent).toContain(text.deletedBadge);
-    expect(el.textContent).not.toContain(text.unpublishedBadge);
-  });
-
-  it('badges an unpublished product differently from a deleted one', async () => {
-    const { el } = await render([
-      hidden({ deleted: false, unpublished: true }),
-    ]);
-
     expect(el.textContent).toContain(text.unpublishedBadge);
+    expect(el.textContent).not.toContain(text.unpricedBadge);
     expect(el.textContent).not.toContain(text.deletedBadge);
   });
 
-  it('shows a deleted product as deleted only — restoring is the one step back', async () => {
-    const { el } = await render([
-      hidden({ deleted: true, unpublished: true, priceMinor: null }),
-    ]);
-
-    expect(el.textContent).toContain(text.deletedBadge);
-    expect(el.textContent).not.toContain(text.unpublishedBadge);
-    expect(el.textContent).not.toContain(text.unpricedBadge);
-  });
-
   it('shows both reasons on a product that is unpublished and unpriced', async () => {
-    const { el } = await render([
-      hidden({ deleted: false, unpublished: true, priceMinor: null }),
-    ]);
+    const { el } = await render([hidden({ priceMinor: null })]);
 
     expect(el.textContent).toContain(text.unpublishedBadge);
     expect(el.textContent).toContain(text.unpricedBadge);
   });
 
-  it('explains instead of restoring what a run deleted while the catalog is owned', async () => {
-    const { fixture, el, restoreProduct } = await render(
-      [hidden({ deletedByRun: true })],
-      ['catalog'],
-    );
-
-    actionButton(el, defaultAdminText.common.restore)?.click();
-    await fixture.whenStable();
-
-    expect(restoreProduct).not.toHaveBeenCalled();
-    expect(tell).toHaveBeenCalledWith(
-      expect.objectContaining({
-        heading: defaultAdminText.ownership.productRestoreTitle,
-      }),
-    );
-  });
-
-  it('restores what an admin deleted, owned or not', async () => {
-    const { fixture, el, restoreProduct } = await render(
-      [hidden({ deletedByRun: false })],
-      ['catalog'],
-    );
-
-    actionButton(el, defaultAdminText.common.restore)?.click();
-    await fixture.whenStable();
-
-    expect(restoreProduct).toHaveBeenCalledWith('old-roast');
-  });
-
-  it('restores a deleted product and emits restored', async () => {
-    const { fixture, el, restoreProduct } = await render([hidden()]);
-    const restored = vi.fn();
-    fixture.componentInstance.restored.subscribe(restored);
-
-    actionButton(el, defaultAdminText.common.restore)?.click();
-    await fixture.whenStable();
-
-    expect(restoreProduct).toHaveBeenCalledWith('old-roast');
-    expect(restored).toHaveBeenCalled();
-  });
-
-  it('publishes an unpublished one instead', async () => {
-    const { fixture, el, setProductPublished } = await render([
-      hidden({ deleted: false, unpublished: true }),
-    ]);
-    const restored = vi.fn();
-    fixture.componentInstance.restored.subscribe(restored);
+  it('publishes a product and emits published', async () => {
+    const { fixture, el, setProductPublished } = await render([hidden()]);
+    const published = vi.fn();
+    fixture.componentInstance.published.subscribe(published);
 
     actionButton(el, text.publishProduct)?.click();
     await fixture.whenStable();
 
     expect(setProductPublished).toHaveBeenCalledWith('old-roast', true);
-    expect(restored).toHaveBeenCalled();
+    expect(published).toHaveBeenCalled();
   });
 
   it('offers the editor on every tile, returning to this page', async () => {
-    const { el } = await render([
-      hidden({ deleted: false, unpublished: true }),
-    ]);
+    const { el } = await render([hidden()]);
 
     // A tile down here carries no pencil of its own, and an unpriced product
     // is fixed in the editor rather than by the button under it.
@@ -199,7 +120,7 @@ describe('HiddenProductsSection', () => {
 
   it('explains rather than acting on a product nothing prices', async () => {
     const { fixture, el, setProductPublished } = await render([
-      hidden({ deleted: false, unpublished: true, priceMinor: null }),
+      hidden({ priceMinor: null }),
     ]);
 
     actionButton(el, text.publishProduct)?.click();
@@ -211,18 +132,6 @@ describe('HiddenProductsSection', () => {
     expect(tell).toHaveBeenCalledWith(
       expect.objectContaining({ heading: text.unpricedTitle }),
     );
-  });
-
-  it('offers restore first for a product that is both — publishing a deleted product shows nobody anything', async () => {
-    const { fixture, el, setProductPublished, restoreProduct } = await render([
-      hidden({ deleted: true, unpublished: true }),
-    ]);
-
-    actionButton(el, defaultAdminText.common.restore)?.click();
-    await fixture.whenStable();
-
-    expect(restoreProduct).toHaveBeenCalled();
-    expect(setProductPublished).not.toHaveBeenCalled();
   });
 
   it('emits loaded once the set has resolved, even when empty', async () => {

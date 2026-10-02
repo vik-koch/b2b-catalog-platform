@@ -736,10 +736,11 @@ export class AdminProductsService {
   }
 
   /**
-   * What this category's subtree holds that the storefront does not show:
-   * soft-deleted, unpublished, or both. Aggregates over descendants exactly like
-   * the storefront grid (Pattern A), so the edit-mode overlay and the live grid
-   * agree on what belongs to a category.
+   * What this category's subtree holds that the storefront does not show: its
+   * unpublished products. Deleted ones are out of the catalog (FR-ADM-22), so
+   * they are left to the admin product list. Aggregates over descendants
+   * exactly like the storefront grid (Pattern A), so the edit-mode overlay and
+   * the live grid agree on what belongs to a category.
    */
   async listHiddenProducts(slug: string): Promise<HiddenProduct[]> {
     const rows = await this.db
@@ -764,9 +765,6 @@ export class AdminProductsService {
         name: products.name,
         priceMinor: resolvedPriceMinor(null),
         ...pictureColumns,
-        deletedAt: products.deletedAt,
-        deletedBy: products.deletedBy,
-        publishedAt: products.publishedAt,
         ...unitColumns,
         ...noteColumns,
         ...availabilityColumns,
@@ -775,18 +773,10 @@ export class AdminProductsService {
       })
       .from(products)
       .where(
-        and(
-          inArray(products.categoryId, ids),
-          or(isNotNull(products.deletedAt), isNull(products.publishedAt)),
-        ),
+        and(inArray(products.categoryId, ids), stateCondition('unpublished')),
       )
       .orderBy(asc(products.name));
-    return hidden.map((row) => ({
-      ...toUnpricedListItem(row),
-      deleted: row.deletedAt !== null,
-      deletedByRun: deletedByRun(row),
-      unpublished: row.publishedAt === null,
-    }));
+    return hidden.map((row) => toUnpricedListItem(row));
   }
 
   /**

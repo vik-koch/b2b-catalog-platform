@@ -29,6 +29,7 @@ function document(overrides: Partial<DocumentDetail> = {}): DocumentDetail {
     issuedAt: '2026-01-15',
     expiresAt: '2027-01-15',
     productCount: 0,
+    unpublishedProductCount: 0,
     products: [],
     updatedAt: '2026-08-01T00:00:00.000Z',
     ...overrides,

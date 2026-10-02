@@ -365,6 +365,7 @@ const text = defaultAdminText.productEditor.attributes;
 const known = (key: string, productCount = 3): AttributeKeyUsage => ({
   key,
   productCount,
+  unpublishedProductCount: 0,
   valueCount: 2,
   deletedProductCount: 0,
   definition: null,
@@ -381,6 +382,7 @@ const declared = (
   unit: null,
   sortOrder: 0,
   productCount: 1,
+  unpublishedProductCount: 0,
   valueCount: 1,
   unparsedCount: 0,
   updatedAt: '2026-08-19T10:00:00.000Z',

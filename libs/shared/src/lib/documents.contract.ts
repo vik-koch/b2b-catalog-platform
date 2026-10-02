@@ -139,6 +139,8 @@ export const productDocumentSchema = z
     /** How many products show this document — the list's link into the
      * product grid, narrowed to exactly those rows. */
     productCount: z.number().int().nonnegative(),
+    /** Of `productCount`, the ones not on the storefront. */
+    unpublishedProductCount: z.number().int().nonnegative(),
     updatedAt: z.iso.datetime(),
   })
   .strict();
