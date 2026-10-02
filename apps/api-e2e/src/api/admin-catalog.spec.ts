@@ -494,7 +494,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
       expect(adminRead.data.deletedAt).not.toBeNull();
 
       const list = await adminGet(
-        `/admin/catalog/products?categoryId=${parentId}`,
+        `/admin/catalog/products?categoryId=${parentId}&state=deleted`,
       );
       expect(list.data.pagination.pageSize).toBe(ADMIN_CATALOG_PAGE_SIZE);
       const listed = list.data.items.find(
@@ -661,6 +661,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
    */
   describe('GET /admin/catalog/products (FR-ADM-05)', () => {
     let liveSlug: string;
+    let unpublishedSlug: string;
     let deletedSlug: string;
     let gridCategoryId: string;
 
@@ -698,6 +699,16 @@ describe('Admin catalog (FR-ADM-01)', () => {
       });
       deletedSlug = deleted.data.slug;
       await del(`/admin/catalog/products/${deletedSlug}`);
+
+      // Created last, so it is the most recently touched row the default view
+      // shows; and it gives that view a second row to sort.
+      const unpublished = await createProduct({
+        name: `Grid Lungo Roast ${R}`,
+        categoryId: gridCategoryId,
+        priceMinor: 700,
+        sourceId: `grid:${R}-DRAFT/3`,
+      });
+      unpublishedSlug = unpublished.data.slug;
     });
 
     // Deleted products are out of the catalog, so only their own state shows
@@ -705,7 +716,9 @@ describe('Admin catalog (FR-ADM-01)', () => {
     it('leaves deleted rows out of the default view', async () => {
       for (const params of ['', 'state=all']) {
         const body = await grid(params);
-        expect(body.items.map((i) => i.slug)).toEqual([liveSlug]);
+        expect(body.items.map((i) => i.slug).sort()).toEqual(
+          [liveSlug, unpublishedSlug].sort(),
+        );
       }
     });
 
@@ -729,6 +742,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
 
     it.each([
       ['live', () => liveSlug, () => deletedSlug],
+      ['unpublished', () => unpublishedSlug, () => liveSlug],
       ['deleted', () => deletedSlug, () => liveSlug],
     ])('filters to %s only', async (state, wanted, excluded) => {
       const body = await grid(`state=${state}`);
@@ -751,8 +765,8 @@ describe('Admin catalog (FR-ADM-01)', () => {
     it('searches by the private sync key, punctuation and all', async () => {
       // A key fragment the name half cannot match on any term — the point is
       // that the slashes and the case survive to reach the sourceId.
-      const body = await grid(`q=${encodeURIComponent('GONE/2')}`);
-      expect(body.items.map((i) => i.slug)).toEqual([deletedSlug]);
+      const body = await grid(`q=${encodeURIComponent('DRAFT/3')}`);
+      expect(body.items.map((i) => i.slug)).toEqual([unpublishedSlug]);
     });
 
     it('combines the search box with the state filter', async () => {
@@ -762,23 +776,22 @@ describe('Admin catalog (FR-ADM-01)', () => {
     });
 
     it.each([
-      ['price', ['Espresso', 'Filter']],
-      ['price_desc', ['Filter', 'Espresso']],
-      ['name', ['Espresso', 'Filter']],
-      ['name_desc', ['Filter', 'Espresso']],
+      ['price', ['Espresso', 'Lungo']],
+      ['price_desc', ['Lungo', 'Espresso']],
+      ['name', ['Espresso', 'Lungo']],
+      ['name_desc', ['Lungo', 'Espresso']],
     ])('sorts by %s', async (sort, expected) => {
       const body = await grid(`sort=${sort}`);
       expect(
         body.items.map((i) =>
-          i.name.includes('Espresso') ? 'Espresso' : 'Filter',
+          i.name.includes('Espresso') ? 'Espresso' : 'Lungo',
         ),
       ).toEqual(expected);
     });
 
     it('sorts by recency, most recently updated first', async () => {
-      // The deleted row was touched last (the delete moved its updatedAt).
       const body = await grid('sort=updated_desc');
-      expect(body.items[0].slug).toBe(deletedSlug);
+      expect(body.items[0].slug).toBe(unpublishedSlug);
       const oldest = await grid('sort=updated');
       expect(oldest.items[0].slug).toBe(liveSlug);
     });
@@ -794,7 +807,7 @@ describe('Admin catalog (FR-ADM-01)', () => {
         scoped.pagination.total,
       );
       for (const item of scoped.items) {
-        expect([liveSlug, deletedSlug]).toContain(item.slug);
+        expect([liveSlug, unpublishedSlug]).toContain(item.slug);
       }
     });
   });
