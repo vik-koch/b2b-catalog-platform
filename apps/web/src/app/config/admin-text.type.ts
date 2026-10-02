@@ -575,6 +575,11 @@ export const adminTextSchema = z
         stateLive: z.string(),
         stateUnpublished: z.string(),
         stateDeleted: z.string(),
+        /** Under the empty list when a search found nothing in the catalog but
+         * matches deleted products (FR-ADM-22): `{count}`, then the link that
+         * switches to them. */
+        deletedMatches: z.string(),
+        showDeleted: z.string(),
         allCategories: z.string(),
         /** The category filter's option for the products filed in a category
          * itself, not in its subcategories. `{name}` is the category. */

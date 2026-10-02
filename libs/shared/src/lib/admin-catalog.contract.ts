@@ -811,13 +811,20 @@ export const adminCatalogContract = {
       method: 'GET',
       path: '/admin/catalog/products',
       inputStructure: 'detailed',
-      summary: 'List products for the admin grid (includes soft-deleted)',
+      summary: 'List products for the admin grid',
     })
     .input(z.object({ query: adminProductListQuerySchema }))
     .output(
       z
         .object({
           items: z.array(adminProductListItemSchema),
+          /**
+           * Set only when nothing matched a search outside the archive: how
+           * many deleted products the same search and filters do match
+           * (FR-ADM-22). A product looked up by name would otherwise seem
+           * not to exist.
+           */
+          deletedMatches: z.number().int().positive().optional(),
           pagination: z
             .object({
               page: z.number().int().positive(),

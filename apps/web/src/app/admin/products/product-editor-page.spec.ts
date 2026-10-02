@@ -1113,7 +1113,30 @@ describe('ProductEditorPage', () => {
 
       expect(h.setProductPublished).not.toHaveBeenCalled();
       expect(h.navigate).toHaveBeenCalledWith(['/admin/products'], {
-        queryParams: { searchTerm: unpublishedProduct.name },
+        queryParams: { searchTerm: unpublishedProduct.name, state: null },
+      });
+    });
+
+    // The list's default view leaves deleted products out (FR-ADM-22), so the
+    // search alone would land on an empty list.
+    it('sends a deleted product back to the deleted ones', async () => {
+      const deletedProduct: AdminProduct = {
+        ...unpublishedProduct,
+        deletedAt: '2026-10-01T00:00:00.000Z',
+      };
+      const { fixture, el, h } = await render(
+        { slug: deletedProduct.slug },
+        {},
+        { product: deletedProduct },
+      );
+      setInput(inputByLabel(el, text.name), 'Renamed Roast');
+      h.updateProduct.mockResolvedValue({ ok: true, product: deletedProduct });
+
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.navigate).toHaveBeenCalledWith(['/admin/products'], {
+        queryParams: { searchTerm: deletedProduct.name, state: 'deleted' },
       });
     });
   });

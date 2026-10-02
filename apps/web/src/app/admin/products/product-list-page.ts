@@ -24,6 +24,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Button } from '../../ui/button';
+import { Link } from '../../ui/link';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
@@ -71,11 +72,11 @@ function knownValues<T extends string>(
 }
 
 /**
- * The admin product list: every product including soft-deleted ones
- * (which the storefront never shows), each with edit and delete/restore actions.
- * This is where deletion is reversible — the public catalog only ever hides
- * deleted rows, so restoring one lives here rather than on the storefront.
- * Admin-only and client-rendered like the rest of the panel.
+ * The admin product list: the catalog, live and unpublished, and under its own
+ * state the deleted products (FR-ADM-22), each with edit and delete/restore
+ * actions. This is where deletion is reversible — the public catalog only ever
+ * hides deleted rows, so restoring one lives here rather than on the
+ * storefront. Admin-only and client-rendered like the rest of the panel.
  */
 @Component({
   selector: 'app-product-list-page',
@@ -86,6 +87,7 @@ function knownValues<T extends string>(
     ProductFeatureGlyphs,
     AdminIcon,
     Button,
+    Link,
     ProductRowActions,
     AdminListHeader,
     AdminGrid,
@@ -134,6 +136,21 @@ function knownValues<T extends string>(
         [total]="data.pagination.total"
         [countLabel]="text.count"
       >
+        <!-- A search that finds nothing in the catalog may be looking for a
+             product that was deleted (FR-ADM-22); the archive keeps the
+             search and every other filter, and changes only the state. -->
+        @if (data.deletedMatches; as count) {
+          <p gridEmpty class="mt-2 text-muted">
+            {{ deletedMatchesLabel(count) }}
+            <a
+              appLink
+              [routerLink]="[]"
+              [queryParams]="{ state: 'deleted', page: null }"
+              queryParamsHandling="merge"
+              >{{ text.showDeleted }}</a
+            >
+          </p>
+        }
         <ng-template appGridRow [of]="data.items" let-item>
           <td>
             <div
@@ -757,9 +774,10 @@ export class ProductListPage {
 
   protected readonly bySlug = (item: { slug: string }): string => item.slug;
 
-  /** A deleted product is still listed — this is where undeleting happens — but
-   * greyed, since it is not part of the catalogue while it is there. An
-   * unpublished one is not greyed: it is waiting for somebody, which is work. */
+  /** A deleted product is listed under its own state — this is where
+   * undeleting happens — and greyed, since it is not part of the catalogue
+   * while it is there. An unpublished one is not greyed: it is waiting for
+   * somebody, which is work. */
   protected readonly isDeleted = (item: {
     deletedAt: string | null;
   }): boolean => !!item.deletedAt;
@@ -831,6 +849,10 @@ export class ProductListPage {
     { value: 'low', label: this.availabilityText.low },
     { value: 'in', label: this.availabilityText.in },
   ];
+
+  protected deletedMatchesLabel(count: number): string {
+    return fillText(this.text.deletedMatches, { count });
+  }
 
   protected gapsLabel(gaps: readonly IncompleteGap[]): string {
     return fillText(this.text.gapsLabel, {

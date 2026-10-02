@@ -1304,8 +1304,12 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // in, searched for the product just saved. Without the search the row is
       // somewhere in a list the admin then has to hunt through.
       // `searchTerm`, not `q`: the grid binds its inputs by parameter name.
+      // A deleted product is only listed under its own state (FR-ADM-22).
       await this.router.navigate(['/admin/products'], {
-        queryParams: { searchTerm: product.name },
+        queryParams: {
+          searchTerm: product.name,
+          state: product.deletedAt ? 'deleted' : null,
+        },
       });
     } else {
       await this.router.navigate(['/product', product.slug]);

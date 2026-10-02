@@ -314,6 +314,8 @@
     "stateLive": "Live",
     "stateUnpublished": "Not published",
     "stateDeleted": "Deleted",
+    "deletedMatches": "{count} deleted product(s) match.",
+    "showDeleted": "Show deleted products",
     "allCategories": "All categories",
     "categoryDirect": "{name}, without subcategories",
     "stock": "Stock",
