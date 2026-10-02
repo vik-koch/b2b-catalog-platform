@@ -76,6 +76,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-DOC-02](#fr-doc-02) — Linking documents to products
 - [FR-DOC-03](#fr-doc-03) — Documents on the product page
 - [FR-DOC-04](#fr-doc-04) — Expiry states in the admin list
+- [FR-DOC-05](#fr-doc-05) — A document held elsewhere
 
 **[Search (FR-SEARCH)](#fr-search)**
 
@@ -426,7 +427,7 @@ A paired product is marked wherever its buying controls are; the marker opens it
 
 #### <a id="fr-doc-01"></a>FR-DOC-01 — Uploading a document
 
-An admin can upload documents — certificates, declarations, data sheets — as PDF or image files. A document has a title, an optional issue date, an optional expiry date and one file. Replacing the file keeps the document, its dates and its product links, which is how a re-issued document supersedes the one it replaces.
+An admin can upload documents — certificates, declarations, data sheets — as PDF or image files. A document has a title, an optional issue date, an optional expiry date and one file, or a link in place of the file ([FR-DOC-05](#fr-doc-05)). Replacing the file keeps the document, its dates and its product links, which is how a re-issued document supersedes the one it replaces.
 
 #### <a id="fr-doc-02"></a>FR-DOC-02 — Linking documents to products
 
@@ -434,11 +435,15 @@ A document is linked to any number of products, and a product may carry any numb
 
 #### <a id="fr-doc-03"></a>FR-DOC-03 — Documents on the product page
 
-A product page lists the documents linked to that product as links that open the file in a new browser tab. A document whose expiry date has passed is not listed. Listings do not show documents.
+A product page lists the documents linked to that product as links that open the file in a new browser tab, or the document's link where it has one ([FR-DOC-05](#fr-doc-05)). A document whose expiry date has passed is not listed. Listings do not show documents.
 
 #### <a id="fr-doc-04"></a>FR-DOC-04 — Expiry states in the admin list
 
 The admin document list states each document's expiry state — valid, expiring within 30 days, expired — and can be filtered by it. Documents already expired and documents about to expire are each work awaiting the admin ([FR-WORK-02](#fr-work-02)), counted apart; the state clears when the document is given a current file and expiry, or is deleted.
+
+#### <a id="fr-doc-05"></a>FR-DOC-05 — A document held elsewhere
+
+A document can carry a link to where it is held outside the shop, such as its entry in a public register or the issuer's own page. A document has a file, a link, or both, and never neither: a register entry is a document whether or not anyone has its file. The link is a full web address. On the product page, a document with only a link opens it, and one with both opens its file from the title and offers the link beside it, named by the site it leads to. The admin list names the link's site beside the file and finds a document by it. Removing the file from a document that has a link leaves the link as the document. A document's dates, expiry states and product links are the same whichever it has.
 
 ---
 
