@@ -143,6 +143,21 @@ export class AdminCatalogService {
     return result.data.items.map((item) => item.name);
   }
 
+  /**
+   * What the unpublish confirmation says, wherever a product is taken off
+   * sale: the question, and the stranded counterparts when there are any.
+   */
+  async unpublishMessage(
+    product: { slug: string; name: string },
+    text: { unpublishConfirm: string; unpublishStranded: string },
+  ): Promise<string> {
+    const message = text.unpublishConfirm.replace('{name}', product.name);
+    const stranded = await this.strandedPairingNames(product.slug);
+    return stranded.length === 0
+      ? message
+      : `${message} ${text.unpublishStranded.replace('{names}', stranded.join(', '))}`;
+  }
+
   restoreProduct(slug: string): Promise<AdminProduct> {
     return this.afterWork(this.client.restoreProduct({ params: { slug } }));
   }

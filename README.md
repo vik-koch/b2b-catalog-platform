@@ -4,43 +4,18 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.12.0` — the third and last area travels the same way: a source system can
-> read the shop's orders out and answer them, writing at most **one** version of an order per
-> exchange whatever it did to it, filing the shop's own invoice against it as bytes, and
-> saying each time whether the customer hears about it. What stays the customer's stays
-> theirs: they place the order, and they may call off one nobody has answered yet, however
-> the area is owned. Iterations 1–14 are delivered (static pages and infrastructure, catalog
->
-> - admin panel, search, accounts and tiered pricing, units of sale, attribute filtering,
->   cart and checkout, stock availability and work-awaiting indicators, sold-together sets,
->   product documents, order processing, automated catalog feed, customer exchange, order
->   exchange). Iteration 15 turns back to the storefront — what a visitor sees rather than what
->   an integrator does — and online card payment is deferred until the shop is live and has
->   handled real orders.
-
-## Environments
-
-Two stacks share one VM; the shared Traefik proxy routes each by hostname, and one shared
-Grafana collects both their logs. See [`infra/README.md`](infra/README.md) for how they deploy.
-
-| Env      | URL                         | Reviewer inbox¹                   | Status                                        |
-| -------- | --------------------------- | --------------------------------- | --------------------------------------------- |
-| **dev**  | https://b2b-dev.vikkoch.com | https://b2b-dev.vikkoch.com/inbox | live · redeploys on every merge to `main`     |
-| **prod** | https://b2b.vikkoch.com     | https://b2b.vikkoch.com/inbox     | from `v0.1.0` · redeploys on each release tag |
-
-¹ Each environment runs its own [Mailpit](https://mailpit.axllent.org/) sink — no real mail
-leaves the demo; inquiries land in that environment's inbox. The reviewer inbox and Grafana
-are credential-gated (they're the demo's plumbing, not public features).
-
-## What this project is
-
-This repo serves two purposes:
-
-1. **A real product** — deployed for an actual client (a small wholesale business with a
-   several-hundred-SKU catalog and negotiated per-customer pricing). Client specifics live in a
-   private deployment repo; this public repo uses a fictional demo shop persona.
-2. **A portfolio piece** — demonstrating requirements engineering, documented architecture
-   decisions (ADRs), disciplined AI-assisted development, and phased backward-compatible delivery.
+> **Status:** `v1.13.0` — after three releases spent on what an integrator does, this one is
+> about what a visitor sees: a category is one chip everywhere, the main page opens on a
+> featured row, search suggests categories and shows the price beside each product, and a
+> product can be sold as a set of parts or come in variants named on its pictures. The admin
+> panel gained a content filter that turns the product list into a work queue, and a product
+> now leaves the catalog in steps — unpublished, deleted, then deleted for good. Iterations
+> 1–15 are delivered (static pages and infrastructure, catalog + admin panel, search,
+> accounts and tiered pricing, units of sale, attribute filtering, cart and checkout, stock
+> availability and work-awaiting indicators, sold-together sets, product documents, order
+> processing, automated catalog feed, customer exchange, order exchange, storefront
+> presentation). Online card payment stays deferred until the shop is live and has handled
+> real orders.
 
 ## Key features
 
@@ -114,17 +89,25 @@ Shipped:
   from data. Two things no setting takes from the customer: placing an order, and calling off
   one nobody has answered yet — which the exchange reads as a fact rather than resolving as a
   conflict
+- **Storefront presentation** — a category is one chip wherever it appears, with an optional
+  square mark beside its name; the main page opens on a featured row; the catalogue index is a
+  listing of everything, with a filter panel of its own and subcategories greyed where the
+  current filters leave them empty; search suggestions show a picture and the viewer's price,
+  can put a product in the cart, offer matching categories as their own group, and read a query
+  typed on the wrong keyboard layout; a payment-and-delivery page states what checkout offers;
+  and the footer links to the shop's other presences
+- **Sets and variants** — a product can be sold as a set of parts (a cup and its lid) whose
+  attributes are filtered per part, and can name the variants it comes in on its pictures,
+  with a variant marked unavailable rather than removed when it runs out
+- **Catalog upkeep** — the admin product list narrows by what a product lacks or carries, with
+  each row naming its gaps; a product leaves the catalog in steps (unpublished, deleted, deleted
+  permanently) and deleted ones are kept out of every count; admin counts read a category's
+  whole subtree as the storefront does; and a document can be a link to where it is held
+  elsewhere, such as a public register
 - **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
 
 Planned:
 
-- **Storefront presentation** (iteration 15) — links to the shop's other presences in the footer,
-  a small mark identifying a category wherever it appears as a chip, a category description that
-  introduces its listing and tells a crawler what the page is, a featured row on the main page,
-  search suggestions that carry a picture and the viewer's own price and that offer matching
-  categories as well as products, a payment-and-delivery page stating the zones, pickup points and
-  payment methods checkout actually offers, and admin counts that read a category's whole subtree
-  as the storefront does
 - **Card payment** — online card payment offered after an order is accepted. Unscheduled: it
   needs a merchant account the shop does not have and a live order flow to be designed against,
   and a card payment arranged with the manager is already a recorded method in the meantime

@@ -10,7 +10,7 @@ import {
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductStatusLine } from './product-status-line';
 import { ProductUnitFacts } from './product-unit-facts';
-import { TileGallery } from './tile-gallery';
+import { ImagePriority, TileGallery } from './tile-gallery';
 
 /**
  * The classes every grid of product cards uses.
@@ -65,6 +65,7 @@ export const PRODUCT_GRID =
           [link]="['/product', item().slug]"
           [productName]="item().name"
           [labelsOutside]="inset()"
+          [priority]="imagePriority()"
         />
         <ng-content />
       </div>
@@ -153,4 +154,7 @@ export class ProductTile {
   /** True where some product in this listing has a badge over its name, so
    * every card leaves the line and the names sit level. */
   readonly reserveStatus = input(false);
+
+  /** Passed to the photo; see `TileGallery.priority`. */
+  readonly imagePriority = input<ImagePriority>('lazy');
 }

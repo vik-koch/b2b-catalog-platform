@@ -81,6 +81,14 @@ type Usage = {
   unparsedCount: number;
 };
 
+/** A filter row's counts: the products under it carrying the key. */
+type ProductCounts = Pick<Usage, 'productCount' | 'unpublishedProductCount'>;
+
+const NO_PRODUCTS: ProductCounts = {
+  productCount: 0,
+  unpublishedProductCount: 0,
+};
+
 const NO_USAGE: Usage = {
   productCount: 0,
   unpublishedProductCount: 0,
@@ -435,7 +443,7 @@ export class AttributesService {
           type: definition.type,
           unit: definition.unit,
           visible: owner ? !!row && !row.hidden : true,
-          productCount: counts.get(definition.name) ?? 0,
+          ...(counts.get(definition.name) ?? NO_PRODUCTS),
           // Only meaningful under an overlay: with none, nothing was left out.
           isNew: !!owner && !row,
           // The registry's own order is the fallback rank, so an unplaced
@@ -447,7 +455,7 @@ export class AttributesService {
       .map(({ rank: _rank, ...filter }) => filter);
 
     return {
-      category: { slug: category.slug, name: category.name },
+      category: { id: category.id, slug: category.slug, name: category.name },
       source,
       inheritedFrom: from ? { slug: from.slug, name: from.name } : null,
       filters,
@@ -531,7 +539,7 @@ export class AttributesService {
           type: definition.type,
           unit: definition.unit,
           visible: !!row && !row.hidden,
-          productCount: counts.get(definition.name) ?? 0,
+          ...(counts.get(definition.name) ?? NO_PRODUCTS),
           isNew: false,
           rank: row ? row.sortOrder : Number.MAX_SAFE_INTEGER - index,
         };
@@ -590,15 +598,16 @@ export class AttributesService {
   }
 
   /** Products per attribute key within a set of categories — or across the
-   * whole catalogue, for `null`. */
+   * whole catalogue, for `null` — and how many of them are unpublished. */
   private async countsInScope(
     categoryIds: string[] | null,
-  ): Promise<Map<string, number>> {
+  ): Promise<Map<string, ProductCounts>> {
     if (categoryIds?.length === 0) return new Map();
     const rows = await this.db
       .select({
         key: productAttributes.key,
         productCount: countDistinct(productAttributes.productId),
+        unpublishedProductCount: unpublishedProducts,
       })
       .from(productAttributes)
       .innerJoin(products, eq(products.id, productAttributes.productId))
@@ -609,7 +618,9 @@ export class AttributesService {
         ),
       )
       .groupBy(productAttributes.key);
-    return new Map(rows.map((row) => [row.key, row.productCount]));
+    return new Map(
+      rows.map(({ key, ...counts }): [string, ProductCounts] => [key, counts]),
+    );
   }
 
   private async definitionById(id: string) {

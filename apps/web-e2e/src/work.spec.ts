@@ -56,11 +56,11 @@ test.describe('work awaiting attention', () => {
       page.getByRole('link', { name: /awaiting your answer/ }),
     ).toHaveAttribute('href', '/admin/orders?status=requested');
 
-    // Every seeded product is on the storefront, so that queue is empty — and
-    // an empty queue says nothing at all rather than showing a zero.
+    // And one product held back from the storefront; the deleted one beside
+    // it is out of the catalog, so it is not counted (FR-ADM-22).
     await expect(
       page.getByRole('link', { name: /awaiting publication/ }),
-    ).toHaveCount(0);
+    ).toHaveAttribute('href', '/admin/products?state=unpublished');
 
     // Into the list, narrowed to exactly the rows behind the count.
     await registrations.click();

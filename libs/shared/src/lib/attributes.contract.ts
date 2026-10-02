@@ -219,6 +219,8 @@ export const categoryFilterSchema = z
     visible: z.boolean(),
     /** Products in this category and its subcategories carrying the key. */
     productCount: z.number().int().nonnegative(),
+    /** Of `productCount`, the ones not on the storefront. */
+    unpublishedProductCount: z.number().int().nonnegative(),
     /**
      * Declared after the overlay this category resolves to was saved, so it is
      * in no row of it. Not offered here, and flagged rather than left looking
@@ -238,7 +240,9 @@ export type CategoryFilterSource = (typeof CATEGORY_FILTER_SOURCES)[number];
 
 export const categoryFiltersSchema = z
   .object({
-    category: z.object({ slug: z.string(), name: z.string() }).strict(),
+    category: z
+      .object({ id: z.uuid(), slug: z.string(), name: z.string() })
+      .strict(),
     source: z.enum(CATEGORY_FILTER_SOURCES),
     /** The category the overlay was read from, when it is not this one. */
     inheritedFrom: z

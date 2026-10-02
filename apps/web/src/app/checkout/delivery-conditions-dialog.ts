@@ -11,7 +11,7 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Button } from '../ui/button';
 import { DialogPanel } from '../ui/dialog-panel';
-import { Link } from '../ui/link';
+import { TextButton } from '../ui/link';
 import { DeliveryZoneList } from './delivery-zone-list';
 
 /**
@@ -25,7 +25,7 @@ import { DeliveryZoneList } from './delivery-zone-list';
  */
 @Component({
   selector: 'app-delivery-conditions-dialog',
-  imports: [Button, DeliveryZoneList, DialogPanel, RouterLink, Link],
+  imports: [Button, DeliveryZoneList, DialogPanel, RouterLink, TextButton],
   template: `
     <dialog
       #dialog
@@ -48,7 +48,7 @@ import { DeliveryZoneList } from './delivery-zone-list';
       <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
         @if (conditionsPath) {
           <a
-            appLink
+            appTextButton
             class="text-sm"
             [routerLink]="conditionsPath"
             (click)="closed.emit()"

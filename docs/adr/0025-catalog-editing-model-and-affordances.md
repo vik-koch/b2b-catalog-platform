@@ -158,7 +158,7 @@ controls on a card. Two things changed instead:
 The grid tiles gained the publication toggle in the bin's place, so a tile still
 carries exactly two controls.
 
-## Amendment — 2026-10-02: deleted products leave the overlay
+## Amendment — 2026-10-02 (v1.13.0): deleted products leave the overlay
 
 Deleted products became an archive outside every admin count and list (FR-ADM-22), and
 restoring moved to the admin product list. The overlay under a category grid now lists

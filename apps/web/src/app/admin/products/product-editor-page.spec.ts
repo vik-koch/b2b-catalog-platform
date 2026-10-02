@@ -21,6 +21,7 @@ import { DeploymentConfig } from '../../config/deployment-config.type';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';
+import { ConfirmService } from '../../ui/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 
 const text = defaultAdminText.productEditor;
@@ -86,6 +87,8 @@ interface Harness {
   updateProduct: ReturnType<typeof vi.fn>;
   setProductPublished: ReturnType<typeof vi.fn>;
   navigate: ReturnType<typeof vi.fn>;
+  ask: ReturnType<typeof vi.fn>;
+  unpublishMessage: ReturnType<typeof vi.fn>;
 }
 
 /** The product as the server returns it once an admin has published it. */
@@ -149,6 +152,8 @@ async function render(
       .mockResolvedValue({ ok: true, product: storedProduct }),
     setProductPublished: vi.fn().mockResolvedValue(publishedProduct),
     navigate: vi.fn().mockResolvedValue(true),
+    ask: vi.fn().mockResolvedValue(true),
+    unpublishMessage: vi.fn().mockResolvedValue('Take it off?'),
   };
   const paramMap: ParamMap = convertToParamMap(params);
   const queryParamMap: ParamMap = convertToParamMap(query);
@@ -173,8 +178,10 @@ async function render(
           createProduct: h.createProduct,
           updateProduct: h.updateProduct,
           setProductPublished: h.setProductPublished,
+          unpublishMessage: h.unpublishMessage,
         },
       },
+      { provide: ConfirmService, useValue: { ask: h.ask } },
       {
         // The grid's hint list; empty here, its own suite covers it.
         provide: AttributesService,
@@ -1017,6 +1024,42 @@ describe('ProductEditorPage', () => {
       await fixture.whenStable();
 
       expect(h.updateProduct.mock.calls[0][1].priceMinor).toBeNull();
+    });
+
+    it('asks before a cleared price takes the product off sale', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+      h.ask.mockResolvedValue(false);
+
+      setInput(inputByLabel(el, priceLabel), '');
+      fixture.detectChanges();
+      buttonByText(el, text.saveAndUnpublish).click();
+      await fixture.whenStable();
+
+      // The unpublish's own wording, stranded counterparts included.
+      expect(h.unpublishMessage).toHaveBeenCalledWith(
+        { slug: 'hafen-espresso', name: 'Hafen Espresso' },
+        defaultAdminText.editMode,
+      );
+      expect(h.ask.mock.calls[0][0].message).toBe('Take it off?');
+      expect(h.updateProduct).not.toHaveBeenCalled();
+    });
+
+    it('does not ask when the save keeps the price', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: publishedProduct },
+      );
+
+      buttonByText(el, defaultAdminText.common.save).click();
+      await fixture.whenStable();
+
+      expect(h.ask).not.toHaveBeenCalled();
+      expect(h.updateProduct).toHaveBeenCalled();
     });
 
     it('saves first and publishes second, then lands on the storefront page', async () => {

@@ -13,13 +13,16 @@ import axios from 'axios';
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
 
+/** The seeded products the storefront shows: not those seeded off it. */
+const liveSeeds = productSeeds.filter((product) => !product.state);
+
 /** The seeded categories a product is filed under, plus their ancestors — the
  * ones the storefront shows (FR-CAT-01). A seeded category nothing sits in is
  * not a tile, so it is not expected in the tree either. */
 const stockedSeeds = (() => {
   const parentOf = new Map(categorySeeds.map((c) => [c.sourceId, c.parentKey]));
   const stocked = new Set<string>();
-  for (const product of productSeeds) {
+  for (const product of liveSeeds) {
     let key: string | null | undefined = product.categoryKey;
     while (key && !stocked.has(key)) {
       stocked.add(key);
@@ -35,8 +38,8 @@ const topLevel = stockedSeeds
 const coffeeChildren = stockedSeeds
   .filter((c) => c.parentKey === 'coffee-beans')
   .map((c) => c.slug);
-const inEspresso = productSeeds.filter((p) => p.categoryKey === 'espresso');
-const underCoffeeBeans = productSeeds.filter((p) =>
+const inEspresso = liveSeeds.filter((p) => p.categoryKey === 'espresso');
+const underCoffeeBeans = liveSeeds.filter((p) =>
   ['coffee-beans', ...coffeeChildren].includes(p.categoryKey),
 );
 

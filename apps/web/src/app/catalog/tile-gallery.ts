@@ -11,6 +11,12 @@ import { ImagePlaceholder } from './image-placeholder';
 import { swipeStep, touchX } from './swipe';
 
 /**
+ * How soon a tile's first photo is fetched: `lazy` once it nears the viewport,
+ * `eager` with the page, `high` ahead of the page's other images.
+ */
+export type ImagePriority = 'lazy' | 'eager' | 'high';
+
+/**
  * The product-tile image slider (FR-CAT-04): no buttons.
  *
  * It fills whatever box the caller gives it (`aspect-square` on a card, the
@@ -57,13 +63,18 @@ import { swipeStep, touchX } from './swipe';
           <!-- attr.src, so an unrevealed photo renders with no source at all
                rather than an empty one (which the browser would resolve against
                the page URL and fetch). -->
+          <!-- loading before src: a browser that sees the source first may
+               start the fetch before it learns the image can wait. -->
           <img
+            [attr.loading]="priority() === 'lazy' ? 'lazy' : null"
+            [attr.fetchpriority]="
+              priority() === 'high' && $index === 0 ? 'high' : null
+            "
             [attr.src]="sourceFor($index)"
             [alt]="altFor(img)"
             class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
             [class.opacity-0]="$index !== selected()"
-            loading="lazy"
             (error)="markFailed(img.thumb)"
           />
         }
@@ -119,6 +130,9 @@ export class TileGallery {
   productName = input.required<string>();
   /** Whether a picture showing a variant is labelled with it. */
   labels = input(true);
+  /** Lazy by default: a listing is mostly below the fold. A caller that is
+   * the first thing on its page says so. */
+  priority = input<ImagePriority>('lazy');
 
   /** Whether the label hangs from the card's edge rather than the photo's —
    * where the photo stands inset by the card's padding. The caller then leaves

@@ -71,7 +71,7 @@ bending it.
 - (−) `PAGE_SLUGS` and `STANDALONE_PAGE_SLUGS` must be kept in step; the latter
   is `satisfies readonly PageSlug[]`, so a typo is a compile error.
 
-## Amendment — 2026-09-30: conditions joins contact on a code route
+## Amendment — 2026-09-30 (v1.13.0): conditions joins contact on a code route
 
 The conditions page (FR-NAV-03) now states the delivery zones, their
 free-delivery thresholds, the pickup points and the payment methods, read from

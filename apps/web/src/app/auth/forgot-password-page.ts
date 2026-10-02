@@ -9,7 +9,7 @@ import { Button } from '../ui/button';
 import { EmailField } from '../ui/email-field';
 import { AuthCard } from './auth-card';
 import { AuthService } from './auth.service';
-import { Link } from '../ui/link';
+import { TextButton } from '../ui/link';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -31,7 +31,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     RouterLink,
     Button,
     EmailField,
-    Link,
+    TextButton,
   ],
   template: `
     <app-auth-card>
@@ -71,7 +71,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             >
               {{ status() === 'submitting' ? text.submitting : text.submit }}
             </button>
-            <a appLink routerLink="/login" class="text-sm">
+            <a appTextButton routerLink="/login" class="text-sm">
               {{ text.backToLogin }}
             </a>
           </div>

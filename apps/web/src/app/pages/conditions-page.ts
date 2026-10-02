@@ -7,7 +7,7 @@ import { EditActions } from '../admin/edit-actions';
 import { DeliveryZoneList } from '../checkout/delivery-zone-list';
 import { usePageSeo } from '../core/page-seo';
 import { trustedRichText } from '../core/trusted-rich-text';
-import { Link } from '../ui/link';
+import { TextButton } from '../ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from './page.service';
 
@@ -26,7 +26,7 @@ import { PageService } from './page.service';
  */
 @Component({
   selector: 'app-conditions-page',
-  imports: [DeliveryZoneList, EditActions, Link, LoadErrorView],
+  imports: [DeliveryZoneList, EditActions, TextButton, LoadErrorView],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
          never written takes the page down with it — the same rules, and the
@@ -63,7 +63,7 @@ import { PageService } from './page.service';
       <div class="max-w-3xl space-y-10">
         @if (hasZones) {
           <section>
-            <h2 class="mb-4 text-xl font-normal tracking-tight">
+            <h2 class="mb-4 text-2xl font-normal tracking-tight">
               {{ fulfilmentText.conditionsHeading }}
             </h2>
             <app-delivery-zone-list />
@@ -75,7 +75,7 @@ import { PageService } from './page.service';
 
         @if (pickupLocations.length) {
           <section>
-            <h2 class="text-xl font-normal tracking-tight">
+            <h2 class="text-2xl font-normal tracking-tight">
               {{ fulfilmentText.pickupTitle }}
             </h2>
             <p class="mt-1 mb-4 text-muted">
@@ -90,7 +90,7 @@ import { PageService } from './page.service';
                     <p class="font-medium">{{ location.name }}</p>
                     @if (location.mapUrl) {
                       <a
-                        appLink
+                        appTextButton
                         class="text-sm"
                         target="_blank"
                         rel="noopener noreferrer"
@@ -116,7 +116,7 @@ import { PageService } from './page.service';
              exactly one of them to whoever is invoiced, and says why the other
              is greyed in these same words. -->
         <section>
-          <h2 class="mb-4 text-xl font-normal tracking-tight">
+          <h2 class="mb-4 text-2xl font-normal tracking-tight">
             {{ pageText.paymentHeading }}
           </h2>
           <ul class="space-y-3">
