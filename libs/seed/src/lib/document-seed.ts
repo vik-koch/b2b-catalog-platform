@@ -15,7 +15,7 @@ function day(days: number | null): string | null {
 
 /**
  * Seeds the demo documents, each with a generated placeholder PDF written to
- * the document store. Idempotent — matched by title, which is the only identity
+ * the document store unless it is a link only. Idempotent — matched by title, which is the only identity
  * a document has, and the files are content-addressed, so a re-seed neither
  * duplicates rows nor files.
  */
@@ -24,24 +24,28 @@ export async function seedDocuments(
   mediaRoot: string,
 ): Promise<void> {
   for (const seed of documentSeeds) {
-    const file = await storePlaceholderDocument(
-      mediaRoot,
-      seed.fileName,
-      placeholderPdf(seed.title, seed.body),
-    );
+    const file = seed.file
+      ? await storePlaceholderDocument(
+          mediaRoot,
+          seed.file.fileName,
+          placeholderPdf(seed.title, seed.file.body),
+        )
+      : null;
     const values = [
       seed.title,
-      file.url,
-      file.name,
-      'application/pdf',
-      file.byteSize,
+      file?.url ?? null,
+      file?.name ?? null,
+      file ? 'application/pdf' : null,
+      file?.byteSize ?? null,
       day(seed.issuedDaysAgo === null ? null : -seed.issuedDaysAgo),
       day(seed.expiresInDays),
+      seed.link ?? null,
     ];
 
     const updated = await client.query<{ id: string }>(
       `UPDATE documents SET "fileUrl" = $2, "fileName" = $3, "contentType" = $4,
-         "byteSize" = $5, "issuedAt" = $6, "expiresAt" = $7, "updatedAt" = now()
+         "byteSize" = $5, "issuedAt" = $6, "expiresAt" = $7, link = $8,
+         "updatedAt" = now()
        WHERE title = $1
        RETURNING id`,
       values,
@@ -50,8 +54,8 @@ export async function seedDocuments(
       ? updated
       : await client.query<{ id: string }>(
           `INSERT INTO documents (title, "fileUrl", "fileName", "contentType",
-             "byteSize", "issuedAt", "expiresAt")
-           VALUES ($1, $2, $3, $4, $5, $6, $7)
+             "byteSize", "issuedAt", "expiresAt", link)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
            RETURNING id`,
           values,
         );
