@@ -180,10 +180,11 @@ let nextId = 0;
                At least 22rem wide, spilling past the field's end where the
                header leaves it narrow: a picture, a name and a price do not
                fit in the field's own width there, and a row broken into one
-               word per line is a row nobody scans. -->
+               word per line is a row nobody scans. On a phone's search
+               overlay it is a sheet instead — see panelClass. -->
           <div
             [class.hidden]="!panelOpen()"
-            class="absolute top-full right-0 left-0 z-20 mt-1 flex min-w-[min(22rem,100vw_-_2rem)] flex-col overflow-hidden rounded-md border border-border-strong bg-white shadow-lg"
+            [class]="panelClass()"
             (mousedown)="$event.preventDefault()"
           >
             @if (noMatches()) {
@@ -195,7 +196,7 @@ let nextId = 0;
               [id]="listId"
               role="grid"
               [attr.aria-label]="text.suggestionsLabel"
-              class="flex min-h-0 flex-col"
+              class="flex min-h-0 flex-1 flex-col"
             >
               @if (categories().length) {
                 <!-- The categories the query names (FR-SEARCH-07), ahead of
@@ -281,10 +282,16 @@ let nextId = 0;
 
               <!-- Scrolls rather than grows: ten rows would cover the page the
                    visitor is on. About four and a half fit, the half saying
-                   there is more below. -->
+                   there is more below — except on the phone's sheet, which
+                   has the screen to itself and fills it.
+
+                   The pointer gives the row back as it leaves: a row left
+                   grey under "Show all results" looked like a choice that
+                   Enter would make. -->
               <div
                 role="rowgroup"
-                class="max-h-[min(22.5rem,60dvh)] overflow-y-auto overscroll-contain"
+                [class]="rowsClass()"
+                (mouseleave)="activeIndex.set(-1)"
               >
                 @for (item of suggestions(); track item.slug; let i = $index) {
                   <div
@@ -471,6 +478,26 @@ export class SearchField {
   /** Focus on first render — set by the phone's search overlay, which opens on
    * demand. */
   readonly autoFocus = input(false);
+  /**
+   * The phone's search overlay: the panel leaves the field's box and hangs
+   * under the overlay's row as a sheet, the screen's full width and down to
+   * its foot. Hung off the field there, it was a card narrower than the
+   * screen with the close button beside it, and showing four results on a
+   * screen with room for eight.
+   */
+  readonly sheet = input(false);
+  protected readonly panelClass = computed(
+    () =>
+      'z-20 flex flex-col overflow-hidden bg-white ' +
+      (this.sheet()
+        ? 'fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b border-border shadow-lg'
+        : 'absolute top-full right-0 left-0 mt-1 min-w-[min(22rem,100vw_-_2rem)] rounded-md border border-border-strong shadow-lg'),
+  );
+  protected readonly rowsClass = computed(
+    () =>
+      'overflow-y-auto overscroll-contain ' +
+      (this.sheet() ? 'min-h-0 flex-1' : 'max-h-[min(22.5rem,60dvh)]'),
+  );
   /**
    * Seeded from the URL rather than bound to it: landing on `/search?q=…`
    * (shared link, reload, back button) shows the query that produced the page,
