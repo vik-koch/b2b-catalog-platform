@@ -1,7 +1,7 @@
 import { killPort, waitForPortOpen } from '@nx/node/utils';
 import { execSync } from 'node:child_process';
 import { mkdirSync } from 'node:fs';
-import { join } from 'node:path';
+import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
 
@@ -11,18 +11,21 @@ const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 export async function setup() {
   console.log('\nSetting up...\n');
 
-  // 0. Create the media dir the LocalMediaStore writes to (MEDIA_ROOT=./.media)
-  // before compose runs. The compose.db.yml `media` service bind-mounts it, and
-  // if it does not exist yet the Docker daemon creates it root-owned — leaving
-  // the nx-served api (this user) unable to write uploads (EACCES). Creating it
-  // here first means Docker reuses the dir with this user's ownership.
-  mkdirSync(join(workspaceRoot, '.media'), { recursive: true });
-
-  // 1. Ensure the dev Postgres container is up and healthy.
-  execSync('docker compose -f compose.db.yml up -d --wait', {
-    cwd: workspaceRoot,
-    stdio: 'inherit',
+  // 0. Create the dir the LocalMediaStore writes uploads to (MEDIA_ROOT from
+  // .env.serve-e2e), so the documents spec can read the stored bytes back.
+  mkdirSync(resolve(workspaceRoot, requireEnv('MEDIA_ROOT')), {
+    recursive: true,
   });
+
+  // 1. Start this suite's own Postgres and Mailpit afresh (compose.api-e2e.yml):
+  // recreating them empties the tmpfs database and the inbox, so no state from
+  // an earlier run — an area left owned, maintenance left on — leaks into this
+  // one. The env carries .env.serve-e2e (see vite.config.ts), and the OS env
+  // beats compose's own .env lookup.
+  execSync(
+    'docker compose -f compose.api-e2e.yml up -d --wait --force-recreate',
+    { cwd: workspaceRoot, stdio: 'inherit' },
+  );
 
   // 2. Apply migrations explicitly.
   execSync('node dist/apps/api/main.js', {
@@ -31,7 +34,7 @@ export async function setup() {
     env: { ...process.env, RUN_MODE: 'migrate' },
   });
 
-  // 3. Wait for the API started by Nx (e2e dependsOn api:serve) to listen.
+  // 3. Wait for the API started by Nx (e2e dependsOn api:serve-e2e) to listen.
   const host = requireEnv('API_HOST');
   const port = Number(requireEnv('API_PORT'));
   await waitForPortOpen(port, { host });
@@ -47,10 +50,10 @@ export async function setup() {
 }
 
 export async function teardown() {
-  // The API process is managed by Nx (continuous api:serve dependency) and the
-  // Postgres container stays up for local development — nothing to stop here
-  // besides making sure the port is released when the server was started
-  // outside of Nx.
+  // The API process is managed by Nx (continuous api:serve-e2e dependency) and
+  // the containers stay up for inspecting a failure — nothing to stop here
+  // besides making sure the suite's own port is released when the server was
+  // started outside of Nx.
   console.log('\nTearing down...\n');
   const port = Number(requireEnv('API_PORT'));
   try {

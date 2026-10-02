@@ -2,7 +2,11 @@ import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
-import { deleteMatching, messagesMatching } from '../support/mailpit';
+import {
+  deleteMatching,
+  messageBody,
+  messagesMatching,
+} from '../support/mailpit';
 
 const SUFFIX = Math.random().toString(36).slice(2, 10);
 const ADMIN_EMAIL = `e2e-users-admin-${SUFFIX}@example.com`;
@@ -871,12 +875,8 @@ describe('/admin/users', () => {
     /** The token as it left the app, read out of the delivered mail. */
     const tokenFor = async (email: string): Promise<string> => {
       const [mail] = await messagesMatching(`to:"${email}"`);
-      const body = await axios.get(
-        `http://localhost:8025/api/v1/message/${mail.ID}`,
-      );
-      const match = /set-password\?token=([A-Za-z0-9_-]+)/.exec(
-        body.data.Text as string,
-      );
+      const { Text } = await messageBody(mail.ID);
+      const match = /set-password\?token=([A-Za-z0-9_-]+)/.exec(Text);
       if (!match) throw new Error('no set-password link in the invitation');
       return match[1];
     };

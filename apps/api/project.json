@@ -71,7 +71,8 @@
       "dependsOn": ["build"],
       "options": {
         "buildTarget": "api:build:development",
-        "runBuildTargetDependencies": false
+        "runBuildTargetDependencies": false,
+        "inspect": false
       }
     },
     "test": {

@@ -1,6 +1,17 @@
 /// <reference types='vitest' />
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { parseEnv } from 'node:util';
 import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+
+// The suite's own stack (ports, database, inbox, media dir) is the one Nx
+// hands `api:serve-e2e`. Nx loads only `.env` for this target, so lay the same
+// file over it here — before the global setup and the workers read process.env.
+const e2eStack = parseEnv(
+  readFileSync(join(__dirname, '../../.env.serve-e2e'), 'utf8'),
+);
+Object.assign(process.env, e2eStack);
 
 export default defineConfig({
   root: __dirname,
@@ -14,6 +25,7 @@ export default defineConfig({
       dir: '../../node_modules/.vitest/apps/api-e2e',
     },
     environment: 'node',
+    env: e2eStack,
     globalSetup: ['./src/support/global-setup.ts'],
     setupFiles: ['./src/support/test-setup.ts'],
     include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
