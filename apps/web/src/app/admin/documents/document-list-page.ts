@@ -38,7 +38,11 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../editor-return';
 import { DocumentsService } from './documents.service';
-import { documentFileLabel, documentFileSize } from '../../core/document-file';
+import {
+  documentFileLabel,
+  documentFileSize,
+  documentLinkHost,
+} from '../../core/document-file';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document
@@ -115,12 +119,13 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [countLabel]="text.count"
       >
         <ng-template appGridRow [of]="data" let-document>
-          <!-- The title is the way to the file: what the row is called and
-               what opening it gets you are the same thing. -->
+          <!-- The title is the way to the file, or to the link where there is
+               no file: what the row is called and what opening it gets you
+               are the same thing. -->
           <td class="truncate">
             <a
               class="block truncate break-words font-medium text-stone-700 hover:text-accent"
-              [href]="document.file.url"
+              [href]="opens(document)"
               target="_blank"
               rel="noopener"
               [title]="document.title"
@@ -130,10 +135,11 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
           </td>
           <!-- What the file is, not what it is called: the stored name is a
                content hash, and the name it was uploaded under is the second
-               line because it is what an admin recognises it by. -->
-          <td class="truncate text-subtle" [title]="document.file.name">
+               line because it is what an admin recognises it by. A link is
+               named by its site beside it (FR-DOC-05). -->
+          <td class="truncate text-subtle" [title]="names(document)">
             <span class="block truncate">{{ fileLabel(document) }}</span>
-            <span class="block truncate text-xs">{{ document.file.name }}</span>
+            <span class="block truncate text-xs">{{ names(document) }}</span>
           </td>
           <!-- The count is the way into the product grid narrowed to exactly
                these rows — the tier list's price count, said in words. -->
@@ -176,14 +182,14 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
           <app-record-row>
             <a
               class="break-words font-medium text-stone-700 hover:text-accent"
-              [href]="document.file.url"
+              [href]="opens(document)"
               target="_blank"
               rel="noopener"
               >{{ document.title }}</a
             >
             <div recordBody>
               <p class="mt-1 truncate text-sm text-subtle">
-                {{ fileLabel(document) }} · {{ document.file.name }}
+                {{ fileLabel(document) }} · {{ names(document) }}
               </p>
               <p class="mt-1 truncate text-sm">
                 <ng-container
@@ -336,7 +342,10 @@ export class DocumentListPage {
       );
     return all.filter(
       (document) =>
-        (!term || found(document.title) || found(document.file.name)) &&
+        (!term ||
+          found(document.title) ||
+          found(document.file?.name ?? '') ||
+          found(document.link ?? '')) &&
         (!status || this.matchesStatus(document, status)),
     );
   });
@@ -428,11 +437,30 @@ export class DocumentListPage {
     return fillText(this.text.products, { count: document.productCount });
   }
 
-  protected fileLabel(document: ProductDocument): string {
-    return `${documentFileLabel(document.file.contentType)} · ${documentFileSize(
-      document.file.byteSize,
-      this.text,
-    )}`;
+  /** Where the title leads: the file, or the link when there is none. */
+  protected opens(document: ProductDocument): string {
+    return document.file?.url ?? document.link ?? '';
+  }
+
+  /** "PDF · 240 kB", "Link", or both joined. */
+  protected fileLabel({ file, link }: ProductDocument): string {
+    return [
+      file &&
+        `${documentFileLabel(file.contentType)} · ${documentFileSize(
+          file.byteSize,
+          this.text,
+        )}`,
+      link && this.text.link,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+  }
+
+  /** The uploaded name and the link's site — what an admin recognises. */
+  protected names({ file, link }: ProductDocument): string {
+    return [file?.name, link && documentLinkHost(link)]
+      .filter(Boolean)
+      .join(' · ');
   }
 
   /** An ISO day in the deployment's locale; empty for a date that is not set. */

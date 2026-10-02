@@ -1434,6 +1434,9 @@ export const syncRuns = pgTable('sync_runs', {
  * `fileName` is the name it was uploaded under, kept only so a row is
  * recognisable — the stored name is a content hash.
  *
+ * A document is a file, a link to where it is held elsewhere — a register
+ * entry, the issuer's page — or both (FR-DOC-05).
+ *
  * Both dates are optional: a data sheet expires never, and an undated
  * certificate is still a document. `expiresAt` is indexed because the storefront
  * filters on it and the admin's expiry states are counted from it.
@@ -1443,10 +1446,13 @@ export const documents = pgTable(
   {
     id: uuid('id').primaryKey().defaultRandom(),
     title: varchar('title', { length: 200 }).notNull(),
-    fileUrl: text('fileUrl').notNull(),
-    fileName: varchar('fileName', { length: 255 }).notNull(),
-    contentType: varchar('contentType', { length: 100 }).notNull(),
-    byteSize: integer('byteSize').notNull(),
+    // The file is all four columns or none of them (FR-DOC-05).
+    fileUrl: text('fileUrl'),
+    fileName: varchar('fileName', { length: 255 }),
+    contentType: varchar('contentType', { length: 100 }),
+    byteSize: integer('byteSize'),
+    // Where the document is held outside the shop, e.g. a register entry.
+    link: text('link'),
     issuedAt: date('issuedAt'),
     expiresAt: date('expiresAt'),
     createdAt: timestamp('createdAt', { withTimezone: true })
@@ -1460,7 +1466,20 @@ export const documents = pgTable(
       onDelete: 'set null',
     }),
   },
-  (t) => [index('documents_expiresAt_idx').on(t.expiresAt)],
+  (t) => [
+    index('documents_expiresAt_idx').on(t.expiresAt),
+    check(
+      'documents_file_whole',
+      sql`(${t.fileUrl} is null) = (${t.fileName} is null)
+        and (${t.fileUrl} is null) = (${t.contentType} is null)
+        and (${t.fileUrl} is null) = (${t.byteSize} is null)`,
+    ),
+    // A document nobody can open is not a document.
+    check(
+      'documents_file_or_link',
+      sql`${t.fileUrl} is not null or ${t.link} is not null`,
+    ),
+  ],
 );
 
 /**

@@ -224,6 +224,9 @@ export const appTextSchema = z
           .object({
             label: z.string(),
             hint: z.string(),
+            /** The accessible name of a document's link beside its file
+             * (FR-DOC-05); must contain `{host}`, which is what it shows. */
+            linkLabel: z.string(),
             /** `{size}` is a whole number of kB. */
             sizeKb: z.string(),
             /** `{size}` is a megabyte figure with one decimal. */

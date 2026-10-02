@@ -135,9 +135,12 @@ describe('ProductDetail', () => {
         documents: [
           {
             title: 'Certificate of analysis',
-            url: '/documents/aaaaaaaaaaaa.pdf',
-            contentType: 'application/pdf',
-            byteSize: 2048,
+            file: {
+              url: '/documents/aaaaaaaaaaaa.pdf',
+              contentType: 'application/pdf',
+              byteSize: 2048,
+            },
+            link: null,
           },
         ],
       }),

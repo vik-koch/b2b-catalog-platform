@@ -4,16 +4,18 @@ import { commonAuthErrors } from './api-error';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
+  DOCUMENT_LINK_MAX_LENGTH,
   DOCUMENT_PRODUCTS_MAX,
   DOCUMENT_TITLE_MAX_LENGTH,
 } from './document-constants';
 
 /**
- * Product documents (FR-DOC-01…04), admin side.
+ * Product documents (FR-DOC-01…05), admin side.
  *
  * A document is a file staff already have — a certificate, a declaration, a
- * data sheet — with a title to find it by and the dates that say whether it is
- * still current. It is its own record rather than a field on a product because
+ * data sheet — or a link to where it is held elsewhere, such as its entry in a
+ * public register, or both; with a title to find it by and the dates that say
+ * whether it is still current. It is its own record rather than a field on a product because
  * one file is shown by many products. The links are edited from both sides —
  * here in bulk, a certificate onto thirty products at once, and one at a time
  * from a product's own form (FR-DOC-02) — because they are one table read from
@@ -43,8 +45,19 @@ export const storedDocumentFileSchema = z
 export type StoredDocumentFile = z.infer<typeof storedDocumentFileSchema>;
 
 /**
+ * A document's external link: http(s) only, since the storefront renders it as
+ * an `href`. Trimmed before it is checked — a URL pasted from a browser's
+ * address bar often brings a space with it.
+ */
+const documentLinkField = z
+  .string()
+  .trim()
+  .pipe(z.httpUrl().max(DOCUMENT_LINK_MAX_LENGTH));
+
+/**
  * What an admin fills in. The file is uploaded first and referenced here, the
  * way a catalog image is: the bytes travel as multipart, the row as JSON.
+ * Either the file or the link may be missing, never both (FR-DOC-05).
  *
  * Both dates are optional and independent — a data sheet has neither, and a
  * certificate issued today may carry no expiry at all. Nothing here checks one
@@ -54,7 +67,8 @@ export type StoredDocumentFile = z.infer<typeof storedDocumentFileSchema>;
 export const documentInputSchema = z
   .object({
     title: z.string().trim().min(1).max(DOCUMENT_TITLE_MAX_LENGTH),
-    file: storedDocumentFileSchema,
+    file: storedDocumentFileSchema.nullable().default(null),
+    link: documentLinkField.nullable().default(null),
     issuedAt: z.iso.date().nullable().default(null),
     expiresAt: z.iso.date().nullable().default(null),
     /**
@@ -75,6 +89,10 @@ export const documentInputSchema = z
       .default([]),
   })
   .strict()
+  .refine((input) => input.file !== null || input.link !== null, {
+    error: 'file-or-link-required',
+    path: ['file'],
+  })
   .refine(
     (input) =>
       !input.issuedAt || !input.expiresAt || input.issuedAt <= input.expiresAt,
@@ -112,18 +130,28 @@ export const linkedDocumentSchema = z
   .strict();
 export type LinkedDocument = z.infer<typeof linkedDocumentSchema>;
 
+/** A stored file as a product page offers it: where it is, and the two facts
+ * that say what pressing it costs — the format and the size. */
+export const publicDocumentFileSchema = z
+  .object({
+    url: z.string(),
+    contentType: z.enum(ACCEPTED_DOCUMENT_MIME_TYPES),
+    byteSize: z.number().int().positive(),
+  })
+  .strict();
+export type PublicDocumentFile = z.infer<typeof publicDocumentFileSchema>;
+
 /**
- * A document as a *product page* shows it (FR-DOC-03): a title to click and
- * the file behind it, with the two facts that say what pressing it costs — the
- * format and the size. No dates: an expired document is not listed at all, and
- * an issue date is filing, not shopping.
+ * A document as a *product page* shows it (FR-DOC-03/05): a title to click,
+ * the file behind it, the link to where it is held elsewhere, or both. No
+ * dates: an expired document is not listed at all, and an issue date is
+ * filing, not shopping.
  */
 export const publicDocumentSchema = z
   .object({
     title: z.string(),
-    url: z.string(),
-    contentType: z.enum(ACCEPTED_DOCUMENT_MIME_TYPES),
-    byteSize: z.number().int().positive(),
+    file: publicDocumentFileSchema.nullable(),
+    link: z.string().nullable(),
   })
   .strict();
 export type PublicDocument = z.infer<typeof publicDocumentSchema>;
@@ -133,7 +161,10 @@ export const productDocumentSchema = z
   .object({
     id: z.uuid(),
     title: z.string(),
-    file: storedDocumentFileSchema,
+    file: storedDocumentFileSchema.nullable(),
+    /** Read as any string: the write side checked it, and a row this list
+     * refused would take every other row down with it. */
+    link: z.string().nullable(),
     issuedAt: z.iso.date().nullable(),
     expiresAt: z.iso.date().nullable(),
     /** How many products show this document — the list's link into the

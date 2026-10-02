@@ -13,16 +13,19 @@ import { DocumentsService } from './documents.service';
 
 const text = defaultAdminText.documentList;
 
+const storedFile = {
+  url: '/documents/aaaaaaaaaaaa.pdf',
+  name: 'certificate.pdf',
+  contentType: 'application/pdf' as const,
+  byteSize: 2048,
+};
+
 function document(overrides: Partial<ProductDocument> = {}): ProductDocument {
   return {
     id: 'doc-1',
     title: 'Certificate of analysis',
-    file: {
-      url: '/documents/aaaaaaaaaaaa.pdf',
-      name: 'certificate.pdf',
-      contentType: 'application/pdf',
-      byteSize: 2048,
-    },
+    file: storedFile,
+    link: null,
     issuedAt: '2026-01-15',
     expiresAt: '2027-01-15',
     productCount: 0,
@@ -93,7 +96,7 @@ const twoDocuments = [
   document({
     id: 'b',
     title: 'Data sheet',
-    file: { ...document().file, name: 'sheet.pdf' },
+    file: { ...storedFile, name: 'sheet.pdf' },
   }),
 ];
 
@@ -151,6 +154,45 @@ describe('DocumentListPage', () => {
 
     expect(el.textContent).toContain('Data sheet');
     expect(el.textContent).not.toContain('Certificate of analysis');
+  });
+
+  describe('a link (FR-DOC-05)', () => {
+    const link = 'https://www.example.org/register/0001';
+
+    it('opens a link-only document at its link, named by its site', async () => {
+      const { rows, el } = await render({
+        documents: [document({ file: null, link })],
+      });
+
+      const title = [...el.querySelectorAll('tbody a')].find((a) =>
+        a.textContent?.includes('Certificate of analysis'),
+      );
+      expect(title?.getAttribute('href')).toBe(link);
+      expect(rows()).toContain(text.link);
+      expect(rows()).toContain('example.org');
+      expect(rows()).not.toContain('PDF');
+    });
+
+    it('names both the file and the link where a document has both', async () => {
+      const { rows } = await render({ documents: [document({ link })] });
+
+      expect(rows()).toContain('PDF');
+      expect(rows()).toContain('certificate.pdf');
+      expect(rows()).toContain('example.org');
+    });
+
+    it('narrows the list by link too', async () => {
+      const { el } = await render({
+        documents: [
+          document({ id: 'a', title: 'Certificate of analysis' }),
+          document({ id: 'b', title: 'Data sheet', file: null, link }),
+        ],
+        searchTerm: 'example',
+      });
+
+      expect(el.textContent).toContain('Data sheet');
+      expect(el.textContent).not.toContain('Certificate of analysis');
+    });
   });
 
   it('says the list is empty when there are no documents', async () => {

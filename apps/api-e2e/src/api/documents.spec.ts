@@ -307,6 +307,59 @@ describe('Product documents (FR-DOC-01)', () => {
       expect(res.status).toBe(400);
     });
 
+    describe('a link (FR-DOC-05)', () => {
+      const link = 'https://example.org/register/0001';
+
+      it('takes a link in place of the file', async () => {
+        const res = await createDocument({ title: 'Register entry', link });
+        expect(res.status).toBe(201);
+        expect(res.data.file).toBeNull();
+        expect(res.data.link).toBe(link);
+      });
+
+      it('takes a file and a link on one document, trimming the link', async () => {
+        const res = await createDocument({
+          title: 'File and entry',
+          file: await uploadPdf('file and entry'),
+          link: `  ${link} `,
+        });
+        expect(res.status).toBe(201);
+        expect(res.data.file).not.toBeNull();
+        expect(res.data.link).toBe(link);
+      });
+
+      it('refuses a document with neither', async () => {
+        const res = await createDocument({ title: 'Nothing to open' });
+        expect(res.status).toBe(400);
+      });
+
+      // It is rendered as an href on the storefront.
+      it.each([
+        'javascript:alert(1)',
+        'example.org/register',
+        'ftp://example.org',
+      ])('refuses %s as a link', async (bad) => {
+        const res = await createDocument({ title: 'Bad link', link: bad });
+        expect(res.status).toBe(400);
+      });
+
+      it('drops the file from a document that keeps its link', async () => {
+        const created = await createDocument({
+          title: 'Losing its file',
+          file: await uploadPdf('losing its file'),
+          link,
+        });
+        const res = await put(`/admin/documents/${created.data.id}`, {
+          title: 'Losing its file',
+          file: null,
+          link,
+        });
+        expect(res.status).toBe(200);
+        expect(res.data.file).toBeNull();
+        expect(res.data.link).toBe(link);
+      });
+    });
+
     it('replaces the file in place, keeping the row and its id', async () => {
       const created = await createDocument({
         title: 'Renewable certificate',
@@ -573,10 +626,46 @@ describe('Product documents (FR-DOC-01)', () => {
       // The file, and what pressing it costs — nothing about dates.
       expect(res.data.documents[2]).toEqual({
         title: `Undated ${R}`,
-        url: undated.data.file.url,
-        contentType: 'application/pdf',
-        byteSize: undated.data.file.byteSize,
+        file: {
+          url: undated.data.file.url,
+          contentType: 'application/pdf',
+          byteSize: undated.data.file.byteSize,
+        },
+        link: null,
       });
+    });
+
+    it('lists a link-only document by its link, and both where it has both', async () => {
+      const slug = await createProduct('Linked documents');
+      await publishProduct(slug);
+      const link = 'https://example.org/register/0002';
+      await createDocument({
+        title: `A entry ${R}`,
+        link,
+        productSlugs: [slug],
+      });
+      const both = await createDocument({
+        title: `B both ${R}`,
+        file: await uploadPdf('both'),
+        link,
+        productSlugs: [slug],
+      });
+
+      const res = await axios.get(`/catalog/products/${slug}`);
+
+      expect(res.status).toBe(200);
+      expect(res.data.documents).toEqual([
+        { title: `A entry ${R}`, file: null, link },
+        {
+          title: `B both ${R}`,
+          file: {
+            url: both.data.file.url,
+            contentType: 'application/pdf',
+            byteSize: both.data.file.byteSize,
+          },
+          link,
+        },
+      ]);
     });
 
     it('shows no expired document, to anybody', async () => {
