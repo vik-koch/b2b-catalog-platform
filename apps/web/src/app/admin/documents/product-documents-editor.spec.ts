@@ -22,6 +22,7 @@ const inList = (document: LinkedDocument): ProductDocument => ({
     contentType: 'application/pdf',
     byteSize: 2048,
   },
+  link: null,
   issuedAt: null,
   productCount: 1,
   unpublishedProductCount: 0,

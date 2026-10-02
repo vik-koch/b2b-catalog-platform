@@ -6,6 +6,7 @@ import {
   DocumentInput,
   DocumentProduct,
   ProductDocument,
+  StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -33,7 +34,8 @@ type DocumentRow = typeof documents.$inferSelect;
 /**
  * The stored row as the contract shows it: the four file columns are one
  * object, because the file is what an admin replaces in a single step and
- * nothing outside this table uses them apart.
+ * nothing outside this table uses them apart. A check constraint keeps the four
+ * null together, so `fileUrl` speaks for all of them.
  */
 function toDocument(
   row: DocumentRow,
@@ -43,12 +45,16 @@ function toDocument(
   return {
     id: row.id,
     title: row.title,
-    file: {
-      url: row.fileUrl,
-      name: row.fileName,
-      contentType: row.contentType as ProductDocument['file']['contentType'],
-      byteSize: row.byteSize,
-    },
+    file:
+      row.fileUrl === null
+        ? null
+        : {
+            url: row.fileUrl,
+            name: row.fileName as string,
+            contentType: row.contentType as StoredDocumentFile['contentType'],
+            byteSize: row.byteSize as number,
+          },
+    link: row.link,
     issuedAt: row.issuedAt,
     expiresAt: row.expiresAt,
     productCount,
@@ -266,10 +272,11 @@ export class DocumentsService {
 function columns(input: DocumentInput) {
   return {
     title: input.title,
-    fileUrl: input.file.url,
-    fileName: input.file.name,
-    contentType: input.file.contentType,
-    byteSize: input.file.byteSize,
+    fileUrl: input.file?.url ?? null,
+    fileName: input.file?.name ?? null,
+    contentType: input.file?.contentType ?? null,
+    byteSize: input.file?.byteSize ?? null,
+    link: input.link,
     issuedAt: input.issuedAt,
     expiresAt: input.expiresAt,
   };

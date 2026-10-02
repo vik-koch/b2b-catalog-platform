@@ -106,8 +106,9 @@ export const DOCUMENT_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
   {
     name: 'document files',
     async collect(client) {
+      // A link-only document has no file to keep.
       const { rows } = await client.query<{ fileUrl: string }>(
-        'SELECT "fileUrl" FROM documents',
+        'SELECT "fileUrl" FROM documents WHERE "fileUrl" IS NOT NULL',
       );
       return rows.flatMap((row) => documentFilenames(row.fileUrl));
     },

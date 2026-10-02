@@ -911,6 +911,7 @@ export class CatalogService {
         url: documents.fileUrl,
         contentType: documents.contentType,
         byteSize: documents.byteSize,
+        link: documents.link,
       })
       .from(documentProducts)
       .innerJoin(documents, eq(documents.id, documentProducts.documentId))
@@ -924,6 +925,12 @@ export class CatalogService {
 
     // The column is a varchar; the contract's own parse is what decides the
     // type is one it accepts, exactly as the upload's sniff did on the way in.
-    return rows.map((row) => publicDocumentSchema.parse(row));
+    return rows.map(({ title, url, contentType, byteSize, link }) =>
+      publicDocumentSchema.parse({
+        title,
+        file: url === null ? null : { url, contentType, byteSize },
+        link,
+      }),
+    );
   }
 }

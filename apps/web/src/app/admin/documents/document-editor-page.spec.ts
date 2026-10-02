@@ -26,6 +26,7 @@ function document(overrides: Partial<DocumentDetail> = {}): DocumentDetail {
     id: 'doc-1',
     title: 'Certificate of analysis',
     file: storedFile,
+    link: null,
     issuedAt: '2026-01-15',
     expiresAt: '2027-01-15',
     productCount: 0,
@@ -125,6 +126,13 @@ async function render(
     input.dispatchEvent(new Event('change'));
     await settle();
   };
+  const typeLink = async (value: string) => {
+    const input = el.querySelector<HTMLInputElement>('input[type="url"]');
+    if (!input) throw new Error('no link field');
+    input.value = value;
+    input.dispatchEvent(new Event('input'));
+    await settle();
+  };
   const choose = async (file: File) => {
     const input = el.querySelector<HTMLInputElement>('input[type="file"]');
     if (!input) throw new Error('no file input');
@@ -141,7 +149,18 @@ async function render(
   };
   const error = () => el.querySelector('[role="alert"]')?.textContent?.trim();
 
-  return { fixture, el, service, type, pickDate, choose, save, error, settle };
+  return {
+    fixture,
+    el,
+    service,
+    type,
+    typeLink,
+    pickDate,
+    choose,
+    save,
+    error,
+    settle,
+  };
 }
 
 const pdf = () =>
@@ -173,9 +192,70 @@ describe('DocumentEditorPage', () => {
     expect(service.create).toHaveBeenCalledWith({
       title: 'Certificate of analysis',
       file: storedFile,
+      link: null,
       issuedAt: '2026-01-15',
       expiresAt: '2027-01-15',
       productSlugs: [],
+    });
+  });
+
+  describe('the link (FR-DOC-05)', () => {
+    const link = 'https://example.org/register/0001';
+
+    // A register entry is a document whether or not anyone has its PDF.
+    it('saves a document that is only a link', async () => {
+      const { service, type, typeLink, save } = await render();
+
+      await type(text.title, 'Declaration of conformity');
+      await typeLink(`  ${link} `);
+      await save();
+
+      expect(service.create).toHaveBeenCalledWith(
+        expect.objectContaining({ file: null, link }),
+      );
+    });
+
+    it('saves a file and a link on the same document', async () => {
+      const { service, type, typeLink, choose, save } = await render();
+
+      await type(text.title, 'Organic certification');
+      await choose(pdf());
+      await typeLink(link);
+      await save();
+
+      expect(service.create).toHaveBeenCalledWith(
+        expect.objectContaining({ file: storedFile, link }),
+      );
+    });
+
+    it('answers a link that is not a web address beside the field', async () => {
+      const { service, type, typeLink, save, error } = await render();
+
+      await type(text.title, 'Typo');
+      await typeLink('example.org/register');
+      await save();
+
+      expect(error()).toBe(text.linkInvalid);
+      expect(service.create).not.toHaveBeenCalled();
+    });
+
+    // Removing the file leaves the link as the whole document.
+    it('removes the file of a stored document, keeping its link', async () => {
+      const { service, el, save, settle } = await render({
+        id: 'doc-1',
+        existing: document({ link }),
+      });
+
+      el.querySelector<HTMLButtonElement>(
+        `button[aria-label="${text.removeFile}"]`,
+      )?.click();
+      await settle();
+      await save();
+
+      expect(service.update).toHaveBeenCalledWith(
+        'doc-1',
+        expect.objectContaining({ file: null, link }),
+      );
     });
   });
 
@@ -189,13 +269,13 @@ describe('DocumentEditorPage', () => {
     expect(service.create).not.toHaveBeenCalled();
   });
 
-  it('refuses to save a document with no file', async () => {
+  it('refuses to save a document with neither a file nor a link', async () => {
     const { service, type, save, error } = await render();
 
     await type(text.title, 'Titled but fileless');
     await save();
 
-    expect(error()).toBe(text.fileRequired);
+    expect(error()).toBe(text.fileOrLinkRequired);
     expect(service.create).not.toHaveBeenCalled();
   });
 

@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
+  DOCUMENT_LINK_MAX_LENGTH,
   DocumentInput,
   DocumentProduct,
   StoredDocumentFile,
@@ -24,7 +25,7 @@ import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 
 /**
- * Add or edit a document (FR-DOC-01/02) at `/admin/documents/new` and
+ * Add or edit a document (FR-DOC-01/02/05) at `/admin/documents/new` and
  * `/admin/documents/:id/edit`. One screen for both, and one save: the file, the
  * title, the dates and the products it is shown on are one record, and a
  * two-step upload would only leave half a row behind when somebody walked away.
@@ -35,6 +36,9 @@ import { DocumentsService } from './documents.service';
  *
  * The bytes go up as soon as they are chosen, the way a catalog image does:
  * what the form holds is the stored file, and saving writes a pointer.
+ *
+ * The file and the link are each optional, never both missing: a register
+ * entry is a document whether or not anyone has its PDF.
  */
 @Component({
   selector: 'app-document-editor-page',
@@ -80,10 +84,7 @@ import { DocumentsService } from './documents.service';
         </label>
 
         <div class="block">
-          <span appFieldLabel>
-            {{ text.file }}
-            <span class="text-accent" aria-hidden="true">*</span>
-          </span>
+          <span appFieldLabel>{{ text.file }}</span>
 
           <input
             #fileInput
@@ -98,39 +99,56 @@ import { DocumentsService } from './documents.service';
                  own name is the line, because the stored name is a hash and
                  the title above is what the shop calls it. -->
             <div
-              class="flex items-center gap-3 rounded-md border border-border p-3"
+              class="flex flex-wrap items-center gap-3 rounded-md border border-border p-3"
             >
-              <app-admin-icon
-                name="file-text"
-                class="h-5 w-5 shrink-0 text-subtle"
-              />
-              <span class="min-w-0 flex-1">
-                <span class="block truncate text-sm">{{ stored.name }}</span>
-                <span class="block text-xs text-subtle">{{
-                  meta(stored)
-                }}</span>
+              <!-- The name keeps a readable width; on a phone the three
+                   controls take the next line rather than squeeze it. -->
+              <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
+                <app-admin-icon
+                  name="file-text"
+                  class="h-5 w-5 shrink-0 text-subtle"
+                />
+                <span class="min-w-0">
+                  <span class="block truncate text-sm">{{ stored.name }}</span>
+                  <span class="block text-xs text-subtle">{{
+                    meta(stored)
+                  }}</span>
+                </span>
               </span>
-              <a
-                appIconButton
-                [href]="stored.url"
-                target="_blank"
-                rel="noopener"
-                [attr.aria-label]="text.open"
-                [title]="text.open"
-              >
-                <app-admin-icon name="external-link" />
-              </a>
-              <button
-                appButton
-                variant="secondary"
-                type="button"
-                class="shrink-0 gap-2"
-                [disabled]="uploading()"
-                (click)="fileInput.click()"
-              >
-                <app-admin-icon name="upload" class="h-4 w-4" />
-                {{ uploading() ? common.uploading : text.replace }}
-              </button>
+              <span class="ml-auto flex shrink-0 items-center gap-2">
+                <a
+                  appIconButton
+                  [href]="stored.url"
+                  target="_blank"
+                  rel="noopener"
+                  [attr.aria-label]="text.open"
+                  [title]="text.open"
+                >
+                  <app-admin-icon name="external-link" />
+                </a>
+                <button
+                  appButton
+                  variant="secondary"
+                  type="button"
+                  class="shrink-0 gap-2"
+                  [disabled]="uploading()"
+                  (click)="fileInput.click()"
+                >
+                  <app-admin-icon name="upload" class="h-4 w-4" />
+                  {{ uploading() ? common.uploading : text.replace }}
+                </button>
+                <!-- Leaves the link as the document; the bytes go when the
+                   sweep finds nothing pointing at them. -->
+                <button
+                  appIconButton
+                  type="button"
+                  [attr.aria-label]="text.removeFile"
+                  [title]="text.removeFile"
+                  (click)="file.set(null)"
+                >
+                  <app-admin-icon name="trash-2" />
+                </button>
+              </span>
             </div>
           } @else {
             <!-- The same dashed target the sync screen and the image tiles
@@ -157,6 +175,41 @@ import { DocumentsService } from './documents.service';
           }
           <span class="mt-1 block text-xs text-subtle">{{
             text.fileHint
+          }}</span>
+        </div>
+
+        <!-- Where the document is held elsewhere (FR-DOC-05). Beside the file
+             rather than instead of it: both are ways to the same paper. -->
+        <div class="block">
+          <label [for]="linkId" appFieldLabel>{{ text.link }}</label>
+          <div class="flex items-center gap-2">
+            <input
+              [id]="linkId"
+              type="url"
+              inputmode="url"
+              autocomplete="off"
+              [maxLength]="linkMax"
+              appInput
+              class="min-w-0 flex-1"
+              [placeholder]="text.linkPlaceholder"
+              [value]="link()"
+              (input)="link.set($any($event.target).value)"
+            />
+            @if (linkValid()) {
+              <a
+                appIconButton
+                [href]="link().trim()"
+                target="_blank"
+                rel="noopener"
+                [attr.aria-label]="text.openLink"
+                [title]="text.openLink"
+              >
+                <app-admin-icon name="external-link" />
+              </a>
+            }
+          </div>
+          <span class="mt-1 block text-xs text-subtle">{{
+            text.linkHint
           }}</span>
         </div>
 
@@ -232,6 +285,8 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
   protected readonly issuedId = 'document-issued-at';
   protected readonly expiresId = 'document-expires-at';
+  protected readonly linkId = 'document-link';
+  protected readonly linkMax = DOCUMENT_LINK_MAX_LENGTH;
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;
@@ -245,6 +300,8 @@ export class DocumentEditorPage implements UnsavedChangesAware {
 
   protected readonly title = signal('');
   protected readonly file = signal<StoredDocumentFile | null>(null);
+  protected readonly link = signal('');
+  protected readonly linkValid = computed(() => isWebLink(this.link().trim()));
   protected readonly products = signal<DocumentProduct[]>([]);
   protected readonly issuedAt = signal('');
   protected readonly expiresAt = signal('');
@@ -283,6 +340,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     if (document) {
       this.title.set(document.title);
       this.file.set(document.file);
+      this.link.set(document.link ?? '');
       this.products.set(document.products);
       this.issuedAt.set(document.issuedAt ?? '');
       this.expiresAt.set(document.expiresAt ?? '');
@@ -296,6 +354,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     return JSON.stringify({
       title: this.title(),
       file: this.file(),
+      link: this.link().trim(),
       issuedAt: this.issuedAt(),
       expiresAt: this.expiresAt(),
       products: this.products().map((p) => p.slug),
@@ -352,8 +411,13 @@ export class DocumentEditorPage implements UnsavedChangesAware {
       this.error.set(this.text.titleRequired);
       return;
     }
-    if (!stored) {
-      this.error.set(this.text.fileRequired);
+    const link = this.link().trim() || null;
+    if (link && !isWebLink(link)) {
+      this.error.set(this.text.linkInvalid);
+      return;
+    }
+    if (!stored && !link) {
+      this.error.set(this.text.fileOrLinkRequired);
       return;
     }
     const issuedAt = this.issuedAt() || null;
@@ -368,6 +432,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     const body: DocumentInput = {
       title: this.title().trim(),
       file: stored,
+      link,
       issuedAt,
       expiresAt,
       productSlugs: this.products().map((p) => p.slug),
@@ -394,5 +459,16 @@ export class DocumentEditorPage implements UnsavedChangesAware {
 
   protected async cancel(): Promise<void> {
     await this.close('/admin/documents');
+  }
+}
+
+/** What the API accepts as a link: an absolute http(s) URL. Checked here too
+ * so a typo is answered beside the field rather than as a failed save. */
+function isWebLink(value: string): boolean {
+  if (!/^https?:\/\//i.test(value)) return false;
+  try {
+    return Boolean(new URL(value).host);
+  } catch {
+    return false;
   }
 }

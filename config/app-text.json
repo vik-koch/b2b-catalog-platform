@@ -97,7 +97,8 @@
     },
     "documents": {
       "label": "Documents",
-      "hint": "Opens the file in a new tab",
+      "hint": "Opens in a new tab",
+      "linkLabel": "Look it up at {host}",
       "sizeKb": "{size} kB",
       "sizeMb": "{size} MB"
     },

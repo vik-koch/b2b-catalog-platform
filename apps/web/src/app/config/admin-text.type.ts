@@ -1448,6 +1448,9 @@ export const adminTextSchema = z
         /** Column headings. */
         titleColumn: z.string(),
         fileColumn: z.string(),
+        /** What a document's link is called in that column (FR-DOC-05),
+         * beside the file's format. */
+        link: z.string(),
         issuedColumn: z.string(),
         expiresColumn: z.string(),
         statusColumn: z.string(),
@@ -1507,8 +1510,16 @@ export const adminTextSchema = z
         choose: z.string(),
         replace: z.string(),
         open: z.string(),
+        removeFile: z.string(),
         fileHint: z.string(),
         uploadError: z.string(),
+        /** The external link (FR-DOC-05) — a register entry, the issuer's
+         * page. Optional beside the file, but one of the two is required. */
+        link: z.string(),
+        linkPlaceholder: z.string(),
+        linkHint: z.string(),
+        openLink: z.string(),
+        linkInvalid: z.string(),
         issuedAt: z.string(),
         expiresAt: z.string(),
         datesHint: z.string(),
@@ -1538,7 +1549,7 @@ export const adminTextSchema = z
           })
           .strict(),
         titleRequired: z.string(),
-        fileRequired: z.string(),
+        fileOrLinkRequired: z.string(),
         expiryBeforeIssue: z.string(),
         saveError: z.string(),
         discardConfirm: z.string(),

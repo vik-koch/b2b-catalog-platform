@@ -37,6 +37,10 @@ export const DOCUMENT_TITLE_MAX_LENGTH = 200;
 /** The uploaded file's own name, kept for recognition only. */
 export const DOCUMENT_FILE_NAME_MAX_LENGTH = 255;
 
+/** A document's external link (FR-DOC-05). Long enough for a register's query
+ * string, short enough to bound the row. */
+export const DOCUMENT_LINK_MAX_LENGTH = 2000;
+
 /**
  * How many products one save may link a document to. Not a rule about
  * documents — FR-DOC-02 puts no number on it, and a certificate that covers a
