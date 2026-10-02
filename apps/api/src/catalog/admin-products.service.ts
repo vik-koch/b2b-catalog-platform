@@ -241,12 +241,6 @@ export class AdminProductsService {
       query.state === 'unpublished'
         ? and(isNull(products.deletedAt), isNull(products.publishedAt))
         : undefined,
-      // Its own state rather than a price filter the caller has to name a
-      // list for: "not priced" is about the default list by definition, since
-      // that is the one publication needs.
-      query.state === 'unpriced'
-        ? and(isNull(products.deletedAt), isNull(resolvedPriceMinor(null)))
-        : undefined,
       query.state === 'deleted' ? isNotNull(products.deletedAt) : undefined,
       // The stored state, not the count: the threshold that decides "few left"
       // follows the packaging, and a filter that re-derived it here would go

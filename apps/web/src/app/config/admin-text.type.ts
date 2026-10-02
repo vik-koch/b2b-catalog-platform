@@ -574,7 +574,6 @@ export const adminTextSchema = z
         state: z.string(),
         stateLive: z.string(),
         stateUnpublished: z.string(),
-        stateUnpriced: z.string(),
         stateDeleted: z.string(),
         allCategories: z.string(),
         /** The category filter's option for the products filed in a category
@@ -606,6 +605,7 @@ export const adminTextSchema = z
         missing: z
           .object({
             incomplete: z.string(),
+            price: z.string(),
             picture: z.string(),
             description: z.string(),
             attributes: z.string(),
@@ -626,6 +626,7 @@ export const adminTextSchema = z
         gapsLabel: z.string(),
         gap: z
           .object({
+            price: z.string(),
             picture: z.string(),
             description: z.string(),
             attributes: z.string(),

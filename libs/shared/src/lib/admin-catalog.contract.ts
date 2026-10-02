@@ -469,19 +469,17 @@ export const productPageSchema = z
 export type ProductPage = z.infer<typeof productPageSchema>;
 
 /**
- * Which publication states the grid shows (FR-ADM-05). `all` is the default —
- * the admin sees the whole catalog, soft-deleted rows included and greyed out —
- * with the rest as narrowing filters rather than the storefront's implicit
- * "live only". `live` means on the storefront: published and not deleted.
- * `unpublished` is the review queue a sync fills (FR-ADM-06), and `unpriced`
- * the narrower queue inside it: products no price list prices, which nobody
- * can publish until somebody prices them.
+ * Which publication states the grid shows (FR-ADM-05). `all` is the default:
+ * the catalog, live and unpublished, rather than the storefront's implicit
+ * "live only". `live` means on the storefront, and `unpublished` is the review
+ * queue a sync fills (FR-ADM-06). `deleted` is the archive (FR-ADM-22): out of
+ * the catalog, so never part of `all`, and the one place deleted rows appear.
+ * An unpriced product is a content gap, not a state (FR-ADM-20).
  */
 export const adminProductStateSchema = z.enum([
   'all',
   'live',
   'unpublished',
-  'unpriced',
   'deleted',
 ]);
 export type AdminProductState = z.infer<typeof adminProductStateSchema>;
@@ -599,7 +597,7 @@ export const adminProductListQuerySchema = z.object({
   documentId: z.uuid().optional(),
   /**
    * What the product's own content lacks (FR-ADM-20), each entry one gap or
-   * `incomplete` for any of the three every product page needs. Several
+   * `incomplete` for any of the four every product page needs. Several
    * entries must all hold, and so must `has` beside them: "featured, without
    * a picture" is one question.
    */

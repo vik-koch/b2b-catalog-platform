@@ -842,7 +842,6 @@ export class ProductListPage {
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
     { value: 'unpublished', label: this.text.stateUnpublished },
-    { value: 'unpriced', label: this.text.stateUnpriced },
     { value: 'deleted', label: this.text.stateDeleted },
   ];
 

@@ -331,11 +331,11 @@
     "tierPricedNo": "Not priced in this list",
     "unpricedBadge": "No price",
     "noPrice": "—",
-    "stateUnpriced": "No price",
     "missingGroup": "Missing",
     "hasGroup": "Has",
     "missing": {
       "incomplete": "Incomplete",
+      "price": "No price",
       "picture": "No picture",
       "description": "No description",
       "attributes": "No attributes",
@@ -352,6 +352,7 @@
     },
     "gapsLabel": "No {gaps}",
     "gap": {
+      "price": "price",
       "picture": "picture",
       "description": "description",
       "attributes": "attributes"
