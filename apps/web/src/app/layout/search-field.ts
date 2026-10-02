@@ -15,7 +15,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NavigationEnd, NavigationSkipped, Router } from '@angular/router';
+import {
+  NavigationEnd,
+  NavigationSkipped,
+  Router,
+  RouterLink,
+} from '@angular/router';
 import { filter } from 'rxjs';
 import {
   fillText,
@@ -79,6 +84,7 @@ let nextId = 0;
 @Component({
   selector: 'app-search-field',
   imports: [
+    RouterLink,
     Icon,
     HighlightedLine,
     ImagePlaceholder,
@@ -291,51 +297,62 @@ let nextId = 0;
                       role="gridcell"
                       [id]="cellId(i + offset(), 0)"
                       [attr.aria-selected]="isActive(i + offset(), 0)"
-                      class="flex min-w-0 flex-1 cursor-pointer items-center gap-3"
-                      (mousedown)="go(item.slug)"
+                      class="flex min-w-0 flex-1"
                     >
-                      <!-- Decorative: the name beside it says what it shows. -->
-                      <span [class]="thumb">
-                        @if (
-                          item.images[0] && !failed().has(item.images[0].thumb)
-                        ) {
-                          <img
-                            [src]="item.images[0].thumb"
-                            alt=""
-                            class="h-full w-full object-cover"
-                            (error)="markFailed(item.images[0].thumb)"
-                          />
-                        } @else {
-                          <app-image-placeholder aria-hidden="true" />
-                        }
-                      </span>
-                      <span class="flex min-w-0 flex-col gap-0.5">
-                        <!-- The same marked run the address and company fields
+                      <!-- A real link, so the browser's own ways of opening
+                           it — a new tab, the context menu — reach it as they
+                           would any other. The panel closes on the navigation
+                           a plain click makes. Out of the tab order: the caret
+                           stays in the field and the arrow keys walk the rows. -->
+                      <a
+                        [routerLink]="['/product', item.slug]"
+                        tabindex="-1"
+                        class="flex min-w-0 flex-1 items-center gap-3"
+                      >
+                        <!-- Decorative: the name beside it says what it shows. -->
+                        <span [class]="thumb">
+                          @if (
+                            item.images[0] &&
+                            !failed().has(item.images[0].thumb)
+                          ) {
+                            <img
+                              [src]="item.images[0].thumb"
+                              alt=""
+                              class="h-full w-full object-cover"
+                              (error)="markFailed(item.images[0].thumb)"
+                            />
+                          } @else {
+                            <app-image-placeholder aria-hidden="true" />
+                          }
+                        </span>
+                        <span class="flex min-w-0 flex-col gap-0.5">
+                          <!-- The same marked run the address and company fields
                            draw: one query should look like one query wherever
                            it is typed. Highlighted against the settled query
                            rather than the live one — the names on screen
                            answered that query, and marking them against later
                            keystrokes would flicker a highlight the list has
                            not caught up with. -->
-                        <span class="line-clamp-2 text-sm text-stone-800">
-                          <app-highlighted-line
-                            [line]="item.name"
-                            [query]="query()"
-                            [alternateQuery]="alternateQuery()"
-                          />
-                        </span>
-                        <!-- The per-piece price, as a listing leads with it
+                          <span class="line-clamp-2 text-sm text-stone-800">
+                            <app-highlighted-line
+                              [line]="item.name"
+                              [query]="query()"
+                              [alternateQuery]="alternateQuery()"
+                            />
+                          </span>
+                          <!-- The per-piece price, as a listing leads with it
                            (FR-UNIT-08) — and the viewer's own, since the API
                            resolves it for their tier (FR-AUTH-05). -->
-                        <span
-                          class="text-sm font-semibold whitespace-nowrap text-ink"
-                        >
-                          {{ price(item).price }}
-                          <span class="text-xs font-normal text-subtle">{{
-                            price(item).label
-                          }}</span>
+                          <span
+                            class="text-sm font-semibold whitespace-nowrap text-ink"
+                          >
+                            {{ price(item).price }}
+                            <span class="text-xs font-normal text-subtle">{{
+                              price(item).label
+                            }}</span>
+                          </span>
                         </span>
-                      </span>
+                      </a>
                     </div>
 
                     <div
