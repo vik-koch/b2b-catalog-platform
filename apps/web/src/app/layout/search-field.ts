@@ -325,7 +325,7 @@ let nextId = 0;
                             <img
                               [src]="item.images[0].thumb"
                               alt=""
-                              class="h-full w-full object-cover"
+                              class="h-full w-full bg-white object-contain"
                               (error)="markFailed(item.images[0].thumb)"
                             />
                           } @else {

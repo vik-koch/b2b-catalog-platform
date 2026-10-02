@@ -70,7 +70,7 @@ import { MediaService } from '../media/media.service';
               <img
                 [src]="image.thumb"
                 alt=""
-                class="pointer-events-none h-full w-full object-cover"
+                class="pointer-events-none h-full w-full bg-white object-contain"
               />
               <div
                 class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"

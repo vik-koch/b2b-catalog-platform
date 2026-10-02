@@ -59,7 +59,7 @@ import { injectEditorReturnParams } from '../editor-return';
                         <img
                           [src]="image.thumb"
                           [alt]="item.name"
-                          class="h-full w-full object-cover opacity-50 grayscale"
+                          class="h-full w-full bg-white object-contain opacity-50 grayscale"
                         />
                       }
                     </div>
