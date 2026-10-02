@@ -121,6 +121,15 @@ export class AdminCatalogController {
       });
   }
 
+  @Implement(adminCatalogContract.listStrandedPairings)
+  listStrandedPairings() {
+    return implement(adminCatalogContract.listStrandedPairings)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => ({
+        items: await this.products.listStrandedPairings(params.slug),
+      }));
+  }
+
   @Implement(adminCatalogContract.setProductPublished)
   setProductPublished(@CurrentUser() user: AuthUser) {
     return implement(adminCatalogContract.setProductPublished)

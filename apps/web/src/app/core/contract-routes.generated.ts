@@ -192,6 +192,17 @@ export const adminCatalogContract = {
       },
     },
   },
+  listStrandedPairings: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/catalog/products/{slug}/stranded-pairings',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   listHiddenProducts: {
     '~orpc': {
       errorMap: {},

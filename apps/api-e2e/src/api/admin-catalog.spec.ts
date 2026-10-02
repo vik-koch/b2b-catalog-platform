@@ -1802,6 +1802,61 @@ describe('Admin catalog (FR-ADM-01)', () => {
       ).toHaveLength(2);
     });
 
+    it('names the live products unpublishing a counterpart leaves unpaired (FR-ADM-06)', async () => {
+      const live = async (name: string) => {
+        const res = await createProduct({
+          name,
+          priceMinor: 1234,
+          categoryId: parentId,
+        });
+        await publishProduct(res.data.slug);
+        return res.data.slug as string;
+      };
+      const lid = await live(`Last lid ${R}`);
+      const otherLid = await live(`Other lid ${R}`);
+      const onlyThis = await live(`Only-this cup ${R}`);
+      const coveredElsewhere = await live(`Covered cup ${R}`);
+      const offSale = (
+        await createProduct({
+          name: `Off-sale cup ${R}`,
+          priceMinor: 1234,
+          categoryId: parentId,
+        })
+      ).data.slug as string;
+      await put(`/admin/catalog/products/${lid}`, {
+        name: `Last lid ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [onlyThis, coveredElsewhere, offSale],
+      });
+      await put(`/admin/catalog/products/${otherLid}`, {
+        name: `Other lid ${R}`,
+        priceMinor: 1234,
+        categoryId: parentId,
+        pairedSlugs: [coveredElsewhere],
+      });
+
+      const stranded = () =>
+        adminGet(`/admin/catalog/products/${lid}/stranded-pairings`);
+
+      // Only the cup this lid alone answers: the other has a second lid, and
+      // the unpublished one is not on sale to be left unpaired.
+      expect((await stranded()).data).toEqual({
+        items: [{ slug: onlyThis, name: `Only-this cup ${R}` }],
+      });
+
+      // Off sale itself, it counts for nobody already.
+      await patch(`/admin/catalog/products/${lid}/published`, {
+        published: false,
+      });
+      expect((await stranded()).data).toEqual({ items: [] });
+
+      const missing = await adminGet(
+        `/admin/catalog/products/no-such-${R}/stranded-pairings`,
+      );
+      expect(missing.status).toBe(404);
+    });
+
     it('refuses the same counterpart twice', async () => {
       const cup = await createProduct({ name: `Twice cup ${R}` });
       const lid = await createProduct({ name: `Twice lid ${R}` });
