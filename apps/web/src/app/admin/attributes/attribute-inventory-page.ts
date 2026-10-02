@@ -24,6 +24,7 @@ import { HintBadge } from '../../ui/hint-badge';
 import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { RecordRow } from '../records/record-row';
+import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
@@ -56,6 +57,7 @@ type RenameTarget =
     Icon,
     Link,
     RecordRow,
+    UnpublishedCount,
     HintBadge,
     Input,
     Skeleton,
@@ -135,6 +137,13 @@ type RenameTarget =
                               >
                                 {{ productsLabel(entry.productCount) }}
                               </a>
+                              @if (entry.unpublishedProductCount) {
+                                ·
+                                <app-unpublished-count
+                                  [count]="entry.unpublishedProductCount"
+                                  [query]="{ attributeKey: entry.key }"
+                                />
+                              }
                             } @else {
                               {{ productsLabel(0) }}
                             }
@@ -268,6 +277,18 @@ type RenameTarget =
                                             productsLabel(value.productCount)
                                           }}
                                         </a>
+                                        @if (value.unpublishedProductCount) {
+                                          ·
+                                          <app-unpublished-count
+                                            [count]="
+                                              value.unpublishedProductCount
+                                            "
+                                            [query]="{
+                                              attributeKey: entry.key,
+                                              attributeValue: value.value,
+                                            }"
+                                          />
+                                        }
                                       } @else {
                                         {{ productsLabel(0) }}
                                       }

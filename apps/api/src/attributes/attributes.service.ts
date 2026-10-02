@@ -67,15 +67,26 @@ const liveProducts = sql<number>`count(distinct ${productAttributes.productId})
 const deletedProducts =
   sql<number>`count(distinct ${productAttributes.productId})
   filter (where ${products.deletedAt} is not null)`.mapWith(Number);
+/** Of the catalog's, the ones not on the storefront. */
+const unpublishedProducts =
+  sql<number>`count(distinct ${productAttributes.productId})
+  filter (where ${products.deletedAt} is null
+    and ${products.publishedAt} is null)`.mapWith(Number);
 
 /** What the counts are taken over: the catalog as staff see it. */
 type Usage = {
   productCount: number;
+  unpublishedProductCount: number;
   valueCount: number;
   unparsedCount: number;
 };
 
-const NO_USAGE: Usage = { productCount: 0, valueCount: 0, unparsedCount: 0 };
+const NO_USAGE: Usage = {
+  productCount: 0,
+  unpublishedProductCount: 0,
+  valueCount: 0,
+  unparsedCount: 0,
+};
 
 /**
  * A unit measures a quantity, so only a `number` attribute keeps one: "Blue cm"
@@ -253,6 +264,7 @@ export class AttributesService {
         .select({
           key: productAttributes.key,
           productCount: liveProducts,
+          unpublishedProductCount: unpublishedProducts,
           valueCount: sql<number>`count(distinct ${productAttributes.value})
             filter (where ${products.deletedAt} is null)`.mapWith(Number),
           deletedProductCount: deletedProducts,
@@ -291,6 +303,7 @@ export class AttributesService {
       .select({
         value: productAttributes.value,
         productCount: liveProducts,
+        unpublishedProductCount: unpublishedProducts,
         deletedProductCount: deletedProducts,
         numeric: sql<boolean>`bool_or(${productAttributes.valueNumeric} is not null)`,
         // Grouped by text, so every row of a group shares one numeric form;
@@ -307,14 +320,7 @@ export class AttributesService {
         asc(productAttributes.value),
       );
 
-    return rows.map(
-      ({ value, productCount, deletedProductCount, numeric }) => ({
-        value,
-        productCount,
-        deletedProductCount,
-        numeric,
-      }),
-    );
+    return rows.map(({ sortValue: _sortValue, ...usage }) => usage);
   }
 
   /**
@@ -634,6 +640,9 @@ export class AttributesService {
       .select({
         key: productAttributes.key,
         productCount: countDistinct(productAttributes.productId),
+        unpublishedProductCount:
+          sql<number>`count(distinct ${productAttributes.productId})
+          filter (where ${products.publishedAt} is null)`.mapWith(Number),
         valueCount: countDistinct(productAttributes.value),
         // Distinct values rather than rows: it is the facet's list that loses
         // them, and it reads against valueCount ("14 values, 2 not numbers").
@@ -750,6 +759,7 @@ export class AttributesService {
       unit: row.unit,
       sortOrder: row.sortOrder,
       productCount: usage.productCount,
+      unpublishedProductCount: usage.unpublishedProductCount,
       valueCount: usage.valueCount,
       unparsedCount: usage.unparsedCount,
       updatedAt: row.updatedAt.toISOString(),

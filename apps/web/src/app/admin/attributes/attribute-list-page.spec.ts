@@ -24,6 +24,7 @@ function definition(
     unit: null,
     sortOrder: 0,
     productCount: 4,
+    unpublishedProductCount: 0,
     valueCount: 3,
     unparsedCount: 0,
     updatedAt: '2026-08-19T00:00:00.000Z',

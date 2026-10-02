@@ -37,6 +37,7 @@ import { Skeleton } from '../../ui/skeleton';
 import { ConfirmService } from '../../ui/confirm.service';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
+import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { WarningNote } from '../../ui/warning-note';
 
@@ -70,6 +71,7 @@ type EditTarget = { id: string } | { id: null } | null;
     AdminIcon,
     Link,
     RecordRow,
+    UnpublishedCount,
     RecordFields,
     RecordFormActions,
     Input,
@@ -171,6 +173,13 @@ type EditTarget = { id: string } | { id: null } | null;
                           >
                             {{ productsLabel(definition.productCount) }}
                           </a>
+                          @if (definition.unpublishedProductCount) {
+                            ·
+                            <app-unpublished-count
+                              [count]="definition.unpublishedProductCount"
+                              [query]="{ attributeKey: definition.name }"
+                            />
+                          }
                         } @else {
                           {{ productsLabel(0) }}
                         }

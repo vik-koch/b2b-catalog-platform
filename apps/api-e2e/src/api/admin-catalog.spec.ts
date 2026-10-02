@@ -1121,53 +1121,36 @@ describe('Admin catalog (FR-ADM-01)', () => {
   });
 
   describe('GET /admin/catalog/categories/:slug/hidden-products', () => {
-    it('lists everything the storefront hides across the subtree, with its reason', async () => {
-      // Deleted directly under the parent and deleted under a child — both must
-      // surface (Pattern A aggregation) — plus one that is merely unpublished,
-      // and a live one that must not appear at all.
-      const child = await createCategory({ name: `Deleted Sub ${R}` });
-      const directDeleted = await createProduct({ name: `Direct Del ${R}` });
-      const childDeleted = await createProduct({
-        name: `Child Del ${R}`,
+    it('lists the unpublished products across the subtree, and nothing deleted', async () => {
+      // Unpublished directly under the parent and under a child — both must
+      // surface (Pattern A aggregation). A deleted product is out of the
+      // catalog (FR-ADM-22), and a live one is on the storefront already.
+      const child = await createCategory({ name: `Hidden Sub ${R}` });
+      const direct = await createProduct({ name: `Awaiting ${R}` });
+      const underChild = await createProduct({
+        name: `Child Awaiting ${R}`,
         categoryId: child.data.id,
       });
-      const unpublished = await createProduct({ name: `Awaiting ${R}` });
+      const deleted = await createProduct({ name: `Direct Del ${R}` });
       const live = await createProduct({ name: `Still Live ${R}` });
       await publishProduct(live.data.slug);
-
-      await del(`/admin/catalog/products/${directDeleted.data.slug}`);
-      await del(`/admin/catalog/products/${childDeleted.data.slug}`);
+      await del(`/admin/catalog/products/${deleted.data.slug}`);
 
       const res = await adminGet(
         '/admin/catalog/categories/cleaning/hidden-products',
       );
       expect(res.status).toBe(200);
-      const items = res.data.items as {
-        slug: string;
-        deleted: boolean;
-        unpublished: boolean;
-      }[];
-      const bySlug = new Map(items.map((i) => [i.slug, i]));
+      const items = res.data.items as { slug: string }[];
+      const slugs = new Set(items.map((i) => i.slug));
 
-      expect(bySlug.has(directDeleted.data.slug)).toBe(true);
-      expect(bySlug.has(childDeleted.data.slug)).toBe(true);
-      expect(bySlug.get(unpublished.data.slug)).toMatchObject({
-        deleted: false,
-        unpublished: true,
-      });
-      // Deleted without ever being published: both reasons apply, and the
-      // overlay has to say so, since restoring alone will not bring it back.
-      expect(bySlug.get(directDeleted.data.slug)).toMatchObject({
-        deleted: true,
-        unpublished: true,
-      });
-      expect(bySlug.has(live.data.slug)).toBe(false);
+      expect(slugs.has(direct.data.slug)).toBe(true);
+      expect(slugs.has(underChild.data.slug)).toBe(true);
+      expect(slugs.has(deleted.data.slug)).toBe(false);
+      expect(slugs.has(live.data.slug)).toBe(false);
 
-      // The public tile shape plus the two reasons — no internal columns leak.
+      // The public tile shape, its price nullable — no internal columns leak.
       expect(Object.keys(items[0]).sort()).toEqual([
         'availability',
-        'deleted',
-        'deletedByRun',
         'images',
         'lineNoteEnabled',
         'lineNotePrompt',
@@ -1178,7 +1161,6 @@ describe('Admin catalog (FR-ADM-01)', () => {
         'priceMinor',
         'prices',
         'slug',
-        'unpublished',
         'variants',
       ]);
     });

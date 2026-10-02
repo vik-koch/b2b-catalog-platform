@@ -67,6 +67,8 @@ export const attributeDefinitionSchema = z
     sortOrder: z.number().int(),
     /** Catalog products carrying this key (deleted products excluded). */
     productCount: z.number().int().nonnegative(),
+    /** Of `productCount`, the ones not on the storefront. */
+    unpublishedProductCount: z.number().int().nonnegative(),
     /** Distinct values in use under it — the size of its facet list. */
     valueCount: z.number().int().nonnegative(),
     /**
@@ -122,6 +124,8 @@ export const attributeKeyUsageSchema = z
     /** Products in the catalog carrying it; deleted ones are not counted
      * (FR-ADM-22), and a key only they carry is not listed. */
     productCount: z.number().int().positive(),
+    /** Of `productCount`, the ones not on the storefront. */
+    unpublishedProductCount: z.number().int().nonnegative(),
     valueCount: z.number().int().nonnegative(),
     /** Deleted products carrying it, which a rename rewrites too. */
     deletedProductCount: z.number().int().nonnegative(),
@@ -143,6 +147,8 @@ export const attributeValueUsageSchema = z
   .object({
     value: z.string(),
     productCount: z.number().int().positive(),
+    /** Of `productCount`, the ones not on the storefront. */
+    unpublishedProductCount: z.number().int().nonnegative(),
     /** Deleted products carrying it, which a rename rewrites too. */
     deletedProductCount: z.number().int().nonnegative(),
     /** Whether the value has a numeric form — a number facet drops the rest. */

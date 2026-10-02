@@ -22,6 +22,7 @@ function key(overrides: Partial<AttributeKeyUsage> = {}): AttributeKeyUsage {
   return {
     key: 'Colour',
     productCount: 4,
+    unpublishedProductCount: 0,
     valueCount: 2,
     deletedProductCount: 0,
     definition: null,
@@ -35,6 +36,7 @@ function value(
   return {
     value: 'Blue',
     productCount: 3,
+    unpublishedProductCount: 0,
     deletedProductCount: 0,
     numeric: false,
     ...overrides,

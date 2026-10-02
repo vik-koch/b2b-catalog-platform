@@ -92,12 +92,13 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
   async function addProduct(
     suffix: string,
     attributes: { key: string; value: string; numeric?: number }[],
-    options: { deleted?: boolean } = {},
+    options: { deleted?: boolean; published?: boolean } = {},
   ): Promise<string> {
     const { rows } = await client.query<{ id: string }>(
       `WITH p AS (
-         INSERT INTO products ("sourceId", slug, name, "categoryId", "deletedAt")
-         VALUES ($1, $1, $1, $2, $3) RETURNING id
+         INSERT INTO products ("sourceId", slug, name, "categoryId", "deletedAt",
+                               "publishedAt")
+         VALUES ($1, $1, $1, $2, $3, $4) RETURNING id
        ), priced AS (
          INSERT INTO product_prices ("productId", "tierId", "priceMinor")
          SELECT p.id, t.id, 100 FROM p, customer_tiers t WHERE t."isDefault"
@@ -107,6 +108,7 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
         `e2e-attr-${R}-${suffix}`,
         categoryId,
         options.deleted ? new Date() : null,
+        options.published ? new Date() : null,
       ],
     );
     const id = rows[0].id;
@@ -161,15 +163,19 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       { key: DRILL, value: 'again' },
     ]);
     await addProduct('drill-2', [{ key: DRILL, value: 'other' }]);
-    // Three products carry Width: one numeric value, one that reads as text
-    // ("ca. 30"), and a deleted one — which no count includes (FR-ADM-22),
-    // though a rename still rewrites it.
-    await addProduct('a', [
-      { key: WIDTH, value: '30', numeric: 30 },
-      // Two keys no definition holds yet, for the rename and the delete.
-      { key: HEIGHT, value: '12', numeric: 12 },
-      { key: DOOMED, value: 'x' },
-    ]);
+    // Three products carry Width: one numeric value on the storefront, one
+    // unpublished that reads as text ("ca. 30"), and a deleted one — which no
+    // count includes (FR-ADM-22), though a rename still rewrites it.
+    await addProduct(
+      'a',
+      [
+        { key: WIDTH, value: '30', numeric: 30 },
+        // Two keys no definition holds yet, for the rename and the delete.
+        { key: HEIGHT, value: '12', numeric: 12 },
+        { key: DOOMED, value: 'x' },
+      ],
+      { published: true },
+    );
     await addProduct('b', [{ key: WIDTH, value: 'ca. 30' }]);
     await addProduct(
       'gone',
@@ -233,6 +239,7 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
         unit: null,
         sortOrder: expect.any(Number),
         productCount: 0,
+        unpublishedProductCount: 0,
         valueCount: 0,
         unparsedCount: 0,
         updatedAt: expect.any(String),
@@ -252,6 +259,7 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       // is a value like any other, and reported as the one with no numeric
       // form.
       expect(res.data.productCount).toBe(2);
+      expect(res.data.unpublishedProductCount).toBe(1);
       expect(res.data.valueCount).toBe(2);
       expect(res.data.unparsedCount).toBe(1);
     });
@@ -441,6 +449,7 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
 
       // The deleted product is counted apart, for the rename to name.
       expect(entry.productCount).toBe(2);
+      expect(entry.unpublishedProductCount).toBe(1);
       expect(entry.valueCount).toBe(2);
       expect(entry.deletedProductCount).toBe(1);
       expect(entry.definition).toEqual({
@@ -454,7 +463,9 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
         { key: SIZES, value: '100', numeric: 100 },
         { key: SIZES, value: '9', numeric: 9 },
       ]);
-      await addProduct('sizes-2', [{ key: SIZES, value: 'ca. 30' }]);
+      await addProduct('sizes-2', [{ key: SIZES, value: 'ca. 30' }], {
+        published: true,
+      });
 
       const res = await get(
         `/admin/attributes/inventory/values?key=${encodeURIComponent(SIZES)}`,
@@ -464,16 +475,24 @@ describe('Filterable attributes admin (FR-ATTR-01)', () => {
       // 9 before 100 — a list of sizes ordered as text is unusable — and the
       // unparseable one last.
       expect(res.data.values).toEqual([
-        { value: '9', productCount: 1, deletedProductCount: 0, numeric: true },
+        {
+          value: '9',
+          productCount: 1,
+          unpublishedProductCount: 1,
+          deletedProductCount: 0,
+          numeric: true,
+        },
         {
           value: '100',
           productCount: 1,
+          unpublishedProductCount: 1,
           deletedProductCount: 0,
           numeric: true,
         },
         {
           value: 'ca. 30',
           productCount: 1,
+          unpublishedProductCount: 0,
           deletedProductCount: 0,
           numeric: false,
         },

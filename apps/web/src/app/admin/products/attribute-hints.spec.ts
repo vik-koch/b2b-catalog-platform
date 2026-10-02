@@ -15,6 +15,7 @@ const usage = (
 ): AttributeKeyUsage => ({
   key,
   productCount,
+  unpublishedProductCount: 0,
   valueCount: 1,
   deletedProductCount: 0,
   definition,
@@ -32,6 +33,7 @@ const definition = (
   unit,
   sortOrder: 0,
   productCount: 0,
+  unpublishedProductCount: 0,
   valueCount: 0,
   unparsedCount: 0,
   updatedAt: '2026-08-19T10:00:00.000Z',
