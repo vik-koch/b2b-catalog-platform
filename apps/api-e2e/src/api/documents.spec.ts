@@ -358,6 +358,7 @@ describe('Product documents (FR-DOC-01)', () => {
     it('links products on create and counts them on the list row', async () => {
       const one = await createProduct('Linked One');
       const other = await createProduct('Linked Two');
+      await publishProduct(one);
 
       const created = await createDocument({
         title: `Linked certificate ${R}`,
@@ -367,6 +368,7 @@ describe('Product documents (FR-DOC-01)', () => {
 
       expect(created.status).toBe(201);
       expect(created.data.productCount).toBe(2);
+      expect(created.data.unpublishedProductCount).toBe(1);
       expect(
         created.data.products.map((p: { slug: string }) => p.slug).sort(),
       ).toEqual([one, other].sort());
@@ -376,6 +378,7 @@ describe('Product documents (FR-DOC-01)', () => {
         (d: { id: string }) => d.id === created.data.id,
       );
       expect(row.productCount).toBe(2);
+      expect(row.unpublishedProductCount).toBe(1);
       // The list stays light: the products themselves are the detail's.
       expect(row.products).toBeUndefined();
     });
