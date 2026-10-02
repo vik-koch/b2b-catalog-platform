@@ -42,7 +42,9 @@ const category: AdminCategory = {
   sourceId: 'espresso',
   shortName: null,
   productCount: 3,
+  liveProductCount: 0,
   directProductCount: 3,
+  deletedProductCount: 0,
   childCount: 0,
 };
 

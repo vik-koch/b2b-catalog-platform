@@ -43,7 +43,9 @@ describe('AdminCatalogController', () => {
     sourceId: 'ERP-CAT-1',
     shortName: null,
     productCount: 0,
+    liveProductCount: 0,
     directProductCount: 0,
+    deletedProductCount: 0,
     childCount: 0,
   };
 

@@ -655,6 +655,9 @@ export const adminTextSchema = z
         /** The products filed in a category that also has subcategories,
          * leaving theirs out. `{count}` substituted. */
         directProducts: z.string(),
+        /** Beside a category with no live product beneath it, which the
+         * storefront leaves out of its navigation (FR-ADM-19). */
+        notShown: z.string(),
         /** The row's way into the category's filter panel (FR-ATTR-11). */
         editFilters: z.string(),
         /** The page's way into the whole catalogue's panel (FR-ATTR-12). */
@@ -671,6 +674,9 @@ export const adminTextSchema = z
         deleteTitle: z.string(),
         deleteConfirm: z.string(),
         deleteReassignIntro: z.string(),
+        /** After the intro when some of them are deleted products, which move
+         * too (FR-ADM-22). `{count}` substituted. */
+        deleteReassignDeleted: z.string(),
         reassignLabel: z.string(),
         reassignPlaceholder: z.string(),
         deleteBlockedChildren: z.string(),
@@ -2312,6 +2318,9 @@ export const adminTextSchema = z
         fieldLockedShort: z.string(),
         /** The delete dialog, where reassigning would move products. */
         categoryHasProducts: z.string(),
+        /** The same, where only deleted products are left in it, which no run
+         * will move (FR-ADM-22). `{count}` substituted. */
+        categoryHasDeletedProducts: z.string(),
         /** Restore on a product a run deleted while the catalog is owned: only
          * a run brings it back (FR-ADM-10). */
         productRestoreTitle: z.string(),

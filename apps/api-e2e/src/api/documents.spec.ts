@@ -513,6 +513,8 @@ describe('Product documents (FR-DOC-01)', () => {
       expect(read.data.products).toEqual([
         expect.objectContaining({ slug, deleted: true }),
       ]);
+      // Out of the catalog, so out of the count (FR-ADM-22).
+      expect(read.data.productCount).toBe(0);
     });
 
     it('takes its links with it when the document is deleted', async () => {

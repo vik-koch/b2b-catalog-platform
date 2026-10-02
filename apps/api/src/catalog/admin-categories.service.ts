@@ -17,6 +17,7 @@ import { categories, products } from '../db/schema';
 import { SettingsService } from '../settings/settings.service';
 import { catalogExternallyOwned } from '../settings/ownership.refusals';
 import { changedCategoryFields } from './owned-fields';
+import { publiclyVisible } from './product-view';
 import { hasCycle } from './category-cycle';
 import { subtreeCounts } from './catalog-tree';
 import {
@@ -73,8 +74,24 @@ export class AdminCategoriesService {
       .from(categories)
       .orderBy(asc(categories.sortOrder), asc(categories.name));
 
+    // Deleted products are out of the catalog, so out of every count but the
+    // one the delete guard needs (FR-ADM-22). Live is the storefront's own
+    // predicate, so a category with none is one its navigation leaves out.
     const productCounts = await this.db
-      .select({ categoryId: products.categoryId, value: count() })
+      .select({
+        categoryId: products.categoryId,
+        value:
+          sql<number>`count(*) filter (where ${products.deletedAt} is null)`.mapWith(
+            Number,
+          ),
+        live: sql<number>`count(*) filter (where ${publiclyVisible})`.mapWith(
+          Number,
+        ),
+        deleted:
+          sql<number>`count(*) filter (where ${products.deletedAt} is not null)`.mapWith(
+            Number,
+          ),
+      })
       .from(products)
       .groupBy(products.categoryId);
     const childCounts = await this.db
@@ -82,8 +99,9 @@ export class AdminCategoriesService {
       .from(categories)
       .groupBy(categories.parentId);
 
-    const direct = new Map(
-      productCounts.map((r) => [r.categoryId, Number(r.value)]),
+    const direct = new Map(productCounts.map((r) => [r.categoryId, r.value]));
+    const deleted = new Map(
+      productCounts.map((r) => [r.categoryId, r.deleted]),
     );
     const children_ = new Map(
       childCounts
@@ -91,11 +109,17 @@ export class AdminCategoriesService {
         .map((r) => [r.parentId as string, Number(r.value)]),
     );
     const subtree = subtreeCounts(rows, direct);
+    const live = subtreeCounts(
+      rows,
+      new Map(productCounts.map((r) => [r.categoryId, r.live])),
+    );
 
     return rows.map((r) =>
       toAdminCategory(r, {
         productCount: subtree.get(r.id) ?? 0,
+        liveProductCount: live.get(r.id) ?? 0,
         directProductCount: direct.get(r.id) ?? 0,
+        deletedProductCount: deleted.get(r.id) ?? 0,
         childCount: children_.get(r.id) ?? 0,
       }),
     );
@@ -137,7 +161,9 @@ export class AdminCategoriesService {
     );
     return toAdminCategory(row[0], {
       productCount: 0,
+      liveProductCount: 0,
       directProductCount: 0,
+      deletedProductCount: 0,
       childCount: 0,
     });
   }
@@ -366,7 +392,11 @@ function toAdminCategory(
   row: typeof categories.$inferSelect,
   counts: Pick<
     AdminCategory,
-    'productCount' | 'directProductCount' | 'childCount'
+    | 'productCount'
+    | 'liveProductCount'
+    | 'directProductCount'
+    | 'deletedProductCount'
+    | 'childCount'
   >,
 ): AdminCategory {
   return {

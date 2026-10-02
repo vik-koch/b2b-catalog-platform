@@ -627,13 +627,19 @@ export const adminCategorySchema = z
     shortName: z.string().nullable(),
     /** The chip mark (FR-CAT-07). */
     mark: catalogImageSchema.nullable(),
-    /** Everything beneath it, subcategories included — what the storefront
-     * listing shows under it (FR-ADM-19). Soft-deleted products count: this is
-     * the population the admin grid filtered by the category lists. */
+    /** Everything beneath it, subcategories included (FR-ADM-19), live and
+     * unpublished: the population the admin grid filtered by the category
+     * lists. Deleted products are out of the catalog (FR-ADM-22). */
     productCount: z.number().int().nonnegative(),
-    /** Only the products filed in it. With `childCount`, what the delete guard
-     * reads — a category with either cannot be removed (FK is `restrict`). */
+    /** Of `productCount`, the ones on the storefront. None means the
+     * storefront leaves the category out of its navigation. */
+    liveProductCount: z.number().int().nonnegative(),
+    /** Only the products filed in it, live and unpublished. */
     directProductCount: z.number().int().nonnegative(),
+    /** The deleted products filed in it. Counted nowhere else, but they hold
+     * the foreign key, so with `directProductCount` and `childCount` this is
+     * what the delete guard reads (FK is `restrict`). */
+    deletedProductCount: z.number().int().nonnegative(),
     childCount: z.number().int().nonnegative(),
   })
   .strict();
