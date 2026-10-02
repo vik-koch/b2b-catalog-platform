@@ -84,7 +84,10 @@ type Usage = {
 /** A filter row's counts: the products under it carrying the key. */
 type ProductCounts = Pick<Usage, 'productCount' | 'unpublishedProductCount'>;
 
-const NO_PRODUCTS: ProductCounts = { productCount: 0, unpublishedProductCount: 0 };
+const NO_PRODUCTS: ProductCounts = {
+  productCount: 0,
+  unpublishedProductCount: 0,
+};
 
 const NO_USAGE: Usage = {
   productCount: 0,

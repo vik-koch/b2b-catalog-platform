@@ -47,6 +47,9 @@ export interface ProductSeed {
    * own pictures after the `imageCount` pictures of the whole range.
    */
   variants?: VariantSeed[];
+  /** Off the storefront. Left out, the product is published. A deleted one is
+   * unpublished too, and was never ordered, so it can be deleted permanently. */
+  state?: 'unpublished' | 'deleted';
 }
 
 /** One variant of an assorted article, and the glaze its pictures show. */
@@ -591,6 +594,33 @@ const allProducts: ProductSeed[] = [
     // among the random fill rather than making up the whole row.
     featured: true,
   },
+
+  // The two states a product can be in off the storefront, so the admin
+  // panel's unpublished counts and its Deleted view have something to show.
+  {
+    ...p(
+      'FIL-090',
+      'guji-natural-filter',
+      'Guji Natural Filter',
+      'filter',
+      2390,
+      beanDescription('Guji Natural Filter', 'blueberry and dark chocolate'),
+      beanAttributes('Ethiopia', 'Light', 'Natural', 'blueberry'),
+    ),
+    state: 'unpublished',
+  },
+  {
+    ...p(
+      'FIL-091',
+      'sumatra-filter',
+      'Sumatra Filter',
+      'filter',
+      2090,
+      beanDescription('Sumatra Filter', 'cedar and dark cocoa'),
+      beanAttributes('Indonesia', 'Medium', 'Wet-hulled', 'cedar and cocoa'),
+    ),
+    state: 'deleted',
+  },
 ];
 
 /**
@@ -598,6 +628,12 @@ const allProducts: ProductSeed[] = [
  * each line is one edge, and the seed writes it once whichever way round it is
  * written here.
  */
+/**
+ * The catalogue index's own filter panel (FR-ATTR-12), by attribute slug, in
+ * order. Opt-in, so without it the demo's catalogue would offer no filter.
+ */
+export const catalogFilterSeeds: string[] = ['origin'];
+
 export const pairingSeeds: [string, string][] = [
   ['takeaway-cup-300', 'takeaway-lid-flat'],
   ['takeaway-cup-300', 'takeaway-lid-domed'],

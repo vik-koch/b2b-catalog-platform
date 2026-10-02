@@ -10,6 +10,7 @@ import {
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import {
   attributeDefinitionSeeds,
+  catalogFilterSeeds,
   categorySeeds,
   pairingSeeds,
   ProductSeed,
@@ -90,9 +91,10 @@ export async function seedCatalog(
          ("sourceId", slug, name, "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume", "boxWeight",
           "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, parts, featured,
-          variants, "publishedAt")
+          variants, "publishedAt", "deletedAt")
        VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
-               $19::jsonb, now())
+               $19::jsonb, CASE WHEN $20::boolean THEN now() END,
+               CASE WHEN $21::boolean THEN now() END)
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "categoryId" = EXCLUDED."categoryId",
@@ -108,9 +110,10 @@ export async function seedCatalog(
          availability = EXCLUDED.availability,
          parts = EXCLUDED.parts,
          featured = EXCLUDED.featured,
-         -- The demo catalog is meant to be on the storefront; a re-seed of an
-         -- unpublished row puts it back.
-         "publishedAt" = EXCLUDED."publishedAt"
+         -- A re-seed puts every row back in the state the seed gives it.
+         -- A null deletedBy reads as a run's deletion, which is what a seed is.
+         "publishedAt" = EXCLUDED."publishedAt",
+         "deletedAt" = EXCLUDED."deletedAt", "deletedBy" = NULL
        RETURNING id`,
       [
         product.sourceId,
@@ -132,6 +135,8 @@ export async function seedCatalog(
         product.parts ?? [],
         product.featured ?? false,
         JSON.stringify(variants),
+        product.state === undefined,
+        product.state === 'deleted',
       ],
     );
 
@@ -153,6 +158,7 @@ export async function seedCatalog(
   }
 
   await seedAttributeDefinitions(client);
+  await seedCatalogFilters(client);
   await seedPairings(client);
 }
 
@@ -260,6 +266,21 @@ async function seedAttributeDefinitions(client: Client): Promise<void> {
         definition.unit,
         index,
       ],
+    );
+  }
+}
+
+/**
+ * The catalogue index's panel (FR-ATTR-12). Only adds what is missing: an
+ * attribute the admin has since hidden or moved stays as they left it.
+ */
+async function seedCatalogFilters(client: Client): Promise<void> {
+  for (const [index, slug] of catalogFilterSeeds.entries()) {
+    await client.query(
+      `INSERT INTO catalog_attributes ("attributeId", "sortOrder")
+       SELECT id, $2 FROM attribute_definitions WHERE slug = $1
+       ON CONFLICT ("attributeId") DO NOTHING`,
+      [slug, index],
     );
   }
 }

@@ -775,7 +775,7 @@
   },
   "attributeList": {
     "title": "Filterable attributes",
-    "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover the whole catalog, including unpublished and deleted products.",
+    "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover live and unpublished products; deleted ones are left out.",
     "add": "Add attribute",
     "name": "Name",
     "namePlaceholder": "Colour",
