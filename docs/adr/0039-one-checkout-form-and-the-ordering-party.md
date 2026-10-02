@@ -272,7 +272,7 @@ staff screen that adjusts an order, which did, and the server rule behind both.
 The refusal keeps its code (`cash-not-available`) and gains the other half in
 its wording. FR-CART-04 is amended to match.
 
-## Amendment — 2026-09-30: the conditions page reads the same zones
+## Amendment — 2026-09-30 (v1.13.0): the conditions page reads the same zones
 
 The popup was described above as the summary and the conditions page as the
 binding long form. The page now draws the same zone list from the same

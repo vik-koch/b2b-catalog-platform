@@ -218,7 +218,7 @@ data, a signed-in visitor's deliberately carries neither. Serving one to the
 other puts a customer straight back on the default prices, so such a cache must
 vary on the session cookie's presence, or keep price-bearing routes out.
 
-## Amendment — 2026-09-25: the server renders as the visitor
+## Amendment — 2026-09-25 (v1.13.0): the server renders as the visitor
 
 The 2026-08-06 amendment rejected forwarding the cookie on two facts that do not
 hold. httpOnly hides the cookie from browser JavaScript, not from the Node
