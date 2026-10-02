@@ -787,4 +787,6 @@ Notes:
   "unpublished" in two, since an unpriced product cannot be published. Counts leave
   deleted products out, but an attribute rename still rewrites them, so a restored
   product carries the current name. A category with no live product beneath it is dimmed
-  in the admin list, because the storefront already leaves it out.
+  in the admin list, because the storefront already leaves it out. Beside each count the
+  admin says how many of those products are unpublished, as a link to exactly them, and
+  the edit-mode overlay under a category grid lists only its unpublished products.
