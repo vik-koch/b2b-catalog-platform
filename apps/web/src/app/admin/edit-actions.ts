@@ -28,27 +28,39 @@ const variants = {
 } as const;
 
 /**
- * The edit-mode edit/delete cluster, wherever the storefront offers one: a page,
- * a category, a product, a grid tile. One component so the pencil and the bin
- * are always the same size, the same distance apart and in the same corner —
- * they were drifting apart across five call sites, and a control that moves
- * between screens reads as a different control.
+ * The room a `page` cluster takes from the line it is pinned beside — three
+ * discs and their gaps, with a gap to the text. A breadcrumb under the cluster
+ * holds its end this far back while edit mode is on, or a long trail runs
+ * beneath the discs on a phone.
+ */
+export const EDIT_ACTIONS_INSET = 'pr-30';
+
+/**
+ * The edit-mode cluster, wherever the storefront offers one: a page, a
+ * category, a product, a grid tile. One component so the discs are always the
+ * same size, the same distance apart and in the same corner — they were
+ * drifting apart across five call sites, and a control that moves between
+ * screens reads as a different control.
  *
- * Every affordance is optional: omit the `add*` link and label where nothing is
- * created from here, omit `editLink` for a cluster with no editor,
- * omit `deleteLabel` where deleting does not belong (a static page, the
- * catalogue root — and the grid tiles, where the bin was noise beside an edit
- * people reach for far more often), omit `publishLabel` for anything that is not
- * a product. Rendering is the caller's decision — the cluster assumes edit mode
- * is already on and the wording already loaded.
+ * The storefront only edits what is on it: open an editor, publish or
+ * unpublish a product. Creating, deleting and restoring happen in the admin
+ * lists, which the list disc leads to.
+ *
+ * Every affordance is optional: omit `editLink` for a cluster with no editor,
+ * omit `publishLabel` for anything that is not a product. Rendering is the
+ * caller's decision — the cluster assumes edit mode is already on and the
+ * wording already loaded.
  */
 @Component({
   selector: 'app-edit-actions',
   imports: [RouterLink, DiscButton, Icon],
   template: `
     <div [class]="style().box">
-      <!-- First, being the one that leaves this page rather than acting on
-           it: the same products as admin rows. -->
+      <!-- Always in this order, so each disc keeps its place from page to
+           page: the list first, being the one that leaves this page rather
+           than acting on it; then the pencil; then the one step that belongs
+           to this kind of page — a category's filters, a product's
+           publication. -->
       @if (listLink(); as link) {
         <a
           appDiscButton
@@ -61,34 +73,17 @@ const variants = {
           <app-icon name="table" [class]="style().icon" />
         </a>
       }
-      <!-- Creating comes before editing, and a container before what goes in
-           it: folder, file, then the pencil that acts on this page itself. -->
-      @if (addCategoryLink(); as link) {
+      @if (editLink(); as link) {
         <a
           appDiscButton
           [size]="style().size"
           [routerLink]="link"
-          [queryParams]="addCategoryParams()"
-          [attr.aria-label]="addCategoryLabel()"
-          [attr.title]="addCategoryLabel()"
+          [queryParams]="editParams()"
+          [attr.aria-label]="editLabel()"
+          [attr.title]="editLabel()"
         >
-          <app-icon name="folder-plus" [class]="style().icon" />
+          <app-icon name="pencil" [class]="style().icon" />
         </a>
-      }
-      <!-- A button, not a link: where an external system owns the catalog the
-           gesture opens that explanation instead of an editor, and only the
-           caller's service knows which. -->
-      @if (addProductLabel(); as label) {
-        <button
-          appDiscButton
-          [size]="style().size"
-          type="button"
-          [attr.aria-label]="label"
-          [attr.title]="label"
-          (click)="addProduct.emit()"
-        >
-          <app-icon name="file-plus" [class]="style().icon" />
-        </button>
       }
       @if (filtersLink(); as link) {
         <a
@@ -100,18 +95,6 @@ const variants = {
           [attr.title]="filtersLabel()"
         >
           <app-icon name="funnel" [class]="style().icon" />
-        </a>
-      }
-      @if (editLink(); as link) {
-        <a
-          appDiscButton
-          [size]="style().size"
-          [routerLink]="link"
-          [queryParams]="editParams()"
-          [attr.aria-label]="editLabel()"
-          [attr.title]="editLabel()"
-        >
-          <app-icon name="pencil" [class]="style().icon" />
         </a>
       }
       @if (publishLabel(); as label) {
@@ -129,19 +112,6 @@ const variants = {
           />
         </button>
       }
-      @if (deleteLabel(); as label) {
-        <button
-          appDiscButton
-          variant="danger"
-          [size]="style().size"
-          type="button"
-          [attr.aria-label]="label"
-          [attr.title]="label"
-          (click)="remove.emit()"
-        >
-          <app-icon name="trash-2" [class]="style().icon" />
-        </button>
-      }
     </div>
   `,
 })
@@ -152,19 +122,6 @@ export class EditActions {
   readonly listLink = input<unknown[] | null>(null);
   readonly listParams = input<Params | undefined>(undefined);
   readonly listLabel = input<string>('');
-  /**
-   * "New category here" and "new product here" — the two creation affordances,
-   * each optional. They live in the cluster rather than as a tile
-   * among the content because a dashed placeholder card sat in the grid
-   * pretending to be a product, moved as the grid reflowed, and cost the
-   * listing a column at every width.
-   */
-  readonly addCategoryLink = input<unknown[] | null>(null);
-  readonly addCategoryParams = input<Params | undefined>(undefined);
-  readonly addCategoryLabel = input<string>('');
-  /** Doubles as the switch for the ＋ disc: no label, no creation affordance. */
-  readonly addProductLabel = input<string>('');
-  readonly addProduct = output<void>();
   /**
    * The category's filter panel (FR-ATTR-11) — which attributes this listing
    * offers as filters. Beside the pencil rather than inside the editor: it is
@@ -177,9 +134,6 @@ export class EditActions {
   readonly editLink = input<unknown[] | null>(null);
   readonly editParams = input<Params | undefined>(undefined);
   readonly editLabel = input<string>('');
-  /** Doubles as the switch for the bin: no label, no delete affordance. */
-  readonly deleteLabel = input<string | null>(null);
-  readonly remove = output<void>();
   /** Same switch for the publication toggle, which only products have. The
    * label states what the click will do, so it changes with the state. */
   readonly publishLabel = input<string | null>(null);

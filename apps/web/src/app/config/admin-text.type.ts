@@ -205,7 +205,6 @@ export const adminTextSchema = z
         purgeConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
-        addCategory: z.string(),
         /** The way into this category's filter panel (FR-ATTR-11) — or, on
          * the catalogue index, the whole catalogue's (FR-ATTR-12). */
         editFilters: z.string(),

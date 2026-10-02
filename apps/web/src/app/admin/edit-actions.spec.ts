@@ -16,13 +16,15 @@ function render(inputs: Record<string, unknown>) {
 }
 
 describe('EditActions', () => {
-  it('leads into the product list first, narrowed as the page asks', () => {
+  it('puts the list first and the pencil second, wherever the page is', () => {
     const el = render({
       listLink: ['/admin/products'],
       listParams: { category: 'tools' },
       listLabel: 'Show in product list',
       editLink: ['/admin/categories', 'tools', 'edit'],
       editLabel: 'Edit category',
+      filtersLink: ['/admin/categories', 'tools', 'filters'],
+      filtersLabel: 'Edit filters',
     });
 
     const links = el.querySelectorAll('a');
@@ -31,6 +33,7 @@ describe('EditActions', () => {
       '/admin/products?category=tools',
     );
     expect(links[1].getAttribute('aria-label')).toBe('Edit category');
+    expect(links[2].getAttribute('aria-label')).toBe('Edit filters');
   });
 
   it('draws no list disc where none is asked for', () => {

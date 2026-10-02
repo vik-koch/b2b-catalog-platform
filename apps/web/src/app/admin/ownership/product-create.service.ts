@@ -5,8 +5,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 
 /**
- * The one gesture "add a product" makes, wherever it is offered: the admin
- * listing's button and the storefront's ＋ disc in edit mode.
+ * The gesture behind the admin product list's "add a product" button.
  *
  * While an external system owns the catalog, products are created there — so
  * the control opens the explanation rather than an editor that could only
@@ -32,8 +31,8 @@ export class ProductCreateService {
   }
 
   async start(queryParams?: Params): Promise<void> {
-    // Awaited rather than read: on the storefront this click is the first
-    // thing that asks, and a cold "not owned" would open the editor anyway.
+    // Awaited rather than read: a cold "not owned" would open the editor
+    // anyway.
     const owned = (await this.ownership.load()).includes('catalog');
     const text = adminText();
     if (text && owned) {

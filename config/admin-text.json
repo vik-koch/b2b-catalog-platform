@@ -86,7 +86,6 @@
     "purgeConfirm": "Delete “{name}” permanently? Its prices, attributes, pairings and document links are removed with it. This cannot be undone.",
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
-    "addCategory": "Add category",
     "editFilters": "Edit filters",
     "hiddenHeading": "Not on the storefront",
     "hiddenHint": "These products are in this category but customers cannot see them.",

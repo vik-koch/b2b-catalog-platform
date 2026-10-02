@@ -111,7 +111,7 @@ function knownValues<T extends string>(
     >
       <!-- Kept while the catalog is externally owned: the click then explains
            who owns it instead of opening an editor that could only refuse the
-           save. The storefront's own ＋ disc makes the same gesture. -->
+           save. -->
       <button appButton type="button" class="gap-2" (click)="addProduct()">
         <app-admin-icon name="plus" class="h-4 w-4" />
         {{ editText.addProduct }}
@@ -956,9 +956,11 @@ export class ProductListPage {
       : `${message} ${this.editText.unpublishStranded.replace('{names}', stranded.join(', '))}`;
   }
 
-  /** The header's ＋: a new product's editor, or the reason there is none. */
+  /** The header's ＋: a new product's editor, or the reason there is none.
+   * A grid narrowed to one category starts the product in it. */
   protected addProduct(): void {
-    void this.productCreate.start(this.editorFrom());
+    const category = this.categoryOf().get(this.categoryId())?.slug;
+    void this.productCreate.start({ category, ...this.editorFrom() });
   }
 
   /** Unconfirmed: the row has already said why a live product cannot go, and

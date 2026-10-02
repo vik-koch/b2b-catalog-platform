@@ -63,7 +63,7 @@ test('a signed-out visitor sees no edit-mode toggle', async ({ page }) => {
   await expect(editModeToggle(page)).toBeHidden();
 
   // Nor does any admin wording ride along in a guest's document.
-  expect(await documentOf(response)).not.toContain('Add product');
+  expect(await documentOf(response)).not.toContain('Show in product list');
   await hydrated;
   expect(errors).toEqual([]);
 });
@@ -85,9 +85,9 @@ test.describe('as an admin', () => {
     await settled;
     expect(errors).toEqual([]);
 
-    // Off by default: nothing to create with, no per-tile edit control.
+    // Off by default: no way into the admin, no per-tile edit control.
     await expect(
-      page.getByRole('button', { name: 'Add product' }),
+      page.getByRole('link', { name: 'Show in product list' }),
     ).toBeHidden();
 
     await editModeToggle(page).click();
@@ -96,8 +96,15 @@ test.describe('as an admin', () => {
     ).toBeVisible();
 
     await expect(
-      page.getByRole('button', { name: 'Add product' }),
+      page.getByRole('link', { name: 'Show in product list' }),
     ).toBeVisible();
+    // Creating happens in the admin lists, not on the storefront.
+    await expect(page.getByRole('button', { name: 'Add product' })).toHaveCount(
+      0,
+    );
+    await expect(page.getByRole('link', { name: 'Add category' })).toHaveCount(
+      0,
+    );
     // The per-tile controls load lazily (@defer) once edit mode is on.
     await expect(
       page.getByRole('link', { name: 'Edit product' }).first(),
@@ -172,14 +179,18 @@ test.describe('as an admin', () => {
     }
   });
 
-  test('opens the product editor with the category preselected, and cancels without saving', async ({
+  test('goes from a category to its products in the admin list, and adds one there with the category preselected', async ({
     page,
   }) => {
     await page.goto(`/catalog/${category.slug}`);
     await editModeToggle(page).click();
+    await page.getByRole('link', { name: 'Show in product list' }).click();
+
+    // The storefront knows the category by slug; the list swaps it for the id.
+    await expect(page).toHaveURL(/\/admin\/products\?categoryId=[0-9a-f-]+/);
     await page.getByRole('button', { name: 'Add product' }).click();
 
-    // The `from` param rides along so cancelling returns to this category.
+    // The `from` param rides along so cancelling returns to the list.
     await expect(page).toHaveURL(
       new RegExp(`/admin/products/new\\?category=${category.slug}\\b`),
     );
@@ -196,14 +207,19 @@ test.describe('as an admin', () => {
     await expect(page).not.toHaveURL(/\/admin\/products\/new/);
   });
 
-  // The edit cluster's folder-plus carries the category it sits under, so the
-  // new subcategory lands in the right place without the admin re-picking it.
-  test('adds a subcategory from the category page, with the parent preselected', async ({
+  // A row's ＋ carries the category it sits on, so the new subcategory lands
+  // in the right place without the admin re-picking it.
+  test('adds a subcategory from the category list, with the parent preselected', async ({
     page,
   }) => {
-    await page.goto(`/catalog/${category.slug}`);
-    await editModeToggle(page).click();
-    await page.getByRole('link', { name: 'Add category' }).click();
+    await page.goto('/admin/categories');
+    await page
+      .getByRole('listitem')
+      .filter({
+        has: page.getByRole('link', { name: category.name, exact: true }),
+      })
+      .getByRole('link', { name: 'Add subcategory' })
+      .click();
 
     await expect(page).toHaveURL(
       new RegExp(`/admin/categories/new\\?parent=${category.slug}\\b`),
@@ -213,7 +229,7 @@ test.describe('as an admin', () => {
     ).toHaveValue(/.+/);
 
     await page.getByRole('button', { name: 'Cancel' }).click();
-    await expect(page).toHaveURL(new RegExp(`/catalog/${category.slug}$`));
+    await expect(page).toHaveURL(/\/admin\/categories$/);
   });
 
   // Adding used to create a placeholder row the moment it was clicked; now it

@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Params, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import {
   CategoryCrumb,
   categoryDisplayName,
@@ -26,10 +26,9 @@ import {
   ProductListItem,
   SubcategoryLink,
 } from '@b2b-catalog-platform/shared';
-import { EditActions } from '../admin/edit-actions';
+import { EDIT_ACTIONS_INSET, EditActions } from '../admin/edit-actions';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditModeService } from '../admin/edit-mode.service';
-import { ProductCreateService } from '../admin/ownership/product-create.service';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { HiddenProductsSection } from '../admin/products/hidden-products-section';
 import { APP_TEXT } from '../config/app-text';
@@ -184,10 +183,6 @@ interface Listing {
             [backLabel]="text.backToCatalog"
           />
         } @else {
-          <!-- Creating a subcategory or a product happens from here rather
-                than from a placeholder among the content: this category is
-                already the parent either way, and the cluster keeps the
-                gesture in the one place every page puts it. -->
           @if (editControls(); as editText) {
             @if (data.category; as category) {
               <app-edit-actions
@@ -200,24 +195,10 @@ interface Listing {
                 [editLink]="['/admin/categories', category.slug, 'edit']"
                 [editParams]="editorFrom()"
                 [editLabel]="editText.editCategory"
-                [addCategoryLink]="['/admin/categories/new']"
-                [addCategoryParams]="{
-                  parent: category.slug,
-                  from: editorFrom().from,
-                }"
-                [addCategoryLabel]="editText.addCategory"
-                [addProductLabel]="editText.addProduct"
-                (addProduct)="
-                  addProduct({
-                    category: category.slug,
-                    from: editorFrom().from,
-                  })
-                "
               />
             } @else {
-              <!-- The catalogue's own: its filter panel, the category list,
-                   and a top-level category or a product with no category
-                   chosen yet. -->
+              <!-- The catalogue's own: its filter panel and the category
+                   list. -->
               <app-edit-actions
                 [listLink]="['/admin/products']"
                 [listLabel]="editText.showInList"
@@ -226,11 +207,6 @@ interface Listing {
                 [filtersLabel]="editText.editFilters"
                 [editLink]="['/admin/categories']"
                 [editLabel]="editText.editCategories"
-                [addCategoryLink]="['/admin/categories/new']"
-                [addCategoryParams]="editorFrom()"
-                [addCategoryLabel]="editText.addCategory"
-                [addProductLabel]="editText.addProduct"
-                (addProduct)="addProduct({ from: editorFrom().from })"
               />
             }
           }
@@ -240,7 +216,10 @@ interface Listing {
           <!-- On the catalogue itself too, as a trail of one: the heading then
                sits where a category's does, and nothing moves on the way down. -->
           <div class="flex items-start justify-between gap-4">
-            <nav [attr.aria-label]="text.catalogRoot">
+            <nav
+              [attr.aria-label]="text.catalogRoot"
+              [class]="editControls() ? editActionsInset : ''"
+            >
               <!-- Inline flow, not a flex row. Flexed, a crumb is one
                    unbreakable box: a category whose name does not fit the line
                    drops whole onto the next one and leaves the gap it came
@@ -545,10 +524,13 @@ interface Listing {
 
       <!-- Outside the branch above on purpose: its fetch is what the grid waits
            for before drawing the edit affordances, so it must not in turn wait
-           for the grid. The slug comes from the route, which is known at once. -->
+           for the grid. The slug comes from the route, which is known at once.
+           Mounted at once but drawn only under a drawn grid: it often loads
+           first, and shown then it stood where the grid was about to go. -->
       @defer (when editMode.enabled()) {
         @if (editMode.enabled() && slug(); as categorySlug) {
           <app-hidden-products-section
+            [class.hidden]="!ready()"
             [categorySlug]="categorySlug"
             [reloadToken]="hiddenReload()"
             (loaded)="hiddenReady.set(true)"
@@ -564,6 +546,7 @@ export class CategoryGrid {
   protected readonly anyStatus = anyStatus;
 
   protected readonly productGrid = PRODUCT_GRID;
+  protected readonly editActionsInset = EDIT_ACTIONS_INSET;
 
   /**
    * The sort above the grid is hidden wherever the filter panel is a disclosure
@@ -595,7 +578,6 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
-  private readonly productCreate = inject(ProductCreateService);
   protected readonly text = inject(APP_TEXT).catalog;
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -725,11 +707,6 @@ export class CategoryGrid {
   protected readonly ready = this.content.ready;
   protected readonly editControls = this.content.controls;
   protected readonly showSkeleton = this.content.showSkeleton;
-
-  /** The ＋ disc: an editor for this category, or the reason there is none. */
-  protected addProduct(queryParams: Params): void {
-    void this.productCreate.start(queryParams);
-  }
 
   /** Either listing, as the one shape the template reads — `null` when the
    * slug names no category. */

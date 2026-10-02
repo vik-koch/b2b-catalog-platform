@@ -97,7 +97,11 @@ import {
           }
 
           <!-- Nothing hidden can be bought, so nobody adds it from here. -->
-          <app-product-detail-view [item]="item" [canAdd]="!loaded.hidden">
+          <app-product-detail-view
+            [item]="item"
+            [canAdd]="!loaded.hidden"
+            [crumbInset]="!!editText()"
+          >
             <span productStatus class="flex flex-wrap gap-1">
               @if (loaded.hidden; as hidden) {
                 @if (statusText(); as status) {
