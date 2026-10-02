@@ -67,7 +67,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
       <div class="space-y-10">
         @for (location of locations; track location.name) {
           <section>
-            <h2 class="text-xl font-normal tracking-tight">
+            <h2 class="text-2xl font-normal tracking-tight">
               {{ location.name }}
             </h2>
             @if (location.description) {
