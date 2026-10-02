@@ -985,6 +985,32 @@ export const adminCatalogContract = {
     )
     .output(adminProductSchema),
 
+  /**
+   * The live products this one is the last counterpart on sale for: the ones
+   * whose pairing stops applying if it is unpublished, since a pairing counts
+   * only counterparts a customer could add (FR-SET-04). Empty for a product
+   * that is not on sale itself. Asked by the unpublish confirmation.
+   */
+  listStrandedPairings: admin
+    .route({
+      method: 'GET',
+      path: '/admin/catalog/products/{slug}/stranded-pairings',
+      inputStructure: 'detailed',
+      summary:
+        'List live products left with no counterpart if this one is unpublished (admin)',
+    })
+    .errors({ 'product-not-found': e['product-not-found'] })
+    .input(z.object({ params: z.object({ slug: z.string() }) }))
+    .output(
+      z
+        .object({
+          items: z.array(
+            z.object({ slug: z.string(), name: z.string() }).strict(),
+          ),
+        })
+        .strict(),
+    ),
+
   listHiddenProducts: admin
     .route({
       method: 'GET',

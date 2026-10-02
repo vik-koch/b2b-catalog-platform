@@ -217,6 +217,9 @@ export const adminTextSchema = z
         publishProduct: z.string(),
         unpublishProduct: z.string(),
         unpublishConfirm: z.string(),
+        /** Added to that confirmation when this product is the last one on
+         * sale that some live product is paired with; `{names}` lists them. */
+        unpublishStranded: z.string(),
         /** The confirm dialog's cancel, so a storefront component never has to
          * reach into `common` — admin text is fetched, and only edit-mode
          * wording is gated on it having loaded. */

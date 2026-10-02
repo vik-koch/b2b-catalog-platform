@@ -129,6 +129,20 @@ export class AdminCatalogService {
     return result.data.items;
   }
 
+  /**
+   * The names of the live products unpublishing this one would leave on sale
+   * with no counterpart (FR-SET-04). Empty when the question cannot be
+   * answered: it adds a line to a confirmation, and must not be what stands
+   * between an admin and unpublishing.
+   */
+  async strandedPairingNames(slug: string): Promise<string[]> {
+    const result = await safe(
+      this.client.listStrandedPairings({ params: { slug } }),
+    );
+    if (!result.isSuccess) return [];
+    return result.data.items.map((item) => item.name);
+  }
+
   restoreProduct(slug: string): Promise<AdminProduct> {
     return this.afterWork(this.client.restoreProduct({ params: { slug } }));
   }

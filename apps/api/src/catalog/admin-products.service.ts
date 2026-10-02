@@ -701,6 +701,41 @@ export class AdminProductsService {
   }
 
   /**
+   * The live products whose only counterpart on sale is this one — what
+   * unpublishing it would leave on sale with its pairing switched off, since a
+   * pairing counts only counterparts a customer could add (FR-SET-04). A
+   * product that is not on sale counts for nobody, so it strands nobody.
+   */
+  async listStrandedPairings(
+    slug: string,
+  ): Promise<{ slug: string; name: string }[]> {
+    const [own] = await this.db
+      .select({
+        id: products.id,
+        deletedAt: products.deletedAt,
+        publishedAt: products.publishedAt,
+      })
+      .from(products)
+      .where(eq(products.slug, slug));
+    if (!own) throw productNotFound();
+    if (own.deletedAt !== null || own.publishedAt === null) return [];
+    return this.db
+      .select({ slug: products.slug, name: products.name })
+      .from(productPairings)
+      .innerJoin(products, eq(products.id, counterpartOf(own.id)))
+      .where(
+        and(
+          involves(own.id),
+          isNull(products.deletedAt),
+          isNotNull(products.publishedAt),
+          // This product is one of them, so one means it is the only one.
+          sql`${pairedCountOf()} = 1`,
+        ),
+      )
+      .orderBy(asc(products.name));
+  }
+
+  /**
    * What this category's subtree holds that the storefront does not show:
    * soft-deleted, unpublished, or both. Aggregates over descendants exactly like
    * the storefront grid (Pattern A), so the edit-mode overlay and the live grid
