@@ -179,6 +179,29 @@ describe('TileGallery', () => {
 
     expect(root.querySelectorAll('span').length).toBe(0);
   });
+
+  it('waits for the viewport unless told it leads the page', () => {
+    const f = render([img(1), img(2)]);
+    const imgs = () => [
+      ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
+    ];
+    expect(imgs().map((el) => el.getAttribute('loading'))).toEqual([
+      'lazy',
+      'lazy',
+    ]);
+
+    f.componentRef.setInput('priority', 'high');
+    f.detectChanges();
+    // Fetched with the page, and only the photo on show jumps the queue.
+    expect(imgs().map((el) => el.getAttribute('loading'))).toEqual([
+      null,
+      null,
+    ]);
+    expect(imgs().map((el) => el.getAttribute('fetchpriority'))).toEqual([
+      'high',
+      null,
+    ]);
+  });
 });
 
 describe('TileGallery labels (FR-CAT-11)', () => {

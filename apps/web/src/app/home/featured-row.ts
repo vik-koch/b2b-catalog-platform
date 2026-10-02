@@ -108,10 +108,15 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
           >
             @for (item of items; track item.slug) {
               <li class="h-full snap-start">
+                <!-- The row opens the main page, so its photos are the first
+                     thing a visitor sees: fetched with the page, not when
+                     layout finds them in view, and the first one ahead of the
+                     rest. -->
                 <app-product-tile
                   [item]="item"
                   [reserveStatus]="reserveStatus"
                   [inset]="true"
+                  [imagePriority]="$first ? 'high' : 'eager'"
                 >
                   @if (editControls(); as editText) {
                     <app-edit-actions
