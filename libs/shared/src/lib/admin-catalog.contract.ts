@@ -427,9 +427,9 @@ export const adminProductListItemSchema = z
 export type AdminProductListItem = z.infer<typeof adminProductListItemSchema>;
 
 /**
- * A product the storefront is not showing, and why — the edit-mode overlay under
- * a category grid. The public tile shape plus its reasons, which are not
- * exclusive: a product can be both unpublished and deleted.
+ * An unpublished product — the edit-mode overlay under a category grid. The
+ * public tile shape with the price it may lack, which is the one reason
+ * publishing alone will not bring it to the storefront.
  */
 export const hiddenProductSchema = productListItemSchema.extend({
   /** Null where no price list prices this product — which is one of the
@@ -437,10 +437,6 @@ export const hiddenProductSchema = productListItemSchema.extend({
    * cannot express. */
   priceMinor: priceMinorSchema.nullable(),
   prices: unitPricesSchema.nullable(),
-  deleted: z.boolean(),
-  /** As on the full product: who undoes the deletion. */
-  deletedByRun: z.boolean(),
-  unpublished: z.boolean(),
 });
 export type HiddenProduct = z.infer<typeof hiddenProductSchema>;
 
@@ -1015,10 +1011,11 @@ export const adminCatalogContract = {
     .route({
       method: 'GET',
       // Powers the storefront edit-mode overlay under a category grid: what is
-      // in this subtree but not on the storefront — soft-deleted, unpublished,
-      // or both (Pattern A, same aggregation as the public grid). Without it an
-      // admin browsing a category sees a catalogue that looks complete and is
-      // not. Unpaginated: a category's hidden set is small. Fetched only when
+      // in this subtree but not on the storefront — unpublished (Pattern A,
+      // same aggregation as the public grid). A deleted product is out of the
+      // catalog (FR-ADM-22) and is restored from the admin product list. Without
+      // it an admin browsing a category sees a catalogue that looks complete and
+      // is not. Unpaginated: a category's hidden set is small. Fetched only when
       // edit mode is on, so the public read path stays untouched.
       path: '/admin/catalog/categories/{slug}/hidden-products',
       inputStructure: 'detailed',
