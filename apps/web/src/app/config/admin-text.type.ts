@@ -72,6 +72,11 @@ export const adminTextSchema = z
          * in every engine, so the app draws its own. */
         datePlaceholder: z.string(),
         uploadError: z.string(),
+        /** Under a file target's own wording; `{keys}` is the shortcut as
+         * this keyboard writes it. */
+        pasteHint: z.string(),
+        /** Beside an image tile, too small to say it on: `{keys}` as above. */
+        imageTileHint: z.string(),
         /** The way back to an unfiltered grid, on every admin list. */
         clearFilters: z.string(),
         /*
@@ -128,6 +133,21 @@ export const adminTextSchema = z
             'product-ordered': z.string(),
           })
           .strict(),
+      })
+      .strict(),
+    /** The dialog that places a catalog picture in a white square before it
+     * is stored. */
+    imageFramer: z
+      .object({
+        heading: z.string(),
+        hint: z.string(),
+        /** The square's accessible name: it is moved with the arrow keys. */
+        stage: z.string(),
+        zoom: z.string(),
+        centre: z.string(),
+        fill: z.string(),
+        asIs: z.string(),
+        apply: z.string(),
       })
       .strict(),
     /**
@@ -374,6 +394,8 @@ export const adminTextSchema = z
              * choice for a picture of the whole range (FR-CAT-11). */
             variant: z.string(),
             noVariant: z.string(),
+            /** Opens a stored picture in the framer again. */
+            reframe: z.string(),
           })
           .strict(),
         /** The variants an assorted product's pictures show (FR-CAT-11/12). */

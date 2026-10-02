@@ -161,7 +161,7 @@ function knownValues<T extends string>(
                 <img
                   [src]="item.thumb"
                   alt=""
-                  class="h-full w-full object-cover"
+                  class="h-full w-full bg-white object-contain"
                 />
               }
             </div>
@@ -273,7 +273,7 @@ function knownValues<T extends string>(
                 <img
                   [src]="item.thumb"
                   alt=""
-                  class="h-full w-full object-cover"
+                  class="h-full w-full bg-white object-contain"
                 />
               }
             </div>

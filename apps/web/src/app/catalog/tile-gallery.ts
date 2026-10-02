@@ -72,7 +72,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
             "
             [attr.src]="sourceFor($index)"
             [alt]="altFor(img)"
-            class="absolute inset-0 h-full w-full object-cover transition-opacity duration-200"
+            class="absolute inset-0 h-full w-full bg-white object-contain transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
             [class.opacity-0]="$index !== selected()"
             (error)="markFailed(img.thumb)"
@@ -90,7 +90,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
           @for (img of images(); track $index) {
             <span
               class="h-0.5 flex-1 rounded-full transition-colors"
-              [class.bg-white]="$index === selected()"
+              [class.bg-secondary]="$index === selected()"
               [class.bg-border-strong]="$index !== selected()"
             ></span>
           }

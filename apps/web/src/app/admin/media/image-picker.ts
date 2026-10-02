@@ -2,10 +2,12 @@ import { Component, inject, input, output, signal } from '@angular/core';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
   CatalogImage,
+  fillText,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../ui/file-target';
 import { MediaService } from './media.service';
 
 /**
@@ -17,7 +19,7 @@ import { MediaService } from './media.service';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [AdminIcon],
+  imports: [AdminIcon, FileTarget],
   template: `
     @if (value(); as image) {
       <div
@@ -47,15 +49,22 @@ import { MediaService } from './media.service';
       />
       <button
         type="button"
-        [class]="tileClass"
+        #target="appFileTarget"
+        [appFileTarget]="accept"
+        [class]="tileClass(target.dragging())"
         [disabled]="uploading()"
         (click)="fileInput.click()"
+        (filesReceived)="upload($event[0])"
       >
         <app-admin-icon name="image-plus" class="h-6 w-6" />
         <span class="text-xs">{{
           uploading() ? common.uploading : label()
         }}</span>
       </button>
+      <!-- A pointer's hint: a phone has no shortcut, and drops nothing. -->
+      <p class="mt-2 hidden text-xs text-subtle pointer-fine:block">
+        {{ tileHint }}
+      </p>
     }
 
     @if (error()) {
@@ -67,9 +76,15 @@ export class ImagePicker {
   private readonly media = inject(MediaService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
+  protected readonly tileHint = fillText(this.common.imageTileHint, {
+    keys: pasteKeys(),
+  });
+
   /** The shared dashed target at tile size — the same one the sync screen and
    * the document editor wear at their own. */
-  protected readonly tileClass = `h-26 w-26 ${DROP_ZONE} ${dropZoneState(false)}`;
+  protected tileClass(dragging: boolean): string {
+    return `h-26 w-26 ${DROP_ZONE} ${dropZoneState(dragging)}`;
+  }
 
   readonly value = input.required<CatalogImage | null>();
   /** Caption on the empty tile, e.g. "Image". */
@@ -87,8 +102,10 @@ export class ImagePicker {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
     input.value = ''; // allow re-selecting the same file
-    if (!file) return;
+    if (file) await this.upload(file);
+  }
 
+  protected async upload(file: File): Promise<void> {
     this.uploading.set(true);
     this.error.set(null);
     try {

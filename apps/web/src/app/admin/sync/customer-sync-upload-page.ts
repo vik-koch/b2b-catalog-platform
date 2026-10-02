@@ -16,6 +16,7 @@ import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import { ChoiceCard } from '../../ui/choice-card';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../ui/file-target';
 import { FieldLabel } from '../../ui/field-label';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Link } from '../../ui/link';
@@ -53,6 +54,7 @@ import { SyncService } from './sync.service';
     Checkbox,
     ChoiceCard,
     FieldLabel,
+    FileTarget,
     Link,
     RouterLink,
     SyncCustomerPlanView,
@@ -140,11 +142,11 @@ import { SyncService } from './sync.service';
           <button
             type="button"
             class="w-full p-4"
-            [class]="dropZoneClass()"
+            #target="appFileTarget"
+            appFileTarget=".csv,text/csv"
+            [class]="dropZoneClass(target.dragging())"
             (click)="openPicker(fileInput)"
-            (dragover)="onDragOver($event)"
-            (dragleave)="dragging.set(false)"
-            (drop)="onDrop($event)"
+            (filesReceived)="setFile($event[0])"
           >
             <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
             @if (file(); as chosen) {
@@ -154,6 +156,9 @@ import { SyncService } from './sync.service';
               <span class="font-medium">{{ text.dropHint }}</span>
               <span class="text-sm">{{ text.browse }}</span>
             }
+            <span class="hidden text-xs pointer-fine:block">{{
+              pasteHint
+            }}</span>
           </button>
           <!-- The columns, listed rather than described: the file is written by
                whoever is holding the other system's export, and the one thing
@@ -250,7 +255,9 @@ export class CustomerSyncUploadPage {
   protected readonly applying = signal(false);
   protected readonly applyError = signal<string | null>(null);
   protected readonly appliedRun = signal<SyncRun | null>(null);
-  protected readonly dragging = signal(false);
+  protected readonly pasteHint = fillText(inject(ADMIN_TEXT).common.pasteHint, {
+    keys: pasteKeys(),
+  });
 
   protected selectPreset(name: CustomerSyncPresetName): void {
     this.preset.set(name);
@@ -281,23 +288,11 @@ export class CustomerSyncUploadPage {
     input.click();
   }
 
-  protected onDragOver(event: DragEvent): void {
-    // Without preventDefault the browser navigates to the dropped file.
-    event.preventDefault();
-    this.dragging.set(true);
+  protected dropZoneClass(dragging: boolean): string {
+    return `${DROP_ZONE} ${dropZoneState(dragging, !!this.file())}`;
   }
 
-  protected onDrop(event: DragEvent): void {
-    event.preventDefault();
-    this.dragging.set(false);
-    this.setFile(event.dataTransfer?.files?.[0] ?? null);
-  }
-
-  protected dropZoneClass(): string {
-    return `${DROP_ZONE} ${dropZoneState(this.dragging(), !!this.file())}`;
-  }
-
-  private setFile(file: File | null): void {
+  protected setFile(file: File | null): void {
     if (!file) return;
     this.file.set(file);
     this.discardPreview();
