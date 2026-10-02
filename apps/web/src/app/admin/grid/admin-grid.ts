@@ -18,7 +18,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { injectNarrowScreen, NarrowBreakpoint } from '../../core/narrow-screen';
 import { IconButton } from '../../ui/icon-button';
-import { Link } from '../../ui/link';
+import { TextButton } from '../../ui/link';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import {
   columnMinWidth,
@@ -77,7 +77,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
     RouterLink,
     AdminIcon,
     IconButton,
-    Link,
+    TextButton,
     GridSortHeader,
     GridFilterSelect,
     GridNarrowControls,
@@ -167,7 +167,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         <div class="flex h-6 items-center justify-between gap-4 text-sm">
           <p class="text-subtle" aria-live="polite">{{ countText() }}</p>
           @if (customised()) {
-            <button type="button" appLink (click)="resetWidths()">
+            <button type="button" appTextButton (click)="resetWidths()">
               {{ common.resetWidths }}
             </button>
           }

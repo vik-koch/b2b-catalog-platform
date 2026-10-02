@@ -125,3 +125,11 @@ already say a thing is operable. A handful of standalone text controls (show
 password, generate, browse) carry it anyway because they have no other
 affordance at all — the cleaner answer is a second tone in the same file, and
 it is not built.
+
+## Amendment — 2026-10-02 (v1.13.0): the text button
+
+The second tone is built: `appTextButton`, in the same file as `appLink`. It
+keeps the link's colour and weight but underlines on hover only, and it takes
+the standalone text controls — show password, generate, enter manually, a map
+link under an address, reset widths. A word inside a sentence keeps `appLink`,
+and so does a count in a record row, which links to the list it counts.

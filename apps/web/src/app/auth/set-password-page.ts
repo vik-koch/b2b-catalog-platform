@@ -17,7 +17,7 @@ import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { AuthService } from './auth.service';
 import { landingFor } from './auth.guard';
-import { Link } from '../ui/link';
+import { TextButton } from '../ui/link';
 
 type Status =
   'checking' | 'ready' | 'expired' | 'closed' | 'submitting' | 'done';
@@ -42,7 +42,7 @@ type Status =
     Button,
     FieldLabel,
     Input,
-    Link,
+    TextButton,
   ],
   template: `
     <app-auth-card>
@@ -101,7 +101,7 @@ type Status =
                 </label>
                 <button
                   type="button"
-                  appLink
+                  appTextButton
                   class="text-sm"
                   (click)="revealed.set(!revealed())"
                 >
@@ -137,7 +137,7 @@ type Status =
               }
               <button
                 type="button"
-                appLink
+                appTextButton
                 class="mt-2 text-sm"
                 (click)="suggest()"
               >

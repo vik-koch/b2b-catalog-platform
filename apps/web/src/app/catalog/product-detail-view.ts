@@ -24,7 +24,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
 import { disclosureState } from '../ui/disclosure-state';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
 import { Icon } from '../ui/icons/icon';
-import { Link } from '../ui/link';
+import { Link, TextButton } from '../ui/link';
 import { ProductBuyBlock } from './product-buy-block';
 import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
@@ -135,7 +135,7 @@ const NARROW = '(max-width: 39.999rem)';
     ProductVariantList,
     ProductBuyBlock,
     Icon,
-    Link,
+    Link, TextButton,
     NgTemplateOutlet,
     ShowMoreToggle,
     ProductDocuments,
@@ -264,7 +264,7 @@ const NARROW = '(max-width: 39.999rem)';
               </tbody>
             </table>
             <a
-              appLink
+              appTextButton
               class="mt-3 inline-block text-sm"
               [routerLink]="[]"
               [fragment]="specsId"

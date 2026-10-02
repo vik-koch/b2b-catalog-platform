@@ -33,7 +33,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Icon } from '../../ui/icons/icon';
 import { HintBadge } from '../../ui/hint-badge';
 import { FieldLabel } from '../../ui/field-label';
-import { Link } from '../../ui/link';
+import { TextButton } from '../../ui/link';
 import {
   AttributeHint,
   attributeHints,
@@ -84,7 +84,7 @@ import {
     CdkDragHandle,
     CdkDragPreview,
     FieldLabel,
-    Link,
+    TextButton,
   ],
   template: `
     <!-- min-w-0 because a <fieldset> defaults to min-width:min-content, which
@@ -260,7 +260,7 @@ import {
            fills the grid. -->
       <button
         type="button"
-        appLink
+        appTextButton
         class="mt-2 inline-flex items-center gap-1.5 text-sm"
         (click)="picking.set(true)"
       >

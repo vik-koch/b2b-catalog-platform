@@ -7,7 +7,7 @@ import { EditActions } from '../admin/edit-actions';
 import { DeliveryZoneList } from '../checkout/delivery-zone-list';
 import { usePageSeo } from '../core/page-seo';
 import { trustedRichText } from '../core/trusted-rich-text';
-import { Link } from '../ui/link';
+import { TextButton } from '../ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from './page.service';
 
@@ -26,7 +26,7 @@ import { PageService } from './page.service';
  */
 @Component({
   selector: 'app-conditions-page',
-  imports: [DeliveryZoneList, EditActions, Link, LoadErrorView],
+  imports: [DeliveryZoneList, EditActions, TextButton, LoadErrorView],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
          never written takes the page down with it — the same rules, and the
@@ -90,7 +90,7 @@ import { PageService } from './page.service';
                     <p class="font-medium">{{ location.name }}</p>
                     @if (location.mapUrl) {
                       <a
-                        appLink
+                        appTextButton
                         class="text-sm"
                         target="_blank"
                         rel="noopener noreferrer"
