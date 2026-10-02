@@ -135,6 +135,21 @@ export const adminTextSchema = z
           .strict(),
       })
       .strict(),
+    /** The dialog that places a catalog picture in a white square before it
+     * is stored. */
+    imageFramer: z
+      .object({
+        heading: z.string(),
+        hint: z.string(),
+        /** The square's accessible name: it is moved with the arrow keys. */
+        stage: z.string(),
+        zoom: z.string(),
+        centre: z.string(),
+        fill: z.string(),
+        asIs: z.string(),
+        apply: z.string(),
+      })
+      .strict(),
     /**
      * Headings on the admin dashboard (FR-ADM-01/03/04). `manage` and `site`
      * label the two cards; the rest label the tiers inside the manage card,
@@ -379,6 +394,8 @@ export const adminTextSchema = z
              * choice for a picture of the whole range (FR-CAT-11). */
             variant: z.string(),
             noVariant: z.string(),
+            /** Opens a stored picture in the framer again. */
+            reframe: z.string(),
           })
           .strict(),
         /** The variants an assorted product's pictures show (FR-CAT-11/12). */

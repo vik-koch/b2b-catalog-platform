@@ -53,6 +53,16 @@
       "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
     }
   },
+  "imageFramer": {
+    "heading": "Frame the picture",
+    "hint": "Drag the picture to move it. Zoom out for a wider white border, or in to crop.",
+    "stage": "Picture position: arrow keys move it, plus and minus zoom",
+    "zoom": "Zoom",
+    "centre": "Fit and centre",
+    "fill": "Fill and centre",
+    "asIs": "Upload as is",
+    "apply": "Apply frame"
+  },
   "panel": {
     "catalog": "Catalog",
     "registries": "Filters and pricing",
@@ -193,7 +203,8 @@
       "heading": "Images",
       "add": "Add images",
       "variant": "Variant this picture shows",
-      "noVariant": "No variant"
+      "noVariant": "No variant",
+      "reframe": "Frame again"
     },
     "variants": {
       "heading": "Variants",

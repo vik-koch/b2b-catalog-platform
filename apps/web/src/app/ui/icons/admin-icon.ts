@@ -45,6 +45,7 @@ export type AdminIconName =
   | 'clipboard-paste'
   | 'trash-2'
   | 'image-plus'
+  | 'crop'
   | 'grip-vertical'
   | 'circle-check'
   | 'book-check'
@@ -298,6 +299,10 @@ export type AdminIconName =
         @case ('circle-slash') {
           <circle cx="12" cy="12" r="10" />
           <path d="m4.9 4.9 14.2 14.2" />
+        }
+        @case ('crop') {
+          <path d="M6 2v14a2 2 0 0 0 2 2h14" />
+          <path d="M18 22V8a2 2 0 0 0-2-2H2" />
         }
         @case ('rotate-ccw') {
           <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />

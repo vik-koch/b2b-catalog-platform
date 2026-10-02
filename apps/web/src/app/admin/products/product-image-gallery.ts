@@ -20,6 +20,7 @@ import { Input } from '../../ui/input';
 import { SelectField } from '../../ui/select-field';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../ui/file-target';
+import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 
 /**
@@ -27,6 +28,10 @@ import { MediaService } from '../media/media.service';
  * catalog media endpoint, which returns the stored `{ full, thumb }` pair; the
  * list order is the display order. Reordering is by CDK drag-drop, shared in
  * spirit with the category tree; the upload tile is excluded from the drop list.
+ *
+ * A single new picture opens in the framer first, to be placed in a white
+ * square; several at once were prepared elsewhere and go up as they are, each
+ * one framed again from its tile if need be.
  *
  * Where the product names variants, each picture says under it which one it
  * shows, or none for a picture of the whole range (FR-CAT-11). The photo is
@@ -84,14 +89,26 @@ import { MediaService } from '../media/media.service';
                     class="size-5 md:size-4"
                   />
                 </span>
-                <button
-                  type="button"
-                  class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
-                  [attr.aria-label]="common.remove"
-                  (click)="remove($index)"
-                >
-                  <app-admin-icon name="trash-2" class="size-5 md:size-4" />
-                </button>
+                <span class="flex">
+                  <button
+                    type="button"
+                    class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white disabled:cursor-not-allowed disabled:text-white/40 md:p-1"
+                    [attr.aria-label]="text.reframe"
+                    [title]="text.reframe"
+                    [disabled]="uploading()"
+                    (click)="reframe(image)"
+                  >
+                    <app-admin-icon name="crop" class="size-5 md:size-4" />
+                  </button>
+                  <button
+                    type="button"
+                    class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
+                    [attr.aria-label]="common.remove"
+                    (click)="remove($index)"
+                  >
+                    <app-admin-icon name="trash-2" class="size-5 md:size-4" />
+                  </button>
+                </span>
               </div>
             </div>
             @if (variants().length) {
@@ -160,6 +177,7 @@ import { MediaService } from '../media/media.service';
 })
 export class ProductImageGallery {
   private readonly media = inject(MediaService);
+  private readonly framer = inject(ImageFramerService);
   protected readonly text = inject(ADMIN_TEXT).productEditor.images;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
@@ -189,6 +207,11 @@ export class ProductImageGallery {
   }
 
   protected async upload(files: File[]): Promise<void> {
+    if (files.length === 1 && files[0].type !== 'image/gif') {
+      const framed = await this.frameNew(files[0]);
+      if (!framed) return;
+      files = [framed];
+    }
     if (files.length === 0) return;
     this.uploading.set(true);
     this.error.set(null);
@@ -199,6 +222,41 @@ export class ProductImageGallery {
         uploaded.push({ ...stored, variantId: null });
       }
       this.valueChange.emit([...this.value(), ...uploaded]);
+    } catch {
+      this.error.set(this.common.uploadError);
+    } finally {
+      this.uploading.set(false);
+    }
+  }
+
+  /** A canvas draws one frame of an animation, so a GIF never reaches here. */
+  private async frameNew(file: File): Promise<File | null> {
+    const src = URL.createObjectURL(file);
+    try {
+      const answer = await this.framer.frame(src, true);
+      if (answer === 'original') return file;
+      return answer && new File([answer], 'framed.jpg', { type: answer.type });
+    } finally {
+      URL.revokeObjectURL(src);
+    }
+  }
+
+  /** Frames a stored picture again from its `full`, replacing it in place;
+   * the old files are left to the unreferenced-upload clean-up. */
+  protected async reframe(image: ProductImageInput): Promise<void> {
+    const answer = await this.framer.frame(image.full, false);
+    if (!(answer instanceof Blob)) return;
+    this.uploading.set(true);
+    this.error.set(null);
+    try {
+      const stored = await this.media.uploadCatalogImage(
+        new File([answer], 'framed.jpg', { type: answer.type }),
+      );
+      this.valueChange.emit(
+        this.value().map((each) =>
+          each.thumb === image.thumb ? { ...each, ...stored } : each,
+        ),
+      );
     } catch {
       this.error.set(this.common.uploadError);
     } finally {
