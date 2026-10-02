@@ -8,15 +8,14 @@ import {
 import axios from 'axios';
 import { randomBytes } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { basename } from 'node:path';
 import { Client } from 'pg';
 import sharp from 'sharp';
-import { requireEnv } from '../support/env';
+import { mediaPath, requireEnv } from '../support/env';
 
-// The LocalMediaStore writes to <workspace>/.media (created by global-setup).
-const MEDIA_DIR = join(__dirname, '../../../..', '.media');
+// The LocalMediaStore writes to MEDIA_ROOT (created by global-setup).
 const storedWidth = async (mediaUrl: string): Promise<number | undefined> => {
-  const bytes = await readFile(join(MEDIA_DIR, basename(mediaUrl)));
+  const bytes = await readFile(mediaPath(basename(mediaUrl)));
   return (await sharp(bytes).metadata()).width;
 };
 

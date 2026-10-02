@@ -1,7 +1,10 @@
 import axios from 'axios';
+import { requireEnv } from './env';
 
-// Mailpit's REST API (see compose.db.yml) — the dev/e2e email sink.
-const mailpit = axios.create({ baseURL: 'http://localhost:8025/api/v1' });
+// Mailpit's REST API (see compose.api-e2e.yml) — this suite's own email sink.
+const mailpit = axios.create({
+  baseURL: `http://localhost:${requireEnv('MAILPIT_UI_PORT')}/api/v1`,
+});
 
 export interface CaughtMessage {
   readonly ID: string;

@@ -1,0 +1,33 @@
+# The api-e2e suite's own backing services, apart from the dev stack
+# (compose.db.yml) and the web-e2e localtest stack: its own Postgres and Mailpit
+# on their own host ports, so a running `nx serve api` or web-e2e run is never
+# touched. Ports and credentials come from .env.serve-e2e.
+#
+# The api-e2e global setup recreates both on every run, and Postgres keeps its
+# data on tmpfs, so each run starts from an empty database and an empty inbox.
+# Between runs the containers stay up for inspecting a failure.
+name: b2b-api-e2e
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    tmpfs:
+      - /var/lib/postgresql
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?}
+      POSTGRES_USER: ${POSTGRES_USER:?}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?}
+    ports:
+      - '127.0.0.1:${DATABASE_PORT:?}:5432'
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:?} -d ${POSTGRES_DB:?}']
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - '127.0.0.1:${MAIL_PORT:?}:1025'
+      - '127.0.0.1:${MAILPIT_UI_PORT:?}:8025'

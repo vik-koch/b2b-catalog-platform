@@ -1,10 +1,10 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { readFile } from 'node:fs/promises';
-import { basename, join } from 'node:path';
+import { basename } from 'node:path';
 import { Client } from 'pg';
 import sharp from 'sharp';
-import { requireEnv } from '../support/env';
+import { mediaPath, requireEnv } from '../support/env';
 
 /**
  * Product documents (FR-DOC-01/02) — the upload pipeline, the row's CRUD and
@@ -15,10 +15,9 @@ import { requireEnv } from '../support/env';
  * provable by reading the file back off the volume.
  */
 
-// The LocalMediaStore writes documents to <workspace>/.media/documents.
-const DOCUMENT_DIR = join(__dirname, '../../../..', '.media', 'documents');
+// The LocalMediaStore writes documents to <MEDIA_ROOT>/documents.
 const storedBytes = (url: string): Promise<Buffer> =>
-  readFile(join(DOCUMENT_DIR, basename(url)));
+  readFile(mediaPath('documents', basename(url)));
 
 // Per-run suffix, so leftovers from a crashed run cannot collide.
 const R = Date.now().toString(36);

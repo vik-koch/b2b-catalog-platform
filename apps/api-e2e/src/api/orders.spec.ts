@@ -1,11 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { hash } from '@node-rs/argon2';
 import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
 import { priceProduct } from '../support/catalog-fixture';
-import { requireEnv } from '../support/env';
+import { mediaPath, requireEnv } from '../support/env';
 import {
   deleteMatching,
   messageBody,
@@ -2818,13 +2817,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       expect(rows).toHaveLength(1);
       // Under the private subdirectory, which no web server routes: the API
       // is the only way to these bytes (ADR 0052).
-      const stored = join(
-        __dirname,
-        '../../../..',
-        '.media',
-        'private',
-        rows[0].fileKey,
-      );
+      const stored = mediaPath('private', rows[0].fileKey);
       expect((await readFile(stored)).subarray(0, 5).toString()).toBe('%PDF-');
     });
 
