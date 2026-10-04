@@ -5,6 +5,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import type { ElsewhereLink } from '../config/deployment-config.type';
 import { ConsentService } from '../consent/consent.service';
 import { Button } from '../ui/button';
+import { telHref } from './contact-info';
 import { ScrollToTop } from './scroll-to-top';
 
 @Component({
@@ -30,7 +31,38 @@ import { ScrollToTop } from './scroll-to-top';
                shape that does not apply is display:none, so a screen reader
                is never offered two of them. -->
           <div class="flex items-center justify-between gap-4">
-            <p class="text-xs text-subtle">{{ copyright }}</p>
+            <div class="flex min-w-0 flex-col gap-1">
+              <!-- Who sells, where the jurisdiction wants it on every page.
+                   Each part keeps its words together and the line breaks
+                   between parts; the no-break space before a separator keeps
+                   it off the start of a line. -->
+              @if (seller; as seller) {
+                <address class="text-xs not-italic text-subtle">
+                  <span class="whitespace-nowrap">{{ seller.name }}</span>
+                  @for (number of seller.registration; track $index) {
+                    <span aria-hidden="true">&nbsp;· </span>
+                    <span class="whitespace-nowrap">{{ number }}</span>
+                  }
+                  @if (contact?.phone; as phone) {
+                    <span aria-hidden="true">&nbsp;· </span>
+                    <a
+                      [href]="telHref(phone)"
+                      class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                      >{{ phone }}</a
+                    >
+                  }
+                  @if (contact?.email; as email) {
+                    <span aria-hidden="true">&nbsp;· </span>
+                    <a
+                      [href]="'mailto:' + email"
+                      class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                      >{{ email }}</a
+                    >
+                  }
+                </address>
+              }
+              <p class="text-xs text-subtle">{{ copyright }}</p>
+            </div>
             <span class="sm:hidden"><app-scroll-to-top /></span>
           </div>
           <!-- The call to action sits on the same line as the legal links, but
@@ -129,6 +161,10 @@ export class Footer {
   protected readonly legalSlugs = this.config.pages.footerNav;
   /** Where else the shop is, in the order configured (FR-NAV-07). */
   protected readonly elsewhere = this.config.elsewhere ?? [];
+  /** The seller line (NFR-LEGAL-02); its way to reach them is `contact`. */
+  protected readonly seller = this.config.seller;
+  protected readonly contact = this.config.contact;
+  protected readonly telHref = telHref;
 
   /**
    * The mark is painted through a mask, so the file is a CSS url rather than a

@@ -400,6 +400,21 @@ export const deploymentConfigSchema = z
      */
     elsewhere: z.array(elsewhereLinkSchema).optional(),
     /**
+     * Who sells, named in every page's footer (NFR-LEGAL-02) for a
+     * jurisdiction that wants the seller identifiable on the site itself.
+     * `registration` holds whole strings, label included ("HRB 123456",
+     * "VAT ID DE…"), because which numbers a seller quotes, and what they are
+     * called, is the jurisdiction's. The way to reach the seller is `contact`,
+     * not a second copy of it. Absent means no line.
+     */
+    seller: z
+      .object({
+        name: z.string().min(1),
+        registration: z.array(z.string().min(1)).min(1),
+      })
+      .strict()
+      .optional(),
+    /**
      * Phone-number input for the inquiry form. The country code is fixed and
      * shown as a prefix the visitor does not type. The optional mask formats the
      * national part as they type — `#` is one digit, any other character is a

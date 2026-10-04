@@ -126,6 +126,51 @@ describe('Footer', () => {
     expect(el.querySelector('.elsewhere-mark')).toBeNull();
   });
 
+  // NFR-LEGAL-02. The line names the seller and their numbers, then reaches
+  // them through the deployment's one contact block rather than a copy of it.
+  it('names the seller with their numbers and contact, in that order', async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      seller: { name: 'Shop Ltd', registration: ['Reg 1', 'Tax 2'] },
+      contact: { phone: '+49 40 123', email: 'hi@shop.example' },
+    });
+    const line = el.querySelector('address');
+    const parts = Array.from(
+      line?.querySelectorAll('.whitespace-nowrap') ?? [],
+    ).map((part) => part.textContent?.trim());
+    expect(parts).toEqual([
+      'Shop Ltd',
+      'Reg 1',
+      'Tax 2',
+      '+49 40 123',
+      'hi@shop.example',
+    ]);
+    const hrefs = Array.from(line?.querySelectorAll('a') ?? []).map((a) =>
+      a.getAttribute('href'),
+    );
+    expect(hrefs).toEqual(['tel:+4940123', 'mailto:hi@shop.example']);
+  });
+
+  it('leaves the contact out of the seller line when none is configured', async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      seller: { name: 'Shop Ltd', registration: ['Reg 1'] },
+      contact: undefined,
+    });
+    const line = el.querySelector('address');
+    // One separator between the two parts, none left dangling after them.
+    expect(line?.querySelectorAll('[aria-hidden="true"]').length).toBe(1);
+    expect(line?.querySelector('a')).toBeNull();
+  });
+
+  it('shows no seller line when the deployment configures none', async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      seller: undefined,
+    });
+    expect(el.querySelector('address')).toBeNull();
+  });
+
   it('omits the license notice link when the deployment drops it', async () => {
     const { pages } = defaultDeploymentConfig;
     const el = await renderWith({

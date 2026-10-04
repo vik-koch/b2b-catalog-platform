@@ -21,6 +21,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Storefront presentation: links elsewhere, documents held elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets, variants; the admin grid's content filter; removing a product in steps | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10)/[11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07)/[08](requirements.md#fr-search-08),<br>[FR-ADM-19](requirements.md#fr-adm-19)/[20](requirements.md#fr-adm-20)/[21](requirements.md#fr-adm-21)/[22](requirements.md#fr-adm-22),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13),<br>[FR-DOC-05](requirements.md#fr-doc-05) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[05](requirements.md#fr-adm-05)/[06](requirements.md#fr-adm-06)/[10](requirements.md#fr-adm-10),<br>[FR-ATTR-02](requirements.md#fr-attr-02),<br>[FR-CART-08](requirements.md#fr-cart-08),<br>[FR-DOC-01](requirements.md#fr-doc-01)/[03](requirements.md#fr-doc-03) |
+| 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[07](requirements.md#fr-adm-07),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06),<br>[FR-ORD-05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06) |
 | later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -800,3 +801,53 @@ Notes:
   beside it. The migration only relaxes the file columns and adds the link, so it applies
   unattended. Whether a product *must* carry such a document is not modelled: that is a
   rule about some goods in some markets, not about documents.
+- **Iteration 16 is a compliance pass before going live**
+  ([NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12),
+  [NFR-LEGAL-02](requirements.md#nfr-legal-02) amended) (planned 2026-10-03). The first three
+  were written down during iteration 15 and held back. The deployment that needs them now has a
+  date. They are ordered by what a missing piece would cost the shop. Consent comes first,
+  then the terms an order accepts, then the record of destroyed data, then the tax basis. The
+  tax basis is the only one a shop could go live without, because its prices already include
+  tax. The platform does not write the shop's legal texts. What it owes the shop is the
+  mechanism and a plain account of what it processes, why and for how long, from which the
+  shop's own texts are written and for which the shop answers.
+- **Consent is recorded, and the prices state their tax basis**
+  ([NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11))
+  (2026-09-30, made jurisdiction-neutral 2026-10-03). Some jurisdictions require consent to be
+  its own document, given by an act of the person's own, and require the shop to be able to
+  prove it. Others let the same processing rest on the contract or on the shop's legitimate
+  interest and expect no box at all. The platform therefore offers consent without
+  presuming it. There are two purposes, contact and account, each with its own versioned text
+  that includes the box wording. A deployment that publishes no text asks for nothing. The
+  account consent is given on registration or on the first password an invited holder
+  chooses. Checkout asks for none, because an order is processed to fulfil a contract. The
+  record keeps the text's version, outlives the account for a retention period the
+  deployment sets, and records a withdrawal, because that record is the shop's evidence.
+  Accepting the conditions page with an order is a different act: it is part of the
+  contract, not consent to processing data, so it is a line beside the submit button and
+  not a box. The conditions page is the shop's terms of sale, including returns and claims.
+  The order records which version it accepted. The confirmation links that version, or
+  carries it as a document where a jurisdiction wants the terms kept by the customer, since
+  a link to a page that can change does not count as kept. The order summary can carry a
+  return notice for the paperwork. The tax basis is a statement and not a calculation,
+  because the billing documents are the shop's and state the figure themselves. It reads
+  tax included, tax added on the invoice or no tax charged, so a business-only shop can quote
+  net prices and a consumer shop cannot. Goods taxed at a reduced rate carry a rate of their
+  own, owned like the price and synced with it. The deployment's rate is only the default.
+  Each order records the basis and every line's rate, since either can change while orders
+  are still open.
+- **The seller is named on every page**
+  ([NFR-LEGAL-02](requirements.md#nfr-legal-02) amended) (2026-10-03). Some jurisdictions
+  want the seller identifiable on the site itself, not one link away on a seller page. The
+  footer therefore carries a line from configuration: legal name, registration number and a
+  way to reach the seller. It is chrome, so it is configuration rather than page content,
+  on the same argument as the footer's other links.
+- **Destroying personal data leaves a record**
+  ([NFR-LEGAL-12](requirements.md#nfr-legal-12)) (2026-10-03). A jurisdiction can require
+  the shop to prove a destruction, with a statement backed by an extract from the system's
+  own log. The platform destroys personal data in three places: deleting an account,
+  clearing an account an owning system withdrew, and ending a consent record's retention.
+  Each writes its record in the same moment, so the extract exists even if nobody thinks of
+  it at the time. The record names the account by its id, not by the data that was
+  destroyed. The signed statement remains the shop's paperwork. The platform supplies the
+  export it is drawn up from.

@@ -200,6 +200,10 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-LEGAL-06](#nfr-legal-06) — Open-source attribution page
 - [NFR-LEGAL-07](#nfr-legal-07) — Disclosing a transfer of account details
 - [NFR-LEGAL-08](#nfr-legal-08) — Deletion reaches only this platform
+- [NFR-LEGAL-09](#nfr-legal-09) — Recorded consent to processing personal data
+- [NFR-LEGAL-10](#nfr-legal-10) — An order accepts the conditions it was placed under
+- [NFR-LEGAL-11](#nfr-legal-11) — The tax basis of the prices
+- [NFR-LEGAL-12](#nfr-legal-12) — A record that personal data was destroyed
 
 **[Security (NFR-SEC)](#nfr-sec)**
 
@@ -869,6 +873,8 @@ A dedicated page displays the privacy policy.
 
 A dedicated page displays mandatory seller/legal information as required by the deployment's jurisdiction (e.g. an EU-style Impressum, or an equivalent).
 
+Where the jurisdiction requires the seller to be identifiable on the site itself and not one link away, the footer of every page also carries a seller line: the seller's legal name, registration number and a way to reach them. The line comes from the deployment's configuration, like the rest of the footer's chrome, and a deployment without it shows no line.
+
 #### <a id="nfr-legal-03"></a>NFR-LEGAL-03 — Cookie consent
 
 Where required by the deployment's jurisdiction, a cookie consent mechanism gates non-essential cookies.
@@ -892,6 +898,45 @@ Where a deployment transfers account details, or the orders those accounts place
 #### <a id="nfr-legal-08"></a>NFR-LEGAL-08 — Deletion reaches only this platform
 
 Deleting an account under [FR-AUTH-06](#fr-auth-06) reaches only as far as this platform — the account can no longer sign in, can no longer be written to, and its personal details are cleared here — and is reported outward as withdrawn. The platform neither erases the receiving system's own record nor claims to: that system keeps its own data under its own obligations, and the privacy page says so plainly instead of promising an erasure the shop would have to perform by hand. The source system's key for the account is deliberately retained on the cleared row ([FR-ADM-15](#fr-adm-15)), so a later run cannot recreate what the person asked to have removed; the privacy page describes the outcome in those terms rather than as anonymity it cannot deliver.
+
+#### <a id="nfr-legal-09"></a>NFR-LEGAL-09 — Recorded consent to processing personal data
+
+Where a deployment relies on consent for some of its processing, the shop asks for it as a statement of its own. The person sees a box that stays unticked until they tick it, worded for one purpose, beside a link to a consent text. That text is a page of its own, not a passage of the privacy policy ([NFR-LEGAL-01](#nfr-legal-01)). Consent is asked per purpose, not per form, and each purpose has its own text. The platform offers two purposes. A deployment publishes the texts for those it relies on consent for, and a form whose text is published is not sent without its box. A purpose without a published text asks nothing. That is the case wherever the jurisdiction lets the processing rest on another ground, such as the contract or the shop's legitimate interest:
+
+- **Contact** covers handling an inquiry sent through the contact form ([FR-NAV-06](#fr-nav-06)) and replying to it.
+- **Account** covers assessing a registration ([FR-AUTH-01](#fr-auth-01)) and running the account afterwards. A person who registers consents on the registration form. An account opened on somebody's behalf, whether invited by a manager ([FR-AUTH-04](#fr-auth-04)) or created by an owning system ([FR-ADM-11](#fr-adm-11)), asks on the page where its holder first chooses a password. That is the holder's first act of their own, and nobody else can consent for them before it.
+
+Checkout asks for no consent. An order's details are processed to fulfil the order, and the order accepts the conditions instead ([NFR-LEGAL-10](#nfr-legal-10)).
+
+Each text keeps every version it has been published in, together with the box wording shown beside it, so a record can be read against exactly what the person saw and ticked. Editing the text starts a new version, and an existing consent stays bound to the version it was given under.
+
+Each consent is recorded with its purpose, the version, the server's time and whose consent it is: the account's, or for an inquiry, the submission's and the email address given with it. A deployment may also record the network address the request came from. The application never changes a record. Staff can find a person's records by account or email address to answer an inspection or the person's own request.
+
+A consent can be withdrawn. For the account purpose, withdrawing means deleting the account ([FR-AUTH-06](#fr-auth-06)). A withdrawal that reaches the shop any other way is entered by staff against the record. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
+
+#### <a id="nfr-legal-10"></a>NFR-LEGAL-10 — An order accepts the conditions it was placed under
+
+The conditions page ([FR-NAV-03](#fr-nav-03)) is the shop's standing terms of sale, and anyone can read it before ordering. Besides payment and delivery, it states how goods are returned, who bears the cost of returning them, and how a claim reaches the shop: in what form and to which address. Submitting an order accepts those terms as they stood at that moment. Checkout says so beside the submit button and links the page. Submitting is the act, so there is no box to tick.
+
+The order records which version of the page's text it was submitted under, so a later edit cannot change what an earlier order accepted. What checkout settled for the order itself — how it is fulfilled, where it goes and how it is paid — is already part of the order's own version ([FR-ORD-03](#fr-ord-03)). The confirmation the customer receives ([FR-NOTIF-06](#fr-notif-06)) carries the order's reference and leads to the order, for a guest as much as for an account holder. It also hands over the version of the terms the order accepted, in the form the deployment requires. By default it links that version. Where a jurisdiction wants the terms on a medium the customer keeps, the confirmation carries them as a document.
+
+A deployment may give a short return notice, which the order summary ([FR-ORD-05](#fr-ord-05)) then prints. The paper handed over with the goods thus tells the customer in writing how to return them.
+
+#### <a id="nfr-legal-11"></a>NFR-LEGAL-11 — The tax basis of the prices
+
+A deployment states the tax basis its prices are quoted on. There are three: tax included, tax added on the invoice, or no tax charged. A deployment that sells to consumers quotes tax included, because a consumer is shown what they will pay. The statement appears wherever a price total is shown — the cart, checkout, the customer's order pages and the generated order summary ([FR-ORD-05](#fr-ord-05)) — and on the conditions page. It is a statement, not a calculation. The platform works out neither the tax contained in a total nor the tax to be added to one. The shop's billing documents state that figure, and a figure calculated here could disagree with them by a rounding.
+
+A basis that charges tax names a rate, and that rate is the deployment's default. A product may carry a rate of its own, for goods taxed at a different one. The product's rate is owned like its price. It is set in the admin editor ([FR-ADM-01](#fr-adm-01)) or by a bulk sync ([FR-ADM-02](#fr-adm-02)), and where an external system owns the catalog it arrives from there ([FR-ADM-07](#fr-adm-07)/[10](#fr-adm-10)). A product without a rate of its own is taxed at the default. While every line of a cart or an order shares one rate, the statement names it once. Once they differ, each line states its rate and the total states only the basis.
+
+The basis and the rates can change while orders are open, through a new rate or through the shop becoming liable for tax it did not charge before. An order therefore records the basis it was submitted under and the rate of each of its lines. Everything that shows the order states those, not the current ones.
+
+#### <a id="nfr-legal-12"></a>NFR-LEGAL-12 — A record that personal data was destroyed
+
+Where a deployment's jurisdiction requires the shop to prove that personal data it held was destroyed, the platform writes a record each time it destroys some, in the same moment as the destruction. Three things destroy personal data here: deleting an account ([FR-AUTH-06](#fr-auth-06)), clearing an account withdrawn by an owning system ([NFR-LEGAL-08](#nfr-legal-08)), and deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
+
+Each record names whose data it was, in terms that still identify the person afterwards without holding the destroyed data itself, such as the account's id. It also states which categories of data were destroyed, why — the person's request, a withdrawal, the end of a retention period — and when. The application never changes a record.
+
+An admin can export the records for a period as a file. The shop's own paperwork, such as a signed statement of destruction, is drawn up from that export and is not the platform's to produce. Records are kept for a period the deployment sets, and are then deleted themselves.
 
 ---
 

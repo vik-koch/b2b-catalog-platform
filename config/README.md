@@ -11,7 +11,7 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 
 ## The files
 
-- `deployment.json` → `DeploymentConfig` (branding, contact, locations,
+- `deployment.json` → `DeploymentConfig` (branding, contact, seller line, locations,
   cookie-consent flag, whether orders carry an invoice address, phone and
   company-id input rules, address rules, currency, collection points, delivery
   zones, order-reference format).
@@ -70,6 +70,24 @@ the reader can drag narrow, a figure and its unit — write a non-breaking space
 as the JSON escape ` `: `"paid in full"`. It is valid JSON, it
 parses to a real non-breaking space, and unlike a pasted one it stays visible to
 whoever edits the file next. Status badges do not need it: they never wrap.
+
+### The seller line
+
+A jurisdiction that wants the seller identifiable on every page, not only on
+the imprint, gets a line in the footer from `seller` in `deployment.json`:
+
+```json
+"seller": {
+  "name": "Coffee Kontor GmbH",
+  "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
+}
+```
+
+Each `registration` entry is written whole, label included, because which
+numbers a seller quotes and what they are called is the jurisdiction's. The line
+continues with the phone and email from `contact`, so there is one copy of them.
+The line breaks only between entries. Leave `seller` out and there is no line.
+The imprint page stays the place for the full seller details.
 
 ## Assets (logo, favicon, fonts)
 
