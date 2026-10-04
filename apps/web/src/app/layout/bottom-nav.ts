@@ -15,6 +15,7 @@ import { Icon } from '../ui/icons/icon';
 import { AccountLink } from './account-link';
 import { CartLink } from './cart-link';
 import { CatalogLink } from './catalog-link';
+import { telHref } from './contact-info';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
 import { navActionClasses, TAB_CURRENT } from './nav-action';
@@ -289,8 +290,6 @@ export class BottomNav {
     this.menuOpen.set(false);
   }
 
-  /** tel: for the panel's call row; dial characters only. */
-  protected telHref(phone: string): string {
-    return 'tel:' + phone.replace(/[^\d+]/g, '');
-  }
+  /** The panel's call row dials the configured number. */
+  protected readonly telHref = telHref;
 }

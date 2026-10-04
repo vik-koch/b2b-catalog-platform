@@ -2,6 +2,11 @@ import { Component, inject } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Icon } from '../ui/icons/icon';
 
+/** tel: needs dial characters only; the displayed value keeps its spacing. */
+export function telHref(phone: string): string {
+  return 'tel:' + phone.replace(/[^\d+]/g, '');
+}
+
 /**
  * Phone/email as pills with tel:/mailto: links. Each is shown only when
  * configured (FR-NAV-05), so the same component works wherever a deployment
@@ -48,8 +53,5 @@ export class ContactInfo {
   protected readonly pillClass =
     'inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-sm whitespace-nowrap text-subtle transition-colors hover:text-accent active:text-primary-deep';
 
-  /** tel: needs dial characters only; the displayed value keeps its spacing. */
-  protected telHref(phone: string): string {
-    return 'tel:' + phone.replace(/[^\d+]/g, '');
-  }
+  protected readonly telHref = telHref;
 }
