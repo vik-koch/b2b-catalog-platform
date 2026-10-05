@@ -13,6 +13,7 @@ const version = (n: number, extra: Partial<PageVersion> = {}): PageVersion => ({
   version: n,
   title: `Title ${n}`,
   bodyHtml: `<p>Body ${n}.</p>`,
+  consentLabel: null,
   updatedAt: '2026-10-04T10:00:00.000Z',
   editorEmail: null,
   ...extra,
@@ -51,6 +52,13 @@ describe('PageHistory', () => {
     expect(summaries[0]).toContain(text.current);
     expect(summaries[0]).toContain('admin@example.com');
     expect(summaries[1]).not.toContain(text.current);
+  });
+
+  it('shows what a version said, box wording included', async () => {
+    const el = await render([version(1, { consentLabel: 'I consent.' })]);
+
+    expect(el.querySelector('.prose')?.innerHTML).toContain('Body 1.');
+    expect(el.textContent).toContain('I consent.');
   });
 
   it('renders nothing for a page never saved', async () => {

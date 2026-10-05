@@ -23,6 +23,7 @@ describe('PageController', () => {
     version: 1,
     title: 'Privacy',
     bodyHtml: '<p>How we handle data.</p>',
+    consentLabel: null,
     updatedAt: '2026-09-02T10:00:00.000Z',
   };
 
@@ -132,6 +133,64 @@ describe('PageController', () => {
       { title: 'Privacy', bodyHtml: '<p>x</p>' },
       expect.objectContaining({ id: 'admin-1' }),
     );
+  });
+
+  const put = (slug: string, body: object) =>
+    fetch(`${baseUrl}/api/pages/${slug}`, {
+      method: 'PUT',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+  it('takes box wording on a consent page', async () => {
+    signedInAs = { id: 'admin-1', role: 'admin' };
+    updatePage.mockResolvedValue({ ...page, consentLabel: 'I consent.' });
+
+    const response = await put('consent-account', {
+      title: 'Consent',
+      bodyHtml: '',
+      consentLabel: 'I consent.',
+    });
+
+    expect(response.status).toBe(200);
+  });
+
+  it('refuses a consent page without its box wording', async () => {
+    signedInAs = { id: 'admin-1', role: 'admin' };
+
+    const response = await put('consent-account', {
+      title: 'Consent',
+      bodyHtml: '',
+    });
+
+    expect(response.status).toBe(400);
+    expect(updatePage).not.toHaveBeenCalled();
+  });
+
+  it('refuses box wording on any other page', async () => {
+    signedInAs = { id: 'admin-1', role: 'admin' };
+
+    const response = await put('privacy', {
+      title: 'Privacy',
+      bodyHtml: '',
+      consentLabel: 'I consent.',
+    });
+
+    expect(response.status).toBe(400);
+    expect(updatePage).not.toHaveBeenCalled();
+  });
+
+  it('lists the versions to an admin only', async () => {
+    listVersions.mockResolvedValue([{ ...page, editorEmail: null }]);
+
+    const refused = await fetch(`${baseUrl}/api/pages/privacy/versions`);
+    expect(refused.status).toBe(401);
+
+    signedInAs = { id: 'admin-1', role: 'admin' };
+    const response = await fetch(`${baseUrl}/api/pages/privacy/versions`);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([{ ...page, editorEmail: null }]);
+    expect(listVersions).toHaveBeenCalledWith('privacy');
   });
 
   // The slug enum is what makes "create a page" unrepresentable.

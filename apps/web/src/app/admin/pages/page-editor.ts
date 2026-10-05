@@ -8,7 +8,12 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { Page, PageSlug } from '@b2b-catalog-platform/shared';
+import {
+  CONSENT_LABEL_MAX_LENGTH,
+  isConsentPage,
+  Page,
+  PageSlug,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { Button } from '../../ui/button';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
@@ -16,6 +21,7 @@ import { injectConfirmDiscard } from '../confirm-discard';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
+import { Checkbox } from '../../ui/checkbox';
 import { PageService } from '../../pages/page.service';
 import { trustedRichText } from '../../core/trusted-rich-text';
 
@@ -26,7 +32,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
  */
 @Component({
   selector: 'app-page-editor',
-  imports: [Button, RichTextEditor, AdminIcon, FieldLabel, Input],
+  imports: [Button, RichTextEditor, AdminIcon, FieldLabel, Input, Checkbox],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
@@ -45,6 +51,15 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         class="prose prose-stone max-w-3xl"
         [innerHTML]="safeBody(body())"
       ></div>
+      @if (isConsent()) {
+        <div class="mt-8 max-w-3xl border-t border-border pt-4">
+          <p class="mb-2 text-sm text-muted">{{ text.consentPreview }}</p>
+          <label class="flex items-start gap-2 text-sm">
+            <input type="checkbox" appCheckbox class="mt-0.5" disabled />
+            <span>{{ consentLabel() }}</span>
+          </label>
+        </div>
+      }
     } @else {
       <h1 class="mb-4 text-3xl font-medium tracking-tight">
         {{ isNew() ? text.newTitle : text.editTitle }}
@@ -66,6 +81,29 @@ import { trustedRichText } from '../../core/trusted-rich-text';
             (input)="onTitleInput($event)"
           />
         </label>
+
+        @if (isConsent()) {
+          <div class="mb-6">
+            <label class="block">
+              <span appFieldLabel>
+                {{ text.consentLabel }}
+                <span class="text-accent" aria-hidden="true">*</span>
+              </span>
+              <textarea
+                appInput
+                rows="2"
+                class="w-full"
+                aria-describedby="consent-label-hint"
+                [attr.maxlength]="consentLabelMax"
+                [value]="consentLabel()"
+                (input)="onConsentLabelInput($event)"
+              ></textarea>
+            </label>
+            <p id="consent-label-hint" class="mt-1 text-sm text-muted">
+              {{ text.consentLabelHint }}
+            </p>
+          </div>
+        }
 
         <app-rich-text-editor
           [value]="body()"
@@ -140,6 +178,11 @@ export class PageEditor {
   // Seeded from the page, and re-seeded whenever a save replaces it.
   protected readonly title = linkedSignal(() => this.page().title);
   protected readonly body = linkedSignal(() => this.page().bodyHtml);
+  protected readonly consentLabel = linkedSignal(
+    () => this.page().consentLabel ?? '',
+  );
+  protected readonly isConsent = computed(() => isConsentPage(this.slug()));
+  protected readonly consentLabelMax = CONSENT_LABEL_MAX_LENGTH;
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -147,7 +190,8 @@ export class PageEditor {
   private readonly dirty = computed(
     () =>
       this.title() !== this.page().title ||
-      this.body() !== this.page().bodyHtml,
+      this.body() !== this.page().bodyHtml ||
+      this.consentLabel() !== (this.page().consentLabel ?? ''),
   );
 
   constructor() {
@@ -156,6 +200,10 @@ export class PageEditor {
 
   protected onTitleInput(event: Event): void {
     this.title.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onConsentLabelInput(event: Event): void {
+    this.consentLabel.set((event.target as HTMLTextAreaElement).value);
   }
 
   /**
@@ -178,12 +226,17 @@ export class PageEditor {
       this.error.set(this.text.titleRequired);
       return;
     }
+    if (this.isConsent() && !this.consentLabel().trim()) {
+      this.error.set(this.text.consentLabelRequired);
+      return;
+    }
     this.saving.set(true);
     this.error.set(null);
     try {
       const saved = await this.pageService.updatePage(this.slug(), {
         title: this.title().trim(),
         bodyHtml: this.body(),
+        ...(this.isConsent() && { consentLabel: this.consentLabel().trim() }),
       });
       this.saved.emit(saved);
     } catch {

@@ -13,7 +13,16 @@ const about: PageContent = {
   version: 1,
   title: 'About us',
   bodyHtml: '<p>Original copy.</p>',
+  consentLabel: null,
   updatedAt: '2026-07-25T10:00:00.000Z',
+};
+
+const consent: PageContent = {
+  version: 2,
+  title: 'Consent: contact form',
+  bodyHtml: '<p>What we process.</p>',
+  consentLabel: 'I consent.',
+  updatedAt: '2026-10-04T10:00:00.000Z',
 };
 
 async function render(
@@ -177,5 +186,58 @@ describe('PageEditor', () => {
     await fixture.whenStable();
 
     expect(closed).not.toHaveBeenCalled();
+  });
+
+  describe('on a consent page', () => {
+    const renderConsent = (updatePage = vi.fn()) =>
+      render(updatePage, consent, 'consent-contact');
+
+    it('offers no box wording on any other page', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('textarea')).toBeNull();
+    });
+
+    it('saves the box wording with the text', async () => {
+      const { fixture, el, updatePage } = await renderConsent(
+        vi.fn().mockResolvedValue(consent),
+      );
+
+      const wording = el.querySelector('textarea') as HTMLTextAreaElement;
+      expect(wording.value).toBe('I consent.');
+      wording.value = '  I agree.  ';
+      wording.dispatchEvent(new Event('input'));
+      buttonNamed(el, defaultAdminText.common.save).click();
+      await fixture.whenStable();
+
+      expect(updatePage).toHaveBeenCalledWith('consent-contact', {
+        title: consent.title,
+        bodyHtml: consent.bodyHtml,
+        consentLabel: 'I agree.',
+      });
+    });
+
+    it('refuses to save without box wording', async () => {
+      const { fixture, el, updatePage } = await renderConsent();
+
+      const wording = el.querySelector('textarea') as HTMLTextAreaElement;
+      wording.value = ' ';
+      wording.dispatchEvent(new Event('input'));
+      buttonNamed(el, defaultAdminText.common.save).click();
+      await fixture.whenStable();
+
+      expect(updatePage).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(text.consentLabelRequired);
+    });
+
+    it('previews the box as the form shows it', async () => {
+      const { fixture, el } = await renderConsent();
+
+      buttonNamed(el, defaultAdminText.common.preview).click();
+      await fixture.whenStable();
+
+      const box = el.querySelector('input[type="checkbox"]');
+      expect(box?.closest('label')?.textContent).toContain('I consent.');
+    });
   });
 });

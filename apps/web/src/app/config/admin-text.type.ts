@@ -267,6 +267,12 @@ export const adminTextSchema = z
         discardConfirm: z.string(),
         titleRequired: z.string(),
         saveError: z.string(),
+        /** A consent page's box wording, saved with its text (NFR-LEGAL-09). */
+        consentLabel: z.string(),
+        consentLabelHint: z.string(),
+        consentLabelRequired: z.string(),
+        /** Above the box as the preview shows it on a form. */
+        consentPreview: z.string(),
         /** The read-only list of past saves. */
         history: z
           .object({

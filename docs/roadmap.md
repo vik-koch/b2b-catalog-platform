@@ -840,6 +840,13 @@ Notes:
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09), [FR-ADM-03](requirements.md#fr-adm-03))
   (2026-10-04). A consent record and an accepted order each have to point at the text
   as it stood, so every save of a page now adds a version, and nothing overwrites one.
+  The two consent texts are pages in the fixed set. Each carries its box wording, so
+  the wording is versioned with the text it belongs to. Three details were settled
+  along the way. An account's record keeps the email address after the account is
+  deleted, because a record that names nobody proves nothing. An inquiry can be
+  traced by phone number, since the contact form accepts one without an email
+  address. A contact consent's retention runs from when it was given, because nobody
+  withdraws it.
 - **The seller is named on every page**
   ([NFR-LEGAL-02](requirements.md#nfr-legal-02) amended) (2026-10-03). Some jurisdictions
   want the seller identifiable on the site itself, not one link away on a seller page. The

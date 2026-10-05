@@ -1,7 +1,8 @@
 import { oc } from '@orpc/contract';
-import { PAGE_SLUGS } from './page-constants';
+import { isConsentPage, PAGE_SLUGS } from './page-constants';
 import * as z from 'zod';
 import {
+  CONSENT_LABEL_MAX_LENGTH,
   PAGE_BODY_MAX_LENGTH,
   PAGE_TITLE_MAX_LENGTH,
   RICH_TEXT_IMAGE_ALIGNMENTS,
@@ -18,6 +19,8 @@ export const pageSchema = z.object({
   version: z.number().int().positive(),
   title: z.string(),
   bodyHtml: z.string(),
+  /** The wording beside the box, on a consent page only. */
+  consentLabel: z.string().nullable(),
   /**
    * ISO 8601, when this version was saved. Public because legal pages
    * conventionally show when they last changed; who saved it is not.
@@ -45,6 +48,13 @@ export const updatePageSchema = z
      * emptied editor posts `''`.
      */
     bodyHtml: z.string().max(PAGE_BODY_MAX_LENGTH),
+    /** Required on a consent page, refused on any other. */
+    consentLabel: z
+      .string()
+      .trim()
+      .min(1)
+      .max(CONSENT_LABEL_MAX_LENGTH)
+      .optional(),
   })
   .strict();
 export type UpdatePageRequest = z.infer<typeof updatePageSchema>;
@@ -70,12 +80,22 @@ export const pageContract = {
     })
     .errors({ ...commonAuthErrors, 'page-not-found': { status: 404 } })
     .input(
-      z.object({
-        // The enum makes "create a page" unrepresentable: an unknown slug is a
-        // 400 from contract validation, never an insert.
-        params: z.object({ slug: pageSlugSchema }),
-        body: updatePageSchema,
-      }),
+      z
+        .object({
+          // The enum makes "create a page" unrepresentable: an unknown slug is a
+          // 400 from contract validation, never an insert.
+          params: z.object({ slug: pageSlugSchema }),
+          body: updatePageSchema,
+        })
+        .refine(
+          ({ params, body }) =>
+            isConsentPage(params.slug) === (body.consentLabel !== undefined),
+          {
+            message:
+              'A consent page needs its box wording; no other page has one.',
+            path: ['body', 'consentLabel'],
+          },
+        ),
     )
     .output(pageSchema),
 

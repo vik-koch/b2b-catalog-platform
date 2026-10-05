@@ -4,6 +4,8 @@ export interface PageSeed {
   slug: PageSlug;
   title: string;
   bodyHtml: string;
+  /** The box wording, on a consent page only. */
+  consentLabel?: string;
 }
 
 // Demo persona: a fictional Hamburg specialty-coffee importer/roastery
@@ -215,6 +217,62 @@ export const contactPageSeed: PageSeed = {
   ].join('\n'),
 };
 
+/**
+ * The two consent texts (NFR-LEGAL-09). The demo publishes both to show the
+ * mechanism; a shop whose jurisdiction rests this processing on the contract
+ * or its legitimate interest publishes neither and is asked for nothing.
+ */
+export const contactConsentPageSeed: PageSeed = {
+  slug: 'consent-contact',
+  title: 'Consent: contact form',
+  consentLabel:
+    'I consent to the processing of the details I enter here to answer my inquiry.',
+  bodyHtml: [
+    '<p>By ticking the box on our contact form you consent to us processing',
+    'the details you send with it, so that we can answer you.</p>',
+    '<h2>What we process</h2>',
+    '<p>Your name, the email address or phone number you give, how you would',
+    'like us to reply, and your message.</p>',
+    '<h2>What for</h2>',
+    '<p>Only to read your inquiry and reply to it. It is sent to our staff by',
+    'email and not used for anything else.</p>',
+    '<h2>How long</h2>',
+    '<p>We keep a record that you gave this consent, with the version of this',
+    'text you saw, for as long as we need it as proof, and then delete it.</p>',
+    '<h2>Withdrawing it</h2>',
+    '<p>You can withdraw your consent at any time by telling us, through any',
+    'of the ways listed on our contact page.</p>',
+  ].join('\n'),
+};
+
+export const accountConsentPageSeed: PageSeed = {
+  slug: 'consent-account',
+  title: 'Consent: customer account',
+  consentLabel:
+    'I consent to the processing of my details to assess my registration and run my customer account.',
+  bodyHtml: [
+    '<p>By ticking the box when you register, or when you first choose your',
+    'password, you consent to us processing your details to decide on your',
+    'account and to run it once it is open.</p>',
+    '<h2>What we process</h2>',
+    '<p>What you tell us when you register or we open the account for you:',
+    'your name, email address and phone number, and for a company its',
+    'registration number. Then the addresses you save and the orders you',
+    'place.</p>',
+    '<h2>What for</h2>',
+    '<p>To assess your registration, to show you your prices, and to let you',
+    'order and follow your orders. Our privacy policy describes each in',
+    'detail.</p>',
+    '<h2>How long</h2>',
+    '<p>For as long as the account is open. We keep a record that you gave',
+    'this consent, with the version of this text you saw, for a while after',
+    'it ends as proof, and then delete it.</p>',
+    '<h2>Withdrawing it</h2>',
+    '<p>Withdrawing this consent means deleting your account, which you can',
+    'do yourself from your account page.</p>',
+  ].join('\n'),
+};
+
 export const pageSeeds: PageSeed[] = [
   aboutPageSeed,
   conditionsPageSeed,
@@ -222,4 +280,6 @@ export const pageSeeds: PageSeed[] = [
   imprintPageSeed,
   withdrawalPageSeed,
   contactPageSeed,
+  contactConsentPageSeed,
+  accountConsentPageSeed,
 ];

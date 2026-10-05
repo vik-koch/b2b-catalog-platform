@@ -65,6 +65,7 @@ export class PageEditorPage implements UnsavedChangesAware {
     version: 0,
     title: inject(APP_TEXT).nav[this.slug] ?? '',
     bodyHtml: '',
+    consentLabel: null,
     updatedAt: '',
   };
 

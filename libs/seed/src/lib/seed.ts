@@ -22,9 +22,10 @@ export async function seedPages(client: Client): Promise<void> {
     const page = {
       title: seed.title,
       bodyHtml: sanitizeRichText(seed.bodyHtml),
+      consentLabel: seed.consentLabel,
     };
     const { rows } = await client.query<typeof page & { version: number }>(
-      `SELECT version, title, "bodyHtml" FROM page_versions
+      `SELECT version, title, "bodyHtml", "consentLabel" FROM page_versions
        WHERE slug = $1 ORDER BY version DESC LIMIT 1`,
       [seed.slug],
     );
@@ -32,14 +33,21 @@ export async function seedPages(client: Client): Promise<void> {
     if (
       latest &&
       latest.title === page.title &&
-      latest.bodyHtml === page.bodyHtml
+      latest.bodyHtml === page.bodyHtml &&
+      latest.consentLabel === page.consentLabel
     ) {
       continue;
     }
     await client.query(
-      `INSERT INTO page_versions (slug, version, title, "bodyHtml")
+      `INSERT INTO page_versions (slug, version, title, "bodyHtml", "consentLabel")
        VALUES ($1, $2, $3, $4, $5)`,
-      [seed.slug, (latest?.version ?? 0) + 1, page.title, page.bodyHtml],
+      [
+        seed.slug,
+        (latest?.version ?? 0) + 1,
+        page.title,
+        page.bodyHtml,
+        page.consentLabel,
+      ],
     );
   }
 }

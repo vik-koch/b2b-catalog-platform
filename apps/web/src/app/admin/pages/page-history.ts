@@ -43,6 +43,12 @@ import { trustedRichText } from '../../core/trusted-rich-text';
                 </summary>
                 <div class="pb-6">
                   <h3 class="mb-3 text-xl font-medium">{{ entry.title }}</h3>
+                  @if (entry.consentLabel) {
+                    <p class="mb-4 text-sm">
+                      <span class="text-muted">{{ text.consentLabel }}</span>
+                      {{ entry.consentLabel }}
+                    </p>
+                  }
                   <div
                     class="prose prose-stone max-w-none"
                     [innerHTML]="safeBody(entry.bodyHtml)"

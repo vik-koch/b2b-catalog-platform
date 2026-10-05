@@ -43,6 +43,7 @@ export class PageService {
     const content = {
       title: update.title,
       bodyHtml: sanitizeRichText(update.bodyHtml),
+      consentLabel: update.consentLabel ?? null,
     };
     return this.db.transaction(async (tx) => {
       // Two saves of one page would otherwise both claim the same number.
@@ -56,7 +57,8 @@ export class PageService {
       if (
         current &&
         current.title === content.title &&
-        current.bodyHtml === content.bodyHtml
+        current.bodyHtml === content.bodyHtml &&
+        current.consentLabel === content.consentLabel
       ) {
         return toPage(current);
       }
@@ -94,6 +96,7 @@ function toPage(row: VersionRow): Page {
     version: row.version,
     title: row.title,
     bodyHtml: row.bodyHtml,
+    consentLabel: row.consentLabel,
     updatedAt: row.createdAt.toISOString(),
   };
 }
