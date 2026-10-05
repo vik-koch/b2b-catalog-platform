@@ -19,6 +19,7 @@ describe('PageController', () => {
   let signedInAs: { id: string; role: string } | null = null;
 
   const page = {
+    version: 1,
     title: 'Privacy',
     bodyHtml: '<p>How we handle data.</p>',
     updatedAt: '2026-09-02T10:00:00.000Z',
@@ -108,7 +109,7 @@ describe('PageController', () => {
     expect(updatePage).not.toHaveBeenCalled();
   });
 
-  it('lets an admin through, and hands the service the signed-in id', async () => {
+  it('lets an admin through, and hands the service the signed-in account', async () => {
     signedInAs = { id: 'admin-1', role: 'admin' };
     updatePage.mockResolvedValue(page);
 
@@ -122,7 +123,7 @@ describe('PageController', () => {
     expect(updatePage).toHaveBeenCalledWith(
       'privacy',
       { title: 'Privacy', bodyHtml: '<p>x</p>' },
-      'admin-1',
+      expect.objectContaining({ id: 'admin-1' }),
     );
   });
 

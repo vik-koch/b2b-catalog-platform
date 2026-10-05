@@ -48,10 +48,12 @@ export interface MediaReferenceSource {
  */
 export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
   {
+    // Every version, not only the current: an old text must still render as
+    // it was published.
     name: 'page bodies',
     async collect(client) {
       const { rows } = await client.query<{ bodyHtml: string }>(
-        'SELECT "bodyHtml" FROM pages',
+        'SELECT "bodyHtml" FROM page_versions',
       );
       return rows.flatMap((row) => mediaFilenamesInHtml(row.bodyHtml));
     },

@@ -14,17 +14,24 @@ export type RichTextImageAlignment =
   (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
 export const pageSchema = z.object({
+  /** Counts the page's saves; a consent is recorded against it. */
+  version: z.number().int().positive(),
   title: z.string(),
   bodyHtml: z.string(),
   /**
-   * ISO 8601. Public because legal pages conventionally show when they last
-   * changed. No edit history is kept — this is the only temporal fact about
-   * a page. The editing admin is recorded in the database but deliberately
-   * not exposed here: this endpoint is public.
+   * ISO 8601, when this version was saved. Public because legal pages
+   * conventionally show when they last changed; who saved it is not.
    */
   updatedAt: z.iso.datetime(),
 });
 export type Page = z.infer<typeof pageSchema>;
+
+/** One past save, as the editor's history lists it. */
+export const pageVersionSchema = pageSchema.extend({
+  /** Null for seeded content, or a version older than the record of who. */
+  editorEmail: z.string().nullable(),
+});
+export type PageVersion = z.infer<typeof pageVersionSchema>;
 
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05). It also stops a
 // client from posting a read-only field (`slug`, `updatedAt`) and assuming it

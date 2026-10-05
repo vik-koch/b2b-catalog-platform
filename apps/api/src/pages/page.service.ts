@@ -1,76 +1,84 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import {
+  AuthUser,
   Page,
-  PAGE_SLUGS,
   PageSlug,
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { pages } from '../db/schema';
+import { pageVersions } from '../db/schema';
 
-/** The columns the contract exposes — `updatedBy` is audit data, kept internal. */
-const publicColumns = {
-  title: pages.title,
-  bodyHtml: pages.bodyHtml,
-  updatedAt: pages.updatedAt,
-} as const;
+type VersionRow = typeof pageVersions.$inferSelect;
 
 @Injectable()
 export class PageService {
   constructor(@Inject(DRIZZLE) private db: NodePgDatabase<typeof schema>) {}
 
+  /** The page is its latest version. */
   async getPage(slug: string): Promise<Page | undefined> {
-    const rows = await this.db
-      .select(publicColumns)
-      .from(pages)
-      .where(eq(pages.id, slug));
-    return rows[0] && toPage(rows[0]);
+    const [row] = await this.db
+      .select()
+      .from(pageVersions)
+      .where(eq(pageVersions.slug, slug))
+      .orderBy(desc(pageVersions.version))
+      .limit(1);
+    return row && toPage(row);
   }
 
   /**
-   * Replaces a page's title and body. The body is sanitized here rather than in
-   * the controller: this is the only write path, so nothing can reach the
-   * column unsanitized regardless of which caller arrives later.
-   *
-   * Works as an upsert — if a page is edited for the first time, it simply
-   * inserts it first time. An additional slug check is applied here.
+   * Saves a new version. The body is sanitized here, on the only write path.
+   * A save that changes nothing returns the current version instead, so every
+   * version is a real change.
    */
   async updatePage(
     slug: PageSlug,
     update: UpdatePageRequest,
-    editorId: string,
-  ): Promise<Page | undefined> {
-    if (!PAGE_SLUGS.includes(slug)) {
-      return undefined;
-    }
-
-    const page = {
+    editor: AuthUser,
+  ): Promise<Page> {
+    const content = {
       title: update.title,
       bodyHtml: sanitizeRichText(update.bodyHtml),
-      updatedAt: new Date(),
-      updatedBy: editorId,
     };
-    const rows = await this.db
-      .insert(pages)
-      .values({ id: slug, ...page })
-      .onConflictDoUpdate({
-        target: pages.id,
-        set: page,
-      })
-      .returning(publicColumns);
-    return rows[0] && toPage(rows[0]);
+    return this.db.transaction(async (tx) => {
+      // Two saves of one page would otherwise both claim the same number.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${slug}))`);
+      const [current] = await tx
+        .select()
+        .from(pageVersions)
+        .where(eq(pageVersions.slug, slug))
+        .orderBy(desc(pageVersions.version))
+        .limit(1);
+      if (
+        current &&
+        current.title === content.title &&
+        current.bodyHtml === content.bodyHtml
+      ) {
+        return toPage(current);
+      }
+      const [row] = await tx
+        .insert(pageVersions)
+        .values({
+          slug,
+          version: (current?.version ?? 0) + 1,
+          ...content,
+          createdBy: editor.id,
+          createdByEmail: editor.email,
+        })
+        .returning();
+      return toPage(row);
+    });
   }
 }
 
-/** The contract carries `updatedAt` as an ISO string; the driver hands us a Date. */
-function toPage(row: {
-  title: string;
-  bodyHtml: string;
-  updatedAt: Date;
-}): Page {
-  return { ...row, updatedAt: row.updatedAt.toISOString() };
+function toPage(row: VersionRow): Page {
+  return {
+    version: row.version,
+    title: row.title,
+    bodyHtml: row.bodyHtml,
+    updatedAt: row.createdAt.toISOString(),
+  };
 }

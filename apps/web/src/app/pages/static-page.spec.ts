@@ -14,6 +14,7 @@ import { StaticPage } from './static-page';
 import { PageService } from './page.service';
 
 const about: PageContent = {
+  version: 1,
   title: 'About us',
   bodyHtml: '<p>Original copy.</p>',
   updatedAt: '2026-07-25T10:00:00.000Z',

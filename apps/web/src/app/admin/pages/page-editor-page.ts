@@ -1,6 +1,6 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PageSlug } from '@b2b-catalog-platform/shared';
+import { Page, PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
 import { usePageSeo } from '../../core/page-seo';
@@ -57,9 +57,10 @@ export class PageEditorPage implements UnsavedChangesAware {
   /**
    * The starting point for a page that does not exist yet. The title is
    * pre-filled from the navigation label so the admin edits a named page rather
-   * than facing an empty required field; the save is an upsert either way.
+   * than facing an empty required field; the save adds version 1.
    */
-  protected readonly blankPage = {
+  protected readonly blankPage: Page = {
+    version: 0,
     title: inject(APP_TEXT).nav[this.slug] ?? '',
     bodyHtml: '',
     updatedAt: '',

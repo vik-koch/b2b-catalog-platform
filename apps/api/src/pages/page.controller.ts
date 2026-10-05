@@ -27,16 +27,8 @@ export class PageController {
   @Implement(pageContract.updatePage)
   updatePage(@CurrentUser() user: AuthUser) {
     return implement(pageContract.updatePage).handler(
-      async ({ input: { params, body }, errors }) => {
-        const page = await this.pageService.updatePage(
-          params.slug,
-          body,
-          user.id,
-        );
-        // Should never happen as it is already guarded
-        if (!page) throw errors['page-not-found']();
-        return page;
-      },
+      ({ input: { params, body } }) =>
+        this.pageService.updatePage(params.slug, body, user),
     );
   }
 }

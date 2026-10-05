@@ -37,9 +37,10 @@ describe('GET /pages/:slug', () => {
 
       expect(res.status).toBe(200);
       // toEqual (not toMatchObject) on purpose: also fails if internal DB
-      // columns (the id, and the updatedBy audit column) ever leak past the
-      // response validation.
+      // columns (the row id, who saved it) ever leak past the response
+      // validation.
       expect(res.data).toEqual({
+        version: expect.any(Number),
         title: seed.title,
         bodyHtml: seededBody(seed.bodyHtml),
         updatedAt: expect.any(String),

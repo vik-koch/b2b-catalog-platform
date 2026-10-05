@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { Page as PageContent } from '@b2b-catalog-platform/shared';
+import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -10,12 +10,17 @@ import { PageService } from '../../pages/page.service';
 const text = defaultAdminText.pageEditor;
 
 const about: PageContent = {
+  version: 1,
   title: 'About us',
   bodyHtml: '<p>Original copy.</p>',
   updatedAt: '2026-07-25T10:00:00.000Z',
 };
 
-async function render(updatePage = vi.fn()) {
+async function render(
+  updatePage = vi.fn(),
+  page: PageContent = about,
+  slug: PageSlug = 'about',
+) {
   TestBed.configureTestingModule({
     imports: [PageEditor],
     providers: [
@@ -25,8 +30,8 @@ async function render(updatePage = vi.fn()) {
     ],
   });
   const fixture = TestBed.createComponent(PageEditor);
-  fixture.componentRef.setInput('slug', 'about');
-  fixture.componentRef.setInput('page', about);
+  fixture.componentRef.setInput('slug', slug);
+  fixture.componentRef.setInput('page', page);
   await fixture.whenStable();
   return { fixture, el: fixture.nativeElement as HTMLElement, updatePage };
 }
