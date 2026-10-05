@@ -1,6 +1,6 @@
 # 0020 — Store rich text as sanitized HTML, edit it with a schema-constrained Tiptap
 
-**Status:** accepted · **Date:** 2026-07-25
+**Status:** accepted (amended 2026-10-04) · **Date:** 2026-07-25
 
 ## Context
 
@@ -92,3 +92,25 @@ embeds, or multiple render targets (web + native + email). None apply here.
   test catches drift but they are not generated from one source.
 - (−) Adding a formatting feature is a three-place change (schema, allowlist,
   toolbar) rather than a single editor config flag.
+
+## Amendment — 2026-10-04 (v1.14.0): every save keeps a version
+
+Rationale 6 rejected history because nothing would read it. Now something does.
+A consent record (NFR-LEGAL-09) has to be read against the exact text and box
+wording the person saw, and an order against the conditions it accepted
+(NFR-LEGAL-10). Both point at a version, so a page is now a series of versions
+rather than one overwritten row.
+
+`page_versions` replaces `pages`. Each row is one save: slug, a version number
+per slug, title, body, the box wording for a consent page, and who saved it and
+when. The current page is the slug's highest version. Rows are never updated. A
+save identical to the current version adds nothing, so a version always marks a
+real change.
+
+This applies to every slug, not only the legal ones. One write path is simpler
+than two, and the rows are small.
+
+Restore is still not offered. The admin can read past versions in the editor,
+and copying text back is enough for pages edited a few times a year.
+Media pruning keeps any image an old version refers to, so an old version still
+renders as it was published.
