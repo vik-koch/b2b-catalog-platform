@@ -21,7 +21,7 @@ const consent: PageContent = {
   version: 2,
   title: 'Consent: contact form',
   bodyHtml: '<p>What we process.</p>',
-  consentLabel: 'I consent.',
+  consentLabel: 'I [consent].',
   updatedAt: '2026-10-04T10:00:00.000Z',
 };
 
@@ -204,8 +204,8 @@ describe('PageEditor', () => {
       );
 
       const wording = el.querySelector('textarea') as HTMLTextAreaElement;
-      expect(wording.value).toBe('I consent.');
-      wording.value = '  I agree.  ';
+      expect(wording.value).toBe('I [consent].');
+      wording.value = '  I [agree].  ';
       wording.dispatchEvent(new Event('input'));
       buttonNamed(el, defaultAdminText.common.save).click();
       await fixture.whenStable();
@@ -213,7 +213,7 @@ describe('PageEditor', () => {
       expect(updatePage).toHaveBeenCalledWith('consent-contact', {
         title: consent.title,
         bodyHtml: consent.bodyHtml,
-        consentLabel: 'I agree.',
+        consentLabel: 'I [agree].',
       });
     });
 
@@ -228,6 +228,19 @@ describe('PageEditor', () => {
 
       expect(updatePage).not.toHaveBeenCalled();
       expect(el.textContent).toContain(text.consentLabelRequired);
+    });
+
+    it('refuses box wording that marks no link', async () => {
+      const { fixture, el, updatePage } = await renderConsent();
+
+      const wording = el.querySelector('textarea') as HTMLTextAreaElement;
+      wording.value = 'I agree.';
+      wording.dispatchEvent(new Event('input'));
+      buttonNamed(el, defaultAdminText.common.save).click();
+      await fixture.whenStable();
+
+      expect(updatePage).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(text.consentLabelLink);
     });
 
     it('previews the box as the form shows it', async () => {

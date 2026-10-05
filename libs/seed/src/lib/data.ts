@@ -4,7 +4,7 @@ export interface PageSeed {
   slug: PageSlug;
   title: string;
   bodyHtml: string;
-  /** The box wording, on a consent page only. */
+  /** The box wording, on a consent page only, its link in square brackets. */
   consentLabel?: string;
 }
 
@@ -226,7 +226,7 @@ export const contactConsentPageSeed: PageSeed = {
   slug: 'consent-contact',
   title: 'Consent: contact form',
   consentLabel:
-    'I consent to the processing of the details I enter here to answer my inquiry.',
+    'I [consent] to the processing of the details I enter here to answer my inquiry.',
   bodyHtml: [
     '<p>By ticking the box on our contact form you consent to us processing',
     'the details you send with it, so that we can answer you.</p>',
@@ -249,7 +249,7 @@ export const accountConsentPageSeed: PageSeed = {
   slug: 'consent-account',
   title: 'Consent: customer account',
   consentLabel:
-    'I consent to the processing of my details to assess my registration and run my customer account.',
+    'I [consent] to the processing of my details to assess my registration and run my customer account.',
   bodyHtml: [
     '<p>By ticking the box when you register, or when you first choose your',
     'password, you consent to us processing your details to decide on your',

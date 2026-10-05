@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { isConsentPage, PAGE_SLUGS } from './page-constants';
+import { consentLabelParts, isConsentPage, PAGE_SLUGS } from './page-constants';
 import * as z from 'zod';
 import {
   CONSENT_LABEL_MAX_LENGTH,
@@ -48,12 +48,18 @@ export const updatePageSchema = z
      * emptied editor posts `''`.
      */
     bodyHtml: z.string().max(PAGE_BODY_MAX_LENGTH),
-    /** Required on a consent page, refused on any other. */
+    /**
+     * Required on a consent page, refused on any other. Marks the words that
+     * link the consent text with square brackets, exactly once.
+     */
     consentLabel: z
       .string()
       .trim()
       .min(1)
       .max(CONSENT_LABEL_MAX_LENGTH)
+      .refine((label) => consentLabelParts(label) !== null, {
+        message: 'Mark the linked words with one pair of square brackets.',
+      })
       .optional(),
   })
   .strict();

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import {
   CONSENT_LABEL_MAX_LENGTH,
+  consentLabelParts,
   isConsentPage,
   Page,
   PageSlug,
@@ -56,7 +57,15 @@ import { trustedRichText } from '../../core/trusted-rich-text';
           <p class="mb-2 text-sm text-muted">{{ text.consentPreview }}</p>
           <label class="flex items-start gap-2 text-sm">
             <input type="checkbox" appCheckbox class="mt-0.5" disabled />
-            <span>{{ consentLabel() }}</span>
+            @if (consentParts(); as parts) {
+              <span
+                >{{ parts.before
+                }}<span class="underline">{{ parts.link }}</span
+                >{{ parts.after }}</span
+              >
+            } @else {
+              <span>{{ consentLabel() }}</span>
+            }
           </label>
         </div>
       }
@@ -183,6 +192,9 @@ export class PageEditor {
   );
   protected readonly isConsent = computed(() => isConsentPage(this.slug()));
   protected readonly consentLabelMax = CONSENT_LABEL_MAX_LENGTH;
+  protected readonly consentParts = computed(() =>
+    consentLabelParts(this.consentLabel().trim()),
+  );
   protected readonly previewing = signal(false);
   protected readonly saving = signal(false);
   protected readonly error = signal<string | null>(null);
@@ -228,6 +240,10 @@ export class PageEditor {
     }
     if (this.isConsent() && !this.consentLabel().trim()) {
       this.error.set(this.text.consentLabelRequired);
+      return;
+    }
+    if (this.isConsent() && !this.consentParts()) {
+      this.error.set(this.text.consentLabelLink);
       return;
     }
     this.saving.set(true);

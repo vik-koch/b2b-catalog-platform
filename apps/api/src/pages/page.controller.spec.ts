@@ -144,7 +144,19 @@ describe('PageController', () => {
 
   it('takes box wording on a consent page', async () => {
     signedInAs = { id: 'admin-1', role: 'admin' };
-    updatePage.mockResolvedValue({ ...page, consentLabel: 'I consent.' });
+    updatePage.mockResolvedValue({ ...page, consentLabel: 'I [consent].' });
+
+    const response = await put('consent-account', {
+      title: 'Consent',
+      bodyHtml: '',
+      consentLabel: 'I [consent].',
+    });
+
+    expect(response.status).toBe(200);
+  });
+
+  it('refuses box wording that marks no link to the text', async () => {
+    signedInAs = { id: 'admin-1', role: 'admin' };
 
     const response = await put('consent-account', {
       title: 'Consent',
@@ -152,7 +164,8 @@ describe('PageController', () => {
       consentLabel: 'I consent.',
     });
 
-    expect(response.status).toBe(200);
+    expect(response.status).toBe(400);
+    expect(updatePage).not.toHaveBeenCalled();
   });
 
   it('refuses a consent page without its box wording', async () => {
@@ -173,7 +186,7 @@ describe('PageController', () => {
     const response = await put('privacy', {
       title: 'Privacy',
       bodyHtml: '',
-      consentLabel: 'I consent.',
+      consentLabel: 'I [consent].',
     });
 
     expect(response.status).toBe(400);

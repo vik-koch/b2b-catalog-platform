@@ -67,6 +67,23 @@ export function isConsentPage(slug: string): boolean {
 /** The wording beside the box: a sentence, not a text. */
 export const CONSENT_LABEL_MAX_LENGTH = 500;
 
+/** The box wording around its one linked part. */
+export interface ConsentLabelParts {
+  readonly before: string;
+  readonly link: string;
+  readonly after: string;
+}
+
+/**
+ * Splits the box wording at the part in square brackets, which the form draws
+ * as the link to the consent text: `I [consent] to …`. Null unless there is
+ * exactly one bracketed part with something in it.
+ */
+export function consentLabelParts(label: string): ConsentLabelParts | null {
+  const match = /^([^[\]]*)\[([^[\]]*[^[\]\s][^[\]]*)\]([^[\]]*)$/.exec(label);
+  return match ? { before: match[1], link: match[2], after: match[3] } : null;
+}
+
 /**
  * The rich-text vocabulary, declared once and isomorphic on purpose:
  * the server sanitizer (`sanitizeRichText`, shared/node) strips everything not
