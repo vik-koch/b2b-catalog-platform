@@ -37,11 +37,13 @@ describe('GET /pages/:slug', () => {
 
       expect(res.status).toBe(200);
       // toEqual (not toMatchObject) on purpose: also fails if internal DB
-      // columns (the id, and the updatedBy audit column) ever leak past the
-      // response validation.
+      // columns (the row id, who saved it) ever leak past the response
+      // validation.
       expect(res.data).toEqual({
+        version: expect.any(Number),
         title: seed.title,
         bodyHtml: seededBody(seed.bodyHtml),
+        consentLabel: seed.consentLabel ?? null,
         updatedAt: expect.any(String),
       });
       expect(Date.parse(res.data.updatedAt)).not.toBeNaN();
@@ -91,7 +93,6 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
   // and leave no test users behind.
   afterEach(async () => {
     await seedPages(client);
-    await client.query('UPDATE pages SET "updatedBy" = NULL');
   });
 
   afterAll(async () => {
@@ -118,8 +119,10 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({
+      version: expect.any(Number),
       title: 'About the roastery',
       bodyHtml: '<p>New <strong>copy</strong>.</p>',
+      consentLabel: null,
       updatedAt: expect.any(String),
     });
 
@@ -141,7 +144,8 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
 
     // The column itself is clean, not just the response.
     const { rows } = await client.query(
-      'SELECT "bodyHtml" FROM pages WHERE id = $1',
+      `SELECT "bodyHtml" FROM page_versions WHERE slug = $1
+       ORDER BY version DESC LIMIT 1`,
       [slug],
     );
     expect(rows[0].bodyHtml).toBe('<p>Text</p>');
@@ -151,10 +155,78 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
     await put({ title: 'About', bodyHtml: '<p>x</p>' }, adminCookie);
 
     const { rows } = await client.query(
-      'SELECT "updatedBy" FROM pages WHERE id = $1',
+      `SELECT "createdBy", "createdByEmail" FROM page_versions WHERE slug = $1
+       ORDER BY version DESC LIMIT 1`,
       [slug],
     );
-    expect(rows[0].updatedBy).toBe(adminId);
+    expect(rows[0]).toEqual({
+      createdBy: adminId,
+      createdByEmail: ADMIN_EMAIL,
+    });
+  });
+
+  it('keeps the version it replaces, readable in the history', async () => {
+    const before = await axios.get(`/pages/${slug}`);
+    const res = await put(
+      { title: 'About', bodyHtml: '<p>x</p>' },
+      adminCookie,
+    );
+
+    expect(res.data.version).toBe(before.data.version + 1);
+    const history = await axios.get(`/pages/${slug}/versions`, {
+      headers: { Cookie: adminCookie },
+    });
+    expect(history.data[0]).toMatchObject({
+      version: res.data.version,
+      editorEmail: ADMIN_EMAIL,
+    });
+    expect(history.data[1]).toMatchObject({
+      version: before.data.version,
+      bodyHtml: before.data.bodyHtml,
+    });
+  });
+
+  it('adds no version for a save that changes nothing', async () => {
+    const before = await axios.get(`/pages/${slug}`);
+    const res = await put(
+      { title: before.data.title, bodyHtml: before.data.bodyHtml },
+      adminCookie,
+    );
+
+    expect(res.status).toBe(200);
+    expect(res.data).toEqual(before.data);
+  });
+
+  it('shows the history to an admin only', async () => {
+    const res = await axios.get(`/pages/${slug}/versions`, {
+      headers: { Cookie: await loginAs(MANAGER_EMAIL) },
+      validateStatus: () => true,
+    });
+
+    expect(res.status).toBe(403);
+  });
+
+  it('saves a consent page with its box wording, and refuses one without', async () => {
+    const consent = (body: unknown) =>
+      axios.put('/pages/consent-contact', body, {
+        headers: { Cookie: adminCookie },
+        validateStatus: () => true,
+      });
+
+    const refused = await consent({ title: 'Consent', bodyHtml: '<p>x</p>' });
+    expect(refused.status).toBe(400);
+
+    const saved = await consent({
+      title: 'Consent',
+      bodyHtml: '<p>x</p>',
+      consentLabel: 'I agree.',
+    });
+    expect(saved.status).toBe(200);
+    const read = await axios.get('/pages/consent-contact');
+    expect(read.data).toMatchObject({
+      version: saved.data.version,
+      consentLabel: 'I agree.',
+    });
   });
 
   it('advances updatedAt', async () => {
@@ -202,7 +274,7 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
 
     expect(res.status).toBe(400);
     const { rows } = await client.query(
-      'SELECT COUNT(*)::int AS count FROM pages WHERE id = $1',
+      'SELECT COUNT(*)::int AS count FROM page_versions WHERE slug = $1',
       ['brand-new-page'],
     );
     expect(rows[0].count).toBe(0);

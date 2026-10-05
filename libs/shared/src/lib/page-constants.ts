@@ -22,6 +22,8 @@ export const PAGE_SLUGS = [
   'imprint',
   'withdrawal',
   'contact',
+  'consent-contact',
+  'consent-account',
 ] as const;
 export type PageSlug = (typeof PAGE_SLUGS)[number];
 
@@ -40,8 +42,30 @@ export const STANDALONE_PAGE_SLUGS = [
   'privacy',
   'imprint',
   'withdrawal',
+  'consent-contact',
+  'consent-account',
 ] as const satisfies readonly PageSlug[];
 export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
+
+/**
+ * What a person can consent to (NFR-LEGAL-09), each with its own text. A
+ * deployment asks for a purpose by publishing its page, and for nothing
+ * otherwise.
+ */
+export const CONSENT_PURPOSES = ['contact', 'account'] as const;
+export type ConsentPurpose = (typeof CONSENT_PURPOSES)[number];
+
+export const CONSENT_PAGE_SLUGS = {
+  contact: 'consent-contact',
+  account: 'consent-account',
+} as const satisfies Record<ConsentPurpose, StandalonePageSlug>;
+
+export function isConsentPage(slug: string): boolean {
+  return (Object.values(CONSENT_PAGE_SLUGS) as string[]).includes(slug);
+}
+
+/** The wording beside the box: a sentence, not a text. */
+export const CONSENT_LABEL_MAX_LENGTH = 500;
 
 /**
  * The rich-text vocabulary, declared once and isomorphic on purpose:

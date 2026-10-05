@@ -10,6 +10,7 @@ import {
   gte,
   inArray,
   isNull,
+  max,
   or,
   sql,
   SQL,
@@ -48,7 +49,7 @@ import {
   categoryAttributes,
   documentProducts,
   documents,
-  pages,
+  pageVersions,
   productAttributes,
   productPairings,
   products,
@@ -575,9 +576,15 @@ export class CatalogService {
         .where(publiclyVisible)
         .orderBy(asc(products.slug)),
       this.db
-        .select({ slug: pages.id, updatedAt: pages.updatedAt })
-        .from(pages)
-        .orderBy(asc(pages.id)),
+        .select({
+          slug: pageVersions.slug,
+          updatedAt: max(pageVersions.createdAt).mapWith(
+            pageVersions.createdAt,
+          ),
+        })
+        .from(pageVersions)
+        .groupBy(pageVersions.slug)
+        .orderBy(asc(pageVersions.slug)),
     ]);
     const toEntry = (r: { slug: string; updatedAt: Date }): SitemapEntry => ({
       slug: r.slug,

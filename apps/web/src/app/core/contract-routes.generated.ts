@@ -869,6 +869,17 @@ export const pageContract = {
       },
     },
   },
+  listPageVersions: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/pages/{slug}/versions',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.pageContract;
 export const partySuggestionContract = {
   suggestParties: {

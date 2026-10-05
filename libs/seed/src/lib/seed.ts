@@ -15,13 +15,39 @@ import { seedOrders } from './order-seed';
  * into markup the editor could never reproduce.
  */
 /** Static page content only — split out so tests can restore pages without
- * re-running the (image-generating) catalog seed. */
+ * re-running the (image-generating) catalog seed. A seed that differs from the
+ * current text is saved as its next version, never over one. */
 export async function seedPages(client: Client): Promise<void> {
-  for (const { slug, title, bodyHtml } of pageSeeds) {
+  for (const seed of pageSeeds) {
+    const page = {
+      title: seed.title,
+      bodyHtml: sanitizeRichText(seed.bodyHtml),
+      consentLabel: seed.consentLabel,
+    };
+    const { rows } = await client.query<typeof page & { version: number }>(
+      `SELECT version, title, "bodyHtml", "consentLabel" FROM page_versions
+       WHERE slug = $1 ORDER BY version DESC LIMIT 1`,
+      [seed.slug],
+    );
+    const latest = rows[0];
+    if (
+      latest &&
+      latest.title === page.title &&
+      latest.bodyHtml === page.bodyHtml &&
+      latest.consentLabel === page.consentLabel
+    ) {
+      continue;
+    }
     await client.query(
-      `INSERT INTO pages (id, title, "bodyHtml") VALUES ($1, $2, $3)
-       ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, "bodyHtml" = EXCLUDED."bodyHtml"`,
-      [slug, title, sanitizeRichText(bodyHtml)],
+      `INSERT INTO page_versions (slug, version, title, "bodyHtml", "consentLabel")
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        seed.slug,
+        (latest?.version ?? 0) + 1,
+        page.title,
+        page.bodyHtml,
+        page.consentLabel,
+      ],
     );
   }
 }

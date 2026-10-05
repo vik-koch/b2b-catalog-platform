@@ -227,7 +227,6 @@ describe('POST /media (0021)', () => {
     });
     afterAll(async () => {
       await seedPages(client2);
-      await client2.query('UPDATE pages SET "updatedBy" = NULL');
       await client2.end();
     });
 

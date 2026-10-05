@@ -123,6 +123,16 @@
     "discardConfirm": "Discard your unsaved changes to this page?",
     "titleRequired": "Please enter a page title.",
     "saveError": "Something went wrong saving this page. Please try again.",
+    "consentLabel": "Box wording",
+    "consentLabelHint": "The sentence beside the box on the form. Saved together with the text as one version.",
+    "consentLabelRequired": "Please enter the box wording.",
+    "consentPreview": "On the form",
+    "history": {
+      "heading": "Versions",
+      "version": "Version {version}",
+      "current": "current",
+      "consentLabel": "Box wording:"
+    },
     "toolbar": {
       "label": "Formatting",
       "bold": "Bold",

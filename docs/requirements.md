@@ -557,7 +557,7 @@ Admin can trigger a bulk sync (file upload or endpoint) that upserts products by
 
 #### <a id="fr-adm-03"></a>FR-ADM-03 — Editing static pages
 
-Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content.
+Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor.
 
 #### <a id="fr-adm-04"></a>FR-ADM-04 — Maintenance mode
 
@@ -910,9 +910,9 @@ Checkout asks for no consent. An order's details are processed to fulfil the ord
 
 Each text keeps every version it has been published in, together with the box wording shown beside it, so a record can be read against exactly what the person saw and ticked. Editing the text starts a new version, and an existing consent stays bound to the version it was given under.
 
-Each consent is recorded with its purpose, the version, the server's time and whose consent it is: the account's, or for an inquiry, the submission's and the email address given with it. A deployment may also record the network address the request came from. The application never changes a record. Staff can find a person's records by account or email address to answer an inspection or the person's own request.
+Each consent is recorded with its purpose, the version, the server's time and whose consent it is: the account's together with its email address at that moment, or for an inquiry, the submission's and the email address or phone number given with it. The record keeps that address when the account is later deleted, since a record that names nobody proves nothing, and it goes with the record when the retention period ends. A deployment may also record the network address the request came from. The application never changes a record. Staff can find a person's records by account, email address or phone number to answer an inspection or the person's own request.
 
-A consent can be withdrawn. For the account purpose, withdrawing means deleting the account ([FR-AUTH-06](#fr-auth-06)). A withdrawal that reaches the shop any other way is entered by staff against the record. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
+A consent can be withdrawn. For the account purpose, withdrawing means deleting the account ([FR-AUTH-06](#fr-auth-06)). A withdrawal that reaches the shop any other way is entered by staff against the record. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. A contact consent is used up once the inquiry is answered and nobody withdraws it, so its retention period runs from when it was given. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
 
 #### <a id="nfr-legal-10"></a>NFR-LEGAL-10 — An order accepts the conditions it was placed under
 

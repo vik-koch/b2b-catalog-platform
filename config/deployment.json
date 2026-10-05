@@ -18,7 +18,9 @@
       "privacy",
       "imprint",
       "withdrawal",
-      "contact"
+      "contact",
+      "consent-contact",
+      "consent-account"
     ],
     "headerNav": ["about", "contact", "conditions"],
     "footerNav": ["privacy", "imprint", "withdrawal", "licenses"]

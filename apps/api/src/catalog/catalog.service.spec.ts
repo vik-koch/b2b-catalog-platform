@@ -15,6 +15,7 @@ function dbReturning(results: unknown[][]) {
   const chain = {
     from: () => chain,
     where: () => chain,
+    groupBy: () => chain,
     orderBy: () => chain,
     then: (resolve: (rows: unknown[]) => unknown) => resolve(results[i++]),
   };

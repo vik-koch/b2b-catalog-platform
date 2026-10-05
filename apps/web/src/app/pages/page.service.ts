@@ -3,6 +3,7 @@ import { isDefinedError, safe } from '@orpc/client';
 import {
   Page,
   PageSlug,
+  PageVersion,
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared';
 import { pageContract } from '../core/contract-routes.generated';
@@ -32,5 +33,10 @@ export class PageService {
   /** Returns the stored page, so callers render what the server kept. */
   updatePage(slug: PageSlug, body: UpdatePageRequest): Promise<Page> {
     return this.client.updatePage({ params: { slug }, body });
+  }
+
+  /** Newest first; admin only. */
+  listVersions(slug: PageSlug): Promise<PageVersion[]> {
+    return this.client.listPageVersions({ params: { slug } });
   }
 }
