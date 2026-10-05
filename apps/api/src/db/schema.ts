@@ -57,24 +57,39 @@ const tsvector = customType<{ data: string; driverData: string }>({
   dataType: () => 'tsvector',
 });
 
-export const pages = pgTable('pages', {
-  // The primary key IS the public slug (fixed set, see shared PAGE_SLUGS).
-  id: varchar('id', { length: 64 }).primaryKey(),
-  title: varchar('title', { length: 255 }).notNull(),
-  // Always sanitized: nothing writes here without passing through
-  // sanitizeRichText — neither the admin endpoint nor the seed.
-  bodyHtml: text('bodyHtml').notNull(),
-  // No `createdAt`: rows are seeded, never created, so it would only record the
-  // seed date. `updatedAt` is shown publicly as the page's last-changed date.
-  updatedAt: timestamp('updatedAt', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  // Who last edited, for audit. Null for never-edited seeded content. No
-  // version history is kept — this is the whole audit trail.
-  updatedBy: uuid('updatedBy').references(() => users.id, {
-    onDelete: 'set null',
-  }),
-});
+/**
+ * Every save of a static page, one row each; the slug's highest version is the
+ * page. Append-only: a consent or an accepted order points at a row, so a row
+ * must keep saying what it said.
+ */
+export const pageVersions = pgTable(
+  'page_versions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    // The public slug, one of the fixed set (shared PAGE_SLUGS).
+    slug: varchar('slug', { length: 64 }).notNull(),
+    version: integer('version').notNull(),
+    title: varchar('title', { length: 255 }).notNull(),
+    // Always sanitized: nothing writes here without passing through
+    // sanitizeRichText — neither the admin endpoint nor the seed.
+    bodyHtml: text('bodyHtml').notNull(),
+    // The box wording, on a consent page only.
+    consentLabel: text('consentLabel'),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    // Null for seeded content. The email is kept so the history still names
+    // the editor once the account is gone.
+    createdBy: uuid('createdBy').references(() => users.id, {
+      onDelete: 'set null',
+    }),
+    createdByEmail: varchar('createdByEmail', { length: 255 }),
+  },
+  (t) => [
+    uniqueIndex('page_versions_slug_version').on(t.slug, t.version),
+    check('page_versions_version_positive', sql`${t.version} > 0`),
+  ],
+);
 
 /**
  * Catalog categories, an adjacency-list tree. Structure (name, hierarchy) is
