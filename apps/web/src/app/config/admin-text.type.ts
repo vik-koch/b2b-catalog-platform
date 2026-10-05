@@ -267,6 +267,16 @@ export const adminTextSchema = z
         discardConfirm: z.string(),
         titleRequired: z.string(),
         saveError: z.string(),
+        /** The read-only list of past saves. */
+        history: z
+          .object({
+            heading: z.string(),
+            /** `{version}` substituted. */
+            version: z.string(),
+            current: z.string(),
+            consentLabel: z.string(),
+          })
+          .strict(),
         toolbar: z
           .object({
             label: z.string(),

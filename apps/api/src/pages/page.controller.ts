@@ -31,4 +31,12 @@ export class PageController {
         this.pageService.updatePage(params.slug, body, user),
     );
   }
+
+  @Auth('admin')
+  @Implement(pageContract.listPageVersions)
+  listPageVersions() {
+    return implement(pageContract.listPageVersions).handler(
+      ({ input: { params } }) => this.pageService.listVersions(params.slug),
+    );
+  }
 }

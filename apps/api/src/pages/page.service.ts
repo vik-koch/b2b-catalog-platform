@@ -5,12 +5,13 @@ import {
   AuthUser,
   Page,
   PageSlug,
+  PageVersion,
   UpdatePageRequest,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { pageVersions } from '../db/schema';
+import { pageVersions, users } from '../db/schema';
 
 type VersionRow = typeof pageVersions.$inferSelect;
 
@@ -71,6 +72,20 @@ export class PageService {
         .returning();
       return toPage(row);
     });
+  }
+
+  /** Newest first. */
+  async listVersions(slug: PageSlug): Promise<PageVersion[]> {
+    const rows = await this.db
+      .select({ row: pageVersions, email: users.email })
+      .from(pageVersions)
+      .leftJoin(users, eq(users.id, pageVersions.createdBy))
+      .where(eq(pageVersions.slug, slug))
+      .orderBy(desc(pageVersions.version));
+    return rows.map(({ row, email }) => ({
+      ...toPage(row),
+      editorEmail: email ?? row.createdByEmail,
+    }));
   }
 }
 

@@ -123,6 +123,12 @@
     "discardConfirm": "Discard your unsaved changes to this page?",
     "titleRequired": "Please enter a page title.",
     "saveError": "Something went wrong saving this page. Please try again.",
+    "history": {
+      "heading": "Versions",
+      "version": "Version {version}",
+      "current": "current",
+      "consentLabel": "Box wording:"
+    },
     "toolbar": {
       "label": "Formatting",
       "bold": "Bold",

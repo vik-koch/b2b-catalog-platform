@@ -16,6 +16,7 @@ describe('PageController', () => {
   let baseUrl: string;
   const getPage = vi.fn();
   const updatePage = vi.fn();
+  const listVersions = vi.fn();
   let signedInAs: { id: string; role: string } | null = null;
 
   const page = {
@@ -28,7 +29,12 @@ describe('PageController', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       controllers: [PageController],
-      providers: [{ provide: PageService, useValue: { getPage, updatePage } }],
+      providers: [
+        {
+          provide: PageService,
+          useValue: { getPage, updatePage, listVersions },
+        },
+      ],
     })
       // The guards are exercised in their own specs; here they only have to
       // decide, so that this spec can prove the refusal reaches the client in
@@ -65,6 +71,7 @@ describe('PageController', () => {
     signedInAs = null;
     getPage.mockReset();
     updatePage.mockReset();
+    listVersions.mockReset();
   });
 
   it('serves a page at the path the contract declares', async () => {

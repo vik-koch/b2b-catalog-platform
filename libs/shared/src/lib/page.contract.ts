@@ -78,4 +78,15 @@ export const pageContract = {
       }),
     )
     .output(pageSchema),
+
+  listPageVersions: oc
+    .route({
+      method: 'GET',
+      path: '/pages/{slug}/versions',
+      inputStructure: 'detailed',
+      summary: 'Every saved version of a page, newest first (admin only)',
+    })
+    .errors(commonAuthErrors)
+    .input(z.object({ params: z.object({ slug: pageSlugSchema }) }))
+    .output(z.array(pageVersionSchema)),
 };

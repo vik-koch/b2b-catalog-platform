@@ -6,6 +6,7 @@ import { APP_TEXT } from '../../config/app-text';
 import { usePageSeo } from '../../core/page-seo';
 import { delayedLoading } from '../../core/delayed-loading';
 import { PageEditor } from './page-editor';
+import { PageHistory } from './page-history';
 import { PageService } from '../../pages/page.service';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { injectEditorReturn } from '../editor-return';
@@ -21,7 +22,7 @@ import { injectEditorReturn } from '../editor-return';
  */
 @Component({
   selector: 'app-page-editor-page',
-  imports: [PageEditor],
+  imports: [PageEditor, PageHistory],
   template: `
     @if (page.hasValue()) {
       <app-page-editor
@@ -32,6 +33,7 @@ import { injectEditorReturn } from '../editor-return';
         (closed)="leave()"
         (dirtyChange)="editorDirty.set($event)"
       />
+      <app-page-history [slug]="slug" />
     } @else if (page.error()) {
       <p class="text-muted" role="alert">{{ text.saveError }}</p>
     } @else if (showSkeleton()) {
