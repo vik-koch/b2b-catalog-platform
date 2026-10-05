@@ -688,11 +688,6 @@ export const appTextSchema = z
             send: z.string(),
           })
           .strict(),
-        /** FR-CART-03: the privacy notice is accepted here as on every other
-         * form that sends personal data. */
-        privacyConsent: z.string(),
-        privacyLink: z.string(),
-        privacyRequired: z.string(),
         submit: z.string(),
         submitting: z.string(),
         successHeading: z.string(),

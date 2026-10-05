@@ -222,7 +222,6 @@ describe('the order exchange', () => {
         preferredDate: null,
         customerNote: null,
         expectedTotalMinor: TOTAL_MINOR,
-        acceptPrivacy: true,
       },
       { headers: { Cookie: customerCookie }, validateStatus: () => true },
     );

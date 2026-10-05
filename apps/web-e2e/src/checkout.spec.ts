@@ -86,8 +86,8 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   await page.getByRole('button', { name: 'Review and send' }).click();
 
   // The read-back is the second screen, not the fifth: everything as it will
-  // be submitted, and the privacy consent beside it, so nothing reaches a
-  // manager the customer has not read back (ADR 0039).
+  // be submitted, so nothing reaches a manager the customer has not read
+  // back (ADR 0039).
   await expect(
     page.getByRole('heading', { name: 'Check your order' }),
   ).toBeVisible();
@@ -95,7 +95,6 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   await expect(page.getByText(ADDRESS.street)).toBeVisible();
   await expect(page.getByText('Ada Lovelace').first()).toBeVisible();
 
-  await page.getByRole('checkbox', { name: /I agree/ }).check();
   await page.getByRole('button', { name: 'Send order request' }).click();
 
   await expect(

@@ -216,7 +216,6 @@ const submission = (overrides: Record<string, unknown> = {}) => ({
   preferredDate: null,
   customerNote: null,
   expectedTotalMinor: BASE_MINOR * 2,
-  acceptPrivacy: true,
   ...overrides,
 });
 

@@ -1031,7 +1031,6 @@ describe('External data ownership (FR-ADM-10)', () => {
           preferredDate: null,
           customerNote: null,
           expectedTotalMinor: priced.data.totalMinor,
-          acceptPrivacy: true,
         },
         { headers, validateStatus: () => true },
       );

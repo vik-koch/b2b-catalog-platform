@@ -26,7 +26,6 @@ const submission = (overrides: Record<string, unknown> = {}) => ({
   preferredDate: null,
   customerNote: null,
   expectedTotalMinor: 8280,
-  acceptPrivacy: true,
   ...overrides,
 });
 
@@ -97,12 +96,11 @@ describe('orderSubmissionSchema', () => {
     ).toBe(true);
   });
 
-  // FR-CART-03: consent is a `literal(true)`, so an order cannot be sent with
-  // it merely present, nor with it false.
-  it('takes only an accepted privacy notice', () => {
-    expect(accepts({ acceptPrivacy: false })).toBe(false);
-    expect(accepts({ acceptPrivacy: undefined })).toBe(false);
-    expect(accepts({ acceptPrivacy: 'yes' })).toBe(false);
+  // NFR-LEGAL-09: an order is processed to fulfil it, so checkout asks for no
+  // consent, and a client still sending the old flag is refused, not ignored.
+  it('carries no consent flag', () => {
+    expect(accepts()).toBe(true);
+    expect(accepts({ acceptPrivacy: true })).toBe(false);
   });
 
   /**

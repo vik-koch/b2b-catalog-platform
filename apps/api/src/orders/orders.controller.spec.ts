@@ -41,7 +41,6 @@ describe('OrdersController', () => {
     preferredDate: null,
     customerNote: null,
     expectedTotalMinor: 1999,
-    acceptPrivacy: true as const,
   };
 
   beforeAll(async () => {

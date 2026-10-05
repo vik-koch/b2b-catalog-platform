@@ -182,7 +182,6 @@ describe('the life of an order', () => {
         preferredDate: null,
         customerNote: null,
         expectedTotalMinor: TOTAL_MINOR,
-        acceptPrivacy: true,
       },
       {
         headers: customerCookie ? { Cookie: customerCookie } : {},
