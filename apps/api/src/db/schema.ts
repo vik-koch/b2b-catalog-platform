@@ -21,6 +21,7 @@ import {
   PAYMENT_STATES,
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
+  TAX_BASES,
   SETTING_CHANGE_KINDS,
   SYNC_AREAS,
   type CustomerSyncOptions,
@@ -908,6 +909,11 @@ export const orders = pgTable(
     termsVersionId: uuid('termsVersionId').references(() => pageVersions.id, {
       onDelete: 'restrict',
     }),
+    // The tax basis the order was submitted under (NFR-LEGAL-11). On the
+    // order, not a revision, like the terms: a shop that becomes liable for
+    // tax while the order is open does not turn the prices it quoted into net
+    // ones, and every view of the order states this rather than today's.
+    taxBasis: varchar('taxBasis', { length: 16 }).notNull(),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -928,6 +934,7 @@ export const orders = pgTable(
     // the sort serves the cursor's seek.
     index('orders_updatedAt_idx').on(t.updatedAt, t.id),
     check('orders_status_known', oneOf('status', ORDER_STATUSES)),
+    check('orders_tax_basis_known', oneOf('taxBasis', TAX_BASES)),
     check('orders_payment_state_known', oneOf('paymentState', PAYMENT_STATES)),
     // Paid is the one payment state with a story, and it is the whole story:
     // a paid order says when and by whom, and an unpaid one cannot claim
@@ -1160,6 +1167,11 @@ export const orderItems = pgTable(
     pieces: integer('pieces').notNull(),
     // The tier-resolved price of one piece, as it stood.
     priceMinor: integer('priceMinor').notNull(),
+    // The rate the line was taxed at when its version was written: the
+    // product's own, or the deployment's default (NFR-LEGAL-11). Null under an
+    // order whose basis charges no tax. A statement only — nothing multiplies
+    // by it.
+    taxRate: numeric('taxRate', { precision: 5, scale: 2, mode: 'number' }),
     lineTotalMinor: integer('lineTotalMinor').notNull(),
     // Customer-typed, for a collective item's variant. Scrubbed by
     // anonymization: it can perfectly well read "deliver to Anna, 0170…".
@@ -1169,6 +1181,10 @@ export const orderItems = pgTable(
     // The PK is the read order as well as the identity, like product_attributes.
     primaryKey({ columns: [t.revisionId, t.sortOrder] }),
     check('order_items_unit_known', oneOf('unit', PRODUCT_UNITS)),
+    check(
+      'order_items_tax_rate_percent',
+      sql`${t.taxRate} is null or ${t.taxRate} between 0 and 100`,
+    ),
     check(
       'order_items_quantities_positive',
       // The reading only has to be positive: a line of two packs read as boxes

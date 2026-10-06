@@ -75,7 +75,18 @@ interface ProductRow {
   boxVolume: string | null;
   boxWeight: string | null;
   boxCount: number;
+  /** The rate a line of it states: its own, else the demo's default. */
+  taxRate: number;
 }
+
+/**
+ * The basis the demo's orders are submitted under, as `config/deployment.json`
+ * quotes it (NFR-LEGAL-11). Written down here rather than read: the seed
+ * writes rows directly, and a demo order placed under some other basis would
+ * be a fixture describing a shop that does not exist.
+ */
+const DEMO_TAX_BASIS = 'included';
+const DEMO_DEFAULT_TAX_RATE = 19;
 
 const packagingOf = (row: ProductRow): ProductPackaging => ({
   piecesPerPack: row.piecesPerPack,
@@ -118,11 +129,11 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
   const { rows: inserted } = await client.query<{ id: string }>(
     `INSERT INTO orders (
        reference, "publicToken", "userId", status, "statusChangedAt", "statusChangedBy",
-       "paymentState", "paidAt", "createdAt")
+       "paymentState", "paidAt", "createdAt", "taxBasis")
      VALUES (
        $1, $2, $3, $4, $5::timestamptz, $6, $7::varchar,
        case when $7::varchar = 'paid' then $5::timestamptz end,
-       $8::timestamptz)
+       $8::timestamptz, $9)
      RETURNING id`,
     [
       order.reference,
@@ -143,6 +154,7 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
       // would be a fixture pretending to be a record.
       order.paymentState ?? 'not-due',
       `${order.placedOn}T09:00:00+02:00`,
+      DEMO_TAX_BASIS,
     ],
   );
   const orderId = inserted[0].id;
@@ -226,8 +238,8 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
       await client.query(
         `INSERT INTO order_items (
            "revisionId", "sortOrder", "productId", "productSourceId", slug, name, thumbnail,
-           unit, quantity, pieces, "priceMinor", "lineTotalMinor", note)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`,
+           unit, quantity, pieces, "priceMinor", "lineTotalMinor", note, "taxRate")
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)`,
         [
           currentRevisionId,
           item.index,
@@ -242,6 +254,7 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
           item.priceMinor,
           item.lineTotalMinor,
           item.line.note ?? null,
+          item.row.taxRate,
         ],
       );
     }
@@ -323,14 +336,15 @@ async function productRows(
             dp."priceMinor" AS "defaultPriceMinor",
             pp."priceMinor" AS "tierPriceMinor",
             p."piecesPerPack", p."packsPerBox", p."minPieceQty",
-            p."boxVolume", p."boxWeight", p."boxCount"
+            p."boxVolume", p."boxWeight", p."boxCount",
+            coalesce(p."taxRate", $3)::float AS "taxRate"
        FROM products p
        JOIN customer_tiers dt ON dt."isDefault"
        JOIN product_prices dp ON dp."productId" = p.id AND dp."tierId" = dt.id
        LEFT JOIN customer_tiers t ON t.key = $2
        LEFT JOIN product_prices pp ON pp."productId" = p.id AND pp."tierId" = t.id
       WHERE p."sourceId" = ANY($1)`,
-    [lines.map((line) => line.sourceId), tierKey],
+    [lines.map((line) => line.sourceId), tierKey, DEMO_DEFAULT_TAX_RATE],
   );
   return new Map(rows.map((row) => [row.sourceId, row]));
 }

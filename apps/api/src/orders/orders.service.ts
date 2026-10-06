@@ -859,6 +859,7 @@ export class OrdersService {
               publicToken,
               userId: context.userId,
               termsVersionId: terms?.id ?? null,
+              taxBasis: 'none',
             })
             .returning({ id: orders.id });
 
@@ -944,6 +945,7 @@ export class OrdersService {
                 pieces: row.pieces,
                 priceMinor: row.priceMinor,
                 lineTotalMinor: preview.lineTotalMinor,
+                taxRate: null,
                 note: preview.note,
               };
             }),
@@ -1528,6 +1530,7 @@ export class OrdersService {
       pieces: line.pieces,
       priceMinor: line.priceMinor,
       lineTotalMinor: line.lineTotalMinor,
+      taxRate: null,
       note: line.note,
     }));
     if (await this.saysTheSame(current, snapshot, lines)) {
@@ -2136,10 +2139,12 @@ export class OrdersService {
           await tx.execute(sql`
             insert into ${orderItems} ("revisionId", "sortOrder", "productId",
               "productSourceId", "slug", "name", "thumbnail", "unit",
-              "quantity", "pieces", "priceMinor", "lineTotalMinor", "note")
+              "quantity", "pieces", "priceMinor", "lineTotalMinor", "taxRate",
+              "note")
             select ${revision.id}::uuid, "sortOrder", "productId",
               "productSourceId", "slug", "name", "thumbnail", "unit",
-              "quantity", "pieces", "priceMinor", "lineTotalMinor", "note"
+              "quantity", "pieces", "priceMinor", "lineTotalMinor", "taxRate",
+              "note"
               from ${orderItems}
               where ${orderItems.revisionId} = ${current.revisionId}::uuid`);
         }

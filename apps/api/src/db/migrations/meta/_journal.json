@@ -372,6 +372,13 @@
       "when": 1791317702599,
       "tag": "0052_product_tax_rate",
       "breakpoints": true
+    },
+    {
+      "idx": 53,
+      "version": "7",
+      "when": 1791321950427,
+      "tag": "0053_order_tax",
+      "breakpoints": true
     }
   ]
 }
