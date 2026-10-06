@@ -117,6 +117,22 @@ export function isConsentRefusal(code: string): code is ConsentRefusalCode {
 /** The wording beside the box: a sentence, not a text. */
 export const CONSENT_LABEL_MAX_LENGTH = 500;
 
+/**
+ * How a consent ended (NFR-LEGAL-09). The account consent ends with the
+ * account: deleted, or, for a registration, declined and removed. Any other
+ * withdrawal reaches the shop from outside and is entered by an admin.
+ */
+export const CONSENT_WITHDRAWAL_REASONS = [
+  'account-deleted',
+  'registration-declined',
+  'entered',
+] as const;
+export type ConsentWithdrawalReason =
+  (typeof CONSENT_WITHDRAWAL_REASONS)[number];
+
+/** What an admin notes beside a withdrawal they enter: how it reached them. */
+export const CONSENT_WITHDRAWAL_NOTE_MAX = 500;
+
 /** The box wording around its one linked part. */
 export interface ConsentLabelParts {
   readonly before: string;
