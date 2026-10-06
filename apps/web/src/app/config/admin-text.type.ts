@@ -547,6 +547,19 @@ export const adminTextSchema = z
             untracked: z.string(),
           })
           .strict(),
+        /**
+         * The product's own tax rate (NFR-LEGAL-11). The empty field shows the
+         * default as its placeholder; `notInEffect` is said where the
+         * deployment charges no tax, since a rate kept then applies to nothing
+         * yet.
+         */
+        taxRate: z
+          .object({
+            label: z.string(),
+            notInEffect: z.string(),
+            invalid: z.string(),
+          })
+          .strict(),
         /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
         packaging: z
           .object({
@@ -787,6 +800,7 @@ export const adminTextSchema = z
             name: z.string(),
             category: z.string(),
             stock: z.string(),
+            taxRate: z.string(),
             createMissing: z.string(),
             updateExisting: z.string(),
             restoreReturning: z.string(),
@@ -874,6 +888,7 @@ export const adminTextSchema = z
             /** `{column}` — a zero price, which the catalog stores as none. */
             'price-is-zero': z.string(),
             'stock-not-an-integer': z.string(),
+            'tax-rate-invalid': z.string(),
             'unknown-price-list': z.string(),
             'category-name-conflict': z.string(),
             'unknown-category': z.string(),
@@ -1181,10 +1196,14 @@ export const adminTextSchema = z
             name: z.string(),
             category: z.string(),
             stock: z.string(),
+            taxRate: z.string(),
             priceList: z.string(),
             more: z.string(),
           })
           .strict(),
+        /** A tax rate going back to, or coming from, the deployment's
+         * default — the plan's word for a null rate. */
+        taxRateDefault: z.string(),
         /** Why a run is waiting, said in the log and on the run's own page. */
         stagedReason: z
           .object({ policy: z.string(), requested: z.string() })

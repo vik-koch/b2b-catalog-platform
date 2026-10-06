@@ -4,6 +4,7 @@ import {
   CatalogSyncPriceListKey,
   CatalogSyncRow,
   CatalogSyncRowError,
+  parseTaxRate,
 } from '@b2b-catalog-platform/shared';
 import {
   canonicalColumns,
@@ -36,6 +37,7 @@ const FIXED_COLUMNS = new Set<string>([
   CATALOG_SYNC_CSV_COLUMNS.categorySourceId,
   CATALOG_SYNC_CSV_COLUMNS.categoryName,
   CATALOG_SYNC_CSV_COLUMNS.stock,
+  CATALOG_SYNC_CSV_COLUMNS.taxRate,
 ]);
 
 /**
@@ -187,6 +189,25 @@ export function parseSyncCsv(text: string): ParsedSyncRows {
         return;
       }
       row.stockPieces = Number(stock);
+    }
+
+    // Unlike stock, an empty cell is a value: it puts the product back on the
+    // deployment's default rate, since a product always has some rate and a
+    // source must be able to say "the usual one". A file without the column
+    // leaves every rate alone.
+    const taxRateCell = value(CATALOG_SYNC_CSV_COLUMNS.taxRate);
+    if (taxRateCell !== undefined) {
+      const taxRate = parseTaxRate(taxRateCell);
+      if (taxRate === undefined) {
+        errors.push({
+          row: rowNumber,
+          sourceId,
+          code: 'tax-rate-invalid',
+          params: { taxRate: taxRateCell },
+        });
+        return;
+      }
+      row.taxRate = taxRate;
     }
 
     rows.push(row);

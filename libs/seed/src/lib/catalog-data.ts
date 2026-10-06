@@ -34,6 +34,8 @@ export interface ProductSeed {
   /** Pieces on hand. Absent means the stock is not tracked, which shows the
    * customer nothing at all. */
   stockPieces?: number;
+  /** A tax rate of its own; absent is the deployment's default. */
+  taxRate?: number;
   /** A collective item whose cart line may name the variant wanted. */
   lineNoteEnabled?: boolean;
   lineNotePrompt?: string;
@@ -656,6 +658,21 @@ const demoStock = (n: number): number | undefined => {
 };
 
 /**
+ * The demo's VAT split (NFR-LEGAL-11), as a German shop has it: coffee and
+ * tea are food and take the reduced rate, while the machines, cups and
+ * accessories stay on the deployment's standard one.
+ */
+const REDUCED_RATE = 7;
+const REDUCED_RATE_CATEGORIES = new Set([
+  'coffee-beans',
+  'espresso',
+  'filter',
+  'decaf',
+  'single-origin',
+  'tea',
+]);
+
+/**
  * Every 5th ships without images, so the demo exercises the no-photo placeholder
  * (real deployments will always have products awaiting photography).
  * Deterministic by position → a re-seed leaves the same rows imageless.
@@ -667,6 +684,9 @@ export const productSeeds: ProductSeed[] = allProducts.map((product, i) => {
   return {
     ...product,
     ...(stockPieces === undefined ? {} : { stockPieces }),
+    ...(REDUCED_RATE_CATEGORIES.has(product.categoryKey)
+      ? { taxRate: REDUCED_RATE }
+      : {}),
     ...(n % 5 === 0 ? { imageCount: 0 } : {}),
   };
 });

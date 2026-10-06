@@ -1393,6 +1393,32 @@ export const appTextSchema = z
         /** Checkout words cash for the hand-over in front of it; the page
          * covers both. */
         cashDescription: z.string(),
+        /** The tax basis in a sentence, one per basis; `{rate}` is the
+         * deployment's default rate. */
+        taxHeading: z.string(),
+        taxIncluded: z.string(),
+        taxAdded: z.string(),
+        taxNone: z.string(),
+      })
+      .strict(),
+    /**
+     * The tax basis prices are quoted on (NFR-LEGAL-11) — a statement, never a
+     * figure: the shop's own invoice states the amount.
+     */
+    tax: z
+      .object({
+        /** Under a total and beside a price, one per basis. `{rate}` is the
+         * rate, written as the deployment writes numbers. */
+        statement: z
+          .object({
+            included: z.string(),
+            added: z.string(),
+            none: z.string(),
+          })
+          .strict(),
+        /** Under a listing, which may hold goods at different rates and so
+         * names none. Nothing is said where no tax is charged. */
+        listing: z.object({ included: z.string(), added: z.string() }).strict(),
       })
       .strict(),
     /**

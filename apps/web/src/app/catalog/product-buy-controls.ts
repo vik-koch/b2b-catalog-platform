@@ -192,6 +192,9 @@ export interface BuyableProduct {
           }
         </div>
       </div>
+      @if (priceNote(); as note) {
+        <p class="text-xs text-subtle">{{ note }}</p>
+      }
     </ng-template>
 
     <!-- All three units, always, in the same three places: the segments divide
@@ -466,6 +469,8 @@ export class ProductBuyControls {
   readonly canAdd = input(true);
   /** Card-sized rather than page-sized: smaller type and a denser stepper. */
   readonly compact = input(false);
+  /** A line under the price — what it includes, on the product page. */
+  readonly priceNote = input<string | null>(null);
   /**
    * False where the caller shows the counterparts itself — the product page and
    * the cart, which give them a line and a word — and false inside the panel

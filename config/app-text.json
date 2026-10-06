@@ -650,7 +650,22 @@
   },
   "conditions": {
     "paymentHeading": "Payment",
-    "cashDescription": "Paid when the order is handed over — at your door or at our counter."
+    "cashDescription": "Paid when the order is handed over — at your door or at our counter.",
+    "taxHeading": "VAT",
+    "taxIncluded": "All prices include VAT at {rate}\u00a0%. Goods taxed at a reduced rate name it on their product page.",
+    "taxAdded": "All prices are net. VAT at {rate}\u00a0% is added on the invoice; goods taxed at a reduced rate name it on their product page.",
+    "taxNone": "We charge no VAT: the prices are what you pay."
+  },
+  "tax": {
+    "statement": {
+      "included": "Incl. {rate}\u00a0% VAT",
+      "added": "Plus {rate}\u00a0% VAT",
+      "none": "No VAT charged"
+    },
+    "listing": {
+      "included": "All prices include VAT.",
+      "added": "All prices are net, plus VAT."
+    }
   },
   "licenses": {
     "intro": "This site is built with open source software. The packages below are part of the code your browser downloads, and are used under the licenses shown.",

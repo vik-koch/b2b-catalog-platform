@@ -46,6 +46,8 @@ export * from './lib/page-constants';
 export * from './lib/page.contract';
 export * from './lib/pages-config';
 export * from './lib/terms-config';
+export * from './lib/tax';
+export * from './lib/tax-config';
 export * from './lib/pairing-check';
 export * from './lib/party-constants';
 export * from './lib/party.contract';

@@ -31,6 +31,7 @@ export interface StoredOwnedProduct {
   priceMinor: number | null;
   sourceId: string;
   stockPieces: number | null;
+  taxRate: number | null;
   tierPrices: readonly ProductTierPrice[];
 }
 
@@ -42,6 +43,7 @@ export interface SubmittedOwnedProduct {
   priceMinor: number | null;
   sourceId?: string;
   stockPieces: number | null;
+  taxRate: number | null;
   tierPrices: readonly ProductTierPrice[];
 }
 
@@ -54,6 +56,7 @@ export function changedProductFields(
     categoryId: stored.categoryId !== input.categoryId,
     priceMinor: stored.priceMinor !== input.priceMinor,
     stockPieces: stored.stockPieces !== input.stockPieces,
+    taxRate: stored.taxRate !== input.taxRate,
     // Absent means "keep what is stored", which is never a change.
     sourceId:
       input.sourceId !== undefined && input.sourceId !== stored.sourceId,

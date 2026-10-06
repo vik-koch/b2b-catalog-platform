@@ -37,6 +37,7 @@ interface Row {
   categoryName?: string;
   prices?: Record<string, number>;
   stockPieces?: number;
+  taxRate?: number | null;
 }
 
 function sessionCookie(setCookie: string[] | undefined): string {
@@ -87,7 +88,8 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
 
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
-      `SELECT p.name, dp."priceMinor", p."publishedAt"
+      `SELECT p.name, dp."priceMinor", p."publishedAt",
+              p."taxRate"::float AS "taxRate"
          FROM products p
          LEFT JOIN customer_tiers dt ON dt."isDefault"
          LEFT JOIN product_prices dp
@@ -258,6 +260,22 @@ describe('Headless catalog sync (FR-ADM-07)', () => {
 
       expect(res.data.run.status).toBe('applied');
       expect(res.data.run.summary.fields).toEqual(['price:default']);
+    });
+
+    /** Null is a value for a rate (NFR-LEGAL-11): the source says "the
+     * usual one" with it, where an absent field leaves the rate alone. */
+    it('writes a product’s own tax rate, and null back to the default', async () => {
+      const sourceId = `${SOURCE_PREFIX}-1`;
+
+      const own = await submit({ rows: [{ sourceId, taxRate: 7 }] });
+      expect(own.data.run.summary.fields).toEqual(['taxRate']);
+      expect((await productBySourceId(sourceId)).taxRate).toBe(7);
+
+      await submit({ rows: [{ sourceId, prices: { default: 4322 } }] });
+      expect((await productBySourceId(sourceId)).taxRate).toBe(7);
+
+      await submit({ rows: [{ sourceId, taxRate: null }] });
+      expect((await productBySourceId(sourceId)).taxRate).toBeNull();
     });
   });
 

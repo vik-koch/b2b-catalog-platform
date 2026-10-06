@@ -19,6 +19,7 @@ import {
 } from './sync-run.contract';
 import { machineAuthErrors } from './api-tokens.contract';
 import { priceMinorSchema } from './catalog.contract';
+import { taxRateSchema } from './tax-config';
 import {
   CATEGORY_NAME_MAX_LENGTH,
   PRODUCT_NAME_MAX_LENGTH,
@@ -120,6 +121,13 @@ export const catalogSyncRowSchema = z
      * the field.
      */
     stockPieces: z.number().int().optional(),
+    /**
+     * The product's own tax rate, a percent (NFR-LEGAL-11). Null puts it back
+     * on the deployment's default — unlike stock, a product always has a
+     * rate, so clearing one is a value the source has to be able to send.
+     * Absent is untouched.
+     */
+    taxRate: taxRateSchema.nullable().optional(),
   })
   .strict()
   .refine(
@@ -151,6 +159,7 @@ export const CATALOG_SYNC_CSV_COLUMNS = {
   price: 'price',
   pricePrefix: 'price:',
   stock: 'stock',
+  taxRate: 'taxRate',
 } as const;
 
 /** `price:default` etc. — the canonical spelling of a price column. */
@@ -212,7 +221,7 @@ export type CatalogSyncOptions = z.infer<typeof catalogSyncOptionsSchema>;
  * can format them with the deployment's currency; everything else is text. */
 export const catalogSyncFieldChangeSchema = z
   .object({
-    /** `name`, `category`, or `price:<listKey>`. */
+    /** `name`, `category`, `stock`, `taxRate`, or `price:<listKey>`. */
     field: z.string(),
     from: z.union([z.string(), z.number(), z.null()]),
     to: z.union([z.string(), z.number(), z.null()]),
@@ -279,6 +288,9 @@ export const CATALOG_SYNC_ROW_ERROR_CODES = [
   'price-is-zero',
   /** `{stock}` — a stock cell that is not a whole number. */
   'stock-not-an-integer',
+  /** `{taxRate}` — a rate cell that is not a percent from 0 to 100 with at
+   * most two decimals. */
+  'tax-rate-invalid',
   /** `{key}` and `{known}` */
   'unknown-price-list',
   /** `{key}`, `{first}` and `{second}` — the file names one category twice. */

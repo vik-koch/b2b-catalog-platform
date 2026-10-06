@@ -91,10 +91,10 @@ export async function seedCatalog(
          ("sourceId", slug, name, "categoryId", "descriptionHtml", images,
           "piecesPerPack", "packsPerBox", "minPieceQty", "boxVolume", "boxWeight",
           "boxCount", "lineNoteEnabled", "lineNotePrompt", "stockPieces", availability, parts, featured,
-          variants, "publishedAt", "deletedAt")
+          variants, "publishedAt", "deletedAt", "taxRate")
        VALUES ($1, $2, $3, $4, $5, $6::jsonb, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18,
                $19::jsonb, CASE WHEN $20::boolean THEN now() END,
-               CASE WHEN $21::boolean THEN now() END)
+               CASE WHEN $21::boolean THEN now() END, $22)
        ON CONFLICT ("sourceId") DO UPDATE SET
          slug = EXCLUDED.slug, name = EXCLUDED.name,
          "categoryId" = EXCLUDED."categoryId",
@@ -110,6 +110,7 @@ export async function seedCatalog(
          availability = EXCLUDED.availability,
          parts = EXCLUDED.parts,
          featured = EXCLUDED.featured,
+         "taxRate" = EXCLUDED."taxRate",
          -- A re-seed puts every row back in the state the seed gives it.
          -- A null deletedBy reads as a run's deletion, which is what a seed is.
          "publishedAt" = EXCLUDED."publishedAt",
@@ -137,6 +138,7 @@ export async function seedCatalog(
         JSON.stringify(variants),
         product.state === undefined,
         product.state === 'deleted',
+        product.taxRate ?? null,
       ],
     );
 

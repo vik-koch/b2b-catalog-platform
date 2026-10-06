@@ -84,7 +84,8 @@ describe('Catalog sync (FR-ADM-02)', () => {
   const productBySourceId = async (sourceId: string) => {
     const { rows } = await client.query(
       `SELECT p.name, dp."priceMinor", p.slug, p."deletedAt", p."publishedAt",
-              p."categoryId", p."stockPieces", p.availability
+              p."categoryId", p."stockPieces", p.availability,
+              p."taxRate"::float AS "taxRate"
          FROM products p
          LEFT JOIN customer_tiers dt ON dt."isDefault"
          LEFT JOIN product_prices dp
@@ -571,6 +572,45 @@ describe('Catalog sync (FR-ADM-02)', () => {
         [sourceId],
       );
       expect(rows[0]).toEqual({ name: 'Stocked Beans Marked', featured: true });
+    });
+  });
+
+  describe('tax rate (NFR-LEGAL-11)', () => {
+    const sourceId = `${SOURCE_PREFIX}-tax`;
+
+    it('writes a rate of its own, a comma for the decimal point', async () => {
+      await run(
+        [
+          'sourceId;name;categorySourceId;categoryName;price;taxRate',
+          `${sourceId};Taxed Beans;${CATEGORY_SOURCE_ID};${CATEGORY_NAME};1890;5,5`,
+        ].join('\n'),
+      );
+
+      expect((await productBySourceId(sourceId)).taxRate).toBe(5.5);
+    });
+
+    it('shows the move in the preview, and an empty cell as the default', async () => {
+      const previewed = await preview(
+        csvForm(`sourceId,taxRate\n${sourceId},\n`),
+      );
+
+      expect(previewed.data.plan.products[0].changes).toEqual([
+        { field: 'taxRate', from: 5.5, to: null },
+      ]);
+      expect((await productBySourceId(sourceId)).taxRate).toBe(5.5);
+    });
+
+    it('puts the product back on the default through an empty cell', async () => {
+      await run(`sourceId,taxRate\n${sourceId},\n`);
+
+      expect((await productBySourceId(sourceId)).taxRate).toBeNull();
+    });
+
+    it('leaves the rate alone on a file without the column', async () => {
+      await run(`sourceId,taxRate\n${sourceId},7\n`);
+      await run(`sourceId,name\n${sourceId},Taxed Beans Renamed\n`);
+
+      expect((await productBySourceId(sourceId)).taxRate).toBe(7);
     });
   });
 

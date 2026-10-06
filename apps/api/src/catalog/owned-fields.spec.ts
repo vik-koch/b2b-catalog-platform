@@ -10,6 +10,7 @@ const stored: StoredOwnedProduct = {
   priceMinor: 1250,
   sourceId: 'ART-1',
   stockPieces: 40,
+  taxRate: null,
   tierPrices: [
     { tierId: '00000000-0000-0000-0000-0000000000t1', priceMinor: 1100 },
     { tierId: '00000000-0000-0000-0000-0000000000t2', priceMinor: 1000 },
@@ -23,6 +24,7 @@ const unchanged = () => ({
   categoryId: stored.categoryId,
   priceMinor: stored.priceMinor,
   stockPieces: stored.stockPieces,
+  taxRate: stored.taxRate,
   tierPrices: [...stored.tierPrices],
 });
 
@@ -43,6 +45,18 @@ describe('changedProductFields', () => {
     expect(
       changedProductFields(stored, { ...unchanged(), stockPieces: 0 }),
     ).toEqual(['stockPieces']);
+  });
+
+  it('counts a rate of its own, or going back to the default, as a write', () => {
+    expect(
+      changedProductFields(stored, { ...unchanged(), taxRate: 7 }),
+    ).toEqual(['taxRate']);
+    expect(
+      changedProductFields(
+        { ...stored, taxRate: 7 },
+        { ...unchanged(), taxRate: null },
+      ),
+    ).toEqual(['taxRate']);
   });
 
   it('counts clearing the stock figure as a write', () => {

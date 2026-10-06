@@ -400,6 +400,7 @@ export class CatalogSyncService {
           // Read for the availability recompute: a figure alone does not say
           // which state it lands in.
           stockPieces: products.stockPieces,
+          taxRate: products.taxRate,
           piecesPerPack: products.piecesPerPack,
           packsPerBox: products.packsPerBox,
           lowStockThresholdPieces: products.lowStockThresholdPieces,
@@ -566,6 +567,9 @@ export class CatalogSyncService {
                 stockPieces: product.stockPieces,
                 availability: product.availability,
               }),
+          ...(product.taxRate === undefined
+            ? {}
+            : { taxRate: product.taxRate }),
         })
         .returning({ id: products.id });
       await writeTierPrices(created.id, product.tierPrices);
@@ -587,6 +591,7 @@ export class CatalogSyncService {
                 stockPieces: update.stockPieces,
                 availability: update.availability,
               }),
+          ...(update.taxRate === undefined ? {} : { taxRate: update.taxRate }),
           updatedAt: new Date(),
         })
         .where(eq(products.id, update.id));

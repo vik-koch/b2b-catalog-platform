@@ -13,6 +13,8 @@ import {
   LOW_STOCK_THRESHOLD_PIECES,
   loadAlternateLayout,
   loadLowStockThresholdPieces,
+  loadTaxConfig,
+  TAX_CONFIG,
 } from '../config/deployment-config';
 
 /**
@@ -36,6 +38,7 @@ import {
       useFactory: loadLowStockThresholdPieces,
     },
     { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
+    { provide: TAX_CONFIG, useFactory: loadTaxConfig },
   ],
 })
 export class CatalogModule {}

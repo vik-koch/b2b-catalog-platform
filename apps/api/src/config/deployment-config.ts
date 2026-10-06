@@ -25,6 +25,8 @@ import {
   pagesConfigSchema,
   RetentionConfig,
   retentionConfigSchema,
+  TaxConfig,
+  taxConfigSchema,
   termsConfigSchema,
 } from '@b2b-catalog-platform/shared';
 import { dirname, join } from 'node:path';
@@ -51,6 +53,8 @@ export const apiDeploymentConfigSchema = z
     terms: termsConfigSchema,
     /** How long consent and destruction records are kept (NFR-LEGAL-09/12). */
     retention: retentionConfigSchema,
+    /** The tax basis prices are quoted on (NFR-LEGAL-11). */
+    tax: taxConfigSchema,
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
@@ -256,6 +260,14 @@ export const TERMS_ATTACHED = 'TERMS_ATTACHED';
 
 export function loadTermsAttached(): boolean {
   return loadApiDeploymentConfig().terms.attachToReceipt;
+}
+
+/** The tax basis and default rate, which a product's own rate falls back
+ * to. Injected like the rules beside it. */
+export const TAX_CONFIG = 'TAX_CONFIG';
+
+export function loadTaxConfig(): TaxConfig {
+  return loadApiDeploymentConfig().tax;
 }
 
 /** How long consent and destruction records are kept before the sweep. */

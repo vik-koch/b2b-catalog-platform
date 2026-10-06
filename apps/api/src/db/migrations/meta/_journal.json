@@ -365,6 +365,13 @@
       "when": 1791313314839,
       "tag": "0051_destruction_records",
       "breakpoints": true
+    },
+    {
+      "idx": 52,
+      "version": "7",
+      "when": 1791317702599,
+      "tag": "0052_product_tax_rate",
+      "breakpoints": true
     }
   ]
 }

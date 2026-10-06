@@ -36,6 +36,7 @@ export const OWNED_PRODUCT_FIELDS = [
   'priceMinor',
   'tierPrices',
   'stockPieces',
+  'taxRate',
   'sourceId',
 ] as const;
 export type OwnedProductField = (typeof OWNED_PRODUCT_FIELDS)[number];

@@ -16,7 +16,7 @@ describe('sync presets', () => {
     expect(options.productSetAuthoritative).toBe(true);
     // The claim makes hiding *available*; enabling it stays a deliberate act.
     expect(options.softDeleteMissingProducts).toBe(false);
-    expect(options.fields).toEqual(['name', 'category', 'stock']);
+    expect(options.fields).toEqual(['name', 'category', 'stock', 'taxRate']);
     expect(options.createMissing).toBe(true);
   });
 

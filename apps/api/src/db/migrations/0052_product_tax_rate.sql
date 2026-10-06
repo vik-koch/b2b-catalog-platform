@@ -1,0 +1,2 @@
+ALTER TABLE "products" ADD COLUMN "taxRate" numeric(5, 2);--> statement-breakpoint
+ALTER TABLE "products" ADD CONSTRAINT "products_tax_rate_percent" CHECK ("products"."taxRate" is null or "products"."taxRate" between 0 and 100);

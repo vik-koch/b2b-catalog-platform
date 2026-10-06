@@ -8,6 +8,11 @@ import { Component, input } from '@angular/core';
 export const UNIT_FIELD_INPUT =
   'h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed';
 
+/** The same, with the figure close up to its unit from `sm` up — for a
+ * compact field. */
+export const UNIT_FIELD_INPUT_COMPACT =
+  'h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed sm:pr-1';
+
 /**
  * A field with its unit printed inside it, after the figure it measures — the
  * packaging editor's rows, the stock counts. The unit is part of what the
@@ -38,10 +43,19 @@ export const UNIT_FIELD_INPUT =
   template: `
     <ng-content />
     @if (unit()) {
-      <span class="pr-3 text-xs text-subtle">{{ unit() }}</span>
+      <span
+        [class]="compact() ? 'pr-3 sm:pr-2' : 'pr-3'"
+        class="text-xs text-subtle"
+        >{{ unit() }}</span
+      >
     }
   `,
 })
 export class UnitField {
   readonly unit = input<string>('');
+  /** For a field sized to its figure rather than to the form from `sm` up:
+   * the unit sits as far from the edge as the figure does from the other one.
+   * Below `sm` it is a full-width field like any other, its unit in line with
+   * theirs. Pair it with `UNIT_FIELD_INPUT_COMPACT` on the input. */
+  readonly compact = input(false);
 }

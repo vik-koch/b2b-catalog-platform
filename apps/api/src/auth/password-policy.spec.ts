@@ -22,6 +22,7 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
       consent: { contact: false, account: false },
       terms: { attachToReceipt: false },
       retention: { consentRecordDays: 1095, destructionRecordDays: 1095 },
+      tax: { basis: 'none' },
     }),
   );
   process.env['DEPLOYMENT_CONFIG_FILE'] = config;

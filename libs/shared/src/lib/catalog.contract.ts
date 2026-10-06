@@ -292,6 +292,12 @@ export const productDetailSchema = z
     /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
     availability: availabilitySchema,
     /**
+     * The rate this product is taxed at (NFR-LEGAL-11): its own, or the
+     * deployment's default. Null where the deployment charges no tax. Resolved
+     * here, so no page has to know which of the two applies.
+     */
+    taxRate: z.number().nullable(),
+    /**
      * How many products this one is sold together with (FR-SET-05), counting
      * only the ones a customer could actually add — a counterpart that is
      * unpublished or withdrawn is kept as an edge for the admin but is not a

@@ -37,9 +37,11 @@ import {
   SearchCategory,
   FEATURED_ROW_SIZE,
   SitemapEntry,
+  effectiveTaxRate,
   KeyboardLayout,
+  TaxConfig,
 } from '@b2b-catalog-platform/shared';
-import { ALTERNATE_LAYOUT } from '../config/deployment-config';
+import { ALTERNATE_LAYOUT, TAX_CONFIG } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import {
@@ -149,6 +151,7 @@ export class CatalogService {
     private readonly searchLog: SearchLogger,
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
+    @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
   ) {}
 
   private categoryRows(): Promise<CategoryRow[]> {
@@ -842,6 +845,7 @@ export class CatalogService {
         boxCount: products.boxCount,
         lineNoteEnabled: products.lineNoteEnabled,
         lineNotePrompt: products.lineNotePrompt,
+        taxRate: products.taxRate,
         ...unitColumns,
         ...availabilityColumns,
         ...partsColumns,
@@ -888,6 +892,7 @@ export class CatalogService {
       lineNoteEnabled: product.lineNoteEnabled,
       lineNotePrompt: product.lineNotePrompt,
       availability: product.availability,
+      taxRate: effectiveTaxRate(this.tax, product.taxRate),
       pairedCount: product.pairedCount,
       parts: product.parts,
       documents: documentRows,

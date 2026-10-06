@@ -35,6 +35,11 @@
     "consentRecordDays": 1095,
     "destructionRecordDays": 1095
   },
+  "tax": {
+    "basis": "included",
+    "rate": 19,
+    "statedAtPrices": true
+  },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,
   "catalog": {

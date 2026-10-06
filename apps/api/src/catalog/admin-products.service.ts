@@ -143,6 +143,7 @@ const adminProductWriteColumns = {
   lineNotePrompt: products.lineNotePrompt,
   stockPieces: products.stockPieces,
   lowStockThresholdPieces: products.lowStockThresholdPieces,
+  taxRate: products.taxRate,
   availability: products.availability,
   parts: products.parts,
 } as const;
@@ -178,6 +179,7 @@ type ProductRow = {
   lineNotePrompt: string | null;
   stockPieces: number | null;
   lowStockThresholdPieces: number | null;
+  taxRate: number | null;
   availability: ProductAvailability | null;
   parts: string[];
 };
@@ -414,6 +416,7 @@ export class AdminProductsService {
             updatedBy: actorId,
             ...packagingValues(input),
             ...this.stockValues(input),
+            taxRate: input.taxRate,
           })
           .returning(adminProductWriteColumns),
       );
@@ -496,6 +499,7 @@ export class AdminProductsService {
               : {}),
             ...packagingValues(input),
             ...this.stockValues(input),
+            taxRate: input.taxRate,
           })
           .where(eq(products.id, existing.id))
           .returning(adminProductWriteColumns),
@@ -1334,6 +1338,7 @@ function toAdminProduct(
     lineNotePrompt: row.lineNotePrompt,
     stockPieces: row.stockPieces,
     lowStockThresholdPieces: row.lowStockThresholdPieces,
+    taxRate: row.taxRate,
     availability: row.availability,
   };
 }

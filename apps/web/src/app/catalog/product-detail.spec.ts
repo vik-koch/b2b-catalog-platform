@@ -10,6 +10,7 @@ import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { ProductDetail } from './product-detail';
@@ -49,6 +50,7 @@ async function render(
   const config = {
     branding: { title: 'Test Shop' },
     catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
+    tax: defaultDeploymentConfig.tax,
   } as unknown as DeploymentConfig;
   TestBed.configureTestingModule({
     imports: [ProductDetail],

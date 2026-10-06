@@ -65,6 +65,8 @@ export interface ExistingProduct {
   deletedBy: string | null;
   /** Null where this product's stock is not tracked. */
   stockPieces: number | null;
+  /** Null where it is taxed at the deployment's default. */
+  taxRate: number | null;
   /** What the resolved state depends on besides the figure: the packaging the
    * threshold is measured in, and the product's own override of it. */
   piecesPerPack: number | null;
@@ -99,6 +101,8 @@ export interface SyncActions {
      * row cannot leave a state without the count behind it. */
     stockPieces?: number;
     availability?: ProductAvailability;
+    /** Absent where the file says nothing; null is the default rate. */
+    taxRate?: number | null;
   }[];
   updateProducts: {
     id: string;
@@ -116,6 +120,7 @@ export interface SyncActions {
      * product's packaging, which the differ has already read. */
     stockPieces?: number;
     availability?: ProductAvailability;
+    taxRate?: number | null;
   }[];
   softDeleteProductIds: string[];
   restoreProductIds: string[];
@@ -185,6 +190,7 @@ export function planSync(
   const writesName = options.fields.includes('name');
   const writesCategory = options.fields.includes('category');
   const writesStock = options.fields.includes('stock');
+  const writesTaxRate = options.fields.includes('taxRate');
 
   const productsBySourceId = new Map(
     state.products.map((p) => [p.sourceId, p]),
@@ -365,6 +371,8 @@ export function planSync(
         continue;
       }
       const stock = writesStock ? row.stockPieces : undefined;
+      // Null is what a new product has anyway, so only a rate is worth writing.
+      const taxRate = writesTaxRate ? row.taxRate : undefined;
       actions.createProducts.push({
         sourceId: row.sourceId,
         name,
@@ -384,6 +392,7 @@ export function planSync(
                 state.lowStockFallback,
               ) as ProductAvailability,
             }),
+        ...(taxRate == null ? {} : { taxRate }),
       });
       productChanges.push({
         kind: 'create',
@@ -471,6 +480,20 @@ export function planSync(
           state.lowStockFallback,
         ) as ProductAvailability;
       }
+    }
+
+    // Null is a value here — the default rate — so only absent is skipped.
+    if (
+      writesTaxRate &&
+      row.taxRate !== undefined &&
+      row.taxRate !== existing.taxRate
+    ) {
+      changes.push({
+        field: 'taxRate',
+        from: existing.taxRate,
+        to: row.taxRate,
+      });
+      update.taxRate = row.taxRate;
     }
 
     // A product returning to the file is restored — the inverse of the delete
