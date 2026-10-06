@@ -6,6 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
+import { useTaxStatement } from '../catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import {
   canTransition,
@@ -124,6 +125,8 @@ import { OrdersService } from './orders.service';
               [lineCount]="detail.lines.length"
               [subtotalMinor]="detail.totalMinor"
               [shipment]="detail.shipment"
+              [taxRates]="taxRates()"
+              [taxBasis]="detail.taxBasis"
             />
             <!-- What the order carries (FR-ORD-05). Under the summary and
                  above the way out: a document is a copy of what has just been
@@ -220,9 +223,19 @@ export class OrderDetailPage {
     () => this.order.hasValue() && this.order.value() === null,
   );
 
+  private readonly tax = useTaxStatement();
+  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
+  protected readonly taxRates = computed(
+    () => this.detail()?.lines.map((line) => line.taxRate) ?? [],
+  );
+
   protected readonly lines = computed<ReadBackLine[]>(() => {
     const detail = this.detail();
     if (!detail) return [];
+    const perLine = this.tax.perLine(
+      detail.lines.map((line) => line.taxRate),
+      detail.taxBasis,
+    );
     return detail.lines.map((line, index) => ({
       key: `${line.slug}-${index}`,
       name: line.name,
@@ -230,6 +243,9 @@ export class OrderDetailPage {
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.appText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      // Only once the lines differ: a rate the total names would otherwise
+      // be said on every line for nothing.
+      taxRate: perLine ? this.tax.line(line.taxRate) : null,
     }));
   });
 

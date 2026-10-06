@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
+import { useTaxStatement } from '../catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { fillText, OrderDetail } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
@@ -113,6 +114,8 @@ import { OrdersService } from './orders.service';
               [lineCount]="order.lines.length"
               [subtotalMinor]="order.totalMinor"
               [shipment]="order.shipment"
+              [taxRates]="taxRates()"
+              [taxBasis]="order.taxBasis"
             />
 
             <!-- The same documents the account's own page offers, in the same
@@ -208,9 +211,19 @@ export class OrderTokenPage {
     () => this.order.hasValue() && this.order.value() === null,
   );
 
+  private readonly tax = useTaxStatement();
+  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
+  protected readonly taxRates = computed(
+    () => this.detail()?.lines.map((line) => line.taxRate) ?? [],
+  );
+
   protected readonly lines = computed<ReadBackLine[]>(() => {
     const order = this.detail();
     if (!order) return [];
+    const perLine = this.tax.perLine(
+      order.lines.map((line) => line.taxRate),
+      order.taxBasis,
+    );
     return order.lines.map((line, index) => ({
       key: `${line.slug}-${index}`,
       name: line.name,
@@ -218,6 +231,9 @@ export class OrderTokenPage {
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.appText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      // Only once the lines differ: a rate the total names would otherwise
+      // be said on every line for nothing.
+      taxRate: perLine ? this.tax.line(line.taxRate) : null,
     }));
   });
 

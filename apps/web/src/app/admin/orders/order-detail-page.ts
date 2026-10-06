@@ -6,6 +6,7 @@ import {
   resource,
   signal,
 } from '@angular/core';
+import { useTaxStatement } from '../../catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { Link } from '../../ui/link';
 import {
@@ -526,6 +527,8 @@ const MARK_PAID = 'markPaid';
               [lineCount]="order.lines.length"
               [subtotalMinor]="order.totalMinor"
               [shipment]="order.shipment"
+              [taxRates]="taxRates()"
+              [taxBasis]="order.taxBasis"
             />
             <a
               appButton
@@ -630,6 +633,12 @@ export class AdminOrderDetailPage {
    * line: staff work against the source system, which prices per piece, and an
    * order that has to be checked against it reads in its numbers.
    */
+  private readonly tax = useTaxStatement();
+  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
+  protected readonly taxRates = computed(
+    () => this.detail()?.lines.map((line) => line.taxRate) ?? [],
+  );
+
   protected readonly lines = computed<ReadBackLine[]>(() => {
     const order = this.detail();
     if (!order) return [];
@@ -640,6 +649,9 @@ export class AdminOrderDetailPage {
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: this.pieceLine(line),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      // Always, for staff: the rate is what a line reconciles against the
+      // shop's own invoice by, shared with its neighbours or not.
+      taxRate: this.tax.line(line.taxRate) || null,
     }));
   });
 

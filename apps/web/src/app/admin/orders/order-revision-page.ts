@@ -1,4 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
+import { useTaxStatement } from '../../catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../cart/order-summary';
@@ -150,6 +151,8 @@ import { revisionKindLabel } from './revision-labels';
               [lineCount]="order.lines.length"
               [subtotalMinor]="order.totalMinor"
               [shipment]="order.shipment"
+              [taxRates]="taxRates()"
+              [taxBasis]="order.taxBasis"
             />
             <!-- What can be opened on this version (FR-ORD-05), marked from
                  where this page stands: a supplied file filed before this
@@ -244,6 +247,12 @@ export class AdminOrderRevisionPage {
 
   /** The customer's own reading of the lines, deliberately: this page shows
    * what they see, and basis units are the staff screen's business. */
+  private readonly tax = useTaxStatement();
+  /** What the total names, or why it names only the basis (NFR-LEGAL-11). */
+  protected readonly taxRates = computed(
+    () => this.revision()?.lines.map((line) => line.taxRate) ?? [],
+  );
+
   protected readonly lines = computed<ReadBackLine[]>(() => {
     const order = this.revision();
     if (!order) return [];
@@ -254,6 +263,9 @@ export class AdminOrderRevisionPage {
       href: line.linked ? `/product/${line.slug}` : null,
       quantity: customerQuantity(line, this.appText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
+      // Always, for staff: the rate is what a line reconciles against the
+      // shop's own invoice by, shared with its neighbours or not.
+      taxRate: this.tax.line(line.taxRate) || null,
     }));
   });
 

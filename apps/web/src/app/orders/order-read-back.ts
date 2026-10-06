@@ -46,7 +46,16 @@ import { APP_TEXT } from '../config/app-text';
                   </span>
                 }
               </span>
-              <span class="shrink-0 text-right">{{ line.total }}</span>
+              <span class="shrink-0 text-right">
+                {{ line.total }}
+                <!-- Under the figure it qualifies, where a reader checking
+                     the line against an invoice looks for it. -->
+                @if (line.taxRate) {
+                  <span class="block text-xs text-subtle">{{
+                    line.taxRate
+                  }}</span>
+                }
+              </span>
             </li>
           }
         </ul>
@@ -93,6 +102,8 @@ export interface ReadBackLine {
   readonly total: string;
   /** Where the product can still be opened, where it can. */
   readonly href?: string | null;
+  /** The line's tax rate, where the reader is shown one (NFR-LEGAL-11). */
+  readonly taxRate?: string | null;
 }
 
 /** One answered question: its heading, then what was answered — the first line

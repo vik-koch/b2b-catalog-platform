@@ -30,8 +30,10 @@ describe('useTaxStatement', () => {
     });
 
     // The demo writes numbers the German way.
-    expect(tax.total()).toBe(text.statement.included.replace('{rate}', '5,5'));
-    expect(tax.atPrice(null)).toBe(tax.total());
+    expect(tax.total([])).toBe(
+      text.statement.included.replace('{rate}', '5,5'),
+    );
+    expect(tax.atPrice(null)).toBe(tax.total([]));
     expect(tax.listing()).toBe(text.listing.included);
   });
 
@@ -48,7 +50,7 @@ describe('useTaxStatement', () => {
   it('states the basis only under totals where the deployment says nothing at prices', () => {
     const tax = statement({ basis: 'added', rate: 19, statedAtPrices: false });
 
-    expect(tax.total()).toBe(text.statement.added.replace('{rate}', '19'));
+    expect(tax.total([])).toBe(text.statement.added.replace('{rate}', '19'));
     expect(tax.atPrice(7)).toBeNull();
     expect(tax.listing()).toBeNull();
   });
@@ -56,8 +58,33 @@ describe('useTaxStatement', () => {
   it('says no tax is charged under a total, and nothing at a price', () => {
     const tax = statement({ basis: 'none' });
 
-    expect(tax.total()).toBe(text.statement.none);
+    expect(tax.total([])).toBe(text.statement.none);
     expect(tax.atPrice(7)).toBeNull();
     expect(tax.listing()).toBeNull();
+  });
+
+  it('names the rate the lines share, and only the basis once they differ', () => {
+    const tax = statement({
+      basis: 'included',
+      rate: 19,
+      statedAtPrices: true,
+    });
+
+    expect(tax.total([7, 7])).toBe(
+      text.statement.included.replace('{rate}', '7'),
+    );
+    expect(tax.perLine([7, 7])).toBe(false);
+
+    expect(tax.total([7, 19])).toBe(text.mixed.included);
+    expect(tax.perLine([7, 19])).toBe(true);
+    expect(tax.line(7)).toBe(text.line.replace('{rate}', '7'));
+  });
+
+  it('states an order on the basis it was submitted under, not today’s', () => {
+    const tax = statement({ basis: 'none' });
+
+    expect(tax.total([7, 19], 'added')).toBe(text.mixed.added);
+    expect(tax.perLine([7, 19], 'added')).toBe(true);
+    expect(tax.perLine([null, null], 'none')).toBe(false);
   });
 });

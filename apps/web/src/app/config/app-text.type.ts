@@ -1416,6 +1416,11 @@ export const appTextSchema = z
             none: z.string(),
           })
           .strict(),
+        /** Under a total whose lines are taxed at different rates: the
+         * basis alone, each line stating its own. */
+        mixed: z.object({ included: z.string(), added: z.string() }).strict(),
+        /** One line's rate, where the lines differ; `{rate}`. */
+        line: z.string(),
         /** Under a listing, which may hold goods at different rates and so
          * names none. Nothing is said where no tax is charged. */
         listing: z.object({ included: z.string(), added: z.string() }).strict(),
