@@ -93,7 +93,10 @@ export type AuditAction =
   // Machine credentials (NFR-SEC-09). Issuing one hands an automated client
   // the ability to rewrite the catalog, so both ends of its life are named.
   | 'apiToken.created'
-  | 'apiToken.revoked';
+  | 'apiToken.revoked'
+  // A withdrawal entered by hand: the consent record keeps who, this keeps it
+  // beside everything else that admin did.
+  | 'consent.withdrawn';
 
 /**
  * Who did it.

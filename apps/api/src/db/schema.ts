@@ -4,6 +4,8 @@ import {
   API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SCOPES,
   CONSENT_PURPOSES,
+  CONSENT_WITHDRAWAL_NOTE_MAX,
+  CONSENT_WITHDRAWAL_REASONS,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -1570,5 +1572,43 @@ export const consents = pgTable(
     index('consents_userId_idx').on(t.userId),
     index('consents_email_idx').on(t.email),
     index('consents_phone_idx').on(t.phone),
+  ],
+);
+
+/**
+ * When a consent ended (NFR-LEGAL-09), one row per record at most. Its own
+ * table because the record never changes: the withdrawal is a second fact
+ * about it, and a record's retention runs from here.
+ *
+ * Never updated either, which the same trigger enforces. It goes with its
+ * record when that is deleted at the end of the retention period.
+ */
+export const consentWithdrawals = pgTable(
+  'consent_withdrawals',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    consentId: uuid('consentId')
+      .notNull()
+      .unique()
+      .references(() => consents.id, { onDelete: 'cascade' }),
+    reason: varchar('reason', { length: 32 }).notNull(),
+    withdrawnAt: timestamp('withdrawnAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    /** The admin who entered it, with their address copied as on a page save. */
+    enteredBy: uuid('enteredBy').references(() => users.id),
+    enteredByEmail: varchar('enteredByEmail', { length: 320 }),
+    note: varchar('note', { length: CONSENT_WITHDRAWAL_NOTE_MAX }),
+  },
+  () => [
+    check(
+      'consent_withdrawals_reason',
+      oneOf('reason', CONSENT_WITHDRAWAL_REASONS),
+    ),
+    // Entered by hand means entered by somebody.
+    check(
+      'consent_withdrawals_entered_by_someone',
+      sql`"reason" <> 'entered' or "enteredBy" is not null`,
+    ),
   ],
 );

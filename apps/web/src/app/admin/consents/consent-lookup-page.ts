@@ -9,7 +9,12 @@ import {
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { fillText, FindConsentsQuery } from '@b2b-catalog-platform/shared';
+import {
+  CONSENT_WITHDRAWAL_NOTE_MAX,
+  ConsentRecord,
+  fillText,
+  FindConsentsQuery,
+} from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import {
@@ -25,7 +30,9 @@ import { Button } from '../../ui/button';
 import { EmailField } from '../../ui/email-field';
 import { PhoneField } from '../../ui/phone-field';
 import { Segmented, SegmentOption } from '../../ui/segmented';
+import { ConfirmService } from '../../ui/confirm.service';
 import { Skeleton } from '../../ui/skeleton';
+import { adminDayFormat } from '../grid/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 
@@ -84,8 +91,15 @@ type SearchBy = 'email' | 'phone';
         @if (results.error()) {
           <p class="text-muted" role="alert">{{ text.loadError }}</p>
         } @else if (results.hasValue() && query(); as asked) {
+          @if (withdrawError(); as message) {
+            <p class="mb-4 text-sm text-red-700" role="alert">{{ message }}</p>
+          }
           @if (results.value().length > 0) {
-            <app-consent-record-list [records]="results.value()" />
+            <app-consent-record-list
+              [records]="results.value()"
+              [withdrawable]="true"
+              (withdraw)="withdraw($event)"
+            />
           } @else {
             <p class="text-muted">{{ emptyLine(asked) }}</p>
           }
@@ -98,10 +112,17 @@ type SearchBy = 'email' | 'phone';
 })
 export class ConsentLookupPage {
   private readonly service = inject(ConsentsService);
+  private readonly confirm = inject(ConfirmService);
+  private readonly dayFormat = adminDayFormat(
+    inject(DEPLOYMENT_CONFIG).catalog.currency.locale,
+  );
+  /** Why the last withdrawal was not saved, until the next one is tried. */
+  protected readonly withdrawError = signal<string | null>(null);
   private readonly router = inject(Router);
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   protected readonly text = inject(ADMIN_TEXT).consents;
+  private readonly common = inject(ADMIN_TEXT).common;
   private readonly validation = inject(ADMIN_TEXT).userEditor.validation;
   protected readonly emailText = {
     required: this.validation.emailRequired,
@@ -183,6 +204,50 @@ export class ConsentLookupPage {
         ? { email: this.emailField.value.trim().toLowerCase() }
         : { phone: canonicalPhone(this.phoneField.value, this.phoneInput) };
     void this.router.navigate([], { queryParams });
+  }
+
+  /**
+   * A withdrawal that reached the shop from outside, entered against its
+   * record. Asked first, since it cannot be taken back; the note says how it
+   * arrived, which is what an inspection asks next.
+   */
+  protected async withdraw(record: ConsentRecord): Promise<void> {
+    this.withdrawError.set(null);
+    const holder =
+      record.email ?? formatPhone(record.phone, this.phoneInput) ?? '';
+    const answer = await this.confirm.askDetailed({
+      heading: this.text.withdrawTitle,
+      message: fillText(this.text.withdrawConfirm, {
+        holder,
+        date: this.dayFormat.format(new Date(record.givenAt)),
+      }),
+      confirmLabel: this.text.withdraw,
+      cancelLabel: this.common.cancel,
+      confirmVariant: 'danger',
+      reasonLabel: this.text.withdrawNote,
+      reasonMaxLength: CONSENT_WITHDRAWAL_NOTE_MAX,
+      // Worth having, not worth blocking a withdrawal over.
+      reasonRequired: false,
+    });
+    if (!answer) return;
+
+    try {
+      const result = await this.service.withdraw(
+        record.id,
+        answer.reason ?? '',
+      );
+      if (result.ok) {
+        this.results.update((list) =>
+          list?.map((r) => (r.id === result.record.id ? result.record : r)),
+        );
+        return;
+      }
+      this.withdrawError.set(this.text.withdrawErrors[result.code]);
+      // Whatever changed under the list, show it as it now stands.
+      this.results.reload();
+    } catch {
+      this.withdrawError.set(this.text.withdrawError);
+    }
   }
 
   protected emptyLine(query: FindConsentsQuery): string {

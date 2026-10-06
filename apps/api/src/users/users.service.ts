@@ -7,6 +7,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
+import { withdrawAccountConsents } from '../consents/consent-withdrawals';
 import {
   addresses,
   orderItems,
@@ -215,6 +216,9 @@ export class UsersService {
       // cascade on the foreign key never fires — this is the deletion.
       await tx.delete(addresses).where(eq(addresses.userId, id));
       await this.scrubOrders(tx, id);
+      // The account consent ends with the account; its record stays, with
+      // the address it was given with, for the retention period.
+      await withdrawAccountConsents(tx, id, 'account-deleted');
       return this.anonymizeUser(tx, id, unusableHash);
     });
   }

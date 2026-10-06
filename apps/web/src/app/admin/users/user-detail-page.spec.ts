@@ -257,6 +257,7 @@ describe('UserDetailPage', () => {
       email: 'jane@example.com',
       phone: null,
       account: { id: 'u1', name: 'Doe Jane', status: 'active' },
+      withdrawal: null,
     };
 
     it("lists a customer's records, with the wording that was ticked", async () => {

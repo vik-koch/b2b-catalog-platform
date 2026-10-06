@@ -21,7 +21,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Storefront presentation: links elsewhere, documents held elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets, variants; the admin grid's content filter; removing a product in steps | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10)/[11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07)/[08](requirements.md#fr-search-08),<br>[FR-ADM-19](requirements.md#fr-adm-19)/[20](requirements.md#fr-adm-20)/[21](requirements.md#fr-adm-21)/[22](requirements.md#fr-adm-22),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13),<br>[FR-DOC-05](requirements.md#fr-doc-05) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[05](requirements.md#fr-adm-05)/[06](requirements.md#fr-adm-06)/[10](requirements.md#fr-adm-10),<br>[FR-ATTR-02](requirements.md#fr-attr-02),<br>[FR-CART-08](requirements.md#fr-cart-08),<br>[FR-DOC-01](requirements.md#fr-doc-01)/[03](requirements.md#fr-doc-03) |
-| 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[07](requirements.md#fr-adm-07),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06),<br>[FR-ORD-05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06) |
+| 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12),<br>[FR-ADM-23](requirements.md#fr-adm-23) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[07](requirements.md#fr-adm-07),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06)/[11](requirements.md#fr-auth-11),<br>[FR-ORD-05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06) |
 | later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -868,15 +868,16 @@ Notes:
   footer therefore carries a line from configuration: legal name, registration number and a
   way to reach the seller. It is chrome, so it is configuration rather than page content,
   on the same argument as the footer's other links.
-- **An admin can find a person's consents, and delete an account on request**
-  ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A request about a
-  person's data reaches the shop by letter, email or phone as often as through the
-  account, so the records are found by account, email address or phone number. Searching
-  by address also finds the account that uses it now, since a record keeps the address it
-  was given with. Answering such a request, or an inspection, is the operator's, so the
-  records are an admin's alone, as the consent texts already were. Nothing changes a
+- **An admin can find a person's consents**
+  ([NFR-LEGAL-09](requirements.md#nfr-legal-09), [FR-AUTH-11](requirements.md#fr-auth-11) corrected)
+  (2026-10-06). A request about a person's data reaches the shop by letter, email or phone as often as
+  through the account, so the records are found by account, email address or phone number.
+  Searching by address also finds the account that uses it now, since a record keeps the 
+  address it was given with. Answering such a request, or an inspection, is the operator's,
+  so the records are an admin's alone, as the consent texts already were. Nothing changes a
   record, and the database refuses to. A record therefore names its account by id without
-  a reference that a removed account would have to clear. 
+  a reference that a removed account would have to clear. Declining a registration withdraws
+  the consent which FR-AUTH-11 had described as switching it off. 
 - **Consent is switched on, not published**
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A purpose used to be asked
   when its text was in the list of published pages, which an operator reading the config
@@ -890,7 +891,7 @@ Notes:
   ([NFR-LEGAL-12](requirements.md#nfr-legal-12)) (2026-10-03). A jurisdiction can require
   the shop to prove a destruction, with a statement backed by an extract from the system's
   own log. The platform destroys personal data in three places: deleting an account,
-  clearing an account an owning system withdrew, and ending a consent record's retention.
+  declining a registration, and ending a consent record's retention.
   Each writes its record in the same moment, so the extract exists even if nobody thinks of
   it at the time. The record names the account by its id, not by the data that was
   destroyed. The signed statement remains the shop's paperwork. The platform supplies the
