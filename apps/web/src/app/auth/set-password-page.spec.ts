@@ -62,7 +62,14 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      // The demo asks for no consent; these specs drive the form that does.
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          ...defaultDeploymentConfig,
+          consent: { contact: true, account: true },
+        },
+      },
       {
         provide: AuthService,
         useValue: { checkPasswordToken, setPassword, user },

@@ -65,10 +65,18 @@
         }
       }
     },
+    "e2e-config": {
+      "command": "node tools/api-e2e-config.mjs",
+      "inputs": [
+        "{workspaceRoot}/config/deployment.json",
+        "{workspaceRoot}/tools/api-e2e-config.mjs"
+      ],
+      "cache": false
+    },
     "serve-e2e": {
       "executor": "@nx/js:node",
       "continuous": true,
-      "dependsOn": ["build"],
+      "dependsOn": ["build", "e2e-config"],
       "options": {
         "buildTarget": "api:build:development",
         "runBuildTargetDependencies": false,

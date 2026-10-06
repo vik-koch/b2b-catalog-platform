@@ -13,7 +13,11 @@ import { PageService } from './page.service';
 const text = defaultAppText.inquiry;
 const consentText = defaultAppText.consentBox;
 
-const testConfig: DeploymentConfig = { ...defaultDeploymentConfig };
+/** The demo asks for no consent; these specs drive the form that does. */
+const testConfig: DeploymentConfig = {
+  ...defaultDeploymentConfig,
+  consent: { contact: true, account: true },
+};
 
 const consentPage: Page = {
   version: 3,

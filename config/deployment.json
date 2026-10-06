@@ -24,8 +24,8 @@
     "footerNav": ["privacy", "imprint", "withdrawal", "licenses"]
   },
   "consent": {
-    "contact": true,
-    "account": true
+    "contact": false,
+    "account": false
   },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,

@@ -53,6 +53,7 @@ async function render(
   counts: WorkCounts = {},
   settings = settingsStub(),
   sync = syncStub(),
+  deployment = config,
 ) {
   TestBed.configureTestingModule({
     imports: [AdminPanelPage],
@@ -60,7 +61,7 @@ async function render(
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: DEPLOYMENT_CONFIG, useValue: config },
+      { provide: DEPLOYMENT_CONFIG, useValue: deployment },
       {
         provide: AuthService,
         useValue: { user: signal(user), resolved: signal(true) },
