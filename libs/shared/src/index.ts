@@ -26,6 +26,7 @@ export * from './lib/customer-sync-constants';
 export * from './lib/customer-sync.contract';
 export * from './lib/contact-format';
 export * from './lib/delivery-zone';
+export * from './lib/destruction-constants';
 export * from './lib/document-constants';
 export * from './lib/documents.contract';
 export * from './lib/email-format';

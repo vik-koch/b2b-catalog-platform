@@ -6,6 +6,9 @@ import {
   CONSENT_PURPOSES,
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
+  DESTRUCTION_CATEGORIES,
+  DESTRUCTION_REASONS,
+  DESTRUCTION_SUBJECTS,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -1616,5 +1619,50 @@ export const consentWithdrawals = pgTable(
       'consent_withdrawals_entered_by_someone',
       sql`"reason" <> 'entered' or "enteredBy" is not null`,
     ),
+  ],
+);
+
+/**
+ * A record that personal data was destroyed (NFR-LEGAL-12), written in the
+ * transaction that destroys it. It names the person by an id, never by the
+ * data that went: an anonymized account's row keeps that id, a declined
+ * registration's row is gone but its consent record carries the same one.
+ *
+ * No foreign keys, for the reason `consents.userId` has none: the row never
+ * changes, and it outlives what it names. `destroyedBy` is the holder, the
+ * staff member, or null for the retention sweep; a staff member's address is
+ * copied as on a page save, the holder's never, since it is what went.
+ *
+ * Never updated, which a database trigger enforces, and deleted when its own
+ * retention ends.
+ */
+export const destructionRecords = pgTable(
+  'destruction_records',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    subject: varchar('subject', { length: 16 }).notNull(),
+    subjectId: uuid('subjectId').notNull(),
+    categories: varchar('categories', { length: 32 }).array().notNull(),
+    reason: varchar('reason', { length: 32 }).notNull(),
+    destroyedBy: uuid('destroyedBy'),
+    destroyedByEmail: varchar('destroyedByEmail', { length: 320 }),
+    destroyedAt: timestamp('destroyedAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    check(
+      'destruction_records_subject',
+      oneOf('subject', DESTRUCTION_SUBJECTS),
+    ),
+    check('destruction_records_reason', oneOf('reason', DESTRUCTION_REASONS)),
+    check(
+      'destruction_records_categories',
+      sql.raw(
+        `cardinality("categories") > 0 and "categories" <@ array[${DESTRUCTION_CATEGORIES.map((c) => `'${c}'`).join(', ')}]::varchar[]`,
+      ),
+    ),
+    index('destruction_records_destroyedAt_idx').on(t.destroyedAt),
+    index('destruction_records_subjectId_idx').on(t.subjectId),
   ],
 );
