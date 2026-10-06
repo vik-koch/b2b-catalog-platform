@@ -1,7 +1,9 @@
 import { Client } from 'pg';
+import { ConsentConfig } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { pageSeeds } from './data';
 import { seedAccounts } from './account-seed';
+import { seedConsents } from './consent-seed';
 import { seedCatalog } from './catalog-seed';
 import { seedDocuments } from './document-seed';
 import { seedOrders } from './order-seed';
@@ -52,9 +54,15 @@ export async function seedPages(client: Client): Promise<void> {
   }
 }
 
+/**
+ * `consent` is the deployment's own switch, handed in rather than read here:
+ * the e2e harness seeds from outside the stack, where the stack's config path
+ * does not exist.
+ */
 export async function seedDatabase(
   client: Client,
   mediaRoot: string,
+  consent: ConsentConfig,
 ): Promise<void> {
   await seedPages(client);
   await seedCatalog(client, mediaRoot);
@@ -66,6 +74,8 @@ export async function seedDatabase(
   // …and an order needs both — the products it lines up and the account it
   // was priced for.
   await seedOrders(client);
+  // After the accounts and the pages: a record names both.
+  await seedConsents(client, consent);
 }
 
 /**
@@ -76,11 +86,12 @@ export async function seedDatabase(
 export async function runSeed(
   connectionString: string,
   mediaRoot: string,
+  consent: ConsentConfig,
 ): Promise<void> {
   const client = new Client({ connectionString });
   try {
     await client.connect();
-    await seedDatabase(client, mediaRoot);
+    await seedDatabase(client, mediaRoot, consent);
   } finally {
     await client.end().catch(() => undefined);
   }
