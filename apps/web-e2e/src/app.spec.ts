@@ -13,9 +13,10 @@ test('serves the API on the same origin under /api', async ({ request }) => {
 
   expect(response.status()).toBe(200);
   expect(await response.json()).toEqual({
+    version: expect.any(Number),
     title: aboutPageSeed.title,
-    // The seed writes through the sanitizer, so that is the stored form.
     bodyHtml: sanitizeRichText(aboutPageSeed.bodyHtml),
+    consentLabel: null,
     updatedAt: expect.any(String),
   });
 });

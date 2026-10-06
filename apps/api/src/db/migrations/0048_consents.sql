@@ -11,7 +11,16 @@ CREATE TABLE "consents" (
 );
 --> statement-breakpoint
 ALTER TABLE "consents" ADD CONSTRAINT "consents_pageVersionId_page_versions_id_fk" FOREIGN KEY ("pageVersionId") REFERENCES "public"."page_versions"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "consents" ADD CONSTRAINT "consents_userId_users_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."users"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 CREATE INDEX "consents_userId_idx" ON "consents" USING btree ("userId");--> statement-breakpoint
 CREATE INDEX "consents_email_idx" ON "consents" USING btree ("email");--> statement-breakpoint
-CREATE INDEX "consents_phone_idx" ON "consents" USING btree ("phone");
+CREATE INDEX "consents_phone_idx" ON "consents" USING btree ("phone");--> statement-breakpoint
+
+-- Hand-written: drizzle does not model triggers, so the snapshot has nothing
+-- to agree with. A row that is evidence is inserted and, at the end of its
+-- retention, deleted; never changed in between.
+CREATE FUNCTION "refuse_update"() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+	RAISE EXCEPTION 'Rows of % are never changed', TG_TABLE_NAME;
+END;
+$$;--> statement-breakpoint
+CREATE TRIGGER "consents_refuse_update" BEFORE UPDATE ON "consents" FOR EACH ROW EXECUTE FUNCTION "refuse_update"();

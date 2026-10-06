@@ -1539,6 +1539,9 @@ export const documentProducts = pgTable(
  * this row is all that remains of it. The email is copied for an account too,
  * because a record that names nobody once the account is deleted proves
  * nothing.
+ *
+ * Never updated, which a database trigger enforces: a record is
+ * inserted, and deleted when its retention ends.
  */
 export const consents = pgTable(
   'consents',
@@ -1548,9 +1551,10 @@ export const consents = pgTable(
     pageVersionId: uuid('pageVersionId')
       .notNull()
       .references(() => pageVersions.id, { onDelete: 'restrict' }),
-    userId: uuid('userId').references(() => users.id, {
-      onDelete: 'set null',
-    }),
+    // No foreign key: the row never changes, and `ON DELETE SET NULL` is a
+    // change. A declined registration's row is deleted (users are otherwise
+    // anonymized, never deleted), and its consent record outlives it.
+    userId: uuid('userId'),
     email: varchar('email', { length: 320 }),
     phone: varchar('phone', { length: 50 }),
     createdAt: timestamp('createdAt', { withTimezone: true })

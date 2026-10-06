@@ -741,19 +741,6 @@
           ],
           "onDelete": "restrict",
           "onUpdate": "no action"
-        },
-        "consents_userId_users_id_fk": {
-          "name": "consents_userId_users_id_fk",
-          "tableFrom": "consents",
-          "tableTo": "users",
-          "columnsFrom": [
-            "userId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
