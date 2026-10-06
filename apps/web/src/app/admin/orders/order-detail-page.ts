@@ -162,6 +162,10 @@ const MARK_PAID = 'markPaid';
                 </dd>
                 <dt [class]="term">{{ text.tier }}</dt>
                 <dd [class]="value">{{ order.tierKey ?? text.tierDefault }}</dd>
+                @if (termsLabel(order); as terms) {
+                  <dt [class]="term">{{ text.terms }}</dt>
+                  <dd [class]="value">{{ terms }}</dd>
+                }
 
                 <!-- Money before the workflow, and deliberately: recording a
                      payment moves nothing along, and the customer sees it the
@@ -653,6 +657,16 @@ export class AdminOrderDetailPage {
     return fillText(this.text.pieceLine, {
       count: line.pieces,
       price: formatPriceMinor(line.priceMinor, this.currency),
+    });
+  }
+
+  /** Which terms to hand the customer when asked, as the page editor lists
+   * them. */
+  protected termsLabel(order: AdminOrderDetail): string | null {
+    if (order.termsVersion === null || order.termsDate === null) return null;
+    return fillText(this.text.termsVersion, {
+      version: order.termsVersion,
+      date: this.shopDayFormat.format(new Date(order.termsDate)),
     });
   }
 
@@ -1235,6 +1249,15 @@ export class AdminOrderDetailPage {
   private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
     dateStyle: 'long',
   });
+
+  /** The day a page's "Last updated" line names, in the shop's timezone. */
+  private readonly shopDayFormat = new Intl.DateTimeFormat(
+    this.currency.locale,
+    {
+      dateStyle: 'long',
+      timeZone: this.config.orderReference?.timezone ?? 'UTC',
+    },
+  );
 
   /** For the two facts a manager reads as moments rather than as days: when
    * the order last moved, and when the payment was recorded. */

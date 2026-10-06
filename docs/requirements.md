@@ -196,13 +196,13 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-LEGAL-01](#nfr-legal-01) — Privacy policy page
 - [NFR-LEGAL-02](#nfr-legal-02) — Seller information page
 - [NFR-LEGAL-03](#nfr-legal-03) — Cookie consent
-- [NFR-LEGAL-04](#nfr-legal-04) — Right-of-withdrawal page
+- [NFR-LEGAL-04](#nfr-legal-04) — Withdrawal notice
 - [NFR-LEGAL-05](#nfr-legal-05) — Data residency
 - [NFR-LEGAL-06](#nfr-legal-06) — Open-source attribution page
 - [NFR-LEGAL-07](#nfr-legal-07) — Disclosing a transfer of account details
 - [NFR-LEGAL-08](#nfr-legal-08) — Deletion reaches only this platform
 - [NFR-LEGAL-09](#nfr-legal-09) — Recorded consent to processing personal data
-- [NFR-LEGAL-10](#nfr-legal-10) — An order accepts the conditions it was placed under
+- [NFR-LEGAL-10](#nfr-legal-10) — An order accepts the terms it was placed under
 - [NFR-LEGAL-11](#nfr-legal-11) — The tax basis of the prices
 - [NFR-LEGAL-12](#nfr-legal-12) — A record that personal data was destroyed
 
@@ -252,7 +252,7 @@ A dedicated page displays information about the company.
 
 #### <a id="fr-nav-03"></a>FR-NAV-03 — Payment and delivery conditions page
 
-A dedicated page displays payment and delivery conditions. Its prose is admin-editable ([FR-ADM-03](#fr-adm-03)); the conditions themselves are not typed into it but read from where checkout reads them — the delivery zones with their terms and free-delivery thresholds ([FR-CART-07](#fr-cart-07)) and the pickup points from the deployment's configuration, and the payment methods from the platform's own rule of which party may pay how ([FR-CART-04](#fr-cart-04)) — and are stated as checkout states them, so the page cannot promise something checkout does not offer. Checkout keeps its own hint for the address in front of it; this page is the whole picture, which checkout is not the place to read.
+A dedicated page displays payment and delivery conditions. Its prose is admin-editable ([FR-ADM-03](#fr-adm-03)); the conditions themselves are not typed into it but read from where checkout reads them — the delivery zones with their terms and free-delivery thresholds ([FR-CART-07](#fr-cart-07)) and the pickup points from the deployment's configuration, and the payment methods from the platform's own rule of which party may pay how ([FR-CART-04](#fr-cart-04)) — and are stated as checkout states them, so the page cannot promise something checkout does not offer. Checkout keeps its own hint for the address in front of it; this page is the whole picture, which checkout is not the place to read. It is not the terms an order accepts ([NFR-LEGAL-10](#nfr-legal-10)): what a given order is delivered and paid under is fixed in the order itself ([FR-ORD-03](#fr-ord-03)).
 
 #### <a id="fr-nav-04"></a>FR-NAV-04 — Contact page with office map
 
@@ -558,7 +558,7 @@ Admin can trigger a bulk sync (file upload or endpoint) that upserts products by
 
 #### <a id="fr-adm-03"></a>FR-ADM-03 — Editing static pages
 
-Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor. The pages a reader may hold the shop to — conditions, privacy, imprint, withdrawal and the consent texts — say under their text when it last changed. They show the date, not the version number, since a version counts every save, typo fixes included.
+Admin can edit the rich-text content of a fixed set of static pages (about, terms, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor. The pages a reader may hold the shop to — terms, conditions, privacy, imprint, withdrawal and the consent texts — say under their text when it last changed. They show the date, not the version number, since a version counts every save, typo fixes included.
 
 #### <a id="fr-adm-04"></a>FR-ADM-04 — Maintenance mode
 
@@ -884,9 +884,9 @@ Where the jurisdiction requires the seller to be identifiable on the site itself
 
 Where required by the deployment's jurisdiction, a cookie consent mechanism gates non-essential cookies.
 
-#### <a id="nfr-legal-04"></a>NFR-LEGAL-04 — Right-of-withdrawal page
+#### <a id="nfr-legal-04"></a>NFR-LEGAL-04 — Withdrawal notice
 
-Where required by the deployment's jurisdiction, a right-of-withdrawal / cancellation page is provided for paid orders.
+Where the deployment's jurisdiction prescribes a withdrawal notice of its own, a page displays it: the consumer's right to withdraw from an order, the deadline and how to exercise it. A jurisdiction that only requires the return procedure to be stated leaves it in the terms of sale ([NFR-LEGAL-10](#nfr-legal-10)), so the same rules are not written twice; such a deployment does not publish this page.
 
 #### <a id="nfr-legal-05"></a>NFR-LEGAL-05 — Data residency
 
@@ -911,7 +911,7 @@ Where a deployment relies on consent for some of its processing, the shop asks f
 - **Contact** covers handling an inquiry sent through the contact form ([FR-NAV-06](#fr-nav-06)) and replying to it.
 - **Account** covers assessing a registration ([FR-AUTH-01](#fr-auth-01)) and running the account afterwards. A person who registers consents on the registration form. An account opened on somebody's behalf, whether invited by a manager ([FR-AUTH-04](#fr-auth-04)) or created by an owning system ([FR-ADM-11](#fr-adm-11)), asks on the page where its holder first chooses a password. That is the holder's first act of their own, and nobody else can consent for them before it.
 
-Checkout asks for no consent. An order's details are processed to fulfil the order, and the order accepts the conditions instead ([NFR-LEGAL-10](#nfr-legal-10)).
+Checkout asks for no consent. An order's details are processed to fulfil the order, and the order accepts the terms of sale instead ([NFR-LEGAL-10](#nfr-legal-10)).
 
 Each text keeps every version it has been published in, together with the box wording shown beside it, so a record can be read against exactly what the person saw and ticked. Editing the text starts a new version, and an existing consent stays bound to the version it was given under.
 
@@ -919,11 +919,9 @@ Each consent is recorded with its purpose, the version, the server's time and wh
 
 A consent can be withdrawn. For the account purpose, withdrawing means deleting the account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin on their request ([FR-ADM-23](#fr-adm-23)). Declining a registration ends its consent in the same way, since what it was given for is over ([FR-AUTH-11](#fr-auth-11)). A withdrawal that reaches the shop any other way is entered by an admin against the record, with a note of how it arrived. A record is withdrawn once, and the withdrawal never changes either. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. A contact consent is used up once the inquiry is answered and nobody withdraws it, so its retention period runs from when it was given. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
 
-#### <a id="nfr-legal-10"></a>NFR-LEGAL-10 — An order accepts the conditions it was placed under
+#### <a id="nfr-legal-10"></a>NFR-LEGAL-10 — An order accepts the terms it was placed under
 
-The conditions page ([FR-NAV-03](#fr-nav-03)) is the shop's standing terms of sale, and anyone can read it before ordering. Besides payment and delivery, it states how goods are returned, who bears the cost of returning them, and how a claim reaches the shop: in what form and to which address. Submitting an order accepts those terms as they stood at that moment. Checkout says so beside the submit button and links the page. Submitting is the act, so there is no box to tick.
-
-The order records which version of the page's text it was submitted under, so a later edit cannot change what an earlier order accepted. What checkout settled for the order itself — how it is fulfilled, where it goes and how it is paid — is already part of the order's own version ([FR-ORD-03](#fr-ord-03)). The confirmation the customer receives ([FR-NOTIF-06](#fr-notif-06)) carries the order's reference and leads to the order, for a guest as much as for an account holder. It also hands over the version of the terms the order accepted, in the form the deployment requires. By default it links that version. Where a jurisdiction wants the terms on a medium the customer keeps, the confirmation carries them as a document.
+A terms page states the shop's terms of sale, and anyone can read it before ordering. Submitting an order accepts the terms as they stood at that moment. Checkout says so beside the submit button and links the page; submitting is the act, so there is no box to tick. The order records which version of the terms it was submitted under, so a later edit cannot change what an earlier order accepted, and staff can see which version to hand the customer when asked. The confirmation the customer receives ([FR-NOTIF-06](#fr-notif-06)) names the date of that version. Where a jurisdiction wants the terms on a medium the customer keeps, which a link to a page that can change is not, the confirmation also carries that version as a document.
 
 A deployment may give a short return notice, which the order summary ([FR-ORD-05](#fr-ord-05)) then prints. The paper handed over with the goods thus tells the customer in writing how to return them.
 

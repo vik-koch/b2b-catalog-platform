@@ -368,14 +368,14 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       shows: 'receipt',
       title: 'Order received — guest',
       note: 'The receipt. For a guest the token link is the only record of what they sent.',
-      content: orderReceivedMail(order, TOKEN, currency, text),
+      content: orderReceivedMail(order, TOKEN, currency, text, 'UTC'),
     },
     {
       slug: 'order-received-account',
       group: 'Orders',
       title: 'Order received — account holder',
       note: 'The same receipt without a capability link: they can open the order signed in.',
-      content: orderReceivedMail(order, null, currency, text),
+      content: orderReceivedMail(order, null, currency, text, 'UTC'),
     },
     {
       slug: 'new-order',

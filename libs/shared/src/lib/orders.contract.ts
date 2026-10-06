@@ -356,6 +356,9 @@ export const orderDetailSchema = orderSummarySchema.extend({
    * status. The customer is told it, so it is on their view and not only in
    * the mail they were sent. */
   statusReason: z.string().nullable(),
+  /** When the terms the order accepted were last changed (NFR-LEGAL-10):
+   * how a reader tells one version from another. Null where it accepted none. */
+  termsDate: z.iso.datetime().nullable(),
   /**
    * What the shop said about every change it has made to this order
    * (FR-ORD-03), oldest first, up to and including the version being shown.
@@ -399,6 +402,8 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   publicToken: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
+  /** The page version behind `termsDate`, as the page editor numbers it. */
+  termsVersion: z.number().int().positive().nullable(),
   statusChangedAt: z.iso.datetime(),
   /** Which version is being shown (ADR 0051). 1 is the order as the customer
    * submitted it; every move and every adjustment writes the next. What a

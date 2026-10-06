@@ -22,6 +22,7 @@ const required = {
   billingAddressEnabled: true,
   pages: pages([]),
   consent: { contact: false, account: false },
+  terms: { attachToReceipt: false },
 };
 
 /** Points DEPLOYMENT_CONFIG_FILE at a config written for this test. */

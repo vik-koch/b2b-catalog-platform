@@ -4,7 +4,9 @@ import { PDFDocument } from 'pdf-lib';
 import { AddressConfig } from '@b2b-catalog-platform/shared';
 import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
 import { demoAdminOrder } from './order.fixture';
-import { OrderPdf, winAnsi } from './order-pdf';
+import { PdfFaces } from '../pdf/pdf-faces';
+import { winAnsi } from '../pdf/pdf-sheet';
+import { OrderPdf } from './order-pdf';
 
 /**
  * A real TrueType face to prove the embedding path with. Nothing is shipped in
@@ -26,13 +28,16 @@ const address = {
   countries: [{ code: 'DE', label: 'Germany' }],
 } as unknown as AddressConfig;
 
+const reference = { prefix: 'CK', timezone: 'UTC' };
+
 const render = (order = demoAdminOrder) =>
   new OrderPdf(
     demoMailText,
     demoMailBranding,
     { code: 'EUR', locale: 'de-DE' },
     address,
-    font,
+    new PdfFaces(font),
+    reference,
   ).orderSummary(order);
 
 describe('OrderPdf', () => {
@@ -86,10 +91,11 @@ describe('OrderPdf', () => {
       demoMailBranding,
       { code: 'EUR', locale: 'de-DE' },
       address,
-      {
+      new PdfFaces({
         regular: join(FONT_DIR, 'DejaVuSans.ttf'),
         bold: join(FONT_DIR, 'DejaVuSans-Bold.ttf'),
-      },
+      }),
+      reference,
     );
 
     // Re-saved without object streams so the dictionaries are readable: what

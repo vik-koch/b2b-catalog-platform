@@ -1684,6 +1684,11 @@ export const adminTextSchema = z
          * list it was may since have been renamed or replaced. */
         tier: z.string(),
         tierDefault: z.string(),
+        /** The terms the order accepted (NFR-LEGAL-10), as the page editor
+         * numbers them: `{version}` and `{date}`. The row is absent where it
+         * accepted none. */
+        terms: z.string(),
+        termsVersion: z.string(),
         /** The blocks, headed as the checkout asked its questions. */
         fulfilment: z.string(),
         delivery: z.string(),

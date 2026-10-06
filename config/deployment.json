@@ -14,6 +14,7 @@
   "pages": {
     "published": [
       "about",
+      "terms",
       "conditions",
       "privacy",
       "imprint",
@@ -21,11 +22,14 @@
       "contact"
     ],
     "headerNav": ["about", "contact", "conditions"],
-    "footerNav": ["privacy", "imprint", "withdrawal", "licenses"]
+    "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
   },
   "consent": {
     "contact": false,
     "account": false
+  },
+  "terms": {
+    "attachToReceipt": true
   },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,

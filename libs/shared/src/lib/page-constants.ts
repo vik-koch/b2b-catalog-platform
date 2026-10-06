@@ -17,6 +17,7 @@
  */
 export const PAGE_SLUGS = [
   'about',
+  'terms',
   'conditions',
   'privacy',
   'imprint',
@@ -40,6 +41,7 @@ export type PageSlug = (typeof PAGE_SLUGS)[number];
  */
 export const STANDALONE_PAGE_SLUGS = [
   'about',
+  'terms',
   'privacy',
   'imprint',
   'withdrawal',
@@ -52,6 +54,7 @@ export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
  * describing itself.
  */
 export const DATED_PAGE_SLUGS = [
+  'terms',
   'conditions',
   'privacy',
   'imprint',

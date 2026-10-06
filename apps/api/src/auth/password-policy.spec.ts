@@ -20,6 +20,7 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
       billingAddressEnabled: true,
       pages: { published: [], headerNav: [], footerNav: [] },
       consent: { contact: false, account: false },
+      terms: { attachToReceipt: false },
     }),
   );
   process.env['DEPLOYMENT_CONFIG_FILE'] = config;

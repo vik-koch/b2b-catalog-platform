@@ -59,9 +59,11 @@ export const demoAdminOrder: AdminOrderDetail = {
   preferredDate: null,
   customerNote: null,
   statusReason: null,
+  termsDate: '2026-09-01T08:00:00.000Z',
   customerEmail: 'alex@example.com',
   publicToken: null,
   tierKey: 'wholesale',
+  termsVersion: 3,
   lines: [
     {
       name: 'Espresso cups',

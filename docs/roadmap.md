@@ -21,7 +21,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 13<br>`v1.11.0` | Customer exchange with the source system | [FR-ADM-11](requirements.md#fr-adm-11)/[12](requirements.md#fr-adm-12)/[13](requirements.md#fr-adm-13)/[14](requirements.md#fr-adm-14)/[15](requirements.md#fr-adm-15)/[16](requirements.md#fr-adm-16)/[17](requirements.md#fr-adm-17)/[18](requirements.md#fr-adm-18),<br>[FR-AUTH-11](requirements.md#fr-auth-11),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07)/[08](requirements.md#nfr-legal-08) | [FR-ADM-07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08)/[09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10),<br>[FR-AUTH-01](requirements.md#fr-auth-01) |
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Storefront presentation: links elsewhere, documents held elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets, variants; the admin grid's content filter; removing a product in steps | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10)/[11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07)/[08](requirements.md#fr-search-08),<br>[FR-ADM-19](requirements.md#fr-adm-19)/[20](requirements.md#fr-adm-20)/[21](requirements.md#fr-adm-21)/[22](requirements.md#fr-adm-22),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13),<br>[FR-DOC-05](requirements.md#fr-doc-05) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[05](requirements.md#fr-adm-05)/[06](requirements.md#fr-adm-06)/[10](requirements.md#fr-adm-10),<br>[FR-ATTR-02](requirements.md#fr-attr-02),<br>[FR-CART-08](requirements.md#fr-cart-08),<br>[FR-DOC-01](requirements.md#fr-doc-01)/[03](requirements.md#fr-doc-03) |
-| 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12),<br>[FR-ADM-23](requirements.md#fr-adm-23) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[07](requirements.md#fr-adm-07),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06)/[11](requirements.md#fr-auth-11),<br>[FR-ORD-05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06) |
+| 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12),<br>[FR-ADM-23](requirements.md#fr-adm-23) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[04](requirements.md#nfr-legal-04)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[07](requirements.md#fr-adm-07),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06)/[11](requirements.md#fr-auth-11),<br>[FR-ORD-05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06) |
 | later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -823,10 +823,10 @@ Notes:
   chooses. Checkout asks for none, because an order is processed to fulfil a contract. The
   record keeps the text's version, outlives the account for a retention period the
   deployment sets, and records a withdrawal, because that record is the shop's evidence.
-  Accepting the conditions page with an order is a different act: it is part of the
+  Accepting the terms of sale with an order is a different act: it is part of the
   contract, not consent to processing data, so it is a line beside the submit button and
-  not a box. The conditions page is the shop's terms of sale, including returns and claims.
-  The order records which version it accepted. The confirmation links that version, or
+  not a box. The terms include returns and claims.
+  The order records which version it accepted. The confirmation names that version, and
   carries it as a document where a jurisdiction wants the terms kept by the customer, since
   a link to a page that can change does not count as kept. The order summary can carry a
   return notice for the paperwork. The tax basis is a statement and not a calculation,
@@ -904,3 +904,14 @@ Notes:
   it at the time. The record names the account by its id, not by the data that was
   destroyed. The signed statement remains the shop's paperwork. The platform supplies the
   export it is drawn up from.
+- **The terms of sale are a page of their own**
+  ([NFR-LEGAL-10](requirements.md#nfr-legal-10), [NFR-LEGAL-04](requirements.md#nfr-legal-04),
+  [FR-NAV-03](requirements.md#fr-nav-03)) (2026-10-06). The conditions page was to be the
+  terms an order accepts, but most of what it states is drawn live from configuration, so a
+  version of its prose is not a record of what it said. The terms are now a separate page of
+  prose, and the order records which version it accepted. An old version is not published
+  at a link of its own: one jurisdiction only needs the shop to know which version applied,
+  and the other wants the terms on a medium the customer keeps, which a link is not. The
+  confirmation therefore names the version's date and, where a deployment switches it on,
+  carries the text as a document. A separate withdrawal notice is published only where a
+  jurisdiction prescribes one; elsewhere the return procedure belongs to the terms.

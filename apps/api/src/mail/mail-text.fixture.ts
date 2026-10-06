@@ -93,6 +93,9 @@ export const demoMailText: MailText = {
     fulfilmentLabel: 'How it arrives',
     delivery: 'Delivery',
     pickup: 'Self-pickup',
+    termsLabel: 'Terms of sale',
+    termsVersion: 'As updated on {date}',
+    termsFileName: 'terms-of-sale-{date}.pdf',
     action: 'Open your order',
   },
   newOrder: {
@@ -231,6 +234,9 @@ export const demoMailText: MailText = {
     quantityLabel: 'Quantity',
     lineTotalLabel: 'Total',
     totalLabel: 'Order total',
+    termsLabel: 'Terms of sale',
+    termsVersion: 'As updated on {date}',
+    returnNotice: 'Unopened goods can be returned within 14 days of delivery.',
     footer:
       'This document states the order as it stands. It is not an invoice.',
     statuses: {

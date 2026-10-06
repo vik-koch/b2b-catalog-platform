@@ -35,6 +35,7 @@ const order: AdminOrderDetail = {
   status: 'requested',
   paymentState: 'not-due',
   statusReason: null,
+  termsDate: null,
   changes: [],
   documents: [
     {
@@ -76,6 +77,7 @@ const order: AdminOrderDetail = {
   publicToken: null,
   customerEmail: 'alex@example.com',
   tierKey: null,
+  termsVersion: null,
   lines: [
     {
       name: 'Espresso cups',

@@ -15,6 +15,8 @@ import {
   PAIRINGS_ENFORCED,
   PDF_FONT,
   PICKUP_LOCATIONS,
+  TERMS_ATTACHED,
+  TERMS_PUBLISHED,
   ADDRESS_CONFIG,
   loadAddressConfig,
   loadBillingAddressEnabled,
@@ -26,6 +28,8 @@ import {
   loadPairingsEnforced,
   loadPdfFont,
   loadPickupLocations,
+  loadTermsAttached,
+  loadTermsPublished,
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
 import { MediaModule } from '../media/media.module';
@@ -36,7 +40,9 @@ import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
+import { PdfFaces } from '../pdf/pdf-faces';
 import { OrderPdf } from './order-pdf';
+import { TermsPdf } from './terms-pdf';
 import { CartController } from './cart.controller';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
@@ -73,6 +79,8 @@ import { OrdersService } from './orders.service';
     OrderDocumentsService,
     OrderDocumentActs,
     OrderPdf,
+    TermsPdf,
+    PdfFaces,
     AuditLogger,
     { provide: PICKUP_LOCATIONS, useFactory: loadPickupLocations },
     // The party's registration number is held to the deployment's own formats,
@@ -97,6 +105,8 @@ import { OrdersService } from './orders.service';
     // one of its own (FR-ORD-05).
     { provide: PDF_FONT, useFactory: loadPdfFont },
     { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
+    { provide: TERMS_PUBLISHED, useFactory: loadTermsPublished },
+    { provide: TERMS_ATTACHED, useFactory: loadTermsAttached },
   ],
   // The order exchange writes orders back through this same service
   // (FR-ADM-08): one writer, so an exchange and a manager leave the same

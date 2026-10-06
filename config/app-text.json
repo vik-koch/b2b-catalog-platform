@@ -5,6 +5,7 @@
   "nav": {
     "home": "Home",
     "about": "About us",
+    "terms": "Terms of sale",
     "conditions": "Payment & delivery",
     "privacy": "Privacy",
     "imprint": "Imprint",
@@ -616,6 +617,10 @@
   "privacyNotice": {
     "text": "Read more about how we handle your details in",
     "link": "our privacy policy"
+  },
+  "termsNotice": {
+    "text": "By sending the order you accept",
+    "link": "our terms of sale"
   },
   "consentBox": {
     "required": "Please tick the box to continue.",

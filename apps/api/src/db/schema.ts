@@ -889,6 +889,12 @@ export const orders = pgTable(
     // happened, not a mutable flag.
     paidAt: timestamp('paidAt', { withTimezone: true }),
     paidBy: uuid('paidBy').references(() => users.id, { onDelete: 'set null' }),
+    // The terms the order accepted on submission (NFR-LEGAL-10). On the order,
+    // not a revision: no adjustment re-accepts them. Null where the deployment
+    // publishes no terms, and on orders placed before it did.
+    termsVersionId: uuid('termsVersionId').references(() => pageVersions.id, {
+      onDelete: 'restrict',
+    }),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),

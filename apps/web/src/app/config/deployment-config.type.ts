@@ -6,6 +6,7 @@ import {
   KEYBOARD_LAYOUTS,
   orderReferenceConfigSchema,
   consentConfigSchema,
+  termsConfigSchema,
   pagesConfigSchema,
   phoneInputSchema,
   syncPolicySchema,
@@ -255,6 +256,9 @@ export const deploymentConfigSchema = z
      * draws its box, and its text is read under its form.
      */
     consent: consentConfigSchema,
+    /** How the receipt hands over the accepted terms. Read by the API only;
+     * checked here so both sides fail on the same file. */
+    terms: termsConfigSchema,
     /**
      * Whether cookie-consent gating is enforced. When false, no banner is shown
      * and non-essential storage is not gated — correct both while the app sets

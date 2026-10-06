@@ -84,6 +84,9 @@
     "fulfilmentLabel": "How it arrives",
     "delivery": "Delivery",
     "pickup": "Self-pickup",
+    "termsLabel": "Terms of sale",
+    "termsVersion": "As updated on {date}",
+    "termsFileName": "terms-of-sale-{date}.pdf",
     "action": "Open your order"
   },
   "newOrder": {
@@ -217,6 +220,9 @@
     "quantityLabel": "Quantity",
     "lineTotalLabel": "Total",
     "totalLabel": "Order total",
+    "termsLabel": "Terms of sale",
+    "termsVersion": "As updated on {date}",
+    "returnNotice": "Unopened goods can be returned within 14 days of delivery. Write to us naming the order reference; the terms of sale set out the details.",
     "footer": "This document states the order as it stands. It is not an invoice.",
     "statuses": {
       "requested": "Requested",

@@ -81,14 +81,17 @@ import {
   PICKUP_LOCATIONS,
   PickupLocation,
   ALTERNATE_LAYOUT,
+  TERMS_PUBLISHED,
 } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
+import { currentPageVersion } from '../pages/page-versions';
 import {
   customerTiers,
   orderItems,
   orderRevisions,
   orders,
+  pageVersions,
   products,
   users,
 } from '../db/schema';
@@ -96,6 +99,7 @@ import { priceCart, PricedCart } from './cart-pricing';
 import { priceAdjustment, PricedAdjustment } from './order-adjustment';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
+import { TermsPdf } from './terms-pdf';
 import {
   isUniqueViolation,
   ORDER_REFERENCE_ATTEMPTS,
@@ -124,6 +128,9 @@ const {
  * how far behind their view is, and where they last heard the order stood. */
 const customerRevision = alias(orderRevisions, 'customerRevision');
 
+/** The terms version the order accepted on submission. */
+const acceptedTerms = alias(pageVersions, 'acceptedTerms');
+
 /**
  * An order and one version of it, read as **one flat row** (ADR 0051).
  *
@@ -148,6 +155,8 @@ const orderColumns = {
   revisionCreatedBy: orderRevisions.createdBy,
   revisionNotifiedAt: orderRevisions.notifiedAt,
   customerRevisionNumber: customerRevision.revisionNumber,
+  termsVersion: acceptedTerms.version,
+  termsDate: acceptedTerms.createdAt,
 };
 
 type OrderRow = typeof orders.$inferSelect &
@@ -170,6 +179,8 @@ type OrderRow = typeof orders.$inferSelect &
     revisionCreatedBy: string | null;
     revisionNotifiedAt: Date | null;
     customerRevisionNumber: number | null;
+    termsVersion: number | null;
+    termsDate: Date | null;
   };
 type OrderItemRow = typeof orderItems.$inferSelect;
 
@@ -321,6 +332,8 @@ export class OrdersService {
     private readonly documents: OrderDocumentsService,
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
+    @Inject(TERMS_PUBLISHED) private readonly termsPublished: boolean,
+    private readonly termsPdf: TermsPdf,
   ) {}
 
   /**
@@ -571,9 +584,11 @@ export class OrdersService {
     // would answer an error for an order that exists, and a customer who
     // retries would place a second one.
     try {
+      const order = await this.getForStaff(placed.reference);
       await this.notifications.placed(
-        await this.getForStaff(placed.reference),
+        order,
         placed.publicToken,
+        await this.termsPdf.receiptAttachments(order),
       );
     } catch (error) {
       this.logger.error(
@@ -832,9 +847,19 @@ export class OrdersService {
           // pointer back is set once the revision has an id. All three in one
           // transaction, so an order without a current revision is a state
           // nothing outside this block can observe.
+          // Read inside the transaction, so a save landing mid-submit cannot
+          // leave the order naming a version it was not placed under.
+          const terms = this.termsPublished
+            ? await currentPageVersion(tx, 'terms')
+            : undefined;
           const [order] = await tx
             .insert(orders)
-            .values({ reference, publicToken, userId: context.userId })
+            .values({
+              reference,
+              publicToken,
+              userId: context.userId,
+              termsVersionId: terms?.id ?? null,
+            })
             .returning({ id: orders.id });
 
           const [revision] = await tx
@@ -1089,6 +1114,7 @@ export class OrdersService {
       // they can already reach another way would be minting a second one.
       publicToken: customer ? null : row.publicToken,
       tierKey: row.tierKey,
+      termsVersion: row.termsVersion,
       statusChangedAt: row.statusChangedAt.toISOString(),
       revisionNumber: row.revisionNumber,
       // Null only on an order mid-write, which nothing outside a transaction
@@ -1176,6 +1202,7 @@ export class OrdersService {
         customerRevision,
         eq(orders.customerRevisionId, customerRevision.id),
       )
+      .leftJoin(acceptedTerms, eq(orders.termsVersionId, acceptedTerms.id))
       .where(
         number === undefined
           ? eq(orders.id, orderId)
@@ -2390,7 +2417,8 @@ export class OrdersService {
       .leftJoin(
         customerRevision,
         eq(orders.customerRevisionId, customerRevision.id),
-      );
+      )
+      .leftJoin(acceptedTerms, eq(orders.termsVersionId, acceptedTerms.id));
   }
 
   private async row(
@@ -2525,6 +2553,7 @@ export class OrdersService {
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,
       statusReason: row.statusReason,
+      termsDate: row.termsDate?.toISOString() ?? null,
       // Every change the shop has made up to the version being read, and not
       // one word more: a version is a reading of the order at one moment, and
       // changes made after it were not part of what this version said.

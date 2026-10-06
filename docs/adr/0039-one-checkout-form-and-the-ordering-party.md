@@ -289,8 +289,8 @@ already did, instead of reading as a zone without free delivery.
 The preview no longer carries a privacy box. An order's details are processed
 to fulfil the order, so there is no consent to ask, and a box that changes
 nothing about what the shop may do is not a consent either (NFR-LEGAL-09). The
-read-back still shows every answer before sending. Accepting the conditions
-page becomes a line beside the submit button instead (NFR-LEGAL-10). The
+read-back still shows every answer before sending. Accepting the terms of
+sale becomes a line beside the submit button instead (NFR-LEGAL-10). The
 contact and registration forms now ask a consent of their own where the
 deployment publishes its text, so "the privacy consent the other public forms
 already ask for" no longer describes them.

@@ -4,8 +4,12 @@ import {
   MoneyFormat,
   OrderDocumentKind,
   OrderNotice,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
-import { MONEY_FORMAT } from '../config/deployment-config';
+import {
+  MONEY_FORMAT,
+  ORDER_REFERENCE_CONFIG,
+} from '../config/deployment-config';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { newOrderMail } from '../mail/templates/new-order.template';
@@ -37,9 +41,17 @@ export class OrderNotifications {
     private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
+    @Inject(ORDER_REFERENCE_CONFIG)
+    private readonly reference: OrderReferenceConfig,
   ) {}
 
-  async placed(order: AdminOrderDetail, publicToken: string): Promise<void> {
+  async placed(
+    order: AdminOrderDetail,
+    publicToken: string,
+    /** The accepted terms as a document, where the deployment attaches them
+     * (NFR-LEGAL-10). */
+    attachments: readonly MailAttachment[] = [],
+  ): Promise<void> {
     // To the address on the order, not to the account's: a guest has no
     // account, and a signed-in customer may have named a colleague.
     //
@@ -52,8 +64,9 @@ export class OrderNotifications {
         order.customerEmail ? null : publicToken,
         this.currency,
         this.text,
+        this.reference.timezone,
       ),
-      { to: order.contact.email },
+      { to: order.contact.email, attachments },
       'order confirmation',
     );
 
