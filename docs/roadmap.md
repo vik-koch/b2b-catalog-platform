@@ -896,14 +896,17 @@ Notes:
   interest, and asking for a consent it does not rely on would promise the person a
   withdrawal that cannot stop the processing.
 - **Destroying personal data leaves a record**
-  ([NFR-LEGAL-12](requirements.md#nfr-legal-12)) (2026-10-03). A jurisdiction can require
+  ([NFR-LEGAL-12](requirements.md#nfr-legal-12)) (2026-10-06). A jurisdiction can require
   the shop to prove a destruction, with a statement backed by an extract from the system's
   own log. The platform destroys personal data in three places: deleting an account,
   declining a registration, and ending a consent record's retention.
-  Each writes its record in the same moment, so the extract exists even if nobody thinks of
-  it at the time. The record names the account by its id, not by the data that was
-  destroyed. The signed statement remains the shop's paperwork. The platform supplies the
-  export it is drawn up from.
+  Each writes its record in the same transaction, so the extract exists even if nobody
+  thinks of it at the time. The record names the account by its id, not by the data that
+  was destroyed. It is written in every deployment, since it costs nothing and serves as
+  evidence anywhere. The signed statement remains the shop's paperwork, and the extract is
+  a query the operator runs: such requests are rare, and no jurisdiction asks for a screen.
+  A stored customer sync run now drops what it carried and changed after a day, so a
+  deleted account's details do not outlive it in a run.
 - **The terms of sale are a page of their own**
   ([NFR-LEGAL-10](requirements.md#nfr-legal-10), [NFR-LEGAL-04](requirements.md#nfr-legal-04),
   [FR-NAV-03](requirements.md#fr-nav-03)) (2026-10-06). The conditions page was to be the
