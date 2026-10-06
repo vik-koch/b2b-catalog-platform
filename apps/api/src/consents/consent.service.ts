@@ -157,6 +157,11 @@ export class ConsentService {
     return condition ? this.findWhere(condition) : [];
   }
 
+  /** An account's records, newest first. */
+  findByAccount(userId: string): Promise<ConsentRecord[]> {
+    return this.findWhere(eq(consents.userId, userId));
+  }
+
   private async findWhere(
     condition: SQL | undefined,
   ): Promise<ConsentRecord[]> {

@@ -1114,6 +1114,17 @@ export const usersContract = {
       },
     },
   },
+  listUserConsents: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/users/{id}/consents',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   updateUser: {
     '~orpc': {
       errorMap: {},

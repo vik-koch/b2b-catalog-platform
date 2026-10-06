@@ -13,6 +13,7 @@ import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { SettingsService } from '../settings/settings.service';
+import { ConsentService } from '../consents/consent.service';
 
 /**
  * The role boundary is the whole point of this surface, and it is the kind of
@@ -34,6 +35,7 @@ describe('StaffUsersController', () => {
   const reactivate = vi.fn();
   const sendPasswordLink = vi.fn();
   const purgePending = vi.fn();
+  const findByAccount = vi.fn();
   /** Which areas an external system holds, per test. */
   let ownedAreas: string[] = [];
 
@@ -91,6 +93,7 @@ describe('StaffUsersController', () => {
           useValue: { create, deactivate, sendPasswordLink, send: vi.fn() },
         },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
+        { provide: ConsentService, useValue: { findByAccount } },
         {
           provide: SettingsService,
           useValue: {
@@ -136,6 +139,7 @@ describe('StaffUsersController', () => {
     reactivate.mockReset();
     sendPasswordLink.mockReset();
     purgePending.mockReset();
+    findByAccount.mockReset();
   });
 
   const send = (path: string, method: string, body?: unknown) =>
@@ -181,6 +185,17 @@ describe('StaffUsersController', () => {
     expect(await response.json()).toMatchObject({
       code: 'account-not-found',
     });
+  });
+
+  it("lists an account's consents for an admin", async () => {
+    findById.mockResolvedValue(customer);
+    findByAccount.mockResolvedValue([]);
+
+    const response = await send(`/admin/users/${customer.id}/consents`, 'GET');
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ consents: [] });
+    expect(findByAccount).toHaveBeenCalledWith(customer.id);
   });
 
   // This one *is* a 403, and its code has to survive: the editor shows it next

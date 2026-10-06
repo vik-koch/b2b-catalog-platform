@@ -10,6 +10,7 @@ import {
 import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
 import { ownershipErrors } from './ownership-constants';
+import { consentRecordListSchema } from './consents.contract';
 
 /**
  * Account management (FR-AUTH-01/03/04), staff side.
@@ -331,6 +332,17 @@ export const usersContract = {
     .errors(notFound)
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(staffUserSchema),
+
+  listUserConsents: staff
+    .route({
+      method: 'GET',
+      path: '/admin/users/{id}/consents',
+      inputStructure: 'detailed',
+      summary: "An account's consent records (admin)",
+    })
+    .errors(notFound)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(consentRecordListSchema),
 
   updateUser: staff
     .route({
