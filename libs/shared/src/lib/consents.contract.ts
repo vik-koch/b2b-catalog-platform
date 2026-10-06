@@ -1,7 +1,11 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
-import { CONSENT_PURPOSES, CONSENT_WITHDRAWAL_REASONS } from './page-constants';
+import {
+  CONSENT_PURPOSES,
+  CONSENT_WITHDRAWAL_NOTE_MAX,
+  CONSENT_WITHDRAWAL_REASONS,
+} from './page-constants';
 import { USER_STATUSES } from './user-constants';
 
 /**
@@ -54,6 +58,31 @@ export const consentRecordSchema = z
   .strict();
 export type ConsentRecord = z.infer<typeof consentRecordSchema>;
 
+/** A withdrawal an admin enters: how it reached the shop, if worth saying. */
+export const withdrawConsentSchema = z
+  .object({
+    note: z
+      .string()
+      .trim()
+      .max(CONSENT_WITHDRAWAL_NOTE_MAX)
+      .transform((note) => note || undefined)
+      .optional(),
+  })
+  .strict();
+export type WithdrawConsentRequest = z.input<typeof withdrawConsentSchema>;
+
+/**
+ * Why an entered withdrawal was refused. `ends-with-account`: an account's
+ * consent is withdrawn by deleting the account, not by a line beside it.
+ */
+export const CONSENT_WITHDRAWAL_ERROR_CODES = [
+  'consent-not-found',
+  'consent-already-withdrawn',
+  'consent-ends-with-account',
+] as const;
+export type ConsentWithdrawalErrorCode =
+  (typeof CONSENT_WITHDRAWAL_ERROR_CODES)[number];
+
 export const consentRecordListSchema = z
   .object({ consents: z.array(consentRecordSchema) })
   .strict();
@@ -85,4 +114,26 @@ export const consentsContract = {
     })
     .input(z.object({ query: findConsentsQuerySchema }))
     .output(consentRecordListSchema),
+
+  withdrawConsent: oc
+    .errors({
+      ...commonAuthErrors,
+      'consent-not-found': { status: 404 },
+      'consent-already-withdrawn': { status: 409 },
+      'consent-ends-with-account': { status: 409 },
+    })
+    .route({
+      method: 'POST',
+      path: '/admin/consents/{id}/withdrawal',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Enter a withdrawal that reached the shop (admin)',
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: withdrawConsentSchema,
+      }),
+    )
+    .output(consentRecordSchema),
 };

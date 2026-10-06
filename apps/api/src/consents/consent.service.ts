@@ -3,11 +3,13 @@ import {
   ConflictException,
   Inject,
   Injectable,
+  NotFoundException,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, desc, eq, inArray, isNull, or, SQL } from 'drizzle-orm';
 import {
+  AuthUser,
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   ConsentRecord,
@@ -218,6 +220,55 @@ export class ConsentService {
         note: withdrawal.note,
       },
     }));
+  }
+
+  /**
+   * Enters a withdrawal that reached the shop from outside: a letter, a mail,
+   * a call. Only a contact consent: the account consent is withdrawn by
+   * deleting the account, which writes its own. A record ends once, so a
+   * second entry is refused rather than written over the first.
+   */
+  async enterWithdrawal(
+    id: string,
+    admin: AuthUser,
+    note: string | undefined,
+  ): Promise<ConsentRecord> {
+    const [record] = await this.db
+      .select({ purpose: consents.purpose })
+      .from(consents)
+      .where(eq(consents.id, id));
+    if (!record) {
+      throw new NotFoundException({
+        code: 'consent-not-found',
+        message: 'No consent record with this id',
+      });
+    }
+    if (record.purpose === 'account') {
+      throw new ConflictException({
+        code: 'consent-ends-with-account',
+        message: 'An account consent is withdrawn by deleting the account',
+      });
+    }
+    // The unique key settles a race with a second entry; nothing is updated.
+    const written = await this.db
+      .insert(consentWithdrawals)
+      .values({
+        consentId: id,
+        reason: 'entered',
+        enteredBy: admin.id,
+        enteredByEmail: admin.email,
+        note: note ?? null,
+      })
+      .onConflictDoNothing({ target: consentWithdrawals.consentId })
+      .returning({ id: consentWithdrawals.id });
+    if (!written.length) {
+      throw new ConflictException({
+        code: 'consent-already-withdrawn',
+        message: 'This consent has already been withdrawn',
+      });
+    }
+    const [updated] = await this.findWhere(eq(consents.id, id));
+    return updated;
   }
 
   /** Whether the account holds this consent: given, and not withdrawn. */

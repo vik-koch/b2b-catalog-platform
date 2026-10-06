@@ -644,6 +644,17 @@ export const consentsContract = {
       },
     },
   },
+  withdrawConsent: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/consents/{id}/withdrawal',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.consentsContract;
 export const documentsContract = {
   listDocuments: {

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import { ConsentAdminController } from './consent-admin.controller';
 import { ConsentModule } from './consent.module';
@@ -10,5 +11,6 @@ import { ConsentModule } from './consent.module';
 @Module({
   imports: [AuthModule, ConsentModule],
   controllers: [ConsentAdminController],
+  providers: [AuditLogger],
 })
 export class ConsentAdminModule {}

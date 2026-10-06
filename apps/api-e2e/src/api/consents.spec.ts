@@ -12,12 +12,13 @@ const CUSTOMER_EMAIL = `e2e-consents-customer-${SUFFIX}@example.com`;
 const INQUIRER_EMAIL = `e2e-consents-inquirer-${SUFFIX}@example.com`;
 const REGISTRANT_EMAIL = `e2e-consents-registrant-${SUFFIX}@example.com`;
 const RENAMED_EMAIL = `e2e-consents-renamed-${SUFFIX}@example.com`;
+const LEAVER_EMAIL = `e2e-consents-leaver-${SUFFIX}@example.com`;
 const PASSWORD = 'e2e-consents-password';
 // As the contact form stores a number: the country code and the digits.
 const INQUIRER_PHONE = `+4940${Math.floor(Math.random() * 1e7)}`;
 
 const seeded = [ADMIN_EMAIL, MANAGER_EMAIL, CUSTOMER_EMAIL];
-const holders = [INQUIRER_EMAIL, REGISTRANT_EMAIL, RENAMED_EMAIL];
+const holders = [INQUIRER_EMAIL, REGISTRANT_EMAIL, RENAMED_EMAIL, LEAVER_EMAIL];
 
 const get = (url: string, cookie?: string) =>
   axios.get(url, {
@@ -284,8 +285,127 @@ describe('consent records', () => {
           purpose: 'account',
           email: REGISTRANT_EMAIL,
           account: null,
+          // The consent given on the form ends with the registration.
+          withdrawal: expect.objectContaining({
+            reason: 'registration-declined',
+            enteredBy: null,
+          }),
         }),
       ]);
     });
+  });
+
+  describe('POST /admin/consents/:id/withdrawal', () => {
+    const post = (id: string, body: object, cookie: string) =>
+      axios.post(`/admin/consents/${id}/withdrawal`, body, {
+        headers: { Cookie: cookie },
+        validateStatus: () => true,
+      });
+    const recordOf = async (email: string, purpose: string) => {
+      const res = await get(`/admin/consents?email=${email}`, adminCookie);
+      return res.data.consents.find(
+        (r: { purpose: string }) => r.purpose === purpose,
+      );
+    };
+
+    it('rejects a manager', async () => {
+      const record = await recordOf(INQUIRER_EMAIL, 'contact');
+
+      expect((await post(record.id, {}, managerCookie)).status).toBe(403);
+    });
+
+    it("enters an inquiry's withdrawal, with who entered it and how it came", async () => {
+      const record = await recordOf(INQUIRER_EMAIL, 'contact');
+
+      const res = await post(
+        record.id,
+        { note: ' Letter of 3 October ' },
+        adminCookie,
+      );
+
+      expect(res.status).toBe(201);
+      expect(res.data.withdrawal).toEqual({
+        at: expect.any(String),
+        reason: 'entered',
+        enteredBy: ADMIN_EMAIL,
+        note: 'Letter of 3 October',
+      });
+      // And it reads the same on the next search.
+      expect((await recordOf(INQUIRER_EMAIL, 'contact')).withdrawal).toEqual(
+        res.data.withdrawal,
+      );
+    });
+
+    it('refuses a second withdrawal of the same record', async () => {
+      const record = await recordOf(INQUIRER_EMAIL, 'contact');
+
+      const res = await post(record.id, {}, adminCookie);
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('consent-already-withdrawn');
+    });
+
+    it('refuses an account consent: deleting the account withdraws it', async () => {
+      const record = await recordOf(REGISTRANT_EMAIL, 'account');
+
+      const res = await post(record.id, {}, adminCookie);
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('consent-ends-with-account');
+    });
+
+    it('answers an unknown record with 404', async () => {
+      const res = await post(
+        '00000000-0000-4000-8000-000000000000',
+        {},
+        adminCookie,
+      );
+
+      expect(res.status).toBe(404);
+      expect(res.data.code).toBe('consent-not-found');
+    });
+
+    it('is never changed afterwards either', async () => {
+      await expect(
+        client.query(
+          `UPDATE consent_withdrawals SET note = 'changed'
+            WHERE "consentId" IN (SELECT id FROM consents WHERE email = $1)`,
+          [INQUIRER_EMAIL],
+        ),
+      ).rejects.toThrow('Rows of consent_withdrawals are never changed');
+    });
+  });
+
+  // The account consent ends with the account: the holder deleting it writes
+  // the withdrawal in the same moment, and the record keeps the address.
+  it('ends with the account its holder deletes', async () => {
+    const leaverId = await seedUser(LEAVER_EMAIL, 'user');
+    await client.query(
+      `INSERT INTO consents (purpose, "pageVersionId", "userId", email)
+       SELECT 'account', id, $1, $2 FROM page_versions
+        WHERE slug = 'consent-account' ORDER BY version DESC LIMIT 1`,
+      [leaverId, LEAVER_EMAIL],
+    );
+    const cookie = await signIn(LEAVER_EMAIL);
+
+    const deleted = await axios.post(
+      '/account/delete',
+      { password: PASSWORD },
+      { headers: { Cookie: cookie }, validateStatus: () => true },
+    );
+    expect(deleted.status).toBeLessThan(300);
+
+    const res = await get(`/admin/consents?email=${LEAVER_EMAIL}`, adminCookie);
+    expect(res.data.consents).toEqual([
+      expect.objectContaining({
+        email: LEAVER_EMAIL,
+        account: expect.objectContaining({
+          id: leaverId,
+          status: 'anonymized',
+        }),
+        withdrawal: expect.objectContaining({ reason: 'account-deleted' }),
+      }),
+    ]);
+    await client.query('DELETE FROM users WHERE id = $1', [leaverId]);
   });
 });
