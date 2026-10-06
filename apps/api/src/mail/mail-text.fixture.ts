@@ -95,6 +95,7 @@ export const demoMailText: MailText = {
     pickup: 'Self-pickup',
     termsLabel: 'Terms of sale',
     termsVersion: 'As updated on {date}',
+    termsFileName: 'terms-of-sale-{date}.pdf',
     action: 'Open your order',
   },
   newOrder: {

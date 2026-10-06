@@ -232,6 +232,9 @@ export const mailTextSchema = z
         termsLabel: z.string(),
         /** Names the version by its date; `{date}` is substituted. */
         termsVersion: z.string(),
+        /** The attached terms' file name, where the deployment attaches them;
+         * `{date}` is the version's day as YYYY-MM-DD. */
+        termsFileName: z.string(),
         /** Button to the order summary the link opens. */
         action: z.string(),
       })

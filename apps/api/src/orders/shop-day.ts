@@ -12,3 +12,8 @@ export function shopDay(
     timeZone,
   }).format(new Date(iso));
 }
+
+/** The same day as YYYY-MM-DD, for a file name. */
+export function shopIsoDay(iso: string, timeZone: string): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone }).format(new Date(iso));
+}
