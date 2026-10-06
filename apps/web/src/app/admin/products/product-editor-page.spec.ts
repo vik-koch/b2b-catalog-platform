@@ -71,6 +71,7 @@ const storedProduct: AdminProduct = {
   lineNotePrompt: null,
   stockPieces: null,
   lowStockThresholdPieces: null,
+  taxRate: null,
   availability: null,
 };
 
@@ -80,6 +81,7 @@ const config = {
     currency: { code: 'EUR', locale: 'de-DE' },
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
+  tax: { basis: 'included', rate: 19, statedAtPrices: true },
 } as unknown as DeploymentConfig;
 
 interface Harness {
@@ -490,6 +492,51 @@ describe('ProductEditorPage', () => {
         lineNoteEnabled: false,
         lineNotePrompt: null,
       });
+    });
+  });
+
+  describe('tax rate (NFR-LEGAL-11)', () => {
+    it('shows the default rate in an empty field and saves a typed one, comma and all', async () => {
+      const { fixture, el, h } = await render({ slug: 'hafen-espresso' });
+
+      const field = inputByLabel(el, text.taxRate.label);
+      expect(field.value).toBe('');
+      expect(field.placeholder).toBe('19');
+
+      setInput(field, '5,5');
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({ taxRate: 5.5 });
+    });
+
+    it('loads a rate of its own and sends an emptied field back as the default', async () => {
+      const { fixture, el, h } = await render(
+        { slug: 'hafen-espresso' },
+        {},
+        { product: { ...storedProduct, taxRate: 7 } },
+      );
+
+      const field = inputByLabel(el, text.taxRate.label);
+      expect(field.value).toBe('7');
+
+      setInput(field, '');
+      saveButton(el).click();
+      await fixture.whenStable();
+
+      expect(h.updateProduct.mock.calls[0][1]).toMatchObject({ taxRate: null });
+    });
+
+    it('refuses a rate that is not a percent and does not call the server', async () => {
+      const { fixture, el, h } = await render({ slug: 'hafen-espresso' });
+
+      setInput(inputByLabel(el, text.taxRate.label), '120');
+      saveButton(el).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(el.textContent).toContain(text.taxRate.invalid);
+      expect(h.updateProduct).not.toHaveBeenCalled();
     });
   });
 

@@ -51,6 +51,7 @@ import {
   PRODUCT_VARIANTS_MAX,
 } from './product-variants';
 import { slugSchema } from './slug';
+import { taxRateSchema } from './tax-config';
 
 /**
  * One tier's price for this product (FR-AUTH-05). Tiers are addressed by id
@@ -253,6 +254,9 @@ export const productInputSchema = z
       .positive()
       .nullable()
       .default(null),
+    /** The product's own tax rate, a percent (NFR-LEGAL-11). Null is the
+     * deployment's default. */
+    taxRate: taxRateSchema.nullable().default(null),
     /**
      * The products this one is sold together with (FR-SET-01), by slug — the
      * handle the admin API addresses a product by everywhere else.
@@ -367,6 +371,7 @@ export const adminProductSchema = z
      * it wrote: the state below is recomputed from these in the same save. */
     stockPieces: z.number().int().nullable(),
     lowStockThresholdPieces: z.number().int().positive().nullable(),
+    taxRate: z.number().nullable(),
     /** Read-only — derived from the two above and the packaging, never sent. */
     availability: availabilitySchema,
     /** The counterparts, named — a save sends `pairedSlugs` back (FR-SET-01). */

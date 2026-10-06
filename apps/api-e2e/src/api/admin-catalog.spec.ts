@@ -53,6 +53,7 @@ const PRODUCT_KEYS = [
   'slug',
   'sourceId',
   'stockPieces',
+  'taxRate',
   'tierPrices',
   'updatedAt',
   'variants',

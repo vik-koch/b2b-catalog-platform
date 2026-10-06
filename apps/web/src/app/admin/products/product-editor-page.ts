@@ -5,7 +5,10 @@ import {
   AttributeDefinition,
   AttributeKeyUsage,
   CustomerTier,
+  effectiveTaxRate,
   fillText,
+  formatTaxRate,
+  parseTaxRate,
   hasDistinctVariants,
   isValidPartList,
   minimumFitsPacks,
@@ -52,6 +55,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../ui/input';
 import { NumericField } from '../../ui/numeric-field';
+import { PercentField } from '../../ui/percent-field';
 import { PriceField } from '../../ui/price-field';
 import { Skeleton } from '../../ui/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -78,7 +82,11 @@ import {
   ProductTierPricesEditor,
   TierPriceDraft,
 } from './product-tier-prices-editor';
-import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
+import {
+  UNIT_FIELD_INPUT,
+  UNIT_FIELD_INPUT_COMPACT,
+  UnitField,
+} from '../../ui/unit-field';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -94,6 +102,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
     AdminIcon,
     RichTextEditor,
     NumericField,
+    PercentField,
     ProductAvailabilityBadge,
     CategoryPicker,
     ProductAttributesEditor,
@@ -204,7 +213,7 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
              between the two fields in the markup and read under the price on a
              phone. -->
         <div
-          class="grid gap-x-6 gap-y-6 sm:grid-cols-[10.875rem_minmax(0,1fr)]"
+          class="grid gap-x-6 gap-y-6 sm:grid-cols-[10.875rem_4.6875rem_minmax(0,1fr)]"
         >
           <label class="block w-full sm:w-auto">
             <!-- Named after the list it writes: it is one price list's row like
@@ -235,20 +244,50 @@ import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
             </app-unit-field>
           </label>
 
-          <!-- Said where the field is, not only on the button: by the time
-               somebody reads the button they have already cleared it. Under
-               the price on a phone, where the fields are a column; across both
-               columns from sm up, so appearing mid-edit moves nothing beside
-               it. -->
-          @if (priceCleared() && published()) {
-            <p
-              class="-mt-4 text-sm text-amber-700 sm:col-span-2 sm:row-start-2"
-            >
-              {{ text.priceCleared }}
-            </p>
+          <!-- The product's own tax rate, beside the price it qualifies and
+               owned like it. Half the price field less half a gap, which
+               holds "12.75"; empty is the deployment's default, which the
+               placeholder shows. Its own line on a phone, like the price. -->
+          <label class="block w-full">
+            <span appFieldLabel>
+              {{ text.taxRate.label }}
+              @if (catalogOwned()) {
+                <app-locked-field-marker />
+              }
+            </span>
+            <app-unit-field class="w-full" unit="%" [compact]="true">
+              <input
+                type="text"
+                appPercentField
+                [class]="unitFieldInputCompact"
+                [value]="taxRateInput()"
+                [placeholder]="taxRatePlaceholder"
+                [disabled]="catalogOwned()"
+                (input)="taxRateInput.set($any($event.target).value)"
+              />
+            </app-unit-field>
+          </label>
+
+          <!-- Said where the fields are, not only on the button: by the time
+               somebody reads the button they have already cleared the price.
+               Under the fields on a phone, where they are a column; across all
+               three columns from sm up, so appearing mid-edit moves nothing
+               beside them. One row for both notes, so neither leaves a gap
+               when only the other is shown. -->
+          @if ((priceCleared() && published()) || taxRateNotInEffect) {
+            <div class="-mt-4 space-y-1 text-sm sm:col-span-3 sm:row-start-2">
+              @if (priceCleared() && published()) {
+                <p class="text-amber-700">{{ text.priceCleared }}</p>
+              }
+              @if (taxRateNotInEffect) {
+                <p class="text-xs text-subtle">
+                  {{ text.taxRate.notInEffect }}
+                </p>
+              }
+            </div>
           }
 
-          <div class="w-full sm:col-start-2 sm:row-start-1 sm:w-auto">
+          <div class="w-full sm:col-start-3 sm:row-start-1 sm:w-auto">
             <span appFieldLabel>
               {{ text.category }}
               <span class="text-accent" aria-hidden="true">*</span>
@@ -606,6 +645,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly tax = inject(DEPLOYMENT_CONFIG).tax;
   /** The last rung of the "few left" ladder; the API applies the same figure
    * from the same key. */
   private readonly lowStockFallback =
@@ -640,6 +680,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * the packaging rows use, so the two blocks measure in one word. */
   protected readonly pieceSuffix = this.text.packaging.pieceSuffix;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
+  protected readonly unitFieldInputCompact = UNIT_FIELD_INPUT_COMPACT;
 
   /** null slug param → the "new" route. */
   private readonly slugParam = this.route.snapshot.paramMap.get('slug');
@@ -688,6 +729,15 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * deliberately blank figure is not thrown away between keystrokes. */
   protected readonly stockPieces = signal('');
   protected readonly lowStockThresholdInput = signal('');
+  protected readonly taxRateInput = signal('');
+  /** The default rate, shown in the empty field. */
+  protected readonly taxRatePlaceholder =
+    this.tax.basis === 'none'
+      ? ''
+      : formatTaxRate(this.tax.rate, this.currency.locale);
+  /** Under a basis that charges no tax a rate is kept but applies to
+   * nothing yet, which the field alone would not say. */
+  protected readonly taxRateNotInEffect = this.tax.basis === 'none';
   protected readonly lineNotePromptMaxLength =
     PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH;
 
@@ -803,6 +853,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
     return /^-?\d+$/.test(text) ? Number(text) : null;
   });
 
+  /** The product's own rate, null for the default, undefined if unreadable. */
+  private readonly parsedTaxRate = computed(() =>
+    parseTaxRate(this.taxRateInput()),
+  );
+
   /** The product's own "few left" line, or null to use the ladder. */
   protected readonly parsedThreshold = computed(() => {
     const text = this.lowStockThresholdInput().trim();
@@ -904,6 +959,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       lineNoteEnabled: this.lineNoteEnabled(),
       lineNotePrompt: this.lineNotePrompt().trim() || null,
       availability: this.previewAvailability(),
+      taxRate: effectiveTaxRate(this.tax, this.parsedTaxRate() ?? null),
       // What the marker will say once this is saved, counted the way the
       // storefront counts it: a counterpart that is withdrawn or unpublished
       // keeps its row in the box above and is not a product on offer.
@@ -1007,6 +1063,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.lineNoteEnabled.set(product.lineNoteEnabled);
       this.lineNotePrompt.set(product.lineNotePrompt ?? '');
       this.stockPieces.set(product.stockPieces?.toString() ?? '');
+      this.taxRateInput.set(
+        product.taxRate === null
+          ? ''
+          : formatTaxRate(product.taxRate, this.currency.locale),
+      );
       this.lowStockThresholdInput.set(
         product.lowStockThresholdPieces?.toString() ?? '',
       );
@@ -1076,6 +1137,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       parts: this.parts(),
       stockPieces: this.stockPieces(),
       lowStockThresholdPieces: this.lowStockThresholdInput(),
+      taxRate: this.taxRateInput(),
     });
   }
 
@@ -1217,6 +1279,9 @@ export class ProductEditorPage implements UnsavedChangesAware {
       return this.error.set(this.text.variants.duplicate);
     }
 
+    const taxRate = this.parsedTaxRate();
+    if (taxRate === undefined) return this.error.set(this.text.taxRate.invalid);
+
     const packaging = this.packagingInput();
     if (packaging === null) return this.error.set(this.text.packaging.invalid);
     if (!minimumFitsPacks(packaging)) {
@@ -1266,6 +1331,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       // clearing the stock clears it here rather than in a message.
       lowStockThresholdPieces:
         this.parsedStockPieces() === null ? null : this.parsedThreshold(),
+      taxRate,
       ...packaging,
       ...(slug ? { slug } : {}),
       ...(sourceId ? { sourceId } : {}),

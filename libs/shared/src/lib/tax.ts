@@ -23,3 +23,41 @@ export function formatTaxRate(rate: number, locale?: string): string {
     rate,
   );
 }
+
+/**
+ * The rate a product is taxed at: its own, or the deployment's default. Null
+ * where no tax is charged, whatever rate the product carries — under `none` a
+ * product's rate is kept for the day the shop becomes liable, and is not in
+ * effect until then.
+ */
+export function effectiveTaxRate(
+  tax: { basis: TaxBasis; rate?: number },
+  own: number | null,
+): number | null {
+  if (tax.basis === 'none') return null;
+  return own ?? tax.rate ?? null;
+}
+
+/**
+ * A rate as typed — in a CSV cell or the editor's field — with a comma
+ * accepted for the decimal point, since a spreadsheet in most of Europe
+ * writes 5,5. Empty is null, the default rate; undefined is not a rate.
+ */
+export function parseTaxRate(text: string): number | null | undefined {
+  const trimmed = text.trim();
+  if (trimmed === '') return null;
+  if (!/^\d{1,3}([.,]\d{1,2})?$/.test(trimmed)) return undefined;
+  const rate = Number(trimmed.replace(',', '.'));
+  return rate <= TAX_RATE_MAX ? rate : undefined;
+}
+
+/**
+ * Whether a rate field may hold this text on the way to a rate — what
+ * `parseTaxRate` accepts, and every prefix of it. A third decimal or a figure
+ * past 100 is refused as it is typed rather than reported on save.
+ */
+export function isPartialTaxRate(text: string): boolean {
+  if (!/^\d{0,3}([.,]\d{0,2})?$/.test(text)) return false;
+  const digits = text.replace(',', '.');
+  return digits === '' || digits === '.' || Number(digits) <= TAX_RATE_MAX;
+}

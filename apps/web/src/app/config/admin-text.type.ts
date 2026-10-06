@@ -547,6 +547,19 @@ export const adminTextSchema = z
             untracked: z.string(),
           })
           .strict(),
+        /**
+         * The product's own tax rate (NFR-LEGAL-11). The empty field shows the
+         * default as its placeholder; `notInEffect` is said where the
+         * deployment charges no tax, since a rate kept then applies to nothing
+         * yet.
+         */
+        taxRate: z
+          .object({
+            label: z.string(),
+            notInEffect: z.string(),
+            invalid: z.string(),
+          })
+          .strict(),
         /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
         packaging: z
           .object({

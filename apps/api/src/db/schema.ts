@@ -206,6 +206,12 @@ export const products = pgTable(
     // Where "few left" sits for this product, overriding the box/pack/config
     // ladder. Null is the ladder.
     lowStockThresholdPieces: integer('lowStockThresholdPieces'),
+    // The tax rate this product is charged at, where it is not the
+    // deployment's default (NFR-LEGAL-11). A percent, and never multiplied by
+    // anything: the platform states a rate, the shop's invoice works out the
+    // tax. Owned like the price. Null is the default; under a basis that
+    // charges no tax it is kept but is not in effect.
+    taxRate: numeric('taxRate', { precision: 5, scale: 2, mode: 'number' }),
     // The public half of the two above, recomputed on every write that can move
     // it — stock, threshold or packaging (FR-STOCK-02). Stored rather than
     // derived per query so it can lead an indexed sort; null wherever
@@ -303,6 +309,10 @@ export const products = pgTable(
       'products_low_stock_threshold_positive',
       sql`${t.lowStockThresholdPieces} is null
         or (${t.lowStockThresholdPieces} >= 1 and ${t.stockPieces} is not null)`,
+    ),
+    check(
+      'products_tax_rate_percent',
+      sql`${t.taxRate} is null or ${t.taxRate} between 0 and 100`,
     ),
     check(
       'products_units_positive',
