@@ -31,6 +31,33 @@ export const aboutPageSeed: PageSeed = {
 };
 
 /**
+ * The terms an order accepts (NFR-LEGAL-10). Demo content: what they say is the
+ * shop's to write, under its own jurisdiction.
+ */
+export const termsPageSeed: PageSeed = {
+  slug: 'terms',
+  title: 'Terms of sale',
+  bodyHtml: [
+    '<p>This page is demonstration text for a fictional shop. A real',
+    'deployment replaces it with its own terms of sale.</p>',
+    '<h2>How an order becomes a contract</h2>',
+    '<p>Sending an order is a request. We check it and confirm it, with the',
+    'delivery date and its cost, and the contract is made when we do. Where',
+    'something has to change, such as a quantity or the delivery of a very',
+    'large order, we agree it with you before confirming.</p>',
+    '<h2>Prices</h2>',
+    '<p>The prices shown are those of the moment the order is sent. Delivery',
+    'and payment are described on the payment and delivery page.</p>',
+    '<h2>Returns</h2>',
+    '<p>Faulty goods are replaced or refunded. A consumer may also withdraw',
+    'from an order as set out on the right of withdrawal page.</p>',
+    '<h2>Claims</h2>',
+    '<p>A claim reaches us in writing, by email or by letter to the address in',
+    'the imprint, naming the order reference.</p>',
+  ].join('\n'),
+};
+
+/**
  * Prose only. The zones, pickup points and payment methods render under it
  * from what checkout reads (FR-NAV-03); restating them here would be a second
  * copy free to disagree with checkout.
@@ -39,10 +66,6 @@ export const conditionsPageSeed: PageSeed = {
   slug: 'conditions',
   title: 'Payment & delivery',
   bodyHtml: [
-    '<h2>Ordering</h2>',
-    '<p>We sell wholesale to businesses and to anyone buying in quantity.',
-    'Every order is a request first: we confirm it, with the delivery date and',
-    'its cost, before anything is roasted or packed.</p>',
     '<h2>Invoices and payment terms</h2>',
     '<p>An invoice to a company is payable by bank transfer within 14 days of',
     'its date. Recurring customers receive individually agreed prices and',
@@ -275,6 +298,7 @@ export const accountConsentPageSeed: PageSeed = {
 
 export const pageSeeds: PageSeed[] = [
   aboutPageSeed,
+  termsPageSeed,
   conditionsPageSeed,
   privacyPageSeed,
   imprintPageSeed,

@@ -37,7 +37,8 @@ import * as z from 'zod';
 export const apiDeploymentConfigSchema = z
   .object({
     /**
-     * Which pages the deployment publishes. The API reads none of it; it is
+     * Which pages the deployment publishes. The API reads only whether the
+     * terms are, which decides whether an order records them; the rest is
      * checked here so both sides fail on the same file.
      */
     pages: pagesConfigSchema,
@@ -233,6 +234,14 @@ export const BILLING_ADDRESS_ENABLED = 'BILLING_ADDRESS_ENABLED';
 
 export function loadBillingAddressEnabled(): boolean {
   return loadApiDeploymentConfig().billingAddressEnabled;
+}
+
+/** Whether the deployment publishes terms of sale, which an order then
+ * records the version of (NFR-LEGAL-10). */
+export const TERMS_PUBLISHED = 'TERMS_PUBLISHED';
+
+export function loadTermsPublished(): boolean {
+  return loadApiDeploymentConfig().pages.published.includes('terms');
 }
 
 /**
