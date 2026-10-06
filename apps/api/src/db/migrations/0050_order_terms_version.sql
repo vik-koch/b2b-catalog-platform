@@ -1,0 +1,2 @@
+ALTER TABLE "orders" ADD COLUMN "termsVersionId" uuid;--> statement-breakpoint
+ALTER TABLE "orders" ADD CONSTRAINT "orders_termsVersionId_page_versions_id_fk" FOREIGN KEY ("termsVersionId") REFERENCES "public"."page_versions"("id") ON DELETE restrict ON UPDATE no action;

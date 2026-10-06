@@ -81,9 +81,11 @@ import {
   PICKUP_LOCATIONS,
   PickupLocation,
   ALTERNATE_LAYOUT,
+  TERMS_PUBLISHED,
 } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
+import { currentPageVersion } from '../pages/page-versions';
 import {
   customerTiers,
   orderItems,
@@ -321,6 +323,7 @@ export class OrdersService {
     private readonly documents: OrderDocumentsService,
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
+    @Inject(TERMS_PUBLISHED) private readonly termsPublished: boolean,
   ) {}
 
   /**
@@ -832,9 +835,19 @@ export class OrdersService {
           // pointer back is set once the revision has an id. All three in one
           // transaction, so an order without a current revision is a state
           // nothing outside this block can observe.
+          // Read inside the transaction, so a save landing mid-submit cannot
+          // leave the order naming a version it was not placed under.
+          const terms = this.termsPublished
+            ? await currentPageVersion(tx, 'terms')
+            : undefined;
           const [order] = await tx
             .insert(orders)
-            .values({ reference, publicToken, userId: context.userId })
+            .values({
+              reference,
+              publicToken,
+              userId: context.userId,
+              termsVersionId: terms?.id ?? null,
+            })
             .returning({ id: orders.id });
 
           const [revision] = await tx
