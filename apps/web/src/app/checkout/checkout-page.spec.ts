@@ -997,6 +997,40 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain(text.fulfilment.heading);
       expect(page.value('#order-note')).toBe('Ring the bell at the back gate.');
     });
+
+    // NFR-LEGAL-10: sending is the acceptance, so it is said at the button
+    // and there is no box to tick.
+    it('says at the button that sending accepts the terms', async () => {
+      const page = await render();
+
+      await page.review();
+
+      const link = page.el.querySelector('a[href="/terms"]');
+      expect(link?.textContent?.trim()).toBe(defaultAppText.termsNotice.link);
+      expect(page.text()).toContain(defaultAppText.termsNotice.text);
+      expect(page.el.querySelector('input[type="checkbox"]')).toBeNull();
+    });
+
+    it('says nothing of terms a deployment does not publish', async () => {
+      const config = {
+        ...defaultDeploymentConfig,
+        pages: {
+          ...defaultDeploymentConfig.pages,
+          published: defaultDeploymentConfig.pages.published.filter(
+            (slug) => slug !== 'terms',
+          ),
+          footerNav: defaultDeploymentConfig.pages.footerNav.filter(
+            (slug) => slug !== 'terms',
+          ),
+        },
+      };
+      const page = await render({ config });
+
+      await page.review();
+
+      expect(page.text()).toContain(text.review.title);
+      expect(page.text()).not.toContain(defaultAppText.termsNotice.text);
+    });
   });
 
   describe('an account with no telephone number', () => {

@@ -1339,6 +1339,11 @@ export const appTextSchema = z
      */
     privacyNotice: z.object({ text: z.string(), link: z.string() }).strict(),
     /**
+     * Beside checkout's submit button: sending the order accepts the terms of
+     * sale (NFR-LEGAL-10). Shaped like `privacyNotice`.
+     */
+    termsNotice: z.object({ text: z.string(), link: z.string() }).strict(),
+    /**
      * Beside a consent box (NFR-LEGAL-09). The box's own wording is not here:
      * it is versioned with the consent text, which an admin edits.
      */

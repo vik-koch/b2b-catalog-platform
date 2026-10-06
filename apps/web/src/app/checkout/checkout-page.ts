@@ -56,6 +56,7 @@ import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
 import { Link } from '../ui/link';
 import { PrivacyNotice } from '../pages/privacy-notice';
+import { TermsNotice } from '../pages/terms-notice';
 import { WarningNote } from '../ui/warning-note';
 
 /**
@@ -95,6 +96,7 @@ import { WarningNote } from '../ui/warning-note';
     Skeleton,
     Link,
     PrivacyNotice,
+    TermsNotice,
   ],
   template: `
     @if (placed(); as reference) {
@@ -464,6 +466,8 @@ import { WarningNote } from '../ui/warning-note';
             }
 
             @if (reviewing()) {
+              <!-- Sending accepts the terms, so it is said at the button. -->
+              <app-terms-notice class="mt-3 block text-sm empty:hidden" />
               <button
                 appButton
                 type="button"
