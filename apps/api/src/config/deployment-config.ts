@@ -22,7 +22,7 @@ import {
   syncPolicySchema,
   PhoneConfig,
   phoneInputSchema,
-  pageSlugSchema,
+  pagesConfigSchema,
 } from '@b2b-catalog-platform/shared';
 import { dirname, join } from 'node:path';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
@@ -37,11 +37,11 @@ import * as z from 'zod';
 export const apiDeploymentConfigSchema = z
   .object({
     /**
-     * Which pages the deployment publishes. The API reads it for the consent
-     * texts alone (NFR-LEGAL-09): a purpose is asked for exactly when its page
-     * is published. The navigation beside it is the web app's.
+     * Which pages the deployment publishes. The API reads `published` alone,
+     * for the consent texts (NFR-LEGAL-09); the navigation is the web app's,
+     * but checked here as well, so both sides fail on the same file.
      */
-    pages: z.object({ published: z.array(pageSlugSchema) }).passthrough(),
+    pages: pagesConfigSchema,
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
