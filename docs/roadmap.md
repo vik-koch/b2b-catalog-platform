@@ -847,6 +847,21 @@ Notes:
   traced by phone number, since the contact form accepts one without an email
   address. A contact consent's retention runs from when it was given, because nobody
   withdraws it.
+- **A form posts the consent version it showed**
+  ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-05). The server records the
+  version the person read, not the one current when the request lands. If the text
+  changed in between, the form is refused, reloads the wording and asks again. A
+  purpose whose page is published but was never written refuses its form, because
+  sending it without the consent is the one outcome the shop cannot defend. The
+  first-password page asks only an invited customer who has not consented yet, so an
+  approved registrant is not asked twice. Staff are not asked, since theirs is not a
+  customer account. The box's own words link the consent text, marked with brackets
+  in the wording an admin writes, and the privacy policy is a line beside the box
+  rather than part of what is ticked: it is information the shop owes on every form
+  that takes details, checkout included, whether or not consent is asked. The
+  network address is not recorded. Nothing requires it, and it would be one more
+  piece of personal data to keep and explain. Legal pages show the date their text
+  last changed, but not the version number, which counts typo fixes too.
 - **The seller is named on every page**
   ([NFR-LEGAL-02](requirements.md#nfr-legal-02) amended) (2026-10-03). Some jurisdictions
   want the seller identifiable on the site itself, not one link away on a seller page. The

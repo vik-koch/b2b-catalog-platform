@@ -1327,6 +1327,10 @@ export const appTextSchema = z
       })
       .strict(),
     /**
+     * Under a legal page's text, when it last changed. `{date}` is
+     * substituted, written out in the deployment's locale.
+     */
+    pageUpdated: z.object({ label: z.string() }).strict(),
     /**
      * The line on a form that takes personal details, pointing at the privacy
      * policy (NFR-LEGAL-01). Information, not agreement: it sits outside the

@@ -10,6 +10,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
 import { TextButton } from '../ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from './page.service';
+import { PageUpdated } from './page-updated';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -26,7 +27,13 @@ import { PageService } from './page.service';
  */
 @Component({
   selector: 'app-conditions-page',
-  imports: [DeliveryZoneList, EditActions, TextButton, LoadErrorView],
+  imports: [
+    DeliveryZoneList,
+    EditActions,
+    TextButton,
+    LoadErrorView,
+    PageUpdated,
+  ],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
          never written takes the page down with it — the same rules, and the
@@ -141,6 +148,14 @@ import { PageService } from './page.service';
           </ul>
         </section>
       </div>
+
+      @if (content) {
+        <app-page-updated
+          class="mt-10"
+          slug="conditions"
+          [updatedAt]="content.updatedAt"
+        />
+      }
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded bg-stone-200"></div>

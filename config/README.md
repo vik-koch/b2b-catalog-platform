@@ -18,7 +18,9 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   **Browser-delivered** via shell state, and **also loaded by the API**, which
   reads the halves an order depends on: it validates a submitted collection
   point, resolves the delivery zone itself rather than trusting the browser's,
-  formats money for the mails, and mints the order reference.
+  formats money for the mails, and mints the order reference. It also reads
+  which consent texts are published, because those are the consents its forms
+  require.
 - `app-text.json` → `AppText`, the **public** UI-text catalog (nav labels,
   storefront chrome, the login form, error messages).
   **Browser-delivered** via shell state.
@@ -88,6 +90,31 @@ numbers a seller quotes and what they are called is the jurisdiction's. The line
 continues with the phone and email from `contact`, so there is one copy of them.
 The line breaks only between entries. Leave `seller` out and there is no line.
 The imprint page stays the place for the full seller details.
+
+### Consent to processing personal data
+
+Where a jurisdiction wants consent asked as a statement of its own, the shop
+offers two purposes, each a page in the fixed set:
+
+- `consent-contact` is asked on the contact form.
+- `consent-account` is asked on the registration form. For a customer account
+  opened on the holder's behalf, it is asked instead on the page where they
+  first choose a password.
+
+A purpose is asked exactly when its slug is in `pages.published`. There is no
+other switch. Publish neither, and no form shows a box. That is right where the
+processing rests on the contract or the shop's legitimate interest.
+
+The text and the wording beside the box are written in the admin page editor,
+not here, and every save is a new version. The wording marks the words that
+open the text with square brackets, once: `I [consent] to …`. A consent is
+recorded against the version the person saw. A published purpose whose text was
+never written refuses its form rather than sending it without the consent. So
+write the text before publishing the slug.
+
+Whether or not a box is asked, the contact form, registration and checkout
+carry a line pointing at the privacy page, worded by `privacyNotice` in
+`app-text.json`. It shows only where `privacy` is published.
 
 ## Assets (logo, favicon, fonts)
 

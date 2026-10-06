@@ -48,6 +48,24 @@ export const STANDALONE_PAGE_SLUGS = [
 export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 
 /**
+ * The pages that say when their text last changed: the ones a reader may hold
+ * the shop to, where which text they read matters. The others are the shop
+ * describing itself.
+ */
+export const DATED_PAGE_SLUGS = [
+  'conditions',
+  'privacy',
+  'imprint',
+  'withdrawal',
+  'consent-contact',
+  'consent-account',
+] as const satisfies readonly PageSlug[];
+
+export function isDatedPage(slug: string): boolean {
+  return (DATED_PAGE_SLUGS as readonly string[]).includes(slug);
+}
+
+/**
  * What a person can consent to (NFR-LEGAL-09), each with its own text. A
  * deployment asks for a purpose by publishing its page, and for nothing
  * otherwise.

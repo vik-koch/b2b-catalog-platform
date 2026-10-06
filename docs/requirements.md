@@ -557,7 +557,7 @@ Admin can trigger a bulk sync (file upload or endpoint) that upserts products by
 
 #### <a id="fr-adm-03"></a>FR-ADM-03 — Editing static pages
 
-Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor.
+Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor. The pages a reader may hold the shop to — conditions, privacy, imprint, withdrawal and the consent texts — say under their text when it last changed. They show the date, not the version number, since a version counts every save, typo fixes included.
 
 #### <a id="fr-adm-04"></a>FR-ADM-04 — Maintenance mode
 

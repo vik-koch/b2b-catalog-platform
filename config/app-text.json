@@ -610,6 +610,9 @@
       "next": "More products"
     }
   },
+  "pageUpdated": {
+    "label": "Last updated {date}"
+  },
   "privacyNotice": {
     "text": "Read more about how we handle your details in",
     "link": "our privacy policy"
