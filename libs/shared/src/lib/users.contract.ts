@@ -1,6 +1,10 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { USER_KINDS, USER_STATUSES } from './user-constants';
+import {
+  ACCOUNT_DELETION_REASONS,
+  USER_KINDS,
+  USER_STATUSES,
+} from './user-constants';
 import {
   companyNameSchema,
   companyRegistrationIdSchema,
@@ -168,6 +172,12 @@ export type CreateUserRequest = z.infer<typeof createUserSchema>;
 export const setUserActiveSchema = z.object({ active: z.boolean() }).strict();
 export type SetUserActiveRequest = z.infer<typeof setUserActiveSchema>;
 
+export const accountDeletionReasonSchema = z.enum(ACCOUNT_DELETION_REASONS);
+export type AccountDeletionReason = z.infer<typeof accountDeletionReasonSchema>;
+export const deleteAccountOnRequestSchema = z
+  .object({ reason: accountDeletionReasonSchema })
+  .strict();
+
 export type UserKind = (typeof USER_KINDS)[number];
 export const userKindSchema = z.enum(USER_KINDS);
 
@@ -215,6 +225,10 @@ export const USER_ERROR_CODES = [
   'last-admin',
   /** Approved accounts are anonymized, never deleted. */
   'account-not-purgeable',
+  /** Deleting your own account is FR-AUTH-06, with your password. */
+  'self-delete',
+  /** A registration nobody has decided on is declined, not deleted. */
+  'account-pending',
 ] as const;
 export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
 
@@ -247,6 +261,8 @@ const conflicts = {
   'self-demote': { status: 409 },
   'last-admin': { status: 409 },
   'account-not-purgeable': { status: 409 },
+  'self-delete': { status: 409 },
+  'account-pending': { status: 409 },
 } as const;
 
 /**
@@ -430,4 +446,29 @@ export const usersContract = {
     })
     .input(z.object({ params: z.object({ id: z.uuid() }) }))
     .output(z.object({ message: z.string() })),
+
+  deleteAccountOnRequest: staff
+    .route({
+      method: 'POST',
+      path: '/admin/users/{id}/deletion',
+      inputStructure: 'detailed',
+      // The holder's own deletion (FR-AUTH-06), done for them when the request
+      // reaches the shop another way. Never refused by ownership: the person's
+      // right outranks the switch.
+      summary: "Delete an account on the person's request (admin)",
+    })
+    .errors({
+      ...notFound,
+      'account-closed': conflicts['account-closed'],
+      'account-pending': conflicts['account-pending'],
+      'self-delete': conflicts['self-delete'],
+      'last-admin': conflicts['last-admin'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: deleteAccountOnRequestSchema,
+      }),
+    )
+    .output(staffUserSchema),
 };

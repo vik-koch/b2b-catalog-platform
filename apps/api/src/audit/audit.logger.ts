@@ -54,6 +54,8 @@ export type AuditAction =
   | 'user.sourceIdChanged'
   | 'user.roleChanged'
   | 'user.declined'
+  // Deleted by an admin on the person's request (FR-ADM-23), with why.
+  | 'user.deleted'
   // Self-service (FR-AUTH-06's neighbourhood). Named apart from `user.updated`
   // so the log distinguishes staff correcting a customer's details from the
   // customer correcting their own.
@@ -158,12 +160,15 @@ export class AuditLogger {
        * can be asked for every credential ever issued against one
        * capability. */
       scope?: string;
+      /** Why an admin did something the person asked for (FR-ADM-23). */
+      reason?: string;
     },
   ): void {
     const parts = [action, `actor=${actorLabel(actor)}`];
     if (entity.reference) parts.push(`reference=${entity.reference}`);
     if (entity.status) parts.push(`status=${entity.status}`);
     if (entity.scope) parts.push(`scope=${entity.scope}`);
+    if (entity.reason) parts.push(`reason=${entity.reason}`);
     if (entity.revision) parts.push(`revision=${entity.revision}`);
     if (entity.id) parts.push(`id=${entity.id}`);
     if (entity.slug) parts.push(`slug=${entity.slug}`);

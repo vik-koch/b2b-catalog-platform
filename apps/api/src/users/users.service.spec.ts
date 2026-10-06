@@ -136,7 +136,8 @@ describe('UsersService.anonymize', () => {
   it("ends the account's consents as deleted, leaving any already ended", () => {
     const { sql, params } = statement('consent_withdrawals');
 
-    expect(params).toEqual(['account-deleted', 'user-1']);
+    // No admin named: the holder deleted it themselves.
+    expect(params).toEqual(['account-deleted', null, null, 'user-1']);
     expect(sql).toContain('NOT EXISTS');
   });
 

@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  AccountDeletionReason,
   ConsentRecord,
   CreateUserRequest,
   ListUsersQuery,
@@ -160,5 +161,17 @@ export class StaffUsersService {
     );
     void this.work.refresh();
     return result;
+  }
+
+  /** Delete an account on the person's request (FR-ADM-23), admin only.
+   * Answers with the closed row. 409 for your own account, a registration
+   * nobody has decided on, or one already closed. */
+  deleteOnRequest(
+    id: string,
+    reason: AccountDeletionReason,
+  ): Promise<UserActionResult> {
+    return this.act(
+      this.client.deleteAccountOnRequest({ params: { id }, body: { reason } }),
+    );
   }
 }

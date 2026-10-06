@@ -129,6 +129,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-ADM-20](#fr-adm-20) — Finding what a product's content lacks
 - [FR-ADM-21](#fr-adm-21) — Deleting a product permanently
 - [FR-ADM-22](#fr-adm-22) — Deleted products are kept apart
+- [FR-ADM-23](#fr-adm-23) — Deleting an account on the person's request
 
 **[Accounts, Roles & Pricing (FR-AUTH)](#fr-auth)**
 
@@ -667,6 +668,10 @@ A deleted product is out of the catalog, so the admin panel leaves it out of eve
 
 Where an action also reaches deleted products, it says so. Renaming an attribute rewrites the deleted products that carry it too, because a restored product must carry the new name, and the rename says how many deleted products it touches. A category that still holds deleted products cannot be deleted, because they still belong to it. The refusal says how many there are, and moving the category's products to another one moves them too. Deleting them permanently ([FR-ADM-21](#fr-adm-21)) is the other way out. While the catalog is externally owned, the move is refused like any other change to a product's category ([FR-ADM-10](#fr-adm-10)), so a category holding products that were ordered before the source dropped them stays. It is still the shop's to rename, re-slug and move aside. A deleted product keeps its document links, and a document's form marks it as deleted.
 
+#### <a id="fr-adm-23"></a>FR-ADM-23 — Deleting an account on the person's request
+
+An admin can delete an account on the person's request. Such a request can reach the shop by letter, email or phone rather than through the account, and the person may no longer be able to sign in to delete it themselves. It is the same deletion as the holder's own ([FR-AUTH-06](#fr-auth-06)): the account is anonymized, its past orders are kept with the personal details removed from them, and the person receives the same confirmation. The admin states why, either the person's request or a withdrawn consent ([NFR-LEGAL-09](#nfr-legal-09)), and the reason is recorded with the deletion ([NFR-LEGAL-12](#nfr-legal-12)). It cannot be undone, so it is an admin's alone and asks for confirmation. An admin cannot delete their own account this way, and the last admin cannot be deleted. A registration nobody has decided on is declined instead ([FR-AUTH-11](#fr-auth-11)), which already removes it and ends its consent. It works while an external system owns customer accounts, because the person's right outranks the ownership switch, and the account is reported outward as withdrawn, as one its holder deleted is ([NFR-LEGAL-08](#nfr-legal-08)).
+
 ---
 
 ### <a id="fr-auth"></a>Accounts, Roles & Pricing (FR-AUTH)
@@ -912,7 +917,7 @@ Each text keeps every version it has been published in, together with the box wo
 
 Each consent is recorded with its purpose, the version, the server's time and whose consent it is: the account's together with its email address at that moment, or for an inquiry, the submission's and the email address or phone number given with it. The record keeps that address when the account is later deleted, since a record that names nobody proves nothing, and it goes with the record when the retention period ends. The application never changes a record. An admin can find a person's records by account, email address or phone number to answer an inspection or the person's own request. Both are the operator's to answer, so the records are an admin's alone.
 
-A consent can be withdrawn. For the account purpose, withdrawing means deleting the account, by its holder ([FR-AUTH-06](#fr-auth-06)). Declining a registration ends its consent in the same way, since what it was given for is over ([FR-AUTH-11](#fr-auth-11)). A withdrawal that reaches the shop any other way is entered by an admin against the record, with a note of how it arrived. A record is withdrawn once, and the withdrawal never changes either. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. A contact consent is used up once the inquiry is answered and nobody withdraws it, so its retention period runs from when it was given. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
+A consent can be withdrawn. For the account purpose, withdrawing means deleting the account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin on their request ([FR-ADM-23](#fr-adm-23)). Declining a registration ends its consent in the same way, since what it was given for is over ([FR-AUTH-11](#fr-auth-11)). A withdrawal that reaches the shop any other way is entered by an admin against the record, with a note of how it arrived. A record is withdrawn once, and the withdrawal never changes either. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. A contact consent is used up once the inquiry is answered and nobody withdraws it, so its retention period runs from when it was given. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
 
 #### <a id="nfr-legal-10"></a>NFR-LEGAL-10 — An order accepts the conditions it was placed under
 
@@ -932,7 +937,7 @@ The basis and the rates can change while orders are open, through a new rate or 
 
 #### <a id="nfr-legal-12"></a>NFR-LEGAL-12 — A record that personal data was destroyed
 
-Where a deployment's jurisdiction requires the shop to prove that personal data it held was destroyed, the platform writes a record each time it destroys some, in the same moment as the destruction. Three things destroy personal data here: deleting an account, by its holder ([FR-AUTH-06](#fr-auth-06)), declining a registration, which removes it ([FR-AUTH-11](#fr-auth-11)), and deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
+Where a deployment's jurisdiction requires the shop to prove that personal data it held was destroyed, the platform writes a record each time it destroys some, in the same moment as the destruction. Three things destroy personal data here: deleting an account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin ([FR-ADM-23](#fr-adm-23)), declining a registration, which removes it ([FR-AUTH-11](#fr-auth-11)), and deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
 
 Each record names whose data it was, in terms that still identify the person afterwards without holding the destroyed data itself, such as the account's id. It also states which categories of data were destroyed, why — the person's request, a withdrawal, the end of a retention period — and when. The application never changes a record.
 

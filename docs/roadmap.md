@@ -878,6 +878,14 @@ Notes:
   record, and the database refuses to. A record therefore names its account by id without
   a reference that a removed account would have to clear. Declining a registration withdraws
   the consent which FR-AUTH-11 had described as switching it off. 
+- **An admin can delete an account on request**
+  ([FR-ADM-23](requirements.md#fr-adm-23)) (2026-10-06).
+  Withdrawing the account consent means deleting the account, and the person
+  may ask for that without being able to sign in. So an admin can delete an account
+  on their request, through the same anonymization as the holder's own, and a withdrawal 
+  is entered by hand only for an inquiry's consent. The earlier draft named clearing an 
+  account withdrawn by an owning system as a destruction. No such clearing exists: an
+  owning system can only switch an account off. 
 - **Consent is switched on, not published**
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A purpose used to be asked
   when its text was in the list of published pages, which an operator reading the config

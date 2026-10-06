@@ -221,6 +221,9 @@ export class ConsentLookupPage {
         holder,
         date: this.dayFormat.format(new Date(record.givenAt)),
       }),
+      // The platform holds the record, not the inquiry: that is a mail in
+      // the shop's inbox, and only a person can delete it there.
+      warning: this.text.withdrawInbox,
       confirmLabel: this.text.withdraw,
       cancelLabel: this.common.cancel,
       confirmVariant: 'danger',
