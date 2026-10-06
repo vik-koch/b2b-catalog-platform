@@ -7,6 +7,7 @@ import { AddressesModule } from '../addresses/addresses.module';
 import { PartiesModule } from '../parties/parties.module';
 import { AttributesModule } from '../attributes/attributes.module';
 import { AuthModule } from '../auth/auth.module';
+import { ConsentAdminModule } from '../consents/consent-admin.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
 import { CatalogModule } from '../catalog/catalog.module';
@@ -37,6 +38,7 @@ import { WorkModule } from '../work/work.module';
     SyncModule,
     TiersModule,
     StaffUsersModule,
+    ConsentAdminModule,
     AccountModule,
     OrdersModule,
     AddressesModule,

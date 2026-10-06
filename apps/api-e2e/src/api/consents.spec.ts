@@ -1,0 +1,291 @@
+import { hash } from '@node-rs/argon2';
+import axios from 'axios';
+import { Client } from 'pg';
+import { consentVersion } from '../support/consent';
+import { requireEnv } from '../support/env';
+import { deleteMatching } from '../support/mailpit';
+
+const SUFFIX = Math.random().toString(36).slice(2, 10);
+const ADMIN_EMAIL = `e2e-consents-admin-${SUFFIX}@example.com`;
+const MANAGER_EMAIL = `e2e-consents-manager-${SUFFIX}@example.com`;
+const CUSTOMER_EMAIL = `e2e-consents-customer-${SUFFIX}@example.com`;
+const INQUIRER_EMAIL = `e2e-consents-inquirer-${SUFFIX}@example.com`;
+const REGISTRANT_EMAIL = `e2e-consents-registrant-${SUFFIX}@example.com`;
+const RENAMED_EMAIL = `e2e-consents-renamed-${SUFFIX}@example.com`;
+const PASSWORD = 'e2e-consents-password';
+// As the contact form stores a number: the country code and the digits.
+const INQUIRER_PHONE = `+4940${Math.floor(Math.random() * 1e7)}`;
+
+const seeded = [ADMIN_EMAIL, MANAGER_EMAIL, CUSTOMER_EMAIL];
+const holders = [INQUIRER_EMAIL, REGISTRANT_EMAIL, RENAMED_EMAIL];
+
+const get = (url: string, cookie?: string) =>
+  axios.get(url, {
+    headers: cookie ? { Cookie: cookie } : {},
+    validateStatus: () => true,
+  });
+
+/**
+ * Finding a person's consent records (NFR-LEGAL-09), and the rule that makes
+ * them evidence: nothing changes one once it is written.
+ */
+describe('consent records', () => {
+  let client: Client;
+  let adminCookie: string;
+  let managerCookie: string;
+  let customerCookie: string;
+  let registrantId: string;
+
+  const signIn = async (email: string) => {
+    const res = await axios.post(
+      '/auth/login',
+      { email, password: PASSWORD },
+      { validateStatus: () => true },
+    );
+    const cookie = (res.headers['set-cookie'] as string[] | undefined)
+      ?.find((c) => c.startsWith('session='))
+      ?.split(';')[0];
+    if (!cookie) throw new Error(`could not sign in as ${email}`);
+    return cookie;
+  };
+
+  const seedUser = async (email: string, role: string): Promise<string> => {
+    const { rows } = await client.query(
+      `INSERT INTO users (email, "passwordHash", role, status, "firstName", "lastName", "passwordSetAt")
+       VALUES ($1, $2, $3, 'active', 'Jane', 'Doe', now())
+       RETURNING id`,
+      [email, await hash(PASSWORD), role],
+    );
+    return rows[0].id;
+  };
+
+  beforeAll(async () => {
+    client = new Client({ connectionString: requireEnv('DATABASE_URL') });
+    await client.connect();
+
+    await seedUser(ADMIN_EMAIL, 'admin');
+    await seedUser(MANAGER_EMAIL, 'manager');
+    await seedUser(CUSTOMER_EMAIL, 'user');
+    adminCookie = await signIn(ADMIN_EMAIL);
+    managerCookie = await signIn(MANAGER_EMAIL);
+    customerCookie = await signIn(CUSTOMER_EMAIL);
+
+    // One record of each purpose, given the way a visitor gives them.
+    const inquiry = await axios.post('/inquiry', {
+      name: 'Ida Inquirer',
+      email: INQUIRER_EMAIL,
+      phone: INQUIRER_PHONE,
+      preferredContact: 'email',
+      consentVersion: await consentVersion('contact'),
+    });
+    expect(inquiry.status).toBe(200);
+    const registration = await axios.post('/auth/register', {
+      email: REGISTRANT_EMAIL,
+      firstName: 'Rita',
+      lastName: 'Registrant',
+      phone: '+49 40 7654321',
+      customerType: 'person',
+      consentVersion: await consentVersion('account'),
+    });
+    expect(registration.status).toBe(200);
+    const { rows } = await client.query(
+      'SELECT id FROM users WHERE email = $1',
+      [REGISTRANT_EMAIL],
+    );
+    registrantId = rows[0].id;
+  });
+
+  afterAll(async () => {
+    // Deleting is what a record's retention ends in, so it stays allowed.
+    await client.query('DELETE FROM consents WHERE email = ANY($1)', [holders]);
+    await client.query('DELETE FROM users WHERE email = ANY($1)', [
+      [...seeded, ...holders],
+    ]);
+    await client.end();
+    await deleteMatching(`"${REGISTRANT_EMAIL}"`);
+  });
+
+  describe('guards', () => {
+    it('rejects an anonymous caller', async () => {
+      expect(
+        (await get(`/admin/consents?email=${INQUIRER_EMAIL}`)).status,
+      ).toBe(401);
+      expect((await get(`/admin/users/${registrantId}/consents`)).status).toBe(
+        401,
+      );
+    });
+
+    it('rejects a customer', async () => {
+      expect(
+        (await get(`/admin/consents?email=${INQUIRER_EMAIL}`, customerCookie))
+          .status,
+      ).toBe(403);
+      expect(
+        (await get(`/admin/users/${registrantId}/consents`, customerCookie))
+          .status,
+      ).toBe(403);
+    });
+
+    // The operator's to answer, so a manager is refused both outright.
+    it('rejects a manager', async () => {
+      expect(
+        (await get(`/admin/consents?email=${INQUIRER_EMAIL}`, managerCookie))
+          .status,
+      ).toBe(403);
+      expect(
+        (await get(`/admin/users/${registrantId}/consents`, managerCookie))
+          .status,
+      ).toBe(403);
+    });
+  });
+
+  describe('GET /admin/consents', () => {
+    it("finds an inquiry's record by its address, with the wording ticked", async () => {
+      const res = await get(
+        `/admin/consents?email=${INQUIRER_EMAIL.toUpperCase()}`,
+        adminCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.consents).toEqual([
+        expect.objectContaining({
+          purpose: 'contact',
+          version: await consentVersion('contact'),
+          label: expect.stringContaining('['),
+          email: INQUIRER_EMAIL,
+          phone: INQUIRER_PHONE,
+          account: null,
+        }),
+      ]);
+    });
+
+    it('finds the same record by its phone number', async () => {
+      const res = await get(
+        `/admin/consents?phone=${encodeURIComponent(INQUIRER_PHONE)}`,
+        adminCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.consents).toHaveLength(1);
+      expect(res.data.consents[0].email).toBe(INQUIRER_EMAIL);
+    });
+
+    it('needs exactly one of the two', async () => {
+      expect((await get('/admin/consents', adminCookie)).status).toBe(400);
+      expect(
+        (
+          await get(
+            `/admin/consents?email=${INQUIRER_EMAIL}&phone=${encodeURIComponent(INQUIRER_PHONE)}`,
+            adminCookie,
+          )
+        ).status,
+      ).toBe(400);
+    });
+
+    it('names the account a registration consented for', async () => {
+      const res = await get(
+        `/admin/consents?email=${REGISTRANT_EMAIL}`,
+        adminCookie,
+      );
+
+      expect(res.data.consents).toEqual([
+        expect.objectContaining({
+          purpose: 'account',
+          email: REGISTRANT_EMAIL,
+          account: {
+            id: registrantId,
+            name: 'Registrant Rita',
+            status: 'pending',
+          },
+        }),
+      ]);
+    });
+
+    // The record keeps the address it was given with; the person asking may
+    // have changed theirs since.
+    it("finds an account's records under its current address too", async () => {
+      await client.query('UPDATE users SET email = $1 WHERE id = $2', [
+        RENAMED_EMAIL,
+        registrantId,
+      ]);
+      try {
+        const byNew = await get(
+          `/admin/consents?email=${RENAMED_EMAIL}`,
+          adminCookie,
+        );
+        const byOld = await get(
+          `/admin/consents?email=${REGISTRANT_EMAIL}`,
+          adminCookie,
+        );
+
+        expect(byNew.data.consents).toHaveLength(1);
+        expect(byNew.data.consents[0].email).toBe(REGISTRANT_EMAIL);
+        expect(byOld.data.consents).toHaveLength(1);
+      } finally {
+        await client.query('UPDATE users SET email = $1 WHERE id = $2', [
+          REGISTRANT_EMAIL,
+          registrantId,
+        ]);
+      }
+    });
+
+    it('answers an address nobody gave with an empty list', async () => {
+      const res = await get(
+        `/admin/consents?email=nobody-${SUFFIX}@example.com`,
+        adminCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.consents).toEqual([]);
+    });
+  });
+
+  describe('GET /admin/users/:id/consents', () => {
+    it("lists a customer's records", async () => {
+      const res = await get(
+        `/admin/users/${registrantId}/consents`,
+        adminCookie,
+      );
+
+      expect(res.status).toBe(200);
+      expect(res.data.consents).toEqual([
+        expect.objectContaining({
+          purpose: 'account',
+          email: REGISTRANT_EMAIL,
+        }),
+      ]);
+    });
+  });
+
+  describe('a record never changes', () => {
+    it('is refused by the database', async () => {
+      await expect(
+        client.query(`UPDATE consents SET phone = '+490' WHERE email = $1`, [
+          INQUIRER_EMAIL,
+        ]),
+      ).rejects.toThrow('Rows of consents are never changed');
+    });
+
+    // The reason the record names its account without a foreign key: a
+    // `SET NULL` on the removed account would be a change.
+    it('outlives a declined registration, naming nobody but the address', async () => {
+      const declined = await axios.delete(`/admin/users/${registrantId}`, {
+        headers: { Cookie: adminCookie },
+        validateStatus: () => true,
+      });
+      expect(declined.status).toBe(200);
+
+      const res = await get(
+        `/admin/consents?email=${REGISTRANT_EMAIL}`,
+        adminCookie,
+      );
+      expect(res.data.consents).toEqual([
+        expect.objectContaining({
+          purpose: 'account',
+          email: REGISTRANT_EMAIL,
+          account: null,
+        }),
+      ]);
+    });
+  });
+});

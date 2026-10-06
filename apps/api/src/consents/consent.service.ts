@@ -6,16 +6,18 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, inArray, or, SQL } from 'drizzle-orm';
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
+  ConsentRecord,
   ConsentRefusalCode,
+  formatPersonName,
 } from '@b2b-catalog-platform/shared';
 import { CONSENT_PURPOSES_ASKED } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { consents } from '../db/schema';
+import { consents, pageVersions, users } from '../db/schema';
 import { currentPageVersion } from '../pages/page-versions';
 
 /** A consent that passed the check, ready to be recorded. */
@@ -113,6 +115,82 @@ export class ConsentService {
       email: holder.email?.trim().toLowerCase() || null,
       phone: holder.phone || null,
     });
+  }
+
+  /**
+   * The records naming this address or number, newest first. An address also
+   * finds the records of the account that holds it now, and a number those of
+   * the account it is stored on: a record keeps the address it was given
+   * with, and the person asking may have changed theirs since.
+   */
+  async findByHolder(holder: {
+    email?: string;
+    phone?: string;
+  }): Promise<ConsentRecord[]> {
+    const email = holder.email?.trim().toLowerCase();
+    const phone = holder.phone?.trim();
+    const condition = email
+      ? or(
+          eq(consents.email, email),
+          inArray(
+            consents.userId,
+            this.db
+              .select({ id: users.id })
+              .from(users)
+              .where(eq(users.email, email)),
+          ),
+        )
+      : phone
+        ? or(
+            eq(consents.phone, phone),
+            inArray(
+              consents.userId,
+              this.db
+                .select({ id: users.id })
+                .from(users)
+                .where(eq(users.phone, phone)),
+            ),
+          )
+        : undefined;
+    // The query schema asks for exactly one; nothing is the honest answer to
+    // neither, not every record there is.
+    return condition ? this.findWhere(condition) : [];
+  }
+
+  private async findWhere(
+    condition: SQL | undefined,
+  ): Promise<ConsentRecord[]> {
+    const rows = await this.db
+      .select({
+        record: consents,
+        version: pageVersions.version,
+        label: pageVersions.consentLabel,
+        account: {
+          id: users.id,
+          firstName: users.firstName,
+          lastName: users.lastName,
+          status: users.status,
+        },
+      })
+      .from(consents)
+      .innerJoin(pageVersions, eq(pageVersions.id, consents.pageVersionId))
+      .leftJoin(users, eq(users.id, consents.userId))
+      .where(condition)
+      .orderBy(desc(consents.createdAt));
+    return rows.map(({ record, version, label, account }) => ({
+      id: record.id,
+      purpose: record.purpose as ConsentPurpose,
+      givenAt: record.createdAt.toISOString(),
+      version,
+      label,
+      email: record.email,
+      phone: record.phone,
+      account: account && {
+        id: account.id,
+        name: formatPersonName(account.firstName, account.lastName) || null,
+        status: account.status,
+      },
+    }));
   }
 
   /** Whether the account has given this consent before. */
