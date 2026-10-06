@@ -15,7 +15,9 @@ import {
   productPairings,
   users,
 } from '../db/schema';
+import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
+import { TermsPdf } from './terms-pdf';
 import { demoAdminOrder } from './order.fixture';
 import * as reference from './order-reference';
 import {
@@ -210,6 +212,11 @@ function service(
     billingAddressEnabled,
     pairingsEnforced,
     notifications,
+    {} as OrderDocumentsService,
+    null,
+    false,
+    {} as TermsPdf,
+    { basis: 'included', rate: 19, statedAtPrices: true },
   );
 }
 
@@ -322,7 +329,12 @@ describe('OrdersService.submit', () => {
     expect(placed.publicToken).toMatch(/^[A-Za-z0-9_-]{32}$/);
     // The order row is identity and workflow; what it says is its first
     // revision (ADR 0051).
-    expect(orderRows()[0]).toMatchObject({ userId: 'user-1' });
+    // The basis it is submitted under (NFR-LEGAL-11), which every later view
+    // of it states rather than the deployment's current one.
+    expect(orderRows()[0]).toMatchObject({
+      userId: 'user-1',
+      taxBasis: 'included',
+    });
     expect(revisionRows()[0]).toMatchObject({
       orderId: 'order-1',
       revisionNumber: 1,
@@ -343,6 +355,8 @@ describe('OrdersService.submit', () => {
       pieces: 20,
       priceMinor: 199,
       lineTotalMinor: 3980,
+      // The product carries no rate of its own, so the default applies.
+      taxRate: null,
     });
   });
 

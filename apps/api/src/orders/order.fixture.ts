@@ -60,6 +60,7 @@ export const demoAdminOrder: AdminOrderDetail = {
   customerNote: null,
   statusReason: null,
   termsDate: '2026-09-01T08:00:00.000Z',
+  taxBasis: 'included',
   customerEmail: 'alex@example.com',
   publicToken: null,
   tierKey: 'wholesale',
@@ -75,6 +76,7 @@ export const demoAdminOrder: AdminOrderDetail = {
       pieces: 12,
       priceMinor: 800,
       lineTotalMinor: 9600,
+      taxRate: 19,
       note: '100 in <red>',
     },
     {
@@ -87,6 +89,7 @@ export const demoAdminOrder: AdminOrderDetail = {
       pieces: 3,
       priceMinor: 1000,
       lineTotalMinor: 3000,
+      taxRate: 19,
       note: null,
     },
   ],

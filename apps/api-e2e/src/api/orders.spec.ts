@@ -103,6 +103,8 @@ const ORDER_LINE_KEYS = [
   'pieces',
   'quantity',
   'slug',
+  // The rate the line was taxed at (NFR-LEGAL-11).
+  'taxRate',
   'unit',
 ];
 const ORDER_DETAIL_KEYS = [
@@ -124,6 +126,8 @@ const ORDER_DETAIL_KEYS = [
   'statusReason',
   // The terms it accepted, by their date (NFR-LEGAL-10).
   'termsDate',
+  // The tax basis it was submitted under (NFR-LEGAL-11).
+  'taxBasis',
   // What the reader can open on it (FR-ORD-05). On the customer's list too:
   // the summary is theirs to keep.
   'documents',
@@ -582,7 +586,11 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         quantity: 2,
         pieces: 20,
         lineTotalMinor: BASE_MINOR * 2,
+        // The product carries no rate of its own, so the demo's default.
+        taxRate: 19,
       });
+      // The basis it was submitted under (NFR-LEGAL-11).
+      expect(read.data.taxBasis).toBe('included');
       const body = JSON.stringify(read.data);
       expect(body).not.toContain(SOURCE_PREFIX);
       expect(body).not.toContain('tierKey');

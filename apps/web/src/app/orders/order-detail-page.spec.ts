@@ -27,6 +27,7 @@ const placed: OrderDetail = {
   paymentState: 'not-due',
   statusReason: null,
   termsDate: null,
+  taxBasis: 'included',
   changes: [],
   // The generated summary: every order has one, and no order stores it.
   documents: [
@@ -67,6 +68,7 @@ const placed: OrderDetail = {
       quantity: 2,
       pieces: 12,
       lineTotalMinor: 9990,
+      taxRate: 19,
       note: '100 in red',
     },
     {
@@ -78,6 +80,7 @@ const placed: OrderDetail = {
       quantity: 3,
       pieces: 3,
       lineTotalMinor: 3000,
+      taxRate: 19,
       note: null,
     },
   ],

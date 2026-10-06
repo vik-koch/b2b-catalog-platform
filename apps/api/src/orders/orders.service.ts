@@ -43,6 +43,9 @@ import {
   TransitionTarget,
   alternateLayoutQuery,
   KeyboardLayout,
+  effectiveTaxRate,
+  TaxBasis,
+  TaxConfig,
 } from '@b2b-catalog-platform/shared';
 import {
   BadRequestException,
@@ -82,6 +85,7 @@ import {
   PickupLocation,
   ALTERNATE_LAYOUT,
   TERMS_PUBLISHED,
+  TAX_CONFIG,
 } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -334,6 +338,7 @@ export class OrdersService {
     private readonly alternateLayout: KeyboardLayout | null,
     @Inject(TERMS_PUBLISHED) private readonly termsPublished: boolean,
     private readonly termsPdf: TermsPdf,
+    @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
   ) {}
 
   /**
@@ -859,7 +864,7 @@ export class OrdersService {
               publicToken,
               userId: context.userId,
               termsVersionId: terms?.id ?? null,
-              taxBasis: 'none',
+              taxBasis: this.tax.basis,
             })
             .returning({ id: orders.id });
 
@@ -1457,6 +1462,7 @@ export class OrdersService {
         pieces: line.pieces,
         priceMinor: line.priceMinor,
         lineTotalMinor: line.lineTotalMinor,
+        taxRate: line.taxRate,
         note: line.note,
         flags: line.flags,
         listPriceMinor: line.listPriceMinor,
@@ -1465,6 +1471,7 @@ export class OrdersService {
       // The order's own currency, not today's config: an old order is priced
       // in what it was priced in, and an adjustment does not re-denominate it.
       currency: current.currency,
+      taxBasis: current.taxBasis as TaxBasis,
       deliveryZone: fulfilment.zone,
       shipment: {
         cartons: priced.shipment.cartons,
@@ -1530,7 +1537,7 @@ export class OrdersService {
       pieces: line.pieces,
       priceMinor: line.priceMinor,
       lineTotalMinor: line.lineTotalMinor,
-      taxRate: null,
+      taxRate: line.taxRate,
       note: line.note,
     }));
     if (await this.saysTheSame(current, snapshot, lines)) {
@@ -1830,6 +1837,7 @@ export class OrdersService {
         };
       }),
       await this.tierId(current.tierKey),
+      this.lineTaxRate(current),
     );
     return {
       priced,
@@ -1845,6 +1853,7 @@ export class OrdersService {
         pieces: line.pieces,
         priceMinor: line.priceMinor,
         lineTotalMinor: line.lineTotalMinor,
+        taxRate: line.taxRate,
         note: line.note,
       })),
     };
@@ -1917,6 +1926,7 @@ export class OrdersService {
         line.pieces === item.pieces &&
         line.priceMinor === item.priceMinor &&
         line.lineTotalMinor === item.lineTotalMinor &&
+        line.taxRate === item.taxRate &&
         line.note === item.note
       );
     });
@@ -2158,6 +2168,17 @@ export class OrdersService {
     }
   }
 
+  /**
+   * The rate a line written into this order states, from the product's own
+   * (NFR-LEGAL-11). The order's basis decides whether there is a rate at all
+   * — it never changes after submission — and the deployment's default fills
+   * in today's where the product carries none.
+   */
+  private lineTaxRate(order: OrderRow): (own: number | null) => number | null {
+    return (own) =>
+      order.taxBasis === 'none' ? null : effectiveTaxRate(this.tax, own);
+  }
+
   /** Everything both the preview and the write need worked out, in the order
    * the checkout works it out in. */
   private async priceAdjusted(
@@ -2172,6 +2193,7 @@ export class OrdersService {
       this.db,
       input.lines,
       await this.tierId(input.tierKey),
+      this.lineTaxRate(current),
     );
     this.assertAddresses(input);
     this.assertParty(input.party, input.paymentMethod);
@@ -2508,6 +2530,7 @@ export class OrdersService {
         quantity: item.quantity,
         pieces: item.pieces,
         lineTotalMinor: item.lineTotalMinor,
+        taxRate: item.taxRate,
         note: item.note,
       };
     });
@@ -2559,6 +2582,7 @@ export class OrdersService {
       customerNote: row.customerNote,
       statusReason: row.statusReason,
       termsDate: row.termsDate?.toISOString() ?? null,
+      taxBasis: row.taxBasis as TaxBasis,
       // Every change the shop has made up to the version being read, and not
       // one word more: a version is a reading of the order at one moment, and
       // changes made after it were not part of what this version said.

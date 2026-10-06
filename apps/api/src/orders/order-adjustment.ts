@@ -44,6 +44,8 @@ export interface PricedAdjustmentLine {
   priceMinor: number;
   lineTotalMinor: number;
   note: string | null;
+  /** The rate the new version states for this line (NFR-LEGAL-11). */
+  taxRate: number | null;
   flags: AdjustmentLineFlag[];
   /** What the chosen list charges for one piece of this product today.
    * Answered on every line, priced from the list or not: it is what lets a
@@ -75,18 +77,28 @@ type ProductRow = {
   availability: ProductAvailability | null;
   publishedAt: Date | null;
   deletedAt: Date | null;
+  /** The product's own rate; null is the deployment's default. */
+  taxRate: number | null;
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
 };
 
+/**
+ * `taxRateOf` turns a product's own rate into the one its line states — the
+ * order's basis decides whether there is one at all, and the deployment's
+ * default fills in where the product has none.
+ */
 export async function priceAdjustment(
   db: NodePgDatabase<typeof schema>,
   lines: readonly OrderAdjustmentLine[],
   tierId: string | null,
+  taxRateOf: (own: number | null) => number | null,
 ): Promise<PricedAdjustment> {
   const rows = await loadProducts(db, lines, tierId);
-  const priced = lines.map((line) => priceLine(line, rows.get(line.slug)));
+  const priced = lines.map((line) =>
+    priceLine(line, taxRateOf, rows.get(line.slug)),
+  );
 
   const shipmentLines: ShipmentLineInput[] = priced.map((line) => {
     const product = rows.get(line.slug) as ProductRow;
@@ -131,6 +143,7 @@ async function loadProducts(
       availability: products.availability,
       publishedAt: products.publishedAt,
       deletedAt: products.deletedAt,
+      taxRate: products.taxRate,
       ...unitColumns,
     })
     .from(products)
@@ -152,6 +165,7 @@ async function loadProducts(
 
 function priceLine(
   line: OrderAdjustmentLine,
+  taxRateOf: (own: number | null) => number | null,
   product?: ProductRow,
 ): PricedAdjustmentLine {
   // `loadProducts` refuses a slug it cannot resolve; this narrows the type.
@@ -195,6 +209,10 @@ function priceLine(
     priceMinor,
     lineTotalMinor,
     note: line.note,
+    // Today's rate, as the list price above is today's where the line names
+    // none: a version is the order as it reads when it is written, and the
+    // shop's invoice will state the rate in force then.
+    taxRate: taxRateOf(product.taxRate),
     flags,
     listPriceMinor: product.priceMinor,
   };
