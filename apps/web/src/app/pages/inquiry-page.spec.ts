@@ -260,15 +260,26 @@ describe('InquiryPage', () => {
       const { el, getPage } = await render();
 
       expect(getPage).toHaveBeenCalledWith('consent-contact');
-      const label = el.querySelector('label[for^="consent-"]');
-      expect(label?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
-        'I consent to the processing of my inquiry.*',
+      // The box is named by the whole sentence, link words included.
+      const box = el.querySelector<HTMLInputElement>('input[type="checkbox"]');
+      const name = el.querySelector(`#${box?.getAttribute('aria-labelledby')}`);
+      expect(name?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        'I consent to the processing of my inquiry.',
       );
-      const link = label?.querySelector<HTMLAnchorElement>(
+      const link = name?.querySelector<HTMLAnchorElement>(
         'a[href="/inquiry/consent"]',
       );
       expect(link?.textContent?.trim()).toBe('consent');
       expect(link?.target).toBe('_blank');
+      // Outside every label: a hovered label hovers its box, and pointing at
+      // the link is not pointing at the box.
+      expect(link?.closest('label')).toBeNull();
+      // The words around it still tick the box.
+      const labels = [...(name?.querySelectorAll('label') ?? [])];
+      expect(labels.map((l) => l.getAttribute('for'))).toEqual([
+        box?.id,
+        box?.id,
+      ]);
     });
 
     // Information beside the box, not part of what is ticked.

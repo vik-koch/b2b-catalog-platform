@@ -38,24 +38,32 @@ let nextId = 0;
           class="mt-0.5 shrink-0"
           aria-required="true"
           [attr.aria-invalid]="invalid() || null"
+          [attr.aria-labelledby]="id + '-text'"
         />
         <p>
-          <label [for]="id" class="cursor-pointer">
+          <!-- The link is not inside a label. A browser hovers a labelled
+               control whenever its label is hovered, so a link inside one lit
+               the box as if pointing at the link meant ticking it. The words
+               around it are labels of their own, so clicking them still ticks
+               the box, and the box takes its name from the whole sentence. -->
+          <span [id]="id + '-text'">
             @if (parts(); as parts) {
-              {{ parts.before
-              }}<a
+              <label [for]="id" class="cursor-pointer">{{ parts.before }}</label
+              ><a
                 appLink
                 [routerLink]="consent().path"
                 target="_blank"
                 rel="noopener"
                 >{{ parts.link }}</a
-              >{{ parts.after
-              }}<span class="text-accent" aria-hidden="true">*</span>
+              ><label [for]="id" class="cursor-pointer">{{
+                parts.after
+              }}</label>
             } @else {
-              {{ consent().label()
-              }}<span class="text-accent" aria-hidden="true">*</span>
-            }
-          </label>
+              <label [for]="id" class="cursor-pointer">{{
+                consent().label()
+              }}</label>
+            }</span
+          ><span class="text-accent" aria-hidden="true">*</span>
           <app-privacy-notice />
         </p>
       </div>
