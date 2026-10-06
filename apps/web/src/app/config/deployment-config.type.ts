@@ -6,6 +6,7 @@ import {
   KEYBOARD_LAYOUTS,
   orderReferenceConfigSchema,
   consentConfigSchema,
+  retentionConfigSchema,
   termsConfigSchema,
   pagesConfigSchema,
   phoneInputSchema,
@@ -259,6 +260,9 @@ export const deploymentConfigSchema = z
     /** How the receipt hands over the accepted terms. Read by the API only;
      * checked here so both sides fail on the same file. */
     terms: termsConfigSchema,
+    /** How long consent and destruction records are kept. Read by the API
+     * only; checked here for the same reason. */
+    retention: retentionConfigSchema,
     /**
      * Whether cookie-consent gating is enforced. When false, no banner is shown
      * and non-essential storage is not gated — correct both while the app sets

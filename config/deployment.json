@@ -31,6 +31,10 @@
   "terms": {
     "attachToReceipt": true
   },
+  "retention": {
+    "consentRecordDays": 1095,
+    "destructionRecordDays": 1095
+  },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,
   "catalog": {

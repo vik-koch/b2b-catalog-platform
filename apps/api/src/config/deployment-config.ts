@@ -23,6 +23,8 @@ import {
   PhoneConfig,
   phoneInputSchema,
   pagesConfigSchema,
+  RetentionConfig,
+  retentionConfigSchema,
   termsConfigSchema,
 } from '@b2b-catalog-platform/shared';
 import { dirname, join } from 'node:path';
@@ -47,6 +49,8 @@ export const apiDeploymentConfigSchema = z
     consent: consentConfigSchema,
     /** Whether the receipt attaches the accepted terms (NFR-LEGAL-10). */
     terms: termsConfigSchema,
+    /** How long consent and destruction records are kept (NFR-LEGAL-09/12). */
+    retention: retentionConfigSchema,
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
@@ -252,6 +256,13 @@ export const TERMS_ATTACHED = 'TERMS_ATTACHED';
 
 export function loadTermsAttached(): boolean {
   return loadApiDeploymentConfig().terms.attachToReceipt;
+}
+
+/** How long consent and destruction records are kept before the sweep. */
+export const RETENTION = 'RETENTION';
+
+export function loadRetention(): RetentionConfig {
+  return loadApiDeploymentConfig().retention;
 }
 
 /**
