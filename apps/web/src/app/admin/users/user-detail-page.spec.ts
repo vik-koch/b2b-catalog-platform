@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
+  ConsentRecord,
   CustomerTier,
   OwnershipArea,
   StaffUser,
@@ -66,11 +67,15 @@ async function render(
     account?: StaffUser | null;
     role?: 'admin' | 'manager';
     ownedAreas?: OwnershipArea[];
+    consents?: ConsentRecord[];
+    /** Whether the deployment asks for any consent. */
+    consentAsked?: boolean;
   } = {},
 ) {
   const account = options.account === undefined ? user() : options.account;
   const service = {
     get: vi.fn(async () => account ?? undefined),
+    listConsents: vi.fn(async () => options.consents ?? []),
   };
   const tiers = {
     list: vi.fn(async () => ({
@@ -85,7 +90,16 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: {
+          ...defaultDeploymentConfig,
+          consent: {
+            contact: options.consentAsked ?? false,
+            account: options.consentAsked ?? false,
+          },
+        },
+      },
       {
         provide: AuthService,
         useValue: { user: () => ({ role: options.role ?? 'admin' }) },
@@ -231,6 +245,75 @@ describe('UserDetailPage', () => {
 
     expect(body()).toContain(listText.statusAnonymized);
     expect(link(listText.edit)).toBeUndefined();
+  });
+
+  describe('consents (NFR-LEGAL-09)', () => {
+    const record: ConsentRecord = {
+      id: 'c1',
+      purpose: 'account',
+      givenAt: '2026-10-05T09:30:00.000Z',
+      version: 2,
+      label: 'I [consent] to the processing of my details.',
+      email: 'jane@example.com',
+      phone: null,
+      account: { id: 'u1', name: 'Doe Jane', status: 'active' },
+    };
+
+    it("lists a customer's records, with the wording that was ticked", async () => {
+      const { el, service } = await render({ consents: [record] });
+
+      expect(service.listConsents).toHaveBeenCalledWith('u1');
+      const section = [...el.querySelectorAll('section')].find(
+        (s) =>
+          s.querySelector('h2')?.textContent?.trim() === text.consentsHeading,
+      );
+      expect(section?.textContent).toContain(
+        'I consent to the processing of my details.',
+      );
+      // The account is the page: the record does not link back to it.
+      expect(section?.querySelector('a[href="/admin/users/u1"]')).toBeNull();
+    });
+
+    it('says when a customer has none, while a consent is asked', async () => {
+      const { text: body } = await render({ consentAsked: true });
+
+      expect(body()).toContain(text.consentsEmpty);
+    });
+
+    // Where nothing is asked, an empty card reads as something missing.
+    it('leaves the card out where nothing is asked and nothing was given', async () => {
+      const { text: body } = await render({ consentAsked: false });
+
+      expect(body()).not.toContain(text.consentsHeading);
+    });
+
+    it('still shows records given while a consent was asked', async () => {
+      const { text: body } = await render({
+        consentAsked: false,
+        consents: [record],
+      });
+
+      expect(body()).toContain(text.consentsHeading);
+    });
+
+    it("is an admin's only", async () => {
+      const { service, text: body } = await render({
+        role: 'manager',
+        consentAsked: true,
+      });
+
+      expect(service.listConsents).not.toHaveBeenCalled();
+      expect(body()).not.toContain(text.consentsHeading);
+    });
+
+    it('is not asked of staff, who are never asked for one', async () => {
+      const { service, text: body } = await render({
+        account: user({ role: 'manager' }),
+      });
+
+      expect(service.listConsents).not.toHaveBeenCalled();
+      expect(body()).not.toContain(text.consentsHeading);
+    });
   });
 
   it('says so when the account is not there — or not theirs to see', async () => {

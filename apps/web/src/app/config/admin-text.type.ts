@@ -2291,6 +2291,9 @@ export const adminTextSchema = z
          * makes an account invisible to the exchange, which is worth a
          * sentence on the one screen that shows the field. */
         sourceIdEmpty: z.string(),
+        /** A customer's consent records (NFR-LEGAL-09). */
+        consentsHeading: z.string(),
+        consentsEmpty: z.string(),
         back: z.string(),
         notFound: z.string(),
         loadError: z.string(),

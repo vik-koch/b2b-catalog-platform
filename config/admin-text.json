@@ -1379,6 +1379,8 @@
     "approved": "Approved",
     "approvedNever": "Not approved yet",
     "sourceIdEmpty": "None — no automated update can reach this account.",
+    "consentsHeading": "Consents",
+    "consentsEmpty": "No consent recorded for this account.",
     "back": "Back to the list",
     "notFound": "This account could not be found.",
     "loadError": "This account could not be loaded. Please try again."
