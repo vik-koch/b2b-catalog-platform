@@ -76,6 +76,7 @@ const version: OrderRevision = {
   publicToken: null,
   customerEmail: 'alex@example.com',
   tierKey: 'wholesale',
+  termsVersion: null,
   lines: [
     {
       name: 'Espresso cups',

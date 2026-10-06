@@ -402,6 +402,8 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
   publicToken: z.string().nullable(),
   /** Which list it was priced from; null means the default one. */
   tierKey: z.string().nullable(),
+  /** The page version behind `termsDate`, as the page editor numbers it. */
+  termsVersion: z.number().int().positive().nullable(),
   statusChangedAt: z.iso.datetime(),
   /** Which version is being shown (ADR 0051). 1 is the order as the customer
    * submitted it; every move and every adjustment writes the next. What a

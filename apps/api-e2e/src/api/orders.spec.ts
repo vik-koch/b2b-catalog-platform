@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { hash } from '@node-rs/argon2';
 import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
+import { seedPages } from '@b2b-catalog-platform/seed';
 import { priceProduct } from '../support/catalog-fixture';
 import { mediaPath, requireEnv } from '../support/env';
 import {
@@ -121,6 +122,8 @@ const ORDER_DETAIL_KEYS = [
   'preferredDate',
   'shipment',
   'statusReason',
+  // The terms it accepted, by their date (NFR-LEGAL-10).
+  'termsDate',
   // What the reader can open on it (FR-ORD-05). On the customer's list too:
   // the summary is theirs to keep.
   'documents',
@@ -141,6 +144,7 @@ const ADMIN_DETAIL_KEYS = [
   'paidAt',
   'revisionNumber',
   'statusChangedAt',
+  'termsVersion',
   'tierKey',
 ].sort();
 const ADMIN_LINE_KEYS = [...ORDER_LINE_KEYS, 'priceMinor'].sort();
@@ -782,6 +786,46 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // Its own code, not a borrowed one: a person tripped by an autofill must
       // not be told a full cart is empty.
       expect(res.data.code).toBe('rejected');
+    });
+
+    // NFR-LEGAL-10: the version current at submission, and only that one.
+    it('records the terms it was placed under, which a later edit leaves alone', async () => {
+      const terms = async () =>
+        (
+          await client.query(
+            `SELECT version, "createdAt" FROM page_versions
+             WHERE slug = 'terms' ORDER BY version DESC LIMIT 1`,
+          )
+        ).rows[0];
+      const before = await terms();
+      const placed = await post('/orders', submission());
+      expect(placed.status).toBe(201);
+
+      await client.query(
+        `INSERT INTO page_versions (slug, version, title, "bodyHtml")
+         VALUES ('terms', $1, 'Terms of sale', '<p>Changed.</p>')`,
+        [before.version + 1],
+      );
+      try {
+        const earlier = await get(
+          `/admin/orders/${placed.data.reference}`,
+          managerCookie,
+        );
+        expect(earlier.data).toMatchObject({
+          termsVersion: before.version,
+          termsDate: before.createdAt.toISOString(),
+        });
+
+        const later = await post('/orders', submission());
+        const read = await get(
+          `/admin/orders/${later.data.reference}`,
+          managerCookie,
+        );
+        expect(read.data.termsVersion).toBe(before.version + 1);
+      } finally {
+        // The seeded text back on top, as the pages suite expects it.
+        await seedPages(client);
+      }
     });
   });
 

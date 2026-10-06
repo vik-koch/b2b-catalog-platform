@@ -154,6 +154,7 @@ const orderColumns = {
   revisionCreatedBy: orderRevisions.createdBy,
   revisionNotifiedAt: orderRevisions.notifiedAt,
   customerRevisionNumber: customerRevision.revisionNumber,
+  termsVersion: acceptedTerms.version,
   termsDate: acceptedTerms.createdAt,
 };
 
@@ -177,6 +178,7 @@ type OrderRow = typeof orders.$inferSelect &
     revisionCreatedBy: string | null;
     revisionNotifiedAt: Date | null;
     customerRevisionNumber: number | null;
+    termsVersion: number | null;
     termsDate: Date | null;
   };
 type OrderItemRow = typeof orderItems.$inferSelect;
@@ -1108,6 +1110,7 @@ export class OrdersService {
       // they can already reach another way would be minting a second one.
       publicToken: customer ? null : row.publicToken,
       tierKey: row.tierKey,
+      termsVersion: row.termsVersion,
       statusChangedAt: row.statusChangedAt.toISOString(),
       revisionNumber: row.revisionNumber,
       // Null only on an order mid-write, which nothing outside a transaction
@@ -1195,6 +1198,7 @@ export class OrdersService {
         customerRevision,
         eq(orders.customerRevisionId, customerRevision.id),
       )
+      .leftJoin(acceptedTerms, eq(orders.termsVersionId, acceptedTerms.id))
       .where(
         number === undefined
           ? eq(orders.id, orderId)
@@ -2409,7 +2413,8 @@ export class OrdersService {
       .leftJoin(
         customerRevision,
         eq(orders.customerRevisionId, customerRevision.id),
-      );
+      )
+      .leftJoin(acceptedTerms, eq(orders.termsVersionId, acceptedTerms.id));
   }
 
   private async row(

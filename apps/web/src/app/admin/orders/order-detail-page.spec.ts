@@ -74,6 +74,7 @@ const placed: AdminOrderDetail = {
   publicToken: null,
   customerEmail: 'alex@example.com',
   tierKey: 'wholesale',
+  termsVersion: null,
   lines: [
     {
       name: 'Espresso cups',
@@ -205,6 +206,21 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
 
     expect(el.textContent).toContain(text.tierDefault);
     expect(el.textContent).toContain(defaultAdminText.orderList.guest);
+  });
+
+  // NFR-LEGAL-10: the version to hand the customer, as the page editor
+  // numbers it.
+  it('names the terms the order accepted, and none where it accepted none', async () => {
+    const accepted = await render({
+      ...placed,
+      termsVersion: 3,
+      termsDate: '2026-09-01T10:00:00.000Z',
+    });
+    expect(accepted.el.textContent).toContain(text.terms);
+    expect(accepted.el.textContent).toMatch(/Version 3, updated on .*2026/);
+
+    const none = await render(placed);
+    expect(none.el.textContent).not.toContain(text.terms);
   });
 
   it('reads the order back in the admin’s own words', async () => {

@@ -77,6 +77,7 @@ const order: AdminOrderDetail = {
   publicToken: null,
   customerEmail: 'alex@example.com',
   tierKey: null,
+  termsVersion: null,
   lines: [
     {
       name: 'Espresso cups',

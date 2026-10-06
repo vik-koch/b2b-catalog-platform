@@ -1016,6 +1016,8 @@
     "guestView": "Open what they see",
     "tier": "Price list",
     "tierDefault": "Default",
+    "terms": "Terms of sale",
+    "termsVersion": "Version {version}, updated on {date}",
     "fulfilment": "How it arrives",
     "delivery": "Delivery",
     "pickup": "Self-pickup",
