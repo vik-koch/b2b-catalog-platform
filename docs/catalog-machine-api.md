@@ -57,7 +57,7 @@ Body limit 10 MB, row cap 50 000.
 {
   "rows": [/* see §2.2 */],
   "options": {
-    "fields": ["name", "category", "stock"], // non-price fields this run writes
+    "fields": ["name", "category", "stock", "taxRate"], // non-price fields this run writes
     "createMissing": true,
     "updateExisting": true,
     "restoreReturning": true, // a hidden product back in the file returns
@@ -95,10 +95,17 @@ article number anywhere in this platform — the storefront quotes none.
 | `categoryName`     | string                 | the **leaf** name; no parent path is carried       |
 | `prices`           | `{ "<listKey>": int }` | **minor units**; only the keys present are written |
 | `stockPieces`      | int                    | pieces on hand; may be negative (a stocktake)      |
+| `taxRate`          | number or `null`       | a percent, ≤ 2 decimals; `null` = the default rate |
 
 **Absent ≠ empty.** An omitted field is left untouched, never cleared. A run
 cannot stop tracking a product's stock by omitting the cell — only an admin
 clearing the field does that.
+
+**A tax rate's `null` is a value.** A product always has a rate, so sending
+`null` puts it back on the deployment's default rather than leaving it alone.
+Send a rate only for goods taxed at something other than the default. The
+platform states the rate and never calculates tax with it, and under a
+deployment that charges no tax it is kept but not shown.
 
 **The category pair travels together.** Both or neither: an id without a name
 cannot create the category, a name without an id cannot say which one it
@@ -132,6 +139,7 @@ counted in `summary.errors`.
 | `price-not-an-integer`     | `price`, `column`        | —                                          |
 | `price-is-zero`            | `column`                 | no price, rather than a free product       |
 | `stock-not-an-integer`     | `stock`                  | —                                          |
+| `tax-rate-invalid`         | `taxRate`                | not a percent from 0 to 100, ≤ 2 decimals  |
 | `unknown-price-list`       | `key`, `known`           | no tier is keyed that (`known` lists them) |
 | `cannot-create-product`    | —                        | unknown key with `createMissing` off       |
 
@@ -304,8 +312,10 @@ drives the "the feed has stopped" mail.
 The same rows in another encoding, for an operator uploading a file in the
 panel (never for a machine client). Header row required, order-independent;
 columns `sourceId`, `name`, `categorySourceId`, `categoryName`, `price:<key>`
-(bare `price` = the default-badged list), `stock`. An empty cell means "not in
-this file", never "clear this field".
+(bare `price` = the default-badged list), `stock`, `taxRate`. An empty cell
+means "not in this file", never "clear this field" — except under `taxRate`,
+where it puts the product back on the default rate. A rate may use a comma for
+the decimal point (`5,5`).
 
 The upload is closed exactly while an external system owns the catalog, and the
 headless route is closed exactly while nothing does — one pen, one holder.

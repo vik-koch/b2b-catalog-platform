@@ -43,6 +43,7 @@ const product = (over: Partial<ExistingProduct> = {}): ExistingProduct => ({
   deletedAt: null,
   deletedBy: null,
   stockPieces: null,
+  taxRate: null,
   piecesPerPack: null,
   packsPerBox: null,
   lowStockThresholdPieces: null,
@@ -495,6 +496,69 @@ describe('planSync', () => {
 
     expect(plan.summary.errors).toBe(1);
     expect(plan.rowErrors).toHaveLength(1);
+  });
+
+  describe('tax rate (NFR-LEGAL-11)', () => {
+    it('writes a rate of its own', () => {
+      const { plan, actions } = planSync(
+        [row({ taxRate: 7 })],
+        options(),
+        state(),
+      );
+
+      expect(plan.products[0].changes).toEqual([
+        { field: 'taxRate', from: null, to: 7 },
+      ]);
+      expect(actions.updateProducts).toEqual([{ id: 'p-1', taxRate: 7 }]);
+    });
+
+    it('puts a product back on the default when the file says null', () => {
+      // Null is a value here, unlike a stock cell: a product always has a
+      // rate, and "the usual one" is something the source must be able to say.
+      const { actions } = planSync(
+        [row({ taxRate: null })],
+        options(),
+        state({ products: [product({ taxRate: 7 })] }),
+      );
+
+      expect(actions.updateProducts).toEqual([{ id: 'p-1', taxRate: null }]);
+    });
+
+    it('leaves the rate alone when the row carries none or the run does not write it', () => {
+      const absent = planSync(
+        [row({ prices: { default: 1990 } })],
+        options(),
+        state({ products: [product({ taxRate: 7 })] }),
+      );
+      const notWritten = planSync(
+        [row({ taxRate: null })],
+        options({ fields: ['name', 'category', 'stock'] }),
+        state({ products: [product({ taxRate: 7 })] }),
+      );
+
+      expect(absent.actions.updateProducts[0]).not.toHaveProperty('taxRate');
+      expect(notWritten.actions.updateProducts).toEqual([]);
+    });
+
+    it('carries a new product’s rate into its creation, and no null', () => {
+      const created = (taxRate: number | null) =>
+        planSync(
+          [
+            row({
+              sourceId: 'NEW-1',
+              name: 'New Roast',
+              categorySourceId: 'C-1',
+              categoryName: 'Coffee Beans',
+              taxRate,
+            }),
+          ],
+          options(),
+          state(),
+        ).actions.createProducts[0];
+
+      expect(created(7)).toMatchObject({ taxRate: 7 });
+      expect(created(null)).not.toHaveProperty('taxRate');
+    });
   });
 
   describe('stock (FR-STOCK-01/02)', () => {

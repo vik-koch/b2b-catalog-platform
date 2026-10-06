@@ -30,7 +30,12 @@ export const MANUAL_SOURCE_ID_PREFIX = 'manual:';
 
 /** The non-price fields a run can write, and the source `catalogSyncFieldSchema` is
  * built from — the list is stated once. */
-export const CATALOG_SYNC_FIELDS = ['name', 'category', 'stock'] as const;
+export const CATALOG_SYNC_FIELDS = [
+  'name',
+  'category',
+  'stock',
+  'taxRate',
+] as const;
 
 /** All of them: the default when a run does not narrow the set. */
 export const CATALOG_SYNC_ALL_FIELDS: (typeof CATALOG_SYNC_FIELDS)[number][] = [

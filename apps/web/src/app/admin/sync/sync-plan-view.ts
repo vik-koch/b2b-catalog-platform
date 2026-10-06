@@ -12,6 +12,7 @@ import {
   CatalogSyncPlan,
   CatalogSyncProductChange,
   CatalogSyncRowError,
+  formatTaxRate,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -342,8 +343,14 @@ export class SyncPlanView {
       this.confirmation().trim() === this.text.deleteConfirmWord,
   );
 
-  /** Prices arrive as minor units; everything else is already display text. */
+  /** Prices arrive as minor units, rates as percents; everything else is
+   * already display text. A rate's null is the default rate, not nothing. */
   protected display(field: string, value: string | number | null): string {
+    if (field === 'taxRate') {
+      return value === null
+        ? this.text.taxRateDefault
+        : `${formatTaxRate(Number(value), this.currency.locale)}\u00a0%`;
+    }
     if (value === null) return '—';
     if (typeof value === 'number') {
       return field.startsWith('price')

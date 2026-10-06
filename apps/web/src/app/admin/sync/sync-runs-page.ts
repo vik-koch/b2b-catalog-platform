@@ -325,7 +325,10 @@ export class SyncRunsPage {
         key: field.slice(CATALOG_SYNC_CSV_COLUMNS.pricePrefix.length),
       });
     }
-    return this.text.field[field as 'name' | 'category' | 'stock'] ?? field;
+    return (
+      this.text.field[field as 'name' | 'category' | 'stock' | 'taxRate'] ??
+      field
+    );
   }
 
   protected statusLabel(run: SyncRun): string {

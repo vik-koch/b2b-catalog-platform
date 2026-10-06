@@ -66,6 +66,28 @@ describe('parseSyncCsv', () => {
     expect(rows).toEqual([{ sourceId: 'A-1' }]);
   });
 
+  it('reads a tax rate with either decimal mark, and an empty cell as the default', () => {
+    const { rows, errors } = parseSyncCsv(
+      'sourceId;taxRate\nA-1;7\nA-2;5,5\nA-3;12.75\nA-4;\n',
+    );
+
+    expect(errors).toEqual([]);
+    expect(rows.map((row) => row.taxRate)).toEqual([7, 5.5, 12.75, null]);
+  });
+
+  it('reports a tax rate that is not a percent as a row error', () => {
+    const { rows, errors } = parseSyncCsv(
+      'sourceId,taxRate\nA-1,19 %\nA-2,101\nA-3,5.555\nA-4,19\n',
+    );
+
+    expect(rows.map((row) => row.sourceId)).toEqual(['A-4']);
+    expect(errors.map((error) => error.params)).toEqual([
+      { taxRate: '19 %' },
+      { taxRate: '101' },
+      { taxRate: '5.555' },
+    ]);
+  });
+
   it('fails a row carrying only half of the category pair', () => {
     const idOnly = parseSyncCsv(
       'sourceId,categorySourceId,categoryName\nA-1,C-1,\n',

@@ -800,6 +800,7 @@ export const adminTextSchema = z
             name: z.string(),
             category: z.string(),
             stock: z.string(),
+            taxRate: z.string(),
             createMissing: z.string(),
             updateExisting: z.string(),
             restoreReturning: z.string(),
@@ -887,6 +888,7 @@ export const adminTextSchema = z
             /** `{column}` — a zero price, which the catalog stores as none. */
             'price-is-zero': z.string(),
             'stock-not-an-integer': z.string(),
+            'tax-rate-invalid': z.string(),
             'unknown-price-list': z.string(),
             'category-name-conflict': z.string(),
             'unknown-category': z.string(),
@@ -1194,10 +1196,14 @@ export const adminTextSchema = z
             name: z.string(),
             category: z.string(),
             stock: z.string(),
+            taxRate: z.string(),
             priceList: z.string(),
             more: z.string(),
           })
           .strict(),
+        /** A tax rate going back to, or coming from, the deployment's
+         * default — the plan's word for a null rate. */
+        taxRateDefault: z.string(),
         /** Why a run is waiting, said in the log and on the run's own page. */
         stagedReason: z
           .object({ policy: z.string(), requested: z.string() })

@@ -443,7 +443,7 @@
     "modeLabel": "What is this file?",
     "advanced": "Advanced options",
     "file": "Catalog file (CSV)",
-    "fileHint": "Columns: sourceId (required), name, categorySourceId, categoryName, price, stock. Prices are whole numbers in cents; stock is a whole number of pieces and may be negative. A customer tier's price list is its own column, written “price:” plus the tier's sync key — see Customer tiers.",
+    "fileHint": "Columns: sourceId (required), name, categorySourceId, categoryName, price, stock, taxRate. Prices are whole numbers in cents; stock is a whole number of pieces and may be negative; taxRate is a percent such as 7 or 5,5, and an empty cell means the standard rate. A customer tier's price list is its own column, written “price:” plus the tier's sync key — see Customer tiers.",
     "dropHint": "Drop the CSV file here",
     "browse": "or choose a file",
     "changeFile": "Drop another file, or click to change",
@@ -484,6 +484,7 @@
       "price-not-an-integer": "The price “{price}” in column “{column}” is not a whole number of cents.",
       "price-is-zero": "The price in column “{column}” is zero. A product without a price is sent without that column, not with a zero in it.",
       "stock-not-an-integer": "The stock “{stock}” is not a whole number of pieces.",
+      "tax-rate-invalid": "The tax rate “{taxRate}” is not a percent from 0 to 100.",
       "unknown-price-list": "There is no price list “{key}” — this catalogue has {known}.",
       "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",
       "unknown-category": "The category “{name}” ({key}) is not in the catalogue, and this run does not create categories.",
@@ -620,6 +621,7 @@
       "name": "Update product names",
       "category": "Update product categories",
       "stock": "Update stock quantities",
+      "taxRate": "Update VAT rates",
       "createMissing": "Add products that aren't in the catalog yet",
       "updateExisting": "Update products that are already in the catalog",
       "restoreReturning": "Restore hidden products that reappear in the file",
@@ -701,9 +703,11 @@
       "name": "names",
       "category": "categories",
       "stock": "stock levels",
+      "taxRate": "VAT rates",
       "priceList": "prices ({key})",
       "more": "+{count}"
-    }
+    },
+    "taxRateDefault": "standard rate"
   },
   "maintenance": {
     "description": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",

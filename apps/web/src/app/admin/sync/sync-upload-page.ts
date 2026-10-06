@@ -379,7 +379,7 @@ export class SyncUploadPage {
 type SyncOptionKey = keyof AdminText['sync']['option'];
 
 /**
- * The advanced checkboxes. `name`/`category`/`stock` are members of the
+ * The advanced checkboxes. `name`/`category`/`stock`/`taxRate` are members of the
  * `fields` whitelist rather than booleans of their own, so each flag carries
  * its own read and write rather than the template branching on shape.
  */
@@ -387,6 +387,7 @@ type FlagKey =
   | 'name'
   | 'category'
   | 'stock'
+  | 'taxRate'
   | 'createMissing'
   | 'updateExisting'
   | 'restoreReturning'
@@ -398,6 +399,7 @@ const FLAGS: { key: FlagKey; label: SyncOptionKey; hint?: SyncOptionKey }[] = [
   { key: 'name', label: 'name' },
   { key: 'category', label: 'category' },
   { key: 'stock', label: 'stock' },
+  { key: 'taxRate', label: 'taxRate' },
   { key: 'createMissing', label: 'createMissing' },
   { key: 'updateExisting', label: 'updateExisting' },
   { key: 'restoreReturning', label: 'restoreReturning' },
@@ -414,6 +416,7 @@ const FLAG_VALUE: Record<FlagKey, (o: CatalogSyncOptions) => boolean> = {
   name: (o) => o.fields.includes('name'),
   category: (o) => o.fields.includes('category'),
   stock: (o) => o.fields.includes('stock'),
+  taxRate: (o) => o.fields.includes('taxRate'),
   createMissing: (o) => o.createMissing,
   updateExisting: (o) => o.updateExisting,
   restoreReturning: (o) => o.restoreReturning,
@@ -429,6 +432,7 @@ const FLAG_SET: Record<
   name: (o, on) => ({ ...o, fields: withField(o, 'name', on) }),
   category: (o, on) => ({ ...o, fields: withField(o, 'category', on) }),
   stock: (o, on) => ({ ...o, fields: withField(o, 'stock', on) }),
+  taxRate: (o, on) => ({ ...o, fields: withField(o, 'taxRate', on) }),
   createMissing: (o, on) => ({ ...o, createMissing: on }),
   updateExisting: (o, on) => ({ ...o, updateExisting: on }),
   restoreReturning: (o, on) => ({ ...o, restoreReturning: on }),
