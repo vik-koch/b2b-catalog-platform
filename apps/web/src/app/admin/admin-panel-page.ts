@@ -247,6 +247,10 @@ import { SyncService } from './sync/sync.service';
                   [class]="cardClass"
                   aria-labelledby="admin-consents-heading"
                 >
+                  <app-panel-row
+                    [label]="consentText.panelLookup"
+                    link="/admin/consents"
+                  />
                   @for (purpose of consentPurposes; track purpose) {
                     <app-panel-row
                       [label]="consentTextLabel(purpose)"

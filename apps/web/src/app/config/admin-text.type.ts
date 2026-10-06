@@ -2303,11 +2303,27 @@ export const adminTextSchema = z
     consents: z
       .object({
         title: z.string(),
+        /** The admin panel's row to the lookup. */
+        panelLookup: z.string(),
         /** The panel's row to a consent text; `{purpose}` names it. */
         panelText: z.string(),
+        intro: z.string(),
+        byEmail: z.string(),
+        byPhone: z.string(),
+        search: z.string(),
+        /** `{query}` is what was searched for. */
+        empty: z.string(),
+        loadError: z.string(),
         purposes: z
           .object({ contact: z.string(), account: z.string() })
           .strict(),
+        /** `{version}` is the consent text's version number. */
+        version: z.string(),
+        /** The account the record was given for. */
+        account: z.string(),
+        /** A record of an account that no longer exists: a declined
+         * registration. */
+        accountGone: z.string(),
       })
       .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */

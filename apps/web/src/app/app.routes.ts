@@ -314,6 +314,16 @@ export const appRoutes: Route[] = [
     loadComponent: () =>
       import('./admin/users/user-editor-page').then((m) => m.UserEditorPage),
   },
+  // A person's consent records (NFR-LEGAL-09), found by address or number.
+  // Admin only: answering for them is the operator's.
+  {
+    path: 'admin/consents',
+    canActivate: [requireAuth('admin'), adminTextGuard],
+    loadComponent: () =>
+      import('./admin/consents/consent-lookup-page').then(
+        (m) => m.ConsentLookupPage,
+      ),
+  },
   // Orders, for admin and manager both (FR-AUTH-03) — a manager's daily work:
   // reading them, answering them, and writing a new version of one.
   {
