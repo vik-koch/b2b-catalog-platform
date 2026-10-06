@@ -18,7 +18,11 @@ const pages = (published: string[]) => ({
 });
 
 /** Required of every config, and beside the point of every test here. */
-const required = { billingAddressEnabled: true, pages: pages([]) };
+const required = {
+  billingAddressEnabled: true,
+  pages: pages([]),
+  consent: { contact: false, account: false },
+};
 
 /** Points DEPLOYMENT_CONFIG_FILE at a config written for this test. */
 function withConfig(config: Record<string, unknown>): void {
@@ -157,15 +161,28 @@ describe('loadConsentPurposesAsked', () => {
     resetApiDeploymentConfig();
   });
 
-  it('asks for a purpose exactly when its text is published', () => {
-    withConfig({ pages: pages(['privacy', 'consent-contact']) });
+  it('asks for the purposes switched on', () => {
+    withConfig({ consent: { contact: true, account: false } });
 
     expect(loadConsentPurposesAsked()).toEqual(['contact']);
   });
 
-  it('asks for nothing where no consent text is published', () => {
-    withConfig({ pages: pages(['privacy']) });
+  it('asks for nothing where both are off', () => {
+    withConfig({ consent: { contact: false, account: false } });
 
     expect(loadConsentPurposesAsked()).toEqual([]);
+  });
+
+  // Both are stated: leaving one out is a decision nobody made.
+  it('refuses a config that leaves a purpose unstated', () => {
+    withConfig({ consent: { contact: true } });
+
+    expect(() => loadConsentPurposesAsked()).toThrow();
+  });
+
+  it('refuses a consent text listed as a published page', () => {
+    withConfig({ pages: pages(['privacy', 'consent-contact']) });
+
+    expect(() => loadConsentPurposesAsked()).toThrow(/switched by consent/);
   });
 });

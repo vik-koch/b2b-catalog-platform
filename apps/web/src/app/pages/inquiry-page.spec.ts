@@ -261,7 +261,7 @@ describe('InquiryPage', () => {
         'I consent to the processing of my inquiry.*',
       );
       const link = label?.querySelector<HTMLAnchorElement>(
-        'a[href="/consent-contact"]',
+        'a[href="/inquiry/consent"]',
       );
       expect(link?.textContent?.trim()).toBe('consent');
       expect(link?.target).toBe('_blank');
@@ -277,16 +277,11 @@ describe('InquiryPage', () => {
       expect(notice?.closest('label')).toBeNull();
     });
 
-    it('asks nothing where the deployment publishes no consent text', async () => {
+    it('asks nothing where the deployment does not ask for it', async () => {
       const { el, submit, getPage, sync } = await render({
         config: {
           ...testConfig,
-          pages: {
-            ...testConfig.pages,
-            published: testConfig.pages.published.filter(
-              (slug) => slug !== 'consent-contact',
-            ),
-          },
+          consent: { ...testConfig.consent, contact: false },
         },
       });
 

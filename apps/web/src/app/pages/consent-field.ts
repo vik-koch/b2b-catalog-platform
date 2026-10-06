@@ -45,7 +45,7 @@ let nextId = 0;
               {{ parts.before
               }}<a
                 appLink
-                [routerLink]="['/', consent().slug]"
+                [routerLink]="consent().path"
                 target="_blank"
                 rel="noopener"
                 >{{ parts.link }}</a

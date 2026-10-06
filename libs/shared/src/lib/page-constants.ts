@@ -32,7 +32,8 @@ export type PageSlug = (typeof PAGE_SLUGS)[number];
  * are deliberately absent: they have an editable body like the others, but a
  * code route renders each so what it states from configuration — the office
  * list and map embeds, the delivery zones, pickup points and payment methods —
- * keeps its own markup around the prose.
+ * keeps its own markup around the prose. The consent texts are absent too:
+ * each lives under the form that asks for it (`CONSENT_PATHS`).
  *
  * Which of these a given deployment actually publishes is a separate,
  * per-deployment decision (see the `pages` block in the deployment config).
@@ -42,8 +43,6 @@ export const STANDALONE_PAGE_SLUGS = [
   'privacy',
   'imprint',
   'withdrawal',
-  'consent-contact',
-  'consent-account',
 ] as const satisfies readonly PageSlug[];
 export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 
@@ -67,16 +66,31 @@ export function isDatedPage(slug: string): boolean {
 
 /**
  * What a person can consent to (NFR-LEGAL-09), each with its own text. A
- * deployment asks for a purpose by publishing its page, and for nothing
- * otherwise.
+ * deployment asks for a purpose by switching it on (`consent` in the
+ * deployment config), and for nothing otherwise.
  */
 export const CONSENT_PURPOSES = ['contact', 'account'] as const;
 export type ConsentPurpose = (typeof CONSENT_PURPOSES)[number];
 
+/**
+ * Each purpose's text, as a page key. Named for the purpose rather than the
+ * form: the account consent is asked on registration and on an invited
+ * holder's first password alike.
+ */
 export const CONSENT_PAGE_SLUGS = {
   contact: 'consent-contact',
   account: 'consent-account',
-} as const satisfies Record<ConsentPurpose, StandalonePageSlug>;
+} as const satisfies Record<ConsentPurpose, PageSlug>;
+
+/**
+ * Where each text is read: under the form that asks for it. The account text
+ * sits under registration rather than `/account`, which is behind sign-in,
+ * because the people who read it have no session yet.
+ */
+export const CONSENT_PATHS = {
+  contact: '/inquiry/consent',
+  account: '/register/consent',
+} as const satisfies Record<ConsentPurpose, string>;
 
 export function isConsentPage(slug: string): boolean {
   return (Object.values(CONSENT_PAGE_SLUGS) as string[]).includes(slug);

@@ -1,6 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
-import { fillText, OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared';
+import {
+  CONSENT_PAGE_SLUGS,
+  CONSENT_PURPOSES,
+  ConsentPurpose,
+  fillText,
+  OWNERSHIP_AREAS,
+} from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { ADMIN_TEXT } from '../config/admin-text';
@@ -226,6 +232,31 @@ import { SyncService } from './sync/sync.service';
                 }
               </ul>
             </section>
+
+            <!-- Consent (NFR-LEGAL-09), apart from the content pages: its texts
+                 are what a record proves, and finding a person's records is the
+                 other half of the same duty. Only while the deployment asks for
+                 a consent; older records stay findable at the lookup's URL. -->
+            @if (consentPurposes.length > 0) {
+              <section class="order-5 md:order-none">
+                <h2 id="admin-consents-heading" [class]="headingClass">
+                  <app-admin-icon name="book-check" class="h-4 w-4" />
+                  {{ consentText.title }}
+                </h2>
+                <ul
+                  [class]="cardClass"
+                  aria-labelledby="admin-consents-heading"
+                >
+                  @for (purpose of consentPurposes; track purpose) {
+                    <app-panel-row
+                      [label]="consentTextLabel(purpose)"
+                      [link]="['/admin/pages', consentSlugs[purpose], 'edit']"
+                      [queryParams]="editorFrom()"
+                    />
+                  }
+                </ul>
+              </section>
+            }
           } @else {
             <ng-container [ngTemplateOutlet]="security" />
           }
@@ -425,6 +456,7 @@ export class AdminPanelPage {
   protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokenList;
   protected readonly operationsText = inject(ADMIN_TEXT).operations;
   protected readonly userText = inject(ADMIN_TEXT).userList;
+  protected readonly consentText = inject(ADMIN_TEXT).consents;
   protected readonly orderText = inject(ADMIN_TEXT).orderList;
   protected readonly navText = inject(APP_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
@@ -432,6 +464,17 @@ export class AdminPanelPage {
   // Only what this deployment publishes: an unpublished page has no route to
   // edit it against, so offering it here would be a dead end.
   protected readonly pageSlugs = inject(DEPLOYMENT_CONFIG).pages.published;
+  private readonly consentAsked = inject(DEPLOYMENT_CONFIG).consent;
+  /** The consents this deployment asks for, each with its own text. */
+  protected readonly consentPurposes = CONSENT_PURPOSES.filter(
+    (purpose) => this.consentAsked[purpose],
+  );
+  protected readonly consentSlugs = CONSENT_PAGE_SLUGS;
+  protected consentTextLabel(purpose: ConsentPurpose): string {
+    return fillText(this.consentText.panelText, {
+      purpose: this.consentText.purposes[purpose],
+    });
+  }
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   protected readonly editorFrom = injectEditorReturnParams();
 

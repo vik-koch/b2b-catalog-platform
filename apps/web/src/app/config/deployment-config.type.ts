@@ -5,6 +5,7 @@ import {
   deliveryConfigSchema,
   KEYBOARD_LAYOUTS,
   orderReferenceConfigSchema,
+  consentConfigSchema,
   pagesConfigSchema,
   phoneInputSchema,
   syncPolicySchema,
@@ -249,6 +250,11 @@ export const deploymentConfigSchema = z
       .strict(),
     /** Which static pages this deployment has, and where they are linked. */
     pages: pagesConfigSchema,
+    /**
+     * Which consents the forms ask for (NFR-LEGAL-09). A purpose switched on
+     * draws its box, and its text is read under its form.
+     */
+    consent: consentConfigSchema,
     /**
      * Whether cookie-consent gating is enforced. When false, no banner is shown
      * and non-essential storage is not gated — correct both while the app sets

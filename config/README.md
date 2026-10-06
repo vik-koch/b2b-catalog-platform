@@ -94,23 +94,34 @@ The imprint page stays the place for the full seller details.
 ### Consent to processing personal data
 
 Where a jurisdiction wants consent asked as a statement of its own, the shop
-offers two purposes, each a page in the fixed set:
+offers two purposes, each switched on its own:
 
-- `consent-contact` is asked on the contact form.
-- `consent-account` is asked on the registration form. For a customer account
-  opened on the holder's behalf, it is asked instead on the page where they
-  first choose a password.
+```json
+"consent": {
+  "contact": false,
+  "account": false
+}
+```
 
-A purpose is asked exactly when its slug is in `pages.published`. There is no
-other switch. Publish neither, and no form shows a box. That is right where the
-processing rests on the contract or the shop's legitimate interest.
+- `contact` is asked on the contact form. Its text is read at `/inquiry/consent`.
+- `account` is asked on the registration form. For a customer account opened on
+  the holder's behalf, it is asked instead on the page where they first choose a
+  password. Its text is read at `/register/consent`.
+
+Both keys are required. Switch a purpose on only where the processing rests on
+consent. Leave it off where it rests on the contract or the shop's legitimate
+interest, which is the usual case in the EU: the form then shows no box. The
+demo leaves both off. A consent text is not a published page, so neither
+`consent-contact` nor `consent-account` belongs in `pages.published`, and the
+config is refused if one is listed there.
 
 The text and the wording beside the box are written in the admin page editor,
-not here, and every save is a new version. The wording marks the words that
-open the text with square brackets, once: `I [consent] to …`. A consent is
-recorded against the version the person saw. A published purpose whose text was
-never written refuses its form rather than sending it without the consent. So
-write the text before publishing the slug.
+not here. The admin panel lists the texts of the purposes switched on, beside
+the search for a person's consent records. Every save is a new version. The
+wording marks the words that open the text with square brackets, once:
+`I [consent] to …`. A consent is recorded against the version the person saw. A
+purpose switched on whose text was never written refuses its form rather than
+sending it without the consent. So write the text before switching it on.
 
 Whether or not a box is asked, the contact form, registration and checkout
 carry a line pointing at the privacy page, worded by `privacyNotice` in

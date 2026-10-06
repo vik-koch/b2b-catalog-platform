@@ -1,10 +1,10 @@
 import {
   AddressConfig,
   addressConfigSchema,
-  CONSENT_PAGE_SLUGS,
   CONSENT_PURPOSES,
   ConsentPurpose,
   CompanyIdFormat,
+  consentConfigSchema,
   companyIdInputSchema,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   CustomerSyncPolicy,
@@ -37,11 +37,12 @@ import * as z from 'zod';
 export const apiDeploymentConfigSchema = z
   .object({
     /**
-     * Which pages the deployment publishes. The API reads `published` alone,
-     * for the consent texts (NFR-LEGAL-09); the navigation is the web app's,
-     * but checked here as well, so both sides fail on the same file.
+     * Which pages the deployment publishes. The API reads none of it; it is
+     * checked here so both sides fail on the same file.
      */
     pages: pagesConfigSchema,
+    /** Which consents the forms ask for (NFR-LEGAL-09). */
+    consent: consentConfigSchema,
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
@@ -382,16 +383,14 @@ export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
 }
 
 /**
- * Which consent purposes this deployment asks for: those whose text it
- * publishes. Injected like the rules beside it.
+ * Which consent purposes this deployment asks for: those switched on.
+ * Injected like the rules beside it.
  */
 export const CONSENT_PURPOSES_ASKED = 'CONSENT_PURPOSES_ASKED';
 
 export function loadConsentPurposesAsked(): readonly ConsentPurpose[] {
-  const published = new Set<string>(loadApiDeploymentConfig().pages.published);
-  return CONSENT_PURPOSES.filter((purpose) =>
-    published.has(CONSENT_PAGE_SLUGS[purpose]),
-  );
+  const { consent } = loadApiDeploymentConfig();
+  return CONSENT_PURPOSES.filter((purpose) => consent[purpose]);
 }
 
 /** The second keyboard layout searches read a query on, or null for none. */

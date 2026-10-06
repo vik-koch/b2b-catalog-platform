@@ -1,5 +1,5 @@
 import * as z from 'zod';
-import { PAGE_SLUGS } from './page-constants';
+import { isConsentPage, PAGE_SLUGS } from './page-constants';
 import { pageSlugSchema } from './page.contract';
 
 /**
@@ -31,6 +31,17 @@ export const pagesConfigSchema = z
   })
   .strict()
   .superRefine((pages, ctx) => {
+    // The consent texts are switched by `consent`, and live under their forms.
+    // Listed here they would read as a switch that does nothing.
+    for (const slug of pages.published) {
+      if (isConsentPage(slug)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['published'],
+          message: `"${slug}" is switched by consent, not published here`,
+        });
+      }
+    }
     // A link to an unpublished page would render a 404 into the chrome of
     // every page, so this is worth failing the boot over.
     const published = new Set<string>(pages.published);
