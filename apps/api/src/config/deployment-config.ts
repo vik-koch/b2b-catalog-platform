@@ -1,6 +1,9 @@
 import {
   AddressConfig,
   addressConfigSchema,
+  CONSENT_PAGE_SLUGS,
+  CONSENT_PURPOSES,
+  ConsentPurpose,
   CompanyIdFormat,
   companyIdInputSchema,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
@@ -19,6 +22,7 @@ import {
   syncPolicySchema,
   PhoneConfig,
   phoneInputSchema,
+  pageSlugSchema,
 } from '@b2b-catalog-platform/shared';
 import { dirname, join } from 'node:path';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
@@ -32,6 +36,12 @@ import * as z from 'zod';
  */
 export const apiDeploymentConfigSchema = z
   .object({
+    /**
+     * Which pages the deployment publishes. The API reads it for the consent
+     * texts alone (NFR-LEGAL-09): a purpose is asked for exactly when its page
+     * is published. The navigation beside it is the web app's.
+     */
+    pages: z.object({ published: z.array(pageSlugSchema) }).passthrough(),
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
@@ -368,6 +378,19 @@ export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
   return (
     loadApiDeploymentConfig().sync?.customerAutoApply ??
     DEFAULT_CUSTOMER_SYNC_POLICY
+  );
+}
+
+/**
+ * Which consent purposes this deployment asks for: those whose text it
+ * publishes. Injected like the rules beside it.
+ */
+export const CONSENT_PURPOSES_ASKED = 'CONSENT_PURPOSES_ASKED';
+
+export function loadConsentPurposesAsked(): readonly ConsentPurpose[] {
+  const published = new Set<string>(loadApiDeploymentConfig().pages.published);
+  return CONSENT_PURPOSES.filter((purpose) =>
+    published.has(CONSENT_PAGE_SLUGS[purpose]),
   );
 }
 

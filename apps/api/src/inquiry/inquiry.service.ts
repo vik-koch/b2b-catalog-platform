@@ -5,6 +5,7 @@ import {
   PhoneConfig,
 } from '@b2b-catalog-platform/shared';
 import { PHONE_INPUT } from '../config/deployment-config';
+import { ConsentService } from '../consents/consent.service';
 import { env } from '../env';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
@@ -18,6 +19,7 @@ export class InquiryService {
     private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
+    private readonly consents: ConsentService,
   ) {}
 
   /**
@@ -25,6 +27,9 @@ export class InquiryService {
    * visitor's answer has never depended on the provider's — and making them
    * watch a form for the seconds a real relay takes is the one thing the
    * screen could get wrong. A message that will not go out is logged.
+   *
+   * The consent, where the deployment asks for one, is the exception: it is
+   * the shop's evidence and outlives the inquiry it came with.
    */
   async submit(submission: InquiryRequest): Promise<void> {
     // Honeypot: drop it silently toward the caller — no mail, no error, a
@@ -40,6 +45,17 @@ export class InquiryService {
     if (!to) {
       // env.ts requires this in server mode; this narrows the type.
       throw new Error('MAIL_STAFF_TO is not configured');
+    }
+
+    const consent = await this.consents.check(
+      'contact',
+      submission.consentVersion,
+    );
+    if (consent) {
+      await this.consents.record(consent, {
+        email: submission.email,
+        phone: submission.phone,
+      });
     }
 
     const readable = {

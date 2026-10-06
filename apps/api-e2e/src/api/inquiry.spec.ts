@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { Client } from 'pg';
+import { consentVersion } from '../support/consent';
 import { requireEnv } from '../support/env';
 import {
   deleteMatching,
@@ -17,13 +19,21 @@ const validSubmission = {
   message: 'Do you deliver to Altona?',
 };
 
+/** Ticks the consent box the form would show, unless the body says otherwise. */
+const submit = async (body: object) =>
+  axios.post(
+    '/inquiry',
+    { consentVersion: await consentVersion('contact'), ...body },
+    { validateStatus: () => true },
+  );
+
 describe('POST /inquiry', () => {
   beforeEach(async () => {
     await deleteMatching(INQUIRY_MAIL);
   });
 
   it('accepts a valid submission and emails the shop', async () => {
-    const res = await axios.post('/inquiry', validSubmission);
+    const res = await submit(validSubmission);
 
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
@@ -39,7 +49,7 @@ describe('POST /inquiry', () => {
   // The round trip through the real transport: what actually arrives is the
   // branded layout, with a plain-text alternative beside it.
   it('delivers both a branded HTML part and a plain-text one', async () => {
-    await axios.post('/inquiry', validSubmission);
+    await submit(validSubmission);
 
     const [message] = await messagesMatching(INQUIRY_MAIL);
     const body = await messageBody(message.ID);
@@ -51,11 +61,7 @@ describe('POST /inquiry', () => {
   });
 
   it('rejects a submission without a name', async () => {
-    const res = await axios.post(
-      '/inquiry',
-      { ...validSubmission, name: '' },
-      { validateStatus: () => true },
-    );
+    const res = await submit({ ...validSubmission, name: '' });
 
     expect(res.status).toBe(400);
     expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
@@ -63,9 +69,7 @@ describe('POST /inquiry', () => {
 
   it('rejects a submission with neither email nor phone', async () => {
     const { email: _email, ...noContact } = validSubmission;
-    const res = await axios.post('/inquiry', noContact, {
-      validateStatus: () => true,
-    });
+    const res = await submit(noContact);
 
     expect(res.status).toBe(400);
     expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
@@ -74,18 +78,14 @@ describe('POST /inquiry', () => {
   // Honeypot: a filled decoy field looks like success to the bot
   // (a normal 200) but no mail is sent.
   it('rejects an unknown field on the submission (strict contract)', async () => {
-    const res = await axios.post(
-      '/inquiry',
-      { ...validSubmission, sneaky: true },
-      { validateStatus: () => true },
-    );
+    const res = await submit({ ...validSubmission, sneaky: true });
 
     expect(res.status).toBe(400);
     expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
   });
 
   it('silently drops a submission with the honeypot filled', async () => {
-    const res = await axios.post('/inquiry', {
+    const res = await submit({
       ...validSubmission,
       website: 'http://spam.example',
     });
@@ -93,5 +93,74 @@ describe('POST /inquiry', () => {
     expect(res.status).toBe(200);
     expect(res.data).toEqual({ ok: true });
     expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
+  });
+
+  describe('consent (NFR-LEGAL-09)', () => {
+    let client: Client;
+    const address = `e2e-inquiry-consent-${Date.now()}@example.com`;
+
+    const recordsFor = async (email: string) =>
+      (
+        await client.query(
+          `SELECT c.purpose, c."userId", c.email, c.phone,
+                  v.slug, v.version
+             FROM consents c JOIN page_versions v ON v.id = c."pageVersionId"
+            WHERE c.email = $1`,
+          [email],
+        )
+      ).rows;
+
+    beforeAll(async () => {
+      client = new Client({ connectionString: requireEnv('DATABASE_URL') });
+      await client.connect();
+    });
+
+    afterAll(async () => {
+      await client.end();
+    });
+
+    it('records the consent against the address and the version shown', async () => {
+      const version = await consentVersion('contact');
+
+      const res = await submit({
+        ...validSubmission,
+        email: address.toUpperCase(),
+        phone: '+49401234567',
+      });
+
+      expect(res.status).toBe(200);
+      expect(await recordsFor(address)).toEqual([
+        {
+          purpose: 'contact',
+          userId: null,
+          email: address,
+          phone: '+49401234567',
+          slug: 'consent-contact',
+          version,
+        },
+      ]);
+    });
+
+    it('refuses an unticked box, and sends nothing', async () => {
+      const res = await submit({
+        ...validSubmission,
+        consentVersion: undefined,
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('consent-required');
+      expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
+    });
+
+    it('refuses a version the text has moved past', async () => {
+      const res = await submit({
+        ...validSubmission,
+        consentVersion: (await consentVersion('contact')) + 1,
+      });
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('consent-stale');
+      expect(await messagesMatching(INQUIRY_MAIL)).toHaveLength(0);
+    });
   });
 });

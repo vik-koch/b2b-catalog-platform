@@ -64,6 +64,24 @@ export function isConsentPage(slug: string): boolean {
   return (Object.values(CONSENT_PAGE_SLUGS) as string[]).includes(slug);
 }
 
+/**
+ * Why a form's consent was refused. `required`: the box was not ticked.
+ * `stale`: the text changed after the form loaded it, so the person ticked
+ * wording that is no longer current — the form reloads it and asks again.
+ * `unavailable`: the deployment asks for the purpose but its text has never
+ * been written, and a form that cannot show what it asks for must not be sent.
+ */
+export const consentErrors = {
+  'consent-required': { status: 400 },
+  'consent-stale': { status: 409 },
+  'consent-unavailable': { status: 503 },
+} as const;
+export type ConsentRefusalCode = keyof typeof consentErrors;
+
+export function isConsentRefusal(code: string): code is ConsentRefusalCode {
+  return Object.hasOwn(consentErrors, code);
+}
+
 /** The wording beside the box: a sentence, not a text. */
 export const CONSENT_LABEL_MAX_LENGTH = 500;
 

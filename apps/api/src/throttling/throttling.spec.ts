@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { ConsentService } from '../consents/consent.service';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { MAILER, Mailer } from '../mail/mailer';
 import { ThrottlingModule } from './throttling.module';
@@ -40,6 +41,9 @@ describe('Throttling', () => {
       .useValue(demoMailBranding)
       .overrideProvider(PHONE_INPUT)
       .useValue(demoPhoneInput)
+      // No database here, and the throttle runs before any consent check.
+      .overrideProvider(ConsentService)
+      .useValue({ check: async () => null })
       .compile();
 
     app = moduleRef.createNestApplication();

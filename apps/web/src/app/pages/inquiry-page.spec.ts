@@ -51,7 +51,7 @@ function submitForm(root: HTMLElement): void {
 async function render(
   options: { config?: DeploymentConfig; page?: Page | null } = {},
 ) {
-  const submit = vi.fn<InquiryService['submit']>().mockResolvedValue(undefined);
+  const submit = vi.fn<InquiryService['submit']>().mockResolvedValue('ok');
   const getPage = vi
     .fn<PageService['getPage']>()
     .mockResolvedValue(options.page === undefined ? consentPage : options.page);
@@ -161,6 +161,7 @@ describe('InquiryPage', () => {
       phone: undefined,
       preferredContact: 'email',
       message: 'Do you deliver to Altona?',
+      consentVersion: 3,
     });
     expect(el.textContent).toContain(text.success);
   });
@@ -203,6 +204,7 @@ describe('InquiryPage', () => {
       phone: '+490301234567',
       preferredContact: 'phone',
       message: undefined,
+      consentVersion: 3,
     });
   });
 
@@ -228,6 +230,20 @@ describe('InquiryPage', () => {
     expect(submit).toHaveBeenCalledWith(
       expect.objectContaining({ website: 'http://spam.example' }),
     );
+  });
+
+  it('shows the error message when submission fails', async () => {
+    const { el, submit, sync } = await render();
+    submit.mockResolvedValue('error');
+
+    setInput(el, '#name', 'Jane Doe');
+    setInput(el, '#email', 'jane@example.com');
+    tickConsent(el);
+    submitForm(el);
+    await sync();
+
+    expect(submit).toHaveBeenCalledTimes(1);
+    expect(el.textContent).toContain(text.error);
   });
 
   describe('the consent box (NFR-LEGAL-09)', () => {
@@ -259,6 +275,65 @@ describe('InquiryPage', () => {
       expect(notice?.textContent).toContain(defaultAppText.privacyNotice.text);
       expect(notice?.querySelector('a')?.getAttribute('href')).toBe('/privacy');
       expect(notice?.closest('label')).toBeNull();
+    });
+
+    it('asks nothing where the deployment publishes no consent text', async () => {
+      const { el, submit, getPage, sync } = await render({
+        config: {
+          ...testConfig,
+          pages: {
+            ...testConfig.pages,
+            published: testConfig.pages.published.filter(
+              (slug) => slug !== 'consent-contact',
+            ),
+          },
+        },
+      });
+
+      expect(getPage).not.toHaveBeenCalled();
+      expect(el.querySelector('input[type="checkbox"]')).toBeNull();
+      // The privacy notice is owed whatever the processing rests on.
+      expect(el.textContent).toContain(defaultAppText.privacyNotice.link);
+
+      fill(el);
+      submitForm(el);
+      await sync();
+
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({ consentVersion: undefined }),
+      );
+    });
+
+    it('reloads a text that changed under the form and asks again', async () => {
+      const { el, submit, getPage, sync } = await render();
+      submit.mockResolvedValueOnce('consent-stale');
+      getPage.mockResolvedValue({
+        ...consentPage,
+        version: 4,
+        consentLabel: 'The new [wording].',
+      });
+
+      fill(el);
+      tickConsent(el);
+      submitForm(el);
+      await sync();
+      await sync();
+
+      expect(el.textContent).toContain(consentText.changed);
+      expect(el.textContent).toContain('The new wording.');
+      expect(
+        el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked,
+      ).toBe(false);
+      expect(el.textContent).not.toContain(text.error);
+
+      tickConsent(el);
+      submitForm(el);
+      await sync();
+
+      expect(submit).toHaveBeenLastCalledWith(
+        expect.objectContaining({ consentVersion: 4 }),
+      );
+      expect(el.textContent).toContain(text.success);
     });
 
     // Published but never written: nothing to show, so nothing is sent.

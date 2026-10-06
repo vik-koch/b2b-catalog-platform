@@ -219,12 +219,13 @@ export class InquiryPage {
     }
 
     this.status.set('submitting');
-    try {
-      await this.inquiry.submit(this.toRequest());
+    const result = await this.inquiry.submit(this.toRequest());
+    if (result === 'ok') {
       this.status.set('success');
-    } catch {
-      this.status.set('error');
+      return;
     }
+    // A consent refusal is explained beside the box, not as a failure.
+    this.status.set(this.consent.refused(result) ? 'idle' : 'error');
   }
 
   // The chosen channel is required; the other field stays optional. Email keeps
@@ -260,6 +261,7 @@ export class InquiryPage {
       message: value.message || undefined,
       // Honeypot.
       website: value.website || undefined,
+      consentVersion: this.consent.version(),
     };
   }
 }

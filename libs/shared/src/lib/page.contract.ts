@@ -11,6 +11,13 @@ import { commonAuthErrors } from './api-error';
 
 export const pageSlugSchema = z.enum(PAGE_SLUGS);
 
+/**
+ * The version of the consent text a form showed and the person ticked
+ * (NFR-LEGAL-09). Absent where the form asked nothing: the deployment does not
+ * publish that purpose's text.
+ */
+export const consentVersionField = z.number().int().positive().optional();
+
 export type RichTextImageAlignment =
   (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
