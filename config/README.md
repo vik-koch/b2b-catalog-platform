@@ -127,6 +127,23 @@ Whether or not a box is asked, the contact form, registration and checkout
 carry a line pointing at the privacy page, worded by `privacyNotice` in
 `app-text.json`. It shows only where `privacy` is published.
 
+### Terms of sale
+
+Publishing `terms` gives the shop a page of terms that every order accepts.
+Checkout says so beside the submit button, worded by `termsNotice` in
+`app-text.json`. Each order records the version of the terms current when it
+was sent. Staff see that version on the order, and the customer's receipt and
+the order summary name its date. A deployment that does not publish `terms`
+records nothing and says nothing.
+
+The order summary prints `orderSummaryPdf.returnNotice` from `mail-text.json`
+under the total, where it is set: the summary is the paper handed over with the
+goods, so it can tell the customer in writing how to return them. Leave the key
+out to print nothing.
+
+Publish `withdrawal` only where the jurisdiction prescribes a withdrawal notice
+of its own. Elsewhere, the return procedure belongs in the terms.
+
 ## Assets (logo, favicon, fonts)
 
 Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:

@@ -6,6 +6,7 @@ import {
   MoneyFormat,
   OrderAddress,
   OrderDetail,
+  OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
 import { Inject, Injectable } from '@nestjs/common';
 import fontkit from '@pdf-lib/fontkit';
@@ -21,11 +22,13 @@ import {
 import {
   ADDRESS_CONFIG,
   MONEY_FORMAT,
+  ORDER_REFERENCE_CONFIG,
   PDF_FONT,
   PdfFontFiles,
 } from '../config/deployment-config';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
+import { shopDay } from './shop-day';
 
 /** A4, in PDF points. */
 const PAGE_WIDTH = 595.28;
@@ -67,6 +70,8 @@ export class OrderPdf {
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ADDRESS_CONFIG) private readonly address: AddressConfig | undefined,
     @Inject(PDF_FONT) private readonly font: PdfFontFiles | undefined,
+    @Inject(ORDER_REFERENCE_CONFIG)
+    private readonly reference: OrderReferenceConfig,
   ) {}
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
@@ -106,6 +111,18 @@ export class OrderPdf {
       t.whenLabel,
       order.preferredDate ? this.day(order.preferredDate) : t.whenAny,
     );
+    if (order.termsDate) {
+      sheet.field(
+        t.termsLabel,
+        fillText(t.termsVersion, {
+          date: shopDay(
+            order.termsDate,
+            this.currency.locale,
+            this.reference.timezone,
+          ),
+        }),
+      );
+    }
     if (order.customerNote) sheet.field(t.noteLabel, order.customerNote);
     if (order.changes.length > 0) sheet.field(t.changesLabel, order.changes);
 
@@ -122,6 +139,10 @@ export class OrderPdf {
       t.totalLabel,
       formatMoneyMinor(order.totalMinor, this.currency),
     );
+    if (t.returnNotice) {
+      sheet.gap(16);
+      sheet.paragraph(t.returnNotice);
+    }
     sheet.footer(t.footer);
 
     return Buffer.from(await pdf.save());
@@ -373,6 +394,20 @@ class Sheet {
       });
       this.y = top - cells.length * LINE_HEIGHT - 4;
       this.rule();
+    }
+  }
+
+  /** Running text across the full width. */
+  paragraph(text: string): void {
+    const lines = this.plain(text)
+      .split('\n')
+      .flatMap((line) => wrap(line, this.faces.regular, BODY_SIZE, this.width));
+    for (const line of lines) {
+      this.draw(line, {
+        size: BODY_SIZE,
+        font: this.faces.regular,
+        height: LINE_HEIGHT,
+      });
     }
   }
 

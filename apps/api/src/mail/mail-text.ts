@@ -227,6 +227,11 @@ export const mailTextSchema = z
         fulfilmentLabel: z.string(),
         delivery: z.string(),
         pickup: z.string(),
+        /** The terms the order accepted (NFR-LEGAL-10); the row is left out
+         * where it accepted none. */
+        termsLabel: z.string(),
+        /** Names the version by its date; `{date}` is substituted. */
+        termsVersion: z.string(),
         /** Button to the order summary the link opens. */
         action: z.string(),
       })
@@ -434,6 +439,13 @@ export const mailTextSchema = z
         quantityLabel: z.string(),
         lineTotalLabel: z.string(),
         totalLabel: z.string(),
+        /** As in `orderReceived`. */
+        termsLabel: z.string(),
+        termsVersion: z.string(),
+        /** How to return the goods, printed under the total (NFR-LEGAL-10):
+         * the summary is the paper handed over with them. Absent, nothing is
+         * printed. */
+        returnNotice: z.string().optional(),
         /** Printed at the foot of every page: what this document is, and what
          * it is not (ADR 0052). */
         footer: z.string(),

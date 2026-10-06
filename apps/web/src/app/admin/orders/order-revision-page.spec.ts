@@ -40,6 +40,7 @@ const version: OrderRevision = {
   status: 'approved',
   paymentState: 'awaiting',
   statusReason: null,
+  termsDate: null,
   changes: ['One more box, as agreed.'],
   revisionNumber: 2,
   customerRevisionNumber: 3,

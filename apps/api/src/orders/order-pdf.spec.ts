@@ -26,6 +26,8 @@ const address = {
   countries: [{ code: 'DE', label: 'Germany' }],
 } as unknown as AddressConfig;
 
+const reference = { prefix: 'CK', timezone: 'UTC' };
+
 const render = (order = demoAdminOrder) =>
   new OrderPdf(
     demoMailText,
@@ -33,6 +35,7 @@ const render = (order = demoAdminOrder) =>
     { code: 'EUR', locale: 'de-DE' },
     address,
     font,
+    reference,
   ).orderSummary(order);
 
 describe('OrderPdf', () => {
@@ -90,6 +93,7 @@ describe('OrderPdf', () => {
         regular: join(FONT_DIR, 'DejaVuSans.ttf'),
         bold: join(FONT_DIR, 'DejaVuSans-Bold.ttf'),
       },
+      reference,
     );
 
     // Re-saved without object streams so the dictionaries are readable: what

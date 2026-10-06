@@ -10,7 +10,13 @@ const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
 describe('orderReceivedMail', () => {
   const t = demoMailText.orderReceived;
   // A guest's: they have no account to read the order from.
-  const mail = orderReceivedMail(order, 'tok-123', currency, demoMailText);
+  const mail = orderReceivedMail(
+    order,
+    'tok-123',
+    currency,
+    demoMailText,
+    'UTC',
+  );
 
   // The reference is what a customer quotes on the phone, so it is in the
   // subject rather than only in the body.
@@ -28,7 +34,7 @@ describe('orderReceivedMail', () => {
   // An account holder can already open the order signed in, so no capability
   // URL is mailed for it — and the token page is written for a stranger.
   it('links an account holder to their own order page instead', () => {
-    const mine = orderReceivedMail(order, null, currency, demoMailText);
+    const mine = orderReceivedMail(order, null, currency, demoMailText, 'UTC');
 
     expect(mine.action).toEqual({
       label: t.action,
@@ -52,6 +58,35 @@ describe('orderReceivedMail', () => {
     });
     // The price list and the account behind the order are staff's to know.
     expect(JSON.stringify(mail)).not.toContain('wholesale');
+  });
+
+  // NFR-LEGAL-10: by its date, read in the shop's timezone like the page's own
+  // "Last updated" line — 23:30 UTC is already the next day in Berlin.
+  it('names the terms the order accepted by their date', () => {
+    const late = orderReceivedMail(
+      { ...order, termsDate: '2026-08-31T23:30:00.000Z' },
+      null,
+      currency,
+      demoMailText,
+      'Europe/Berlin',
+    );
+
+    expect(late.rows).toContainEqual({
+      label: t.termsLabel,
+      value: 'As updated on 1. September 2026',
+    });
+  });
+
+  it('leaves the terms out of an order that accepted none', () => {
+    const none = orderReceivedMail(
+      { ...order, termsDate: null },
+      null,
+      currency,
+      demoMailText,
+      'UTC',
+    );
+
+    expect(none.rows?.map((row) => row.label)).not.toContain(t.termsLabel);
   });
 });
 

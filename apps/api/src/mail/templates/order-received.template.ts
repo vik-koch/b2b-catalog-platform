@@ -1,8 +1,10 @@
 import {
+  fillText,
   formatMoneyMinor,
   MoneyFormat,
   OrderDetail,
 } from '@b2b-catalog-platform/shared';
+import { shopDay } from '../../orders/shop-day';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import { orderMailItem } from './order-items';
@@ -27,6 +29,8 @@ export function orderReceivedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  /** The shop's timezone, which the terms' date is read in. */
+  timeZone: string,
 ): MailContent {
   const t = text.orderReceived;
 
@@ -48,6 +52,16 @@ export function orderReceivedMail(
         label: t.totalLabel,
         value: formatMoneyMinor(order.totalMinor, currency),
       },
+      ...(order.termsDate
+        ? [
+            {
+              label: t.termsLabel,
+              value: fillText(t.termsVersion, {
+                date: shopDay(order.termsDate, currency.locale, timeZone),
+              }),
+            },
+          ]
+        : []),
     ],
     itemsHeading: t.itemsHeading,
     items: order.lines.map((line) => orderMailItem(line, currency, text)),

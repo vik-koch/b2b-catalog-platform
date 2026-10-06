@@ -34,7 +34,10 @@ describe('OrderNotifications', () => {
       // The failure paths log; the assertions are about what survives them.
     });
     mail = dispatcherOver(send);
-    notifications = new OrderNotifications(mail, demoMailText, currency);
+    notifications = new OrderNotifications(mail, demoMailText, currency, {
+      prefix: 'CK',
+      timezone: 'UTC',
+    });
   });
 
   afterEach(() => error.mockRestore());

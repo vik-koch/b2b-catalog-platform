@@ -26,6 +26,7 @@ const placed: OrderDetail = {
   status: 'requested',
   paymentState: 'not-due',
   statusReason: null,
+  termsDate: null,
   changes: [],
   // The generated summary: every order has one, and no order stores it.
   documents: [

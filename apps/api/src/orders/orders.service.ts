@@ -91,6 +91,7 @@ import {
   orderItems,
   orderRevisions,
   orders,
+  pageVersions,
   products,
   users,
 } from '../db/schema';
@@ -126,6 +127,9 @@ const {
  * how far behind their view is, and where they last heard the order stood. */
 const customerRevision = alias(orderRevisions, 'customerRevision');
 
+/** The terms version the order accepted on submission. */
+const acceptedTerms = alias(pageVersions, 'acceptedTerms');
+
 /**
  * An order and one version of it, read as **one flat row** (ADR 0051).
  *
@@ -150,6 +154,7 @@ const orderColumns = {
   revisionCreatedBy: orderRevisions.createdBy,
   revisionNotifiedAt: orderRevisions.notifiedAt,
   customerRevisionNumber: customerRevision.revisionNumber,
+  termsDate: acceptedTerms.createdAt,
 };
 
 type OrderRow = typeof orders.$inferSelect &
@@ -172,6 +177,7 @@ type OrderRow = typeof orders.$inferSelect &
     revisionCreatedBy: string | null;
     revisionNotifiedAt: Date | null;
     customerRevisionNumber: number | null;
+    termsDate: Date | null;
   };
 type OrderItemRow = typeof orderItems.$inferSelect;
 
@@ -2538,6 +2544,7 @@ export class OrdersService {
       preferredDate: row.preferredDate,
       customerNote: row.customerNote,
       statusReason: row.statusReason,
+      termsDate: row.termsDate?.toISOString() ?? null,
       // Every change the shop has made up to the version being read, and not
       // one word more: a version is a reading of the order at one moment, and
       // changes made after it were not part of what this version said.

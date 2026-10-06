@@ -32,6 +32,7 @@ const placed: AdminOrderDetail = {
   status: 'requested',
   paymentState: 'not-due',
   statusReason: null,
+  termsDate: null,
   changes: [],
   documents: [
     {
