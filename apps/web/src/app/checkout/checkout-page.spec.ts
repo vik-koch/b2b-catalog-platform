@@ -598,8 +598,6 @@ describe('CheckoutPage', () => {
       await page.review();
       expect(page.text()).not.toContain(text.review.billingSame);
 
-      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
-      await page.settle();
       page.button(text.submit)?.click();
       await page.settle();
 
@@ -843,8 +841,6 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       await page.review();
-      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
-      await page.settle();
       page.button(text.submit)?.click();
       await page.settle();
 
@@ -1047,17 +1043,6 @@ describe('CheckoutPage', () => {
   });
 
   describe('sending the order', () => {
-    it('refuses to send until the privacy notice is accepted', async () => {
-      const page = await render();
-
-      await page.review();
-      page.button(text.submit)?.click();
-      await page.settle();
-
-      expect(submitted).not.toHaveBeenCalled();
-      expect(page.text()).toContain(text.privacyRequired);
-    });
-
     it('sends what the form was answered with', async () => {
       const page = await render();
 
@@ -1066,8 +1051,6 @@ describe('CheckoutPage', () => {
         customerNote: 'Ring the bell at the back gate.',
       });
       await page.review();
-      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
-      await page.settle();
 
       page.button(text.submit)?.click();
       await page.settle();
@@ -1082,7 +1065,6 @@ describe('CheckoutPage', () => {
         paymentMethod: 'bank-transfer',
         preferredDate: wishedDate,
         customerNote: 'Ring the bell at the back gate.',
-        acceptPrivacy: true,
       });
       expect(sent[0].deliveryAddress).toMatchObject({ postalCode: '20359' });
       // Ticked "the same address": the invoice goes where the goods do.
@@ -1093,8 +1075,6 @@ describe('CheckoutPage', () => {
       const page = await render();
 
       await page.review();
-      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
-      await page.settle();
       page.button(text.submit)?.click();
       await page.settle();
 
@@ -1109,8 +1089,6 @@ describe('CheckoutPage', () => {
       });
 
       await page.review();
-      page.el.querySelector<HTMLInputElement>('#accept-privacy')?.click();
-      await page.settle();
       page.button(text.submit)?.click();
       await page.settle();
 

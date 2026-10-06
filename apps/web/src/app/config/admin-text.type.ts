@@ -271,6 +271,8 @@ export const adminTextSchema = z
         consentLabel: z.string(),
         consentLabelHint: z.string(),
         consentLabelRequired: z.string(),
+        /** The wording has no bracketed link, or more than one. */
+        consentLabelLink: z.string(),
         /** Above the box as the preview shows it on a form. */
         consentPreview: z.string(),
         /** The read-only list of past saves. */

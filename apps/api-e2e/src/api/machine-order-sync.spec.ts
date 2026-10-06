@@ -139,7 +139,6 @@ describe('Order write-back (FR-ADM-08)', () => {
         paymentMethod: 'bank-transfer',
         preferredDate: null,
         customerNote: null,
-        acceptPrivacy: true,
         expectedTotalMinor: PIECE_MINOR * PIECES,
       },
       { headers: cookie ? { Cookie: cookie } : {}, validateStatus: () => true },

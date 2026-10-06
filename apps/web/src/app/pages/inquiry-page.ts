@@ -12,14 +12,14 @@ import {
 } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { PhoneField } from '../ui/phone-field';
 import { Segmented, SegmentOption } from '../ui/segmented';
 import { InquiryService } from './inquiry.service';
-import { Link } from '../ui/link';
+import { ConsentField } from './consent-field';
+import { useConsent } from './consent';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -32,7 +32,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 @Component({
   selector: 'app-inquiry-page',
   imports: [
-    Checkbox,
+    ConsentField,
     ReactiveFormsModule,
     RouterLink,
     Button,
@@ -41,7 +41,6 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Input,
     PhoneField,
     Segmented,
-    Link,
   ],
   template: `
     <div class="max-w-xl">
@@ -136,31 +135,10 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             />
           </div>
 
-          <div>
-            <label class="flex cursor-pointer items-start gap-2 text-sm">
-              <!-- Sized explicitly so the nudge is exact: a 16px box in the 20px
-                   line box of text-sm sits 2px down. At the browser's default
-                   size (~13px) the same nudge reads as too high. -->
-              <input
-                type="checkbox"
-                appCheckbox
-                formControlName="acceptPrivacy"
-                class="mt-0.5"
-                aria-required="true"
-                [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
-              />
-              <span>
-                {{ text.privacyConsent }}
-                <a appLink routerLink="/privacy">{{ text.privacyLink }}</a
-                ><span class="text-accent" aria-hidden="true">*</span>
-              </span>
-            </label>
-            @if (isInvalid('acceptPrivacy')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ text.validation.privacyRequired }}
-              </p>
-            }
-          </div>
+          <app-consent-field
+            [consent]="consent"
+            [invalid]="isInvalid('consent')"
+          />
 
           @if (status() === 'error') {
             <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
@@ -200,6 +178,7 @@ export class InquiryPage {
     incomplete: this.text.validation.phoneIncomplete,
   };
   protected readonly status = signal<Status>('idle');
+  protected readonly consent = useConsent('contact');
   protected readonly preferred = signal<PreferredContact>('email');
 
   protected readonly form = this.fb.nonNullable.group({
@@ -210,7 +189,7 @@ export class InquiryPage {
     message: [''],
     // Honeypot.
     website: [''],
-    acceptPrivacy: [false, Validators.requiredTrue],
+    consent: this.consent.control,
   });
 
   constructor() {
@@ -235,17 +214,18 @@ export class InquiryPage {
 
   protected async submit(): Promise<void> {
     this.fieldErrors.markSubmitted();
-    if (this.form.invalid) {
+    if (this.form.invalid || !this.consent.sendable()) {
       return;
     }
 
     this.status.set('submitting');
-    try {
-      await this.inquiry.submit(this.toRequest());
+    const result = await this.inquiry.submit(this.toRequest());
+    if (result === 'ok') {
       this.status.set('success');
-    } catch {
-      this.status.set('error');
+      return;
     }
+    // A consent refusal is explained beside the box, not as a failure.
+    this.status.set(this.consent.refused(result) ? 'idle' : 'error');
   }
 
   // The chosen channel is required; the other field stays optional. Email keeps
@@ -281,6 +261,7 @@ export class InquiryPage {
       message: value.message || undefined,
       // Honeypot.
       website: value.website || undefined,
+      consentVersion: this.consent.version(),
     };
   }
 }

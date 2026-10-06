@@ -1,6 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
+import { consentVersion } from '../support/consent';
 import { requireEnv } from '../support/env';
 import {
   deleteMatching,
@@ -889,8 +890,13 @@ describe('/admin/users', () => {
       });
 
       expect(res.status).toBe(200);
-      // Never had a password, so this is "choose one", not "reset".
-      expect(res.data).toEqual({ purpose: 'set', email: CREATED_EMAIL });
+      // Never had a password, so this is "choose one", not "reset" — and a
+      // customer opened on their behalf owes the account consent here.
+      expect(res.data).toEqual({
+        purpose: 'set',
+        email: CREATED_EMAIL,
+        consentRequired: true,
+      });
     });
 
     it('refuses a password the policy rejects, without spending the link', async () => {
@@ -913,17 +919,44 @@ describe('/admin/users', () => {
       ).toBe(200);
     });
 
+    it('refuses the first password without the account consent, keeping the link', async () => {
+      const token = await tokenFor(CREATED_EMAIL);
+
+      const res = await axios.post(
+        '/auth/set-password',
+        { token, password: 'a stubbornly long passphrase' },
+        { validateStatus: () => true },
+      );
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('consent-required');
+      expect(
+        (
+          await axios.get(`/auth/password-token/${token}`, {
+            validateStatus: () => true,
+          })
+        ).status,
+      ).toBe(200);
+    });
+
     it('sets the password, activates the account and signs it in — once', async () => {
       const token = await tokenFor(CREATED_EMAIL);
       const password = 'a stubbornly long passphrase';
 
       const res = await axios.post(
         '/auth/set-password',
-        { token, password },
+        { token, password, consentVersion: await consentVersion('account') },
         { validateStatus: () => true },
       );
 
       expect(res.status).toBe(200);
+      // The consent is recorded against the account it was given for.
+      const { rows: consents } = await client.query(
+        `SELECT c.purpose FROM consents c JOIN users u ON u.id = c."userId"
+          WHERE u.email = $1`,
+        [CREATED_EMAIL],
+      );
+      expect(consents).toEqual([{ purpose: 'account' }]);
       expect(res.data.email).toBe(CREATED_EMAIL);
       expect(res.headers['set-cookie']).toBeDefined();
       expect((await passwordOf(CREATED_EMAIL)).rows[0].status).toBe('active');

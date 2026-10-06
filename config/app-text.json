@@ -279,9 +279,6 @@
       "backToCart": "Back to cart",
       "send": "Review and send"
     },
-    "privacyConsent": "I agree that my details will be used to handle this order. See our",
-    "privacyLink": "privacy policy",
-    "privacyRequired": "Please accept the privacy policy to send your order.",
     "submit": "Send order request",
     "submitting": "Sending…",
     "successHeading": "Thank you — we have your order",
@@ -531,8 +528,6 @@
       "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
       "error": "Something went wrong sending your request. Please try again.",
       "haveAccount": "Already have an account?",
-      "privacyConsent": "I agree that my details will be used to set up and manage my customer account. See our",
-      "privacyLink": "privacy policy",
       "validation": {
         "firstNameRequired": "Please enter your first name.",
         "lastNameRequired": "Please enter your last name.",
@@ -540,8 +535,7 @@
         "phoneIncomplete": "Please enter a complete phone number.",
         "companyNameRequired": "Please enter your company name.",
         "companyIdRequired": "Please enter your company ID.",
-        "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
-        "privacyRequired": "Please accept the privacy policy to continue."
+        "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}."
       },
       "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}.",
       "companySuggest": {
@@ -616,6 +610,18 @@
       "next": "More products"
     }
   },
+  "pageUpdated": {
+    "label": "Last updated {date}"
+  },
+  "privacyNotice": {
+    "text": "Read more about how we handle your details in",
+    "link": "our privacy policy"
+  },
+  "consentBox": {
+    "required": "Please tick the box to continue.",
+    "changed": "The consent text has just been updated. Please read it and tick the box again.",
+    "unavailable": "This form cannot be sent at the moment. Please try again later, or reach us another way."
+  },
   "inquiry": {
     "intro": "Send us a message and we will get back to you by your preferred method.",
     "name": "Name",
@@ -625,8 +631,6 @@
     "preferredEmail": "By email",
     "preferredPhone": "By phone",
     "message": "Message",
-    "privacyConsent": "I agree that my details will be used to answer my request. See our",
-    "privacyLink": "privacy policy",
     "submit": "Send message",
     "submitting": "Sending…",
     "success": "Thanks — we have your message and will be in touch soon.",
@@ -636,8 +640,7 @@
       "emailRequired": "Please enter your email address.",
       "emailInvalid": "Please enter a valid email address.",
       "phoneRequired": "Please enter your phone number.",
-      "phoneIncomplete": "Please enter a complete phone number.",
-      "privacyRequired": "Please accept the privacy policy to continue."
+      "phoneIncomplete": "Please enter a complete phone number."
     }
   },
   "conditions": {

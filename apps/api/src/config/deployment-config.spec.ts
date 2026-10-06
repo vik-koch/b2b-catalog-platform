@@ -4,13 +4,21 @@ import { join } from 'node:path';
 import {
   loadApiDeploymentConfig,
   loadCompanyIdRule,
+  loadConsentPurposesAsked,
   resetApiDeploymentConfig,
 } from './deployment-config';
 
 const branding = { name: 'Shop', theme: { primary: '#000000' } };
 
+/** The pages section with only `published` set, and no links. */
+const pages = (published: string[]) => ({
+  published,
+  headerNav: [],
+  footerNav: [],
+});
+
 /** Required of every config, and beside the point of every test here. */
-const required = { billingAddressEnabled: true };
+const required = { billingAddressEnabled: true, pages: pages([]) };
 
 /** Points DEPLOYMENT_CONFIG_FILE at a config written for this test. */
 function withConfig(config: Record<string, unknown>): void {
@@ -138,5 +146,26 @@ describe('loadCompanyIdRule', () => {
 
       expect(() => loadApiDeploymentConfig()).not.toThrow();
     });
+  });
+});
+
+describe('loadConsentPurposesAsked', () => {
+  const original = process.env['DEPLOYMENT_CONFIG_FILE'];
+
+  afterEach(() => {
+    process.env['DEPLOYMENT_CONFIG_FILE'] = original;
+    resetApiDeploymentConfig();
+  });
+
+  it('asks for a purpose exactly when its text is published', () => {
+    withConfig({ pages: pages(['privacy', 'consent-contact']) });
+
+    expect(loadConsentPurposesAsked()).toEqual(['contact']);
+  });
+
+  it('asks for nothing where no consent text is published', () => {
+    withConfig({ pages: pages(['privacy']) });
+
+    expect(loadConsentPurposesAsked()).toEqual([]);
   });
 });

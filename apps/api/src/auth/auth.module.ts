@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { ConsentModule } from '../consents/consent.module';
 import {
   COMPANY_ID_RULE,
   loadCompanyIdRule,
@@ -52,6 +53,8 @@ function jwtSecret(): string {
     AddressBookModule,
     // Whether the shop is closed, which a customer's sign-in is refused on.
     SettingsStateModule,
+    // The account consent, asked on registration or the first password.
+    ConsentModule,
     JwtModule.registerAsync({
       useFactory: () => ({
         secret: jwtSecret(),

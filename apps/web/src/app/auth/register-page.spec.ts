@@ -1,10 +1,11 @@
 import { TestBed } from '@angular/core/testing';
-import { PartySuggestion } from '@b2b-catalog-platform/shared';
+import { Page, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { PageService } from '../pages/page.service';
 import { PartiesService } from '../parties/parties.service';
 import { AuthService } from './auth.service';
 import { RegisterPage } from './register-page';
@@ -45,11 +46,22 @@ function check(root: HTMLElement, selector: string): void {
   input.click();
 }
 
+const consentPage: Page = {
+  version: 3,
+  title: 'Consent: customer account',
+  bodyHtml: '<p>Text.</p>',
+  consentLabel: 'I [consent] to the processing of my details.',
+  updatedAt: '2026-10-05T10:00:00.000Z',
+};
+
 async function render(
-  result: 'ok' | 'error' = 'ok',
+  result: Awaited<ReturnType<AuthService['register']>> = 'ok',
   config = defaultDeploymentConfig,
 ) {
   const register = vi.fn<AuthService['register']>().mockResolvedValue(result);
+  const getPage = vi
+    .fn<PageService['getPage']>()
+    .mockResolvedValue(consentPage);
   const suggest = vi.fn(async () => parties);
 
   TestBed.configureTestingModule({
@@ -60,6 +72,7 @@ async function render(
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AuthService, useValue: { register } },
+      { provide: PageService, useValue: { getPage } },
     ],
   });
 
@@ -114,6 +127,7 @@ async function render(
     fixture,
     el,
     register,
+    getPage,
     suggest,
     sync,
     submit,
@@ -141,7 +155,7 @@ describe('RegisterPage', () => {
       defaultAppText.auth.validation.emailRequired,
     );
     expect(el.textContent).toContain(text.validation.phoneRequired);
-    expect(el.textContent).toContain(text.validation.privacyRequired);
+    expect(el.textContent).toContain(defaultAppText.consentBox.required);
   });
 
   it('rejects an address the server would reject too', async () => {
@@ -225,6 +239,7 @@ describe('RegisterPage', () => {
       companyName: undefined,
       companyRegistrationId: undefined,
       website: undefined,
+      consentVersion: 3,
     });
   });
 
@@ -393,6 +408,31 @@ describe('RegisterPage', () => {
 
     expect(el.querySelector('form')).not.toBeNull();
     expect(el.textContent).toContain(text.error);
+  });
+
+  // The text changed while the form was open: the new wording is shown and
+  // the box asked again, rather than the request reported as failed.
+  it('asks again when the consent text changed under the form', async () => {
+    const { el, register, getPage, sync, submit, fillPerson } =
+      await render('consent-stale');
+    getPage.mockResolvedValue({ ...consentPage, version: 4 });
+
+    await fillPerson();
+    submit();
+    await sync();
+    await sync();
+
+    expect(el.textContent).toContain(defaultAppText.consentBox.changed);
+    expect(el.textContent).not.toContain(text.error);
+
+    register.mockResolvedValue('ok');
+    check(el, 'input[type="checkbox"]');
+    submit();
+    await sync();
+
+    expect(register).toHaveBeenLastCalledWith(
+      expect.objectContaining({ consentVersion: 4 }),
+    );
   });
 
   describe('company suggestions (FR-AUTH-09)', () => {

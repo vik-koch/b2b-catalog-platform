@@ -103,8 +103,9 @@ export class UsersService {
   async setPasswordFromToken(
     id: string,
     passwordHash: string,
+    db: Pick<Tx, 'update'> = this.db,
   ): Promise<UserRow | undefined> {
-    const [updated] = await this.db
+    const [updated] = await db
       .update(users)
       .set({
         passwordHash,

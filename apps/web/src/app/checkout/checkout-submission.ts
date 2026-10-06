@@ -140,7 +140,6 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
         preferredDate: draft.preferredDate,
         customerNote: draft.customerNote,
         expectedTotalMinor: cart.totalMinor(),
-        acceptPrivacy: true,
       };
     },
 

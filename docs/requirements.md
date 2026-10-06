@@ -557,7 +557,7 @@ Admin can trigger a bulk sync (file upload or endpoint) that upserts products by
 
 #### <a id="fr-adm-03"></a>FR-ADM-03 — Editing static pages
 
-Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor.
+Admin can edit the rich-text content of a fixed set of static pages (about, conditions, privacy, imprint, etc.) via the admin panel. Pages cannot be created or deleted; navigation, layout, and interactive elements (forms, embeds) are part of the application, not editable content. Every save keeps a version, and the admin can read a page's earlier versions in the editor. The pages a reader may hold the shop to — conditions, privacy, imprint, withdrawal and the consent texts — say under their text when it last changed. They show the date, not the version number, since a version counts every save, typo fixes included.
 
 #### <a id="fr-adm-04"></a>FR-ADM-04 — Maintenance mode
 
@@ -867,7 +867,7 @@ A PDF of an order's details can be viewed or downloaded from the order at any po
 
 #### <a id="nfr-legal-01"></a>NFR-LEGAL-01 — Privacy policy page
 
-A dedicated page displays the privacy policy.
+A dedicated page displays the privacy policy. Every form that takes personal details points to it: the contact form, registration and checkout. The pointer is a line of information, whether or not the form also asks for consent ([NFR-LEGAL-09](#nfr-legal-09)), and never part of what a consent box says, because a privacy policy is read, not agreed to.
 
 #### <a id="nfr-legal-02"></a>NFR-LEGAL-02 — Seller information page
 
@@ -901,7 +901,7 @@ Deleting an account under [FR-AUTH-06](#fr-auth-06) reaches only as far as this 
 
 #### <a id="nfr-legal-09"></a>NFR-LEGAL-09 — Recorded consent to processing personal data
 
-Where a deployment relies on consent for some of its processing, the shop asks for it as a statement of its own. The person sees a box that stays unticked until they tick it, worded for one purpose, beside a link to a consent text. That text is a page of its own, not a passage of the privacy policy ([NFR-LEGAL-01](#nfr-legal-01)). Consent is asked per purpose, not per form, and each purpose has its own text. The platform offers two purposes. A deployment publishes the texts for those it relies on consent for, and a form whose text is published is not sent without its box. A purpose without a published text asks nothing. That is the case wherever the jurisdiction lets the processing rest on another ground, such as the contract or the shop's legitimate interest:
+Where a deployment relies on consent for some of its processing, the shop asks for it as a statement of its own. The person sees a box that stays unticked until they tick it, worded for one purpose, with words of that sentence linking to a consent text. That text is a page of its own, not a passage of the privacy policy ([NFR-LEGAL-01](#nfr-legal-01)). Consent is asked per purpose, not per form, and each purpose has its own text. The platform offers two purposes. A deployment publishes the texts for those it relies on consent for, and a form whose text is published is not sent without its box. A purpose without a published text asks nothing. That is the case wherever the jurisdiction lets the processing rest on another ground, such as the contract or the shop's legitimate interest:
 
 - **Contact** covers handling an inquiry sent through the contact form ([FR-NAV-06](#fr-nav-06)) and replying to it.
 - **Account** covers assessing a registration ([FR-AUTH-01](#fr-auth-01)) and running the account afterwards. A person who registers consents on the registration form. An account opened on somebody's behalf, whether invited by a manager ([FR-AUTH-04](#fr-auth-04)) or created by an owning system ([FR-ADM-11](#fr-adm-11)), asks on the page where its holder first chooses a password. That is the holder's first act of their own, and nobody else can consent for them before it.
@@ -910,7 +910,7 @@ Checkout asks for no consent. An order's details are processed to fulfil the ord
 
 Each text keeps every version it has been published in, together with the box wording shown beside it, so a record can be read against exactly what the person saw and ticked. Editing the text starts a new version, and an existing consent stays bound to the version it was given under.
 
-Each consent is recorded with its purpose, the version, the server's time and whose consent it is: the account's together with its email address at that moment, or for an inquiry, the submission's and the email address or phone number given with it. The record keeps that address when the account is later deleted, since a record that names nobody proves nothing, and it goes with the record when the retention period ends. A deployment may also record the network address the request came from. The application never changes a record. Staff can find a person's records by account, email address or phone number to answer an inspection or the person's own request.
+Each consent is recorded with its purpose, the version, the server's time and whose consent it is: the account's together with its email address at that moment, or for an inquiry, the submission's and the email address or phone number given with it. The record keeps that address when the account is later deleted, since a record that names nobody proves nothing, and it goes with the record when the retention period ends. The application never changes a record. Staff can find a person's records by account, email address or phone number to answer an inspection or the person's own request.
 
 A consent can be withdrawn. For the account purpose, withdrawing means deleting the account ([FR-AUTH-06](#fr-auth-06)). A withdrawal that reaches the shop any other way is entered by staff against the record. Either way, the record keeps the time of withdrawal and is then kept for a retention period the deployment sets, as the shop's evidence of when consent was given and when it ended. A contact consent is used up once the inquiry is answered and nobody withdraws it, so its retention period runs from when it was given. After that period the record is deleted, and the deletion is recorded like any other destruction of personal data ([NFR-LEGAL-12](#nfr-legal-12)).
 

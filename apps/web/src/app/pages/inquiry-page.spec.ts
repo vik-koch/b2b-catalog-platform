@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Page } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
@@ -7,10 +8,20 @@ import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
+import { PageService } from './page.service';
 
 const text = defaultAppText.inquiry;
+const consentText = defaultAppText.consentBox;
 
 const testConfig: DeploymentConfig = { ...defaultDeploymentConfig };
+
+const consentPage: Page = {
+  version: 3,
+  title: 'Consent: contact form',
+  bodyHtml: '<p>Text.</p>',
+  consentLabel: 'I [consent] to the processing of my inquiry.',
+  updatedAt: '2026-10-05T10:00:00.000Z',
+};
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement | HTMLTextAreaElement>(
@@ -29,7 +40,7 @@ function selectPreferred(root: HTMLElement, value: 'email' | 'phone'): void {
   radio.click();
 }
 
-function acceptPrivacy(root: HTMLElement): void {
+function tickConsent(root: HTMLElement): void {
   root.querySelector<HTMLInputElement>('input[type="checkbox"]')?.click();
 }
 
@@ -37,16 +48,22 @@ function submitForm(root: HTMLElement): void {
   root.querySelector<HTMLButtonElement>('button[type="submit"]')?.click();
 }
 
-async function render() {
-  const submit = vi.fn<InquiryService['submit']>().mockResolvedValue(undefined);
+async function render(
+  options: { config?: DeploymentConfig; page?: Page | null } = {},
+) {
+  const submit = vi.fn<InquiryService['submit']>().mockResolvedValue('ok');
+  const getPage = vi
+    .fn<PageService['getPage']>()
+    .mockResolvedValue(options.page === undefined ? consentPage : options.page);
 
   TestBed.configureTestingModule({
     imports: [InquiryPage],
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: DEPLOYMENT_CONFIG, useValue: testConfig },
+      { provide: DEPLOYMENT_CONFIG, useValue: options.config ?? testConfig },
       { provide: InquiryService, useValue: { submit } },
+      { provide: PageService, useValue: { getPage } },
     ],
   });
 
@@ -60,7 +77,7 @@ async function render() {
     fixture.detectChanges();
     await fixture.whenStable();
   };
-  return { fixture, el, submit, sync };
+  return { fixture, el, submit, getPage, sync };
 }
 
 describe('InquiryPage', () => {
@@ -100,7 +117,7 @@ describe('InquiryPage', () => {
     expect(el.textContent).not.toContain(text.validation.emailRequired);
   });
 
-  it('blocks submit until the privacy policy is accepted', async () => {
+  it('blocks submit until the consent box is ticked', async () => {
     const { el, submit, sync } = await render();
 
     setInput(el, '#name', 'Jane Doe');
@@ -109,7 +126,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.privacyRequired);
+    expect(el.textContent).toContain(consentText.required);
   });
 
   it('rejects an address the server would reject (shared Zod email rule)', async () => {
@@ -119,7 +136,7 @@ describe('InquiryPage', () => {
     // emailSchema (no TLD) — the drift the shared validator closes.
     setInput(el, '#name', 'Jane Doe');
     setInput(el, '#email', 'jane@example');
-    acceptPrivacy(el);
+    tickConsent(el);
     submitForm(el);
     await sync();
 
@@ -133,7 +150,7 @@ describe('InquiryPage', () => {
     setInput(el, '#name', 'Jane Doe');
     setInput(el, '#email', 'jane@example.com');
     setInput(el, '#message', 'Do you deliver to Altona?');
-    acceptPrivacy(el);
+    tickConsent(el);
     submitForm(el);
     await sync();
 
@@ -144,6 +161,7 @@ describe('InquiryPage', () => {
       phone: undefined,
       preferredContact: 'email',
       message: 'Do you deliver to Altona?',
+      consentVersion: 3,
     });
     expect(el.textContent).toContain(text.success);
   });
@@ -156,7 +174,7 @@ describe('InquiryPage', () => {
     setInput(el, '#name', 'Jane Doe');
     setInput(el, '#email', 'jane@example.com');
     setInput(el, '#phone', '4012');
-    acceptPrivacy(el);
+    tickConsent(el);
     submitForm(el);
     await sync();
 
@@ -171,7 +189,7 @@ describe('InquiryPage', () => {
     selectPreferred(el, 'phone');
     await sync();
     setInput(el, '#phone', '0301234567');
-    acceptPrivacy(el);
+    tickConsent(el);
 
     const phoneInput = el.querySelector<HTMLInputElement>('#phone');
     expect(phoneInput?.value).toBe('(030) 123-4567');
@@ -186,6 +204,7 @@ describe('InquiryPage', () => {
       phone: '+490301234567',
       preferredContact: 'phone',
       message: undefined,
+      consentVersion: 3,
     });
   });
 
@@ -202,7 +221,7 @@ describe('InquiryPage', () => {
     setInput(el, '#name', 'Jane Doe');
     setInput(el, '#email', 'jane@example.com');
     setInput(el, '#website', 'http://spam.example');
-    acceptPrivacy(el);
+    tickConsent(el);
     submitForm(el);
     await sync();
 
@@ -215,15 +234,118 @@ describe('InquiryPage', () => {
 
   it('shows the error message when submission fails', async () => {
     const { el, submit, sync } = await render();
-    submit.mockRejectedValue(new Error('boom'));
+    submit.mockResolvedValue('error');
 
     setInput(el, '#name', 'Jane Doe');
     setInput(el, '#email', 'jane@example.com');
-    acceptPrivacy(el);
+    tickConsent(el);
     submitForm(el);
     await sync();
 
     expect(submit).toHaveBeenCalledTimes(1);
     expect(el.textContent).toContain(text.error);
+  });
+
+  describe('the consent box (NFR-LEGAL-09)', () => {
+    const fill = (el: HTMLElement) => {
+      setInput(el, '#name', 'Jane Doe');
+      setInput(el, '#email', 'jane@example.com');
+    };
+
+    it('is worded by the consent text, its bracketed words the link', async () => {
+      const { el, getPage } = await render();
+
+      expect(getPage).toHaveBeenCalledWith('consent-contact');
+      const label = el.querySelector('label[for^="consent-"]');
+      expect(label?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+        'I consent to the processing of my inquiry.*',
+      );
+      const link = label?.querySelector<HTMLAnchorElement>(
+        'a[href="/consent-contact"]',
+      );
+      expect(link?.textContent?.trim()).toBe('consent');
+      expect(link?.target).toBe('_blank');
+    });
+
+    // Information beside the box, not part of what is ticked.
+    it('points at the privacy policy outside the box label', async () => {
+      const { el } = await render();
+
+      const notice = el.querySelector('app-privacy-notice');
+      expect(notice?.textContent).toContain(defaultAppText.privacyNotice.text);
+      expect(notice?.querySelector('a')?.getAttribute('href')).toBe('/privacy');
+      expect(notice?.closest('label')).toBeNull();
+    });
+
+    it('asks nothing where the deployment publishes no consent text', async () => {
+      const { el, submit, getPage, sync } = await render({
+        config: {
+          ...testConfig,
+          pages: {
+            ...testConfig.pages,
+            published: testConfig.pages.published.filter(
+              (slug) => slug !== 'consent-contact',
+            ),
+          },
+        },
+      });
+
+      expect(getPage).not.toHaveBeenCalled();
+      expect(el.querySelector('input[type="checkbox"]')).toBeNull();
+      // The privacy notice is owed whatever the processing rests on.
+      expect(el.textContent).toContain(defaultAppText.privacyNotice.link);
+
+      fill(el);
+      submitForm(el);
+      await sync();
+
+      expect(submit).toHaveBeenCalledWith(
+        expect.objectContaining({ consentVersion: undefined }),
+      );
+    });
+
+    it('reloads a text that changed under the form and asks again', async () => {
+      const { el, submit, getPage, sync } = await render();
+      submit.mockResolvedValueOnce('consent-stale');
+      getPage.mockResolvedValue({
+        ...consentPage,
+        version: 4,
+        consentLabel: 'The new [wording].',
+      });
+
+      fill(el);
+      tickConsent(el);
+      submitForm(el);
+      await sync();
+      await sync();
+
+      expect(el.textContent).toContain(consentText.changed);
+      expect(el.textContent).toContain('The new wording.');
+      expect(
+        el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked,
+      ).toBe(false);
+      expect(el.textContent).not.toContain(text.error);
+
+      tickConsent(el);
+      submitForm(el);
+      await sync();
+
+      expect(submit).toHaveBeenLastCalledWith(
+        expect.objectContaining({ consentVersion: 4 }),
+      );
+      expect(el.textContent).toContain(text.success);
+    });
+
+    // Published but never written: nothing to show, so nothing is sent.
+    it('refuses to send while the published text has no version', async () => {
+      const { el, submit, sync } = await render({ page: null });
+
+      fill(el);
+      submitForm(el);
+      await sync();
+
+      expect(el.textContent).toContain(consentText.unavailable);
+      expect(submit).not.toHaveBeenCalled();
+    });
   });
 });

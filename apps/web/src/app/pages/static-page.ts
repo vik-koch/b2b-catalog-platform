@@ -8,10 +8,11 @@ import { usePageSeo } from '../core/page-seo';
 import { PageService } from './page.service';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { LoadErrorView } from './load-error-view';
+import { PageUpdated } from './page-updated';
 
 @Component({
   selector: 'app-static-page',
-  imports: [EditActions, LoadErrorView],
+  imports: [EditActions, LoadErrorView, PageUpdated],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets the load error rather
@@ -46,6 +47,11 @@ import { LoadErrorView } from './load-error-view';
           class="prose prose-stone max-w-3xl"
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
+        <app-page-updated
+          class="mt-8"
+          [slug]="slug()"
+          [updatedAt]="content.updatedAt"
+        />
       } @else if (canEdit(); as editorText) {
         <p class="text-muted">{{ editorText.emptyNotice }}</p>
       }

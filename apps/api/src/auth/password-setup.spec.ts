@@ -20,7 +20,15 @@ const user = (overrides: Partial<UserRow> = {}): UserRow =>
     ...overrides,
   }) as UserRow;
 
-function build(options: { hashFails?: boolean } = {}) {
+function build(
+  options: {
+    hashFails?: boolean;
+    consentAsked?: boolean;
+    consentGiven?: boolean;
+    consentRefused?: boolean;
+    role?: UserRow['role'];
+  } = {},
+) {
   const calls: string[] = [];
 
   const tokens = {
@@ -31,7 +39,7 @@ function build(options: { hashFails?: boolean } = {}) {
     }),
   };
   const users = {
-    findById: vi.fn(async () => user()),
+    findById: vi.fn(async () => user({ role: options.role ?? 'user' })),
     setPasswordFromToken: vi.fn(async () => {
       calls.push('write');
       return user({ status: 'active' });
@@ -50,14 +58,38 @@ function build(options: { hashFails?: boolean } = {}) {
     }),
   };
 
+  const consents = {
+    isAsked: vi.fn(() => options.consentAsked ?? false),
+    hasGiven: vi.fn(async () => options.consentGiven ?? false),
+    check: vi.fn(async () => {
+      calls.push('consent');
+      if (options.consentRefused) throw new Error('consent-stale');
+      return { purpose: 'account', pageVersionId: 'v-1' };
+    }),
+    record: vi.fn(async () => {
+      calls.push('record');
+    }),
+  };
+
+  // Hands the callback a handle of its own, so a test can tell the writes
+  // that went through the transaction from those that did not.
+  const tx = { name: 'tx' };
+  const db = {
+    transaction: vi.fn(async (write: (handle: unknown) => unknown) =>
+      write(tx),
+    ),
+  };
+
   const setup = new PasswordSetupService(
     users as never,
     tokens as never,
     passwords as never,
     policy as never,
+    consents as never,
+    db as never,
   );
 
-  return { setup, tokens, users, passwords, policy, calls };
+  return { setup, tokens, users, passwords, policy, consents, calls, tx };
 }
 
 describe('PasswordSetupService.redeem', () => {
@@ -70,6 +102,7 @@ describe('PasswordSetupService.redeem', () => {
     expect(users.setPasswordFromToken).toHaveBeenCalledWith(
       'u1',
       'argon2-hash',
+      expect.anything(),
     );
     // Both checks, then the hash, and only then the link.
     expect(calls).toEqual(['policy', 'hash', 'redeem', 'write']);
@@ -134,5 +167,84 @@ describe('PasswordSetupService.redeem', () => {
       setup.redeem('raw-token', 'a good password'),
     ).resolves.toBeNull();
     expect(tokens.redeem).not.toHaveBeenCalled();
+  });
+});
+
+describe('the account consent on a first password (NFR-LEGAL-09)', () => {
+  it('is checked before the link is spent, and recorded after', async () => {
+    const { setup, consents, tokens, users, calls, tx } = build({
+      consentAsked: true,
+    });
+
+    await setup.redeem('raw-token', 'a good password', 2);
+
+    expect(consents.check).toHaveBeenCalledWith('account', 2);
+    expect(calls).toEqual([
+      'policy',
+      'consent',
+      'hash',
+      'redeem',
+      'write',
+      'record',
+    ]);
+    // One transaction: a record that fails takes the password and the spent
+    // link back with it, so the next attempt is asked again.
+    expect(tokens.redeem).toHaveBeenCalledWith('raw-token', tx);
+    expect(users.setPasswordFromToken).toHaveBeenCalledWith(
+      'u1',
+      'argon2-hash',
+      tx,
+    );
+    expect(consents.record).toHaveBeenCalledWith(
+      { purpose: 'account', pageVersionId: 'v-1' },
+      { userId: 'u1', email: 'alex@example.com' },
+      tx,
+    );
+  });
+
+  it('leaves the link usable when the consent is refused', async () => {
+    const { setup, tokens } = build({
+      consentAsked: true,
+      consentRefused: true,
+    });
+
+    await expect(setup.redeem('raw-token', 'a good password')).rejects.toThrow(
+      'consent-stale',
+    );
+    expect(tokens.redeem).not.toHaveBeenCalled();
+  });
+
+  it('is not asked again of an account that gave it when registering', async () => {
+    const { setup, consents } = build({
+      consentAsked: true,
+      consentGiven: true,
+    });
+
+    await expect(setup.describe('raw-token')).resolves.toMatchObject({
+      consentRequired: false,
+    });
+    await setup.redeem('raw-token', 'a good password');
+    expect(consents.check).not.toHaveBeenCalled();
+  });
+
+  it('is not asked of staff', async () => {
+    const { setup } = build({ consentAsked: true, role: 'manager' });
+
+    await expect(setup.describe('raw-token')).resolves.toMatchObject({
+      consentRequired: false,
+    });
+  });
+
+  it('is asked of an invited customer while the deployment asks for it', async () => {
+    const asked = build({ consentAsked: true });
+    const notAsked = build({ consentAsked: false });
+
+    await expect(asked.setup.describe('raw-token')).resolves.toMatchObject({
+      purpose: 'set',
+      consentRequired: true,
+    });
+    await expect(notAsked.setup.describe('raw-token')).resolves.toMatchObject({
+      consentRequired: false,
+    });
   });
 });

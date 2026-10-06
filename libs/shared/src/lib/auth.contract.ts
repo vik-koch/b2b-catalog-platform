@@ -15,6 +15,8 @@ import {
   storedEmailField,
 } from './contact-config';
 import { commonAuthErrors } from './api-error';
+import { consentErrors } from './page-constants';
+import { consentVersionField } from './page.contract';
 
 export type UserRole = (typeof USER_ROLES)[number];
 export const userRoleSchema = z.enum(USER_ROLES);
@@ -82,6 +84,8 @@ export const setPasswordSchema = z
   .object({
     token: z.string().min(1).max(200),
     password: newPasswordSchema,
+    /** Where the link check said the account consent is still owed. */
+    consentVersion: consentVersionField,
   })
   .strict();
 export type SetPasswordRequest = z.infer<typeof setPasswordSchema>;
@@ -163,6 +167,7 @@ export const registerSchema = z
         typeof value === 'string' && value.trim() === '' ? undefined : value,
       z.string().max(2000).optional(),
     ),
+    consentVersion: consentVersionField,
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict()
@@ -231,7 +236,7 @@ export const authContract = {
     // deployment config, so the browser checks the same rule and this is the
     // server having the last word — and unlike an address that already has an
     // account, a bad format reveals nothing about anyone.
-    .errors({ 'company-id-format': { status: 400 } })
+    .errors({ 'company-id-format': { status: 400 }, ...consentErrors })
     .input(z.object({ body: registerSchema }))
     // Always the same answer, whether the address was new, already registered,
     // or a honeypot hit: the response must not reveal which addresses have
@@ -267,6 +272,12 @@ export const authContract = {
           purpose: passwordTokenPurposeSchema,
           /** Shown so the visitor sees which account they are setting up. */
           email: storedEmailField,
+          /**
+           * The account consent is owed on this form (NFR-LEGAL-09): a
+           * customer's first password, while the deployment asks for it and
+           * the account has not given it yet.
+           */
+          consentRequired: z.boolean(),
         })
         .strict(),
     ),
@@ -278,7 +289,12 @@ export const authContract = {
       inputStructure: 'detailed',
       summary: 'Redeem a link and set the account password',
     })
-    .errors({ ...passwordRejections, ...badToken, ...closedForMaintenance })
+    .errors({
+      ...passwordRejections,
+      ...badToken,
+      ...closedForMaintenance,
+      ...consentErrors,
+    })
     .input(z.object({ body: setPasswordSchema }))
     // Signs the visitor in: they have just proved control of the address and
     // chosen a password, so a login form here would be ceremony.

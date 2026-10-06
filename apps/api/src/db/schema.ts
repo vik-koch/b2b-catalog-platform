@@ -3,6 +3,7 @@ import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_PREFIX_LENGTH,
   API_TOKEN_SCOPES,
+  CONSENT_PURPOSES,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -1525,5 +1526,49 @@ export const documentProducts = pgTable(
     // The PK answers "this document's products"; the product page and the grid
     // filter ask the other way round.
     index('document_products_productId_idx').on(t.productId),
+  ],
+);
+
+/**
+ * A consent given to processing personal data (NFR-LEGAL-09), the shop's
+ * evidence of it. It points at the exact page version the person read, whose
+ * box wording is what they ticked.
+ *
+ * Whose consent it is: an account's, or for an inquiry, nobody's but the
+ * address or number given with it — an inquiry is mailed and never stored, so
+ * this row is all that remains of it. The email is copied for an account too,
+ * because a record that names nobody once the account is deleted proves
+ * nothing.
+ *
+ * Never updated, which a database trigger enforces: a record is
+ * inserted, and deleted when its retention ends.
+ */
+export const consents = pgTable(
+  'consents',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    purpose: varchar('purpose', { length: 16 }).notNull(),
+    pageVersionId: uuid('pageVersionId')
+      .notNull()
+      .references(() => pageVersions.id, { onDelete: 'restrict' }),
+    // No foreign key: the row never changes, and `ON DELETE SET NULL` is a
+    // change. A declined registration's row is deleted (users are otherwise
+    // anonymized, never deleted), and its consent record outlives it.
+    userId: uuid('userId'),
+    email: varchar('email', { length: 320 }),
+    phone: varchar('phone', { length: 50 }),
+    createdAt: timestamp('createdAt', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    check('consents_purpose', oneOf('purpose', CONSENT_PURPOSES)),
+    check(
+      'consents_names_someone',
+      sql`${t.email} is not null or ${t.phone} is not null`,
+    ),
+    index('consents_userId_idx').on(t.userId),
+    index('consents_email_idx').on(t.email),
+    index('consents_phone_idx').on(t.phone),
   ],
 );

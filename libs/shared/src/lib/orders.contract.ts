@@ -174,9 +174,6 @@ export const orderSubmissionSchema = z
     preferredDate: z.iso.date().nullable(),
     customerNote: z.string().trim().min(1).max(ORDER_NOTE_MAX).nullable(),
     expectedTotalMinor: z.number().int().nonnegative(),
-    /** FR-CART-03: the privacy notice has to be accepted, as on every other
-     * form that sends personal data. */
-    acceptPrivacy: z.literal(true),
     /** ADR 0015's honeypot: a bot fills it, a person never sees it. */
     website: z.string().max(200).optional(),
   })

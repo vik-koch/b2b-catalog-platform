@@ -171,7 +171,6 @@ describe('Order documents over the machine endpoint (FR-ORD-05)', () => {
         paymentMethod: 'bank-transfer',
         preferredDate: null,
         customerNote: null,
-        acceptPrivacy: true,
         expectedTotalMinor: PIECE_MINOR * PIECES,
       },
       { validateStatus: () => true },

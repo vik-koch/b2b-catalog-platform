@@ -1,5 +1,5 @@
 import { oc } from '@orpc/contract';
-import { isConsentPage, PAGE_SLUGS } from './page-constants';
+import { consentLabelParts, isConsentPage, PAGE_SLUGS } from './page-constants';
 import * as z from 'zod';
 import {
   CONSENT_LABEL_MAX_LENGTH,
@@ -10,6 +10,13 @@ import {
 import { commonAuthErrors } from './api-error';
 
 export const pageSlugSchema = z.enum(PAGE_SLUGS);
+
+/**
+ * The version of the consent text a form showed and the person ticked
+ * (NFR-LEGAL-09). Absent where the form asked nothing: the deployment does not
+ * publish that purpose's text.
+ */
+export const consentVersionField = z.number().int().positive().optional();
 
 export type RichTextImageAlignment =
   (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
@@ -48,12 +55,18 @@ export const updatePageSchema = z
      * emptied editor posts `''`.
      */
     bodyHtml: z.string().max(PAGE_BODY_MAX_LENGTH),
-    /** Required on a consent page, refused on any other. */
+    /**
+     * Required on a consent page, refused on any other. Marks the words that
+     * link the consent text with square brackets, exactly once.
+     */
     consentLabel: z
       .string()
       .trim()
       .min(1)
       .max(CONSENT_LABEL_MAX_LENGTH)
+      .refine((label) => consentLabelParts(label) !== null, {
+        message: 'Mark the linked words with one pair of square brackets.',
+      })
       .optional(),
   })
   .strict();

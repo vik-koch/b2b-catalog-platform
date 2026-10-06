@@ -124,8 +124,9 @@
     "titleRequired": "Please enter a page title.",
     "saveError": "Something went wrong saving this page. Please try again.",
     "consentLabel": "Box wording",
-    "consentLabelHint": "The sentence beside the box on the form. Saved together with the text as one version.",
+    "consentLabelHint": "The sentence beside the box on the form. Put the words that open this text in square brackets, once: I [consent] to … Saved together with the text as one version.",
     "consentLabelRequired": "Please enter the box wording.",
+    "consentLabelLink": "Put the words that open this text in square brackets, exactly once.",
     "consentPreview": "On the form",
     "history": {
       "heading": "Versions",

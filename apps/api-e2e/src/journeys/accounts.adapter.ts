@@ -8,6 +8,7 @@ import {
 } from '../support/mailpit';
 import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { ACCOUNT_PROBES as reading } from './account-probe-labels';
+import { consentVersion } from '../support/consent';
 
 /**
  * What an account journey acts on and reads — the accounts half of the journey
@@ -254,6 +255,7 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
     run: async (ctx, args) => {
       await ok(
         call('post', '/auth/register', {
+          consentVersion: await consentVersion('account'),
           email: ctx.email,
           firstName: 'Ada',
           lastName: 'Lovelace',
@@ -390,6 +392,8 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
         call('post', '/auth/set-password', {
           token,
           password: ctx.password,
+          // Ignored where the account owes no consent.
+          consentVersion: await consentVersion('account'),
         }),
       );
       ctx.link = undefined;

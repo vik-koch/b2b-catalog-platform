@@ -219,13 +219,13 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
     const saved = await consent({
       title: 'Consent',
       bodyHtml: '<p>x</p>',
-      consentLabel: 'I agree.',
+      consentLabel: 'I [agree].',
     });
     expect(saved.status).toBe(200);
     const read = await axios.get('/pages/consent-contact');
     expect(read.data).toMatchObject({
       version: saved.data.version,
-      consentLabel: 'I agree.',
+      consentLabel: 'I [agree].',
     });
   });
 

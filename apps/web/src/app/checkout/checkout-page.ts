@@ -55,6 +55,7 @@ import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
 import { Link } from '../ui/link';
+import { PrivacyNotice } from '../pages/privacy-notice';
 import { WarningNote } from '../ui/warning-note';
 
 /**
@@ -93,6 +94,7 @@ import { WarningNote } from '../ui/warning-note';
     RouterLink,
     Skeleton,
     Link,
+    PrivacyNotice,
   ],
   template: `
     @if (placed(); as reference) {
@@ -419,32 +421,11 @@ import { WarningNote } from '../ui/warning-note';
               }
             </app-order-summary>
 
-            <!-- Consent is asked on the second screen, beside the button that
-                 acts on it: it covers sending the order, and on the form it
-                 would be a promise made about something not yet read back. -->
+            <!-- The read-back is where the details are sent from, so how they
+                 are handled is said here. No consent: an order's details are
+                 processed to fulfil it. -->
             @if (reviewing()) {
-              <label class="mt-5 flex cursor-pointer items-start gap-2 text-sm">
-                <input
-                  id="accept-privacy"
-                  type="checkbox"
-                  appCheckbox
-                  class="mt-0.5"
-                  aria-required="true"
-                  [checked]="acceptedPrivacy()"
-                  [attr.aria-invalid]="privacyMissing() || null"
-                  (change)="acceptedPrivacy.set(!acceptedPrivacy())"
-                />
-                <span>
-                  {{ text.privacyConsent }}
-                  <a appLink routerLink="/privacy">{{ text.privacyLink }}</a
-                  ><span class="text-accent" aria-hidden="true">*</span>
-                </span>
-              </label>
-              @if (privacyMissing()) {
-                <p class="mt-1 text-sm text-red-600">
-                  {{ text.privacyRequired }}
-                </p>
-              }
+              <app-privacy-notice class="mt-5 block text-sm empty:hidden" />
             }
 
             <!-- Where the ADR says a refusal belongs: beside the button, not
@@ -640,8 +621,6 @@ export class CheckoutPage {
    */
   private readonly placedToken = signal<string | null>(null);
   private readonly errorState = signal<string | null>(null);
-  protected readonly acceptedPrivacy = signal(false);
-  private readonly privacyChecked = signal(false);
   protected readonly revealDelivery = signal(false);
   protected readonly revealBilling = signal(false);
   /** Set when a submission was refused for want of a collection point. The
@@ -668,12 +647,6 @@ export class CheckoutPage {
     return token ? ['/orders', token] : null;
   });
   protected readonly error = this.errorState.asReadonly();
-
-  /** Only after a send has been attempted: an unticked box is not a mistake
-   * until somebody tries to send without it. */
-  protected readonly privacyMissing = computed(
-    () => this.privacyChecked() && !this.acceptedPrivacy(),
-  );
 
   /**
    * Which of the two screens is on (ADR 0039): the form, or the read-back
@@ -1071,8 +1044,6 @@ export class CheckoutPage {
   protected async submit(): Promise<void> {
     if (this.sendingState() || this.blocked()) return;
     this.errorState.set(null);
-    this.privacyChecked.set(true);
-    if (!this.acceptedPrivacy()) return;
 
     const submission = this.submission.build();
     if (!submission) {

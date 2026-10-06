@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing';
 import { RegisterRequest } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
+import { ConsentService } from '../consents/consent.service';
 import { COMPANY_ID_RULE, PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
 import { demoMailText, demoPhoneInput } from '../mail/mail-text.fixture';
@@ -20,6 +21,7 @@ describe('RegistrationService', () => {
   const findByEmail = vi.fn();
   const createPending = vi.fn();
   const seed = vi.fn();
+  const consents = { check: vi.fn(), record: vi.fn() };
   const send = vi.fn<(mail: unknown, to: { to: string }) => Promise<void>>();
   let mail: MailDispatcher;
   let service: RegistrationService;
@@ -45,6 +47,8 @@ describe('RegistrationService', () => {
     findByEmail.mockReset().mockResolvedValue(undefined);
     createPending.mockReset().mockResolvedValue({ id: 'new-id' });
     seed.mockReset();
+    consents.check.mockReset().mockResolvedValue(null);
+    consents.record.mockReset().mockResolvedValue(undefined);
     send.mockReset().mockResolvedValue(undefined);
 
     const moduleRef = await Test.createTestingModule({
@@ -56,6 +60,7 @@ describe('RegistrationService', () => {
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
         { provide: AddressesService, useValue: { seed } },
         { provide: PHONE_INPUT, useValue: demoPhoneInput },
+        { provide: ConsentService, useValue: consents },
         {
           provide: PasswordService,
           useValue: {
@@ -243,6 +248,48 @@ describe('RegistrationService', () => {
 
       expect(createPending).toHaveBeenCalled();
       expect(seed).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('consent (NFR-LEGAL-09)', () => {
+    const checked = { purpose: 'account', pageVersionId: 'v-1' };
+
+    it('records the consent against the new account and its address', async () => {
+      consents.check.mockResolvedValue(checked);
+
+      await service.register({
+        ...person,
+        email: 'Jane@Example.com',
+        consentVersion: 1,
+      });
+
+      expect(consents.check).toHaveBeenCalledWith('account', 1);
+      expect(consents.record).toHaveBeenCalledWith(checked, {
+        userId: 'new-id',
+        email: 'jane@example.com',
+      });
+    });
+
+    // Checked before the lookup, so a refusal is the same for both addresses.
+    it('refuses before it looks the address up', async () => {
+      consents.check.mockRejectedValue(new Error('consent-required'));
+      findByEmail.mockResolvedValue({ id: 'existing' });
+
+      await expect(service.register(person)).rejects.toThrow(
+        'consent-required',
+      );
+
+      expect(findByEmail).not.toHaveBeenCalled();
+      expect(createPending).not.toHaveBeenCalled();
+    });
+
+    it('records nothing for an address that already has an account', async () => {
+      consents.check.mockResolvedValue(checked);
+      findByEmail.mockResolvedValue({ id: 'existing' });
+
+      await service.register({ ...person, consentVersion: 1 });
+
+      expect(consents.record).not.toHaveBeenCalled();
     });
   });
 });

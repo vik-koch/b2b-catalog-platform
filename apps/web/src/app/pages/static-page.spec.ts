@@ -8,7 +8,7 @@ import { loadAdminText } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { EditModeService } from '../admin/edit-mode.service';
 import { StaticPage } from './static-page';
 import { PageService } from './page.service';
@@ -30,18 +30,14 @@ async function render(
   editModeEnabled: boolean,
   page: PageContent | null = about,
   settled = true,
+  slug = 'about',
 ) {
   TestBed.configureTestingModule({
     imports: [StaticPage],
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
-      {
-        provide: DEPLOYMENT_CONFIG,
-        useValue: {
-          branding: { title: 'Test Shop' },
-        } as unknown as DeploymentConfig,
-      },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: EditModeService,
         useValue: {
@@ -54,7 +50,7 @@ async function render(
     ],
   });
   const fixture = TestBed.createComponent(StaticPage);
-  fixture.componentRef.setInput('slug', 'about');
+  fixture.componentRef.setInput('slug', slug);
   await fixture.whenStable();
   return fixture.nativeElement as HTMLElement;
 }
@@ -175,12 +171,7 @@ describe('StaticPage — when the API cannot be reached', () => {
       providers: [
         provideRouter([]),
         { provide: APP_TEXT, useValue: defaultAppText },
-        {
-          provide: DEPLOYMENT_CONFIG,
-          useValue: {
-            branding: { title: 'Test Shop' },
-          } as unknown as DeploymentConfig,
-        },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: EditModeService,
           useValue: {
@@ -207,5 +198,39 @@ describe('StaticPage — when the API cannot be reached', () => {
     const el = fixture.nativeElement as HTMLElement;
     expect(el.querySelector('app-load-error-view')).not.toBeNull();
     expect(el.querySelector('.prose')).toBeNull();
+  });
+});
+
+describe('StaticPage — the date a legal text changed', () => {
+  afterAll(() => vi.unstubAllGlobals());
+  beforeAll(() => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(defaultAdminText),
+      }),
+    );
+  });
+
+  // A reader may hold the shop to a legal text, so it says when it changed;
+  // a page describing the shop does not.
+  it('says when a legal page last changed, and nothing on the others', async () => {
+    const privacy = await render(false, about, true, 'privacy');
+    const updated = privacy.querySelector('app-page-updated');
+    expect(updated?.textContent?.trim()).toBe(
+      defaultAppText.pageUpdated.label.replace(
+        '{date}',
+        new Intl.DateTimeFormat(
+          defaultDeploymentConfig.catalog.currency.locale,
+          { dateStyle: 'long' },
+        ).format(new Date(about.updatedAt)),
+      ),
+    );
+
+    TestBed.resetTestingModule();
+    const aboutPage = await render(false);
+    expect(
+      aboutPage.querySelector('app-page-updated')?.textContent?.trim(),
+    ).toBe('');
   });
 });

@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { InquiryRequest } from '@b2b-catalog-platform/shared';
+import { safe } from '@orpc/client';
+import {
+  ConsentRefusalCode,
+  InquiryRequest,
+} from '@b2b-catalog-platform/shared';
 import { inquiryContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 
@@ -7,8 +11,12 @@ import { createOrpcClient } from '../core/orpc-client';
 export class InquiryService {
   private client = createOrpcClient(inquiryContract);
 
-  /** Posts the inquiry; resolves on success, throws on anything else. */
-  async submit(body: InquiryRequest): Promise<void> {
-    await this.client.submit({ body });
+  /** A consent refusal by its code; anything else that fails is `error`. */
+  async submit(
+    body: InquiryRequest,
+  ): Promise<'ok' | 'error' | ConsentRefusalCode> {
+    const result = await safe(this.client.submit({ body }));
+    if (result.isSuccess) return 'ok';
+    return result.isDefined ? result.error.code : 'error';
   }
 }

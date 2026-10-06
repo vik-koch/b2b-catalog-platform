@@ -10,6 +10,7 @@ import {
   RegisterRequest,
 } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
+import { ConsentService } from '../consents/consent.service';
 import {
   COMPANY_ID_RULE,
   CompanyIdRule,
@@ -43,6 +44,7 @@ export class RegistrationService {
     @Inject(COMPANY_ID_RULE) private readonly companyIdMatches: CompanyIdRule,
     private readonly addresses: AddressesService,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
+    private readonly consents: ConsentService,
   ) {}
 
   async register(request: RegisterRequest): Promise<void> {
@@ -67,6 +69,13 @@ export class RegistrationService {
         message: 'Company ID does not match the configured format',
       });
     }
+
+    // Before the address is looked up, so a refusal says the same for a new
+    // address and a known one.
+    const consent = await this.consents.check(
+      'account',
+      request.consentVersion,
+    );
 
     const email = request.email.trim().toLowerCase();
 
@@ -95,6 +104,9 @@ export class RegistrationService {
       companyRegistrationId: request.companyRegistrationId ?? null,
     });
 
+    if (consent) {
+      await this.consents.record(consent, { userId: created.id, email });
+    }
     await this.seedBillingAddress(created.id, request);
     await this.notify(email, request);
   }

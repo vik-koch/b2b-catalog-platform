@@ -14,6 +14,9 @@ import { passwordTokens } from '../db/schema';
 export const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const RESET_TTL_MS = 60 * 60 * 1000;
 
+/** The handle a write goes through: the pool, or a caller's transaction. */
+type Writer = Pick<NodePgDatabase<typeof schema>, 'update'>;
+
 /** Hex SHA-256, deterministic so the link can be looked up by itself. */
 const hashToken = (token: string): string =>
   createHash('sha256').update(token).digest('hex');
@@ -67,8 +70,8 @@ export class PasswordTokenService {
    * the update, so two simultaneous clicks cannot both succeed — the second
    * matches no row.
    */
-  async redeem(token: string): Promise<string | null> {
-    const [row] = await this.db
+  async redeem(token: string, db: Writer = this.db): Promise<string | null> {
+    const [row] = await db
       .update(passwordTokens)
       .set({ usedAt: new Date() })
       .where(this.usable(hashToken(token)))

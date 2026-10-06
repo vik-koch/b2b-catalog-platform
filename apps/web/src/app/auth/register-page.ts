@@ -15,7 +15,6 @@ import {
 import { FieldErrors } from '../core/form-errors';
 import { CompanyFields } from '../parties/company-fields';
 import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
 import { EmailField } from '../ui/email-field';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -24,6 +23,8 @@ import { Segmented, SegmentOption } from '../ui/segmented';
 import { AuthCard } from './auth-card';
 import { AuthService } from './auth.service';
 import { Link } from '../ui/link';
+import { ConsentField } from '../pages/consent-field';
+import { useConsent } from '../pages/consent';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -44,8 +45,8 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 @Component({
   selector: 'app-register-page',
   imports: [
-    Checkbox,
     AuthCard,
+    ConsentField,
     ReactiveFormsModule,
     RouterLink,
     Button,
@@ -174,30 +175,10 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             />
           </div>
 
-          <div>
-            <label class="flex cursor-pointer items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                appCheckbox
-                formControlName="acceptPrivacy"
-                class="mt-0.5"
-                aria-required="true"
-                [attr.aria-invalid]="isInvalid('acceptPrivacy') || null"
-              />
-              <span>
-                {{ text.register.privacyConsent }}
-                <a appLink routerLink="/privacy">{{
-                  text.register.privacyLink
-                }}</a
-                ><span class="text-accent" aria-hidden="true">*</span>
-              </span>
-            </label>
-            @if (isInvalid('acceptPrivacy')) {
-              <p class="mt-1 text-sm text-red-600">
-                {{ text.register.validation.privacyRequired }}
-              </p>
-            }
-          </div>
+          <app-consent-field
+            [consent]="consent"
+            [invalid]="isInvalid('consent')"
+          />
 
           @if (status() === 'error') {
             <p class="text-sm text-red-600" role="alert">
@@ -265,6 +246,7 @@ export class RegisterPage {
   private readonly picked = signal<PartySuggestion | undefined>(undefined);
 
   protected readonly status = signal<Status>('idle');
+  protected readonly consent = useConsent('account');
   protected readonly customerType = signal<CustomerType>('person');
   protected readonly isCompany = computed(
     () => this.customerType() === 'company',
@@ -281,7 +263,7 @@ export class RegisterPage {
     companyName: [''],
     companyRegistrationId: [''],
     website: [''],
-    acceptPrivacy: [false, Validators.requiredTrue],
+    consent: this.consent.control,
   });
 
   constructor() {
@@ -308,13 +290,18 @@ export class RegisterPage {
 
   protected async submit(): Promise<void> {
     this.fieldErrors.markSubmitted();
-    if (this.form.invalid) {
+    if (this.form.invalid || !this.consent.sendable()) {
       return;
     }
 
     this.status.set('submitting');
     const result = await this.auth.register(this.toRequest());
-    this.status.set(result === 'ok' ? 'success' : 'error');
+    if (result === 'ok') {
+      this.status.set('success');
+      return;
+    }
+    // A consent refusal is explained beside the box, not as a failure.
+    this.status.set(this.consent.refused(result) ? 'idle' : 'error');
   }
 
   /**
@@ -396,6 +383,7 @@ export class RegisterPage {
       billingAddress: this.billingAddress(value.customerType),
       // Honeypot.
       website: value.website || undefined,
+      consentVersion: this.consent.version(),
     };
   }
 }

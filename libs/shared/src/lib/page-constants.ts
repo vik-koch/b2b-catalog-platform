@@ -48,6 +48,24 @@ export const STANDALONE_PAGE_SLUGS = [
 export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 
 /**
+ * The pages that say when their text last changed: the ones a reader may hold
+ * the shop to, where which text they read matters. The others are the shop
+ * describing itself.
+ */
+export const DATED_PAGE_SLUGS = [
+  'conditions',
+  'privacy',
+  'imprint',
+  'withdrawal',
+  'consent-contact',
+  'consent-account',
+] as const satisfies readonly PageSlug[];
+
+export function isDatedPage(slug: string): boolean {
+  return (DATED_PAGE_SLUGS as readonly string[]).includes(slug);
+}
+
+/**
  * What a person can consent to (NFR-LEGAL-09), each with its own text. A
  * deployment asks for a purpose by publishing its page, and for nothing
  * otherwise.
@@ -64,8 +82,43 @@ export function isConsentPage(slug: string): boolean {
   return (Object.values(CONSENT_PAGE_SLUGS) as string[]).includes(slug);
 }
 
+/**
+ * Why a form's consent was refused. `required`: the box was not ticked.
+ * `stale`: the text changed after the form loaded it, so the person ticked
+ * wording that is no longer current — the form reloads it and asks again.
+ * `unavailable`: the deployment asks for the purpose but its text has never
+ * been written, and a form that cannot show what it asks for must not be sent.
+ */
+export const consentErrors = {
+  'consent-required': { status: 400 },
+  'consent-stale': { status: 409 },
+  'consent-unavailable': { status: 503 },
+} as const;
+export type ConsentRefusalCode = keyof typeof consentErrors;
+
+export function isConsentRefusal(code: string): code is ConsentRefusalCode {
+  return Object.hasOwn(consentErrors, code);
+}
+
 /** The wording beside the box: a sentence, not a text. */
 export const CONSENT_LABEL_MAX_LENGTH = 500;
+
+/** The box wording around its one linked part. */
+export interface ConsentLabelParts {
+  readonly before: string;
+  readonly link: string;
+  readonly after: string;
+}
+
+/**
+ * Splits the box wording at the part in square brackets, which the form draws
+ * as the link to the consent text: `I [consent] to …`. Null unless there is
+ * exactly one bracketed part with something in it.
+ */
+export function consentLabelParts(label: string): ConsentLabelParts | null {
+  const match = /^([^[\]]*)\[([^[\]]*[^[\]\s][^[\]]*)\]([^[\]]*)$/.exec(label);
+  return match ? { before: match[1], link: match[2], after: match[3] } : null;
+}
 
 /**
  * The rich-text vocabulary, declared once and isomorphic on purpose:

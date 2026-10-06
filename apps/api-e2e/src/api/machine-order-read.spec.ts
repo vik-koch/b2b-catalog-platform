@@ -195,7 +195,6 @@ describe('Outbound order read (FR-ADM-08)', () => {
         paymentMethod: 'bank-transfer',
         preferredDate: null,
         customerNote: null,
-        acceptPrivacy: true,
         expectedTotalMinor: (cookie ? TIER_PIECE_MINOR : PIECE_MINOR) * PIECES,
         ...over,
       },

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Client } from 'pg';
+import { consentVersion } from '../support/consent';
 import { requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';
 
@@ -29,8 +30,13 @@ async function expectNoMail(): Promise<void> {
   }
 }
 
-const register = (body: unknown) =>
-  axios.post('/auth/register', body, { validateStatus: () => true });
+/** Ticks the consent box the form would show, unless the body says otherwise. */
+const register = async (body: object) =>
+  axios.post(
+    '/auth/register',
+    { consentVersion: await consentVersion('account'), ...body },
+    { validateStatus: () => true },
+  );
 
 /** A complete private-person registration; specs override what they test. */
 const person = {
@@ -87,12 +93,14 @@ describe('POST /auth/register', () => {
     await client.query('DELETE FROM users WHERE email = ANY($1)', [
       [NEW_EMAIL, KNOWN_EMAIL],
     ]);
+    await client.query('DELETE FROM consents WHERE email = $1', [NEW_EMAIL]);
     await client.end();
   });
 
   beforeEach(async () => {
     await clearOurMail();
     await client.query('DELETE FROM users WHERE email = $1', [NEW_EMAIL]);
+    await client.query('DELETE FROM consents WHERE email = $1', [NEW_EMAIL]);
   });
 
   it('creates a pending, untiered account and mails the registrant and the shop', async () => {
@@ -286,5 +294,66 @@ describe('POST /auth/register', () => {
 
     expect(res.status).toBe(400);
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+  });
+
+  describe('consent (NFR-LEGAL-09)', () => {
+    const recordsFor = async (email: string) =>
+      (
+        await client.query(
+          `SELECT c.purpose, c."userId" = u.id AS "ofTheAccount", c.email,
+                  v.slug, v.version
+             FROM consents c
+             JOIN page_versions v ON v.id = c."pageVersionId"
+             LEFT JOIN users u ON u.email = c.email
+            WHERE c.email = $1`,
+          [email],
+        )
+      ).rows;
+
+    it('records the consent against the new account and the version shown', async () => {
+      const res = await register(person);
+
+      expect(res.status).toBe(200);
+      expect(await recordsFor(NEW_EMAIL)).toEqual([
+        {
+          purpose: 'account',
+          ofTheAccount: true,
+          email: NEW_EMAIL,
+          slug: 'consent-account',
+          version: await consentVersion('account'),
+        },
+      ]);
+    });
+
+    it('refuses an unticked box before anything is written or mailed', async () => {
+      const res = await register({ ...person, consentVersion: undefined });
+
+      expect(res.status).toBe(400);
+      expect(res.data.code).toBe('consent-required');
+      expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+      await expectNoMail();
+    });
+
+    // Refused the same way for a known address: the refusal comes before the
+    // lookup, so it says nothing about who has an account.
+    it('refuses a stale version alike for a new and a known address', async () => {
+      const stale = (await consentVersion('account')) + 1;
+
+      const fresh = await register({ ...person, consentVersion: stale });
+      const known = await register({
+        ...person,
+        email: KNOWN_EMAIL,
+        consentVersion: stale,
+      });
+
+      expect([fresh.status, known.status]).toEqual([409, 409]);
+      expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+    });
+
+    it('records nothing for an address that already has an account', async () => {
+      await register({ ...person, email: KNOWN_EMAIL });
+
+      expect(await recordsFor(KNOWN_EMAIL)).toHaveLength(0);
+    });
   });
 });

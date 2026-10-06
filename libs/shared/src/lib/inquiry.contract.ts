@@ -1,6 +1,8 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { emailField } from './contact-config';
+import { consentErrors } from './page-constants';
+import { consentVersionField } from './page.contract';
 
 // Empty form fields arrive as '' — treat them as absent so optional fields
 // (and the email-format check) behave correctly.
@@ -50,6 +52,7 @@ export const inquiryRequestSchema = z
     preferredContact: preferredContactSchema,
     message: messageSchema,
     website: honeypotSchema,
+    consentVersion: consentVersionField,
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict()
@@ -68,6 +71,7 @@ export const inquiryContract = {
       inputStructure: 'detailed',
       summary: 'Submit the inquiry form',
     })
+    .errors(consentErrors)
     .input(z.object({ body: inquiryRequestSchema }))
     .output(z.object({ ok: z.literal(true) })),
 };
