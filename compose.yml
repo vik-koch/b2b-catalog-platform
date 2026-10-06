@@ -239,8 +239,12 @@ services:
       # without them the seed crashes on an undefined path. The api (which runs
       # first in a SEED=1 deploy) has already created /media node-owned.
       MEDIA_ROOT: /media
+      # The seed writes consent records only for the purposes this deployment
+      # asks for, so it reads the same config file the api does.
+      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
     volumes:
       - mediadata:/media
+      - ./config:/config:ro
     depends_on:
       postgres:
         condition: service_healthy
