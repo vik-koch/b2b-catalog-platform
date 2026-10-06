@@ -84,6 +84,8 @@ export const setPasswordSchema = z
   .object({
     token: z.string().min(1).max(200),
     password: newPasswordSchema,
+    /** Where the link check said the account consent is still owed. */
+    consentVersion: consentVersionField,
   })
   .strict();
 export type SetPasswordRequest = z.infer<typeof setPasswordSchema>;
@@ -270,6 +272,12 @@ export const authContract = {
           purpose: passwordTokenPurposeSchema,
           /** Shown so the visitor sees which account they are setting up. */
           email: storedEmailField,
+          /**
+           * The account consent is owed on this form (NFR-LEGAL-09): a
+           * customer's first password, while the deployment asks for it and
+           * the account has not given it yet.
+           */
+          consentRequired: z.boolean(),
         })
         .strict(),
     ),
@@ -281,7 +289,12 @@ export const authContract = {
       inputStructure: 'detailed',
       summary: 'Redeem a link and set the account password',
     })
-    .errors({ ...passwordRejections, ...badToken, ...closedForMaintenance })
+    .errors({
+      ...passwordRejections,
+      ...badToken,
+      ...closedForMaintenance,
+      ...consentErrors,
+    })
     .input(z.object({ body: setPasswordSchema }))
     // Signs the visitor in: they have just proved control of the address and
     // chosen a password, so a login form here would be ceremony.

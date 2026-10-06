@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PasswordTokenPurpose, UserRole } from '@b2b-catalog-platform/shared';
+import { CheckedConsent, ConsentService } from '../consents/consent.service';
 import { UserRow, UsersService } from '../users/users.service';
 import { PasswordPolicy } from './password-policy';
 import { PasswordTokenService } from './password-token.service';
@@ -22,6 +23,7 @@ export class PasswordSetupService {
     private readonly tokens: PasswordTokenService,
     private readonly passwords: PasswordService,
     private readonly policy: PasswordPolicy,
+    private readonly consents: ConsentService,
   ) {}
 
   /**
@@ -34,6 +36,7 @@ export class PasswordSetupService {
     purpose: PasswordTokenPurpose;
     email: string;
     role: UserRole;
+    consentRequired: boolean;
   } | null> {
     const userId = await this.tokens.userIdFor(token);
     if (!userId) return null;
@@ -45,7 +48,23 @@ export class PasswordSetupService {
       purpose: user.status === 'invited' ? 'set' : 'reset',
       email: user.email,
       role: user.role,
+      consentRequired: await this.owesConsent(user),
     };
+  }
+
+  /**
+   * The account consent (NFR-LEGAL-09) is asked where a customer opened on
+   * their behalf first acts on their own: the first password. A registrant
+   * gave it on the form, so an approved registration is not asked twice.
+   * Staff are not asked: theirs is not a customer account.
+   */
+  private async owesConsent(user: UserRow): Promise<boolean> {
+    return (
+      user.status === 'invited' &&
+      user.role === 'user' &&
+      this.consents.isAsked('account') &&
+      !(await this.consents.hasGiven(user.id, 'account'))
+    );
   }
 
   /**
@@ -53,7 +72,11 @@ export class PasswordSetupService {
    * redemption would be wrong — a refused password would burn the link — so it
    * runs first, on the account the token names.
    */
-  async redeem(token: string, password: string): Promise<UserRow | null> {
+  async redeem(
+    token: string,
+    password: string,
+    consentVersion?: number,
+  ): Promise<UserRow | null> {
     const userId = await this.tokens.userIdFor(token);
     if (!userId) return null;
 
@@ -63,6 +86,12 @@ export class PasswordSetupService {
     // Throws a 400 the form shows verbatim; the link stays usable, so the
     // visitor can simply try a different password.
     this.policy.assertAcceptable(password, user.email);
+
+    // A refused consent leaves the link usable too.
+    let consent: CheckedConsent | null = null;
+    if (await this.owesConsent(user)) {
+      consent = await this.consents.check('account', consentVersion);
+    }
 
     // Hashing before the link is spent, not after: it is the slowest and
     // hungriest step here, and a failure in it would otherwise burn the link
@@ -75,6 +104,9 @@ export class PasswordSetupService {
     if (!(await this.tokens.redeem(token))) return null;
 
     const updated = await this.users.setPasswordFromToken(userId, passwordHash);
+    if (updated && consent) {
+      await this.consents.record(consent, { userId, email: updated.email });
+    }
     return updated ?? null;
   }
 }

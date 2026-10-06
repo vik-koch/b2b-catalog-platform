@@ -139,7 +139,9 @@ export class AuthService {
   async checkPasswordToken(
     token: string,
   ): Promise<
-    { purpose: PasswordTokenPurpose; email: string } | 'closed' | null
+    | { purpose: PasswordTokenPurpose; email: string; consentRequired: boolean }
+    | 'closed'
+    | null
   > {
     const result = await safe(
       this.client.checkPasswordToken({ params: { token } }),
@@ -156,10 +158,13 @@ export class AuthService {
    * A rejected password comes back with the rule that refused it, because it is
    * the one failure the visitor can act on by typing something else.
    */
-  async setPassword(request: SetPasswordRequest): Promise<{
-    result: 'ok' | 'rejected' | 'expired' | 'closed' | 'error';
-    code?: PasswordRejectionCode;
-  }> {
+  async setPassword(
+    request: SetPasswordRequest,
+  ): Promise<
+    | { result: 'ok' | 'expired' | 'closed' | 'error' }
+    | { result: 'rejected'; code: PasswordRejectionCode }
+    | { result: 'consent'; code: ConsentRefusalCode }
+  > {
     const result = await safe(this.client.setPassword({ body: request }));
 
     if (result.isSuccess) {
@@ -170,6 +175,7 @@ export class AuthService {
     const { code } = result.error;
     if (code === PASSWORD_TOKEN_INVALID) return { result: 'expired' };
     if (code === MAINTENANCE_REFUSED) return { result: 'closed' };
+    if (isConsentRefusal(code)) return { result: 'consent', code };
     return { result: 'rejected', code };
   }
 

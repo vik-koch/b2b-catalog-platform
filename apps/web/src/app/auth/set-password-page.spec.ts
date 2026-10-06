@@ -39,7 +39,11 @@ async function render(
 ) {
   const account =
     options.account === undefined
-      ? { purpose: 'set' as const, email: 'jane@example.com' }
+      ? {
+          purpose: 'set' as const,
+          email: 'jane@example.com',
+          consentRequired: false,
+        }
       : options.account;
   const user = signal<AuthUser | null>(null);
   const checkPasswordToken = vi
@@ -121,7 +125,11 @@ describe('SetPasswordPage', () => {
 
   it('words itself as a reset for an account that already has one', async () => {
     const { el } = await render({
-      account: { purpose: 'reset', email: 'jane@example.com' },
+      account: {
+        purpose: 'reset',
+        email: 'jane@example.com',
+        consentRequired: false,
+      },
     });
 
     expect(el.textContent).toContain(text.resetHeading);
@@ -164,6 +172,7 @@ describe('SetPasswordPage', () => {
     expect(setPassword).toHaveBeenCalledWith({
       token: 'a-token',
       password: 'a long enough password',
+      consentVersion: undefined,
     });
     expect(navigateByUrl).toHaveBeenCalled();
   });
@@ -182,6 +191,61 @@ describe('SetPasswordPage', () => {
 
     expect(el.textContent).toContain(rejected['password-common']);
     expect(el.querySelector('form')).not.toBeNull();
+  });
+
+  describe('the account consent (NFR-LEGAL-09)', () => {
+    const owed: Account = {
+      purpose: 'set',
+      email: 'jane@example.com',
+      consentRequired: true,
+    };
+
+    // A reset owes nothing, so not even the privacy notice is repeated.
+    it('asks no consent where the account does not owe it', async () => {
+      const { el } = await render();
+
+      expect(el.querySelector('input[type="checkbox"]')).toBeNull();
+      expect(el.querySelector('app-privacy-notice')).toBeNull();
+    });
+
+    it('asks for it where the account still owes it, and sends its version', async () => {
+      const { el, sync, submit, setPassword } = await render({
+        account: owed,
+      });
+
+      expect(el.textContent).toContain('to the processing of my details.');
+      setInput(el, '#newPassword', 'a long enough password');
+      setInput(el, '#confirmPassword', 'a long enough password');
+      submit();
+      await sync();
+
+      expect(setPassword).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(defaultAppText.consentBox.required);
+
+      el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.click();
+      submit();
+      await sync();
+
+      expect(setPassword).toHaveBeenCalledWith(
+        expect.objectContaining({ consentVersion: 2 }),
+      );
+    });
+
+    it('explains a stale consent beside the box, not as a refused password', async () => {
+      const { el, sync, submit } = await render({
+        account: owed,
+        outcome: { result: 'consent', code: 'consent-stale' },
+      });
+
+      setInput(el, '#newPassword', 'a long enough password');
+      setInput(el, '#confirmPassword', 'a long enough password');
+      el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.click();
+      submit();
+      await sync();
+
+      expect(el.textContent).toContain(defaultAppText.consentBox.changed);
+      expect(el.textContent).not.toContain(text.error);
+    });
   });
 
   // A suggested password nobody can read is a password nobody can save.

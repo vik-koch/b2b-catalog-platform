@@ -331,6 +331,8 @@ const actions: JourneyAdapter<CustomerSyncJourneyContext>['actions'] = {
         call('post', '/auth/set-password', {
           token,
           password: ctx.password,
+          // Ignored where the account owes no consent.
+          consentVersion: await consentVersion('account'),
         }),
       );
     },

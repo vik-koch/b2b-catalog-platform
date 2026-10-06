@@ -392,6 +392,8 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
         call('post', '/auth/set-password', {
           token,
           password: ctx.password,
+          // Ignored where the account owes no consent.
+          consentVersion: await consentVersion('account'),
         }),
       );
       ctx.link = undefined;

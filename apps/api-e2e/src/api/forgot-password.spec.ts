@@ -105,7 +105,11 @@ describe('/auth/forgot-password', () => {
       validateStatus: () => true,
     });
     expect(described.status).toBe(200);
-    expect(described.data).toEqual({ purpose: 'reset', email: ACTIVE_EMAIL });
+    expect(described.data).toEqual({
+      purpose: 'reset',
+      email: ACTIVE_EMAIL,
+      consentRequired: false,
+    });
   });
 
   it('lets the link actually replace the password', async () => {
@@ -152,8 +156,13 @@ describe('/auth/forgot-password', () => {
     const described = await axios.get(`/auth/password-token/${token}`, {
       validateStatus: () => true,
     });
-    // `set`, not `reset`: this account is choosing a first password.
-    expect(described.data).toEqual({ purpose: 'set', email: INVITED_EMAIL });
+    // `set`, not `reset`: this account is choosing a first password, and
+    // gives the account consent with it.
+    expect(described.data).toEqual({
+      purpose: 'set',
+      email: INVITED_EMAIL,
+      consentRequired: true,
+    });
   });
 
   it('mails nothing to an account that may not sign in', async () => {

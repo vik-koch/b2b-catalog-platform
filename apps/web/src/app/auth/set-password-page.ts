@@ -258,6 +258,7 @@ export class SetPasswordPage implements OnInit {
     }
     this.purpose.set(account.purpose);
     this.email.set(account.email);
+    this.consentRequired.set(account.consentRequired);
     this.status.set('ready');
   }
 
@@ -290,10 +291,12 @@ export class SetPasswordPage implements OnInit {
     if (this.form.invalid || !this.consent.sendable()) return;
 
     this.status.set('submitting');
-    const { result, code } = await this.service.setPassword({
+    const outcome = await this.service.setPassword({
       token: this.token(),
       password: this.form.controls.newPassword.value,
+      consentVersion: this.consent.version(),
     });
+    const { result } = outcome;
 
     if (result === 'ok') {
       this.status.set('done');
@@ -307,6 +310,15 @@ export class SetPasswordPage implements OnInit {
       return;
     }
     this.status.set('ready');
-    this.rejection.set(code ? this.rejected[code] : this.text.error);
+    // A consent refusal is explained beside the box.
+    if (outcome.result === 'consent') {
+      this.consent.refused(outcome.code);
+      return;
+    }
+    this.rejection.set(
+      outcome.result === 'rejected'
+        ? this.rejected[outcome.code]
+        : this.text.error,
+    );
   }
 }

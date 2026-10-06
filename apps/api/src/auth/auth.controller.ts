@@ -51,7 +51,8 @@ export class AuthController {
   register() {
     return (
       implement(authContract.register)
-        // The company-id format rule is raised by the service.
+        // The company-id format rule and the consent refusals are raised by
+        // the service.
         .use(refusals)
         .handler(async ({ input: { body } }) => {
           await this.registration.register(body);
@@ -102,7 +103,11 @@ export class AuthController {
             message: 'Service under maintenance',
           });
         }
-        return { purpose: account.purpose, email: account.email };
+        return {
+          purpose: account.purpose,
+          email: account.email,
+          consentRequired: account.consentRequired,
+        };
       },
     );
   }
@@ -111,37 +116,44 @@ export class AuthController {
   @AuthThrottle()
   @Implement(authContract.setPassword)
   setPassword(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
-    return implement(authContract.setPassword).handler(
-      async ({ input: { body }, errors }) => {
-        // Before the link is spent, so it still works once the shop opens.
-        const account = await this.passwordSetup.describe(body.token);
-        if (account && this.closedTo(account.role)) {
-          throw errors[MAINTENANCE_REFUSED]({
-            message: 'Service under maintenance',
-          });
-        }
-        let user;
-        try {
-          user = await this.passwordSetup.redeem(body.token, body.password);
-        } catch (error) {
-          // Which rule refused; the link is untouched, so the visitor can
-          // simply try a different password.
-          if (error instanceof PasswordRejectedError) {
-            throw errors[error.code]({ message: error.message });
+    return (
+      implement(authContract.setPassword)
+        // The consent refusals are raised by the service.
+        .use(refusals)
+        .handler(async ({ input: { body }, errors }) => {
+          // Before the link is spent, so it still works once the shop opens.
+          const account = await this.passwordSetup.describe(body.token);
+          if (account && this.closedTo(account.role)) {
+            throw errors[MAINTENANCE_REFUSED]({
+              message: 'Service under maintenance',
+            });
           }
-          throw error;
-        }
-        if (!user) {
-          throw errors[PASSWORD_TOKEN_INVALID]({
-            message: 'This link is no longer valid',
-          });
-        }
-        // Straight into a session: they have just proved control of the address
-        // and chosen the password, so asking them to log in would be ceremony.
-        const token = await this.auth.signToken(user);
-        issueSession(req, res, token, user.role);
-        return this.auth.toAuthUser(user);
-      },
+          let user;
+          try {
+            user = await this.passwordSetup.redeem(
+              body.token,
+              body.password,
+              body.consentVersion,
+            );
+          } catch (error) {
+            // Which rule refused; the link is untouched, so the visitor can
+            // simply try a different password.
+            if (error instanceof PasswordRejectedError) {
+              throw errors[error.code]({ message: error.message });
+            }
+            throw error;
+          }
+          if (!user) {
+            throw errors[PASSWORD_TOKEN_INVALID]({
+              message: 'This link is no longer valid',
+            });
+          }
+          // Straight into a session: they have just proved control of the address
+          // and chosen the password, so asking them to log in would be ceremony.
+          const token = await this.auth.signToken(user);
+          issueSession(req, res, token, user.role);
+          return this.auth.toAuthUser(user);
+        })
     );
   }
 

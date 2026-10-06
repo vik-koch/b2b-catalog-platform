@@ -230,6 +230,7 @@ describe('AuthController', () => {
       purpose: 'set',
       email: 'staff@example.com',
       role: 'manager',
+      consentRequired: false,
     });
 
     const response = await fetch(`${baseUrl}/api/auth/password-token/a-token`);
@@ -238,6 +239,7 @@ describe('AuthController', () => {
     expect(await response.json()).toEqual({
       purpose: 'set',
       email: 'staff@example.com',
+      consentRequired: false,
     });
   });
 
