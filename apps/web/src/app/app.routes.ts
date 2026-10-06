@@ -1,6 +1,11 @@
 import { inject } from '@angular/core';
 import { CanMatchFn, Route, UrlSegment } from '@angular/router';
-import { PageSlug, STANDALONE_PAGE_SLUGS } from '@b2b-catalog-platform/shared';
+import {
+  CONSENT_PAGE_SLUGS,
+  ConsentPurpose,
+  PageSlug,
+  STANDALONE_PAGE_SLUGS,
+} from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { guestOnly, requireAuth, staffToAdminOrder } from './auth/auth.guard';
 import { adminTextGuard } from './config/admin-text';
@@ -30,6 +35,15 @@ const publishesPage =
   (slug: PageSlug): CanMatchFn =>
   () =>
     publishes(slug);
+
+/**
+ * Gate for a consent text: it is read only where its form asks for it, so a
+ * purpose switched off has no page, as an unpublished one has none.
+ */
+const asksConsent =
+  (purpose: ConsentPurpose): CanMatchFn =>
+  () =>
+    inject(DEPLOYMENT_CONFIG).consent[purpose];
 
 const isPublishedPage: CanMatchFn = (_: Route, [first]: UrlSegment[]) => {
   const slug = first?.path ?? '';
@@ -518,6 +532,22 @@ export const appRoutes: Route[] = [
       import('./pages/conditions-page').then((m) => m.ConditionsPage),
   },
   { path: 'inquiry', component: InquiryPage, canActivate: [maintenanceGate] },
+  // The consent texts (NFR-LEGAL-09), each under the form that asks for it.
+  // An ordinary page body, so the generic component renders it by its key.
+  {
+    path: 'inquiry/consent',
+    component: StaticPage,
+    data: { slug: CONSENT_PAGE_SLUGS.contact },
+    canMatch: [asksConsent('contact')],
+    canActivate: [maintenanceGate],
+  },
+  {
+    path: 'register/consent',
+    component: StaticPage,
+    data: { slug: CONSENT_PAGE_SLUGS.account },
+    canMatch: [asksConsent('account')],
+    canActivate: [maintenanceGate],
+  },
   // Open-source attribution (see LicensesPage). Not a page slug and not
   // deployment-configurable: it attributes the code every deployment ships, so
   // it is present wherever the app is. Lazy — a footer link nobody follows

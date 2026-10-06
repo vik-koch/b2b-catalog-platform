@@ -54,9 +54,15 @@ const consentPage: Page = {
   updatedAt: '2026-10-05T10:00:00.000Z',
 };
 
+/** The demo asks for no consent; these specs drive the form that does. */
+const askingConfig = {
+  ...defaultDeploymentConfig,
+  consent: { contact: true, account: true },
+};
+
 async function render(
   result: Awaited<ReturnType<AuthService['register']>> = 'ok',
-  config = defaultDeploymentConfig,
+  config = askingConfig,
 ) {
   const register = vi.fn<AuthService['register']>().mockResolvedValue(result);
   const getPage = vi

@@ -18,12 +18,14 @@
       "privacy",
       "imprint",
       "withdrawal",
-      "contact",
-      "consent-contact",
-      "consent-account"
+      "contact"
     ],
     "headerNav": ["about", "contact", "conditions"],
     "footerNav": ["privacy", "imprint", "withdrawal", "licenses"]
+  },
+  "consent": {
+    "contact": false,
+    "account": false
   },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,

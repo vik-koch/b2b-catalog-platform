@@ -19,6 +19,7 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
       // Required of every config, and beside the point of this spec.
       billingAddressEnabled: true,
       pages: { published: [], headerNav: [], footerNav: [] },
+      consent: { contact: false, account: false },
     }),
   );
   process.env['DEPLOYMENT_CONFIG_FILE'] = config;

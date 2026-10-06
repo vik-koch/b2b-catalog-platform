@@ -868,6 +868,15 @@ Notes:
   footer therefore carries a line from configuration: legal name, registration number and a
   way to reach the seller. It is chrome, so it is configuration rather than page content,
   on the same argument as the footer's other links.
+- **Consent is switched on, not published**
+  ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A purpose used to be asked
+  when its text was in the list of published pages, which an operator reading the config
+  could not have guessed, and which put the consent texts beside the footer's links. Each
+  purpose now has a switch of its own, both stated in every deployment, and its text is
+  read under the form that asks for it. The demo leaves both off: a shop in the EU
+  normally rests its contact form and its accounts on the contract or its legitimate
+  interest, and asking for a consent it does not rely on would promise the person a
+  withdrawal that cannot stop the processing.
 - **Destroying personal data leaves a record**
   ([NFR-LEGAL-12](requirements.md#nfr-legal-12)) (2026-10-03). A jurisdiction can require
   the shop to prove a destruction, with a statement backed by an extract from the system's

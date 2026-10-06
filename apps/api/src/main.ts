@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared';
 import { runBootstrapAdmin, runSeed } from '@b2b-catalog-platform/seed';
+import { loadApiDeploymentConfig } from './config/deployment-config';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
 import { hashPassword } from './auth/password-hashing';
@@ -98,7 +99,11 @@ async function main() {
   }
 
   if (env.RUN_MODE === 'seed') {
-    await runSeed(env.DATABASE_URL, env.MEDIA_ROOT as string);
+    await runSeed(
+      env.DATABASE_URL,
+      env.MEDIA_ROOT as string,
+      loadApiDeploymentConfig().consent,
+    );
     Logger.log('Database seeding complete');
     return;
   }

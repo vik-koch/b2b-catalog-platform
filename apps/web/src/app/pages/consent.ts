@@ -9,8 +9,8 @@ import {
 import { FormControl, Validators } from '@angular/forms';
 import {
   CONSENT_PAGE_SLUGS,
+  CONSENT_PATHS,
   ConsentPurpose,
-  StandalonePageSlug,
 } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { PageService } from './page.service';
@@ -23,7 +23,8 @@ import { PageService } from './page.service';
  * rule follows whether the box is asked at all.
  */
 export interface ConsentRequest {
-  readonly slug: StandalonePageSlug;
+  /** Where the consent text is read; the box's bracketed words link it. */
+  readonly path: string;
   readonly asked: Signal<boolean>;
   /** `loading` until the text arrives; `unavailable` when it has none. */
   readonly state: Signal<'idle' | 'loading' | 'ready' | 'unavailable'>;
@@ -47,9 +48,9 @@ export interface ConsentRequest {
 }
 
 /**
- * A purpose is asked where the deployment publishes its text, unless the
- * caller knows better — the first-password form asks only when the API says
- * the account still owes it.
+ * A purpose is asked where the deployment switches it on, unless the caller
+ * knows better — the first-password form asks only when the API says the
+ * account still owes it.
  */
 export function useConsent(
   purpose: ConsentPurpose,
@@ -57,8 +58,8 @@ export function useConsent(
 ): ConsentRequest {
   const pages = inject(PageService);
   const slug = CONSENT_PAGE_SLUGS[purpose];
-  const published = inject(DEPLOYMENT_CONFIG).pages.published.includes(slug);
-  const asked = computed(() => published && (owed?.() ?? true));
+  const switchedOn = inject(DEPLOYMENT_CONFIG).consent[purpose];
+  const asked = computed(() => switchedOn && (owed?.() ?? true));
 
   const page = resource({
     params: () => (asked() ? { slug } : undefined),
@@ -93,7 +94,7 @@ export function useConsent(
   });
 
   return {
-    slug,
+    path: CONSENT_PATHS[purpose],
     asked,
     state,
     label: computed(() => current()?.consentLabel ?? null),

@@ -31,7 +31,8 @@ test('submitting the inquiry form delivers an email to the shop', async ({
   // 'By email' is the default channel, so the email field is the required one.
   await page.locator('#email').fill('jane@example.com');
   await page.locator('#message').fill('Do you deliver to Altona?');
-  await page.getByRole('checkbox').check(); // the contact consent
+  // The demo asks for no consent, so there is no box to tick.
+  await expect(page.getByRole('checkbox')).toHaveCount(0);
 
   await page.getByRole('button', { name: 'Send message' }).click();
 

@@ -2296,6 +2296,20 @@ export const adminTextSchema = z
         loadError: z.string(),
       })
       .strict(),
+    /**
+     * Finding a person's consent records (NFR-LEGAL-09) by email address or
+     * phone number, and how one record reads wherever it is listed.
+     */
+    consents: z
+      .object({
+        title: z.string(),
+        /** The panel's row to a consent text; `{purpose}` names it. */
+        panelText: z.string(),
+        purposes: z
+          .object({ contact: z.string(), account: z.string() })
+          .strict(),
+      })
+      .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */
     maintenance: z
       .object({

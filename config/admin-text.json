@@ -1383,6 +1383,14 @@
     "notFound": "This account could not be found.",
     "loadError": "This account could not be loaded. Please try again."
   },
+  "consents": {
+    "title": "Consents",
+    "panelText": "Text: {purpose}",
+    "purposes": {
+      "contact": "Contact form",
+      "account": "Customer account"
+    }
+  },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",
     "areaText": {

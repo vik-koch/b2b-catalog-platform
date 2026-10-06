@@ -1,5 +1,6 @@
 import { seedDatabase } from '@b2b-catalog-platform/seed';
 import { execSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { localtestDbClient, localtestEnv, workspaceRoot } from './localtest';
 
@@ -84,7 +85,16 @@ export default async function globalSetup() {
     // Resolving it here is what makes the seed write into the same directory
     // the api and media containers bind-mount — otherwise the catalog's images
     // land in apps/web-e2e/.media and every seeded image 404s.
-    await seedDatabase(client, resolve(workspaceRoot, env['MEDIA_ROOT']));
+    // The consents the stack's own config asks for: the committed demo's,
+    // which the localtest stack mounts.
+    const { consent } = JSON.parse(
+      readFileSync(resolve(workspaceRoot, 'config/deployment.json'), 'utf8'),
+    );
+    await seedDatabase(
+      client,
+      resolve(workspaceRoot, env['MEDIA_ROOT']),
+      consent,
+    );
     // bootstrap-admin flags its account as still using the password the deploy
     // gave it, so the app forces a change on first sign-in. Clear it here: the
     // login/session specs are about other things and would all have to dismiss
