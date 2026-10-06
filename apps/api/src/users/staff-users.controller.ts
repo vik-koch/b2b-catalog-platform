@@ -329,7 +329,7 @@ export class StaffUsersController {
           throw errors['account-not-found'](NOT_FOUND);
         }
         this.refuseIfOwned(user, 'decline a registration');
-        await this.service.purgePending(id);
+        await this.service.purgePending(id, actor);
         this.audit.record('user.declined', actor, { id, name: user.email });
         return { message: 'Registration declined' };
       });
@@ -349,7 +349,11 @@ export class StaffUsersController {
     return implement(usersContract.deleteAccountOnRequest)
       .use(refusals)
       .handler(async ({ input: { params, body }, errors }) => {
-        const result = await this.deletion.deleteOnRequest(params.id, actor);
+        const result = await this.deletion.deleteOnRequest(
+          params.id,
+          actor,
+          body.reason,
+        );
         if (!result.ok) {
           switch (result.reason) {
             case 'not-found':

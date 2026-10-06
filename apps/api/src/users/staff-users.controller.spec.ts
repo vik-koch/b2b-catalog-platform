@@ -397,7 +397,11 @@ describe('StaffUsersController', () => {
 
       expect(response.status).toBe(200);
       expect((await response.json()).status).toBe('anonymized');
-      expect(deleteOnRequest).toHaveBeenCalledWith(customer.id, actor);
+      expect(deleteOnRequest).toHaveBeenCalledWith(
+        customer.id,
+        actor,
+        'consent-withdrawn',
+      );
       // The id only: the address is what was just erased.
       expect(record).toHaveBeenCalledWith('user.deleted', actor, {
         id: customer.id,

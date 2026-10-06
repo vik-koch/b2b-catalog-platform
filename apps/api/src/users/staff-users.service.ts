@@ -38,6 +38,10 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
 import { withdrawAccountConsents } from '../consents/consent-withdrawals';
+import {
+  recordDestruction,
+  REGISTRATION_CATEGORIES,
+} from '../destruction/record-destruction';
 import { UsersService } from './users.service';
 
 /**
@@ -521,7 +525,10 @@ export class StaffUsersService {
    * the wrong default. Anything that has been approved is anonymized instead
    * (FR-AUTH-06), never deleted.
    */
-  async purgePending(id: string): Promise<void> {
+  async purgePending(
+    id: string,
+    by: { readonly id: string; readonly email: string },
+  ): Promise<void> {
     const deleted = await this.db.transaction(async (tx) => {
       const rows = await tx
         .delete(users)
@@ -531,6 +538,13 @@ export class StaffUsersService {
       // outlives the row, naming the address, for the retention period.
       if (rows.length) {
         await withdrawAccountConsents(tx, id, 'registration-declined');
+        await recordDestruction(tx, {
+          subject: 'account',
+          subjectId: id,
+          categories: REGISTRATION_CATEGORIES,
+          reason: 'registration-declined',
+          by,
+        });
       }
       return rows;
     });

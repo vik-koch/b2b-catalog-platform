@@ -2,12 +2,17 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
 import {
+  AccountDeletionReason,
   CustomerType,
   ENDED_ORDER_STATUSES,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { withdrawAccountConsents } from '../consents/consent-withdrawals';
+import {
+  ACCOUNT_DELETION_CATEGORIES,
+  recordDestruction,
+} from '../destruction/record-destruction';
 import {
   addresses,
   orderItems,
@@ -209,13 +214,18 @@ export class UsersService {
    * account that is half-anonymized is worse than one that is not.
    *
    * `by` is the admin deleting it on the person's request (FR-ADM-23), named on
-   * the consent withdrawals the deletion writes.
+   * the consent withdrawals and the destruction record the deletion writes;
+   * without one, the holder deleted it themselves, at their own request.
    */
   async anonymize(
     id: string,
     unusableHash: string,
-    by?: { readonly id: string; readonly email: string },
+    deletion: {
+      readonly reason: AccountDeletionReason;
+      readonly by?: { readonly id: string; readonly email: string };
+    },
   ): Promise<UserRow> {
+    const { reason, by } = deletion;
     return this.removingAdmin(id, async (tx) => {
       // The address book is personal data with no second purpose: orders keep
       // their own snapshot of where they went, so nothing readable is lost by
@@ -226,6 +236,13 @@ export class UsersService {
       // The account consent ends with the account; its record stays, with
       // the address it was given with, for the retention period.
       await withdrawAccountConsents(tx, id, 'account-deleted', by);
+      await recordDestruction(tx, {
+        subject: 'account',
+        subjectId: id,
+        categories: ACCOUNT_DELETION_CATEGORIES,
+        reason,
+        by: by ?? { id },
+      });
       return this.anonymizeUser(tx, id, unusableHash);
     });
   }
