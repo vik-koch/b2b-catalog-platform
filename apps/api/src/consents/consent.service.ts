@@ -6,7 +6,7 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
@@ -15,7 +15,8 @@ import {
 import { CONSENT_PURPOSES_ASKED } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { consents, pageVersions } from '../db/schema';
+import { consents } from '../db/schema';
+import { currentPageVersion } from '../pages/page-versions';
 
 /** A consent that passed the check, ready to be recorded. */
 export interface CheckedConsent {
@@ -88,19 +89,24 @@ export class ConsentService {
     posted: number | undefined,
   ): Promise<CheckedConsent | null> {
     if (!this.isAsked(purpose)) return null;
-    const [current] = await this.db
-      .select({ id: pageVersions.id, version: pageVersions.version })
-      .from(pageVersions)
-      .where(eq(pageVersions.slug, CONSENT_PAGE_SLUGS[purpose]))
-      .orderBy(desc(pageVersions.version))
-      .limit(1);
+    const current = await currentPageVersion(
+      this.db,
+      CONSENT_PAGE_SLUGS[purpose],
+    );
     const verdict = judgeConsent(current?.version, posted);
     if (verdict !== 'ok') throw refusals[verdict]();
+    // Never taken: `ok` is only said of a text that exists. It narrows the type.
+    if (!current) throw refusals['consent-unavailable']();
     return { purpose, pageVersionId: current.id };
   }
 
-  async record(consent: CheckedConsent, holder: ConsentHolder): Promise<void> {
-    await this.db.insert(consents).values({
+  /** Takes a transaction where the record must stand or fall with a write. */
+  async record(
+    consent: CheckedConsent,
+    holder: ConsentHolder,
+    db: Pick<NodePgDatabase<typeof schema>, 'insert'> = this.db,
+  ): Promise<void> {
+    await db.insert(consents).values({
       purpose: consent.purpose,
       pageVersionId: consent.pageVersionId,
       userId: holder.userId ?? null,

@@ -12,8 +12,7 @@ import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { pageVersions, users } from '../db/schema';
-
-type VersionRow = typeof pageVersions.$inferSelect;
+import { currentPageVersion, PageVersionRow } from './page-versions';
 
 @Injectable()
 export class PageService {
@@ -21,12 +20,7 @@ export class PageService {
 
   /** The page is its latest version. */
   async getPage(slug: string): Promise<Page | undefined> {
-    const [row] = await this.db
-      .select()
-      .from(pageVersions)
-      .where(eq(pageVersions.slug, slug))
-      .orderBy(desc(pageVersions.version))
-      .limit(1);
+    const row = await currentPageVersion(this.db, slug);
     return row && toPage(row);
   }
 
@@ -48,12 +42,7 @@ export class PageService {
     return this.db.transaction(async (tx) => {
       // Two saves of one page would otherwise both claim the same number.
       await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${slug}))`);
-      const [current] = await tx
-        .select()
-        .from(pageVersions)
-        .where(eq(pageVersions.slug, slug))
-        .orderBy(desc(pageVersions.version))
-        .limit(1);
+      const current = await currentPageVersion(tx, slug);
       if (
         current &&
         current.title === content.title &&
@@ -91,7 +80,7 @@ export class PageService {
   }
 }
 
-function toPage(row: VersionRow): Page {
+function toPage(row: PageVersionRow): Page {
   return {
     version: row.version,
     title: row.title,
