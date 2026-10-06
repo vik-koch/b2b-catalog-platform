@@ -935,11 +935,13 @@ The basis and the rates can change while orders are open, through a new rate or 
 
 #### <a id="nfr-legal-12"></a>NFR-LEGAL-12 — A record that personal data was destroyed
 
-Where a deployment's jurisdiction requires the shop to prove that personal data it held was destroyed, the platform writes a record each time it destroys some, in the same moment as the destruction. Three things destroy personal data here: deleting an account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin ([FR-ADM-23](#fr-adm-23)), declining a registration, which removes it ([FR-AUTH-11](#fr-auth-11)), and deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
+The platform writes a record each time it destroys personal data, in the same moment as the destruction and never one without the other, so a shop that must prove a destruction has the evidence even if nobody thought of it at the time. Three things destroy personal data here: deleting an account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin ([FR-ADM-23](#fr-adm-23)), declining a registration, which removes it ([FR-AUTH-11](#fr-auth-11)), and deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
 
-Each record names whose data it was, in terms that still identify the person afterwards without holding the destroyed data itself, such as the account's id. It also states which categories of data were destroyed, why — the person's request, a withdrawal, the end of a retention period — and when. The application never changes a record.
+Each record names whose data it was, in terms that still identify the person afterwards without holding the destroyed data itself: the account's id, or a consent record's id where no account stands behind it. It also states which categories of data were destroyed, why — the person's request, a withdrawn consent, a declined registration, the end of a retention period — who did it, and when. The application never changes a record. Records are kept for a period the deployment sets, and are then deleted themselves, without a record of their own.
 
-An admin can export the records for a period as a file. The shop's own paperwork, such as a signed statement of destruction, is drawn up from that export and is not the platform's to produce. Records are kept for a period the deployment sets, and are then deleted themselves.
+The records are the operator's to read out, for a period, when the shop draws up its own paperwork, such as a signed statement of destruction; the platform does not produce that paperwork, and the extract is a query rather than a screen.
+
+A stored customer sync run ([FR-ADM-11](#fr-adm-11)/[12](#fr-adm-12)) keeps what it carried and what it changed, people's contact details among them, for a day only. The run itself and its counts stay; without this, a deleted account's details would outlive the deletion in a copy nobody looks at.
 
 ---
 

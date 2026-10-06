@@ -121,7 +121,10 @@ describe('AccountDeletion', () => {
     });
 
     expect(await deletion.delete('u1', 'correct')).toEqual({ ok: true });
-    expect(users.anonymize).toHaveBeenCalled();
+    // The holder's own deletion is their own request, and names nobody else.
+    expect(users.anonymize).toHaveBeenCalledWith('u1', 'unusable', {
+      reason: 'request',
+    });
   });
 
   /**
@@ -185,10 +188,16 @@ describe('AccountDeletion.deleteOnRequest (FR-ADM-23)', () => {
   it('runs the same steps, names the admin, and mails only the person', async () => {
     const { deletion, users, calls, settle } = build({});
 
-    expect(await deletion.deleteOnRequest('u1', admin)).toEqual({ ok: true });
+    expect(
+      await deletion.deleteOnRequest('u1', admin, 'consent-withdrawn'),
+    ).toEqual({ ok: true });
     await settle();
 
-    expect(users.anonymize).toHaveBeenCalledWith('u1', 'unusable', admin);
+    // The admin's reason travels to the destruction record (NFR-LEGAL-12).
+    expect(users.anonymize).toHaveBeenCalledWith('u1', 'unusable', {
+      reason: 'consent-withdrawn',
+      by: admin,
+    });
     // No closure notice: the shop did it, and that notice says a customer did.
     expect(calls).toEqual([
       'anonymize',
@@ -210,7 +219,7 @@ describe('AccountDeletion.deleteOnRequest (FR-ADM-23)', () => {
       const { deletion, users, calls } = build({ user });
       if (!user) users.findById.mockResolvedValueOnce(undefined as never);
 
-      expect(await deletion.deleteOnRequest(id, admin)).toEqual({
+      expect(await deletion.deleteOnRequest(id, admin, 'request')).toEqual({
         ok: false,
         reason,
       });
@@ -222,7 +231,9 @@ describe('AccountDeletion.deleteOnRequest (FR-ADM-23)', () => {
   it('deletes a deactivated account', async () => {
     const { deletion, users } = build({ user: row({ status: 'disabled' }) });
 
-    expect(await deletion.deleteOnRequest('u1', admin)).toEqual({ ok: true });
+    expect(await deletion.deleteOnRequest('u1', admin, 'request')).toEqual({
+      ok: true,
+    });
     expect(users.anonymize).toHaveBeenCalled();
   });
 
@@ -232,7 +243,7 @@ describe('AccountDeletion.deleteOnRequest (FR-ADM-23)', () => {
       anotherAdmin: false,
     });
 
-    expect(await deletion.deleteOnRequest('u1', admin)).toEqual({
+    expect(await deletion.deleteOnRequest('u1', admin, 'request')).toEqual({
       ok: false,
       reason: 'last-admin',
     });

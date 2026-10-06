@@ -9,6 +9,7 @@ import {
 } from '../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
+import { AccountDeletionReason } from '@b2b-catalog-platform/shared';
 import { LastAdminError, UserRow, UsersService } from '../users/users.service';
 import { env } from '../env';
 
@@ -54,7 +55,7 @@ export class AccountDeletion {
     }
 
     const closed = await this.closedSummary(user);
-    const result = await this.close(user);
+    const result = await this.close(user, { reason: 'request' });
     if (!result.ok) return result;
 
     // And the shop is told (FR-NOTIF-08). Separately, so one failing inbox does
@@ -84,6 +85,7 @@ export class AccountDeletion {
   async deleteOnRequest(
     userId: string,
     admin: { readonly id: string; readonly email: string },
+    reason: AccountDeletionReason,
   ): Promise<DeleteOnRequestResult> {
     const user = await this.users.findById(userId);
     if (!user) return { ok: false, reason: 'not-found' };
@@ -92,7 +94,7 @@ export class AccountDeletion {
     // Declining removes a registration outright (FR-AUTH-11), and writes its
     // own withdrawal: two doors to one outcome would record it two ways.
     if (user.status === 'pending') return { ok: false, reason: 'pending' };
-    return this.close(user, admin);
+    return this.close(user, { reason, by: admin });
   }
 
   /**
@@ -101,7 +103,7 @@ export class AccountDeletion {
    */
   private async close(
     user: UserRow,
-    by?: { readonly id: string; readonly email: string },
+    deletion: Parameters<UsersService['anonymize']>[2],
   ): Promise<{ ok: true } | { ok: false; reason: 'last-admin' }> {
     // Read the address the mail goes to *before* the write, which is what
     // overwrites it. Sending before the write would be the other way to have
@@ -117,7 +119,7 @@ export class AccountDeletion {
       await this.users.anonymize(
         user.id,
         await this.passwords.unusableHash(),
-        by,
+        deletion,
       );
     } catch (error) {
       if (error instanceof LastAdminError) {

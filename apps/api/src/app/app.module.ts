@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { ConsentAdminModule } from '../consents/consent-admin.module';
 import { InquiryModule } from '../inquiry/inquiry.module';
 import { DatabaseModule } from '../db/database.module';
+import { DestructionModule } from '../destruction/destruction.module';
 import { CatalogModule } from '../catalog/catalog.module';
 import { DocumentsModule } from '../documents/documents.module';
 import { OrdersModule } from '../orders/orders.module';
@@ -39,6 +40,7 @@ import { WorkModule } from '../work/work.module';
     TiersModule,
     StaffUsersModule,
     ConsentAdminModule,
+    DestructionModule,
     AccountModule,
     OrdersModule,
     AddressesModule,

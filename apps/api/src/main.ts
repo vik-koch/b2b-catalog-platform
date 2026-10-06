@@ -9,6 +9,7 @@ import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
 import { hashPassword } from './auth/password-hashing';
 import { scheduleMediaPrune } from './media/prune/media-prune-scheduler';
+import { RetentionSweep } from './destruction/retention-sweep';
 import { env } from './env';
 import { MACHINE_SYNC_RUNS_PATHS } from './machine-sync-body-paths';
 
@@ -80,6 +81,10 @@ async function bootstrap() {
     dryRun: env.MEDIA_PRUNE_DRY_RUN === 'true',
     log: (message) => Logger.log(message, 'MediaPrune'),
   });
+
+  // Delete consent and destruction records whose retention has ended
+  // (NFR-LEGAL-09/12). Daily: a period counted in days needs nothing finer.
+  app.get(RetentionSweep).schedule(24 * 60 * 60 * 1000, PRUNE_STARTUP_DELAY_MS);
 }
 
 async function main() {

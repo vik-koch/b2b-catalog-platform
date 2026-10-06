@@ -682,7 +682,7 @@
     "sourceUpload": "Uploaded",
     "runTitle": "Sync run",
     "runLoadError": "This run could not be loaded.",
-    "planUnavailable": "The changes this run staged are no longer stored.",
+    "planUnavailable": "The changes this run carried are no longer stored.",
     "failureTitle": "What the sending system reported",
     "noticeTitle": "Note from the sending system",
     "startedLabel": "Started",

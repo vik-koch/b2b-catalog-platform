@@ -79,6 +79,10 @@ function renderingDb(
       captured.push({ table, sql, params });
       return Promise.resolve();
     },
+    insert: (table: unknown) => ({
+      values: (values: Record<string, unknown>) =>
+        settle(name(table), real.insert(table as never).values(values)),
+    }),
     delete: (table: unknown) => ({
       where: (condition: unknown) =>
         settle(
@@ -113,12 +117,13 @@ describe('UsersService.anonymize', () => {
 
   beforeAll(async () => {
     const service = new UsersService(renderingDb(captured));
-    await service.anonymize('user-1', 'unusable-hash');
+    await service.anonymize('user-1', 'unusable-hash', { reason: 'request' });
   });
 
   it('does the whole thing in one transaction', () => {
-    // Six statements, one callback: an account that is half-anonymized is
-    // worse than one that is not.
+    // Seven statements, one callback: an account that is half-anonymized is
+    // worse than one that is not, and one deleted without its record cannot
+    // be proved deleted.
     expect(captured.map((entry) => entry.table)).toEqual([
       'addresses',
       'order_items',
@@ -129,7 +134,25 @@ describe('UsersService.anonymize', () => {
       'orders',
       // The account consent ends with the account (NFR-LEGAL-09).
       'consent_withdrawals',
+      // The record that it happened (NFR-LEGAL-12).
+      'destruction_records',
       'users',
+    ]);
+  });
+
+  it('records the destruction under the account id, by the holder', () => {
+    const { sql, params } = statement('destruction_records');
+
+    expect(sql).toContain('insert into "destruction_records"');
+    // No address anywhere: the holder's is what went.
+    expect(params).toEqual([
+      'account',
+      'user-1',
+      // As drizzle hands a varchar[] to the driver.
+      '{"account-details","addresses","order-details","order-documents"}',
+      'request',
+      'user-1',
+      null,
     ]);
   });
 
