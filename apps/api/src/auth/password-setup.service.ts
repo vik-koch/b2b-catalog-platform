@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PasswordTokenPurpose, UserRole } from '@b2b-catalog-platform/shared';
 import { CheckedConsent, ConsentService } from '../consents/consent.service';
+import { DRIZZLE } from '../db/database.module';
+import * as schema from '../db/schema';
 import { UserRow, UsersService } from '../users/users.service';
 import { PasswordPolicy } from './password-policy';
 import { PasswordTokenService } from './password-token.service';
@@ -24,6 +27,7 @@ export class PasswordSetupService {
     private readonly passwords: PasswordService,
     private readonly policy: PasswordPolicy,
     private readonly consents: ConsentService,
+    @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
   /**
@@ -99,14 +103,27 @@ export class PasswordSetupService {
     // one themselves.
     const passwordHash = await this.passwords.hash(password);
 
-    // Only now is the link spent, and only if it is still unspent — the update
-    // is conditional, so two simultaneous submissions cannot both win.
-    if (!(await this.tokens.redeem(token))) return null;
+    // One transaction from here: a consent record that failed after the
+    // account turned active would never be asked for again, and the visitor
+    // would hold a spent link besides.
+    return this.db.transaction(async (tx) => {
+      // Only now is the link spent, and only if it is still unspent — the
+      // update is conditional, so two simultaneous submissions cannot both win.
+      if (!(await this.tokens.redeem(token, tx))) return null;
 
-    const updated = await this.users.setPasswordFromToken(userId, passwordHash);
-    if (updated && consent) {
-      await this.consents.record(consent, { userId, email: updated.email });
-    }
-    return updated ?? null;
+      const updated = await this.users.setPasswordFromToken(
+        userId,
+        passwordHash,
+        tx,
+      );
+      if (updated && consent) {
+        await this.consents.record(
+          consent,
+          { userId, email: updated.email },
+          tx,
+        );
+      }
+      return updated ?? null;
+    });
   }
 }

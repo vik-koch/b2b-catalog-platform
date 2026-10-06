@@ -71,15 +71,25 @@ function build(
     }),
   };
 
+  // Hands the callback a handle of its own, so a test can tell the writes
+  // that went through the transaction from those that did not.
+  const tx = { name: 'tx' };
+  const db = {
+    transaction: vi.fn(async (write: (handle: unknown) => unknown) =>
+      write(tx),
+    ),
+  };
+
   const setup = new PasswordSetupService(
     users as never,
     tokens as never,
     passwords as never,
     policy as never,
     consents as never,
+    db as never,
   );
 
-  return { setup, tokens, users, passwords, policy, consents, calls };
+  return { setup, tokens, users, passwords, policy, consents, calls, tx };
 }
 
 describe('PasswordSetupService.redeem', () => {
@@ -92,6 +102,7 @@ describe('PasswordSetupService.redeem', () => {
     expect(users.setPasswordFromToken).toHaveBeenCalledWith(
       'u1',
       'argon2-hash',
+      expect.anything(),
     );
     // Both checks, then the hash, and only then the link.
     expect(calls).toEqual(['policy', 'hash', 'redeem', 'write']);
@@ -161,7 +172,9 @@ describe('PasswordSetupService.redeem', () => {
 
 describe('the account consent on a first password (NFR-LEGAL-09)', () => {
   it('is checked before the link is spent, and recorded after', async () => {
-    const { setup, consents, calls } = build({ consentAsked: true });
+    const { setup, consents, tokens, users, calls, tx } = build({
+      consentAsked: true,
+    });
 
     await setup.redeem('raw-token', 'a good password', 2);
 
@@ -174,9 +187,18 @@ describe('the account consent on a first password (NFR-LEGAL-09)', () => {
       'write',
       'record',
     ]);
+    // One transaction: a record that fails takes the password and the spent
+    // link back with it, so the next attempt is asked again.
+    expect(tokens.redeem).toHaveBeenCalledWith('raw-token', tx);
+    expect(users.setPasswordFromToken).toHaveBeenCalledWith(
+      'u1',
+      'argon2-hash',
+      tx,
+    );
     expect(consents.record).toHaveBeenCalledWith(
       { purpose: 'account', pageVersionId: 'v-1' },
       { userId: 'u1', email: 'alex@example.com' },
+      tx,
     );
   });
 

@@ -18,7 +18,7 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
       branding: { name, theme: { primary: '#000' } },
       // Required of every config, and beside the point of this spec.
       billingAddressEnabled: true,
-      pages: { published: [] },
+      pages: { published: [], headerNav: [], footerNav: [] },
     }),
   );
   process.env['DEPLOYMENT_CONFIG_FILE'] = config;
