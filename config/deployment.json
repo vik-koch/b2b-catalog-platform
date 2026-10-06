@@ -28,6 +28,9 @@
     "contact": false,
     "account": false
   },
+  "terms": {
+    "attachToReceipt": true
+  },
   "cookieConsentEnabled": false,
   "billingAddressEnabled": true,
   "catalog": {

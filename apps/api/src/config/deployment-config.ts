@@ -23,6 +23,7 @@ import {
   PhoneConfig,
   phoneInputSchema,
   pagesConfigSchema,
+  termsConfigSchema,
 } from '@b2b-catalog-platform/shared';
 import { dirname, join } from 'node:path';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
@@ -44,6 +45,8 @@ export const apiDeploymentConfigSchema = z
     pages: pagesConfigSchema,
     /** Which consents the forms ask for (NFR-LEGAL-09). */
     consent: consentConfigSchema,
+    /** Whether the receipt attaches the accepted terms (NFR-LEGAL-10). */
+    terms: termsConfigSchema,
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
@@ -242,6 +245,13 @@ export const TERMS_PUBLISHED = 'TERMS_PUBLISHED';
 
 export function loadTermsPublished(): boolean {
   return loadApiDeploymentConfig().pages.published.includes('terms');
+}
+
+/** Whether the receipt attaches the accepted terms as a document. */
+export const TERMS_ATTACHED = 'TERMS_ATTACHED';
+
+export function loadTermsAttached(): boolean {
+  return loadApiDeploymentConfig().terms.attachToReceipt;
 }
 
 /**

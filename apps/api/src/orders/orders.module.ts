@@ -15,6 +15,7 @@ import {
   PAIRINGS_ENFORCED,
   PDF_FONT,
   PICKUP_LOCATIONS,
+  TERMS_ATTACHED,
   TERMS_PUBLISHED,
   ADDRESS_CONFIG,
   loadAddressConfig,
@@ -27,6 +28,7 @@ import {
   loadPairingsEnforced,
   loadPdfFont,
   loadPickupLocations,
+  loadTermsAttached,
   loadTermsPublished,
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
@@ -100,6 +102,7 @@ import { OrdersService } from './orders.service';
     { provide: PDF_FONT, useFactory: loadPdfFont },
     { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
     { provide: TERMS_PUBLISHED, useFactory: loadTermsPublished },
+    { provide: TERMS_ATTACHED, useFactory: loadTermsAttached },
   ],
   // The order exchange writes orders back through this same service
   // (FR-ADM-08): one writer, so an exchange and a manager leave the same
