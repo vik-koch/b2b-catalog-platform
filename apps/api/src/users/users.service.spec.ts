@@ -1,4 +1,4 @@
-import { getTableName } from 'drizzle-orm';
+import { getTableName, SQL } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema';
 import { LastAdminError, UsersService } from './users.service';
@@ -71,6 +71,14 @@ function renderingDb(
 
   const tx = {
     select,
+    // Raw statements: rendered by the same dialect, captured by what they
+    // write to.
+    execute: (query: SQL) => {
+      const { sql, params } = real.dialect.sqlToQuery(query);
+      const table = /INSERT INTO (\w+)/.exec(sql)?.[1] ?? 'raw';
+      captured.push({ table, sql, params });
+      return Promise.resolve();
+    },
     delete: (table: unknown) => ({
       where: (condition: unknown) =>
         settle(
@@ -109,7 +117,7 @@ describe('UsersService.anonymize', () => {
   });
 
   it('does the whole thing in one transaction', () => {
-    // Five statements, one callback: an account that is half-anonymized is
+    // Six statements, one callback: an account that is half-anonymized is
     // worse than one that is not.
     expect(captured.map((entry) => entry.table)).toEqual([
       'addresses',
@@ -119,8 +127,17 @@ describe('UsersService.anonymize', () => {
       'order_revisions',
       // The orders themselves are touched only to say they changed.
       'orders',
+      // The account consent ends with the account (NFR-LEGAL-09).
+      'consent_withdrawals',
       'users',
     ]);
+  });
+
+  it("ends the account's consents as deleted, leaving any already ended", () => {
+    const { sql, params } = statement('consent_withdrawals');
+
+    expect(params).toEqual(['account-deleted', 'user-1']);
+    expect(sql).toContain('NOT EXISTS');
   });
 
   it('marks the scrubbed orders as changed', () => {

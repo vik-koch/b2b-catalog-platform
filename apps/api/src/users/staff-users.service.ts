@@ -37,6 +37,7 @@ import {
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
+import { withdrawAccountConsents } from '../consents/consent-withdrawals';
 import { UsersService } from './users.service';
 
 /**
@@ -521,10 +522,18 @@ export class StaffUsersService {
    * (FR-AUTH-06), never deleted.
    */
   async purgePending(id: string): Promise<void> {
-    const deleted = await this.db
-      .delete(users)
-      .where(and(eq(users.id, id), eq(users.status, 'pending')))
-      .returning({ id: users.id });
+    const deleted = await this.db.transaction(async (tx) => {
+      const rows = await tx
+        .delete(users)
+        .where(and(eq(users.id, id), eq(users.status, 'pending')))
+        .returning({ id: users.id });
+      // The consent given on the form ends with the registration. Its record
+      // outlives the row, naming the address, for the retention period.
+      if (rows.length) {
+        await withdrawAccountConsents(tx, id, 'registration-declined');
+      }
+      return rows;
+    });
 
     if (!deleted.length) {
       throw (await this.exists(id))
