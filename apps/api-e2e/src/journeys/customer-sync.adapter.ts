@@ -8,6 +8,7 @@ import {
 } from '../support/mailpit';
 import { cached, JourneyAdapter, Probe } from '../support/journey/journey';
 import { CUSTOMER_SYNC_PROBES as reading } from './customer-sync-probe-labels';
+import { consentVersion } from '../support/consent';
 
 /**
  * What a customer-exchange journey acts on and reads — the customer half of
@@ -341,6 +342,7 @@ const actions: JourneyAdapter<CustomerSyncJourneyContext>['actions'] = {
     run: async (ctx) => {
       await ok(
         call('post', '/auth/register', {
+          consentVersion: await consentVersion('account'),
           email: ctx.email,
           firstName: 'Ada',
           lastName: 'Lovelace',

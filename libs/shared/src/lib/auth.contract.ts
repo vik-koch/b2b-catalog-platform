@@ -15,6 +15,8 @@ import {
   storedEmailField,
 } from './contact-config';
 import { commonAuthErrors } from './api-error';
+import { consentErrors } from './page-constants';
+import { consentVersionField } from './page.contract';
 
 export type UserRole = (typeof USER_ROLES)[number];
 export const userRoleSchema = z.enum(USER_ROLES);
@@ -163,6 +165,7 @@ export const registerSchema = z
         typeof value === 'string' && value.trim() === '' ? undefined : value,
       z.string().max(2000).optional(),
     ),
+    consentVersion: consentVersionField,
   })
   // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
   .strict()
@@ -231,7 +234,7 @@ export const authContract = {
     // deployment config, so the browser checks the same rule and this is the
     // server having the last word — and unlike an address that already has an
     // account, a bad format reveals nothing about anyone.
-    .errors({ 'company-id-format': { status: 400 } })
+    .errors({ 'company-id-format': { status: 400 }, ...consentErrors })
     .input(z.object({ body: registerSchema }))
     // Always the same answer, whether the address was new, already registered,
     // or a honeypot hit: the response must not reveal which addresses have

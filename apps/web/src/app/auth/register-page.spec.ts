@@ -239,6 +239,7 @@ describe('RegisterPage', () => {
       companyName: undefined,
       companyRegistrationId: undefined,
       website: undefined,
+      consentVersion: 3,
     });
   });
 
@@ -407,6 +408,31 @@ describe('RegisterPage', () => {
 
     expect(el.querySelector('form')).not.toBeNull();
     expect(el.textContent).toContain(text.error);
+  });
+
+  // The text changed while the form was open: the new wording is shown and
+  // the box asked again, rather than the request reported as failed.
+  it('asks again when the consent text changed under the form', async () => {
+    const { el, register, getPage, sync, submit, fillPerson } =
+      await render('consent-stale');
+    getPage.mockResolvedValue({ ...consentPage, version: 4 });
+
+    await fillPerson();
+    submit();
+    await sync();
+    await sync();
+
+    expect(el.textContent).toContain(defaultAppText.consentBox.changed);
+    expect(el.textContent).not.toContain(text.error);
+
+    register.mockResolvedValue('ok');
+    check(el, 'input[type="checkbox"]');
+    submit();
+    await sync();
+
+    expect(register).toHaveBeenLastCalledWith(
+      expect.objectContaining({ consentVersion: 4 }),
+    );
   });
 
   describe('company suggestions (FR-AUTH-09)', () => {

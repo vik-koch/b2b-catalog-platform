@@ -383,6 +383,7 @@ export class RegisterPage {
       billingAddress: this.billingAddress(value.customerType),
       // Honeypot.
       website: value.website || undefined,
+      consentVersion: this.consent.version(),
     };
   }
 }
