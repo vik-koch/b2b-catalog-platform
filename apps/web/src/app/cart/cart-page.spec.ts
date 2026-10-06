@@ -753,6 +753,18 @@ describe('CartPage', () => {
     expect(view.text()).toContain(text.totalIncomplete);
   });
 
+  it('states the tax basis under the subtotal', async () => {
+    const view = await render({ lines: [addition()] });
+
+    // The demo quotes 19 % included.
+    // The text reads with its spaces collapsed, the non-breaking one too.
+    expect(view.text()).toContain(
+      defaultAppText.tax.statement.included
+        .replace('{rate}', '19')
+        .replace(/\s+/g, ' '),
+    );
+  });
+
   it('states the shipment estimate as rows, approximate, and what it misses', async () => {
     const view = await render({
       lines: [addition()],

@@ -16,6 +16,7 @@ import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
 import { ProductSetBadge } from './product-set-badge';
 import { ProductUnitFacts } from './product-unit-facts';
+import { useTaxStatement } from './tax-statement';
 
 /**
  * The buying block on a product page (FR-UNIT-07, FR-CART-01/08). The controls
@@ -76,6 +77,7 @@ import { ProductUnitFacts } from './product-unit-facts';
         [externalNote]="true"
         [offerPairings]="false"
         [canAdd]="canAdd()"
+        [priceNote]="taxNote"
       >
         <!-- One column at one spacing, from the packaging facts to the
              button: whichever of the three below a product has — none, one or
@@ -140,6 +142,7 @@ import { ProductUnitFacts } from './product-unit-facts';
 export class ProductBuyBlock {
   protected readonly text = inject(APP_TEXT).cart;
   protected readonly noteMax = CART_NOTE_MAX;
+  protected readonly taxNote = useTaxStatement().atPrice();
 
   readonly item = input.required<ProductDetail>();
   /** False in the product editor's live preview: the block is there to show

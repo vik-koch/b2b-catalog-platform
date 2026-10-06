@@ -99,4 +99,20 @@ describe('ConditionsPage', () => {
     expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
     expect(el.textContent).not.toContain(payment.cashTitle);
   });
+
+  it('states the tax basis with the default rate', async () => {
+    const el = await render({
+      tax: { basis: 'added', rate: 7, statedAtPrices: false },
+    });
+
+    expect(el.textContent).toContain(
+      defaultAppText.conditions.taxAdded.replace('{rate}', '7'),
+    );
+  });
+
+  it('says no tax is charged under `none`', async () => {
+    const el = await render({ tax: { basis: 'none' } });
+
+    expect(el.textContent).toContain(defaultAppText.conditions.taxNone);
+  });
 });

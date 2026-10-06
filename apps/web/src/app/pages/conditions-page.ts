@@ -1,6 +1,9 @@
 import { Component, computed, inject, resource } from '@angular/core';
+import { fillText, formatTaxRate } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { AppText } from '../config/app-text.type';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { DeploymentConfig } from '../config/deployment-config.type';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
@@ -147,6 +150,15 @@ import { PageUpdated } from './page-updated';
             </li>
           </ul>
         </section>
+
+        <!-- The basis every price on the site is quoted on (NFR-LEGAL-11),
+             in the deployment's own sentence for it. -->
+        <section>
+          <h2 class="mb-4 text-2xl font-normal tracking-tight">
+            {{ pageText.taxHeading }}
+          </h2>
+          <p class="text-muted">{{ taxSentence }}</p>
+        </section>
       </div>
 
       @if (content) {
@@ -175,6 +187,9 @@ export class ConditionsPage {
   protected readonly pageText = this.appText.conditions;
   protected readonly fulfilmentText = this.appText.checkout.fulfilment;
   protected readonly paymentText = this.appText.checkout.payment;
+
+  /** The basis in a sentence, naming the default rate where tax is charged. */
+  protected readonly taxSentence = taxSentence(this.config, this.pageText);
 
   protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;
   protected readonly pickupLocations = this.config.pickup?.locations ?? [];
@@ -214,4 +229,15 @@ export class ConditionsPage {
   constructor() {
     usePageSeo({ name: () => this.page()?.title || this.navLabel });
   }
+}
+
+function taxSentence(
+  config: DeploymentConfig,
+  text: AppText['conditions'],
+): string {
+  const { tax } = config;
+  if (tax.basis === 'none') return text.taxNone;
+  return fillText(tax.basis === 'included' ? text.taxIncluded : text.taxAdded, {
+    rate: formatTaxRate(tax.rate, config.catalog.currency.locale),
+  });
 }

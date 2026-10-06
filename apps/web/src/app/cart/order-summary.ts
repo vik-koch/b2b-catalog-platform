@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, ShipmentSummary } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
+import { useTaxStatement } from '../catalog/tax-statement';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Skeleton } from '../ui/skeleton';
@@ -53,6 +54,8 @@ import { WarningNote } from '../ui/warning-note';
           <dd class="text-xl font-emphasis text-primary">{{ subtotal() }}</dd>
         </div>
       </dl>
+      <!-- What the figure includes, straight under it (NFR-LEGAL-11). -->
+      <p class="mt-1 text-right text-xs text-subtle">{{ taxStatement }}</p>
 
       @if (!complete()) {
         <app-warning-note class="mt-2">
@@ -77,6 +80,7 @@ export class OrderSummary {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   protected readonly text = inject(APP_TEXT).cart;
+  protected readonly taxStatement = useTaxStatement().total();
 
   readonly lineCount = input.required<number>();
   readonly subtotalMinor = input.required<number>();

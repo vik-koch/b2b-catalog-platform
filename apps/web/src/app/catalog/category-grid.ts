@@ -62,6 +62,7 @@ import {
   sortParam,
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from './product-tile';
+import { useTaxStatement } from './tax-statement';
 
 /**
  * What the collapsed chip list clips to, in px: four `h-16` chip rows, the
@@ -442,6 +443,11 @@ interface Listing {
                     </li>
                   }
                 </ul>
+                <!-- What the prices include, where the deployment says so beside
+                     them (NFR-LEGAL-11). Once for the page, naming no rate. -->
+                @if (taxNote) {
+                  <p class="mt-4 text-xs text-subtle">{{ taxNote }}</p>
+                }
 
                 @if (data.pagination.totalPages > 1) {
                   <nav
@@ -579,6 +585,7 @@ export class CategoryGrid {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);

@@ -34,6 +34,7 @@ import {
   sortParam,
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from './product-tile';
+import { useTaxStatement } from './tax-statement';
 
 /**
  * Search results — the same product tiles the category grid
@@ -182,6 +183,11 @@ import { PRODUCT_GRID, ProductTile } from './product-tile';
                   </li>
                 }
               </ul>
+              <!-- What the prices include, where the deployment says so beside
+                   them (NFR-LEGAL-11). Once for the page, naming no rate. -->
+              @if (taxNote && data.items.length) {
+                <p class="mt-4 text-xs text-subtle">{{ taxNote }}</p>
+              }
 
               @if (data.pagination.totalPages > 1) {
                 <nav
@@ -304,6 +310,7 @@ export class SearchResults {
 
   protected readonly text = inject(APP_TEXT).search;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);
 
