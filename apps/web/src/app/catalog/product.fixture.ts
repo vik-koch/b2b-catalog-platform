@@ -66,6 +66,7 @@ export function productDetail(
     lineNoteEnabled: false,
     lineNotePrompt: null,
     availability: null,
+    taxRate: 19,
     pairedCount: 0,
     parts: [],
     documents: [],

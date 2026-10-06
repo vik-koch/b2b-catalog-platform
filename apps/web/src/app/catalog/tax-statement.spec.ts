@@ -31,15 +31,25 @@ describe('useTaxStatement', () => {
 
     // The demo writes numbers the German way.
     expect(tax.total()).toBe(text.statement.included.replace('{rate}', '5,5'));
-    expect(tax.atPrice()).toBe(tax.total());
+    expect(tax.atPrice(null)).toBe(tax.total());
     expect(tax.listing()).toBe(text.listing.included);
+  });
+
+  it('names a product’s own rate beside its price', () => {
+    const tax = statement({
+      basis: 'included',
+      rate: 19,
+      statedAtPrices: true,
+    });
+
+    expect(tax.atPrice(7)).toBe(text.statement.included.replace('{rate}', '7'));
   });
 
   it('states the basis only under totals where the deployment says nothing at prices', () => {
     const tax = statement({ basis: 'added', rate: 19, statedAtPrices: false });
 
     expect(tax.total()).toBe(text.statement.added.replace('{rate}', '19'));
-    expect(tax.atPrice()).toBeNull();
+    expect(tax.atPrice(7)).toBeNull();
     expect(tax.listing()).toBeNull();
   });
 
@@ -47,7 +57,7 @@ describe('useTaxStatement', () => {
     const tax = statement({ basis: 'none' });
 
     expect(tax.total()).toBe(text.statement.none);
-    expect(tax.atPrice()).toBeNull();
+    expect(tax.atPrice(7)).toBeNull();
     expect(tax.listing()).toBeNull();
   });
 });

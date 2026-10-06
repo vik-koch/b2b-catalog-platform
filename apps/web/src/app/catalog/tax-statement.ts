@@ -14,22 +14,25 @@ export function useTaxStatement() {
   const locale = config.catalog.currency.locale;
   const text = inject(APP_TEXT).tax;
 
-  const statement = (): string =>
+  const statement = (rate: number | null): string =>
     tax.basis === 'none'
       ? text.statement.none
       : fillText(text.statement[tax.basis], {
-          rate: formatTaxRate(tax.rate, locale),
+          rate: formatTaxRate(rate ?? tax.rate, locale),
         });
 
   return {
     /** Under a total: always said, `none` included, because a buyer who is
      * told nothing assumes the tax is in the price. */
-    total: statement,
+    total: (): string => statement(null),
 
-    /** Beside a price, where the deployment states it there; null otherwise
-     * and under `none`, which a total says once. */
-    atPrice(): string | null {
-      return tax.basis !== 'none' && tax.statedAtPrices ? statement() : null;
+    /** Beside a price, naming the product's rate as the API resolved it;
+     * null where the deployment says nothing there, and under `none`, which
+     * a total says once. */
+    atPrice(rate: number | null): string | null {
+      return tax.basis !== 'none' && tax.statedAtPrices
+        ? statement(rate)
+        : null;
     },
 
     /** Under a listing, naming no rate: one page may hold goods at two. */

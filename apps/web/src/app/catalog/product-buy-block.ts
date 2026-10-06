@@ -77,7 +77,7 @@ import { useTaxStatement } from './tax-statement';
         [externalNote]="true"
         [offerPairings]="false"
         [canAdd]="canAdd()"
-        [priceNote]="taxNote"
+        [priceNote]="taxNote()"
       >
         <!-- One column at one spacing, from the packaging facts to the
              button: whichever of the three below a product has — none, one or
@@ -142,13 +142,16 @@ import { useTaxStatement } from './tax-statement';
 export class ProductBuyBlock {
   protected readonly text = inject(APP_TEXT).cart;
   protected readonly noteMax = CART_NOTE_MAX;
-  protected readonly taxNote = useTaxStatement().atPrice();
+  private readonly tax = useTaxStatement();
 
   readonly item = input.required<ProductDetail>();
   /** False in the product editor's live preview: the block is there to show
    * what a visitor will see, not to fill a manager's own cart. */
   readonly canAdd = input(true);
   protected readonly packaging = computed(() => this.item().packaging);
+  protected readonly taxNote = computed(() =>
+    this.tax.atPrice(this.item().taxRate),
+  );
 
   private readonly cart = inject(CartService);
 

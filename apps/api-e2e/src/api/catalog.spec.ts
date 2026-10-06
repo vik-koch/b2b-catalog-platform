@@ -365,6 +365,7 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
       'priceMinor',
       'prices',
       'slug',
+      'taxRate',
       'variants',
     ]);
     expect(res.data.name).toBe(seed.name);
@@ -409,6 +410,20 @@ describe('GET /catalog/products/:slug (FR-CAT-05)', () => {
     );
     // The private sync key must never be serialized.
     expect(res.data).not.toHaveProperty('sourceId');
+  });
+
+  it('resolves the rate a product is taxed at, its own or the default (NFR-LEGAL-11)', async () => {
+    // The demo seeds coffee at the reduced rate and leaves the rest on the
+    // deployment's default of 19.
+    const coffee = liveSeeds.find((product) => product.taxRate !== undefined);
+    const other = liveSeeds.find((product) => product.taxRate === undefined);
+
+    expect((await get(`/catalog/products/${coffee?.slug}`)).data.taxRate).toBe(
+      7,
+    );
+    expect((await get(`/catalog/products/${other?.slug}`)).data.taxRate).toBe(
+      19,
+    );
   });
 
   it('returns 404 for an unknown product', async () => {

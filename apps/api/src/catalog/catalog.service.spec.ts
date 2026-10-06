@@ -53,6 +53,7 @@ describe('CatalogService.getSitemap', () => {
       ]),
       new SearchLogger(),
       null,
+      { basis: 'none' },
     );
 
     const result = await service.getSitemap();
@@ -86,6 +87,7 @@ describe('CatalogService.getSitemap', () => {
       ]),
       new SearchLogger(),
       null,
+      { basis: 'none' },
     );
 
     const result = await service.getSitemap();
@@ -101,6 +103,7 @@ describe('CatalogService.getSitemap', () => {
       dbReturning([[], [], [], []]),
       new SearchLogger(),
       null,
+      { basis: 'none' },
     );
 
     await expect(service.getSitemap()).resolves.toEqual({

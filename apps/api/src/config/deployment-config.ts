@@ -25,6 +25,7 @@ import {
   pagesConfigSchema,
   RetentionConfig,
   retentionConfigSchema,
+  TaxConfig,
   taxConfigSchema,
   termsConfigSchema,
 } from '@b2b-catalog-platform/shared';
@@ -259,6 +260,14 @@ export const TERMS_ATTACHED = 'TERMS_ATTACHED';
 
 export function loadTermsAttached(): boolean {
   return loadApiDeploymentConfig().terms.attachToReceipt;
+}
+
+/** The tax basis and default rate, which a product's own rate falls back
+ * to. Injected like the rules beside it. */
+export const TAX_CONFIG = 'TAX_CONFIG';
+
+export function loadTaxConfig(): TaxConfig {
+  return loadApiDeploymentConfig().tax;
 }
 
 /** How long consent and destruction records are kept before the sweep. */
