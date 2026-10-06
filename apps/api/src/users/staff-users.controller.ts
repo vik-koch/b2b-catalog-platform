@@ -18,6 +18,7 @@ const PROFILE_FIELDS = [
 import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
+import { ConsentService } from '../consents/consent.service';
 import { refusals } from '../orpc/refusals';
 import { customersExternallyOwned } from '../settings/ownership.refusals';
 import { SettingsService } from '../settings/settings.service';
@@ -46,6 +47,7 @@ export class StaffUsersController {
     private readonly invitations: AccountInvitations,
     private readonly audit: AuditLogger,
     private readonly settings: SettingsService,
+    private readonly consents: ConsentService,
   ) {}
 
   @Implement(usersContract.listUsers)
@@ -135,6 +137,19 @@ export class StaffUsersController {
         }
         return user;
       });
+  }
+
+  // Admin only, as the lookup is: consent records are the operator's to answer for.
+  @Auth('admin')
+  @Implement(usersContract.listUserConsents)
+  listUserConsents() {
+    return implement(usersContract.listUserConsents).handler(
+      async ({ input: { params }, errors }) => {
+        const user = await this.service.findById(params.id);
+        if (!user) throw errors['account-not-found'](NOT_FOUND);
+        return { consents: await this.consents.findByAccount(user.id) };
+      },
+    );
   }
 
   @Implement(usersContract.updateUser)

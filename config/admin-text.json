@@ -1379,17 +1379,29 @@
     "approved": "Approved",
     "approvedNever": "Not approved yet",
     "sourceIdEmpty": "None — no automated update can reach this account.",
+    "consentsHeading": "Consents",
+    "consentsEmpty": "No consent recorded for this account.",
     "back": "Back to the list",
     "notFound": "This account could not be found.",
     "loadError": "This account could not be loaded. Please try again."
   },
   "consents": {
     "title": "Consents",
+    "panelLookup": "Find a person's consents",
     "panelText": "Text: {purpose}",
+    "intro": "Find the consents a person gave, to answer their own request or an inspection. A search by email address also finds the records of the account that uses it now.",
+    "byEmail": "Email address",
+    "byPhone": "Phone number",
+    "search": "Search",
+    "empty": "No consent recorded for {query}.",
+    "loadError": "The records could not be loaded. Please try again.",
     "purposes": {
       "contact": "Contact form",
       "account": "Customer account"
-    }
+    },
+    "version": "Version {version}",
+    "account": "Account",
+    "accountGone": "Registration declined and removed"
   },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",

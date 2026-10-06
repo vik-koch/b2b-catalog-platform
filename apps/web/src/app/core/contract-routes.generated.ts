@@ -632,6 +632,19 @@ export const catalogContract = {
     },
   },
 } as unknown as typeof shared.catalogContract;
+export const consentsContract = {
+  findConsents: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/consents',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+} as unknown as typeof shared.consentsContract;
 export const documentsContract = {
   listDocuments: {
     '~orpc': {
@@ -1097,6 +1110,17 @@ export const usersContract = {
       route: {
         method: 'GET',
         path: '/admin/users/{id}',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  listUserConsents: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'GET',
+        path: '/admin/users/{id}/consents',
         inputStructure: 'detailed',
       },
     },

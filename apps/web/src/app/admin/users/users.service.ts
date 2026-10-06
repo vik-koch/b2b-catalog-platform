@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  ConsentRecord,
   CreateUserRequest,
   ListUsersQuery,
   StaffUser,
@@ -106,6 +107,16 @@ export class StaffUsersService {
     }
     if (!result.isSuccess) throw result.error;
     return result.data;
+  }
+
+  /** The account's consent records; empty for an account it cannot open. */
+  async listConsents(id: string): Promise<ConsentRecord[]> {
+    const result = await safe(this.client.listUserConsents({ params: { id } }));
+    if (result.isDefined && result.error.code === 'account-not-found') {
+      return [];
+    }
+    if (!result.isSuccess) throw result.error;
+    return result.data.consents;
   }
 
   /** Save the editor's whole field set. 409 is the role guard (the last admin,

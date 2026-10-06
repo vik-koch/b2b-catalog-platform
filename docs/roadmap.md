@@ -868,6 +868,15 @@ Notes:
   footer therefore carries a line from configuration: legal name, registration number and a
   way to reach the seller. It is chrome, so it is configuration rather than page content,
   on the same argument as the footer's other links.
+- **An admin can find a person's consents, and delete an account on request**
+  ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A request about a
+  person's data reaches the shop by letter, email or phone as often as through the
+  account, so the records are found by account, email address or phone number. Searching
+  by address also finds the account that uses it now, since a record keeps the address it
+  was given with. Answering such a request, or an inspection, is the operator's, so the
+  records are an admin's alone, as the consent texts already were. Nothing changes a
+  record, and the database refuses to. A record therefore names its account by id without
+  a reference that a removed account would have to clear. 
 - **Consent is switched on, not published**
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A purpose used to be asked
   when its text was in the list of published pages, which an operator reading the config

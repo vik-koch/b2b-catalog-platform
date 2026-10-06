@@ -338,3 +338,52 @@ describe('AdminPanelPage runtime state', () => {
     expect(settings.load).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('AdminPanelPage consents (NFR-LEGAL-09)', () => {
+  const text = defaultAdminText.consents;
+  const asking = (contact: boolean, account: boolean) => ({
+    ...config,
+    consent: { contact, account },
+  });
+  const renderAs = (user: AuthUser, deployment = asking(true, false)) =>
+    render(
+      { version: null, deployedAt: null },
+      user,
+      {},
+      settingsStub(),
+      syncStub(),
+      deployment,
+    );
+  const section = (el: HTMLElement) =>
+    el.querySelector('section:has(#admin-consents-heading)');
+
+  it('gives an admin the lookup and each text the deployment asks for', async () => {
+    const el = await renderAs(adminUser);
+
+    const links = [...(section(el)?.querySelectorAll('a') ?? [])].map((a) => [
+      a.textContent?.trim(),
+      a.getAttribute('href'),
+    ]);
+    expect(links).toEqual([
+      [text.panelLookup, '/admin/consents'],
+      [
+        text.panelText.replace('{purpose}', text.purposes.contact),
+        expect.stringMatching(/^\/admin\/pages\/consent-contact\/edit/),
+      ],
+    ]);
+  });
+
+  it('draws no block where nothing is asked', async () => {
+    const el = await renderAs(adminUser, asking(false, false));
+
+    expect(section(el)).toBeNull();
+  });
+
+  // The operator's duty, so it is no manager's block at all.
+  it('draws no block for a manager', async () => {
+    const el = await renderAs(managerUser);
+
+    expect(section(el)).toBeNull();
+    expect(el.querySelector('a[href="/admin/consents"]')).toBeNull();
+  });
+});

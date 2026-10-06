@@ -7,6 +7,7 @@ import {
   loadAlternateLayout,
   loadCompanyIdFormats,
 } from '../config/deployment-config';
+import { ConsentModule } from '../consents/consent.module';
 import { MailModule } from '../mail/mail.module';
 import { SettingsModule } from '../settings/settings.module';
 import { AccountInvitations } from './account-invitations';
@@ -22,7 +23,7 @@ import { StaffUsersService } from './staff-users.service';
  * so merging them would be a cycle.
  */
 @Module({
-  imports: [AuthModule, MailModule, SettingsModule],
+  imports: [AuthModule, MailModule, SettingsModule, ConsentModule],
   controllers: [StaffUsersController],
   providers: [
     StaffUsersService,

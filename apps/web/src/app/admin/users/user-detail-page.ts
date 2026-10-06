@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
+  ConsentRecord,
   CustomerTier,
   formatPersonName,
   StaffUser,
@@ -12,6 +13,7 @@ import { formatPhone } from '../../core/contact-fields';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
+import { ConsentRecordList } from '../consents/consent-record-list';
 import { Button } from '../../ui/button';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
@@ -47,7 +49,15 @@ interface DetailRow {
  */
 @Component({
   selector: 'app-user-detail-page',
-  imports: [RouterLink, AdminIcon, Button, LockedNote, Skeleton, StatusBadge],
+  imports: [
+    RouterLink,
+    AdminIcon,
+    Button,
+    ConsentRecordList,
+    LockedNote,
+    Skeleton,
+    StatusBadge,
+  ],
   template: `
     <!-- The account page's own width: a column of short cards, which at the
          full width of a desktop is a heading beside half a screen of nothing. -->
@@ -103,6 +113,24 @@ interface DetailRow {
               </dl>
             </div>
           </section>
+
+          <!-- A customer's only, since staff are never asked, and an admin's.
+               Said when empty while a consent is asked: an account without a
+               record is then what a question is about. Where none is asked, an
+               empty card would read as something missing, so it is left out. -->
+          @if (showsConsents()) {
+            <section>
+              <h2 [class]="headingClass">{{ text.consentsHeading }}</h2>
+              @if (consentRecords().length > 0) {
+                <app-consent-record-list
+                  [records]="consentRecords()"
+                  [showAccount]="false"
+                />
+              } @else {
+                <p class="text-sm text-muted">{{ text.consentsEmpty }}</p>
+              }
+            </section>
+          }
         </div>
 
         <!-- The same banner the editor carries, and for the same reason: a
@@ -190,6 +218,32 @@ export class UserDetailPage {
   );
   protected readonly notFound = computed(() => this.account.value() === null);
   protected readonly showSkeleton = delayedLoading(this.account.isLoading);
+
+  /** The account's consent records: a customer's, read by an admin. */
+  protected readonly consents = resource<
+    ConsentRecord[],
+    { id: string; reads: boolean }
+  >({
+    params: () => ({
+      id: this.id(),
+      reads: this.isCustomer() && this.auth.user()?.role === 'admin',
+    }),
+    loader: async ({ params }) =>
+      params.reads ? this.service.listConsents(params.id) : [],
+  });
+  private readonly consentAsked = Object.values(this.config.consent).some(
+    Boolean,
+  );
+  protected readonly consentRecords = computed(() =>
+    this.consents.hasValue() ? this.consents.value() : [],
+  );
+  protected readonly showsConsents = computed(
+    () =>
+      this.isCustomer() &&
+      this.auth.user()?.role === 'admin' &&
+      this.consents.hasValue() &&
+      (this.consentAsked || this.consentRecords().length > 0),
+  );
 
   /** Only a customer has a tier, so only a customer's page asks for the list. */
   private readonly tierList = resource<CustomerTier[], { customer: boolean }>({
