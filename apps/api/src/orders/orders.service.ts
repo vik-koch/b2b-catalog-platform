@@ -99,6 +99,7 @@ import { priceCart, PricedCart } from './cart-pricing';
 import { priceAdjustment, PricedAdjustment } from './order-adjustment';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
+import { TermsPdf } from './terms-pdf';
 import {
   isUniqueViolation,
   ORDER_REFERENCE_ATTEMPTS,
@@ -332,6 +333,7 @@ export class OrdersService {
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
     @Inject(TERMS_PUBLISHED) private readonly termsPublished: boolean,
+    private readonly termsPdf: TermsPdf,
   ) {}
 
   /**
@@ -582,9 +584,11 @@ export class OrdersService {
     // would answer an error for an order that exists, and a customer who
     // retries would place a second one.
     try {
+      const order = await this.getForStaff(placed.reference);
       await this.notifications.placed(
-        await this.getForStaff(placed.reference),
+        order,
         placed.publicToken,
+        await this.termsPdf.receiptAttachments(order),
       );
     } catch (error) {
       this.logger.error(

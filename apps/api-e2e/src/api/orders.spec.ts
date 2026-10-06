@@ -875,6 +875,10 @@ describe('Cart and orders (FR-CART-01…04)', () => {
       // The lines are in it, and nothing staff-facing is.
       expect(body.Text).toContain(`E2E ${slugs.boxed}`);
       expect(body.HTML).not.toContain(TIER_KEY);
+      // The demo attaches the accepted terms (NFR-LEGAL-10).
+      expect(body.Attachments.map((a) => a.FileName)).toEqual([
+        expect.stringMatching(/^terms-of-sale-\d{4}-\d{2}-\d{2}\.pdf$/),
+      ]);
     });
 
     // An account holder can open the order signed in, so the capability URL

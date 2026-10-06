@@ -40,7 +40,9 @@ import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
+import { PdfFaces } from '../pdf/pdf-faces';
 import { OrderPdf } from './order-pdf';
+import { TermsPdf } from './terms-pdf';
 import { CartController } from './cart.controller';
 import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
@@ -77,6 +79,8 @@ import { OrdersService } from './orders.service';
     OrderDocumentsService,
     OrderDocumentActs,
     OrderPdf,
+    TermsPdf,
+    PdfFaces,
     AuditLogger,
     { provide: PICKUP_LOCATIONS, useFactory: loadPickupLocations },
     // The party's registration number is held to the deployment's own formats,

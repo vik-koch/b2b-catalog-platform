@@ -55,6 +55,22 @@ describe('OrderNotifications', () => {
     expect(staff.replyTo).toBe(demoAdminOrder.contact.email);
   });
 
+  // NFR-LEGAL-10: the terms travel with the customer's receipt only.
+  it('attaches the terms to the customer’s receipt and not to the shop’s', async () => {
+    const terms = {
+      fileName: 'terms-of-sale-2026-09-01.pdf',
+      contentType: 'application/pdf',
+      bytes: Buffer.from('%PDF-'),
+    };
+
+    notifications.placed(demoAdminOrder, 'tok-123', [terms]);
+    await settle();
+
+    const [[, customer], [, staff]] = send.mock.calls;
+    expect(customer.attachments).toEqual([terms]);
+    expect(staff.attachments ?? []).toEqual([]);
+  });
+
   describe('a mailer that throws', () => {
     // Each mail is sent independently, so one provider hiccup must not swallow
     // the other message as well.
