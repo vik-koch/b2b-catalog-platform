@@ -43,3 +43,13 @@ export const USER_KINDS = ['customer', 'staff'] as const;
  * not use it as one.
  */
 export const COMPANY_ID_NONE = 'none';
+
+/**
+ * Why an admin deleted an account (FR-ADM-23): the person asked for it, or
+ * withdrew the consent the account rests on (NFR-LEGAL-09). Recorded with the
+ * deletion, since an erasure the shop performs is one it may have to justify.
+ */
+export const ACCOUNT_DELETION_REASONS = [
+  'request',
+  'consent-withdrawn',
+] as const;

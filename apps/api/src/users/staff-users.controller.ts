@@ -15,6 +15,7 @@ const PROFILE_FIELDS = [
   'companyName',
   'companyRegistrationId',
 ] as const satisfies readonly (keyof StaffUser)[];
+import { AccountDeletion } from '../account/account-deletion';
 import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
@@ -48,6 +49,7 @@ export class StaffUsersController {
     private readonly audit: AuditLogger,
     private readonly settings: SettingsService,
     private readonly consents: ConsentService,
+    private readonly deletion: AccountDeletion,
   ) {}
 
   @Implement(usersContract.listUsers)
@@ -330,6 +332,55 @@ export class StaffUsersController {
         await this.service.purgePending(id);
         this.audit.record('user.declined', actor, { id, name: user.email });
         return { message: 'Registration declined' };
+      });
+  }
+
+  /**
+   * Deleting an account on the person's request (FR-ADM-23): the holder's own
+   * deletion, for a request that reached the shop by letter, mail or phone.
+   *
+   * An admin's alone, since it cannot be undone. Not refused while customers
+   * are externally owned: the person's right outranks the switch, and the
+   * account is reported outward as withdrawn, as a self-deleted one is.
+   */
+  @Auth('admin')
+  @Implement(usersContract.deleteAccountOnRequest)
+  deleteAccountOnRequest(@CurrentUser() actor: AuthUser) {
+    return implement(usersContract.deleteAccountOnRequest)
+      .use(refusals)
+      .handler(async ({ input: { params, body }, errors }) => {
+        const result = await this.deletion.deleteOnRequest(params.id, actor);
+        if (!result.ok) {
+          switch (result.reason) {
+            case 'not-found':
+              throw errors['account-not-found'](NOT_FOUND);
+            case 'self-delete':
+              throw errors['self-delete']({
+                message: 'Delete your own account from your account page',
+              });
+            case 'closed':
+              throw errors['account-closed']({
+                message: 'This account is already closed',
+              });
+            case 'pending':
+              throw errors['account-pending']({
+                message: 'Decline a pending registration instead',
+              });
+            case 'last-admin':
+              throw errors['last-admin']({
+                message: 'The last admin account cannot be deleted',
+              });
+          }
+        }
+        // The id only, as the holder's own deletion logs it: the address is
+        // what was just erased, and the log should not keep it.
+        this.audit.record('user.deleted', actor, {
+          id: params.id,
+          reason: body.reason,
+        });
+        const user = await this.service.findById(params.id);
+        if (!user) throw errors['account-not-found'](NOT_FOUND);
+        return user;
       });
   }
 }

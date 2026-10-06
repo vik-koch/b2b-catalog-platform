@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AccountModule } from '../account/account.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
@@ -23,7 +24,13 @@ import { StaffUsersService } from './staff-users.service';
  * so merging them would be a cycle.
  */
 @Module({
-  imports: [AuthModule, MailModule, SettingsModule, ConsentModule],
+  imports: [
+    AuthModule,
+    MailModule,
+    SettingsModule,
+    ConsentModule,
+    AccountModule,
+  ],
   controllers: [StaffUsersController],
   providers: [
     StaffUsersService,

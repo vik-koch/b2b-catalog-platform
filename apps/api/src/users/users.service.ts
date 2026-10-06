@@ -207,8 +207,15 @@ export class UsersService {
    *
    * One transaction, because the saved addresses go with the account: an
    * account that is half-anonymized is worse than one that is not.
+   *
+   * `by` is the admin deleting it on the person's request (FR-ADM-23), named on
+   * the consent withdrawals the deletion writes.
    */
-  async anonymize(id: string, unusableHash: string): Promise<UserRow> {
+  async anonymize(
+    id: string,
+    unusableHash: string,
+    by?: { readonly id: string; readonly email: string },
+  ): Promise<UserRow> {
     return this.removingAdmin(id, async (tx) => {
       // The address book is personal data with no second purpose: orders keep
       // their own snapshot of where they went, so nothing readable is lost by
@@ -218,7 +225,7 @@ export class UsersService {
       await this.scrubOrders(tx, id);
       // The account consent ends with the account; its record stays, with
       // the address it was given with, for the retention period.
-      await withdrawAccountConsents(tx, id, 'account-deleted');
+      await withdrawAccountConsents(tx, id, 'account-deleted', by);
       return this.anonymizeUser(tx, id, unusableHash);
     });
   }

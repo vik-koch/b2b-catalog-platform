@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { SettingsService } from '../settings/settings.service';
 import { ConsentService } from '../consents/consent.service';
+import { AccountDeletion } from '../account/account-deletion';
 
 /**
  * The role boundary is the whole point of this surface, and it is the kind of
@@ -36,6 +37,8 @@ describe('StaffUsersController', () => {
   const sendPasswordLink = vi.fn();
   const purgePending = vi.fn();
   const findByAccount = vi.fn();
+  const deleteOnRequest = vi.fn();
+  const record = vi.fn();
   /** Which areas an external system holds, per test. */
   let ownedAreas: string[] = [];
 
@@ -92,7 +95,8 @@ describe('StaffUsersController', () => {
           provide: AccountInvitations,
           useValue: { create, deactivate, sendPasswordLink, send: vi.fn() },
         },
-        { provide: AuditLogger, useValue: { record: vi.fn() } },
+        { provide: AuditLogger, useValue: { record } },
+        { provide: AccountDeletion, useValue: { deleteOnRequest } },
         { provide: ConsentService, useValue: { findByAccount } },
         {
           provide: SettingsService,
@@ -140,6 +144,8 @@ describe('StaffUsersController', () => {
     sendPasswordLink.mockReset();
     purgePending.mockReset();
     findByAccount.mockReset();
+    deleteOnRequest.mockReset();
+    record.mockReset();
   });
 
   const send = (path: string, method: string, body?: unknown) =>
@@ -373,6 +379,53 @@ describe('StaffUsersController', () => {
 
       expect(edited.status).toBe(200);
       expect(created.status).toBe(201);
+    });
+  });
+
+  describe("deleting an account on the person's request (FR-ADM-23)", () => {
+    const path = `/admin/users/${customer.id}/deletion`;
+
+    // The person's right outranks the switch.
+    it('deletes while customers are externally owned, and audits why', async () => {
+      ownedAreas = ['customers'];
+      deleteOnRequest.mockResolvedValue({ ok: true });
+      findById.mockResolvedValue({ ...customer, status: 'anonymized' });
+
+      const response = await send(path, 'POST', {
+        reason: 'consent-withdrawn',
+      });
+
+      expect(response.status).toBe(200);
+      expect((await response.json()).status).toBe('anonymized');
+      expect(deleteOnRequest).toHaveBeenCalledWith(customer.id, actor);
+      // The id only: the address is what was just erased.
+      expect(record).toHaveBeenCalledWith('user.deleted', actor, {
+        id: customer.id,
+        reason: 'consent-withdrawn',
+      });
+    });
+
+    it.each([
+      ['pending', 'account-pending', 409],
+      ['self-delete', 'self-delete', 409],
+      ['closed', 'account-closed', 409],
+      ['last-admin', 'last-admin', 409],
+      ['not-found', 'account-not-found', 404],
+    ])('answers %s as %s', async (reason, code, status) => {
+      deleteOnRequest.mockResolvedValue({ ok: false, reason });
+
+      const response = await send(path, 'POST', { reason: 'request' });
+
+      expect(response.status).toBe(status);
+      expect((await response.json()).code).toBe(code);
+      expect(record).not.toHaveBeenCalled();
+    });
+
+    it('rejects a reason it does not know', async () => {
+      const response = await send(path, 'POST', { reason: 'tidy-up' });
+
+      expect(response.status).toBe(400);
+      expect(deleteOnRequest).not.toHaveBeenCalled();
     });
   });
 });

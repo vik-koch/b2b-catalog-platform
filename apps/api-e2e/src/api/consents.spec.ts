@@ -13,12 +13,19 @@ const INQUIRER_EMAIL = `e2e-consents-inquirer-${SUFFIX}@example.com`;
 const REGISTRANT_EMAIL = `e2e-consents-registrant-${SUFFIX}@example.com`;
 const RENAMED_EMAIL = `e2e-consents-renamed-${SUFFIX}@example.com`;
 const LEAVER_EMAIL = `e2e-consents-leaver-${SUFFIX}@example.com`;
+const REQUESTER_EMAIL = `e2e-consents-requester-${SUFFIX}@example.com`;
 const PASSWORD = 'e2e-consents-password';
 // As the contact form stores a number: the country code and the digits.
 const INQUIRER_PHONE = `+4940${Math.floor(Math.random() * 1e7)}`;
 
 const seeded = [ADMIN_EMAIL, MANAGER_EMAIL, CUSTOMER_EMAIL];
-const holders = [INQUIRER_EMAIL, REGISTRANT_EMAIL, RENAMED_EMAIL, LEAVER_EMAIL];
+const holders = [
+  INQUIRER_EMAIL,
+  REGISTRANT_EMAIL,
+  RENAMED_EMAIL,
+  LEAVER_EMAIL,
+  REQUESTER_EMAIL,
+];
 
 const get = (url: string, cookie?: string) =>
   axios.get(url, {
@@ -104,6 +111,7 @@ describe('consent records', () => {
     ]);
     await client.end();
     await deleteMatching(`"${REGISTRANT_EMAIL}"`);
+    await deleteMatching(`"${REQUESTER_EMAIL}"`);
   });
 
   describe('guards', () => {
@@ -407,5 +415,92 @@ describe('consent records', () => {
       }),
     ]);
     await client.query('DELETE FROM users WHERE id = $1', [leaverId]);
+  });
+
+  // FR-ADM-23: the same deletion, done by an admin on the person's request.
+  // The withdrawal it writes keeps the deletion as its reason and names the
+  // admin who did it.
+  describe('POST /admin/users/:id/deletion', () => {
+    const post = (id: string, cookie: string, reason = 'consent-withdrawn') =>
+      axios.post(
+        `/admin/users/${id}/deletion`,
+        { reason },
+        { headers: { Cookie: cookie }, validateStatus: () => true },
+      );
+
+    it('rejects a manager', async () => {
+      const id = await seedUser(REQUESTER_EMAIL, 'user');
+      try {
+        expect((await post(id, managerCookie)).status).toBe(403);
+      } finally {
+        await client.query('DELETE FROM users WHERE id = $1', [id]);
+      }
+    });
+
+    // Its own row: the registrant above has been declined by now.
+    it('refuses a pending registration: it is declined instead', async () => {
+      const id = await seedUser(REQUESTER_EMAIL, 'user');
+      await client.query(`UPDATE users SET status = 'pending' WHERE id = $1`, [
+        id,
+      ]);
+      try {
+        const res = await post(id, adminCookie);
+
+        expect(res.status).toBe(409);
+        expect(res.data.code).toBe('account-pending');
+      } finally {
+        await client.query('DELETE FROM users WHERE id = $1', [id]);
+      }
+    });
+
+    it("refuses the admin's own account", async () => {
+      const { rows } = await client.query(
+        'SELECT id FROM users WHERE email = $1',
+        [ADMIN_EMAIL],
+      );
+
+      const res = await post(rows[0].id, adminCookie);
+
+      expect(res.status).toBe(409);
+      expect(res.data.code).toBe('self-delete');
+    });
+
+    it('anonymizes the account and names the admin on its withdrawal', async () => {
+      const id = await seedUser(REQUESTER_EMAIL, 'user');
+      await client.query(
+        `INSERT INTO consents (purpose, "pageVersionId", "userId", email)
+         SELECT 'account', id, $1, $2 FROM page_versions
+          WHERE slug = 'consent-account' ORDER BY version DESC LIMIT 1`,
+        [id, REQUESTER_EMAIL],
+      );
+      try {
+        const res = await post(id, adminCookie);
+
+        expect(res.status).toBe(200);
+        expect(res.data).toEqual(
+          expect.objectContaining({
+            id,
+            status: 'anonymized',
+            firstName: null,
+          }),
+        );
+        const records = await get(
+          `/admin/consents?email=${REQUESTER_EMAIL}`,
+          adminCookie,
+        );
+        expect(records.data.consents).toEqual([
+          expect.objectContaining({
+            withdrawal: expect.objectContaining({
+              reason: 'account-deleted',
+              enteredBy: ADMIN_EMAIL,
+            }),
+          }),
+        ]);
+        // Closed now, so a second request has nothing left to delete.
+        expect((await post(id, adminCookie)).data.code).toBe('account-closed');
+      } finally {
+        await client.query('DELETE FROM users WHERE id = $1', [id]);
+      }
+    });
   });
 });

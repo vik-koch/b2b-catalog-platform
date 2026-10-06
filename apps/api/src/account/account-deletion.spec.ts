@@ -178,3 +178,63 @@ describe('AccountDeletion', () => {
     expect(tokens.revokeOutstanding).toHaveBeenCalledWith('u1');
   });
 });
+
+describe('AccountDeletion.deleteOnRequest (FR-ADM-23)', () => {
+  const admin = { id: 'a1', email: 'admin@example.com' };
+
+  it('runs the same steps, names the admin, and mails only the person', async () => {
+    const { deletion, users, calls, settle } = build({});
+
+    expect(await deletion.deleteOnRequest('u1', admin)).toEqual({ ok: true });
+    await settle();
+
+    expect(users.anonymize).toHaveBeenCalledWith('u1', 'unusable', admin);
+    // No closure notice: the shop did it, and that notice says a customer did.
+    expect(calls).toEqual([
+      'anonymize',
+      'documents',
+      'revoke',
+      'mail:alex@example.com',
+    ]);
+  });
+
+  it.each([
+    ['not-found', undefined, 'u1'],
+    ['self-delete', row({ id: 'a1', role: 'admin' }), 'a1'],
+    ['closed', row({ status: 'anonymized' }), 'u1'],
+    // Declined instead, which removes it and writes its own withdrawal.
+    ['pending', row({ status: 'pending' }), 'u1'],
+  ] as const)(
+    'refuses %s without touching the account',
+    async (reason, user, id) => {
+      const { deletion, users, calls } = build({ user });
+      if (!user) users.findById.mockResolvedValueOnce(undefined as never);
+
+      expect(await deletion.deleteOnRequest(id, admin)).toEqual({
+        ok: false,
+        reason,
+      });
+      expect(users.anonymize).not.toHaveBeenCalled();
+      expect(calls).toEqual([]);
+    },
+  );
+
+  it('deletes a deactivated account', async () => {
+    const { deletion, users } = build({ user: row({ status: 'disabled' }) });
+
+    expect(await deletion.deleteOnRequest('u1', admin)).toEqual({ ok: true });
+    expect(users.anonymize).toHaveBeenCalled();
+  });
+
+  it('refuses the last admin', async () => {
+    const { deletion } = build({
+      user: row({ role: 'admin' }),
+      anotherAdmin: false,
+    });
+
+    expect(await deletion.deleteOnRequest('u1', admin)).toEqual({
+      ok: false,
+      reason: 'last-admin',
+    });
+  });
+});

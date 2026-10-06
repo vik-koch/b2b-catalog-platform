@@ -19,5 +19,7 @@ import { AccountDeletion } from './account-deletion';
   imports: [AuthModule, UsersModule, MailModule, MediaModule],
   controllers: [AccountController],
   providers: [AccountDeletion, OrderDocumentFiles, AuditLogger],
+  // An admin deletes an account on request through the same steps (FR-ADM-23).
+  exports: [AccountDeletion],
 })
 export class AccountModule {}
