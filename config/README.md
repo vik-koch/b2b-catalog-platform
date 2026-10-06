@@ -157,6 +157,34 @@ out to print nothing.
 Publish `withdrawal` only where the jurisdiction prescribes a withdrawal notice
 of its own. Elsewhere, the return procedure belongs in the terms.
 
+### Tax basis
+
+Every deployment states the tax basis its prices are quoted on: `included`,
+`added` (on the invoice) or `none`. The statement appears under every total
+and on the conditions page. It is a statement, not a calculation: the platform
+never works out a tax amount, because the shop's invoice states that figure.
+
+```json
+"tax": {
+  "basis": "included",
+  "rate": 19,
+  "statedAtPrices": true
+}
+```
+
+A basis that charges tax requires `rate`, the default rate as a percent with at
+most two decimals, and `statedAtPrices`. Under `none`, write only the basis.
+The basis belongs to the seller, never to a product. Goods taxed at a different
+rate carry a rate of their own; they never carry a basis of their own.
+
+Switch `statedAtPrices` on where the jurisdiction expects a consumer price to
+say what it includes, as the demo does as an EU shop. The product page then
+states the basis under the price, and the listings once under the products.
+With it off, only the totals and the conditions page state the basis.
+
+The wording is `tax` and `conditions.tax*` in `app-text.json`, where `{rate}` is
+the rate written as the deployment writes numbers.
+
 ### Retention
 
 The platform keeps two kinds of evidence about personal data, and deletes each

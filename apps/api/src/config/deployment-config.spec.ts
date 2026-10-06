@@ -24,6 +24,7 @@ const required = {
   consent: { contact: false, account: false },
   terms: { attachToReceipt: false },
   retention: { consentRecordDays: 1095, destructionRecordDays: 1095 },
+  tax: { basis: 'none' },
 };
 
 /** Points DEPLOYMENT_CONFIG_FILE at a config written for this test. */

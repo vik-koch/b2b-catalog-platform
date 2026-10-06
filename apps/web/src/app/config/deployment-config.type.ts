@@ -7,6 +7,7 @@ import {
   orderReferenceConfigSchema,
   consentConfigSchema,
   retentionConfigSchema,
+  taxConfigSchema,
   termsConfigSchema,
   pagesConfigSchema,
   phoneInputSchema,
@@ -263,6 +264,9 @@ export const deploymentConfigSchema = z
     /** How long consent and destruction records are kept. Read by the API
      * only; checked here for the same reason. */
     retention: retentionConfigSchema,
+    /** The tax basis prices are quoted on (NFR-LEGAL-11), stated under every
+     * total and on the conditions page. */
+    tax: taxConfigSchema,
     /**
      * Whether cookie-consent gating is enforced. When false, no banner is shown
      * and non-essential storage is not gated — correct both while the app sets

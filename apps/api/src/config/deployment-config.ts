@@ -25,6 +25,7 @@ import {
   pagesConfigSchema,
   RetentionConfig,
   retentionConfigSchema,
+  taxConfigSchema,
   termsConfigSchema,
 } from '@b2b-catalog-platform/shared';
 import { dirname, join } from 'node:path';
@@ -51,6 +52,8 @@ export const apiDeploymentConfigSchema = z
     terms: termsConfigSchema,
     /** How long consent and destruction records are kept (NFR-LEGAL-09/12). */
     retention: retentionConfigSchema,
+    /** The tax basis prices are quoted on (NFR-LEGAL-11). */
+    tax: taxConfigSchema,
     /** Mail branding: who a message is from, and in what colour. */
     branding: z
       .object({
