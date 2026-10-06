@@ -55,6 +55,7 @@ import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
 import { Link } from '../ui/link';
+import { PrivacyNotice } from '../pages/privacy-notice';
 import { WarningNote } from '../ui/warning-note';
 
 /**
@@ -93,6 +94,7 @@ import { WarningNote } from '../ui/warning-note';
     RouterLink,
     Skeleton,
     Link,
+    PrivacyNotice,
   ],
   template: `
     @if (placed(); as reference) {
@@ -418,6 +420,13 @@ import { WarningNote } from '../ui/warning-note';
                 />
               }
             </app-order-summary>
+
+            <!-- The read-back is where the details are sent from, so how they
+                 are handled is said here. No consent: an order's details are
+                 processed to fulfil it. -->
+            @if (reviewing()) {
+              <app-privacy-notice class="mt-5 block text-sm empty:hidden" />
+            }
 
             <!-- Where the ADR says a refusal belongs: beside the button, not
                  only at the field it came from. -->

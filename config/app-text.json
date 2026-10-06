@@ -610,6 +610,10 @@
       "next": "More products"
     }
   },
+  "privacyNotice": {
+    "text": "Read more about how we handle your details in",
+    "link": "our privacy policy"
+  },
   "consentBox": {
     "required": "Please tick the box to continue.",
     "changed": "The consent text has just been updated. Please read it and tick the box again.",

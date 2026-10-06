@@ -867,7 +867,7 @@ A PDF of an order's details can be viewed or downloaded from the order at any po
 
 #### <a id="nfr-legal-01"></a>NFR-LEGAL-01 — Privacy policy page
 
-A dedicated page displays the privacy policy.
+A dedicated page displays the privacy policy. Every form that takes personal details points to it: the contact form, registration and checkout. The pointer is a line of information, whether or not the form also asks for consent ([NFR-LEGAL-09](#nfr-legal-09)), and never part of what a consent box says, because a privacy policy is read, not agreed to.
 
 #### <a id="nfr-legal-02"></a>NFR-LEGAL-02 — Seller information page
 

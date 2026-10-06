@@ -6,6 +6,7 @@ import { APP_TEXT } from '../config/app-text';
 import { Checkbox } from '../ui/checkbox';
 import { Link } from '../ui/link';
 import { ConsentRequest } from './consent';
+import { PrivacyNotice } from './privacy-notice';
 
 let nextId = 0;
 
@@ -22,7 +23,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-consent-field',
-  imports: [ReactiveFormsModule, RouterLink, Checkbox, Link],
+  imports: [ReactiveFormsModule, RouterLink, Checkbox, Link, PrivacyNotice],
   host: { class: 'block empty:hidden' },
   template: `
     @if (consent().state() === 'ready') {
@@ -55,6 +56,7 @@ let nextId = 0;
               }}<span class="text-accent" aria-hidden="true">*</span>
             }
           </label>
+          <app-privacy-notice />
         </p>
       </div>
       @if (consent().notice() === 'changed') {
@@ -64,6 +66,8 @@ let nextId = 0;
       } @else if (invalid()) {
         <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
       }
+    } @else if (alone() && consent().state() !== 'loading') {
+      <p class="text-sm"><app-privacy-notice /></p>
     }
     @if (
       consent().state() === 'unavailable' ||

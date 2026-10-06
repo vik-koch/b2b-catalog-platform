@@ -1327,6 +1327,14 @@ export const appTextSchema = z
       })
       .strict(),
     /**
+    /**
+     * The line on a form that takes personal details, pointing at the privacy
+     * policy (NFR-LEGAL-01). Information, not agreement: it sits outside the
+     * consent box. `link` follows `text` and becomes the link; a full stop
+     * closes the sentence.
+     */
+    privacyNotice: z.object({ text: z.string(), link: z.string() }).strict(),
+    /**
      * Beside a consent box (NFR-LEGAL-09). The box's own wording is not here:
      * it is versioned with the consent text, which an admin edits.
      */

@@ -251,6 +251,16 @@ describe('InquiryPage', () => {
       expect(link?.target).toBe('_blank');
     });
 
+    // Information beside the box, not part of what is ticked.
+    it('points at the privacy policy outside the box label', async () => {
+      const { el } = await render();
+
+      const notice = el.querySelector('app-privacy-notice');
+      expect(notice?.textContent).toContain(defaultAppText.privacyNotice.text);
+      expect(notice?.querySelector('a')?.getAttribute('href')).toBe('/privacy');
+      expect(notice?.closest('label')).toBeNull();
+    });
+
     // Published but never written: nothing to show, so nothing is sent.
     it('refuses to send while the published text has no version', async () => {
       const { el, submit, sync } = await render({ page: null });
