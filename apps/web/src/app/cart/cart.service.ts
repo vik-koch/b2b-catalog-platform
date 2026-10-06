@@ -115,6 +115,14 @@ export interface CartStoredLine {
    */
   availability: ProductAvailability | null;
   /**
+   * The rate the shop last said this line is taxed at (NFR-LEGAL-11), null
+   * where no tax is charged. Absent until the line has been priced — a line
+   * added from a card, and every line of a cart written before this was
+   * recorded — which leaves it out of what the total names rather than
+   * guessing at it.
+   */
+  taxRate?: number | null;
+  /**
    * How many products this one is sold together with (FR-SET-05) — what the
    * marker on the cart's line is drawn from, before anything is priced.
    *
@@ -281,6 +289,15 @@ export class CartService {
   /** How many lines — not how many pieces. Lines are what the cart page shows
    * rows of, so they are what the header counts. */
   readonly count = computed(() => this.stored().length);
+
+  /** The rates of the lines the total adds up (NFR-LEGAL-11) — what it
+   * names, or why it names only the basis. A line not yet priced is left
+   * out rather than guessed at. */
+  readonly taxRates = computed(() =>
+    this.stored().flatMap((line) =>
+      line.available && line.taxRate !== undefined ? [line.taxRate] : [],
+    ),
+  );
 
   /** The sum of the lines that had a price when last seen. */
   readonly totalMinor = computed(() =>
@@ -594,6 +611,7 @@ export class CartService {
         // will not state are a product it no longer offers.
         available: fresh.prices !== null,
         availability: fresh.availability,
+        taxRate: fresh.taxRate,
         unitPriceMinor:
           fresh.prices === null ? null : unitPriceOf(fresh.prices, fresh.unit),
         lineTotalMinor: fresh.lineTotalMinor,
@@ -847,6 +865,7 @@ function sameLine(a: CartStoredLine, b: CartStoredLine): boolean {
     a.notePrompt === b.notePrompt &&
     a.available === b.available &&
     a.availability === b.availability &&
+    a.taxRate === b.taxRate &&
     a.pairedCount === b.pairedCount &&
     a.pairingShortPieces === b.pairingShortPieces &&
     same(a.parts, b.parts) &&
@@ -944,7 +963,8 @@ function isStoredLine(line: unknown): line is CartStoredLine {
     // says, so a hand-edited payload must not put a string in either.
     (candidate.pairingShortPieces === null ||
       Number.isInteger(candidate.pairingShortPieces)) &&
-    isAvailability(candidate.availability)
+    isAvailability(candidate.availability) &&
+    (candidate.taxRate === undefined || isNullableNumber(candidate.taxRate))
   );
 }
 

@@ -354,7 +354,7 @@ export class OrdersService {
     userId: string | null,
     tierId: string | null,
   ): Promise<{ reference: string; publicToken: string }> {
-    const priced = await priceCart(this.db, submission.lines, tierId);
+    const priced = await priceCart(this.db, submission.lines, tierId, this.tax);
     const unchanged =
       priced.preview.complete &&
       priced.preview.totalMinor === submission.expectedTotalMinor &&
@@ -950,7 +950,7 @@ export class OrdersService {
                 pieces: row.pieces,
                 priceMinor: row.priceMinor,
                 lineTotalMinor: preview.lineTotalMinor,
-                taxRate: null,
+                taxRate: row.taxRate,
                 note: preview.note,
               };
             }),

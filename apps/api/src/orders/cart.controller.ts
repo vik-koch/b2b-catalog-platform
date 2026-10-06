@@ -1,8 +1,9 @@
 import { Controller, Inject, UseGuards } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { cartContract } from '@b2b-catalog-platform/shared';
+import { cartContract, TaxConfig } from '@b2b-catalog-platform/shared';
 import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 import { PricingTier } from '../auth/pricing-tier.decorator';
+import { TAX_CONFIG } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import { SearchThrottle } from '../throttling/throttle-presets';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -26,6 +27,7 @@ import { priceCart } from './cart-pricing';
 export class CartController {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(TAX_CONFIG) private readonly tax: TaxConfig,
   ) {}
 
   @SearchThrottle()
@@ -34,7 +36,12 @@ export class CartController {
   previewCart(@PricingTier() tierId: string | null) {
     return implement(cartContract.previewCart).handler(
       async ({ input: { body } }) => {
-        const { preview } = await priceCart(this.db, body.lines, tierId);
+        const { preview } = await priceCart(
+          this.db,
+          body.lines,
+          tierId,
+          this.tax,
+        );
         // A priced cart with advisories, never a refusal: a stale cart is a
         // normal state to be shown, and nothing here changes what the browser
         // holds.

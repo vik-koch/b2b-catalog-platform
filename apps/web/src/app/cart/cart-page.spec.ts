@@ -68,6 +68,7 @@ function preview(
       box: 28_800,
     },
     lineTotalMinor: 14400,
+    taxRate: 19,
     issues: [],
     ...line,
   }));
@@ -673,6 +674,7 @@ describe('CartPage', () => {
           prices: null,
           packaging: null,
           lineTotalMinor: null,
+          taxRate: 19,
           issues: ['unavailable'],
         },
       ]),
@@ -698,6 +700,7 @@ describe('CartPage', () => {
           prices: null,
           packaging: null,
           lineTotalMinor: null,
+          taxRate: 19,
           issues: ['unavailable'],
         },
       ]),
@@ -722,6 +725,7 @@ describe('CartPage', () => {
           prices: null,
           packaging: null,
           lineTotalMinor: null,
+          taxRate: 19,
           issues: ['unavailable'],
         },
       ]),
@@ -751,6 +755,29 @@ describe('CartPage', () => {
     });
 
     expect(view.text()).toContain(text.totalIncomplete);
+  });
+
+  it('names only the basis once the lines differ, and each line its rate', async () => {
+    const view = await render({
+      lines: [addition(), addition({ slug: 'espresso-roast', unit: 'piece' })],
+      answer: preview([{}, { slug: 'espresso-roast', taxRate: 7 }]),
+    });
+    const tax = defaultAppText.tax;
+    const collapsed = (text: string) => text.replace(/\s+/g, ' ');
+
+    expect(view.text()).toContain(collapsed(tax.mixed.included));
+    expect(view.text()).toContain(collapsed(tax.line.replace('{rate}', '7')));
+    expect(view.text()).toContain(collapsed(tax.line.replace('{rate}', '19')));
+  });
+
+  it('states no line rate while every line shares one', async () => {
+    const view = await render({ lines: [addition()] });
+    const rate = defaultAppText.tax.line
+      .replace('{rate}', '19')
+      .replace(/\s+/g, ' ');
+
+    // Once, inside the summary's own statement — never again on the line.
+    expect(view.text().split(rate)).toHaveLength(2);
   });
 
   it('states the tax basis under the subtotal', async () => {

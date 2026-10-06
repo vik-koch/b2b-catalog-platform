@@ -13,6 +13,8 @@ import {
   ShipmentLineInput,
   shipmentEstimate,
   unitQuantity,
+  effectiveTaxRate,
+  TaxConfig,
 } from '@b2b-catalog-platform/shared';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
@@ -51,6 +53,8 @@ export interface PricedLineRow {
    * line freezes, worked out here because this is where the packaging is. */
   quantity: number;
   thumbnail: string | null;
+  /** The rate the line is taxed at, as the preview states it. */
+  taxRate: number | null;
 }
 
 export interface PricedLine {
@@ -89,15 +93,18 @@ type ProductRow = {
   piecesPerPack: number | null;
   packsPerBox: number | null;
   minPieceQty: number;
+  /** The product's own rate; null is the deployment's default. */
+  taxRate: number | null;
 };
 
 export async function priceCart(
   db: NodePgDatabase<typeof schema>,
   lines: readonly CartLine[],
   tierId: string | null,
+  tax: TaxConfig,
 ): Promise<PricedCart> {
   const rows = await loadProducts(db, lines, tierId);
-  const priced = lines.map((line) => priceLine(line, rows.get(line.slug)));
+  const priced = lines.map((line) => priceLine(line, tax, rows.get(line.slug)));
 
   const shipmentLines: ShipmentLineInput[] = [];
   for (const { preview, row } of priced) {
@@ -208,6 +215,7 @@ async function loadProducts(
       boxCount: products.boxCount,
       lineNoteEnabled: products.lineNoteEnabled,
       lineNotePrompt: products.lineNotePrompt,
+      taxRate: products.taxRate,
       ...availabilityColumns,
       ...unitColumns,
       ...partsColumns,
@@ -219,7 +227,11 @@ async function loadProducts(
   return new Map(rows.map((row) => [row.slug, row]));
 }
 
-function priceLine(line: CartLine, product?: ProductRow): PricedLine {
+function priceLine(
+  line: CartLine,
+  tax: TaxConfig,
+  product?: ProductRow,
+): PricedLine {
   const note = line.note ?? null;
   const issues: CartLineIssue[] = [];
 
@@ -250,6 +262,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
         lineNoteEnabled: false,
         lineNotePrompt: null,
         lineTotalMinor: null,
+        taxRate: null,
         issues: ['unavailable'],
       },
     };
@@ -296,6 +309,8 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
   // an empty shelf being sold. "Few left" restricts nothing.
   if (product.availability === 'out') issues.push('out-of-stock');
 
+  const taxRate = effectiveTaxRate(tax, product.taxRate);
+
   return {
     row:
       lineTotalMinor === null
@@ -309,6 +324,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
             // sold in.
             quantity: unitQuantity(packaging, unit, pieces) ?? pieces,
             thumbnail: image?.thumb ?? null,
+            taxRate,
           },
     preview: {
       slug: product.slug,
@@ -331,6 +347,7 @@ function priceLine(line: CartLine, product?: ProductRow): PricedLine {
       lineNoteEnabled: product.lineNoteEnabled,
       lineNotePrompt: product.lineNotePrompt,
       lineTotalMinor,
+      taxRate,
       issues,
     },
   };

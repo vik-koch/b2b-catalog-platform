@@ -409,6 +409,7 @@ import { WarningNote } from '../ui/warning-note';
               [subtotalMinor]="cart.totalMinor()"
               [complete]="cart.totalComplete()"
               [shipment]="cart.estimate()"
+              [taxRates]="cart.taxRates()"
             >
               <!-- Under the figures it is about: which area the address falls
                    in, and what this order still needs to be delivered free.

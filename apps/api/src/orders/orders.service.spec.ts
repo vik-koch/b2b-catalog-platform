@@ -356,7 +356,7 @@ describe('OrdersService.submit', () => {
       priceMinor: 199,
       lineTotalMinor: 3980,
       // The product carries no rate of its own, so the default applies.
-      taxRate: null,
+      taxRate: 19,
     });
   });
 

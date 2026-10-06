@@ -11,6 +11,7 @@ import { formatPriceMinor } from '../catalog/price';
 import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { useTaxStatement } from '../catalog/tax-statement';
 import { ReadBackLine, ReviewBlock } from '../orders/order-read-back';
 import { CheckoutDraft } from './checkout-draft.service';
 
@@ -110,14 +111,18 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
     return addressLines(address, config.address);
   };
 
+  const tax = useTaxStatement();
+
   const formatDate = (iso: string): string =>
     new Intl.DateTimeFormat(config.catalog.currency.locale, {
       dateStyle: 'long',
     }).format(new Date(`${iso}T00:00:00`));
 
   return {
-    lines: computed<ReadBackLine[]>(() =>
-      cart.lines().map((line) => ({
+    lines: computed<ReadBackLine[]>(() => {
+      // The cart's own rule: a line states its rate once the lines differ.
+      const perLine = tax.perLine(cart.taxRates());
+      return cart.lines().map((line) => ({
         key: line.slug,
         name: line.name,
         note: line.note,
@@ -128,8 +133,10 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           line.lineTotalMinor === null
             ? '—'
             : formatPriceMinor(line.lineTotalMinor, config.catalog.currency),
-      })),
-    ),
+        taxRate:
+          perLine && line.taxRate != null ? tax.line(line.taxRate) : null,
+      }));
+    }),
 
     blocks: computed<ReviewBlock[]>(() => {
       const draft = deps.draft();
