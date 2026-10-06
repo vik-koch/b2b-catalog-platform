@@ -20,6 +20,7 @@ function record(overrides: Partial<ConsentRecord> = {}): ConsentRecord {
     email: 'ida@example.com',
     phone: '+490301234567',
     account: null,
+    withdrawal: null,
     ...overrides,
   };
 }

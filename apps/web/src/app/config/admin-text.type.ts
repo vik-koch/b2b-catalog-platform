@@ -2327,6 +2327,20 @@ export const adminTextSchema = z
         /** A record of an account that no longer exists: a declined
          * registration. */
         accountGone: z.string(),
+        /** The badge on a record that has ended. */
+        withdrawn: z.string(),
+        /** `{date}` is when it ended; the reason follows. */
+        withdrawnAt: z.string(),
+        withdrawnReasons: z
+          .object({
+            'account-deleted': z.string(),
+            'registration-declined': z.string(),
+            /** `{admin}` is the address of whoever entered it. */
+            entered: z.string(),
+          })
+          .strict(),
+        /** Beside an account consent still held: how it would end. */
+        endsWithAccount: z.string(),
       })
       .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */

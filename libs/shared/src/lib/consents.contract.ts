@@ -1,7 +1,7 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
 import { commonAuthErrors } from './api-error';
-import { CONSENT_PURPOSES } from './page-constants';
+import { CONSENT_PURPOSES, CONSENT_WITHDRAWAL_REASONS } from './page-constants';
 import { USER_STATUSES } from './user-constants';
 
 /**
@@ -32,6 +32,21 @@ export const consentRecordSchema = z
         id: z.uuid(),
         name: z.string().nullable(),
         status: z.enum(USER_STATUSES),
+      })
+      .strict()
+      .nullable(),
+    /**
+     * When and how the consent ended, once it has. The record's retention
+     * runs from here; an inquiry's consent is used up, not withdrawn, and
+     * mostly never gets one.
+     */
+    withdrawal: z
+      .object({
+        at: z.iso.datetime(),
+        reason: z.enum(CONSENT_WITHDRAWAL_REASONS),
+        /** The admin who entered it, as their address read then. */
+        enteredBy: z.string().nullable(),
+        note: z.string().nullable(),
       })
       .strict()
       .nullable(),

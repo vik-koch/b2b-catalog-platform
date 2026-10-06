@@ -1401,7 +1401,15 @@
     },
     "version": "Version {version}",
     "account": "Account",
-    "accountGone": "Registration declined and removed"
+    "accountGone": "Registration declined and removed",
+    "withdrawn": "Withdrawn",
+    "withdrawnAt": "Withdrawn {date}",
+    "withdrawnReasons": {
+      "account-deleted": "when the account was deleted",
+      "registration-declined": "when the registration was declined",
+      "entered": "entered by {admin}"
+    },
+    "endsWithAccount": "Withdrawn by deleting the account"
   },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",

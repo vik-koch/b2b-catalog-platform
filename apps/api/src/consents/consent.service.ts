@@ -6,18 +6,24 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, desc, eq, inArray, or, SQL } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, or, SQL } from 'drizzle-orm';
 import {
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
   ConsentRecord,
   ConsentRefusalCode,
+  ConsentWithdrawalReason,
   formatPersonName,
 } from '@b2b-catalog-platform/shared';
 import { CONSENT_PURPOSES_ASKED } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { consents, pageVersions, users } from '../db/schema';
+import {
+  consents,
+  consentWithdrawals,
+  pageVersions,
+  users,
+} from '../db/schema';
 import { currentPageVersion } from '../pages/page-versions';
 
 /** A consent that passed the check, ready to be recorded. */
@@ -176,13 +182,23 @@ export class ConsentService {
           lastName: users.lastName,
           status: users.status,
         },
+        withdrawal: {
+          at: consentWithdrawals.withdrawnAt,
+          reason: consentWithdrawals.reason,
+          enteredBy: consentWithdrawals.enteredByEmail,
+          note: consentWithdrawals.note,
+        },
       })
       .from(consents)
       .innerJoin(pageVersions, eq(pageVersions.id, consents.pageVersionId))
       .leftJoin(users, eq(users.id, consents.userId))
+      .leftJoin(
+        consentWithdrawals,
+        eq(consentWithdrawals.consentId, consents.id),
+      )
       .where(condition)
       .orderBy(desc(consents.createdAt));
-    return rows.map(({ record, version, label, account }) => ({
+    return rows.map(({ record, version, label, account, withdrawal }) => ({
       id: record.id,
       purpose: record.purpose as ConsentPurpose,
       givenAt: record.createdAt.toISOString(),
@@ -195,15 +211,31 @@ export class ConsentService {
         name: formatPersonName(account.firstName, account.lastName) || null,
         status: account.status,
       },
+      withdrawal: withdrawal && {
+        at: withdrawal.at.toISOString(),
+        reason: withdrawal.reason as ConsentWithdrawalReason,
+        enteredBy: withdrawal.enteredBy,
+        note: withdrawal.note,
+      },
     }));
   }
 
-  /** Whether the account has given this consent before. */
+  /** Whether the account holds this consent: given, and not withdrawn. */
   async hasGiven(userId: string, purpose: ConsentPurpose): Promise<boolean> {
     const [row] = await this.db
       .select({ id: consents.id })
       .from(consents)
-      .where(and(eq(consents.userId, userId), eq(consents.purpose, purpose)))
+      .leftJoin(
+        consentWithdrawals,
+        eq(consentWithdrawals.consentId, consents.id),
+      )
+      .where(
+        and(
+          eq(consents.userId, userId),
+          eq(consents.purpose, purpose),
+          isNull(consentWithdrawals.id),
+        ),
+      )
       .limit(1);
     return row !== undefined;
   }
