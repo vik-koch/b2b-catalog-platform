@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   CONSENT_PAGE_SLUGS,
@@ -9,6 +9,8 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPhone } from '../../core/contact-fields';
+import { IconButton } from '../../ui/icon-button';
+import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Link } from '../../ui/link';
 import { StatusBadge } from '../../ui/status-badge';
 import { adminMomentFormat } from '../grid/admin-date';
@@ -23,7 +25,7 @@ import { RecordRow } from '../records/record-row';
  */
 @Component({
   selector: 'app-consent-record-list',
-  imports: [RouterLink, Link, RecordRow, StatusBadge],
+  imports: [RouterLink, AdminIcon, IconButton, Link, RecordRow, StatusBadge],
   template: `
     <div class="divide-y divide-border border-y border-border">
       @for (record of records(); track record.id) {
@@ -72,6 +74,24 @@ import { RecordRow } from '../records/record-row';
                 <span>{{ text.endsWithAccount }}</span>
               }
             </ng-container>
+            <ng-container recordActions>
+              @if (
+                withdrawable() &&
+                record.purpose === 'contact' &&
+                !record.withdrawal
+              ) {
+                <button
+                  appIconButton
+                  variant="danger"
+                  type="button"
+                  [attr.aria-label]="text.withdraw"
+                  [title]="text.withdraw"
+                  (click)="withdraw.emit(record)"
+                >
+                  <app-admin-icon name="circle-slash" />
+                </button>
+              }
+            </ng-container>
           </app-record-row>
         </div>
       }
@@ -82,6 +102,9 @@ export class ConsentRecordList {
   readonly records = input.required<readonly ConsentRecord[]>();
   /** Whether each record names its account, with a link to it. */
   readonly showAccount = input(true);
+  /** Whether a contact record still held offers to enter its withdrawal. */
+  readonly withdrawable = input(false);
+  readonly withdraw = output<ConsentRecord>();
 
   protected readonly text = inject(ADMIN_TEXT).consents;
   protected readonly slugs = CONSENT_PAGE_SLUGS;

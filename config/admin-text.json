@@ -1409,7 +1409,17 @@
       "registration-declined": "when the registration was declined",
       "entered": "entered by {admin}"
     },
-    "endsWithAccount": "Withdrawn by deleting the account"
+    "endsWithAccount": "Withdrawn by deleting the account",
+    "withdraw": "Enter a withdrawal",
+    "withdrawTitle": "Enter a withdrawal",
+    "withdrawConfirm": "The consent given by {holder} on {date} ends now and cannot be given back. Its record is kept for the retention period.",
+    "withdrawNote": "How it reached you",
+    "withdrawErrors": {
+      "consent-not-found": "This record no longer exists.",
+      "consent-already-withdrawn": "This consent was already withdrawn.",
+      "consent-ends-with-account": "An account consent is withdrawn by deleting the account."
+    },
+    "withdrawError": "The withdrawal could not be saved. Please try again."
   },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",

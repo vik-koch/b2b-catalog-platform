@@ -2341,6 +2341,19 @@ export const adminTextSchema = z
           .strict(),
         /** Beside an account consent still held: how it would end. */
         endsWithAccount: z.string(),
+        withdraw: z.string(),
+        withdrawTitle: z.string(),
+        /** `{holder}` and `{date}` name the record. */
+        withdrawConfirm: z.string(),
+        withdrawNote: z.string(),
+        withdrawErrors: z
+          .object({
+            'consent-not-found': z.string(),
+            'consent-already-withdrawn': z.string(),
+            'consent-ends-with-account': z.string(),
+          })
+          .strict(),
+        withdrawError: z.string(),
       })
       .strict(),
     /** The admin-panel control that gates the storefront (FR-ADM-04). */

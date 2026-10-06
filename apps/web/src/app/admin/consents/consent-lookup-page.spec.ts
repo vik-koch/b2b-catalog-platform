@@ -5,6 +5,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+import { ConfirmService } from '../../ui/confirm.service';
 import { ConsentLookupPage } from './consent-lookup-page';
 import { ConsentsService } from './consents.service';
 
@@ -25,6 +26,13 @@ function record(overrides: Partial<ConsentRecord> = {}): ConsentRecord {
   };
 }
 
+const entered: ConsentRecord['withdrawal'] = {
+  at: '2026-10-06T08:00:00.000Z',
+  reason: 'entered',
+  enteredBy: 'admin@example.com',
+  note: 'Letter of 3 October',
+};
+
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
   if (!input) throw new Error(`no element for ${selector}`);
@@ -36,9 +44,28 @@ async function render(
   options: {
     query?: { email?: string; phone?: string };
     records?: ConsentRecord[];
+    /** What the confirm dialog answers: the note, or null for no. */
+    answer?: string | null;
+    withdraw?: ConsentsService['withdraw'];
   } = {},
 ) {
-  const service = { find: vi.fn(async () => options.records ?? []) };
+  const service = {
+    find: vi.fn(async () => options.records ?? []),
+    withdraw: vi.fn<ConsentsService['withdraw']>(
+      options.withdraw ??
+        (async (id) => ({
+          ok: true,
+          record: record({ id, withdrawal: entered }),
+        })),
+    ),
+  };
+  const confirm = {
+    askDetailed: vi.fn(async () =>
+      options.answer === null
+        ? null
+        : { reason: options.answer ?? '', checks: {} },
+    ),
+  };
 
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
@@ -48,6 +75,7 @@ async function render(
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: ConsentsService, useValue: service },
+      { provide: ConfirmService, useValue: confirm },
     ],
   });
 
@@ -61,6 +89,10 @@ async function render(
   const sync = async () => {
     fixture.detectChanges();
     await fixture.whenStable();
+    // A withdrawal awaits the dialog, then the call: let both settle.
+    await new Promise((resolve) => setTimeout(resolve));
+    fixture.detectChanges();
+    await fixture.whenStable();
     fixture.detectChanges();
   };
   await sync();
@@ -70,7 +102,7 @@ async function render(
     el.querySelector<HTMLButtonElement>('button[type="submit"]')?.click();
     await sync();
   };
-  return { el, service, navigate, sync, submit };
+  return { el, service, confirm, navigate, sync, submit };
 }
 
 describe('ConsentLookupPage', () => {
@@ -169,5 +201,111 @@ describe('ConsentLookupPage', () => {
     expect(el.querySelector<HTMLInputElement>('#phone')?.value).toBe(
       '(030) 123-4567',
     );
+  });
+
+  describe('withdrawals', () => {
+    const withdrawButton = (el: HTMLElement) =>
+      el.querySelector<HTMLButtonElement>(
+        `button[aria-label="${text.withdraw}"]`,
+      );
+
+    it('says when and how a record ended, and offers nothing more', async () => {
+      const { el } = await render({
+        query: { email: 'ida@example.com' },
+        records: [record({ withdrawal: entered })],
+      });
+
+      expect(el.textContent).toContain(text.withdrawn);
+      expect(el.textContent).toContain(
+        text.withdrawnReasons.entered.replace('{admin}', 'admin@example.com'),
+      );
+      expect(el.textContent).toContain('Letter of 3 October');
+      expect(withdrawButton(el)).toBeNull();
+    });
+
+    // Withdrawing the account consent is deleting the account.
+    it('says how an account consent ends instead of offering to enter one', async () => {
+      const { el } = await render({
+        query: { email: 'rita@example.com' },
+        records: [
+          record({
+            purpose: 'account',
+            email: 'rita@example.com',
+            account: { id: 'u7', name: 'Registrant Rita', status: 'active' },
+          }),
+        ],
+      });
+
+      expect(el.textContent).toContain(text.endsWithAccount);
+      expect(withdrawButton(el)).toBeNull();
+    });
+
+    // A removed registration from before withdrawals were written has no
+    // account left to delete, so saying so would contradict the line above.
+    it('does not promise a deletion where the account is gone', async () => {
+      const { el } = await render({
+        query: { email: 'rita@example.com' },
+        records: [record({ purpose: 'account', email: 'rita@example.com' })],
+      });
+
+      expect(el.textContent).toContain(text.accountGone);
+      expect(el.textContent).not.toContain(text.endsWithAccount);
+    });
+
+    it('enters one after asking, with the note, and shows the record ended', async () => {
+      const { el, service, confirm, sync } = await render({
+        query: { email: 'ida@example.com' },
+        records: [record()],
+        answer: 'Letter of 3 October',
+      });
+
+      withdrawButton(el)?.click();
+      await sync();
+
+      expect(confirm.askDetailed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reasonLabel: text.withdrawNote,
+          reasonRequired: false,
+        }),
+      );
+      expect(service.withdraw).toHaveBeenCalledWith(
+        'c1',
+        'Letter of 3 October',
+      );
+      expect(el.textContent).toContain(text.withdrawn);
+      expect(withdrawButton(el)).toBeNull();
+    });
+
+    it('enters nothing when the question is answered no', async () => {
+      const { el, service, sync } = await render({
+        query: { email: 'ida@example.com' },
+        records: [record()],
+        answer: null,
+      });
+
+      withdrawButton(el)?.click();
+      await sync();
+
+      expect(service.withdraw).not.toHaveBeenCalled();
+    });
+
+    it('says why a withdrawal was refused, and reads the list again', async () => {
+      const { el, service, sync } = await render({
+        query: { email: 'ida@example.com' },
+        records: [record()],
+        withdraw: async () => ({
+          ok: false,
+          code: 'consent-already-withdrawn',
+        }),
+      });
+
+      withdrawButton(el)?.click();
+      await sync();
+
+      expect(el.textContent).toContain(
+        text.withdrawErrors['consent-already-withdrawn'],
+      );
+      expect(service.find).toHaveBeenCalledTimes(2);
+    });
   });
 });
