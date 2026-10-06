@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { and, desc, eq, lt } from 'drizzle-orm';
+import { and, desc, eq, isNotNull, lt, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   MachineSyncRun,
@@ -99,9 +99,11 @@ export class SyncRunLog {
   }
 
   /** Drops staged rows and whole runs past the retention window. Area-blind on
-   * purpose: age is age, whatever a run carried. */
+   * purpose: age is age, whatever a run carried — except for the people a
+   * customer run carried. */
   async prune(): Promise<void> {
     const cutoff = new Date(Date.now() - RUN_RETENTION_DAYS * 86_400_000);
+    const dayAgo = new Date(Date.now() - 86_400_000);
     await this.db.delete(syncRuns).where(lt(syncRuns.startedAt, cutoff));
     // An abandoned preview holds a whole catalog in `rows`; drop the payload
     // after a day while keeping the run itself in the audit trail.
@@ -109,9 +111,24 @@ export class SyncRunLog {
       .update(syncRuns)
       .set({ rows: null, parseErrors: null })
       .where(
+        and(eq(syncRuns.status, 'previewed'), lt(syncRuns.startedAt, dayAgo)),
+      );
+    // A customer run's diff names people by address and lists what changed
+    // about them, so it goes after a day too, applied or not (NFR-LEGAL-12):
+    // otherwise a deleted account's details outlive it here. The run and its
+    // counts stay.
+    await this.db
+      .update(syncRuns)
+      .set({ rows: null, parseErrors: null, plan: null })
+      .where(
         and(
-          eq(syncRuns.status, 'previewed'),
-          lt(syncRuns.startedAt, new Date(Date.now() - 86_400_000)),
+          eq(syncRuns.area, 'customers'),
+          lt(syncRuns.startedAt, dayAgo),
+          or(
+            isNotNull(syncRuns.rows),
+            isNotNull(syncRuns.parseErrors),
+            isNotNull(syncRuns.plan),
+          ),
         ),
       );
   }
