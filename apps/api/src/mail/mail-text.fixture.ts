@@ -14,6 +14,16 @@ export const demoMailText: MailText = {
     units: { piece: 'pcs', pack: 'pk', box: 'bx' },
     quantity: '{qty} {unit}',
     quantityPieces: '{qty} {unit} ({pieces} {pieceUnit})',
+    tax: {
+      included: 'incl. {rate} % VAT',
+      added: 'plus {rate} % VAT',
+      none: 'no VAT charged',
+      mixed: {
+        included: 'incl. VAT at the rate each item states',
+        added: 'plus VAT at the rate each item states',
+      },
+      line: '{rate} % VAT',
+    },
   },
   inquiry: {
     subject: 'Inquiry',

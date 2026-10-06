@@ -8,7 +8,17 @@
       "box": "bx"
     },
     "quantity": "{qty} {unit}",
-    "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})"
+    "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
+    "tax": {
+      "included": "incl. {rate}\u00a0% VAT",
+      "added": "plus {rate}\u00a0% VAT",
+      "none": "no VAT charged",
+      "mixed": {
+        "included": "incl. VAT at the rate each item states",
+        "added": "plus VAT at the rate each item states"
+      },
+      "line": "{rate}\u00a0% VAT"
+    }
   },
   "inquiry": {
     "subject": "Inquiry",

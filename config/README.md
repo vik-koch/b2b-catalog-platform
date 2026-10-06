@@ -182,8 +182,16 @@ say what it includes, as the demo does as an EU shop. The product page then
 states the basis under the price, and the listings once under the products.
 With it off, only the totals and the conditions page state the basis.
 
-The wording is `tax` and `conditions.tax*` in `app-text.json`, where `{rate}` is
-the rate written as the deployment writes numbers.
+A total names the rate its lines share. Once a cart or an order mixes goods
+taxed at different rates, the total states only the basis and each line states
+its own rate; staff screens state every line's rate regardless. An order keeps
+the basis it was submitted under, so changing `basis` later restates nothing
+the shop has already quoted.
+
+The wording is `tax` and `conditions.tax*` in `app-text.json`, and `common.tax`
+in `mail-text.json` for the mails and the order summary. `{rate}` is the rate
+written as the deployment writes numbers; the `mixed` forms are the totals that
+name no rate.
 
 ### Retention
 

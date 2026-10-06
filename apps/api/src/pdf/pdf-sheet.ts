@@ -193,8 +193,10 @@ export class Sheet {
     }
   }
 
-  total(label: string, value: string): void {
-    this.ensure(LINE_HEIGHT * 2);
+  /** The bold total line, and under its figure, in small print, what that
+   * figure includes. */
+  total(label: string, value: string, note?: string): void {
+    this.ensure(LINE_HEIGHT * (note ? 3 : 2));
     this.y -= 4;
     const width = this.widthOf(value, this.faces.bold, BODY_SIZE + 1);
     this.write(label, {
@@ -212,6 +214,18 @@ export class Sheet {
       color: INK,
     });
     this.y -= LINE_HEIGHT;
+    if (note) {
+      const plain = this.plain(note);
+      const size = BODY_SIZE - 1;
+      this.write(plain, {
+        x: PAGE_WIDTH - MARGIN - this.widthOf(plain, this.faces.regular, size),
+        y: this.y + 3,
+        size,
+        font: this.faces.regular,
+        color: MUTED,
+      });
+      this.y -= LINE_HEIGHT;
+    }
   }
 
   /** Written on every page as it is finished, so a page that was started by an

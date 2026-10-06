@@ -103,6 +103,23 @@ export const mailTextSchema = z
           .strict(),
         quantity: z.string(),
         quantityPieces: z.string(),
+        /**
+         * The tax basis under an order's total (NFR-LEGAL-11), worded as the
+         * storefront words it. `{rate}` is the rate every line shares; the
+         * `mixed` forms stand where the lines differ, and each line then
+         * states its own as `line`.
+         */
+        tax: z
+          .object({
+            included: z.string(),
+            added: z.string(),
+            none: z.string(),
+            mixed: z
+              .object({ included: z.string(), added: z.string() })
+              .strict(),
+            line: z.string(),
+          })
+          .strict(),
       })
       .strict(),
     /** The email the inquiry form sends to the shop (FR-NAV-06). */

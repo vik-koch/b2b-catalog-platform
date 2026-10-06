@@ -1,13 +1,16 @@
 import {
   fillText,
-  formatMoneyMinor,
   MoneyFormat,
   OrderDetail,
 } from '@b2b-catalog-platform/shared';
 import { shopDay } from '../../orders/shop-day';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
-import { orderMailItem } from './order-items';
+import {
+  orderLinesDifferInTax,
+  orderMailItem,
+  orderMailTotal,
+} from './order-items';
 
 /**
  * Sent to whoever placed an order request (FR-NOTIF-06).
@@ -50,7 +53,7 @@ export function orderReceivedMail(
       },
       {
         label: t.totalLabel,
-        value: formatMoneyMinor(order.totalMinor, currency),
+        value: orderMailTotal(order, currency, text),
       },
       ...(order.termsDate
         ? [
@@ -64,7 +67,9 @@ export function orderReceivedMail(
         : []),
     ],
     itemsHeading: t.itemsHeading,
-    items: order.lines.map((line) => orderMailItem(line, currency, text)),
+    items: order.lines.map((line) =>
+      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+    ),
     action: {
       label: t.action,
       path: publicToken

@@ -1,9 +1,9 @@
 import {
-  formatMoneyMinor,
   MoneyFormat,
   OrderDetail,
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
+import { orderMailTotal } from './order-items';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 
@@ -42,7 +42,7 @@ export function orderDocumentMail(
       { label: t.referenceLabel, value: order.reference },
       {
         label: t.totalLabel,
-        value: formatMoneyMinor(order.totalMinor, currency),
+        value: orderMailTotal(order, currency, text),
       },
     ],
     action: {

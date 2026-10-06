@@ -1,5 +1,10 @@
 import type { AddressConfig } from '@b2b-catalog-platform/shared';
 import {
+  orderLineTax,
+  orderLinesDifferInTax,
+  orderTaxStatement,
+} from '../mail/templates/order-items';
+import {
   addressLines,
   fillText,
   formatMoneyMinor,
@@ -99,17 +104,27 @@ export class OrderPdf {
     if (order.changes.length > 0) sheet.field(t.changesLabel, order.changes);
 
     sheet.gap(10);
+    // A line states its own rate only once the lines differ — the total
+    // names it otherwise — and under the name, since the figure columns hold
+    // one line each.
+    const perLineTax = orderLinesDifferInTax(order);
     sheet.table(
       [t.itemsLabel, t.quantityLabel, t.lineTotalLabel],
-      order.lines.map((line) => [
-        line.note ? `${line.name}\n${line.note}` : line.name,
-        this.quantity(line),
-        formatMoneyMinor(line.lineTotalMinor, this.currency),
-      ]),
+      order.lines.map((line) => {
+        const rate = perLineTax
+          ? orderLineTax(line, this.currency.locale, this.text)
+          : null;
+        return [
+          [line.name, rate, line.note].filter(Boolean).join('\n'),
+          this.quantity(line),
+          formatMoneyMinor(line.lineTotalMinor, this.currency),
+        ];
+      }),
     );
     sheet.total(
       t.totalLabel,
       formatMoneyMinor(order.totalMinor, this.currency),
+      orderTaxStatement(order, this.currency.locale, this.text),
     );
     if (t.returnNotice) {
       sheet.gap(16);
