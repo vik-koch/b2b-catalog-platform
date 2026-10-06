@@ -1,17 +1,28 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { AuthUser } from '@b2b-catalog-platform/shared';
+import { AuthUser, Page } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { defaultAppText } from '../config/app-text.fixture';
+import { PageService } from '../pages/page.service';
 import { AuthService } from './auth.service';
 import { adminUser } from './auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 
 const text = defaultAppText.auth.setPassword;
 const rejected = defaultAppText.auth.passwordRejected;
+
+const consentPage: Page = {
+  version: 2,
+  title: 'Consent: customer account',
+  bodyHtml: '<p>Text.</p>',
+  consentLabel: 'I [consent] to the processing of my details.',
+  updatedAt: '2026-10-05T10:00:00.000Z',
+};
+
+type Account = Awaited<ReturnType<AuthService['checkPasswordToken']>>;
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
@@ -22,7 +33,7 @@ function setInput(root: HTMLElement, selector: string, value: string): void {
 
 async function render(
   options: {
-    account?: { purpose: 'set' | 'reset'; email: string } | 'closed' | null;
+    account?: Account;
     outcome?: Awaited<ReturnType<AuthService['setPassword']>>;
   } = {},
 ) {
@@ -51,6 +62,10 @@ async function render(
       {
         provide: AuthService,
         useValue: { checkPasswordToken, setPassword, user },
+      },
+      {
+        provide: PageService,
+        useValue: { getPage: vi.fn(async () => consentPage) },
       },
     ],
   });

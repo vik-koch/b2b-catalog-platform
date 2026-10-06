@@ -18,6 +18,8 @@ import { Input } from '../ui/input';
 import { AuthService } from './auth.service';
 import { landingFor } from './auth.guard';
 import { TextButton } from '../ui/link';
+import { ConsentField } from '../pages/consent-field';
+import { useConsent } from '../pages/consent';
 
 type Status =
   'checking' | 'ready' | 'expired' | 'closed' | 'submitting' | 'done';
@@ -37,6 +39,7 @@ type Status =
   selector: 'app-set-password-page',
   imports: [
     AuthCard,
+    ConsentField,
     ReactiveFormsModule,
     RouterLink,
     Button,
@@ -169,6 +172,14 @@ type Status =
               }
             </div>
 
+            <!-- The notice only beside the box: a reset owes no consent,
+                 and the account's details were collected long before. -->
+            <app-consent-field
+              [consent]="consent"
+              [invalid]="isInvalid('consent')"
+              [alone]="false"
+            />
+
             @if (rejection(); as message) {
               <p class="text-sm text-red-600" role="alert">{{ message }}</p>
             }
@@ -208,6 +219,9 @@ export class SetPasswordPage implements OnInit {
   protected readonly status = signal<Status>('checking');
   protected readonly purpose = signal<PasswordTokenPurpose>('set');
   protected readonly email = signal('');
+  /** The account consent is still owed, and asked on this form. */
+  private readonly consentRequired = signal(false);
+  protected readonly consent = useConsent('account', this.consentRequired);
   protected readonly revealed = signal(false);
   protected readonly suggested = signal(false);
   /** The refusal to show under the field, once there is one. */
@@ -220,6 +234,7 @@ export class SetPasswordPage implements OnInit {
         [Validators.required, zodValidator(newPasswordSchema, 'tooShort')],
       ],
       confirmPassword: ['', Validators.required],
+      consent: this.consent.control,
     },
     { validators: passwordsMatch },
   );
@@ -264,7 +279,7 @@ export class SetPasswordPage implements OnInit {
    */
   protected suggest(): void {
     const password = generatePassword();
-    this.form.setValue({ newPassword: password, confirmPassword: password });
+    this.form.patchValue({ newPassword: password, confirmPassword: password });
     this.revealed.set(true);
     this.suggested.set(true);
   }
@@ -272,7 +287,7 @@ export class SetPasswordPage implements OnInit {
   protected async submit(): Promise<void> {
     this.fieldErrors.markSubmitted();
     this.rejection.set(null);
-    if (this.form.invalid) return;
+    if (this.form.invalid || !this.consent.sendable()) return;
 
     this.status.set('submitting');
     const { result, code } = await this.service.setPassword({

@@ -1188,8 +1188,6 @@ export const appTextSchema = z
                 suggestionCount: z.string(),
               })
               .strict(),
-            privacyConsent: z.string(),
-            privacyLink: z.string(),
             submit: z.string(),
             submitting: z.string(),
             /** Shown in place of the form once the request is in. */
@@ -1208,7 +1206,6 @@ export const appTextSchema = z
                 companyIdRequired: z.string(),
                 /** Carries the deployment's own example; `{example}` is substituted. */
                 companyIdFormat: z.string(),
-                privacyRequired: z.string(),
               })
               .strict(),
           })
@@ -1329,6 +1326,19 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
+    /**
+     * Beside a consent box (NFR-LEGAL-09). The box's own wording is not here:
+     * it is versioned with the consent text, which an admin edits.
+     */
+    consentBox: z
+      .object({
+        required: z.string(),
+        /** The text changed while the form was open. */
+        changed: z.string(),
+        /** The deployment asks for a consent whose text was never written. */
+        unavailable: z.string(),
+      })
+      .strict(),
     inquiry: z
       .object({
         intro: z.string(),
@@ -1339,8 +1349,6 @@ export const appTextSchema = z
         preferredEmail: z.string(),
         preferredPhone: z.string(),
         message: z.string(),
-        privacyConsent: z.string(),
-        privacyLink: z.string(),
         submit: z.string(),
         submitting: z.string(),
         success: z.string(),
@@ -1352,7 +1360,6 @@ export const appTextSchema = z
             emailInvalid: z.string(),
             phoneRequired: z.string(),
             phoneIncomplete: z.string(),
-            privacyRequired: z.string(),
           })
           .strict(),
       })
