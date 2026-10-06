@@ -13,6 +13,8 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { AuthService } from '../../auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
+import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmAnswer } from '../../ui/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 
@@ -70,12 +72,27 @@ async function render(
     consents?: ConsentRecord[];
     /** Whether the deployment asks for any consent. */
     consentAsked?: boolean;
+    /** The signed-in admin's own id. */
+    selfId?: string;
+    /** How the delete confirmation is answered; null is "no". */
+    answer?: ConfirmAnswer | null;
   } = {},
 ) {
   const account = options.account === undefined ? user() : options.account;
   const service = {
     get: vi.fn(async () => account ?? undefined),
     listConsents: vi.fn(async () => options.consents ?? []),
+    deleteOnRequest: vi.fn(async () => ({
+      ok: true as const,
+      user: user({ status: 'anonymized', firstName: null, lastName: null }),
+    })),
+  };
+  const confirm = {
+    askDetailed: vi.fn(async () =>
+      options.answer === undefined
+        ? { reason: '', checks: {} }
+        : options.answer,
+    ),
   };
   const tiers = {
     list: vi.fn(async () => ({
@@ -102,8 +119,11 @@ async function render(
       },
       {
         provide: AuthService,
-        useValue: { user: () => ({ role: options.role ?? 'admin' }) },
+        useValue: {
+          user: () => ({ id: options.selfId, role: options.role ?? 'admin' }),
+        },
       },
+      { provide: ConfirmService, useValue: confirm },
       { provide: StaffUsersService, useValue: service },
       { provide: TiersService, useValue: tiers },
       // Needed, not optional: the real read fails closed, so an unstubbed call
@@ -125,7 +145,25 @@ async function render(
       (a) => a.textContent?.trim() === label,
     ) as HTMLAnchorElement | undefined;
 
-  return { el, service, tiers, link, text: () => el.textContent ?? '' };
+  const button = (label: string) =>
+    [...el.querySelectorAll('button')].find(
+      (b) => b.textContent?.trim() === label,
+    ) as HTMLButtonElement | undefined;
+  const settle = async () => {
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+
+  return {
+    el,
+    service,
+    tiers,
+    confirm,
+    link,
+    button,
+    settle,
+    text: () => el.textContent ?? '',
+  };
 }
 
 describe('UserDetailPage', () => {
@@ -245,6 +283,98 @@ describe('UserDetailPage', () => {
 
     expect(body()).toContain(listText.statusAnonymized);
     expect(link(listText.edit)).toBeUndefined();
+  });
+
+  describe("deleting on the person's request (FR-ADM-23)", () => {
+    it('deletes after confirming, and shows the closed account', async () => {
+      const { button, service, settle, text: body } = await render();
+
+      button(text.delete)!.click();
+      await settle();
+
+      expect(service.deleteOnRequest).toHaveBeenCalledWith('u1', 'request');
+      expect(body()).toContain(listText.statusAnonymized);
+      expect(button(text.delete)).toBeUndefined();
+    });
+
+    it('does nothing when the confirmation is declined', async () => {
+      const { button, service, settle } = await render({ answer: null });
+
+      button(text.delete)!.click();
+      await settle();
+
+      expect(service.deleteOnRequest).not.toHaveBeenCalled();
+    });
+
+    it('records a withdrawn consent when ticked, where one is asked', async () => {
+      const { button, service, confirm, settle } = await render({
+        consentAsked: true,
+        answer: { reason: '', checks: { consentWithdrawn: true } },
+      });
+
+      button(text.delete)!.click();
+      await settle();
+
+      expect(confirm.askDetailed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          checks: [expect.objectContaining({ key: 'consentWithdrawn' })],
+        }),
+      );
+      expect(service.deleteOnRequest).toHaveBeenCalledWith(
+        'u1',
+        'consent-withdrawn',
+      );
+    });
+
+    it('offers no consent reason where none is asked or held', async () => {
+      const { button, confirm, settle } = await render();
+
+      button(text.delete)!.click();
+      await settle();
+
+      expect(confirm.askDetailed).toHaveBeenCalledWith(
+        expect.objectContaining({ checks: [] }),
+      );
+    });
+
+    it('says why when it is refused', async () => {
+      const { button, service, settle, text: body } = await render();
+      service.deleteOnRequest.mockResolvedValueOnce({
+        ok: false,
+        code: 'last-admin',
+      } as never);
+
+      button(text.delete)!.click();
+      await settle();
+
+      expect(body()).toContain(listText.errors['last-admin']);
+    });
+
+    it.each([
+      ['a manager', { role: 'manager' as const }],
+      ['their own account', { selfId: 'u1' }],
+      ['a pending registration', { account: user({ status: 'pending' }) }],
+      ['a closed account', { account: user({ status: 'anonymized' }) }],
+    ])('is not offered to %s', async (_label, options) => {
+      const { button } = await render(options);
+
+      expect(button(text.delete)).toBeUndefined();
+    });
+
+    // The person's right outranks the switch.
+    it('is offered while customers are externally owned', async () => {
+      const { button } = await render({ ownedAreas: ['customers'] });
+
+      expect(button(text.delete)).toBeDefined();
+    });
+
+    it('is offered on a deactivated account', async () => {
+      const { button } = await render({
+        account: user({ status: 'disabled' }),
+      });
+
+      expect(button(text.delete)).toBeDefined();
+    });
   });
 
   describe('consents (NFR-LEGAL-09)', () => {

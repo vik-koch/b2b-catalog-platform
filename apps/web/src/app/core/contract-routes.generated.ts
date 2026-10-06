@@ -1180,6 +1180,17 @@ export const usersContract = {
       },
     },
   },
+  deleteAccountOnRequest: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/admin/users/{id}/deletion',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.usersContract;
 export const workContract = {
   getCounts: {

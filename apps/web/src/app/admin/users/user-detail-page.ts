@@ -1,8 +1,16 @@
-import { Component, computed, inject, input, resource } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  resource,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
   ConsentRecord,
   CustomerTier,
+  fillText,
   formatPersonName,
   StaffUser,
 } from '@b2b-catalog-platform/shared';
@@ -15,6 +23,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
 import { Button } from '../../ui/button';
+import { ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge } from '../../ui/status-badge';
@@ -167,7 +176,24 @@ interface DetailRow {
             <app-admin-icon name="arrow-left" class="h-4 w-4" />
             {{ text.back }}
           </a>
+          <!-- Set apart from the two above: it cannot be taken back. -->
+          @if (canDelete()) {
+            <button
+              type="button"
+              appButton
+              variant="dangerOutline"
+              class="gap-2 sm:ml-auto"
+              [disabled]="deleting()"
+              (click)="deleteOnRequest(person)"
+            >
+              <app-admin-icon name="trash-2" class="h-4 w-4" />
+              {{ text.delete }}
+            </button>
+          }
         </div>
+        @if (deleteError(); as error) {
+          <p class="mt-3 text-sm text-red-700" role="alert">{{ error }}</p>
+        }
       } @else if (notFound()) {
         <p class="text-muted" role="alert">{{ text.notFound }}</p>
       } @else if (showSkeleton()) {
@@ -186,6 +212,7 @@ export class UserDetailPage {
   private readonly auth = inject(AuthService);
   private readonly ownership = inject(SettingsService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  private readonly confirm = inject(ConfirmService);
 
   protected readonly text = inject(ADMIN_TEXT).userDetail;
   /** The same words the list and the editor use for the same things. */
@@ -273,6 +300,36 @@ export class UserDetailPage {
   /** A closed account is a record; an owned one is edited elsewhere. */
   protected readonly canEdit = computed(
     () => !!this.user() && !this.isClosed() && !this.locked(),
+  );
+
+  /**
+   * Deleting on the person's request (FR-ADM-23): an admin's, never their own
+   * account, and never a registration nobody has decided on — that one is
+   * declined. Offered whatever owns customer accounts, since the person's
+   * right outranks the switch.
+   */
+  protected readonly canDelete = computed(() => {
+    const person = this.user();
+    const me = this.auth.user();
+    return (
+      !!person &&
+      me?.role === 'admin' &&
+      person.id !== me.id &&
+      person.status !== 'pending' &&
+      person.status !== 'anonymized'
+    );
+  });
+  protected readonly deleting = signal(false);
+  protected readonly deleteError = signal<string | null>(null);
+
+  /**
+   * Whether "they withdrew their consent" is a reason this account can have:
+   * where the deployment asks the account consent, or a record of one exists.
+   */
+  private readonly accountConsentAsked = computed(
+    () =>
+      this.config.consent.account ||
+      this.consentRecords().some((record) => record.purpose === 'account'),
   );
 
   /** Only an admin sees the source key, exactly as in the editor. */
@@ -389,6 +446,49 @@ export class UserDetailPage {
       disabled: this.listText.statusDisabled,
       anonymized: this.listText.statusAnonymized,
     }[status];
+  }
+
+  protected async deleteOnRequest(person: StaffUser): Promise<void> {
+    this.deleteError.set(null);
+    const answer = await this.confirm.askDetailed({
+      heading: this.text.deleteTitle,
+      message: fillText(this.text.deleteConfirm, { name: this.name() }),
+      warning: this.text.deleteWarning,
+      confirmLabel: this.text.delete,
+      cancelLabel: this.common.cancel,
+      confirmVariant: 'danger',
+      checks: this.accountConsentAsked()
+        ? [
+            {
+              key: 'consentWithdrawn',
+              label: this.text.deleteConsentWithdrawn,
+              hint: this.text.deleteConsentWithdrawnHint,
+              checked: false,
+            },
+          ]
+        : [],
+    });
+    if (!answer) return;
+
+    this.deleting.set(true);
+    try {
+      const result = await this.service.deleteOnRequest(
+        person.id,
+        answer.checks['consentWithdrawn'] ? 'consent-withdrawn' : 'request',
+      );
+      if (result.ok) {
+        this.account.set(result.user);
+        this.consents.reload();
+        return;
+      }
+      this.deleteError.set(this.listText.errors[result.code]);
+      // Whatever changed under the page, show it as it now stands.
+      this.account.reload();
+    } catch {
+      this.deleteError.set(this.text.deleteError);
+    } finally {
+      this.deleting.set(false);
+    }
   }
 
   /** The shared palette; see user-status.ts. */

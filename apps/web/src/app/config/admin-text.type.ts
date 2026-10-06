@@ -2188,6 +2188,9 @@ export const adminTextSchema = z
             'self-demote': z.string(),
             'last-admin': z.string(),
             'account-not-purgeable': z.string(),
+            /** Deleting an account on request (FR-ADM-23). */
+            'self-delete': z.string(),
+            'account-pending': z.string(),
             /** Another account already carries that source key (FR-ADM-14). */
             'source-id-taken': z.string(),
             /** The three a manager is refused, shown next to the field. */
@@ -2294,6 +2297,18 @@ export const adminTextSchema = z
         /** A customer's consent records (NFR-LEGAL-09). */
         consentsHeading: z.string(),
         consentsEmpty: z.string(),
+        /**
+         * Deleting the account on the person's request (FR-ADM-23). `{name}`
+         * is substituted in the confirmation; the tick is offered only where
+         * the account consent is asked, and records the reason.
+         */
+        delete: z.string(),
+        deleteTitle: z.string(),
+        deleteConfirm: z.string(),
+        deleteWarning: z.string(),
+        deleteConsentWithdrawn: z.string(),
+        deleteConsentWithdrawnHint: z.string(),
+        deleteError: z.string(),
         back: z.string(),
         notFound: z.string(),
         loadError: z.string(),
@@ -2345,6 +2360,9 @@ export const adminTextSchema = z
         withdrawTitle: z.string(),
         /** `{holder}` and `{date}` name the record. */
         withdrawConfirm: z.string(),
+        /** The inquiry itself is a mail in the shop's inbox, which the
+         * platform cannot reach: the admin deletes it by hand. */
+        withdrawInbox: z.string(),
         withdrawNote: z.string(),
         withdrawErrors: z
           .object({
