@@ -71,13 +71,26 @@ export class SignInStep {
   ) {}
 
   /**
-   * Whether this account is asked for a code at all.
+   * Whether this account is asked for a code at all: the deployment asks its
+   * role, and no admin exempted it. An exemption counts only while the role
+   * may be exempted, so narrowing that list ends every one of them at once.
    */
-  asks(user: Pick<UserRow, 'role'>): boolean {
+  asks(user: Pick<UserRow, 'role' | 'signInStepExemptAt'>): boolean {
     const config = this.config;
     if (!config || config.mode === 'off') return false;
     if (!config.roles.includes(user.role)) return false;
-    return true;
+    return !(user.signInStepExemptAt && this.mayExempt(user.role));
+  }
+
+  /** Whether an admin may exempt an account of this role. */
+  mayExempt(role: UserRow['role']): boolean {
+    const config = this.config;
+    return (
+      !!config &&
+      config.mode !== 'off' &&
+      config.roles.includes(role) &&
+      (config.exemptableRoles ?? []).includes(role)
+    );
   }
 
   need(user: UserRow): StepNeed {

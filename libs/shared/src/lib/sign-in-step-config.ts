@@ -14,6 +14,12 @@ export const signInStepConfigSchema = z
   .object({
     mode: z.enum(SIGN_IN_STEP_MODES),
     roles: z.array(z.enum(USER_ROLES)),
+    /**
+     * The roles an admin may exempt one account of, such as a maintainer who
+     * has no number in the deployment's country. Absent means nobody: whether
+     * a role may be exempted follows from the same rule as whether it is asked.
+     */
+    exemptableRoles: z.array(z.enum(USER_ROLES)).optional(),
   })
   .strict();
 export type SignInStepConfig = z.infer<typeof signInStepConfigSchema>;

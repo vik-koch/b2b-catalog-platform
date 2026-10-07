@@ -7,6 +7,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { Test } from '@nestjs/testing';
 import { StaffUsersController } from './staff-users.controller';
 import { StaffUsersService } from './staff-users.service';
+import { SignInStep } from '../auth/sign-in-step/sign-in-step';
 import { AccountInvitations } from './account-invitations';
 import { AuditLogger } from '../audit/audit.logger';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
@@ -39,6 +40,9 @@ describe('StaffUsersController', () => {
   const findByAccount = vi.fn();
   const deleteOnRequest = vi.fn();
   const record = vi.fn();
+  const setSignInStepExemption = vi.fn();
+  /** The roles the deployment lets an admin exempt from the code. */
+  let exemptable: string[] = [];
   /** Which areas an external system holds, per test. */
   let ownedAreas: string[] = [];
 
@@ -58,6 +62,9 @@ describe('StaffUsersController', () => {
     createdAt: '2026-01-05T09:00:00.000Z',
     approvedAt: null,
     approvedBy: null,
+    phoneConfirmedAt: null,
+    signInStepExemptAt: null,
+    signInStepExemptBy: null,
   };
   const staffMember = {
     ...customer,
@@ -89,7 +96,12 @@ describe('StaffUsersController', () => {
             purgePending,
             approve,
             reactivate,
+            setSignInStepExemption,
           },
+        },
+        {
+          provide: SignInStep,
+          useValue: { mayExempt: (role: string) => exemptable.includes(role) },
         },
         {
           provide: AccountInvitations,
@@ -146,6 +158,8 @@ describe('StaffUsersController', () => {
     findByAccount.mockReset();
     deleteOnRequest.mockReset();
     record.mockReset();
+    setSignInStepExemption.mockReset();
+    exemptable = ['manager'];
   });
 
   const send = (path: string, method: string, body?: unknown) =>
@@ -430,6 +444,66 @@ describe('StaffUsersController', () => {
 
       expect(response.status).toBe(400);
       expect(deleteOnRequest).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('exempting an account from the sign-in code (FR-AUTH-12)', () => {
+    const path = `/admin/users/${staffMember.id}/sign-in-step-exemption`;
+
+    it('exempts a role the deployment allows, and audits it', async () => {
+      findById.mockResolvedValue(staffMember);
+      const exempted = {
+        ...staffMember,
+        signInStepExemptAt: '2026-10-07T10:00:00.000Z',
+        signInStepExemptBy: 'admin@example.com',
+      };
+      setSignInStepExemption.mockResolvedValue(exempted);
+
+      const response = await send(path, 'PUT', { exempt: true });
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toMatchObject({
+        signInStepExemptBy: 'admin@example.com',
+      });
+      expect(setSignInStepExemption).toHaveBeenCalledWith(
+        staffMember.id,
+        true,
+        actor?.id,
+      );
+      expect(record).toHaveBeenCalledWith('user.signInStepExempted', actor, {
+        id: staffMember.id,
+        name: staffMember.email,
+      });
+    });
+
+    // The rule a deployment is under decides; a click cannot reach past it.
+    it('refuses a role the deployment does not let be exempted', async () => {
+      findById.mockResolvedValue(customer);
+
+      const response = await send(
+        `/admin/users/${customer.id}/sign-in-step-exemption`,
+        'PUT',
+        { exempt: true },
+      );
+
+      expect(response.status).toBe(409);
+      expect((await response.json()).code).toBe('not-exemptable');
+      expect(setSignInStepExemption).not.toHaveBeenCalled();
+    });
+
+    it('always lets an exemption be taken back', async () => {
+      exemptable = [];
+      findById.mockResolvedValue(staffMember);
+      setSignInStepExemption.mockResolvedValue(staffMember);
+
+      const response = await send(path, 'PUT', { exempt: false });
+
+      expect(response.status).toBe(200);
+      expect(record).toHaveBeenCalledWith(
+        'user.signInStepRequired',
+        actor,
+        expect.anything(),
+      );
     });
   });
 });

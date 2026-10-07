@@ -56,10 +56,16 @@ export type AuditAction =
   | 'user.declined'
   // Deleted by an admin on the person's request (FR-ADM-23), with why.
   | 'user.deleted'
+  // An admin let an account sign in without the code, or asked it again
+  // (FR-AUTH-12).
+  | 'user.signInStepExempted'
+  | 'user.signInStepRequired'
   // Self-service (FR-AUTH-06's neighbourhood). Named apart from `user.updated`
   // so the log distinguishes staff correcting a customer's details from the
   // customer correcting their own.
   | 'account.updated'
+  // A number the holder replaced by entering a code sent to it (FR-AUTH-12).
+  | 'account.phone-confirmed'
   | 'account.deleted'
   // The account's own address book. The id only — where a customer lives is
   // not something the log needs to repeat.

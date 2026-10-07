@@ -2241,6 +2241,8 @@ export const adminTextSchema = z
             'role-change-admin-only': z.string(),
             'staff-create-admin-only': z.string(),
             'source-id-change-admin-only': z.string(),
+            /** No account of this role may skip the sign-in code (FR-AUTH-12). */
+            'not-exemptable': z.string(),
           })
           .strict(),
       })
@@ -2353,6 +2355,28 @@ export const adminTextSchema = z
         deleteConsentWithdrawn: z.string(),
         deleteConsentWithdrawnHint: z.string(),
         deleteError: z.string(),
+        /**
+         * The code after the password (FR-AUTH-12), on accounts the deployment
+         * asks for one. `{date}` is a date, `{admin}` the exempting admin's
+         * address, `{name}` the account's name in the confirmations.
+         */
+        signInHeading: z.string(),
+        signInPhone: z.string(),
+        signInPhoneConfirmed: z.string(),
+        signInPhoneUnconfirmed: z.string(),
+        /** No number a code can reach: the holder cannot sign in. */
+        signInPhoneMissing: z.string(),
+        signInCode: z.string(),
+        signInCodeAlways: z.string(),
+        signInCodeOnce: z.string(),
+        signInCodeExempt: z.string(),
+        exempt: z.string(),
+        exemptTitle: z.string(),
+        exemptConfirm: z.string(),
+        unexempt: z.string(),
+        unexemptTitle: z.string(),
+        unexemptConfirm: z.string(),
+        exemptError: z.string(),
         back: z.string(),
         notFound: z.string(),
         loadError: z.string(),

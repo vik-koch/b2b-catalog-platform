@@ -36,6 +36,9 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
     createdAt: '2026-08-01T00:00:00.000Z',
     approvedAt: '2026-08-02T00:00:00.000Z',
     approvedBy: 'admin-1',
+    phoneConfirmedAt: null,
+    signInStepExemptAt: null,
+    signInStepExemptBy: null,
     ...overrides,
   };
 }

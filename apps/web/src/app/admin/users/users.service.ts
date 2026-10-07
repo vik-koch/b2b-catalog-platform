@@ -174,4 +174,15 @@ export class StaffUsersService {
       this.client.deleteAccountOnRequest({ params: { id }, body: { reason } }),
     );
   }
+
+  /** Exempt an account from the code after the password, or ask it again
+   * (FR-AUTH-12), admin only. 409 where the role may not be exempted. */
+  setSignInStepExemption(
+    id: string,
+    exempt: boolean,
+  ): Promise<UserActionResult> {
+    return this.act(
+      this.client.setSignInStepExemption({ params: { id }, body: { exempt } }),
+    );
+  }
 }

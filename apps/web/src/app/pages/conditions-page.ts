@@ -13,7 +13,6 @@ import { trustedRichText } from '../core/trusted-rich-text';
 import { TextButton } from '../ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from './page.service';
-import { PageUpdated } from './page-updated';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -30,13 +29,7 @@ import { PageUpdated } from './page-updated';
  */
 @Component({
   selector: 'app-conditions-page',
-  imports: [
-    DeliveryZoneList,
-    EditActions,
-    TextButton,
-    LoadErrorView,
-    PageUpdated,
-  ],
+  imports: [DeliveryZoneList, EditActions, TextButton, LoadErrorView],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
          never written takes the page down with it — the same rules, and the

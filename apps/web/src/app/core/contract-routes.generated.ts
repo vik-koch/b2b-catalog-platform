@@ -1220,6 +1220,17 @@ export const usersContract = {
       },
     },
   },
+  setSignInStepExemption: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'PUT',
+        path: '/admin/users/{id}/sign-in-step-exemption',
+        inputStructure: 'detailed',
+      },
+    },
+  },
 } as unknown as typeof shared.usersContract;
 export const workContract = {
   getCounts: {

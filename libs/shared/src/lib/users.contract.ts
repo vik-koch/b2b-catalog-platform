@@ -66,6 +66,15 @@ export const staffUserSchema = z
     createdAt: z.iso.datetime(),
     approvedAt: z.iso.datetime().nullable(),
     approvedBy: z.uuid().nullable(),
+    /** When the holder last entered a code sent to `phone` (FR-AUTH-12). */
+    phoneConfirmedAt: z.iso.datetime().nullable(),
+    /**
+     * Exempt from the code after the password, set by an admin, and who that
+     * was. The address is read beside the id because a staff screen names a
+     * person, and it is kept when that admin's account is later deleted.
+     */
+    signInStepExemptAt: z.iso.datetime().nullable(),
+    signInStepExemptBy: z.string().nullable(),
   })
   .strict();
 export type StaffUser = z.infer<typeof staffUserSchema>;
@@ -233,6 +242,8 @@ export const USER_ERROR_CODES = [
   'self-delete',
   /** A registration nobody has decided on is declined, not deleted. */
   'account-pending',
+  /** The deployment lets no account of this role skip the code (FR-AUTH-12). */
+  'not-exemptable',
 ] as const;
 export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
 
@@ -267,6 +278,7 @@ const conflicts = {
   'account-not-purgeable': { status: 409 },
   'self-delete': { status: 409 },
   'account-pending': { status: 409 },
+  'not-exemptable': { status: 409 },
 } as const;
 
 /**
@@ -474,6 +486,29 @@ export const usersContract = {
       z.object({
         params: z.object({ id: z.uuid() }),
         body: deleteAccountOnRequestSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  setSignInStepExemption: staff
+    .route({
+      method: 'PUT',
+      path: '/admin/users/{id}/sign-in-step-exemption',
+      inputStructure: 'detailed',
+      // Never refused by ownership: it is about how a person signs in, which
+      // no external system holds.
+      summary:
+        'Exempt an account from the code after the password, or undo it (admin)',
+    })
+    .errors({
+      ...notFound,
+      'account-closed': conflicts['account-closed'],
+      'not-exemptable': conflicts['not-exemptable'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: z.object({ exempt: z.boolean() }).strict(),
       }),
     )
     .output(staffUserSchema),

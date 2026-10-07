@@ -93,11 +93,23 @@ const staffUserColumns = {
   createdAt: users.createdAt,
   approvedAt: users.approvedAt,
   approvedBy: users.approvedBy,
+  phoneConfirmedAt: users.phoneConfirmedAt,
+  signInStepExemptAt: users.signInStepExemptAt,
+  /**
+   * The exempting admin's address, beside the account. Qualified by hand:
+   * inside a `sql` template embedded in a query Drizzle writes columns bare,
+   * and a bare id here would compare the admin's row with itself.
+   */
+  signInStepExemptBy: sql<string | null>`(${sql.raw(
+    'select "exemptor"."email" from "users" "exemptor" where "exemptor"."id" = "users"."signInStepExemptBy"',
+  )})`,
 };
 
 type StaffUserRow = {
-  [K in keyof typeof staffUserColumns]: (typeof users.$inferSelect)[K];
-};
+  [
+    K in Exclude<keyof typeof staffUserColumns, 'signInStepExemptBy'>
+  ]: (typeof users.$inferSelect)[K];
+} & { signInStepExemptBy: string | null };
 
 export interface ListUsersFilters {
   /** `customer` = the `user` role; `staff` = admin and manager. */
@@ -302,6 +314,29 @@ export class StaffUsersService {
       })
       .returning(staffUserColumns);
     return toStaffUser(created);
+  }
+
+  /**
+   * Exempt an account from the code after the password, or ask it again
+   * (FR-AUTH-12). Whether its role may be exempted is the caller's check,
+   * against the deployment's config; this writes who and when, or clears both.
+   */
+  async setSignInStepExemption(
+    id: string,
+    exempt: boolean,
+    actorId: string,
+  ): Promise<StaffUser> {
+    const [updated] = await this.db
+      .update(users)
+      .set(
+        exempt
+          ? { signInStepExemptAt: new Date(), signInStepExemptBy: actorId }
+          : { signInStepExemptAt: null, signInStepExemptBy: null },
+      )
+      .where(eq(users.id, id))
+      .returning(staffUserColumns);
+    if (!updated) throw notFound();
+    return toStaffUser(updated);
   }
 
   /**
@@ -596,4 +631,6 @@ const toStaffUser = (row: StaffUserRow): StaffUser => ({
   ...row,
   createdAt: row.createdAt.toISOString(),
   approvedAt: row.approvedAt?.toISOString() ?? null,
+  phoneConfirmedAt: row.phoneConfirmedAt?.toISOString() ?? null,
+  signInStepExemptAt: row.signInStepExemptAt?.toISOString() ?? null,
 });

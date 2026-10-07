@@ -242,7 +242,8 @@ optional, and absent means off. The demo leaves it out.
 ```json
 "signInStep": {
   "mode": "always",
-  "roles": ["user", "manager", "admin"]
+  "roles": ["user", "manager", "admin"],
+  "exemptableRoles": ["manager", "admin"]
 }
 ```
 
@@ -250,6 +251,11 @@ optional, and absent means off. The demo leaves it out.
   and never again: that is phone verification, not a second factor. `always`
   asks at every sign-in.
 - `roles` lists who is asked. A role left out signs in with the password alone.
+- `exemptableRoles` lists the roles an admin may exempt one account of, on the
+  account's page, for instance a maintainer with no number in the deployment's
+  country. Optional, and absent means nobody. The exemption is recorded with
+  the admin and the date. Taking a role off the list ends every exemption of
+  that role at once.
 
 Where an account is asked for a code, its number is how it signs in, and only
 staff change it: the holder sees it on their account page but cannot edit it,
