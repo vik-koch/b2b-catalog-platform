@@ -243,7 +243,8 @@ optional, and absent means off. The demo leaves it out.
 "signInStep": {
   "mode": "always",
   "roles": ["user", "manager", "admin"],
-  "exemptableRoles": ["manager", "admin"]
+  "exemptableRoles": ["manager", "admin"],
+  "trustDeviceDays": 30
 }
 ```
 
@@ -256,6 +257,12 @@ optional, and absent means off. The demo leaves it out.
   country. Optional, and absent means nobody. The exemption is recorded with
   the admin and the date. Taking a role off the list ends every exemption of
   that role at once.
+- `trustDeviceDays` lets the person tick "remember this browser" on the code
+  screen, at `always` only. That browser then skips the code, never the
+  password, for this many days. Signing out and changing the password leave
+  it remembered; a changed number, or a disabled or deleted account, forgets
+  every remembered browser. Optional, and absent or 0 means never, which is
+  what a rule asking for a code at every sign-in wants.
 
 Where an account is asked for a code, its number is how it signs in, and only
 staff change it: the holder sees it on their account page but cannot edit it,

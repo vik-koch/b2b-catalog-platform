@@ -20,6 +20,13 @@ export const signInStepConfigSchema = z
      * a role may be exempted follows from the same rule as whether it is asked.
      */
     exemptableRoles: z.array(z.enum(USER_ROLES)).optional(),
+    /**
+     * How long a browser may be remembered, offered as a box on the code
+     * screen at `always`. A remembered browser skips the code, never the
+     * password. Absent or 0 means never: a deployment whose rule asks for a
+     * code at every sign-in gets exactly that.
+     */
+    trustDeviceDays: z.number().int().nonnegative().optional(),
   })
   .strict();
 export type SignInStepConfig = z.infer<typeof signInStepConfigSchema>;
