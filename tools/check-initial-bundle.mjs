@@ -17,7 +17,7 @@
  */
 import { readFileSync } from 'node:fs';
 
-const STATS = 'dist/apps/web/stats.json';
+const STATS = 'dist/apps/web/browser-stats.json';
 
 /** Modules that must never be reachable without a lazy chunk boundary. */
 const FORBIDDEN = [
