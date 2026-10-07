@@ -63,6 +63,19 @@ export const ORDER_NOTICES = ['moved', 'corrected', 'changed'] as const;
 export const ENDED_ORDER_STATUSES = ['declined', 'cancelled'] as const;
 
 /**
+ * Whether the shop is done with an order (NFR-LEGAL-14): filled or ended, and
+ * owed nothing it is still waiting for. Only a finished order can lose its
+ * personal details, by the retention sweep or on a guest's request.
+ */
+export function isOrderFinished(status: string, paymentState: string): boolean {
+  return (
+    (status === 'completed' ||
+      (ENDED_ORDER_STATUSES as readonly string[]).includes(status)) &&
+    paymentState !== 'awaiting'
+  );
+}
+
+/**
  * Whether the order has been paid (FR-ORD-04), tracked apart from where it
  * stands.
  *

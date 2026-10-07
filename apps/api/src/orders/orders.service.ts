@@ -1130,6 +1130,7 @@ export class OrdersService {
       notifiedRevisionNumber: told.number,
       notifiedStatuses: told.statuses,
       paidAt: row.paidAt?.toISOString() ?? null,
+      personalDataRemovedAt: row.personalDataRemovedAt?.toISOString() ?? null,
     };
   }
 

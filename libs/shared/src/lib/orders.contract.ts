@@ -445,6 +445,10 @@ export const adminOrderDetailSchema = orderDetailSchema.extend({
    * it is kept on the row for the record but not served: nothing on this
    * screen asks, and it would cost a join on every read. */
   paidAt: z.iso.datetime().nullable(),
+  /** When the personal details on this order were removed (NFR-LEGAL-14):
+   * its account was deleted, its retention ended, or a guest asked. Null
+   * while it still carries them. */
+  personalDataRemovedAt: z.iso.datetime().nullable(),
 });
 export type AdminOrderDetail = z.infer<typeof adminOrderDetailSchema>;
 

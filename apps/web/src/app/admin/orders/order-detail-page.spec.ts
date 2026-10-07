@@ -1,3 +1,4 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -12,6 +13,7 @@ import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+import { AuthService } from '../../auth/auth.service';
 import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderDetailPage } from './order-detail-page';
 import { AdminOrdersService } from './orders.service';
@@ -53,6 +55,7 @@ const placed: AdminOrderDetail = {
   notifiedRevisionNumber: 1,
   notifiedStatuses: ['requested'],
   paidAt: null,
+  personalDataRemovedAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 12990,
@@ -137,8 +140,10 @@ const versions: OrderRevision[] = [
  * threaded through every render signature.
  */
 let owned: OwnershipArea[] = [];
+let role: 'admin' | 'manager' = 'admin';
 beforeEach(() => {
   owned = [];
+  role = 'admin';
 });
 
 async function render(
@@ -160,6 +165,7 @@ async function render(
       provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: AuthService, useValue: { user: signal({ role }) } },
       {
         provide: AdminOrdersService,
         useValue: {

@@ -1136,6 +1136,11 @@
       "keep": "Not yet",
       "error": "That did not work. The payment may already have been recorded — reload the page."
     },
+    "personalData": {
+      "heading": "Personal details",
+      "kept": "On the order until its retention period ends.",
+      "removed": "Removed on {date}"
+    },
     "documents": {
       "heading": "Documents",
       "summary": "Order summary",

@@ -56,6 +56,7 @@ const order: AdminOrderDetail = {
   notifiedRevisionNumber: 1,
   notifiedStatuses: ['requested'],
   paidAt: null,
+  personalDataRemovedAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-26T09:15:00.000Z',
   totalMinor: 3980,

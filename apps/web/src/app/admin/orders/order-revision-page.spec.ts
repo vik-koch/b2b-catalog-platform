@@ -49,6 +49,7 @@ const version: OrderRevision = {
   notifiedStatuses: ['approved'],
   note: 'One more box, as agreed.',
   paidAt: null,
+  personalDataRemovedAt: null,
   createdAt: '2026-08-26T09:15:00.000Z',
   statusChangedAt: '2026-08-27T10:00:00.000Z',
   revisionCreatedAt: '2026-08-27T10:00:00.000Z',
