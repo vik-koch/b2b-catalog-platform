@@ -10,6 +10,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+import type { DeploymentConfig } from '../../config/deployment-config.type';
 import { AuthService } from '../../auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
@@ -39,6 +40,9 @@ function user(overrides: Partial<StaffUser> = {}): StaffUser {
     createdAt: '2026-08-01T00:00:00.000Z',
     approvedAt: '2026-08-02T00:00:00.000Z',
     approvedBy: 'admin-1',
+    phoneConfirmedAt: null,
+    signInStepExemptAt: null,
+    signInStepExemptBy: null,
     ...overrides,
   };
 }
@@ -76,6 +80,8 @@ async function render(
     selfId?: string;
     /** How the delete confirmation is answered; null is "no". */
     answer?: ConfirmAnswer | null;
+    /** The deployment's code after the password (FR-AUTH-12). */
+    signInStep?: DeploymentConfig['signInStep'];
   } = {},
 ) {
   const account = options.account === undefined ? user() : options.account;
@@ -86,8 +92,17 @@ async function render(
       ok: true as const,
       user: user({ status: 'anonymized', firstName: null, lastName: null }),
     })),
+    setSignInStepExemption: vi.fn(async (_id: string, exempt: boolean) => ({
+      ok: true as const,
+      user: user({
+        role: 'manager',
+        signInStepExemptAt: exempt ? '2026-10-07T00:00:00.000Z' : null,
+        signInStepExemptBy: exempt ? 'admin@example.com' : null,
+      }),
+    })),
   };
   const confirm = {
+    ask: vi.fn(async () => true),
     askDetailed: vi.fn(async () =>
       options.answer === undefined
         ? { reason: '', checks: {} }
@@ -115,6 +130,7 @@ async function render(
             contact: options.consentAsked ?? false,
             account: options.consentAsked ?? false,
           },
+          signInStep: options.signInStep,
         },
       },
       {
@@ -156,6 +172,7 @@ async function render(
 
   return {
     el,
+    fixture,
     service,
     tiers,
     confirm,
@@ -451,5 +468,89 @@ describe('UserDetailPage', () => {
     const { text: body } = await render({ account: null });
 
     expect(body()).toContain(text.notFound);
+  });
+
+  describe('the code after the password (FR-AUTH-12)', () => {
+    const always = {
+      mode: 'always' as const,
+      roles: ['manager' as const, 'admin' as const],
+      exemptableRoles: ['manager' as const],
+    };
+
+    it('shows no sign-in card where the deployment asks no code', async () => {
+      const { el } = await render({ account: user({ role: 'manager' }) });
+
+      expect(el.textContent).not.toContain(text.signInHeading);
+    });
+
+    it('says whether the number is confirmed and how often the code is asked', async () => {
+      const { el } = await render({
+        account: user({ role: 'manager', phone: '+494012345678' }),
+        signInStep: always,
+      });
+
+      expect(el.textContent).toContain(text.signInHeading);
+      expect(el.textContent).toContain(text.signInPhoneUnconfirmed);
+      expect(el.textContent).toContain(text.signInCodeAlways);
+    });
+
+    // Nobody can choose a number at sign-in, so staff must know.
+    it('says when no number on the account can take a code', async () => {
+      const { el } = await render({
+        account: user({ role: 'manager', phone: null }),
+        signInStep: always,
+      });
+
+      expect(el.textContent).toContain(text.signInPhoneMissing);
+    });
+
+    it('names who exempted the account', async () => {
+      const { el, button } = await render({
+        account: user({
+          role: 'manager',
+          signInStepExemptAt: '2026-10-07T00:00:00.000Z',
+          signInStepExemptBy: 'admin@example.com',
+        }),
+        signInStep: always,
+      });
+
+      expect(el.textContent).toContain('admin@example.com');
+      expect(button(text.unexempt)).toBeDefined();
+    });
+
+    it('exempts after asking, and shows the result', async () => {
+      const { el, service, confirm, button, settle } = await render({
+        account: user({ role: 'manager' }),
+        signInStep: always,
+      });
+
+      button(text.exempt)?.click();
+      await settle();
+      await settle();
+
+      expect(confirm.ask).toHaveBeenCalled();
+      expect(service.setSignInStepExemption).toHaveBeenCalledWith('u1', true);
+      expect(el.textContent).toContain('admin@example.com');
+    });
+
+    it('offers no exemption for a role the deployment does not list', async () => {
+      const { el, button } = await render({
+        account: user({ role: 'admin' }),
+        signInStep: always,
+      });
+
+      expect(el.textContent).toContain(text.signInHeading);
+      expect(button(text.exempt)).toBeUndefined();
+    });
+
+    it('offers no exemption to a manager', async () => {
+      const { button } = await render({
+        role: 'manager',
+        account: user({ role: 'user' }),
+        signInStep: { ...always, roles: ['user'], exemptableRoles: ['user'] },
+      });
+
+      expect(button(text.exempt)).toBeUndefined();
+    });
   });
 });

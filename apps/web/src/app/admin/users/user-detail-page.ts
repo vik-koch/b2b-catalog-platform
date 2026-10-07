@@ -12,6 +12,7 @@ import {
   CustomerTier,
   fillText,
   formatPersonName,
+  normalizePhone,
   StaffUser,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -122,6 +123,47 @@ interface DetailRow {
               </dl>
             </div>
           </section>
+
+          <!-- Only where the deployment asks this account's role for a code
+               after the password (FR-AUTH-12). -->
+          @if (asksCode()) {
+            <section>
+              <h2 [class]="headingClass">{{ text.signInHeading }}</h2>
+              <div class="rounded-lg border border-border p-5">
+                <dl
+                  class="grid gap-x-8 mt-2 text-sm break-words sm:grid-cols-[12rem_1fr]"
+                >
+                  @for (row of signInRows(); track row.label) {
+                    <dt
+                      class="text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                    >
+                      {{ row.label }}
+                    </dt>
+                    <dd class="even:mb-3 sm:even:mb-3 last:mb-0">
+                      {{ row.value }}
+                    </dd>
+                  }
+                </dl>
+                @if (canExempt()) {
+                  <button
+                    type="button"
+                    appButton
+                    variant="secondary"
+                    class="mt-4"
+                    [disabled]="exempting()"
+                    (click)="toggleExemption(person)"
+                  >
+                    {{ isExempt() ? text.unexempt : text.exempt }}
+                  </button>
+                }
+                @if (exemptError(); as error) {
+                  <p class="mt-3 text-sm text-red-700" role="alert">
+                    {{ error }}
+                  </p>
+                }
+              </div>
+            </section>
+          }
 
           <!-- A customer's only, since staff are never asked, and an admin's.
                Said when empty while a consent is asked: an account without a
@@ -331,6 +373,118 @@ export class UserDetailPage {
       this.config.consent.account ||
       this.consentRecords().some((record) => record.purpose === 'account'),
   );
+
+  /** The code after the password (FR-AUTH-12), as this deployment asks it. */
+  private readonly stepConfig = this.config.signInStep;
+
+  /** The deployment asks this account's role for a code after the password. */
+  protected readonly asksCode = computed(() => {
+    const person = this.user();
+    const step = this.stepConfig;
+    return (
+      !!person &&
+      !!step &&
+      step.mode !== 'off' &&
+      step.roles.includes(person.role)
+    );
+  });
+
+  /** Whether an exemption on this account counts: only while the deployment
+   * lets its role be exempted, as the API reads it. */
+  private readonly exemptable = computed(() => {
+    const person = this.user();
+    return (
+      this.asksCode() &&
+      !!person &&
+      (this.stepConfig?.exemptableRoles ?? []).includes(person.role)
+    );
+  });
+
+  protected readonly isExempt = computed(
+    () => this.exemptable() && !!this.user()?.signInStepExemptAt,
+  );
+
+  /** An admin's, on an account that is not closed. */
+  protected readonly canExempt = computed(
+    () =>
+      this.exemptable() &&
+      this.auth.user()?.role === 'admin' &&
+      !this.isClosed(),
+  );
+  protected readonly exempting = signal(false);
+  protected readonly exemptError = signal<string | null>(null);
+
+  protected readonly signInRows = computed<DetailRow[]>(() => {
+    const person = this.user();
+    if (!person || !this.asksCode()) return [];
+    const text = this.text;
+    const exemptAt = person.signInStepExemptAt;
+    return [
+      {
+        label: text.signInPhone,
+        // A number staff set is what codes go to, and nobody can choose
+        // another at sign-in: without one that takes a code, the holder is
+        // locked out until it is entered here.
+        value: !this.takesCode(person.phone)
+          ? text.signInPhoneMissing
+          : person.phoneConfirmedAt
+            ? fillText(text.signInPhoneConfirmed, {
+                date: this.date(person.phoneConfirmedAt),
+              })
+            : text.signInPhoneUnconfirmed,
+      },
+      {
+        label: text.signInCode,
+        value:
+          this.isExempt() && exemptAt
+            ? fillText(text.signInCodeExempt, {
+                admin: person.signInStepExemptBy ?? '—',
+                date: this.date(exemptAt),
+              })
+            : this.stepConfig?.mode === 'always'
+              ? text.signInCodeAlways
+              : text.signInCodeOnce,
+      },
+    ];
+  });
+
+  /** Whether a code can be sent to this number as it is stored. */
+  private takesCode(phone: string | null): boolean {
+    return !!phone && normalizePhone(phone, this.phoneInput) === phone;
+  }
+
+  protected async toggleExemption(person: StaffUser): Promise<void> {
+    this.exemptError.set(null);
+    const exempt = !this.isExempt();
+    const confirmed = await this.confirm.ask({
+      heading: exempt ? this.text.exemptTitle : this.text.unexemptTitle,
+      message: fillText(
+        exempt ? this.text.exemptConfirm : this.text.unexemptConfirm,
+        { name: this.name() },
+      ),
+      confirmLabel: exempt ? this.text.exempt : this.text.unexempt,
+      cancelLabel: this.common.cancel,
+    });
+    if (!confirmed) return;
+
+    this.exempting.set(true);
+    try {
+      const result = await this.service.setSignInStepExemption(
+        person.id,
+        exempt,
+      );
+      if (result.ok) {
+        this.account.set(result.user);
+        return;
+      }
+      this.exemptError.set(this.listText.errors[result.code]);
+      this.account.reload();
+    } catch {
+      this.exemptError.set(this.text.exemptError);
+    } finally {
+      this.exempting.set(false);
+    }
+  }
 
   /** Only an admin sees the source key, exactly as in the editor. */
   private readonly showsSourceId = computed(

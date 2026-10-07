@@ -93,11 +93,23 @@ const staffUserColumns = {
   createdAt: users.createdAt,
   approvedAt: users.approvedAt,
   approvedBy: users.approvedBy,
+  phoneConfirmedAt: users.phoneConfirmedAt,
+  signInStepExemptAt: users.signInStepExemptAt,
+  /**
+   * The exempting admin's address, beside the account. Qualified by hand:
+   * inside a `sql` template embedded in a query Drizzle writes columns bare,
+   * and a bare id here would compare the admin's row with itself.
+   */
+  signInStepExemptBy: sql<string | null>`(${sql.raw(
+    'select "exemptor"."email" from "users" "exemptor" where "exemptor"."id" = "users"."signInStepExemptBy"',
+  )})`,
 };
 
 type StaffUserRow = {
-  [K in keyof typeof staffUserColumns]: (typeof users.$inferSelect)[K];
-};
+  [
+    K in Exclude<keyof typeof staffUserColumns, 'signInStepExemptBy'>
+  ]: (typeof users.$inferSelect)[K];
+} & { signInStepExemptBy: string | null };
 
 export interface ListUsersFilters {
   /** `customer` = the `user` role; `staff` = admin and manager. */
@@ -596,4 +608,6 @@ const toStaffUser = (row: StaffUserRow): StaffUser => ({
   ...row,
   createdAt: row.createdAt.toISOString(),
   approvedAt: row.approvedAt?.toISOString() ?? null,
+  phoneConfirmedAt: row.phoneConfirmedAt?.toISOString() ?? null,
+  signInStepExemptAt: row.signInStepExemptAt?.toISOString() ?? null,
 });

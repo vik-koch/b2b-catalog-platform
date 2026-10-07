@@ -1349,7 +1349,8 @@
       "source-id-taken": "Another account already carries that source key. Each key names exactly one account.",
       "role-change-admin-only": "Only an admin can change the role of an account.",
       "staff-create-admin-only": "Only an admin can create a staff account.",
-      "source-id-change-admin-only": "Only an admin can change the source key of an account."
+      "source-id-change-admin-only": "Only an admin can change the source key of an account.",
+      "not-exemptable": "This deployment lets no account of this role skip the sign-in code."
     }
   },
   "userEditor": {
@@ -1412,6 +1413,22 @@
     "deleteConsentWithdrawn": "They withdrew their consent",
     "deleteConsentWithdrawnHint": "Recorded as the reason. Leave it clear when they simply asked for the deletion.",
     "deleteError": "The account could not be deleted. Please try again.",
+    "signInHeading": "Sign-in",
+    "signInPhone": "Mobile number",
+    "signInPhoneConfirmed": "Confirmed on {date}",
+    "signInPhoneUnconfirmed": "Not confirmed yet. It is confirmed at the next sign-in.",
+    "signInPhoneMissing": "None that a code can reach. They cannot sign in until staff enter one in the account's details.",
+    "signInCode": "Code after the password",
+    "signInCodeAlways": "At every sign-in",
+    "signInCodeOnce": "Once, to confirm the number",
+    "signInCodeExempt": "Not asked: exempted by {admin} on {date}",
+    "exempt": "Exempt from the code",
+    "exemptTitle": "Exempt from the sign-in code",
+    "exemptConfirm": "Let {name} sign in with the password alone? The exemption is recorded with your name and shown on this page.",
+    "unexempt": "Ask for the code again",
+    "unexemptTitle": "Ask for the sign-in code again",
+    "unexemptConfirm": "Ask {name} for the code again from their next sign-in?",
+    "exemptError": "The change could not be saved. Please try again.",
     "back": "Back to the list",
     "notFound": "This account could not be found.",
     "loadError": "This account could not be loaded. Please try again."

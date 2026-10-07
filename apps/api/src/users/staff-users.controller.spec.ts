@@ -58,6 +58,9 @@ describe('StaffUsersController', () => {
     createdAt: '2026-01-05T09:00:00.000Z',
     approvedAt: null,
     approvedBy: null,
+    phoneConfirmedAt: null,
+    signInStepExemptAt: null,
+    signInStepExemptBy: null,
   };
   const staffMember = {
     ...customer,
