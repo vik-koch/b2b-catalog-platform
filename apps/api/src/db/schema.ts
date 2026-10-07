@@ -719,6 +719,11 @@ export const users = pgTable('users', {
   // that has not signed in since recording began. A session runs for days,
   // so this is when the account was last used to within that.
   lastSignInAt: timestamp('lastSignInAt', { withTimezone: true }),
+  // When the holder last entered a code sent to `phone` (FR-AUTH-12). A code
+  // goes only to a confirmed number. A trigger clears this whenever `phone`
+  // changes in a write that does not set it too, so a number changed by staff,
+  // by an external system or by anonymization is never taken as confirmed.
+  phoneConfirmedAt: timestamp('phoneConfirmedAt', { withTimezone: true }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
@@ -774,6 +779,35 @@ export const passwordTokens = pgTable('password_tokens', {
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
+});
+
+// What a sign-in code is for: the second step of a sign-in, or confirming the
+// number it is sent to, which writes that number to the account on success.
+export const signInCodePurpose = pgEnum('sign_in_code_purpose', [
+  'sign-in',
+  'confirm',
+]);
+
+/**
+ * The one code an account is waiting on (FR-AUTH-12, ADR 0066). One row per
+ * account: a new sign-in while a code is live reuses it rather than paying for
+ * another message.
+ *
+ * Only the SHA-256 of the code is kept. The phone is kept because confirming
+ * writes it to the account, and the sends carry over to a replacement row, so
+ * changing the number does not reset the send limit.
+ */
+export const signInCodes = pgTable('sign_in_codes', {
+  userId: uuid('userId')
+    .primaryKey()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  purpose: signInCodePurpose('purpose').notNull(),
+  phone: varchar('phone', { length: 50 }).notNull(),
+  codeHash: varchar('codeHash', { length: 64 }).notNull(),
+  attempts: integer('attempts').notNull().default(0),
+  sends: integer('sends').notNull().default(1),
+  sentAt: timestamp('sentAt', { withTimezone: true }).notNull(),
+  expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
 });
 
 /**
