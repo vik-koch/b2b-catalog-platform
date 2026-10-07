@@ -400,9 +400,14 @@ import { WarningNote } from '../ui/warning-note';
 
           <!-- Pinned once it is a column of its own: the form beside it is as
                long as the answers are, and the total is what the customer is
-               reading them against. -->
+               reading them against.
+
+               Stacked, it waits for the form above it: drawn first, it stood
+               under the heading and was pushed down the moment the form
+               arrived. Beside the form it has nothing to wait for. -->
           <aside
-            class="max-w-xl @min-[63.75rem]/checkout:mt-9 @min-[63.75rem]/checkout:sticky @min-[63.75rem]/checkout:top-20 @min-[63.75rem]/checkout:self-start"
+            class="max-w-xl @min-[63.75rem]/checkout:visible @min-[63.75rem]/checkout:mt-9 @min-[63.75rem]/checkout:sticky @min-[63.75rem]/checkout:top-20 @min-[63.75rem]/checkout:self-start"
+            [class.invisible]="formPending()"
           >
             <app-order-summary
               [lineCount]="cart.count()"
