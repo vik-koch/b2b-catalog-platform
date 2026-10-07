@@ -91,7 +91,7 @@ interface SortOption {
             <div class="overflow-hidden">
               <div
                 [id]="panelId"
-                class="grid gap-4 border-t border-border px-4 py-4"
+                class="grid gap-4 border-t border-border p-4"
                 role="group"
                 [attr.aria-label]="common.filters"
               >

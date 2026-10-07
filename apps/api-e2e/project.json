@@ -12,6 +12,12 @@
         "passWithNoTests": true,
         "tsConfig": "apps/api-e2e/tsconfig.spec.json"
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["tsc -p apps/api-e2e/tsconfig.spec.json --noEmit"]
+      }
     }
   }
 }

@@ -54,7 +54,7 @@ const BARS: Record<SkeletonSize, string> = {
     @for (width of bars(); track $index) {
       <div class="flex items-center" [class]="row()">
         <div
-          class="rounded bg-stone-200"
+          class="rounded-sm bg-stone-200"
           [class]="bar()"
           [style.width]="width"
         ></div>

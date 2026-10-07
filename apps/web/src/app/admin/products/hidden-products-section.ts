@@ -59,7 +59,7 @@ import { injectEditorReturnParams } from '../editor-return';
                         <img
                           [src]="image.thumb"
                           [alt]="item.name"
-                          class="h-full w-full bg-white object-contain opacity-50 grayscale"
+                          class="size-full bg-white object-contain opacity-50 grayscale"
                         />
                       }
                     </div>
@@ -110,7 +110,7 @@ import { injectEditorReturnParams } from '../editor-return';
                         [routerLink]="['/admin/products', item.slug, 'edit']"
                         [queryParams]="editorFrom()"
                       >
-                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                        <app-admin-icon name="pencil" class="size-4" />
                         {{ text.editProduct }}
                       </a>
                       <button
@@ -122,7 +122,7 @@ import { injectEditorReturnParams } from '../editor-return';
                         [title]="cannotPublish(item) ? text.unpricedHint : null"
                         (click)="publish(item)"
                       >
-                        <app-admin-icon name="book-check" class="h-4 w-4" />
+                        <app-admin-icon name="book-check" class="size-4" />
                         {{ actionLabel(item) }}
                       </button>
                     </div>

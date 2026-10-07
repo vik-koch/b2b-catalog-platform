@@ -50,7 +50,7 @@ import { navActionClasses, NavVariant } from './nav-action';
            line's descender space under the glyph and pushes the icon off the
            row's centre. -->
       <span class="relative inline-flex">
-        <app-icon name="shopping-basket" class="h-6 w-6" />
+        <app-icon name="shopping-basket" class="size-6" />
         <!-- Secondary, like the total below it and like the "in your cart"
              field on the buying controls: all three state a fact about the
              cart. Amber is reserved for work that wants somebody to act (see
@@ -58,7 +58,7 @@ import { navActionClasses, NavVariant } from './nav-action';
              claiming to be the same kind of thing. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 px-0.5 py-0.5 text-[0.625rem] leading-3 text-white font-normal transition-colors"
+          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 p-0.5 text-[0.625rem]/3 text-white font-normal transition-colors"
         ></span>
       </span>
       <span [class]="cls().labelRow">
@@ -73,7 +73,7 @@ import { navActionClasses, NavVariant } from './nav-action';
         @if (variant() === 'bar') {
           <span
             aria-hidden="true"
-            class="cart-total -mx-3 items-center justify-center rounded bg-primary px-1 py-1 text-[0.6875rem] leading-4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
+            class="cart-total -mx-3 items-center justify-center rounded-sm bg-primary p-1 text-[0.6875rem]/4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
           ></span>
         }
         <span [class]="labelClass()" [attr.data-label]="text.navLabel">

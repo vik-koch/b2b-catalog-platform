@@ -184,7 +184,7 @@ import { WarningNote } from '../ui/warning-note';
               >
                 <app-icon
                   name="circle-user-round"
-                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-subtle"
                 />
                 <span>
                   {{ text.signInPrompt }}
@@ -267,7 +267,7 @@ import { WarningNote } from '../ui/warning-note';
 
                   <!-- ADR 0015's honeypot: off screen, never announced, and
                        filled only by something that is not reading. -->
-                  <div class="absolute -left-[9999px]" aria-hidden="true">
+                  <div class="absolute left-[-9999px]" aria-hidden="true">
                     <label for="checkout-website">Leave this field empty</label>
                     <input
                       id="checkout-website"
@@ -452,7 +452,7 @@ import { WarningNote } from '../ui/warning-note';
               <p class="mt-3 flex items-start gap-2 text-sm text-muted">
                 <app-icon
                   name="lock"
-                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-subtle"
                 />
                 <span>{{ text.errors.staffAccount }}</span>
               </p>
@@ -460,7 +460,7 @@ import { WarningNote } from '../ui/warning-note';
               <p class="mt-3 flex items-start gap-2 text-sm text-muted">
                 <app-icon
                   name="phone"
-                  class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-subtle"
                 />
                 <span>
                   {{ text.phoneMissing }}

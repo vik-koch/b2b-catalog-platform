@@ -78,7 +78,7 @@ import { revisionKindLabel } from './revision-labels';
                  a thing to press buttons at. -->
             <section class="mt-4 rounded-lg border border-border p-5 text-sm">
               <dl
-                class="grid gap-x-6 gap-y-3 break-words sm:grid-cols-[7rem_1fr]"
+                class="grid gap-x-6 gap-y-3 wrap-break-word sm:grid-cols-[7rem_1fr]"
               >
                 <dt class="text-subtle">{{ detailText.customer }}</dt>
                 <dd>{{ order.customerEmail ?? listText.guest }}</dd>

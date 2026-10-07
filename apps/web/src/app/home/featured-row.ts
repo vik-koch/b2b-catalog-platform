@@ -134,7 +134,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
       }
     } @else if (showSkeleton()) {
       <div aria-hidden="true">
-        <div class="h-8 w-48 animate-pulse rounded bg-stone-125"></div>
+        <div class="h-8 w-48 animate-pulse rounded-sm bg-stone-125"></div>
         <ul [class]="skeletonClass">
           @for (i of skeletons; track i) {
             <li class="h-116 animate-pulse rounded-lg bg-stone-125"></li>

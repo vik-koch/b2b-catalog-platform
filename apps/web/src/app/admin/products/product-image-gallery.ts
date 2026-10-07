@@ -72,13 +72,13 @@ import { MediaService } from '../media/media.service';
             ></div>
             <div
               cdkDragHandle
-              class="relative h-26 w-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
+              class="relative size-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
               [attr.aria-label]="common.reorder"
             >
               <img
                 [src]="image.thumb"
                 alt=""
-                class="pointer-events-none h-full w-full bg-white object-contain"
+                class="pointer-events-none size-full bg-white object-contain"
               />
               <div
                 class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
@@ -157,7 +157,7 @@ import { MediaService } from '../media/media.service';
             (click)="fileInput.click()"
             (filesReceived)="upload($event)"
           >
-            <app-admin-icon name="image-plus" class="h-6 w-6" />
+            <app-admin-icon name="image-plus" class="size-6" />
             <span class="text-xs">
               {{ uploading() ? common.uploading : text.add }}
             </span>

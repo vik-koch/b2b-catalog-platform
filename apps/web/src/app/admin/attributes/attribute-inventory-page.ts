@@ -257,7 +257,7 @@ type RenameTarget =
                                     >
                                       <app-icon
                                         name="triangle-alert"
-                                        class="h-3.5 w-3.5"
+                                        class="size-3.5"
                                       />
                                     </app-hint-badge>
                                   }
@@ -341,7 +341,7 @@ type RenameTarget =
                                      placeholder short of the real row. -->
                                 <span class="flex h-5 items-center">
                                   <span
-                                    class="h-4 rounded bg-stone-200"
+                                    class="h-4 rounded-sm bg-stone-200"
                                     [style.width]="width"
                                   ></span>
                                 </span>
@@ -350,7 +350,7 @@ type RenameTarget =
                                   class="flex h-5 items-center mr-7"
                                 >
                                   <span
-                                    class="h-4 w-20 rounded bg-stone-200"
+                                    class="h-4 w-20 rounded-sm bg-stone-200"
                                   ></span>
                                 </span>
                                 <ng-container recordActions>
@@ -358,7 +358,7 @@ type RenameTarget =
                                        hands its icon as --icon-size. -->
                                   <span appIconButton>
                                     <span
-                                      class="block size-(--icon-size) rounded bg-stone-200"
+                                      class="block size-(--icon-size) rounded-sm bg-stone-200"
                                     ></span>
                                   </span>
                                 </ng-container>
@@ -408,7 +408,7 @@ type RenameTarget =
             class="gap-2"
             [disabled]="busy()"
           >
-            <app-admin-icon name="save" class="h-4 w-4" />
+            <app-admin-icon name="save" class="size-4" />
             {{ busy() ? common.saving : common.save }}
           </button>
           <button
@@ -420,7 +420,7 @@ type RenameTarget =
             [disabled]="busy()"
             (click)="cancel()"
           >
-            <app-admin-icon name="x" class="h-4 w-4" />
+            <app-admin-icon name="x" class="size-4" />
             {{ common.cancel }}
           </button>
         </form>

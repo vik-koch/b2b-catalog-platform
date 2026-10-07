@@ -77,12 +77,12 @@ interface DocumentRow {
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
             <app-admin-icon
               name="file-text"
-              class="h-4 w-4 shrink-0 text-subtle"
+              class="size-4 shrink-0 text-subtle"
             />
             <!-- The name and what it is, together: when the controls wrap to
                  their own line the caption must not be left under them,
                  describing the buttons. -->
-            <span class="min-w-[9rem] flex-1">
+            <span class="min-w-36 flex-1">
               <span class="block truncate">{{ row.label }}</span>
               <span class="block text-xs text-subtle">{{ row.detail }}</span>
             </span>
@@ -123,7 +123,7 @@ interface DocumentRow {
                   [disabled]="busy() !== null"
                   (click)="choose(row.kind, fileInput)"
                 >
-                  <app-admin-icon name="upload" class="h-4 w-4" />
+                  <app-admin-icon name="upload" class="size-4" />
                   {{
                     busy() === row.kind
                       ? text.uploading
@@ -149,7 +149,7 @@ interface DocumentRow {
                       [disabled]="busy() !== null"
                       (click)="notify(row.kind)"
                     >
-                      <app-admin-icon name="send" class="h-4 w-4" />
+                      <app-admin-icon name="send" class="size-4" />
                       {{ row.sent ? text.notifySent : text.notify }}
                     </button>
                   }

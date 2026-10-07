@@ -132,7 +132,7 @@ const EDGE_SLACK = 24;
           [queryParams]="editorFrom()"
           class="gap-2"
         >
-          <app-admin-icon name="funnel" class="h-4 w-4" />
+          <app-admin-icon name="funnel" class="size-4" />
           {{ text.catalogFilters }}
         </a>
         <a
@@ -141,7 +141,7 @@ const EDGE_SLACK = 24;
           [queryParams]="editorFrom()"
           class="gap-2"
         >
-          <app-admin-icon name="plus" class="h-4 w-4" />
+          <app-admin-icon name="plus" class="size-4" />
           {{ text.add }}
         </a>
       </div>
@@ -237,7 +237,7 @@ const EDGE_SLACK = 24;
                            leaves it out, because nothing beneath it is live
                            (FR-ADM-19); the words in its meta say so too. -->
                       <a
-                        class="break-words font-medium text-stone-700 hover:text-accent"
+                        class="wrap-break-word font-medium text-stone-700 hover:text-accent"
                         [class.opacity-50]="!node.category.liveProductCount"
                         [routerLink]="['/catalog', node.category.slug]"
                         [title]="text.seeProducts"
@@ -361,7 +361,7 @@ const EDGE_SLACK = 24;
                 [style.left.px]="l.left"
               >
                 <span
-                  class="absolute -top-[3px] left-0 h-[9px] w-[9px] -translate-x-1/2 rounded-full bg-primary"
+                  class="absolute top-[-3px] left-0 size-[9px] -translate-x-1/2 rounded-full bg-primary"
                 ></span>
               </div>
             }

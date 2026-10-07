@@ -160,7 +160,7 @@ import { SyncService } from './sync.service';
             (click)="openPicker(fileInput)"
             (filesReceived)="setFile($event[0])"
           >
-            <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
+            <app-admin-icon name="upload" class="size-6 mb-2" />
             @if (file(); as chosen) {
               <span class="font-medium">{{ chosen.name }}</span>
               <span class="text-sm text-subtle">{{ text.changeFile }}</span>

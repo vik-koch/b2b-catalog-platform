@@ -6,7 +6,10 @@ export default [
   ...baseConfig,
   {
     files: ['**/*.ts', '**/*.js'],
-    // Override or add rules here
-    rules: {},
+    rules: {
+      // A skip keyed on the device shape is how a desktop-only or
+      // phone-only journey is written; an unconditional skip still warns.
+      'playwright/no-skipped-test': ['warn', { allowConditional: true }],
+    },
   },
 ];

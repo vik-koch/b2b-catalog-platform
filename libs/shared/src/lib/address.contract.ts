@@ -5,7 +5,6 @@ import {
   ADDRESS_LINE_MAX_LENGTH,
   ADDRESS_POSTAL_CODE_MAX_LENGTH,
   ADDRESS_QUERY_MAX_LENGTH,
-  ADDRESS_QUERY_MIN_LENGTH,
 } from './address-constants';
 import { commonAuthErrors } from './api-error';
 

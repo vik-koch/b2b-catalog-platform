@@ -113,7 +113,7 @@ function knownValues<T extends string>(
            who owns it instead of opening an editor that could only refuse the
            save. -->
       <button appButton type="button" class="gap-2" (click)="addProduct()">
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ editText.addProduct }}
       </button>
     </app-admin-list-header>
@@ -155,13 +155,13 @@ function knownValues<T extends string>(
         <ng-template appGridRow [of]="data.items" let-item>
           <td>
             <div
-              class="h-10 w-10 overflow-hidden rounded border border-border bg-white"
+              class="size-10 overflow-hidden rounded-sm border border-border bg-white"
             >
               @if (item.thumb) {
                 <img
                   [src]="item.thumb"
                   alt=""
-                  class="h-full w-full bg-white object-contain"
+                  class="size-full bg-white object-contain"
                 />
               }
             </div>
@@ -178,7 +178,7 @@ function knownValues<T extends string>(
                 class="align-middle font-medium text-stone-700 hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
               >&ngsp;<span
-                class="inline-block max-w-full truncate rounded bg-stone-100 px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
+                class="inline-block max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
                 [title]="item.sourceId"
                 >{{ item.sourceId }}</span
               >
@@ -266,14 +266,14 @@ function knownValues<T extends string>(
           <app-record-row>
             <div
               recordLead
-              class="h-14 w-14 shrink-0 overflow-hidden rounded border border-border bg-white"
+              class="size-14 shrink-0 overflow-hidden rounded-sm border border-border bg-white"
               [class.opacity-50]="isDeleted(item)"
             >
               @if (item.thumb) {
                 <img
                   [src]="item.thumb"
                   alt=""
-                  class="h-full w-full bg-white object-contain"
+                  class="size-full bg-white object-contain"
                 />
               }
             </div>
@@ -293,7 +293,7 @@ function knownValues<T extends string>(
               >{{ stateLabel(item) }}</span
             >
             <span
-              class="max-w-full truncate rounded bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
+              class="max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
               [class.opacity-50]="isDeleted(item)"
               >{{ item.sourceId }}</span
             >

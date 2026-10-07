@@ -317,7 +317,11 @@ describe('External data ownership (FR-ADM-10)', () => {
         // wrote are the two newest of ours, whatever else the log holds.
         const history = await asAdmin('get', '/settings/changes');
         const [first, second] = (
-          history.data.changes as { actorEmail: string }[]
+          history.data.changes as {
+            area: string;
+            actorEmail: string;
+            changedAt: string;
+          }[]
         ).filter((change) => change.actorEmail === ADMIN_EMAIL);
         expect([first.area, second.area].sort()).toEqual([
           'catalog',

@@ -60,7 +60,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         [attr.maxlength]="length()"
         [attr.aria-invalid]="invalid() || null"
         [attr.aria-describedby]="describedBy() || null"
-        class="absolute inset-0 h-full w-full cursor-text border-0 bg-transparent text-transparent caret-transparent selection:bg-transparent focus-visible:outline-none"
+        class="absolute inset-0 size-full cursor-text border-0 bg-transparent text-transparent caret-transparent selection:bg-transparent focus-visible:outline-none"
         (beforeinput)="overwrite($event)"
         (input)="sanitize()"
         (focus)="focused.set(true); track()"

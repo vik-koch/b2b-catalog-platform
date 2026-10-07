@@ -94,7 +94,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
         </h1>
       } @else {
         <div
-          class="h-9 w-2/3 max-w-sm animate-pulse rounded bg-stone-200"
+          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-stone-200"
           aria-hidden="true"
         ></div>
       }
@@ -208,7 +208,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 [disabled]="busy()"
                 (click)="save()"
               >
-                <app-admin-icon name="save" class="h-4 w-4" />
+                <app-admin-icon name="save" class="size-4" />
                 {{ busy() ? common.saving : text.save }}
               </button>
               <button
@@ -219,7 +219,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 [disabled]="busy()"
                 (click)="cancel()"
               >
-                <app-admin-icon name="x" class="h-4 w-4" />
+                <app-admin-icon name="x" class="size-4" />
                 {{ common.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {

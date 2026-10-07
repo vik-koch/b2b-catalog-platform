@@ -41,7 +41,7 @@ const ON = `${PILL} border-border-secondary bg-primary text-white hover:bg-accen
             (click)="toggle(group, option)"
           >
             @if (option.icon) {
-              <app-admin-icon [name]="option.icon" class="h-3.5 w-3.5" />
+              <app-admin-icon [name]="option.icon" class="size-3.5" />
             }
             {{ option.label }}
           </button>

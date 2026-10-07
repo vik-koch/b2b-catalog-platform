@@ -125,7 +125,7 @@ const SCOPE_ROWS: readonly {
         [disabled]="adding()"
         (click)="startAdd()"
       >
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ text.add }}
       </button>
     </div>
@@ -148,7 +148,7 @@ const SCOPE_ROWS: readonly {
           <p class="mt-1 text-sm text-amber-800">{{ text.createdOnce }}</p>
           <div class="mt-3 flex items-center gap-2">
             <code
-              class="min-w-0 flex-1 overflow-x-auto rounded border border-amber-300 bg-white px-2 py-1.5 font-mono text-sm break-all"
+              class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-amber-300 bg-white px-2 py-1.5 font-mono text-sm break-all"
               >{{ token.token }}</code
             >
             <button
@@ -161,7 +161,7 @@ const SCOPE_ROWS: readonly {
             >
               <app-admin-icon
                 [name]="copied() ? 'circle-check' : 'copy'"
-                class="h-4 w-4"
+                class="size-4"
               />
               {{ copied() ? text.copied : text.copy }}
             </button>
@@ -331,7 +331,7 @@ const SCOPE_ROWS: readonly {
                     class="gap-2"
                     [disabled]="busy()"
                   >
-                    <app-admin-icon name="save" class="h-4 w-4" />
+                    <app-admin-icon name="save" class="size-4" />
                     {{ busy() ? common.saving : text.create }}
                   </button>
                   <button
@@ -343,7 +343,7 @@ const SCOPE_ROWS: readonly {
                     [disabled]="busy()"
                     (click)="cancel()"
                   >
-                    <app-admin-icon name="x" class="h-4 w-4" />
+                    <app-admin-icon name="x" class="size-4" />
                     {{ common.cancel }}
                   </button>
                 </div>

@@ -25,6 +25,7 @@ const run = (status: SyncRunStatus, over: Partial<SyncRun> = {}): SyncRun => ({
   options: null,
   summary: null,
   error: status === 'failed' ? 'export ended early' : null,
+  notice: null,
   ...over,
 });
 
@@ -42,7 +43,11 @@ const withCreates = (create: number): Partial<SyncRun> => ({
     unchanged: 0,
     categoriesCreated: 0,
     categoriesRenamed: 0,
+    categoriesEmptied: 0,
     keptManual: 0,
+    mailed: 0,
+    claimed: 0,
+    claimedById: 0,
     errors: 0,
     fields: [],
   },

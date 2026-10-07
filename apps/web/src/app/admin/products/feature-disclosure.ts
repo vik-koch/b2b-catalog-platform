@@ -40,7 +40,7 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph()"
-          class="h-4 w-4 text-subtle"
+          class="size-4 text-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {

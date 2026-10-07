@@ -43,7 +43,7 @@ import { Icon } from '../ui/icons/icon';
             >
               <app-icon
                 name="file-text"
-                class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-subtle"
               />
               <span class="min-w-0">
                 <span

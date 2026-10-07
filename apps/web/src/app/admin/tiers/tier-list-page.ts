@@ -74,7 +74,7 @@ type EditTarget = { id: string } | { id: null } | null;
         [disabled]="editing() !== null"
         (click)="startAdd()"
       >
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ text.add }}
       </button>
     </div>
@@ -131,12 +131,12 @@ type EditTarget = { id: string } | { id: null } | null;
                     <!-- The sync key beside the label it belongs to, not across
                          the row: it is this tier's identifier, and read as a
                          pair with the name it identifies. -->
-                    <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
+                    <code class="rounded-sm bg-stone-100 px-1.5 py-0.5 text-xs">
                       {{ tier.key }}
                     </code>
                     @if (tier.isDefault) {
                       <span
-                        class="rounded bg-stone-700 px-1.5 py-0.5 text-xs text-white"
+                        class="rounded-sm bg-stone-700 px-1.5 py-0.5 text-xs text-white"
                         [title]="text.defaultHint"
                       >
                         {{ text.defaultBadge }}
@@ -337,7 +337,7 @@ type EditTarget = { id: string } | { id: null } | null;
               class="gap-2"
               [disabled]="busy()"
             >
-              <app-admin-icon name="save" class="h-4 w-4" />
+              <app-admin-icon name="save" class="size-4" />
               {{ busy() ? common.saving : common.save }}
             </button>
             <button
@@ -349,7 +349,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
               (click)="cancel()"
             >
-              <app-admin-icon name="x" class="h-4 w-4" />
+              <app-admin-icon name="x" class="size-4" />
               {{ common.cancel }}
             </button>
           </div>

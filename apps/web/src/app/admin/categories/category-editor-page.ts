@@ -179,7 +179,7 @@ import { CategoryPicker } from './category-picker';
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-admin-icon name="save" class="h-4 w-4" />
+          <app-admin-icon name="save" class="size-4" />
           {{ saving() ? common.saving : common.save }}
         </button>
         <button
@@ -189,7 +189,7 @@ import { CategoryPicker } from './category-picker';
           class="gap-2"
           (click)="cancel()"
         >
-          <app-admin-icon name="x" class="h-4 w-4" />
+          <app-admin-icon name="x" class="size-4" />
           {{ common.cancel }}
         </button>
       </div>

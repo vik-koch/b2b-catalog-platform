@@ -83,7 +83,7 @@ const SUGGESTIONS_SHOWN = 8;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="h-4 w-4 text-subtle"
+          class="size-4 text-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {

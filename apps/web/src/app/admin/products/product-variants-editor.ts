@@ -85,7 +85,7 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="h-4 w-4 text-subtle"
+          class="size-4 text-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
@@ -98,7 +98,7 @@ let nextId = 0;
                    On a phone the controls wrap under the name and say what
                    they are themselves. -->
               <div
-                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs leading-tight text-subtle @min-[30rem]/variants:flex"
+                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight text-subtle @min-[30rem]/variants:flex"
                 aria-hidden="true"
               >
                 <span class="flex-1"></span>

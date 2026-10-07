@@ -95,7 +95,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                floors at its longest word, so an email nobody shortened widens
                the grid past the screen rather than wrapping inside it. -->
           <dl
-            class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm break-words"
+            class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm wrap-break-word"
           >
             <dt class="text-subtle">{{ text.email }}</dt>
             <dd class="font-medium text-stone-700">{{ user.email }}</dd>
@@ -141,7 +141,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
             class="gap-2"
             (click)="cancel()"
           >
-            <app-admin-icon name="x" class="h-4 w-4" />
+            <app-admin-icon name="x" class="size-4" />
             {{ common.cancel }}
           </button>
         } @else {
@@ -344,7 +344,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   class="gap-2"
                   [disabled]="saving()"
                 >
-                  <app-admin-icon [name]="submitIcon()" class="h-4 w-4" />
+                  <app-admin-icon [name]="submitIcon()" class="size-4" />
                   {{ saving() ? common.saving : submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
@@ -359,7 +359,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                     [disabled]="saving()"
                     (click)="submit(false)"
                   >
-                    <app-admin-icon name="save" class="h-4 w-4" />
+                    <app-admin-icon name="save" class="size-4" />
                     {{ common.save }}
                   </button>
                 }
@@ -376,7 +376,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   [disabled]="saving()"
                   (click)="sendPasswordLink()"
                 >
-                  <app-admin-icon name="send" class="h-4 w-4" />
+                  <app-admin-icon name="send" class="size-4" />
                   {{ text.resend }}
                 </button>
               }
@@ -387,7 +387,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                 class="gap-2"
                 (click)="cancel()"
               >
-                <app-admin-icon name="x" class="h-4 w-4" />
+                <app-admin-icon name="x" class="size-4" />
                 {{ common.cancel }}
               </button>
             </div>

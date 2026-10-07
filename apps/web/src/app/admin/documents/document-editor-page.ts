@@ -109,7 +109,7 @@ import { DocumentsService } from './documents.service';
               <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
                 <app-admin-icon
                   name="file-text"
-                  class="h-5 w-5 shrink-0 text-subtle"
+                  class="size-5 shrink-0 text-subtle"
                 />
                 <span class="min-w-0">
                   <span class="block truncate text-sm">{{ stored.name }}</span>
@@ -139,7 +139,7 @@ import { DocumentsService } from './documents.service';
                   (click)="fileInput.click()"
                   (filesReceived)="upload($event[0])"
                 >
-                  <app-admin-icon name="upload" class="h-4 w-4" />
+                  <app-admin-icon name="upload" class="size-4" />
                   {{ uploading() ? common.uploading : text.replace }}
                 </button>
                 <!-- Leaves the link as the document; the bytes go when the
@@ -171,7 +171,7 @@ import { DocumentsService } from './documents.service';
               (click)="fileInput.click()"
               (filesReceived)="upload($event[0])"
             >
-              <app-admin-icon name="upload" class="h-6 w-6 mb-2" />
+              <app-admin-icon name="upload" class="size-6 mb-2" />
               <span class="font-medium">{{
                 uploading() ? common.uploading : text.dropHint
               }}</span>
@@ -267,7 +267,7 @@ import { DocumentsService } from './documents.service';
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-admin-icon name="save" class="h-4 w-4" />
+          <app-admin-icon name="save" class="size-4" />
           {{ saving() ? common.saving : common.save }}
         </button>
         <button
@@ -277,7 +277,7 @@ import { DocumentsService } from './documents.service';
           class="gap-2"
           (click)="cancel()"
         >
-          <app-admin-icon name="x" class="h-4 w-4" />
+          <app-admin-icon name="x" class="size-4" />
           {{ common.cancel }}
         </button>
       </div>

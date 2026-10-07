@@ -22,7 +22,7 @@
           }
         ],
         "styles": ["apps/web/src/styles.css"],
-        "allowedCommonJsDependencies": ["convert-layout"],
+        "allowedCommonJsDependencies": ["convert-layout", "slugify"],
         "server": "apps/web/src/main.server.ts",
         "ssr": {
           "entry": "apps/web/src/server.ts"
@@ -68,9 +68,6 @@
         }
       }
     },
-    "lint": {
-      "executor": "@nx/eslint:lint"
-    },
     "test": {
       "executor": "@angular/build:unit-test",
       "options": {
@@ -85,6 +82,15 @@
         "port": 4200,
         "staticFilePath": "dist/apps/web/browser",
         "spa": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p apps/web/tsconfig.app.json --noEmit",
+          "tsc -p apps/web/tsconfig.spec.json --noEmit"
+        ]
       }
     }
   }

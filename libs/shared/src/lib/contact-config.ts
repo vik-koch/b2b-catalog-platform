@@ -2,12 +2,7 @@
 // pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
 import { EMAIL_PATTERN } from './email-format';
-import {
-  type CompanyIdFormat,
-  companyIdMatchesAny,
-  normalizeCompanyId,
-  type PhoneConfig,
-} from './contact-format';
+import { normalizeCompanyId, type PhoneConfig } from './contact-format';
 
 /**
  * The contact-field schemas: a deployment's phone rule, the company-ID formats

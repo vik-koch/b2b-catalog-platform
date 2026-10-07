@@ -110,7 +110,7 @@ import {
               </label>
               <div appRecordFormActions>
                 <button appButton size="sm" type="submit" class="gap-2">
-                  <app-admin-icon name="save" class="h-4 w-4" />
+                  <app-admin-icon name="save" class="size-4" />
                   {{ common.save }}
                 </button>
                 <button
@@ -121,7 +121,7 @@ import {
                   class="gap-2"
                   (click)="cancel()"
                 >
-                  <app-admin-icon name="x" class="h-4 w-4" />
+                  <app-admin-icon name="x" class="size-4" />
                   {{ common.cancel }}
                 </button>
               </div>
@@ -142,7 +142,7 @@ import {
                 <app-admin-icon name="grip-vertical" />
               </span>
               <span
-                class="font-medium break-words text-stone-700"
+                class="font-medium wrap-break-word text-stone-700"
                 [class.text-muted]="row.key.trim() === ''"
               >
                 {{ row.key.trim() || text.key }}
@@ -153,17 +153,17 @@ import {
                    it read as a property of the buttons under it. -->
               @if (strayLabel(row); as label) {
                 <app-hint-badge tone="warning" [label]="label">
-                  <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+                  <app-icon name="triangle-alert" class="size-3.5" />
                 </app-hint-badge>
               }
               @if (isFilterable(row)) {
                 <app-hint-badge tone="neutral" [label]="text.filterable">
-                  <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
+                  <app-admin-icon name="funnel" class="size-3.5" />
                 </app-hint-badge>
               }
               <ng-container recordMeta>
                 <span
-                  class="break-words"
+                  class="wrap-break-word"
                   [class.text-muted]="!row.value.trim()"
                 >
                   {{ row.value.trim() || dash }}
@@ -171,7 +171,7 @@ import {
                 @if (valueMark(row); as mark) {
                   @if (mark === 'not-numeric') {
                     <app-hint-badge tone="warning" [label]="text.notNumeric">
-                      <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+                      <app-icon name="triangle-alert" class="size-3.5" />
                     </app-hint-badge>
                   } @else {
                     <span class="text-xs">{{ mark }}</span>

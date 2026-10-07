@@ -155,7 +155,7 @@ const probes: Record<string, Probe<SyncJourneyContext>> = {
     label: reading.mail.label,
     kind: 'event',
     quiet: [],
-    read: async (ctx) => {
+    read: async () => {
       const query = `to:${requireEnv('MAIL_ADMIN_TO')}`;
       const messages = await messagesMatching(query);
       const kinds: string[] = [];

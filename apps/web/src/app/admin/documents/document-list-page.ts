@@ -96,7 +96,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         routerLink="/admin/documents/new"
         [queryParams]="editorFrom()"
       >
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ text.add }}
       </a>
     </app-admin-list-header>
@@ -124,7 +124,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                are the same thing. -->
           <td class="truncate">
             <a
-              class="block truncate break-words font-medium text-stone-700 hover:text-accent"
+              class="block truncate wrap-break-word font-medium text-stone-700 hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"
@@ -181,7 +181,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         <ng-template appGridCard [of]="data" let-document>
           <app-record-row>
             <a
-              class="break-words font-medium text-stone-700 hover:text-accent"
+              class="wrap-break-word font-medium text-stone-700 hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"

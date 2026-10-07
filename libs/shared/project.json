@@ -5,24 +5,21 @@
   "projectType": "library",
   "tags": ["scope:shared", "platform:agnostic"],
   "targets": {
-    "build": {
-      "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/shared",
-        "main": "libs/shared/src/index.ts",
-        "tsConfig": "libs/shared/tsconfig.lib.json",
-        "assets": ["libs/shared/*.md"],
-        "format": ["cjs"],
-        "generatePackageJson": true
-      }
-    },
     "test": {
       "executor": "@nx/vitest:test",
       "outputs": ["{workspaceRoot}/coverage/libs/shared"],
       "options": {
         "passWithNoTests": true,
         "tsConfig": "libs/shared/tsconfig.spec.json"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p libs/shared/tsconfig.lib.json --noEmit",
+          "tsc -p libs/shared/tsconfig.spec.json --noEmit"
+        ]
       }
     }
   }

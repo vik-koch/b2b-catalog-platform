@@ -140,6 +140,15 @@
           "nx run api:serve"
         ]
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p apps/api/tsconfig.app.json --noEmit",
+          "tsc -p apps/api/tsconfig.spec.json --noEmit"
+        ]
+      }
     }
   }
 }

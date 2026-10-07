@@ -87,7 +87,6 @@ test('names the selection in a chip that removes it', async ({
 }) => {
   // The chip row is hidden below `md`, where the title row is too narrow for
   // it; the count on the Filters disclosure reports the selection there.
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(isMobile, 'the chips are a desktop affordance');
   await page.goto('/catalog/filter?attr=origin:Kenya');
   await settled(page);
@@ -106,7 +105,6 @@ test('reports the selection on the disclosure where the chips do not fit', async
   page,
   isMobile,
 }) => {
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(!isMobile, 'the disclosure is the narrow-screen affordance');
   await page.goto('/catalog/filter?attr=origin:Kenya');
 
@@ -166,7 +164,6 @@ test.describe('without JavaScript', () => {
     // The half that would rot silently: the selection is read on the server and
     // the boxes are ticked with the `checked` *attribute*, not a property
     // write, which is the only form that survives into the SSR'd markup.
-    // eslint-disable-next-line playwright/no-skipped-test
     test.skip(isMobile, 'the panel needs JavaScript to open on narrow screens');
     await page.goto('/catalog/filter?attr=origin:Kenya');
 

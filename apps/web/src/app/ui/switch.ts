@@ -46,7 +46,7 @@ import { Component, input, output } from '@angular/core';
     >
       <!-- The knob. Transform only, so the travel never reflows anything. -->
       <span
-        class="pointer-events-none absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform"
+        class="pointer-events-none absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform"
         [class]="checked() ? 'translate-x-5' : 'translate-x-0'"
         aria-hidden="true"
       ></span>

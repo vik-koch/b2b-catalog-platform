@@ -30,7 +30,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
       <ul class="flex items-center gap-1.5 text-subtle">
         @for (feature of features(); track feature) {
           <li class="flex" [title]="text[feature]">
-            <app-admin-icon [name]="glyphs[feature]" class="h-3.5 w-3.5" />
+            <app-admin-icon [name]="glyphs[feature]" class="size-3.5" />
             <span class="sr-only">{{ text[feature] }}</span>
           </li>
         }

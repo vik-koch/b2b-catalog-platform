@@ -51,7 +51,7 @@ import { PairingsService } from './pairings.service';
         <!-- Nudged to the first line's optical middle rather than centred on
              the whole line: the shortfall wraps to two lines in a narrow
              column, and a glyph centred on that sits beside neither. -->
-        <app-icon name="package-plus" class="mt-0.5 h-4 w-4 shrink-0" />
+        <app-icon name="package-plus" class="mt-0.5 size-4 shrink-0" />
         <!-- One flex item for the whole sentence, so the words wrap as words:
              the link and what follows it in two items broke between them
              first, leaving "Add 20 pc" alone on a line. Written tight and left

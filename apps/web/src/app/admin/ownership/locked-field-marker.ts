@@ -26,12 +26,12 @@ import { Popover } from '../../ui/popover';
   template: `
     <button
       type="button"
-      class="inline-flex items-center rounded-sm p-0.5 text-subtle focus-visible:ring focus-visible:ring-ring focus-visible:outline-none"
+      class="inline-flex items-center rounded-sm p-0.5 text-subtle"
       [attr.aria-label]="text.fieldLockedShort"
       [attr.aria-expanded]="open()"
       (click)="open.set(!open())"
     >
-      <app-admin-icon name="lock" class="h-3.5 w-3.5" />
+      <app-admin-icon name="lock" class="size-3.5" />
     </button>
 
     @if (open()) {

@@ -164,7 +164,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           />
 
           <!-- Honeypot: hidden from humans. -->
-          <div class="absolute -left-[9999px]" aria-hidden="true">
+          <div class="absolute left-[-9999px]" aria-hidden="true">
             <label for="website">Leave this field empty</label>
             <input
               id="website"

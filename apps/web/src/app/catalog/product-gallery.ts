@@ -83,7 +83,7 @@ const THUMBS_BESIDE = 6;
             <img
               [src]="img.full"
               [alt]="altFor(img)"
-              class="h-full w-full bg-white object-contain"
+              class="size-full bg-white object-contain"
               fetchpriority="high"
               (error)="markFailed(img.full)"
             />
@@ -114,7 +114,7 @@ const THUMBS_BESIDE = 6;
                   <img
                     [src]="img.thumb"
                     alt=""
-                    class="h-full w-full bg-white object-contain"
+                    class="size-full bg-white object-contain"
                     loading="lazy"
                     (error)="markFailed(img.thumb)"
                   />

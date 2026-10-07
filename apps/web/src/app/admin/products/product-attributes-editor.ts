@@ -150,7 +150,7 @@ import {
                 <td
                   [attr.data-row]="$index"
                   data-col="0"
-                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
+                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 0) +
                     (isFilterable(row) || rowStatus(row) === 'stray-part'
@@ -163,7 +163,7 @@ import {
                 <td
                   [attr.data-row]="$index"
                   data-col="1"
-                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle break-words"
+                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')
                   "
@@ -185,7 +185,7 @@ import {
                       tone="warning"
                       [label]="strayLabel(row)"
                     >
-                      <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+                      <app-icon name="triangle-alert" class="size-3.5" />
                     </app-hint-badge>
                   }
                   @if (isFilterable(row)) {
@@ -197,7 +197,7 @@ import {
                       tone="neutral"
                       [label]="text.filterable"
                     >
-                      <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
+                      <app-admin-icon name="funnel" class="size-3.5" />
                     </app-hint-badge>
                   }
                   @if (valueMark(row); as mark) {
@@ -207,7 +207,7 @@ import {
                         tone="warning"
                         [label]="text.notNumeric"
                       >
-                        <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+                        <app-icon name="triangle-alert" class="size-3.5" />
                       </app-hint-badge>
                     } @else {
                       <!-- The declared unit, where the packaging grid below puts
@@ -264,7 +264,7 @@ import {
         class="mt-2 inline-flex items-center gap-1.5 text-sm"
         (click)="picking.set(true)"
       >
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ text.addKeys }}
       </button>
       @if (picking()) {

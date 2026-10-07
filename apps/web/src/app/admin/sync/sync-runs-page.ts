@@ -76,7 +76,7 @@ import { SyncService } from './sync.service';
            quietly is not there. -->
       @if (canUpload()) {
         <a appButton class="gap-2" [routerLink]="uploadLink()">
-          <app-admin-icon name="upload" class="h-4 w-4" />
+          <app-admin-icon name="upload" class="size-4" />
           {{ text.newRun }}
         </a>
       }

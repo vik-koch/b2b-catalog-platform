@@ -58,7 +58,7 @@ import { EditModeService } from './edit-mode.service';
         [attr.aria-pressed]="editMode.enabled()"
         (click)="editMode.toggle()"
       >
-        <app-icon name="pencil" class="h-4 w-4" />
+        <app-icon name="pencil" class="size-4" />
         {{ editMode.enabled() ? text.editMode.disable : text.editMode.enable }}
       </button>
     }

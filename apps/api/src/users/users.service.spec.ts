@@ -1,5 +1,6 @@
 import { getTableName, SQL } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { LastAdminError, UsersService } from './users.service';
 
@@ -74,7 +75,7 @@ function renderingDb(
     // Raw statements: rendered by the same dialect, captured by what they
     // write to.
     execute: (query: SQL) => {
-      const { sql, params } = real.dialect.sqlToQuery(query);
+      const { sql, params } = new PgDialect().sqlToQuery(query);
       const table = /INSERT INTO (\w+)/.exec(sql)?.[1] ?? 'raw';
       captured.push({ table, sql, params });
       return Promise.resolve();

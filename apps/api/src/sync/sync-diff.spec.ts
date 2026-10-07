@@ -685,7 +685,7 @@ describe('planSync', () => {
       ]);
       // The base price is absent from the file, so it is left alone — the same
       // "absent is not empty" rule every other field follows.
-      expect(result.actions.updateProducts[0].priceMinor).toBeUndefined();
+      expect(result.actions.updateProducts[0]).not.toHaveProperty('priceMinor');
     });
 
     it('shows the base price as what a tier moves away from', () => {

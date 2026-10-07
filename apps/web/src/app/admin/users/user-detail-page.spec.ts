@@ -306,7 +306,7 @@ describe('UserDetailPage', () => {
     it('deletes after confirming, and shows the closed account', async () => {
       const { button, service, settle, text: body } = await render();
 
-      button(text.delete)!.click();
+      (button(text.delete) as HTMLButtonElement).click();
       await settle();
 
       expect(service.deleteOnRequest).toHaveBeenCalledWith('u1', 'request');
@@ -317,7 +317,7 @@ describe('UserDetailPage', () => {
     it('does nothing when the confirmation is declined', async () => {
       const { button, service, settle } = await render({ answer: null });
 
-      button(text.delete)!.click();
+      (button(text.delete) as HTMLButtonElement).click();
       await settle();
 
       expect(service.deleteOnRequest).not.toHaveBeenCalled();
@@ -329,7 +329,7 @@ describe('UserDetailPage', () => {
         answer: { reason: '', checks: { consentWithdrawn: true } },
       });
 
-      button(text.delete)!.click();
+      (button(text.delete) as HTMLButtonElement).click();
       await settle();
 
       expect(confirm.askDetailed).toHaveBeenCalledWith(
@@ -346,7 +346,7 @@ describe('UserDetailPage', () => {
     it('offers no consent reason where none is asked or held', async () => {
       const { button, confirm, settle } = await render();
 
-      button(text.delete)!.click();
+      (button(text.delete) as HTMLButtonElement).click();
       await settle();
 
       expect(confirm.askDetailed).toHaveBeenCalledWith(
@@ -361,7 +361,7 @@ describe('UserDetailPage', () => {
         code: 'last-admin',
       } as never);
 
-      button(text.delete)!.click();
+      (button(text.delete) as HTMLButtonElement).click();
       await settle();
 
       expect(body()).toContain(listText.errors['last-admin']);

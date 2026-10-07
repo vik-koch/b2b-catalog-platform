@@ -92,7 +92,7 @@ interface DetailRow {
             <h2 [class]="headingClass">{{ text.detailsHeading }}</h2>
             <div class="rounded-lg border border-border p-5">
               <dl
-                class="grid gap-x-8 mt-2 text-sm break-words sm:grid-cols-[12rem_1fr]"
+                class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
               >
                 @for (row of details(); track row.label) {
                   <dt class="text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0">
@@ -110,7 +110,7 @@ interface DetailRow {
             <h2 [class]="headingClass">{{ text.accountHeading }}</h2>
             <div class="rounded-lg border border-border p-5">
               <dl
-                class="grid gap-x-8 mt-2 text-sm break-words sm:grid-cols-[12rem_1fr]"
+                class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
               >
                 @for (row of accountRows(); track row.label) {
                   <dt class="text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0">
@@ -131,7 +131,7 @@ interface DetailRow {
               <h2 [class]="headingClass">{{ text.signInHeading }}</h2>
               <div class="rounded-lg border border-border p-5">
                 <dl
-                  class="grid gap-x-8 mt-2 text-sm break-words sm:grid-cols-[12rem_1fr]"
+                  class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
                 >
                   @for (row of signInRows(); track row.label) {
                     <dt
@@ -204,7 +204,7 @@ interface DetailRow {
             >
               <app-admin-icon
                 [name]="isPending() ? 'circle-check' : 'pencil'"
-                class="h-4 w-4"
+                class="size-4"
               />
               {{ isPending() ? listText.approve : listText.edit }}
             </a>
@@ -215,7 +215,7 @@ interface DetailRow {
             class="gap-2"
             [routerLink]="listUrl()"
           >
-            <app-admin-icon name="arrow-left" class="h-4 w-4" />
+            <app-admin-icon name="arrow-left" class="size-4" />
             {{ text.back }}
           </a>
           <!-- Set apart from the two above: it cannot be taken back. -->
@@ -228,7 +228,7 @@ interface DetailRow {
               [disabled]="deleting()"
               (click)="deleteOnRequest(person)"
             >
-              <app-admin-icon name="trash-2" class="h-4 w-4" />
+              <app-admin-icon name="trash-2" class="size-4" />
               {{ text.delete }}
             </button>
           }

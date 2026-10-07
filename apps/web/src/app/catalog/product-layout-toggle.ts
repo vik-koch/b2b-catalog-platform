@@ -42,7 +42,7 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
         [title]="text.grid"
         (click)="choose('grid')"
       >
-        <app-icon name="layout-grid" class="h-4 w-4" />
+        <app-icon name="layout-grid" class="size-4" />
       </button>
       <button
         type="button"
@@ -52,7 +52,7 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
         [title]="text.list"
         (click)="choose('list')"
       >
-        <app-icon name="layout-list" class="h-4 w-4" />
+        <app-icon name="layout-list" class="size-4" />
       </button>
     </div>
   `,

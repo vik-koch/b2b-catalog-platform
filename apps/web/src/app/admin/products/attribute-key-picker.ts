@@ -77,7 +77,7 @@ import { AttributeHint } from './attribute-hints';
                 <!-- The same badge the grid row shows, for the same fact. -->
                 @if (hint.type) {
                   <app-hint-badge tone="neutral" [label]="text.filterable">
-                    <app-admin-icon name="funnel" class="h-3.5 w-3.5" />
+                    <app-admin-icon name="funnel" class="size-3.5" />
                   </app-hint-badge>
                 }
                 <span class="ml-auto pl-3 text-xs text-subtle">
@@ -109,7 +109,7 @@ import { AttributeHint } from './attribute-hints';
           [disabled]="picked().length === 0"
           (click)="apply()"
         >
-          <app-admin-icon name="plus" class="h-4 w-4" />
+          <app-admin-icon name="plus" class="size-4" />
           {{ applyLabel() }}
         </button>
       </div>

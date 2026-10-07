@@ -1,5 +1,6 @@
 import { getTableName, SQL } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { OrderDocumentFiles } from '../orders/order-document-files';
 import { RetentionSweep } from './retention-sweep';
@@ -15,10 +16,10 @@ describe('RetentionSweep.sweep', () => {
   let result: Awaited<ReturnType<RetentionSweep['sweep']>>;
 
   beforeAll(async () => {
-    const real = drizzle({ client: {} as never, schema });
+    const dialect = new PgDialect();
     const tx = {
       execute: (query: SQL) => {
-        executed.push(real.dialect.sqlToQuery(query));
+        executed.push(dialect.sqlToQuery(query));
         return Promise.resolve({ rowCount: executed.length });
       },
     };

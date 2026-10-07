@@ -136,7 +136,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               <h2 class="mb-1 text-sm font-medium text-sky-800">
                 {{ text.noticeTitle }}
               </h2>
-              <p class="break-words font-mono text-sm text-stone-700">
+              <p class="wrap-break-word font-mono text-sm text-stone-700">
                 {{ note }}
               </p>
             </section>
@@ -151,7 +151,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               <h2 class="mb-1 text-sm font-medium text-red-800">
                 {{ text.failureTitle }}
               </h2>
-              <p class="break-words font-mono text-sm text-stone-700">
+              <p class="wrap-break-word font-mono text-sm text-stone-700">
                 {{ failure }}
               </p>
             </section>

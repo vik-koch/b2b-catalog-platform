@@ -89,7 +89,7 @@ type EditTarget = { id: string } | { id: null } | null;
         [disabled]="editing() !== null"
         (click)="startAdd()"
       >
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ text.add }}
       </button>
     </div>
@@ -152,7 +152,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </span>
                     <!-- The URL key beside the name it belongs to: the two are
                          read as a pair, not as two ends of the row. -->
-                    <code class="rounded bg-stone-100 px-1.5 py-0.5 text-xs">
+                    <code class="rounded-sm bg-stone-100 px-1.5 py-0.5 text-xs">
                       {{ definition.slug }}
                     </code>
                     <!-- The two counts are the two ways out of this row: the
@@ -343,7 +343,7 @@ type EditTarget = { id: string } | { id: null } | null;
               class="gap-2"
               [disabled]="busy()"
             >
-              <app-admin-icon name="save" class="h-4 w-4" />
+              <app-admin-icon name="save" class="size-4" />
               {{ busy() ? common.saving : common.save }}
             </button>
             <button
@@ -355,7 +355,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
               (click)="cancel()"
             >
-              <app-admin-icon name="x" class="h-4 w-4" />
+              <app-admin-icon name="x" class="size-4" />
               {{ common.cancel }}
             </button>
           </div>

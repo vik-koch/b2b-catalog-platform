@@ -65,7 +65,7 @@ export function disclosureBorder(open: boolean): string {
            said at the two call sites. -->
       <app-icon
         name="chevron-down"
-        class="h-4 w-4 shrink-0 text-subtle transition-[transform,color] [button:hover_&]:text-accent"
+        class="size-4 shrink-0 text-subtle transition-[transform,color] [button:hover_&]:text-accent"
         [class.rotate-180]="open()"
       />
     </button>

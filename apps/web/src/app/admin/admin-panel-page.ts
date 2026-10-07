@@ -75,9 +75,9 @@ import { SyncService } from './sync/sync.service';
                card and the accounts beside it, and an admin arriving at this
                screen is far more often answering an order than importing a
                catalog. -->
-          <section class="order-1 md:order-none">
+          <section class="order-1 md:order-0">
             <h2 id="admin-orders-heading" [class]="headingClass">
-              <app-admin-icon name="clipboard-list" class="h-4 w-4" />
+              <app-admin-icon name="clipboard-list" class="size-4" />
               {{ panelText.orders }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
@@ -126,9 +126,9 @@ import { SyncService } from './sync/sync.service';
                  import that fills it at the foot: the four are one topic, and
                  the sub-headings that used to separate them only repeated the
                  button underneath. -->
-            <section class="order-3 md:order-none">
+            <section class="order-3 md:order-0">
               <h2 id="admin-catalog-heading" [class]="headingClass">
-                <app-admin-icon name="package" class="h-4 w-4" />
+                <app-admin-icon name="package" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
@@ -217,9 +217,9 @@ import { SyncService } from './sync/sync.service';
                  Straight into the editor: linking to the public page would land
                  an admin on a read-only view whose pencil only appears when
                  storefront edit mode happens to be on. -->
-            <section class="order-5 md:order-none">
+            <section class="order-5 md:order-0">
               <h2 id="admin-pages-heading" [class]="headingClass">
-                <app-admin-icon name="file-text" class="h-4 w-4" />
+                <app-admin-icon name="file-text" class="size-4" />
                 {{ panelText.pages }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-pages-heading">
@@ -238,9 +238,9 @@ import { SyncService } from './sync/sync.service';
                  other half of the same duty. Only while the deployment asks for
                  a consent; older records stay findable at the lookup's URL. -->
             @if (consentPurposes.length > 0) {
-              <section class="order-5 md:order-none">
+              <section class="order-5 md:order-0">
                 <h2 id="admin-consents-heading" [class]="headingClass">
-                  <app-admin-icon name="book-check" class="h-4 w-4" />
+                  <app-admin-icon name="book-check" class="size-4" />
                   {{ consentText.title }}
                 </h2>
                 <ul
@@ -271,9 +271,9 @@ import { SyncService } from './sync/sync.service';
                permissions, and a manager is only ever offered the one they
                have. Only customers can be waiting — staff accounts are created
                already approved. -->
-          <section class="order-2 md:order-none">
+          <section class="order-2 md:order-0">
             <h2 id="admin-accounts-heading" [class]="headingClass">
-              <app-admin-icon name="users" class="h-4 w-4" />
+              <app-admin-icon name="users" class="size-4" />
               {{ panelText.accounts }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
@@ -324,9 +324,9 @@ import { SyncService } from './sync/sync.service';
                  daily, and one card because that is what they have in common —
                  "Pricing" over a single row named "Customer tiers" said the
                  same thing twice. -->
-            <section class="order-4 md:order-none">
+            <section class="order-4 md:order-0">
               <h2 id="admin-registries-heading" [class]="headingClass">
-                <app-admin-icon name="funnel" class="h-4 w-4" />
+                <app-admin-icon name="funnel" class="size-4" />
                 {{ panelText.registries }}
               </h2>
               <ul
@@ -350,9 +350,9 @@ import { SyncService } from './sync/sync.service';
                  that could only ever name the single card under it, and the
                  switches moved onto a page of their own once they had a shared
                  history to sit above. -->
-            <section class="order-6 md:order-none">
+            <section class="order-6 md:order-0">
               <h2 id="admin-operations-heading" [class]="headingClass">
-                <app-admin-icon name="wrench" class="h-4 w-4" />
+                <app-admin-icon name="wrench" class="size-4" />
                 {{ panelText.operations }}
               </h2>
               <ul
@@ -415,9 +415,9 @@ import { SyncService } from './sync/sync.service';
            shorter one: an admin's left column already carries the catalog and
            the pages, a manager's carries nothing but the orders. -->
       <ng-template #security>
-        <section class="order-7 md:order-none">
+        <section class="order-7 md:order-0">
           <h2 id="admin-security-heading" [class]="headingClass">
-            <app-admin-icon name="lock" class="h-4 w-4" />
+            <app-admin-icon name="lock" class="size-4" />
             {{ text.securityHeading }}
           </h2>
           <ul [class]="cardClass" aria-labelledby="admin-security-heading">

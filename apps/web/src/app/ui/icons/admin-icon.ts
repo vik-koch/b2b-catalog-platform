@@ -92,7 +92,7 @@ export type AdminIconName =
       stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="h-full w-full"
+      class="size-full"
       aria-hidden="true"
     >
       @switch (name()) {
