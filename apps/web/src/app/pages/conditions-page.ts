@@ -11,6 +11,7 @@ import { DeliveryZoneList } from '../checkout/delivery-zone-list';
 import { usePageSeo } from '../core/page-seo';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { EmphasisedText } from '../ui/emphasised-text';
+import { Icon } from '../ui/icons/icon';
 import { TextButton } from '../ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from './page.service';
@@ -37,6 +38,7 @@ import { PageService } from './page.service';
     DeliveryZoneList,
     EditActions,
     EmphasisedText,
+    Icon,
     TextButton,
     LoadErrorView,
   ],
@@ -79,7 +81,7 @@ import { PageService } from './page.service';
             <h2 class="mb-4 text-2xl font-normal tracking-tight">
               {{ fulfilmentText.conditionsHeading }}
             </h2>
-            <app-delivery-zone-list />
+            <app-delivery-zone-list [spread]="true" />
             <p class="mt-4 text-sm text-subtle">
               {{ fulfilmentText.conditionsNote }}
             </p>
@@ -96,29 +98,34 @@ import { PageService } from './page.service';
             </p>
             <ul class="space-y-3">
               @for (location of pickupLocations; track location.key) {
-                <li class="rounded-lg border border-border p-4">
-                  <div
-                    class="flex flex-wrap items-baseline justify-between gap-x-4"
-                  >
-                    <p class="font-medium">{{ location.name }}</p>
-                    @if (location.mapUrl) {
-                      <a
-                        appTextButton
-                        class="text-sm"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        [href]="location.mapUrl"
-                      >
-                        {{ fulfilmentText.mapLink }}
-                      </a>
+                <li [class]="cardClass">
+                  <app-icon name="map-pin" [class]="cardMark" />
+                  <div class="min-w-0 flex-1">
+                    <div
+                      class="flex flex-wrap items-baseline justify-between gap-x-4"
+                    >
+                      <p class="font-medium">{{ location.name }}</p>
+                      @if (location.mapUrl) {
+                        <a
+                          appTextButton
+                          class="text-sm"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          [href]="location.mapUrl"
+                        >
+                          {{ fulfilmentText.mapLink }}
+                        </a>
+                      }
+                    </div>
+                    <p class="mt-1 text-sm text-muted">
+                      {{ location.address }}
+                    </p>
+                    @if (location.description) {
+                      <p class="mt-2 text-sm text-subtle">
+                        <app-emphasised [text]="location.description" />
+                      </p>
                     }
                   </div>
-                  <p class="mt-1 text-sm text-muted">{{ location.address }}</p>
-                  @if (location.description) {
-                    <p class="mt-2 text-sm text-subtle">
-                      <app-emphasised [text]="location.description" />
-                    </p>
-                  }
                 </li>
               }
             </ul>
@@ -133,23 +140,29 @@ import { PageService } from './page.service';
             {{ pageText.paymentHeading }}
           </h2>
           <ul class="space-y-3">
-            <li class="rounded-lg border border-border p-4">
-              <p class="font-medium">{{ paymentText.cashTitle }}</p>
-              <p class="mt-1 text-sm text-muted">
-                {{ pageText.cashDescription }}
-              </p>
-              <p class="mt-2 text-sm text-subtle">
-                {{ paymentText.cashPersonOnly }}
-              </p>
+            <li [class]="cardClass">
+              <app-icon name="banknote" [class]="cardMark" />
+              <div class="min-w-0 flex-1">
+                <p class="font-medium">{{ paymentText.cashTitle }}</p>
+                <p class="mt-1 text-sm text-muted">
+                  {{ pageText.cashDescription }}
+                </p>
+                <p class="mt-2 text-sm text-subtle">
+                  {{ paymentText.cashPersonOnly }}
+                </p>
+              </div>
             </li>
-            <li class="rounded-lg border border-border p-4">
-              <p class="font-medium">{{ paymentText.transferTitle }}</p>
-              <p class="mt-1 text-sm text-muted">
-                {{ paymentText.transferDescription }}
-              </p>
-              <p class="mt-2 text-sm text-subtle">
-                {{ paymentText.transferCompanyOnly }}
-              </p>
+            <li [class]="cardClass">
+              <app-icon name="landmark" [class]="cardMark" />
+              <div class="min-w-0 flex-1">
+                <p class="font-medium">{{ paymentText.transferTitle }}</p>
+                <p class="mt-1 text-sm text-muted">
+                  {{ paymentText.transferDescription }}
+                </p>
+                <p class="mt-2 text-sm text-subtle">
+                  {{ paymentText.transferCompanyOnly }}
+                </p>
+              </div>
             </li>
           </ul>
         </section>
@@ -176,6 +189,10 @@ export class ConditionsPage {
   private readonly appText = inject(APP_TEXT);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
+
+  protected readonly cardClass =
+    'flex gap-3 rounded-lg border border-border p-4';
+  protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
 
   protected readonly navLabel = this.appText.nav['conditions'] ?? '';
   protected readonly errorText = this.appText.errors;
