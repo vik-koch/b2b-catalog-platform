@@ -141,6 +141,20 @@ export class UsersService {
       .where(eq(users.id, id));
   }
 
+  /**
+   * The holder entered a code sent to this number (FR-AUTH-12). The number and
+   * the confirmation are written together: a write that changes the number
+   * without confirming it is unconfirmed by a trigger.
+   */
+  async confirmPhone(id: string, phone: string): Promise<UserRow> {
+    const [updated] = await this.db
+      .update(users)
+      .set({ phone, phoneConfirmedAt: new Date(), updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
   async setPassword(id: string, passwordHash: string): Promise<UserRow> {
     const [updated] = await this.db
       .update(users)

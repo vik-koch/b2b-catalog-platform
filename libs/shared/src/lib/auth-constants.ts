@@ -56,6 +56,9 @@ export function passesMaintenance(role: string | null | undefined): boolean {
 export const SIGN_IN_STEP_MODES = ['off', 'once', 'always'] as const;
 export type SignInStepMode = (typeof SIGN_IN_STEP_MODES)[number];
 
+/** Digits in a sign-in code: short enough to type off a lock screen. */
+export const SIGN_IN_CODE_LENGTH = 6;
+
 /** The refusal a customer's sign-in meets while maintenance mode is on. */
 export const MAINTENANCE_REFUSED = 'maintenance' as const;
 

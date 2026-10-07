@@ -45,6 +45,33 @@ export const authUserSchema = z.object({
 });
 export type AuthUser = z.infer<typeof authUserSchema>;
 
+/**
+ * The password was right, and a code is owed before a session begins
+ * (FR-AUTH-12). Answered instead of the user by every route that would
+ * otherwise start a session.
+ *
+ * `phone`: the account has no number a code can be sent to, so the visitor
+ * enters one. `code`: a code is on its way. `sentTo` is where it went, masked:
+ * the phone, or the email address where the deployment delivers codes by mail.
+ * `phone` is the number being used or confirmed, masked. `canChangeNumber` is
+ * true only while the number is being confirmed: a confirmed number is the
+ * factor itself, and swapping it here would skip it. `resendIn` is how many
+ * seconds until another code may be asked for.
+ */
+export const signInStepSchema = z.discriminatedUnion('step', [
+  z.object({ step: z.literal('phone') }).strict(),
+  z
+    .object({
+      step: z.literal('code'),
+      sentTo: z.string(),
+      phone: z.string(),
+      canChangeNumber: z.boolean(),
+      resendIn: z.number().int().nonnegative(),
+    })
+    .strict(),
+]);
+export type SignInStep = z.infer<typeof signInStepSchema>;
+
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
 export const loginSchema = z
   .object({
