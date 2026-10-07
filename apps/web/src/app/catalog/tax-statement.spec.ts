@@ -33,7 +33,11 @@ describe('useTaxStatement', () => {
     expect(tax.total([])).toBe(
       text.statement.included.replace('{rate}', '5,5'),
     );
-    expect(tax.atPrice(null)).toBe(tax.total([]));
+    // Beside a price the demo adds that delivery comes on top; under a
+    // total it does not, since a pickup order has none.
+    expect(tax.atPrice(null)).toBe(
+      text.atPrice?.replace('{statement}', tax.total([])),
+    );
     expect(tax.listing()).toBe(text.listing.included);
   });
 
@@ -43,6 +47,32 @@ describe('useTaxStatement', () => {
       rate: 19,
       statedAtPrices: true,
     });
+
+    expect(tax.atPrice(7)).toContain(
+      text.statement.included.replace('{rate}', '7'),
+    );
+  });
+
+  it('says the statement alone beside a price where nothing is added to it', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: APP_TEXT,
+          useValue: {
+            ...defaultAppText,
+            tax: { ...defaultAppText.tax, atPrice: undefined },
+          },
+        },
+        {
+          provide: DEPLOYMENT_CONFIG,
+          useValue: {
+            ...defaultDeploymentConfig,
+            tax: { basis: 'included', rate: 19, statedAtPrices: true },
+          },
+        },
+      ],
+    });
+    const tax = TestBed.runInInjectionContext(() => useTaxStatement());
 
     expect(tax.atPrice(7)).toBe(text.statement.included.replace('{rate}', '7'));
   });

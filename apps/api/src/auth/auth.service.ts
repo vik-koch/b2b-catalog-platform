@@ -41,6 +41,12 @@ export class AuthService {
     return user;
   }
 
+  /** Stamp that a session started now (see `users.lastSignInAt`). A
+   * password change re-issues the caller's own cookie and is not one. */
+  recordSignIn(user: UserRow): Promise<void> {
+    return this.users.recordSignIn(user.id);
+  }
+
   /** Sign a session token carrying the identity and the current tokenVersion. */
   signToken(user: UserRow): Promise<string> {
     const payload: JwtPayload = {

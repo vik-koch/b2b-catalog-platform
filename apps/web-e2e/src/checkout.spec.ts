@@ -95,7 +95,9 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   await expect(page.getByText(ADDRESS.street)).toBeVisible();
   await expect(page.getByText('Ada Lovelace').first()).toBeVisible();
 
-  await page.getByRole('button', { name: 'Send order request' }).click();
+  await page
+    .getByRole('button', { name: 'Order with obligation to pay' })
+    .click();
 
   await expect(
     page.getByRole('heading', { name: 'Thank you — we have your order' }),

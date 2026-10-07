@@ -14,12 +14,12 @@
   "pages": {
     "published": [
       "about",
-      "terms",
+      "contact",
       "conditions",
+      "terms",
       "privacy",
       "imprint",
-      "withdrawal",
-      "contact"
+      "withdrawal"
     ],
     "headerNav": ["about", "contact", "conditions"],
     "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
@@ -41,7 +41,7 @@
     "rate": 19,
     "statedAtPrices": true
   },
-  "cookieConsentEnabled": false,
+  "cookieConsentEnabled": true,
   "billingAddressEnabled": true,
   "catalog": {
     "currency": {
@@ -79,7 +79,8 @@
       "name": "Speicherstadt Office",
       "description": "Am Sandtorkai 30, 20457 Hamburg",
       "map": {
-        "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880"
+        "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
+        "consentRequired": true
       }
     }
   ],
@@ -117,10 +118,6 @@
       "icon": "marktplatz.svg"
     }
   ],
-  "seller": {
-    "name": "Coffee Kontor GmbH",
-    "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
-  },
   "phoneInput": {
     "countryCode": "+49",
     "mask": "(###) ###-####"
