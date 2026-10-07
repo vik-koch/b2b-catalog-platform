@@ -71,7 +71,7 @@ import { APP_TEXT } from '../config/app-text';
             <!-- An answer can be one long word — an email, a company with no
                  spaces in its name — and a block that will not break takes the
                  page sideways on a phone. -->
-            <p class="text-sm break-words" [class.text-subtle]="$index > 0">
+            <p class="text-sm wrap-break-word" [class.text-subtle]="$index > 0">
               {{ line }}
             </p>
           }

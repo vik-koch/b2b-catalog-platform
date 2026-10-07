@@ -85,10 +85,10 @@ const empty =
         type="button"
         tabindex="-1"
         aria-hidden="true"
-        class="absolute left-2 flex cursor-pointer items-center justify-center rounded p-1 text-subtle transition-colors hover:text-accent"
+        class="absolute left-2 flex cursor-pointer items-center justify-center rounded-sm p-1 text-subtle transition-colors hover:text-accent"
         (click)="openPicker(input)"
       >
-        <app-icon name="calendar" class="h-4 w-4" />
+        <app-icon name="calendar" class="size-4" />
       </button>
       <input
         #input

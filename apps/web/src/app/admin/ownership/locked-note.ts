@@ -30,7 +30,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
     >
       <app-admin-icon
         name="lock"
-        class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+        class="mt-0.5 size-4 shrink-0 text-subtle"
         aria-hidden="true"
       />
       <span><ng-content /></span>

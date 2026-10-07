@@ -97,7 +97,7 @@ export type IconName =
       stroke="currentColor"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="h-full w-full"
+      class="size-full"
       aria-hidden="true"
     >
       @switch (name()) {

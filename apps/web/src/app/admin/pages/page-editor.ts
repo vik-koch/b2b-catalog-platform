@@ -135,7 +135,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         [disabled]="saving()"
         (click)="save()"
       >
-        <app-admin-icon name="save" class="h-4 w-4" />
+        <app-admin-icon name="save" class="size-4" />
         {{ saving() ? common.saving : common.save }}
       </button>
       <button
@@ -147,7 +147,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
       >
         <app-admin-icon
           [name]="previewing() ? 'pencil' : 'eye'"
-          class="h-4 w-4"
+          class="size-4"
         />
         {{ previewing() ? common.resumeEditing : common.preview }}
       </button>
@@ -158,7 +158,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         class="gap-2"
         (click)="cancel()"
       >
-        <app-admin-icon name="x" class="h-4 w-4" />
+        <app-admin-icon name="x" class="size-4" />
         {{ common.cancel }}
       </button>
     </div>

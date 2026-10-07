@@ -60,19 +60,19 @@ import { WorkService } from '../work/work.service';
         >
           <app-icon
             name="circle-user-round"
-            class="col-start-1 row-start-1 h-6 w-6 transition-opacity duration-200"
+            class="col-start-1 row-start-1 size-6 transition-opacity duration-200"
             [class.opacity-0]="waiting()"
           />
           <app-icon
             name="circle-user-round-dot"
-            class="col-start-1 row-start-1 h-6 w-6 transition-opacity duration-200"
+            class="col-start-1 row-start-1 size-6 transition-opacity duration-200"
             [class.opacity-0]="!waiting()"
           />
         </span>
         <app-icon
           data-session="anonymous"
           name="user"
-          class="col-start-1 row-start-1 h-6 w-6 transition-opacity delay-300 duration-200"
+          class="col-start-1 row-start-1 size-6 transition-opacity delay-300 duration-200"
           [class.opacity-0]="!signedOut()"
         />
         <!-- The marker (FR-WORK-01): a bare dot, never a figure. It is

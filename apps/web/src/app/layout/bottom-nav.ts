@@ -117,13 +117,13 @@ const LEAVE_MS = 150;
                wordmark; this is where the other one lives on a phone. -->
           @if (contact?.phone; as phone) {
             <a [href]="telHref(phone)" [class]="menuRow" (click)="close()">
-              <app-icon name="phone" class="h-4 w-4" />
+              <app-icon name="phone" class="size-4" />
               {{ phone }}
             </a>
           }
           @if (contact?.email; as email) {
             <a [href]="'mailto:' + email" [class]="menuRow" (click)="close()">
-              <app-icon name="mail" class="h-4 w-4" />
+              <app-icon name="mail" class="size-4" />
               {{ email }}
             </a>
           }
@@ -144,7 +144,7 @@ const LEAVE_MS = 150;
            the reserve the shell leaves under the page can be written as the
            same number. -->
       <div
-        class="relative border-t border-border bg-surface/85 backdrop-blur pb-[env(safe-area-inset-bottom)]"
+        class="relative border-t border-border bg-surface/85 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
       >
         <div class="flex h-14 items-stretch px-1">
           <!-- Reaching for any of these is a decision to go somewhere else, so
@@ -169,7 +169,7 @@ const LEAVE_MS = 150;
             [class]="searchClasses()"
             (click)="openSearch()"
           >
-            <app-icon name="search" class="h-6 w-6" />
+            <app-icon name="search" class="size-6" />
             <span [class]="tab.labelRow">
               <span [class]="tab.label">{{ search.openSearch }}</span>
             </span>
@@ -190,9 +190,9 @@ const LEAVE_MS = 150;
             (click)="toggle()"
           >
             @if (menuOpen()) {
-              <app-icon name="close" class="h-6 w-6" />
+              <app-icon name="close" class="size-6" />
             } @else {
-              <app-icon name="menu" class="h-6 w-6" />
+              <app-icon name="menu" class="size-6" />
             }
             <span [class]="tab.labelRow">
               <span [class]="tab.label">{{ text.nav['more'] }}</span>

@@ -130,7 +130,7 @@ let nextId = 0;
                is muted and takes no pointer events. -->
           <app-icon
             name="search"
-            class="pointer-events-none absolute left-2.5 h-4 w-4 text-subtle"
+            class="pointer-events-none absolute left-2.5 size-4 text-subtle"
           />
           <input
             #input
@@ -162,7 +162,7 @@ let nextId = 0;
               class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-subtle transition-colors hover:text-accent active:text-primary-deep"
               (click)="clear()"
             >
-              <app-icon name="close" class="h-4 w-4" />
+              <app-icon name="close" class="size-4" />
               <span class="sr-only">{{ text.clear }}</span>
             </button>
           }
@@ -188,7 +188,7 @@ let nextId = 0;
             (mousedown)="$event.preventDefault()"
           >
             @if (noMatches()) {
-              <p class="px-3 py-3 text-sm text-subtle">
+              <p class="p-3 text-sm text-subtle">
                 {{ text.noSuggestions }}
               </p>
             }
@@ -325,7 +325,7 @@ let nextId = 0;
                             <img
                               [src]="item.images[0].thumb"
                               alt=""
-                              class="h-full w-full bg-white object-contain"
+                              class="size-full bg-white object-contain"
                               (error)="markFailed(item.images[0].thumb)"
                             />
                           } @else {
@@ -379,7 +379,7 @@ let nextId = 0;
                           [attr.aria-label]="inCartLabel(item)"
                           [class]="addBox + ' ' + addedMark"
                         >
-                          <app-icon name="circle-check" class="h-4 w-4" />
+                          <app-icon name="circle-check" class="size-4" />
                         </span>
                       } @else {
                         <!-- Out of the tab order: the caret stays in the field
@@ -396,7 +396,7 @@ let nextId = 0;
                           [disabled]="item.availability === 'out'"
                           (click)="add(item)"
                         >
-                          <app-icon name="shopping-basket" class="h-4 w-4" />
+                          <app-icon name="shopping-basket" class="size-4" />
                         </button>
                       }
                     </div>
@@ -422,7 +422,7 @@ let nextId = 0;
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}
-                <app-icon name="chevron-right" class="h-4 w-4" />
+                <app-icon name="chevron-right" class="size-4" />
               </button>
             }
           </div>

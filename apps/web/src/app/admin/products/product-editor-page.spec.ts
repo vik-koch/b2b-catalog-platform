@@ -582,9 +582,9 @@ describe('ProductEditorPage', () => {
   describe('parts of a set (FR-CAT-10)', () => {
     const partsText = text.parts;
     const box = (el: HTMLElement) =>
-      el.querySelector<HTMLElement>('app-product-parts-editor')!;
+      el.querySelector('app-product-parts-editor') as HTMLElement;
     const addField = (el: HTMLElement) =>
-      box(el).querySelector<HTMLInputElement>('input')!;
+      box(el).querySelector('input') as HTMLInputElement;
 
     it('opens on a set, lists its parts and sends an added one back', async () => {
       const { fixture, el, h } = await render(

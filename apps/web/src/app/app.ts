@@ -61,7 +61,7 @@ import { SearchOverlay } from './layout/search-overlay';
            so a band drawn from edge to edge (the main page's top) reaches the
            edges on a wide screen too, and is still clipped where they are. -->
       <main class="mb-4 w-full flex-1 overflow-x-clip">
-        <div class="mx-auto w-full max-w-[82rem] p-4">
+        <div class="mx-auto w-full max-w-328 p-4">
           <router-outlet />
         </div>
       </main>

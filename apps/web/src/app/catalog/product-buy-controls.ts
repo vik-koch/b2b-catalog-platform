@@ -275,7 +275,7 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             (click)="step(-1)"
           >
-            <app-icon name="minus" class="h-4 w-4" />
+            <app-icon name="minus" class="size-4" />
           </button>
 
           @if (popup(); as open) {
@@ -350,7 +350,7 @@ export interface BuyableProduct {
           [disabled]="!sellable()"
           (click)="step(1)"
         >
-          <app-icon name="plus" class="h-4 w-4" />
+          <app-icon name="plus" class="size-4" />
         </button>
       </div>
     </ng-template>
@@ -374,7 +374,7 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             (click)="add()"
           >
-            <app-icon name="shopping-basket" class="mr-2 h-4 w-4" />
+            <app-icon name="shopping-basket" class="mr-2 size-4" />
             {{ text.add }}
           </button>
         }

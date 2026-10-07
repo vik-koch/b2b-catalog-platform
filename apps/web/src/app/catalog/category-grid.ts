@@ -238,7 +238,7 @@ interface Listing {
                     <li aria-hidden="true" class="inline">
                       <app-icon
                         name="chevron-right"
-                        class="mx-1 h-4 w-4 align-middle text-stone-300"
+                        class="mx-1 size-4 align-middle text-stone-300"
                       />
                     </li>
                     <li class="inline">
@@ -256,7 +256,7 @@ interface Listing {
                   <li aria-hidden="true" class="inline">
                     <app-icon
                       name="chevron-right"
-                      class="mx-1 h-4 w-4 align-middle text-stone-300"
+                      class="mx-1 size-4 align-middle text-stone-300"
                     />
                   </li>
                   <li class="inline">
@@ -516,9 +516,9 @@ interface Listing {
                real content arrives. -->
           <div class="space-y-3">
             <div
-              class="h-4 w-1/2 rounded bg-stone-200 @min-[38rem]/listing:w-1/3"
+              class="h-4 w-1/2 rounded-sm bg-stone-200 @min-[38rem]/listing:w-1/3"
             ></div>
-            <div class="h-8 w-1/3 rounded bg-stone-200"></div>
+            <div class="h-8 w-1/3 rounded-sm bg-stone-200"></div>
           </div>
           <div [class]="productGrid">
             @for (i of skeletons; track i) {

@@ -38,6 +38,8 @@
   "eslint.validate": ["javascript", "typescript", "html", "json", "jsonc"],
 
   "css.lint.unknownAtRules": "ignore",
+  // ESLint (better-tailwindcss) reports canonical classes; one source, not two.
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
 
   "terminal.integrated.defaultProfile.linux": "bash",
 

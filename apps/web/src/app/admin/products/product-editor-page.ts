@@ -213,7 +213,7 @@ import {
              between the two fields in the markup and read under the price on a
              phone. -->
         <div
-          class="grid gap-x-6 gap-y-6 sm:grid-cols-[10.875rem_4.6875rem_minmax(0,1fr)]"
+          class="grid gap-6 sm:grid-cols-[10.875rem_4.6875rem_minmax(0,1fr)]"
         >
           <label class="block w-full sm:w-auto">
             <!-- Named after the list it writes: it is one price list's row like
@@ -326,7 +326,7 @@ import {
              are read and corrected together, and neither is worth a full line
              of a 48rem form. One per line below sm, like every other pair on
              this page. -->
-        <div class="grid gap-x-6 gap-y-6 sm:grid-cols-2">
+        <div class="grid gap-6 sm:grid-cols-2">
           <label class="block">
             <span appFieldLabel>{{ text.slug }}</span>
             <input
@@ -565,7 +565,7 @@ import {
             [disabled]="saving()"
             (click)="save()"
           >
-            <app-admin-icon name="save" class="h-4 w-4" />
+            <app-admin-icon name="save" class="size-4" />
             {{ saving() ? common.saving : saveLabel() }}
           </button>
         }
@@ -586,7 +586,7 @@ import {
             [disabled]="saving()"
             (click)="save(true)"
           >
-            <app-admin-icon name="circle-check" class="h-4 w-4" />
+            <app-admin-icon name="circle-check" class="size-4" />
             {{ text.saveAndPublish }}
           </button>
         }
@@ -600,7 +600,7 @@ import {
           >
             <app-admin-icon
               [name]="previewing() ? 'pencil' : 'eye'"
-              class="h-4 w-4"
+              class="size-4"
             />
             {{ previewing() ? common.resumeEditing : common.preview }}
           </button>
@@ -612,7 +612,7 @@ import {
           class="gap-2"
           (click)="cancel()"
         >
-          <app-admin-icon name="x" class="h-4 w-4" />
+          <app-admin-icon name="x" class="size-4" />
           {{ common.cancel }}
         </button>
         <!-- Cancel puts the admin back where they came from, which for an
@@ -629,7 +629,7 @@ import {
             class="gap-2"
             (click)="cancelToPage()"
           >
-            <app-admin-icon name="eye" class="h-4 w-4" />
+            <app-admin-icon name="eye" class="size-4" />
             {{ text.cancelToPage }}
           </button>
         }

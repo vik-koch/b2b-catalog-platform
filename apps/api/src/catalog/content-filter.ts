@@ -49,7 +49,7 @@ export function gapCondition(db: Db, gap: ProductGap): SQL {
       return isNull(products.piecesPerPack);
     // Either figure is something to show; neither is the gap.
     case 'boxFacts':
-      return and(isNull(products.boxVolume), isNull(products.boxWeight))!;
+      return sql`(${isNull(products.boxVolume)} and ${isNull(products.boxWeight)})`;
   }
 }
 

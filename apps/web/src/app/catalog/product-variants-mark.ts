@@ -58,7 +58,7 @@ import { ProductVariantGallery } from './product-variant-gallery';
       [title]="label()"
       (click)="toggle()"
     >
-      <app-icon name="palette" class="h-3.5 w-3.5 shrink-0" />
+      <app-icon name="palette" class="size-3.5 shrink-0" />
       <span [class]="word">{{ text.mark }}</span>
     </button>
 

@@ -86,9 +86,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
               [alternateQuery]="alternateQuery()"
             />
           </span>
-          <span class="truncate text-xs leading-4 text-subtle">{{
-            context
-          }}</span>
+          <span class="truncate text-xs/4 text-subtle">{{ context }}</span>
         </span>
       } @else if (query()) {
         <span [class]="nameClass()">

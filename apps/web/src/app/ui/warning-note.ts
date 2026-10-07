@@ -18,7 +18,7 @@ import { Icon } from './icons/icon';
   imports: [Icon],
   host: { class: 'flex items-start gap-2 text-sm text-amber-700' },
   template: `
-    <app-icon name="triangle-alert" class="mt-0.5 h-4 w-4 shrink-0" />
+    <app-icon name="triangle-alert" class="mt-0.5 size-4 shrink-0" />
     <span class="min-w-0"><ng-content /></span>
   `,
 })

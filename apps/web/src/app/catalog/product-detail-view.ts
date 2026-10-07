@@ -161,7 +161,7 @@ const NARROW = '(max-width: 39.999rem)';
           <li aria-hidden="true" class="inline">
             <app-icon
               name="chevron-right"
-              class="mx-1 h-4 w-4 align-middle text-stone-300"
+              class="mx-1 size-4 align-middle text-stone-300"
             />
           </li>
           <li class="inline">
@@ -176,7 +176,7 @@ const NARROW = '(max-width: 39.999rem)';
         <li aria-hidden="true" class="inline">
           <app-icon
             name="chevron-right"
-            class="mx-1 h-4 w-4 align-middle text-stone-300"
+            class="mx-1 size-4 align-middle text-stone-300"
           />
         </li>
         <li class="inline">
@@ -195,7 +195,7 @@ const NARROW = '(max-width: 39.999rem)';
         <li aria-hidden="true" class="hidden sm:inline">
           <app-icon
             name="chevron-right"
-            class="mx-1 h-4 w-4 align-middle text-stone-300"
+            class="mx-1 size-4 align-middle text-stone-300"
           />
         </li>
         <li class="hidden sm:inline">
@@ -323,7 +323,7 @@ const NARROW = '(max-width: 39.999rem)';
             @if (descriptionFaded()) {
               <div
                 aria-hidden="true"
-                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-surface to-surface/0"
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-surface to-surface/0"
               ></div>
             }
           </div>

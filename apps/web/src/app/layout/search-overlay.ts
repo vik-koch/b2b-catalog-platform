@@ -43,7 +43,7 @@ const LEAVE_MS = 150;
           class="-mr-1.5 inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-primary transition-colors hover:text-accent active:text-primary-deep"
           (click)="search.close()"
         >
-          <app-icon name="close" class="h-6 w-6" />
+          <app-icon name="close" class="size-6" />
           <span class="sr-only">{{ text.closeSearch }}</span>
         </button>
       </div>

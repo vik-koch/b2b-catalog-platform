@@ -123,7 +123,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [filtered]="filtered()"
     >
       <button appButton type="button" class="gap-2" (click)="add()">
-        <app-admin-icon name="plus" class="h-4 w-4" />
+        <app-admin-icon name="plus" class="size-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
       </button>
     </app-admin-list-header>

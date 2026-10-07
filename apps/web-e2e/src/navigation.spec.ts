@@ -94,7 +94,6 @@ test('collapsing and restoring the utility bar never moves the page content', as
 }) => {
   // Structural, not a disabled test: the mobile project has no utility bar to
   // collapse, so there is nothing here to assert on a phone viewport.
-  // eslint-disable-next-line playwright/no-skipped-test
   test.skip(isMobile, 'the utility bar is desktop-only');
 
   // Any listing long enough to scroll; a category's keeps the page stable

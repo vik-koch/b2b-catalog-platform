@@ -241,7 +241,7 @@ interface CartRow {
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
-                <app-icon name="trash-2" class="h-4 w-4" />
+                <app-icon name="trash-2" class="size-4" />
                 <span class="group-enabled:group-hover:underline">
                   {{ text.deleteSelected }}
                 </span>
@@ -302,7 +302,7 @@ interface CartRow {
                          edge read as belonging to the row, not to the column
                          it is in. -->
                       <div
-                        class="mt-auto flex flex-col items-start gap-2 pt-2 @max-[47.5rem]/row:max-w-[28.5rem]"
+                        class="mt-auto flex flex-col items-start gap-2 pt-2 @max-[47.5rem]/row:max-w-114"
                       >
                         <!-- Above the note, because it is something the shop
                            says about the product and the note is something the

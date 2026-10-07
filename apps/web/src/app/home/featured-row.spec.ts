@@ -57,7 +57,7 @@ describe('FeaturedRow', () => {
   it('draws a listing card with the photo inset and no packaging facts', async () => {
     const el = await render(async () => items);
 
-    const tile = el.querySelector('app-product-tile')!;
+    const tile = el.querySelector('app-product-tile') as HTMLElement;
     const photoBox = tile.querySelector('app-tile-gallery')?.parentElement;
     expect(photoBox?.className.split(' ')).toContain('m-3');
     expect(

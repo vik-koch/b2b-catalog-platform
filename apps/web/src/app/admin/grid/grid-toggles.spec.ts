@@ -37,7 +37,7 @@ async function render(url: string, selected: string[]) {
   const button = (label: string) =>
     [...el.querySelectorAll('button')].find(
       (b) => b.textContent?.trim() === label,
-    )!;
+    ) as HTMLButtonElement;
   const query = () =>
     TestBed.inject(Router).routerState.root.snapshot.queryParamMap;
   return { fixture, el, button, query, route: TestBed.inject(ActivatedRoute) };

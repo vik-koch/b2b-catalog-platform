@@ -30,7 +30,7 @@ import { APP_TEXT } from '../config/app-text';
       stroke-width="1.5"
       stroke-linecap="round"
       stroke-linejoin="round"
-      class="h-8 w-8"
+      class="size-8"
       aria-hidden="true"
     >
       <line x1="2" x2="22" y1="2" y2="22" />

@@ -47,7 +47,7 @@ interface DocumentRow {
             <div class="flex items-start gap-3 py-2.5">
               <app-icon
                 [name]="row.glyph"
-                class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-subtle"
               />
               <span class="min-w-0">
                 <a
@@ -69,7 +69,7 @@ interface DocumentRow {
                     [attr.aria-describedby]="hintId"
                     class="inline-flex items-center gap-1 underline decoration-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
                     >{{ link.host
-                    }}<app-icon name="external-link" class="h-3 w-3 shrink-0"
+                    }}<app-icon name="external-link" class="size-3 shrink-0"
                   /></a>
                 </span>
               </span>
@@ -87,7 +87,7 @@ interface DocumentRow {
             >
               <app-icon
                 [name]="row.glyph"
-                class="mt-0.5 h-4 w-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-subtle"
               />
               <span class="min-w-0">
                 <span

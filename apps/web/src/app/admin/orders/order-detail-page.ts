@@ -144,7 +144,7 @@ const MARK_PAID = 'markPaid';
               to read: a button is next to its own sentence.
             -->
             <section class="mt-4 rounded-lg border border-border p-5 text-sm">
-              <dl class="grid gap-x-6 break-words sm:grid-cols-[7rem_1fr]">
+              <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
                 <dt [class]="term">{{ text.customer }}</dt>
                 <dd [class]="value">
                   {{ order.customerEmail ?? listText.guest }}
@@ -181,7 +181,7 @@ const MARK_PAID = 'markPaid';
                           [disabled]="busy()"
                           (click)="removePersonalData(order)"
                         >
-                          <app-admin-icon name="trash-2" class="h-4 w-4" />
+                          <app-admin-icon name="trash-2" class="size-4" />
                           {{ text.personalData.remove }}
                         </button>
                       </div>
@@ -215,7 +215,7 @@ const MARK_PAID = 'markPaid';
                         [disabled]="busy()"
                         (click)="move.run()"
                       >
-                        <app-admin-icon [name]="move.icon" class="h-4 w-4" />
+                        <app-admin-icon [name]="move.icon" class="size-4" />
                         {{ move.label }}
                       </button>
                     </div>
@@ -286,7 +286,7 @@ const MARK_PAID = 'markPaid';
                           'adjust',
                         ]"
                       >
-                        <app-admin-icon name="pencil" class="h-4 w-4" />
+                        <app-admin-icon name="pencil" class="size-4" />
                         {{ text.actions.adjust }}
                       </a>
 
@@ -306,7 +306,7 @@ const MARK_PAID = 'markPaid';
                           [disabled]="busy()"
                           (click)="move.run()"
                         >
-                          <app-admin-icon [name]="move.icon" class="h-4 w-4" />
+                          <app-admin-icon [name]="move.icon" class="size-4" />
                           {{ move.label }}
                         </button>
                       }
@@ -348,7 +348,7 @@ const MARK_PAID = 'markPaid';
                         [disabled]="busy()"
                         (click)="tellCustomer(order, action.kind)"
                       >
-                        <app-admin-icon [name]="action.icon" class="h-4 w-4" />
+                        <app-admin-icon [name]="action.icon" class="size-4" />
                         {{ action.label }}
                       </button>
                     </div>

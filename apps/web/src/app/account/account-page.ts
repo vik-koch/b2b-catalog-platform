@@ -94,7 +94,7 @@ interface DetailRow {
              still there for the rest of it. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="shopping-basket" class="h-4 w-4" />
+            <app-icon name="shopping-basket" class="size-4" />
             {{ orderText.heading }}
           </h2>
           <!-- As above: the frame and its bars from the first frame. -->
@@ -173,7 +173,7 @@ interface DetailRow {
              the section heading is that heading. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="user" class="h-4 w-4" />
+            <app-icon name="user" class="size-4" />
             {{ accountText.detailsHeading }}
           </h2>
           <!-- The card is drawn straight away with grey bars where the values
@@ -232,7 +232,7 @@ interface DetailRow {
              used — this is where it is kept. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="map-pin" class="h-4 w-4" />
+            <app-icon name="map-pin" class="size-4" />
             {{ addressText.heading }}
           </h2>
           <div class="rounded-lg border border-border">
@@ -321,7 +321,7 @@ interface DetailRow {
              their own page rather than being crammed in beside the link. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="lock" class="h-4 w-4" />
+            <app-icon name="lock" class="size-4" />
             {{ text.securityHeading }}
           </h2>
           <div class="rounded-lg border border-border">

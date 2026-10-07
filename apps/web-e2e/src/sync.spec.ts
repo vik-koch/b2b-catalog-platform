@@ -23,7 +23,7 @@ async function logIn(page: Page): Promise<void> {
 
 /** Uploads an in-memory CSV — no fixture file to keep in step with the parser. */
 async function upload(page: Page, csv: string): Promise<void> {
-  await page.setInputFiles('input[type=file]', {
+  await page.locator('input[type=file]').setInputFiles({
     name: 'catalog.csv',
     mimeType: 'text/csv',
     buffer: Buffer.from(csv, 'utf8'),

@@ -29,13 +29,13 @@ import { Icon } from '../ui/icons/icon';
   template: `
     @if (variant() === 'short') {
       <span [class]="pill + ' whitespace-nowrap'" [title]="full()">
-        <app-icon name="layers-2" class="h-3.5 w-3.5 shrink-0" />
+        <app-icon name="layers-2" class="size-3.5 shrink-0" />
         <span class="truncate" aria-hidden="true">{{ text.short }}</span>
         <span class="sr-only">{{ full() }}</span>
       </span>
     } @else {
       <span [class]="pill + ' items-start leading-tight'">
-        <app-icon name="layers-2" class="h-3.5 w-3.5 shrink-0" />
+        <app-icon name="layers-2" class="size-3.5 shrink-0" />
         <span>{{ full() }}</span>
       </span>
     }

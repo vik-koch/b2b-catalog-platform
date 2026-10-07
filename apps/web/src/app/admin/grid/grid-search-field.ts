@@ -46,7 +46,7 @@ const SEARCH_DEBOUNCE_MS = 200;
            muted and takes no pointer events. -->
       <app-icon
         name="search"
-        class="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-subtle"
+        class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-subtle"
       />
       <input
         #input
@@ -68,7 +68,7 @@ const SEARCH_DEBOUNCE_MS = 200;
           [title]="clearLabel()"
           (click)="clear()"
         >
-          <app-icon name="close" class="h-4 w-4" />
+          <app-icon name="close" class="size-4" />
           <span class="sr-only">{{ clearLabel() }}</span>
         </button>
       }

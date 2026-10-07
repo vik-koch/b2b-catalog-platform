@@ -17,7 +17,7 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-t]="!seamless()"
       [class.border-border]="!seamless()"
     >
-      <div class="mx-auto w-full max-w-[82rem] px-4 py-4 sm:py-6 text-sm">
+      <div class="mx-auto w-full max-w-328 p-4 sm:py-6 text-sm">
         <!-- One row from "sm", a column below it — and in the column the
              copyright comes last, where a copyright line belongs and where it
              is not standing between a reader and the links they came down here

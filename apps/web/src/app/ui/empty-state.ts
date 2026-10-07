@@ -27,7 +27,7 @@ import { Icon, IconName } from './icons/icon';
     >
       <app-icon
         [name]="icon()"
-        class="h-10 w-10"
+        class="size-10"
         [class]="tone() === 'positive' ? 'text-primary' : 'text-subtle'"
       />
       @if (heading()) {

@@ -50,7 +50,7 @@ import { RecordRow } from '../records/record-row';
                 >
               </span>
               @if (holder(record); as holder) {
-                <span class="break-words">{{ holder }}</span>
+                <span class="wrap-break-word">{{ holder }}</span>
               }
               @if (showAccount() && record.account; as account) {
                 <span>
@@ -65,7 +65,7 @@ import { RecordRow } from '../records/record-row';
               @if (record.withdrawal; as withdrawal) {
                 <span>{{ withdrawnLine(withdrawal) }}</span>
                 @if (withdrawal.note) {
-                  <span class="break-words">{{ withdrawal.note }}</span>
+                  <span class="wrap-break-word">{{ withdrawal.note }}</span>
                 }
               } @else if (record.purpose === 'account' && record.account) {
                 <!-- Said rather than offered: there is no line to enter, the

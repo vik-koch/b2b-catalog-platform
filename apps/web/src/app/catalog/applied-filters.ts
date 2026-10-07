@@ -48,7 +48,7 @@ interface AppliedFilter {
               [attr.aria-label]="removeLabel(filter)"
               (click)="remove(filter)"
             >
-              <app-icon name="close" class="h-3.5 w-3.5" />
+              <app-icon name="close" class="size-3.5" />
             </button>
           </li>
         }

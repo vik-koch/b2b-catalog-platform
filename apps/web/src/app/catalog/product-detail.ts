@@ -132,8 +132,8 @@ import {
           <!-- The breadcrumb is part of the loaded page, so it is part of the
                placeholder too — otherwise everything below shifts up a row
                when the real content arrives. -->
-          <div class="mb-4 h-4 w-2/3 rounded bg-stone-200 sm:w-2/5"></div>
-          <div class="mb-4 h-8 w-2/5 rounded bg-stone-200"></div>
+          <div class="mb-4 h-4 w-2/3 rounded-sm bg-stone-200 sm:w-2/5"></div>
+          <div class="mb-4 h-8 w-2/5 rounded-sm bg-stone-200"></div>
           <!-- The page's own columns, so nothing moves sideways when the real
                content arrives. -->
           <div [class]="columns">
@@ -142,16 +142,16 @@ import {
             ></div>
             <!-- The facts column, which only the widest shape has. -->
             <div
-              class="hidden h-48 rounded bg-stone-200 @min-[65rem]/product:block"
+              class="hidden h-48 rounded-sm bg-stone-200 @min-[65rem]/product:block"
             ></div>
             <div class="h-64 rounded-xl bg-stone-200"></div>
             <div [class]="sectionCell + ' max-w-3xl space-y-4'">
-              <div class="h-4 w-full rounded bg-stone-200"></div>
-              <div class="h-4 w-5/6 rounded bg-stone-200"></div>
-              <div class="h-4 w-4/6 rounded bg-stone-200"></div>
+              <div class="h-4 w-full rounded-sm bg-stone-200"></div>
+              <div class="h-4 w-5/6 rounded-sm bg-stone-200"></div>
+              <div class="h-4 w-4/6 rounded-sm bg-stone-200"></div>
             </div>
             <div
-              [class]="sectionCell + ' h-24 max-w-xl rounded bg-stone-200'"
+              [class]="sectionCell + ' h-24 max-w-xl rounded-sm bg-stone-200'"
             ></div>
           </div>
         </div>

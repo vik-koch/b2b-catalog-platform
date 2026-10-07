@@ -109,7 +109,7 @@ import { categoryDescendantIds } from './category-tree';
             [disabled]="deleting() || (mode() === 'reassign' && !reassignTo())"
             (click)="confirm()"
           >
-            <app-admin-icon name="trash-2" class="h-4 w-4" />
+            <app-admin-icon name="trash-2" class="size-4" />
             {{ deleting() ? text.deleting : text.delete }}
           </button>
         }

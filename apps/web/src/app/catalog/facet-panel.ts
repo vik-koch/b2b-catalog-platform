@@ -141,7 +141,7 @@ export const FACET_SIBLING_ALONE =
           <div class="overflow-hidden">
             <div
               [id]="panelId"
-              class="border-t border-border px-4 py-4 @min-[63.75rem]/listing:border-t-0 @min-[63.75rem]/listing:p-0"
+              class="border-t border-border p-4 @min-[63.75rem]/listing:border-t-0 @min-[63.75rem]/listing:p-0"
               role="group"
               [attr.aria-label]="text.title"
             >
@@ -260,7 +260,7 @@ export const FACET_SIBLING_ALONE =
             <!-- leading-5 so the smaller count shares the label's line box:
                  the row is top-aligned for the sake of a value that wraps, and
                  a 1rem line box in a 1.25rem row sat visibly high. -->
-            <span class="text-xs px-2 leading-5 text-subtle tabular-nums">
+            <span class="text-xs/5 px-2 text-subtle tabular-nums">
               {{ value.count }}
             </span>
           </label>

@@ -25,7 +25,9 @@ async function render() {
 describe('StatusBadge', () => {
   it('is the filled pill by default', async () => {
     const fixture = await render();
-    const badge = (fixture.nativeElement as HTMLElement).querySelector('span')!;
+    const badge = (fixture.nativeElement as HTMLElement).querySelector(
+      'span',
+    ) as HTMLSpanElement;
 
     fixture.componentInstance.tone.set('ok');
     fixture.detectChanges();
@@ -37,7 +39,9 @@ describe('StatusBadge', () => {
 
   it('carries the tone in the dot alone in the dot variant', async () => {
     const fixture = await render();
-    const badge = (fixture.nativeElement as HTMLElement).querySelector('span')!;
+    const badge = (fixture.nativeElement as HTMLElement).querySelector(
+      'span',
+    ) as HTMLSpanElement;
 
     fixture.componentInstance.tone.set('ok');
     fixture.componentInstance.variant.set('dot');

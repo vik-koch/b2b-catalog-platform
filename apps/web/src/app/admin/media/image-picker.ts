@@ -23,9 +23,9 @@ import { MediaService } from './media.service';
   template: `
     @if (value(); as image) {
       <div
-        class="relative h-26 w-26 overflow-hidden rounded-md border border-border bg-white"
+        class="relative size-26 overflow-hidden rounded-md border border-border bg-white"
       >
-        <img [src]="image.thumb" alt="" class="h-full w-full object-cover" />
+        <img [src]="image.thumb" alt="" class="size-full object-cover" />
         <div
           class="absolute inset-x-0 bottom-0 flex justify-end bg-black/45 p-1"
         >
@@ -56,7 +56,7 @@ import { MediaService } from './media.service';
         (click)="fileInput.click()"
         (filesReceived)="upload($event[0])"
       >
-        <app-admin-icon name="image-plus" class="h-6 w-6" />
+        <app-admin-icon name="image-plus" class="size-6" />
         <span class="text-xs">{{
           uploading() ? common.uploading : label()
         }}</span>

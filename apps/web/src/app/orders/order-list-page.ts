@@ -43,7 +43,7 @@ import { OrdersService } from './orders.service';
             class="flex items-center justify-center rounded-full p-0.5 text-stone-400 hover:text-red-700"
             [attr.aria-label]="removeLabel()"
           >
-            <app-icon name="close" class="h-3.5 w-3.5" />
+            <app-icon name="close" class="size-3.5" />
           </a>
         </span>
       </div>
