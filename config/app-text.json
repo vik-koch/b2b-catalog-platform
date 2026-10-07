@@ -585,6 +585,8 @@
       "restart": "Your sign-in took too long. Please sign in again.",
       "restartAction": "Sign in again",
       "limit": "We cannot send another code yet. Please try again in {time}.",
+      "remember": "Remember this browser for {days} days",
+      "rememberHint": "It will not ask for a code here, only your password. Leave this unticked on a shared computer.",
       "unreachableAccount": "We could not send a code to your mobile number. Please contact us so we can update it.",
       "unavailable": "We cannot send codes right now. Please try again later.",
       "error": "Something went wrong. Please try again."

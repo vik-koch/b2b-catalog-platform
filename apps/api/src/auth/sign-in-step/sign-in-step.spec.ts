@@ -12,6 +12,7 @@ import {
   maskEmail,
   maskPhone,
   PENDING_COOKIE,
+  REMEMBERED_COOKIE,
   SignInStep,
 } from './sign-in-step';
 
@@ -176,6 +177,7 @@ describe('SignInStep', () => {
       phone: '+49 (•••) •••-••78',
       confirming: false,
       resendIn: 60,
+      rememberDays: 0,
     });
     expect(cookies[PENDING_COOKIE]).toBeTruthy();
   });
@@ -238,6 +240,106 @@ describe('SignInStep', () => {
     expect(await byMail.begin(customer, req, res)).toMatchObject({
       sentTo: 'j•••@example.com',
       phone: '+49 (•••) •••-••78',
+    });
+  });
+
+  describe('a remembered browser', () => {
+    const remembering = step({
+      mode: 'always',
+      roles: ['user'],
+      trustDeviceDays: 30,
+    });
+
+    it('is offered only at always, and only where the deployment allows it', () => {
+      expect(remembering.rememberDays()).toBe(30);
+      expect(always.rememberDays()).toBe(0);
+      expect(
+        step({
+          mode: 'once',
+          roles: ['user'],
+          trustDeviceDays: 30,
+        }).rememberDays(),
+      ).toBe(0);
+    });
+
+    it('is offered on the code screen', async () => {
+      expect(await remembering.begin(customer, req, res)).toMatchObject({
+        rememberDays: 30,
+      });
+    });
+
+    it('skips the code, and sends none', async () => {
+      await remembering.remember(req, res, customer);
+
+      expect(await remembering.begin(customer, req, res)).toBeNull();
+      expect(codes.issue).not.toHaveBeenCalled();
+      expect(cookies[PENDING_COOKIE]).toBeUndefined();
+    });
+
+    it('is set by nothing where the deployment does not allow it', async () => {
+      await always.remember(req, res, customer);
+
+      expect(cookies[REMEMBERED_COOKIE]).toBeUndefined();
+    });
+
+    it('stands for one account only', async () => {
+      await remembering.remember(req, res, customer);
+      const colleague = { ...customer, id: 'user-2' } as UserRow;
+
+      expect(await remembering.begin(colleague, req, res)).toMatchObject({
+        step: 'code',
+      });
+    });
+
+    // A changed number, a disabled or an anonymized account move this.
+    it('is forgotten once the account moved devicesTrustedSince', async () => {
+      await remembering.remember(req, res, customer);
+      const forgot = {
+        ...customer,
+        devicesTrustedSince: new Date(Date.now() + 1000),
+      } as UserRow;
+
+      expect(await remembering.begin(forgot, req, res)).toMatchObject({
+        step: 'code',
+      });
+    });
+
+    // tokenVersion is not in it: a password change keeps the browser.
+    it('outlives a password change', async () => {
+      await remembering.remember(req, res, customer);
+
+      expect(
+        await remembering.begin(
+          { ...customer, tokenVersion: 9 } as UserRow,
+          req,
+          res,
+        ),
+      ).toBeNull();
+    });
+
+    it('still confirms a number that is not confirmed', async () => {
+      await remembering.remember(req, res, customer);
+      const unconfirmed = { ...customer, phoneConfirmedAt: null } as UserRow;
+
+      expect(await remembering.begin(unconfirmed, req, res)).toMatchObject({
+        confirming: true,
+      });
+    });
+
+    it('stops counting once the deployment stops allowing it', async () => {
+      await remembering.remember(req, res, customer);
+
+      expect(await always.begin(customer, req, res)).toMatchObject({
+        step: 'code',
+      });
+    });
+
+    it('is not a pending sign-in, nor the other way round', async () => {
+      await remembering.remember(req, res, customer);
+      cookies[PENDING_COOKIE] = cookies[REMEMBERED_COOKIE];
+      users.findById.mockResolvedValue(customer);
+
+      expect(await remembering.pending(req)).toBeNull();
     });
   });
 

@@ -1282,6 +1282,10 @@ export const appTextSchema = z
             restart: z.string(),
             restartAction: z.string(),
             limit: z.string(),
+            /** The box that remembers this browser; `{days}` is filled in. */
+            remember: z.string(),
+            /** Under the box: it skips the code, not the password. */
+            rememberHint: z.string(),
             /** No number on the account a code can reach: staff correct it. */
             unreachableAccount: z.string(),
             unavailable: z.string(),

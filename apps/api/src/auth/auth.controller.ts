@@ -245,11 +245,14 @@ export class AuthController {
           throw errors['code-expired']({ message: 'The code has expired' });
         }
         this.step.end(req, res);
+        if (body.remember) await this.step.remember(req, res, outcome.user);
         return this.startSession(outcome.user, req, res);
       },
     );
   }
 
+  // Leaves a remembered browser standing: signing out ends the session, and
+  // the next sign-in on this browser still takes the password.
   @MaintenanceExempt()
   @Implement(authContract.logout)
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {

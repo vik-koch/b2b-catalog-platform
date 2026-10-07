@@ -494,6 +494,17 @@ describe('UserDetailPage', () => {
       expect(el.textContent).toContain(text.signInCodeAlways);
     });
 
+    it('says when a remembered browser skips the code', async () => {
+      const { el } = await render({
+        account: user({ role: 'manager', phone: '+494012345678' }),
+        signInStep: { ...always, trustDeviceDays: 30 },
+      });
+
+      expect(el.textContent).toContain(
+        text.signInCodeAlwaysRemembered.replace('{days}', '30'),
+      );
+    });
+
     // Nobody can choose a number at sign-in, so staff must know.
     it('says when no number on the account can take a code', async () => {
       const { el } = await render({

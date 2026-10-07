@@ -33,6 +33,7 @@ export { formatWait };
         [sent]="step"
         [intro]="text.codeIntro"
         [note]="step.confirming ? text.confirmNote : null"
+        [rememberDays]="step.rememberDays"
         [submitCode]="submitCode"
         [resendCode]="resendCode"
         [retryAfter]="retryAfter"
@@ -53,7 +54,8 @@ export class SignInStepPanel {
   protected readonly restart = signal(false);
   protected readonly step = computed(() => this.auth.step());
 
-  protected readonly submitCode = (code: string) => this.auth.submitCode(code);
+  protected readonly submitCode = (code: string, remember: boolean) =>
+    this.auth.submitCode(code, remember);
   protected readonly resendCode = () => this.auth.resendCode();
   protected readonly retryAfter = () => this.auth.retryAfter();
 }

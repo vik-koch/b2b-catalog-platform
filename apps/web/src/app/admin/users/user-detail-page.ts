@@ -442,7 +442,11 @@ export class UserDetailPage {
                 date: this.date(exemptAt),
               })
             : this.stepConfig?.mode === 'always'
-              ? text.signInCodeAlways
+              ? this.stepConfig.trustDeviceDays
+                ? fillText(text.signInCodeAlwaysRemembered, {
+                    days: String(this.stepConfig.trustDeviceDays),
+                  })
+                : text.signInCodeAlways
               : text.signInCodeOnce,
       },
     ];
