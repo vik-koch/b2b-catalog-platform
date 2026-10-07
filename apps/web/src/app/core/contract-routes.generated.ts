@@ -858,6 +858,17 @@ export const ordersContract = {
       },
     },
   },
+  removeOrderPersonalData: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'DELETE',
+        path: '/admin/orders/{reference}/personal-data',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   cancelMyOrder: {
     '~orpc': {
       errorMap: {},

@@ -148,7 +148,12 @@ beforeEach(() => {
 
 async function render(
   answer: AdminOrderDetail | null | 'reject',
-  api: Partial<Record<'transition' | 'setPayment' | 'revisions', unknown>> = {},
+  api: Partial<
+    Record<
+      'transition' | 'setPayment' | 'revisions' | 'removePersonalData',
+      unknown
+    >
+  > = {},
 ) {
   const get = vi.fn(() =>
     answer === 'reject'
@@ -684,5 +689,78 @@ describe('AdminOrderDetailPage while orders are externally owned', () => {
 
     expect(allButtons(el)).not.toContain(text.documents.upload);
     expect(allButtons(el)).not.toContain(text.documents.remove);
+  });
+});
+
+/**
+ * The personal details row (NFR-LEGAL-14): when they went, on any order, and
+ * on a finished guest order an admin sees, the removal a guest can ask for.
+ */
+describe('AdminOrderDetailPage personal details', () => {
+  const guestDone: AdminOrderDetail = {
+    ...placed,
+    customerEmail: null,
+    status: 'completed',
+    paymentState: 'not-due',
+  };
+  const removeLabel = text.personalData.remove;
+  const removeButton = (el: HTMLElement) =>
+    [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === removeLabel,
+    );
+
+  it('offers an admin the removal on a finished guest order', async () => {
+    const { el } = await render(guestDone);
+
+    expect(el.textContent).toContain(text.personalData.heading);
+    expect(el.textContent).toContain(text.personalData.kept);
+    expect(removeButton(el)).toBeDefined();
+  });
+
+  it('says nothing on a running order, an account order or to a manager', async () => {
+    const running = await render({ ...guestDone, status: 'approved' });
+    expect(running.el.textContent).not.toContain(text.personalData.heading);
+
+    const account = await render({ ...guestDone, customerEmail: 'a@b.de' });
+    expect(account.el.textContent).not.toContain(text.personalData.heading);
+
+    const owing = await render({ ...guestDone, paymentState: 'awaiting' });
+    expect(owing.el.textContent).not.toContain(text.personalData.heading);
+
+    role = 'manager';
+    const manager = await render(guestDone);
+    expect(manager.el.textContent).not.toContain(text.personalData.heading);
+  });
+
+  it('says when they were removed, on any order, with nothing to press', async () => {
+    const { el } = await render({
+      ...placed,
+      personalDataRemovedAt: '2026-10-01T09:00:00.000Z',
+    });
+
+    expect(el.textContent).toContain(text.personalData.heading);
+    expect(el.textContent).toMatch(/Removed on .*2026/);
+    expect(removeButton(el)).toBeUndefined();
+  });
+
+  it('asks first, then removes and redraws from the server', async () => {
+    const removePersonalData = vi.fn(() => Promise.resolve(null));
+    const { fixture, el, get } = await render(guestDone, {
+      removePersonalData,
+    });
+    const confirm = TestBed.inject(ConfirmService);
+    const ask = vi.spyOn(confirm, 'ask').mockResolvedValue(true);
+
+    removeButton(el)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(ask).toHaveBeenCalledWith(
+      expect.objectContaining({ confirmVariant: 'danger' }),
+    );
+    expect(removePersonalData).toHaveBeenCalledWith(placed.reference);
+    expect(get).toHaveBeenCalledTimes(2);
+    // Refused (null): the page says so rather than pretending.
+    expect(el.textContent).toContain(text.personalData.error);
   });
 });

@@ -13,13 +13,8 @@ import {
   ACCOUNT_DELETION_CATEGORIES,
   recordDestruction,
 } from '../destruction/record-destruction';
-import {
-  addresses,
-  orderItems,
-  orderRevisions,
-  orders,
-  users,
-} from '../db/schema';
+import { addresses, orders, users } from '../db/schema';
+import { scrubOrders } from '../orders/order-scrub';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -232,7 +227,12 @@ export class UsersService {
       // removing the saved rows. The account row is never deleted, so the
       // cascade on the foreign key never fires — this is the deletion.
       await tx.delete(addresses).where(eq(addresses.userId, id));
-      await this.scrubOrders(tx, id);
+      // The customer-facing promise: "past orders are kept for our
+      // bookkeeping, with your details removed from them".
+      await scrubOrders(
+        tx,
+        tx.select({ id: orders.id }).from(orders).where(eq(orders.userId, id)),
+      );
       // The account consent ends with the account; its record stays, with
       // the address it was given with, for the retention period.
       await withdrawAccountConsents(tx, id, 'account-deleted', by);
@@ -278,93 +278,6 @@ export class UsersService {
       .from(orders)
       .where(eq(orders.userId, userId));
     return Number(row?.total ?? 0);
-  }
-
-  /**
-   * What the copy already promises: "past orders are kept for our bookkeeping,
-   * with your details removed from them". The orders stay — the line prices are
-   * what bookkeeping needs — and every free-text column that could name the
-   * customer goes.
-   *
-   * **Every version of every order** (ADR 0051), not only the one each order
-   * currently shows: a superseded revision holds the same address and the same
-   * name, and a deletion that left it standing would be a deletion in name
-   * only.
-   *
-   * The address columns are overwritten rather than nulled: several are
-   * `not null`, and the fulfilment check constraint requires a delivery order
-   * to keep a destination. A scrubbed order still reads as an order.
-   */
-  private async scrubOrders(
-    tx: Pick<NodePgDatabase<typeof schema>, 'update' | 'select'>,
-    userId: string,
-  ): Promise<void> {
-    // Shaped like the thing it replaces, not merely labelled. `[removed]` in
-    // the email column made every anonymized order unadjustable: the order
-    // contract validates the address it reads back, and refused its own stored
-    // data. `.invalid` is reserved and undeliverable (RFC 2606), and the phone
-    // placeholder is a number nobody answers rather than a word in a number
-    // column.
-    const scrubbed = '[removed]';
-    const scrubbedEmail = 'removed@deleted.invalid';
-    const scrubbedPhone = '+00000000000';
-    const mine = tx
-      .select({ id: orders.id })
-      .from(orders)
-      .where(eq(orders.userId, userId));
-    const myRevisions = tx
-      .select({ id: orderRevisions.id })
-      .from(orderRevisions)
-      .where(inArray(orderRevisions.orderId, mine));
-
-    // Customer-typed, and perfectly capable of naming someone: "deliver to
-    // Anna, 0170…".
-    await tx
-      .update(orderItems)
-      .set({ note: null })
-      .where(inArray(orderItems.revisionId, myRevisions));
-
-    await tx
-      .update(orderRevisions)
-      .set({
-        contactName: scrubbed,
-        contactEmail: scrubbedEmail,
-        contactPhone: scrubbedPhone,
-        // The invoiced party is personal data too: it is the account holder or
-        // somebody they named, and neither survives the account.
-        partyName: scrubbed,
-        partyRegistrationId: null,
-        billingStreet: scrubbed,
-        billingStreet2: null,
-        billingPostalCode: scrubbed,
-        billingCity: scrubbed,
-        billingRegion: null,
-        // Kept non-null where it was set, so the fulfilment constraint holds.
-        deliveryStreet: sql`case when ${orderRevisions.deliveryStreet} is null then null else ${scrubbed} end`,
-        deliveryStreet2: null,
-        deliveryPostalCode: sql`case when ${orderRevisions.deliveryPostalCode} is null then null else ${scrubbed} end`,
-        deliveryCity: sql`case when ${orderRevisions.deliveryCity} is null then null else ${scrubbed} end`,
-        deliveryRegion: null,
-        preferredDate: null,
-        customerNote: null,
-        // What a manager wrote about an adjustment: their words, but about
-        // this customer's order, and quite capable of naming them.
-        note: null,
-        // Which list this customer was charged from — the same argument that
-        // nulls `users.tierId`.
-        tierKey: null,
-      })
-      .where(inArray(orderRevisions.orderId, mine));
-
-    // The scrubbing is a change to every one of those orders, and the one
-    // reader that has to hear about it is the outbound read (FR-ADM-08,
-    // NFR-LEGAL-07): a system that pulled the order last week holds the name
-    // and address this just removed, and it learns they are gone by the order
-    // coming round again with them blank.
-    await tx
-      .update(orders)
-      .set({ updatedAt: new Date() })
-      .where(eq(orders.userId, userId));
   }
 
   private async anonymizeUser(

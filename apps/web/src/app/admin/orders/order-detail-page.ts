@@ -170,6 +170,22 @@ const MARK_PAID = 'markPaid';
                   <dt [class]="term">{{ text.personalData.heading }}</dt>
                   <dd [class]="row">
                     <p class="min-w-0">{{ data.label }}</p>
+                    @if (data.removable) {
+                      <div [class]="actions">
+                        <button
+                          appButton
+                          size="sm"
+                          variant="secondary"
+                          type="button"
+                          class="w-full gap-2 sm:w-auto"
+                          [disabled]="busy()"
+                          (click)="removePersonalData(order)"
+                        >
+                          <app-admin-icon name="trash-2" class="h-4 w-4" />
+                          {{ text.personalData.remove }}
+                        </button>
+                      </div>
+                    }
                   </dd>
                 }
                 <dt [class]="term">{{ text.tier }}</dt>
@@ -1250,6 +1266,24 @@ export class AdminOrderDetailPage {
     }
     return { label: text.kept, removable: true };
   });
+
+  protected async removePersonalData(order: AdminOrderDetail): Promise<void> {
+    const text = this.text.personalData;
+    const confirmed = await this.confirm.ask({
+      heading: text.confirmHeading,
+      message: fillText(text.confirmMessage, { reference: order.reference }),
+      warning: text.confirmWarning,
+      confirmLabel: text.confirm,
+      cancelLabel: this.text.paymentState.keep,
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+
+    await this.run(
+      () => this.api.removePersonalData(order.reference),
+      text.error,
+    );
+  }
 
   private async setPayment(
     order: AdminOrderDetail,

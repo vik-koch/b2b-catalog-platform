@@ -92,6 +92,9 @@ export type AuditAction =
   // The customer was told about one. Its own event because it can happen more
   // than once and later than the upload.
   | 'order.document.sent'
+  // A guest order's personal details removed on the guest's request
+  // (NFR-LEGAL-14). By reference only: the details are what went.
+  | 'order.personalDataRemoved'
   // Machine credentials (NFR-SEC-09). Issuing one hands an automated client
   // the ability to rewrite the catalog, so both ends of its life are named.
   | 'apiToken.created'

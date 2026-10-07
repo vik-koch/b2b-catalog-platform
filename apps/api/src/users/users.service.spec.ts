@@ -175,6 +175,16 @@ describe('UsersService.anonymize', () => {
     expect(sql).not.toContain('"status"');
   });
 
+  it('stamps when their details went, keeping an earlier removal', () => {
+    // The retention sweep skips what is stamped (NFR-LEGAL-14), so an order
+    // it cleared last year keeps that date when its account is deleted.
+    const { sql } = statement('orders');
+
+    expect(sql).toContain(
+      '"personalDataRemovedAt" = coalesce("orders"."personalDataRemovedAt", $',
+    );
+  });
+
   it('empties every free-text column an order can name someone in', () => {
     const { sql } = statement('order_revisions');
 

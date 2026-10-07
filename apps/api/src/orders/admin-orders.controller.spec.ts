@@ -8,6 +8,7 @@ import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { SettingsService } from '../settings/settings.service';
 import { AdminOrdersController } from './admin-orders.controller';
 import { demoAdminOrder } from './order.fixture';
+import { OrderPersonalData } from './order-personal-data';
 import { OrdersService } from './orders.service';
 
 /**
@@ -33,6 +34,7 @@ describe('AdminOrdersController', () => {
   const adjust = vi.fn();
   const showCustomerCurrent = vi.fn();
   const setPayment = vi.fn();
+  const removeOnRequest = vi.fn();
 
   /** The order every handler here answers with. A whole one, because the
    * contract's output schema is strict: a thin stand-in answers 500 rather
@@ -100,6 +102,7 @@ describe('AdminOrdersController', () => {
             setPayment,
           },
         },
+        { provide: OrderPersonalData, useValue: { removeOnRequest } },
         { provide: AuditLogger, useValue: { record: vi.fn() } },
         {
           provide: SettingsService,
@@ -147,6 +150,7 @@ describe('AdminOrdersController', () => {
       adjust,
       showCustomerCurrent,
       setPayment,
+      removeOnRequest,
     ]) {
       call.mockReset();
     }
@@ -225,6 +229,25 @@ describe('AdminOrdersController', () => {
       ]) {
         expect(call).not.toHaveBeenCalled();
       }
+    });
+
+    // A guest's request outranks the switch (NFR-LEGAL-14), as an account
+    // holder's deletion does: the owning system does not get to keep the
+    // shop from removing somebody's details.
+    it("still removes a guest's details on request", async () => {
+      removeOnRequest.mockResolvedValue(undefined);
+      getForStaff.mockResolvedValue(answered);
+
+      const response = await send(
+        `/admin/orders/${reference}/personal-data`,
+        'DELETE',
+      );
+
+      expect(response.status).toBe(200);
+      expect(removeOnRequest).toHaveBeenCalledWith(
+        reference,
+        expect.objectContaining({ id: 'admin-1' }),
+      );
     });
 
     // The screens stay readable while every action on them is refused: staff

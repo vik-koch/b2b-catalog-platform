@@ -1930,6 +1930,12 @@ export const adminTextSchema = z
             kept: z.string(),
             /** `{date}` they were removed. */
             removed: z.string(),
+            remove: z.string(),
+            confirmHeading: z.string(),
+            confirmMessage: z.string(),
+            confirmWarning: z.string(),
+            confirm: z.string(),
+            error: z.string(),
           })
           .strict(),
         /** The two documents an order carries (FR-ORD-05). */

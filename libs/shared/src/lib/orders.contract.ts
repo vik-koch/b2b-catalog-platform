@@ -1193,6 +1193,31 @@ export const ordersContract = {
     .output(adminOrderDetailSchema),
 
   /**
+   * Removing the personal details from a guest order on the guest's request
+   * (NFR-LEGAL-14): the scrub an account deletion runs, for an order with no
+   * account to delete. An admin's alone, since it cannot be undone. Not
+   * refused while an external system owns orders: the person's right
+   * outranks the switch, as it does for an account.
+   */
+  removeOrderPersonalData: authed
+    .route({
+      method: 'DELETE',
+      path: '/admin/orders/{reference}/personal-data',
+      inputStructure: 'detailed',
+      summary: "Remove a guest order's personal details on request (admin)",
+    })
+    .errors({
+      ...orderNotFound,
+      /** An account holder's orders go with their account (FR-ADM-23). */
+      'order-not-guest': { status: 409 },
+      /** Still running: the shop needs the details to fulfil it. */
+      'order-not-finished': { status: 409 },
+      'personal-data-removed': { status: 409 },
+    })
+    .input(z.object({ params: z.object({ reference: z.string() }) }))
+    .output(adminOrderDetailSchema),
+
+  /**
    * The customer calling their own order off (FR-ORD-02). Its own route rather
    * than the staff one with a wider guard: this caller may make exactly one
    * move, on exactly their own orders, and a body that cannot name another

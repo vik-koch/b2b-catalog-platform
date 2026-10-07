@@ -1139,7 +1139,13 @@
     "personalData": {
       "heading": "Personal details",
       "kept": "On the order until its retention period ends.",
-      "removed": "Removed on {date}"
+      "removed": "Removed on {date}",
+      "remove": "Remove on request",
+      "confirmHeading": "Remove the personal details from this order?",
+      "confirmMessage": "The guest's name, contact details, addresses and notes are removed from every version of order {reference}, together with any documents uploaded for it. The order, its lines and its total stay.",
+      "confirmWarning": "This cannot be undone. The guest's other orders keep their details; find them by email address in the order list.",
+      "confirm": "Remove the details",
+      "error": "That did not work. The order may have been reopened — reload the page."
     },
     "documents": {
       "heading": "Documents",

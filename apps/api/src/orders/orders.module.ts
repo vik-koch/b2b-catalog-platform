@@ -41,6 +41,8 @@ import { MachineOrderDocumentsController } from './machine-order-documents.contr
 import { OrderDocumentActs } from './order-document-acts';
 import { OrderDocumentsController } from './order-documents.controller';
 import { OrderDocumentsService } from './order-documents.service';
+import { OrderDocumentFiles } from './order-document-files';
+import { OrderPersonalData } from './order-personal-data';
 import { OrderNotifications } from './order-notifications';
 import { PdfFaces } from '../pdf/pdf-faces';
 import { OrderPdf } from './order-pdf';
@@ -80,6 +82,10 @@ import { OrdersService } from './orders.service';
     OrderNotifications,
     OrderDocumentsService,
     OrderDocumentActs,
+    // A guest's request to have their details removed (NFR-LEGAL-14), and
+    // the files that go with them.
+    OrderPersonalData,
+    OrderDocumentFiles,
     OrderPdf,
     TermsPdf,
     PdfFaces,

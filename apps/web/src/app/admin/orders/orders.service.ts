@@ -211,6 +211,20 @@ export class AdminOrdersService {
     return null;
   }
 
+  /** Remove a finished guest order's personal details on the guest's request
+   * (NFR-LEGAL-14). Null where the server refused: the order was reopened,
+   * or somebody else got there first. */
+  async removePersonalData(
+    reference: string,
+  ): Promise<AdminOrderDetail | null> {
+    const result = await safe(
+      this.client.removeOrderPersonalData({ params: { reference } }),
+    );
+    if (result.isSuccess) return result.data;
+    if (!result.isDefined) throw result.error;
+    return null;
+  }
+
   /**
    * File a document against an order (FR-ORD-05). Multipart and outside the
    * contract, like every other upload in the app: what travels is bytes.
