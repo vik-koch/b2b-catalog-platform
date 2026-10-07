@@ -117,8 +117,10 @@ unconfirmed if it is not canonical, so a bad source row never blocks a sync run.
 **The session slides.** A fixed seven-day session would ask a regular customer
 for a code every week. That is the cost the step adds, both to the shop and to
 the customer. A token that has been used and is more than a day old is reissued.
-The session therefore ends after `idleDays` without use (30 unless configured),
-and `tokenVersion` still ends it immediately.
+The session therefore ends after `session.idleDays` without use, and
+`tokenVersion` still ends it immediately. The default is the old seven days, so
+a deployment without the step sees no change, and one with it sets a longer
+stretch next to `signInStep`.
 
 **A remembered browser replaces the phone, not the password.** It is a second
 signed, httpOnly cookie holding only the account and an expiry, set only when the
