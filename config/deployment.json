@@ -14,12 +14,12 @@
   "pages": {
     "published": [
       "about",
-      "terms",
+      "contact",
       "conditions",
+      "terms",
       "privacy",
       "imprint",
-      "withdrawal",
-      "contact"
+      "withdrawal"
     ],
     "headerNav": ["about", "contact", "conditions"],
     "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
@@ -118,10 +118,6 @@
       "icon": "marktplatz.svg"
     }
   ],
-  "seller": {
-    "name": "Coffee Kontor GmbH",
-    "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
-  },
   "phoneInput": {
     "countryCode": "+49",
     "mask": "(###) ###-####"

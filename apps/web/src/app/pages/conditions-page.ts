@@ -160,14 +160,6 @@ import { PageUpdated } from './page-updated';
           <p class="text-muted">{{ taxSentence }}</p>
         </section>
       </div>
-
-      @if (content) {
-        <app-page-updated
-          class="mt-10"
-          slug="conditions"
-          [updatedAt]="content.updatedAt"
-        />
-      }
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded bg-stone-200"></div>
