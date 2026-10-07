@@ -11,7 +11,11 @@ import {
   emailField,
   storedEmailField,
 } from './contact-config';
-import { COMMON_AUTH_ERROR_CODES, commonAuthErrors } from './api-error';
+import {
+  COMMON_AUTH_ERROR_CODES,
+  commonAuthErrors,
+  phoneFormatErrors,
+} from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
 import { ownershipErrors } from './ownership-constants';
 import { consentRecordListSchema } from './consents.contract';
@@ -332,6 +336,7 @@ export const usersContract = {
     .errors({
       'email-taken': conflicts['email-taken'],
       'source-id-taken': conflicts['source-id-taken'],
+      ...phoneFormatErrors,
       ...owned,
     })
     .input(z.object({ body: createUserSchema }))
@@ -375,6 +380,7 @@ export const usersContract = {
       'email-taken': conflicts['email-taken'],
       'source-id-taken': conflicts['source-id-taken'],
       'account-closed': conflicts['account-closed'],
+      ...phoneFormatErrors,
       ...owned,
     })
     .input(

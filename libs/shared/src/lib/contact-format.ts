@@ -104,6 +104,38 @@ export function canonicalPhone(
 }
 
 /**
+ * The server's reading of a number a person entered: the canonical form, or
+ * `null` where the deployment's rule cannot read it. The browser sends the
+ * canonical form already, but an API client may send it grouped
+ * (`+49 (401) 234-5678`) or national only, and a code can be sent only to a
+ * number in one known form (FR-AUTH-12).
+ *
+ * A number that opens with a dial prefix must open with this deployment's
+ * country code: one from another country is refused rather than read as a
+ * national number that happens to start with those digits. With a mask, the
+ * national part has to fill it, which is the rule the entry field enforces.
+ *
+ * A deployment with no `phoneInput` has no rule, so the value is kept as typed.
+ */
+export function normalizePhone(
+  value: string,
+  config: PhoneConfig | undefined,
+): string | null {
+  const trimmed = value.trim();
+  if (!config) return trimmed;
+  if (/[^\d\s()+\-./]/.test(trimmed)) return null;
+
+  const international = /^(?:\+|00)/.test(trimmed);
+  const rest = stripDialPrefix(trimmed, config.countryCode);
+  if (international && rest === trimmed) return null;
+
+  const national = digitsOf(rest);
+  if (!national) return null;
+  if (config.mask && national.length !== maskLength(config.mask)) return null;
+  return `${config.countryCode}${national}`;
+}
+
+/**
  * The inverse: the digits the entry field owns, with the displayed country
  * code removed. A stored number that does not start with the configured code
  * is handed back whole rather than mangled — it predates the current config,

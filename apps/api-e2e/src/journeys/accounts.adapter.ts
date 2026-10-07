@@ -259,7 +259,7 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
           email: ctx.email,
           firstName: 'Ada',
           lastName: 'Lovelace',
-          phone: '+49 40 7654321',
+          phone: '+494076543210',
           customerType: args['customerType'] ?? 'person',
         }),
       );
@@ -279,7 +279,7 @@ const actions: JourneyAdapter<AccountJourneyContext>['actions'] = {
             role: args['role'] ?? 'user',
             firstName: 'Ada',
             lastName: 'Lovelace',
-            phone: '+49 40 7654321',
+            phone: '+494076543210',
             customerType: 'person',
             tierId: null,
           },

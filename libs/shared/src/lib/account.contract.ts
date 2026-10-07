@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract';
 import * as z from 'zod';
-import { commonAuthErrors } from './api-error';
+import { commonAuthErrors, phoneFormatErrors } from './api-error';
 import { customerTypeSchema, userRoleSchema } from './auth.contract';
 import { storedEmailField } from './contact-config';
 
@@ -96,7 +96,7 @@ export const accountContract = {
       inputStructure: 'detailed',
       summary: "Correct the signed-in account's own name and phone number",
     })
-    .errors(commonAuthErrors)
+    .errors({ ...commonAuthErrors, ...phoneFormatErrors })
     .input(z.object({ body: updateAccountProfileSchema }))
     .output(accountProfileSchema),
 

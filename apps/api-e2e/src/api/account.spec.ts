@@ -28,7 +28,7 @@ const patch = (url: string, cookie: string | undefined, body: unknown) =>
 const edits = () => ({
   firstName: 'Jane',
   lastName: 'Doe',
-  phone: '+49 40 7654321',
+  phone: '+494076543210',
 });
 
 /**
@@ -166,8 +166,30 @@ describe('/account/profile', () => {
       expect(rows[0]).toEqual({
         firstName: 'Jane',
         lastName: 'Doe',
-        phone: '+49 40 7654321',
+        phone: '+494076543210',
       });
+    });
+
+    // The seeded number predates the rule and does not fill the demo mask; a
+    // name correction beside it must still save.
+    it('keeps a stored number that comes back unchanged', async () => {
+      const res = await patch('/account/profile', customerCookie, {
+        ...edits(),
+        phone: '+49 40 1234567',
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.data.phone).toBe('+49 40 1234567');
+    });
+
+    it('refuses a changed number the deployment rule cannot read', async () => {
+      const res = await patch('/account/profile', customerCookie, {
+        ...edits(),
+        phone: '+7 914 123-45-67',
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.data).toMatchObject({ code: 'phone-format' });
     });
 
     it('clears the phone number when it is null', async () => {

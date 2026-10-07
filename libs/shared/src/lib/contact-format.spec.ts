@@ -6,6 +6,7 @@ import {
   companyIdMatchesAny,
   formatPhone,
   normalizeCompanyId,
+  normalizePhone,
   PhoneConfig,
   stripDialPrefix,
   typedPhone,
@@ -84,6 +85,43 @@ describe('canonicalPhone', () => {
 
   it('leaves a deployment without phone config to type what it likes', () => {
     expect(canonicalPhone(' +1 (555) 0100 ext. 4 ', undefined)).toBe(
+      '+1 (555) 0100 ext. 4',
+    );
+  });
+});
+
+describe('normalizePhone', () => {
+  it('reads the canonical form the browser sends as itself', () => {
+    expect(normalizePhone('+494012345678', config)).toBe('+494012345678');
+  });
+
+  it('reads a grouped or national number into the canonical form', () => {
+    expect(normalizePhone('+49 (401) 234-5678', config)).toBe('+494012345678');
+    expect(normalizePhone('0049 401 234 5678', config)).toBe('+494012345678');
+    expect(normalizePhone('(401) 234-5678', config)).toBe('+494012345678');
+  });
+
+  it('refuses a number from another country', () => {
+    expect(normalizePhone('+7 914 123-45-67', config)).toBeNull();
+    expect(normalizePhone('+7 914 123-45-67', unmasked)).toBeNull();
+  });
+
+  it('refuses a number that does not fill the mask', () => {
+    expect(normalizePhone('401 234 567', config)).toBeNull();
+    expect(normalizePhone('+49 401 234 56789', config)).toBeNull();
+  });
+
+  it('refuses letters and a value with no digits', () => {
+    expect(normalizePhone('401 234 5678 ext. 4', config)).toBeNull();
+    expect(normalizePhone('---', config)).toBeNull();
+  });
+
+  it('takes any length without a mask', () => {
+    expect(normalizePhone('40 123', unmasked)).toBe('+4940123');
+  });
+
+  it('keeps the value as typed without phone config', () => {
+    expect(normalizePhone(' +1 (555) 0100 ext. 4 ', undefined)).toBe(
       '+1 (555) 0100 ext. 4',
     );
   });

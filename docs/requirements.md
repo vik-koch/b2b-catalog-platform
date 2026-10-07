@@ -144,6 +144,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-AUTH-09](#fr-auth-09) — Company suggestions at sign-up
 - [FR-AUTH-10](#fr-auth-10) — Registered address as first address
 - [FR-AUTH-11](#fr-auth-11) — Declining a registration
+- [FR-AUTH-12](#fr-auth-12) — A second sign-in step
 
 **[Cart & Checkout (FR-CART)](#fr-cart)**
 
@@ -721,6 +722,16 @@ Where a chosen company suggestion carries a registered address and identifies a 
 #### <a id="fr-auth-11"></a>FR-AUTH-11 — Declining a registration
 
 A registration can be declined rather than left waiting ([FR-WORK-02](#fr-work-02)). Declining removes it with the details it carried, since the account was never usable and keeping a stranger's name and number has no purpose. It cannot be undone, so it asks for confirmation. A registration that was approved is never removed this way: an account that has been used is anonymized instead ([FR-AUTH-06](#fr-auth-06)).
+
+#### <a id="fr-auth-12"></a>FR-AUTH-12 — A second sign-in step
+
+Where a deployment requires it, a sign-in has a second step after the password: the person enters a short code the shop sends to the account's mobile number, and only then does a session begin. The deployment decides which roles take the step and how often: once, to confirm the number, or at every sign-in. The step covers every path that starts a session: the sign-in form, and choosing a password from an invitation ([FR-AUTH-01](#fr-auth-01)) or a reset link ([FR-AUTH-02](#fr-auth-02)). Sending the code is a port, like sending mail: the platform defines it, and the deployment supplies the provider.
+
+A number is confirmed before it is relied on. The holder confirms it on the page where they first choose a password, and enters one there if the account has none. A number changed by its holder replaces the old one only once a code sent to the new number has been entered; one changed by staff or by an external system ([FR-ADM-10](#fr-adm-10)) is unconfirmed until its holder does the same at the next sign-in. A number need not be unique, since colleagues may share a company phone. A code is short-lived, is accepted once, and is limited in attempts and resends. It is sent only after the password has been accepted, so nobody without the password can make the shop pay for a message.
+
+An admin can exempt an account from the step where the deployment allows it for that account's role. The exemption is shown on the account and recorded with who set it and when.
+
+A session renews while it is used and ends after a stretch without use that the deployment sets, so a customer who keeps coming back is rarely asked for a code. Where the deployment allows it, the person can also choose, when entering a code, to have the browser remembered for a period the deployment sets. That browser then skips the code, but never the password. Signing out does not forget it. A changed number, or a deactivated or deleted account, forgets every remembered browser.
 
 ---
 

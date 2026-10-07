@@ -43,7 +43,7 @@ const person = {
   email: NEW_EMAIL,
   firstName: 'Jane',
   lastName: 'Doe',
-  phone: '+49 40 1234567',
+  phone: '+494012345678',
   customerType: 'person',
 };
 // The demo deployment's format is a German VAT number: DE + nine digits.
@@ -119,7 +119,7 @@ describe('POST /auth/register', () => {
         approvedAt: null,
         firstName: 'Jane',
         lastName: 'Doe',
-        phone: '+49 40 1234567',
+        phone: '+494012345678',
         customerType: 'person',
         companyName: null,
         companyRegistrationId: null,
@@ -207,6 +207,25 @@ describe('POST /auth/register', () => {
     });
 
     expect(res.status).toBe(400);
+    expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
+    await expectNoMail();
+  });
+
+  // The phone rule is deployment configuration too, and a code can only be
+  // sent to a number in one known form (FR-AUTH-12).
+  it('stores a grouped phone number in the canonical form', async () => {
+    const res = await register({ ...person, phone: '+49 (401) 234-5678' });
+
+    expect(res.status).toBe(200);
+    const [row] = await rowsFor(NEW_EMAIL);
+    expect(row.phone).toBe('+494012345678');
+  });
+
+  it('refuses a phone number the deployment rule cannot read', async () => {
+    const res = await register({ ...person, phone: '+49 40 1234567' });
+
+    expect(res.status).toBe(400);
+    expect(res.data).toMatchObject({ code: 'phone-format' });
     expect(await rowsFor(NEW_EMAIL)).toHaveLength(0);
     await expectNoMail();
   });

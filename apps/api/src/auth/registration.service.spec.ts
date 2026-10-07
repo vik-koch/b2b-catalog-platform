@@ -2,7 +2,12 @@ import { Test } from '@nestjs/testing';
 import { RegisterRequest } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
 import { ConsentService } from '../consents/consent.service';
-import { COMPANY_ID_RULE, PHONE_INPUT } from '../config/deployment-config';
+import { normalizePhone } from '@b2b-catalog-platform/shared';
+import {
+  COMPANY_ID_RULE,
+  PHONE_INPUT,
+  PHONE_RULE,
+} from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
 import { demoMailText, demoPhoneInput } from '../mail/mail-text.fixture';
 import { MailDispatcher } from '../mail/mail-dispatcher';
@@ -60,6 +65,10 @@ describe('RegistrationService', () => {
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
         { provide: AddressesService, useValue: { seed } },
         { provide: PHONE_INPUT, useValue: demoPhoneInput },
+        {
+          provide: PHONE_RULE,
+          useValue: (value: string) => normalizePhone(value, demoPhoneInput),
+        },
         { provide: ConsentService, useValue: consents },
         {
           provide: PasswordService,
@@ -137,6 +146,25 @@ describe('RegistrationService', () => {
       service.register({ ...company, companyRegistrationId: 'DE12345' }),
     ).rejects.toThrow(/company ID/i);
 
+    expect(createPending).not.toHaveBeenCalled();
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it('stores a grouped number in the canonical form', async () => {
+    await service.register({ ...person, phone: '+49 (401) 234-5678' });
+
+    expect(createPending).toHaveBeenCalledWith(
+      expect.objectContaining({ phone: '+494012345678' }),
+    );
+  });
+
+  // The browser's field refuses the same numbers; this is an API client's.
+  it('refuses a phone number the deployment rule cannot read, and writes nothing', async () => {
+    await expect(
+      service.register({ ...person, phone: '+7 914 123-45-67' }),
+    ).rejects.toThrow(/phone number/i);
+
+    expect(findByEmail).not.toHaveBeenCalled();
     expect(createPending).not.toHaveBeenCalled();
     expect(send).not.toHaveBeenCalled();
   });
