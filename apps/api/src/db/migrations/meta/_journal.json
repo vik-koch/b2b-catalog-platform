@@ -407,6 +407,13 @@
       "when": 1791377232516,
       "tag": "0057_sign_in_step_exemption",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1791384743567,
+      "tag": "0058_devices_trusted_since",
+      "breakpoints": true
     }
   ]
 }
