@@ -914,6 +914,13 @@ export const orders = pgTable(
     // tax while the order is open does not turn the prices it quoted into net
     // ones, and every view of the order states this rather than today's.
     taxBasis: varchar('taxBasis', { length: 16 }).notNull(),
+    // When the personal details on every version of this order were removed
+    // (NFR-LEGAL-14): the account behind it was deleted, its retention ran
+    // out, or a guest asked. Null while the order still carries them. The
+    // sweep reads it so that it never clears, and records, an order twice.
+    personalDataRemovedAt: timestamp('personalDataRemovedAt', {
+      withTimezone: true,
+    }),
     createdAt: timestamp('createdAt', { withTimezone: true })
       .notNull()
       .defaultNow(),
