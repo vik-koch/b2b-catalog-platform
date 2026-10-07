@@ -66,12 +66,14 @@ export type CodeSent = z.infer<typeof codeSentSchema>;
  * deployment delivers codes by mail. `confirming` says the code also confirms
  * `phone`, which staff set and nobody has confirmed yet. The number is never
  * chosen here: staff set it, and a holder who cannot receive codes on it asks
- * the shop.
+ * the shop. `rememberDays` above 0 offers to remember the browser for that
+ * long, so it skips the code next time.
  */
 export const signInStepSchema = codeSentSchema
   .extend({
     step: z.literal('code'),
     confirming: z.boolean(),
+    rememberDays: z.number().int().nonnegative(),
   })
   .strict();
 export type SignInStep = z.infer<typeof signInStepSchema>;
@@ -85,6 +87,8 @@ export const signInCodeSchema = z
       .string()
       .trim()
       .regex(new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`)),
+    /** Remember this browser, where the step offered it. */
+    remember: z.boolean().optional(),
   })
   .strict();
 export type SignInCodeRequest = z.infer<typeof signInCodeSchema>;

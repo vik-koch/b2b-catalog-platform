@@ -1,6 +1,8 @@
 import type { Request, Response } from 'express';
 import { AUTH_COOKIE, SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared';
-import { endSession, issueSession, SESSION_MAX_AGE_MS } from './session-cookie';
+import { endSession, issueSession } from './session-cookie';
+
+const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 /** Express's cookie calls, in the order they were made. */
 function recorder() {
@@ -33,7 +35,13 @@ describe('session cookies', () => {
   it('issues the token and the readable hint together', () => {
     const { res, set } = recorder();
 
-    issueSession(secureRequest, res, 'jwt-value', 'manager');
+    issueSession(
+      secureRequest,
+      res,
+      'jwt-value',
+      'manager',
+      SESSION_MAX_AGE_MS,
+    );
 
     expect(set).toHaveLength(2);
     const [session, hint] = set;
@@ -53,7 +61,7 @@ describe('session cookies', () => {
   it('gives both cookies the same delivery attributes', () => {
     const { res, set } = recorder();
 
-    issueSession(secureRequest, res, 'jwt-value', 'user');
+    issueSession(secureRequest, res, 'jwt-value', 'user', SESSION_MAX_AGE_MS);
 
     const [session, hint] = set;
     for (const key of ['secure', 'sameSite', 'path', 'maxAge']) {

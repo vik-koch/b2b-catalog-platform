@@ -7,6 +7,7 @@ import {
   loadCompanyIdRule,
   loadPhoneInput,
   loadPhoneRule,
+  loadSessionIdleDays,
   loadSignInStep,
   PHONE_INPUT,
   PHONE_RULE,
@@ -30,6 +31,7 @@ import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
 import { SessionVaryingInterceptor } from './session-varying.interceptor';
+import { SESSION_IDLE_DAYS, Sessions } from './sessions';
 import { CODE_DELIVERY, CodeDelivery } from './sign-in-step/code-delivery';
 import { HttpCodeDelivery } from './sign-in-step/http-code-delivery';
 import { MailCodeDelivery } from './sign-in-step/mail-code-delivery';
@@ -79,8 +81,9 @@ function signInStepSecret(): string {
  * Wires the session-auth stack. Re-exports UsersModule and JwtModule so any
  * feature module that guards routes with `@Auth()` gets JwtAuthGuard's
  * dependencies (JwtService, UsersService) just by importing AuthModule.
- * Token lifetime is generous because revocation no longer relies on expiry —
- * DB-backed role checks and tokenVersion handle freshness (see JwtAuthGuard).
+ * A session slides rather than expiring at a fixed time, because revocation
+ * does not rely on expiry — DB-backed role checks and tokenVersion handle
+ * freshness (see JwtAuthGuard).
  */
 @Module({
   imports: [
@@ -93,11 +96,10 @@ function signInStepSecret(): string {
     SettingsStateModule,
     // The account consent, asked on registration or the first password.
     ConsentModule,
+    // No default lifetime: each kind of token sets its own (Sessions,
+    // SignInStep).
     JwtModule.registerAsync({
-      useFactory: () => ({
-        secret: jwtSecret(),
-        signOptions: { expiresIn: '7d' },
-      }),
+      useFactory: () => ({ secret: jwtSecret() }),
     }),
   ],
   controllers: [AuthController],
@@ -111,6 +113,8 @@ function signInStepSecret(): string {
     { provide: PHONE_INPUT, useFactory: loadPhoneInput },
     // Every door that writes an account's number reads it by this rule.
     { provide: PHONE_RULE, useFactory: loadPhoneRule },
+    { provide: SESSION_IDLE_DAYS, useFactory: loadSessionIdleDays },
+    Sessions,
     { provide: SIGN_IN_STEP_CONFIG, useFactory: loadSignInStep },
     { provide: SIGN_IN_STEP_SECRET, useFactory: signInStepSecret },
     {
@@ -140,6 +144,8 @@ function signInStepSecret(): string {
     PasswordResetService,
     JwtAuthGuard,
     OptionalAuthGuard,
+    // The guards renew a session in use, wherever they are applied.
+    Sessions,
     RolesGuard,
     SessionVaryingInterceptor,
     JwtModule,

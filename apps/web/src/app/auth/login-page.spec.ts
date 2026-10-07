@@ -47,6 +47,7 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
             sentTo: '+49 (•••) •••-••78',
             phone: '+49 (•••) •••-••78',
             confirming: false,
+            rememberDays: 0,
             resendIn: 60,
           }),
           retryAfter: signal(null),

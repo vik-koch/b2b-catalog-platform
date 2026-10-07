@@ -1420,6 +1420,7 @@
     "signInPhoneMissing": "None that a code can reach. They cannot sign in until staff enter one in the account's details.",
     "signInCode": "Code after the password",
     "signInCodeAlways": "At every sign-in",
+    "signInCodeAlwaysRemembered": "At every sign-in, except on a browser they chose to remember (for up to {days} days)",
     "signInCodeOnce": "Once, to confirm the number",
     "signInCodeExempt": "Not asked: exempted by {admin} on {date}",
     "exempt": "Exempt from the code",

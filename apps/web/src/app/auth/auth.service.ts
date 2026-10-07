@@ -249,9 +249,14 @@ export class AuthService {
     return CODE_SEND_FAILURES[code];
   }
 
-  /** Enter the code. On success the session starts, as a login's would. */
-  async submitCode(code: string): Promise<CodeResult> {
-    const result = await safe(this.client.submitSignInCode({ body: { code } }));
+  /** Enter the code. On success the session starts, as a login's would, and
+   * `remember` asks the API to remember this browser where it was offered. */
+  async submitCode(code: string, remember = false): Promise<CodeResult> {
+    const result = await safe(
+      this.client.submitSignInCode({
+        body: remember ? { code, remember } : { code },
+      }),
+    );
     if (result.isSuccess) {
       this.signedIn(result.data);
       return { result: 'ok' };

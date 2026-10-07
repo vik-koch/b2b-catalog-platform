@@ -1,9 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { UserRow, UsersService } from '../users/users.service';
 import { toAuthUser } from './auth-user';
-import { JwtPayload } from './jwt-payload';
 import { PasswordPolicy, PasswordRejectedError } from './password-policy';
 import { PasswordService } from './password.service';
 
@@ -15,7 +13,6 @@ export class AuthService {
   constructor(
     private readonly users: UsersService,
     private readonly passwords: PasswordService,
-    private readonly jwt: JwtService,
     private readonly policy: PasswordPolicy,
   ) {}
 
@@ -45,17 +42,6 @@ export class AuthService {
    * password change re-issues the caller's own cookie and is not one. */
   recordSignIn(user: UserRow): Promise<void> {
     return this.users.recordSignIn(user.id);
-  }
-
-  /** Sign a session token carrying the identity and the current tokenVersion. */
-  signToken(user: UserRow): Promise<string> {
-    const payload: JwtPayload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      tokenVersion: user.tokenVersion,
-    };
-    return this.jwt.signAsync(payload);
   }
 
   /**

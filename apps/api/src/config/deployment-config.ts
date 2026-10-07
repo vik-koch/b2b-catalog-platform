@@ -26,6 +26,8 @@ import {
   pagesConfigSchema,
   RetentionConfig,
   retentionConfigSchema,
+  DEFAULT_SESSION_IDLE_DAYS,
+  sessionConfigSchema,
   SignInStepConfig,
   signInStepConfigSchema,
   TaxConfig,
@@ -102,6 +104,8 @@ export const apiDeploymentConfigSchema = z
     phoneInput: phoneInputSchema.optional(),
     /** The second sign-in step (FR-AUTH-12). Absent means off. */
     signInStep: signInStepConfigSchema.optional(),
+    /** How long a session lasts without use. Absent means the default. */
+    session: sessionConfigSchema.optional(),
     /**
      * Where the deployment ships. The API applies the country list as well as
      * the browser — a `<select>` is an entry aid, not a rule.
@@ -295,6 +299,12 @@ export function loadPhoneInput(): PhoneConfig | undefined {
 
 export function loadSignInStep(): SignInStepConfig | undefined {
   return loadApiDeploymentConfig().signInStep;
+}
+
+export function loadSessionIdleDays(): number {
+  return (
+    loadApiDeploymentConfig().session?.idleDays ?? DEFAULT_SESSION_IDLE_DAYS
+  );
 }
 
 /**

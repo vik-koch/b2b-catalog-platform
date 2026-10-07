@@ -2368,6 +2368,8 @@ export const adminTextSchema = z
         signInPhoneMissing: z.string(),
         signInCode: z.string(),
         signInCodeAlways: z.string(),
+        /** At `always` where a browser may be remembered; `{days}`. */
+        signInCodeAlwaysRemembered: z.string(),
         signInCodeOnce: z.string(),
         signInCodeExempt: z.string(),
         exempt: z.string(),

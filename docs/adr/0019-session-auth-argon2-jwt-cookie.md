@@ -1,7 +1,8 @@
 # 0019 — Session auth: argon2id + JWT-in-httpOnly-cookie, DB as authorization source
 
 **Status:** accepted · **Date:** 2026-07-25 · **Amended:** 2026-08-07 (what
-carrying the model to real accounts changed, v1.2.0)
+carrying the model to real accounts changed, v1.2.0); 2026-10-07 (the session
+slides)
 
 ## Context
 
@@ -92,3 +93,14 @@ The bootstrap admin is unchanged and still create-if-missing. What did change
 around it: an account provisioned by config is now the _only_ kind prompted to
 replace a password it did not choose (FR-AUTH-08) — approved customers pick
 theirs through a single-use link and never receive one (0034).
+
+## Amendment — 2026-10-07: the session slides
+
+The fixed 7-day expiry gives way to a sliding one (0066). A second sign-in step
+([FR-AUTH-12](../requirements.md#fr-auth-12)) makes every new session cost a
+message, so a regular customer should not have to start a new one each week. A
+used token more than a day old is reissued, and a session ends after
+`session.idleDays` without use. The default stays 7, so a deployment that sets
+nothing keeps the week it had; one that sends codes sets a longer stretch.
+Nothing else here changes: the token is still identity only, and `tokenVersion`
+still ends every session at once.

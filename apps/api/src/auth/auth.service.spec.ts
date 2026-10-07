@@ -1,6 +1,5 @@
 import type { Mock } from 'vitest';
 import { UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { UserRow, UsersService } from '../users/users.service';
 import { AuthService, WrongCurrentPasswordError } from './auth.service';
 import { PasswordPolicy, PasswordRejectedError } from './password-policy';
@@ -27,7 +26,6 @@ describe('AuthService', () => {
     setPassword: vi.fn(),
   };
   const passwords = { hash: vi.fn(), verify: vi.fn() };
-  const jwt = { signAsync: vi.fn() };
 
   // A policy that accepts everything: what it refuses is PasswordPolicy's own
   // spec, and this one is about credentials and session state.
@@ -36,7 +34,6 @@ describe('AuthService', () => {
   const service = new AuthService(
     users as unknown as UsersService,
     passwords as unknown as PasswordService,
-    jwt as unknown as JwtService,
     policy,
   );
 
@@ -85,21 +82,6 @@ describe('AuthService', () => {
         ).resolves.toBeNull();
       },
     );
-  });
-
-  describe('signToken', () => {
-    it('signs the identity plus the current tokenVersion', async () => {
-      jwt.signAsync.mockResolvedValue('signed');
-
-      await service.signToken(user());
-
-      expect(jwt.signAsync).toHaveBeenCalledWith({
-        sub: user().id,
-        email: user().email,
-        role: 'admin',
-        tokenVersion: 2,
-      });
-    });
   });
 
   describe('changePassword', () => {

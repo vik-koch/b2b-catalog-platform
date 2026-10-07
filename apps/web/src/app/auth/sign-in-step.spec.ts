@@ -16,6 +16,7 @@ const codeStep: SignInStep = {
   sentTo: '+49 (•••) •••-••78',
   phone: '+49 (•••) •••-••78',
   confirming: false,
+  rememberDays: 0,
   resendIn: 0,
 };
 
@@ -102,7 +103,7 @@ describe('SignInStepPanel', () => {
     setInput(el, '#signInCode', '123456');
     await sync();
 
-    expect(auth.submitCode).toHaveBeenCalledWith('123456');
+    expect(auth.submitCode).toHaveBeenCalledWith('123456', false);
     expect(el.textContent).toContain(text.wrong.replace('{count}', '2'));
     expect(done).not.toHaveBeenCalled();
   });
@@ -201,5 +202,27 @@ describe('SignInStepPanel', () => {
 
     expect(el.querySelector('#phone')).toBeNull();
     expect(el.querySelectorAll('button')).toHaveLength(2);
+  });
+
+  it('offers no box where the deployment remembers no browser', async () => {
+    const { el } = await render(codeStep);
+
+    expect(el.querySelector('input[type="checkbox"]')).toBeNull();
+  });
+
+  it('remembers the browser where the box is ticked', async () => {
+    const { el, auth, sync } = await render({ ...codeStep, rememberDays: 30 });
+    auth.submitCode.mockResolvedValue({ result: 'wrong', attemptsLeft: 2 });
+
+    expect(el.textContent).toContain(text.remember.replace('{days}', '30'));
+    el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.click();
+    setInput(el, '#signInCode', '123456');
+    await sync();
+
+    expect(auth.submitCode).toHaveBeenCalledWith('123456', true);
+    // A wrong code empties the boxes, not the choice.
+    expect(
+      el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked,
+    ).toBe(true);
   });
 });

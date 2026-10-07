@@ -732,6 +732,12 @@ export const users = pgTable('users', {
     (): AnyPgColumn => users.id,
     { onDelete: 'set null' },
   ),
+  // A remembered browser issued before this skips nothing (FR-AUTH-12). A
+  // trigger moves it when `phone` changes or the account is disabled or
+  // anonymized, so every path that does either forgets them all.
+  devicesTrustedSince: timestamp('devicesTrustedSince', {
+    withTimezone: true,
+  }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),

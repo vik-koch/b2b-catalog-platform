@@ -12,4 +12,7 @@ export interface JwtPayload {
   // Snapshot of the user's `tokenVersion` at issue time; the guard rejects the
   // token once the stored version moves past it (e.g. after a password change).
   tokenVersion: number;
+  // Issued-at, in seconds, set by the signer. A session in use is reissued
+  // once this is a day old (see Sessions).
+  iat?: number;
 }

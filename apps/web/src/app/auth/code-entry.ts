@@ -15,6 +15,7 @@ import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { FieldErrors } from '../core/form-errors';
 import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import { CodeInput } from '../ui/code-input';
 import { FieldLabel } from '../ui/field-label';
 import { TextButton } from '../ui/link';
@@ -43,7 +44,14 @@ function around(line: string, placeholder: string): [string, string] {
  */
 @Component({
   selector: 'app-code-entry',
-  imports: [ReactiveFormsModule, Button, CodeInput, FieldLabel, TextButton],
+  imports: [
+    ReactiveFormsModule,
+    Button,
+    Checkbox,
+    CodeInput,
+    FieldLabel,
+    TextButton,
+  ],
   host: { class: 'block' },
   template: `
     <!-- Each masked value is one unit: a number broken across two lines no
@@ -67,6 +75,26 @@ function around(line: string, placeholder: string): [string, string] {
       novalidate
       class="mt-6 space-y-6"
     >
+      <!-- Above the boxes, not below: six digits submit by themselves, so a
+           box after them would be passed before anyone reached it. -->
+      @if (rememberDays() > 0) {
+        <div>
+          <label class="flex cursor-pointer items-start gap-2 text-sm">
+            <input
+              appCheckbox
+              type="checkbox"
+              class="mt-0.5"
+              formControlName="remember"
+              aria-describedby="rememberBrowserHint"
+            />
+            <span>{{ rememberLabel() }}</span>
+          </label>
+          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-muted">
+            {{ text.rememberHint }}
+          </p>
+        </div>
+      }
+
       <div>
         <label [for]="inputId" appFieldLabel>{{ text.code }}</label>
         <app-code-input
@@ -145,7 +173,13 @@ export class CodeEntry {
   readonly intro = input.required<string>();
   /** A second line naming the number, `{phone}`, where it says something. */
   readonly note = input<string | null>(null);
-  readonly submitCode = input.required<(code: string) => Promise<CodeResult>>();
+  readonly submitCode =
+    input.required<(code: string, remember: boolean) => Promise<CodeResult>>();
+  /** Above 0, a box offers to remember this browser for that many days. */
+  readonly rememberDays = input(0);
+  protected readonly rememberLabel = computed(() =>
+    this.text.remember.replace('{days}', String(this.rememberDays())),
+  );
   readonly resendCode = input.required<() => Promise<SendResult>>();
   /** The wait a "no new code yet" refusal named, in seconds. */
   readonly retryAfter = input<() => number | null>(() => null);
@@ -177,6 +211,7 @@ export class CodeEntry {
         Validators.pattern(new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`)),
       ],
     ],
+    remember: false,
   });
   protected readonly errors = new FieldErrors(this.form);
 
@@ -209,8 +244,10 @@ export class CodeEntry {
     if (this.form.invalid) return;
 
     this.busy.set(true);
+    const { code, remember } = this.form.getRawValue();
     const outcome = await this.submitCode()(
-      this.form.controls.code.value.trim(),
+      code.trim(),
+      this.rememberDays() > 0 && remember,
     );
     this.busy.set(false);
     if (outcome.result === 'ok') {
@@ -231,7 +268,8 @@ export class CodeEntry {
   }
 
   private clear(): void {
-    this.form.reset();
+    // The code only: a ticked box stays ticked for the next try.
+    this.form.controls.code.reset();
     this.errors.reset();
     this.codeInput()?.focus();
   }

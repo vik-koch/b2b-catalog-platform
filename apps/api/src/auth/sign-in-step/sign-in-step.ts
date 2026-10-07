@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
@@ -35,6 +36,11 @@ export const SIGN_IN_STEP_SECRET = 'SIGN_IN_STEP_SECRET';
 export const PENDING_COOKIE = 'sign_in_step';
 const PENDING_TTL_S = 15 * 60;
 
+/** The httpOnly cookie that lets a browser skip the code, never the password.
+ * Survives signing out and password changes; see `remember`. */
+export const REMEMBERED_COOKIE = 'remembered_browser';
+const DAY_S = 24 * 60 * 60;
+
 /** What a sign-in owes before its session: nothing, a code to the confirmed
  * number, or a number to confirm first. */
 export type StepNeed = 'none' | 'code' | 'confirm';
@@ -42,6 +48,13 @@ export type StepNeed = 'none' | 'code' | 'confirm';
 interface PendingClaims {
   sub: string;
   tokenVersion: number;
+}
+
+interface RememberedClaims {
+  sub: string;
+  /** When it was issued, in milliseconds: a token's own `iat` counts whole
+   * seconds, too coarse to compare with `devicesTrustedSince`. */
+  at: number;
 }
 
 export { CodeDeliveryError, CodeResendLimitError };
@@ -58,6 +71,10 @@ export type { CodeCheck };
  */
 @Injectable()
 export class SignInStep {
+  /** Its own key, so a remembered browser is neither a pending sign-in nor a
+   * session. */
+  private readonly rememberSecret: string;
+
   constructor(
     @Inject(SIGN_IN_STEP_CONFIG)
     private readonly config: SignInStepConfig | undefined,
@@ -68,7 +85,11 @@ export class SignInStep {
     private readonly codes: SignInCodes,
     private readonly users: UsersService,
     @Inject(CODE_DELIVERY) private readonly delivery: CodeDelivery,
-  ) {}
+  ) {
+    this.rememberSecret = createHash('sha256')
+      .update(`remembered-browser:${secret}`)
+      .digest('hex');
+  }
 
   /**
    * Whether this account is asked for a code at all: the deployment asks its
@@ -117,6 +138,9 @@ export class SignInStep {
   ): Promise<StepAnswer | null> {
     const need = this.need(user);
     if (need === 'none') return null;
+    // A remembered browser skips a sign-in code. A number still to be
+    // confirmed cannot have one: changing it forgot them all.
+    if (need === 'code' && (await this.remembered(req, user))) return null;
 
     const phone = this.readablePhone(user.phone);
     if (!phone) {
@@ -192,6 +216,55 @@ export class SignInStep {
     return { result: 'ok', user: updated };
   }
 
+  /**
+   * How long the code screen offers to remember the browser, in days; 0 hides
+   * the box. Offered only at `always`: under `once` there is no next code to
+   * skip.
+   */
+  rememberDays(): number {
+    const config = this.config;
+    return config?.mode === 'always' ? (config.trustDeviceDays ?? 0) : 0;
+  }
+
+  /**
+   * The person ticked the box with the right code. The cookie names only the
+   * account and when it was set: it is not checked against `tokenVersion`, so
+   * signing out and changing the password leave it standing, and only a moved
+   * `devicesTrustedSince` (a changed number, a disabled or anonymized
+   * account) ends it.
+   */
+  async remember(req: Request, res: Response, user: UserRow): Promise<void> {
+    const days = this.rememberDays();
+    if (days <= 0) return;
+    const claims: RememberedClaims = { sub: user.id, at: Date.now() };
+    const token = await this.jwt.signAsync(claims, {
+      secret: this.rememberSecret,
+      expiresIn: days * DAY_S,
+    });
+    res.cookie(REMEMBERED_COOKIE, token, {
+      ...sessionCookieAttributes(req),
+      maxAge: days * DAY_S * 1000,
+    });
+  }
+
+  /** Whether this browser was remembered for this account, and still is. */
+  private async remembered(req: Request, user: UserRow): Promise<boolean> {
+    if (this.rememberDays() <= 0) return false;
+    const token = req.cookies?.[REMEMBERED_COOKIE];
+    if (typeof token !== 'string') return false;
+    let claims: RememberedClaims;
+    try {
+      claims = await this.jwt.verifyAsync<RememberedClaims>(token, {
+        secret: this.rememberSecret,
+      });
+    } catch {
+      return false;
+    }
+    if (claims.sub !== user.id) return false;
+    const forgotten = user.devicesTrustedSince?.getTime() ?? 0;
+    return claims.at > forgotten;
+  }
+
   /** The sign-in is over, either way. */
   end(req: Request, res: Response): void {
     res.clearCookie(PENDING_COOKIE, sessionCookieAttributes(req));
@@ -210,6 +283,7 @@ export class SignInStep {
       step: 'code',
       ...this.sent(user, sent),
       confirming: this.need(user) === 'confirm',
+      rememberDays: this.rememberDays(),
     };
   }
 

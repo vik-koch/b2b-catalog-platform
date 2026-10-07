@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UserRow, UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from './auth.constants';
 import { AuthenticatedRequest } from './authenticated-request';
+import { Sessions } from './sessions';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 const userRow = (overrides: Partial<UserRow> = {}): UserRow =>
@@ -28,23 +29,30 @@ const validClaims = {
 
 const contextWith = (cookies: Record<string, string>) => {
   const request = { cookies } as unknown as AuthenticatedRequest;
+  const response = {};
   const context = {
-    switchToHttp: () => ({ getRequest: () => request }),
+    switchToHttp: () => ({
+      getRequest: () => request,
+      getResponse: () => response,
+    }),
   } as unknown as ExecutionContext;
-  return { context, request };
+  return { context, request, response };
 };
 
 describe('JwtAuthGuard', () => {
   const verifyAsync = vi.fn();
   const findById = vi.fn();
+  const renew = vi.fn();
   const guard = new JwtAuthGuard(
     { verifyAsync } as unknown as JwtService,
     { findById } as unknown as UsersService,
+    { renew } as unknown as Sessions,
   );
 
   beforeEach(() => {
     verifyAsync.mockReset();
     findById.mockReset();
+    renew.mockReset();
   });
 
   it('rejects a request with no session cookie', async () => {
@@ -112,5 +120,28 @@ describe('JwtAuthGuard', () => {
       role: 'user',
       mustChangePassword: false,
     });
+  });
+  // Whether it is old enough to reissue is Sessions' call; the guard only
+  // hands over a session that proved valid.
+  it('hands a valid session over to be renewed', async () => {
+    // One row for both sides: two userRow() calls can straddle a millisecond.
+    const row = userRow();
+    verifyAsync.mockResolvedValue(validClaims);
+    findById.mockResolvedValue(row);
+    const { context, request, response } = contextWith({
+      [AUTH_COOKIE]: 'token',
+    });
+
+    await expect(guard.canActivate(context)).resolves.toBe(true);
+    expect(renew).toHaveBeenCalledWith(request, response, validClaims, row);
+  });
+
+  it('renews nothing it did not accept', async () => {
+    verifyAsync.mockResolvedValue({ ...validClaims, tokenVersion: 0 });
+    findById.mockResolvedValue(userRow({ tokenVersion: 1 }));
+    const { context } = contextWith({ [AUTH_COOKIE]: 'token' });
+
+    await guard.canActivate(context).catch(() => undefined);
+    expect(renew).not.toHaveBeenCalled();
   });
 });

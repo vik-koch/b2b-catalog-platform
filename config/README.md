@@ -243,7 +243,8 @@ optional, and absent means off. The demo leaves it out.
 "signInStep": {
   "mode": "always",
   "roles": ["user", "manager", "admin"],
-  "exemptableRoles": ["manager", "admin"]
+  "exemptableRoles": ["manager", "admin"],
+  "trustDeviceDays": 30
 }
 ```
 
@@ -256,6 +257,12 @@ optional, and absent means off. The demo leaves it out.
   country. Optional, and absent means nobody. The exemption is recorded with
   the admin and the date. Taking a role off the list ends every exemption of
   that role at once.
+- `trustDeviceDays` lets the person tick "remember this browser" on the code
+  screen, at `always` only. That browser then skips the code, never the
+  password, for this many days. Signing out and changing the password leave
+  it remembered; a changed number, or a disabled or deleted account, forgets
+  every remembered browser. Optional, and absent or 0 means never, which is
+  what a rule asking for a code at every sign-in wants.
 
 Where an account is asked for a code, its number is how it signs in, and only
 staff change it: the holder sees it on their account page but cannot edit it,
@@ -267,6 +274,20 @@ Codes go to the deployment's code sidecar at `SIGN_IN_CODE_URL` (see
 fine for trying the feature out but is no second factor. The text a code
 travels in is `signInCode.message` in `mail-text.json`; keep it to one SMS,
 since a second part costs a second message.
+
+### How long a session lasts
+
+A session renews while it is used and ends after `session.idleDays` without
+use. Optional, and absent means 7. A deployment that asks for a code at every
+sign-in usually sets it longer, so a customer who keeps coming back is rarely
+asked: each new session is a message to pay for. The demo leaves it out.
+
+```json
+"session": { "idleDays": 30 }
+```
+
+Changing the password, or a staff member disabling the account, still ends
+every session at once.
 
 ## Assets (logo, favicon, fonts)
 
