@@ -135,19 +135,16 @@ describe('OptionalAuthGuard', () => {
   // Whether it is old enough to reissue is Sessions' call; the guard only
   // hands over a session that proved valid.
   it('hands a valid session over to be renewed', async () => {
+    // One row for both sides: two userRow() calls can straddle a millisecond.
+    const row = userRow();
     verifyAsync.mockResolvedValue(validClaims);
-    findById.mockResolvedValue(userRow());
+    findById.mockResolvedValue(row);
     const { context, request, response } = contextWith({
       [AUTH_COOKIE]: 'token',
     });
 
     await expect(guard.canActivate(context)).resolves.toBe(true);
-    expect(renew).toHaveBeenCalledWith(
-      request,
-      response,
-      validClaims,
-      userRow(),
-    );
+    expect(renew).toHaveBeenCalledWith(request, response, validClaims, row);
   });
 
   it('renews nothing it did not accept', async () => {
