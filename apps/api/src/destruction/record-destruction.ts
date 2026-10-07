@@ -17,6 +17,13 @@ export const ACCOUNT_DELETION_CATEGORIES: readonly DestructionCategory[] = [
   'order-documents',
 ];
 
+/** What removing an order's personal details destroys (NFR-LEGAL-14),
+ * whether its retention ended or a guest asked. */
+export const ORDER_REMOVAL_CATEGORIES: readonly DestructionCategory[] = [
+  'order-details',
+  'order-documents',
+];
+
 /** What declining a registration destroys (FR-AUTH-11): it never ordered. */
 export const REGISTRATION_CATEGORIES: readonly DestructionCategory[] = [
   'account-details',

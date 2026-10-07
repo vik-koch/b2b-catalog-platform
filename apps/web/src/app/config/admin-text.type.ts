@@ -1918,6 +1918,26 @@ export const adminTextSchema = z
             error: z.string(),
           })
           .strict(),
+        /**
+         * The personal details on the order (NFR-LEGAL-14): when they were
+         * removed, or on a finished guest order, removing them on the
+         * guest's request.
+         */
+        personalData: z
+          .object({
+            heading: z.string(),
+            /** A finished guest order that still carries them. */
+            kept: z.string(),
+            /** `{date}` they were removed. */
+            removed: z.string(),
+            remove: z.string(),
+            confirmHeading: z.string(),
+            confirmMessage: z.string(),
+            confirmWarning: z.string(),
+            confirm: z.string(),
+            error: z.string(),
+          })
+          .strict(),
         /** The two documents an order carries (FR-ORD-05). */
         documents: z
           .object({

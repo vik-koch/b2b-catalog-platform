@@ -7,6 +7,7 @@ import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
 import { ordersExternallyOwned } from '../settings/ownership.refusals';
 import { SettingsService } from '../settings/settings.service';
+import { OrderPersonalData } from './order-personal-data';
 import { OrdersService } from './orders.service';
 
 /**
@@ -25,6 +26,7 @@ export class AdminOrdersController {
     private readonly orders: OrdersService,
     private readonly audit: AuditLogger,
     private readonly settings: SettingsService,
+    private readonly personalData: OrderPersonalData,
   ) {}
 
   /**
@@ -203,6 +205,25 @@ export class AdminOrdersController {
         // — or unticked one it should not have — is noise. The order's own
         // page says what it owes.
         return order;
+      });
+  }
+
+  /**
+   * A guest's request to have their details removed (NFR-LEGAL-14). An
+   * admin's alone, since it cannot be undone, and never refused by the
+   * ownership switch: the person's right outranks it.
+   */
+  @Auth('admin')
+  @Implement(ordersContract.removeOrderPersonalData)
+  removeOrderPersonalData(@CurrentUser() actor: AuthUser) {
+    return implement(ordersContract.removeOrderPersonalData)
+      .use(refusals)
+      .handler(async ({ input: { params } }) => {
+        await this.personalData.removeOnRequest(params.reference, actor);
+        this.audit.record('order.personalDataRemoved', actor, {
+          reference: params.reference,
+        });
+        return this.orders.getForStaff(params.reference);
       });
   }
 }

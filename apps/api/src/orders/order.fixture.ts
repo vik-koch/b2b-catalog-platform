@@ -41,6 +41,7 @@ export const demoAdminOrder: AdminOrderDetail = {
     },
   ],
   paidAt: null,
+  personalDataRemovedAt: null,
   totalMinor: 12600,
   currency: 'EUR',
   itemCount: 2,

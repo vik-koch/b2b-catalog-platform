@@ -206,6 +206,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-LEGAL-11](#nfr-legal-11) — The tax basis of the prices
 - [NFR-LEGAL-12](#nfr-legal-12) — A record that personal data was destroyed
 - [NFR-LEGAL-13](#nfr-legal-13) — An account of the personal data the platform holds
+- [NFR-LEGAL-14](#nfr-legal-14) — An order's personal details end
 
 **[Security (NFR-SEC)](#nfr-sec)**
 
@@ -936,9 +937,9 @@ The basis and the rates can change while orders are open, through a new rate or 
 
 #### <a id="nfr-legal-12"></a>NFR-LEGAL-12 — A record that personal data was destroyed
 
-The platform writes a record each time it destroys personal data, in the same moment as the destruction and never one without the other, so a shop that must prove a destruction has the evidence even if nobody thought of it at the time. Three things destroy personal data here: deleting an account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin ([FR-ADM-23](#fr-adm-23)), declining a registration, which removes it ([FR-AUTH-11](#fr-auth-11)), and deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
+The platform writes a record each time it destroys personal data, in the same moment as the destruction and never one without the other, so a shop that must prove a destruction has the evidence even if nobody thought of it at the time. These things destroy personal data here: deleting an account, by its holder ([FR-AUTH-06](#fr-auth-06)) or by an admin ([FR-ADM-23](#fr-adm-23)); declining a registration, which removes it ([FR-AUTH-11](#fr-auth-11)); deleting a consent record at the end of its retention period ([NFR-LEGAL-09](#nfr-legal-09)); and removing an order's personal details, at the end of its retention period or on a guest's request ([NFR-LEGAL-14](#nfr-legal-14)). Anonymizing an account's past orders is part of deleting the account, not a separate act.
 
-Each record names whose data it was, in terms that still identify the person afterwards without holding the destroyed data itself: the account's id, or a consent record's id where no account stands behind it. It also states which categories of data were destroyed, why — the person's request, a withdrawn consent, a declined registration, the end of a retention period — who did it, and when. The application never changes a record. Records are kept for a period the deployment sets, and are then deleted themselves, without a record of their own.
+Each record names whose data it was, in terms that still identify the person afterwards without holding the destroyed data itself: the account's id, or where no account stands behind it, the consent record's or the order's. It also states which categories of data were destroyed, why — the person's request, a withdrawn consent, a declined registration, the end of a retention period — who did it, and when. The application never changes a record. Records are kept for a period the deployment sets, and are then deleted themselves, without a record of their own.
 
 The records are the operator's to read out, for a period, when the shop draws up its own paperwork, such as a signed statement of destruction; the platform does not produce that paperwork, and the extract is a query rather than a screen.
 
@@ -949,6 +950,14 @@ A stored customer sync run ([FR-ADM-11](#fr-adm-11)/[12](#fr-adm-12)) keeps what
 The repository keeps one account of every kind of personal data the platform holds: what it is, whose it is, where it is kept, what it is held for, how long it lives and how it ends, and who outside the platform receives it. It covers the copies outside the database too — logs, backups, stored files, mail on its way out, and what the visitor's own browser keeps — because deleting a person here clears the database at once and those copies only later, and the shop has to be able to say when. Staff are covered as well as customers, since the platform's trails keep who did what.
 
 It names kinds of recipient, not providers, and marks every point a deployment decides, such as a retention period or a consent purpose switched on, so a deployment completes it with its own providers and settings instead of rewriting it. It is what the shop writes its privacy policy ([NFR-LEGAL-01](#nfr-legal-01)) from, together with whatever its jurisdiction asks a controller to file or keep about its processing. The platform writes neither. It is kept current like the lifecycle documents: a change that adds a kind of personal data, a place it is copied to or a recipient changes this account in the same change.
+
+#### <a id="nfr-legal-14"></a>NFR-LEGAL-14 — An order's personal details end
+
+An order keeps the personal details it was placed with — who to contact, who is invoiced, where it goes, and the notes written on it — only as long as the shop needs them. The platform is not where the shop keeps its books: invoices and accounts live in the shop's own systems. What the order here is still needed for, once it is finished, is answering a question or a claim about it. A deployment therefore sets a retention period. Once an order has been finished for that long, its personal details are removed the way deleting an account removes them ([FR-AUTH-06](#fr-auth-06)): in every version, together with the documents supplied for it ([FR-ORD-05](#fr-ord-05)). The order itself stays, with its reference, dates, lines and totals, so the shop's figures still add up. An order is finished once it is completed, declined or cancelled and no payment is awaited on it. Its period runs from the last thing that happened to it, so an order reopened and finished again starts over. Account holders' orders are included: an account that stays open does not keep its old orders' details for good.
+
+A guest has no account to delete, so a guest's request to have their details removed reaches the shop by letter, email or phone. An admin can remove the personal details from a guest order on that request once the order is finished. While it is still running, the shop needs them to fulfil it. The removal cannot be undone, so it asks for confirmation. An account holder's orders are not cleared one by one: deleting the account clears them all ([FR-ADM-23](#fr-adm-23)).
+
+Each removal is recorded as a destruction ([NFR-LEGAL-12](#nfr-legal-12)), naming the account where there is one and otherwise the order. The order shows staff when its details were removed. An external system reading the orders ([FR-ADM-08](#fr-adm-08)) meets the order again with the details blank, as it does after an account is deleted.
 
 ---
 

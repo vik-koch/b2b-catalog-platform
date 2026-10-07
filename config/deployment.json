@@ -33,7 +33,8 @@
   },
   "retention": {
     "consentRecordDays": 1095,
-    "destructionRecordDays": 1095
+    "destructionRecordDays": 1095,
+    "orderDays": 1095
   },
   "tax": {
     "basis": "included",

@@ -146,6 +146,8 @@ const ADMIN_DETAIL_KEYS = [
   // is looking at (FR-NOTIF-06). Null on an order placed from an account.
   'publicToken',
   'paidAt',
+  // When its personal details went (NFR-LEGAL-14); null while it has them.
+  'personalDataRemovedAt',
   'revisionNumber',
   'statusChangedAt',
   'termsVersion',

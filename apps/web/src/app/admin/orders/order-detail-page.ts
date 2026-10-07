@@ -14,6 +14,7 @@ import {
   AdminOrderLine,
   allowedTransitions,
   fillText,
+  isOrderFinished,
   moveDirection,
   nextPaymentState,
   notifyByDefault,
@@ -40,6 +41,7 @@ import { orderDateTimeFormat } from '../../orders/order-view';
 import { Button } from '../../ui/button';
 import { ConfirmCheck } from '../../ui/confirm-dialog';
 import { ConfirmService } from '../../ui/confirm.service';
+import { AuthService } from '../../auth/auth.service';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
@@ -161,6 +163,31 @@ const MARK_PAID = 'markPaid';
                     >
                   }
                 </dd>
+                <!-- Under whose order it is, since that is whose details
+                     they are (NFR-LEGAL-14). Only where there is something to
+                     say: they are gone, or a guest may ask for them to go. -->
+                @if (personalData(); as data) {
+                  <dt [class]="term">{{ text.personalData.heading }}</dt>
+                  <dd [class]="row">
+                    <p class="min-w-0">{{ data.label }}</p>
+                    @if (data.removable) {
+                      <div [class]="actions">
+                        <button
+                          appButton
+                          size="sm"
+                          variant="secondary"
+                          type="button"
+                          class="w-full gap-2 sm:w-auto"
+                          [disabled]="busy()"
+                          (click)="removePersonalData(order)"
+                        >
+                          <app-admin-icon name="trash-2" class="h-4 w-4" />
+                          {{ text.personalData.remove }}
+                        </button>
+                      </div>
+                    }
+                  </dd>
+                }
                 <dt [class]="term">{{ text.tier }}</dt>
                 <dd [class]="value">{{ order.tierKey ?? text.tierDefault }}</dd>
                 @if (termsLabel(order); as terms) {
@@ -560,6 +587,8 @@ export class AdminOrderDetailPage {
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
+  private readonly auth = inject(AuthService);
+  private readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = this.config.catalog.currency;
 
@@ -1206,6 +1235,55 @@ export class AdminOrderDetailPage {
       run: () => this.setPayment(order, !paid),
     };
   });
+
+  /**
+   * The personal details row (NFR-LEGAL-14): when they were removed, on any
+   * order, or on a finished guest order an admin sees, the way to remove them
+   * on the guest's request. Nothing on an order still running or carrying an
+   * account: the first needs them, and the second loses them with the
+   * account. Offered while orders are owned elsewhere too, since the guest's
+   * right outranks that switch.
+   */
+  protected readonly personalData = computed(() => {
+    const order = this.detail();
+    if (!order) return null;
+    const text = this.text.personalData;
+    if (order.personalDataRemovedAt) {
+      return {
+        label: fillText(text.removed, {
+          date: this.dateFormat.format(new Date(order.personalDataRemovedAt)),
+        }),
+        removable: false,
+      };
+    }
+    const guest = order.customerEmail === null;
+    if (
+      !guest ||
+      !this.isAdmin() ||
+      !isOrderFinished(order.status, order.paymentState)
+    ) {
+      return null;
+    }
+    return { label: text.kept, removable: true };
+  });
+
+  protected async removePersonalData(order: AdminOrderDetail): Promise<void> {
+    const text = this.text.personalData;
+    const confirmed = await this.confirm.ask({
+      heading: text.confirmHeading,
+      message: fillText(text.confirmMessage, { reference: order.reference }),
+      warning: text.confirmWarning,
+      confirmLabel: text.confirm,
+      cancelLabel: this.text.paymentState.keep,
+      confirmVariant: 'danger',
+    });
+    if (!confirmed) return;
+
+    await this.run(
+      () => this.api.removePersonalData(order.reference),
+      text.error,
+    );
+  }
 
   private async setPayment(
     order: AdminOrderDetail,
