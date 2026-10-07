@@ -58,9 +58,9 @@ export function useTaxStatement() {
      * null where the deployment says nothing there, and under `none`, which
      * a total says once. */
     atPrice(rate: number | null): string | null {
-      return tax.basis !== 'none' && tax.statedAtPrices
-        ? statement(tax.basis, rate ?? tax.rate)
-        : null;
+      if (tax.basis === 'none' || !tax.statedAtPrices) return null;
+      const said = statement(tax.basis, rate ?? tax.rate);
+      return text.atPrice ? fillText(text.atPrice, { statement: said }) : said;
     },
 
     /** Under a listing, naming no rate: one page may hold goods at two. */

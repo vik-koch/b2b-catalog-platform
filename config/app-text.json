@@ -280,7 +280,7 @@
       "backToCart": "Back to cart",
       "send": "Review and send"
     },
-    "submit": "Send order request",
+    "submit": "Order with obligation to pay",
     "submitting": "Sending…",
     "successHeading": "Thank you — we have your order",
     "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
@@ -619,7 +619,7 @@
     "link": "our privacy policy"
   },
   "termsNotice": {
-    "text": "By sending the order you accept",
+    "text": "By placing the order you accept",
     "link": "our terms of sale"
   },
   "consentBox": {
@@ -667,9 +667,10 @@
       "added": "Plus VAT at the rate each item states"
     },
     "line": "{rate}\u00a0% VAT",
+    "atPrice": "{statement}, plus delivery",
     "listing": {
-      "included": "All prices include VAT.",
-      "added": "All prices are net, plus VAT."
+      "included": "All prices include VAT, plus delivery.",
+      "added": "All prices are net, plus VAT and delivery."
     }
   },
   "licenses": {
@@ -678,7 +679,8 @@
     "unknownLicense": "License not declared"
   },
   "map": {
-    "consentNotice": "This map is hidden until you accept cookies."
+    "consentNotice": "This map is loaded from OpenStreetMap, which receives your IP address when it loads. It stays hidden until you allow it.",
+    "load": "Show the map"
   },
   "consent": {
     "message": "This site sets only the cookies it needs to work. The map on our contact page is loaded from OpenStreetMap, which receives your IP address when it loads, so we ask first. More in our",

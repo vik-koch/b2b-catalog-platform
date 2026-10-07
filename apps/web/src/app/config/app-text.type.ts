@@ -1424,6 +1424,10 @@ export const appTextSchema = z
         /** Under a listing, which may hold goods at different rates and so
          * names none. Nothing is said where no tax is charged. */
         listing: z.object({ included: z.string(), added: z.string() }).strict(),
+        /** Beside a price only, where a deployment says more there than the
+         * statement, such as that delivery comes on top; `{statement}`. Not
+         * under a total, which a pickup order has no delivery on. */
+        atPrice: z.string().optional(),
       })
       .strict(),
     /**
@@ -1441,7 +1445,13 @@ export const appTextSchema = z
       .strict(),
     map: z
       .object({
+        /** In place of a map that waits for consent: who it comes from and
+         * what loading it hands them. */
         consentNotice: z.string(),
+        /** A button under the notice that loads the map, giving the same
+         * consent the banner asks for. Without it the notice stands alone
+         * and the banner is the only way in. */
+        load: z.string().optional(),
       })
       .strict(),
     consent: z
