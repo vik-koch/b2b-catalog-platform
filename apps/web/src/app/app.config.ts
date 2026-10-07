@@ -18,6 +18,7 @@ import { appRoutes } from './app.routes';
 import { BenignErrorFilter } from './core/benign-errors';
 import { provideHydration } from './core/hydration';
 import { StaticPageReuseStrategy } from './core/route-reuse';
+import { ScrollRestoration } from './core/scroll-restoration';
 import { CartRepricing } from './cart/cart-repricing';
 import { provideAppText } from './config/app-text';
 import { provideDeploymentConfig } from './config/deployment-config';
@@ -38,12 +39,13 @@ export const appConfig: ApplicationConfig = {
       appRoutes,
       withComponentInputBinding(),
       withViewTransitions({ skipInitialTransition: true }),
-      // Every navigation starts at the top — paging through a grid otherwise
-      // leaves the visitor halfway down the next page. `top` rather than
-      // `enabled` on purpose: the pages here are lists whose content changes
-      // under the same route, so a restored offset points at nothing.
+      // A new navigation starts at the top — paging through a grid otherwise
+      // leaves the visitor halfway down the next page. Back and forward return
+      // to where the visitor was; the URL carries the page, sort and filters,
+      // so the listing it returns to is the one they left. The router restores
+      // before a listing has loaded, so ScrollRestoration repeats it after.
       withInMemoryScrolling({
-        scrollPositionRestoration: 'top',
+        scrollPositionRestoration: 'enabled',
         anchorScrolling: 'enabled',
       }),
     ),
@@ -65,6 +67,9 @@ export const appConfig: ApplicationConfig = {
     // build's route extraction included.
     provideEnvironmentInitializer(() => {
       if (isPlatformBrowser(inject(PLATFORM_ID))) inject(CartRepricing);
+    }),
+    provideEnvironmentInitializer(() => {
+      if (isPlatformBrowser(inject(PLATFORM_ID))) inject(ScrollRestoration);
     }),
   ],
 };

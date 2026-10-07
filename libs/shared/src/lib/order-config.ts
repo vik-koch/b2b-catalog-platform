@@ -81,6 +81,13 @@ export const deliveryZoneSchema = z
      * before the order than after it.
      */
     delivers: z.boolean().optional(),
+    /**
+     * Presentation only: neighbouring zones with the same level share a row on
+     * the conditions page, from `sm` up — a city, then the two regions around
+     * it side by side, then the rest of the country. Matching ignores it; the
+     * list order is still the order zones are tried in.
+     */
+    level: z.number().int().nonnegative().optional(),
     match: zoneMatchSchema,
   })
   .strict()

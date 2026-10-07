@@ -92,7 +92,12 @@ interface Options {
   noPhone?: boolean;
   /** The session's role. Staff do not buy; everything else assumes a customer. */
   role?: 'user' | 'manager' | 'admin';
+  /** Holds the profile back until `releaseProfile` is called, so the page can
+   * be read while its form is still waiting. */
+  holdProfile?: boolean;
 }
+
+let releaseProfile: () => void = () => undefined;
 
 /** Every submission the page sent, and what it was answered with. */
 let sent: OrderSubmission[] = [];
@@ -154,18 +159,22 @@ async function render(options: Options = {}) {
       {
         provide: AccountService,
         useValue: {
-          getProfile: vi.fn(async () => ({
-            email: 'alex@example.com',
-            role: 'user',
-            firstName: 'Alex',
-            lastName: 'Fischer',
-            phone: options.noPhone ? null : '+494012345678',
-            customerType: options.person ? 'person' : 'company',
-            companyName:
-              options.companyName ?? (options.person ? null : 'Kontor GmbH'),
-            companyRegistrationId: options.person ? null : 'DE123456789',
-            createdAt: '2026-02-01T10:00:00.000Z',
-          })),
+          getProfile: vi.fn(async () => {
+            if (options.holdProfile)
+              await new Promise<void>((resolve) => (releaseProfile = resolve));
+            return {
+              email: 'alex@example.com',
+              role: 'user',
+              firstName: 'Alex',
+              lastName: 'Fischer',
+              phone: options.noPhone ? null : '+494012345678',
+              customerType: options.person ? 'person' : 'company',
+              companyName:
+                options.companyName ?? (options.person ? null : 'Kontor GmbH'),
+              companyRegistrationId: options.person ? null : 'DE123456789',
+              createdAt: '2026-02-01T10:00:00.000Z',
+            };
+          }),
         },
       },
     ],
@@ -185,11 +194,16 @@ async function render(options: Options = {}) {
     },
   );
   // Twice: the first pass resolves the book and the profile, the second
-  // renders what they seeded.
-  await fixture.whenStable();
-  fixture.detectChanges();
-  await fixture.whenStable();
-  fixture.detectChanges();
+  // renders what they seeded. A held profile never settles, so it is drawn
+  // as it stands.
+  if (options.holdProfile) {
+    fixture.detectChanges();
+  } else {
+    await fixture.whenStable();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  }
 
   const el = fixture.nativeElement as HTMLElement;
 
@@ -364,6 +378,27 @@ describe('CheckoutPage', () => {
 
       expect(page.text()).toContain(text.fulfilment.deliveryTitle);
       expect(page.text()).not.toContain(text.fulfilment.pickupTitle);
+    });
+  });
+
+  describe('while the form is loading', () => {
+    /*
+     * Stacked under the form, a summary drawn before it stood under the
+     * heading and was pushed down the moment the form arrived. It keeps its
+     * place hidden instead; beside the form it is shown throughout.
+     */
+    it('keeps the summary hidden until the form is drawn', async () => {
+      const page = await render({ holdProfile: true });
+      const aside = page.el.querySelector('aside');
+
+      expect(aside?.classList).toContain('invisible');
+
+      releaseProfile();
+      await page.settle();
+      await page.settle();
+
+      expect(aside?.classList).not.toContain('invisible');
+      expect(page.text()).toContain('Kontor GmbH');
     });
   });
 

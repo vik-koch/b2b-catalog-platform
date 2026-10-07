@@ -29,7 +29,9 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
  * a usable width for as long as there is room to give it and cannot be pushed
  * off centre by the buttons beside it. Narrower than that, the title keeps the
  * action beside it — the one thing this screen is for is never below the fold —
- * and the search box takes the line under them for itself.
+ * and the search box takes the line under them for itself. A grid with no
+ * search box gives its column to the title, so a long one does not wrap
+ * around an empty middle.
  */
 @Component({
   selector: 'app-admin-list-header',
@@ -45,7 +47,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
            else is in it — a 38px button here, a search box there, nothing at
            all on a phone — and a centred heading moved by a pixel or two every
            time that changed. -->
-      <h1 class="order-1 self-start text-3xl font-medium tracking-tight">
+      <h1 [class]="titleClass()">
         {{ title() }}
       </h1>
 
@@ -72,8 +74,6 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
             [filtered]="filtered()"
           />
         </div>
-      } @else {
-        <div class="order-3 hidden md:order-2 md:block"></div>
       }
     </div>
   `,
@@ -94,4 +94,9 @@ export class AdminListHeader {
   readonly narrowBelow = input<NarrowBreakpoint>('lg');
 
   protected readonly clearClass = computed(() => CLEAR_AT[this.narrowBelow()]);
+  protected readonly titleClass = computed(
+    () =>
+      'order-1 self-start text-3xl font-medium tracking-tight' +
+      (this.searchable() ? '' : ' md:col-span-2'),
+  );
 }
