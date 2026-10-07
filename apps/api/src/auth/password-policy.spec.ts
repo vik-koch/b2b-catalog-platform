@@ -21,7 +21,11 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
       pages: { published: [], headerNav: [], footerNav: [] },
       consent: { contact: false, account: false },
       terms: { attachToReceipt: false },
-      retention: { consentRecordDays: 1095, destructionRecordDays: 1095 },
+      retention: {
+        consentRecordDays: 1095,
+        destructionRecordDays: 1095,
+        orderDays: 1095,
+      },
       tax: { basis: 'none' },
     }),
   );

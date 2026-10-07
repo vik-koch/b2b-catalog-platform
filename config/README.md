@@ -195,30 +195,38 @@ name no rate.
 
 ### Retention
 
-The platform keeps two kinds of evidence about personal data, and deletes each
-once its period has run out. A sweep checks daily, starting a minute after the
-API boots.
+The platform keeps orders' personal details and two kinds of evidence about
+personal data for a period, and removes each once its period has run out. A
+sweep checks daily, starting a minute after the API boots.
 
 ```json
 "retention": {
   "consentRecordDays": 1095,
-  "destructionRecordDays": 1095
+  "destructionRecordDays": 1095,
+  "orderDays": 1095
 }
 ```
 
-Both keys are required, in days, because each period is a legal decision for
-the deployment.
+All three keys are required, in days, because each period is a legal decision
+for the deployment.
 
 - `consentRecordDays` is how long a consent record is kept, counted from its
   withdrawal. A contact consent counts from when it was given, unless it was
   withdrawn. An account consent nobody withdrew is kept as long as the account.
 - `destructionRecordDays` is how long a record that personal data was
   destroyed is kept. Such a record is written whenever an account is deleted, a
-  registration is declined, or the sweep deletes a consent record. When the
-  record itself expires, it is deleted without leaving another record.
+  registration is declined, the sweep deletes a consent record, or an order's
+  personal details are removed. When the record itself expires, it is deleted
+  without leaving another record.
+- `orderDays` is how long a finished order keeps its personal details: contact,
+  invoicing and delivery details, notes, and the documents supplied for it. An
+  order is finished once it is completed, declined or cancelled and no payment
+  is awaited, and the period counts from the last thing that happened to it.
+  The order itself, its lines and its totals stay. Nobody is mailed; the privacy
+  policy states the period.
 
-The demo keeps both for three years, about the length of a common limitation
-period for claims.
+The demo keeps all three for three years, about the length of a common
+limitation period for claims.
 
 ## Assets (logo, favicon, fonts)
 

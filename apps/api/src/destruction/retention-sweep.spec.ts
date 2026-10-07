@@ -25,10 +25,11 @@ describe('RetentionSweep.sweep', () => {
       transaction: (run: (tx: unknown) => Promise<unknown>) => run(tx),
     } as unknown as NodePgDatabase<typeof schema>;
 
-    result = await new RetentionSweep(db, {
-      consentRecordDays: 30,
-      destructionRecordDays: 365,
-    }).sweep(now);
+    result = await new RetentionSweep(
+      db,
+      { consentRecordDays: 30, destructionRecordDays: 365, orderDays: 1095 },
+      {} as OrderDocumentFiles,
+    ).sweep(now);
   });
 
   it('deletes consent records first, each leaving a destruction record', () => {
