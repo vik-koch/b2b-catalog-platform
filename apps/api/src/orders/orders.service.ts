@@ -2146,18 +2146,17 @@ export class OrdersService {
         } else {
           // Copied in the database rather than read out and written back: the
           // lines are unchanged, and a round trip through this process is a
-          // chance for them to stop being.
-          await tx.execute(sql`
-            insert into ${orderItems} ("revisionId", "sortOrder", "productId",
-              "productSourceId", "slug", "name", "thumbnail", "unit",
-              "quantity", "pieces", "priceMinor", "lineTotalMinor", "taxRate",
-              "note")
-            select ${revision.id}::uuid, "sortOrder", "productId",
-              "productSourceId", "slug", "name", "thumbnail", "unit",
-              "quantity", "pieces", "priceMinor", "lineTotalMinor", "taxRate",
-              "note"
-              from ${orderItems}
-              where ${orderItems.revisionId} = ${current.revisionId}::uuid`);
+          // chance for them to stop being. Drizzle inserts into every column
+          // in the table's order, which the spread keeps.
+          await tx.insert(orderItems).select(
+            tx
+              .select({
+                ...getTableColumns(orderItems),
+                revisionId: sql<string>`${revision.id}::uuid`.as('revisionId'),
+              })
+              .from(orderItems)
+              .where(eq(orderItems.revisionId, current.revisionId)),
+          );
         }
       });
     } catch (error) {

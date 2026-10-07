@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { and, inArray, isNull, lt, ne, sql } from 'drizzle-orm';
+import { and, eq, inArray, isNull, lt, ne, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   ENDED_ORDER_STATUSES,
@@ -8,7 +8,12 @@ import {
 import { RETENTION } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
-import { destructionRecords, orders } from '../db/schema';
+import {
+  consents,
+  consentWithdrawals,
+  destructionRecords,
+  orders,
+} from '../db/schema';
 import { OrderDocumentFiles } from '../orders/order-document-files';
 import { scrubOrders } from '../orders/order-scrub';
 import { ORDER_REMOVAL_CATEGORIES } from './record-destruction';
@@ -25,7 +30,7 @@ export interface SweepResult {
  *
  * The orders' personal details go first (`sweepOrders`). Then the evidence
  * whose retention has ended (`sweep`): consent
- * records first, each leaving a destruction record in the same statement,
+ * records first, each leaving a destruction record in the same transaction,
  * then the destruction records old enough to go themselves — which leave
  * none, or the sweep would never finish its own work.
  *
@@ -109,28 +114,52 @@ export class RetentionSweep {
     );
 
     return this.db.transaction(async (tx) => {
-      // One statement, so no consent is deleted without its record. The
-      // withdrawal goes with it by its cascade. The person is named by their
-      // account where there was one, else by the record itself.
-      const consents = await tx.execute(sql`
-        WITH gone AS (
-          DELETE FROM consents c
-           WHERE coalesce(
-                   (SELECT w."withdrawnAt" FROM consent_withdrawals w
-                     WHERE w."consentId" = c.id),
-                   CASE WHEN c.purpose = 'contact' THEN c."createdAt" END
-                 ) < ${consentCutoff}
-          RETURNING c.id, c."userId")
-        INSERT INTO destruction_records (subject, "subjectId", categories, reason)
-        SELECT CASE WHEN "userId" IS NULL THEN 'consent' ELSE 'account' END,
-               coalesce("userId", id),
-               ARRAY['consent-record']::varchar[],
-               'retention-ended'
-          FROM gone`);
-      const records = await tx.execute(sql`
-        DELETE FROM destruction_records WHERE "destroyedAt" < ${recordCutoff}`);
+      // Locked, so a withdrawal entered meanwhile waits for this to finish,
+      // and so two sweeps cannot both delete and record the same consent.
+      const due = await tx
+        .select({ id: consents.id, userId: consents.userId })
+        .from(consents)
+        .leftJoin(
+          consentWithdrawals,
+          eq(consentWithdrawals.consentId, consents.id),
+        )
+        .where(
+          or(
+            lt(consentWithdrawals.withdrawnAt, consentCutoff),
+            and(
+              isNull(consentWithdrawals.id),
+              eq(consents.purpose, 'contact'),
+              lt(consents.createdAt, consentCutoff),
+            ),
+          ),
+        )
+        .for('update', { of: consents, skipLocked: true });
+
+      if (due.length > 0) {
+        // The withdrawal goes with it by its cascade.
+        await tx.delete(consents).where(
+          inArray(
+            consents.id,
+            due.map((row) => row.id),
+          ),
+        );
+        // The person is named by their account where there was one, else by
+        // the record itself.
+        await tx.insert(destructionRecords).values(
+          due.map((row) => ({
+            subject: row.userId ? 'account' : 'consent',
+            subjectId: row.userId ?? row.id,
+            categories: ['consent-record'],
+            reason: 'retention-ended',
+          })),
+        );
+      }
+
+      const records = await tx
+        .delete(destructionRecords)
+        .where(lt(destructionRecords.destroyedAt, recordCutoff));
       return {
-        consentRecords: consents.rowCount ?? 0,
+        consentRecords: due.length,
         destructionRecords: records.rowCount ?? 0,
       };
     });
