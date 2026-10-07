@@ -60,6 +60,13 @@
     "ignore": "If this was not you, you can ignore this message — your password stays as it is, and nobody can use this link without your mailbox.",
     "action": "Choose a new password"
   },
+  "signInCode": {
+    "message": "{code} is your Coffee Kontor sign-in code.",
+    "subject": "Your sign-in code",
+    "preheader": "Enter this code to finish signing in.",
+    "heading": "Your sign-in code",
+    "ignore": "If you did not try to sign in, change your password: someone else knows it."
+  },
   "accountDeleted": {
     "subject": "Your account has been deleted",
     "preheader": "Your customer account and personal details have been removed.",

@@ -61,6 +61,7 @@ export * from './lib/product-units';
 export * from './lib/search-terms';
 export * from './lib/keyboard-layout';
 export * from './lib/retention-config';
+export * from './lib/sign-in-step-config';
 export * from './lib/settings-constants';
 export * from './lib/settings.contract';
 export * from './lib/shipment-estimate';

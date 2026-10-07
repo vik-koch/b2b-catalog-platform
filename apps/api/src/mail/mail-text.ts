@@ -188,6 +188,22 @@ export const mailTextSchema = z
       })
       .strict(),
     /**
+     * A sign-in code (FR-AUTH-12). `message` is the whole text a provider
+     * sends, `{code}` included; keep it to one message — 70 characters in a
+     * non-Latin script — since a second part costs a second message. The rest
+     * is only for the mail delivery that dev and the demo use.
+     */
+    signInCode: z
+      .object({
+        message: z.string().includes('{code}'),
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        /** For the recipient who did not sign in. */
+        ignore: z.string(),
+      })
+      .strict(),
+    /**
      * Confirms a self-deletion (FR-AUTH-06), to the address that asked for it —
      * the last message it gets, since the record no longer carries it. No
      * action: there is nothing to sign in to, and registering again starts a

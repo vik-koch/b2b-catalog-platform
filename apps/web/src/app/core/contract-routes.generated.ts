@@ -504,6 +504,35 @@ export const authContract = {
       },
     },
   },
+  signInPhone: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/sign-in-step/phone',
+        inputStructure: 'detailed',
+      },
+    },
+  },
+  resendSignInCode: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: { method: 'POST', path: '/auth/sign-in-step/resend' },
+    },
+  },
+  submitSignInCode: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/sign-in-step/code',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   logout: {
     '~orpc': {
       errorMap: {},

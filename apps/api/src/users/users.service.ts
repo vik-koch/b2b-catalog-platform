@@ -13,7 +13,7 @@ import {
   ACCOUNT_DELETION_CATEGORIES,
   recordDestruction,
 } from '../destruction/record-destruction';
-import { addresses, orders, users } from '../db/schema';
+import { addresses, orders, signInCodes, users } from '../db/schema';
 import { scrubOrders } from '../orders/order-scrub';
 
 export type UserRow = typeof users.$inferSelect;
@@ -141,6 +141,20 @@ export class UsersService {
       .where(eq(users.id, id));
   }
 
+  /**
+   * The holder entered a code sent to this number (FR-AUTH-12). The number and
+   * the confirmation are written together: a write that changes the number
+   * without confirming it is unconfirmed by a trigger.
+   */
+  async confirmPhone(id: string, phone: string): Promise<UserRow> {
+    const [updated] = await this.db
+      .update(users)
+      .set({ phone, phoneConfirmedAt: new Date(), updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
   async setPassword(id: string, passwordHash: string): Promise<UserRow> {
     const [updated] = await this.db
       .update(users)
@@ -236,6 +250,8 @@ export class UsersService {
       // removing the saved rows. The account row is never deleted, so the
       // cascade on the foreign key never fires — this is the deletion.
       await tx.delete(addresses).where(eq(addresses.userId, id));
+      // A code the account was waiting on carries the number it went to.
+      await tx.delete(signInCodes).where(eq(signInCodes.userId, id));
       // The customer-facing promise: "past orders are kept for our
       // bookkeeping, with your details removed from them".
       await scrubOrders(

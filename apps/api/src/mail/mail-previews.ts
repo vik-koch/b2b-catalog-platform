@@ -21,6 +21,7 @@ import { orderReceivedMail } from './templates/order-received.template';
 import { orderStatusChangedMail } from './templates/order-status.template';
 import { passwordResetMail } from './templates/password-reset.template';
 import { registrationReceivedMail } from './templates/registration-received.template';
+import { signInCodeMail } from './templates/sign-in-code.template';
 import {
   syncCreatedMail,
   syncFailedMail,
@@ -337,6 +338,14 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       title: 'Password reset',
       note: 'Requested from the login form, or sent by staff on the account holder’s behalf. The link lives an hour.',
       content: passwordResetMail('reset-token', text),
+    },
+    {
+      slug: 'sign-in-code',
+      shows: 'signInCode',
+      group: 'The account itself',
+      title: 'Sign-in code',
+      note: 'Where the deployment delivers sign-in codes by mail rather than to the phone: dev and the demo. Its first line is the text a provider would send.',
+      content: signInCodeMail(text, '123456'),
     },
     {
       slug: 'account-deleted',

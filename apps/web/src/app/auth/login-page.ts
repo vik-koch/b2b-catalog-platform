@@ -12,6 +12,7 @@ import { Input } from '../ui/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from './auth.guard';
 import { AuthService, LoginResult } from './auth.service';
+import { formatWait, SignInStepPanel } from './sign-in-step';
 import { TextButton } from '../ui/link';
 
 /**
@@ -29,77 +30,84 @@ import { TextButton } from '../ui/link';
     EmailField,
     FieldLabel,
     Input,
+    SignInStepPanel,
     TextButton,
   ],
   template: `
     <app-auth-card>
-      <h1 class="mb-8 text-3xl font-medium tracking-tight">{{ text.login }}</h1>
+      @if (status() === 'step') {
+        <app-sign-in-step (done)="land()" />
+      } @else {
+        <h1 class="mb-8 text-3xl font-medium tracking-tight">
+          {{ text.login }}
+        </h1>
 
-      <form
-        [formGroup]="form"
-        (ngSubmit)="submit()"
-        novalidate
-        class="space-y-6"
-      >
-        <!-- No required-marker beside either label: both fields are required,
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+          class="space-y-6"
+        >
+          <!-- No required-marker beside either label: both fields are required,
              and marking every field on a form marks none of them. -->
-        <app-email-field
-          [control]="form.controls.email"
-          [label]="text.email"
-          [text]="emailText"
-          [required]="true"
-          [marker]="false"
-          [invalid]="isInvalid('email')"
-        />
-
-        <div>
-          <label for="password" appFieldLabel>
-            {{ text.password }}
-          </label>
-          <input
-            id="password"
-            type="password"
-            formControlName="password"
-            autocomplete="current-password"
-            aria-required="true"
-            appInput
-            class="w-full"
-            [attr.aria-invalid]="isInvalid('password') || null"
+          <app-email-field
+            [control]="form.controls.email"
+            [label]="text.email"
+            [text]="emailText"
+            [required]="true"
+            [marker]="false"
+            [invalid]="isInvalid('email')"
           />
-          @if (isInvalid('password')) {
-            <p class="mt-1 text-sm text-red-600">
-              {{ text.validation.passwordRequired }}
-            </p>
+
+          <div>
+            <label for="password" appFieldLabel>
+              {{ text.password }}
+            </label>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              autocomplete="current-password"
+              aria-required="true"
+              appInput
+              class="w-full"
+              [attr.aria-invalid]="isInvalid('password') || null"
+            />
+            @if (isInvalid('password')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ text.validation.passwordRequired }}
+              </p>
+            }
+          </div>
+
+          @if (failure(); as message) {
+            <p class="text-sm text-red-600" role="alert">{{ message }}</p>
           }
-        </div>
 
-        @if (failure(); as message) {
-          <p class="text-sm text-red-600" role="alert">{{ message }}</p>
-        }
-
-        <div class="flex flex-wrap items-center gap-4">
-          <button
-            appButton
-            type="submit"
-            [disabled]="status() === 'submitting'"
-          >
-            {{ status() === 'submitting' ? text.submitting : text.submit }}
-          </button>
-          <!-- Beside the button, not under the password field: it is what you
+          <div class="flex flex-wrap items-center gap-4">
+            <button
+              appButton
+              type="submit"
+              [disabled]="status() === 'submitting'"
+            >
+              {{ status() === 'submitting' ? text.submitting : text.submit }}
+            </button>
+            <!-- Beside the button, not under the password field: it is what you
                reach for after the login fails, which is where the eye already
                is. -->
-          <a appTextButton routerLink="/forgot-password" class="text-sm">
-            {{ text.forgotPassword.link }}
+            <a appTextButton routerLink="/forgot-password" class="text-sm">
+              {{ text.forgotPassword.link }}
+            </a>
+          </div>
+        </form>
+
+        <div class="mt-10 border-t border-border pt-6">
+          <p class="mb-3 text-sm text-muted">{{ text.register.noAccount }}</p>
+          <a appButton variant="secondary" routerLink="/register">
+            {{ text.register.signUp }}
           </a>
         </div>
-      </form>
-
-      <div class="mt-10 border-t border-border pt-6">
-        <p class="mb-3 text-sm text-muted">{{ text.register.noAccount }}</p>
-        <a appButton variant="secondary" routerLink="/register">
-          {{ text.register.signUp }}
-        </a>
-      </div>
+      }
     </app-auth-card>
   `,
 })
@@ -117,14 +125,31 @@ export class LoginPage {
     'idle',
   );
 
+  /**
+   * The last answer, kept while the next request is out: the message under the
+   * form stays where it is until a new one replaces it, rather than vanishing
+   * on the click and coming back a moment later.
+   */
+  private readonly answered = signal<'idle' | LoginResult>('idle');
+
   protected failure(): string | null {
-    switch (this.status()) {
+    switch (this.answered()) {
       case 'invalid':
         return this.text.invalid;
       case 'closed':
         return this.text.closed;
       case 'error':
         return this.text.error;
+      // The password was right, but the code could not go out.
+      case 'unreachable':
+        return this.text.signInStep.unreachableAccount;
+      case 'unavailable':
+        return this.text.signInStep.unavailable;
+      case 'limit':
+        return this.text.signInStep.limit.replace(
+          '{time}',
+          formatWait(this.auth.retryAfter() ?? 0),
+        );
       default:
         return null;
     }
@@ -164,13 +189,17 @@ export class LoginPage {
     this.status.set('submitting');
     const result = await this.auth.login(this.form.getRawValue());
     this.status.set(result);
+    this.answered.set(result);
 
-    if (result === 'ok') {
-      const user = this.auth.user();
-      await this.router.navigateByUrl(
-        this.safeReturnUrl() ?? (user ? landingFor(user.role) : '/'),
-      );
-    }
+    if (result === 'ok') await this.land();
+  }
+
+  /** Signed in, by the password alone or after the code. */
+  protected async land(): Promise<void> {
+    const user = this.auth.user();
+    await this.router.navigateByUrl(
+      this.safeReturnUrl() ?? (user ? landingFor(user.role) : '/'),
+    );
   }
 
   /**

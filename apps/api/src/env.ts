@@ -100,6 +100,14 @@ const EnvSchema = z
     // in the browser needs to know, and two switches could contradict each
     // other. Which way it resolved is logged at boot.
     SUGGESTION_SIDECAR_URL: emptyAsUndefined(z.url()),
+    // Where sign-in codes are handed to a provider (FR-AUTH-12, ADR 0066): a
+    // deployment's sidecar that speaks the platform's small HTTP contract.
+    // Unset, codes go out by mail instead, which is fine for dev and the demo
+    // but is no second factor — which way it resolved is logged at boot.
+    SIGN_IN_CODE_URL: emptyAsUndefined(z.url()),
+    // Sent as a bearer token, so the sidecar can tell the platform from anyone
+    // else on the network.
+    SIGN_IN_CODE_TOKEN: emptyAsUndefined(z.string().min(16)),
     // What is running, shown in the admin panel. Stamped onto the stack by
     // infra/deploy.sh rather than baked into the image (a release retags the
     // image main built, so a baked value could only ever be the commit sha).

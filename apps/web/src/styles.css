@@ -73,6 +73,18 @@
    */
   --animate-field-in: field-in 200ms ease-out;
 
+  /*
+   * The caret a code box draws while it is the one the next digit lands in.
+   * The real input's own caret is hidden under the boxes (see CodeInput).
+   */
+  --animate-caret-blink: caret-blink 1.1s step-end infinite;
+
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
   @keyframes field-in {
     from {
       background-color: var(--color-primary);

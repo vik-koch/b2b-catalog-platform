@@ -83,6 +83,17 @@ Requested from the login form, or sent by staff on the account holder’s behalf
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/password-reset.html) · [HTML source](mail/password-reset.html) · [Plain text](mail/password-reset.txt)
 
+<a id="sign-in-code"></a>
+
+### Sign-in code
+
+Where the deployment delivers sign-in codes by mail rather than to the phone: dev and the demo. Its first line is the text a provider would send.
+
+**Subject:** Your sign-in code  
+**Preheader:** Enter this code to finish signing in.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sign-in-code.html) · [HTML source](mail/sign-in-code.html) · [Plain text](mail/sign-in-code.txt)
+
 <a id="account-deleted"></a>
 
 ### Account deleted
