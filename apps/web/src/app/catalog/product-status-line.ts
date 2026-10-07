@@ -67,7 +67,7 @@ function isSet(item: StatusLineProduct): boolean {
   // Out of the flow entirely when it has nothing to render, so a margin the
   // caller set on it does not leave a gap under a plain, untracked product.
   host: {
-    class: 'flex min-w-0 flex-wrap items-start gap-1',
+    class: 'flex min-w-0 flex-wrap items-start gap-0.5',
     '[style.display]':
       "availability() || set() || variants().length || reserve() ? null : 'none'",
   },

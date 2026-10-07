@@ -68,4 +68,26 @@ describe('AdminListHeader', () => {
     // Same route, no query parameters: everything narrowing the list goes.
     expect(clear.getAttribute('href')).toBe('/');
   });
+
+  it('gives the title the search column when the grid has no search box', () => {
+    @Component({
+      imports: [AdminListHeader],
+      template: `<app-admin-list-header title="Runs" [searchable]="false" />`,
+    })
+    class Unsearchable {}
+
+    TestBed.configureTestingModule({
+      imports: [Unsearchable],
+      providers: [
+        provideRouter([]),
+        { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      ],
+    });
+    const fixture = TestBed.createComponent(Unsearchable);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+
+    expect(el.querySelector('input[type="search"]')).toBeNull();
+    expect(el.querySelector('h1')?.classList).toContain('md:col-span-2');
+  });
 });

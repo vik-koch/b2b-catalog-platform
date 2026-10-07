@@ -163,8 +163,13 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
       <div>
         <!-- One line kept for both, whether or not either has anything to
              say: a reset link that appeared in the flow when the first column
-             was dragged would push the whole table down mid-gesture. -->
-        <div class="flex h-6 items-center justify-between gap-4 text-sm">
+             was dragged would push the whole table down mid-gesture. An empty
+             list has neither, so the line folds away — but stays in the
+             page, so the count is still announced when rows come back. -->
+        <div
+          class="flex items-center justify-between gap-4 overflow-hidden text-sm"
+          [class]="countText() || customised() ? 'h-6' : 'h-0'"
+        >
           <p class="text-subtle" aria-live="polite">{{ countText() }}</p>
           @if (customised()) {
             <button type="button" appTextButton (click)="resetWidths()">
