@@ -4,18 +4,5 @@
   "sourceRoot": "libs/seed/src",
   "projectType": "library",
   "tags": ["scope:shared", "platform:node"],
-  "targets": {
-    "build": {
-      "executor": "@nx/esbuild:esbuild",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/seed",
-        "main": "libs/seed/src/index.ts",
-        "tsConfig": "libs/seed/tsconfig.lib.json",
-        "assets": ["libs/seed/*.md"],
-        "format": ["cjs"],
-        "generatePackageJson": true
-      }
-    }
-  }
+  "targets": {}
 }
