@@ -23,6 +23,8 @@ import { PHONE_RULE } from '../config/deployment-config';
 import { CodeDeliveryError } from './sign-in-step/code-delivery';
 import { CodeResendLimitError } from './sign-in-step/sign-in-codes';
 import { SignInStep } from './sign-in-step/sign-in-step';
+import { issueSession } from './session-cookie';
+import { Sessions } from './sessions';
 
 /**
  * The whole point of this surface is what it does *not* say, and what it puts
@@ -45,7 +47,6 @@ describe('AuthController', () => {
 
   const auth = {
     validate: vi.fn(),
-    signToken: vi.fn(async () => 'a-signed-token'),
     recordSignIn: vi.fn(async () => undefined),
     toAuthUser: vi.fn(() => user),
     changePassword: vi.fn(),
@@ -61,6 +62,12 @@ describe('AuthController', () => {
     complete: vi.fn(),
     end: vi.fn(),
   };
+  // Sets what a real session sets, under a token the tests can recognise.
+  const sessions = {
+    start: vi.fn(async (req: never, res: never, account: { role: 'user' }) =>
+      issueSession(req, res, 'a-signed-token', account.role, 60_000),
+    ),
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -71,6 +78,7 @@ describe('AuthController', () => {
         { provide: PasswordSetupService, useValue: passwordSetup },
         { provide: PasswordResetService, useValue: passwordReset },
         { provide: SignInStep, useValue: step },
+        { provide: Sessions, useValue: sessions },
         { provide: PHONE_RULE, useValue: (value: string) => value },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
         {
@@ -136,13 +144,13 @@ describe('AuthController', () => {
       passwordSetup.redeem,
       passwordReset.request,
       ...Object.values(step),
+      sessions.start,
     ]) {
       fn.mockClear();
     }
     // No step owed unless a test says so.
     step.begin.mockReset().mockResolvedValue(null);
     step.pending.mockReset().mockResolvedValue(null);
-    auth.signToken.mockResolvedValue('a-signed-token');
     auth.toAuthUser.mockReturnValue(user);
   });
 
@@ -378,7 +386,7 @@ describe('AuthController', () => {
       code: MAINTENANCE_REFUSED,
     });
     expect(response.headers.getSetCookie()).toEqual([]);
-    expect(auth.signToken).not.toHaveBeenCalled();
+    expect(sessions.start).not.toHaveBeenCalled();
   });
 
   // Before the link is spent, so it still works once the shop opens.

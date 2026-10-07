@@ -23,7 +23,8 @@ import { RegistrationService } from './registration.service';
 import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
 import { SettingsService } from '../settings/settings.service';
 import { refusals } from '../orpc/refusals';
-import { endSession, issueSession } from './session-cookie';
+import { endSession } from './session-cookie';
+import { Sessions } from './sessions';
 import { sending } from './sign-in-step/code-refusals';
 import { SignInStep } from './sign-in-step/sign-in-step';
 import { UserRow } from '../users/users.service';
@@ -37,6 +38,7 @@ export class AuthController {
     private readonly passwordReset: PasswordResetService,
     private readonly settings: SettingsService,
     private readonly step: SignInStep,
+    private readonly sessions: Sessions,
   ) {}
 
   /**
@@ -51,8 +53,7 @@ export class AuthController {
 
   private async startSession(user: UserRow, req: Request, res: Response) {
     await this.auth.recordSignIn(user);
-    const token = await this.auth.signToken(user);
-    issueSession(req, res, token, user.role);
+    await this.sessions.start(req, res, user);
     return this.auth.toAuthUser(user);
   }
 
@@ -299,8 +300,7 @@ export class AuthController {
           throw error;
         }
         // Update token so the user is not logged out.
-        const token = await this.auth.signToken(updated);
-        issueSession(req, res, token, updated.role);
+        await this.sessions.start(req, res, updated);
         return this.auth.toAuthUser(updated);
       },
     );

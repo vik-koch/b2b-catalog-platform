@@ -11,6 +11,7 @@ import {
   termsConfigSchema,
   pagesConfigSchema,
   phoneInputSchema,
+  sessionConfigSchema,
   signInStepConfigSchema,
   syncPolicySchema,
 } from '@b2b-catalog-platform/shared';
@@ -400,6 +401,9 @@ export const deploymentConfigSchema = z
     /** The second sign-in step (FR-AUTH-12). Read by the API only; checked
      * here because both apps parse the same file. */
     signInStep: signInStepConfigSchema.optional(),
+    /** How long a session lasts without use (FR-AUTH-12). Read by the API
+     * only, like the step. */
+    session: sessionConfigSchema.optional(),
     /**
      * The business registration number a company gives when it registers
      * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather

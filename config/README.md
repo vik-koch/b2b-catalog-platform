@@ -268,6 +268,20 @@ fine for trying the feature out but is no second factor. The text a code
 travels in is `signInCode.message` in `mail-text.json`; keep it to one SMS,
 since a second part costs a second message.
 
+### How long a session lasts
+
+A session renews while it is used and ends after `session.idleDays` without
+use. Optional, and absent means 7. A deployment that asks for a code at every
+sign-in usually sets it longer, so a customer who keeps coming back is rarely
+asked: each new session is a message to pay for. The demo leaves it out.
+
+```json
+"session": { "idleDays": 30 }
+```
+
+Changing the password, or a staff member disabling the account, still ends
+every session at once.
+
 ## Assets (logo, favicon, fonts)
 
 Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
