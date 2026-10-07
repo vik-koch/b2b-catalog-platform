@@ -18,13 +18,15 @@ import { Button } from '../ui/button';
       <iframe
         [src]="safeUrl()"
         [title]="title()"
-        class="aspect-video w-full rounded-lg border border-border"
+        class="w-full rounded-lg border border-border"
+        [class]="shapeClass()"
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
     } @else {
       <div
-        class="flex aspect-video w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-stone-100 p-6 text-center text-sm text-subtle"
+        class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-stone-100 p-6 text-center text-sm text-subtle"
+        [class]="shapeClass()"
       >
         <p class="max-w-md">{{ text.consentNotice }}</p>
         <!-- Click-to-load: the visitor who said no to the banner, or never
@@ -45,6 +47,15 @@ export class MapFrame {
 
   readonly map = input.required<MapEmbed>();
   readonly title = input('Map');
+  /** Taller than wide on a phone. For a page with one map: a landscape frame
+   * at phone width is a strip too short to read a street in. Not as tall as
+   * the screen, so a one-finger drag past it still scrolls the page rather
+   * than panning the map. */
+  readonly portraitOnPhone = input(false);
+
+  protected readonly shapeClass = computed(() =>
+    this.portraitOnPhone() ? 'aspect-[3/4] sm:aspect-video' : 'aspect-video',
+  );
 
   protected readonly text = inject(APP_TEXT).map;
 

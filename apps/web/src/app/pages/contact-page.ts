@@ -77,6 +77,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
               class="mt-4 block"
               [map]="location.map"
               [title]="location.name + ' map'"
+              [portraitOnPhone]="locations.length === 1"
             />
           </section>
         }
