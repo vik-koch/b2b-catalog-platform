@@ -135,7 +135,7 @@ describe('SignInStep', () => {
       step: 'code',
       sentTo: '+49 (•••) •••-••78',
       phone: '+49 (•••) •••-••78',
-      canChangeNumber: false,
+      confirming: false,
       resendIn: 60,
     });
     expect(cookies[PENDING_COOKIE]).toBeTruthy();
@@ -147,25 +147,31 @@ describe('SignInStep', () => {
     const answer = await always.begin(user, req, res);
 
     expect(codes.issue).toHaveBeenCalledWith(user, '+494012345678', 'confirm');
-    expect(answer).toMatchObject({ step: 'code', canChangeNumber: true });
+    expect(answer).toMatchObject({ step: 'code', confirming: true });
   });
 
-  it('asks for a number where the stored one cannot take a code', async () => {
+  // Nobody chooses a number at sign-in: the holder asks the shop.
+  it('stops where the stored number cannot take a code', async () => {
     const user = {
       ...customer,
       phone: '+49 40 1234567',
       phoneConfirmedAt: null,
     } as UserRow;
 
-    expect(await always.begin(user, req, res)).toEqual({ step: 'phone' });
+    await expect(always.begin(user, req, res)).rejects.toMatchObject({
+      reason: 'unreachable',
+    });
     expect(codes.issue).not.toHaveBeenCalled();
+    expect(cookies[PENDING_COOKIE]).toBeUndefined();
   });
 
-  it('asks for another number when the provider refuses the stored one', async () => {
+  it('stops where the provider refuses the stored number', async () => {
     codes.issue.mockRejectedValue(new CodeDeliveryError('unreachable', 'no'));
     const user = { ...customer, phoneConfirmedAt: null } as UserRow;
 
-    expect(await always.begin(user, req, res)).toEqual({ step: 'phone' });
+    await expect(always.begin(user, req, res)).rejects.toMatchObject({
+      reason: 'unreachable',
+    });
   });
 
   it('stops when the provider is unavailable: nothing skips the step', async () => {
@@ -228,16 +234,6 @@ describe('SignInStep', () => {
 
       expect(await always.pending(req)).toBeNull();
     });
-  });
-
-  it('lets a number be swapped only while it is being confirmed', async () => {
-    expect(await always.changeNumber(customer, '+494076543210')).toBeNull();
-    expect(codes.issue).not.toHaveBeenCalled();
-
-    const unconfirmed = { ...customer, phoneConfirmedAt: null } as UserRow;
-    expect(
-      await always.changeNumber(unconfirmed, '+494076543210'),
-    ).toMatchObject({ step: 'code', phone: '+49 (•••) •••-••10' });
   });
 
   it('writes a confirmed number to the account', async () => {

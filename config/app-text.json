@@ -438,7 +438,8 @@
         "submit": "Save changes",
         "submitting": "Saving…",
         "cancel": "Cancel",
-        "error": "Something went wrong saving your details. Please try again."
+        "error": "Something went wrong saving your details. Please try again.",
+        "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
       },
       "addresses": {
         "heading": "My addresses",
@@ -579,18 +580,11 @@
       "resend": "Send a new code",
       "resendIn": "New code in {time}",
       "resent": "We sent a new code.",
-      "changeNumber": "Use a different number",
-      "phoneHeading": "Confirm your mobile number",
-      "phoneIntro": "We send a code to this number when you sign in. Enter the number you want to use.",
-      "phone": "Mobile number",
-      "phoneSubmit": "Send code",
-      "backToCode": "Back to the code",
       "wrong": "That code is not right. Tries left: {count}.",
       "expired": "This code can no longer be used. Ask for a new one.",
       "restart": "Your sign-in took too long. Please sign in again.",
       "restartAction": "Sign in again",
       "limit": "We cannot send another code yet. Please try again in {time}.",
-      "unreachable": "We could not send a code to this number. Check it, or use another.",
       "unreachableAccount": "We could not send a code to your mobile number. Please contact us so we can update it.",
       "unavailable": "We cannot send codes right now. Please try again later.",
       "error": "Something went wrong. Please try again."

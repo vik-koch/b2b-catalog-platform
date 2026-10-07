@@ -29,9 +29,13 @@ const stored: AccountProfile = {
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',
   openOrders: 0,
+  phoneLocked: false,
 };
 
-async function render(save?: (r: UpdateAccountProfileRequest) => unknown) {
+async function render(
+  save?: (r: UpdateAccountProfileRequest) => unknown,
+  profile: AccountProfile = stored,
+) {
   const updateProfile = vi.fn(async (request: UpdateAccountProfileRequest) => {
     save?.(request);
     return { ...stored, ...request };
@@ -49,7 +53,7 @@ async function render(save?: (r: UpdateAccountProfileRequest) => unknown) {
       {
         provide: AccountService,
         useValue: {
-          getProfile: vi.fn(async () => stored),
+          getProfile: vi.fn(async () => profile),
           updateProfile,
         },
       },
@@ -67,6 +71,7 @@ async function render(save?: (r: UpdateAccountProfileRequest) => unknown) {
 
   return {
     el,
+    fixture,
     updateProfile,
     refresh,
     field: (id: string) => el.querySelector<HTMLInputElement>(`#${id}`),
@@ -163,5 +168,33 @@ describe('AccountEditPage', () => {
 
     expect(el.textContent).toContain(text.error);
     expect(field('firstName')?.value).toBe('Alexa');
+  });
+
+  describe('where the number receives sign-in codes (FR-AUTH-12)', () => {
+    const locked = { ...stored, phoneLocked: true };
+
+    it('shows the number rather than offering it, and says who changes it', async () => {
+      const { el, field } = await render(undefined, locked);
+
+      expect(field('phone')).toBeNull();
+      expect(el.textContent).toContain('(401) 234-5678');
+      expect(el.textContent).toContain(text.phoneLocked);
+    });
+
+    it('sends the stored number back with the names', async () => {
+      const saved: UpdateAccountProfileRequest[] = [];
+      const { type, submit } = await render(
+        (request) => saved.push(request),
+        locked,
+      );
+
+      type('firstName', 'Alexa');
+      await submit();
+
+      expect(saved[0]).toMatchObject({
+        firstName: 'Alexa',
+        phone: stored.phone,
+      });
+    });
   });
 });

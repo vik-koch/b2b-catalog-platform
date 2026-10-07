@@ -33,6 +33,7 @@ const customer: AccountProfile = {
   companyRegistrationId: '12345678',
   createdAt: '2026-02-01T10:00:00.000Z',
   openOrders: 0,
+  phoneLocked: false,
 };
 
 const savedAddress: Address = {

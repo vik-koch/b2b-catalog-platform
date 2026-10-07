@@ -12,12 +12,17 @@ import { CurrentUser } from '../auth/current-user.decorator';
 import { endSession } from '../auth/session-cookie';
 import { PHONE_RULE, PhoneRule } from '../config/deployment-config';
 import { refusals } from '../orpc/refusals';
+import { SignInStep } from '../auth/sign-in-step/sign-in-step';
 import { storedPhone } from '../users/stored-phone';
 import { UserRow, UsersService } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
 
 /** The account holder's own view of their row — never the tier (ADR 0031). */
-function toAccountProfile(user: UserRow, openOrders: number): AccountProfile {
+function toAccountProfile(
+  user: UserRow,
+  openOrders: number,
+  phoneLocked: boolean,
+): AccountProfile {
   return {
     openOrders,
     email: user.email,
@@ -29,6 +34,7 @@ function toAccountProfile(user: UserRow, openOrders: number): AccountProfile {
     companyName: user.companyName,
     companyRegistrationId: user.companyRegistrationId,
     createdAt: user.createdAt.toISOString(),
+    phoneLocked,
   };
 }
 
@@ -48,7 +54,16 @@ export class AccountController {
     private readonly deletion: AccountDeletion,
     private readonly audit: AuditLogger,
     @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
+    private readonly step: SignInStep,
   ) {}
+
+  private async profileOf(user: UserRow): Promise<AccountProfile> {
+    return toAccountProfile(
+      user,
+      await this.users.countOpenOrders(user.id),
+      this.step.asks(user),
+    );
+  }
 
   @Implement(accountContract.getProfile)
   getProfile(@CurrentUser() actor: AuthUser) {
@@ -59,7 +74,7 @@ export class AccountController {
       // gone, and 401 is what the client already knows how to handle.
       if (!user) throw errors['not-authenticated']();
 
-      return toAccountProfile(user, await this.users.countOpenOrders(user.id));
+      return this.profileOf(user);
     });
   }
 
@@ -72,6 +87,13 @@ export class AccountController {
         if (!current) throw errors['not-authenticated']();
         const phone =
           storedPhone(this.phoneRule, body.phone, current.phone) ?? null;
+        // Where the deployment sends this account its sign-in codes, the
+        // number is how it signs in, and staff change it (FR-AUTH-12).
+        if (phone !== current.phone && this.step.asks(current)) {
+          throw errors['phone-locked']({
+            message: 'Staff change this number',
+          });
+        }
 
         const updated = await this.users.updateOwnProfile(actor.id, {
           ...body,
@@ -86,10 +108,7 @@ export class AccountController {
         // did, and the two stay greppable apart only if they are named apart.
         this.audit.record('account.updated', actor, { id: updated.id });
 
-        return toAccountProfile(
-          updated,
-          await this.users.countOpenOrders(updated.id),
-        );
+        return this.profileOf(updated);
       });
   }
 

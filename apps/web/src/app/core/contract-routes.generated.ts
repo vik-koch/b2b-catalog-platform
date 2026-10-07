@@ -504,17 +504,6 @@ export const authContract = {
       },
     },
   },
-  signInPhone: {
-    '~orpc': {
-      errorMap: {},
-      meta: {},
-      route: {
-        method: 'POST',
-        path: '/auth/sign-in-step/phone',
-        inputStructure: 'detailed',
-      },
-    },
-  },
   resendSignInCode: {
     '~orpc': {
       errorMap: {},

@@ -46,40 +46,38 @@ export const authUserSchema = z.object({
 });
 export type AuthUser = z.infer<typeof authUserSchema>;
 
+/** A code on its way: where it went and which number it signs in with or
+ * confirms, both masked, and the seconds until another may be asked for. */
+export const codeSentSchema = z
+  .object({
+    sentTo: z.string(),
+    phone: z.string(),
+    resendIn: z.number().int().nonnegative(),
+  })
+  .strict();
+export type CodeSent = z.infer<typeof codeSentSchema>;
+
 /**
  * The password was right, and a code is owed before a session begins
  * (FR-AUTH-12). Answered instead of the user by every route that would
  * otherwise start a session.
  *
- * `phone`: the account has no number a code can be sent to, so the visitor
- * enters one. `code`: a code is on its way. `sentTo` is where it went, masked:
- * the phone, or the email address where the deployment delivers codes by mail.
- * `phone` is the number being used or confirmed, masked. `canChangeNumber` is
- * true only while the number is being confirmed: a confirmed number is the
- * factor itself, and swapping it here would skip it. `resendIn` is how many
- * seconds until another code may be asked for.
+ * `sentTo` is where the code went: the phone, or the email address where the
+ * deployment delivers codes by mail. `confirming` says the code also confirms
+ * `phone`, which staff set and nobody has confirmed yet. The number is never
+ * chosen here: staff set it, and a holder who cannot receive codes on it asks
+ * the shop.
  */
-export const signInStepSchema = z.discriminatedUnion('step', [
-  z.object({ step: z.literal('phone') }).strict(),
-  z
-    .object({
-      step: z.literal('code'),
-      sentTo: z.string(),
-      phone: z.string(),
-      canChangeNumber: z.boolean(),
-      resendIn: z.number().int().nonnegative(),
-    })
-    .strict(),
-]);
+export const signInStepSchema = codeSentSchema
+  .extend({
+    step: z.literal('code'),
+    confirming: z.boolean(),
+  })
+  .strict();
 export type SignInStep = z.infer<typeof signInStepSchema>;
 
 /** A session, or the step that stands before one. */
 export const sessionOrStepSchema = z.union([signInStepSchema, authUserSchema]);
-
-export const signInPhoneSchema = z
-  .object({ phone: z.string().trim().min(1).max(50) })
-  .strict();
-export type SignInPhoneRequest = z.infer<typeof signInPhoneSchema>;
 
 export const signInCodeSchema = z
   .object({
@@ -267,7 +265,7 @@ const passwordRejections = {
 const signInStepExpired = {
   'sign-in-step-expired': { status: 401 },
 } as const;
-const codeDelivery = {
+export const codeDeliveryErrors = {
   'phone-unreachable': { status: 400 },
   'code-delivery-unavailable': { status: 503 },
   /** Seconds until the account may be sent another code. */
@@ -275,6 +273,15 @@ const codeDelivery = {
     status: 429,
     data: z.object({ retryAfter: z.number().int().nonnegative() }),
   },
+} as const;
+
+/** An entered code: wrong, with the tries it has left, or no longer usable. */
+export const codeCheckErrors = {
+  'code-wrong': {
+    status: 400,
+    data: z.object({ attemptsLeft: z.number().int().nonnegative() }),
+  },
+  'code-expired': { status: 410 },
 } as const;
 
 /** A set-a-password link that is no good — unknown, used and expired alike. */
@@ -363,7 +370,7 @@ export const authContract = {
       ...badToken,
       ...closedForMaintenance,
       ...consentErrors,
-      ...codeDelivery,
+      ...codeDeliveryErrors,
     })
     .input(z.object({ body: setPasswordSchema }))
     // Signs the visitor in: they have just proved control of the address and
@@ -383,21 +390,10 @@ export const authContract = {
     .errors({
       'invalid-credentials': { status: 401 },
       ...closedForMaintenance,
-      ...codeDelivery,
+      ...codeDeliveryErrors,
     })
     .input(z.object({ body: loginSchema }))
     .output(sessionOrStepSchema),
-
-  signInPhone: oc
-    .route({
-      method: 'POST',
-      path: '/auth/sign-in-step/phone',
-      inputStructure: 'detailed',
-      summary: 'Name the number a sign-in code goes to, while confirming one',
-    })
-    .errors({ ...signInStepExpired, ...phoneFormatErrors, ...codeDelivery })
-    .input(z.object({ body: signInPhoneSchema }))
-    .output(signInStepSchema),
 
   resendSignInCode: oc
     .route({
@@ -405,7 +401,7 @@ export const authContract = {
       path: '/auth/sign-in-step/resend',
       summary: 'Send the pending sign-in a new code',
     })
-    .errors({ ...signInStepExpired, ...codeDelivery })
+    .errors({ ...signInStepExpired, ...codeDeliveryErrors })
     .output(signInStepSchema),
 
   submitSignInCode: oc
@@ -418,11 +414,7 @@ export const authContract = {
     .errors({
       ...signInStepExpired,
       ...closedForMaintenance,
-      'code-wrong': {
-        status: 400,
-        data: z.object({ attemptsLeft: z.number().int().nonnegative() }),
-      },
-      'code-expired': { status: 410 },
+      ...codeCheckErrors,
     })
     .input(z.object({ body: signInCodeSchema }))
     .output(authUserSchema),

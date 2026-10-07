@@ -146,6 +146,8 @@ function signInStepSecret(): string {
     UsersModule,
     // The account screens and the staff editor write numbers too.
     PHONE_RULE,
+    // A holder's number change takes a code; an admin's exemption skips it.
+    SignInStep,
   ],
 })
 export class AuthModule {}

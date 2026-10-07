@@ -87,14 +87,25 @@ so it is a column with who set it and when.
 number and never asks again. It is phone verification rather than a second
 factor, and the configuration docs say so.
 
-**A number is relied on only once it is confirmed.** The account gets
-`phoneConfirmedAt`. A database trigger clears it whenever a write changes the
-number without setting it too, so no path into the table can leave a changed
-number confirmed: not the staff editor, not a sync, not anonymization, and not
-one written later. Only the code check writes both together. A number changed by staff or by
-an external system is unconfirmed until its holder confirms it at the next
-sign-in. This also covers accounts that existed before the switch was turned on.
-Numbers stay non-unique.
+**Staff set the number; the holder only confirms it.** Once codes go to it,
+the number is how the account signs in, as the email address is, and the holder
+changes neither. A self-service change was considered: a code to the new number
+proves the new phone, not the owner, so anyone at a signed-in browser could move
+the codes to a phone of their own, and guarding against that takes a code to the
+old number too, which fails exactly when the old phone is lost. A shop of a few
+hundred business customers who talk to a manager anyway does not need that
+machinery, and nothing important hangs on the account: a lost phone is a call
+to the shop.
+
+So a sign-in never asks for a number. The code goes to the account's own, and
+where there is none a code can reach (none at all, one not in a readable form,
+or one the provider refuses) the sign-in stops with a message to contact the
+shop, and the account's admin page says the same. The account gets
+`phoneConfirmedAt`, written by the code check together with the number. A
+database trigger clears it whenever a write changes the number without setting
+it too, so a number changed by staff, by a sync or by anonymization is confirmed
+again by the next code its holder enters. This also covers accounts that existed
+before the switch was turned on. Numbers stay non-unique.
 
 **Codes go only to a number in canonical form** (`+` country code and digits).
 The browser already stores numbers that way, but the API accepts any string.

@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request, Response } from 'express';
 import {
+  CodeSent as CodeSentAnswer,
   formatPhone,
   PhoneConfig,
   SignInStep as StepAnswer,
@@ -69,13 +70,21 @@ export class SignInStep {
     @Inject(CODE_DELIVERY) private readonly delivery: CodeDelivery,
   ) {}
 
-  need(user: UserRow): StepNeed {
+  /**
+   * Whether this account is asked for a code at all.
+   */
+  asks(user: Pick<UserRow, 'role'>): boolean {
     const config = this.config;
-    if (!config || config.mode === 'off') return 'none';
-    if (!config.roles.includes(user.role)) return 'none';
+    if (!config || config.mode === 'off') return false;
+    if (!config.roles.includes(user.role)) return false;
+    return true;
+  }
+
+  need(user: UserRow): StepNeed {
+    if (!this.asks(user)) return 'none';
     const confirmed = Boolean(user.phone && user.phoneConfirmedAt);
     if (!confirmed) return 'confirm';
-    return config.mode === 'always' ? 'code' : 'none';
+    return this.config?.mode === 'always' ? 'code' : 'none';
   }
 
   /**
@@ -83,8 +92,10 @@ export class SignInStep {
    * owed, and the caller starts the session; otherwise sends the code, sets
    * the pending cookie and answers the step.
    *
-   * Confirming starts with the account's own number where it can take a code,
-   * since it is usually right, and lets the visitor give another.
+   * The code goes to the account's own number, which staff set. One that
+   * cannot take a code (none, not in a readable form, or refused by the
+   * provider) stops the sign-in: the holder asks the shop to correct it, and
+   * nobody chooses another number here.
    */
   async begin(
     user: UserRow,
@@ -94,21 +105,15 @@ export class SignInStep {
     const need = this.need(user);
     if (need === 'none') return null;
 
-    let answer: StepAnswer;
-    if (need === 'code') {
-      answer = await this.sendTo(user, user.phone ?? '', 'sign-in');
-    } else {
-      const phone = this.readablePhone(user.phone);
-      answer = phone
-        ? await this.sendTo(user, phone, 'confirm').catch((error) =>
-            // A number the provider refuses is no reason to stop here: the
-            // visitor gives another.
-            error instanceof CodeDeliveryError && error.reason === 'unreachable'
-              ? ({ step: 'phone' } as const)
-              : Promise.reject(error),
-          )
-        : { step: 'phone' };
+    const phone = this.readablePhone(user.phone);
+    if (!phone) {
+      throw new CodeDeliveryError('unreachable', 'No number a code can reach');
     }
+    const answer = await this.sendTo(
+      user,
+      phone,
+      need === 'code' ? 'sign-in' : 'confirm',
+    );
 
     const claims: PendingClaims = {
       sub: user.id,
@@ -150,13 +155,6 @@ export class SignInStep {
     return user;
   }
 
-  /** A number the visitor gives while confirming. Only then: a confirmed
-   * number is the factor itself, and swapping it here would skip it. */
-  async changeNumber(user: UserRow, phone: string): Promise<StepAnswer | null> {
-    if (this.need(user) !== 'confirm') return null;
-    return this.sendTo(user, phone, 'confirm');
-  }
-
   async resend(user: UserRow): Promise<StepAnswer | null> {
     const sent = await this.codes.resend(user);
     return sent && this.codeStep(user, sent);
@@ -195,12 +193,19 @@ export class SignInStep {
   }
 
   private codeStep(user: UserRow, sent: CodeSent): StepAnswer {
-    const phone = maskPhone(formatPhone(sent.phone, this.phoneInput));
     return {
       step: 'code',
+      ...this.sent(user, sent),
+      confirming: this.need(user) === 'confirm',
+    };
+  }
+
+  /** Where a code went and when another may be asked, as a screen shows it. */
+  private sent(user: UserRow, sent: CodeSent): CodeSentAnswer {
+    const phone = maskPhone(formatPhone(sent.phone, this.phoneInput));
+    return {
       sentTo: this.delivery.channel === 'email' ? maskEmail(user.email) : phone,
       phone,
-      canChangeNumber: this.need(user) === 'confirm',
       resendIn: Math.ceil(sent.resendInMs / 1000),
     };
   }

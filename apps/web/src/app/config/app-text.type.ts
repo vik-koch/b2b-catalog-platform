@@ -1034,6 +1034,11 @@ export const appTextSchema = z
                 submitting: z.string(),
                 cancel: z.string(),
                 error: z.string(),
+                /**
+                 * Under a number that receives sign-in codes (FR-AUTH-12):
+                 * shown, not offered, and who to ask to change it.
+                 */
+                phoneLocked: z.string(),
               })
               .strict(),
             /**
@@ -1270,13 +1275,6 @@ export const appTextSchema = z
             /** The resend control while the wait runs. */
             resendIn: z.string(),
             resent: z.string(),
-            changeNumber: z.string(),
-            phoneHeading: z.string(),
-            phoneIntro: z.string(),
-            phone: z.string(),
-            phoneSubmit: z.string(),
-            /** Back from the number form to the code already sent. */
-            backToCode: z.string(),
             wrong: z.string(),
             /** Past its time, or entered wrongly too often. */
             expired: z.string(),
@@ -1284,9 +1282,7 @@ export const appTextSchema = z
             restart: z.string(),
             restartAction: z.string(),
             limit: z.string(),
-            /** The provider refused a number being confirmed. */
-            unreachable: z.string(),
-            /** The provider refused the account's confirmed number. */
+            /** No number on the account a code can reach: staff correct it. */
             unreachableAccount: z.string(),
             unavailable: z.string(),
             error: z.string(),
