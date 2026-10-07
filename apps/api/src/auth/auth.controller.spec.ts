@@ -42,6 +42,7 @@ describe('AuthController', () => {
   const auth = {
     validate: vi.fn(),
     signToken: vi.fn(async () => 'a-signed-token'),
+    recordSignIn: vi.fn(async () => undefined),
     toAuthUser: vi.fn(() => user),
     changePassword: vi.fn(),
   };
@@ -156,6 +157,31 @@ describe('AuthController', () => {
     // The readable hint beside the httpOnly cookie, so the first frame can
     // draw the account control without waiting for /auth/me.
     expect(cookies).toContain(`${SESSION_HINT_COOKIE}=user`);
+    // When the account was last used (users.lastSignInAt).
+    expect(auth.recordSignIn).toHaveBeenCalledWith(
+      expect.objectContaining({ id: user.id }),
+    );
+  });
+
+  // Choosing a password from an invitation or a reset link starts a session
+  // too, so it counts as using the account.
+  it('records a sign-in when a chosen password starts the session', async () => {
+    passwordSetup.describe.mockResolvedValue({
+      purpose: 'set',
+      email: user.email,
+      role: 'user',
+    });
+    passwordSetup.redeem.mockResolvedValue({ ...user, role: 'user' });
+
+    const response = await post('/auth/set-password', {
+      token: 'a-token',
+      password: 'a-long-enough-password',
+    });
+
+    expect(response.status).toBe(200);
+    expect(auth.recordSignIn).toHaveBeenCalledWith(
+      expect.objectContaining({ id: user.id }),
+    );
   });
 
   // The form says the same thing to a wrong address, a wrong password and an
@@ -172,6 +198,7 @@ describe('AuthController', () => {
       code: 'invalid-credentials',
     });
     expect(response.headers.getSetCookie()).toEqual([]);
+    expect(auth.recordSignIn).not.toHaveBeenCalled();
   });
 
   // Somebody locked out while the storefront is down still needs the way back

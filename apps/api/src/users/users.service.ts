@@ -132,6 +132,15 @@ export class UsersService {
    * it has now chosen its own. Returns the updated row so the caller can
    * re-issue its own session token at the new version.
    */
+  /** A session has just started for this account (see `users.lastSignInAt`).
+   * Not `updatedAt`: signing in changes nothing about the account. */
+  async recordSignIn(id: string): Promise<void> {
+    await this.db
+      .update(users)
+      .set({ lastSignInAt: new Date() })
+      .where(eq(users.id, id));
+  }
+
   async setPassword(id: string, passwordHash: string): Promise<UserRow> {
     const [updated] = await this.db
       .update(users)
@@ -306,6 +315,9 @@ export class UsersService {
         // The credential is gone with everything else, so the row no longer
         // holds a password anybody chose.
         passwordSetAt: null,
+        // When it was last used says something about the person; the
+        // tombstone keeps nothing about them.
+        lastSignInAt: null,
         tokenVersion: sql`${users.tokenVersion} + 1`,
         mustChangePassword: false,
         updatedAt: new Date(),

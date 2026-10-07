@@ -713,6 +713,12 @@ export const users = pgTable('users', {
   // design, and it is what decides where a reactivated account lands: back to
   // `active` if it has a password, to `invited` if it never chose one.
   passwordSetAt: timestamp('passwordSetAt', { withTimezone: true }),
+  // When a session last started: a sign-in, or the first password chosen
+  // from an invitation or a reset link. Recorded so that a later rule can
+  // end an account nobody has used for a period, and null for every account
+  // that has not signed in since recording began. A session runs for days,
+  // so this is when the account was last used to within that.
+  lastSignInAt: timestamp('lastSignInAt', { withTimezone: true }),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),

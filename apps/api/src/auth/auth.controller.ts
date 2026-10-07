@@ -150,6 +150,7 @@ export class AuthController {
           }
           // Straight into a session: they have just proved control of the address
           // and chosen the password, so asking them to log in would be ceremony.
+          await this.auth.recordSignIn(user);
           const token = await this.auth.signToken(user);
           issueSession(req, res, token, user.role);
           return this.auth.toAuthUser(user);
@@ -176,6 +177,7 @@ export class AuthController {
             message: 'Service under maintenance',
           });
         }
+        await this.auth.recordSignIn(user);
         const token = await this.auth.signToken(user);
         issueSession(req, res, token, user.role);
         return this.auth.toAuthUser(user);

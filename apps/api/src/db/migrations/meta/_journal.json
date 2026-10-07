@@ -386,6 +386,13 @@
       "when": 1791358224313,
       "tag": "0054_order_personal_data_removed",
       "breakpoints": true
+    },
+    {
+      "idx": 55,
+      "version": "7",
+      "when": 1791361766267,
+      "tag": "0055_user_last_sign_in",
+      "breakpoints": true
     }
   ]
 }
