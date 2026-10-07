@@ -251,6 +251,12 @@ optional, and absent means off. The demo leaves it out.
   asks at every sign-in.
 - `roles` lists who is asked. A role left out signs in with the password alone.
 
+Codes go to the deployment's code sidecar at `SIGN_IN_CODE_URL` (see
+`.env.example`). Without it they go to the account's email address, which is
+fine for trying the feature out but is no second factor. The text a code
+travels in is `signInCode.message` in `mail-text.json`; keep it to one SMS,
+since a second part costs a second message.
+
 ## Assets (logo, favicon, fonts)
 
 Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
