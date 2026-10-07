@@ -1,6 +1,6 @@
-import { Controller, HttpException, Inject, Req, Res } from '@nestjs/common';
+import { Controller, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { Implement, implement, ORPCError } from '@orpc/nest';
+import { Implement, implement } from '@orpc/nest';
 import {
   authContract,
   AuthUser,
@@ -24,13 +24,8 @@ import { MaintenanceExempt } from '../settings/maintenance-exempt.decorator';
 import { SettingsService } from '../settings/settings.service';
 import { refusals } from '../orpc/refusals';
 import { endSession, issueSession } from './session-cookie';
-import {
-  CodeDeliveryError,
-  CodeResendLimitError,
-  SignInStep,
-} from './sign-in-step/sign-in-step';
-import { storedPhone } from '../users/stored-phone';
-import { PHONE_RULE, PhoneRule } from '../config/deployment-config';
+import { sending } from './sign-in-step/code-refusals';
+import { SignInStep } from './sign-in-step/sign-in-step';
 import { UserRow } from '../users/users.service';
 
 @Controller()
@@ -42,7 +37,6 @@ export class AuthController {
     private readonly passwordReset: PasswordResetService,
     private readonly settings: SettingsService,
     private readonly step: SignInStep,
-    @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
   ) {}
 
   /**
@@ -207,28 +201,6 @@ export class AuthController {
       });
   }
 
-  /**
-   * While confirming a number, the visitor names a different one. Throttled
-   * like login: each call can cost a message.
-   */
-  @MaintenanceExempt()
-  @AuthThrottle()
-  @Implement(authContract.signInPhone)
-  signInPhone(@Req() req: Request) {
-    return implement(authContract.signInPhone)
-      .use(refusals)
-      .handler(async ({ input: { body }, errors }) => {
-        const user = await this.step.pending(req);
-        const phone = storedPhone(this.phoneRule, body.phone);
-        const answer =
-          user && phone
-            ? await sending(this.step.changeNumber(user, phone))
-            : null;
-        if (!answer) throw errors['sign-in-step-expired'](STEP_EXPIRED);
-        return answer;
-      });
-  }
-
   @MaintenanceExempt()
   @AuthThrottle()
   @Implement(authContract.resendSignInCode)
@@ -336,35 +308,3 @@ export class AuthController {
 }
 
 const STEP_EXPIRED = { message: 'No sign-in is waiting for a code' };
-
-/**
- * A step call that sends a message, with its failures restated as the
- * contract's refusals.
- */
-async function sending<T>(work: Promise<T>): Promise<T> {
-  try {
-    return await work;
-  } catch (error) {
-    if (error instanceof CodeResendLimitError) {
-      // Thrown as the contract's own error, not a coded Nest exception: the
-      // refusal carries data, which only an ORPCError can.
-      throw new ORPCError('code-resend-limit', {
-        status: 429,
-        message: 'No new code yet',
-        data: { retryAfter: Math.ceil(error.retryAfterMs / 1000) },
-      });
-    }
-    if (error instanceof CodeDeliveryError) {
-      throw error.reason === 'unreachable'
-        ? new HttpException(
-            { code: 'phone-unreachable', message: error.message },
-            400,
-          )
-        : new HttpException(
-            { code: 'code-delivery-unavailable', message: error.message },
-            503,
-          );
-    }
-    throw error;
-  }
-}

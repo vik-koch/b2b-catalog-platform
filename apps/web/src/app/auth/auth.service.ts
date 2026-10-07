@@ -60,9 +60,8 @@ export type CodeResult =
   | { result: 'ok' | 'expired' | 'restart' | 'closed' | 'error' }
   | { result: 'wrong'; attemptsLeft: number };
 
-/** What sending a code — to a new number, or again — can come back with. */
-export type SendResult =
-  'ok' | 'phone-format' | 'restart' | 'error' | CodeSendFailure;
+/** What asking for another code can come back with. */
+export type SendResult = 'ok' | 'restart' | 'error' | CodeSendFailure;
 
 /**
  * What the change-password form needs to distinguish. Two of these are 400s
@@ -279,11 +278,6 @@ export class AuthService {
     return this.sent(await safe(this.client.resendSignInCode()));
   }
 
-  /** While confirming, send the code to another number instead. */
-  async useNumber(phone: string): Promise<SendResult> {
-    return this.sent(await safe(this.client.signInPhone({ body: { phone } })));
-  }
-
   private sent(result: {
     isSuccess: boolean;
     isDefined: boolean;
@@ -300,7 +294,6 @@ export class AuthService {
       this.pendingStep.set(null);
       return 'restart';
     }
-    if (code === 'phone-format') return 'phone-format';
     if (!isCodeSendFailure(code)) return 'error';
     this.noteWait(result.error);
     return CODE_SEND_FAILURES[code];

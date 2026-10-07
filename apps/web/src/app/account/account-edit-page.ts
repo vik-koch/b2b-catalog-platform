@@ -1,10 +1,19 @@
-import { Component, effect, inject, resource, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  resource,
+  signal,
+  untracked,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
+  formatPhone,
   phoneValidators,
   typedPhone,
 } from '../core/contact-fields';
@@ -102,12 +111,22 @@ type Status = 'idle' | 'submitting' | 'error';
 
           <!-- Optional, as on the staff editor: a staff account often has no
                number, and one that is gone is not a reason to refuse the save. -->
-          <app-phone-field
-            [control]="form.controls.phone"
-            [label]="accountText.phone"
-            [text]="phoneText"
-            [invalid]="isInvalid('phone')"
-          />
+          <!-- Where the number receives sign-in codes it is how the account
+               signs in, so staff change it (FR-AUTH-12): shown, not offered. -->
+          @if (locked()) {
+            <div>
+              <p appFieldLabel>{{ accountText.phone }}</p>
+              <p>{{ lockedPhone() }}</p>
+              <p class="mt-1 text-sm text-muted">{{ text.phoneLocked }}</p>
+            </div>
+          } @else {
+            <app-phone-field
+              [control]="form.controls.phone"
+              [label]="accountText.phone"
+              [text]="phoneText"
+              [invalid]="isInvalid('phone')"
+            />
+          }
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
@@ -120,8 +139,8 @@ type Status = 'idle' | 'submitting' | 'error';
             </a>
           </div>
 
-          @if (status() === 'error') {
-            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+          @if (failure(); as line) {
+            <p class="text-sm text-red-600" role="alert">{{ line }}</p>
           }
         </form>
       } @else if (profile.error()) {
@@ -169,14 +188,31 @@ export class AccountEditPage {
     effect(() => {
       const profile = this.profile.value();
       if (!profile) return;
-      this.form.reset({
-        firstName: profile.firstName ?? '',
-        lastName: profile.lastName ?? '',
-        phone: typedPhone(profile.phone, this.phoneInput),
+      // Only the profile is a dependency. Writing the form fires its change
+      // handlers, and any signal they read would otherwise re-run this on the
+      // next save and put the stored values back over what was typed.
+      untracked(() => {
+        this.form.reset({
+          firstName: profile.firstName ?? '',
+          lastName: profile.lastName ?? '',
+          phone: typedPhone(profile.phone, this.phoneInput),
+        });
       });
     });
 
     usePageSeo({ name: () => this.text.heading });
+  }
+
+  /** The number receives sign-in codes, so staff change it (FR-AUTH-12). */
+  protected readonly locked = computed(
+    () => this.profile.value()?.phoneLocked ?? false,
+  );
+  protected readonly lockedPhone = computed(() =>
+    formatPhone(this.profile.value()?.phone ?? null, this.phoneInput),
+  );
+
+  protected failure(): string | null {
+    return this.status() === 'error' ? this.text.error : null;
   }
 
   protected submitting(): boolean {
@@ -197,9 +233,12 @@ export class AccountEditPage {
       const saved = await this.account.updateProfile({
         firstName: value.firstName.trim(),
         lastName: value.lastName.trim(),
-        // An empty field clears the number; the API separates "no phone" from
-        // "unchanged" by null rather than by an empty string.
-        phone: canonicalPhone(value.phone, this.phoneInput) || null,
+        // A locked number goes back as it is. Otherwise an empty field clears
+        // it; the API separates "no phone" from "unchanged" by null rather
+        // than by an empty string.
+        phone: this.locked()
+          ? (this.profile.value()?.phone ?? null)
+          : canonicalPhone(value.phone, this.phoneInput) || null,
       });
       // The greeting is built from the session, not from this response, so a
       // changed first name only reaches the header once /auth/me is re-asked.

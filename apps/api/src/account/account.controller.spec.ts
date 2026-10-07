@@ -12,6 +12,7 @@ import {
   SESSION_HINT_COOKIE,
 } from '@b2b-catalog-platform/shared';
 import { PHONE_RULE } from '../config/deployment-config';
+import { SignInStep } from '../auth/sign-in-step/sign-in-step';
 
 /**
  * Over a real server: the refusals here are the ones a form acts on, so what
@@ -28,6 +29,9 @@ describe('AccountController', () => {
   const countOpenOrders = vi.fn();
   const deleteAccount = vi.fn();
   const record = vi.fn();
+  /** Whether the deployment asks this account for a code (FR-AUTH-12). */
+  let asks = false;
+  const step = { asks: () => asks };
 
   const row = {
     id: 'user-1',
@@ -53,6 +57,7 @@ describe('AccountController', () => {
     companyRegistrationId: row.companyRegistrationId,
     createdAt: '2026-01-05T09:00:00.000Z',
     openOrders: 0,
+    phoneLocked: false,
   };
 
   beforeAll(async () => {
@@ -65,6 +70,7 @@ describe('AccountController', () => {
         },
         { provide: AccountDeletion, useValue: { delete: deleteAccount } },
         { provide: AuditLogger, useValue: { record } },
+        { provide: SignInStep, useValue: step },
         {
           provide: PHONE_RULE,
           useValue: (value: string) =>
@@ -107,6 +113,7 @@ describe('AccountController', () => {
     countOpenOrders.mockResolvedValue(0);
     deleteAccount.mockReset();
     record.mockReset();
+    asks = false;
   });
 
   const del = (password: string) =>
@@ -213,6 +220,36 @@ describe('AccountController', () => {
       'user-1',
       expect.objectContaining({ phone: row.phone }),
     );
+  });
+
+  describe('a number that receives sign-in codes (FR-AUTH-12)', () => {
+    it('is locked on the profile', async () => {
+      asks = true;
+      findById.mockResolvedValue(row);
+
+      const body = await (await fetch(`${baseUrl}/api/account/profile`)).json();
+
+      expect(body.phoneLocked).toBe(true);
+    });
+
+    it('is refused when the holder changes it', async () => {
+      asks = true;
+      findById.mockResolvedValue(row);
+
+      const response = await patchPhone('+49 (401) 234-5678');
+
+      expect(response.status).toBe(409);
+      expect(await response.json()).toMatchObject({ code: 'phone-locked' });
+      expect(updateOwnProfile).not.toHaveBeenCalled();
+    });
+
+    it('still lets the names be saved beside it', async () => {
+      asks = true;
+      findById.mockResolvedValue(row);
+      updateOwnProfile.mockResolvedValue(row);
+
+      expect((await patchPhone(row.phone)).status).toBe(200);
+    });
   });
 
   // strict: it is what stops `role`, `tierId` or `status` riding along on a

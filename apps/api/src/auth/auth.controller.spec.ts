@@ -210,7 +210,7 @@ describe('AuthController', () => {
       step: 'code' as const,
       sentTo: '+49 (•••) •••-••78',
       phone: '+49 (•••) •••-••78',
-      canChangeNumber: false,
+      confirming: false,
       resendIn: 60,
     };
     const cookiesOf = (response: Response) =>

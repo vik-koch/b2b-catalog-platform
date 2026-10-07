@@ -35,6 +35,12 @@ export const accountProfileSchema = z.object({
    * pressing the button rather than after.
    */
   openOrders: z.number().int().nonnegative(),
+  /**
+   * The number is the staff's to change (FR-AUTH-12): the deployment sends
+   * this account its sign-in codes there. Where it does not, the number is
+   * contact data, and the holder corrects it like any other field.
+   */
+  phoneLocked: z.boolean(),
 });
 export type AccountProfile = z.infer<typeof accountProfileSchema>;
 
@@ -96,7 +102,12 @@ export const accountContract = {
       inputStructure: 'detailed',
       summary: "Correct the signed-in account's own name and phone number",
     })
-    .errors({ ...commonAuthErrors, ...phoneFormatErrors })
+    .errors({
+      ...commonAuthErrors,
+      ...phoneFormatErrors,
+      /** The number receives sign-in codes, so only staff change it. */
+      'phone-locked': { status: 409 },
+    })
     .input(z.object({ body: updateAccountProfileSchema }))
     .output(accountProfileSchema),
 

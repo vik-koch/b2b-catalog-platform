@@ -15,7 +15,7 @@ const codeStep: SignInStep = {
   step: 'code',
   sentTo: '+49 (•••) •••-••78',
   phone: '+49 (•••) •••-••78',
-  canChangeNumber: false,
+  confirming: false,
   resendIn: 0,
 };
 
@@ -40,7 +40,6 @@ async function render(initial: SignInStep) {
     step,
     submitCode: vi.fn<AuthService['submitCode']>(),
     resendCode: vi.fn<AuthService['resendCode']>(),
-    useNumber: vi.fn<AuthService['useNumber']>(),
     retryAfter: signal<number | null>(null),
   };
 
@@ -82,12 +81,6 @@ describe('SignInStepPanel', () => {
       b.textContent?.includes(text.resendIn.replace('{time}', '0:42')),
     );
     expect(resend?.disabled).toBe(true);
-  });
-
-  it('offers no other number once the number is confirmed', async () => {
-    const { el } = await render(codeStep);
-
-    expect(el.textContent).not.toContain(text.changeNumber);
   });
 
   it('checks the code’s shape before asking the server', async () => {
@@ -194,37 +187,19 @@ describe('SignInStepPanel', () => {
     expect(el.textContent).toContain(text.resendIn.replace('{time}', '1:30'));
   });
 
-  describe('while confirming a number', () => {
-    it('lets the visitor send the code to another number', async () => {
-      const { el, auth, step, sync } = await render({
-        ...codeStep,
-        canChangeNumber: true,
-      });
-      auth.useNumber.mockImplementation(async () => {
-        step.set({ ...codeStep, canChangeNumber: true });
-        return 'ok';
-      });
+  it('says the code also confirms the number, while it does', async () => {
+    const { el } = await render({ ...codeStep, confirming: true });
 
-      button(el, text.changeNumber).click();
-      await sync();
-      expect(el.textContent).toContain(text.phoneHeading);
+    expect(el.textContent).toContain(
+      text.confirmNote.replace('{phone}', codeStep.phone),
+    );
+  });
 
-      setInput(el, '#phone', '4019876543');
-      button(el, text.phoneSubmit).click();
-      await sync();
+  // The number is staff's to set: nothing here offers another.
+  it('offers no way to name another number', async () => {
+    const { el } = await render({ ...codeStep, confirming: true });
 
-      expect(auth.useNumber).toHaveBeenCalledWith('+494019876543');
-      expect(el.textContent).toContain(text.codeHeading);
-    });
-
-    it('asks for a number first where the account has none', async () => {
-      const { el, auth, sync } = await render({ step: 'phone' });
-
-      button(el, text.phoneSubmit).click();
-      await sync();
-
-      expect(auth.useNumber).not.toHaveBeenCalled();
-      expect(el.textContent).not.toContain(text.backToCode);
-    });
+    expect(el.querySelector('#phone')).toBeNull();
+    expect(el.querySelectorAll('button')).toHaveLength(2);
   });
 });

@@ -251,6 +251,11 @@ optional, and absent means off. The demo leaves it out.
   asks at every sign-in.
 - `roles` lists who is asked. A role left out signs in with the password alone.
 
+Where an account is asked for a code, its number is how it signs in, and only
+staff change it: the holder sees it on their account page but cannot edit it,
+and a sign-in never asks for one. An account with no number a code can reach
+cannot sign in until staff enter one.
+
 Codes go to the deployment's code sidecar at `SIGN_IN_CODE_URL` (see
 `.env.example`). Without it they go to the account's email address, which is
 fine for trying the feature out but is no second factor. The text a code
