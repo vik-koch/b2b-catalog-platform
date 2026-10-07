@@ -67,6 +67,14 @@ export const demoMailText: MailText = {
     ignore: 'If this was not you, you can ignore this message.',
     action: 'Choose a new password',
   },
+  signInCode: {
+    message: '{code} is your Coffee Kontor sign-in code.',
+    subject: 'Your sign-in code',
+    preheader: 'Enter this code to finish signing in.',
+    heading: 'Your sign-in code',
+    ignore:
+      'If you did not try to sign in, change your password: someone else knows it.',
+  },
   accountDeleted: {
     subject: 'Your account has been deleted',
     preheader: 'Your account and personal details have been removed.',
