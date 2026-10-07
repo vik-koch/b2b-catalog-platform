@@ -56,6 +56,7 @@ import {
   products,
   ProductVariantRef,
 } from '../db/schema';
+import { excluded } from '../db/sql-columns';
 import { SettingsService } from '../settings/settings.service';
 import { catalogExternallyOwned } from '../settings/ownership.refusals';
 import { changedProductFields } from './owned-fields';
@@ -933,7 +934,7 @@ export class AdminProductsService {
       .onConflictDoUpdate({
         target: [productPrices.productId, productPrices.tierId],
         set: {
-          priceMinor: sql`excluded."priceMinor"`,
+          priceMinor: excluded(productPrices.priceMinor),
           updatedAt: new Date(),
         },
       });

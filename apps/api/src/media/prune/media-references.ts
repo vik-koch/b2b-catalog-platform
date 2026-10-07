@@ -1,8 +1,19 @@
-import { Client } from 'pg';
+import { isNotNull } from 'drizzle-orm';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   DOCUMENT_URL_PREFIX,
   MEDIA_URL_PREFIX,
 } from '@b2b-catalog-platform/shared';
+import * as schema from '../../db/schema';
+import {
+  categories,
+  documents,
+  orderItems,
+  pageVersions,
+  products,
+} from '../../db/schema';
+
+export type MediaReferenceDb = NodePgDatabase<typeof schema>;
 
 // Matches every /media/<filename> occurrence in a stored string. The filename
 // charset mirrors the sanitizer's src guard, so extraction and validation can
@@ -36,7 +47,7 @@ export function documentFilenames(text: string): string[] {
  */
 export interface MediaReferenceSource {
   readonly name: string;
-  collect(client: Client): Promise<string[]>;
+  collect(db: MediaReferenceDb): Promise<string[]>;
 }
 
 /**
@@ -51,10 +62,10 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     // Every version, not only the current: an old text must still render as
     // it was published.
     name: 'page bodies',
-    async collect(client) {
-      const { rows } = await client.query<{ bodyHtml: string }>(
-        'SELECT "bodyHtml" FROM page_versions',
-      );
+    async collect(db) {
+      const rows = await db
+        .select({ bodyHtml: pageVersions.bodyHtml })
+        .from(pageVersions);
       return rows.flatMap((row) => mediaFilenamesInHtml(row.bodyHtml));
     },
   },
@@ -62,11 +73,11 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     // The images jsonb holds { full, thumb } URL pairs; scanning its text form
     // captures both filenames per image.
     name: 'product images',
-    async collect(client) {
-      const { rows } = await client.query<{ images: string }>(
-        `SELECT images::text AS images FROM products`,
+    async collect(db) {
+      const rows = await db.select({ images: products.images }).from(products);
+      return rows.flatMap((row) =>
+        mediaFilenamesInHtml(JSON.stringify(row.images)),
       );
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.images));
     },
   },
   {
@@ -75,22 +86,26 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
     // the one source whose files nothing else references any more — and an
     // order that loses its picture loses part of what was ordered.
     name: 'order line thumbnails',
-    async collect(client) {
-      const { rows } = await client.query<{ thumbnail: string }>(
-        `SELECT thumbnail FROM order_items WHERE thumbnail IS NOT NULL`,
-      );
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.thumbnail));
+    async collect(db) {
+      const rows = await db
+        .select({ thumbnail: orderItems.thumbnail })
+        .from(orderItems)
+        .where(isNotNull(orderItems.thumbnail));
+      return rows.flatMap((row) => mediaFilenamesInHtml(row.thumbnail ?? ''));
     },
   },
   {
     // The chip mark (FR-CAT-07) is a jsonb { full, thumb } pair; scanning its
     // text form captures both filenames.
     name: 'category marks',
-    async collect(client) {
-      const { rows } = await client.query<{ mark: string }>(
-        `SELECT mark::text AS mark FROM categories WHERE mark IS NOT NULL`,
+    async collect(db) {
+      const rows = await db
+        .select({ mark: categories.mark })
+        .from(categories)
+        .where(isNotNull(categories.mark));
+      return rows.flatMap((row) =>
+        mediaFilenamesInHtml(JSON.stringify(row.mark)),
       );
-      return rows.flatMap((row) => mediaFilenamesInHtml(row.mark));
     },
   },
 ];
@@ -107,24 +122,25 @@ export const MEDIA_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
 export const DOCUMENT_REFERENCE_SOURCES: readonly MediaReferenceSource[] = [
   {
     name: 'document files',
-    async collect(client) {
+    async collect(db) {
       // A link-only document has no file to keep.
-      const { rows } = await client.query<{ fileUrl: string }>(
-        'SELECT "fileUrl" FROM documents WHERE "fileUrl" IS NOT NULL',
-      );
-      return rows.flatMap((row) => documentFilenames(row.fileUrl));
+      const rows = await db
+        .select({ fileUrl: documents.fileUrl })
+        .from(documents)
+        .where(isNotNull(documents.fileUrl));
+      return rows.flatMap((row) => documentFilenames(row.fileUrl ?? ''));
     },
   },
 ];
 
 /** Union of the filenames every registered source currently references. */
 export async function collectReferencedFilenames(
-  client: Client,
+  db: MediaReferenceDb,
   sources: readonly MediaReferenceSource[] = MEDIA_REFERENCE_SOURCES,
 ): Promise<Set<string>> {
   const referenced = new Set<string>();
   for (const source of sources) {
-    for (const filename of await source.collect(client)) {
+    for (const filename of await source.collect(db)) {
       referenced.add(filename);
     }
   }

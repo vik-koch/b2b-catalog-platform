@@ -1,61 +1,109 @@
-import { getTableName, SQL } from 'drizzle-orm';
+import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { OrderDocumentFiles } from '../orders/order-document-files';
 import { RetentionSweep } from './retention-sweep';
 
 /**
- * The sweep, rendered rather than executed: which statements it runs, in
- * which order, against which cutoffs. The statements themselves were checked
- * against Postgres; what can drift here is the arithmetic and the order.
+ * The sweep, through a real drizzle over a client that records each statement
+ * and answers the pick with the consents given. Which statements, in which
+ * order, against which cutoffs, and what each record names.
  */
 describe('RetentionSweep.sweep', () => {
   const now = new Date('2026-10-06T12:00:00Z');
-  const executed: { sql: string; params: unknown[] }[] = [];
-  let result: Awaited<ReturnType<RetentionSweep['sweep']>>;
 
-  beforeAll(async () => {
-    const dialect = new PgDialect();
-    const tx = {
-      execute: (query: SQL) => {
-        executed.push(dialect.sqlToQuery(query));
-        return Promise.resolve({ rowCount: executed.length });
+  const run = async (due: { id: string; userId: string | null }[]) => {
+    const asked: { text: string; values: unknown[] }[] = [];
+    const client = {
+      query: async (
+        query: string | { text: string },
+        values: unknown[] = [],
+      ) => {
+        const text = typeof query === 'string' ? query : query.text;
+        asked.push({ text, values });
+        if (text.startsWith('select')) {
+          return { rows: due.map((row) => [row.id, row.userId]), fields: [] };
+        }
+        return { rows: [], rowCount: 4, fields: [] };
       },
     };
-    const db = {
-      transaction: (run: (tx: unknown) => Promise<unknown>) => run(tx),
-    } as unknown as NodePgDatabase<typeof schema>;
-
-    result = await new RetentionSweep(
+    const db = drizzle({ client: client as never, schema });
+    const result = await new RetentionSweep(
       db,
       { consentRecordDays: 30, destructionRecordDays: 365, orderDays: 1095 },
       {} as OrderDocumentFiles,
     ).sweep(now);
+    return { asked, result };
+  };
+
+  it('picks consents withdrawn, or contact consents given, before the cutoff', async () => {
+    const { asked } = await run([]);
+    const pick = asked.find((query) => query.text.startsWith('select'));
+
+    expect(pick?.text).toContain(
+      'left join "consent_withdrawals" on "consent_withdrawals"."consentId" = "consents"."id"',
+    );
+    expect(pick?.text).toContain(
+      'where ("consent_withdrawals"."withdrawnAt" < $1 or ("consent_withdrawals"."id" is null and "consents"."purpose" = $2 and "consents"."createdAt" < $3))',
+    );
+    expect(pick?.text).toMatch(/for update of "consents" skip locked$/);
+    const cutoff = '2026-09-06T12:00:00.000Z';
+    expect(pick?.values).toEqual([cutoff, 'contact', cutoff]);
   });
 
-  it('deletes consent records first, each leaving a destruction record', () => {
-    const [consents] = executed;
+  it('deletes the consents and records each in the one transaction, then the old records', async () => {
+    const { asked } = await run([
+      { id: 'consent-1', userId: 'user-1' },
+      { id: 'consent-2', userId: null },
+    ]);
 
-    expect(consents.sql).toContain('DELETE FROM consents');
-    expect(consents.sql).toContain('INSERT INTO destruction_records');
-    expect(consents.sql).toContain("'retention-ended'");
-    expect(consents.params).toEqual([new Date('2026-09-06T12:00:00Z')]);
+    expect(
+      asked.map((query) => query.text.split(' (')[0].slice(0, 32)),
+    ).toEqual([
+      'begin',
+      expect.stringMatching(/^select/),
+      'delete from "consents" where "co',
+      'insert into "destruction_records',
+      'delete from "destruction_records',
+      'commit',
+    ]);
+    const [, , deleted, inserted, purged] = asked;
+    expect(deleted.values).toEqual(['consent-1', 'consent-2']);
+    // Named by the account where there was one, else by the record itself.
+    // As drizzle hands a varchar[] to the driver.
+    const categories = '{"consent-record"}';
+    expect(inserted.values).toEqual([
+      'account',
+      'user-1',
+      categories,
+      'retention-ended',
+      'consent',
+      'consent-2',
+      categories,
+      'retention-ended',
+    ]);
+    // Last, so the records just written are never among them.
+    expect(purged.text).toContain(
+      'where "destruction_records"."destroyedAt" < $1',
+    );
+    expect(purged.values).toEqual(['2025-10-06T12:00:00.000Z']);
   });
 
-  // Last, so the records the first statement wrote are never among them, and
-  // leaving none of their own.
-  it('then deletes the destruction records past their own period', () => {
-    const [, records] = executed;
+  it('writes no consent statements when none is due', async () => {
+    const { asked } = await run([]);
 
-    expect(executed).toHaveLength(2);
-    expect(records.sql).toContain('DELETE FROM destruction_records');
-    expect(records.sql).not.toContain('INSERT');
-    expect(records.params).toEqual([new Date('2025-10-06T12:00:00Z')]);
+    expect(asked.map((query) => query.text.slice(0, 32))).toEqual([
+      'begin',
+      expect.stringMatching(/^select/),
+      'delete from "destruction_records',
+      'commit',
+    ]);
   });
 
-  it('counts what each deleted', () => {
-    expect(result).toEqual({ consentRecords: 1, destructionRecords: 2 });
+  it('counts what each deleted', async () => {
+    const { result } = await run([{ id: 'consent-1', userId: null }]);
+
+    expect(result).toEqual({ consentRecords: 1, destructionRecords: 4 });
   });
 });
 

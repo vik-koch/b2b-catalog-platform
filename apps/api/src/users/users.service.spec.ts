@@ -1,6 +1,5 @@
-import { getTableName, SQL } from 'drizzle-orm';
+import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { LastAdminError, UsersService } from './users.service';
 
@@ -29,6 +28,7 @@ function renderingDb(
   captured: Captured[],
   admins: { id: string }[] = [{ id: 'user-1' }, { id: 'other-admin' }],
   locks: Captured[] = [],
+  reads: Captured[] = [],
 ) {
   const real = drizzle({ client: {} as never, schema });
 
@@ -49,7 +49,8 @@ function renderingDb(
 
   // The genuine builder, because the order scrub scopes its subquery with one
   // — except for the locking read the admin guard ends with `.for('update')`,
-  // which is answered with the admin rows this test wants it to see.
+  // which is answered with the admin rows this test wants it to see, and the
+  // read of the account's open consents, answered with one.
   const select = (...args: never[]) => {
     const builder = real.select(...(args as [never]));
     const from = builder.from.bind(builder);
@@ -58,6 +59,12 @@ function renderingDb(
       const where = query.where.bind(query);
       query.where = ((condition: never) => {
         const filtered = where(condition);
+        if (name(table) === 'consents') {
+          const { sql, params } = filtered.toSQL();
+          reads.push({ table: name(table), sql, params });
+          filtered.then = ((resolve: (rows: unknown) => unknown) =>
+            Promise.resolve([{ id: 'consent-1' }]).then(resolve)) as never;
+        }
         filtered.for = ((mode: string) => {
           const { sql, params } = filtered.toSQL();
           locks.push({ table: `${name(table)} for ${mode}`, sql, params });
@@ -72,16 +79,8 @@ function renderingDb(
 
   const tx = {
     select,
-    // Raw statements: rendered by the same dialect, captured by what they
-    // write to.
-    execute: (query: SQL) => {
-      const { sql, params } = new PgDialect().sqlToQuery(query);
-      const table = /INSERT INTO (\w+)/.exec(sql)?.[1] ?? 'raw';
-      captured.push({ table, sql, params });
-      return Promise.resolve();
-    },
     insert: (table: unknown) => ({
-      values: (values: Record<string, unknown>) =>
+      values: (values: Record<string, unknown> | Record<string, unknown>[]) =>
         settle(name(table), real.insert(table as never).values(values)),
     }),
     delete: (table: unknown) => ({
@@ -113,11 +112,14 @@ function renderingDb(
 
 describe('UsersService.anonymize', () => {
   const captured: Captured[] = [];
+  const reads: Captured[] = [];
   const statement = (table: string) =>
     captured.find((entry) => entry.table === table) ?? { sql: '', params: [] };
 
   beforeAll(async () => {
-    const service = new UsersService(renderingDb(captured));
+    const service = new UsersService(
+      renderingDb(captured, undefined, [], reads),
+    );
     await service.anonymize('user-1', 'unusable-hash', { reason: 'request' });
   });
 
@@ -162,9 +164,14 @@ describe('UsersService.anonymize', () => {
   it("ends the account's consents as deleted, leaving any already ended", () => {
     const { sql, params } = statement('consent_withdrawals');
 
+    expect(sql).toContain('insert into "consent_withdrawals"');
     // No admin named: the holder deleted it themselves.
-    expect(params).toEqual(['account-deleted', null, null, 'user-1']);
-    expect(sql).toContain('NOT EXISTS');
+    expect(params).toEqual(['consent-1', 'account-deleted', null, null]);
+    const [open] = reads;
+    expect(open.sql).toContain(
+      'where ("consents"."userId" = $1 and "consent_withdrawals"."id" is null)',
+    );
+    expect(open.params).toEqual(['user-1']);
   });
 
   it('marks the scrubbed orders as changed', () => {
