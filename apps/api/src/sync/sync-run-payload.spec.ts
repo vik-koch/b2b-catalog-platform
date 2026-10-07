@@ -3,8 +3,9 @@ import { StagedPayloadError, stagedPayload } from './sync-run-payload';
 
 type RunRow = typeof syncRuns.$inferSelect;
 
-/** A stored run, with only the columns this reads filled in. */
-function run(patch: Partial<RunRow>): RunRow {
+/** A stored run, with only the columns this reads filled in. The jsonb
+ * columns take anything, as the database would hand back. */
+function run(patch: { [K in keyof RunRow]?: unknown }): RunRow {
   return {
     id: 'run-1',
     status: 'previewed',

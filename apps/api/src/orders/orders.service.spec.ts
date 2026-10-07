@@ -617,7 +617,7 @@ describe('OrdersService.notifyPlaced', () => {
   afterEach(() => error.mockRestore());
 
   it('swallows a read that fails after the order was committed', async () => {
-    const orders = service(testDb(0, {}));
+    const orders = service(testDb(0, {}).db);
     vi.spyOn(orders, 'getForStaff').mockRejectedValue(
       new Error('the connection went away'),
     );
@@ -627,7 +627,7 @@ describe('OrdersService.notifyPlaced', () => {
   });
 
   it('swallows a notifier that throws for any other reason', async () => {
-    const orders = service(testDb(0, {}));
+    const orders = service(testDb(0, {}).db);
     vi.spyOn(orders, 'getForStaff').mockResolvedValue(demoAdminOrder);
     vi.spyOn(orders['notifications'], 'placed').mockImplementation(() => {
       // Thrown, not rejected: the mails are queued, so what can still fail

@@ -5,7 +5,7 @@ import {
   SyncPolicy,
   syncPolicySchema,
 } from './sync-config';
-import { SyncSummary } from './sync.contract';
+import { SyncSummary } from './sync-run.contract';
 
 const EMPTY: SyncSummary = {
   rows: 0,
@@ -18,6 +18,9 @@ const EMPTY: SyncSummary = {
   categoriesRenamed: 0,
   categoriesEmptied: 0,
   keptManual: 0,
+  mailed: 0,
+  claimed: 0,
+  claimedById: 0,
   errors: 0,
   fields: [],
 };

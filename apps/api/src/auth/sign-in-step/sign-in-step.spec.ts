@@ -128,7 +128,7 @@ describe('SignInStep', () => {
         mode: 'always',
         roles: ['user', 'admin'],
         exemptableRoles: ['admin'],
-      } as const;
+      } satisfies SignInStepConfig;
 
       expect(step(config).need(exempted)).toBe('none');
       expect(step(config).asks(exempted)).toBe(false);
@@ -136,7 +136,10 @@ describe('SignInStep', () => {
 
     // Narrowing the list ends every exemption at once, without the rows.
     it('counts for nothing once the role may no longer be exempted', () => {
-      const config = { mode: 'always', roles: ['user', 'admin'] } as const;
+      const config = {
+        mode: 'always',
+        roles: ['user', 'admin'],
+      } satisfies SignInStepConfig;
 
       expect(step(config).need(exempted)).toBe('code');
     });
@@ -146,7 +149,7 @@ describe('SignInStep', () => {
         mode: 'always',
         roles: ['admin'],
         exemptableRoles: ['admin', 'user'],
-      } as const;
+      } satisfies SignInStepConfig;
 
       expect(step(config).mayExempt('admin')).toBe(true);
       // Listed, but never asked: there is nothing to exempt it from.

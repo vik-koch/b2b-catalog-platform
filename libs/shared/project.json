@@ -12,6 +12,15 @@
         "passWithNoTests": true,
         "tsConfig": "libs/shared/tsconfig.spec.json"
       }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p libs/shared/tsconfig.lib.json --noEmit",
+          "tsc -p libs/shared/tsconfig.spec.json --noEmit"
+        ]
+      }
     }
   }
 }

@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
-import { notifyByDefault } from '@b2b-catalog-platform/shared';
+import { notifyByDefault, OrderStatus } from '@b2b-catalog-platform/shared';
 import { requireEnv } from '../support/env';
 import {
   deleteMatching,
@@ -304,7 +304,7 @@ const actions: JourneyAdapter<OrderJourneyContext>['actions'] = {
           ),
         )
       ).data;
-      const to = args['to'] as string;
+      const to = args['to'] as OrderStatus;
       const notify =
         'notify' in args
           ? (args['notify'] as boolean)
