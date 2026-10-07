@@ -1,4 +1,5 @@
 import { oc } from '@orpc/contract';
+import { TAX_BASES } from './tax';
 import * as z from 'zod';
 import { machineAuthErrors } from './api-tokens.contract';
 import { productUnitSchema } from './cart.contract';
@@ -85,6 +86,11 @@ export const machineOrderLineSchema = z
     /** The price of one piece, as it was charged. */
     priceMinor: z.number().int().nonnegative(),
     lineTotalMinor: z.number().int().nonnegative(),
+    /** The tax rate the line states (NFR-LEGAL-11), a percent: the product's
+     * own or the deployment's default when this version was written. Null
+     * under a basis that charges no tax. Stated, never applied — nothing here
+     * was worked out with it. */
+    taxRate: z.number().nullable(),
     /** What the customer typed against this line, where they typed anything. */
     note: z.string().nullable(),
   })
@@ -162,6 +168,10 @@ export const machineOrderSchema = z
     lines: z.array(machineOrderLineSchema),
     totalMinor: z.number().int().nonnegative(),
     currency: z.string(),
+    /** The tax basis the order was submitted under (NFR-LEGAL-11): whether
+     * `totalMinor` includes the tax, has it added on the invoice, or carries
+     * none. Fixed for the order's life, whatever the shop quotes today. */
+    taxBasis: z.enum(TAX_BASES),
     createdAt: z.iso.datetime(),
     /** When the order last moved between states (FR-ORD-01). */
     statusChangedAt: z.iso.datetime(),

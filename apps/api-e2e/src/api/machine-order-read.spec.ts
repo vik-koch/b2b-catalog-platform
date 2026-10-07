@@ -67,6 +67,8 @@ const ORDER_KEYS = [
   'cancelledBy',
   'tierKey',
   'totalMinor',
+  // Net or gross, as the order was submitted (NFR-LEGAL-11).
+  'taxBasis',
   'updatedAt',
 ].sort();
 const LINE_KEYS = [
@@ -77,6 +79,7 @@ const LINE_KEYS = [
   'priceMinor',
   'productSourceId',
   'quantity',
+  'taxRate',
   'unit',
 ].sort();
 
@@ -87,6 +90,7 @@ interface MachineOrder {
   revisionNumber: number;
   customer: { accountId: string; sourceId: string | null } | null;
   tierKey: string | null;
+  taxBasis: string;
   cancelledBy: 'customer' | 'shop' | null;
   paidAt: string | null;
   updatedAt: string;
@@ -371,6 +375,7 @@ describe('Outbound order read (FR-ADM-08)', () => {
       const order = await found(accountReference);
 
       expect(Object.keys(order).sort()).toEqual(ORDER_KEYS);
+      expect(order.taxBasis).toBe('included');
       // Not the guest's mailed link, not the shipment estimate, not the
       // version the customer happens to be looking at.
       expect(order).not.toHaveProperty('publicToken');
@@ -392,6 +397,9 @@ describe('Outbound order read (FR-ADM-08)', () => {
         quantity: 1,
         priceMinor: TIER_PIECE_MINOR,
         lineTotalMinor: TIER_PIECE_MINOR * PIECES,
+        // Stated, never applied: the product has no rate of its own, so the
+        // demo's default.
+        taxRate: 19,
       });
       // The storefront slug is a URL the shop may rename, and no article
       // number exists to quote instead.

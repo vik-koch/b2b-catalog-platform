@@ -11,6 +11,7 @@ import {
   PaymentMethod,
   PaymentState,
   ProductUnit,
+  TaxBasis,
 } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
@@ -117,6 +118,7 @@ export class OrderReadService {
         pieces: orderItems.pieces,
         priceMinor: orderItems.priceMinor,
         lineTotalMinor: orderItems.lineTotalMinor,
+        taxRate: orderItems.taxRate,
         note: orderItems.note,
       })
       .from(orderItems)
@@ -135,6 +137,7 @@ export class OrderReadService {
         pieces: row.pieces,
         priceMinor: row.priceMinor,
         lineTotalMinor: row.lineTotalMinor,
+        taxRate: row.taxRate,
         note: row.note,
       });
       byRevision.set(row.revisionId, lines);
@@ -208,6 +211,7 @@ function orderRows(
       customerNote: orderRevisions.customerNote,
       totalMinor: orderRevisions.totalMinor,
       currency: orderRevisions.currency,
+      taxBasis: orders.taxBasis,
       tierKey: orderRevisions.tierKey,
     })
     .from(orders)
@@ -296,6 +300,7 @@ function toRecord(row: OrderRow, lines: MachineOrderLine[]): MachineOrder {
     lines,
     totalMinor: row.totalMinor,
     currency: row.currency,
+    taxBasis: row.taxBasis as TaxBasis,
     createdAt: row.createdAt.toISOString(),
     statusChangedAt: row.statusChangedAt.toISOString(),
     paidAt: row.paidAt?.toISOString() ?? null,

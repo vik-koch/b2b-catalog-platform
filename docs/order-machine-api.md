@@ -123,11 +123,13 @@ whole book to notice that yesterday's order was cancelled this morning.
           "pieces": 20,                 // the quantity. Price and everything else is per piece
           "priceMinor": 200,
           "lineTotalMinor": 4000,
+          "taxRate": 7,                 // a percent, stated; null under taxBasis "none"
           "note": null
         }
       ],
       "totalMinor": 4000,
       "currency": "EUR",
+      "taxBasis": "included",         // included | added | none, as the order was submitted
       "createdAt": "2026-…",
       "statusChangedAt": "2026-…",
       "paidAt": null,
@@ -199,8 +201,8 @@ deployment invoices no address of its own.
 
 ### What the money means
 
-**There is no tax engine here, and the totals carry no tax, discount or
-delivery component.** The arithmetic is the whole of it, in integer minor units
+**There is no tax engine here, and the totals carry no separate tax, discount
+or delivery component.** The arithmetic is the whole of it, in integer minor units
 with no rounding anywhere:
 
 ```text
@@ -220,13 +222,26 @@ own; and `totalMinor` is whatever they sum to. A zero `priceMinor` is legal —
 that is a line given away, not a missing price, and `null` is how you ask for
 today's list price instead.
 
-What follows for an export: whether these figures are net or gross is a
-**deployment convention**, not something the platform records — agree it once
-with the shop and apply it uniformly, because nothing here will contradict you
-either way. There is nowhere to put a VAT rate, a per-line discount that is not
-already in the per-piece price, a service charge or a delivery fee. A price
-that cannot be expressed as an integer minor-unit price per piece cannot be
-represented; resolve it on your side rather than inventing a line for it.
+**Whether these figures are net or gross is recorded on the order.**
+`taxBasis` says what the prices were quoted on when the customer submitted it
+(NFR-LEGAL-11): `included` means the tax is in every figure, `added` means it
+is added on the invoice, and `none` means no tax is charged. It never changes
+for the life of the order, even where the shop's own basis has changed since.
+Each line's `taxRate` is the percent it is taxed at — the product's own rate,
+or the shop's default — as it stood when the version you are reading was
+written. It is `null` exactly where the basis is `none`.
+
+Both are **statements, not inputs to arithmetic**. Nothing above was worked out
+with them, and the platform computes no tax amount anywhere
+([ADR 0065](adr/0065-state-the-tax-basis-never-the-tax.md)): your invoice
+states the tax, by your system's own rounding rules. Use the rate to pick the
+tax code on your side, and treat a rate that disagrees with your own as a
+finding about the catalog rather than something to correct per order.
+
+There is still nowhere to put a per-line discount that is not already in the
+per-piece price, a service charge or a delivery fee. A price that cannot be
+expressed as an integer minor-unit price per piece cannot be represented;
+resolve it on your side rather than inventing a line for it.
 
 ### 2.1 One order, fresh — `GET /api/machine/orders/{reference}`
 
@@ -325,7 +340,9 @@ named by `productSourceId` and counted in **pieces**; `priceMinor` is the price
 of one piece, and `null` takes today's price from the list the order is charged
 against. The unit the customer read the line through and their own line note
 are carried forward from the line being replaced — both are the customer's
-reading of their own order.
+reading of their own order. A line carries no tax rate on the way in: the
+version you write states each product's rate as the catalog has it then, which
+is what your catalog exchange keeps in step.
 
 **A write-back changes the lines and nothing else the order says.** The
 address, the party, the payment method, the contact and the customer's note all
