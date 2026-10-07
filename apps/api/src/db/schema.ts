@@ -724,6 +724,14 @@ export const users = pgTable('users', {
   // changes in a write that does not set it too, so a number changed by staff,
   // by an external system or by anonymization is never taken as confirmed.
   phoneConfirmedAt: timestamp('phoneConfirmedAt', { withTimezone: true }),
+  // An admin let this account sign in without the code (FR-AUTH-12), and who.
+  // Counts only while the deployment lets the account's role be exempted, so
+  // narrowing that list takes effect without touching the rows.
+  signInStepExemptAt: timestamp('signInStepExemptAt', { withTimezone: true }),
+  signInStepExemptBy: uuid('signInStepExemptBy').references(
+    (): AnyPgColumn => users.id,
+    { onDelete: 'set null' },
+  ),
   createdAt: timestamp('createdAt', { withTimezone: true })
     .notNull()
     .defaultNow(),
