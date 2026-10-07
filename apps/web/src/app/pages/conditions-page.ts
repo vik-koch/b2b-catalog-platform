@@ -10,6 +10,7 @@ import { EditActions } from '../admin/edit-actions';
 import { DeliveryZoneList } from '../checkout/delivery-zone-list';
 import { usePageSeo } from '../core/page-seo';
 import { trustedRichText } from '../core/trusted-rich-text';
+import { EmphasisedText } from '../ui/emphasised-text';
 import { TextButton } from '../ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from './page.service';
@@ -26,10 +27,19 @@ import { PageService } from './page.service';
  *
  * A section the deployment has nothing for is left out — no zones, no zone
  * list; no pickup points, no pickup.
+ *
+ * Each card is marked with a glyph, and a description may set words in bold
+ * (`<b>`, see EmphasisedText). Zones of the same level share a row.
  */
 @Component({
   selector: 'app-conditions-page',
-  imports: [DeliveryZoneList, EditActions, TextButton, LoadErrorView],
+  imports: [
+    DeliveryZoneList,
+    EditActions,
+    EmphasisedText,
+    TextButton,
+    LoadErrorView,
+  ],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
          never written takes the page down with it — the same rules, and the
@@ -106,7 +116,7 @@ import { PageService } from './page.service';
                   <p class="mt-1 text-sm text-muted">{{ location.address }}</p>
                   @if (location.description) {
                     <p class="mt-2 text-sm text-subtle">
-                      {{ location.description }}
+                      <app-emphasised [text]="location.description" />
                     </p>
                   }
                 </li>

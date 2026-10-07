@@ -1,6 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
+import { EmphasisedText } from '../ui/emphasised-text';
 import { Radio } from '../ui/radio';
 import { TextButton } from '../ui/link';
 
@@ -20,7 +21,7 @@ import { TextButton } from '../ui/link';
  */
 @Component({
   selector: 'app-pickup-choice',
-  imports: [Radio, TextButton],
+  imports: [EmphasisedText, Radio, TextButton],
   // Block, or the page's own spacing between sections cannot reach it: a
   // margin on an inline element does nothing.
   host: { class: 'block' },
@@ -62,7 +63,7 @@ import { TextButton } from '../ui/link';
                 <span class="text-sm text-muted">{{ location.address }}</span>
                 @if (location.description) {
                   <span class="text-sm text-subtle">
-                    {{ location.description }}
+                    <app-emphasised [text]="location.description" />
                   </span>
                 }
               </span>

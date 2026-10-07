@@ -54,4 +54,19 @@ describe('DeliveryZoneList', () => {
     expect(items[2]).toContain(text.noDelivery);
     expect(items[2]).not.toContain(text.noFreeDelivery);
   });
+
+  it('sets the words a description marks in bold, and nothing else', () => {
+    const el = render([
+      {
+        key: 'city',
+        title: 'City',
+        description: 'Within <b>two days</b>, <i>always</i>.',
+        match: { all: true },
+      },
+    ]);
+
+    expect(el.querySelector('b')?.textContent).toBe('two days');
+    expect(el.querySelector('i')).toBeNull();
+    expect(el.textContent).toContain('Within two days, <i>always</i>.');
+  });
 });

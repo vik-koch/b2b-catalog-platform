@@ -3,6 +3,7 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from '../catalog/price';
+import { EmphasisedText } from '../ui/emphasised-text';
 
 /**
  * The deployment's delivery zones, one card each (FR-CART-07) — drawn by the
@@ -12,13 +13,16 @@ import { formatPriceMinor } from '../catalog/price';
 @Component({
   selector: 'app-delivery-zone-list',
   host: { class: 'block' },
+  imports: [EmphasisedText],
   template: `
     <ul class="space-y-3">
       @for (zone of zones; track zone.key) {
         <li class="rounded-lg border border-border p-4">
           <p class="font-medium">{{ zone.title }}</p>
-          @if (zone.description) {
-            <p class="mt-1 text-sm text-muted">{{ zone.description }}</p>
+          @if (zone.description; as description) {
+            <p class="mt-1 text-sm text-muted">
+              <app-emphasised [text]="description" />
+            </p>
           }
           <!-- Said out loud either way: a zone with no line under it would
                read as an unstated free threshold rather than none. -->

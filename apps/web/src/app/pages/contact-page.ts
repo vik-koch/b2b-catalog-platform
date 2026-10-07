@@ -5,6 +5,7 @@ import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
+import { EmphasisedText } from '../ui/emphasised-text';
 import { MapFrame } from './map-frame';
 import { PageService } from './page.service';
 import { LoadErrorView } from './load-error-view';
@@ -22,7 +23,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
  */
 @Component({
   selector: 'app-contact-page',
-  imports: [MapFrame, EditActions, LoadErrorView],
+  imports: [MapFrame, EditActions, EmphasisedText, LoadErrorView],
   template: `
     <!-- Nothing renders before the body arrives, heading included. The office
          list comes from deployment config and would otherwise paint instantly,
@@ -71,7 +72,9 @@ import { trustedRichText } from '../core/trusted-rich-text';
               {{ location.name }}
             </h2>
             @if (location.description) {
-              <p class="mt-1 text-muted">{{ location.description }}</p>
+              <p class="mt-1 text-muted">
+                <app-emphasised [text]="location.description" />
+              </p>
             }
             <app-map-frame
               class="mt-4 block"
