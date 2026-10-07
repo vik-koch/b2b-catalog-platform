@@ -14,7 +14,7 @@ import {
   emailField,
   storedEmailField,
 } from './contact-config';
-import { commonAuthErrors } from './api-error';
+import { commonAuthErrors, phoneFormatErrors } from './api-error';
 import { consentErrors } from './page-constants';
 import { consentVersionField } from './page.contract';
 
@@ -236,7 +236,11 @@ export const authContract = {
     // deployment config, so the browser checks the same rule and this is the
     // server having the last word — and unlike an address that already has an
     // account, a bad format reveals nothing about anyone.
-    .errors({ 'company-id-format': { status: 400 }, ...consentErrors })
+    .errors({
+      'company-id-format': { status: 400 },
+      ...phoneFormatErrors,
+      ...consentErrors,
+    })
     .input(z.object({ body: registerSchema }))
     // Always the same answer, whether the address was new, already registered,
     // or a honeypot hit: the response must not reveal which addresses have

@@ -7,7 +7,11 @@ import { UsersService } from '../users/users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { AUTH_COOKIE } from '../auth/auth.constants';
-import { SESSION_HINT_COOKIE } from '@b2b-catalog-platform/shared';
+import {
+  normalizePhone,
+  SESSION_HINT_COOKIE,
+} from '@b2b-catalog-platform/shared';
+import { PHONE_RULE } from '../config/deployment-config';
 
 /**
  * Over a real server: the refusals here are the ones a form acts on, so what
@@ -61,6 +65,14 @@ describe('AccountController', () => {
         },
         { provide: AccountDeletion, useValue: { delete: deleteAccount } },
         { provide: AuditLogger, useValue: { record } },
+        {
+          provide: PHONE_RULE,
+          useValue: (value: string) =>
+            normalizePhone(value, {
+              countryCode: '+49',
+              mask: '(###) ###-####',
+            }),
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -138,6 +150,7 @@ describe('AccountController', () => {
   });
 
   it('records its own audit action for a self-service correction', async () => {
+    findById.mockResolvedValue(row);
     updateOwnProfile.mockResolvedValue(row);
 
     const response = await fetch(`${baseUrl}/api/account/profile`, {
@@ -154,6 +167,52 @@ describe('AccountController', () => {
     expect(record).toHaveBeenCalledWith('account.updated', signedInAs, {
       id: 'user-1',
     });
+  });
+
+  const patchPhone = (phone: string | null) =>
+    fetch(`${baseUrl}/api/account/profile`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ firstName: 'Jane', lastName: 'Doe', phone }),
+    });
+
+  it('stores a changed number in the canonical form', async () => {
+    findById.mockResolvedValue(row);
+    updateOwnProfile.mockResolvedValue(row);
+
+    const response = await patchPhone('+49 (401) 234-5678');
+
+    expect(response.status).toBe(200);
+    expect(updateOwnProfile).toHaveBeenCalledWith('user-1', {
+      firstName: 'Jane',
+      lastName: 'Doe',
+      phone: '+494012345678',
+    });
+  });
+
+  it('sends a number the rule cannot read back as a code', async () => {
+    findById.mockResolvedValue(row);
+
+    const response = await patchPhone('+7 914 123-45-67');
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({ code: 'phone-format' });
+    expect(updateOwnProfile).not.toHaveBeenCalled();
+  });
+
+  // The fixture's number does not fill the demo mask: one from before the
+  // rule, which a name correction must not be refused over.
+  it('keeps a stored number that comes back unchanged', async () => {
+    findById.mockResolvedValue(row);
+    updateOwnProfile.mockResolvedValue(row);
+
+    const response = await patchPhone(row.phone);
+
+    expect(response.status).toBe(200);
+    expect(updateOwnProfile).toHaveBeenCalledWith(
+      'user-1',
+      expect.objectContaining({ phone: row.phone }),
+    );
   });
 
   // strict: it is what stops `role`, `tierId` or `status` riding along on a

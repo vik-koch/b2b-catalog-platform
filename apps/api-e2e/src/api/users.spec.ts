@@ -33,7 +33,7 @@ const seeded = [
 const edits = () => ({
   firstName: 'Jane',
   lastName: 'Doe',
-  phone: '+49 40 1234567',
+  phone: '+494012345678',
   customerType: 'person' as const,
   companyName: null,
   companyRegistrationId: null,
@@ -504,7 +504,7 @@ describe('/admin/users', () => {
       const res = await request('patch', `/admin/users/${id}`, adminCookie, {
         firstName: 'Janine',
         lastName: 'Doe-Smith',
-        phone: '+49 40 7654321',
+        phone: '+494076543210',
         customerType: 'company',
         companyName: 'Kontor GmbH',
         companyRegistrationId: 'DE123456789',

@@ -15,12 +15,15 @@ import {
   COMPANY_ID_RULE,
   CompanyIdRule,
   PHONE_INPUT,
+  PHONE_RULE,
+  PhoneRule,
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { newRegistrationMail } from '../mail/templates/new-registration.template';
 import { registrationReceivedMail } from '../mail/templates/registration-received.template';
+import { storedPhone } from '../users/stored-phone';
 import { UsersService } from '../users/users.service';
 import { PasswordService } from './password.service';
 
@@ -45,6 +48,7 @@ export class RegistrationService {
     private readonly addresses: AddressesService,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
     private readonly consents: ConsentService,
+    @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
   ) {}
 
   async register(request: RegisterRequest): Promise<void> {
@@ -69,6 +73,10 @@ export class RegistrationService {
         message: 'Company ID does not match the configured format',
       });
     }
+
+    // The same goes for the phone, read into the one form a code can be sent
+    // to. Required by the contract, so a value always comes back.
+    const phone = storedPhone(this.phoneRule, request.phone) ?? '';
 
     // Before the address is looked up, so a refusal says the same for a new
     // address and a known one.
@@ -98,7 +106,7 @@ export class RegistrationService {
       passwordHash: unusablePassword,
       firstName: request.firstName.trim(),
       lastName: request.lastName.trim(),
-      phone: request.phone.trim(),
+      phone,
       customerType: request.customerType,
       companyName: request.companyName?.trim() ?? null,
       companyRegistrationId: request.companyRegistrationId ?? null,
@@ -108,7 +116,7 @@ export class RegistrationService {
       await this.consents.record(consent, { userId: created.id, email });
     }
     await this.seedBillingAddress(created.id, request);
-    await this.notify(email, request);
+    await this.notify(email, { ...request, phone });
   }
 
   /**

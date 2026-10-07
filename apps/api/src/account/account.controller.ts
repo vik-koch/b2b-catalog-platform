@@ -1,4 +1,4 @@
-import { Controller, Req, Res } from '@nestjs/common';
+import { Controller, Inject, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
 import {
@@ -10,6 +10,9 @@ import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { endSession } from '../auth/session-cookie';
+import { PHONE_RULE, PhoneRule } from '../config/deployment-config';
+import { refusals } from '../orpc/refusals';
+import { storedPhone } from '../users/stored-phone';
 import { UserRow, UsersService } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
 
@@ -44,6 +47,7 @@ export class AccountController {
     private readonly users: UsersService,
     private readonly deletion: AccountDeletion,
     private readonly audit: AuditLogger,
+    @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
   ) {}
 
   @Implement(accountContract.getProfile)
@@ -61,9 +65,18 @@ export class AccountController {
 
   @Implement(accountContract.updateProfile)
   updateProfile(@CurrentUser() actor: AuthUser) {
-    return implement(accountContract.updateProfile).handler(
-      async ({ input: { body }, errors }) => {
-        const updated = await this.users.updateOwnProfile(actor.id, body);
+    return implement(accountContract.updateProfile)
+      .use(refusals)
+      .handler(async ({ input: { body }, errors }) => {
+        const current = await this.users.findById(actor.id);
+        if (!current) throw errors['not-authenticated']();
+        const phone =
+          storedPhone(this.phoneRule, body.phone, current.phone) ?? null;
+
+        const updated = await this.users.updateOwnProfile(actor.id, {
+          ...body,
+          phone,
+        });
         // No row means the account stopped being `active` between the guard and
         // the write — deactivated or anonymized underneath the session.
         if (!updated) throw errors['not-authenticated']();
@@ -77,8 +90,7 @@ export class AccountController {
           updated,
           await this.users.countOpenOrders(updated.id),
         );
-      },
-    );
+      });
   }
 
   @Implement(accountContract.deleteAccount)

@@ -348,7 +348,7 @@ const actions: JourneyAdapter<CustomerSyncJourneyContext>['actions'] = {
           email: ctx.email,
           firstName: 'Ada',
           lastName: 'Lovelace',
-          phone: '+49 40 7654321',
+          phone: '+494076543210',
           customerType: 'person',
         }),
       );

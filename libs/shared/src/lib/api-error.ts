@@ -50,3 +50,12 @@ export const commonAuthErrors = {
   'not-authenticated': { status: 401 },
   'insufficient-role': { status: 403 },
 } as const;
+
+/**
+ * A phone number the deployment's rule cannot read (FR-AUTH-12): another
+ * country's, or one that does not fill the mask. The browser's field enforces
+ * the same rule, so only an API client should meet it.
+ */
+export const phoneFormatErrors = {
+  'phone-format': { status: 400 },
+} as const;

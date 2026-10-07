@@ -33,10 +33,13 @@ import {
 import {
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
+  PHONE_RULE,
+  PhoneRule,
 } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
+import { storedPhone } from './stored-phone';
 import { withdrawAccountConsents } from '../consents/consent-withdrawals';
 import {
   recordDestruction,
@@ -125,6 +128,7 @@ export class StaffUsersService {
     private readonly companyIdFormats: readonly CompanyIdFormat[],
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
+    @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
   ) {}
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
@@ -289,7 +293,7 @@ export class StaffUsersService {
         tierId: input.tierId,
         firstName: input.firstName,
         lastName: input.lastName,
-        phone: input.phone ?? null,
+        phone: storedPhone(this.phoneRule, input.phone) ?? null,
         customerType: input.customerType ?? null,
         companyName: input.companyName?.trim() ?? null,
         companyRegistrationId: input.companyRegistrationId ?? null,
@@ -326,6 +330,7 @@ export class StaffUsersService {
 
     const role = input.role ?? current.role;
     if (input.role) this.assertRoleChangeAllowed(current, role, actorId);
+    const phone = storedPhone(this.phoneRule, input.phone, current.phone);
 
     // The source key is a customer's (FR-ADM-14), so promoting somebody out of
     // `user` clears it for the reason a promotion clears the tier: a staff
@@ -347,7 +352,7 @@ export class StaffUsersService {
         .set({
           firstName: input.firstName,
           lastName: input.lastName,
-          phone: input.phone,
+          phone,
           customerType: input.customerType,
           companyName: input.companyName?.trim() ?? null,
           companyRegistrationId: input.companyRegistrationId,

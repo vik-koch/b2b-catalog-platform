@@ -5,7 +5,9 @@ import {
   COMPANY_ID_RULE,
   loadCompanyIdRule,
   loadPhoneInput,
+  loadPhoneRule,
   PHONE_INPUT,
+  PHONE_RULE,
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MailModule } from '../mail/mail.module';
@@ -71,6 +73,8 @@ function jwtSecret(): string {
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
     // The grouping the staff notification puts back on a stored number.
     { provide: PHONE_INPUT, useFactory: loadPhoneInput },
+    // Every door that writes an account's number reads it by this rule.
+    { provide: PHONE_RULE, useFactory: loadPhoneRule },
     PasswordService,
     PasswordTokenService,
     PasswordPolicy,
@@ -95,6 +99,8 @@ function jwtSecret(): string {
     SessionVaryingInterceptor,
     JwtModule,
     UsersModule,
+    // The account screens and the staff editor write numbers too.
+    PHONE_RULE,
   ],
 })
 export class AuthModule {}

@@ -91,7 +91,7 @@ describe('consent records', () => {
       email: REGISTRANT_EMAIL,
       firstName: 'Rita',
       lastName: 'Registrant',
-      phone: '+49 40 7654321',
+      phone: '+494076543210',
       customerType: 'person',
       consentVersion: await consentVersion('account'),
     });

@@ -16,6 +16,7 @@ import {
   KEYBOARD_LAYOUTS,
   KeyboardLayout,
   MoneyFormat,
+  normalizePhone,
   OrderReferenceConfig,
   orderReferenceConfigSchema,
   SyncPolicy,
@@ -286,6 +287,21 @@ export const PHONE_INPUT = 'PHONE_INPUT';
 
 export function loadPhoneInput(): PhoneConfig | undefined {
   return loadApiDeploymentConfig().phoneInput;
+}
+
+/**
+ * Reads an entered phone number into its stored form, or answers `null` where
+ * the deployment's rule cannot read it. Applied on the server as well as in the
+ * browser, because a code can only be sent to a number in one known form
+ * (FR-AUTH-12). See `storedPhone` for how a refusal is raised.
+ */
+export const PHONE_RULE = 'PHONE_RULE';
+
+export type PhoneRule = (value: string) => string | null;
+
+export function loadPhoneRule(): PhoneRule {
+  const config = loadApiDeploymentConfig().phoneInput;
+  return (value) => normalizePhone(value, config);
 }
 
 /**
