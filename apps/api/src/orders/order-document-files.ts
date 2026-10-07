@@ -5,9 +5,11 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { orderDocuments, orders } from '../db/schema';
 import { MEDIA_STORE, MediaStore } from '../media/media-store';
+import { OrderIds } from './order-scrub';
 
 /**
- * Erasing an account's supplied order documents (FR-AUTH-06, ADR 0052).
+ * Erasing the documents supplied for orders whose personal details go
+ * (FR-AUTH-06, NFR-LEGAL-14, ADR 0052).
  *
  * Its own small service rather than a method on `OrderDocumentsService`,
  * because it is used from the other end of the app — closing an account —
@@ -29,14 +31,26 @@ export class OrderDocumentFiles {
 
   /** Returns how many were removed, for the deletion's own log. */
   async removeForUser(userId: string): Promise<number> {
-    const mine = this.db
-      .select({ id: orders.id })
-      .from(orders)
-      .where(eq(orders.userId, userId));
+    return this.remove(
+      this.db
+        .select({ id: orders.id })
+        .from(orders)
+        .where(eq(orders.userId, userId)),
+    );
+  }
+
+  /** The same for orders whose details went on their own (NFR-LEGAL-14):
+   * at the end of their retention, or on a guest's request. */
+  async removeForOrders(orderIds: readonly string[]): Promise<number> {
+    if (orderIds.length === 0) return 0;
+    return this.remove([...orderIds]);
+  }
+
+  private async remove(ids: OrderIds): Promise<number> {
     const rows = await this.db
       .select()
       .from(orderDocuments)
-      .where(inArray(orderDocuments.orderId, mine));
+      .where(inArray(orderDocuments.orderId, ids));
     if (rows.length === 0) return 0;
 
     await this.db.delete(orderDocuments).where(

@@ -11,9 +11,9 @@ export const DESTRUCTION_REASONS = [
 ] as const;
 export type DestructionReason = (typeof DESTRUCTION_REASONS)[number];
 
-/** What a record names the person by: an account, or for a consent given
- * without one, the consent record itself. */
-export const DESTRUCTION_SUBJECTS = ['account', 'consent'] as const;
+/** What a record names the person by: an account, or where none stands
+ * behind the data, the consent record or the guest order itself. */
+export const DESTRUCTION_SUBJECTS = ['account', 'consent', 'order'] as const;
 export type DestructionSubject = (typeof DESTRUCTION_SUBJECTS)[number];
 
 /**
@@ -26,9 +26,9 @@ export const DESTRUCTION_CATEGORIES = [
   /** Name, email, phone, company and pricing group on the account. */
   'account-details',
   'addresses',
-  /** Contact, invoicing and delivery details and notes on past orders. */
+  /** Contact, invoicing and delivery details and notes on orders. */
   'order-details',
-  /** Files the shop supplied for the account's orders. */
+  /** Files the shop supplied for those orders. */
   'order-documents',
   'consent-record',
 ] as const;
