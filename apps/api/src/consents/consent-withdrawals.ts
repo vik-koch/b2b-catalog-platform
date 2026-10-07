@@ -25,10 +25,7 @@ export async function withdrawAccountConsents(
   const open = await db
     .select({ id: consents.id })
     .from(consents)
-    .leftJoin(
-      consentWithdrawals,
-      eq(consentWithdrawals.consentId, consents.id),
-    )
+    .leftJoin(consentWithdrawals, eq(consentWithdrawals.consentId, consents.id))
     .where(and(eq(consents.userId, userId), isNull(consentWithdrawals.id)));
   if (open.length === 0) return;
   await db.insert(consentWithdrawals).values(

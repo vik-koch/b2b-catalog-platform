@@ -35,6 +35,7 @@ import {
   products,
   syncRuns,
 } from '../db/schema';
+import { excluded } from '../db/sql-columns';
 import { SyncActions, SyncCatalogState, planSync } from './sync-diff';
 import { StagedPayloadOf, stagedPayload } from './sync-run-payload';
 import { Actor, CONFLICT_CODE, Submitter, runNotFound } from './sync-run';
@@ -538,7 +539,7 @@ export class CatalogSyncService {
         .onConflictDoUpdate({
           target: [productPrices.productId, productPrices.tierId],
           set: {
-            priceMinor: sql`excluded."priceMinor"`,
+            priceMinor: excluded(productPrices.priceMinor),
             updatedAt: new Date(),
           },
         });

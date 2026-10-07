@@ -1,8 +1,9 @@
-import { and, eq, getTableName, inArray, or, SQL, sql } from 'drizzle-orm';
+import { and, eq, inArray, or, SQL, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { productPairings, products } from '../db/schema';
+import { qualified } from '../db/sql-columns';
 
 /**
  * Sold-together pairings as the storefront reads them (FR-SET-05). The admin
@@ -15,14 +16,6 @@ import { productPairings, products } from '../db/schema';
  * and the `or` is what makes the table read the same from both products.
  */
 
-/** `"table"."column"` — an unambiguous reference inside a raw subquery. Inside
- * an `sql` template drizzle emits bare column names, so a correlated reference
- * left unqualified binds to whatever the subquery's own scope happens to
- * offer (see product-price.ts, which pays for the same thing). */
-function qualified(column: PgColumn): SQL {
-  return sql.raw(`"${getTableName(column.table)}"."${column.name}"`);
-}
-
 /**
  * How many sellable products the row being selected is paired with — a scalar
  * subquery that drops into any select over `products`.
@@ -33,16 +26,20 @@ function qualified(column: PgColumn): SQL {
  */
 export function pairedCountOf(): SQL<number> {
   const own = qualified(products.id);
+  const edge = (column: PgColumn) => qualified(column, 'edge');
+  const counterpart = (column: PgColumn) => qualified(column, 'counterpart');
+  const a = edge(productPairings.productAId);
+  const b = edge(productPairings.productBId);
   return sql<number>`(
     select count(*)::int
     from ${productPairings} as "edge"
     join ${products} as "counterpart"
-      on "counterpart"."id" = case
-        when "edge"."productAId" = ${own} then "edge"."productBId"
-        else "edge"."productAId" end
-    where ("edge"."productAId" = ${own} or "edge"."productBId" = ${own})
-      and "counterpart"."deletedAt" is null
-      and "counterpart"."publishedAt" is not null)`;
+      on ${counterpart(products.id)} = case
+        when ${a} = ${own} then ${b}
+        else ${a} end
+    where (${a} = ${own} or ${b} = ${own})
+      and ${counterpart(products.deletedAt)} is null
+      and ${counterpart(products.publishedAt)} is not null)`;
 }
 
 /** The other end of the edge, whichever side this product is on. Join

@@ -102,7 +102,10 @@ describe('MEDIA_REFERENCE_SOURCES', () => {
     const { db } = fakeDb([
       [
         [
-          { full: `${MEDIA_URL_PREFIX}/a-full.webp`, thumb: `${MEDIA_URL_PREFIX}/a-thumb.webp` },
+          {
+            full: `${MEDIA_URL_PREFIX}/a-full.webp`,
+            thumb: `${MEDIA_URL_PREFIX}/a-thumb.webp`,
+          },
         ],
       ],
     ]);

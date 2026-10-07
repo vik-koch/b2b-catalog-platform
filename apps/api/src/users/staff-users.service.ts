@@ -39,6 +39,7 @@ import {
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { users } from '../db/schema';
+import { qualified } from '../db/sql-columns';
 import { storedPhone } from './stored-phone';
 import { withdrawAccountConsents } from '../consents/consent-withdrawals';
 import {
@@ -96,13 +97,12 @@ const staffUserColumns = {
   phoneConfirmedAt: users.phoneConfirmedAt,
   signInStepExemptAt: users.signInStepExemptAt,
   /**
-   * The exempting admin's address, beside the account. Qualified by hand:
-   * inside a `sql` template embedded in a query Drizzle writes columns bare,
-   * and a bare id here would compare the admin's row with itself.
+   * The exempting admin's address, beside the account. Qualified throughout:
+   * a bare id here would compare the admin's row with itself.
    */
-  signInStepExemptBy: sql<string | null>`(${sql.raw(
-    'select "exemptor"."email" from "users" "exemptor" where "exemptor"."id" = "users"."signInStepExemptBy"',
-  )})`,
+  signInStepExemptBy: sql<
+    string | null
+  >`(select ${qualified(users.email, 'exemptor')} from ${users} "exemptor" where ${qualified(users.id, 'exemptor')} = ${qualified(users.signInStepExemptBy)})`,
 };
 
 type StaffUserRow = {

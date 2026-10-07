@@ -1,6 +1,7 @@
-import { getTableName, SQL, sql } from 'drizzle-orm';
+import { SQL, sql } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
 import { customerTiers, productPrices, products } from '../db/schema';
+import { qualified } from '../db/sql-columns';
 
 /**
  * Tier price resolution (FR-AUTH-05). One definition shared by every read that
@@ -30,9 +31,10 @@ import { customerTiers, productPrices, products } from '../db/schema';
 export function resolvedPriceMinor(tierId: string | null): SQL<number | null> {
   if (!tierId) return sql<number | null>`${defaultPrice()}`;
 
+  const tp = (column: PgColumn) => qualified(column, 'tp');
   return sql<
     number | null
-  >`coalesce((select "tp"."priceMinor" from ${productPrices} "tp" where "tp"."productId" = ${qualified(products.id)} and "tp"."tierId" = ${tierId}), ${defaultPrice()})`;
+  >`coalesce((select ${tp(productPrices.priceMinor)} from ${productPrices} "tp" where ${tp(productPrices.productId)} = ${qualified(products.id)} and ${tp(productPrices.tierId)} = ${tierId}), ${defaultPrice()})`;
 }
 
 /**
@@ -43,14 +45,11 @@ export function resolvedPriceMinor(tierId: string | null): SQL<number | null> {
  * the catalog.
  */
 function defaultPrice(): SQL<number | null> {
+  const dp = (column: PgColumn) => qualified(column, 'dp');
+  const dt = (column: PgColumn) => qualified(column, 'dt');
   return sql<
     number | null
-  >`(select "dp"."priceMinor" from ${productPrices} "dp" join ${customerTiers} "dt" on "dt"."id" = "dp"."tierId" where "dp"."productId" = ${qualified(products.id)} and "dt"."isDefault")`;
-}
-
-/** `"table"."column"` — an unambiguous reference inside a raw subquery. */
-function qualified(column: PgColumn): SQL {
-  return sql.raw(`"${getTableName(column.table)}"."${column.name}"`);
+  >`(select ${dp(productPrices.priceMinor)} from ${productPrices} "dp" join ${customerTiers} "dt" on ${dt(customerTiers.id)} = ${dp(productPrices.tierId)} where ${dp(productPrices.productId)} = ${qualified(products.id)} and ${dt(customerTiers.isDefault)})`;
 }
 
 /**
