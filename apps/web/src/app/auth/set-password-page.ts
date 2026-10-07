@@ -15,14 +15,24 @@ import { AuthCard } from './auth-card';
 import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
-import { AuthService } from './auth.service';
+import { AuthService, CodeSendFailure } from './auth.service';
+import { formatWait, SignInStepPanel } from './sign-in-step';
 import { landingFor } from './auth.guard';
 import { TextButton } from '../ui/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 
 type Status =
-  'checking' | 'ready' | 'expired' | 'closed' | 'submitting' | 'done';
+  | 'checking'
+  | 'ready'
+  | 'expired'
+  | 'closed'
+  | 'submitting'
+  | 'done'
+  // The password is saved and a code is owed (FR-AUTH-12)…
+  | 'step'
+  // …or it is saved, but the code could not go out.
+  | 'code-failed';
 
 /**
  * Where an invitation or a reset mail lands (FR-AUTH-01/02). The link in the
@@ -45,11 +55,24 @@ type Status =
     Button,
     FieldLabel,
     Input,
+    SignInStepPanel,
     TextButton,
   ],
   template: `
     <app-auth-card>
       @switch (status()) {
+        @case ('step') {
+          <app-sign-in-step (done)="land()" />
+        }
+        @case ('code-failed') {
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+            {{ step.codeHeading }}
+          </h1>
+          <p class="text-muted" role="alert">{{ codeFailure() }}</p>
+          <a appButton routerLink="/login" class="mt-8">
+            {{ step.restartAction }}
+          </a>
+        }
         @case ('checking') {
           <p class="text-muted">{{ text.checking }}</p>
         }
@@ -204,6 +227,9 @@ export class SetPasswordPage implements OnInit {
 
   protected readonly auth = inject(APP_TEXT).auth;
   protected readonly text = this.auth.setPassword;
+  protected readonly step = this.auth.signInStep;
+  /** Why the code after the password did not go out. */
+  protected readonly codeFailure = signal('');
   protected readonly validation = this.auth.validation;
   /** One line per policy rule, so the code the API sends is the whole lookup. */
   private readonly rejected = this.auth.passwordRejected;
@@ -286,8 +312,9 @@ export class SetPasswordPage implements OnInit {
   }
 
   protected async submit(): Promise<void> {
+    // The refusal stays until the next answer replaces it, so the form does
+    // not jump while the request is out.
     this.fieldErrors.markSubmitted();
-    this.rejection.set(null);
     if (this.form.invalid || !this.consent.sendable()) return;
 
     this.status.set('submitting');
@@ -300,9 +327,16 @@ export class SetPasswordPage implements OnInit {
 
     if (result === 'ok') {
       this.status.set('done');
-      // Straight to where this role belongs — the account is signed in.
-      const user = this.service.user();
-      await this.router.navigateByUrl(user ? landingFor(user.role) : '/');
+      await this.land();
+      return;
+    }
+    if (result === 'step') {
+      this.status.set('step');
+      return;
+    }
+    if (outcome.result === 'code') {
+      this.codeFailure.set(this.codeFailureLine(outcome.failure));
+      this.status.set('code-failed');
       return;
     }
     if (result === 'expired' || result === 'closed') {
@@ -312,6 +346,7 @@ export class SetPasswordPage implements OnInit {
     this.status.set('ready');
     // A consent refusal is explained beside the box.
     if (outcome.result === 'consent') {
+      this.rejection.set(null);
       this.consent.refused(outcome.code);
       return;
     }
@@ -320,5 +355,25 @@ export class SetPasswordPage implements OnInit {
         ? this.rejected[outcome.code]
         : this.text.error,
     );
+  }
+
+  /** Straight to where this role belongs — the account is signed in. */
+  protected async land(): Promise<void> {
+    const user = this.service.user();
+    await this.router.navigateByUrl(user ? landingFor(user.role) : '/');
+  }
+
+  private codeFailureLine(failure: CodeSendFailure): string {
+    switch (failure) {
+      case 'unreachable':
+        return this.step.unreachableAccount;
+      case 'unavailable':
+        return this.step.unavailable;
+      case 'limit':
+        return this.step.limit.replace(
+          '{time}',
+          formatWait(this.service.retryAfter() ?? 0),
+        );
+    }
   }
 }

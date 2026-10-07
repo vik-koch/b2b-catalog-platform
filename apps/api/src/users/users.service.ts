@@ -13,7 +13,7 @@ import {
   ACCOUNT_DELETION_CATEGORIES,
   recordDestruction,
 } from '../destruction/record-destruction';
-import { addresses, orders, users } from '../db/schema';
+import { addresses, orders, signInCodes, users } from '../db/schema';
 import { scrubOrders } from '../orders/order-scrub';
 
 export type UserRow = typeof users.$inferSelect;
@@ -250,6 +250,8 @@ export class UsersService {
       // removing the saved rows. The account row is never deleted, so the
       // cascade on the foreign key never fires — this is the deletion.
       await tx.delete(addresses).where(eq(addresses.userId, id));
+      // A code the account was waiting on carries the number it went to.
+      await tx.delete(signInCodes).where(eq(signInCodes.userId, id));
       // The customer-facing promise: "past orders are kept for our
       // bookkeeping, with your details removed from them".
       await scrubOrders(

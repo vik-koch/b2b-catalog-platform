@@ -121,11 +121,13 @@ describe('UsersService.anonymize', () => {
   });
 
   it('does the whole thing in one transaction', () => {
-    // Seven statements, one callback: an account that is half-anonymized is
+    // Eight statements, one callback: an account that is half-anonymized is
     // worse than one that is not, and one deleted without its record cannot
     // be proved deleted.
     expect(captured.map((entry) => entry.table)).toEqual([
       'addresses',
+      // A code the account was waiting on carries a number (FR-AUTH-12).
+      'sign_in_codes',
       'order_items',
       // Every version of every order, not the current one alone: a superseded
       // revision holds the same name and the same address (ADR 0051).

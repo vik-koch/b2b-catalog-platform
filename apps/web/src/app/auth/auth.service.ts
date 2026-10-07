@@ -21,14 +21,48 @@ import {
   PasswordTokenPurpose,
   RegisterRequest,
   SetPasswordRequest,
+  SignInStep,
 } from '@b2b-catalog-platform/shared';
 import { authContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 import { sessionCookieIn } from './session-cookie';
 import { readSessionHint } from './session-hint';
 
-/** What the login form needs to distinguish: bad credentials vs. anything else. */
-export type LoginResult = 'ok' | 'invalid' | 'closed' | 'error';
+/**
+ * Why a code could not be sent (FR-AUTH-12): the provider refused the number,
+ * cannot send at all right now, or the account has had all the codes it gets
+ * for a while.
+ */
+export type CodeSendFailure = 'unreachable' | 'unavailable' | 'limit';
+
+const CODE_SEND_FAILURES = {
+  'phone-unreachable': 'unreachable',
+  'code-delivery-unavailable': 'unavailable',
+  'code-resend-limit': 'limit',
+} as const satisfies Record<string, CodeSendFailure>;
+
+function isCodeSendFailure(
+  code: string,
+): code is keyof typeof CODE_SEND_FAILURES {
+  return Object.hasOwn(CODE_SEND_FAILURES, code);
+}
+
+/**
+ * What the login form needs to distinguish: bad credentials vs. anything else.
+ * `step` means the password was right and a code is owed (see `step()`).
+ */
+export type LoginResult =
+  'ok' | 'step' | 'invalid' | 'closed' | 'error' | CodeSendFailure;
+
+/** What the code screen needs to distinguish. `restart`: the pending sign-in
+ * is gone, and the visitor starts again from the password. */
+export type CodeResult =
+  | { result: 'ok' | 'expired' | 'restart' | 'closed' | 'error' }
+  | { result: 'wrong'; attemptsLeft: number };
+
+/** What sending a code — to a new number, or again — can come back with. */
+export type SendResult =
+  'ok' | 'phone-format' | 'restart' | 'error' | CodeSendFailure;
 
 /**
  * What the change-password form needs to distinguish. Two of these are 400s
@@ -94,6 +128,22 @@ export class AuthService {
     sessionCookieIn(inject(REQUEST, { optional: true })?.headers.get('cookie'))
       ? this.refresh()
       : Promise.resolve();
+
+  /**
+   * The code a sign-in is waiting on (FR-AUTH-12), set when the password was
+   * right and a session is not started yet. Held here rather than by a page,
+   * because the sign-in form and the set-password page both lead to it.
+   */
+  private readonly pendingStep = signal<SignInStep | null>(null);
+  readonly step = this.pendingStep.asReadonly();
+
+  /**
+   * Seconds the last "no new code yet" refusal said to wait, as of when it
+   * arrived. The refusal reaches three screens through three result types,
+   * and only the wait itself is worth carrying beside them.
+   */
+  private readonly codeWait = signal<number | null>(null);
+  readonly retryAfter = this.codeWait.asReadonly();
 
   /** Resolves once the session is known either way; awaited by the guards. */
   whenResolved(): Promise<void> {
@@ -161,36 +211,121 @@ export class AuthService {
   async setPassword(
     request: SetPasswordRequest,
   ): Promise<
-    | { result: 'ok' | 'expired' | 'closed' | 'error' }
+    | { result: 'ok' | 'step' | 'expired' | 'closed' | 'error' }
     | { result: 'rejected'; code: PasswordRejectionCode }
     | { result: 'consent'; code: ConsentRefusalCode }
+    | { result: 'code'; failure: CodeSendFailure }
   > {
     const result = await safe(this.client.setPassword({ body: request }));
 
     if (result.isSuccess) {
-      this.session.set(result.data);
-      return { result: 'ok' };
+      return { result: this.signedIn(result.data) };
     }
     if (!result.isDefined) return { result: 'error' };
     const { code } = result.error;
     if (code === PASSWORD_TOKEN_INVALID) return { result: 'expired' };
     if (code === MAINTENANCE_REFUSED) return { result: 'closed' };
     if (isConsentRefusal(code)) return { result: 'consent', code };
+    // The password is saved; only the code could not go out, so the way on
+    // is the sign-in form.
+    if (isCodeSendFailure(code)) {
+      this.noteWait(result.error);
+      return { result: 'code', failure: CODE_SEND_FAILURES[code] };
+    }
     return { result: 'rejected', code };
   }
 
   async login(credentials: LoginRequest): Promise<LoginResult> {
     const result = await safe(this.client.login({ body: credentials }));
-    if (result.isSuccess) {
-      this.session.set(result.data);
-      return 'ok';
-    }
+    if (result.isSuccess) return this.signedIn(result.data);
     // `invalid-credentials` is the deliberately vague "invalid email or
     // password"; anything else (429 from the login throttle, 5xx) is not the
     // visitor's fault and must not be phrased as though it were. A customer
     // with the right password is told the shop is closed instead.
     if (!result.isDefined) return 'error';
-    return result.error.code === MAINTENANCE_REFUSED ? 'closed' : 'invalid';
+    const { code } = result.error;
+    if (code === MAINTENANCE_REFUSED) return 'closed';
+    if (!isCodeSendFailure(code)) return 'invalid';
+    this.noteWait(result.error);
+    return CODE_SEND_FAILURES[code];
+  }
+
+  /** Enter the code. On success the session starts, as a login's would. */
+  async submitCode(code: string): Promise<CodeResult> {
+    const result = await safe(this.client.submitSignInCode({ body: { code } }));
+    if (result.isSuccess) {
+      this.signedIn(result.data);
+      return { result: 'ok' };
+    }
+    if (!result.isDefined) return { result: 'error' };
+    const { error } = result;
+    switch (error.code) {
+      case 'code-wrong':
+        return { result: 'wrong', attemptsLeft: error.data.attemptsLeft };
+      case 'code-expired':
+        return { result: 'expired' };
+      case MAINTENANCE_REFUSED:
+        return { result: 'closed' };
+      case 'sign-in-step-expired':
+        this.pendingStep.set(null);
+        return { result: 'restart' };
+      default:
+        return { result: 'error' };
+    }
+  }
+
+  /** Send the waiting sign-in a new code. */
+  async resendCode(): Promise<SendResult> {
+    return this.sent(await safe(this.client.resendSignInCode()));
+  }
+
+  /** While confirming, send the code to another number instead. */
+  async useNumber(phone: string): Promise<SendResult> {
+    return this.sent(await safe(this.client.signInPhone({ body: { phone } })));
+  }
+
+  private sent(result: {
+    isSuccess: boolean;
+    isDefined: boolean;
+    data: SignInStep | undefined;
+    error: unknown;
+  }): SendResult {
+    if (result.isSuccess && result.data) {
+      this.pendingStep.set(result.data);
+      return 'ok';
+    }
+    if (!result.isDefined) return 'error';
+    const { code } = result.error as { code: string };
+    if (code === 'sign-in-step-expired') {
+      this.pendingStep.set(null);
+      return 'restart';
+    }
+    if (code === 'phone-format') return 'phone-format';
+    if (!isCodeSendFailure(code)) return 'error';
+    this.noteWait(result.error);
+    return CODE_SEND_FAILURES[code];
+  }
+
+  /** Keeps the wait a "no new code yet" refusal names; any other clears it. */
+  private noteWait(error: unknown): void {
+    const { code, data } = error as {
+      code: string;
+      data?: { retryAfter?: number };
+    };
+    this.codeWait.set(
+      code === 'code-resend-limit' ? (data?.retryAfter ?? null) : null,
+    );
+  }
+
+  /** A session, or the step before one: both sign-in routes answer either. */
+  private signedIn(answer: AuthUser | SignInStep): 'ok' | 'step' {
+    if ('step' in answer) {
+      this.pendingStep.set(answer);
+      return 'step';
+    }
+    this.pendingStep.set(null);
+    this.session.set(answer);
+    return 'ok';
   }
 
   /**

@@ -1249,6 +1249,50 @@ export const appTextSchema = z
           })
           .strict(),
         /**
+         * The code after the password (FR-AUTH-12), on the sign-in form and
+         * after choosing a password from a link. `{sentTo}` is where the code
+         * went, masked: the phone, or the email address where a deployment
+         * delivers codes by mail. `{phone}` is the number being confirmed,
+         * `{length}` the code's digits, `{time}` a wait as minutes:seconds and
+         * `{count}` the tries left.
+         */
+        signInStep: z
+          .object({
+            codeHeading: z.string(),
+            codeIntro: z.string(),
+            /** Under the intro while the number is being confirmed. */
+            confirmNote: z.string(),
+            code: z.string(),
+            codeRequired: z.string(),
+            codeFormat: z.string(),
+            submit: z.string(),
+            resend: z.string(),
+            /** The resend control while the wait runs. */
+            resendIn: z.string(),
+            resent: z.string(),
+            changeNumber: z.string(),
+            phoneHeading: z.string(),
+            phoneIntro: z.string(),
+            phone: z.string(),
+            phoneSubmit: z.string(),
+            /** Back from the number form to the code already sent. */
+            backToCode: z.string(),
+            wrong: z.string(),
+            /** Past its time, or entered wrongly too often. */
+            expired: z.string(),
+            /** The pending sign-in itself ran out. */
+            restart: z.string(),
+            restartAction: z.string(),
+            limit: z.string(),
+            /** The provider refused a number being confirmed. */
+            unreachable: z.string(),
+            /** The provider refused the account's confirmed number. */
+            unreachableAccount: z.string(),
+            unavailable: z.string(),
+            error: z.string(),
+          })
+          .strict(),
+        /**
          * The change-password form, plus the modal that forces it on an account
          * still using a password it was handed rather than chose.
          */

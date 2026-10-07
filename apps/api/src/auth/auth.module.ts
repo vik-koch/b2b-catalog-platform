@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { createHash } from 'node:crypto';
+import { Logger, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConsentModule } from '../consents/consent.module';
 import {
@@ -6,11 +7,14 @@ import {
   loadCompanyIdRule,
   loadPhoneInput,
   loadPhoneRule,
+  loadSignInStep,
   PHONE_INPUT,
   PHONE_RULE,
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MailModule } from '../mail/mail.module';
+import { MailService } from '../mail/mail.service';
+import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import { AddressBookModule } from '../addresses/address-book.module';
 import { UsersModule } from '../users/users.module';
 import { SettingsStateModule } from '../settings/settings-state.module';
@@ -26,6 +30,15 @@ import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
 import { SessionVaryingInterceptor } from './session-varying.interceptor';
+import { CODE_DELIVERY, CodeDelivery } from './sign-in-step/code-delivery';
+import { HttpCodeDelivery } from './sign-in-step/http-code-delivery';
+import { MailCodeDelivery } from './sign-in-step/mail-code-delivery';
+import { SignInCodes } from './sign-in-step/sign-in-codes';
+import {
+  SIGN_IN_STEP_CONFIG,
+  SIGN_IN_STEP_SECRET,
+  SignInStep,
+} from './sign-in-step/sign-in-step';
 
 // env.ts requires JWT_SECRET in server mode; this narrows the optional type and
 // fails fast if the module is ever instantiated without it. Called from a
@@ -37,6 +50,29 @@ function jwtSecret(): string {
     throw new Error('JWT_SECRET is not configured');
   }
   return env.JWT_SECRET;
+}
+
+/**
+ * Where sign-in codes go: the deployment's sidecar when it names one, the
+ * account's mailbox otherwise. Which one is logged at boot, because only the
+ * first is a second factor.
+ */
+function codeDelivery(mail: MailService, text: MailText): CodeDelivery {
+  const logger = new Logger('SignInStep');
+  if (env.SIGN_IN_CODE_URL) {
+    logger.log('Sign-in codes are sent through the code sidecar');
+    return new HttpCodeDelivery(env.SIGN_IN_CODE_URL, env.SIGN_IN_CODE_TOKEN);
+  }
+  logger.log('Sign-in codes are sent by mail (no second factor)');
+  return new MailCodeDelivery(mail, text);
+}
+
+/** The pending sign-in's own key, derived from the session secret so that one
+ * cannot be presented as the other. */
+function signInStepSecret(): string {
+  return createHash('sha256')
+    .update(`sign-in-step:${jwtSecret()}`)
+    .digest('hex');
 }
 
 /**
@@ -75,6 +111,15 @@ function jwtSecret(): string {
     { provide: PHONE_INPUT, useFactory: loadPhoneInput },
     // Every door that writes an account's number reads it by this rule.
     { provide: PHONE_RULE, useFactory: loadPhoneRule },
+    { provide: SIGN_IN_STEP_CONFIG, useFactory: loadSignInStep },
+    { provide: SIGN_IN_STEP_SECRET, useFactory: signInStepSecret },
+    {
+      provide: CODE_DELIVERY,
+      useFactory: codeDelivery,
+      inject: [MailService, MAIL_TEXT],
+    },
+    SignInCodes,
+    SignInStep,
     PasswordService,
     PasswordTokenService,
     PasswordPolicy,

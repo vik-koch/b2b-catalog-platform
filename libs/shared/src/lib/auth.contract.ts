@@ -3,6 +3,7 @@ import {
   MAINTENANCE_REFUSED,
   PASSWORD_MIN_LENGTH,
   PASSWORD_TOKEN_INVALID,
+  SIGN_IN_CODE_LENGTH,
   USER_ROLES,
 } from './auth-constants';
 import * as z from 'zod';
@@ -71,6 +72,24 @@ export const signInStepSchema = z.discriminatedUnion('step', [
     .strict(),
 ]);
 export type SignInStep = z.infer<typeof signInStepSchema>;
+
+/** A session, or the step that stands before one. */
+export const sessionOrStepSchema = z.union([signInStepSchema, authUserSchema]);
+
+export const signInPhoneSchema = z
+  .object({ phone: z.string().trim().min(1).max(50) })
+  .strict();
+export type SignInPhoneRequest = z.infer<typeof signInPhoneSchema>;
+
+export const signInCodeSchema = z
+  .object({
+    code: z
+      .string()
+      .trim()
+      .regex(new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`)),
+  })
+  .strict();
+export type SignInCodeRequest = z.infer<typeof signInCodeSchema>;
 
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
 export const loginSchema = z
@@ -239,6 +258,25 @@ const passwordRejections = {
   'password-unchanged': { status: 400 },
 } as const satisfies Record<PasswordRejectionCode, { status: number }>;
 
+/**
+ * The step's refusals. `sign-in-step-expired` covers a pending sign-in that is
+ * missing, stale or for an account that changed meanwhile: the visitor starts
+ * again from the password. `code-expired` is a code past its time or its
+ * attempts; `code-resend-limit` a resend asked too soon or too often.
+ */
+const signInStepExpired = {
+  'sign-in-step-expired': { status: 401 },
+} as const;
+const codeDelivery = {
+  'phone-unreachable': { status: 400 },
+  'code-delivery-unavailable': { status: 503 },
+  /** Seconds until the account may be sent another code. */
+  'code-resend-limit': {
+    status: 429,
+    data: z.object({ retryAfter: z.number().int().nonnegative() }),
+  },
+} as const;
+
 /** A set-a-password link that is no good — unknown, used and expired alike. */
 const badToken = { [PASSWORD_TOKEN_INVALID]: { status: 404 } } as const;
 
@@ -325,11 +363,13 @@ export const authContract = {
       ...badToken,
       ...closedForMaintenance,
       ...consentErrors,
+      ...codeDelivery,
     })
     .input(z.object({ body: setPasswordSchema }))
     // Signs the visitor in: they have just proved control of the address and
-    // chosen a password, so a login form here would be ceremony.
-    .output(authUserSchema),
+    // chosen a password, so a login form here would be ceremony. Where the
+    // deployment asks for a code, the code comes first.
+    .output(sessionOrStepSchema),
 
   login: oc
     .route({
@@ -340,8 +380,51 @@ export const authContract = {
     })
     // Deliberately one code for a wrong address, a wrong password and an
     // account that may not sign in: the form says the same thing to all three.
-    .errors({ 'invalid-credentials': { status: 401 }, ...closedForMaintenance })
+    .errors({
+      'invalid-credentials': { status: 401 },
+      ...closedForMaintenance,
+      ...codeDelivery,
+    })
     .input(z.object({ body: loginSchema }))
+    .output(sessionOrStepSchema),
+
+  signInPhone: oc
+    .route({
+      method: 'POST',
+      path: '/auth/sign-in-step/phone',
+      inputStructure: 'detailed',
+      summary: 'Name the number a sign-in code goes to, while confirming one',
+    })
+    .errors({ ...signInStepExpired, ...phoneFormatErrors, ...codeDelivery })
+    .input(z.object({ body: signInPhoneSchema }))
+    .output(signInStepSchema),
+
+  resendSignInCode: oc
+    .route({
+      method: 'POST',
+      path: '/auth/sign-in-step/resend',
+      summary: 'Send the pending sign-in a new code',
+    })
+    .errors({ ...signInStepExpired, ...codeDelivery })
+    .output(signInStepSchema),
+
+  submitSignInCode: oc
+    .route({
+      method: 'POST',
+      path: '/auth/sign-in-step/code',
+      inputStructure: 'detailed',
+      summary: 'Enter the code and start the session',
+    })
+    .errors({
+      ...signInStepExpired,
+      ...closedForMaintenance,
+      'code-wrong': {
+        status: 400,
+        data: z.object({ attemptsLeft: z.number().int().nonnegative() }),
+      },
+      'code-expired': { status: 410 },
+    })
+    .input(z.object({ body: signInCodeSchema }))
     .output(authUserSchema),
 
   logout: oc

@@ -36,7 +36,22 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
-      { provide: AuthService, useValue: { user, login } },
+      {
+        provide: AuthService,
+        useValue: {
+          user,
+          login,
+          // What a password that owes a code leaves behind (FR-AUTH-12).
+          step: signal({
+            step: 'code',
+            sentTo: '+49 (•••) •••-••78',
+            phone: '+49 (•••) •••-••78',
+            canChangeNumber: false,
+            resendIn: 60,
+          }),
+          retryAfter: signal(null),
+        },
+      },
     ],
   });
 
@@ -167,6 +182,31 @@ describe('LoginPage', () => {
     expect(el.textContent).toContain(text.closed);
     expect(el.textContent).not.toContain(text.invalid);
     expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('asks for the code in place of the form when one is owed', async () => {
+    const { el, navigateByUrl, sync } = await render('step');
+
+    setInput(el, '#email', 'jane@example.com');
+    setInput(el, '#password', 'right-one');
+    submitForm(el);
+    await sync();
+
+    expect(el.querySelector('app-sign-in-step')).not.toBeNull();
+    expect(el.querySelector('#password')).toBeNull();
+    expect(navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('says when no code can be sent, not that the password was wrong', async () => {
+    const { el, sync } = await render('unavailable');
+
+    setInput(el, '#email', 'jane@example.com');
+    setInput(el, '#password', 'right-one');
+    submitForm(el);
+    await sync();
+
+    expect(el.textContent).toContain(text.signInStep.unavailable);
+    expect(el.textContent).not.toContain(text.invalid);
   });
 
   // The only route to registration: a visitor who has no account has to be

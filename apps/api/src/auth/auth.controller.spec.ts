@@ -19,6 +19,10 @@ import { RolesGuard } from './roles.guard';
 import { MaintenanceGuard } from '../settings/maintenance.guard';
 import { SettingsService } from '../settings/settings.service';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
+import { PHONE_RULE } from '../config/deployment-config';
+import { CodeDeliveryError } from './sign-in-step/code-delivery';
+import { CodeResendLimitError } from './sign-in-step/sign-in-codes';
+import { SignInStep } from './sign-in-step/sign-in-step';
 
 /**
  * The whole point of this surface is what it does *not* say, and what it puts
@@ -49,6 +53,14 @@ describe('AuthController', () => {
   const registration = { register: vi.fn() };
   const passwordSetup = { describe: vi.fn(), redeem: vi.fn() };
   const passwordReset = { request: vi.fn() };
+  const step = {
+    begin: vi.fn(),
+    pending: vi.fn(),
+    changeNumber: vi.fn(),
+    resend: vi.fn(),
+    complete: vi.fn(),
+    end: vi.fn(),
+  };
 
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -58,6 +70,8 @@ describe('AuthController', () => {
         { provide: RegistrationService, useValue: registration },
         { provide: PasswordSetupService, useValue: passwordSetup },
         { provide: PasswordResetService, useValue: passwordReset },
+        { provide: SignInStep, useValue: step },
+        { provide: PHONE_RULE, useValue: (value: string) => value },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
         {
           provide: SettingsService,
@@ -121,9 +135,13 @@ describe('AuthController', () => {
       passwordSetup.describe,
       passwordSetup.redeem,
       passwordReset.request,
+      ...Object.values(step),
     ]) {
       fn.mockClear();
     }
+    // No step owed unless a test says so.
+    step.begin.mockReset().mockResolvedValue(null);
+    step.pending.mockReset().mockResolvedValue(null);
     auth.signToken.mockResolvedValue('a-signed-token');
     auth.toAuthUser.mockReturnValue(user);
   });
@@ -187,6 +205,140 @@ describe('AuthController', () => {
   // The form says the same thing to a wrong address, a wrong password and an
   // account that may not sign in — so this endpoint cannot become a way to
   // test which addresses have accounts.
+  describe('the code after the password (FR-AUTH-12)', () => {
+    const codeStep = {
+      step: 'code' as const,
+      sentTo: '+49 (•••) •••-••78',
+      phone: '+49 (•••) •••-••78',
+      canChangeNumber: false,
+      resendIn: 60,
+    };
+    const cookiesOf = (response: Response) =>
+      response.headers.getSetCookie().join('\n');
+
+    it('answers the step instead of a session when a code is owed', async () => {
+      auth.validate.mockResolvedValue(user);
+      step.begin.mockResolvedValue(codeStep);
+
+      const response = await post('/auth/login', credentials);
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual(codeStep);
+      expect(cookiesOf(response)).not.toContain(`${AUTH_COOKIE}=`);
+      expect(auth.recordSignIn).not.toHaveBeenCalled();
+    });
+
+    it('asks for the code after a chosen password too', async () => {
+      passwordSetup.describe.mockResolvedValue(null);
+      passwordSetup.redeem.mockResolvedValue(user);
+      step.begin.mockResolvedValue(codeStep);
+
+      const response = await post('/auth/set-password', {
+        token: 'a-token',
+        password: 'a-long-enough-password',
+      });
+
+      expect(await response.json()).toEqual(codeStep);
+      expect(cookiesOf(response)).not.toContain(`${AUTH_COOKIE}=`);
+    });
+
+    it('stops the sign-in when no code can be sent', async () => {
+      auth.validate.mockResolvedValue(user);
+      step.begin.mockRejectedValue(
+        new CodeDeliveryError('unavailable', 'down'),
+      );
+
+      const response = await post('/auth/login', credentials);
+
+      expect(response.status).toBe(503);
+      expect(await response.json()).toMatchObject({
+        code: 'code-delivery-unavailable',
+      });
+    });
+
+    it('starts the session on the right code', async () => {
+      step.pending.mockResolvedValue(user);
+      step.complete.mockResolvedValue({ result: 'ok', user });
+
+      const response = await post('/auth/sign-in-step/code', {
+        code: '123456',
+      });
+
+      expect(response.status).toBe(200);
+      expect(await response.json()).toEqual(user);
+      expect(cookiesOf(response)).toContain(`${AUTH_COOKIE}=a-signed-token`);
+      expect(auth.recordSignIn).toHaveBeenCalled();
+      expect(step.end).toHaveBeenCalled();
+    });
+
+    it('answers a wrong code with the tries it has left', async () => {
+      step.pending.mockResolvedValue(user);
+      step.complete.mockResolvedValue({ result: 'wrong', attemptsLeft: 2 });
+
+      const response = await post('/auth/sign-in-step/code', {
+        code: '123456',
+      });
+
+      expect(response.status).toBe(400);
+      expect(await response.json()).toMatchObject({
+        code: 'code-wrong',
+        data: { attemptsLeft: 2 },
+      });
+      expect(cookiesOf(response)).not.toContain(`${AUTH_COOKIE}=`);
+    });
+
+    it('answers a spent code by its own code', async () => {
+      step.pending.mockResolvedValue(user);
+      step.complete.mockResolvedValue({ result: 'expired' });
+
+      const response = await post('/auth/sign-in-step/code', {
+        code: '123456',
+      });
+
+      expect(response.status).toBe(410);
+      expect(await response.json()).toMatchObject({ code: 'code-expired' });
+    });
+
+    it('sends the visitor back to the password when nothing is pending', async () => {
+      const response = await post('/auth/sign-in-step/code', {
+        code: '123456',
+      });
+
+      expect(response.status).toBe(401);
+      expect(await response.json()).toMatchObject({
+        code: 'sign-in-step-expired',
+      });
+      expect(step.complete).not.toHaveBeenCalled();
+    });
+
+    it('turns a customer away at the code while maintenance is on', async () => {
+      maintenanceOn = true;
+      step.pending.mockResolvedValue(user);
+
+      const response = await post('/auth/sign-in-step/code', {
+        code: '123456',
+      });
+
+      expect(await response.json()).toMatchObject({
+        code: MAINTENANCE_REFUSED,
+      });
+      expect(step.complete).not.toHaveBeenCalled();
+    });
+
+    it('answers a resend asked too often by its own code', async () => {
+      step.pending.mockResolvedValue(user);
+      step.resend.mockRejectedValue(new CodeResendLimitError(42_500));
+
+      const response = await post('/auth/sign-in-step/resend');
+
+      expect(response.status).toBe(429);
+      expect(await response.json()).toMatchObject({
+        code: 'code-resend-limit',
+        data: { retryAfter: 43 },
+      });
+    });
+  });
+
   it('gives one answer, and no cookie, to every bad sign-in', async () => {
     auth.validate.mockResolvedValue(null);
 
