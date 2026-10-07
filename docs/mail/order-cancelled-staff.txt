@@ -6,7 +6,7 @@ Order: CK-260826-4831
 Account: alex@example.com
 Contact: Alex Fischer · +49 40 1234567
 Reason given: Ordered twice by mistake.
-Total: 126,00 €
+Total: 126,00 € · incl. 19 % VAT
 
 Was ordered
 Espresso cups — 2 pk (12 pcs): 96,00 €

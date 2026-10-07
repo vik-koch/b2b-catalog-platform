@@ -3,7 +3,7 @@ How to pay for your order
 Our payment details for this order are attached. Nothing about the order itself has changed.
 
 Order: CK-260826-4831
-Total: 126,00 €
+Total: 126,00 € · incl. 19 % VAT
 
 Open your order: https://shop.example.com/account/orders/CK-260826-4831
 
