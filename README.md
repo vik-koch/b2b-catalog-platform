@@ -137,6 +137,9 @@ Planned:
   each of them causes
 - [`docs/mail.md`](docs/mail.md) — every message the platform sends, rendered from the deployment's
   own wording
+- [`docs/personal-data.md`](docs/personal-data.md) — every kind of personal data the platform
+  holds, where its copies live, how long each lasts and who receives it; what a shop writes its
+  privacy policy from
 
 ## Workflow
 

@@ -205,6 +205,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [NFR-LEGAL-10](#nfr-legal-10) — An order accepts the terms it was placed under
 - [NFR-LEGAL-11](#nfr-legal-11) — The tax basis of the prices
 - [NFR-LEGAL-12](#nfr-legal-12) — A record that personal data was destroyed
+- [NFR-LEGAL-13](#nfr-legal-13) — An account of the personal data the platform holds
 
 **[Security (NFR-SEC)](#nfr-sec)**
 
@@ -942,6 +943,12 @@ Each record names whose data it was, in terms that still identify the person aft
 The records are the operator's to read out, for a period, when the shop draws up its own paperwork, such as a signed statement of destruction; the platform does not produce that paperwork, and the extract is a query rather than a screen.
 
 A stored customer sync run ([FR-ADM-11](#fr-adm-11)/[12](#fr-adm-12)) keeps what it carried and what it changed, people's contact details among them, for a day only. The run itself and its counts stay; without this, a deleted account's details would outlive the deletion in a copy nobody looks at.
+
+#### <a id="nfr-legal-13"></a>NFR-LEGAL-13 — An account of the personal data the platform holds
+
+The repository keeps one account of every kind of personal data the platform holds: what it is, whose it is, where it is kept, what it is held for, how long it lives and how it ends, and who outside the platform receives it. It covers the copies outside the database too — logs, backups, stored files, mail on its way out, and what the visitor's own browser keeps — because deleting a person here clears the database at once and those copies only later, and the shop has to be able to say when. Staff are covered as well as customers, since the platform's trails keep who did what.
+
+It names kinds of recipient, not providers, and marks every point a deployment decides, such as a retention period or a consent purpose switched on, so a deployment completes it with its own providers and settings instead of rewriting it. It is what the shop writes its privacy policy ([NFR-LEGAL-01](#nfr-legal-01)) from, together with whatever its jurisdiction asks a controller to file or keep about its processing. The platform writes neither. It is kept current like the lifecycle documents: a change that adds a kind of personal data, a place it is copied to or a recipient changes this account in the same change.
 
 ---
 
