@@ -139,6 +139,7 @@ export interface RowProduct extends BuyableProduct {
             [externalNote]="externalNote()"
             [offerPairings]="offerPairings()"
             [notice]="notice()"
+            [priceNote]="priceNote()"
           >
             <!-- Handed on to the price row, where it sits at the end of the line
                  that states what one costs — a corner, and the same corner a
@@ -183,6 +184,9 @@ export class ProductRow {
   /** Something to say about this line, shown in the controls' own bubble under
    * the stepper it is about. */
   readonly notice = input<string | null>(null);
+  /** A line under the price — the cart's rate for this line, where the
+   * cart's lines are taxed at different ones. */
+  readonly priceNote = input<string | null>(null);
   /** False where the caller shows the counterparts itself — the cart, which
    * gives them a line above the note — and inside the panel they open. */
   readonly offerPairings = input(true);

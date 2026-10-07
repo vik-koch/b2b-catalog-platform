@@ -1,4 +1,5 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { TaxConfig } from '@b2b-catalog-platform/shared';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import * as schema from '../db/schema';
 import { priceCart } from './cart-pricing';
@@ -46,6 +47,9 @@ const coffee = {
   minPieceQty: 10,
 };
 
+/** The demo's basis, which every case here is priced under. */
+const TAX: TaxConfig = { basis: 'included', rate: 19, statedAtPrices: true };
+
 describe('priceCart', () => {
   it('prices a pack line exactly', async () => {
     const { db } = dbWith([coffee]);
@@ -54,6 +58,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'pack', pieces: 30 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0].lineTotalMinor).toBe(5970);
@@ -95,6 +100,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
       null,
+      TAX,
     );
 
     // The first stored picture is of a glaze that is out for now (FR-CAT-12).
@@ -121,6 +127,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'piece', pieces: 30 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0].lineTotalMinor).toBe(5970);
@@ -133,6 +140,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'piece', pieces: 4 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0]).toMatchObject({
@@ -152,6 +160,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'ghost', unit: 'pack', pieces: 10 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0]).toMatchObject({
@@ -165,6 +174,28 @@ describe('priceCart', () => {
     expect(lines[0].row).toBeNull();
   });
 
+  it('states each line’s rate: the product’s own, else the default (NFR-LEGAL-11)', async () => {
+    const { db } = dbWith([
+      { ...coffee, taxRate: 7 },
+      { ...coffee, slug: 'milk-pitcher', taxRate: null },
+    ]);
+    const lines = [
+      { slug: 'hafen-espresso', unit: 'pack' as const, pieces: 30 },
+      { slug: 'milk-pitcher', unit: 'pack' as const, pieces: 30 },
+    ];
+
+    const charged = await priceCart(db, lines, null, TAX);
+    expect(charged.preview.lines.map((line) => line.taxRate)).toEqual([7, 19]);
+    expect(charged.lines.map((line) => line.row?.taxRate)).toEqual([7, 19]);
+
+    // A shop that charges none states no rate, whatever a product keeps.
+    const none = await priceCart(db, lines, null, { basis: 'none' });
+    expect(none.preview.lines.map((line) => line.taxRate)).toEqual([
+      null,
+      null,
+    ]);
+  });
+
   it('reads only live, published products', async () => {
     const { db, sql } = dbWith([coffee]);
 
@@ -172,6 +203,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
       null,
+      TAX,
     );
 
     expect(sql[0]).toContain('"deletedAt" is null');
@@ -189,6 +221,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'box', pieces: 10 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0]).toMatchObject({
@@ -215,6 +248,7 @@ describe('priceCart', () => {
         },
       ],
       null,
+      TAX,
     );
 
     expect(preview.lines[0].note).toBeNull();
@@ -234,6 +268,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'pack', pieces: 7 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0].lineTotalMinor).toBe(1393);
@@ -252,6 +287,7 @@ describe('priceCart', () => {
         { slug: 'ghost', unit: 'pack', pieces: 10 },
       ],
       null,
+      TAX,
     );
 
     expect(preview.shipment).toMatchObject({
@@ -271,6 +307,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'box', pieces: 10 }],
       null,
+      TAX,
     );
 
     expect(lines[0].row).toMatchObject({ pieces: 10, quantity: 0.25 });
@@ -285,6 +322,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0].issues).toEqual(['out-of-stock']);
@@ -302,6 +340,7 @@ describe('priceCart', () => {
       db,
       [{ slug: 'hafen-espresso', unit: 'pack', pieces: 10 }],
       null,
+      TAX,
     );
 
     expect(preview.lines[0].issues).toEqual([]);
@@ -311,7 +350,7 @@ describe('priceCart', () => {
   it('asks the database nothing for an empty cart', async () => {
     const { db, sql } = dbWith([]);
 
-    const { preview } = await priceCart(db, [], null);
+    const { preview } = await priceCart(db, [], null, TAX);
 
     expect(sql).toEqual([]);
     expect(preview).toMatchObject({ lines: [], totalMinor: 0, complete: true });

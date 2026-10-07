@@ -33,6 +33,7 @@ const placed: AdminOrderDetail = {
   paymentState: 'not-due',
   statusReason: null,
   termsDate: null,
+  taxBasis: 'included',
   changes: [],
   documents: [
     {
@@ -87,6 +88,7 @@ const placed: AdminOrderDetail = {
       // A box of a hundred.
       priceMinor: 199,
       lineTotalMinor: 19900,
+      taxRate: 19,
       note: null,
     },
   ],

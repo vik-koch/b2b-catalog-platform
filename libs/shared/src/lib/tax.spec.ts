@@ -1,4 +1,9 @@
-import { effectiveTaxRate, isPartialTaxRate, parseTaxRate } from './tax';
+import {
+  effectiveTaxRate,
+  isPartialTaxRate,
+  parseTaxRate,
+  sharedTaxRate,
+} from './tax';
 
 describe('parseTaxRate', () => {
   it('reads either decimal mark, and empty as the default', () => {
@@ -39,5 +44,19 @@ describe('effectiveTaxRate', () => {
 
   it('is no rate at all where no tax is charged, whatever the product keeps', () => {
     expect(effectiveTaxRate({ basis: 'none' }, 7)).toBeNull();
+  });
+});
+
+describe('sharedTaxRate', () => {
+  it('names the rate every line shares', () => {
+    expect(sharedTaxRate([7, 7])).toBe(7);
+  });
+
+  it('names none once two lines differ', () => {
+    expect(sharedTaxRate([7, 19, 7])).toBeNull();
+  });
+
+  it('has nothing to say about no lines', () => {
+    expect(sharedTaxRate([])).toBeUndefined();
   });
 });

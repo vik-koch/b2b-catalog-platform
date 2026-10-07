@@ -28,7 +28,9 @@ import {
   loadPairingsEnforced,
   loadPdfFont,
   loadPickupLocations,
+  loadTaxConfig,
   loadTermsAttached,
+  TAX_CONFIG,
   loadTermsPublished,
 } from '../config/deployment-config';
 import { MailModule } from '../mail/mail.module';
@@ -107,6 +109,9 @@ import { OrdersService } from './orders.service';
     { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
     { provide: TERMS_PUBLISHED, useFactory: loadTermsPublished },
     { provide: TERMS_ATTACHED, useFactory: loadTermsAttached },
+    // The basis an order is submitted under, and the default rate a line
+    // without one of its own is taxed at (NFR-LEGAL-11).
+    { provide: TAX_CONFIG, useFactory: loadTaxConfig },
   ],
   // The order exchange writes orders back through this same service
   // (FR-ADM-08): one writer, so an exchange and a manager leave the same

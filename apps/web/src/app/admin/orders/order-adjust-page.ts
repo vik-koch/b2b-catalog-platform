@@ -9,6 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
+import { useTaxStatement } from '../../catalog/tax-statement';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -689,6 +690,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
   `,
 })
 export class AdminOrderAdjustPage {
+  private readonly tax = useTaxStatement();
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
   private readonly tiersApi = inject(TiersService);
@@ -1124,6 +1126,7 @@ export class AdminOrderAdjustPage {
         totalLabel: answer
           ? formatPriceMinor(answer.lineTotalMinor, this.currency)
           : '',
+        taxLabel: answer ? this.tax.line(answer.taxRate) : '',
         flags: answer?.flags ?? [],
         offList: answer ? this.offList(answer) : false,
       };

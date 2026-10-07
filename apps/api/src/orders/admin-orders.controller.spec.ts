@@ -50,6 +50,7 @@ describe('AdminOrdersController', () => {
     })),
     totalMinor: demoAdminOrder.totalMinor,
     currency: demoAdminOrder.currency,
+    taxBasis: demoAdminOrder.taxBasis,
     deliveryZone: demoAdminOrder.deliveryZone,
     shipment: demoAdminOrder.shipment,
   };

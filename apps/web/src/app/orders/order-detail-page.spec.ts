@@ -27,6 +27,7 @@ const placed: OrderDetail = {
   paymentState: 'not-due',
   statusReason: null,
   termsDate: null,
+  taxBasis: 'included',
   changes: [],
   // The generated summary: every order has one, and no order stores it.
   documents: [
@@ -67,6 +68,7 @@ const placed: OrderDetail = {
       quantity: 2,
       pieces: 12,
       lineTotalMinor: 9990,
+      taxRate: 19,
       note: '100 in red',
     },
     {
@@ -78,6 +80,7 @@ const placed: OrderDetail = {
       quantity: 3,
       pieces: 3,
       lineTotalMinor: 3000,
+      taxRate: 19,
       note: null,
     },
   ],
@@ -147,6 +150,22 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
 
     expect(el.textContent).toContain('2 pk (12 pcs)');
     expect(el.textContent).toContain('100 in red');
+  });
+
+  // NFR-LEGAL-11: the basis the order was submitted under, whatever the
+  // deployment quotes today, and each line's rate once they differ.
+  it('states the order’s own basis, and each line’s rate once they differ', async () => {
+    const tax = defaultAppText.tax;
+    const { el } = await render({
+      ...placed,
+      taxBasis: 'added',
+      lines: [placed.lines[0], { ...placed.lines[1], taxRate: 7 }],
+    });
+    const text = el.textContent ?? '';
+
+    expect(text).toContain(tax.mixed.added);
+    expect(text).toContain(tax.line.replace('{rate}', '7'));
+    expect(text).toContain(tax.line.replace('{rate}', '19'));
   });
 
   it('links a line only while its product can still be opened', async () => {

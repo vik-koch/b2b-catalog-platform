@@ -662,6 +662,11 @@
       "added": "Plus {rate}\u00a0% VAT",
       "none": "No VAT charged"
     },
+    "mixed": {
+      "included": "Incl. VAT at the rate each item states",
+      "added": "Plus VAT at the rate each item states"
+    },
+    "line": "{rate}\u00a0% VAT",
     "listing": {
       "included": "All prices include VAT.",
       "added": "All prices are net, plus VAT."

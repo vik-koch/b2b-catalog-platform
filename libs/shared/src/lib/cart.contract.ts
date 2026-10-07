@@ -143,6 +143,10 @@ export const cartPreviewLineSchema = z
     lineNotePrompt: z.string().nullable(),
     /** Exact, or null where the line cannot be priced. */
     lineTotalMinor: z.number().int().nonnegative().nullable(),
+    /** The rate this line is taxed at (NFR-LEGAL-11): the product's own or
+     * the deployment's default, resolved here. Null where no tax is charged,
+     * and for a product that is gone. */
+    taxRate: z.number().nullable(),
     /**
      * How many sellable products this line is sold together with (FR-SET-05),
      * so a cart row wears the same marker as the card it was added from. Zero

@@ -8,12 +8,12 @@ Contact: Alex Fischer · +49 40 1234567 · alex@example.com
 Invoice to: Kontor GmbH · DE123456789
 How it arrives: Delivery
 Payment: Bank transfer
-Total: 126,00 €
+Total: 126,00 € · incl. 19 % VAT
 
 Ordered
-Espresso cups — 2 pk (12 pcs): 96,00 €
+Espresso cups — 2 pk (12 pcs) · 19 % VAT: 96,00 €
   100 in <red>
-Saucers — 3 pcs: 30,00 €
+Saucers — 3 pcs · 19 % VAT: 30,00 €
 
 Open the order: https://shop.example.com/admin/orders/CK-260826-4831
 

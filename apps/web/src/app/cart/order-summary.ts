@@ -1,5 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText, ShipmentSummary } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  ShipmentSummary,
+  TaxBasis,
+} from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { useTaxStatement } from '../catalog/tax-statement';
 import { APP_TEXT } from '../config/app-text';
@@ -55,7 +59,7 @@ import { WarningNote } from '../ui/warning-note';
         </div>
       </dl>
       <!-- What the figure includes, straight under it (NFR-LEGAL-11). -->
-      <p class="mt-1 text-right text-xs text-subtle">{{ taxStatement }}</p>
+      <p class="mt-1 text-right text-xs text-subtle">{{ taxStatement() }}</p>
 
       @if (!complete()) {
         <app-warning-note class="mt-2">
@@ -80,7 +84,7 @@ export class OrderSummary {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   protected readonly text = inject(APP_TEXT).cart;
-  protected readonly taxStatement = useTaxStatement().total();
+  private readonly tax = useTaxStatement();
 
   readonly lineCount = input.required<number>();
   readonly subtotalMinor = input.required<number>();
@@ -88,6 +92,15 @@ export class OrderSummary {
   /** Null before a line has ever been priced: there is nothing to add up yet. */
   readonly shipment = input<ShipmentSummary | null>(null);
   readonly loading = input(false);
+  /** The rates of the lines the total adds up, which it names or, once they
+   * differ, leaves to the lines (NFR-LEGAL-11). */
+  readonly taxRates = input<readonly (number | null)[]>([]);
+  /** An order's own basis; a cart is quoted on the deployment's. */
+  readonly taxBasis = input<TaxBasis | null>(null);
+
+  protected readonly taxStatement = computed(() =>
+    this.tax.total(this.taxRates(), this.taxBasis() ?? undefined),
+  );
 
   protected readonly subtotal = computed(() =>
     formatPriceMinor(this.subtotalMinor(), this.currency),

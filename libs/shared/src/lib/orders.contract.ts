@@ -18,6 +18,7 @@ import {
   STAFF_PAYMENT_FILTERS,
 } from './order-constants';
 import { ORDER_DOCUMENT_KINDS } from './order-document-constants';
+import { TAX_BASES } from './tax';
 import { addressInputSchema, countryCodeSchema } from './address.contract';
 import {
   companyRegistrationIdSchema,
@@ -213,6 +214,9 @@ export const orderLineSchema = z
     quantity: z.number().positive(),
     pieces: z.number().int().positive(),
     lineTotalMinor: z.number().int().nonnegative(),
+    /** The rate the line was taxed at when its version was written
+     * (NFR-LEGAL-11); null under a basis that charges no tax. */
+    taxRate: z.number().nullable(),
     note: z.string().nullable(),
   })
   .strict();
@@ -359,6 +363,9 @@ export const orderDetailSchema = orderSummarySchema.extend({
   /** When the terms the order accepted were last changed (NFR-LEGAL-10):
    * how a reader tells one version from another. Null where it accepted none. */
   termsDate: z.iso.datetime().nullable(),
+  /** The tax basis the order was submitted under (NFR-LEGAL-11) — stated
+   * under its total in place of the deployment's current one. */
+  taxBasis: z.enum(TAX_BASES),
   /**
    * What the shop said about every change it has made to this order
    * (FR-ORD-03), oldest first, up to and including the version being shown.
@@ -744,6 +751,8 @@ export const orderAdjustmentPreviewSchema = z
     ),
     totalMinor: z.number().int().nonnegative(),
     currency: z.string(),
+    /** The order's own basis, which an adjustment never changes. */
+    taxBasis: z.enum(TAX_BASES),
     /** Re-resolved from the address as it now reads (FR-CART-07). */
     deliveryZone: orderDeliveryZoneSchema.nullable(),
     shipment: cartPreviewSchema.shape.shipment,

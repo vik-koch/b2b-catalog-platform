@@ -835,7 +835,7 @@ Notes:
   net prices and a consumer shop cannot. Goods taxed at a reduced rate carry a rate of their
   own, owned like the price and synced with it. The deployment's rate is only the default.
   Each order records the basis and every line's rate, since either can change while orders
-  are still open.
+  are still open ([ADR 0065](adr/0065-state-the-tax-basis-never-the-tax.md)).
 - **A page keeps its versions**
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09), [FR-ADM-03](requirements.md#fr-adm-03))
   (2026-10-04). A consent record and an accepted order each have to point at the text

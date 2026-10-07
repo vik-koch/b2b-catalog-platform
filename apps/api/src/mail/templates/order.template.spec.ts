@@ -62,6 +62,55 @@ describe('orderReceivedMail', () => {
 
   // NFR-LEGAL-10: by its date, read in the shop's timezone like the page's own
   // "Last updated" line — 23:30 UTC is already the next day in Berlin.
+  // NFR-LEGAL-11: the basis the order was submitted under, after the total.
+  it('names the rate its lines share after the total, and no line rate', () => {
+    expect(mail.rows).toContainEqual({
+      label: t.totalLabel,
+      value: expect.stringMatching(/126,00.* · incl\. 19 % VAT$/),
+    });
+    expect(mail.items?.[1].quantity).toBe('3 pcs');
+  });
+
+  it('states only the basis once the lines differ, and each line its rate', () => {
+    const mixed = orderReceivedMail(
+      {
+        ...order,
+        lines: [order.lines[0], { ...order.lines[1], taxRate: 7 }],
+      },
+      null,
+      currency,
+      demoMailText,
+      'UTC',
+    );
+
+    expect(mixed.rows).toContainEqual({
+      label: t.totalLabel,
+      value: expect.stringContaining(
+        '· incl. VAT at the rate each item states',
+      ),
+    });
+    expect(mixed.items?.[1].quantity).toBe('3 pcs · 7 % VAT');
+  });
+
+  it('says no tax is charged on an order submitted under that basis', () => {
+    const untaxed = orderReceivedMail(
+      {
+        ...order,
+        taxBasis: 'none',
+        lines: order.lines.map((line) => ({ ...line, taxRate: null })),
+      },
+      null,
+      currency,
+      demoMailText,
+      'UTC',
+    );
+
+    expect(untaxed.rows).toContainEqual({
+      label: t.totalLabel,
+      value: expect.stringContaining('· no VAT charged'),
+    });
+  });
+
   it('names the terms the order accepted by their date', () => {
     const late = orderReceivedMail(
       { ...order, termsDate: '2026-08-31T23:30:00.000Z' },

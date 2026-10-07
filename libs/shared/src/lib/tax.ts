@@ -61,3 +61,17 @@ export function isPartialTaxRate(text: string): boolean {
   const digits = text.replace(',', '.');
   return digits === '' || digits === '.' || Number(digits) <= TAX_RATE_MAX;
 }
+
+/**
+ * The one rate every line of a cart or an order shares, which its total then
+ * names (NFR-LEGAL-11). Null once two lines differ — the total then states
+ * only the basis and each line its own rate — and null where a line has no
+ * rate to share. Undefined for no lines at all, which name nothing either way.
+ */
+export function sharedTaxRate(
+  rates: readonly (number | null)[],
+): number | null | undefined {
+  if (rates.length === 0) return undefined;
+  const [first] = rates;
+  return rates.every((rate) => rate === first) ? first : null;
+}

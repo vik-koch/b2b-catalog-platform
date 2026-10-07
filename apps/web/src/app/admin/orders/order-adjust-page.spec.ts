@@ -36,6 +36,7 @@ const order: AdminOrderDetail = {
   paymentState: 'not-due',
   statusReason: null,
   termsDate: null,
+  taxBasis: 'included',
   changes: [],
   documents: [
     {
@@ -89,6 +90,7 @@ const order: AdminOrderDetail = {
       pieces: 20,
       priceMinor: 199,
       lineTotalMinor: 3980,
+      taxRate: 19,
       note: null,
     },
   ],
@@ -114,6 +116,7 @@ const preview: OrderAdjustmentPreview = {
   ],
   totalMinor: 3980,
   currency: 'EUR',
+  taxBasis: 'included',
   deliveryZone: null,
   shipment: order.shipment,
 };
@@ -265,6 +268,7 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
           quantity: 1,
           pieces: 10,
           lineTotalMinor: 1990,
+          taxRate: 19,
         },
       ],
       totalMinor: 1990,

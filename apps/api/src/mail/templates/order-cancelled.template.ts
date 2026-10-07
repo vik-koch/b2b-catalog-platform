@@ -1,11 +1,11 @@
-import {
-  AdminOrderDetail,
-  formatMoneyMinor,
-  MoneyFormat,
-} from '@b2b-catalog-platform/shared';
+import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
-import { orderMailItem } from './order-items';
+import {
+  orderLinesDifferInTax,
+  orderMailItem,
+  orderMailTotal,
+} from './order-items';
 
 /**
  * Sent to the shop when a customer calls their own order off (FR-NOTIF-07).
@@ -47,11 +47,13 @@ export function orderCancelledMail(
       { label: t.reasonLabel, value: order.statusReason ?? t.reasonNone },
       {
         label: t.totalLabel,
-        value: formatMoneyMinor(order.totalMinor, currency),
+        value: orderMailTotal(order, currency, text),
       },
     ],
     itemsHeading: t.itemsHeading,
-    items: order.lines.map((line) => orderMailItem(line, currency, text)),
+    items: order.lines.map((line) =>
+      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+    ),
     action: { label: t.action, path: `/admin/orders/${order.reference}` },
   };
 }

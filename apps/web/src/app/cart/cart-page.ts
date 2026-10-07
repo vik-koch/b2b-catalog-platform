@@ -32,6 +32,7 @@ import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
+import { useTaxStatement } from '../catalog/tax-statement';
 import { OrderSummary } from './order-summary';
 import { CartChange, CartService } from './cart.service';
 import { WarningNote } from '../ui/warning-note';
@@ -82,6 +83,8 @@ interface CartRow {
   /** How many products this line's product is sold together with (FR-SET-05);
    * zero is no link. */
   pairedCount: number;
+  /** The line's own rate, where the cart's lines differ (NFR-LEGAL-11). */
+  taxNote: string | null;
   /**
    * How many pieces of cover this line is missing (FR-SET-02/03), or null
    * where it is satisfied.
@@ -258,6 +261,7 @@ interface CartRow {
                     [externalNote]="true"
                     [offerPairings]="false"
                     [notice]="row.notice"
+                    [priceNote]="row.taxNote"
                   >
                     <!-- Level with the top of the photo, and as close to it as
                        the tick above the list is to its own words, so the two
@@ -447,6 +451,7 @@ interface CartRow {
               [complete]="complete()"
               [shipment]="shipment()"
               [loading]="showSkeleton()"
+              [taxRates]="cart.taxRates()"
             />
 
             <!-- Directly over the button it bears on (FR-SET-03/04), where
@@ -573,6 +578,12 @@ export class CartPage {
     return new Map((value?.lines ?? []).map((line) => [line.slug, line]));
   });
 
+  private readonly tax = useTaxStatement();
+  /** Whether the lines state their own rates: only once they differ. */
+  private readonly perLineRates = computed(() =>
+    this.tax.perLine(this.cart.taxRates()),
+  );
+
   protected readonly rows = computed<CartRow[]>(() =>
     this.cart.lines().map((line) => {
       const fresh = this.priced().get(line.slug);
@@ -616,6 +627,10 @@ export class CartPage {
         notePrompt: line.notePrompt ?? this.text.notePrompt,
         takesNote: line.noteEnabled,
         pairedCount: line.pairedCount,
+        taxNote:
+          this.perLineRates() && line.available && line.taxRate != null
+            ? this.tax.line(line.taxRate)
+            : null,
         // From the browser's own copy, like everything else on the row: the
         // shop works the shortfall out, but preview writes what it answers
         // back into the store, so a reload states it before the call that

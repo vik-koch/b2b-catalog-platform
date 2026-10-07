@@ -1,12 +1,15 @@
 import {
-  formatMoneyMinor,
   MoneyFormat,
   OrderDetail,
   OrderNotice,
 } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
-import { orderMailItem } from './order-items';
+import {
+  orderLinesDifferInTax,
+  orderMailItem,
+  orderMailTotal,
+} from './order-items';
 
 /** The states a customer is written to about: every one an order can be moved
  * to. `requested` is one of them, but never as "we have your order" — an order
@@ -144,11 +147,13 @@ export function orderStatusChangedMail(
         : []),
       {
         label: t.totalLabel,
-        value: formatMoneyMinor(order.totalMinor, currency),
+        value: orderMailTotal(order, currency, text),
       },
     ],
     itemsHeading: t.itemsHeading,
-    items: order.lines.map((line) => orderMailItem(line, currency, text)),
+    items: order.lines.map((line) =>
+      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+    ),
     action: {
       label: t.action,
       path: publicToken

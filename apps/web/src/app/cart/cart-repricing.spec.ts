@@ -56,6 +56,7 @@ function preview(lineTotalMinor: number | null = 6500): CartPreview {
         images: [],
         pairingShortPieces: null,
         availability: null,
+        taxRate: 19,
         prices: {
           piece: 1100,
           pack: 6600,

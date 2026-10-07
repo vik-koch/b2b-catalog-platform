@@ -52,6 +52,9 @@ export interface AdjustLineRow {
   quantityLabel: string;
   note: string | null;
   totalLabel: string;
+  /** The rate the new version will state for the line (NFR-LEGAL-11), or
+   * empty where it states none. */
+  taxLabel: string;
   flags: readonly AdjustmentLineFlag[];
   /** Whether this line is priced away from the list it would otherwise take
    * (FR-CART-09) — marked on the line, and counted again above the save
@@ -155,6 +158,11 @@ export interface AdjustLineRow {
                     {{ line.quantityLabel }}
                   </span>
                   <span class="block">{{ line.totalLabel }}</span>
+                  @if (line.taxLabel) {
+                    <span class="block text-xs text-subtle">
+                      {{ line.taxLabel }}
+                    </span>
+                  }
                 } @else {
                   <!-- Two bars the shape of the two lines they stand in for:
                        the reading above at its size, the figure below at its

@@ -1,11 +1,7 @@
-import {
-  AdminOrderDetail,
-  formatMoneyMinor,
-  MoneyFormat,
-} from '@b2b-catalog-platform/shared';
+import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
-import { orderMailItem } from './order-items';
+import { orderMailItem, orderMailTotal } from './order-items';
 
 /**
  * Sent to the shop when an order request arrives (FR-NOTIF-05). Staff are the
@@ -62,11 +58,15 @@ export function newOrderMail(
       },
       {
         label: t.totalLabel,
-        value: formatMoneyMinor(order.totalMinor, currency),
+        value: orderMailTotal(order, currency, text),
       },
     ],
     itemsHeading: t.itemsHeading,
-    items: order.lines.map((line) => orderMailItem(line, currency, text)),
+    // Staff read every line's rate, shared or not: it is what a line
+    // reconciles against the shop's own invoice by.
+    items: order.lines.map((line) =>
+      orderMailItem(line, currency, text, order.taxBasis !== 'none'),
+    ),
     action: { label: t.action, path: `/admin/orders/${order.reference}` },
   };
 }

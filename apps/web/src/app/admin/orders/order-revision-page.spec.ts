@@ -24,6 +24,7 @@ const address = {
 
 const version: OrderRevision = {
   reference: 'DEMO-260826-4831',
+  taxBasis: 'included',
   documents: [
     {
       kind: 'order-summary',
@@ -88,6 +89,7 @@ const version: OrderRevision = {
       pieces: 200,
       priceMinor: 199,
       lineTotalMinor: 39800,
+      taxRate: 19,
       note: null,
     },
   ],
