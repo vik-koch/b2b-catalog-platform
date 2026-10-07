@@ -317,6 +317,29 @@ export class StaffUsersService {
   }
 
   /**
+   * Exempt an account from the code after the password, or ask it again
+   * (FR-AUTH-12). Whether its role may be exempted is the caller's check,
+   * against the deployment's config; this writes who and when, or clears both.
+   */
+  async setSignInStepExemption(
+    id: string,
+    exempt: boolean,
+    actorId: string,
+  ): Promise<StaffUser> {
+    const [updated] = await this.db
+      .update(users)
+      .set(
+        exempt
+          ? { signInStepExemptAt: new Date(), signInStepExemptBy: actorId }
+          : { signInStepExemptAt: null, signInStepExemptBy: null },
+      )
+      .where(eq(users.id, id))
+      .returning(staffUserColumns);
+    if (!updated) throw notFound();
+    return toStaffUser(updated);
+  }
+
+  /**
    * Edit an account: the whole editable set in one write, so the screen that
    * shows these fields together saves them together.
    *

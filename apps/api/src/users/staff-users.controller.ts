@@ -23,6 +23,7 @@ import { ConsentService } from '../consents/consent.service';
 import { refusals } from '../orpc/refusals';
 import { customersExternallyOwned } from '../settings/ownership.refusals';
 import { SettingsService } from '../settings/settings.service';
+import { SignInStep } from '../auth/sign-in-step/sign-in-step';
 import { AccountInvitations } from './account-invitations';
 import { StaffUsersService } from './staff-users.service';
 
@@ -50,6 +51,7 @@ export class StaffUsersController {
     private readonly settings: SettingsService,
     private readonly consents: ConsentService,
     private readonly deletion: AccountDeletion,
+    private readonly step: SignInStep,
   ) {}
 
   @Implement(usersContract.listUsers)
@@ -384,6 +386,46 @@ export class StaffUsersController {
         });
         const user = await this.service.findById(params.id);
         if (!user) throw errors['account-not-found'](NOT_FOUND);
+        return user;
+      });
+  }
+
+  /**
+   * Exempting one account from the code after the password, or asking it
+   * again (FR-AUTH-12). An admin's alone, and only for a role the deployment
+   * lets be exempted: the rule a deployment is under decides which, so a click
+   * here can never reach past it.
+   */
+  @Auth('admin')
+  @Implement(usersContract.setSignInStepExemption)
+  setSignInStepExemption(@CurrentUser() actor: AuthUser) {
+    return implement(usersContract.setSignInStepExemption)
+      .use(refusals)
+      .handler(async ({ input: { params, body }, errors }) => {
+        const before = await this.service.findById(params.id);
+        if (!before || !this.mayManage(actor, before)) {
+          throw errors['account-not-found'](NOT_FOUND);
+        }
+        if (before.status === 'anonymized') {
+          throw errors['account-closed']({
+            message: 'This account is already closed',
+          });
+        }
+        if (body.exempt && !this.step.mayExempt(before.role)) {
+          throw errors['not-exemptable']({
+            message: 'Accounts of this role cannot skip the code',
+          });
+        }
+        const user = await this.service.setSignInStepExemption(
+          params.id,
+          body.exempt,
+          actor.id,
+        );
+        this.audit.record(
+          body.exempt ? 'user.signInStepExempted' : 'user.signInStepRequired',
+          actor,
+          { id: user.id, name: user.email },
+        );
         return user;
       });
   }

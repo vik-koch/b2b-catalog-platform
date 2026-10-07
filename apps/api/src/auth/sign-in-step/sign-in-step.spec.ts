@@ -115,6 +115,45 @@ describe('SignInStep', () => {
     });
   });
 
+  describe('an exemption', () => {
+    const exempted = {
+      ...customer,
+      role: 'admin',
+      signInStepExemptAt: new Date('2026-10-07T00:00:00Z'),
+    } as UserRow;
+
+    it('lets the account sign in with the password alone', () => {
+      const config = {
+        mode: 'always',
+        roles: ['user', 'admin'],
+        exemptableRoles: ['admin'],
+      } as const;
+
+      expect(step(config).need(exempted)).toBe('none');
+      expect(step(config).asks(exempted)).toBe(false);
+    });
+
+    // Narrowing the list ends every exemption at once, without the rows.
+    it('counts for nothing once the role may no longer be exempted', () => {
+      const config = { mode: 'always', roles: ['user', 'admin'] } as const;
+
+      expect(step(config).need(exempted)).toBe('code');
+    });
+
+    it('is allowed only for a role the deployment both asks and lists', () => {
+      const config = {
+        mode: 'always',
+        roles: ['admin'],
+        exemptableRoles: ['admin', 'user'],
+      } as const;
+
+      expect(step(config).mayExempt('admin')).toBe(true);
+      // Listed, but never asked: there is nothing to exempt it from.
+      expect(step(config).mayExempt('user')).toBe(false);
+      expect(step({ ...config, mode: 'off' }).mayExempt('admin')).toBe(false);
+    });
+  });
+
   it('starts no step where none is owed, and sets no cookie', async () => {
     const off = step({ mode: 'off', roles: ['user'] });
 

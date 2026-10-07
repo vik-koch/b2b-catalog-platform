@@ -489,4 +489,27 @@ export const usersContract = {
       }),
     )
     .output(staffUserSchema),
+
+  setSignInStepExemption: staff
+    .route({
+      method: 'PUT',
+      path: '/admin/users/{id}/sign-in-step-exemption',
+      inputStructure: 'detailed',
+      // Never refused by ownership: it is about how a person signs in, which
+      // no external system holds.
+      summary:
+        'Exempt an account from the code after the password, or undo it (admin)',
+    })
+    .errors({
+      ...notFound,
+      'account-closed': conflicts['account-closed'],
+      'not-exemptable': conflicts['not-exemptable'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: z.object({ exempt: z.boolean() }).strict(),
+      }),
+    )
+    .output(staffUserSchema),
 };
