@@ -46,4 +46,30 @@ describe('Sessions', () => {
     });
     expect(claims.exp - (claims.iat ?? 0)).toBe(30 * DAY_S);
   });
+
+  const issuedAgo = (seconds: number): JwtPayload => ({
+    sub: user.id,
+    email: user.email,
+    role: 'user',
+    tokenVersion: 2,
+    iat: Math.floor(Date.now() / 1000) - seconds,
+  });
+
+  it('leaves a token under a day old alone', async () => {
+    await sessions.renew(req, res, issuedAgo(DAY_S - 60), user);
+
+    expect(set).toEqual({});
+  });
+
+  it('reissues a token in use that is over a day old', async () => {
+    await sessions.renew(req, res, issuedAgo(DAY_S + 60), user);
+
+    expect(set[AUTH_COOKIE]).toBeDefined();
+  });
+
+  it('reissues nothing where there is no response to carry it', async () => {
+    await sessions.renew(req, undefined, issuedAgo(2 * DAY_S), user);
+
+    expect(set).toEqual({});
+  });
 });

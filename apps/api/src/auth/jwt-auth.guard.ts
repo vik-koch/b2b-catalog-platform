@@ -5,11 +5,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import type { Response } from 'express';
 import { UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from './auth.constants';
 import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
 import { JwtPayload } from './jwt-payload';
+import { Sessions } from './sessions';
 
 /**
  * Authenticates a request from the httpOnly session cookie. The token proves
@@ -27,6 +29,7 @@ export class JwtAuthGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
     private readonly users: UsersService,
+    private readonly sessions: Sessions,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -77,6 +80,13 @@ export class JwtAuthGuard implements CanActivate {
 
     // Role comes from the DB, not the token, so a role change takes effect now.
     request.user = toAuthUser(user);
+    // A session in use slides.
+    await this.sessions.renew(
+      request,
+      context.switchToHttp().getResponse<Response>(),
+      payload,
+      user,
+    );
     return true;
   }
 }

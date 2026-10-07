@@ -40,4 +40,21 @@ export class Sessions {
     });
     issueSession(req, res, token, user.role, this.lifetimeS * 1000);
   }
+
+  /**
+   * Called by the guards once a token has proved valid for `user`. A request
+   * the server renders on the visitor's behalf drops the new cookie, which is
+   * harmless: the old one still verifies, and the browser's own next call
+   * picks the new one up.
+   */
+  async renew(
+    req: Request,
+    res: Response | undefined,
+    payload: JwtPayload,
+    user: UserRow,
+  ): Promise<void> {
+    if (!res || payload.iat === undefined) return;
+    if (Date.now() / 1000 - payload.iat < DAY_S) return;
+    await this.start(req, res, user);
+  }
 }

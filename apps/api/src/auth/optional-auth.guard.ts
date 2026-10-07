@@ -1,10 +1,12 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import type { Response } from 'express';
 import { UsersService } from '../users/users.service';
 import { AUTH_COOKIE } from './auth.constants';
 import { toAuthUser } from './auth-user';
 import { AuthenticatedRequest } from './authenticated-request';
 import { JwtPayload } from './jwt-payload';
+import { Sessions } from './sessions';
 
 /**
  * Session lookup for **public** routes that show something different to a
@@ -18,8 +20,8 @@ import { JwtPayload } from './jwt-payload';
  * Only a request that actually carries a session pays the one indexed lookup.
  *
  * That lookup is deliberate rather than reading the tier from the token: a
- * token lives seven days, so a claim would keep serving a customer their old
- * prices for a week after staff re-tiered them. Prices are not something to be
+ * token lives for days and slides while used, so a claim would keep serving a
+ * customer their old prices long after staff re-tiered them. Prices are not something to be
  * stale about.
  *
  * The validity rules below (signature, user still exists, `tokenVersion` still
@@ -31,6 +33,7 @@ export class OptionalAuthGuard implements CanActivate {
   constructor(
     private readonly jwt: JwtService,
     private readonly users: UsersService,
+    private readonly sessions: Sessions,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -57,6 +60,13 @@ export class OptionalAuthGuard implements CanActivate {
     // From the database row, not the token, so a re-tiering takes effect on the
     // customer's next page view.
     request.pricingTierId = user.tierId;
+    // A session in use slides, browsing the catalog included.
+    await this.sessions.renew(
+      request,
+      context.switchToHttp().getResponse<Response>(),
+      payload,
+      user,
+    );
     return true;
   }
 }
