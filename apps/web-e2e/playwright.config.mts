@@ -22,6 +22,29 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,
+    // The demo asks before it loads the contact page's map, and its banner
+    // sits over the foot of every page. Every spec starts with that question
+    // answered, so a fixed card cannot cover the button a test clicks;
+    // cookie-consent.spec.ts starts without it. The shape and version are
+    // ConsentService's.
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: new URL(baseURL).origin,
+          localStorage: [
+            {
+              name: 'cookie-consent',
+              value: JSON.stringify({
+                version: 1,
+                choice: 'accepted',
+                timestamp: '2026-01-01T00:00:00.000Z',
+              }),
+            },
+          ],
+        },
+      ],
+    },
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },

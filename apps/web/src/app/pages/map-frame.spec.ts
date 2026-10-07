@@ -65,6 +65,27 @@ describe('MapFrame', () => {
     expect(el.textContent).toContain(defaultAppText.map.consentNotice);
   });
 
+  // Click-to-load: the placeholder itself gives the consent the banner asks
+  // for, so a visitor who said no there can still choose to see the map.
+  it('loads a consent-required map from its placeholder, recording consent', async () => {
+    const el = await render(
+      { url: 'https://maps.example/embed', consentRequired: true },
+      { enabled: true, decision: 'rejected' },
+    );
+    const load = [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === defaultAppText.map.load,
+    );
+    load?.click();
+    TestBed.tick();
+
+    expect(el.querySelector('iframe')).not.toBeNull();
+    expect(
+      JSON.parse(localStorage.getItem('cookie-consent') ?? '{}'),
+    ).toMatchObject({
+      choice: 'accepted',
+    });
+  });
+
   it('renders the iframe for a consent-required map once accepted', async () => {
     const el = await render(
       { url: 'https://maps.example/x', consentRequired: true },

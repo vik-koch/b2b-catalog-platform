@@ -681,7 +681,7 @@
     "consentNotice": "This map is hidden until you accept cookies."
   },
   "consent": {
-    "message": "We use only strictly necessary cookies to run this site. See our",
+    "message": "This site sets only the cookies it needs to work. The map on our contact page is loaded from OpenStreetMap, which receives your IP address when it loads, so we ask first. More in our",
     "policyLink": "privacy policy",
     "accept": "Accept",
     "reject": "Reject",
