@@ -26,6 +26,8 @@ import {
   pagesConfigSchema,
   RetentionConfig,
   retentionConfigSchema,
+  SignInStepConfig,
+  signInStepConfigSchema,
   TaxConfig,
   taxConfigSchema,
   termsConfigSchema,
@@ -98,6 +100,8 @@ export const apiDeploymentConfigSchema = z
      * notification has to be readable by whoever it wakes up.
      */
     phoneInput: phoneInputSchema.optional(),
+    /** The second sign-in step (FR-AUTH-12). Absent means off. */
+    signInStep: signInStepConfigSchema.optional(),
     /**
      * Where the deployment ships. The API applies the country list as well as
      * the browser — a `<select>` is an entry aid, not a rule.
@@ -287,6 +291,10 @@ export const PHONE_INPUT = 'PHONE_INPUT';
 
 export function loadPhoneInput(): PhoneConfig | undefined {
   return loadApiDeploymentConfig().phoneInput;
+}
+
+export function loadSignInStep(): SignInStepConfig | undefined {
+  return loadApiDeploymentConfig().signInStep;
 }
 
 /**

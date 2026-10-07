@@ -233,6 +233,24 @@ for the deployment.
 The demo keeps all three for three years, about the length of a common
 limitation period for claims.
 
+### A code after the password
+
+A deployment can ask for a code sent to the account's mobile number after the
+password ([FR-AUTH-12](../docs/requirements.md#fr-auth-12)). The key is
+optional, and absent means off. The demo leaves it out.
+
+```json
+"signInStep": {
+  "mode": "always",
+  "roles": ["user", "manager", "admin"]
+}
+```
+
+- `mode` is `off`, `once` or `always`. `once` asks once, to confirm the number,
+  and never again: that is phone verification, not a second factor. `always`
+  asks at every sign-in.
+- `roles` lists who is asked. A role left out signs in with the password alone.
+
 ## Assets (logo, favicon, fonts)
 
 Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:

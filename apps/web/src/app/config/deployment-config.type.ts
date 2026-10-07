@@ -11,6 +11,7 @@ import {
   termsConfigSchema,
   pagesConfigSchema,
   phoneInputSchema,
+  signInStepConfigSchema,
   syncPolicySchema,
 } from '@b2b-catalog-platform/shared';
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
@@ -396,6 +397,9 @@ export const deploymentConfigSchema = z
      * literal separator.
      */
     phoneInput: phoneInputSchema.optional(),
+    /** The second sign-in step (FR-AUTH-12). Read by the API only; checked
+     * here because both apps parse the same file. */
+    signInStep: signInStepConfigSchema.optional(),
     /**
      * The business registration number a company gives when it registers
      * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather
