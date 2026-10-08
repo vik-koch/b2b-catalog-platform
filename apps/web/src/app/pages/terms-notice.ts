@@ -18,7 +18,7 @@ import { Link } from '../ui/link';
       <a appLink routerLink="/terms" target="_blank" rel="noopener">{{
         text.link
       }}</a
-      >.
+      >{{ text.after }}
     }
   `,
 })

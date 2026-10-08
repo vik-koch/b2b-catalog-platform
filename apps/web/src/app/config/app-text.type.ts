@@ -1381,12 +1381,22 @@ export const appTextSchema = z
      * consent box. `link` follows `text` and becomes the link; a full stop
      * closes the sentence.
      */
-    privacyNotice: z.object({ text: z.string(), link: z.string() }).strict(),
+    privacyNotice: z
+      .object({
+        text: z.string(),
+        link: z.string(),
+        /** Straight after the link, with no space: its closing punctuation,
+         * empty where the language puts none there. */
+        after: z.string(),
+      })
+      .strict(),
     /**
      * Beside checkout's submit button: sending the order accepts the terms of
      * sale (NFR-LEGAL-10). Shaped like `privacyNotice`.
      */
-    termsNotice: z.object({ text: z.string(), link: z.string() }).strict(),
+    termsNotice: z
+      .object({ text: z.string(), link: z.string(), after: z.string() })
+      .strict(),
     /**
      * Beside a consent box (NFR-LEGAL-09). The box's own wording is not here:
      * it is versioned with the consent text, which an admin edits.
@@ -1437,12 +1447,22 @@ export const appTextSchema = z
         /** Checkout words cash for the hand-over in front of it; the page
          * covers both. */
         cashDescription: z.string(),
+        /** The goods and what their prices cover: the shop's own paragraphs
+         * first, each of which may set words in `<b>`, then the tax basis. */
+        goodsHeading: z.string(),
+        goodsParagraphs: z.array(z.string()),
         /** The tax basis in a sentence, one per basis; `{rate}` is the
          * deployment's default rate. */
-        taxHeading: z.string(),
         taxIncluded: z.string(),
         taxAdded: z.string(),
         taxNone: z.string(),
+        /** How a return works, at the foot of the page; paragraphs as above.
+         * The section is left out while it has nothing to say. */
+        returnsHeading: z.string(),
+        returnsParagraphs: z.array(z.string()),
+        /** Link text to the withdrawal page, under the returns where the
+         * deployment publishes that page. */
+        returnsWithdrawalLink: z.string(),
       })
       .strict(),
     /**
@@ -1502,6 +1522,8 @@ export const appTextSchema = z
       .object({
         message: z.string(),
         policyLink: z.string(),
+        /** Straight after the link, as `privacyNotice.after`. */
+        policyLinkAfter: z.string(),
         accept: z.string(),
         reject: z.string(),
         settings: z.string(),

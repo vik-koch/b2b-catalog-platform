@@ -19,7 +19,7 @@ import { Link } from '../ui/link';
       <a appLink routerLink="/privacy" target="_blank" rel="noopener">{{
         text.link
       }}</a
-      >.
+      >{{ text.after }}
     }
   `,
 })
