@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import {
   CONSENT_PAGE_SLUGS,
@@ -33,14 +32,7 @@ import { SyncService } from './sync/sync.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [
-    SignedInAs,
-    AdminIcon,
-    PanelRow,
-    StatusBadge,
-    WorkNote,
-    NgTemplateOutlet,
-  ],
+  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
@@ -232,38 +224,23 @@ import { SyncService } from './sync/sync.service';
                 }
               </ul>
             </section>
-
-            <!-- Consent (NFR-LEGAL-09), apart from the content pages: its texts
-                 are what a record proves, and finding a person's records is the
-                 other half of the same duty. Only while the deployment asks for
-                 a consent; older records stay findable at the lookup's URL. -->
-            @if (consentPurposes.length > 0) {
-              <section class="order-5 md:order-0">
-                <h2 id="admin-consents-heading" [class]="headingClass">
-                  <app-admin-icon name="book-check" class="size-4" />
-                  {{ consentText.title }}
-                </h2>
-                <ul
-                  [class]="cardClass"
-                  aria-labelledby="admin-consents-heading"
-                >
-                  <app-panel-row
-                    [label]="consentText.panelLookup"
-                    link="/admin/consents"
-                  />
-                  @for (purpose of consentPurposes; track purpose) {
-                    <app-panel-row
-                      [label]="consentTextLabel(purpose)"
-                      [link]="['/admin/pages', consentSlugs[purpose], 'edit']"
-                      [queryParams]="editorFrom()"
-                    />
-                  }
-                </ul>
-              </section>
-            }
-          } @else {
-            <ng-container [ngTemplateOutlet]="security" />
           }
+
+          <!-- The session's own password, at the foot of the left column:
+               under the pages for an admin, under the orders for a manager,
+               and last of all on a phone. -->
+          <section class="order-8 md:order-0">
+            <h2 id="admin-security-heading" [class]="headingClass">
+              <app-admin-icon name="lock" class="size-4" />
+              {{ text.securityHeading }}
+            </h2>
+            <ul [class]="cardClass" aria-labelledby="admin-security-heading">
+              <app-panel-row
+                [label]="text.changePassword.heading"
+                link="/change-password"
+              />
+            </ul>
+          </section>
         </div>
 
         <div class="contents md:flex md:flex-col md:gap-6.5">
@@ -345,12 +322,41 @@ import { SyncService } from './sync/sync.service';
               </ul>
             </section>
 
+            <!-- Consent (NFR-LEGAL-09), apart from the content pages: its texts
+                 are what a record proves, and finding a person's records is the
+                 other half of the same duty. Only while the deployment asks for
+                 a consent; older records stay findable at the lookup's URL. -->
+            @if (consentPurposes.length > 0) {
+              <section class="order-6 md:order-0">
+                <h2 id="admin-consents-heading" [class]="headingClass">
+                  <app-admin-icon name="book-check" class="size-4" />
+                  {{ consentText.title }}
+                </h2>
+                <ul
+                  [class]="cardClass"
+                  aria-labelledby="admin-consents-heading"
+                >
+                  <app-panel-row
+                    [label]="consentText.panelLookup"
+                    link="/admin/consents"
+                  />
+                  @for (purpose of consentPurposes; track purpose) {
+                    <app-panel-row
+                      [label]="consentTextLabel(purpose)"
+                      [link]="['/admin/pages', consentSlugs[purpose], 'edit']"
+                      [queryParams]="editorFrom()"
+                    />
+                  }
+                </ul>
+              </section>
+            }
+
             <!-- How the shop is running, and what it lets in from outside.
                  One section rather than two: "Maintenance mode" was a heading
                  that could only ever name the single card under it, and the
                  switches moved onto a page of their own once they had a shared
                  history to sit above. -->
-            <section class="order-6 md:order-0">
+            <section class="order-7 md:order-0">
               <h2 id="admin-operations-heading" [class]="headingClass">
                 <app-admin-icon name="wrench" class="size-4" />
                 {{ panelText.operations }}
@@ -405,29 +411,9 @@ import { SyncService } from './sync/sync.service';
                 />
               </ul>
             </section>
-
-            <ng-container [ngTemplateOutlet]="security" />
           }
         </div>
       </div>
-
-      <!-- The session's own password, at the foot of whichever column is the
-           shorter one: an admin's left column already carries the catalog and
-           the pages, a manager's carries nothing but the orders. -->
-      <ng-template #security>
-        <section class="order-7 md:order-0">
-          <h2 id="admin-security-heading" [class]="headingClass">
-            <app-admin-icon name="lock" class="size-4" />
-            {{ text.securityHeading }}
-          </h2>
-          <ul [class]="cardClass" aria-labelledby="admin-security-heading">
-            <app-panel-row
-              [label]="text.changePassword.heading"
-              link="/change-password"
-            />
-          </ul>
-        </section>
-      </ng-template>
 
       <!-- What is running, in the quietest possible place: nobody comes to the
            panel for it, but it is the first thing asked when reporting a
