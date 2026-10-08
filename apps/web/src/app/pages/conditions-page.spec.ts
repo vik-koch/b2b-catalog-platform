@@ -1,5 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { AppText } from '../config/app-text.type';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
@@ -18,11 +20,19 @@ async function render(
   overrides: Partial<DeploymentConfig> = {},
   getPage: () => Promise<typeof conditionsBody | null> = async () =>
     conditionsBody,
+  conditionsText: Partial<AppText['conditions']> = {},
 ) {
   TestBed.configureTestingModule({
     imports: [ConditionsPage],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
+      provideRouter([]),
+      {
+        provide: APP_TEXT,
+        useValue: {
+          ...defaultAppText,
+          conditions: { ...defaultAppText.conditions, ...conditionsText },
+        },
+      },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: { ...defaultDeploymentConfig, ...overrides },
@@ -114,5 +124,58 @@ describe('ConditionsPage', () => {
     const el = await render({ tax: { basis: 'none' } });
 
     expect(el.textContent).toContain(defaultAppText.conditions.taxNone);
+  });
+
+  it('puts the goods paragraphs before the tax sentence, bold kept', async () => {
+    const el = await render({}, undefined, {
+      goodsParagraphs: ['Sold <b>assorted</b>.', 'Second paragraph.'],
+    });
+
+    const section = [...el.querySelectorAll('section')].find((s) =>
+      s
+        .querySelector('h2')
+        ?.textContent?.includes(defaultAppText.conditions.goodsHeading),
+    );
+    const paragraphs = [...(section?.querySelectorAll('p') ?? [])].map((p) =>
+      p.textContent?.trim(),
+    );
+    expect(paragraphs.slice(0, 2)).toEqual([
+      'Sold assorted.',
+      'Second paragraph.',
+    ]);
+    expect(paragraphs[2]).toContain('VAT');
+    expect(section?.querySelector('b')?.textContent).toBe('assorted');
+  });
+
+  it('states the tax basis even with no goods paragraphs', async () => {
+    const el = await render({ tax: { basis: 'none' } }, undefined, {
+      goodsParagraphs: [],
+    });
+
+    expect(el.textContent).toContain(defaultAppText.conditions.goodsHeading);
+    expect(el.textContent).toContain(defaultAppText.conditions.taxNone);
+  });
+
+  it('links the withdrawal page under the returns where it is published', async () => {
+    const el = await render({
+      pages: { ...defaultDeploymentConfig.pages, published: ['withdrawal'] },
+    });
+
+    expect(el.textContent).toContain(defaultAppText.conditions.returnsHeading);
+    expect(el.querySelector('a[href="/withdrawal"]')?.textContent?.trim()).toBe(
+      defaultAppText.conditions.returnsWithdrawalLink,
+    );
+  });
+
+  it('leaves out the returns with no paragraphs and no withdrawal page', async () => {
+    const el = await render(
+      { pages: { ...defaultDeploymentConfig.pages, published: [] } },
+      undefined,
+      { returnsParagraphs: [] },
+    );
+
+    expect(el.textContent).not.toContain(
+      defaultAppText.conditions.returnsHeading,
+    );
   });
 });

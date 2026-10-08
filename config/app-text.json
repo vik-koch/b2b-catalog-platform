@@ -639,11 +639,13 @@
   },
   "privacyNotice": {
     "text": "Read more about how we handle your details in",
-    "link": "our privacy policy"
+    "link": "our privacy policy",
+    "after": "."
   },
   "termsNotice": {
     "text": "By placing the order you accept",
-    "link": "our terms of sale"
+    "link": "our terms of sale",
+    "after": "."
   },
   "consentBox": {
     "required": "Please tick the box to continue.",
@@ -674,10 +676,20 @@
   "conditions": {
     "paymentHeading": "Payment",
     "cashDescription": "Paid when the order is handed over — at your door or at our counter.",
-    "taxHeading": "VAT",
+    "goodsHeading": "Goods & prices",
+    "goodsParagraphs": [
+      "Product pictures show the goods as closely as we can; colours may look slightly different on screen.",
+      "Some goods are sold <b>assorted</b>: you receive one of the designs shown. A design you name in your order is a wish we try to meet, not a promise."
+    ],
     "taxIncluded": "All prices include VAT at {rate}\u00a0%. Goods taxed at a reduced rate name it on their product page.",
     "taxAdded": "All prices are net. VAT at {rate}\u00a0% is added on the invoice; goods taxed at a reduced rate name it on their product page.",
-    "taxNone": "We charge no VAT: the prices are what you pay."
+    "taxNone": "We charge no VAT: the prices are what you pay.",
+    "returnsHeading": "Returns",
+    "returnsParagraphs": [
+      "Please check the goods when they are handed over and tell us straight away if anything is missing or damaged.",
+      "To return goods, contact us first: we will tell you where to send or bring them. Please send them back complete and, where you can, in their original packaging."
+    ],
+    "returnsWithdrawalLink": "Your right of withdrawal"
   },
   "tax": {
     "statement": {
@@ -708,6 +720,7 @@
   "consent": {
     "message": "This site sets only the cookies it needs to work. The map on our contact page is loaded from OpenStreetMap, which receives your IP address when it loads, so we ask first. More in our",
     "policyLink": "privacy policy",
+    "policyLinkAfter": ".",
     "accept": "Accept",
     "reject": "Reject",
     "settings": "Cookie settings"

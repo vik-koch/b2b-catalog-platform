@@ -1,4 +1,5 @@
 import { Component, computed, inject, resource } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { fillText, formatTaxRate } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { AppText } from '../config/app-text.type';
@@ -27,10 +28,12 @@ import { PageService } from './page.service';
  * would be a second copy free to disagree with the form that takes the order.
  *
  * A section the deployment has nothing for is left out — no zones, no zone
- * list; no pickup points, no pickup.
+ * list; no pickup points, no pickup; no return paragraphs and no withdrawal
+ * page, no returns.
  *
- * Each card is marked with a glyph, and a description may set words in bold
- * (`<b>`, see EmphasisedText). Zones of the same level share a row.
+ * Each card is marked with a glyph, and a description — like each paragraph
+ * of the goods and returns text — may set words in bold (`<b>`, see
+ * EmphasisedText). Zones of the same level share a row.
  */
 @Component({
   selector: 'app-conditions-page',
@@ -39,6 +42,7 @@ import { PageService } from './page.service';
     EditActions,
     EmphasisedText,
     Icon,
+    RouterLink,
     TextButton,
     LoadErrorView,
   ],
@@ -167,14 +171,42 @@ import { PageService } from './page.service';
           </ul>
         </section>
 
-        <!-- The basis every price on the site is quoted on (NFR-LEGAL-11),
-             in the deployment's own sentence for it. -->
+        <!-- The shop's own words about its goods, then the basis every price
+             on the site is quoted on (NFR-LEGAL-11) — always, whatever the
+             paragraphs above it say. -->
         <section>
           <h2 class="mb-4 text-2xl font-normal tracking-tight">
-            {{ pageText.taxHeading }}
+            {{ pageText.goodsHeading }}
           </h2>
-          <p class="text-muted">{{ taxSentence }}</p>
+          <div class="space-y-3 text-muted">
+            @for (paragraph of pageText.goodsParagraphs; track $index) {
+              <p><app-emphasised [text]="paragraph" /></p>
+            }
+            <p>{{ taxSentence }}</p>
+          </div>
         </section>
+
+        <!-- How a return works in practice. The statutory right is the
+             withdrawal page's to state, so it is linked rather than retold. -->
+        @if (pageText.returnsParagraphs.length || withdrawalPublished) {
+          <section>
+            <h2 class="mb-4 text-2xl font-normal tracking-tight">
+              {{ pageText.returnsHeading }}
+            </h2>
+            <div class="space-y-3 text-muted">
+              @for (paragraph of pageText.returnsParagraphs; track $index) {
+                <p><app-emphasised [text]="paragraph" /></p>
+              }
+              @if (withdrawalPublished) {
+                <p>
+                  <a appTextButton routerLink="/withdrawal">{{
+                    pageText.returnsWithdrawalLink
+                  }}</a>
+                </p>
+              }
+            </div>
+          </section>
+        }
       </div>
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
@@ -205,6 +237,8 @@ export class ConditionsPage {
 
   protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;
   protected readonly pickupLocations = this.config.pickup?.locations ?? [];
+  protected readonly withdrawalPublished =
+    this.config.pages.published.includes('withdrawal');
 
   protected readonly editorFrom = injectEditorReturnParams();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized

@@ -30,7 +30,7 @@ import { Link } from '../ui/link';
           <p class="text-sm text-muted">
             {{ text.message }}
             <a appLink routerLink="/privacy">{{ text.policyLink }}</a
-            >.
+            >{{ text.policyLinkAfter }}
           </p>
           <div class="flex shrink-0 gap-3">
             <button appButton variant="secondary" (click)="consent.reject()">
