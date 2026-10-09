@@ -354,39 +354,102 @@ Two behaviours worth knowing before you tune them:
 ## Backups & restore
 
 Long-lived stacks (dev, prod) opt into the `backup` profile via
-`COMPOSE_PROFILES=backup` in their `.env`, which starts two sidecars: a nightly
-`pg_dump` (ADR 0017) and a media-volume archive (ADR 0028). Both write under
-`/srv/b2b/<stack>/backups`, and both live on the same VM as the data they
-protect — so getting a copy **off** the box is a separate, deliberate step:
+`COMPOSE_PROFILES=backup` in their `.env`, which starts two sidecars. At night
+`db-backup` dumps the database (ADR 0017), keeping daily, weekly and monthly
+copies under `/srv/b2b/<stack>/backups`. Then `media-backup` packs the latest
+dump and the media volume into **one archive** in `backups/archive` (ADRs 0028,
+0067), kept for `BACKUP_KEEP_DAYS`. An archive is always a matched pair: the
+media is archived after the dump, and uploads are append-only, so it holds
+every image the dump references.
+
+Set the `BACKUP_S3_*` settings and `BACKUP_AGE_PUBLIC_KEY` (all of them or none,
+see `.env.stack.example`) and each night's archive is also encrypted and
+uploaded to an S3-compatible bucket. Without them the archives stay on the VM,
+and losing the VM loses them too.
 
 ```bash
-# take a fresh dump + media archive and download both (plus the stack .env)
+# take a fresh pair on the VM and download it (plus the stack .env)
 infra/backup.sh <host> .env.prod [dest-dir]
 
-# put a matched pair back (destructive; asks for the stack name)
-infra/restore.sh <host> .env.prod <dump.sql.gz> <media.tar.gz>
+# the VM is gone: download the newest pair from the bucket, with the restore key
+AWS_PROFILE=shop-restore infra/fetch-backup.sh .env.prod [dest-dir]
+
+# put a pair back (destructive; asks for the stack name)
+AGE_IDENTITY=shop-backup.age infra/restore.sh <host> .env.prod <backup-archive>
 ```
 
-The two artifacts must be a **matched pair**, and `backup.sh` takes them in the
-right order: database first, media second. Uploads are append-only, so an
-archive taken after the dump always contains every image the dump references —
-the reverse order restores a catalog whose images 404.
-
 Restore replaces data wholesale: schemas are dropped and rebuilt, the media
-volume is emptied and refilled. Rehearse it against a throwaway stack before
-you need it against a real one.
+volume is emptied and refilled. An encrypted archive (`.age`) is decrypted on
+your machine, so `restore.sh` needs the `age` CLI and `fetch-backup.sh` the
+`aws` CLI. Rehearse against a throwaway stack before you need it against a
+real one.
 
-**What this does not cover.** Losing the host loses the data _and_ every backup
-of it, because both sidecars write to the same disk. The schedule is on-host;
-the copy off it is a command somebody remembers to run. That is a deliberate
-limit of a one-VM deployment, not an oversight — but it means NFR-OPS-04 is
-only half met by what is running, and half met by an operator's habit. A
-deployment that cannot accept that needs a destination for the copy (object
-store, second host, an operator's machine on a timer) chosen per deployment,
-with its credentials as deployment config; the client deployment's answer, if
-it has one, belongs in the private repo. Whatever the destination, the number
-that matters is when the restore was last rehearsed, not when the last backup
-was written.
+### Setting up the off-host copy
+
+Once per deployment, from your machine, with the provider's account
+credentials — never from the VM.
+
+1. **A key pair.** `age-keygen -o shop-backup.age` prints the public key, which
+   goes into `BACKUP_AGE_PUBLIC_KEY`. The file is the private key. It goes
+   neither onto the VM nor into CI. Keep it where the panel credentials are
+   kept, by the operator and the shop. Without it every copy in the bucket is
+   unreadable.
+2. **A bucket with versioning,** so an overwrite keeps what it replaced, and a
+   **lifecycle rule** that expires old copies. Providers without a switch in
+   their panel take both through the S3 API:
+
+   ```bash
+   aws --endpoint-url https://<endpoint> s3api put-bucket-versioning \
+     --bucket <bucket> --versioning-configuration Status=Enabled
+   aws --endpoint-url https://<endpoint> s3api put-bucket-lifecycle-configuration \
+     --bucket <bucket> --lifecycle-configuration '{"Rules":[{"ID":"expire",
+       "Status":"Enabled","Filter":{"Prefix":""},"Expiration":{"Days":90},
+       "NoncurrentVersionExpiration":{"NoncurrentDays":30}}]}'
+   ```
+
+   `NoncurrentDays` is how long you have to notice that a copy was replaced.
+
+3. **Two keys.** The VM's key may only upload. It goes into
+   `BACKUP_S3_ACCESS_KEY_ID`/`_SECRET_ACCESS_KEY`:
+
+   ```json
+   { "Version": "2012-10-17", "Statement": [{ "Effect": "Allow", "Action": ["s3:PutObject"], "Resource": ["arn:aws:s3:::<bucket>/*"] }] }
+   ```
+
+   The restore key reads, and stays with you (an aws CLI profile):
+
+   ```json
+   {
+     "Version": "2012-10-17",
+     "Statement": [
+       { "Effect": "Allow", "Action": ["s3:ListBucket", "s3:ListBucketVersions"], "Resource": ["arn:aws:s3:::<bucket>"] },
+       { "Effect": "Allow", "Action": ["s3:GetObject", "s3:GetObjectVersion"], "Resource": ["arn:aws:s3:::<bucket>/*"] }
+     ]
+   }
+   ```
+
+   A provider whose keys cannot be narrowed that far, such as Cloudflare R2,
+   gets a bucket-scoped read-and-write key plus a **bucket lock rule** instead
+   of versioning. Objects then cannot be deleted or overwritten until they are
+   older than the lock period, and a lifecycle rule removes them after it.
+
+4. **Prove it**, once per bucket, before relying on it. With the VM's key,
+   deleting an archive must be refused, and uploading over one must leave the
+   old version listed (`LIST=1 infra/fetch-backup.sh`). Then fetch the newest
+   pair with the restore key and restore it onto a throwaway stack.
+
+**When a fetched archive will not decrypt,** something replaced it. The bucket
+kept what was there before: `LIST=1` shows each archive's versions, and
+`KEY=<archive> VERSION=<id> infra/fetch-backup.sh` fetches an older one.
+
+**What this does not cover.** The bucket holds daily pairs only. The weekly and
+monthly dumps stay on the VM. Whatever the destination, the number that matters
+is when the restore was last rehearsed, not when the last backup was written.
+
+**Upgrading from separate archives.** Stacks deployed before backups were paired
+kept `backups/media/media-*.tar.gz`, which nothing prunes any more. Delete that
+folder once the first pair exists in `backups/archive`. Until then, `restore.sh`
+still takes a dump and a media archive as two files.
 
 ## Admin access (every environment)
 

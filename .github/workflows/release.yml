@@ -91,6 +91,16 @@ jobs:
           # deployed (idempotent, already up from dev); either unset -> skipped.
           GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
           GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          # Off-host backups (ADR 0067). All five set -> each night's archive is
+          # encrypted and uploaded too; none -> it stays on the VM. deploy.sh
+          # refuses a partial set. The key can only upload; the read-only
+          # restore key never comes near CI.
+          BACKUP_S3_ENDPOINT: ${{ vars.BACKUP_S3_ENDPOINT }}
+          BACKUP_S3_BUCKET: ${{ vars.BACKUP_S3_BUCKET }}
+          BACKUP_S3_BUCKET_LOOKUP: ${{ vars.BACKUP_S3_BUCKET_LOOKUP }}
+          BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          BACKUP_AGE_PUBLIC_KEY: ${{ vars.BACKUP_AGE_PUBLIC_KEY }}
         run: |
           : "${DEPLOY_HOST:?repo variable DEPLOY_HOST is not set}"
           : "${APP_DOMAIN:?repo variable PROD_APP_DOMAIN is not set}"
@@ -120,8 +130,14 @@ jobs:
           APP_DOMAIN=$APP_DOMAIN
           API_IMAGE=$image_base-api:$version
           WEB_IMAGE=$image_base-web:$version
-          # Long-lived stack: enable the db-backup sidecar (NFR-OPS-04, ADR 0017).
+          # Long-lived stack: nightly backups (NFR-OPS-04, ADRs 0017, 0028, 0067).
           COMPOSE_PROFILES=backup
+          BACKUP_S3_ENDPOINT=$BACKUP_S3_ENDPOINT
+          BACKUP_S3_BUCKET=$BACKUP_S3_BUCKET
+          BACKUP_S3_BUCKET_LOOKUP=${BACKUP_S3_BUCKET_LOOKUP:-auto}
+          BACKUP_S3_ACCESS_KEY_ID=$BACKUP_S3_ACCESS_KEY_ID
+          BACKUP_S3_SECRET_ACCESS_KEY=$BACKUP_S3_SECRET_ACCESS_KEY
+          BACKUP_AGE_PUBLIC_KEY=$BACKUP_AGE_PUBLIC_KEY
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD

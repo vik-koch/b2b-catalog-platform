@@ -26,7 +26,9 @@ credentials can, and nearly every provider offers it behind the S3 API.
   private key never sits on the host.
 - The host's bucket key may **only upload**. The bucket is versioned, and a
   lifecycle rule on the bucket expires copies. The sidecar never prunes the
-  bucket (`BACKUP_SKIP_BACKENDS_FROM_PRUNE=s3`).
+  bucket (`BACKUP_SKIP_BACKENDS_FROM_PRUNE=s3`). Where a provider's keys cannot
+  be narrowed that far, a bucket lock rule, which refuses deletes and
+  overwrites for a period, does the same job.
 - A second, read-only key, held by the operator and never on the host, lets
   `infra/backup.sh` fetch a pair from the bucket and `infra/restore.sh` restore
   it.
