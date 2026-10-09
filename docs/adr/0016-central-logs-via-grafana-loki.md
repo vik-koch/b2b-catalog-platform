@@ -33,7 +33,7 @@ Loki** + a collector + Grafana.
 ## Decision
 
 - Run a **shared per-VM observability stack** — `grafana/loki` (log store),
-  `grafana/alloy` (collector), `grafana/grafana-oss` (UI) — in
+  `grafana/alloy` (collector), `grafana/grafana` (UI, the OSS build) — in
   `infra/observability/compose.yml`, started once per VM exactly like the shared
   Traefik proxy (0005) and self-registering Grafana with Traefik via labels.
 - **Alloy** reads the Docker socket (read-only, as Traefik does), tails every
