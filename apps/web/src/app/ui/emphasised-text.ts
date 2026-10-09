@@ -36,7 +36,7 @@ export function emphasisParts(text: string): TextPart[] {
   // One line: whitespace between the parts is the text's own, and any line
   // break in here would add a space around every part.
   // prettier-ignore
-  template: `@for (part of parts(); track $index) {@if (part.bold) {<b class="font-semibold text-ink">{{ part.text }}</b>} @else {{{ part.text }}}}`,
+  template: `@for (part of parts(); track $index) {@if (part.bold) {<b class="font-medium text-ink">{{ part.text }}</b>} @else {{{ part.text }}}}`,
 })
 export class EmphasisedText {
   readonly text = input.required<string>();

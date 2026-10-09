@@ -87,7 +87,19 @@ the imprint, gets a line in the footer from `seller` in `deployment.json`:
 
 Each `registration` entry is written whole, label included, because which
 numbers a seller quotes and what they are called is the jurisdiction's. The line
-continues with the phone and email from `contact`, so there is one copy of them.
+continues with the phone and email from `contact`, the same ones the header
+shows. Where the footer should show something else — an email the header leaves
+out, say — give the line a `contact` of its own; it then replaces the header's
+entirely, so `"contact": {}` shows neither:
+
+```json
+"seller": {
+  "name": "Coffee Kontor GmbH",
+  "registration": ["HRB 000000 Hamburg"],
+  "contact": { "email": "hallo@coffee-kontor.example" }
+}
+```
+
 The line breaks only between entries. Leave `seller` out and there is no line.
 The imprint page stays the place for the full seller details.
 

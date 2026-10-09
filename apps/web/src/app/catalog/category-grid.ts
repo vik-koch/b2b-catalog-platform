@@ -399,8 +399,13 @@ interface Listing {
                   </div>
                 </div>
                 <!-- The same products, drawn the way the visitor last asked
-                     for: fitted cards, or full-width lines. -->
-                <ul [class]="list()">
+                     for: fitted cards, or full-width lines. Faded while the
+                     next page, sort or filter loads, so the grid still on
+                     screen does not pass for the one asked for. -->
+                <ul
+                  [class]="list()"
+                  [class.listing-held]="products.isLoading()"
+                >
                   <!-- One cluster, placed twice: a card takes it in its own
                        corner, a line in the corner of its photo, and the two
                        must be the same control. -->

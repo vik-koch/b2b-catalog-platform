@@ -36,6 +36,10 @@
     "destructionRecordDays": 1095,
     "orderDays": 1095
   },
+  "seller": {
+    "name": "Coffee Kontor GmbH",
+    "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
+  },
   "tax": {
     "basis": "included",
     "rate": 19,
