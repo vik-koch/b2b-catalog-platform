@@ -23,6 +23,25 @@ export const forwardSession: HttpInterceptorFn = (req, next) => {
   return next(req.clone({ setHeaders: { cookie } }));
 };
 
+/**
+ * Hands the API the visitor's address during a server render, so its rate
+ * limits count each visitor rather than this process: without it every
+ * server-rendered search page or order link in the shop shares one budget,
+ * and one busy client spends it for all.
+ *
+ * Passed on as Traefik set it — Traefik replaces any `X-Forwarded-For` a
+ * client sends, and the engine keeps the header only because server.ts trusts
+ * it. The API trusts one hop, which reads the same address whether the
+ * request came through Traefik or from here.
+ */
+export const forwardVisitorAddress: HttpInterceptorFn = (req, next) => {
+  const address = inject(REQUEST, { optional: true })?.headers.get(
+    'x-forwarded-for',
+  );
+  if (!address || !isApiUrl(req.url)) return next(req);
+  return next(req.clone({ setHeaders: { 'x-forwarded-for': address } }));
+};
+
 function isApiUrl(url: string): boolean {
   const base = requireEnv('API_URL').replace(/\/+$/, '');
   return (
