@@ -138,7 +138,18 @@ if [ -n "$obs_env" ]; then
   run "mkdir -p /srv/b2b/observability"
   put "$repo_root/infra/observability/compose.yml" /srv/b2b/observability/compose.yml
   put "$obs_env" /srv/b2b/observability/.env
-  run "cd /srv/b2b/observability && docker compose up -d"
+  # Loki, Alloy and Grafana take their config from inline `configs:` content,
+  # and `up` does not recreate a container whose config content alone changed
+  # — a new alert rule would sit on disk unread. Recreate whenever the file
+  # differs from the one last brought up; the hash is written only after `up`
+  # succeeds, so a deploy that fails in between retries the recreate.
+  obs_hash=$(sha256sum <"$repo_root/infra/observability/compose.yml" | cut -d' ' -f1)
+  if [ "$(run "cat /srv/b2b/observability/.applied-hash 2>/dev/null" || true)" = "$obs_hash" ]; then
+    run "cd /srv/b2b/observability && docker compose up -d"
+  else
+    run "cd /srv/b2b/observability && docker compose up -d --force-recreate"
+    run "echo $obs_hash > /srv/b2b/observability/.applied-hash"
+  fi
 fi
 
 echo "==> Starting app stack '$stack'"

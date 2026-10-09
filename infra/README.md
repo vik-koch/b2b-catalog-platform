@@ -181,6 +181,10 @@ api`). So the platform is briefly unreachable rather than briefly slower.
 
 - Postgres is never recreated (`--no-deps`), so the database does not restart
   and the data volume is untouched.
+- The observability stack is recreated only when its compose file changed since
+  it was last brought up (a hash in `/srv/b2b/observability/.applied-hash`).
+  Its alert rules and dashboards are inline config content, which a plain
+  `up -d` does not count as a change.
 - The schema moves **before** the new containers do. For the length of a deploy
   the _previous_ app version is running against the _new_ schema, so a migration
   that drops or renames something the running version still reads takes the site
