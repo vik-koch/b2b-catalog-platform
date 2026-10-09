@@ -39,6 +39,9 @@ services:
       - --accesslog=true
       - --accesslog.format=json
       - --accesslog.fields.headers.defaultmode=drop
+      # The one header kept: a maintenance 503 carries Retry-After, which is
+      # how the error alert tells it from an outage. No personal data in it.
+      - --accesslog.fields.headers.names.Retry-After=keep
       # Traefik's default field set is ~30 columns per line — TLS ciphers, byte
       # counts, retry overhead — of which a handful are ever queried. Drop
       # everything, then keep the ones the dashboards and an on-call read
