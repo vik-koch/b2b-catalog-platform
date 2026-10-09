@@ -33,16 +33,30 @@ const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
 
 const app = express();
+app.disable('x-powered-by');
 
 // SSRF protection: the engine rejects requests whose Host header is not
 // allowlisted. APP_DOMAIN is the hostname Traefik routes to this stack
 // (localhost during local development). Constructed lazily because the
 // production build imports this module without any runtime environment.
+//
+// The trusted proxy headers are exactly the ones Traefik sets: it replaces
+// whatever a client sent under these names, and this container is reachable
+// only through it. `Forwarded` and `X-Forwarded-Prefix` are not on the list —
+// Traefik never sets them, so one arriving here came from the client. Anything
+// untrusted is dropped with a console warning.
 let angularApp: AngularNodeAppEngine | undefined;
 
 function getAngularApp(): AngularNodeAppEngine {
   return (angularApp ??= new AngularNodeAppEngine({
     allowedHosts: [requireEnv('APP_DOMAIN')],
+    trustProxyHeaders: [
+      'x-forwarded-for',
+      'x-forwarded-host',
+      'x-forwarded-port',
+      'x-forwarded-proto',
+      'x-forwarded-server',
+    ],
   }));
 }
 

@@ -12,7 +12,10 @@ import { provideServerAdminText } from './config/admin-text.server';
 import { provideServerDeploymentConfig } from './config/deployment-config.server';
 import { provideServerSuggestionsEnabled } from './config/suggestions-enabled.server';
 import { serverRoutes } from './app.routes.server';
-import { forwardSession } from './auth/forward-session.server';
+import {
+  forwardSession,
+  forwardVisitorAddress,
+} from './auth/forward-session.server';
 import { keepPagePrivate } from './core/private-page.server';
 
 const serverConfig: ApplicationConfig = {
@@ -28,8 +31,15 @@ const serverConfig: ApplicationConfig = {
     // The render asks the API as the visitor, not as a guest. What it gets
     // back rides to the browser in the transfer cache — see hydration.ts —
     // and the page is marked private whenever any of it was. Order matters:
-    // the second must see the cookie the first adds.
-    provideHttpClient(withInterceptors([forwardSession, keepPagePrivate])),
+    // keepPagePrivate must see the cookie forwardSession adds. The visitor's
+    // address goes along too, so the API's rate limits count visitors.
+    provideHttpClient(
+      withInterceptors([
+        forwardSession,
+        forwardVisitorAddress,
+        keepPagePrivate,
+      ]),
+    ),
     // SSR fetches the API via the internal API_URL origin; the browser via
     // the public origin (APP_ORIGIN). Mapping the former to the latter makes
     // the hydration transfer cache keys match, so GET responses rendered on

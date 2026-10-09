@@ -27,6 +27,7 @@ describe('RegistrationService', () => {
   const createPending = vi.fn();
   const seed = vi.fn();
   const consents = { check: vi.fn(), record: vi.fn() };
+  const unusableHash = vi.fn();
   const send = vi.fn<(mail: unknown, to: { to: string }) => Promise<void>>();
   let mail: MailDispatcher;
   let service: RegistrationService;
@@ -55,6 +56,7 @@ describe('RegistrationService', () => {
     consents.check.mockReset().mockResolvedValue(null);
     consents.record.mockReset().mockResolvedValue(undefined);
     send.mockReset().mockResolvedValue(undefined);
+    unusableHash.mockReset().mockResolvedValue('$argon2id$generated');
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -72,9 +74,7 @@ describe('RegistrationService', () => {
         { provide: ConsentService, useValue: consents },
         {
           provide: PasswordService,
-          useValue: {
-            unusableHash: vi.fn().mockResolvedValue('$argon2id$generated'),
-          },
+          useValue: { unusableHash },
         },
       ],
     }).compile();
@@ -202,6 +202,16 @@ describe('RegistrationService', () => {
 
     expect(createPending).not.toHaveBeenCalled();
     expect(send).not.toHaveBeenCalled();
+  });
+
+  // The hash is nearly all of a registration's time; skipped for a known
+  // address, the response time alone would say the address is taken.
+  it('spends the hash on a known address too, so the clock tells nothing', async () => {
+    findByEmail.mockResolvedValue({ id: 'existing' });
+
+    await service.register(person);
+
+    expect(unusableHash).toHaveBeenCalledTimes(1);
   });
 
   // The account row is what matters: staff can approve it from the panel

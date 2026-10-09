@@ -69,13 +69,17 @@ esac
 
 run() { ssh ${SSH_OPTS:-} "deploy@$host" "$@"; }
 put() { scp ${SSH_OPTS:-} -q "$1" "deploy@$host:$2"; }
+# Env files carry the stack's secrets. scp would keep the caller's mode (644
+# from a heredoc on the runner); install sets 600 on every copy, an existing
+# file included.
+put_env() { run "install -m 600 /dev/stdin '$2'" <"$1"; }
 
 echo "==> Copying stacks to deploy@$host"
 run "mkdir -p /srv/b2b/traefik /srv/b2b/$stack"
 put "$repo_root/infra/traefik/compose.yml" /srv/b2b/traefik/compose.yml
-put "$traefik_env" /srv/b2b/traefik/.env
+put_env "$traefik_env" /srv/b2b/traefik/.env
 put "$repo_root/compose.yml" "/srv/b2b/$stack/compose.yml"
-put "$app_env" "/srv/b2b/$stack/.env"
+put_env "$app_env" "/srv/b2b/$stack/.env"
 
 # What is deployed, for the admin panel. Derived here rather than baked into the
 # image: release.yml promotes a release by retagging the very image main already
@@ -137,7 +141,7 @@ if [ -n "$obs_env" ]; then
   echo "==> Starting shared observability stack"
   run "mkdir -p /srv/b2b/observability"
   put "$repo_root/infra/observability/compose.yml" /srv/b2b/observability/compose.yml
-  put "$obs_env" /srv/b2b/observability/.env
+  put_env "$obs_env" /srv/b2b/observability/.env
   # Loki, Alloy and Grafana take their config from inline `configs:` content,
   # and `up` does not recreate a container whose config content alone changed
   # — a new alert rule would sit on disk unread. Recreate whenever the file
@@ -162,6 +166,16 @@ run "cd /srv/b2b/$stack && docker compose up -d --no-build"
 # edits always take effect; --no-deps leaves postgres and the one-shot migrate
 # (already run above) untouched.
 run "cd /srv/b2b/$stack && docker compose up -d --no-build --force-recreate --no-deps web api"
+
+# Every release leaves its predecessor's images behind, and the VM disk is
+# small. -a removes only images no container uses — stopped one-shots
+# (migrate, bootstrap-admin) included — so the running stacks are safe. The
+# age filter counts from the image's build, not its pull: it spares an image
+# another stack's deploy has just pulled but not started yet (dev and prod
+# share the demo VM). An older release is pulled again from the registry on a
+# rollback. Never fails the deploy.
+echo "==> Removing unused images"
+run "docker image prune -af --filter until=168h" || echo "WARNING: image prune failed" >&2
 
 # Idempotent upsert of seed data — opt-in only (SEED=1). Runs to completion (or
 # fails the deploy); the 'tools' profile keeps it out of the `up` above, which

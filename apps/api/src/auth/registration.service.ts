@@ -87,6 +87,12 @@ export class RegistrationService {
 
     const email = request.email.trim().toLowerCase();
 
+    // A hash of a secret nobody holds — the account gets its real password when
+    // staff approve it. See UsersService.createPending. Computed before the
+    // lookup, and for a known address too: the hash is nearly all of this
+    // request's time, so skipping it would tell a known address by the clock.
+    const unusablePassword = await this.passwords.unusableHash();
+
     const existing = await this.users.findByEmail(email);
     if (existing) {
       // Neither a second row nor a mail: re-registering must not tell the
@@ -98,9 +104,6 @@ export class RegistrationService {
       return;
     }
 
-    // A hash of a secret nobody holds — the account gets its real password when
-    // staff approve it. See UsersService.createPending.
-    const unusablePassword = await this.passwords.unusableHash();
     const created = await this.users.createPending({
       email,
       passwordHash: unusablePassword,
