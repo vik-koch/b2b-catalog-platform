@@ -18,59 +18,97 @@ import { ScrollToTop } from './scroll-to-top';
       [class.border-border]="!seamless()"
     >
       <div class="mx-auto w-full max-w-328 p-4 sm:py-6 text-sm">
-        <!-- One row from "sm", a column below it — and in the column the
-             copyright comes last, where a copyright line belongs and where it
-             is not standing between a reader and the links they came down here
-             for. -->
+        <!-- A column below "sm", and in it the copyright comes last, where a
+             copyright line belongs and where it is not standing between a
+             reader and the links they came down here for.
+
+             From "sm", with a seller line, a two-by-two grid: the seller line
+             beside the legal links, the copyright beside the enquiry button.
+             The wrappers below are only the phone's column and dissolve
+             (display:contents) so their children land in it; the seller line
+             keeps a floor so a long list of links cannot squeeze it to one
+             word a line. Without one, the copyright is a single line and the
+             footer one row, wrapping only when the links run out of room. -->
         <div
-          class="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"
+          class="flex flex-col-reverse gap-3"
+          [class]="
+            seller
+              ? 'sm:grid sm:grid-cols-[minmax(12rem,1fr)_auto] sm:gap-x-8'
+              : 'sm:flex-row sm:items-center sm:justify-between'
+          "
         >
           <!-- On a phone the way back to the top rides the copyright line,
                which is the last thing on the page and the one row down here
                with space to spare. It is only ever in the document once: the
                shape that does not apply is display:none, so a screen reader
                is never offered two of them. -->
-          <div class="flex items-center justify-between gap-4">
-            <div class="flex min-w-0 flex-col gap-1">
-              <!-- Who sells, where the jurisdiction wants it on every page.
+          <div
+            class="flex items-center justify-between gap-4"
+            [class]="seller ? 'sm:contents' : ''"
+          >
+            <!-- Wider than the seller line's own leading, so a wrapped
+                 seller line does not read as running on into the copyright. -->
+            <div
+              class="flex min-w-0 flex-col gap-2"
+              [class]="seller ? 'sm:contents' : ''"
+            >
+              <!-- Who sells, where the jurisdiction wants it on every page:
+                   who they are on one line, how to reach them on the next.
                    Each part keeps its words together and the line breaks
                    between parts; the no-break space before a separator keeps
                    it off the start of a line. -->
               @if (seller; as seller) {
-                <address class="text-xs not-italic text-subtle">
+                <!-- Baseline-aligned with the links: its first line reads
+                     as the same row however many lines it wraps to. -->
+                <address
+                  class="text-xs not-italic text-subtle sm:col-start-1 sm:row-start-1 sm:self-baseline"
+                >
                   <span class="whitespace-nowrap">{{ seller.name }}</span>
                   @for (number of seller.registration; track $index) {
                     <span aria-hidden="true">&nbsp;· </span>
                     <span class="whitespace-nowrap">{{ number }}</span>
                   }
-                  @if (contact?.phone; as phone) {
-                    <span aria-hidden="true">&nbsp;· </span>
-                    <a
-                      [href]="telHref(phone)"
-                      class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
-                      >{{ phone }}</a
-                    >
-                  }
-                  @if (contact?.email; as email) {
-                    <span aria-hidden="true">&nbsp;· </span>
-                    <a
-                      [href]="'mailto:' + email"
-                      class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
-                      >{{ email }}</a
-                    >
+                  @if (contact?.phone || contact?.email) {
+                    <span class="block">
+                      @if (contact.phone; as phone) {
+                        <a
+                          [href]="telHref(phone)"
+                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                          >{{ phone }}</a
+                        >
+                      }
+                      @if (contact.phone && contact.email) {
+                        <span aria-hidden="true">&nbsp;· </span>
+                      }
+                      @if (contact.email; as email) {
+                        <a
+                          [href]="'mailto:' + email"
+                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                          >{{ email }}</a
+                        >
+                      }
+                    </span>
                   }
                 </address>
               }
-              <p class="text-xs text-subtle">{{ copyright }}</p>
+              <p
+                class="text-xs text-subtle sm:col-start-1 sm:row-start-2 sm:self-center"
+              >
+                {{ copyright }}
+              </p>
             </div>
             <span class="sm:hidden"><app-scroll-to-top /></span>
           </div>
-          <!-- The call to action sits on the same line as the legal links, but
-               outside the <nav>: it is not a legal link, and a nav of three
-               quiet links plus one filled button reads as one row either way.
-               It closes the row on the right, where the eye lands last. -->
+          <!-- The call to action sits under the legal links, outside the
+               <nav>: it is not a legal link. It closes the footer on the
+               right, where the eye lands last. -->
           <div
-            class="flex flex-col items-start gap-5 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
+            class="flex flex-col items-start gap-5"
+            [class]="
+              seller
+                ? 'sm:contents'
+                : 'sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4'
+            "
           >
             <!-- Stacked on a phone: four quiet links wrapped across two lines
                  are a paragraph, and these are the ones a reader scans for by
@@ -78,7 +116,8 @@ import { ScrollToTop } from './scroll-to-top';
                  is one that is not readily reachable, and folding away four
                  lines is not worth that. -->
             <nav
-              class="flex flex-col gap-2 text-subtle sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-4"
+              class="flex flex-col gap-2 text-subtle sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
+              [class.sm:self-baseline]="seller"
               [attr.aria-label]="text.a11y.legalNav"
             >
               @for (slug of legalSlugs; track slug) {
@@ -104,7 +143,9 @@ import { ScrollToTop } from './scroll-to-top';
                 </button>
               }
             </nav>
-            <div class="flex items-center gap-4">
+            <div
+              class="flex items-center gap-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end"
+            >
               <!-- The places the shop also exists ride the enquiry button's
                    line: they are the same kind of thing — a way to reach the
                    business — and they are squares the height of the button, so
@@ -161,9 +202,10 @@ export class Footer {
   protected readonly legalSlugs = this.config.pages.footerNav;
   /** Where else the shop is, in the order configured (FR-NAV-07). */
   protected readonly elsewhere = this.config.elsewhere ?? [];
-  /** The seller line (NFR-LEGAL-02); its way to reach them is `contact`. */
+  /** The seller line (NFR-LEGAL-02), reached by its own contact or the
+   * header's. */
   protected readonly seller = this.config.seller;
-  protected readonly contact = this.config.contact;
+  protected readonly contact = this.seller?.contact ?? this.config.contact;
   protected readonly telHref = telHref;
 
   /**

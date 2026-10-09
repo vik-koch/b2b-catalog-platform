@@ -381,13 +381,21 @@ export const deploymentConfigSchema = z
      * jurisdiction that wants the seller identifiable on the site itself.
      * `registration` holds whole strings, label included ("HRB 123456",
      * "VAT ID DE…"), because which numbers a seller quotes, and what they are
-     * called, is the jurisdiction's. The way to reach the seller is `contact`,
-     * not a second copy of it. Absent means no line.
+     * called, is the jurisdiction's. The way to reach the seller is the
+     * header's `contact` unless the line has a `contact` of its own — which is
+     * then the whole of it, so `{}` shows neither. Absent means no line.
      */
     seller: z
       .object({
         name: z.string().min(1),
         registration: z.array(z.string().min(1)).min(1),
+        contact: z
+          .object({
+            phone: z.string().optional(),
+            email: z.string().optional(),
+          })
+          .strict()
+          .optional(),
       })
       .strict()
       .optional(),

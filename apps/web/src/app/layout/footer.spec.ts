@@ -127,7 +127,7 @@ describe('Footer', () => {
   });
 
   // NFR-LEGAL-02. The line names the seller and their numbers, then reaches
-  // them through the deployment's one contact block rather than a copy of it.
+  // them through the header's contact unless it has one of its own.
   it('names the seller with their numbers and contact, in that order', async () => {
     const el = await renderWith({
       ...defaultDeploymentConfig,
@@ -149,6 +149,10 @@ describe('Footer', () => {
       a.getAttribute('href'),
     );
     expect(hrefs).toEqual(['tel:+4940123', 'mailto:hi@shop.example']);
+    // The way to reach them is a line of its own, under who they are.
+    expect(line?.querySelector('.block')?.textContent?.trim()).toMatch(
+      /^\+49 40 123\s*·\s*hi@shop\.example$/,
+    );
   });
 
   it('leaves the contact out of the seller line when none is configured', async () => {
@@ -161,6 +165,31 @@ describe('Footer', () => {
     // One separator between the two parts, none left dangling after them.
     expect(line?.querySelectorAll('[aria-hidden="true"]').length).toBe(1);
     expect(line?.querySelector('a')).toBeNull();
+  });
+
+  it("uses the seller line's own contact in place of the header's", async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      seller: {
+        name: 'Shop Ltd',
+        registration: ['Reg 1'],
+        contact: { email: 'legal@shop.example' },
+      },
+      contact: { phone: '+49 40 123', email: 'hi@shop.example' },
+    });
+    const hrefs = Array.from(
+      el.querySelector('address')?.querySelectorAll('a') ?? [],
+    ).map((a) => a.getAttribute('href'));
+    expect(hrefs).toEqual(['mailto:legal@shop.example']);
+  });
+
+  it('shows no contact on the seller line when its own is empty', async () => {
+    const el = await renderWith({
+      ...defaultDeploymentConfig,
+      seller: { name: 'Shop Ltd', registration: ['Reg 1'], contact: {} },
+      contact: { phone: '+49 40 123', email: 'hi@shop.example' },
+    });
+    expect(el.querySelector('address a')).toBeNull();
   });
 
   it('shows no seller line when the deployment configures none', async () => {
