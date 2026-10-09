@@ -76,10 +76,13 @@ services:
       # what turns the feature off. The sidecar itself is a stack's own service,
       # holding its own credential.
       SUGGESTION_SIDECAR_URL: ${SUGGESTION_SIDECAR_URL:-}
-      # The deployment's code sidecar for the second sign-in step (ADR 0066).
-      # Empty sends codes by mail, which is no second factor.
+      # The deployment's code or call sidecar for the second sign-in step
+      # (ADR 0066). Both empty stands in by mail, which is no second factor.
       SIGN_IN_CODE_URL: ${SIGN_IN_CODE_URL:-}
       SIGN_IN_CODE_TOKEN: ${SIGN_IN_CODE_TOKEN:-}
+      SIGN_IN_CALL_URL: ${SIGN_IN_CALL_URL:-}
+      SIGN_IN_CALL_TOKEN: ${SIGN_IN_CALL_TOKEN:-}
+      SIGN_IN_MAIL_KIND: ${SIGN_IN_MAIL_KIND:-code}
       # Uploaded images land on the shared media volume; the media service
       # serves them read-only at /media.
       MEDIA_ROOT: /media
