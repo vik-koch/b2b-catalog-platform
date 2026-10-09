@@ -605,14 +605,21 @@ body:has(dialog[open]) {
   font-weight: 400;
   letter-spacing: -0.025em;
 }
+/* Bold in a body is medium for the same reason: Typography's 600 is heavier
+   than anything the app itself sets in running text. */
+.prose :where(strong, b) {
+  font-weight: var(--font-weight-medium);
+}
 /*
  * And they sit closer to what precedes them than Typography's 2em/1.6em, which
  * opens a gap wide enough to read as a section break before the heading that
- * announces one. The space below each is Typography's own — a heading belongs
- * to the text under it.
+ * announces one. A heading belongs to the text under it.
  */
 .prose :where(h2) {
   margin-top: 1.4em;
+  /* The 16px under a page's own section headings, not Typography's 24px,
+     which leaves the heading floating between the sections. */
+  margin-bottom: 0.667em;
 }
 .prose :where(h3, h4) {
   margin-top: 1.15em;
