@@ -976,7 +976,7 @@ Each removal is recorded as a destruction ([NFR-LEGAL-12](#nfr-legal-12)), namin
 
 #### <a id="nfr-sec-01"></a>NFR-SEC-01 — HTTPS everywhere
 
-All traffic is served over HTTPS.
+All traffic is served over HTTPS. Responses tell the browser to stay on HTTPS (HSTS), forbid framing the site and sniffing content types, and send no referrer to other sites.
 
 #### <a id="nfr-sec-02"></a>NFR-SEC-02 — Rate-limited authentication
 

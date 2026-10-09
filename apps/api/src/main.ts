@@ -55,6 +55,7 @@ async function bootstrap() {
   if (env.TRUST_PROXY_HOPS > 0) {
     app.getHttpAdapter().getInstance().set('trust proxy', env.TRUST_PROXY_HOPS);
   }
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
 
   // So queued mail is flushed on SIGTERM rather than dying with the container
   // when a deploy replaces it (MailDispatcher).
