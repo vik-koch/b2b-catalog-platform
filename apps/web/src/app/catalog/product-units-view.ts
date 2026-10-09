@@ -134,14 +134,17 @@ export function useProductUnits() {
     },
 
     /**
-     * The box rows appended to the specifications table (FR-UNIT-06): a box's
-     * volume and weight. A contiguous group after the product's own attributes —
-     * those describe what it is, these how it ships.
+     * The packaging rows appended to the specifications table (FR-UNIT-06):
+     * what a pack and a box contain, then a box's volume and weight. A
+     * contiguous group after the product's own attributes — those describe
+     * what it is, these how it ships.
      *
      * A product shipping as several boxes does not get a row of its own for the
      * count. The figures are already the total across those boxes, so what a
      * reader needs is what each one covers: the count qualifies the label,
-     * "Box volume (for 2)", and only where there is more than one.
+     * "Box volume (for 2)", and only where there is more than one. The contents
+     * rows are left out there altogether: how the pieces split across the boxes
+     * is not something the packaging can say, so staff state it as attributes.
      *
      * The packaging summary and the minimum are deliberately **not** here. Both
      * belong to buying rather than to describing: the summary makes a per-unit
@@ -150,19 +153,34 @@ export function useProductUnits() {
      * states it in the wrong words as soon as another one is selected.
      */
     packagingRows(
+      packaging: ProductPackagingInfo,
       box: {
         volume: string | null;
         weight: string | null;
         count: number;
       } | null,
     ): PackagingRow[] {
-      if (!box) return [];
+      const rows: PackagingRow[] = [];
+      if (!box || box.count === 1) {
+        // A unit holding a single piece is the piece by another name, so
+        // stating that it contains one says nothing.
+        const contents = (label: string, count: number | null) => {
+          if (count !== null && count > 1) {
+            rows.push({
+              label,
+              value: `${formatUnitQuantity(count, currency)} ${text.piece}`,
+            });
+          }
+        };
+        contents(text.packContains, packaging.piecesPerPack);
+        contents(text.boxContains, piecesPerUnit(packaging, 'box'));
+      }
+      if (!box) return rows;
       const label = (base: string) =>
         box.count > 1
           ? `${base} ${fillText(text.boxCountSuffix, { count: box.count })}`
           : base;
 
-      const rows: PackagingRow[] = [];
       if (box.volume) {
         rows.push({
           label: label(text.boxVolume),

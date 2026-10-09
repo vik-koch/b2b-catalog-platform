@@ -260,6 +260,10 @@ export const appTextSchema = z
             minQuantity: z.string(),
             /** `{qty}` is the minimum, `{unit}` the piece abbreviation. */
             minQuantityValue: z.string(),
+            /** Specification-table labels for the pieces in one pack and one
+             * box; left out where the product ships as several boxes. */
+            packContains: z.string(),
+            boxContains: z.string(),
             boxVolume: z.string(),
             boxWeight: z.string(),
             boxCountSuffix: z.string(),
