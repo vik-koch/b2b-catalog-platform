@@ -75,6 +75,15 @@ export const demoMailText: MailText = {
     ignore:
       'If you did not try to sign in, change your password: someone else knows it.',
   },
+  signInCall: {
+    subject: 'Finish signing in',
+    preheader: 'Open the link instead of calling.',
+    heading: 'Finish signing in',
+    body: 'This message stands in for the call to the shop. Open the link and the sign-in page you left open goes on by itself.',
+    action: 'Finish signing in',
+    ignore:
+      'If you did not try to sign in, change your password: someone else knows it.',
+  },
   accountDeleted: {
     subject: 'Your account has been deleted',
     preheader: 'Your account and personal details have been removed.',

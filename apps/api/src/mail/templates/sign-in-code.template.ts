@@ -20,3 +20,19 @@ export function signInCodeMail(text: MailText, code: string): MailContent {
 export function signInCodeText(text: MailText, code: string): string {
   return text.signInCode.message.replaceAll('{code}', code);
 }
+
+/**
+ * Stands in for a sign-in call (FR-AUTH-12) where the deployment proves the
+ * number by mail. The link answers the check, and the page that is waiting
+ * goes on by itself.
+ */
+export function signInCallMail(text: MailText, path: string): MailContent {
+  const t = text.signInCall;
+  return {
+    subject: t.subject,
+    preheader: t.preheader,
+    heading: t.heading,
+    paragraphs: [t.body, t.ignore],
+    action: { label: t.action, path },
+  };
+}

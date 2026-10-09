@@ -803,26 +803,41 @@ export const signInCodePurpose = pgEnum('sign_in_code_purpose', [
 ]);
 
 /**
- * The one code an account is waiting on (FR-AUTH-12, ADR 0066). One row per
- * account: a new sign-in while a code is live reuses it rather than paying for
- * another message.
+ * The one code or call check an account is waiting on (FR-AUTH-12, ADR 0066).
+ * One row per account: a new sign-in while one is open reuses it rather than
+ * paying for another.
  *
- * Only the SHA-256 of the code is kept. The phone is kept because confirming
- * writes it to the account, and the sends carry over to a replacement row, so
- * changing the number does not reset the send limit.
+ * A code row keeps only the SHA-256 of the code. A call row keeps the
+ * provider's reference, which never leaves the API, and the number to call,
+ * so a repeated sign-in can show it again. The phone is kept because
+ * confirming writes it to the account, and the sends carry over to a
+ * replacement row, so changing the number does not reset the send limit.
  */
-export const signInCodes = pgTable('sign_in_codes', {
-  userId: uuid('userId')
-    .primaryKey()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  purpose: signInCodePurpose('purpose').notNull(),
-  phone: varchar('phone', { length: 50 }).notNull(),
-  codeHash: varchar('codeHash', { length: 64 }).notNull(),
-  attempts: integer('attempts').notNull().default(0),
-  sends: integer('sends').notNull().default(1),
-  sentAt: timestamp('sentAt', { withTimezone: true }).notNull(),
-  expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
-});
+export const signInCodes = pgTable(
+  'sign_in_codes',
+  {
+    userId: uuid('userId')
+      .primaryKey()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    purpose: signInCodePurpose('purpose').notNull(),
+    phone: varchar('phone', { length: 50 }).notNull(),
+    codeHash: varchar('codeHash', { length: 64 }),
+    callReference: varchar('callReference', { length: 200 }),
+    callTo: varchar('callTo', { length: 50 }),
+    attempts: integer('attempts').notNull().default(0),
+    sends: integer('sends').notNull().default(1),
+    sentAt: timestamp('sentAt', { withTimezone: true }).notNull(),
+    expiresAt: timestamp('expiresAt', { withTimezone: true }).notNull(),
+  },
+  (t) => [
+    // A code or a call, never both and never neither; a call has its number.
+    check(
+      'sign_in_codes_one_kind',
+      sql`(${t.codeHash} IS NULL) <> (${t.callReference} IS NULL)
+        AND (${t.callReference} IS NULL) = (${t.callTo} IS NULL)`,
+    ),
+  ],
+);
 
 /**
  * The account's address book (FR-CART-04) — where its orders are delivered and

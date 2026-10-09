@@ -98,9 +98,9 @@ theirs through a single-use link and never receive one (0034).
 
 The fixed 7-day expiry gives way to a sliding one (0066). A second sign-in step
 ([FR-AUTH-12](../requirements.md#fr-auth-12)) makes every new session cost a
-message, so a regular customer should not have to start a new one each week. A
+message or a call, so a regular customer should not have to start a new one each week. A
 used token more than a day old is reissued, and a session ends after
 `session.idleDays` without use. The default stays 7, so a deployment that sets
-nothing keeps the week it had; one that sends codes sets a longer stretch.
+nothing keeps the week it had; one with the step sets a longer stretch.
 Nothing else here changes: the token is still identity only, and `tokenVersion`
 still ends every session at once.

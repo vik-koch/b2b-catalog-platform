@@ -30,7 +30,7 @@ import { ScrollToTop } from './scroll-to-top';
              word a line. Without one, the copyright is a single line and the
              footer one row, wrapping only when the links run out of room. -->
         <div
-          class="flex flex-col-reverse gap-3"
+          class="flex flex-col-reverse gap-5 sm:gap-1"
           [class]="
             seller
               ? 'sm:grid sm:grid-cols-[minmax(12rem,1fr)_auto] sm:gap-x-8'

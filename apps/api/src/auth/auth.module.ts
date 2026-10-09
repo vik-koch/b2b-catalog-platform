@@ -32,10 +32,12 @@ import { PasswordSetupService } from './password-setup.service';
 import { RolesGuard } from './roles.guard';
 import { SessionVaryingInterceptor } from './session-varying.interceptor';
 import { SESSION_IDLE_DAYS, Sessions } from './sessions';
-import { CODE_DELIVERY, CodeDelivery } from './sign-in-step/code-delivery';
+import { HttpCallCheck } from './sign-in-step/http-call-check';
 import { HttpCodeDelivery } from './sign-in-step/http-code-delivery';
+import { MailCallCheck } from './sign-in-step/mail-call-check';
 import { MailCodeDelivery } from './sign-in-step/mail-code-delivery';
 import { SignInCodes } from './sign-in-step/sign-in-codes';
+import { SIGN_IN_PROOF, SignInProof } from './sign-in-step/sign-in-proof';
 import {
   SIGN_IN_STEP_CONFIG,
   SIGN_IN_STEP_SECRET,
@@ -55,18 +57,35 @@ function jwtSecret(): string {
 }
 
 /**
- * Where sign-in codes go: the deployment's sidecar when it names one, the
- * account's mailbox otherwise. Which one is logged at boot, because only the
- * first is a second factor.
+ * How the step proves the number: the deployment's sidecar when it names one,
+ * the account's mailbox otherwise. Which one is logged at boot, because only
+ * a sidecar is a second factor.
  */
-function codeDelivery(mail: MailService, text: MailText): CodeDelivery {
+function signInProof(mail: MailService, text: MailText): SignInProof {
   const logger = new Logger('SignInStep');
+  if (env.SIGN_IN_CALL_URL) {
+    logger.log('Sign-in calls are checked through the call sidecar');
+    return {
+      kind: 'call',
+      check: new HttpCallCheck(env.SIGN_IN_CALL_URL, env.SIGN_IN_CALL_TOKEN),
+    };
+  }
   if (env.SIGN_IN_CODE_URL) {
     logger.log('Sign-in codes are sent through the code sidecar');
-    return new HttpCodeDelivery(env.SIGN_IN_CODE_URL, env.SIGN_IN_CODE_TOKEN);
+    return {
+      kind: 'code',
+      delivery: new HttpCodeDelivery(
+        env.SIGN_IN_CODE_URL,
+        env.SIGN_IN_CODE_TOKEN,
+      ),
+    };
+  }
+  if (env.SIGN_IN_MAIL_KIND === 'call') {
+    logger.log('Sign-in calls are stood in for by mail (no second factor)');
+    return { kind: 'call', check: new MailCallCheck(mail, text) };
   }
   logger.log('Sign-in codes are sent by mail (no second factor)');
-  return new MailCodeDelivery(mail, text);
+  return { kind: 'code', delivery: new MailCodeDelivery(mail, text) };
 }
 
 /** The pending sign-in's own key, derived from the session secret so that one
@@ -118,8 +137,8 @@ function signInStepSecret(): string {
     { provide: SIGN_IN_STEP_CONFIG, useFactory: loadSignInStep },
     { provide: SIGN_IN_STEP_SECRET, useFactory: signInStepSecret },
     {
-      provide: CODE_DELIVERY,
-      useFactory: codeDelivery,
+      provide: SIGN_IN_PROOF,
+      useFactory: signInProof,
       inject: [MailService, MAIL_TEXT],
     },
     SignInCodes,

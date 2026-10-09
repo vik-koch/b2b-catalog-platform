@@ -100,14 +100,21 @@ const EnvSchema = z
     // in the browser needs to know, and two switches could contradict each
     // other. Which way it resolved is logged at boot.
     SUGGESTION_SIDECAR_URL: emptyAsUndefined(z.url()),
-    // Where sign-in codes are handed to a provider (FR-AUTH-12, ADR 0066): a
-    // deployment's sidecar that speaks the platform's small HTTP contract.
-    // Unset, codes go out by mail instead, which is fine for dev and the demo
-    // but is no second factor — which way it resolved is logged at boot.
+    // How the sign-in step proves the account's number (FR-AUTH-12, ADR 0066).
+    // Each URL is a deployment's sidecar that speaks the platform's small HTTP
+    // contract: one that sends codes, or one that runs call checks. At most
+    // one is set. With neither, mail stands in, which is fine for dev and the
+    // demo but is no second factor — which way it resolved is logged at boot.
     SIGN_IN_CODE_URL: emptyAsUndefined(z.url()),
+    SIGN_IN_CALL_URL: emptyAsUndefined(z.url()),
     // Sent as a bearer token, so the sidecar can tell the platform from anyone
     // else on the network.
     SIGN_IN_CODE_TOKEN: emptyAsUndefined(z.string().min(16)),
+    SIGN_IN_CALL_TOKEN: emptyAsUndefined(z.string().min(16)),
+    // What mail stands in for where no URL is set: a code, or a call, whose
+    // mail carries a link that does what the call would. `call` lets dev
+    // exercise the call screen without a provider.
+    SIGN_IN_MAIL_KIND: z.enum(['code', 'call']).default('code'),
     // What is running, shown in the admin panel. Stamped onto the stack by
     // infra/deploy.sh rather than baked into the image (a release retags the
     // image main built, so a baked value could only ever be the commit sha).
@@ -141,6 +148,15 @@ const EnvSchema = z
           });
         }
       }
+    }
+
+    // One provider proves the number, so one kind of step is owed.
+    if (val.SIGN_IN_CODE_URL && val.SIGN_IN_CALL_URL) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['SIGN_IN_CALL_URL'],
+        message: 'set either SIGN_IN_CODE_URL or SIGN_IN_CALL_URL, not both',
+      });
     }
 
     // The bootstrap-admin one-shot needs the credentials to seed; nothing else.

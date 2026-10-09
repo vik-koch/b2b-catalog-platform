@@ -94,6 +94,17 @@ Where the deployment delivers sign-in codes by mail rather than to the phone: de
 
 [View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sign-in-code.html) · [HTML source](mail/sign-in-code.html) · [Plain text](mail/sign-in-code.txt)
 
+<a id="sign-in-call"></a>
+
+### Sign-in call stand-in
+
+Where the deployment proves the number by a call but stands in for it by mail: dev only. The link does what the call would.
+
+**Subject:** Finish signing in  
+**Preheader:** Open the link instead of calling.
+
+[View rendered](https://htmlpreview.github.io/?https://raw.githubusercontent.com/vik-koch/b2b-catalog-platform/HEAD/docs/mail/sign-in-call.html) · [HTML source](mail/sign-in-call.html) · [Plain text](mail/sign-in-call.txt)
+
 <a id="account-deleted"></a>
 
 ### Account deleted

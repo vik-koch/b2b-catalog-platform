@@ -354,14 +354,16 @@ Notes:
   to a private customer only, though: a company is invoiced, and an offline card arrangement
   leaves no more paper than cash does ([FR-CART-04](requirements.md#fr-cart-04) amended 2026-09-08, ADR 0039).
 - **A second sign-in step** (2026-10-07, iteration 16, [FR-AUTH-12](requirements.md#fr-auth-12), ADR 0066). Some
-  deployments may authenticate their users only in a few ways, and a code sent to the
-  account's mobile number is the one the platform can offer by itself. Registration already
+  deployments may authenticate their users only in a few ways, and proving the account's
+  mobile number is the one the platform can offer by itself. Registration already
   asks for that number, so the step asks the customer for nothing new. Signing in through an
   external identity provider was weighed and set aside: it would make an account with a third
   party a condition of ordering. It could still be added later as another kind of second step.
-  It starts with the API applying the deployment's phone rule, since a code can only be
-  sent to a number in canonical form. The real provider comes last, behind the
-  generic HTTP adapter.
+  It starts with the API applying the deployment's phone rule, since the step can only
+  use a number in canonical form. The proof goes either way,
+  a code to the number or a call from it, because where operators charge for a sender
+  name the call is far cheaper. The real provider comes last, behind a generic HTTP
+  adapter for each kind.
 - Still open, to be decided before their iteration rather than now: whether audit records and usage
   metrics (page and product views, search-to-order funnels) are worth persisting beyond the log
   aggregation [NFR-OPS-03](requirements.md#nfr-ops-03)/[05](requirements.md#nfr-ops-05) already provide; and a security assessment pass across the whole

@@ -247,8 +247,10 @@ limitation period for claims.
 
 ### A code after the password
 
-A deployment can ask for a code sent to the account's mobile number after the
-password ([FR-AUTH-12](../docs/requirements.md#fr-auth-12)). The key is
+A deployment can ask the person to prove they hold the account's mobile number
+after the password ([FR-AUTH-12](../docs/requirements.md#fr-auth-12)): by a
+code sent to it, or by a call from it to a number the site shows. Which of the
+two follows from the provider, below. The key is
 optional, and absent means off. The demo leaves it out.
 
 ```json
@@ -270,29 +272,36 @@ optional, and absent means off. The demo leaves it out.
   the admin and the date. Taking a role off the list ends every exemption of
   that role at once.
 - `trustDeviceDays` lets the person tick "remember this browser" on the code
-  screen, at `always` only. That browser then skips the code, never the
-  password, for this many days. Signing out and changing the password leave
+  or call screen, at `always` only. That browser then skips the step, never
+  the password, for this many days. Signing out and changing the password leave
   it remembered; a changed number, or a disabled or deleted account, forgets
   every remembered browser. Optional, and absent or 0 means never, which is
-  what a rule asking for a code at every sign-in wants.
+  what a rule asking for the step at every sign-in wants.
 
-Where an account is asked for a code, its number is how it signs in, and only
-staff change it: the holder sees it on their account page but cannot edit it,
-and a sign-in never asks for one. An account with no number a code can reach
-cannot sign in until staff enter one.
+Where an account takes the step, its number is how it signs in, and only staff
+change it: the holder sees it on their account page but cannot edit it, and a
+sign-in never asks for one. An account with no number the step can use cannot
+sign in until staff enter one.
 
-Codes go to the deployment's code sidecar at `SIGN_IN_CODE_URL` (see
-`.env.example`). Without it they go to the account's email address, which is
-fine for trying the feature out but is no second factor. The text a code
-travels in is `signInCode.message` in `mail-text.json`; keep it to one SMS,
-since a second part costs a second message.
+The provider is a sidecar of the deployment's own, set in the environment (see
+`.env.example`), and a deployment sets one of the two:
+
+- `SIGN_IN_CODE_URL`: codes, sent by the code sidecar. The text a code travels
+  in is `signInCode.message` in `mail-text.json`; keep it to one SMS, since a
+  second part costs a second message.
+- `SIGN_IN_CALL_URL`: calls, checked by the call sidecar. The site shows the
+  number to call and goes on by itself once the call has come.
+
+Without either, mail stands in: codes go to the account's email address, or,
+with `SIGN_IN_MAIL_KIND=call`, a link that does what the call would. That is
+fine for trying the feature out but is no second factor.
 
 ### How long a session lasts
 
 A session renews while it is used and ends after `session.idleDays` without
-use. Optional, and absent means 7. A deployment that asks for a code at every
+use. Optional, and absent means 7. A deployment that asks for the step at every
 sign-in usually sets it longer, so a customer who keeps coming back is rarely
-asked: each new session is a message to pay for. The demo leaves it out.
+asked: each new session is a message or a call to pay for. The demo leaves it out.
 
 ```json
 "session": { "idleDays": 30 }

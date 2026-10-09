@@ -57,26 +57,52 @@ export const codeSentSchema = z
   .strict();
 export type CodeSent = z.infer<typeof codeSentSchema>;
 
+/** What both kinds of step state: the number it proves (masked), the seconds
+ * until another code or check may be asked for, whether completing it also
+ * confirms that number, and the days a browser may be remembered (0: never). */
+const stepCommon = {
+  phone: z.string(),
+  resendIn: z.number().int().nonnegative(),
+  confirming: z.boolean(),
+  rememberDays: z.number().int().nonnegative(),
+};
+
 /**
- * The password was right, and a code is owed before a session begins
+ * The password was right, and the step is owed before a session begins
  * (FR-AUTH-12). Answered instead of the user by every route that would
- * otherwise start a session.
+ * otherwise start a session. The deployment's provider decides the kind:
  *
- * `sentTo` is where the code went: the phone, or the email address where the
- * deployment delivers codes by mail. `confirming` says the code also confirms
- * `phone`, which staff set and nobody has confirmed yet. The number is never
- * chosen here: staff set it, and a holder who cannot receive codes on it asks
- * the shop. `rememberDays` above 0 offers to remember the browser for that
- * long, so it skips the code next time.
+ * - `code`: a code went to `sentTo` (the phone, or the email address where the
+ *   deployment delivers codes by mail) and is entered on the site.
+ * - `call`: the person calls `callTo` from `phone` within `expiresIn` seconds;
+ *   `dial` is the same number in canonical form, for a link a phone can dial.
+ *   Where the deployment stands in for the call by mail, `sentTo` names the
+ *   address the stand-in link went to.
+ *
+ * `confirming` says completing it also confirms `phone`, which staff set and
+ * nobody has confirmed yet. The number is never chosen here: staff set it,
+ * and a holder who cannot use it asks the shop. `rememberDays` above 0 offers
+ * to remember the browser for that long, so it skips the step next time.
  */
-export const signInStepSchema = codeSentSchema
-  .extend({
-    step: z.literal('code'),
-    confirming: z.boolean(),
-    rememberDays: z.number().int().nonnegative(),
+export const codeStepSchema = codeSentSchema
+  .extend({ step: z.literal('code'), ...stepCommon })
+  .strict();
+export const callStepSchema = z
+  .object({
+    step: z.literal('call'),
+    callTo: z.string(),
+    dial: z.string(),
+    expiresIn: z.number().int().nonnegative(),
+    sentTo: z.string().optional(),
+    ...stepCommon,
   })
   .strict();
+export const signInStepSchema = z.discriminatedUnion('step', [
+  codeStepSchema,
+  callStepSchema,
+]);
 export type SignInStep = z.infer<typeof signInStepSchema>;
+export type CallStep = z.infer<typeof callStepSchema>;
 
 /** A session, or the step that stands before one. */
 export const sessionOrStepSchema = z.union([signInStepSchema, authUserSchema]);
@@ -92,6 +118,17 @@ export const signInCodeSchema = z
   })
   .strict();
 export type SignInCodeRequest = z.infer<typeof signInCodeSchema>;
+
+/** Asking whether the call has come. `remember` counts once it has. */
+export const signInCallSchema = z
+  .object({ remember: z.boolean().optional() })
+  .strict();
+export type SignInCallRequest = z.infer<typeof signInCallSchema>;
+
+/** The call has not come yet; ask again in a few seconds. */
+export const callWaitingSchema = z
+  .object({ waiting: z.literal(true) })
+  .strict();
 
 // strict: unknown keys are rejected, not stripped (NFR-SEC-05).
 export const loginSchema = z
@@ -288,6 +325,13 @@ export const codeCheckErrors = {
   'code-expired': { status: 410 },
 } as const;
 
+/** A call check that is over without a call: past its time, or ended by the
+ * provider. A new one is asked for like a new code. */
+export const callCheckErrors = {
+  'call-expired': { status: 410 },
+  'code-delivery-unavailable': { status: 503 },
+} as const;
+
 /** A set-a-password link that is no good — unknown, used and expired alike. */
 const badToken = { [PASSWORD_TOKEN_INVALID]: { status: 404 } } as const;
 
@@ -403,7 +447,7 @@ export const authContract = {
     .route({
       method: 'POST',
       path: '/auth/sign-in-step/resend',
-      summary: 'Send the pending sign-in a new code',
+      summary: 'Send the pending sign-in a new code, or start a new call check',
     })
     .errors({ ...signInStepExpired, ...codeDeliveryErrors })
     .output(signInStepSchema),
@@ -422,6 +466,22 @@ export const authContract = {
     })
     .input(z.object({ body: signInCodeSchema }))
     .output(authUserSchema),
+
+  checkSignInCall: oc
+    .route({
+      method: 'POST',
+      path: '/auth/sign-in-step/call',
+      inputStructure: 'detailed',
+      summary:
+        'Ask whether the call has come, and start the session once it has',
+    })
+    .errors({
+      ...signInStepExpired,
+      ...closedForMaintenance,
+      ...callCheckErrors,
+    })
+    .input(z.object({ body: signInCallSchema }))
+    .output(z.union([callWaitingSchema, authUserSchema])),
 
   logout: oc
     .route({

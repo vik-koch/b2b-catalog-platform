@@ -1,4 +1,12 @@
-import { Controller, Req, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Inject,
+  NotFoundException,
+  Param,
+  Req,
+  Res,
+} from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
 import {
@@ -12,6 +20,7 @@ import {
 import {
   AuthThrottle,
   PublicFormThrottle,
+  SignInCallThrottle,
 } from '../throttling/throttle-presets';
 import { Auth } from './auth.decorator';
 import { CurrentUser } from './current-user.decorator';
@@ -26,7 +35,9 @@ import { refusals } from '../orpc/refusals';
 import { endSession } from './session-cookie';
 import { Sessions } from './sessions';
 import { sending } from './sign-in-step/code-refusals';
+import { MailCallCheck } from './sign-in-step/mail-call-check';
 import { SignInStep } from './sign-in-step/sign-in-step';
+import { SIGN_IN_PROOF, SignInProof } from './sign-in-step/sign-in-proof';
 import { UserRow } from '../users/users.service';
 
 @Controller()
@@ -39,6 +50,7 @@ export class AuthController {
     private readonly settings: SettingsService,
     private readonly step: SignInStep,
     private readonly sessions: Sessions,
+    @Inject(SIGN_IN_PROOF) private readonly proof: SignInProof,
   ) {}
 
   /**
@@ -249,6 +261,60 @@ export class AuthController {
         return this.startSession(outcome.user, req, res);
       },
     );
+  }
+
+  /**
+   * The call screen asks here every few seconds. Until the call has come the
+   * answer is "still waiting"; once it has, the session starts as a right
+   * code's would, and `remember` counts then.
+   */
+  @MaintenanceExempt()
+  @SignInCallThrottle()
+  @Implement(authContract.checkSignInCall)
+  checkSignInCall(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return implement(authContract.checkSignInCall)
+      .use(refusals)
+      .handler(async ({ input: { body }, errors }) => {
+        const user = await this.step.pending(req);
+        if (!user) throw errors['sign-in-step-expired'](STEP_EXPIRED);
+        if (this.closedTo(user.role)) {
+          throw errors[MAINTENANCE_REFUSED]({
+            message: 'Service under maintenance',
+          });
+        }
+
+        const outcome = await sending(this.step.completeCall(user));
+        if (outcome.result === 'pending') return { waiting: true as const };
+        if (outcome.result === 'expired') {
+          throw errors['call-expired']({ message: 'The call check is over' });
+        }
+        this.step.end(req, res);
+        if (body.remember) await this.step.remember(req, res, outcome.user);
+        return this.startSession(outcome.user, req, res);
+      });
+  }
+
+  /**
+   * The link in the mail that stands in for a call (`SIGN_IN_MAIL_KIND=call`):
+   * opening it is the call, and the waiting page goes on by itself. Not a
+   * contract route, since a mail client opens it as a page. Absent wherever a
+   * real provider takes the call.
+   */
+  @MaintenanceExempt()
+  @AuthThrottle()
+  @Get('auth/sign-in-step/stand-in/:reference')
+  answerStandInCall(
+    @Param('reference') reference: string,
+    @Res() res: Response,
+  ) {
+    const check = this.proof.kind === 'call' ? this.proof.check : null;
+    if (!(check instanceof MailCallCheck) || !check.answer(reference)) {
+      throw new NotFoundException();
+    }
+    res.redirect(303, '/');
   }
 
   // Leaves a remembered browser standing: signing out ends the session, and

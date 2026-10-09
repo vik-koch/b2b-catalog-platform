@@ -83,6 +83,18 @@ export const AuthThrottle = () =>
   );
 
 /**
+ * The call screen asking whether the call has come (FR-AUTH-12). It asks every
+ * few seconds while the person dials, so the login ceiling would cut it off;
+ * this one holds two tabs waiting at once, and only a pending sign-in gets an
+ * answer at all.
+ */
+export const SignInCallThrottle = () =>
+  applyDecorators(
+    UseGuards(ThrottlerGuard),
+    Throttle({ default: { limit: 60, ttl: seconds(60) } }),
+  );
+
+/**
  * The order summary a mailed link opens (FR-NOTIF-06, NFR-SEC-06). Its token is
  * the only credential, so the ceiling is there to make guessing at one
  * pointless as well as hopeless: a person opens their own order a handful of

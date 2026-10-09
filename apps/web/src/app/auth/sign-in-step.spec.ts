@@ -20,6 +20,17 @@ const codeStep: SignInStep = {
   resendIn: 0,
 };
 
+const callStep: SignInStep = {
+  step: 'call',
+  callTo: '+49 (800) 500-8275',
+  dial: '+498005008275',
+  expiresIn: 300,
+  phone: '+49 (•••) •••-••78',
+  confirming: false,
+  rememberDays: 0,
+  resendIn: 60,
+};
+
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
   if (!input) throw new Error(`no element for ${selector}`);
@@ -41,6 +52,7 @@ async function render(initial: SignInStep) {
     step,
     submitCode: vi.fn<AuthService['submitCode']>(),
     resendCode: vi.fn<AuthService['resendCode']>(),
+    checkCall: vi.fn<AuthService['checkCall']>(),
     retryAfter: signal<number | null>(null),
   };
 
@@ -224,5 +236,84 @@ describe('SignInStepPanel', () => {
     expect(
       el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.checked,
     ).toBe(true);
+  });
+
+  describe('a call instead of a code', () => {
+    afterEach(() => vi.useRealTimers());
+
+    it('offers the number to call as a link a phone can dial', async () => {
+      const { el } = await render(callStep);
+
+      const dial = el.querySelector<HTMLAnchorElement>('a[href^="tel:"]');
+      expect(dial?.getAttribute('href')).toBe('tel:+498005008275');
+      expect(dial?.textContent?.trim()).toBe(
+        text.callDial.replace('{callTo}', '+49 (800) 500-8275'),
+      );
+      expect(el.textContent).toContain(text.callHeading);
+      expect(el.querySelector('#signInCode')).toBeNull();
+    });
+
+    // Dev's stand-in: nothing to dial, the mailbox is where to act.
+    it('names the mailbox where mail stands in for the call', async () => {
+      const { el } = await render({ ...callStep, sentTo: 'j•••@example.com' });
+
+      expect(el.querySelector('a[href^="tel:"]')).toBeNull();
+      expect(el.textContent).toContain('j•••@example.com');
+    });
+
+    it('asks until the call has come, then reports the session', async () => {
+      vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+      const { auth, done, sync } = await render(callStep);
+      auth.checkCall.mockResolvedValueOnce('waiting').mockResolvedValue('ok');
+
+      vi.advanceTimersByTime(3000);
+      await sync();
+      expect(done).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(3000);
+      await sync();
+      expect(auth.checkCall).toHaveBeenCalledTimes(2);
+      expect(auth.checkCall).toHaveBeenLastCalledWith(false);
+      expect(done).toHaveBeenCalled();
+    });
+
+    it('stops asking once the check is over, and offers a new number', async () => {
+      vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+      const { el, auth, sync } = await render({ ...callStep, resendIn: 0 });
+      auth.checkCall.mockResolvedValue('expired');
+
+      vi.advanceTimersByTime(3000);
+      await sync();
+      vi.advanceTimersByTime(9000);
+      await sync();
+
+      expect(auth.checkCall).toHaveBeenCalledTimes(1);
+      expect(el.textContent).toContain(text.callExpired);
+      expect(el.querySelector('a[href^="tel:"]')).toBeNull();
+      expect(button(el, text.callNew).disabled).toBe(false);
+    });
+
+    it('starts over on the new number it is given', async () => {
+      vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] });
+      const { el, auth, step, sync } = await render({
+        ...callStep,
+        resendIn: 0,
+      });
+      auth.checkCall.mockResolvedValue('expired');
+      auth.resendCode.mockImplementation(async () => {
+        step.set({ ...callStep, dial: '+498005000000' });
+        return 'ok';
+      });
+      vi.advanceTimersByTime(3000);
+      await sync();
+
+      button(el, text.callNew).click();
+      await sync();
+
+      expect(el.querySelector('a[href^="tel:"]')?.getAttribute('href')).toBe(
+        'tel:+498005000000',
+      );
+      expect(el.textContent).toContain(text.callRenewed);
+    });
   });
 });

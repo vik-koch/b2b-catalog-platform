@@ -1,0 +1,12 @@
+Finish signing in
+
+This message stands in for the call to the shop. Open the link and the sign-in page you left open goes on by itself.
+
+If you did not try to sign in, change your password: someone else knows it.
+
+Finish signing in: https://shop.example.com/api/auth/sign-in-step/stand-in/AbCdEf0123
+
+--
+Coffee Kontor
+This message was sent automatically by our online shop. Please do not reply to this address.
+https://shop.example.com
