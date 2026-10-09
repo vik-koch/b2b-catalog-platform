@@ -204,6 +204,21 @@ export const mailTextSchema = z
       })
       .strict(),
     /**
+     * The mail that stands in for a sign-in call (FR-AUTH-12), where dev or
+     * the demo prove the number by mail. Its link does what the call would.
+     */
+    signInCall: z
+      .object({
+        subject: z.string(),
+        preheader: z.string(),
+        heading: z.string(),
+        body: z.string(),
+        action: z.string(),
+        /** For the recipient who did not sign in. */
+        ignore: z.string(),
+      })
+      .strict(),
+    /**
      * Confirms a self-deletion (FR-AUTH-06), to the address that asked for it —
      * the last message it gets, since the record no longer carries it. No
      * action: there is nothing to sign in to, and registering again starts a

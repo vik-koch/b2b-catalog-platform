@@ -21,7 +21,10 @@ import { orderReceivedMail } from './templates/order-received.template';
 import { orderStatusChangedMail } from './templates/order-status.template';
 import { passwordResetMail } from './templates/password-reset.template';
 import { registrationReceivedMail } from './templates/registration-received.template';
-import { signInCodeMail } from './templates/sign-in-code.template';
+import {
+  signInCallMail,
+  signInCodeMail,
+} from './templates/sign-in-code.template';
 import {
   syncCreatedMail,
   syncFailedMail,
@@ -346,6 +349,17 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       title: 'Sign-in code',
       note: 'Where the deployment delivers sign-in codes by mail rather than to the phone: dev and the demo. Its first line is the text a provider would send.',
       content: signInCodeMail(text, '123456'),
+    },
+    {
+      slug: 'sign-in-call',
+      shows: 'signInCall',
+      group: 'The account itself',
+      title: 'Sign-in call stand-in',
+      note: 'Where the deployment proves the number by a call but stands in for it by mail: dev only. The link does what the call would.',
+      content: signInCallMail(
+        text,
+        '/api/auth/sign-in-step/stand-in/AbCdEf0123',
+      ),
     },
     {
       slug: 'account-deleted',
