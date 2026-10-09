@@ -134,17 +134,25 @@ describe('route access, as the running API answers it', () => {
 
   it('refuses a customer every staff route', async () => {
     expect(
-      await answering(routes.filter((r) => isStaff(r.access)), 403, {
-        Cookie: customerCookie,
-      }),
+      await answering(
+        routes.filter((r) => isStaff(r.access)),
+        403,
+        {
+          Cookie: customerCookie,
+        },
+      ),
     ).toEqual([]);
   });
 
   it('refuses a manager every admin-only route', async () => {
     expect(
-      await answering(routes.filter((r) => isAdminOnly(r.access)), 403, {
-        Cookie: managerCookie,
-      }),
+      await answering(
+        routes.filter((r) => isAdminOnly(r.access)),
+        403,
+        {
+          Cookie: managerCookie,
+        },
+      ),
     ).toEqual([]);
   });
 
@@ -158,9 +166,13 @@ describe('route access, as the running API answers it', () => {
 
   it('takes no machine token for a session', async () => {
     expect(
-      await answering(routes.filter((r) => isSession(r.access)), 401, {
-        Authorization: `Bearer ${token}`,
-      }),
+      await answering(
+        routes.filter((r) => isSession(r.access)),
+        401,
+        {
+          Authorization: `Bearer ${token}`,
+        },
+      ),
     ).toEqual([]);
   });
 

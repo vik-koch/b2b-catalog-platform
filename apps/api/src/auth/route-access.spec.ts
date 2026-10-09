@@ -82,7 +82,8 @@ function routes(): Route[] {
       if (name === 'constructor' || typeof handler !== 'function') continue;
       const path = Reflect.getMetadata(PATH_METADATA, handler);
       if (path === undefined) continue;
-      const method = RequestMethod[Reflect.getMetadata(METHOD_METADATA, handler)];
+      const method =
+        RequestMethod[Reflect.getMetadata(METHOD_METADATA, handler)];
       for (const base of bases) {
         for (const sub of [path].flat()) {
           found.push({

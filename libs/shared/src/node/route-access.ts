@@ -185,6 +185,5 @@ export const ROUTE_ACCESS: Readonly<Record<string, string>> = {
   'GET /api/machine/sync/orders/runs/:id': 'machine:order-sync',
   'POST /api/machine/sync/orders/failures': 'machine:order-sync',
   'POST /api/machine/orders/:reference/documents/:kind': 'machine:order-sync',
-  'DELETE /api/machine/orders/:reference/documents/:kind':
-    'machine:order-sync',
+  'DELETE /api/machine/orders/:reference/documents/:kind': 'machine:order-sync',
 };
