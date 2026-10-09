@@ -7,26 +7,27 @@
 # FORCE=1 skips the prompt for scripted rehearsals.
 #
 # Usage:
+#   infra/restore.sh <host> <app-env-file> <backup-archive>
 #   infra/restore.sh <host> <app-env-file> <dump.sql.gz> <media.tar.gz>
 # e.g.
-#   infra/restore.sh 1.2.3.4 .env.prod ./backups-prod-.../b2b-latest.sql.gz \
-#                                      ./backups-prod-.../media-latest.tar.gz
+#   AGE_IDENTITY=~/keys/shop-backup.age \
+#     infra/restore.sh 1.2.3.4 .env.prod ./backup-2026-10-09T01-30-00.tar.gz.age
 #
-# The two artifacts must be a matched pair — a dump restored against an older
-# media archive yields a catalog whose images 404. infra/backup.sh takes them
-# together, in the right order, for exactly this reason.
+# A backup archive (from infra/backup.sh or infra/fetch-backup.sh) holds the
+# dump and the media together, so it is always a matched pair. An encrypted one
+# (.age) needs the age CLI and AGE_IDENTITY, the private key file; it is
+# decrypted here, never on the host. The two-file form takes a dump and a media
+# archive from before backups were paired — they must match, or the catalog
+# restores with images that 404.
 #
 # SSH: same contract as deploy.sh — connects as "deploy", key via ssh-agent /
 # ssh config / SSH_OPTS.
 set -euo pipefail
 
-host=${1:?usage: restore.sh <host> <app-env-file> <dump.sql.gz> <media.tar.gz>}
-app_env=${2:?usage: restore.sh <host> <app-env-file> <dump.sql.gz> <media.tar.gz>}
-dump=${3:?usage: restore.sh <host> <app-env-file> <dump.sql.gz> <media.tar.gz>}
-media=${4:?usage: restore.sh <host> <app-env-file> <dump.sql.gz> <media.tar.gz>}
-
-[ -f "$dump" ] || { echo "no such dump: $dump" >&2; exit 1; }
-[ -f "$media" ] || { echo "no such media archive: $media" >&2; exit 1; }
+usage='usage: restore.sh <host> <app-env-file> <backup-archive> | <dump.sql.gz> <media.tar.gz>'
+host=${1:?$usage}
+app_env=${2:?$usage}
+: "${3:?$usage}"
 
 stack=$(sed -n 's/^STACK_NAME=//p' "$app_env")
 db=$(sed -n 's/^POSTGRES_DB=//p' "$app_env")
@@ -35,13 +36,42 @@ db_user=$(sed -n 's/^POSTGRES_USER=//p' "$app_env")
 : "${db:?POSTGRES_DB missing in $app_env}"
 : "${db_user:?POSTGRES_USER missing in $app_env}"
 
+if [ $# -eq 3 ]; then
+  archive=$3
+  [ -f "$archive" ] || { echo "no such backup archive: $archive" >&2; exit 1; }
+  work=$(mktemp -d)
+  trap 'rm -rf "$work"' EXIT
+  if [ "${archive%.age}" != "$archive" ]; then
+    : "${AGE_IDENTITY:?AGE_IDENTITY must name the age private key file for an encrypted archive}"
+    echo "==> Decrypting $archive"
+    age -d -i "$AGE_IDENTITY" -o "$work/pair.tar.gz" "$archive"
+  else
+    cp "$archive" "$work/pair.tar.gz"
+  fi
+  # Split the pair back into the two artifacts the steps below expect. The
+  # dump's latest link is relative, so it resolves inside the extracted tree.
+  tar xzf "$work/pair.tar.gz" -C "$work"
+  [ -e "$work/backup/db/$db-latest.sql.gz" ] || { echo "archive holds no $db-latest.sql.gz" >&2; exit 1; }
+  [ -d "$work/backup/media" ] || { echo "archive holds no media" >&2; exit 1; }
+  cp -L "$work/backup/db/$db-latest.sql.gz" "$work/dump.sql.gz"
+  tar czf "$work/media.tar.gz" -C "$work" backup/media
+  dump=$work/dump.sql.gz
+  media=$work/media.tar.gz
+  label=$archive
+else
+  dump=$3
+  media=${4:?$usage}
+  [ -f "$dump" ] || { echo "no such dump: $dump" >&2; exit 1; }
+  [ -f "$media" ] || { echo "no such media archive: $media" >&2; exit 1; }
+  label="$dump + $media"
+fi
+
 remote=/srv/b2b/$stack
 run() { ssh ${SSH_OPTS:-} "deploy@$host" "$@"; }
 
 if [ -z "${FORCE:-}" ]; then
   echo "About to REPLACE all data in stack '$stack' on $host:"
-  echo "  database '$db'  <- $dump"
-  echo "  media volume    <- $media"
+  echo "  database '$db' and media volume <- $label"
   printf "Type the stack name to continue: "
   read -r confirm
   [ "$confirm" = "$stack" ] || { echo "aborted"; exit 1; }

@@ -828,7 +828,7 @@ configs:
             annotations:
               summary: A backup job logged an error in the last hour
               description: >-
-                The database dump or the media archive is failing. A backup nobody checks is not a backup — see infra/README.md for taking one by hand.
+                The database dump, the archive or its upload is failing. A backup nobody checks is not a backup — see infra/README.md for taking one by hand.
             noDataState: OK
             execErrState: Error
             data:

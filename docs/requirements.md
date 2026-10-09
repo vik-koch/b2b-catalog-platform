@@ -1052,7 +1052,7 @@ Application logs are centrally accessible for debugging.
 
 #### <a id="nfr-ops-04"></a>NFR-OPS-04 — Backups and restore
 
-Database and uploaded-media backups are taken on a defined schedule, and can be copied off the host and restored by the operator.
+Database and uploaded-media backups are taken on a defined schedule, as a matched pair: every picture the database refers to is in the same backup. A deployment can have each pair leave the host on that schedule, to storage elsewhere. The copy is encrypted before it leaves, the host can add to that storage but not delete or replace what is already there, and the copies expire there after a period the deployment sets. A deployment that does not need it, such as a short-lived demo, takes no backups at all. The operator can restore any pair, from the host or from that storage, to a running shop.
 
 #### <a id="nfr-ops-05"></a>NFR-OPS-05 — Search observability
 

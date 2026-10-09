@@ -282,34 +282,48 @@ services:
     networks:
       - internal
 
-  # Scheduled media backups (NFR-OPS-04, ADR 0028) — the second data class the
-  # db-backup job deliberately does not cover. Same 'backup' profile, so a stack
-  # opts into both at once and the ephemeral demo starts neither.
+  # The matched pair (NFR-OPS-04, ADRs 0028, 0067): the latest database dump and
+  # the media volume in one archive. Same 'backup' profile, so a stack opts into
+  # both sidecars at once and the ephemeral demo starts neither.
   #
   # Runs *after* the database dump, and that order is the whole point: uploads
   # are only ever added, so an archive taken later than the dump always contains
-  # every image the dump references. The reverse order can restore a catalog
-  # pointing at files that were never archived. An order document deleted in
+  # every image the dump references. A night whose dump failed packs the
+  # previous one, which is still a consistent pair. An order document deleted in
   # between (a replaced file, a closed account) leaves the archive holding a
   # file nothing points at, which is the harmless direction.
   #
   # No docker socket: nothing has to be stopped for a consistent copy of a
-  # directory nothing rewrites in place, so the container gets the volume
-  # read-only and nothing else. The private subdirectory travels with it: an
-  # order's documents are the shop's paperwork and are backed up like the rest.
+  # directory nothing rewrites in place, so the container gets both read-only
+  # and nothing else. The private subdirectory travels with it: an order's
+  # documents are the shop's paperwork and are backed up like the rest.
+  #
+  # Off-host copy: set all of BACKUP_S3_* and BACKUP_AGE_PUBLIC_KEY or none
+  # (deploy.sh refuses a partial set). The archive is then encrypted and also
+  # uploaded. The bucket is never pruned from here: its key should only be able
+  # to upload, and a lifecycle rule on the bucket expires copies.
   media-backup:
     image: offen/docker-volume-backup:v2
     profiles: ['backup']
     restart: unless-stopped
     environment:
       BACKUP_CRON_EXPRESSION: ${MEDIA_BACKUP_SCHEDULE:-30 1 * * *}
-      BACKUP_FILENAME: 'media-%Y-%m-%dT%H-%M-%S.tar.gz'
-      BACKUP_LATEST_SYMLINK: media-latest.tar.gz
-      BACKUP_PRUNING_PREFIX: 'media-'
+      BACKUP_FILENAME: 'backup-%Y-%m-%dT%H-%M-%S.tar.gz'
+      BACKUP_LATEST_SYMLINK: backup-latest
+      BACKUP_PRUNING_PREFIX: 'backup-'
       BACKUP_RETENTION_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      BACKUP_SKIP_BACKENDS_FROM_PRUNE: s3
+      AGE_PUBLIC_KEYS: ${BACKUP_AGE_PUBLIC_KEY:-}
+      AWS_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      AWS_S3_BUCKET_NAME: ${BACKUP_S3_BUCKET:-}
+      AWS_S3_PATH: ${BACKUP_S3_PATH:-${STACK_NAME:-}}
+      AWS_S3_BUCKET_LOOKUP: ${BACKUP_S3_BUCKET_LOOKUP:-auto}
+      AWS_ACCESS_KEY_ID: ${BACKUP_S3_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${BACKUP_S3_SECRET_ACCESS_KEY:-}
     volumes:
+      - ./backups/last:/backup/db:ro
       - mediadata:/backup/media:ro
-      - ./backups/media:/archive
+      - ./backups/archive:/archive
 
 networks:
   internal:

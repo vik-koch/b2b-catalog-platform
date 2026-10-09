@@ -51,6 +51,22 @@ domain=$(sed -n 's/^APP_DOMAIN=//p' "$app_env")
 : "${stack:?STACK_NAME missing in $app_env}"
 : "${domain:?APP_DOMAIN missing in $app_env}"
 
+# Off-host backups (ADR 0067) are all or nothing: a bucket without a key, or an
+# upload without encryption, would fail every night or send the shop's data out
+# in the clear. Checked here, before anything changes on the VM.
+backup_keys="BACKUP_S3_ENDPOINT BACKUP_S3_BUCKET BACKUP_S3_ACCESS_KEY_ID BACKUP_S3_SECRET_ACCESS_KEY BACKUP_AGE_PUBLIC_KEY"
+backup_set=0
+for key in $backup_keys; do
+  [ -n "$(sed -n "s/^$key=//p" "$app_env")" ] && backup_set=$((backup_set + 1))
+done
+if [ "$backup_set" -ne 0 ] && [ "$backup_set" -ne 5 ]; then
+  echo "Off-host backups need all of $backup_keys, or none — $app_env sets $backup_set of 5" >&2
+  exit 1
+fi
+case $(sed -n 's/^BACKUP_S3_ENDPOINT=//p' "$app_env") in
+  *://*) echo "BACKUP_S3_ENDPOINT is a host name, without https://" >&2; exit 1 ;;
+esac
+
 run() { ssh ${SSH_OPTS:-} "deploy@$host" "$@"; }
 put() { scp ${SSH_OPTS:-} -q "$1" "deploy@$host:$2"; }
 
