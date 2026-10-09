@@ -517,7 +517,7 @@ export class ProductDetailView {
   );
 
   protected readonly packagingRows = computed(() =>
-    this.units.packagingRows(this.item().boxDimensions),
+    this.units.packagingRows(this.item().packaging, this.item().boxDimensions),
   );
 
   private readonly description =

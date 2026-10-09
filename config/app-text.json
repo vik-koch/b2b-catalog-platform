@@ -116,6 +116,8 @@
       "packagingPerPack": "{pieces} {pieceUnit} per {packUnit}",
       "minQuantity": "Minimum order",
       "minQuantityValue": "{qty} {unit}",
+      "packContains": "Pack contains",
+      "boxContains": "Box contains",
       "boxVolume": "Box volume",
       "boxWeight": "Box weight",
       "boxCountSuffix": "(for {count})",

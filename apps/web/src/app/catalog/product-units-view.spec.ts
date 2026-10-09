@@ -97,51 +97,72 @@ describe('priceRow', () => {
 });
 
 describe('packagingRows', () => {
-  it('lists the box dimensions with their units', () => {
-    const rows = units().packagingRows({
-      volume: '0.250',
-      weight: '12.500',
-      count: 1,
-    });
+  const box = { volume: '0.250', weight: '12.500', count: 1 };
 
-    expect(rows).toEqual([
+  it('states what a pack and a box contain, then the box dimensions', () => {
+    expect(units().packagingRows(packaged, box)).toEqual([
+      { label: 'Pack contains', value: '6 pcs' },
+      { label: 'Box contains', value: '24 pcs' },
       { label: 'Box volume', value: '0.250 m³' },
       { label: 'Box weight', value: '12.500 kg' },
     ]);
   });
 
-  it('says what a figure covers where a product ships as more than one box', () => {
+  it('states the pack alone where the product has no box', () => {
+    expect(units().packagingRows(packOnly, null)).toEqual([
+      { label: 'Pack contains', value: '10 pcs' },
+    ]);
+  });
+
+  it('leaves out a unit that holds a single piece', () => {
     const u = units();
-    const box = { volume: '0.250', weight: '12.500', count: 2 };
-    expect(u.packagingRows(box).map((r) => r.label)).toEqual([
+    const singles = { piecesPerPack: 1, packsPerBox: 12, minPieceQty: 1 };
+    const labels = (packaging: typeof singles) =>
+      u.packagingRows(packaging, box).map((r) => r.label);
+    expect(labels(singles)).toEqual([
+      'Box contains',
+      'Box volume',
+      'Box weight',
+    ]);
+    expect(labels({ ...singles, packsPerBox: 1 })).toEqual([
+      'Box volume',
+      'Box weight',
+    ]);
+  });
+
+  it('leaves the contents to staff where a product ships as more than one box', () => {
+    const u = units();
+    const several = { ...box, count: 2 };
+    expect(u.packagingRows(packaged, several).map((r) => r.label)).toEqual([
       'Box volume (for 2)',
       'Box weight (for 2)',
     ]);
     // The values are the totals already, so only the labels change.
-    expect(u.packagingRows(box).map((r) => r.value)).toEqual(
-      u.packagingRows({ ...box, count: 1 }).map((r) => r.value),
+    expect(u.packagingRows(packaged, several).map((r) => r.value)).toEqual(
+      u
+        .packagingRows(packaged, box)
+        .slice(2)
+        .map((r) => r.value),
     );
   });
 
-  it('leaves the labels alone for the usual single box', () => {
+  it('leaves the dimension labels alone for the usual single box', () => {
     expect(
       units()
-        .packagingRows({ volume: '0.250', weight: null, count: 1 })
+        .packagingRows(packaged, { volume: '0.250', weight: null, count: 1 })
         .map((r) => r.label),
-    ).toEqual(['Box volume']);
+    ).toEqual(['Pack contains', 'Box contains', 'Box volume']);
   });
 
   it('leaves the packaging summary and the minimum to the buying block', () => {
-    const rows = units().packagingRows({
-      volume: '0.250',
-      weight: null,
-      count: 1,
-    });
-    expect(rows.map((r) => r.label)).not.toContain('Packaging');
-    expect(rows.map((r) => r.label)).not.toContain('Minimum order');
+    const labels = units()
+      .packagingRows(packaged, box)
+      .map((r) => r.label);
+    expect(labels).not.toContain('Packaging');
+    expect(labels).not.toContain('Minimum order');
   });
 
   it('is empty for a plain product, so the table is unchanged', () => {
-    expect(units().packagingRows(null)).toEqual([]);
+    expect(units().packagingRows(plain, null)).toEqual([]);
   });
 });

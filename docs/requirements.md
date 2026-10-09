@@ -47,7 +47,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-UNIT-03](#fr-unit-03) — Minimum order quantity
 - [FR-UNIT-04](#fr-unit-04) — A price is per piece
 - [FR-UNIT-05](#fr-unit-05) — Prices per unit on the product page
-- [FR-UNIT-06](#fr-unit-06) — Box volume and weight in the attribute table
+- [FR-UNIT-06](#fr-unit-06) — Packaging facts in the attribute table
 - [FR-UNIT-07](#fr-unit-07) — Choosing a unit to buy in
 - [FR-UNIT-08](#fr-unit-08) — Price and packaging on a list tile
 - [FR-UNIT-09](#fr-unit-09) — Packaging summary formula
@@ -357,9 +357,9 @@ A product's stored price is the price of one **piece**, and every other unit's p
 
 A product page displays the price per piece and, where the packaging defines them, the price per pack and per box, each labelled with the quantity it covers.
 
-#### <a id="fr-unit-06"></a>FR-UNIT-06 — Box volume and weight in the attribute table
+#### <a id="fr-unit-06"></a>FR-UNIT-06 — Packaging facts in the attribute table
 
-A product's box facts — the box's volume and weight, labelled with how many boxes they cover where that is more than one — are displayed to the customer in the same attribute table as its freetext attributes, as a contiguous group.
+A product's packaging facts are displayed to the customer in the same attribute table as its freetext attributes, as a contiguous group: the pieces a pack contains and the pieces a box contains, where the packaging defines them, then the box's volume and weight, labelled with how many boxes they cover where that is more than one. A unit holding a single piece states no contents. The contents are stated only for a product shipping as one box; for one shipping as several, how its pieces split across them is entered as freetext attributes.
 
 #### <a id="fr-unit-07"></a>FR-UNIT-07 — Choosing a unit to buy in
 
