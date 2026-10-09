@@ -139,7 +139,7 @@ import { useTaxStatement } from './tax-statement';
               }
               <!-- The same products, drawn the way the visitor last asked for
                    in either listing: fitted cards, or full-width lines. -->
-              <ul [class]="list()">
+              <ul [class]="list()" [class.listing-held]="results.isLoading()">
                 <!-- The same cluster the category listing puts on its items:
                      a product found by searching is as editable as one found
                      by browsing, and reaching it through the admin list to

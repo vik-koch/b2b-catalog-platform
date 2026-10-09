@@ -31,6 +31,7 @@ export default [
             '^text-stable$',
             '^logo-mark$',
             '^elsewhere-mark$',
+            '^listing-held$',
             '^cart-(count|total)$',
             // The argument of a `[class.text-right]` comparison reads as one.
             '^right$',

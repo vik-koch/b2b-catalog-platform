@@ -553,6 +553,17 @@ body:has(dialog[open]) {
   border-color: var(--color-secondary);
 }
 
+/*
+ * A listing kept on screen while the next one loads (stableValue): paging
+ * scrolls to the top at once, and an unfaded old grid there reads as the new
+ * page until it is swapped. The delay keeps a quick answer from flickering;
+ * the way back is instant, so the new grid arrives at full strength.
+ */
+.listing-held {
+  opacity: 0.5;
+  transition: opacity 150ms 150ms;
+}
+
 /* Rich-text page bodies: brand the links, keep the rest prose-stone. */
 .prose {
   --tw-prose-links: var(--color-primary);
