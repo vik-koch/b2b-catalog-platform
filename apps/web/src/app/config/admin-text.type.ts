@@ -309,6 +309,8 @@ export const adminTextSchema = z
             heading: z.string(),
             urlLabel: z.string(),
             placeholder: z.string(),
+            /** Names the four forms an address may take. */
+            hint: z.string(),
             apply: z.string(),
           })
           .strict(),

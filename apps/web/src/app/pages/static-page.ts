@@ -6,13 +6,14 @@ import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { usePageSeo } from '../core/page-seo';
 import { PageService } from './page.service';
+import { RichTextLinks } from '../core/rich-text-links';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { LoadErrorView } from './load-error-view';
 import { PageUpdated } from './page-updated';
 
 @Component({
   selector: 'app-static-page',
-  imports: [EditActions, LoadErrorView, PageUpdated],
+  imports: [RichTextLinks, EditActions, LoadErrorView, PageUpdated],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets the load error rather
@@ -45,6 +46,7 @@ import { PageUpdated } from './page-updated';
       @if (content) {
         <div
           class="prose prose-stone max-w-3xl"
+          appRichTextLinks
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
         <app-page-updated

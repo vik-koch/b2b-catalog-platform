@@ -1,6 +1,6 @@
 # 0020 — Store rich text as sanitized HTML, edit it with a schema-constrained Tiptap
 
-**Status:** accepted (amended 2026-10-04) · **Date:** 2026-07-25
+**Status:** accepted (amended 2026-10-04, 2026-10-09) · **Date:** 2026-07-25
 
 ## Context
 
@@ -114,3 +114,12 @@ Restore is still not offered. The admin can read past versions in the editor,
 and copying text back is enough for pages edited a few times a year.
 Media pruning keeps any image an old version refers to, so an old version still
 renders as it was published.
+
+## Amendment — 2026-10-09 (v1.14.0): phone and same-site links
+
+A link may also be `tel:`, and a path from the site root (`/catalog`). Both
+came up with real pages: an imprint wants a callable number, and a page
+pointing at the catalogue should not name the deployment's domain, which
+differs between dev and prod. A protocol-relative `//host` stays refused, so a
+scheme-less link can only ever stay on the site. The storefront sends a click
+on a root-relative link through the router rather than reloading the app.

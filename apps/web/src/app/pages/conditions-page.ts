@@ -10,6 +10,7 @@ import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
 import { DeliveryZoneList } from '../checkout/delivery-zone-list';
 import { usePageSeo } from '../core/page-seo';
+import { RichTextLinks } from '../core/rich-text-links';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { EmphasisedText } from '../ui/emphasised-text';
 import { Icon } from '../ui/icons/icon';
@@ -38,6 +39,7 @@ import { PageService } from './page.service';
 @Component({
   selector: 'app-conditions-page',
   imports: [
+    RichTextLinks,
     DeliveryZoneList,
     EditActions,
     EmphasisedText,
@@ -73,6 +75,7 @@ import { PageService } from './page.service';
       @if (content) {
         <div
           class="prose prose-stone mb-8 max-w-3xl"
+          appRichTextLinks
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {
