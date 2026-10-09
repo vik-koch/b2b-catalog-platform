@@ -70,9 +70,10 @@ esac
 run() { ssh ${SSH_OPTS:-} "deploy@$host" "$@"; }
 put() { scp ${SSH_OPTS:-} -q "$1" "deploy@$host:$2"; }
 # Env files carry the stack's secrets. scp would keep the caller's mode (644
-# from a heredoc on the runner); install sets 600 on every copy, an existing
-# file included.
-put_env() { run "install -m 600 /dev/stdin '$2'" <"$1"; }
+# from a heredoc on the runner). Written under umask 077 and moved into place,
+# so every copy is 600, an existing file included. Plain shell on purpose:
+# Ubuntu's Rust coreutils `install` cannot read /dev/stdin.
+put_env() { run "umask 077 && cat >'$2.tmp' && mv -f '$2.tmp' '$2'" <"$1"; }
 
 echo "==> Copying stacks to deploy@$host"
 run "mkdir -p /srv/b2b/traefik /srv/b2b/$stack"
