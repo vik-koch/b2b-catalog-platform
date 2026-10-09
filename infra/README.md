@@ -181,6 +181,10 @@ api`). So the platform is briefly unreachable rather than briefly slower.
 
 - Postgres is never recreated (`--no-deps`), so the database does not restart
   and the data volume is untouched.
+- The observability stack is recreated only when its compose file changed since
+  it was last brought up (a hash in `/srv/b2b/observability/.applied-hash`).
+  Its alert rules and dashboards are inline config content, which a plain
+  `up -d` does not count as a change.
 - The schema moves **before** the new containers do. For the length of a deploy
   the _previous_ app version is running against the _new_ schema, so a migration
   that drops or renames something the running version still reads takes the site
@@ -319,7 +323,10 @@ the disk quietly fills.
 | --------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
 | Disk above 80%              | a `disk-usage` sidecar reports >80% for 10m            | uploads only grow, backups keep two retention policies, Loki holds 14 days                     |
 | Backup job reporting errors | `db-backup`/`media-backup` log an error within an hour | a backup nobody checks is not a backup                                                         |
-| Elevated server errors      | >20 responses ≥500 in 10 minutes                       | a page that cannot load its data answers 503, so an outage is visible rather than a silent 200 |
+| Elevated server errors      | >20 prod responses ≥500 in 10 minutes, twice in a row  | a page that cannot load its data answers 503, so an outage is visible rather than a silent 200 |
+
+A maintenance 503 does not count: both gates send `Retry-After`, which Traefik
+keeps in its access log, and the alert skips responses carrying it.
 
 Set `SMTP_*` and `MAIL_OPS_TO` in the observability `.env` (see
 [.env.example](observability/.env.example)). Disk usage reaches Loki as a log
@@ -383,6 +390,21 @@ volume is emptied and refilled. An encrypted archive (`.age`) is decrypted on
 your machine, so `restore.sh` needs the `age` CLI and `fetch-backup.sh` the
 `aws` CLI. Rehearse against a throwaway stack before you need it against a
 real one.
+
+**Repeat the deletions the backup predates, right after restoring.** A restore
+brings back every account, order detail and consent deleted since the backup
+was taken, and the destruction records that said so. A restored account can
+sign in again. The audit log still names them for 14 days. In Grafana, Explore
+on Loki, set the range to start at the backup's time:
+
+```logql
+{stack="<stack>", service="api"} |~ `\[Audit\] (account\.deleted|user\.deleted|user\.declined|order\.personalDataRemoved|consent\.withdrawn) `
+```
+
+Repeat each one in the admin panel by its `id` or `reference`: delete the
+account (whether its holder or an admin deleted it), decline the registration,
+remove the guest order's details, enter the withdrawal. The retention sweep
+needs no help. It finds the same expired rows on its next run.
 
 ### Setting up the off-host copy
 

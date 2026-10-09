@@ -226,11 +226,12 @@ app.use(async (req, res, next) => {
           ),
         ),
       );
+      // Retry-After matches the API's gate, and is what tells this 503 apart
+      // from an outage in the error alert.
+      const headers = documentHeaders(response, req.headers.cookie);
+      headers.set('Retry-After', '3600');
       await writeResponseToNodeResponse(
-        new Response(html, {
-          status: 503,
-          headers: documentHeaders(response, req.headers.cookie),
-        }),
+        new Response(html, { status: 503, headers }),
         res,
       );
       return;

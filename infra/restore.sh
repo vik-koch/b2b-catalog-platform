@@ -117,3 +117,7 @@ run "rm -rf $remote/restore"
 echo
 echo "Restored '$stack'. Check the catalog and that product images load —"
 echo "a dump restored against a mismatched media archive shows up there first."
+echo
+echo "Now repeat every deletion made since this backup was taken: deleted"
+echo "accounts are back and can sign in. See 'Repeat the deletions' in"
+echo "infra/README.md for the log query."
