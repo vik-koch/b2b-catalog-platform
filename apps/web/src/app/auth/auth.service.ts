@@ -60,8 +60,12 @@ export type CodeResult =
   | { result: 'ok' | 'expired' | 'restart' | 'closed' | 'error' }
   | { result: 'wrong'; attemptsLeft: number };
 
-/** What asking for another code can come back with. */
+/** What asking for another code or call check can come back with. */
 export type SendResult = 'ok' | 'restart' | 'error' | CodeSendFailure;
+
+/** What asking whether the call has come can answer. `waiting`: not yet. */
+export type CallResult =
+  'ok' | 'waiting' | 'expired' | 'restart' | 'closed' | 'unavailable' | 'error';
 
 /**
  * What the change-password form needs to distinguish. Two of these are 400s
@@ -278,7 +282,34 @@ export class AuthService {
     }
   }
 
-  /** Send the waiting sign-in a new code. */
+  /** Ask whether the call has come. Once it has, the session starts, as a
+   * right code's would, and `remember` counts then. */
+  async checkCall(remember = false): Promise<CallResult> {
+    const result = await safe(
+      this.client.checkSignInCall({ body: remember ? { remember } : {} }),
+    );
+    if (result.isSuccess) {
+      if ('waiting' in result.data) return 'waiting';
+      this.signedIn(result.data);
+      return 'ok';
+    }
+    if (!result.isDefined) return 'error';
+    switch (result.error.code) {
+      case 'call-expired':
+        return 'expired';
+      case 'code-delivery-unavailable':
+        return 'unavailable';
+      case MAINTENANCE_REFUSED:
+        return 'closed';
+      case 'sign-in-step-expired':
+        this.pendingStep.set(null);
+        return 'restart';
+      default:
+        return 'error';
+    }
+  }
+
+  /** Send the waiting sign-in a new code, or start a new call check. */
   async resendCode(): Promise<SendResult> {
     return this.sent(await safe(this.client.resendSignInCode()));
   }

@@ -34,6 +34,7 @@ describe('SignInStep', () => {
     issue: vi.fn(),
     resend: vi.fn(),
     check: vi.fn(),
+    checkCall: vi.fn(),
   };
   const users = { findById: vi.fn(), confirmPhone: vi.fn() };
   const jwt = new JwtService({});
@@ -243,6 +244,77 @@ describe('SignInStep', () => {
     expect(await byMail.begin(customer, req, res)).toMatchObject({
       sentTo: 'j•••@example.com',
       phone: '+49 (•••) •••-••78',
+    });
+  });
+
+  describe('a call instead of a code', () => {
+    const calling = (channel: 'phone' | 'email') =>
+      new SignInStep(
+        { mode: 'always', roles: ['user'] },
+        SECRET,
+        (value) => normalizePhone(value, phoneInput),
+        phoneInput,
+        jwt,
+        codes as unknown as SignInCodes,
+        users as unknown as UsersService,
+        {
+          kind: 'call',
+          check: { channel, start: vi.fn(), status: vi.fn() },
+        },
+      );
+
+    beforeEach(() => {
+      codes.issue.mockImplementation(async (_user, phone: string) => ({
+        phone,
+        resendInMs: 60_000,
+        call: { callTo: '+498005008275', expiresInMs: 300_000 },
+      }));
+    });
+
+    it('answers the number to call, and the account’s own masked', async () => {
+      expect(await calling('phone').begin(customer, req, res)).toEqual({
+        step: 'call',
+        callTo: '+49 (800) 500-8275',
+        dial: '+498005008275',
+        expiresIn: 300,
+        phone: '+49 (•••) •••-••78',
+        confirming: false,
+        resendIn: 60,
+        rememberDays: 0,
+      });
+      expect(cookies[PENDING_COOKIE]).toBeTruthy();
+    });
+
+    // Dev stands in for the call by mail: the screen says where the link went.
+    it('names the mailbox where mail stands in for the call', async () => {
+      expect(await calling('email').begin(customer, req, res)).toMatchObject({
+        step: 'call',
+        sentTo: 'j•••@example.com',
+      });
+    });
+
+    it('waits while the call has not come', async () => {
+      codes.checkCall.mockResolvedValue({ result: 'pending' });
+
+      expect(await calling('phone').completeCall(customer)).toEqual({
+        result: 'pending',
+      });
+      expect(users.confirmPhone).not.toHaveBeenCalled();
+    });
+
+    it('writes the number a confirming call came from', async () => {
+      codes.checkCall.mockResolvedValue({
+        result: 'ok',
+        purpose: 'confirm',
+        phone: customer.phone,
+      });
+      users.confirmPhone.mockResolvedValue(customer);
+
+      expect(await calling('phone').completeCall(customer)).toEqual({
+        result: 'ok',
+        user: customer,
+      });
+      expect(users.confirmPhone).toHaveBeenCalledWith('user-1', customer.phone);
     });
   });
 

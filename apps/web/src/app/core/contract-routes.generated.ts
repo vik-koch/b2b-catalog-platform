@@ -522,6 +522,17 @@ export const authContract = {
       },
     },
   },
+  checkSignInCall: {
+    '~orpc': {
+      errorMap: {},
+      meta: {},
+      route: {
+        method: 'POST',
+        path: '/auth/sign-in-step/call',
+        inputStructure: 'detailed',
+      },
+    },
+  },
   logout: {
     '~orpc': {
       errorMap: {},

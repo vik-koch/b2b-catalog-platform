@@ -21,6 +21,7 @@ import { SettingsService } from '../settings/settings.service';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { PHONE_RULE } from '../config/deployment-config';
 import { CodeDeliveryError } from './sign-in-step/code-delivery';
+import { MailCallCheck } from './sign-in-step/mail-call-check';
 import { CodeResendLimitError } from './sign-in-step/sign-in-codes';
 import { SignInStep } from './sign-in-step/sign-in-step';
 import { SIGN_IN_PROOF } from './sign-in-step/sign-in-proof';
@@ -63,9 +64,15 @@ describe('AuthController', () => {
     changeNumber: vi.fn(),
     resend: vi.fn(),
     complete: vi.fn(),
+    completeCall: vi.fn(),
     end: vi.fn(),
     remember: vi.fn(),
   };
+  // Dev's stand-in, so the link that answers it can be followed.
+  const standIn = new MailCallCheck(
+    { send: async () => undefined } as unknown as MailService,
+    demoMailText,
+  );
   // Sets what a real session sets, under a token the tests can recognise.
   const sessions = {
     start: vi.fn(async (req: never, res: never, account: { role: 'user' }) =>
@@ -85,7 +92,7 @@ describe('AuthController', () => {
         { provide: Sessions, useValue: sessions },
         {
           provide: SIGN_IN_PROOF,
-          useValue: { kind: 'code' },
+          useValue: { kind: 'call', check: standIn },
         },
         { provide: PHONE_RULE, useValue: (value: string) => value },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
@@ -159,6 +166,7 @@ describe('AuthController', () => {
     // No step owed unless a test says so.
     step.begin.mockReset().mockResolvedValue(null);
     step.pending.mockReset().mockResolvedValue(null);
+    step.completeCall.mockReset();
     auth.toAuthUser.mockReturnValue(user);
   });
 
@@ -370,6 +378,87 @@ describe('AuthController', () => {
       expect(await response.json()).toMatchObject({
         code: 'code-resend-limit',
         data: { retryAfter: 43 },
+      });
+    });
+
+    describe('a call instead of a code', () => {
+      it('says to keep waiting until the call has come', async () => {
+        step.pending.mockResolvedValue(user);
+        step.completeCall.mockResolvedValue({ result: 'pending' });
+
+        const response = await post('/auth/sign-in-step/call', {});
+
+        expect(response.status).toBe(200);
+        expect(await response.json()).toEqual({ waiting: true });
+        expect(cookiesOf(response)).not.toContain(`${AUTH_COOKIE}=`);
+        expect(step.end).not.toHaveBeenCalled();
+      });
+
+      it('starts the session once the call has come', async () => {
+        step.pending.mockResolvedValue(user);
+        step.completeCall.mockResolvedValue({ result: 'ok', user });
+
+        const response = await post('/auth/sign-in-step/call', {
+          remember: true,
+        });
+
+        expect(await response.json()).toEqual(user);
+        expect(cookiesOf(response)).toContain(`${AUTH_COOKIE}=a-signed-token`);
+        expect(step.end).toHaveBeenCalled();
+        expect(step.remember).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.anything(),
+          user,
+        );
+      });
+
+      it('answers a check that is over by its own code', async () => {
+        step.pending.mockResolvedValue(user);
+        step.completeCall.mockResolvedValue({ result: 'expired' });
+
+        const response = await post('/auth/sign-in-step/call', {});
+
+        expect(response.status).toBe(410);
+        expect(await response.json()).toMatchObject({ code: 'call-expired' });
+      });
+
+      it('says when the provider cannot tell', async () => {
+        step.pending.mockResolvedValue(user);
+        step.completeCall.mockRejectedValue(
+          new CodeDeliveryError('unavailable', 'down'),
+        );
+
+        const response = await post('/auth/sign-in-step/call', {});
+
+        expect(response.status).toBe(503);
+        expect(await response.json()).toMatchObject({
+          code: 'code-delivery-unavailable',
+        });
+      });
+
+      it('sends the visitor back to the password when nothing is pending', async () => {
+        const response = await post('/auth/sign-in-step/call', {});
+
+        expect(response.status).toBe(401);
+        expect(step.completeCall).not.toHaveBeenCalled();
+      });
+
+      it('counts the stand-in link as the call, once it is known', async () => {
+        const { reference } = await standIn.start({
+          phone: '+494012345678',
+          email: 'jane@example.com',
+        });
+        const open = (ref: string) =>
+          fetch(`${baseUrl}/api/auth/sign-in-step/stand-in/${ref}`, {
+            redirect: 'manual',
+          });
+
+        const unknown = await open('made-up');
+        const known = await open(reference);
+
+        expect(unknown.status).toBe(404);
+        expect(known.status).toBe(303);
+        expect(await standIn.status(reference)).toBe('confirmed');
       });
     });
   });

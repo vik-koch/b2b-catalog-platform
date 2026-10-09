@@ -25,10 +25,10 @@ export interface CodeDelivery {
 }
 
 /**
- * Why a code did not go out. `unreachable`: the provider refused the number,
- * so a different one might work. `unavailable`: the provider is down, out of
- * balance or answering nonsense, and the sign-in stops — nothing skips the
- * step.
+ * Why a code did not go out, or a call check could not be started or read.
+ * `unreachable`: the provider refused the number, so a different one might
+ * work. `unavailable`: the provider is down, out of balance or answering
+ * nonsense, and the sign-in stops — nothing skips the step.
  */
 export class CodeDeliveryError extends Error {
   constructor(

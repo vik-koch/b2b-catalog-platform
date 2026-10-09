@@ -16,10 +16,10 @@ export const CODE_TTL_MS = 10 * 60 * 1000;
  * guesser nine chances in a million per pause. */
 export const CODE_MAX_ATTEMPTS = 3;
 /**
- * The wait before the next code, by how many have gone out: a minute after
- * the first, two after the second. Each message costs the shop money, so the
- * wait grows with the messages rather than with the wrong entries, which are
- * already capped per code.
+ * The wait before the next code or call check, by how many have gone out: a
+ * minute after the first, two after the second. Each one costs the shop
+ * money, so the wait grows with them rather than with the wrong entries,
+ * which are already capped per code.
  */
 export const CODE_WAITS_MS = [60 * 1000, 2 * 60 * 1000] as const;
 /** Codes or checks an account gets before it has to wait out the pause. */
@@ -41,10 +41,20 @@ export type CodeCheck =
   | { result: 'wrong'; attemptsLeft: number }
   | { result: 'expired' };
 
-/** Where a code went, and how long until another may be asked. */
+export type CallCheckResult =
+  | { result: 'ok'; purpose: CodePurpose; phone: string }
+  | { result: 'pending' }
+  | { result: 'expired' };
+
+/**
+ * Where a code went, or which number a call check waits for, and how long
+ * until another may be asked. `call` is the number to call and how long the
+ * check stays open.
+ */
 export interface CodeSent {
   readonly phone: string;
   readonly resendInMs: number;
+  readonly call?: { readonly callTo: string; readonly expiresInMs: number };
 }
 
 interface Recipient {
@@ -54,15 +64,17 @@ interface Recipient {
 
 type CodeRow = typeof signInCodes.$inferSelect;
 
-/** What a send leaves in the row: a code's hash */
+/** What a send leaves in the row: a code's hash, or a call check. */
 type Proof =
-  { codeHash: string; ttlMs: number } | { codeHash: null; ttlMs: number };
+  | { codeHash: string; callReference: null; callTo: null; ttlMs: number }
+  | { codeHash: null; callReference: string; callTo: string; ttlMs: number };
 
 /**
- * The code an account is waiting on (FR-AUTH-12, ADR 0066). One row per
- * account, and it outlives its code: it remembers how many codes went out
- * until the pause after the last one is over, so the limits hold per account
- * however often the password is entered and whichever number is named.
+ * The code or call check an account is waiting on (FR-AUTH-12, ADR 0066). One
+ * row per account, and it outlives what it holds: it remembers how many went
+ * out until the pause after the last one is over, so the limits hold per
+ * account however often the password is entered and whichever number is
+ * named.
  */
 @Injectable()
 export class SignInCodes {
@@ -73,9 +85,9 @@ export class SignInCodes {
   ) {}
 
   /**
-   * Make sure a code for this purpose is on its way to this number. A usable
-   * code that already is, is left alone: entering the password again does not
-   * send another message. Anything else is a new message, and waits its turn.
+   * Make sure a code or call check for this purpose is open for this number.
+   * A usable one is left alone: entering the password again does not pay for
+   * another. Anything else is a new one, and waits its turn.
    *
    * Throws `CodeDeliveryError` when it could not be sent or started, and
    * `CodeResendLimitError` when the account's wait is not over.
@@ -130,7 +142,8 @@ export class SignInCodes {
   /**
    * Checks an entered code. The attempt is counted before the comparison, in
    * one statement, so parallel guesses cannot share an attempt. A right code
-   * is spent at once, and with it the account's count of messages.
+   * is spent at once, and with it the account's count of messages. A row
+   * holding a call check has no code to enter, and reads as expired.
    */
   async check(userId: string, code: string): Promise<CodeCheck> {
     const [counted] = await this.db
@@ -156,6 +169,40 @@ export class SignInCodes {
 
     await this.db.delete(signInCodes).where(eq(signInCodes.userId, userId));
     return { result: 'ok', purpose: counted.purpose, phone: counted.phone };
+  }
+
+  /**
+   * Asks the provider whether the call has come. A confirmed check is spent
+   * in the same statement that reads it as ours, so two tabs asking at once
+   * complete one sign-in between them. One the provider ended is marked
+   * expired here, so later questions need not reach the provider.
+   *
+   * Throws `CodeDeliveryError` when the provider cannot tell.
+   */
+  async checkCall(userId: string): Promise<CallCheckResult> {
+    if (this.proof.kind !== 'call') return { result: 'expired' };
+    const row = await this.row(userId);
+    const reference = row?.callReference;
+    if (!row || !reference || row.expiresAt.getTime() <= Date.now()) {
+      return { result: 'expired' };
+    }
+
+    const ours = and(
+      eq(signInCodes.userId, userId),
+      eq(signInCodes.callReference, reference),
+    );
+    const status = await this.proof.check.status(reference);
+    if (status === 'pending') return { result: 'pending' };
+    if (status === 'expired') {
+      await this.db
+        .update(signInCodes)
+        .set({ expiresAt: new Date() })
+        .where(ours);
+      return { result: 'expired' };
+    }
+    const [spent] = await this.db.delete(signInCodes).where(ours).returning();
+    if (!spent) return { result: 'expired' };
+    return { result: 'ok', purpose: spent.purpose, phone: spent.phone };
   }
 
   private async issueAgain(user: Recipient, row: CodeRow): Promise<CodeSent> {
@@ -199,6 +246,18 @@ export class SignInCodes {
   }
 
   private async prove(user: Recipient, phone: string): Promise<Proof> {
+    if (this.proof.kind === 'call') {
+      const started = await this.proof.check.start({
+        phone,
+        email: user.email,
+      });
+      return {
+        codeHash: null,
+        callReference: started.reference,
+        callTo: started.callTo,
+        ttlMs: started.expiresInMs,
+      };
+    }
     const code = newCode();
     const sent = await this.proof.delivery.send({
       phone,
@@ -208,6 +267,8 @@ export class SignInCodes {
     });
     return {
       codeHash: hashCode(sent.code),
+      callReference: null,
+      callTo: null,
       ttlMs: CODE_TTL_MS,
     };
   }
@@ -215,7 +276,7 @@ export class SignInCodes {
   /** Open, and of the kind the deployment proves by now: a row left from
    * the other kind is replaced like a spent one. */
   private usable(row: CodeRow, now: number): boolean {
-    const kind = 'code';
+    const kind = row.callReference ? 'call' : 'code';
     return (
       kind === this.proof.kind &&
       row.expiresAt.getTime() > now &&
@@ -229,6 +290,14 @@ function sentFrom(row: CodeRow, now: number): CodeSent {
   return {
     phone: row.phone,
     resendInMs: waitLeft(row, now),
+    ...(row.callReference && row.callTo
+      ? {
+          call: {
+            callTo: row.callTo,
+            expiresInMs: Math.max(0, row.expiresAt.getTime() - now),
+          },
+        }
+      : {}),
   };
 }
 

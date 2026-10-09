@@ -18,7 +18,9 @@ import { UserRow, UsersService } from '../../users/users.service';
 import { sessionCookieAttributes } from '../session-cookie';
 import { CodeDeliveryError } from './code-delivery';
 import {
+  CallCheckResult,
   CodeCheck,
+  CodePurpose,
   CodeResendLimitError,
   CodeSent,
   SignInCodes,
@@ -55,10 +57,12 @@ interface RememberedClaims {
 }
 
 export { CodeDeliveryError, CodeResendLimitError };
+export type { CallCheckResult, CodeCheck };
 
 /**
- * The second sign-in step (FR-AUTH-12, ADR 0066): whether an account owes a
- * code, and the sign-in that waits on one.
+ * The second sign-in step (FR-AUTH-12, ADR 0066): whether an account owes
+ * proof of its number, and the sign-in that waits on it — a code entered, or
+ * a call that comes.
  *
  * Between the password and the step the visitor holds a short-lived signed
  * cookie naming the account, signed with its own secret so no session check
@@ -119,8 +123,8 @@ export class SignInStep {
 
   /**
    * Where a password has just been accepted. Answers null when no step is
-   * owed, and the caller starts the session; otherwise sends the code, sets
-   * the pending cookie and answers the step.
+   * owed, and the caller starts the session; otherwise sends the code or
+   * starts the call check, sets the pending cookie and answers the step.
    *
    * The step uses the account's own number, which staff set. One it cannot
    * use (none, not in a readable form, or refused by the provider) stops the
@@ -205,11 +209,31 @@ export class SignInStep {
   > {
     const check = await this.codes.check(user.id, code);
     if (check.result !== 'ok') return check;
-    const updated =
-      check.purpose === 'confirm'
-        ? await this.users.confirmPhone(user.id, check.phone)
-        : user;
-    return { result: 'ok', user: updated };
+    return { result: 'ok', user: await this.proven(user, check) };
+  }
+
+  /**
+   * Asks whether the call has come. Once it has, it confirms the number it
+   * came from where that was its purpose, and answers the account as it now
+   * stands. Throws `CodeDeliveryError` when the provider cannot tell.
+   */
+  async completeCall(
+    user: UserRow,
+  ): Promise<
+    { result: 'ok'; user: UserRow } | Exclude<CallCheckResult, { result: 'ok' }>
+  > {
+    const check = await this.codes.checkCall(user.id);
+    if (check.result !== 'ok') return check;
+    return { result: 'ok', user: await this.proven(user, check) };
+  }
+
+  private async proven(
+    user: UserRow,
+    proof: { purpose: CodePurpose; phone: string },
+  ): Promise<UserRow> {
+    return proof.purpose === 'confirm'
+      ? this.users.confirmPhone(user.id, proof.phone)
+      : user;
   }
 
   /**
@@ -279,7 +303,19 @@ export class SignInStep {
       confirming: this.need(user) === 'confirm',
       rememberDays: this.rememberDays(),
     };
-    return { step: 'code', ...this.sent(user, sent), ...common };
+    if (!sent.call)
+      return { step: 'code', ...this.sent(user, sent), ...common };
+    const { phone, resendIn } = this.sent(user, sent);
+    return {
+      step: 'call',
+      callTo: formatPhone(sent.call.callTo, this.phoneInput),
+      dial: sent.call.callTo,
+      expiresIn: Math.ceil(sent.call.expiresInMs / 1000),
+      ...(byMail(this.proof) ? { sentTo: maskEmail(user.email) } : {}),
+      phone,
+      resendIn,
+      ...common,
+    };
   }
 
   /** Where a code went and when another may be asked, as a screen shows it. */

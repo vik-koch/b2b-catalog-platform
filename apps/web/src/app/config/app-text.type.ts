@@ -1286,10 +1286,31 @@ export const appTextSchema = z
             remember: z.string(),
             /** Under the box: it skips the code, not the password. */
             rememberHint: z.string(),
-            /** No number on the account a code can reach: staff correct it. */
+            /** No number on the account the step can use: staff correct it. */
             unreachableAccount: z.string(),
             unavailable: z.string(),
             error: z.string(),
+            /**
+             * The call screen, where the deployment proves the number by a
+             * call from it. `{callTo}` is the number to call, `{phone}` the
+             * account's (masked), `{time}` a wait.
+             */
+            callHeading: z.string(),
+            callIntro: z.string(),
+            /** Where mail stands in for the call; `{sentTo}` is the address. */
+            callByMail: z.string(),
+            /** Under the intro while the number is being confirmed. */
+            callConfirmNote: z.string(),
+            /** The link a phone can dial. */
+            callDial: z.string(),
+            /** While the check is open; `{time}` is what is left of it. */
+            callWaiting: z.string(),
+            callExpired: z.string(),
+            callNew: z.string(),
+            /** The new-number control while the wait runs. */
+            callNewIn: z.string(),
+            callRenewed: z.string(),
+            callLimit: z.string(),
           })
           .strict(),
         /**
