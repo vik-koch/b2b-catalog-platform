@@ -76,3 +76,15 @@ proportion, see 0017).
   the push (the same sidecar can target remote storage) remains open.
 - (−) Two sidecars on long-lived stacks, and `./backups` grows with two
   retention policies to keep an eye on.
+
+## Amendment — 2026-10-09 (v1.14.0): the pair is one archive, and it leaves the host
+
+ADR 0067 closes the operator-triggered gap above. The `media-backup` sidecar
+now archives the latest database dump together with the media volume, encrypts
+the archive, and, if a deployment names a bucket, uploads it there as well as
+writing it locally. `infra/backup.sh` fetches a pair from that bucket, and
+`infra/restore.sh` restores from one archive instead of two files.
+
+This reverses one rejection above: the single archive no longer couples
+different retentions, because the dump's own daily/weekly/monthly rotation
+stays with `db-backup`. Only the off-host copy is paired.
