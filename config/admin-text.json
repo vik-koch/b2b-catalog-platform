@@ -155,6 +155,7 @@
       "heading": "Link",
       "urlLabel": "Link address",
       "placeholder": "https://example.com",
+      "hint": "A web address, an email, a phone number, or a path on this site such as /catalog.",
       "apply": "Apply"
     },
     "imagePanel": {

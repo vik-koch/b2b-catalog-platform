@@ -9,6 +9,7 @@ import { EmphasisedText } from '../ui/emphasised-text';
 import { MapFrame } from './map-frame';
 import { PageService } from './page.service';
 import { LoadErrorView } from './load-error-view';
+import { RichTextLinks } from '../core/rich-text-links';
 import { trustedRichText } from '../core/trusted-rich-text';
 
 /**
@@ -23,7 +24,13 @@ import { trustedRichText } from '../core/trusted-rich-text';
  */
 @Component({
   selector: 'app-contact-page',
-  imports: [MapFrame, EditActions, EmphasisedText, LoadErrorView],
+  imports: [
+    RichTextLinks,
+    MapFrame,
+    EditActions,
+    EmphasisedText,
+    LoadErrorView,
+  ],
   template: `
     <!-- Nothing renders before the body arrives, heading included. The office
          list comes from deployment config and would otherwise paint instantly,
@@ -59,6 +66,7 @@ import { trustedRichText } from '../core/trusted-rich-text';
       @if (page(); as content) {
         <div
           class="prose prose-stone mb-8 max-w-3xl"
+          appRichTextLinks
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {

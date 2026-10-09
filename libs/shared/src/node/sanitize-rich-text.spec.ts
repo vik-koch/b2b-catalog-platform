@@ -206,11 +206,13 @@ describe('sanitizeRichText', () => {
   });
 
   describe('link safety', () => {
-    it('keeps http, https and mailto links and forces a safe rel', () => {
+    it('keeps http, https, mailto, tel and root-relative links and forces a safe rel', () => {
       for (const href of [
         'https://roastery.example',
         'http://roastery.example',
         'mailto:hello@roastery.example',
+        'tel:+4930123456',
+        '/catalog/coffee?sort=name#top',
       ]) {
         const out = sanitizeRichText(`<a href="${href}">link</a>`);
 

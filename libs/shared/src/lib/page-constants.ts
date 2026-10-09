@@ -182,8 +182,17 @@ export const RICH_TEXT_TAGS = [
   'img',
 ] as const;
 
-/** Link targets we accept. `javascript:`/`data:` are the reason this is a list. */
-export const RICH_TEXT_LINK_SCHEMES = ['http', 'https', 'mailto'] as const;
+/**
+ * Link targets we accept. `javascript:`/`data:` are the reason this is a list.
+ * A root-relative path (`/catalog`) carries no scheme and passes as well; a
+ * protocol-relative one (`//host`) does not.
+ */
+export const RICH_TEXT_LINK_SCHEMES = [
+  'http',
+  'https',
+  'mailto',
+  'tel',
+] as const;
 
 /**
  * Image alignment is a closed enum, never free-form CSS: the sanitizer
