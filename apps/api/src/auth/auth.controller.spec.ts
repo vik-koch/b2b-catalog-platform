@@ -23,6 +23,9 @@ import { PHONE_RULE } from '../config/deployment-config';
 import { CodeDeliveryError } from './sign-in-step/code-delivery';
 import { CodeResendLimitError } from './sign-in-step/sign-in-codes';
 import { SignInStep } from './sign-in-step/sign-in-step';
+import { SIGN_IN_PROOF } from './sign-in-step/sign-in-proof';
+import { MailService } from '../mail/mail.service';
+import { demoMailText } from '../mail/mail-text.fixture';
 import { issueSession } from './session-cookie';
 import { Sessions } from './sessions';
 
@@ -80,6 +83,10 @@ describe('AuthController', () => {
         { provide: PasswordResetService, useValue: passwordReset },
         { provide: SignInStep, useValue: step },
         { provide: Sessions, useValue: sessions },
+        {
+          provide: SIGN_IN_PROOF,
+          useValue: { kind: 'code' },
+        },
         { provide: PHONE_RULE, useValue: (value: string) => value },
         { provide: APP_FILTER, useClass: ContractErrorFilter },
         {

@@ -1,4 +1,4 @@
-import { Controller, Req, Res } from '@nestjs/common';
+import { Controller, Inject, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
 import {
@@ -27,6 +27,7 @@ import { endSession } from './session-cookie';
 import { Sessions } from './sessions';
 import { sending } from './sign-in-step/code-refusals';
 import { SignInStep } from './sign-in-step/sign-in-step';
+import { SIGN_IN_PROOF, SignInProof } from './sign-in-step/sign-in-proof';
 import { UserRow } from '../users/users.service';
 
 @Controller()
@@ -39,6 +40,7 @@ export class AuthController {
     private readonly settings: SettingsService,
     private readonly step: SignInStep,
     private readonly sessions: Sessions,
+    @Inject(SIGN_IN_PROOF) private readonly proof: SignInProof,
   ) {}
 
   /**

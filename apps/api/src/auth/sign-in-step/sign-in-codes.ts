@@ -1,6 +1,6 @@
 import { createHash, randomInt, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
-import { and, eq, gt, lt, sql } from 'drizzle-orm';
+import { and, eq, gt, isNotNull, lt, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
 import { DRIZZLE } from '../../db/database.module';
@@ -8,7 +8,7 @@ import * as schema from '../../db/schema';
 import { signInCodes } from '../../db/schema';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
 import { signInCodeText } from '../../mail/templates/sign-in-code.template';
-import { CODE_DELIVERY, CodeDelivery } from './code-delivery';
+import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 
 /** How long a code is good for. */
 export const CODE_TTL_MS = 10 * 60 * 1000;
@@ -22,7 +22,7 @@ export const CODE_MAX_ATTEMPTS = 3;
  * already capped per code.
  */
 export const CODE_WAITS_MS = [60 * 1000, 2 * 60 * 1000] as const;
-/** Codes an account is sent before it has to wait out the pause. */
+/** Codes or checks an account gets before it has to wait out the pause. */
 export const CODE_MAX_SENDS = CODE_WAITS_MS.length + 1;
 /** The pause after the last of them, counted from when it was sent. */
 export const CODE_PAUSE_MS = 30 * 60 * 1000;
@@ -54,6 +54,10 @@ interface Recipient {
 
 type CodeRow = typeof signInCodes.$inferSelect;
 
+/** What a send leaves in the row: a code's hash */
+type Proof =
+  { codeHash: string; ttlMs: number } | { codeHash: null; ttlMs: number };
+
 /**
  * The code an account is waiting on (FR-AUTH-12, ADR 0066). One row per
  * account, and it outlives its code: it remembers how many codes went out
@@ -64,7 +68,7 @@ type CodeRow = typeof signInCodes.$inferSelect;
 export class SignInCodes {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
-    @Inject(CODE_DELIVERY) private readonly delivery: CodeDelivery,
+    @Inject(SIGN_IN_PROOF) private readonly proof: SignInProof,
     @Inject(MAIL_TEXT) private readonly text: MailText,
   ) {}
 
@@ -73,7 +77,7 @@ export class SignInCodes {
    * code that already is, is left alone: entering the password again does not
    * send another message. Anything else is a new message, and waits its turn.
    *
-   * Throws `CodeDeliveryError` when the message did not go out, and
+   * Throws `CodeDeliveryError` when it could not be sent or started, and
    * `CodeResendLimitError` when the account's wait is not over.
    */
   async issue(
@@ -92,32 +96,31 @@ export class SignInCodes {
       row &&
       row.phone === phone &&
       row.purpose === purpose &&
-      usable(row, now)
+      this.usable(row, now)
     ) {
-      return { phone, resendInMs: waitLeft(row, now) };
+      return sentFrom(row, now);
     }
     if (row) refuseUntilDue(row, now);
 
     const sends = (row?.sends ?? 0) + 1;
-    const codeHash = await this.deliver(user, phone);
     const values = {
       purpose,
       phone,
-      codeHash,
+      ...(await this.send(user, phone, now)),
       attempts: 0,
       sends,
       sentAt: new Date(now),
-      expiresAt: new Date(now + CODE_TTL_MS),
     };
-    await this.db
+    const [saved] = await this.db
       .insert(signInCodes)
       .values({ userId: user.id, ...values })
-      .onConflictDoUpdate({ target: signInCodes.userId, set: values });
-    return { phone, resendInMs: waitAfter(sends) };
+      .onConflictDoUpdate({ target: signInCodes.userId, set: values })
+      .returning();
+    return sentFrom(saved, now);
   }
 
-  /** A new code to the same number, once the wait is over. Null when the
-   * account is waiting on no code at all. */
+  /** A new code or check for the same number, once the wait is over. Null
+   * when the account is waiting on nothing at all. */
   async resend(user: Recipient): Promise<CodeSent | null> {
     const row = await this.row(user.id);
     if (!row) return null;
@@ -136,12 +139,13 @@ export class SignInCodes {
       .where(
         and(
           eq(signInCodes.userId, userId),
+          isNotNull(signInCodes.codeHash),
           gt(signInCodes.expiresAt, new Date()),
           lt(signInCodes.attempts, CODE_MAX_ATTEMPTS),
         ),
       )
       .returning();
-    if (!counted) return { result: 'expired' };
+    if (!counted?.codeHash) return { result: 'expired' };
 
     if (!sameHash(counted.codeHash, hashCode(code))) {
       return {
@@ -158,18 +162,17 @@ export class SignInCodes {
     const now = Date.now();
     refuseUntilDue(row, now);
     const sends = row.sends + 1;
-    const codeHash = await this.deliver(user, row.phone);
-    await this.db
+    const [saved] = await this.db
       .update(signInCodes)
       .set({
-        codeHash,
+        ...(await this.send(user, row.phone, now)),
         attempts: 0,
         sends,
         sentAt: new Date(now),
-        expiresAt: new Date(now + CODE_TTL_MS),
       })
-      .where(eq(signInCodes.userId, user.id));
-    return { phone: row.phone, resendInMs: waitAfter(sends) };
+      .where(eq(signInCodes.userId, user.id))
+      .returning();
+    return sentFrom(saved, now);
   }
 
   private async row(userId: string): Promise<CodeRow | undefined> {
@@ -185,16 +188,48 @@ export class SignInCodes {
     return row;
   }
 
-  private async deliver(user: Recipient, phone: string): Promise<string> {
+  /** Sends a code or starts a call check, and answers what the row keeps. */
+  private async send(
+    user: Recipient,
+    phone: string,
+    now: number,
+  ): Promise<Omit<Proof, 'ttlMs'> & { expiresAt: Date }> {
+    const { ttlMs, ...proof } = await this.prove(user, phone);
+    return { ...proof, expiresAt: new Date(now + ttlMs) };
+  }
+
+  private async prove(user: Recipient, phone: string): Promise<Proof> {
     const code = newCode();
-    const sent = await this.delivery.send({
+    const sent = await this.proof.delivery.send({
       phone,
       code,
       text: signInCodeText(this.text, code),
       email: user.email,
     });
-    return hashCode(sent.code);
+    return {
+      codeHash: hashCode(sent.code),
+      ttlMs: CODE_TTL_MS,
+    };
   }
+
+  /** Open, and of the kind the deployment proves by now: a row left from
+   * the other kind is replaced like a spent one. */
+  private usable(row: CodeRow, now: number): boolean {
+    const kind = 'code';
+    return (
+      kind === this.proof.kind &&
+      row.expiresAt.getTime() > now &&
+      row.attempts < CODE_MAX_ATTEMPTS
+    );
+  }
+}
+
+/** What a screen is told about a row. */
+function sentFrom(row: CodeRow, now: number): CodeSent {
+  return {
+    phone: row.phone,
+    resendInMs: waitLeft(row, now),
+  };
 }
 
 /** The wait after the n-th code; the pause once there are no more. */
@@ -209,10 +244,6 @@ function waitLeft(row: CodeRow, now: number): number {
 function refuseUntilDue(row: CodeRow, now: number): void {
   const left = waitLeft(row, now);
   if (left > 0) throw new CodeResendLimitError(left);
-}
-
-function usable(row: CodeRow, now: number): boolean {
-  return row.expiresAt.getTime() > now && row.attempts < CODE_MAX_ATTEMPTS;
 }
 
 function newCode(): string {

@@ -57,25 +57,33 @@ export const codeSentSchema = z
   .strict();
 export type CodeSent = z.infer<typeof codeSentSchema>;
 
+/** What both kinds of step state: the number it proves (masked), the seconds
+ * until another code or check may be asked for, whether completing it also
+ * confirms that number, and the days a browser may be remembered (0: never). */
+const stepCommon = {
+  phone: z.string(),
+  resendIn: z.number().int().nonnegative(),
+  confirming: z.boolean(),
+  rememberDays: z.number().int().nonnegative(),
+};
+
 /**
- * The password was right, and a code is owed before a session begins
+ * The password was right, and the step is owed before a session begins
  * (FR-AUTH-12). Answered instead of the user by every route that would
- * otherwise start a session.
+ * otherwise start a session. The deployment's provider decides the kind:
  *
- * `sentTo` is where the code went: the phone, or the email address where the
- * deployment delivers codes by mail. `confirming` says the code also confirms
- * `phone`, which staff set and nobody has confirmed yet. The number is never
- * chosen here: staff set it, and a holder who cannot receive codes on it asks
- * the shop. `rememberDays` above 0 offers to remember the browser for that
- * long, so it skips the code next time.
+ * - `code`: a code went to `sentTo` (the phone, or the email address where the
+ *   deployment delivers codes by mail) and is entered on the site.
+ *
+ * `confirming` says completing it also confirms `phone`, which staff set and
+ * nobody has confirmed yet. The number is never chosen here: staff set it,
+ * and a holder who cannot use it asks the shop. `rememberDays` above 0 offers
+ * to remember the browser for that long, so it skips the step next time.
  */
-export const signInStepSchema = codeSentSchema
-  .extend({
-    step: z.literal('code'),
-    confirming: z.boolean(),
-    rememberDays: z.number().int().nonnegative(),
-  })
+export const codeStepSchema = codeSentSchema
+  .extend({ step: z.literal('code'), ...stepCommon })
   .strict();
+export const signInStepSchema = z.discriminatedUnion('step', [codeStepSchema]);
 export type SignInStep = z.infer<typeof signInStepSchema>;
 
 /** A session, or the step that stands before one. */

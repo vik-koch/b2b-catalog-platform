@@ -57,7 +57,7 @@ describe('SignInStep', () => {
       jwt,
       codes as unknown as SignInCodes,
       users as unknown as UsersService,
-      { channel: 'sms', send: vi.fn() },
+      { kind: 'code', delivery: { channel: 'sms', send: vi.fn() } },
     );
   const always = step({ mode: 'always', roles: ['user'] });
 
@@ -237,7 +237,7 @@ describe('SignInStep', () => {
       jwt,
       codes as unknown as SignInCodes,
       users as unknown as UsersService,
-      { channel: 'email', send: vi.fn() },
+      { kind: 'code', delivery: { channel: 'email', send: vi.fn() } },
     );
 
     expect(await byMail.begin(customer, req, res)).toMatchObject({

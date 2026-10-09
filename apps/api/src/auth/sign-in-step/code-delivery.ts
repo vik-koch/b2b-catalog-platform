@@ -24,8 +24,6 @@ export interface CodeDelivery {
   send(message: CodeMessage): Promise<{ code: string }>;
 }
 
-export const CODE_DELIVERY = 'CODE_DELIVERY';
-
 /**
  * Why a code did not go out. `unreachable`: the provider refused the number,
  * so a different one might work. `unavailable`: the provider is down, out of
