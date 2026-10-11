@@ -373,6 +373,14 @@ Notes:
   server cannot take the backups too. A disk beside the server was set aside, because it shares
   the server's fate. Whether a deployment sends its backups anywhere stays its own setting, and
   the short-lived demo still takes none.
+- **The exchange may take back a customer's cancellation** (2026-10-11, iteration 16,
+  [FR-ORD-02](requirements.md#fr-ord-02) and [FR-ADM-08](requirements.md#fr-adm-08) amended, ADR 0062 amended). A customer who
+  called an order off and then rang the shop for it had no way back while the back office owned
+  orders: the panel moves nothing then, and every write-back was refused. That is the outcome
+  the exchange was already spared for its own cancellations. A write-back may now reopen one,
+  but only by saying so, so an export that never learned of the cancellation is still refused,
+  and only when it writes to the customer and moves their page. The new field is optional, so
+  adapters that never send it behave as before.
 - Still open, to be decided before their iteration rather than now: whether audit records and usage
   metrics (page and product views, search-to-order funnels) are worth persisting beyond the log
   aggregation [NFR-OPS-03](requirements.md#nfr-ops-03)/[05](requirements.md#nfr-ops-05) already provide; and a security assessment pass across the whole
