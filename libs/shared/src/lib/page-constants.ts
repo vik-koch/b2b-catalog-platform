@@ -51,11 +51,11 @@ export type StandalonePageSlug = (typeof STANDALONE_PAGE_SLUGS)[number];
 /**
  * The pages that say when their text last changed: the ones a reader may hold
  * the shop to, where which text they read matters. The others are the shop
- * describing itself.
+ * describing itself. `conditions` is not dated: most of what it states is read
+ * live from configuration, so the date of its prose says nothing.
  */
 export const DATED_PAGE_SLUGS = [
   'terms',
-  'conditions',
   'privacy',
   'imprint',
   'withdrawal',
