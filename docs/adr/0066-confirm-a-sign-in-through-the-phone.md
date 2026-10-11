@@ -150,6 +150,16 @@ A shop of a few hundred business customers who talk to a manager anyway does
 not need that machinery. Nothing important hangs on the account: a lost phone
 is a call to the shop.
 
+Where an external system owns customers, nobody here sets the number after the
+account exists. The exchange writes it once, when it creates the account, and
+never again, because a customer's own details travel outward only. Staff edits
+are refused while the area is owned, like every other change to a customer.
+Letting the exchange write the number on every run was set aside: it would
+overturn a rule the exchange was built on, for a case no deployment has yet. An
+account whose number has changed in the other system therefore signs in through
+an admin's exemption, where the deployment allows one for customers, until the
+shop takes the area back.
+
 So a sign-in never asks for a number. The step uses the account's own number.
 Where that number cannot be used, the sign-in stops with a message to contact
 the shop, and the account's admin page says the same. That covers:
@@ -160,7 +170,7 @@ the shop, and the account's admin page says the same. That covers:
 
 The account gets `phoneConfirmedAt`, written together with the number when the
 step completes. A database trigger clears it whenever a write changes the
-number without setting it too. A number changed by staff, by a sync or by
+number without setting it too. A number changed by staff or by
 anonymization is therefore confirmed again by its holder's next completed step.
 This also covers accounts that existed before the switch was turned on.
 Numbers stay non-unique.
@@ -211,6 +221,9 @@ deployment whose rule asks for the step at every sign-in gets exactly that.
   the shown number by hand.
 - (−) A holder who loses the number, or whose number staff change to one they
   do not hold, cannot sign in until staff correct it or exempt the account.
+- (−) While an external system owns customers, a changed number cannot be
+  corrected here at all. Where the deployment exempts no customers, that
+  account cannot sign in until the area is taken back.
 - (−) Colleagues sharing a phone both complete their step on it.
 - (−) Someone who knows the password and uses a remembered browser skips the
   step, which is the point of remembering it. A shared computer therefore
