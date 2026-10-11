@@ -153,7 +153,8 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         },
         // Three things the admin panel would do with three buttons, filed as
         // one version — as the change, because that is the part a reader
-        // cannot work out from the status column.
+        // cannot work out from the status column. The one message is about
+        // the move: "changed" would tell them the order stayed where it was.
         expect: {
           run: ['applied'],
           instruction: ['adjustment'],
@@ -162,7 +163,7 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
           version: 2,
           customerSees: 2,
           readsOut: 'approved @ 2',
-          customerMail: ['changed'],
+          customerMail: ['approved'],
         },
       },
       {
@@ -219,7 +220,7 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
   {
     slug: 'called-off-underneath-the-exchange',
     title: 'Called off while the other system was working it',
-    note: 'The one move a customer keeps however the area is owned (FR-ADM-10), and the one an exchange must never drive over the top of. A cancellation is not a conflict for the source to resolve — it is a fact it has to read.',
+    note: 'The one move a customer keeps however the area is owned (FR-ADM-10), and the one an exchange must never drive over the top of. A cancellation is not a conflict for the source to resolve — it is a fact it has to read. Only the customer can change their mind, by asking the shop, and the exchange then says in so many words that it takes the cancellation back.',
     given: 'The same kind of order, read once by the source.',
     from: [
       {
@@ -272,6 +273,30 @@ export const orderSyncJourneys: readonly OrderSyncJourney[] = [
         expect: {
           run: ['applied'],
           instruction: ['refused: order-called-off'],
+        },
+      },
+      {
+        what: 'The customer rings the shop: they want the order after all. The back office takes the cancellation back and accepts it.',
+        actor: 'system',
+        action: 'writeBack',
+        args: {
+          status: 'approved',
+          restore: true,
+          notify: true,
+          showCustomer: true,
+        },
+        // Taken back only by saying so, which is what told the last attempt
+        // apart from this one — and only out loud: an order they stopped
+        // does not run again without their hearing of it.
+        expect: {
+          run: ['applied'],
+          instruction: ['transition'],
+          status: 'approved',
+          payment: 'awaiting',
+          version: 3,
+          customerSees: 3,
+          readsOut: 'approved @ 3',
+          customerMail: ['approved'],
         },
       },
     ],

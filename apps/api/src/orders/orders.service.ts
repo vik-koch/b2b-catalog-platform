@@ -227,11 +227,11 @@ const notFound = () =>
  * than stopped by the shop or by the system that owns order processing.
  *
  * The one distinction the write-back turns on (FR-ADM-08, FR-ADM-10): a
- * customer's cancellation is protected from every writer, and the shop's own
- * is a decision the shop may take back. Read off who wrote the version — the
- * customer's own account for their cancellation, a manager's for the shop's,
- * and nobody's for one written in from outside, where `source` names the
- * system instead.
+ * customer's cancellation is taken back only by an instruction that says so
+ * and tells them, and the shop's own is a decision the shop may take back.
+ * Read off who wrote the version — the customer's own account for their
+ * cancellation, a manager's for the shop's, and nobody's for one written in
+ * from outside, where `source` names the system instead.
  */
 function cancelledByCustomer(row: OrderRow): boolean {
   return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId;
@@ -1596,10 +1596,11 @@ export class OrdersService {
    * Two things it will not do, both from FR-ADM-10's carve-out. An order the
    * customer called off is refused rather than driven forward over the top:
    * they may still do that however the area is owned, and the alternative is a
-   * cancellation that silently never happened. And what the customer wrote in
-   * their own words — their note, their line notes, the day they asked for, the
-   * unit they read each line in — is carried across untouched, as it is when a
-   * manager adjusts an order.
+   * cancellation that silently never happened. Only an instruction that says
+   * it takes the cancellation back may move it, and it has to tell them. And
+   * what the customer wrote in their own words — their note, their line notes,
+   * the day they asked for, the unit they read each line in — is carried
+   * across untouched, as it is when a manager adjusts an order.
    */
   async writeBack(
     input: OrderWrite,
@@ -1616,22 +1617,34 @@ export class OrdersService {
         current: current.revisionNumber,
       });
     }
+    const from = current.status as OrderStatus;
+    const to = input.status ?? from;
+    const moved = to !== from;
     // Only the *customer's* cancellation stops the exchange. An order the
     // owning system called off is its own work, and while the area is owned
     // the panel refuses every move — so refusing this one too would leave an
     // order cancelled by mistake with nobody at all able to reopen it. Read
     // off the version the order stands on, which for a cancelled order is the
     // one that cancelled it: nothing moves an order without writing a version.
+    //
+    // The customer's own may be taken back too, when they ask the shop for the
+    // order after all — but only by saying so, so that an export which never
+    // learned of the cancellation is still refused, and only out loud: they
+    // must not find an order they stopped quietly running again.
     if (current.status === 'cancelled' && cancelledByCustomer(current)) {
-      throw new ConflictException({
-        code: 'order-called-off',
-        message: 'The customer called this order off',
-      });
+      if (!input.restoreCustomerCancellation || !moved) {
+        throw new ConflictException({
+          code: 'order-called-off',
+          message: 'The customer called this order off',
+        });
+      }
+      if (!input.notify || !input.showCustomer) {
+        throw new BadRequestException({
+          code: 'restore-not-announced',
+          message: 'Taking back a customer cancellation has to tell them',
+        });
+      }
     }
-
-    const from = current.status as OrderStatus;
-    const to = input.status ?? from;
-    const moved = to !== from;
     // As `machine` and not as staff: an exchange reports where the order *is*,
     // and the states it passed through between two polls were never witnessed
     // here (see `order-transitions.ts`).

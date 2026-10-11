@@ -1087,6 +1087,8 @@ export const adminTextSchema = z
                 /** The customer called it off, which they may do however the
                  * area is owned (FR-ADM-10). */
                 'order-called-off': z.string(),
+                /** A restore that would not tell the customer. */
+                'restore-not-announced': z.string(),
                 'transition-not-allowed': z.string(),
                 'reason-required': z.string(),
                 /** `{productSourceId}` — no product carries that key. */

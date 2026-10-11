@@ -1,6 +1,6 @@
 # 0062 — An order write-back is one version, applied as it arrives
 
-**Status:** accepted · **Date:** 2026-09-18
+**Status:** accepted (amended 2026-10-11) · **Date:** 2026-09-18
 
 ## Context
 
@@ -50,7 +50,8 @@ the same.
   acted, or the credential's name where it named nobody. An opaque label, never
   resolved to an account here.
 - **An order the customer called off is refused** (`order-called-off`), not
-  driven forward.
+  driven forward — unless the instruction takes the cancellation back (see the
+  amendment).
 
 ## Rationale
 
@@ -109,3 +110,17 @@ person's name on another's work. So it is stored as a label and shown as one.
 - (−) Correcting something the write-back may not touch — an address the customer
   gave wrongly — needs the area handed back, or the customer. That is the same
   boundary FR-ADM-10 draws everywhere else.
+
+## Amendment — 2026-10-11: taking back a customer's cancellation
+
+The refusal protected the customer from an export that never learned of their
+cancellation. It also left no way back for a customer who rang the shop and
+wanted the order after all: while the area is owned the panel moves nothing, so
+the order stayed cancelled with nobody able to reopen it — the outcome this ADR
+already rejects for the owning system's own cancellations.
+
+An instruction may now carry `restoreCustomerCancellation`. Only with it does a
+customer-cancelled order move, and only when the instruction also writes to the
+customer and moves their page (`restore-not-announced` otherwise). The version
+check still applies, so a stale export is refused as before; the flag adds the
+one thing a version number cannot say — that the reopening is meant.
