@@ -639,3 +639,69 @@ describe('OrdersService.notifyPlaced', () => {
     expect(error).toHaveBeenCalled();
   });
 });
+
+describe('OrdersService.writeBack notification', () => {
+  it.each([
+    ['requested', 'approved', true, 'moved'],
+    ['ready', 'approved', true, 'corrected'],
+    ['approved', 'approved', true, 'changed'],
+    ['requested', 'approved', false, 'moved'],
+  ] as const)(
+    'mails %s → %s with content change=%s as %s',
+    async (from, to, changed, notice) => {
+      const instance = service({} as NodePgDatabase<typeof schema>);
+      const current = {
+        id: 'order-1',
+        reference: 'WEB-1',
+        revisionNumber: 1,
+        status: from,
+        paymentMethod: 'cash',
+        paymentState: 'awaiting',
+      };
+      const mailCustomer = vi.fn().mockResolvedValue(undefined);
+      const appendRevision = vi.fn().mockResolvedValue(undefined);
+      // Isolate storage/pricing; exercise the real writeBack branching and the
+      // notification it chooses for a combined content/status revision.
+      Object.assign(instance, {
+        row: vi
+          .fn()
+          .mockResolvedValueOnce(current)
+          .mockResolvedValue({
+            ...current,
+            status: to,
+            revisionNumber: 2,
+          }),
+        writtenBackLines: vi.fn().mockResolvedValue({ priced: {}, lines: [] }),
+        rewrittenSnapshot: vi.fn().mockReturnValue({}),
+        saysTheSame: vi.fn().mockResolvedValue(!changed),
+        customerThread: vi.fn().mockResolvedValue({ number: 1 }),
+        appendRevision,
+        mailCustomer,
+      });
+
+      const result = await instance.writeBack(
+        {
+          reference: current.reference,
+          basedOnRevision: 1,
+          status: to,
+          lines: [{ productSourceId: 'ERP-1', pieces: 20, priceMinor: 199 }],
+          notify: true,
+          showCustomer: true,
+        },
+        '1c',
+      );
+
+      expect(appendRevision).toHaveBeenCalledTimes(1);
+      expect(appendRevision).toHaveBeenCalledWith(
+        current,
+        expect.objectContaining({
+          kind: changed ? 'adjustment' : 'transition',
+          status: to,
+        }),
+      );
+      expect(mailCustomer).toHaveBeenCalledWith(current.reference, 1, notice);
+      expect(result.status).toBe(to);
+      expect(result.revisionNumber).toBe(2);
+    },
+  );
+});
