@@ -613,8 +613,17 @@ const owned = {
  * screen was open should be reloaded, and telling a caller *which* of the two
  * it was tells a customer about states they cannot see.
  */
+/**
+ * The order's personal details were removed (NFR-LEGAL-14), so it is finished
+ * for good: nothing moves it, changes it or writes to its customer again.
+ */
+const detailsRemoved = {
+  'personal-data-removed': { status: 409 },
+} as const;
+
 const transitionErrors = {
   ...orderNotFound,
+  ...detailsRemoved,
   'transition-not-allowed': { status: 409 },
   /** Declining or cancelling says why; the customer's mail quotes it. */
   'reason-required': { status: 400 },
@@ -770,6 +779,7 @@ export type OrderAdjustmentPreview = z.infer<
 const adjustmentErrors = {
   ...orderNotFound,
   ...orderDetailErrors,
+  ...detailsRemoved,
   /** Somebody else adjusted it while this one was being written. */
   'order-changed': { status: 409 },
   /** A slug no product answers to. Staff may add anything the catalog holds,
@@ -1138,6 +1148,7 @@ export const ordersContract = {
     .errors({
       ...orderNotFound,
       ...owned,
+      ...detailsRemoved,
       /** There was nothing left to do: they are on the current version and
        * nobody asked for a message. */
       'nothing-to-tell': { status: 409 },

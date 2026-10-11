@@ -786,3 +786,165 @@ describe('OrdersService.writeBack over a customer cancellation', () => {
     }
   });
 });
+
+describe('OrdersService on an order whose personal details were removed', () => {
+  // Finished for good (NFR-LEGAL-14): nobody to deliver to, and a mail would
+  // go to the placeholder the removal left behind. Money may still be
+  // recorded, and a source re-sending what the order says is still told so.
+  const scrubbed = {
+    id: 'order-1',
+    reference: 'WEB-1',
+    revisionNumber: 4,
+    status: 'cancelled',
+    paymentMethod: 'cash',
+    paymentState: 'not-due',
+    revisionCreatedBy: 'customer-1',
+    userId: 'customer-1',
+    personalDataRemovedAt: new Date('2026-10-01T00:00:00Z'),
+  };
+
+  function scrubbedService(row: Record<string, unknown> = scrubbed) {
+    const instance = service({} as NodePgDatabase<typeof schema>);
+    const appendRevision = vi.fn().mockResolvedValue(undefined);
+    const mailCustomer = vi.fn().mockResolvedValue(undefined);
+    const setPayment = vi.fn().mockResolvedValue(undefined);
+    Object.assign(instance, {
+      row: vi.fn().mockResolvedValue(row),
+      customerThread: vi.fn().mockResolvedValue({ number: 1 }),
+      appendRevision,
+      mailCustomer,
+      setPayment,
+    });
+    return { instance, appendRevision, mailCustomer, setPayment };
+  }
+
+  const refused = { response: { code: 'personal-data-removed' } };
+
+  it('refuses a write-back that takes a customer cancellation back', async () => {
+    const { instance, appendRevision, mailCustomer } = scrubbedService();
+
+    await expect(
+      instance.writeBack(
+        {
+          reference: 'WEB-1',
+          basedOnRevision: 4,
+          status: 'requested',
+          restoreCustomerCancellation: true,
+          notify: true,
+          showCustomer: true,
+        },
+        '1c',
+      ),
+    ).rejects.toMatchObject(refused);
+    expect(appendRevision).not.toHaveBeenCalled();
+    expect(mailCustomer).not.toHaveBeenCalled();
+  });
+
+  it('refuses a write-back that walks a completed order back', async () => {
+    const { instance, appendRevision } = scrubbedService({
+      ...scrubbed,
+      status: 'completed',
+      paymentState: 'paid',
+      revisionCreatedBy: null,
+    });
+
+    await expect(
+      instance.writeBack(
+        {
+          reference: 'WEB-1',
+          basedOnRevision: 4,
+          status: 'ready',
+          notify: false,
+          showCustomer: true,
+        },
+        '1c',
+      ),
+    ).rejects.toMatchObject(refused);
+    expect(appendRevision).not.toHaveBeenCalled();
+  });
+
+  it('answers a write-back that says what the order says with unchanged', async () => {
+    const { instance } = scrubbedService({
+      ...scrubbed,
+      status: 'completed',
+      revisionCreatedBy: null,
+    });
+
+    const result = await instance.writeBack(
+      {
+        reference: 'WEB-1',
+        basedOnRevision: 4,
+        status: 'completed',
+        notify: true,
+        showCustomer: true,
+      },
+      '1c',
+    );
+
+    expect(result.kind).toBe('unchanged');
+  });
+
+  it('still records a payment written back for it', async () => {
+    const { instance, setPayment } = scrubbedService({
+      ...scrubbed,
+      status: 'completed',
+      paymentState: 'awaiting',
+      revisionCreatedBy: null,
+    });
+
+    const result = await instance.writeBack(
+      {
+        reference: 'WEB-1',
+        basedOnRevision: 4,
+        paid: true,
+        notify: false,
+        showCustomer: true,
+      },
+      '1c',
+    );
+
+    expect(result.kind).toBe('payment');
+    expect(setPayment).toHaveBeenCalledWith('WEB-1', true, null);
+  });
+
+  it('refuses a manager reopening it', async () => {
+    const { instance, appendRevision } = scrubbedService();
+
+    await expect(
+      instance.transitionForStaff(
+        'WEB-1',
+        {
+          to: 'requested',
+          reason: null,
+          notify: true,
+          markPaid: false,
+          showCustomer: true,
+        },
+        'manager-1',
+      ),
+    ).rejects.toMatchObject(refused);
+    expect(appendRevision).not.toHaveBeenCalled();
+  });
+
+  it('refuses a manager adjusting it', async () => {
+    const { instance, appendRevision } = scrubbedService();
+
+    await expect(
+      instance.adjust(
+        'WEB-1',
+        { basedOnRevision: 4 } as Parameters<typeof instance.adjust>[1],
+        'manager-1',
+      ),
+    ).rejects.toMatchObject(refused);
+    expect(appendRevision).not.toHaveBeenCalled();
+  });
+
+  it('refuses writing to its customer', async () => {
+    const { instance, mailCustomer } = scrubbedService();
+
+    await expect(
+      instance.showCustomerCurrent('WEB-1', true),
+    ).rejects.toMatchObject(refused);
+    expect(mailCustomer).not.toHaveBeenCalled();
+  });
+});

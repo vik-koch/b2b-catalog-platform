@@ -968,7 +968,7 @@ An order keeps the personal details it was placed with — who to contact, who i
 
 A guest has no account to delete, so a guest's request to have their details removed reaches the shop by letter, email or phone. An admin can remove the personal details from a guest order on that request once the order is finished. While it is still running, the shop needs them to fulfil it. The removal cannot be undone, so it asks for confirmation. An account holder's orders are not cleared one by one: deleting the account clears them all ([FR-ADM-23](#fr-adm-23)).
 
-Each removal is recorded as a destruction ([NFR-LEGAL-12](#nfr-legal-12)), naming the account where there is one and otherwise the order. The order shows staff when its details were removed. An external system reading the orders ([FR-ADM-08](#fr-adm-08)) meets the order again with the details blank, as it does after an account is deleted.
+Each removal is recorded as a destruction ([NFR-LEGAL-12](#nfr-legal-12)), naming the account where there is one and otherwise the order. The order shows staff when its details were removed. From then on it is finished for good: neither staff nor an external system can move or change it again, since it would run with nobody to deliver to, and nobody is written to about it. A payment can still be recorded against it. An external system reading the orders ([FR-ADM-08](#fr-adm-08)) meets the order again with the details blank, as it does after an account is deleted.
 
 ---
 
