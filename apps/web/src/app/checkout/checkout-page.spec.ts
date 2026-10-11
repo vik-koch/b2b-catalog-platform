@@ -26,6 +26,7 @@ import {
 } from './checkout-draft.service';
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
+import { PageService } from '../pages/page.service';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */
@@ -95,6 +96,8 @@ interface Options {
   /** Holds the profile back until `releaseProfile` is called, so the page can
    * be read while its form is still waiting. */
   holdProfile?: boolean;
+  /** The terms page is published but nobody has written it yet. */
+  termsUnwritten?: boolean;
 }
 
 let releaseProfile: () => void = () => undefined;
@@ -147,6 +150,22 @@ async function render(options: Options = {}) {
         provide: OrdersService,
         useValue: {
           submit: submitted,
+        },
+      },
+      {
+        provide: PageService,
+        useValue: {
+          getPage: vi.fn(async () =>
+            options.termsUnwritten
+              ? null
+              : {
+                  version: 1,
+                  title: 'Terms of sale',
+                  bodyHtml: '<p>Terms.</p>',
+                  consentLabel: null,
+                  updatedAt: '2026-10-01T09:00:00.000Z',
+                },
+          ),
         },
       },
       {
@@ -1044,6 +1063,17 @@ describe('CheckoutPage', () => {
       expect(link?.textContent?.trim()).toBe(defaultAppText.termsNotice.link);
       expect(page.text()).toContain(defaultAppText.termsNotice.text);
       expect(page.el.querySelector('input[type="checkbox"]')).toBeNull();
+    });
+
+    // The order records no version then, so it accepts none, and saying it
+    // did would point at an empty page.
+    it('says nothing of terms nobody has written yet', async () => {
+      const page = await render({ termsUnwritten: true });
+
+      await page.review();
+
+      expect(page.text()).toContain(text.review.title);
+      expect(page.text()).not.toContain(defaultAppText.termsNotice.text);
     });
 
     it('says nothing of terms a deployment does not publish', async () => {
