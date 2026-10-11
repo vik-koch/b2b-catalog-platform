@@ -1736,11 +1736,13 @@ export class OrdersService {
       await this.mailCustomer(
         input.reference,
         notified.number,
-        changed
-          ? 'changed'
-          : moveDirection(from, to) === 'backward'
+        // Content and status can move in the same revision. Explain the new
+        // status when it moved; 'changed' wording promises it stayed put.
+        moved
+          ? moveDirection(from, to) === 'backward'
             ? 'corrected'
-            : 'moved',
+            : 'moved'
+          : 'changed',
       );
     }
     const after = await this.row(eq(orders.reference, input.reference));
