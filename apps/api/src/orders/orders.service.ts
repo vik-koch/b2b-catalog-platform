@@ -233,6 +233,22 @@ const notFound = () =>
  * cancellation, a manager's for the shop's, and nobody's for one written in
  * from outside, where `source` names the system instead.
  */
+/**
+ * An order whose personal details were removed (NFR-LEGAL-14) is finished for
+ * good. Moving it would run an order with nobody to deliver to, and writing to
+ * its customer would mail the placeholder address the removal left behind.
+ * Recording money against it stays possible: that is a fact about the order,
+ * not a step in it.
+ */
+function refuseIfDetailsRemoved(row: OrderRow): void {
+  if (row.personalDataRemovedAt) {
+    throw new ConflictException({
+      code: 'personal-data-removed',
+      message: "This order's personal details were removed",
+    });
+  }
+}
+
 function cancelledByCustomer(row: OrderRow): boolean {
   return row.revisionCreatedBy !== null && row.revisionCreatedBy === row.userId;
 }
@@ -529,6 +545,7 @@ export class OrdersService {
     notify: boolean,
   ): Promise<AdminOrderDetail> {
     const current = await this.row(eq(orders.reference, reference));
+    refuseIfDetailsRemoved(current);
     const notified = await this.customerThread(current.id);
     const shown = current.customerRevisionNumber ?? current.revisionNumber;
     const behind = shown < current.revisionNumber;
@@ -1295,6 +1312,7 @@ export class OrdersService {
     },
   ): Promise<OrderRow> {
     const current = await this.row(where);
+    refuseIfDetailsRemoved(current);
     const from = current.status as OrderStatus;
     if (!canTransition(actor, from, to)) {
       throw new ConflictException({
@@ -1509,6 +1527,7 @@ export class OrdersService {
     byUserId: string,
   ): Promise<AdminOrderDetail> {
     const current = await this.row(eq(orders.reference, reference));
+    refuseIfDetailsRemoved(current);
     if (current.revisionNumber !== input.basedOnRevision) {
       throw new ConflictException({
         code: 'order-changed',
@@ -1707,6 +1726,10 @@ export class OrdersService {
       const after = await this.row(eq(orders.reference, input.reference));
       return this.writeResult(after, 'payment', false, droppedNote);
     }
+
+    // After the two answers that write no version, so a source re-sending
+    // its snapshot of a finished order is still told `unchanged`.
+    refuseIfDetailsRemoved(current);
 
     // Read before the write, because the write is what changes the answer:
     // this is where the customer's account of the changes has to start.

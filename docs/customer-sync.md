@@ -119,7 +119,11 @@ nothing.
 
 **Change a customer's name or phone number after creating them.** Those are the
 account holder's own to maintain. A run seeds them when it asks the account into
-being and can never write them again; they travel outward only.
+being and can never write them again; they travel outward only. Where the
+deployment asks for a second sign-in step, the phone number is how the account
+signs in and its holder cannot change it either
+([FR-AUTH-12](requirements.md#fr-auth-12)): a number that changes on your side
+is met here by an admin's exemption, not by a run.
 
 **Reach anything while nobody has handed the area over.** The machine route is
 refused unless customer accounts are externally owned

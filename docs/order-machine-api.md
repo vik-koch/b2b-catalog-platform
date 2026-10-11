@@ -533,18 +533,19 @@ Refusals are per instruction, in `plan.rowErrors`, and never fail the batch.
 `reference`, plus the value a refusal is about where it has one: `current` (the
 version the order actually stands at) or `productSourceId`.
 
-| `code`                   | `params` beyond `reference` | Meaning                                                                                                                 |
-| ------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `order-not-found`        | —                           | no order is quoted that                                                                                                 |
-| `duplicate-reference`    | —                           | the same order twice in one batch; nothing can say which is later                                                       |
-| `order-changed`          | `current`                   | the order moved since you read it — re-read it (§2.1) and decide again                                                  |
-| `order-called-off`       | —                           | the **customer** cancelled it; stop. A cancellation the shop or you made is not this — see `cancelledBy` (§2)           |
-| `restore-not-announced`  | —                           | `restoreCustomerCancellation` was sent without both `notify` and `showCustomer` `true`                                  |
-| `transition-not-allowed` | `status`                    | the order cannot go there from where it is                                                                              |
-| `reason-required`        | —                           | `declined`/`cancelled` was sent without `statusReason`                                                                  |
-| `unknown-product`        | `productSourceId`           | no product here carries that key                                                                                        |
-| `duplicate-product`      | `productSourceId`           | one instruction names a product twice                                                                                   |
-| `payment-not-recordable` | —                           | nothing is owed on an order that ended in a refusal (`declined`, `cancelled`); a `completed` order can still be settled |
+| `code`                   | `params` beyond `reference` | Meaning                                                                                                                  |
+| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `order-not-found`        | —                           | no order is quoted that                                                                                                  |
+| `duplicate-reference`    | —                           | the same order twice in one batch; nothing can say which is later                                                        |
+| `order-changed`          | `current`                   | the order moved since you read it — re-read it (§2.1) and decide again                                                   |
+| `order-called-off`       | —                           | the **customer** cancelled it; stop. A cancellation the shop or you made is not this — see `cancelledBy` (§2)            |
+| `restore-not-announced`  | —                           | `restoreCustomerCancellation` was sent without both `notify` and `showCustomer` `true`                                   |
+| `personal-data-removed`  | —                           | the order's personal details were removed (NFR-LEGAL-14): nothing moves or changes it again; a payment is still recorded |
+| `transition-not-allowed` | `status`                    | the order cannot go there from where it is                                                                               |
+| `reason-required`        | —                           | `declined`/`cancelled` was sent without `statusReason`                                                                   |
+| `unknown-product`        | `productSourceId`           | no product here carries that key                                                                                         |
+| `duplicate-product`      | `productSourceId`           | one instruction names a product twice                                                                                    |
+| `payment-not-recordable` | —                           | nothing is owed on an order that ended in a refusal (`declined`, `cancelled`); a `completed` order can still be settled  |
 
 A schema violation in the body is refused wholesale (400) before anything is
 written — one malformed instruction is a bug in the sender, not a row somebody

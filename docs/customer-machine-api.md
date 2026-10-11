@@ -247,7 +247,10 @@ yours. What that comes to depends on where the account stands:
 | `disabled` | `disabled`                  | nothing                                                                        |
 | omitted    | —                           | access untouched                                                               |
 
-A declined registration is simply a disabled account; there is no fifth state.
+There is no fifth state for a declined registration. Declining one here removes
+it with its details, so a run never meets it, and while customers are yours the
+panel refuses to decline at all: `access: "disabled"` on a `pending` account is
+how you turn a registration away.
 
 ### 3.3 Claiming (`claimByEmail`, `claimById`)
 

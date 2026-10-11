@@ -4,20 +4,20 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.13.1` — after three releases spent on what an integrator does, `v1.13.0` was
-> about what a visitor sees: a category is one chip everywhere, the main page opens on a
-> featured row, search suggests categories and shows the price beside each product, and a
-> product can be sold as a set of parts or come in variants named on its pictures. The admin
-> panel gained a content filter that turns the product list into a work queue, and a product
-> now leaves the catalog in steps — unpublished, deleted, then deleted for good. Iterations
-> 1–15 are delivered (static pages and infrastructure, catalog + admin panel, search,
-> accounts and tiered pricing, units of sale, attribute filtering, cart and checkout, stock
-> availability and work-awaiting indicators, sold-together sets, product documents, order
-> processing, automated catalog feed, customer exchange, order exchange, storefront
-> presentation). `v1.13.1` follows up with picture handling in the admin panel: pasting a copied
-> file, framing a product photo in a white square before it is uploaded, and storefront pictures
-> shown whole instead of cropped. Online card payment stays deferred until the shop is live
-> and has handled real orders.
+> **Status:** `v1.14.0` — a compliance pass before going live. Consent is
+> offered per purpose rather than presumed, given against a versioned text and kept as a
+> record; an order accepts the terms of sale as they stood, and its prices state their tax
+> basis with a rate per line. Destroying personal data leaves a record, a finished order loses
+> its personal details after a period the deployment sets, and an admin can delete an account
+> or clear a guest order on the person's request. A sign-in can ask for proof of the account's
+> phone, by a code or a call, and each night's backup leaves the host encrypted, for storage
+> the host cannot erase. What the platform holds about people is written down in one place.
+> Iterations 1–16 are delivered (static pages and infrastructure, catalog + admin panel,
+> search, accounts and tiered pricing, units of sale, attribute filtering, cart and checkout,
+> stock availability and work-awaiting indicators, sold-together sets, product documents,
+> order processing, automated catalog feed, customer exchange, order exchange, storefront
+> presentation, compliance). Online card payment stays deferred until the shop is live and has
+> handled real orders.
 
 ## Key features
 
@@ -106,7 +106,15 @@ Shipped:
   permanently) and deleted ones are kept out of every count; admin counts read a category's
   whole subtree as the storefront does; and a document can be a link to where it is held
   elsewhere, such as a public register
-- **Compliance** — configurable legal pages, cookie consent, third-party licence attribution
+- **Compliance** — configurable legal pages that keep every version and date the ones a
+  reader may hold the shop to; consent per purpose, switched on per deployment and recorded
+  against the text it was given under, with withdrawals and an admin lookup by account, email
+  or phone; terms of sale an order accepts by version, sent with the receipt where a
+  jurisdiction wants them kept; a stated tax basis with per-product rates; a record of every
+  destruction of personal data; finished orders that lose their personal details after a set
+  period; a seller line in the footer; cookie consent; an optional second sign-in step through
+  the account's phone; encrypted off-host backups; and an inventory of the personal data the
+  platform holds
 
 Planned:
 

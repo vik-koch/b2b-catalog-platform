@@ -187,6 +187,12 @@ An **adjustment** is not on this table at all. Changing what an order says has
 its own payload and no target status: an adjusted order stands exactly where it
 stood, including after it has ended.
 
+Neither reaches an order whose personal details have been removed
+([NFR-LEGAL-14](requirements.md#nfr-legal-14)). It is finished for good: no
+move, no adjustment, no mail to a customer whose address is gone, from a manager
+or from an exchange (`personal-data-removed`). Only a payment can still be
+recorded against it.
+
 ## What an order deliberately cannot do
 
 The states above are fewer than a B2B or retail platform usually has, and the

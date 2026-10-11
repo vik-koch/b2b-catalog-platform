@@ -743,6 +743,26 @@ describe('AdminOrderDetailPage personal details', () => {
     expect(removeButton(el)).toBeUndefined();
   });
 
+  // Finished for good: nobody left to fill it for or write to. The money is
+  // still the shop's to record.
+  it('offers no move, no adjustment and no word to the customer once removed', async () => {
+    const { el } = await render({
+      ...placed,
+      status: 'completed',
+      paymentState: 'awaiting',
+      personalDataRemovedAt: '2026-10-01T09:00:00.000Z',
+    });
+    const buttons = [...el.querySelectorAll('button')].map((button) =>
+      button.textContent?.trim(),
+    );
+
+    expect(buttons).not.toContain(text.actions.backToReady);
+    expect(buttons).not.toContain(text.tellCustomer.emailAgain);
+    expect(buttons).not.toContain(text.tellCustomer.update);
+    expect(el.textContent).not.toContain(text.actions.adjust);
+    expect(buttons).toContain(text.paymentState.record);
+  });
+
   it('asks first, then removes and redraws from the server', async () => {
     const removePersonalData = vi.fn(() => Promise.resolve(null));
     const { fixture, el, get } = await render(guestDone, {

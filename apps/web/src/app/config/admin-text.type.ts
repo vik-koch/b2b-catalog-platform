@@ -1089,6 +1089,8 @@ export const adminTextSchema = z
                 'order-called-off': z.string(),
                 /** A restore that would not tell the customer. */
                 'restore-not-announced': z.string(),
+                /** Its personal details are gone; it is finished for good. */
+                'personal-data-removed': z.string(),
                 'transition-not-allowed': z.string(),
                 'reason-required': z.string(),
                 /** `{productSourceId}` — no product carries that key. */

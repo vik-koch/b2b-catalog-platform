@@ -236,6 +236,10 @@ export const ORDER_SYNC_ROW_ERROR_CODES = [
   /** A customer's cancellation taken back without telling them: a restore
    * must both write to the customer and move their own page. */
   'restore-not-announced',
+  /** The order's personal details were removed (NFR-LEGAL-14): it is finished
+   * for good, so nothing moves or changes it again. Money may still be
+   * recorded against it. */
+  'personal-data-removed',
   /** `{status}` — the order cannot go there from where it is (FR-ORD-01). */
   'transition-not-allowed',
   /** The status asked for owes the customer an answer and none was given. */

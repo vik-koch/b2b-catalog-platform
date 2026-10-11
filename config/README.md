@@ -146,7 +146,9 @@ Checkout says so beside the submit button, worded by `termsNotice` in
 `app-text.json`. Each order records the version of the terms current when it
 was sent. Staff see that version on the order, and the customer's receipt and
 the order summary name its date. A deployment that does not publish `terms`
-records nothing and says nothing.
+records nothing and says nothing, and neither does one that publishes it before
+anybody has written the page: write the terms before switching maintenance
+mode off.
 
 ```json
 "terms": {

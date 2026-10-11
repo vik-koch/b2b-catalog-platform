@@ -264,9 +264,10 @@ const MARK_PAID = 'markPaid';
                   </div>
 
                   <!-- Nothing to answer the order with while it is answered
-                       elsewhere, so the whole row of controls goes rather than
-                       leaving an empty strip under the status. -->
-                  @if (!locked()) {
+                       elsewhere, or once its personal details are gone, so the
+                       whole row of controls goes rather than leaving an empty
+                       strip under the status. -->
+                  @if (!locked() && !order.personalDataRemovedAt) {
                     <div [class]="actions">
                       <!-- Changing what an order says stands with the moves
                            because it is the other half of answering one, and it
@@ -928,7 +929,9 @@ export class AdminOrderDetailPage {
    */
   protected readonly customerAction = computed(() => {
     const order = this.detail();
-    if (!order || this.locked()) return null;
+    // Nobody to write to once the details are removed: the mail would go to
+    // the placeholder left in their place.
+    if (!order || this.locked() || order.personalDataRemovedAt) return null;
     if (order.customerRevisionNumber < order.revisionNumber) {
       return {
         kind: 'update' as const,
@@ -1011,7 +1014,9 @@ export class AdminOrderDetailPage {
    */
   protected readonly moves = computed(() => {
     const order = this.detail();
-    if (!order || this.locked()) return [];
+    // An order without its personal details is finished for good
+    // (NFR-LEGAL-14): there is nobody left to fill it for.
+    if (!order || this.locked() || order.personalDataRemovedAt) return [];
     return allowedTransitions('staff', order.status)
       .filter((to) => !(to === 'cancelled' && order.status === 'requested'))
       .map((to) => ({
