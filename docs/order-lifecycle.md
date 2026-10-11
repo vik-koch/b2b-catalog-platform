@@ -126,7 +126,9 @@ already being worked is stopped with `cancelled`; a `completed` order cannot be
 cancelled, because the goods are gone and what follows is a return in the
 shop's books rather than a state here; and an order **the customer** called off
 is refused before the table is consulted at all, so none of this is a way to
-drive a called-off order forward.
+drive a called-off order forward. If the customer asks the shop for it after
+all, the exchange takes the cancellation back by saying so, and the customer is
+always written to about it.
 
 The last column is what an invoiced order owes before anyone records a payment.
 A cash order is never `awaiting`: cash exists at the handover, which is a

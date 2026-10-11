@@ -107,6 +107,12 @@ driving it forward over the top. The alternative is a cancellation that
 silently never happened, and a customer watching an order ship after they
 stopped it.
 
+They may change their mind, though — by ringing the shop. Then the exchange
+takes the cancellation back **by saying so** (`restoreCustomerCancellation`),
+which tells it apart from an export that never learned of the cancellation,
+and it always writes to the customer and moves their page: an order they
+stopped does not run again without their hearing of it.
+
 Only **theirs** is protected that way. A cancellation the shop or the owning
 system made is that side's own decision and may be taken back — the read says
 which it was, and the exchange has to be able to reopen its own, because while
@@ -216,18 +222,18 @@ journeys are for.
 
 **Which leaves it.** The order: `requested`<br>Version: 1<br>The customer’s version: 1
 
-| #   | What happens                                                                                                                                 | Who    | What changes                                                                                                                                                                                                                                             |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | Half the quantity is agreed on the phone; the back office accepts the order at the new figure and records the transfer that arrived with it. | system | The run: `applied`<br>What the instruction did: `adjustment`<br>The order: `approved`<br>Payment: `paid`<br>Version: 2<br>The customer’s version: 2<br>What the source reads: `approved @ 2`<br>Mail to the customer: [`changed`](mail.md#order-changed) |
-| 2   | The next poll cycle sends the very same instruction again.                                                                                   | system | The run: `no change`<br>What the instruction did: `unchanged`                                                                                                                                                                                            |
-| 3   | A second exchange, prepared before the first one landed, answers the version the order used to stand at.                                     | system | The run: `applied`<br>What the instruction did: `refused: order-changed`                                                                                                                                                                                 |
-| 4   | It re-reads the order and answers the version it now stands at.                                                                              | system | —                                                                                                                                                                                                                                                        |
-| 5   | And marks it ready.                                                                                                                          | system | The run: `applied`<br>What the instruction did: `transition`<br>The order: `ready`<br>Version: 3<br>The customer’s version: 3<br>What the source reads: `ready @ 3`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)             |
+| #   | What happens                                                                                                                                 | Who    | What changes                                                                                                                                                                                                                                               |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Half the quantity is agreed on the phone; the back office accepts the order at the new figure and records the transfer that arrived with it. | system | The run: `applied`<br>What the instruction did: `adjustment`<br>The order: `approved`<br>Payment: `paid`<br>Version: 2<br>The customer’s version: 2<br>What the source reads: `approved @ 2`<br>Mail to the customer: [`approved`](mail.md#order-approved) |
+| 2   | The next poll cycle sends the very same instruction again.                                                                                   | system | The run: `no change`<br>What the instruction did: `unchanged`                                                                                                                                                                                              |
+| 3   | A second exchange, prepared before the first one landed, answers the version the order used to stand at.                                     | system | The run: `applied`<br>What the instruction did: `refused: order-changed`                                                                                                                                                                                   |
+| 4   | It re-reads the order and answers the version it now stands at.                                                                              | system | —                                                                                                                                                                                                                                                          |
+| 5   | And marks it ready.                                                                                                                          | system | The run: `applied`<br>What the instruction did: `transition`<br>The order: `ready`<br>Version: 3<br>The customer’s version: 3<br>What the source reads: `ready @ 3`<br>Mail to the customer: [`readyDelivery`](mail.md#order-ready-delivery)               |
 
 </details>
 
 <details>
-<summary><b>Called off while the other system was working it</b> — The one move a customer keeps however the area is owned (FR-ADM-10), and the one an exchange must never drive over the top of. A cancellation is not a conflict for the source to resolve — it is a fact it has to read.</summary>
+<summary><b>Called off while the other system was working it</b> — The one move a customer keeps however the area is owned (FR-ADM-10), and the one an exchange must never drive over the top of. A cancellation is not a conflict for the source to resolve — it is a fact it has to read. Only the customer can change their mind, by asking the shop, and the exchange then says in so many words that it takes the cancellation back.</summary>
 
 **The order.** The same kind of order, read once by the source.
 
@@ -235,12 +241,13 @@ journeys are for.
 
 **Which leaves it.** The order: `requested`<br>Version: 1<br>What the source reads: `requested @ 1`
 
-| #   | What happens                                                   | Who      | What changes                                                                                                |
-| --- | -------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------- |
-| 1   | The customer calls the order off, saying why.                  | customer | The order: `cancelled`<br>Version: 2<br>The customer’s version: 2<br>What the source reads: `cancelled @ 2` |
-| 2   | The back office, which read it before that, accepts the order. | system   | The run: `applied`<br>What the instruction did: `refused: order-changed`                                    |
-| 3   | It re-reads the order.                                         | system   | —                                                                                                           |
-| 4   | And, still holding a picking list for it, tries again.         | system   | The run: `applied`<br>What the instruction did: `refused: order-called-off`                                 |
+| #   | What happens                                                                                                            | Who      | What changes                                                                                                                                                                                                                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The customer calls the order off, saying why.                                                                           | customer | The order: `cancelled`<br>Version: 2<br>The customer’s version: 2<br>What the source reads: `cancelled @ 2`                                                                                                                                                    |
+| 2   | The back office, which read it before that, accepts the order.                                                          | system   | The run: `applied`<br>What the instruction did: `refused: order-changed`                                                                                                                                                                                       |
+| 3   | It re-reads the order.                                                                                                  | system   | —                                                                                                                                                                                                                                                              |
+| 4   | And, still holding a picking list for it, tries again.                                                                  | system   | The run: `applied`<br>What the instruction did: `refused: order-called-off`                                                                                                                                                                                    |
+| 5   | The customer rings the shop: they want the order after all. The back office takes the cancellation back and accepts it. | system   | The run: `applied`<br>What the instruction did: `transition`<br>The order: `approved`<br>Payment: `awaiting`<br>Version: 3<br>The customer’s version: 3<br>What the source reads: `approved @ 3`<br>Mail to the customer: [`approved`](mail.md#order-approved) |
 
 </details>
 

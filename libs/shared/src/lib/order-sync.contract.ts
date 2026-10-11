@@ -98,6 +98,16 @@ export const orderWriteSchema = z
     reference: z.string().trim().min(1).max(32),
     /** The version this instruction answers, as the read reported it. */
     basedOnRevision: z.number().int().positive(),
+    /**
+     * Takes back a cancellation the **customer** made (FR-ORD-02) — they rang
+     * the shop and asked for the order after all. Without it, an instruction
+     * for such an order is refused (`order-called-off`), so a routine export
+     * that never learned of the cancellation cannot drive the order forward
+     * over it. With it, `status` says where the order now stands and the
+     * customer is told: `notify` and `showCustomer` must both be true.
+     * Changes nothing about any other order.
+     */
+    restoreCustomerCancellation: z.boolean().optional(),
     /** Where the order now stands, in the platform's own coarse vocabulary
      * (FR-ORD-01). The source system's own steps are mapped onto it over
      * there — however many an order passes through, the customer reads the
@@ -217,10 +227,15 @@ export const ORDER_SYNC_ROW_ERROR_CODES = [
    * The **customer** called this order off (FR-ORD-02), which they may do
    * however the area is owned (FR-ADM-10). Refused rather than driven forward
    * over the top — the alternative is a cancellation that silently never
-   * happened. An order the owning system itself cancelled is not this: that
-   * one it may reopen, because while the area is owned nobody else can.
+   * happened — unless the instruction says it takes the cancellation back
+   * (`restoreCustomerCancellation`). An order the owning system itself
+   * cancelled is not this: that one it may reopen, because while the area is
+   * owned nobody else can.
    */
   'order-called-off',
+  /** A customer's cancellation taken back without telling them: a restore
+   * must both write to the customer and move their own page. */
+  'restore-not-announced',
   /** `{status}` — the order cannot go there from where it is (FR-ORD-01). */
   'transition-not-allowed',
   /** The status asked for owes the customer an answer and none was given. */

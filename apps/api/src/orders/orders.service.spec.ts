@@ -705,3 +705,84 @@ describe('OrdersService.writeBack notification', () => {
     },
   );
 });
+
+describe('OrdersService.writeBack over a customer cancellation', () => {
+  // The customer rang the shop and asked for the order after all. Only an
+  // instruction that says it takes the cancellation back may move it, and
+  // only one that tells them.
+  it.each([
+    [{ restoreCustomerCancellation: true }, 'requested', null],
+    [{ restoreCustomerCancellation: true }, 'approved', null],
+    [{}, 'approved', 'order-called-off'],
+    [{ restoreCustomerCancellation: false }, 'approved', 'order-called-off'],
+    [{ restoreCustomerCancellation: true }, undefined, 'order-called-off'],
+    [{ restoreCustomerCancellation: true }, 'cancelled', 'order-called-off'],
+    [
+      { restoreCustomerCancellation: true, notify: false },
+      'approved',
+      'restore-not-announced',
+    ],
+    [
+      { restoreCustomerCancellation: true, showCustomer: false },
+      'approved',
+      'restore-not-announced',
+    ],
+    [
+      { restoreCustomerCancellation: true },
+      'declined',
+      'transition-not-allowed',
+    ],
+  ] as const)('%o to %s is refused with %s', async (flags, to, refusal) => {
+    const instance = service({} as NodePgDatabase<typeof schema>);
+    const current = {
+      id: 'order-1',
+      reference: 'WEB-1',
+      revisionNumber: 2,
+      status: 'cancelled',
+      paymentMethod: 'cash',
+      paymentState: 'not-due',
+      // Written by the account that owns the order: the customer's own.
+      revisionCreatedBy: 'customer-1',
+      userId: 'customer-1',
+    };
+    const appendRevision = vi.fn().mockResolvedValue(undefined);
+    const mailCustomer = vi.fn().mockResolvedValue(undefined);
+    Object.assign(instance, {
+      row: vi
+        .fn()
+        .mockResolvedValueOnce(current)
+        .mockResolvedValue({ ...current, status: to, revisionNumber: 3 }),
+      customerThread: vi.fn().mockResolvedValue({ number: 1 }),
+      appendRevision,
+      mailCustomer,
+    });
+
+    const action = instance.writeBack(
+      {
+        reference: current.reference,
+        basedOnRevision: 2,
+        status: to,
+        statusReason: to === 'declined' ? 'Out of stock.' : undefined,
+        notify: true,
+        showCustomer: true,
+        ...flags,
+      },
+      '1c',
+    );
+
+    if (refusal) {
+      await expect(action).rejects.toMatchObject({
+        response: { code: refusal },
+      });
+      expect(appendRevision).not.toHaveBeenCalled();
+      expect(mailCustomer).not.toHaveBeenCalled();
+    } else {
+      expect((await action).status).toBe(to);
+      expect(appendRevision).toHaveBeenCalledWith(
+        current,
+        expect.objectContaining({ kind: 'transition', status: to }),
+      );
+      expect(mailCustomer).toHaveBeenCalledWith(current.reference, 1, 'moved');
+    }
+  });
+});

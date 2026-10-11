@@ -99,7 +99,10 @@ customer.
 For an adapter, both are facts to read rather than conflicts to resolve. An
 instruction arriving for an order **the customer** cancelled is refused with
 `order-called-off` rather than driving it forward; the alternative is a
-cancellation that silently never happened. A cancellation the shop or the
+cancellation that silently never happened. Only an instruction that says it
+takes the cancellation back (`restoreCustomerCancellation`) reopens one — for a
+customer who asked the shop for the order after all — and it always tells them.
+A cancellation the shop or the
 owning system made is not protected that way — the read says which it was
 (`cancelledBy`), and the owning system may reopen its own, which it has to be
 able to do because while it owns the area nobody in the panel can.

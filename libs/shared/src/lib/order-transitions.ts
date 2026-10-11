@@ -111,8 +111,9 @@ const TRANSITIONS: Record<
    * `completed` order cannot be cancelled: the goods are gone, and whatever
    * happens next is a return in the shop's own books rather than a state here.
    *
-   * What none of this reaches is a cancellation the **customer** made. That is
-   * refused before this table is consulted, so widening these rows never hands
+   * What none of this reaches on its own is a cancellation the **customer**
+   * made. That is refused before this table is consulted unless the
+   * instruction explicitly takes it back, so widening these rows never hands
    * the exchange a way to drive a called-off order forward.
    */
   machine: {

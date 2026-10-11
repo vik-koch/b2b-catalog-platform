@@ -12,7 +12,8 @@ import { requireEnv } from '../support/env';
  * processing over, that one instruction carrying a move, a change and a
  * payment writes exactly **one** version of the order, that re-sending it
  * writes none at all, that an order the customer called off is refused rather
- * than driven forward, that one bad instruction does not cost the good ones in
+ * than driven forward unless the instruction takes the cancellation back and
+ * tells them, that one bad instruction does not cost the good ones in
  * the same batch, and that the version carries the name of whoever acted over
  * there without that name ever becoming an account here.
  */
@@ -484,6 +485,59 @@ describe('Order write-back (FR-ADM-08)', () => {
         // have to find out by being refused.
         expect((await readOrder(reference)).data).toMatchObject({
           cancelledBy: 'customer',
+        });
+      });
+
+      /** The customer rang the shop and wants the order after all. Taken back
+       * only by saying so, and only out loud. */
+      it('restores an order the customer called off, telling them', async () => {
+        const reference = await place(customerCookie);
+        const cancelled = await axios.post(
+          `/account/orders/${reference}/cancel`,
+          { reason: 'Ordered twice by mistake' },
+          { headers: { Cookie: customerCookie }, validateStatus: () => true },
+        );
+        expect(cancelled.status).toBe(200);
+
+        const quiet = await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 2,
+              status: 'approved',
+              restoreCustomerCancellation: true,
+              notify: false,
+            }),
+          ],
+        });
+        expect((quiet.data as RunResponse).plan.rowErrors[0]).toMatchObject({
+          code: 'restore-not-announced',
+        });
+
+        const restored = await write({
+          orders: [
+            instruction({
+              reference,
+              basedOnRevision: 2,
+              status: 'approved',
+              restoreCustomerCancellation: true,
+              notify: true,
+              showCustomer: true,
+            }),
+          ],
+        });
+        const body = restored.data as RunResponse;
+        expect(body.plan.rowErrors).toEqual([]);
+        expect(body.plan.orders[0]).toMatchObject({
+          kind: 'transition',
+          status: 'approved',
+          revisionNumber: 3,
+          notified: true,
+        });
+        expect((await readOrder(reference)).data).toMatchObject({
+          status: 'approved',
+          revisionNumber: 3,
+          cancelledBy: null,
         });
       });
 

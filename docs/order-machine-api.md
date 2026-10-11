@@ -168,9 +168,11 @@ hands out, and claim the account by that id when you are ready.
 **`status: "cancelled"`** — read `cancelledBy` before you decide what that
 means. `customer` is the account calling their own order off, which they may do
 however the area is owned: stop working it, and a write-back naming it is
-refused with `order-called-off`. `shop` is the back office stopping it —
-including **your own** cancellation coming back to you — and that one you may
-still reopen, which matters because while you own the area nobody here can.
+refused with `order-called-off` — unless the customer asks the shop for it
+after all, which is what `restoreCustomerCancellation` (§3.2) is for. `shop`
+is the back office stopping it — including **your own** cancellation coming
+back to you — and that one you may still reopen, which matters because while
+you own the area nobody here can.
 A `declined` order says `null`: a refusal is always the shop's.
 
 **`pieces` is the quantity; `unit` and `quantity` are a reading.** A line of
@@ -321,6 +323,7 @@ name on another's work. Leave it out and the credential's own name stands in.
   "paid": true, // optional; absent = leave the record alone
   "notify": true, // required — is the customer written to?
   "showCustomer": true, // required — does their own page move on to this version?
+  "restoreCustomerCancellation": true, // optional — only to reopen an order the customer called off
 }
 ```
 
@@ -333,6 +336,15 @@ rather than being applied to facts that changed underneath the decision.
 questions a manager answers on every move (FR-NOTIF-03), and a default would
 quietly decide for the shop how loud its own mail is. `notify: true` on an
 instruction that changes nothing still sends nothing.
+
+**`restoreCustomerCancellation` takes back the customer's own cancellation.**
+Send it only when the customer asked the shop for the order after all, and
+someone over there reopened it — never because your copy of the order simply
+disagrees with the read, which is what an export that never learned of the
+cancellation looks like too. It needs a `status` to reopen to, and `notify`
+and `showCustomer` both `true`: an order the customer stopped does not run
+again without their hearing of it (`restore-not-announced` otherwise). On any
+other order it changes nothing.
 
 **`lines` is the order's contents whole, not a patch.** A version assembled
 from "the old lines plus these two" is a version nobody can point at. Lines are
@@ -429,7 +441,9 @@ and what happens next is a **return** in your own books, not a state here; if
 the completion itself was a mistake, walk it back to `ready` or `approved` and
 correct from there. And an order **the customer** called off is refused before
 any of this is consulted (`order-called-off`), so none of these rows is a way
-to drive a called-off order forward.
+to drive a called-off order forward. Taking that cancellation back is a
+separate, explicit request (`restoreCustomerCancellation`, §3.2); once it is
+made, these rows decide where the order may reopen to, as for any cancellation.
 
 `declined` and `cancelled` require `statusReason` — they are the two states
 that owe the customer an answer, and the customer is shown it. On every other
@@ -525,6 +539,7 @@ version the order actually stands at) or `productSourceId`.
 | `duplicate-reference`    | —                           | the same order twice in one batch; nothing can say which is later                                                       |
 | `order-changed`          | `current`                   | the order moved since you read it — re-read it (§2.1) and decide again                                                  |
 | `order-called-off`       | —                           | the **customer** cancelled it; stop. A cancellation the shop or you made is not this — see `cancelledBy` (§2)           |
+| `restore-not-announced`  | —                           | `restoreCustomerCancellation` was sent without both `notify` and `showCustomer` `true`                                  |
 | `transition-not-allowed` | `status`                    | the order cannot go there from where it is                                                                              |
 | `reason-required`        | —                           | `declined`/`cancelled` was sent without `statusReason`                                                                  |
 | `unknown-product`        | `productSourceId`           | no product here carries that key                                                                                        |
@@ -669,8 +684,9 @@ setting.
 ## 5. When mail is sent
 
 **To the customer**, per instruction: `notify: true` sends the message that
-belongs to what the instruction did — the status message for a move, the
-"changed" one for an adjustment. `showCustomer` decides separately whether
+belongs to what the instruction did — the status message for a move, also
+when the same instruction changed the lines, and the "changed" one for an
+adjustment that left the status where it was. `showCustomer` decides separately whether
 their page moves on. An instruction that writes nothing sends nothing whatever
 the flags say. Any status message carries the payment instructions as an
 attachment while the order owes money.
@@ -701,7 +717,8 @@ on anybody's desk.
       happened to it, quoting `basedOnRevision`, and answering
       `notify`/`showCustomer` deliberately.
 - [ ] Treat `unchanged` as success. Treat `order-changed` as "re-read §2.1 and
-      decide again". Treat `order-called-off` as "stop".
+      decide again". Treat `order-called-off` as "stop" — until the customer asks
+      the shop for it, then restore it explicitly (§3.2).
 - [ ] Call `POST /api/machine/sync/orders/failures` when a cycle cannot run at
       all, so the shop is told rather than left guessing.
 - [ ] Never parse `message`; match on `code`. Never parse a cursor.

@@ -321,6 +321,7 @@ const actions: JourneyAdapter<OrderSyncJourneyContext>['actions'] = {
       if (args['reason']) instruction['statusReason'] = args['reason'];
       if (args['note']) instruction['note'] = args['note'];
       if ('paid' in args) instruction['paid'] = args['paid'];
+      if (args['restore']) instruction['restoreCustomerCancellation'] = true;
       if ('pieces' in args) {
         instruction['lines'] = [
           {
