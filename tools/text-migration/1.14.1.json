@@ -913,9 +913,251 @@
         "admin-text.json:productEditor.attributes.products",
         "admin-text.json:documentList.products"
       ]
+    },
+    "admin-text.json:productList.page.title": {
+      "from": ["admin-text.json:productList.title"]
+    },
+    "admin-text.json:categoryList.page.title": {
+      "from": ["admin-text.json:categoryList.title"]
+    },
+    "admin-text.json:documentList.page.title": {
+      "from": ["admin-text.json:documentList.title"]
+    },
+    "admin-text.json:orderList.page.title": {
+      "from": ["admin-text.json:orderList.title"]
+    },
+    "admin-text.json:operations.page.title": {
+      "from": ["admin-text.json:operations.title"]
+    },
+    "admin-text.json:tierList.page.title": {
+      "from": ["admin-text.json:tierList.title"]
+    },
+    "admin-text.json:tierList.page.intro": {
+      "from": ["admin-text.json:tierList.intro"],
+      "optional": true
+    },
+    "admin-text.json:apiTokenList.page.title": {
+      "from": ["admin-text.json:apiTokenList.title"]
+    },
+    "admin-text.json:apiTokenList.page.intro": {
+      "from": ["admin-text.json:apiTokenList.intro"],
+      "optional": true
+    },
+    "admin-text.json:attributeList.page.title": {
+      "from": ["admin-text.json:attributeList.title"]
+    },
+    "admin-text.json:attributeList.page.intro": {
+      "from": ["admin-text.json:attributeList.intro"],
+      "optional": true
+    },
+    "admin-text.json:categoryFilters.page.title": {
+      "from": ["admin-text.json:categoryFilters.title"]
+    },
+    "admin-text.json:categoryFilters.page.intro": {
+      "from": ["admin-text.json:categoryFilters.intro"],
+      "optional": true
+    },
+    "admin-text.json:attributeInventory.page.title": {
+      "from": ["admin-text.json:attributeInventory.title"]
+    },
+    "admin-text.json:attributeInventory.page.intro": {
+      "from": ["admin-text.json:attributeInventory.intro"],
+      "optional": true
+    },
+    "admin-text.json:consents.page.title": {
+      "from": ["admin-text.json:consents.title"]
+    },
+    "admin-text.json:consents.page.intro": {
+      "from": ["admin-text.json:consents.intro"],
+      "optional": true
+    },
+    "admin-text.json:orderAdjust.page.title": {
+      "from": ["admin-text.json:orderAdjust.title"]
+    },
+    "admin-text.json:orderAdjust.page.intro": {
+      "from": ["admin-text.json:orderAdjust.lead"],
+      "optional": true
+    },
+    "admin-text.json:userList.customersPage.title": {
+      "from": ["admin-text.json:userList.titleCustomers"]
+    },
+    "admin-text.json:userList.staffPage.title": {
+      "from": ["admin-text.json:userList.titleStaff"]
+    },
+    "admin-text.json:apiTokenList.revokeConfirm.heading": {
+      "from": ["admin-text.json:apiTokenList.revokeTitle"]
+    },
+    "admin-text.json:apiTokenList.revokeConfirm.message": {
+      "from": ["admin-text.json:apiTokenList.revokeConfirm"]
+    },
+    "admin-text.json:apiTokenList.revokeConfirm.confirm": {
+      "from": ["admin-text.json:apiTokenList.revoke"],
+      "copy": true
+    },
+    "admin-text.json:apiTokenList.revokeConfirm.warning": {
+      "from": ["admin-text.json:apiTokenList.revokeWarning"]
+    },
+    "admin-text.json:attributeList.deleteConfirm.heading": {
+      "from": ["admin-text.json:attributeList.deleteTitle"]
+    },
+    "admin-text.json:attributeList.deleteConfirm.message": {
+      "from": ["admin-text.json:attributeList.deleteConfirm"]
+    },
+    "admin-text.json:attributeList.deleteConfirm.confirm": {
+      "from": ["admin-text.json:attributeList.delete"],
+      "copy": true
+    },
+    "admin-text.json:categoryFilters.resetConfirm.heading": {
+      "from": ["admin-text.json:categoryFilters.resetTitle"]
+    },
+    "admin-text.json:categoryFilters.resetConfirm.message": {
+      "from": ["admin-text.json:categoryFilters.resetConfirm"]
+    },
+    "admin-text.json:categoryFilters.resetConfirm.confirm": {
+      "from": ["admin-text.json:categoryFilters.reset"],
+      "copy": true
+    },
+    "admin-text.json:consents.withdrawConfirm.heading": {
+      "from": ["admin-text.json:consents.withdrawTitle"]
+    },
+    "admin-text.json:consents.withdrawConfirm.message": {
+      "from": ["admin-text.json:consents.withdrawConfirm"]
+    },
+    "admin-text.json:consents.withdrawConfirm.confirm": {
+      "from": ["admin-text.json:consents.withdraw"],
+      "copy": true
+    },
+    "admin-text.json:consents.withdrawConfirm.warning": {
+      "from": ["admin-text.json:consents.withdrawInbox"]
+    },
+    "admin-text.json:documentList.deleteConfirm.heading": {
+      "from": ["admin-text.json:documentList.deleteTitle"]
+    },
+    "admin-text.json:documentList.deleteConfirm.message": {
+      "from": ["admin-text.json:documentList.deleteConfirm"]
+    },
+    "admin-text.json:documentList.deleteConfirm.confirm": {
+      "from": ["admin-text.json:documentList.delete"],
+      "copy": true
+    },
+    "admin-text.json:sync.discardConfirm.heading": {
+      "from": ["admin-text.json:sync.discardTitle"]
+    },
+    "admin-text.json:sync.discardConfirm.message": {
+      "from": ["admin-text.json:sync.discardMessage"]
+    },
+    "admin-text.json:sync.discardConfirm.confirm": {
+      "from": ["admin-text.json:sync.discardRun"],
+      "copy": true
+    },
+    "admin-text.json:tierList.setDefaultConfirm.heading": {
+      "from": ["admin-text.json:tierList.setDefaultTitle"]
+    },
+    "admin-text.json:tierList.setDefaultConfirm.message": {
+      "from": ["admin-text.json:tierList.setDefaultConfirm"]
+    },
+    "admin-text.json:tierList.setDefaultConfirm.confirm": {
+      "from": ["admin-text.json:tierList.setDefault"],
+      "copy": true
+    },
+    "admin-text.json:tierList.deleteConfirm.heading": {
+      "from": ["admin-text.json:tierList.deleteTitle"]
+    },
+    "admin-text.json:tierList.deleteConfirm.message": {
+      "from": ["admin-text.json:tierList.deleteConfirm"]
+    },
+    "admin-text.json:tierList.deleteConfirm.confirm": {
+      "from": ["admin-text.json:tierList.delete"],
+      "copy": true
+    },
+    "admin-text.json:userDetail.deleteConfirm.heading": {
+      "from": ["admin-text.json:userDetail.deleteTitle"]
+    },
+    "admin-text.json:userDetail.deleteConfirm.message": {
+      "from": ["admin-text.json:userDetail.deleteConfirm"]
+    },
+    "admin-text.json:userDetail.deleteConfirm.confirm": {
+      "from": ["admin-text.json:userDetail.delete"],
+      "copy": true
+    },
+    "admin-text.json:userDetail.deleteConfirm.warning": {
+      "from": ["admin-text.json:userDetail.deleteWarning"]
+    },
+    "admin-text.json:userDetail.exemptConfirm.heading": {
+      "from": ["admin-text.json:userDetail.exemptTitle"]
+    },
+    "admin-text.json:userDetail.exemptConfirm.message": {
+      "from": ["admin-text.json:userDetail.exemptConfirm"]
+    },
+    "admin-text.json:userDetail.exemptConfirm.confirm": {
+      "from": ["admin-text.json:userDetail.exempt"],
+      "copy": true
+    },
+    "admin-text.json:userDetail.unexemptConfirm.heading": {
+      "from": ["admin-text.json:userDetail.unexemptTitle"]
+    },
+    "admin-text.json:userDetail.unexemptConfirm.message": {
+      "from": ["admin-text.json:userDetail.unexemptConfirm"]
+    },
+    "admin-text.json:userDetail.unexemptConfirm.confirm": {
+      "from": ["admin-text.json:userDetail.unexempt"],
+      "copy": true
+    },
+    "admin-text.json:userList.deactivateConfirm.heading": {
+      "from": ["admin-text.json:userList.deactivateTitle"]
+    },
+    "admin-text.json:userList.deactivateConfirm.message": {
+      "from": ["admin-text.json:userList.deactivateConfirm"]
+    },
+    "admin-text.json:userList.deactivateConfirm.confirm": {
+      "from": ["admin-text.json:userList.deactivate"],
+      "copy": true
+    },
+    "admin-text.json:userList.reactivateConfirm.heading": {
+      "from": ["admin-text.json:userList.reactivateTitle"]
+    },
+    "admin-text.json:userList.reactivateConfirm.message": {
+      "from": ["admin-text.json:userList.reactivateConfirm"]
+    },
+    "admin-text.json:userList.reactivateConfirm.confirm": {
+      "from": ["admin-text.json:userList.reactivate"],
+      "copy": true
+    },
+    "admin-text.json:userList.declineConfirm.heading": {
+      "from": ["admin-text.json:userList.declineTitle"]
+    },
+    "admin-text.json:userList.declineConfirm.message": {
+      "from": ["admin-text.json:userList.declineConfirm"]
+    },
+    "admin-text.json:userList.declineConfirm.confirm": {
+      "from": ["admin-text.json:userList.decline"],
+      "copy": true
+    },
+    "admin-text.json:editMode.unpublishConfirm.heading": {
+      "from": ["admin-text.json:editMode.unpublishProduct"],
+      "copy": true
+    },
+    "admin-text.json:editMode.unpublishConfirm.message": {
+      "from": ["admin-text.json:editMode.unpublishConfirm"]
+    },
+    "admin-text.json:editMode.unpublishConfirm.confirm": {
+      "from": ["admin-text.json:editMode.unpublishProduct"],
+      "copy": true
+    },
+    "admin-text.json:editMode.purgeConfirm.heading": {
+      "from": ["admin-text.json:editMode.purgeProduct"],
+      "copy": true
+    },
+    "admin-text.json:editMode.purgeConfirm.message": {
+      "from": ["admin-text.json:editMode.purgeConfirm"]
+    },
+    "admin-text.json:editMode.purgeConfirm.confirm": {
+      "from": ["admin-text.json:editMode.purgeProduct"],
+      "copy": true
     }
   },
   "drop": [
+    "admin-text.json:sync.title",
     "app-text.json:catalog.units.pieceName",
     "app-text.json:catalog.units.packName",
     "app-text.json:catalog.units.boxName",

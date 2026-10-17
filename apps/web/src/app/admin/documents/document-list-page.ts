@@ -84,7 +84,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
   ],
   template: `
     <app-admin-list-header
-      [title]="text.title"
+      [title]="text.page.title"
+      [intro]="text.page.intro"
       [query]="term()"
       [searchLabel]="text.searchLabel"
       [searchPlaceholder]="text.searchPlaceholder"
@@ -474,10 +475,12 @@ export class DocumentListPage {
   protected async remove(document: ProductDocument): Promise<void> {
     this.pageError.set(null);
     const ok = await this.confirm.ask({
-      heading: this.text.deleteTitle,
-      message: fillText(this.text.deleteConfirm, { name: document.title }),
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      heading: this.text.deleteConfirm.heading,
+      message: fillText(this.text.deleteConfirm.message, {
+        name: document.title,
+      }),
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
       confirmVariant: 'danger',
     });
     if (!ok) return;
@@ -495,6 +498,6 @@ export class DocumentListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
   }
 }

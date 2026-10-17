@@ -116,7 +116,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
   ],
   template: `
     <app-admin-list-header
-      [title]="title()"
+      [title]="page().title"
+      [intro]="page().intro"
       [query]="query() ?? ''"
       [searchLabel]="text.searchLabel"
       [searchPlaceholder]="text.searchPlaceholder"
@@ -282,8 +283,8 @@ export class UserListPage {
   readonly kind = input<UserKind>('customer');
   protected readonly isCustomers = computed(() => this.kind() === 'customer');
   protected readonly isStaff = computed(() => this.kind() === 'staff');
-  protected readonly title = computed(() =>
-    this.isStaff() ? this.text.titleStaff : this.text.titleCustomers,
+  protected readonly page = computed(() =>
+    this.isStaff() ? this.text.staffPage : this.text.customersPage,
   );
 
   /*
@@ -602,20 +603,16 @@ export class UserListPage {
     this.pageError.set(null);
     const off = !active;
     const locked = this.lockedMessage();
+    const dialog = off
+      ? this.text.deactivateConfirm
+      : this.text.reactivateConfirm;
     const ok = await this.confirm.ask({
-      heading: off ? this.text.deactivateTitle : this.text.reactivateTitle,
-      message:
-        locked ??
-        (off
-          ? this.text.deactivateConfirm
-          : this.text.reactivateConfirm
-        ).replace('{name}', this.name(user)),
-      confirmLabel: locked
-        ? null
-        : off
-          ? this.text.deactivate
-          : this.text.reactivate,
-      cancelLabel: locked ? this.common.close : this.common.cancel,
+      heading: dialog.heading,
+      message: locked ?? dialog.message.replace('{name}', this.name(user)),
+      confirmLabel: locked ? null : dialog.confirm,
+      cancelLabel: locked
+        ? this.common.close
+        : (dialog.cancel ?? this.common.cancel),
       confirmVariant: off ? 'danger' : 'primary',
     });
     if (locked || !ok) return;
@@ -636,13 +633,15 @@ export class UserListPage {
     this.pageError.set(null);
     const locked = this.lockedMessage();
     const ok = await this.confirm.ask({
-      heading: this.text.declineTitle,
+      heading: this.text.declineConfirm.heading,
       message:
         locked === null
-          ? this.text.declineConfirm.replace('{name}', this.name(user))
+          ? this.text.declineConfirm.message.replace('{name}', this.name(user))
           : this.ownershipText.accountDecline,
-      confirmLabel: locked ? null : this.text.decline,
-      cancelLabel: locked ? this.common.close : this.common.cancel,
+      confirmLabel: locked ? null : this.text.declineConfirm.confirm,
+      cancelLabel: locked
+        ? this.common.close
+        : (this.text.declineConfirm.cancel ?? this.common.cancel),
       confirmVariant: 'danger',
     });
     if (locked || !ok) return;
@@ -735,7 +734,7 @@ export class UserListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.title() });
+    usePageSeo({ name: () => this.page().title });
     // Asked for here rather than at the click: the answer is cached for the
     // app's lifetime, and a dialog that had to wait for it would open on a
     // question it cannot yet word.

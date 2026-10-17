@@ -149,9 +149,15 @@ export class AdminCatalogService {
    */
   async unpublishMessage(
     product: { slug: string; name: string },
-    text: { unpublishConfirm: string; unpublishStranded: string },
+    text: {
+      unpublishConfirm: { message: string };
+      unpublishStranded: string;
+    },
   ): Promise<string> {
-    const message = text.unpublishConfirm.replace('{name}', product.name);
+    const message = text.unpublishConfirm.message.replace(
+      '{name}',
+      product.name,
+    );
     const stranded = await this.strandedPairingNames(product.slug);
     return stranded.length === 0
       ? message

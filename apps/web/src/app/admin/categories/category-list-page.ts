@@ -123,7 +123,7 @@ const EDGE_SLACK = 24;
   `,
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <div class="flex flex-wrap justify-end gap-2">
         <a
           appButton
@@ -633,6 +633,6 @@ export class CategoryListPage {
   constructor() {
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
   }
 }

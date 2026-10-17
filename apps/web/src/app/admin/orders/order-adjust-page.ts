@@ -190,7 +190,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
         >
           <div class="max-w-xl">
             <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
-            <p class="mt-2 text-muted">{{ text.lead }}</p>
+            @if (text.page.intro; as intro) {
+              <p class="mt-2 text-muted">{{ intro }}</p>
+            }
 
             <!-- Amber, not red: none of these refuses the adjustment. They
                  are what a manager should have weighed before making it. -->
@@ -988,7 +990,7 @@ export class AdminOrderAdjustPage {
   }
 
   protected title(): string {
-    return fillText(this.text.title, { reference: this.reference() });
+    return fillText(this.text.page.title, { reference: this.reference() });
   }
 
   /** What is sent — to be priced, and then to be written. Null until the order

@@ -61,11 +61,14 @@ import { SettingsService } from '../settings/settings.service';
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
     <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
     </div>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <div class="max-w-3xl">
       <!-- Everything here is one row in the database and arrives in one answer,
@@ -372,7 +375,7 @@ export class OperationsPage {
   });
 
   constructor() {
-    usePageSeo({ name: () => this.text.title, noindex: true });
+    usePageSeo({ name: () => this.text.page.title, noindex: true });
   }
 
   protected toggleHistory(): void {

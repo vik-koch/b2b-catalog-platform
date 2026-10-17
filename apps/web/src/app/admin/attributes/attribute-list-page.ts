@@ -81,7 +81,7 @@ type EditTarget = { id: string } | { id: null } | null;
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -94,7 +94,9 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -536,10 +538,13 @@ export class AttributeListPage {
   protected async remove(definition: AttributeDefinition): Promise<void> {
     this.rowError.set(null);
     const confirmed = await this.confirm.ask({
-      heading: this.text.deleteTitle,
-      message: this.text.deleteConfirm.replace('{name}', definition.name),
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      heading: this.text.deleteConfirm.heading,
+      message: this.text.deleteConfirm.message.replace(
+        '{name}',
+        definition.name,
+      ),
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
     });
     if (!confirmed) return;
 
@@ -575,7 +580,7 @@ export class AttributeListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     useRowAnchor(
       computed(() => (this.name() ? this.rowId(this.name()) : null)),
       computed(() => this.definitions.hasValue()),

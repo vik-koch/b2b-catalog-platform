@@ -13,16 +13,21 @@ const clearLabel = defaultAdminText.common.clearFilters;
 @Component({
   imports: [AdminListHeader],
   template: `
-    <app-admin-list-header title="Products" [filtered]="filtered">
+    <app-admin-list-header
+      title="Products"
+      [intro]="intro"
+      [filtered]="filtered"
+    >
       <a href="/admin/products/new">Add product</a>
     </app-admin-list-header>
   `,
 })
 class Host {
   filtered = false;
+  intro: string | undefined = undefined;
 }
 
-function render(filtered: boolean) {
+function render(filtered: boolean, intro?: string) {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
@@ -33,6 +38,7 @@ function render(filtered: boolean) {
   });
   const fixture = TestBed.createComponent(Host);
   fixture.componentInstance.filtered = filtered;
+  fixture.componentInstance.intro = intro;
   fixture.detectChanges();
   const el = fixture.nativeElement as HTMLElement;
   const clear = el.querySelector<HTMLElement>(`[aria-label="${clearLabel}"]`);
@@ -47,6 +53,16 @@ describe('AdminListHeader', () => {
     expect(el.querySelector('h1')?.textContent).toContain('Products');
     expect(el.querySelector('input[type="search"]')).not.toBeNull();
     expect(el.textContent).toContain('Add product');
+  });
+
+  // An intro is the deployment's to write: where it wrote none, no empty
+  // paragraph holds the space under the heading.
+  it('draws the intro only where there is one', () => {
+    expect(render(false).el.querySelector('p')).toBeNull();
+    TestBed.resetTestingModule();
+    expect(
+      render(false, 'Every product, published or not.').el.textContent,
+    ).toContain('Every product, published or not.');
   });
 
   /*

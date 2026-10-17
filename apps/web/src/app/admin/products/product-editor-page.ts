@@ -1348,13 +1348,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.priceCleared() &&
       this.published() &&
       !(await this.confirm.ask({
-        heading: this.editText.unpublishProduct,
+        heading: this.editText.unpublishConfirm.heading,
         message: await this.service.unpublishMessage(
           { slug: existingSlug, name: body.name },
           this.editText,
         ),
         confirmLabel: this.text.saveAndUnpublish,
-        cancelLabel: this.common.cancel,
+        cancelLabel:
+          this.editText.unpublishConfirm.cancel ?? this.common.cancel,
         confirmVariant: 'danger',
       }))
     ) {

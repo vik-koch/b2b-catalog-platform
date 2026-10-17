@@ -56,8 +56,10 @@ type SearchBy = 'email' | 'phone';
   ],
   template: `
     <div class="max-w-3xl">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
-      <p class="mt-2 text-muted">{{ text.intro }}</p>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      @if (text.page.intro; as intro) {
+        <p class="mt-2 text-muted">{{ intro }}</p>
+      }
 
       <form class="mt-6 space-y-4" novalidate (submit)="search($event)">
         <app-segmented [options]="searchOptions" size="md" [formControl]="by" />
@@ -172,7 +174,7 @@ export class ConsentLookupPage {
   protected readonly showSkeleton = delayedLoading(this.results.isLoading);
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     this.by.valueChanges.subscribe((by) => {
       this.searchBy.set(by);
       this.invalid.set(false);
@@ -216,16 +218,16 @@ export class ConsentLookupPage {
     const holder =
       record.email ?? formatPhone(record.phone, this.phoneInput) ?? '';
     const answer = await this.confirm.askDetailed({
-      heading: this.text.withdrawTitle,
-      message: fillText(this.text.withdrawConfirm, {
+      heading: this.text.withdrawConfirm.heading,
+      message: fillText(this.text.withdrawConfirm.message, {
         holder,
         date: this.dayFormat.format(new Date(record.givenAt)),
       }),
       // The platform holds the record, not the inquiry: that is a mail in
       // the shop's inbox, and only a person can delete it there.
-      warning: this.text.withdrawInbox,
-      confirmLabel: this.text.withdraw,
-      cancelLabel: this.common.cancel,
+      warning: this.text.withdrawConfirm.warning,
+      confirmLabel: this.text.withdrawConfirm.confirm,
+      cancelLabel: this.text.withdrawConfirm.cancel ?? this.common.cancel,
       confirmVariant: 'danger',
       reasonLabel: this.text.withdrawNote,
       reasonMaxLength: CONSENT_WITHDRAWAL_NOTE_MAX,

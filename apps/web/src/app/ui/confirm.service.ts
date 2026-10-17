@@ -34,17 +34,18 @@ export interface ConfirmText {
   readonly heading: string;
   readonly message: string;
   readonly confirm: string;
-  readonly cancel: string;
+  readonly cancel?: string;
   readonly warning?: string;
 }
 
-/** The request for those words; a view adds the warning when it applies. */
-export function confirmRequest(text: ConfirmText): ConfirmRequest {
+/** The request for those words; a view adds the warning when it applies, and
+ * the common cancel stands in where the dialog names none. */
+export function confirmRequest(text: ConfirmText, cancel = ''): ConfirmRequest {
   return {
     heading: text.heading,
     message: text.message,
     confirmLabel: text.confirm,
-    cancelLabel: text.cancel,
+    cancelLabel: text.cancel ?? cancel,
   };
 }
 

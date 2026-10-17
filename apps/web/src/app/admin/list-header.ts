@@ -76,10 +76,15 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
         </div>
       }
     </div>
+    @if (intro(); as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
   `,
 })
 export class AdminListHeader {
   readonly title = input.required<string>();
+  /** The paragraph under the heading, where the deployment writes one. */
+  readonly intro = input<string | undefined>(undefined);
   /** False for a grid the API cannot search — a box that filters nothing is
    * worse than no box. */
   readonly searchable = input(true);

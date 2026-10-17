@@ -121,7 +121,6 @@
     "addProduct": "Add product",
     "deleteProduct": "Delete product",
     "purgeProduct": "Delete permanently",
-    "purgeConfirm": "Delete “{name}” permanently? Its prices, attributes, pairings and document links are removed with it. This cannot be undone.",
     "editCategory": "Edit category",
     "editCategories": "Edit categories",
     "editFilters": "Edit filters",
@@ -131,10 +130,19 @@
     "unpricedTitle": "This product has no price",
     "publishProduct": "Publish",
     "unpublishProduct": "Unpublish",
-    "unpublishConfirm": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
     "unpublishStranded": "It is the last product on sale that these are paired with, so they will be on sale with no counterpart: {names}.",
     "cancel": "Cancel",
-    "revealError": "Could not publish this product. Please try again."
+    "revealError": "Could not publish this product. Please try again.",
+    "unpublishConfirm": {
+      "heading": "Unpublish",
+      "message": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
+      "confirm": "Unpublish"
+    },
+    "purgeConfirm": {
+      "heading": "Delete permanently",
+      "message": "Delete “{name}” permanently? Its prices, attributes, pairings and document links are removed with it. This cannot be undone.",
+      "confirm": "Delete permanently"
+    }
   },
   "pageEditor": {
     "edit": "Edit page",
@@ -337,7 +345,9 @@
     "packagingUnavailable": "—"
   },
   "productList": {
-    "title": "Products",
+    "page": {
+      "title": "Products"
+    },
     "empty": "No products yet.",
     "noResults": "No products match these filters.",
     "updated": "Updated",
@@ -396,7 +406,9 @@
     }
   },
   "categoryList": {
-    "title": "Categories",
+    "page": {
+      "title": "Categories"
+    },
     "add": "Add category",
     "addChild": "Add subcategory",
     "seeProducts": "See category products",
@@ -441,7 +453,6 @@
     "saveError": "This category could not be saved. Please try again."
   },
   "sync": {
-    "title": "Catalog sync",
     "description": "Upload the catalog export to update products in bulk. Nothing is written until you review the changes and apply them.",
     "modeLabel": "What is this file?",
     "advanced": "Advanced options",
@@ -700,8 +711,6 @@
     "startedLabel": "Started",
     "finishedLabel": "Finished",
     "discardRun": "Discard this run",
-    "discardTitle": "Discard this run?",
-    "discardMessage": "Nothing will be applied and the run stays in the log as discarded. A later run can still bring the same changes.",
     "summaryTitleApplied": "What this run changed",
     "nothingChanged": "This run changed nothing.",
     "field": {
@@ -712,7 +721,12 @@
       "priceList": "prices ({key})",
       "more": "+{count}"
     },
-    "taxRateDefault": "standard rate"
+    "taxRateDefault": "standard rate",
+    "discardConfirm": {
+      "heading": "Discard this run?",
+      "message": "Nothing will be applied and the run stays in the log as discarded. A later run can still bring the same changes.",
+      "confirm": "Discard this run"
+    }
   },
   "maintenance": {
     "description": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",
@@ -723,8 +737,10 @@
     "error": "Something went wrong changing maintenance mode. Please try again."
   },
   "tierList": {
-    "title": "Customer tiers",
-    "intro": "A tier is a price list. One of them is what the storefront shows everybody — guests, staff and customers who are not on a tier; the others carry only the products they price differently. Customers are put on a tier when their account is approved.",
+    "page": {
+      "title": "Customer tiers",
+      "intro": "A tier is a price list. One of them is what the storefront shows everybody — guests, staff and customers who are not on a tier; the others carry only the products they price differently. Customers are put on a tier when their account is approved."
+    },
     "add": "Add tier",
     "label": "Name",
     "labelPlaceholder": "Wholesale",
@@ -741,8 +757,6 @@
     "saveError": "This tier could not be saved. Please try again.",
     "labelRequired": "A name is required.",
     "keyInvalid": "Use letters, digits, hyphens and underscores, in one word, e.g. “wholesale”.",
-    "deleteTitle": "Delete tier",
-    "deleteConfirm": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
     "deleteBlocked": "“{name}” is still in use: {reason}",
     "deleteError": "This tier could not be deleted. Please try again.",
     "reorderError": "This move could not be saved. Please try again.",
@@ -755,18 +769,28 @@
     },
     "defaultBadge": "Shown on the storefront",
     "setDefault": "Show this list on the storefront",
-    "setDefaultTitle": "Change the storefront's price list",
-    "setDefaultConfirm": "Show “{name}” to everybody who is not on a tier?",
     "setDefaultWarning": "Products without a price in this list: {count}. They will be taken off the storefront until somebody prices them.",
     "setDefaultNone": "Every product on the storefront has a price in this list.",
     "setDefaultDone": "Products taken off the storefront: {count}.",
     "setDefaultError": "The storefront's price list could not be changed. Please try again.",
     "seeUnpriced": "Show the products this list does not price",
-    "unpriced": "{count} not priced"
+    "unpriced": "{count} not priced",
+    "setDefaultConfirm": {
+      "heading": "Change the storefront's price list",
+      "message": "Show “{name}” to everybody who is not on a tier?",
+      "confirm": "Show this list on the storefront"
+    },
+    "deleteConfirm": {
+      "heading": "Delete tier",
+      "message": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
+      "confirm": "Delete"
+    }
   },
   "apiTokenList": {
-    "title": "Machine tokens",
-    "intro": "A machine token lets an automated client — a scheduled import, an integration — reach the API without signing in. It is not an account: it has no password, no mailbox and no role, only the things it is allowed to do.",
+    "page": {
+      "title": "Machine tokens",
+      "intro": "A machine token lets an automated client — a scheduled import, an integration — reach the API without signing in. It is not an account: it has no password, no mailbox and no role, only the things it is allowed to do."
+    },
     "add": "New token",
     "create": "Create token",
     "name": "Name",
@@ -805,14 +829,19 @@
     "empty": "No machine tokens yet.",
     "createError": "This token could not be created. Please try again.",
     "revoke": "Revoke",
-    "revokeTitle": "Revoke token",
-    "revokeConfirm": "Revoke “{name}”?",
-    "revokeWarning": "Whatever uses this token stops working on its next request. Revoking cannot be undone — issue a new token and reconfigure the client.",
-    "revokeError": "This token could not be revoked. Please try again."
+    "revokeError": "This token could not be revoked. Please try again.",
+    "revokeConfirm": {
+      "heading": "Revoke token",
+      "message": "Revoke “{name}”?",
+      "confirm": "Revoke",
+      "warning": "Whatever uses this token stops working on its next request. Revoking cannot be undone — issue a new token and reconfigure the client."
+    }
   },
   "attributeList": {
-    "title": "Filterable attributes",
-    "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover live and unpublished products; deleted ones are left out.",
+    "page": {
+      "title": "Filterable attributes",
+      "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover live and unpublished products; deleted ones are left out."
+    },
     "add": "Add attribute",
     "name": "Name",
     "namePlaceholder": "Colour",
@@ -837,20 +866,25 @@
     "empty": "No filterable attributes yet — products show their attributes but nothing can be filtered by them.",
     "saveError": "This attribute could not be saved. Please try again.",
     "nameRequired": "A name is required.",
-    "deleteTitle": "Delete attribute",
-    "deleteConfirm": "Delete “{name}”? The shop stops offering it as a filter. No product attribute is changed.",
     "deleteError": "This attribute could not be deleted. Please try again.",
     "reorderError": "This move could not be saved. Please try again.",
     "errors": {
       "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
       "attribute-name-taken": "Another definition already uses that name.",
       "attribute-slug-taken": "Another definition already uses that URL key."
+    },
+    "deleteConfirm": {
+      "heading": "Delete attribute",
+      "message": "Delete “{name}”? The shop stops offering it as a filter. No product attribute is changed.",
+      "confirm": "Delete"
     }
   },
   "categoryFilters": {
-    "title": "Filters",
+    "page": {
+      "title": "Filters",
+      "intro": "Which attributes this category offers as a filter, and in what order. Subcategories follow this list unless they are given one of their own. An attribute no product here carries never shows a filter anyway — turn one off when it is present but not worth filtering by."
+    },
     "heading": "Filters in {category}",
-    "intro": "Which attributes this category offers as a filter, and in what order. Subcategories follow this list unless they are given one of their own. An attribute no product here carries never shows a filter anyway — turn one off when it is present but not worth filtering by.",
     "sources": {
       "own": "This category has its own filter list.",
       "inherited": "Inherited from {category}. Saving here gives this category a list of its own.",
@@ -864,8 +898,6 @@
     "save": "Save filters",
     "saveError": "These filters could not be saved. Please try again.",
     "reset": "Use the inherited list",
-    "resetTitle": "Use the inherited list",
-    "resetConfirm": "Drop this category's own filter list? It will follow its parent again, and subcategories that follow this one change with it.",
     "resetDone": "This category follows the inherited list again.",
     "empty": "No attribute is offered here, so this category shows no filter panel.",
     "noDefinitions": "No attribute is filterable yet. Add one to the attribute list first.",
@@ -875,11 +907,18 @@
     "errors": {
       "category-not-found": "This category no longer exists.",
       "attribute-not-found": "One of these attributes no longer exists. Reload the page to see the current list."
+    },
+    "resetConfirm": {
+      "heading": "Use the inherited list",
+      "message": "Drop this category's own filter list? It will follow its parent again, and subcategories that follow this one change with it.",
+      "confirm": "Use the inherited list"
     }
   },
   "attributeInventory": {
-    "title": "Attributes in use",
-    "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts cover live and unpublished products; a rename also rewrites deleted ones.",
+    "page": {
+      "title": "Attributes in use",
+      "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts cover live and unpublished products; a rename also rewrites deleted ones."
+    },
     "toDefinitions": "Filterable attributes",
     "toDefinition": "Filterable — show its definition",
     "notFilterable": "Not filterable",
@@ -898,7 +937,9 @@
     "empty": "No product carries an attribute yet."
   },
   "documentList": {
-    "title": "Documents",
+    "page": {
+      "title": "Documents"
+    },
     "count": "Documents: {count}",
     "add": "Add document",
     "searchLabel": "Find a document",
@@ -926,9 +967,12 @@
     "empty": "No documents yet.",
     "noResults": "No document matches this search.",
     "loadError": "The documents could not be loaded. Please try again.",
-    "deleteTitle": "Delete document",
-    "deleteConfirm": "Delete “{name}”? The file is removed from the shop.",
-    "deleteError": "This document could not be deleted. Please try again."
+    "deleteError": "This document could not be deleted. Please try again.",
+    "deleteConfirm": {
+      "heading": "Delete document",
+      "message": "Delete “{name}”? The file is removed from the shop.",
+      "confirm": "Delete"
+    }
   },
   "documentEditor": {
     "newTitle": "New document",
@@ -1022,7 +1066,9 @@
     "count": "Products: {count}"
   },
   "orderList": {
-    "title": "Orders",
+    "page": {
+      "title": "Orders"
+    },
     "count": "Orders: {count}",
     "searchLabel": "Search orders",
     "searchPlaceholder": "Reference, name, email...",
@@ -1192,8 +1238,10 @@
     }
   },
   "orderAdjust": {
-    "title": "Adjust {reference}",
-    "lead": "Record what you agreed with the customer. This writes a new version of the order; the reference, their link and where the order stands all stay as they are.",
+    "page": {
+      "title": "Adjust {reference}",
+      "intro": "Record what you agreed with the customer. This writes a new version of the order; the reference, their link and where the order stands all stay as they are."
+    },
     "save": "Save the adjustment",
     "cancel": "Back to the order",
     "warnPaid": "This order is already recorded as paid. Changing what it costs does not move any money — put that right in your own books.",
@@ -1255,8 +1303,12 @@
     }
   },
   "userList": {
-    "titleCustomers": "Customers",
-    "titleStaff": "Staff",
+    "customersPage": {
+      "title": "Customers"
+    },
+    "staffPage": {
+      "title": "Staff"
+    },
     "count": "Accounts: {count}",
     "searchLabel": "Search accounts",
     "searchPlaceholder": "Search by name, email, etc...",
@@ -1287,14 +1339,8 @@
     "approve": "Review and approve",
     "edit": "Edit account",
     "decline": "Decline",
-    "declineTitle": "Decline registration",
-    "declineConfirm": "Decline {name}? Their registration and details are removed for good.",
     "deactivate": "Deactivate account",
-    "deactivateTitle": "Deactivate account",
-    "deactivateConfirm": "Deactivate {name}? They are signed out immediately and cannot sign in again, and any password link they were sent is cancelled. Their password itself is kept, so switching the account back on returns it as it was. Nothing is deleted, and they are not emailed.",
     "reactivate": "Reactivate account",
-    "reactivateTitle": "Reactivate account",
-    "reactivateConfirm": "Switch {name} back on? Their details, price tier and password are unchanged, so they can sign in as before — and they are not emailed. An account that never chose a password comes back awaiting one; send them a link from the account page.",
     "saveError": "That change could not be saved. Please try again.",
     "addCustomer": "Add customer",
     "addStaff": "Add staff account",
@@ -1317,6 +1363,21 @@
       "staff-create-admin-only": "Only an admin can create a staff account.",
       "source-id-change-admin-only": "Only an admin can change the source key of an account.",
       "not-exemptable": "This deployment lets no account of this role skip the sign-in code."
+    },
+    "deactivateConfirm": {
+      "heading": "Deactivate account",
+      "message": "Deactivate {name}? They are signed out immediately and cannot sign in again, and any password link they were sent is cancelled. Their password itself is kept, so switching the account back on returns it as it was. Nothing is deleted, and they are not emailed.",
+      "confirm": "Deactivate account"
+    },
+    "reactivateConfirm": {
+      "heading": "Reactivate account",
+      "message": "Switch {name} back on? Their details, price tier and password are unchanged, so they can sign in as before — and they are not emailed. An account that never chose a password comes back awaiting one; send them a link from the account page.",
+      "confirm": "Reactivate account"
+    },
+    "declineConfirm": {
+      "heading": "Decline registration",
+      "message": "Decline {name}? Their registration and details are removed for good.",
+      "confirm": "Decline"
     }
   },
   "userEditor": {
@@ -1354,9 +1415,6 @@
     "consentsHeading": "Consents",
     "consentsEmpty": "No consent recorded for this account.",
     "delete": "Delete account",
-    "deleteTitle": "Delete account on request",
-    "deleteConfirm": "Delete {name} on their request? Their personal details and saved addresses are removed, their past orders are kept with their details removed from them, and they can no longer sign in. They are sent the same confirmation as when they delete it themselves. This cannot be undone.",
-    "deleteWarning": "Orders still open stay yours to finish, without the customer's name, phone or address.",
     "deleteConsentWithdrawn": "They withdrew their consent",
     "deleteConsentWithdrawnHint": "Recorded as the reason. Leave it clear when they simply asked for the deletion.",
     "deleteError": "The account could not be deleted. Please try again.",
@@ -1371,21 +1429,35 @@
     "signInCodeOnce": "Once, to confirm the number",
     "signInCodeExempt": "Not asked: exempted by {admin} on {date}",
     "exempt": "Exempt from the code",
-    "exemptTitle": "Exempt from the sign-in code",
-    "exemptConfirm": "Let {name} sign in with the password alone? The exemption is recorded with your name and shown on this page.",
     "unexempt": "Ask for the code again",
-    "unexemptTitle": "Ask for the sign-in code again",
-    "unexemptConfirm": "Ask {name} for the code again from their next sign-in?",
     "exemptError": "The change could not be saved. Please try again.",
     "back": "Back to the list",
     "notFound": "This account could not be found.",
-    "loadError": "This account could not be loaded. Please try again."
+    "loadError": "This account could not be loaded. Please try again.",
+    "deleteConfirm": {
+      "heading": "Delete account on request",
+      "message": "Delete {name} on their request? Their personal details and saved addresses are removed, their past orders are kept with their details removed from them, and they can no longer sign in. They are sent the same confirmation as when they delete it themselves. This cannot be undone.",
+      "confirm": "Delete account",
+      "warning": "Orders still open stay yours to finish, without the customer's name, phone or address."
+    },
+    "exemptConfirm": {
+      "heading": "Exempt from the sign-in code",
+      "message": "Let {name} sign in with the password alone? The exemption is recorded with your name and shown on this page.",
+      "confirm": "Exempt from the code"
+    },
+    "unexemptConfirm": {
+      "heading": "Ask for the sign-in code again",
+      "message": "Ask {name} for the code again from their next sign-in?",
+      "confirm": "Ask for the code again"
+    }
   },
   "consents": {
-    "title": "Consents",
+    "page": {
+      "title": "Consents",
+      "intro": "Find the consents a person gave, to answer their own request or an inspection. A search by email address also finds the records of the account that uses it now."
+    },
     "panelLookup": "Find a person's consents",
     "panelText": "Text: {purpose}",
-    "intro": "Find the consents a person gave, to answer their own request or an inspection. A search by email address also finds the records of the account that uses it now.",
     "byEmail": "Email address",
     "byPhone": "Phone number",
     "search": "Search",
@@ -1407,16 +1479,19 @@
     },
     "endsWithAccount": "Withdrawn by deleting the account",
     "withdraw": "Enter a withdrawal",
-    "withdrawTitle": "Enter a withdrawal",
-    "withdrawConfirm": "The consent given by {holder} on {date} ends now and cannot be given back. Its record is kept for the retention period.",
-    "withdrawInbox": "The inquiry itself is a mail in the shop's inbox, which this does not touch. Delete it there as well.",
     "withdrawNote": "How it reached you",
     "withdrawErrors": {
       "consent-not-found": "This record no longer exists.",
       "consent-already-withdrawn": "This consent was already withdrawn.",
       "consent-ends-with-account": "An account consent is withdrawn by deleting the account."
     },
-    "withdrawError": "The withdrawal could not be saved. Please try again."
+    "withdrawError": "The withdrawal could not be saved. Please try again.",
+    "withdrawConfirm": {
+      "heading": "Enter a withdrawal",
+      "message": "The consent given by {holder} on {date} ends now and cannot be given back. Its record is kept for the retention period.",
+      "confirm": "Enter a withdrawal",
+      "warning": "The inquiry itself is a mail in the shop's inbox, which this does not touch. Delete it there as well."
+    }
   },
   "ownership": {
     "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",
@@ -1497,7 +1572,9 @@
     "orderLocked": "Orders are managed by an external system, so this one is answered there rather than here. Customers can still place orders and call off ones nobody has answered. To work orders in the shop, take order processing back under Data ownership in the admin panel."
   },
   "operations": {
-    "title": "Maintenance and ownership",
+    "page": {
+      "title": "Maintenance and ownership"
+    },
     "backToPanel": "Back to the panel",
     "maintenanceHeading": "Maintenance mode",
     "ownershipHeading": "Data ownership",

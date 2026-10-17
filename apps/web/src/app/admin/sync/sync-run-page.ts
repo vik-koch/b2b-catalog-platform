@@ -335,10 +335,10 @@ export class SyncRunPage {
 
   protected async discard(id: string): Promise<void> {
     const ok = await this.confirm.ask({
-      heading: this.text.discardTitle,
-      message: this.text.discardMessage,
-      confirmLabel: this.text.discardRun,
-      cancelLabel: this.common.cancel,
+      heading: this.text.discardConfirm.heading,
+      message: this.text.discardConfirm.message,
+      confirmLabel: this.text.discardConfirm.confirm,
+      cancelLabel: this.text.discardConfirm.cancel ?? this.common.cancel,
       confirmVariant: 'danger',
     });
     if (!ok) return;

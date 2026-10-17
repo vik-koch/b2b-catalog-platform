@@ -27,7 +27,7 @@ import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { CatalogService } from './catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,
@@ -262,10 +262,8 @@ export class ProductDetail {
     const admin = this.injector.get(AdminCatalogService);
     if (!hidden) {
       const confirmed = await this.confirm.ask({
-        heading: text.unpublishProduct,
+        ...confirmRequest(text.unpublishConfirm, text.cancel),
         message: await admin.unpublishMessage(item, text),
-        confirmLabel: text.unpublishProduct,
-        cancelLabel: text.cancel,
         confirmVariant: 'danger',
       });
       if (!confirmed) return;

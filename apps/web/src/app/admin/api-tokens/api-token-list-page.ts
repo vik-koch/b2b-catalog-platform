@@ -117,7 +117,7 @@ const SCOPE_ROWS: readonly {
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -130,7 +130,9 @@ const SCOPE_ROWS: readonly {
       </button>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <div class="max-w-3xl">
       <!-- The value, once. Amber rather than a plain card: this is the only
@@ -394,7 +396,7 @@ export class ApiTokenListPage {
   private readonly moment = computed(() => adminMomentFormat(this.locale));
 
   constructor() {
-    usePageSeo({ name: () => this.text.title, noindex: true });
+    usePageSeo({ name: () => this.text.page.title, noindex: true });
   }
 
   protected fill(template: string, value: string): string {
@@ -500,11 +502,11 @@ export class ApiTokenListPage {
 
   protected async revoke(token: ApiToken): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.text.revokeTitle,
-      message: this.fill(this.text.revokeConfirm, token.name),
-      warning: this.text.revokeWarning,
-      confirmLabel: this.text.revoke,
-      cancelLabel: this.common.cancel,
+      heading: this.text.revokeConfirm.heading,
+      message: this.fill(this.text.revokeConfirm.message, token.name),
+      warning: this.text.revokeConfirm.warning,
+      confirmLabel: this.text.revokeConfirm.confirm,
+      cancelLabel: this.text.revokeConfirm.cancel ?? this.common.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;

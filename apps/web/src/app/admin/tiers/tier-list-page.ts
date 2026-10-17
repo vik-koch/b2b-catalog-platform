@@ -66,7 +66,7 @@ type EditTarget = { id: string } | { id: null } | null;
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -79,7 +79,9 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -447,9 +449,9 @@ export class TierListPage {
   protected async makeDefault(tier: CustomerTier): Promise<void> {
     this.rowError.set(null);
     const confirmed = await this.confirm.ask({
-      heading: this.text.setDefaultTitle,
+      heading: this.text.setDefaultConfirm.heading,
       message: [
-        this.text.setDefaultConfirm.replace('{name}', tier.label),
+        this.text.setDefaultConfirm.message.replace('{name}', tier.label),
         tier.wouldUnpublish > 0
           ? this.text.setDefaultWarning.replace(
               '{count}',
@@ -457,8 +459,8 @@ export class TierListPage {
             )
           : this.text.setDefaultNone,
       ].join(' '),
-      confirmLabel: this.text.setDefault,
-      cancelLabel: this.common.cancel,
+      confirmLabel: this.text.setDefaultConfirm.confirm,
+      cancelLabel: this.text.setDefaultConfirm.cancel ?? this.common.cancel,
     });
     if (!confirmed) return;
 
@@ -607,12 +609,12 @@ export class TierListPage {
     }
 
     const confirmed = await this.confirm.ask({
-      heading: this.text.deleteTitle,
-      message: this.text.deleteConfirm
+      heading: this.text.deleteConfirm.heading,
+      message: this.text.deleteConfirm.message
         .replace('{name}', tier.label)
         .replace('{key}', tier.key),
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
     });
     if (!confirmed) return;
 
@@ -635,7 +637,7 @@ export class TierListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     void this.settings.load();
   }
 }

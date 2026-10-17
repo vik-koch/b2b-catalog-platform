@@ -64,13 +64,15 @@ type RenameTarget =
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
       </a>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -617,7 +619,7 @@ export class AttributeInventoryPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     // Arriving with ?key= — from a product's attribute grid, or from the
     // registry — should land on that row, not merely open it somewhere below.
     useRowAnchor(

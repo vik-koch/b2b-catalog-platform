@@ -27,7 +27,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Button } from '../../ui/button';
 import { Link } from '../../ui/link';
-import { ConfirmService } from '../../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
@@ -103,7 +103,8 @@ function knownValues<T extends string>(
   ],
   template: `
     <app-admin-list-header
-      [title]="text.title"
+      [title]="text.page.title"
+      [intro]="text.page.intro"
       [query]="query() ?? ''"
       [searchLabel]="text.searchLabel"
       [searchPlaceholder]="text.searchPlaceholder"
@@ -935,10 +936,8 @@ export class ProductListPage {
     if (
       !publish &&
       !(await this.confirm.ask({
-        heading: this.editText.unpublishProduct,
+        ...confirmRequest(this.editText.unpublishConfirm, this.common.cancel),
         message: await this.admin.unpublishMessage(item, this.editText),
-        confirmLabel: this.editText.unpublishProduct,
-        cancelLabel: this.common.cancel,
         confirmVariant: 'danger',
       }))
     ) {
@@ -1002,6 +1001,6 @@ export class ProductListPage {
     });
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
   }
 }

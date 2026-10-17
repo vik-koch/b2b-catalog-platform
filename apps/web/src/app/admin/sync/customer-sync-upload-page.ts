@@ -208,7 +208,7 @@ import { SyncService } from './sync.service';
           <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
             <a appLink routerLink="/admin/users" class="ml-2">{{
-              usersText.titleCustomers
+              usersText.customersPage.title
             }}</a>
           </p>
         }

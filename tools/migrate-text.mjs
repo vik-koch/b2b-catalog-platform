@@ -10,7 +10,8 @@
  * new key names the old keys its value comes from, the first one the
  * deployment has wins, and a later one with a different value is reported — a
  * merge that may not hold in that deployment's language. `new` marks wording
- * that did not exist before.
+ * that did not exist before; `copy` takes a value without moving it, where the
+ * old key stays as it is.
  *
  * Node's built-ins only, so an operator needs no checkout: this file and the
  * map, downloaded from the release tag, are enough. The deployment's files were
@@ -131,6 +132,7 @@ function migrate(original) {
   }
 
   for (const rule of Object.values(map.keys)) {
+    if (rule.copy) continue;
     for (const source of rule.from ?? []) remove(files, source);
   }
   for (const key of map.drop) remove(files, key);

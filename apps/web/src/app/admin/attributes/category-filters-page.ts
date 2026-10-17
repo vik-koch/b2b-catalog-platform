@@ -99,13 +99,13 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
         ></div>
       }
       <a appButton variant="secondary" routerLink="/admin/attributes">
-        {{ text.title }}
+        {{ text.page.title }}
       </a>
     </div>
 
-    <p class="mb-2 max-w-3xl text-sm text-muted">
-      {{ slug() ? text.intro : text.catalogIntro }}
-    </p>
+    @if (slug() ? text.page.intro : text.catalogIntro; as intro) {
+      <p class="mb-2 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <div class="max-w-3xl">
       @if (filters.error()) {
@@ -309,7 +309,7 @@ export class CategoryFiltersPage {
         const panel = this.loaded();
         return panel && isCategoryPanel(panel)
           ? panel.category.name
-          : this.text.title;
+          : this.text.page.title;
       },
     });
   }
@@ -416,10 +416,10 @@ export class CategoryFiltersPage {
     const slug = this.slug();
     if (!slug) return;
     const ok = await this.confirm.ask({
-      heading: this.text.resetTitle,
-      message: this.text.resetConfirm,
-      confirmLabel: this.text.reset,
-      cancelLabel: this.common.cancel,
+      heading: this.text.resetConfirm.heading,
+      message: this.text.resetConfirm.message,
+      confirmLabel: this.text.resetConfirm.confirm,
+      cancelLabel: this.text.resetConfirm.cancel ?? this.common.cancel,
     });
     if (!ok) return;
 

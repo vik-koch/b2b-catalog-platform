@@ -76,7 +76,8 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
   ],
   template: `
     <app-admin-list-header
-      [title]="text.title"
+      [title]="text.page.title"
+      [intro]="text.page.intro"
       [query]="query()"
       [searchLabel]="text.searchLabel"
       [searchPlaceholder]="text.searchPlaceholder"
@@ -535,7 +536,7 @@ export class AdminOrderListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     void this.ownership.load();
   }
 }

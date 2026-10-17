@@ -22,13 +22,20 @@ const syncAreaTextSchema = z
   .object({ title: z.string(), runsDescription: z.string() })
   .strict();
 
-/** A confirmation dialog's words. A view decides when to show `warning`. */
+/** A page's heading, and the paragraph under it where a deployment writes
+ * one — absent, nothing is drawn there. */
+const pageText = z
+  .object({ title: z.string(), intro: z.string().optional() })
+  .strict();
+
+/** A confirmation dialog's words. A view decides when to show `warning`;
+ * without a `cancel` of its own the dialog uses the common one. */
 const confirmText = z
   .object({
     heading: z.string(),
     message: z.string(),
     confirm: z.string(),
-    cancel: z.string(),
+    cancel: z.string().optional(),
     warning: z.string().optional(),
   })
   .strict();
@@ -246,6 +253,8 @@ export const adminTextSchema = z
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */
     editMode: z
       .object({
+        purgeConfirm: confirmText,
+        unpublishConfirm: confirmText,
         enable: z.string(),
         disable: z.string(),
         editProduct: z.string(),
@@ -257,7 +266,6 @@ export const adminTextSchema = z
         /** The last removal step (FR-ADM-21), confirmed because it is the one
          * that cannot be undone. `{name}`. */
         purgeProduct: z.string(),
-        purgeConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
         /** The way into this category's filter panel (FR-ATTR-11) — or, on
@@ -271,7 +279,6 @@ export const adminTextSchema = z
         unpricedTitle: z.string(),
         publishProduct: z.string(),
         unpublishProduct: z.string(),
-        unpublishConfirm: z.string(),
         /** Added to that confirmation when this product is the last one on
          * sale that some live product is paired with; `{names}` lists them. */
         unpublishStranded: z.string(),
@@ -608,7 +615,7 @@ export const adminTextSchema = z
      * (FR-ADM-05). */
     productList: z
       .object({
-        title: z.string(),
+        page: pageText,
         empty: z.string(),
         /** Shown instead of `empty` when filters are what emptied the list. */
         noResults: z.string(),
@@ -709,7 +716,7 @@ export const adminTextSchema = z
      * reassign-then-delete dialog. */
     categoryList: z
       .object({
-        title: z.string(),
+        page: pageText,
         add: z.string(),
         addChild: z.string(),
         seeProducts: z.string(),
@@ -780,7 +787,7 @@ export const adminTextSchema = z
      */
     sync: z
       .object({
-        title: z.string(),
+        discardConfirm: confirmText,
         description: z.string(),
         modeLabel: z.string(),
         advanced: z.string(),
@@ -1174,8 +1181,6 @@ export const adminTextSchema = z
         finishedLabel: z.string(),
         /** Giving up on a staged run, and the question asked first. */
         discardRun: z.string(),
-        discardTitle: z.string(),
-        discardMessage: z.string(),
         status: z
           .object({
             previewed: z.string(),
@@ -1224,8 +1229,9 @@ export const adminTextSchema = z
      */
     tierList: z
       .object({
-        title: z.string(),
-        intro: z.string(),
+        deleteConfirm: confirmText,
+        setDefaultConfirm: confirmText,
+        page: pageText,
         reorderError: z.string(),
         add: z.string(),
         label: z.string(),
@@ -1248,8 +1254,6 @@ export const adminTextSchema = z
         defaultHint: z.string(),
         /** Moving that badge. `{name}`/`{count}` substituted at render. */
         setDefault: z.string(),
-        setDefaultTitle: z.string(),
-        setDefaultConfirm: z.string(),
         setDefaultWarning: z.string(),
         setDefaultNone: z.string(),
         setDefaultDone: z.string(),
@@ -1260,9 +1264,6 @@ export const adminTextSchema = z
         saveError: z.string(),
         labelRequired: z.string(),
         keyInvalid: z.string(),
-        /** Delete confirmation. `{name}`/`{key}`/`{reason}` substituted. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
         deleteBlocked: z.string(),
         deleteError: z.string(),
         /**
@@ -1288,8 +1289,8 @@ export const adminTextSchema = z
      */
     apiTokenList: z
       .object({
-        title: z.string(),
-        intro: z.string(),
+        revokeConfirm: confirmText,
+        page: pageText,
         add: z.string(),
         create: z.string(),
         name: z.string(),
@@ -1344,9 +1345,6 @@ export const adminTextSchema = z
         /** Revocation, which is the only destructive thing here — and it is
          * not undoable: a revoked token is replaced, not restored. */
         revoke: z.string(),
-        revokeTitle: z.string(),
-        revokeConfirm: z.string(),
-        revokeWarning: z.string(),
         revokeError: z.string(),
       })
       .strict(),
@@ -1358,8 +1356,8 @@ export const adminTextSchema = z
      */
     attributeList: z
       .object({
-        title: z.string(),
-        intro: z.string(),
+        deleteConfirm: confirmText,
+        page: pageText,
         reorderError: z.string(),
         add: z.string(),
         name: z.string(),
@@ -1386,9 +1384,6 @@ export const adminTextSchema = z
         empty: z.string(),
         saveError: z.string(),
         nameRequired: z.string(),
-        /** Delete confirmation. `{name}` substituted. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
         deleteError: z.string(),
         /** What the server refused, keyed by its own `code`. */
         errors: z
@@ -1408,10 +1403,10 @@ export const adminTextSchema = z
      */
     categoryFilters: z
       .object({
-        title: z.string(),
+        resetConfirm: confirmText,
+        page: pageText,
         /** `{category}` substituted — the panel being edited. */
         heading: z.string(),
-        intro: z.string(),
         /** Where the list comes from, keyed by the contract's `source`.
          * `inherited` takes `{category}`. */
         sources: z
@@ -1433,8 +1428,6 @@ export const adminTextSchema = z
         saveError: z.string(),
         /** Dropping the overlay so the category inherits again. */
         reset: z.string(),
-        resetTitle: z.string(),
-        resetConfirm: z.string(),
         /** Shown after a reset, which stays on the screen — unlike a save. */
         resetDone: z.string(),
         empty: z.string(),
@@ -1461,8 +1454,7 @@ export const adminTextSchema = z
      */
     attributeInventory: z
       .object({
-        title: z.string(),
-        intro: z.string(),
+        page: pageText,
         toDefinitions: z.string(),
         /** The two states of the row's link to the registry: a key the shop
          * filters by leads to its definition, a freetext one is deadened. */
@@ -1498,7 +1490,8 @@ export const adminTextSchema = z
      */
     documentList: z
       .object({
-        title: z.string(),
+        deleteConfirm: confirmText,
+        page: pageText,
         /** How many rows the list holds, filters applied. */
         count: z.string(),
         add: z.string(),
@@ -1541,9 +1534,6 @@ export const adminTextSchema = z
         /** Shown instead of `empty` when the search emptied the list. */
         noResults: z.string(),
         loadError: z.string(),
-        /** Delete confirmation. `{name}` substituted. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
         deleteError: z.string(),
       })
       .strict(),
@@ -1680,7 +1670,7 @@ export const adminTextSchema = z
      * manager answers by phone or mail. */
     orderList: z
       .object({
-        title: z.string(),
+        page: pageText,
         /** How many rows the list holds, filters applied. */
         count: z.string(),
         searchLabel: z.string(),
@@ -1952,9 +1942,7 @@ export const adminTextSchema = z
      */
     orderAdjust: z
       .object({
-        /** `{reference}` names the order being adjusted. */
-        title: z.string(),
-        lead: z.string(),
+        page: pageText,
         save: z.string(),
         cancel: z.string(),
         /** Warnings, not refusals: a change is allowed wherever the order
@@ -2045,11 +2033,11 @@ export const adminTextSchema = z
       .strict(),
     userList: z
       .object({
-        /** The two lists, each reached from its own button on the admin panel;
-         * a manager only ever sees the customer one, so neither heading has to
-         * name the distinction. */
-        titleCustomers: z.string(),
-        titleStaff: z.string(),
+        declineConfirm: confirmText,
+        reactivateConfirm: confirmText,
+        deactivateConfirm: confirmText,
+        customersPage: pageText,
+        staffPage: pageText,
         /** How many rows the list holds, filters applied. */
         count: z.string(),
         searchLabel: z.string(),
@@ -2090,15 +2078,9 @@ export const adminTextSchema = z
         approve: z.string(),
         edit: z.string(),
         decline: z.string(),
-        declineTitle: z.string(),
-        declineConfirm: z.string(),
         /** Switching an account off and on again. `{name}` is substituted. */
         deactivate: z.string(),
-        deactivateTitle: z.string(),
-        deactivateConfirm: z.string(),
         reactivate: z.string(),
-        reactivateTitle: z.string(),
-        reactivateConfirm: z.string(),
         saveError: z.string(),
         /** The two Add buttons — one per tab, since they create different
          * things and land on different forms. */
@@ -2198,6 +2180,9 @@ export const adminTextSchema = z
      */
     userDetail: z
       .object({
+        unexemptConfirm: confirmText,
+        exemptConfirm: confirmText,
+        deleteConfirm: confirmText,
         detailsHeading: z.string(),
         accountHeading: z.string(),
         /** When the registration was decided, and the line for one that has
@@ -2217,9 +2202,6 @@ export const adminTextSchema = z
          * the account consent is asked, and records the reason.
          */
         delete: z.string(),
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
-        deleteWarning: z.string(),
         deleteConsentWithdrawn: z.string(),
         deleteConsentWithdrawnHint: z.string(),
         deleteError: z.string(),
@@ -2241,11 +2223,7 @@ export const adminTextSchema = z
         signInCodeOnce: z.string(),
         signInCodeExempt: z.string(),
         exempt: z.string(),
-        exemptTitle: z.string(),
-        exemptConfirm: z.string(),
         unexempt: z.string(),
-        unexemptTitle: z.string(),
-        unexemptConfirm: z.string(),
         exemptError: z.string(),
         back: z.string(),
         notFound: z.string(),
@@ -2258,12 +2236,12 @@ export const adminTextSchema = z
      */
     consents: z
       .object({
-        title: z.string(),
+        withdrawConfirm: confirmText,
+        page: pageText,
         /** The admin panel's row to the lookup. */
         panelLookup: z.string(),
         /** The panel's row to a consent text; `{purpose}` names it. */
         panelText: z.string(),
-        intro: z.string(),
         byEmail: z.string(),
         byPhone: z.string(),
         search: z.string(),
@@ -2295,12 +2273,6 @@ export const adminTextSchema = z
         /** Beside an account consent still held: how it would end. */
         endsWithAccount: z.string(),
         withdraw: z.string(),
-        withdrawTitle: z.string(),
-        /** `{holder}` and `{date}` name the record. */
-        withdrawConfirm: z.string(),
-        /** The inquiry itself is a mail in the shop's inbox, which the
-         * platform cannot reach: the admin deletes it by hand. */
-        withdrawInbox: z.string(),
         withdrawNote: z.string(),
         withdrawErrors: z
           .object({
@@ -2445,7 +2417,7 @@ export const adminTextSchema = z
      */
     operations: z
       .object({
-        title: z.string(),
+        page: pageText,
         backToPanel: z.string(),
         maintenanceHeading: z.string(),
         ownershipHeading: z.string(),

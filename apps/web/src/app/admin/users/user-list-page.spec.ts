@@ -602,13 +602,13 @@ describe('UserListPage', () => {
     // never sees a control naming a list they may not open.
     const customers = await render({ users: [] });
     expect(customers.el.querySelector('h1')?.textContent).toContain(
-      text.titleCustomers,
+      text.customersPage.title,
     );
-    expect(customers.el.textContent).not.toContain(text.titleStaff);
+    expect(customers.el.textContent).not.toContain(text.staffPage.title);
 
     const staff = await render({ kind: 'staff', users: [] });
     expect(staff.el.querySelector('h1')?.textContent).toContain(
-      text.titleStaff,
+      text.staffPage.title,
     );
   });
 

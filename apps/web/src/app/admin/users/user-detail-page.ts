@@ -25,7 +25,7 @@ import { usePageSeo } from '../../core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
 import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge } from '../../ui/status-badge';
@@ -462,14 +462,10 @@ export class UserDetailPage {
   protected async toggleExemption(person: StaffUser): Promise<void> {
     this.exemptError.set(null);
     const exempt = !this.isExempt();
+    const dialog = exempt ? this.text.exemptConfirm : this.text.unexemptConfirm;
     const confirmed = await this.confirm.ask({
-      heading: exempt ? this.text.exemptTitle : this.text.unexemptTitle,
-      message: fillText(
-        exempt ? this.text.exemptConfirm : this.text.unexemptConfirm,
-        { name: this.name() },
-      ),
-      confirmLabel: exempt ? this.text.exempt : this.text.unexempt,
-      cancelLabel: this.common.cancel,
+      ...confirmRequest(dialog, this.common.cancel),
+      message: fillText(dialog.message, { name: this.name() }),
     });
     if (!confirmed) return;
 
@@ -616,11 +612,11 @@ export class UserDetailPage {
   protected async deleteOnRequest(person: StaffUser): Promise<void> {
     this.deleteError.set(null);
     const answer = await this.confirm.askDetailed({
-      heading: this.text.deleteTitle,
-      message: fillText(this.text.deleteConfirm, { name: this.name() }),
-      warning: this.text.deleteWarning,
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      heading: this.text.deleteConfirm.heading,
+      message: fillText(this.text.deleteConfirm.message, { name: this.name() }),
+      warning: this.text.deleteConfirm.warning,
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
       confirmVariant: 'danger',
       checks: this.accountConsentAsked()
         ? [
@@ -664,7 +660,9 @@ export class UserDetailPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.name() || this.listText.titleCustomers });
+    usePageSeo({
+      name: () => this.name() || this.listText.customersPage.title,
+    });
     // Asked for here rather than at the click: the answer is cached for the
     // app's lifetime, and the banner must not appear a beat after the page.
     void this.ownership.load();
