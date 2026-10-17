@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
@@ -29,6 +31,7 @@ describe('unsavedChangesGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         {
           provide: ConfirmService,
           useValue: {
@@ -43,24 +46,26 @@ describe('unsavedChangesGuard', () => {
   });
 
   it('lets a clean editor leave without asking', async () => {
-    const guard = unsavedChangesGuard((t) => t.productEditor.discardConfirm);
+    const guard = unsavedChangesGuard((t) => t.products.editor.discardConfirm);
 
     expect(await run(guard, { hasUnsavedChanges: () => false })).toBe(true);
     expect(asked).toBeUndefined();
   });
 
   it('asks with the wording the caller picked', async () => {
-    const guard = unsavedChangesGuard((t) => t.productEditor.discardConfirm);
+    const guard = unsavedChangesGuard((t) => t.products.editor.discardConfirm);
 
     expect(await run(guard, { hasUnsavedChanges: () => true })).toBe(true);
-    expect(asked?.message).toBe(defaultAdminText.productEditor.discardConfirm);
+    expect(asked?.message).toBe(
+      defaultAdminText.products.editor.discardConfirm,
+    );
   });
 
   it('asks each editor its own question', async () => {
-    const guard = unsavedChangesGuard((t) => t.userEditor.discardConfirm);
+    const guard = unsavedChangesGuard((t) => t.users.editor.discardConfirm);
 
     await run(guard, { hasUnsavedChanges: () => true });
 
-    expect(asked?.message).toBe(defaultAdminText.userEditor.discardConfirm);
+    expect(asked?.message).toBe(defaultAdminText.users.editor.discardConfirm);
   });
 });

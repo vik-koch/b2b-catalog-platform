@@ -1,4 +1,8 @@
-import { CustomerType, formatPersonName } from '@b2b-catalog-platform/shared';
+import {
+  CommonText,
+  CustomerType,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 
@@ -26,8 +30,10 @@ export interface RegistrationSummary {
 export function newRegistrationMail(
   registration: RegistrationSummary,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.newRegistration;
+  const fields = common.fields;
   const isCompany = registration.customerType === 'company';
 
   return {
@@ -38,14 +44,14 @@ export function newRegistrationMail(
     rows: [
       {
         // Family name first, as every staff-facing list of people reads.
-        label: t.nameLabel,
+        label: fields.name.label,
         value: formatPersonName(registration.firstName, registration.lastName),
       },
-      { label: t.emailLabel, value: registration.email },
-      { label: t.phoneLabel, value: registration.phone },
+      { label: fields.email.label, value: registration.email },
+      { label: fields.phone.label, value: registration.phone },
       {
         label: t.customerTypeLabel,
-        value: isCompany ? t.customerTypeCompany : t.customerTypePerson,
+        value: isCompany ? common.partyKind.company : common.partyKind.person,
       },
       // Only for a company: a dash against a private person would read as
       // details that failed to arrive. Both are what staff approve on — the
@@ -54,11 +60,11 @@ export function newRegistrationMail(
       ...(isCompany
         ? [
             {
-              label: t.companyNameLabel,
+              label: fields.companyName.label,
               value: registration.companyName ?? '',
             },
             {
-              label: t.companyIdLabel,
+              label: fields.companyId.label,
               value: registration.companyRegistrationId ?? '',
             },
           ]

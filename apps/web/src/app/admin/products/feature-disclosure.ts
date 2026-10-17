@@ -54,7 +54,7 @@ let nextId = 0;
 export class FeatureDisclosure implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
-  protected readonly text = inject(ADMIN_TEXT).productEditor;
+  protected readonly text = inject(ADMIN_TEXT).products.editor;
   protected readonly panelId = `feature-disclosure-${nextId++}`;
 
   readonly label = input.required<string>();

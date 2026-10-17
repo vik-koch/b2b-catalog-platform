@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
@@ -8,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { AccountDeletePage } from './account-delete-page';
 import { AccountService, DeleteAccountResult } from './account.service';
 
-const text = defaultAppText.auth.myAccount.delete;
+const text = defaultAppText.account.delete;
 
 async function render(outcome: DeleteAccountResult | 'throw') {
   const deleteAccount = vi.fn(async () => {
@@ -22,6 +24,7 @@ async function render(outcome: DeleteAccountResult | 'throw') {
     providers: [
       provideRouter([{ path: '', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { logout } },
       { provide: AccountService, useValue: { deleteAccount } },

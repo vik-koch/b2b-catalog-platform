@@ -6,21 +6,18 @@ import { OrderSummary } from '../../cart/order-summary';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
-import { orderBlocks } from '../../orders/order-blocks';
+import { customerBlockLabels, orderBlocks } from '../../orders/order-blocks';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
 } from '../../orders/order-read-back';
 import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
-import {
-  customerBlockLabels,
-  customerQuantity,
-  orderDateTimeFormat,
-} from '../../orders/order-view';
+import { customerQuantity, orderDateTimeFormat } from '../../orders/order-view';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
@@ -80,32 +77,30 @@ import { revisionKindLabel } from './revision-labels';
               <dl
                 class="grid gap-x-6 gap-y-3 wrap-break-word sm:grid-cols-[7rem_1fr]"
               >
-                <dt class="text-subtle">{{ detailText.customer }}</dt>
-                <dd>{{ order.customerEmail ?? listText.guest }}</dd>
-                <dt class="text-subtle">{{ detailText.tier }}</dt>
-                <dd>{{ order.tierKey ?? detailText.tierDefault }}</dd>
+                <dt class="text-subtle">{{ ordersText.account }}</dt>
+                <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
+                <dt class="text-subtle">{{ ordersText.tier }}</dt>
+                <dd>{{ order.tierKey ?? ordersText.tierDefault }}</dd>
 
                 <dt class="text-subtle">
-                  {{ detailText.paymentState.heading }}
+                  {{ names.payment }}
                 </dt>
                 <dd>{{ paymentLabel() }}</dd>
 
-                <dt class="text-subtle">{{ listText.status }}</dt>
+                <dt class="text-subtle">{{ names.status }}</dt>
                 <dd class="min-w-0">
                   <span appStatusBadge [tone]="statusTone()">
                     {{ statusLabel() }}
                   </span>
                   @if (order.statusReason; as reason) {
                     <p class="mt-1">
-                      <span class="text-subtle">
-                        {{ detailText.statusReason }}:
-                      </span>
+                      <span class="text-subtle"> {{ names.reason }}: </span>
                       {{ reason }}
                     </p>
                   }
                   @if (order.changes.length) {
                     <div class="mt-1 ">
-                      <span class="text-subtle">{{ text.note }}:</span>
+                      <span class="text-subtle">{{ names.changeNote }}:</span>
                       @for (change of order.changes; track $index) {
                         <span class="block">{{ change }}</span>
                       }
@@ -198,7 +193,7 @@ import { revisionKindLabel } from './revision-labels';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ detailText.notFound }}</p>
+      <p class="text-muted">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
@@ -214,8 +209,10 @@ export class AdminOrderRevisionPage {
   private readonly currency = this.config.catalog.currency;
   private readonly appText = inject(APP_TEXT);
 
-  protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
-  protected readonly listText = inject(ADMIN_TEXT).orderList;
+  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = this.commonText.order;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -261,7 +258,7 @@ export class AdminOrderRevisionPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.appText, this.currency),
+      quantity: customerQuantity(line, this.commonText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Always, for staff: the rate is what a line reconciles against the
       // shop's own invoice by, shared with its neighbours or not.
@@ -272,11 +269,15 @@ export class AdminOrderRevisionPage {
   protected readonly blocks = computed<ReviewBlock[]>(() => {
     const order = this.revision();
     if (!order) return [];
-    return orderBlocks(order, customerBlockLabels(this.appText), {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      order,
+      customerBlockLabels(this.commonText, this.appText.checkout.review),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   protected statusLabel(): string {
@@ -285,7 +286,7 @@ export class AdminOrderRevisionPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.listText,
+      this.ordersText.statuses,
     );
   }
 
@@ -349,10 +350,10 @@ export class AdminOrderRevisionPage {
   protected paymentLabel(): string {
     const order = this.revision();
     if (!order) return '';
-    const payment = this.detailText.paymentState;
-    if (order.paymentState === 'awaiting') return payment.awaiting;
-    if (order.paymentState !== 'paid') return payment.notDue;
-    return fillText(payment.paid, {
+    const states = this.ordersText.paymentStates;
+    if (order.paymentState === 'awaiting') return states.awaiting;
+    if (order.paymentState !== 'paid') return states.notDue;
+    return fillText(this.detailText.paymentState.paid, {
       date: order.paidAt
         ? this.dateTimeFormat.format(new Date(order.paidAt))
         : '',

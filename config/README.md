@@ -21,19 +21,40 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   formats money for the mails, and mints the order reference. It also reads
   which consent texts are published, because those are the consents its forms
   require.
-- `app-text.json` → `AppText`, the **public** UI-text catalog (nav labels,
-  storefront chrome, the login form, error messages).
+- `common-text.json` → `CommonText`, the shop's **shared names** — what the
+  storefront, the admin, mail and the order summary would otherwise each repeat
+  (page names, units, the tax statements) — and what customers read in more
+  than one place, such as a field's check or an order's status. Never wording
+  only staff read. **Browser-delivered** via shell state and **also loaded by
+  the API**.
+- `app-text.json` → `AppText`, the **public** UI-text catalog (storefront
+  chrome, the login form, error messages).
   **Browser-delivered** via shell state.
 - `admin-text.json` → `AdminText`, the wording of the **admin** surfaces
   (editors, management screens, catalog sync, storefront edit mode).
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
   needs it, rather than injected into every visitor's document (ADR 0009,
   amendment 2). Non-secret, like everything else on this side of the line.
-- `mail-text.json` → `MailText`, the wording the **API** renders: every email
-  the app sends, one section per message, plus the order summary it draws as a
-  PDF (`orderSummaryPdf`). **Server-only** — rendered in the API, never sent to
-  a browser. The branding (shop name, header colour), the typeface and the
-  money formatting come from `deployment.json`.
+- `mail-text.json` → `MailText`, every email the app sends, one section per
+  message. **Server-only** — rendered in the API, never sent to a browser.
+- `pdf-text.json` → `PdfText`, the documents the API draws as PDFs: the order
+  summary, and the file name of the terms attached to a receipt.
+  **Server-only**, like the mail text.
+
+The mails and the PDFs take the branding (shop name, header colour), the
+typeface and the money formatting from `deployment.json`.
+
+A name that reads the same to customers and staff is in `common-text.json`
+once; where staff word a thing differently (order statuses, the messages under
+a field), theirs is in `admin-text.json`, and in `mail-text.json` where a staff
+mail needs it. `common-text.json` reaches every visitor, so nothing only staff
+read goes there. Controls that read the same on every screen — Cancel, Close,
+Remove, "Saving…" — are its `actions`; a control that names what it does
+("Delete selection") keeps its own key, and staff-only verbs (Save, Edit,
+Delete) are the admin text's `common`. Wording for entries the deployment
+itself defines — delivery zones, collection points, company-ID formats — sits
+beside those entries in `deployment.json`. ADR 0018 (amendment) has the
+reasons.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):
@@ -43,6 +64,8 @@ DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api
 APP_TEXT_FILE=/config/app-text.json              # web
 ADMIN_TEXT_FILE=/config/admin-text.json          # web
 MAIL_TEXT_FILE=/config/mail-text.json            # api
+PDF_TEXT_FILE=/config/pdf-text.json              # api
+COMMON_TEXT_FILE=/config/common-text.json        # web + api
 ```
 
 A deployment may also mount a **common-password blocklist** — a plain
@@ -72,6 +95,15 @@ the reader can drag narrow, a figure and its unit — write a non-breaking space
 as the JSON escape ` `: `"paid in full"`. It is valid JSON, it
 parses to a real non-breaking space, and unlike a pasted one it stays visible to
 whoever edits the file next. Status badges do not need it: they never wrap.
+
+### Texts nobody sees
+
+A key ending in `Aria` is never on screen: a screen reader reads it out. It is
+the name of an icon-only button, a hint only a screen reader hears, or an
+announcement such as how many suggestions appeared. It can be a whole phrase
+and need not fit anywhere, so word it to be heard. A tooltip is not one of
+these — it shows on hover — so its key has no suffix. CI
+(`tools/check-aria-text.mjs`) fails if an `…Aria` text is ever put on screen.
 
 ### The seller line
 
@@ -159,11 +191,11 @@ mode off.
 `attachToReceipt` is required. Switch it on where the jurisdiction wants the
 terms on a medium the customer keeps, which a link to a page that can change
 is not: the receipt then carries the accepted version as a PDF, named by
-`orderReceived.termsFileName` in `mail-text.json`. The demo switches it on, as
+`terms.fileName` in `pdf-text.json`. The demo switches it on, as
 an EU shop would. The PDF is set in the same face as the order summary, so a
 deployment writing in a non-Latin script needs `branding.font.pdf` for it too.
 
-The order summary prints `orderSummaryPdf.returnNotice` from `mail-text.json`
+The order summary prints `orderSummary.returnNotice` from `pdf-text.json`
 under the total, where it is set: the summary is the paper handed over with the
 goods, so it can tell the customer in writing how to return them. Leave the key
 out to print nothing.
@@ -207,10 +239,11 @@ its own rate; staff screens state every line's rate regardless. An order keeps
 the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
-The wording is `tax` and `conditions.tax*` in `app-text.json`, and `common.tax`
-in `mail-text.json` for the mails and the order summary. `{rate}` is the rate
-written as the deployment writes numbers; the `mixed` forms are the totals that
-name no rate.
+The statements are `tax` in `common-text.json`, one wording for the storefront,
+the mails and the order summary; `tax` in `app-text.json` holds only what the
+storefront adds beside a price and under a listing, and `conditions.tax*` the
+conditions page. `{rate}` is the rate written as the deployment writes numbers;
+the `mixed` forms are the totals that name no rate.
 
 ### Retention
 
@@ -319,9 +352,11 @@ Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 ```
 config/
   deployment.json      # web + api config  (browser-delivered)
+  common-text.json     # shared names      (browser-delivered, api too)
   app-text.json        # web public text   (browser-delivered)
   admin-text.json      # web admin text    (fetched by admins)
   mail-text.json       # api email wording (server-only)
+  pdf-text.json        # api PDF wording   (server-only)
   password-blocklist.txt # api password rules  (server-only)
   assets/
     logo.svg
@@ -433,3 +468,24 @@ The document `<title>` is not an asset: it is `branding.title` in
 repo's committed demo config; a real deployment sets `CONFIG_DIR` to its own
 directory of files (held in the private deployment repo), copied into
 `/srv/b2b/<stack>/config` before the stack starts.
+
+## When a release moves text keys
+
+The text files are loaded whole, so a release that renames, merges or adds a
+text key stops a deployment with the old files from booting. Such a release
+ships a map in `tools/text-migration/<version>.json`, and the tool applies it
+to a deployment's own files, keeping their wording:
+
+```
+node tools/migrate-text.mjs --release 1.14.1 --config-dir <dir>           # report only
+node tools/migrate-text.mjs --release 1.14.1 --config-dir <dir> --write
+```
+
+It needs Node and nothing else: no checkout and no `npm ci`. The script and
+the release's map, downloaded from the release tag with the map in a
+`text-migration/` folder beside the script (or passed with `--map <file>`), are
+enough. It reports what it cannot decide: wording new in the release (written
+in English), keys merged from several old ones whose values differed in the
+deployment, counting texts still written in two forms, and keys the release
+requires that the deployment's files never had. A deployment several
+releases behind runs each release's map in order.

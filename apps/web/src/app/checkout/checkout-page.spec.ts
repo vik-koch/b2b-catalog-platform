@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -9,6 +10,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { DeploymentConfig } from '../config/deployment-config.type';
@@ -33,6 +35,8 @@ import { PageService } from '../pages/page.service';
 const wishedDate = firstOrderDate(localToday());
 
 const text = defaultAppText.checkout;
+const names = defaultCommonText.order;
+const fulfilment = defaultCommonText.fulfilment;
 
 function addition(): CartAddition {
   return {
@@ -124,6 +128,7 @@ async function render(options: Options = {}) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -324,7 +329,7 @@ describe('CheckoutPage', () => {
     it('asks for a collection point only once pickup is chosen', async () => {
       const page = await render();
 
-      expect(page.text()).toContain(text.fulfilment.deliveryTitle);
+      expect(page.text()).toContain(fulfilment.delivery);
       expect(page.text()).not.toContain(text.fulfilment.pickupHeading);
 
       page.drafts.patch({ fulfilmentMethod: 'pickup' });
@@ -395,8 +400,8 @@ describe('CheckoutPage', () => {
     it('offers no pickup where the deployment has no collection points', async () => {
       const page = await render({ config: withPickupPoints(0) });
 
-      expect(page.text()).toContain(text.fulfilment.deliveryTitle);
-      expect(page.text()).not.toContain(text.fulfilment.pickupTitle);
+      expect(page.text()).toContain(fulfilment.delivery);
+      expect(page.text()).not.toContain(fulfilment.pickup);
     });
   });
 
@@ -535,9 +540,7 @@ describe('CheckoutPage', () => {
       ).not.toBeNull();
       expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
-      expect(page.text()).toContain(
-        defaultAppText.auth.myAccount.addresses.enterManually,
-      );
+      expect(page.text()).toContain(defaultAppText.address.enterManually);
     });
 
     it('reads back the parts the street line does not say', async () => {
@@ -598,9 +601,7 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       expect(postcodeShown(page.el)).toBe(true);
-      expect(page.text()).not.toContain(
-        defaultAppText.auth.myAccount.addresses.enterManually,
-      );
+      expect(page.text()).not.toContain(defaultAppText.address.enterManually);
     });
 
     it('asks for a billing address only once it differs from delivery', async () => {
@@ -674,13 +675,13 @@ describe('CheckoutPage', () => {
     it('asks for a date in the words of the chosen fulfilment', async () => {
       const page = await render();
 
-      expect(page.text()).toContain(text.timing.deliveryLabel);
+      expect(page.text()).toContain(names.preferredDelivery);
 
       page.drafts.patch({ fulfilmentMethod: 'pickup' });
       await page.settle();
 
-      expect(page.text()).toContain(text.timing.pickupLabel);
-      expect(page.text()).not.toContain(text.timing.deliveryLabel);
+      expect(page.text()).toContain(names.preferredPickup);
+      expect(page.text()).not.toContain(names.preferredDelivery);
     });
 
     it('keeps the wished date and the note in the draft', async () => {
@@ -753,8 +754,8 @@ describe('CheckoutPage', () => {
     it('offers cash and bank transfer, and never card', async () => {
       const page = await render({ person: true });
 
-      expect(page.text()).toContain(text.payment.cashTitle);
-      expect(page.text()).toContain(text.payment.transferTitle);
+      expect(page.text()).toContain(names.paymentMethods.cash);
+      expect(page.text()).toContain(names.paymentMethods.transfer);
       expect(page.radio('payment', 'card-later')).toBeNull();
       expect(page.drafts.draft().paymentMethod).toBe('cash');
     });
@@ -927,9 +928,7 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).not.toContain(text.review.title);
-      expect(page.text()).toContain(
-        defaultAppText.auth.validation.emailInvalid,
-      );
+      expect(page.text()).toContain(defaultCommonText.fields.email.invalid);
     });
 
     it('asks a company for its own name and a person to ring', async () => {
@@ -1014,14 +1013,14 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain(text.review.title);
       // The lines, and the answers in the order they were asked for.
       expect(page.text()).toContain('Filter Roast');
-      expect(page.text()).toContain(text.fulfilment.deliveryTitle);
+      expect(page.text()).toContain(fulfilment.delivery);
       expect(page.text()).toContain('Hafenstraße 12');
       expect(page.text()).toContain(text.review.billingSame);
-      expect(page.text()).toContain(text.timing.deliveryLabel);
+      expect(page.text()).toContain(names.preferredDelivery);
       expect(page.text()).toContain(text.review.whenAny);
       // The unit it was bought in, and what that comes to in pieces.
       expect(page.text()).toContain('2 pk (12 pcs)');
-      expect(page.text()).toContain(text.payment.transferTitle);
+      expect(page.text()).toContain(names.paymentMethods.transfer);
       expect(page.text()).toContain('Ring the bell at the back gate.');
       // Nothing to edit here: the form is one click back.
       expect(page.el.querySelector('#order-note')).toBeNull();

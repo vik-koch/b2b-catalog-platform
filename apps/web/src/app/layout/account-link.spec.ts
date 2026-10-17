@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { computed, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -34,6 +36,7 @@ async function render(
     providers: [
       provideRouter([{ path: 'admin', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: AuthService, useValue: { user, resolved, hintedRole } },
       { provide: WorkService, useValue: work },
     ],
@@ -163,7 +166,7 @@ describe('AccountLink', () => {
     // Never a number on screen: for an admin it would be a sum of queues that
     // have nothing to do with each other.
     expect(marker()?.textContent?.trim()).toBe('');
-    expect(markerLabel()).toBe(text.workMarker.replace('{count}', '5'));
+    expect(markerLabel()).toBe(text.workMarkerAria.replace('{count}', '5'));
   });
 
   it('shows no marker when every queue is empty', async () => {

@@ -1,13 +1,16 @@
-import { OrderAddress, OrderDetail } from '@b2b-catalog-platform/shared';
+import {
+  CommonText,
+  OrderAddress,
+  OrderDetail,
+} from '@b2b-catalog-platform/shared';
 import { formatPhone } from '../core/contact-fields';
 import { addressLines } from '../addresses/address-format';
 import { ReviewBlock } from './order-read-back';
 
 /**
  * The wording one screen puts on an order's answers. Passed in rather than
- * injected: the customer reads an order in the shop's public text and staff
- * read it in the admin's, and the same order must not be described differently
- * by the two.
+ * injected: the customer and staff read the same order, mostly in shared
+ * names, and it must not be described differently by the two.
  */
 export interface OrderBlockLabels {
   readonly fulfilment: string;
@@ -28,6 +31,49 @@ export interface OrderBlockLabels {
   readonly card: string;
   readonly contact: string;
   readonly note: string;
+}
+
+/**
+ * The block labels: the shared names, plus what the reader's own text says —
+ * the payment methods, the note, and the screen's two sentences.
+ */
+export function orderBlockLabels(
+  names: CommonText,
+  view: Pick<
+    OrderBlockLabels,
+    'billingSame' | 'whenAny' | 'note' | 'cash' | 'transfer' | 'card'
+  >,
+): OrderBlockLabels {
+  const order = names.order;
+  return {
+    billingSame: view.billingSame,
+    whenAny: view.whenAny,
+    note: view.note,
+    cash: view.cash,
+    transfer: view.transfer,
+    card: view.card,
+    fulfilment: names.fulfilment.label,
+    delivery: names.fulfilment.delivery,
+    pickup: names.fulfilment.pickup,
+    invoice: order.invoicedTo,
+    deliveryDate: order.preferredDelivery,
+    pickupDate: order.preferredPickup,
+    payment: order.payment,
+    contact: order.contact,
+  };
+}
+
+/** The labels a customer reads an order under. */
+export function customerBlockLabels(
+  names: CommonText,
+  review: Pick<OrderBlockLabels, 'billingSame' | 'whenAny'>,
+): OrderBlockLabels {
+  return orderBlockLabels(names, {
+    billingSame: review.billingSame,
+    whenAny: review.whenAny,
+    note: names.order.note,
+    ...names.order.paymentMethods,
+  });
 }
 
 /** What turning the order's own fields into lines needs from the deployment. */

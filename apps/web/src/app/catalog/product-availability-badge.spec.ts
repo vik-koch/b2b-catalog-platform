@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ProductAvailability } from '@b2b-catalog-platform/shared';
@@ -5,7 +7,7 @@ import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 
-const text = defaultAppText.catalog.availability;
+const text = defaultCommonText.product.availability;
 
 @Component({
   imports: [ProductAvailabilityBadge],
@@ -25,7 +27,10 @@ async function render() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Host],
-    providers: [{ provide: APP_TEXT, useValue: defaultAppText }],
+    providers: [
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+    ],
   });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();

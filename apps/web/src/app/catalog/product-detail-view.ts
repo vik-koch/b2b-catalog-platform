@@ -20,6 +20,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { EDIT_ACTIONS_INSET } from '../admin/edit-actions';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { disclosureState } from '../ui/disclosure-state';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
@@ -308,7 +309,7 @@ const NARROW = '(max-width: 39.999rem)';
               queryParamsHandling="preserve"
               [class]="sectionAnchor"
             >
-              {{ text.description }}
+              {{ product.description }}
             </a>
           </h2>
           <div class="relative mt-3">
@@ -357,7 +358,7 @@ const NARROW = '(max-width: 39.999rem)';
               queryParamsHandling="preserve"
               [class]="sectionAnchor"
             >
-              {{ documentText.label }}
+              {{ product.documents }}
             </a>
           </h2>
           <app-product-documents [documents]="item().documents" />
@@ -445,6 +446,7 @@ const NARROW = '(max-width: 39.999rem)';
 })
 export class ProductDetailView {
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly product = inject(COMMON_TEXT).product;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
   protected readonly imageColumnClass = `min-w-0 ${IMAGE_CAP}`;
   /** Nothing but the container it opens: the track caps the panel at 20rem in

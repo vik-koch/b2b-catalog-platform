@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminCategory,
@@ -11,7 +13,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { AdminCatalogService } from '../admin-catalog.service';
 import { DocumentProductsPicker } from './document-products-picker';
 
-const text = defaultAdminText.documentEditor.products;
+const text = defaultAdminText.documents.editor.products;
 
 const listItem = (
   overrides: Partial<AdminProductListItem> & { slug: string; name: string },
@@ -79,6 +81,7 @@ async function render(
     imports: [DocumentProductsPicker],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AdminCatalogService,

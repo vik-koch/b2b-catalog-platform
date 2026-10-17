@@ -21,6 +21,7 @@ import { landingFor } from './auth.guard';
 import { TextButton } from '../ui/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
+import { COMMON_TEXT } from '../config/common-text';
 
 type Status =
   | 'checking'
@@ -123,7 +124,7 @@ type Status =
             <div>
               <div class="flex items-baseline justify-between">
                 <label for="newPassword" appFieldLabel>
-                  {{ text.password }}
+                  {{ auth.password }}
                 </label>
                 <button
                   type="button"
@@ -212,7 +213,7 @@ type Status =
               type="submit"
               [disabled]="status() === 'submitting'"
             >
-              {{ status() === 'submitting' ? text.submitting : text.submit }}
+              {{ status() === 'submitting' ? actionText.saving : text.submit }}
             </button>
           </form>
         }
@@ -227,6 +228,7 @@ export class SetPasswordPage implements OnInit {
 
   protected readonly auth = inject(APP_TEXT).auth;
   protected readonly text = this.auth.setPassword;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly step = this.auth.signInStep;
   /** Why the code after the password did not go out. */
   protected readonly codeFailure = signal('');

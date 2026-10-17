@@ -6,6 +6,7 @@ import {
 } from '../mail/templates/order-items';
 import {
   addressLines,
+  CommonText,
   fillText,
   formatMoneyMinor,
   MoneyFormat,
@@ -21,8 +22,9 @@ import {
   ORDER_REFERENCE_CONFIG,
 } from '../config/deployment-config';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
-import { MAIL_TEXT, MailText } from '../mail/mail-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { PdfFaces } from '../pdf/pdf-faces';
+import { PDF_TEXT, PdfText } from '../pdf/pdf-text';
 import { Sheet } from '../pdf/pdf-sheet';
 import { shopDay } from './shop-day';
 
@@ -42,7 +44,8 @@ import { shopDay } from './shop-day';
 @Injectable()
 export class OrderPdf {
   constructor(
-    @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(PDF_TEXT) private readonly text: PdfText,
+    @Inject(COMMON_TEXT) private readonly common: CommonText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ADDRESS_CONFIG) private readonly address: AddressConfig | undefined,
@@ -52,7 +55,8 @@ export class OrderPdf {
   ) {}
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
-    const t = this.text.orderSummaryPdf;
+    const t = this.text.orderSummary;
+    const names = this.common.order;
     const pdf = await PDFDocument.create();
     const { faces, encode } = await this.faces.embed(pdf);
 
@@ -65,33 +69,33 @@ export class OrderPdf {
     sheet.gap(12);
 
     sheet.field(t.placedLabel, this.day(order.createdAt));
-    sheet.field(t.statusLabel, t.statuses[order.status]);
-    sheet.field(t.paymentLabel, this.payment(order));
-    sheet.field(t.contactLabel, [
+    sheet.field(names.status, this.status(order));
+    sheet.field(names.payment, this.payment(order));
+    sheet.field(names.contact, [
       order.contact.name,
       order.contact.email,
       order.contact.phone,
     ]);
-    sheet.field(t.invoiceLabel, [
+    sheet.field(names.invoicedTo, [
       order.party.registrationId
         ? `${order.party.name} · ${order.party.registrationId}`
         : order.party.name,
       ...this.lines(order.billingAddress),
     ]);
     sheet.field(
-      order.pickup ? t.pickupLabel : t.deliveryLabel,
+      order.pickup ? names.pickupPoint : names.deliveryAddress,
       order.pickup
         ? [order.pickup.name, order.pickup.address]
         : this.lines(order.deliveryAddress),
     );
     sheet.field(
-      t.whenLabel,
+      order.pickup ? names.preferredPickup : names.preferredDelivery,
       order.preferredDate ? this.day(order.preferredDate) : t.whenAny,
     );
     if (order.termsDate) {
       sheet.field(
-        t.termsLabel,
-        fillText(t.termsVersion, {
+        this.common.nav.terms,
+        fillText(names.termsVersion, {
           date: shopDay(
             order.termsDate,
             this.currency.locale,
@@ -100,8 +104,10 @@ export class OrderPdf {
         }),
       );
     }
-    if (order.customerNote) sheet.field(t.noteLabel, order.customerNote);
-    if (order.changes.length > 0) sheet.field(t.changesLabel, order.changes);
+    if (order.customerNote) {
+      sheet.field(names.note, order.customerNote);
+    }
+    if (order.changes.length > 0) sheet.field(names.changeNote, order.changes);
 
     sheet.gap(10);
     // A line states its own rate only once the lines differ — the total
@@ -112,7 +118,7 @@ export class OrderPdf {
       [t.itemsLabel, t.quantityLabel, t.lineTotalLabel],
       order.lines.map((line) => {
         const rate = perLineTax
-          ? orderLineTax(line, this.currency.locale, this.text)
+          ? orderLineTax(line, this.currency.locale, this.common)
           : null;
         return [
           [line.name, rate, line.note].filter(Boolean).join('\n'),
@@ -122,9 +128,9 @@ export class OrderPdf {
       }),
     );
     sheet.total(
-      t.totalLabel,
+      names.total,
       formatMoneyMinor(order.totalMinor, this.currency),
-      orderTaxStatement(order, this.currency.locale, this.text),
+      orderTaxStatement(order, this.currency.locale, this.common),
     );
     if (t.returnNotice) {
       sheet.gap(16);
@@ -135,18 +141,28 @@ export class OrderPdf {
     return Buffer.from(await pdf.save());
   }
 
+  /** Where the order stands, in the customer's words: `ready` reads by how
+   * the goods reach them. */
+  private status(order: OrderDetail): string {
+    const statuses = this.common.order.statuses;
+    if (order.status !== 'ready') return statuses[order.status];
+    return order.pickup ? statuses.readyPickup : statuses.readyDelivery;
+  }
+
   /** How the order is paid, and whether it has been. */
   private payment(order: OrderDetail): string {
-    const t = this.text.orderSummaryPdf;
+    const names = this.common.order;
+    const methods = names.paymentMethods;
+    const states = names.paymentStates;
     const method = {
-      cash: t.payments.cash,
-      'bank-transfer': t.payments.bankTransfer,
-      'card-later': t.payments.cardLater,
+      cash: methods.cash,
+      'bank-transfer': methods.transfer,
+      'card-later': methods.card,
     }[order.paymentMethod];
     const state = {
-      'not-due': t.paymentStates.notDue,
-      awaiting: t.paymentStates.awaiting,
-      paid: t.paymentStates.paid,
+      'not-due': states.notDue,
+      awaiting: states.awaiting,
+      paid: states.paid,
     }[order.paymentState];
     return `${method} · ${state}`;
   }
@@ -157,13 +173,13 @@ export class OrderPdf {
    * reason: the document is read beside goods somebody is counting.
    */
   private quantity(line: OrderDetail['lines'][number]): string {
-    const units = this.text.common.units;
+    const units = this.common.units;
     return line.unit === 'piece'
-      ? fillText(this.text.common.quantity, {
+      ? fillText(this.common.quantity, {
           qty: line.quantity,
           unit: units.piece,
         })
-      : fillText(this.text.common.quantityPieces, {
+      : fillText(this.common.quantityPieces, {
           qty: line.quantity,
           unit: units[line.unit],
           pieces: line.pieces,

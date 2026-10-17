@@ -1,5 +1,6 @@
 import {
   AdminOrderDetail,
+  CommonText,
   fillText,
   MoneyFormat,
   OrderReferenceConfig,
@@ -17,7 +18,8 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { pageVersions } from '../db/schema';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
-import { MAIL_TEXT, MailText } from '../mail/mail-text';
+import { COMMON_TEXT } from '../config/common-text';
+import { PDF_TEXT, PdfText } from '../pdf/pdf-text';
 import { MailAttachment } from '../mail/mailer';
 import { PdfFaces } from '../pdf/pdf-faces';
 import { Sheet } from '../pdf/pdf-sheet';
@@ -37,7 +39,8 @@ export class TermsPdf {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     @Inject(TERMS_ATTACHED) private readonly attached: boolean,
-    @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(PDF_TEXT) private readonly text: PdfText,
+    @Inject(COMMON_TEXT) private readonly common: CommonText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ORDER_REFERENCE_CONFIG)
@@ -63,16 +66,17 @@ export class TermsPdf {
         )
         .limit(1);
       if (!version) return [];
-      const t = this.text.orderReceived;
       const iso = version.createdAt.toISOString();
       const zone = this.reference.timezone;
       return [
         {
-          fileName: fillText(t.termsFileName, { date: shopIsoDay(iso, zone) }),
+          fileName: fillText(this.text.terms.fileName, {
+            date: shopIsoDay(iso, zone),
+          }),
           contentType: 'application/pdf',
           bytes: await this.render(
             version,
-            fillText(t.termsVersion, {
+            fillText(this.common.order.termsVersion, {
               date: shopDay(iso, this.currency.locale, zone),
             }),
           ),

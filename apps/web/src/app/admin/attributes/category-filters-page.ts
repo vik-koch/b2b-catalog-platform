@@ -34,6 +34,7 @@ import { injectEditorReturn } from '../editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -99,13 +100,13 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
         ></div>
       }
       <a appButton variant="secondary" routerLink="/admin/attributes">
-        {{ text.title }}
+        {{ text.page.title }}
       </a>
     </div>
 
-    <p class="mb-2 max-w-3xl text-sm text-muted">
-      {{ slug() ? text.intro : text.catalogIntro }}
-    </p>
+    @if (slug() ? text.page.intro : text.catalogIntro; as intro) {
+      <p class="mb-2 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <div class="max-w-3xl">
       @if (filters.error()) {
@@ -209,7 +210,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 (click)="save()"
               >
                 <app-admin-icon name="save" class="size-4" />
-                {{ busy() ? common.saving : text.save }}
+                {{ busy() ? actionText.saving : text.save }}
               </button>
               <button
                 appButton
@@ -220,7 +221,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 (click)="cancel()"
               >
                 <app-admin-icon name="x" class="size-4" />
-                {{ common.cancel }}
+                {{ actionText.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {
                 <button
@@ -262,9 +263,10 @@ export class CategoryFiltersPage {
   private readonly confirm = inject(ConfirmService);
   /** Back where the panel was opened from — the grid, or the category list. */
   private readonly returnTo = injectEditorReturn();
-  protected readonly text = inject(ADMIN_TEXT).categoryFilters;
+  protected readonly text = inject(ADMIN_TEXT).categories.filters;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   /** The category being edited, from the route — absent for the whole
    * catalogue's panel. */
@@ -309,7 +311,7 @@ export class CategoryFiltersPage {
         const panel = this.loaded();
         return panel && isCategoryPanel(panel)
           ? panel.category.name
-          : this.text.title;
+          : this.text.page.title;
       },
     });
   }
@@ -416,10 +418,10 @@ export class CategoryFiltersPage {
     const slug = this.slug();
     if (!slug) return;
     const ok = await this.confirm.ask({
-      heading: this.text.resetTitle,
-      message: this.text.resetConfirm,
-      confirmLabel: this.text.reset,
-      cancelLabel: this.common.cancel,
+      heading: this.text.resetConfirm.heading,
+      message: this.text.resetConfirm.message,
+      confirmLabel: this.text.resetConfirm.confirm,
+      cancelLabel: this.text.resetConfirm.cancel ?? this.actionText.cancel,
     });
     if (!ok) return;
 

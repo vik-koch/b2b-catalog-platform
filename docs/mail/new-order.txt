@@ -5,10 +5,10 @@ A customer has sent an order request. Open it to check the lines and the price, 
 Order: CK-260826-4831
 Account: alex@example.com
 Contact: Alex Fischer · +49 40 1234567 · alex@example.com
-Invoice to: Kontor GmbH · DE123456789
+Invoiced to: Kontor GmbH · DE123456789
 How it arrives: Delivery
 Payment: Bank transfer
-Total: 126,00 € · incl. 19 % VAT
+Order total: 126,00 € · incl. 19 % VAT
 
 Ordered
 Espresso cups — 2 pk (12 pcs) · 19 % VAT: 96,00 €

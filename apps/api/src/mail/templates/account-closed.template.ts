@@ -1,4 +1,8 @@
-import { fillText, formatPersonName } from '@b2b-catalog-platform/shared';
+import {
+  CommonText,
+  fillText,
+  formatPersonName,
+} from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 
@@ -27,6 +31,7 @@ export interface ClosedAccountSummary {
 export function accountClosedMail(
   account: ClosedAccountSummary,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.accountClosed;
 
@@ -54,7 +59,7 @@ export function accountClosedMail(
             },
           ]
         : []),
-      { label: t.emailLabel, value: account.email },
+      { label: common.fields.email.label, value: account.email },
       {
         label: t.ordersLabel,
         value: String(account.orders),

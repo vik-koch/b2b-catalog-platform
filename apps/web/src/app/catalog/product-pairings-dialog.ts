@@ -13,6 +13,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { filter } from 'rxjs';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
@@ -76,7 +77,7 @@ import { WarningNote } from '../ui/warning-note';
         (cancel)="close()"
       >
         <h2 id="pairings-heading" class="text-xl font-normal tracking-tight">
-          {{ text.label }}
+          {{ pairingsName }}
         </h2>
         <p class="mt-2 text-sm text-muted">{{ text.intro }}</p>
 
@@ -109,7 +110,7 @@ import { WarningNote } from '../ui/warning-note';
 
         <div appDialogActions>
           <button appButton variant="secondary" type="button" (click)="close()">
-            {{ text.close }}
+            {{ actionText.close }}
           </button>
         </div>
       </dialog>
@@ -118,6 +119,8 @@ import { WarningNote } from '../ui/warning-note';
 })
 export class ProductPairingsDialog {
   protected readonly text = inject(APP_TEXT).catalog.pairings;
+  protected readonly pairingsName = inject(COMMON_TEXT).product.pairings;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairings = inject(PairingsService);
   private readonly catalog = inject(CatalogService);

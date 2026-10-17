@@ -2,6 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText, formatTaxRate } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { AppText } from '../config/app-text.type';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
@@ -98,7 +99,7 @@ import { PageService } from './page.service';
         @if (pickupLocations.length) {
           <section>
             <h2 class="text-2xl font-normal tracking-tight">
-              {{ fulfilmentText.pickupTitle }}
+              {{ commonText.fulfilment.pickup }}
             </h2>
             <p class="mt-1 mb-4 text-muted">
               {{ fulfilmentText.pickupDescription }}
@@ -150,7 +151,7 @@ import { PageService } from './page.service';
             <li [class]="cardClass">
               <app-icon name="banknote" [class]="cardMark" />
               <div class="min-w-0 flex-1">
-                <p class="font-medium">{{ paymentText.cashTitle }}</p>
+                <p class="font-medium">{{ paymentNames.cash }}</p>
                 <p class="mt-1 text-sm text-muted">
                   {{ pageText.cashDescription }}
                 </p>
@@ -162,7 +163,7 @@ import { PageService } from './page.service';
             <li [class]="cardClass">
               <app-icon name="landmark" [class]="cardMark" />
               <div class="min-w-0 flex-1">
-                <p class="font-medium">{{ paymentText.transferTitle }}</p>
+                <p class="font-medium">{{ paymentNames.transfer }}</p>
                 <p class="mt-1 text-sm text-muted">
                   {{ paymentText.transferDescription }}
                 </p>
@@ -222,6 +223,9 @@ import { PageService } from './page.service';
 })
 export class ConditionsPage {
   private readonly appText = inject(APP_TEXT);
+  protected readonly commonText = inject(COMMON_TEXT);
+  private readonly nav = this.commonText.nav;
+  protected readonly paymentNames = this.commonText.order.paymentMethods;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 
@@ -229,7 +233,7 @@ export class ConditionsPage {
     'flex gap-3 rounded-lg border border-border p-4';
   protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
 
-  protected readonly navLabel = this.appText.nav['conditions'] ?? '';
+  protected readonly navLabel = this.nav.conditions;
   protected readonly errorText = this.appText.errors;
   protected readonly pageText = this.appText.conditions;
   protected readonly fulfilmentText = this.appText.checkout.fulfilment;
@@ -264,7 +268,7 @@ export class ConditionsPage {
       () =>
         !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
     ),
-    section: 'pageEditor',
+    section: 'pages',
   });
   protected readonly ready = this.content.ready;
   protected readonly canEdit = this.content.controls;

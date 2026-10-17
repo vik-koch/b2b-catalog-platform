@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
@@ -6,13 +7,14 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { AuthService } from '../auth/auth.service';
 import { AccountEditPage } from './account-edit-page';
 import { AccountService } from './account.service';
 
-const text = defaultAppText.auth.myAccount.edit;
+const text = defaultAppText.account.edit;
 const config = defaultDeploymentConfig;
 
 const stored: AccountProfile = {
@@ -48,6 +50,7 @@ async function render(
       // A real /account route, so the redirect after a save has somewhere to go.
       provideRouter([{ path: 'account', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AuthService, useValue: { refresh } },
       {
@@ -142,7 +145,7 @@ describe('AccountEditPage', () => {
 
     expect(updateProfile).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultAppText.auth.register.validation.firstNameRequired,
+      defaultCommonText.fields.firstName.required,
     );
   });
 

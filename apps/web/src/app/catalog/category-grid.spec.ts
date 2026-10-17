@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
@@ -65,6 +67,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: CatalogService,
@@ -598,6 +601,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
       providers: [
         provideRouter([]),
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: CatalogService,

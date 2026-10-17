@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -28,6 +30,7 @@ function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
     ],
   });
   const fixture = TestBed.createComponent(ProductAttributesEditor);
@@ -360,7 +363,7 @@ describe('ProductAttributesEditor grid', () => {
   });
 });
 
-const text = defaultAdminText.productEditor.attributes;
+const text = defaultAdminText.products.editor.attributes;
 
 const known = (key: string, productCount = 3): AttributeKeyUsage => ({
   key,

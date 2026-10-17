@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { OrderDocument, orderDocumentPath } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { documentFileLabel, documentFileSize } from '../core/document-file';
 import { Icon } from '../ui/icons/icon';
 
@@ -64,7 +65,7 @@ import { Icon } from '../ui/icons/icon';
 })
 export class OrderDocumentsList {
   protected readonly text = inject(APP_TEXT).orders.detail.documents;
-  private readonly sizes = inject(APP_TEXT).catalog.documents;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
 
   readonly documents = input.required<readonly OrderDocument[]>();
   /** How this reader is entitled to the order: their own account, or the

@@ -1,5 +1,5 @@
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
-import { demoMailText } from '../mail-text.fixture';
+import { demoCommonText, demoMailText } from '../mail-text.fixture';
 import { inquiryMail } from './inquiry.template';
 
 const submission: InquiryRequest = {
@@ -11,13 +11,13 @@ const submission: InquiryRequest = {
 
 describe('inquiryMail', () => {
   it('puts the submitter in the subject, after the configured prefix', () => {
-    expect(inquiryMail(submission, demoMailText).subject).toBe(
+    expect(inquiryMail(submission, demoMailText, demoCommonText).subject).toBe(
       'Inquiry: Jane Doe',
     );
   });
 
   it('lists every field in order, using the configured labels', () => {
-    const { rows } = inquiryMail(submission, demoMailText);
+    const { rows } = inquiryMail(submission, demoMailText, demoCommonText);
 
     expect(rows).toEqual([
       { label: 'Name', value: 'Jane Doe' },
@@ -32,6 +32,7 @@ describe('inquiryMail', () => {
     const { rows } = inquiryMail(
       { name: 'Jane Doe', phone: '+49 40 1234567', preferredContact: 'phone' },
       demoMailText,
+      demoCommonText,
     );
 
     expect(rows?.map((row) => row.label)).toEqual([

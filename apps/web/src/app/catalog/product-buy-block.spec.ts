@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductDetail } from '@b2b-catalog-platform/shared';
@@ -11,7 +13,6 @@ import { packagedPackaging, productDetail } from './product.fixture';
 
 const text = defaultAppText.cart;
 const unitText = defaultAppText.catalog.units;
-const pairingText = defaultAppText.catalog.pairings;
 
 /**
  * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
@@ -45,6 +46,7 @@ async function renderKeepingCart(item: ProductDetail, canAdd = true) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -118,18 +120,20 @@ describe('ProductBuyBlock', () => {
     const view = await render(packaged);
 
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 100 ${unitText.piece}`,
+      `${unitText.minQuantity}: 100 ${defaultCommonText.units.piece}`,
     );
-    expect(view.text()).toContain(`${unitText.packaging}: 4 pk × 10 pcs`);
+    expect(view.text()).toContain(
+      `${defaultCommonText.packaging.heading}: 4 pk × 10 pcs`,
+    );
   });
 
   it('carries the buying controls, priced and ready', async () => {
     const view = await render(packaged);
 
     expect(view.unitLabels()).toEqual([
-      unitText.pieceName,
-      unitText.packName,
-      unitText.boxName,
+      unitText.select.piece,
+      unitText.select.pack,
+      unitText.select.box,
     ]);
     expect(view.quantityInput().value).toBe('100');
     // The per-piece price, which is the block's headline figure.
@@ -211,7 +215,7 @@ describe('ProductBuyBlock', () => {
     const field = el.querySelector('textarea');
     if (!link || !facts || !field) throw new Error('expected all three');
 
-    expect(link.textContent).toContain(pairingText.label);
+    expect(link.textContent).toContain(defaultCommonText.product.pairings);
     expect(
       facts.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

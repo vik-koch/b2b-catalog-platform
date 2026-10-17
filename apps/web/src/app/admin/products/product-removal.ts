@@ -1,5 +1,9 @@
 import { fillText } from '@b2b-catalog-platform/shared';
-import type { ConfirmService } from '../../ui/confirm.service';
+import {
+  type ConfirmService,
+  type ConfirmText,
+  confirmRequest,
+} from '../../ui/confirm.service';
 import type { AdminCatalogService } from '../admin-catalog.service';
 
 /**
@@ -29,7 +33,7 @@ export async function mayRestore(
 /** The wording the permanent delete reads, wherever it is offered. */
 export interface PurgeText {
   purgeProduct: string;
-  purgeConfirm: string;
+  purgeConfirm: ConfirmText;
   cancel: string;
   close: string;
   ordered: string;
@@ -84,10 +88,8 @@ export async function purgeWithConfirmation(
     return false;
   }
   const confirmed = await confirm.ask({
-    heading: text.purgeProduct,
-    message: fillText(text.purgeConfirm, { name: product.name }),
-    confirmLabel: text.purgeProduct,
-    cancelLabel: text.cancel,
+    ...confirmRequest(text.purgeConfirm, text.cancel),
+    message: fillText(text.purgeConfirm.message, { name: product.name }),
     confirmVariant: 'danger',
   });
   if (!confirmed) return false;

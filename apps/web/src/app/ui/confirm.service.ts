@@ -25,6 +25,27 @@ export interface ConfirmRequest {
   checks?: readonly ConfirmCheck[];
 }
 
+/** A dialog's words as a deployment writes them (`confirmText` in the text
+ * schemas). */
+export interface ConfirmText {
+  readonly heading: string;
+  readonly message: string;
+  readonly confirm: string;
+  readonly cancel?: string;
+  readonly warning?: string;
+}
+
+/** The request for those words; a view adds the warning when it applies, and
+ * the common cancel stands in where the dialog names none. */
+export function confirmRequest(text: ConfirmText, cancel = ''): ConfirmRequest {
+  return {
+    heading: text.heading,
+    message: text.message,
+    confirmLabel: text.confirm,
+    cancelLabel: text.cancel ?? cancel,
+  };
+}
+
 /** A confirmation that may say why. Required by default, because the usual
  * case is a reason quoted at somebody; optional where it is a courtesy to the
  * reader rather than an explanation owed to them. */

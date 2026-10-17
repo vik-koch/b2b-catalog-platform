@@ -1,8 +1,10 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { Page, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { PageService } from '../pages/page.service';
@@ -76,6 +78,7 @@ async function render(
       provideRouter([]),
       { provide: PartiesService, useValue: { suggest } },
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AuthService, useValue: { register } },
       { provide: PageService, useValue: { getPage } },
@@ -155,12 +158,14 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(register).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.firstNameRequired);
-    expect(el.textContent).toContain(text.validation.lastNameRequired);
     expect(el.textContent).toContain(
-      defaultAppText.auth.validation.emailRequired,
+      defaultCommonText.fields.firstName.required,
     );
-    expect(el.textContent).toContain(text.validation.phoneRequired);
+    expect(el.textContent).toContain(
+      defaultCommonText.fields.lastName.required,
+    );
+    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
+    expect(el.textContent).toContain(defaultCommonText.fields.phone.required);
     expect(el.textContent).toContain(defaultAppText.consentBox.required);
   });
 
@@ -173,9 +178,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(register).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(
-      defaultAppText.auth.validation.emailInvalid,
-    );
+    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
   });
 
   // Half an address is unfinished, not wrong: judging it on the first letter
@@ -187,7 +190,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(el.textContent).not.toContain(
-      defaultAppText.auth.validation.emailInvalid,
+      defaultCommonText.fields.email.invalid,
     );
   });
 
@@ -198,9 +201,7 @@ describe('RegisterPage', () => {
     blur(el, '#email');
     await sync();
 
-    expect(el.textContent).toContain(
-      defaultAppText.auth.validation.emailInvalid,
-    );
+    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
   });
 
   // Reward the correction: the message goes on the keystroke that fixes it.
@@ -215,7 +216,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(el.textContent).not.toContain(
-      defaultAppText.auth.validation.emailInvalid,
+      defaultCommonText.fields.email.invalid,
     );
   });
 
@@ -226,7 +227,9 @@ describe('RegisterPage', () => {
     blur(el, '#firstName');
     await sync();
 
-    expect(el.textContent).not.toContain(text.validation.firstNameRequired);
+    expect(el.textContent).not.toContain(
+      defaultCommonText.fields.firstName.required,
+    );
   });
 
   it('sends a private person, with the country code on the phone', async () => {
@@ -278,7 +281,9 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(register).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.companyNameRequired);
+    expect(el.textContent).toContain(
+      defaultCommonText.fields.companyName.required,
+    );
   });
 
   // The contract refuses them against a private person, so switching back
@@ -389,7 +394,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(register).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.phoneIncomplete);
+    expect(el.textContent).toContain(defaultCommonText.fields.phone.incomplete);
   });
 
   it('passes the honeypot along when a bot fills it', async () => {

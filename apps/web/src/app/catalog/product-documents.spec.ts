@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { PublicDocument } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
@@ -30,7 +32,10 @@ async function render(documents: PublicDocument[]) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [ProductDocuments],
-    providers: [{ provide: APP_TEXT, useValue: defaultAppText }],
+    providers: [
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+    ],
   });
 
   const fixture = TestBed.createComponent(ProductDocuments);
@@ -78,7 +83,7 @@ describe('ProductDocuments', () => {
     ]);
     const hint = el.querySelector('a')?.getAttribute('aria-describedby');
 
-    expect(el.querySelector(`#${hint}`)?.textContent).toContain(text.hint);
+    expect(el.querySelector(`#${hint}`)?.textContent).toContain(text.hintAria);
     expect(el.querySelectorAll('a')).toHaveLength(2);
   });
 

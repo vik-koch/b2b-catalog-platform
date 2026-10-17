@@ -16,6 +16,7 @@ import {
   ProductDocument,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { delayedLoading } from '../../core/delayed-loading';
@@ -83,9 +84,10 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
   ],
   template: `
     <app-admin-list-header
-      [title]="text.title"
+      [title]="text.page.title"
+      [intro]="text.page.intro"
       [query]="term()"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -267,16 +269,16 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         appIconButton
         [routerLink]="['/admin/documents', document.id, 'edit']"
         [queryParams]="editorFrom()"
-        [attr.aria-label]="text.edit"
-        [title]="text.edit"
+        [attr.aria-label]="common.edit"
+        [title]="common.edit"
       >
         <app-admin-icon name="pencil" />
       </a>
       <button
         type="button"
         appIconButton
-        [attr.aria-label]="text.delete"
-        [title]="text.delete"
+        [attr.aria-label]="common.delete"
+        [title]="common.delete"
         (click)="remove(document)"
       >
         <app-admin-icon name="trash-2" />
@@ -287,8 +289,11 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
 export class DocumentListPage {
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).documentList;
+  protected readonly text = inject(ADMIN_TEXT).documents.list;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
@@ -373,7 +378,7 @@ export class DocumentListPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusFilter(),
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
     },
     { key: 'updated', label: this.text.updatedColumn, minWidth: 96 },
@@ -434,7 +439,7 @@ export class DocumentListPage {
   protected readonly pageError = signal<string | null>(null);
 
   protected productCount(document: ProductDocument): string {
-    return fillText(this.text.products, { count: document.productCount });
+    return fillText(this.productsText.count, { count: document.productCount });
   }
 
   /** Where the title leads: the file, or the link when there is none. */
@@ -448,7 +453,7 @@ export class DocumentListPage {
       file &&
         `${documentFileLabel(file.contentType)} · ${documentFileSize(
           file.byteSize,
-          this.text,
+          this.sizes,
         )}`,
       link && this.text.link,
     ]
@@ -471,10 +476,12 @@ export class DocumentListPage {
   protected async remove(document: ProductDocument): Promise<void> {
     this.pageError.set(null);
     const ok = await this.confirm.ask({
-      heading: this.text.deleteTitle,
-      message: fillText(this.text.deleteConfirm, { name: document.title }),
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      heading: this.text.deleteConfirm.heading,
+      message: fillText(this.text.deleteConfirm.message, {
+        name: document.title,
+      }),
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!ok) return;
@@ -492,6 +499,6 @@ export class DocumentListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
   }
 }

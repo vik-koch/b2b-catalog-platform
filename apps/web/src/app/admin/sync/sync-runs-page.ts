@@ -266,7 +266,7 @@ export class SyncRunsPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusFilter() ?? '',
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
     },
     { key: 'changes', label: this.text.col.changes, minWidth: 100 },
@@ -303,7 +303,7 @@ export class SyncRunsPage {
     const shown = fields.slice(0, FIELDS_SHOWN).map((f) => this.fieldLabel(f));
     if (fields.length > FIELDS_SHOWN) {
       shown.push(
-        fillText(this.text.field.more, { count: fields.length - FIELDS_SHOWN }),
+        fillText(this.text.moreFields, { count: fields.length - FIELDS_SHOWN }),
       );
     }
     return shown.join(' · ');
@@ -316,7 +316,24 @@ export class SyncRunsPage {
       .join(' · ');
   }
 
+  /** A field in the words of the area whose log this is. An unknown one
+   * reads as itself rather than as nothing. */
   private fieldLabel(field: string): string {
+    switch (this.area()) {
+      case 'customers':
+        return this.wordOf(this.text.customers.field, field);
+      case 'orders':
+        return this.wordOf(this.text.orders.field, field);
+      case 'catalog':
+        return this.catalogFieldLabel(field);
+    }
+  }
+
+  private wordOf(words: Readonly<Record<string, string>>, field: string) {
+    return words[field] ?? field;
+  }
+
+  private catalogFieldLabel(field: string): string {
     // Every price column names its list now, the storefront's included: the
     // run wrote `price:<key>`, and printing a generic word for one of them
     // would be the screen inventing a name the file never used.
@@ -325,10 +342,7 @@ export class SyncRunsPage {
         key: field.slice(CATALOG_SYNC_CSV_COLUMNS.pricePrefix.length),
       });
     }
-    return (
-      this.text.field[field as 'name' | 'category' | 'stock' | 'taxRate'] ??
-      field
-    );
+    return this.wordOf(this.text.field, field);
   }
 
   protected statusLabel(run: SyncRun): string {

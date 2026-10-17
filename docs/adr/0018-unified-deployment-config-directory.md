@@ -1,6 +1,8 @@
 # 0018 — One mounted config directory carries the whole per-deployment config
 
-**Status:** accepted · **Date:** 2026-07-23
+**Status:** accepted · **Date:** 2026-07-23 · **Amended:** 2026-10-17 (five text
+files, which text goes where, how keys are grouped and named, and a migration
+for each release that moves keys) — see the _Amendment_ below
 
 ## Context
 
@@ -84,3 +86,68 @@ a config field (`branding.title`), set at runtime via the Angular Title service.
   loud failure rather than silent demo chrome — correct under SSR-always.
 - (−) Adding a UI-text key is a coordinated change: each deployment's config must
   gain the key before upgrading, or boot fails. Deliberate, but a release note.
+
+## Amendment — 2026-10-17: five text files, and which text goes where
+
+The text had grown in three files that repeated each other: "Company ID" six
+times, the payment methods in four places, the order summary's wording inside
+the mail's. It is now five files, split by audience as before:
+
+| File               | Read by                      | Holds                                                        |
+| ------------------ | ---------------------------- | ------------------------------------------------------------ |
+| `common-text.json` | web (every page) and the API | shared names, and what customers read in more than one place |
+| `app-text.json`    | web (every page)             | the storefront's own wording                                 |
+| `admin-text.json`  | web (fetched by admins)      | the admin's own wording, staff's names for things            |
+| `mail-text.json`   | API                          | the messages                                                 |
+| `pdf-text.json`    | API                          | the documents the API draws                                  |
+
+Which file a text belongs in follows four rules:
+
+1. **One key per thing, per reader.** A name that reads the same to staff and
+   customers ("Order total", "Company ID") is one key in `common-text.json`.
+   Where the readers word a set differently — order statuses, payment methods —
+   the customer's set is in `common-text.json` and staff's in `admin-text.json`,
+   never half shared. A field's label is a name; the message that checks it is
+   written for its reader. Controls are the same: Cancel, Close and Remove are
+   one key each in `common-text.json`'s `actions`, unless a button names what
+   it does ("Delete selection").
+2. **`common-text.json` is public.** It is injected into every page, so nothing
+   only staff read belongs there — staff-only verbs (Save, Edit, Delete) are
+   the admin text's `common`. The few staff words a staff mail needs
+   ("Account", "Card, arranged with the customer") are in `mail-text.json` as
+   well as `admin-text.json`: the API does not read admin text.
+3. **Who defines the set decides the file.** A set the code knows — page slugs,
+   statuses, fields — is keyed in a text file. Entries a deployment invents —
+   delivery zones, collection points, company-ID formats — carry their own
+   wording in `deployment.json`, since a text schema cannot name them.
+4. **Counting texts have one form** (ADR 0009, amendment 4).
+
+Recurring parts share a shape. An admin page is `{ title, intro? }` and a
+confirmation dialog `{ heading, message, confirm, cancel?, warning? }`. An
+absent intro draws nothing, and a dialog without its own `cancel` uses the
+common one. Every optional text works one of those two ways — it is left out,
+like the order summary's return notice, or a common word stands in — so none
+can leave a word of another language on screen, and the whole-file rule still
+holds.
+
+Inside a file, keys group by domain, then by screen (`orders.detail`,
+`products.editor`); a domain with one screen is that screen. A text only a
+screen reader reads ends in `Aria`, so its translator knows nobody sees it and
+it need not fit anywhere; CI fails if one is ever shown.
+
+A release that moves keys ships a map, `tools/text-migration/<version>.json`,
+and `tools/migrate-text.mjs` applies it to a deployment's own files, keeping
+their wording. It needs Node and nothing else, and reports what it cannot
+decide: wording new in the release, merged keys whose values differed, and
+counting texts still in two forms. CI migrates the previous release's demo
+config with the newest map and validates the result, so a forgotten key fails
+there rather than in an operator's boot.
+
+- (+) A thing is named in one place per reader; the public payload carries no
+  staff wording.
+- (+) A translator reads context from the structure: where a key sits names
+  its screen, and the suffix says when nobody sees it.
+- (+) An upgrade that moves text is one command per deployment, not a diff to
+  read by hand.
+- (−) A handful of staff words exist twice, in the admin and the mail text.
+- (−) Each release that moves keys owes a map, kept complete by the CI check.

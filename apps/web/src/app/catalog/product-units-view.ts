@@ -11,6 +11,7 @@ import {
   unitQuantity,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from './price';
 import { formatUnitQuantity } from './quantity';
@@ -48,6 +49,9 @@ export interface UnitOption {
  */
 export function useProductUnits() {
   const text = inject(APP_TEXT).catalog.units;
+  const common = inject(COMMON_TEXT);
+  const units = common.units;
+  const packing = common.packaging;
   const config = inject(DEPLOYMENT_CONFIG).catalog;
   const currency = config.currency;
 
@@ -63,14 +67,14 @@ export function useProductUnits() {
     priceRow(prices: UnitPrices, unit: ProductUnit): UnitPriceRow | null {
       if (unit === 'piece') {
         return {
-          label: perUnit(text.piece),
+          label: perUnit(units.piece),
           price: formatPriceMinor(prices.piece, currency),
         };
       }
       const price = unit === 'pack' ? prices.pack : prices.box;
       if (price === null) return null;
       return {
-        label: perUnit(unit === 'pack' ? text.pack : text.box),
+        label: perUnit(unit === 'pack' ? units.pack : units.box),
         price: formatPriceMinor(price, currency),
       };
     },
@@ -97,15 +101,15 @@ export function useProductUnits() {
       if (packsPerBox === null) {
         return fillText(text.packagingPerPack, {
           pieces: piecesPerPack,
-          pieceUnit: text.piece,
-          packUnit: text.pack,
+          pieceUnit: units.piece,
+          packUnit: units.pack,
         });
       }
       return fillText(text.packagingFormula, {
         packs: packsPerBox,
-        packUnit: text.pack,
+        packUnit: units.pack,
         pieces: piecesPerPack,
-        pieceUnit: text.piece,
+        pieceUnit: units.piece,
         total: piecesPerUnit(packaging, 'box') ?? 0,
       });
     },
@@ -127,9 +131,9 @@ export function useProductUnits() {
     ): string {
       const floor = pieceFloor(packaging);
       const quantity = unitQuantity(packaging, unit, floor) ?? floor;
-      return fillText(text.minQuantityValue, {
+      return fillText(common.quantity, {
         qty: formatUnitQuantity(quantity, currency),
-        unit: text[unit],
+        unit: units[unit],
       });
     },
 
@@ -168,12 +172,12 @@ export function useProductUnits() {
           if (count !== null && count > 1) {
             rows.push({
               label,
-              value: `${formatUnitQuantity(count, currency)} ${text.piece}`,
+              value: `${formatUnitQuantity(count, currency)} ${units.piece}`,
             });
           }
         };
-        contents(text.packContains, packaging.piecesPerPack);
-        contents(text.boxContains, piecesPerUnit(packaging, 'box'));
+        contents(packing.packContains, packaging.piecesPerPack);
+        contents(packing.boxContains, piecesPerUnit(packaging, 'box'));
       }
       if (!box) return rows;
       const label = (base: string) =>
@@ -183,13 +187,13 @@ export function useProductUnits() {
 
       if (box.volume) {
         rows.push({
-          label: label(text.boxVolume),
+          label: label(packing.boxVolume),
           value: `${box.volume} ${config.boxUnits.volume}`,
         });
       }
       if (box.weight) {
         rows.push({
-          label: label(text.boxWeight),
+          label: label(packing.boxWeight),
           value: `${box.weight} ${config.boxUnits.weight}`,
         });
       }

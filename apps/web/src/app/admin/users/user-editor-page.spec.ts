@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -12,6 +14,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { APP_TEXT } from '../../config/app-text';
+import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AuthService } from '../../auth/auth.service';
@@ -20,7 +24,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
 import { StaffUsersService } from './users.service';
 
-const text = defaultAdminText.userEditor;
+const text = defaultAdminText.users.editor;
 
 /** The demo deployment's own rules, which the form is built from. */
 const phone = defaultDeploymentConfig.phoneInput;
@@ -123,6 +127,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AuthService,
@@ -389,7 +396,7 @@ describe('UserEditorPage', () => {
     await press(text.create);
 
     expect(service.create).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.emailRequired);
+    expect(el.textContent).toContain(defaultAdminText.fields.email.required);
   });
 
   it('shows a closed account as a record, with nothing to save', async () => {
@@ -421,7 +428,9 @@ describe('UserEditorPage', () => {
   it('shows where the account stands, in the list\u2019s own words', async () => {
     const { el } = await render({ account: user({ status: 'disabled' }) });
 
-    expect(el.textContent).toContain(defaultAdminText.userList.statusDisabled);
+    expect(el.textContent).toContain(
+      defaultAdminText.users.list.statusDisabled,
+    );
   });
 
   it('says so when the account is not there (or not the caller’s to see)', async () => {
@@ -449,7 +458,7 @@ describe('UserEditorPage', () => {
       expect(button(defaultAdminText.common.save)).toBeUndefined();
       expect(button(text.resend)).toBeUndefined();
       // The way back stays, as it does on the catalog's locked route.
-      expect(button(defaultAdminText.common.cancel)).toBeDefined();
+      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
     });
 
     it('offers no approval either', async () => {
@@ -471,7 +480,7 @@ describe('UserEditorPage', () => {
         defaultAdminText.ownership.accountCreate,
       );
       expect(field('firstName')).toBeNull();
-      expect(button(defaultAdminText.common.cancel)).toBeDefined();
+      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
     });
 
     it('leaves a staff account editable', async () => {
@@ -496,7 +505,7 @@ describe('UserEditorPage', () => {
     await press(defaultAdminText.common.save);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      defaultAdminText.userList.errors['last-admin'],
+      defaultAdminText.users.list.errors['last-admin'],
     );
     expect(navigateByUrl).not.toHaveBeenCalled();
   });

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -15,7 +17,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { ApiTokenListPage } from './api-token-list-page';
 import { ApiTokensService } from './api-tokens.service';
 
-const text = defaultAdminText.apiTokenList;
+const text = defaultAdminText.apiTokens;
 
 function token(overrides: Partial<ApiToken> = {}): ApiToken {
   return {
@@ -62,7 +64,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: ApiTokensService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
@@ -152,7 +156,7 @@ describe('ApiTokenListPage', () => {
   it('names a deleted issuer rather than leaving the line blank', async () => {
     const { el } = await render({ tokens: [token({ createdBy: null })] });
 
-    expect(el.textContent).toContain(text.actorGone);
+    expect(el.textContent).toContain(defaultAdminText.common.actorGone);
   });
 
   it('shows a revoked token, marked, with no revoke button left on it', async () => {
@@ -161,7 +165,7 @@ describe('ApiTokenListPage', () => {
     });
 
     expect(el.textContent).toContain(text.revoked);
-    expect(byLabel(text.revoke)).toBeNull();
+    expect(byLabel(text.revokeAria)).toBeNull();
   });
 
   /** There is more than one capability now, so the ticks start empty and the
@@ -245,7 +249,7 @@ describe('ApiTokenListPage', () => {
     expect(el.textContent).toContain(created.token);
 
     const dismiss = [...el.querySelectorAll<HTMLButtonElement>('button')].find(
-      (button) => button.textContent?.trim() === text.createdDone,
+      (button) => button.textContent?.trim() === defaultCommonText.actions.done,
     );
     dismiss?.click();
     await fixture.whenStable();
@@ -274,7 +278,7 @@ describe('ApiTokenListPage', () => {
       confirmed: false,
     });
 
-    byLabel(text.revoke)?.click();
+    byLabel(text.revokeAria)?.click();
     await Promise.resolve();
 
     expect(confirm.ask).toHaveBeenCalled();
@@ -284,7 +288,7 @@ describe('ApiTokenListPage', () => {
   it('revokes a token once the question is answered', async () => {
     const { service, byLabel } = await render({ tokens: [token()] });
 
-    byLabel(text.revoke)?.click();
+    byLabel(text.revokeAria)?.click();
     await Promise.resolve();
     await Promise.resolve();
 

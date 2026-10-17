@@ -11,10 +11,10 @@ import { debounced } from './debounced';
 
 /** The wording every suggesting field needs, whatever it suggests. */
 export interface SuggestListText {
-  readonly suggestionsLabel: string;
+  readonly suggestionsAria: string;
   readonly noSuggestions: string;
   /** `{count}` is substituted, for the live region. */
-  readonly suggestionCount: string;
+  readonly suggestionCountAria: string;
 }
 
 /**
@@ -133,7 +133,7 @@ export class SuggestList<T> {
     const count = this.suggestions().length;
     return count === 0
       ? text.noSuggestions
-      : text.suggestionCount.replace('{count}', String(count));
+      : text.suggestionCountAria.replace('{count}', String(count));
   }
 
   type(value: string): void {

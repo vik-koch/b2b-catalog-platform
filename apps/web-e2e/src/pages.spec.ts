@@ -14,12 +14,10 @@ const deployment = JSON.parse(
 };
 const appText = JSON.parse(
   readFileSync(join(workspaceRoot, 'config/app-text.json'), 'utf8'),
-) as {
-  checkout: {
-    payment: { cashTitle: string; transferTitle: string };
-    fulfilment: { noDelivery: string };
-  };
-};
+) as { checkout: { fulfilment: { noDelivery: string } } };
+const commonText = JSON.parse(
+  readFileSync(join(workspaceRoot, 'config/common-text.json'), 'utf8'),
+) as { order: { paymentMethods: { cash: string; transfer: string } } };
 
 test('renders the about page from SSR without a browser refetch', async ({
   page,
@@ -69,8 +67,8 @@ test('states the configured conditions under the conditions body', async ({
   }
   // The demo's last zone does not deliver, and says so.
   await expect(main).toContainText(appText.checkout.fulfilment.noDelivery);
-  await expect(main).toContainText(appText.checkout.payment.cashTitle);
-  await expect(main).toContainText(appText.checkout.payment.transferTitle);
+  await expect(main).toContainText(commonText.order.paymentMethods.cash);
+  await expect(main).toContainText(commonText.order.paymentMethods.transfer);
 });
 
 // Unknown routes and unknown catalog slugs share one 404 screen, and each of

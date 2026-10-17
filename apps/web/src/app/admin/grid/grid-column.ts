@@ -19,8 +19,9 @@ export interface GridFilter {
   options: readonly GridFilterOption[];
   /** The value in effect; the empty string when unfiltered. */
   value: string;
-  /** Names the control, since the heading it replaces carries no text. */
-  ariaLabel: string;
+  /** Names the control: its accessible name in the heading, which carries no
+   * text, and its visible label in the phone's filter sheet. */
+  label: string;
   /**
    * What a choice writes, where one select stands for more than one parameter
    * — the category filter's "without subcategories" option is a category and a
@@ -132,8 +133,8 @@ export interface GridChip {
  * select, several can hold at once, and they must all hold.
  */
 export interface GridToggleGroup {
-  /** What the group asks: "Missing", "Has". */
-  label: string;
+  /** What the group asks, said to a screen reader: "Missing", "Has". */
+  ariaLabel: string;
   /** The query parameter it writes, as a list. */
   param: string;
   options: readonly GridToggleOption[];

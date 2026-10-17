@@ -13,7 +13,7 @@ class Host {
 }
 
 const group = (selected: string[]): GridToggleGroup => ({
-  label: 'Missing',
+  ariaLabel: 'Missing',
   param: 'missing',
   options: [
     { value: 'incomplete', label: 'Incomplete' },

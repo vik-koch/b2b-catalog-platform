@@ -1,6 +1,8 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { LicensesPage } from './licenses-page';
@@ -31,6 +33,7 @@ async function render() {
     imports: [LicensesPage],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       // Only reached through usePageSeo, which composes the document title.
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
@@ -75,7 +78,7 @@ describe('LicensesPage', () => {
     const element = await render();
 
     expect(element.querySelector('h1')?.textContent).toContain(
-      defaultAppText.nav['licenses'],
+      defaultCommonText.nav['licenses'],
     );
     expect(element.querySelector('details')).toBeNull();
   });

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -32,7 +34,7 @@ const columns: GridColumn[] = [
         { value: 'active', label: 'Active' },
       ],
       value: '',
-      ariaLabel: 'Filter by status',
+      label: 'Filter by status',
     },
   },
   // Not negotiable: two glyphs need what they need.
@@ -122,6 +124,7 @@ function render(stored?: GridWidths) {
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
     ],
   });
   const fixture = TestBed.createComponent(Host);

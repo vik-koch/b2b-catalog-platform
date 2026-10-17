@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
@@ -8,6 +9,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AuthService } from '../../auth/auth.service';
@@ -17,7 +19,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
 
-const text = defaultAdminText.userList;
+const text = defaultAdminText.users.list;
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
@@ -98,6 +100,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -375,7 +378,9 @@ describe('UserListPage', () => {
         config: { ...defaultDeploymentConfig, companyIdInput: undefined },
       });
 
-      expect(el.textContent).toContain(text.companyId);
+      expect(el.textContent).toContain(
+        defaultCommonText.fields.companyId.label,
+      );
       expect(el.textContent).not.toContain(text.companyIdFormatAll);
     });
 
@@ -453,7 +458,7 @@ describe('UserListPage', () => {
       users: [user({ id: 'p1', status: 'pending' })],
     });
 
-    await rowAction(text.decline);
+    await rowAction(text.declineAria);
 
     expect(confirm.ask).toHaveBeenCalled();
     expect(service.remove).toHaveBeenCalledWith('p1');
@@ -472,7 +477,7 @@ describe('UserListPage', () => {
         ownedAreas: ['customers'],
       });
 
-      await rowAction(text.decline);
+      await rowAction(text.declineAria);
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -489,7 +494,7 @@ describe('UserListPage', () => {
         ownedAreas: ['customers'],
       });
 
-      await rowAction(text.deactivate);
+      await rowAction(text.deactivateAria);
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -508,7 +513,7 @@ describe('UserListPage', () => {
         ownedAreas: ['customers'],
       });
 
-      await rowAction(text.deactivate);
+      await rowAction(text.deactivateAria);
 
       expect(service.setActive).toHaveBeenCalledWith('s1', false);
     });
@@ -520,7 +525,7 @@ describe('UserListPage', () => {
       confirmed: false,
     });
 
-    await rowAction(text.decline);
+    await rowAction(text.declineAria);
 
     expect(service.remove).not.toHaveBeenCalled();
   });
@@ -534,7 +539,7 @@ describe('UserListPage', () => {
       code: 'account-not-purgeable',
     });
 
-    await rowAction(text.decline);
+    await rowAction(text.declineAria);
 
     // No dialog is left to carry it, so the page says so itself.
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
@@ -597,19 +602,19 @@ describe('UserListPage', () => {
     // never sees a control naming a list they may not open.
     const customers = await render({ users: [] });
     expect(customers.el.querySelector('h1')?.textContent).toContain(
-      text.titleCustomers,
+      text.customersPage.title,
     );
-    expect(customers.el.textContent).not.toContain(text.titleStaff);
+    expect(customers.el.textContent).not.toContain(text.staffPage.title);
 
     const staff = await render({ kind: 'staff', users: [] });
     expect(staff.el.querySelector('h1')?.textContent).toContain(
-      text.titleStaff,
+      text.staffPage.title,
     );
   });
 
   it('deactivates an approved account, and switches a deactivated one back on', async () => {
     const off = await render({ users: [user({ id: 'u1', status: 'active' })] });
-    await off.rowAction(text.deactivate);
+    await off.rowAction(text.deactivateAria);
     expect(off.confirm.ask).toHaveBeenCalled();
     expect(off.service.setActive).toHaveBeenCalledWith('u1', false);
 
@@ -618,13 +623,13 @@ describe('UserListPage', () => {
     const invited = await render({
       users: [user({ id: 'u2', status: 'invited' })],
     });
-    await invited.rowAction(text.deactivate);
+    await invited.rowAction(text.deactivateAria);
     expect(invited.service.setActive).toHaveBeenCalledWith('u2', false);
 
     const on = await render({
       users: [user({ id: 'u1', status: 'disabled' })],
     });
-    await on.rowAction(text.reactivate);
+    await on.rowAction(text.reactivateAria);
     expect(on.service.setActive).toHaveBeenCalledWith('u1', true);
   });
 
@@ -633,7 +638,7 @@ describe('UserListPage', () => {
       users: [user({ status: 'pending' })],
     });
     // Nobody has decided on it yet: the actions are approve and decline.
-    expect(pending.el.textContent).not.toContain(text.deactivate);
+    expect(pending.el.textContent).not.toContain(text.deactivateAria);
 
     const closed = await render({ users: [user({ status: 'anonymized' })] });
     expect(closed.el.querySelectorAll('tbody button')).toHaveLength(0);
@@ -645,7 +650,7 @@ describe('UserListPage', () => {
     });
     service.setActive.mockResolvedValueOnce({ ok: false, code: 'last-admin' });
 
-    await rowAction(text.deactivate);
+    await rowAction(text.deactivateAria);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       text.errors['last-admin'],

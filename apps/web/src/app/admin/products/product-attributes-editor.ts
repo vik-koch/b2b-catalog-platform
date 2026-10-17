@@ -51,6 +51,7 @@ import {
   parseClipboardGrid,
   selectionToTsv,
 } from './attribute-grid';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.
@@ -233,7 +234,7 @@ import {
                     <button
                       appIconButton
                       type="button"
-                      [attr.aria-label]="text.add"
+                      [attr.aria-label]="text.addAria"
                       (click)="addBelow($index)"
                     >
                       <app-admin-icon name="plus" />
@@ -242,7 +243,7 @@ import {
                       appIconButton
                       variant="danger"
                       type="button"
-                      [attr.aria-label]="common.remove"
+                      [attr.aria-label]="actionText.remove"
                       (click)="remove($index)"
                     >
                       <app-admin-icon name="trash-2" />
@@ -280,7 +281,8 @@ import {
 })
 export class ProductAttributesEditor {
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:
    * the action glyphs are already finger-sized a breakpoint earlier, and four
    * of them plus two cells do not fit the table between the two. */

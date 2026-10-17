@@ -1,4 +1,5 @@
 import {
+  CommonText,
   fillText,
   MoneyFormat,
   OrderDetail,
@@ -32,10 +33,12 @@ export function orderReceivedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
   /** The shop's timezone, which the terms' date is read in. */
   timeZone: string,
 ): MailContent {
   const t = text.orderReceived;
+  const names = common.order;
 
   return {
     subject: `${t.subject} · ${order.reference}`,
@@ -46,29 +49,31 @@ export function orderReceivedMail(
       t.nextSteps,
     ],
     rows: [
-      { label: t.referenceLabel, value: order.reference },
+      { label: names.reference, value: order.reference },
       {
-        label: t.fulfilmentLabel,
-        value: order.pickup ? t.pickup : t.delivery,
+        label: common.fulfilment.label,
+        value: order.pickup
+          ? common.fulfilment.pickup
+          : common.fulfilment.delivery,
       },
       {
-        label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        label: names.total,
+        value: orderMailTotal(order, currency, common),
       },
       ...(order.termsDate
         ? [
             {
-              label: t.termsLabel,
-              value: fillText(t.termsVersion, {
+              label: common.nav.terms,
+              value: fillText(names.termsVersion, {
                 date: shopDay(order.termsDate, currency.locale, timeZone),
               }),
             },
           ]
         : []),
     ],
-    itemsHeading: t.itemsHeading,
+    itemsHeading: names.items,
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+      orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),
     action: {
       label: t.action,

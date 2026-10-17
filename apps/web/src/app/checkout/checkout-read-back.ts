@@ -10,6 +10,7 @@ import { CartService, CartStoredLine } from '../cart/cart.service';
 import { formatPriceMinor } from '../catalog/price';
 import { formatUnitQuantity } from '../catalog/quantity';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { useTaxStatement } from '../catalog/tax-statement';
 import { ReadBackLine, ReviewBlock } from '../orders/order-read-back';
@@ -51,7 +52,8 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
   const text = inject(APP_TEXT).checkout;
-  const catalogText = inject(APP_TEXT).catalog;
+  const common = inject(COMMON_TEXT);
+  const names = common.order;
   const locations = config.pickup?.locations ?? [];
 
   /**
@@ -61,17 +63,16 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
    * actually picks is worth spelling out beside the one that was ordered.
    */
   const lineQuantity = (line: CartStoredLine): string => {
-    const review = text.review;
-    const units = catalogText.units;
+    const units = common.units;
     const qty = formatUnitQuantity(
       unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
       config.catalog.currency,
     );
     const unit = units[line.unit];
     if (line.unit === 'piece') {
-      return fillText(review.quantity, { qty, unit });
+      return fillText(common.quantity, { qty, unit });
     }
-    return fillText(review.quantityPieces, {
+    return fillText(common.quantityPieces, {
       qty,
       unit,
       pieces: formatUnitQuantity(line.pieces, config.catalog.currency),
@@ -141,12 +142,11 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
     blocks: computed<ReviewBlock[]>(() => {
       const draft = deps.draft();
       const review = text.review;
-      const fulfilment = text.fulfilment;
 
       const arrival = deps.isPickup()
-        ? [fulfilment.pickupTitle, ...pickupLines()]
+        ? [common.fulfilment.pickup, ...pickupLines()]
         : [
-            fulfilment.deliveryTitle,
+            common.fulfilment.delivery,
             ...lines(
               deps.addressFor(draft.deliveryAddressId, deps.deliveryForm),
             ),
@@ -164,14 +164,14 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
       }
 
       const blocks: ReviewBlock[] = [
-        { heading: review.fulfilment, lines: arrival },
-        { heading: review.invoice, lines: invoice },
+        { heading: common.fulfilment.label, lines: arrival },
+        { heading: names.invoicedTo, lines: invoice },
         {
           // The form's own words for the question, so the read-back is the
           // same question and not a shorter one: what is recorded is a wish.
           heading: deps.isPickup()
-            ? text.timing.pickupLabel
-            : text.timing.deliveryLabel,
+            ? names.preferredPickup
+            : names.preferredDelivery,
           lines: [
             draft.preferredDate
               ? formatDate(draft.preferredDate)
@@ -179,18 +179,21 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           ],
         },
         {
-          heading: review.payment,
+          heading: names.payment,
           lines: [
             draft.paymentMethod === 'bank-transfer'
-              ? text.payment.transferTitle
-              : text.payment.cashTitle,
+              ? names.paymentMethods.transfer
+              : names.paymentMethods.cash,
           ],
         },
       ];
       // Only where there is one: an empty heading is a question the customer
       // answered by leaving it alone.
       if (draft.customerNote) {
-        blocks.push({ heading: review.note, lines: [draft.customerNote] });
+        blocks.push({
+          heading: names.note,
+          lines: [draft.customerNote],
+        });
       }
       // A blank line would be a claim that something was answered with nothing.
       return blocks.map((block) => ({

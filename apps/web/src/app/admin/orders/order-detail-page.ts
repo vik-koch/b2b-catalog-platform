@@ -27,10 +27,12 @@ import { OrderSummary } from '../../cart/order-summary';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { orderBlocks } from '../../orders/order-blocks';
+import { staffBlockLabels } from './staff-block-labels';
 import {
   OrderReadBack,
   ReadBackLine,
@@ -40,7 +42,7 @@ import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
 import { orderDateTimeFormat } from '../../orders/order-view';
 import { Button } from '../../ui/button';
 import { ConfirmCheck } from '../../ui/confirm-dialog';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import { AuthService } from '../../auth/auth.service';
 import {
   DISCLOSURE_FRAME,
@@ -145,9 +147,9 @@ const MARK_PAID = 'markPaid';
             -->
             <section class="mt-4 rounded-lg border border-border p-5 text-sm">
               <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
-                <dt [class]="term">{{ text.customer }}</dt>
+                <dt [class]="term">{{ ordersText.account }}</dt>
                 <dd [class]="value">
-                  {{ order.customerEmail ?? listText.guest }}
+                  {{ order.customerEmail ?? ordersText.guest }}
                   <!-- A guest reads this order through the link they were
                        mailed and through nothing else, so when they ring to
                        say the page shows something different, this is the
@@ -188,10 +190,12 @@ const MARK_PAID = 'markPaid';
                     }
                   </dd>
                 }
-                <dt [class]="term">{{ text.tier }}</dt>
-                <dd [class]="value">{{ order.tierKey ?? text.tierDefault }}</dd>
+                <dt [class]="term">{{ ordersText.tier }}</dt>
+                <dd [class]="value">
+                  {{ order.tierKey ?? ordersText.tierDefault }}
+                </dd>
                 @if (termsLabel(order); as terms) {
-                  <dt [class]="term">{{ text.terms }}</dt>
+                  <dt [class]="term">{{ pageNames.terms }}</dt>
                   <dd [class]="value">{{ terms }}</dd>
                 }
 
@@ -199,7 +203,7 @@ const MARK_PAID = 'markPaid';
                      payment moves nothing along, and the customer sees it the
                      moment it is recorded. Read under the status it used to
                      sit below, it looked like the next step of one thing. -->
-                <dt [class]="term">{{ text.paymentState.heading }}</dt>
+                <dt [class]="term">{{ names.payment }}</dt>
                 <dd [class]="row">
                   <p class="min-w-0">
                     {{ paymentLabel(order) }}
@@ -222,7 +226,7 @@ const MARK_PAID = 'markPaid';
                   }
                 </dd>
 
-                <dt [class]="term">{{ listText.status }}</dt>
+                <dt [class]="term">{{ names.status }}</dt>
                 <dd [class]="row">
                   <div class="min-w-0">
                     <!-- When it last moved reads as part of where it
@@ -241,9 +245,7 @@ const MARK_PAID = 'markPaid';
                          own. -->
                     @if (order.statusReason; as reason) {
                       <p class="mt-1">
-                        <span class="text-subtle"
-                          >{{ text.statusReason }}:</span
-                        >
+                        <span class="text-subtle">{{ names.reason }}:</span>
                         {{ reason }}
                       </p>
                     }
@@ -253,9 +255,7 @@ const MARK_PAID = 'markPaid';
                          current one, where a manager is already looking. -->
                     @if (order.changes.length) {
                       <div class="mt-1 ">
-                        <span class="text-subtle"
-                          >{{ revisionText.note }}:</span
-                        >
+                        <span class="text-subtle">{{ names.changeNote }}:</span>
                         @for (change of order.changes; track $index) {
                           <span class="block">{{ change }}</span>
                         }
@@ -478,7 +478,7 @@ const MARK_PAID = 'markPaid';
                                   @if (entry.note) {
                                     <p class="mt-1">
                                       <span class="text-subtle">
-                                        {{ revisionText.note }}:
+                                        {{ names.changeNote }}:
                                       </span>
                                       {{ entry.note }}
                                     </p>
@@ -542,7 +542,7 @@ const MARK_PAID = 'markPaid';
                  the order first and checks it second. -->
             <app-order-read-back
               class="mt-8 max-w-xl"
-              [itemsHeading]="text.items"
+              [itemsHeading]="ordersText.items"
               [lines]="lines()"
               [blocks]="blocks()"
             />
@@ -570,12 +570,12 @@ const MARK_PAID = 'markPaid';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ text.notFound }}</p>
+      <p class="text-muted">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (order.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-muted" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
@@ -594,8 +594,12 @@ export class AdminOrderDetailPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).orderDetail;
-  protected readonly listText = inject(ADMIN_TEXT).orderList;
+  protected readonly text = inject(ADMIN_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  private readonly changeText = inject(ADMIN_TEXT).orders.changes;
+  protected readonly names = inject(COMMON_TEXT).order;
+  protected readonly pageNames = inject(COMMON_TEXT).nav;
+  private readonly commonText = inject(COMMON_TEXT);
   protected readonly revisionText = this.text.revisions;
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
@@ -688,11 +692,15 @@ export class AdminOrderDetailPage {
   protected readonly blocks = computed<ReviewBlock[]>(() => {
     const order = this.detail();
     if (!order) return [];
-    return orderBlocks(order, this.text, {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      order,
+      staffBlockLabels(this.commonText, this.ordersText, this.text),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   private pieceLine(line: AdminOrderLine): string {
@@ -706,7 +714,7 @@ export class AdminOrderDetailPage {
    * them. */
   protected termsLabel(order: AdminOrderDetail): string | null {
     if (order.termsVersion === null || order.termsDate === null) return null;
-    return fillText(this.text.termsVersion, {
+    return fillText(this.ordersText.termsVersion, {
       version: order.termsVersion,
       date: this.shopDayFormat.format(new Date(order.termsDate)),
     });
@@ -733,7 +741,7 @@ export class AdminOrderDetailPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.listText,
+      this.ordersText.statuses,
     );
   }
 
@@ -742,10 +750,10 @@ export class AdminOrderDetailPage {
   }
 
   protected paymentLabel(order: AdminOrderDetail): string {
-    const payment = this.text.paymentState;
-    if (order.paymentState === 'awaiting') return payment.awaiting;
-    if (order.paymentState !== 'paid') return payment.notDue;
-    return fillText(payment.paid, {
+    const states = this.ordersText.paymentStates;
+    if (order.paymentState === 'awaiting') return states.awaiting;
+    if (order.paymentState !== 'paid') return states.notDue;
+    return fillText(this.text.paymentState.paid, {
       date: order.paidAt
         ? this.dateTimeFormat.format(new Date(order.paidAt))
         : '',
@@ -787,7 +795,7 @@ export class AdminOrderDetailPage {
       status: orderStatusLabel(
         version.status,
         version.fulfilmentMethod,
-        this.listText,
+        this.ordersText.statuses,
       ),
       tone: orderStatusTone(version.status, 'staff', version.fulfilmentMethod),
       customerView: version.customerView,
@@ -854,9 +862,9 @@ export class AdminOrderDetailPage {
     return orderChanges(
       before,
       versions[index],
-      this.revisionText,
-      this.appText,
-      this.text,
+      { ...this.changeText, total: this.names.total },
+      this.commonText,
+      staffBlockLabels(this.commonText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -967,14 +975,12 @@ export class AdminOrderDetailPage {
     const asked =
       kind === 'update'
         ? {
-            heading: tell.updateConfirmHeading,
-            message: tell.updateConfirmMessage,
-            confirmLabel: tell.updateConfirm,
+            ...confirmRequest(tell.updateConfirm),
             checks: [
               {
                 key: NOTIFY,
                 label: tell.updateNotify,
-                hint: tell.updateNotifyHint,
+                hint: this.text.notifyHint,
                 // Ticked: a version they have not been shown is news, and the
                 // manager who did not want to send one can clear it and come
                 // back to the button that stays behind.
@@ -982,16 +988,10 @@ export class AdminOrderDetailPage {
               },
             ],
           }
-        : {
-            heading: tell.emailConfirmHeading,
-            message: tell.emailConfirmMessage,
-            confirmLabel: tell.emailConfirm,
-            checks: [],
-          };
+        : { ...confirmRequest(tell.emailConfirm), checks: [] };
 
     const answer = await this.confirm.askDetailed({
       ...asked,
-      cancelLabel: tell.keep,
       confirmVariant: 'primary',
     });
     if (!answer) return;
@@ -1110,8 +1110,8 @@ export class AdminOrderDetailPage {
         // (FR-ORD-05), and a manager choosing to write should know the
         // customer gets the slip with it.
         hint: this.paymentNote(order, to)
-          ? `${actions.notifyHint} ${this.paymentNote(order, to)}`
-          : actions.notifyHint,
+          ? `${this.text.notifyHint} ${this.paymentNote(order, to)}`
+          : this.text.notifyHint,
         checked: notifyByDefault(order.status, to, order.notifiedStatuses),
         requires: SHOW_CUSTOMER,
       },
@@ -1178,10 +1178,9 @@ export class AdminOrderDetailPage {
     const actions = this.text.actions;
     const label = this.moveLabel(to, order);
     const asked = {
-      heading: fillText(actions.confirmHeading, { action: label }),
-      message: actions.confirmMessage,
-      confirmLabel: label,
-      cancelLabel: actions.keep,
+      ...confirmRequest(actions.confirm),
+      heading: fillText(actions.confirm.heading, { action: label }),
+      confirmLabel: fillText(actions.confirm.confirm, { action: label }),
       checks: this.moveChecks(order, to),
       // Ending an order the shop has been paid for. The move is allowed — the
       // platform records what the shop did — but nothing here sends the money
@@ -1189,7 +1188,7 @@ export class AdminOrderDetailPage {
       // does. The customer's own cancel button carries the same sentence.
       warning:
         order.paymentState === 'paid' && transitionHasReason(to)
-          ? actions.paidWarning
+          ? actions.confirm.warning
           : undefined,
     };
     const answer = await this.confirm.askDetailed(
@@ -1275,11 +1274,9 @@ export class AdminOrderDetailPage {
   protected async removePersonalData(order: AdminOrderDetail): Promise<void> {
     const text = this.text.personalData;
     const confirmed = await this.confirm.ask({
-      heading: text.confirmHeading,
-      message: fillText(text.confirmMessage, { reference: order.reference }),
-      warning: text.confirmWarning,
-      confirmLabel: text.confirm,
-      cancelLabel: this.text.paymentState.keep,
+      ...confirmRequest(text.confirm),
+      message: fillText(text.confirm.message, { reference: order.reference }),
+      warning: text.confirm.warning,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -1296,10 +1293,7 @@ export class AdminOrderDetailPage {
   ): Promise<void> {
     const payment = this.text.paymentState;
     const confirmed = await this.confirm.ask({
-      heading: paid ? payment.confirmHeading : payment.clearConfirmHeading,
-      message: paid ? payment.confirmMessage : payment.clearConfirmMessage,
-      confirmLabel: paid ? payment.confirm : payment.clearConfirm,
-      cancelLabel: payment.keep,
+      ...confirmRequest(paid ? payment.recordConfirm : payment.clearConfirm),
       confirmVariant: 'primary',
     });
     if (!confirmed) return;

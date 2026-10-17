@@ -123,7 +123,7 @@ const EDGE_SLACK = 24;
   `,
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <div class="flex flex-wrap justify-end gap-2">
         <a
           appButton
@@ -331,8 +331,8 @@ const EDGE_SLACK = 24;
                             'edit',
                           ]"
                           [queryParams]="editorFrom()"
-                          [attr.aria-label]="text.edit"
-                          [title]="text.edit"
+                          [attr.aria-label]="common.edit"
+                          [title]="common.edit"
                         >
                           <app-admin-icon name="pencil" />
                         </a>
@@ -340,8 +340,8 @@ const EDGE_SLACK = 24;
                           appIconButton
                           variant="danger"
                           type="button"
-                          [attr.aria-label]="text.delete"
-                          [title]="text.delete"
+                          [attr.aria-label]="common.delete"
+                          [title]="common.delete"
                           (click)="deletingCategory.set(node.category)"
                         >
                           <app-admin-icon name="trash-2" />
@@ -385,12 +385,13 @@ const EDGE_SLACK = 24;
 export class CategoryListPage {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categoryList;
+  protected readonly text = inject(ADMIN_TEXT).categories.list;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
 
   protected productsLabel(count: number): string {
-    return fillText(this.text.products, { count });
+    return fillText(this.productsText.count, { count });
   }
 
   protected directProductsLabel(count: number): string {
@@ -632,6 +633,6 @@ export class CategoryListPage {
   constructor() {
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
   }
 }

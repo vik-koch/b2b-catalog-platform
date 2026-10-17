@@ -134,7 +134,7 @@ interface SortOption {
                 @for (column of filters(); track column.key) {
                   <label class="block">
                     <span class="mb-1 block text-sm text-subtle">{{
-                      column.filter?.ariaLabel
+                      column.filter?.label
                     }}</span>
                     <app-select-field>
                       <select

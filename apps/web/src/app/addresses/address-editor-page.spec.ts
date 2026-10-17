@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
@@ -15,7 +17,8 @@ import { AddressEditorPage } from './address-editor-page';
 import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService } from './addresses.service';
 
-const text = defaultAppText.auth.myAccount.addresses;
+const text = defaultAppText.account.addresses;
+const fieldText = defaultAppText.address;
 
 /** Two shapes, the short one first — the order a picker offers them in. */
 const shortFormat = {
@@ -80,6 +83,7 @@ async function render(options: Options = {}) {
     providers: [
       provideRouter([{ path: 'account', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.twoCompanyIdFormats
@@ -234,7 +238,7 @@ describe('AddressEditorPage', () => {
 
         expect(h.create).not.toHaveBeenCalled();
         expect(el.textContent).toContain(
-          text.postalCodeFormat.replace(
+          fieldText.postalCodeFormat.replace(
             '{example}',
             defaultDeploymentConfig.address?.countries[0].postalCode?.example ??
               '',
@@ -249,7 +253,7 @@ describe('AddressEditorPage', () => {
 
         await submit();
 
-        expect(el.textContent).toContain(text.required);
+        expect(el.textContent).toContain(fieldText.required);
         expect(el.textContent).not.toContain('20457');
       });
     });
@@ -260,7 +264,7 @@ describe('AddressEditorPage', () => {
       await submit();
 
       expect(h.create).not.toHaveBeenCalled();
-      expect(el.textContent).toContain(text.required);
+      expect(el.textContent).toContain(fieldText.required);
     });
 
     it('sends the trimmed address, empty optional fields as null', async () => {

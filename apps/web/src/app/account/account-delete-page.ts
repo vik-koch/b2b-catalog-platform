@@ -10,6 +10,7 @@ import { Button } from '../ui/button';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
 import { AccountService } from './account.service';
+import { COMMON_TEXT } from '../config/common-text';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 
@@ -64,7 +65,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
         >
           <div>
             <label for="password" appFieldLabel>
-              {{ text.password }}
+              {{ password }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
             <input
@@ -95,7 +96,9 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
               type="submit"
               [disabled]="status() === 'submitting'"
             >
-              {{ status() === 'submitting' ? text.submitting : text.submit }}
+              {{
+                status() === 'submitting' ? actionText.deleting : text.submit
+              }}
             </button>
             <a appButton variant="secondary" routerLink="/account">
               {{ text.cancel }}
@@ -115,9 +118,11 @@ export class AccountDeletePage {
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.delete;
+  protected readonly text = inject(APP_TEXT).account.delete;
+  protected readonly password = inject(APP_TEXT).auth.password;
   protected readonly validation = inject(APP_TEXT).auth.validation;
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly status = signal<Status>('idle');
   protected readonly deleted = signal(false);
 

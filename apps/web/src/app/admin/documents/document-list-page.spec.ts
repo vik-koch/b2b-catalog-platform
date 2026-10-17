@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductDocument } from '@b2b-catalog-platform/shared';
@@ -11,7 +13,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { DocumentListPage } from './document-list-page';
 import { DocumentsService } from './documents.service';
 
-const text = defaultAdminText.documentList;
+const text = defaultAdminText.documents.list;
 
 const storedFile = {
   url: '/documents/aaaaaaaaaaaa.pdf',
@@ -55,7 +57,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: DocumentsService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
@@ -256,7 +260,9 @@ describe('DocumentListPage', () => {
   it('deletes a document once it is confirmed', async () => {
     const { el, service, confirm } = await render();
 
-    el.querySelector<HTMLElement>(`[title="${text.delete}"]`)?.click();
+    el.querySelector<HTMLElement>(
+      `[title="${defaultAdminText.common.delete}"]`,
+    )?.click();
     await Promise.resolve();
 
     expect(confirm.ask).toHaveBeenCalled();
@@ -266,7 +272,9 @@ describe('DocumentListPage', () => {
   it('deletes nothing when the confirmation is declined', async () => {
     const { el, service } = await render({ confirmed: false });
 
-    el.querySelector<HTMLElement>(`[title="${text.delete}"]`)?.click();
+    el.querySelector<HTMLElement>(
+      `[title="${defaultAdminText.common.delete}"]`,
+    )?.click();
     await Promise.resolve();
 
     expect(service.remove).not.toHaveBeenCalled();

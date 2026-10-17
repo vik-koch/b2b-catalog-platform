@@ -1,4 +1,5 @@
 import {
+  CommonText,
   MoneyFormat,
   OrderDetail,
   OrderNotice,
@@ -47,12 +48,12 @@ function wordingKey(
  */
 function destination(
   order: OrderDetail,
-  t: MailText['orderStatusChanged'],
+  names: CommonText['order'],
 ): { label: string; value: string }[] {
   if (order.pickup) {
     return [
       {
-        label: t.pickupLabel,
+        label: names.pickupPoint,
         value: `${order.pickup.name} · ${order.pickup.address}`,
       },
     ];
@@ -61,7 +62,7 @@ function destination(
   if (!address) return [];
   return [
     {
-      label: t.deliveryLabel,
+      label: names.deliveryAddress,
       value: [
         address.street,
         address.street2,
@@ -100,6 +101,7 @@ export function orderStatusChangedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
   /** What the shop said about every change made since this customer was last
    * written to, oldest first. Empty where nothing about the order changed. */
   changes: readonly string[] = [],
@@ -109,6 +111,7 @@ export function orderStatusChangedMail(
   attached = false,
 ): MailContent {
   const t = text.orderStatusChanged;
+  const names = common.order;
   const wording = t.statuses[wordingKey(order, status, notice)];
 
   return {
@@ -128,31 +131,31 @@ export function orderStatusChangedMail(
       ...(attached ? [t.attachedNote] : []),
     ],
     rows: [
-      { label: t.referenceLabel, value: order.reference },
+      { label: names.reference, value: order.reference },
       // Only the two refusals carry one, and both quote it: being told no
       // without being told why is the mail nobody can answer.
       ...(order.statusReason
-        ? [{ label: t.reasonLabel, value: order.statusReason }]
+        ? [{ label: names.reason, value: order.statusReason }]
         : []),
       // What the shop says it changed, in their own words. One row per change
       // since the last mail, so nothing said on the phone is dropped and
       // nothing already announced is repeated.
-      ...changes.map((change) => ({ label: t.changedLabel, value: change })),
+      ...changes.map((change) => ({ label: names.changeNote, value: change })),
       // The two `ready` mails send the reader somewhere, so they say where —
       // and so does a message about a change, since where the order goes is
       // one of the things an adjustment can change. Nowhere else: a status
       // mail repeating the address back would answer a question nobody asked.
       ...(status === 'ready' || notice === 'changed'
-        ? destination(order, t)
+        ? destination(order, names)
         : []),
       {
-        label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        label: names.total,
+        value: orderMailTotal(order, currency, common),
       },
     ],
-    itemsHeading: t.itemsHeading,
+    itemsHeading: names.items,
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+      orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),
     action: {
       label: t.action,

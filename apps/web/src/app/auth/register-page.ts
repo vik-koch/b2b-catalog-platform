@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomerType, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { usePageSeo } from '../core/page-seo';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
@@ -92,7 +93,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           <div class="grid gap-6 sm:grid-cols-2">
             <div>
               <label for="firstName" appFieldLabel>
-                {{ text.register.firstName }}
+                {{ fields.firstName.label }}
                 <span class="text-accent" aria-hidden="true">*</span>
               </label>
               <input
@@ -107,14 +108,14 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               />
               @if (isInvalid('firstName')) {
                 <p class="mt-1 text-sm text-red-600">
-                  {{ text.register.validation.firstNameRequired }}
+                  {{ fields.firstName.required }}
                 </p>
               }
             </div>
 
             <div>
               <label for="lastName" appFieldLabel>
-                {{ text.register.lastName }}
+                {{ fields.lastName.label }}
                 <span class="text-accent" aria-hidden="true">*</span>
               </label>
               <input
@@ -129,7 +130,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               />
               @if (isInvalid('lastName')) {
                 <p class="mt-1 text-sm text-red-600">
-                  {{ text.register.validation.lastNameRequired }}
+                  {{ fields.lastName.required }}
                 </p>
               }
             </div>
@@ -149,7 +150,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
           <app-email-field
             [control]="form.controls.email"
-            [label]="text.email"
+            [label]="fields.email.label"
             [text]="emailText"
             [required]="true"
             [invalid]="isInvalid('email')"
@@ -157,7 +158,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
           <app-phone-field
             [control]="form.controls.phone"
-            [label]="text.register.phone"
+            [label]="fields.phone.label"
             [text]="phoneText"
             [required]="true"
             [invalid]="isInvalid('phone')"
@@ -193,7 +194,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           >
             {{
               status() === 'submitting'
-                ? text.register.submitting
+                ? actionText.sending
                 : text.register.submit
             }}
           </button>
@@ -213,11 +214,15 @@ export class RegisterPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(APP_TEXT).auth;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  private readonly companySuggest = inject(APP_TEXT).companySuggest;
+  private readonly partyChoice = inject(APP_TEXT).partyChoice;
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
-    { value: 'person', label: this.text.register.person },
-    { value: 'company', label: this.text.register.company },
+    { value: 'person', label: this.partyChoice.person },
+    { value: 'company', label: this.partyChoice.company },
   ];
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
@@ -225,21 +230,21 @@ export class RegisterPage {
   // built in the template so the object identity is stable across change
   // detection.
   protected readonly emailText = {
-    required: this.text.validation.emailRequired,
-    invalid: this.text.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly phoneText = {
-    required: this.text.register.validation.phoneRequired,
-    incomplete: this.text.register.validation.phoneIncomplete,
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...this.text.register.companySuggest,
-    idLabel: this.text.register.companyId,
-    nameLabel: this.text.register.companyName,
+    ...this.companySuggest,
+    idLabel: this.fields.companyId.label,
+    nameLabel: this.fields.companyName.label,
     hint: this.text.register.companyIdHint,
-    idFormat: this.text.register.validation.companyIdFormat,
-    idRequired: this.text.register.validation.companyIdRequired,
-    nameRequired: this.text.register.validation.companyNameRequired,
+    idFormat: this.fields.companyId.format,
+    idRequired: this.fields.companyId.required,
+    nameRequired: this.fields.companyName.required,
   };
 
   /** The company the registrant picked, if they picked one. */

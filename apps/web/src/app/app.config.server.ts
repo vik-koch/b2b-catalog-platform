@@ -8,6 +8,7 @@ import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { requireEnv } from '../env';
 import { appConfig } from './app.config';
 import { provideServerAppText } from './config/app-text.server';
+import { provideServerCommonText } from './config/common-text.server';
 import { provideServerAdminText } from './config/admin-text.server';
 import { provideServerDeploymentConfig } from './config/deployment-config.server';
 import { provideServerSuggestionsEnabled } from './config/suggestions-enabled.server';
@@ -26,6 +27,7 @@ const serverConfig: ApplicationConfig = {
     // the browser providers, which read the document.
     provideServerDeploymentConfig(),
     provideServerAppText(),
+    provideServerCommonText(),
     provideServerAdminText(),
     provideServerSuggestionsEnabled(),
     // The render asks the API as the visitor, not as a guest. What it gets

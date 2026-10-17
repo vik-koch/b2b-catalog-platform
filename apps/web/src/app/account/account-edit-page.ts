@@ -10,6 +10,7 @@ import {
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
@@ -67,7 +68,7 @@ type Status = 'idle' | 'submitting' | 'error';
         >
           <div>
             <label for="firstName" appFieldLabel>
-              {{ text.firstName }}
+              {{ fields.firstName.label }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
             <input
@@ -82,14 +83,14 @@ type Status = 'idle' | 'submitting' | 'error';
             />
             @if (isInvalid('firstName')) {
               <p class="mt-1 text-sm text-red-600">
-                {{ validation.firstNameRequired }}
+                {{ fields.firstName.required }}
               </p>
             }
           </div>
 
           <div>
             <label for="lastName" appFieldLabel>
-              {{ text.lastName }}
+              {{ fields.lastName.label }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
             <input
@@ -104,7 +105,7 @@ type Status = 'idle' | 'submitting' | 'error';
             />
             @if (isInvalid('lastName')) {
               <p class="mt-1 text-sm text-red-600">
-                {{ validation.lastNameRequired }}
+                {{ fields.lastName.required }}
               </p>
             }
           </div>
@@ -115,14 +116,14 @@ type Status = 'idle' | 'submitting' | 'error';
                signs in, so staff change it (FR-AUTH-12): shown, not offered. -->
           @if (locked()) {
             <div>
-              <p appFieldLabel>{{ accountText.phone }}</p>
+              <p appFieldLabel>{{ fields.phone.label }}</p>
               <p>{{ lockedPhone() }}</p>
               <p class="mt-1 text-sm text-muted">{{ text.phoneLocked }}</p>
             </div>
           } @else {
             <app-phone-field
               [control]="form.controls.phone"
-              [label]="accountText.phone"
+              [label]="fields.phone.label"
               [text]="phoneText"
               [invalid]="isInvalid('phone')"
             />
@@ -130,12 +131,12 @@ type Status = 'idle' | 'submitting' | 'error';
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
-              {{ submitting() ? text.submitting : text.submit }}
+              {{ submitting() ? actionText.saving : text.submit }}
             </button>
             <!-- A link, because it goes somewhere — styled as a button so it
                  reads as the other half of the pair rather than as prose. -->
             <a appButton variant="secondary" routerLink="/account">
-              {{ text.cancel }}
+              {{ actionText.cancel }}
             </a>
           </div>
 
@@ -159,13 +160,14 @@ export class AccountEditPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.edit;
-  protected readonly accountText = inject(APP_TEXT).auth.myAccount;
-  protected readonly validation = inject(APP_TEXT).auth.register.validation;
+  protected readonly text = inject(APP_TEXT).account.edit;
+  protected readonly accountText = inject(APP_TEXT).account;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly phoneText = {
-    required: this.validation.phoneRequired,
-    incomplete: this.validation.phoneIncomplete,
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
   };
   protected readonly status = signal<Status>('idle');
 

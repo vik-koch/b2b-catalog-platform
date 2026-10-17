@@ -26,6 +26,7 @@ import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -66,7 +67,7 @@ type EditTarget = { id: string } | { id: null } | null;
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -79,7 +80,9 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -215,7 +218,7 @@ type EditTarget = { id: string } | { id: null } | null;
                       <button
                         appIconButton
                         type="button"
-                        [attr.aria-label]="text.edit"
+                        [attr.aria-label]="common.edit"
                         [disabled]="editing() !== null"
                         (click)="startEdit(tier)"
                       >
@@ -229,7 +232,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         appIconButton
                         variant="danger"
                         type="button"
-                        [attr.aria-label]="text.delete"
+                        [attr.aria-label]="common.delete"
                         [disabled]="busy()"
                         (click)="remove(tier)"
                       >
@@ -338,7 +341,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
             >
               <app-admin-icon name="save" class="size-4" />
-              {{ busy() ? common.saving : common.save }}
+              {{ busy() ? actionText.saving : common.save }}
             </button>
             <button
               appButton
@@ -350,7 +353,7 @@ type EditTarget = { id: string } | { id: null } | null;
               (click)="cancel()"
             >
               <app-admin-icon name="x" class="size-4" />
-              {{ common.cancel }}
+              {{ actionText.cancel }}
             </button>
           </div>
           @if (formError()) {
@@ -367,10 +370,12 @@ export class TierListPage {
   private readonly service = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
   private readonly settings = inject(SettingsService);
-  protected readonly text = inject(ADMIN_TEXT).tierList;
+  protected readonly text = inject(ADMIN_TEXT).tiers;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   protected readonly tiers = resource({ loader: () => this.service.list() });
   protected readonly showSkeleton = delayedLoading(this.tiers.isLoading);
@@ -446,9 +451,9 @@ export class TierListPage {
   protected async makeDefault(tier: CustomerTier): Promise<void> {
     this.rowError.set(null);
     const confirmed = await this.confirm.ask({
-      heading: this.text.setDefaultTitle,
+      heading: this.text.setDefaultConfirm.heading,
       message: [
-        this.text.setDefaultConfirm.replace('{name}', tier.label),
+        this.text.setDefaultConfirm.message.replace('{name}', tier.label),
         tier.wouldUnpublish > 0
           ? this.text.setDefaultWarning.replace(
               '{count}',
@@ -456,8 +461,8 @@ export class TierListPage {
             )
           : this.text.setDefaultNone,
       ].join(' '),
-      confirmLabel: this.text.setDefault,
-      cancelLabel: this.common.cancel,
+      confirmLabel: this.text.setDefaultConfirm.confirm,
+      cancelLabel: this.text.setDefaultConfirm.cancel ?? this.actionText.cancel,
     });
     if (!confirmed) return;
 
@@ -496,7 +501,7 @@ export class TierListPage {
   }
 
   protected pricesLabel(count: number): string {
-    return this.text.prices.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 
   protected unpricedLabel(count: number): string {
@@ -606,12 +611,12 @@ export class TierListPage {
     }
 
     const confirmed = await this.confirm.ask({
-      heading: this.text.deleteTitle,
-      message: this.text.deleteConfirm
+      heading: this.text.deleteConfirm.heading,
+      message: this.text.deleteConfirm.message
         .replace('{name}', tier.label)
         .replace('{key}', tier.key),
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
     });
     if (!confirmed) return;
 
@@ -634,7 +639,7 @@ export class TierListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     void this.settings.load();
   }
 }

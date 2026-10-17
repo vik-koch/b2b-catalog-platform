@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -24,7 +26,7 @@ import { AttributesService } from '../attributes/attributes.service';
 import { ConfirmService } from '../../ui/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 
-const text = defaultAdminText.productEditor;
+const text = defaultAdminText.products.editor;
 
 const category: AdminCategory = {
   id: 'cat-1',
@@ -164,7 +166,9 @@ async function render(
     imports: [ProductEditorPage],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       options.catalogOwned ? provideOwnership('catalog') : provideOwnership(),
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: Router, useValue: { navigate: h.navigate } },
@@ -219,7 +223,6 @@ async function render(
 /** The price field's caption, which names the list it writes. */
 const priceLabel = fillText(text.priceWithList, { list: baseList.label });
 /** The badge wording, shared with the storefront's hidden-products overlay. */
-const editText = defaultAdminText.editMode;
 
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
   // A mandatory field's caption carries a trailing asterisk; the caption is
@@ -744,7 +747,7 @@ describe('ProductEditorPage', () => {
 
       (
         box(el).querySelector(
-          `[aria-label="${fillText(variantsText.remove, { name: 'Slate' })}"]`,
+          `[aria-label="${fillText(variantsText.removeAria, { name: 'Slate' })}"]`,
         ) as HTMLButtonElement
       ).click();
       fixture.detectChanges();
@@ -811,7 +814,7 @@ describe('ProductEditorPage', () => {
 
       // The note's box beside it, opened while the note is still off.
       buttonByText(el, text.lineNote.heading).click();
-      buttonByText(el, variantsText.heading).click();
+      buttonByText(el, defaultCommonText.product.variants).click();
       fixture.detectChanges();
       setInput(
         box(el).querySelector(
@@ -855,7 +858,9 @@ describe('ProductEditorPage', () => {
       expect(field.getAttribute('aria-invalid')).toBe('true');
       expect(field.value).toBe('slate');
       expect(
-        box(el).querySelectorAll(`input[aria-label="${variantsText.name}"]`),
+        box(el).querySelectorAll(
+          `input[aria-label="${variantsText.nameAria}"]`,
+        ),
       ).toHaveLength(2);
     });
 
@@ -867,7 +872,7 @@ describe('ProductEditorPage', () => {
       );
 
       const name = box(el).querySelectorAll<HTMLInputElement>(
-        `input[aria-label="${variantsText.name}"]`,
+        `input[aria-label="${variantsText.nameAria}"]`,
       )[1];
       setInput(name, ' sand ');
       fixture.detectChanges();
@@ -1001,9 +1006,11 @@ describe('ProductEditorPage', () => {
         { product: publishedProduct },
       );
 
-      expect(el.textContent).not.toContain(editText.unpublishedBadge);
-      expect(el.textContent).not.toContain(editText.unpricedBadge);
-      expect(el.textContent).not.toContain(editText.deletedBadge);
+      expect(el.textContent).not.toContain(
+        defaultAdminText.products.unpublished,
+      );
+      expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
+      expect(el.textContent).not.toContain(defaultAdminText.products.deleted);
     });
 
     it('badges a deleted product as deleted only, and offers no publish', async () => {
@@ -1020,8 +1027,10 @@ describe('ProductEditorPage', () => {
 
       // Restoring is the one step back from deleted (FR-ADM-01), so the
       // unpublished badge and the publish button would only point past it.
-      expect(el.textContent).toContain(editText.deletedBadge);
-      expect(el.textContent).not.toContain(editText.unpublishedBadge);
+      expect(el.textContent).toContain(defaultAdminText.products.deleted);
+      expect(el.textContent).not.toContain(
+        defaultAdminText.products.unpublished,
+      );
       expect(el.textContent).not.toContain(text.saveAndPublish);
     });
 
@@ -1032,14 +1041,14 @@ describe('ProductEditorPage', () => {
         { product: publishedProduct },
       );
 
-      expect(el.textContent).not.toContain(editText.unpricedBadge);
+      expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
 
       setInput(inputByLabel(el, priceLabel), '');
       fixture.detectChanges();
 
       // What the product will be after the save, which is the question
       // somebody editing it is asking.
-      expect(el.textContent).toContain(editText.unpricedBadge);
+      expect(el.textContent).toContain(defaultAdminText.products.unpriced);
     });
   });
 
@@ -1297,7 +1306,7 @@ describe('ProductEditorPage', () => {
         b.textContent?.trim(),
       );
       expect(labels).not.toContain(defaultAdminText.common.save);
-      expect(labels).toContain(defaultAdminText.common.cancel);
+      expect(labels).toContain(defaultCommonText.actions.cancel);
     });
 
     it('still offers the form when nothing is owned', async () => {

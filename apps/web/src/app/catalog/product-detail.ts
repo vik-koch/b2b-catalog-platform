@@ -27,13 +27,14 @@ import { APP_TEXT } from '../config/app-text';
 import { usePageSeo } from '../core/page-seo';
 import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { CatalogService } from './catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
 } from './product-detail-view';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * The product page route (FR-CAT-05): loads a product by slug and renders it
@@ -107,15 +108,15 @@ import {
                 @if (statusText(); as status) {
                   @if (hidden.deleted) {
                     <span appStatusBadge tone="danger">{{
-                      status.deletedBadge
+                      status.deleted
                     }}</span>
                   } @else {
                     <span appStatusBadge tone="waiting">{{
-                      status.unpublishedBadge
+                      status.unpublished
                     }}</span>
                     @if (hidden.unpriced) {
                       <span appStatusBadge tone="danger">{{
-                        status.unpricedBadge
+                        status.unpriced
                       }}</span>
                     }
                   }
@@ -166,6 +167,7 @@ export class ProductDetail {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly columns = PRODUCT_PAGE_COLUMNS;
   protected readonly sectionCell = PRODUCT_PAGE_SECTION_CELL;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -192,7 +194,7 @@ export class ProductDetail {
 
   /** The badge wording, fetched like every admin word: null until it has
    * arrived, or for good where fetching it failed. */
-  protected readonly statusText = computed(() => adminText()?.editMode ?? null);
+  protected readonly statusText = computed(() => adminText()?.products ?? null);
   private readonly textFailed = signal(false);
   private readonly statusSettled = computed(
     () => this.statusText() !== null || this.textFailed(),
@@ -250,7 +252,7 @@ export class ProductDetail {
       await this.confirm.tell({
         heading: text.unpricedTitle,
         message: all.common.catalogErrors['product-has-no-price'],
-        closeLabel: all.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }
@@ -262,10 +264,8 @@ export class ProductDetail {
     const admin = this.injector.get(AdminCatalogService);
     if (!hidden) {
       const confirmed = await this.confirm.ask({
-        heading: text.unpublishProduct,
+        ...confirmRequest(text.unpublishConfirm, this.actionText.cancel),
         message: await admin.unpublishMessage(item, text),
-        confirmLabel: text.unpublishProduct,
-        cancelLabel: text.cancel,
         confirmVariant: 'danger',
       });
       if (!confirmed) return;

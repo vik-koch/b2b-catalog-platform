@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
@@ -20,7 +22,10 @@ async function render(
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [ProductPairings],
-    providers: [{ provide: APP_TEXT, useValue: defaultAppText }],
+    providers: [
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+    ],
   });
 
   const fixture = TestBed.createComponent(ProductPairings);
@@ -53,7 +58,9 @@ describe('the sold-together marker (FR-SET-05)', () => {
   it('names the thing where there is a line to spare', async () => {
     const { el } = await render('link');
 
-    expect(el.querySelector('button')?.textContent).toContain(text.label);
+    expect(el.querySelector('button')?.textContent).toContain(
+      defaultCommonText.product.pairings,
+    );
   });
 
   // FR-SET-03: on a cart line the same control says what the line is short of
@@ -66,7 +73,7 @@ describe('the sold-together marker (FR-SET-05)', () => {
 
     expect(el.querySelector('button')?.textContent?.trim()).toBe('Add 20 pc');
     expect(el.textContent).toContain('of what this is sold with.');
-    expect(el.textContent).not.toContain(text.label);
+    expect(el.textContent).not.toContain(defaultCommonText.product.pairings);
   });
 
   it('opens the one panel, naming the product it was pressed on', async () => {
@@ -95,6 +102,7 @@ async function renderControls(pairedCount: number, offerPairings = true) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });

@@ -24,6 +24,7 @@ import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -117,7 +118,7 @@ const SCOPE_ROWS: readonly {
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -130,7 +131,9 @@ const SCOPE_ROWS: readonly {
       </button>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <div class="max-w-3xl">
       <!-- The value, once. Amber rather than a plain card: this is the only
@@ -174,7 +177,7 @@ const SCOPE_ROWS: readonly {
             class="mt-3"
             (click)="dismiss()"
           >
-            {{ text.createdDone }}
+            {{ actionText.done }}
           </button>
         </div>
       }
@@ -215,7 +218,7 @@ const SCOPE_ROWS: readonly {
                       appIconButton
                       variant="danger"
                       type="button"
-                      [attr.aria-label]="text.revoke"
+                      [attr.aria-label]="text.revokeAria"
                       [disabled]="busy()"
                       (click)="revoke(token)"
                     >
@@ -332,7 +335,7 @@ const SCOPE_ROWS: readonly {
                     [disabled]="busy()"
                   >
                     <app-admin-icon name="save" class="size-4" />
-                    {{ busy() ? common.saving : text.create }}
+                    {{ busy() ? actionText.saving : text.create }}
                   </button>
                   <button
                     appButton
@@ -344,7 +347,7 @@ const SCOPE_ROWS: readonly {
                     (click)="cancel()"
                   >
                     <app-admin-icon name="x" class="size-4" />
-                    {{ common.cancel }}
+                    {{ actionText.cancel }}
                   </button>
                 </div>
                 @if (formError()) {
@@ -367,9 +370,10 @@ const SCOPE_ROWS: readonly {
 export class ApiTokenListPage {
   private readonly service = inject(ApiTokensService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).apiTokenList;
+  protected readonly text = inject(ADMIN_TEXT).apiTokens;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
 
   /** Widened for the same reason `defaultScopes` widens: the template asks
@@ -394,7 +398,7 @@ export class ApiTokenListPage {
   private readonly moment = computed(() => adminMomentFormat(this.locale));
 
   constructor() {
-    usePageSeo({ name: () => this.text.title, noindex: true });
+    usePageSeo({ name: () => this.text.page.title, noindex: true });
   }
 
   protected fill(template: string, value: string): string {
@@ -425,7 +429,7 @@ export class ApiTokenListPage {
   protected createdLine(token: ApiToken): string {
     return this.text.created
       .replace('{date}', this.moment().format(new Date(token.createdAt)))
-      .replace('{actor}', token.createdBy ?? this.text.actorGone);
+      .replace('{actor}', token.createdBy ?? this.common.actorGone);
   }
 
   /**
@@ -500,11 +504,11 @@ export class ApiTokenListPage {
 
   protected async revoke(token: ApiToken): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.text.revokeTitle,
-      message: this.fill(this.text.revokeConfirm, token.name),
-      warning: this.text.revokeWarning,
-      confirmLabel: this.text.revoke,
-      cancelLabel: this.common.cancel,
+      heading: this.text.revokeConfirm.heading,
+      message: this.fill(this.text.revokeConfirm.message, token.name),
+      warning: this.text.revokeConfirm.warning,
+      confirmLabel: this.text.revokeConfirm.confirm,
+      cancelLabel: this.text.revokeConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;

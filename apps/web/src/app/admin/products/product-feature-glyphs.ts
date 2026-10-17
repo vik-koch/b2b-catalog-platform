@@ -39,7 +39,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
   `,
 })
 export class ProductFeatureGlyphs {
-  protected readonly text = inject(ADMIN_TEXT).productList.has;
+  protected readonly text = inject(ADMIN_TEXT).products.list.has;
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
 
   readonly features = input.required<readonly ProductFeature[]>();

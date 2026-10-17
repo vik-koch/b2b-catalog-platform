@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
+import { COMMON_TEXT, loadCommonText } from '../config/common-text';
+import { PDF_TEXT, pdfTextSchema } from '../pdf/pdf-text';
 import { loadMailBranding, MAIL_BRANDING } from './mail-branding';
 import { MAIL_TEXT, mailTextSchema } from './mail-text';
 import { MailDispatcher } from './mail-dispatcher';
@@ -29,6 +31,11 @@ import { SmtpMailer } from './smtp-mailer';
       provide: MAIL_TEXT,
       useFactory: () => loadConfig(mailTextSchema, 'MAIL_TEXT_FILE'),
     },
+    { provide: COMMON_TEXT, useFactory: loadCommonText },
+    {
+      provide: PDF_TEXT,
+      useFactory: () => loadConfig(pdfTextSchema, 'PDF_TEXT_FILE'),
+    },
     { provide: MAIL_BRANDING, useFactory: loadMailBranding },
     MailService,
     MailDispatcher,
@@ -38,12 +45,14 @@ import { SmtpMailer } from './smtp-mailer';
     },
     NotificationAudiences,
   ],
-  // MAIL_BRANDING travels with the wording: the order summary the API draws is
-  // rendered here as well, and it carries the shop's name for the same reason
-  // a message does.
+  // The order summary's wording and branding travel with the mail's: it is
+  // rendered from the same order, and carries the shop's name for the same
+  // reason a message does.
   exports: [
     MAILER,
     MAIL_TEXT,
+    COMMON_TEXT,
+    PDF_TEXT,
     MAIL_BRANDING,
     MailService,
     MailDispatcher,

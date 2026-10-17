@@ -28,6 +28,7 @@ import {
   ZOOM_MAX,
   ZOOM_MIN,
 } from './image-frame';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** Arrow keys move by this share of the square, Shift by five times it. */
 const KEY_STEP = 0.01;
@@ -63,7 +64,7 @@ const ZOOM_KEY_FACTOR = 1.1;
         #stage
         tabindex="0"
         class="relative mx-auto mt-4 aspect-square w-full max-w-[55vh] cursor-grab touch-none overflow-hidden rounded-md border border-border-strong bg-white select-none active:cursor-grabbing"
-        [attr.aria-label]="text.stage"
+        [attr.aria-label]="text.stageAria"
         (pointerdown)="onPointerDown($event)"
         (pointermove)="onPointerMove($event)"
         (pointerup)="dragFrom = null"
@@ -114,7 +115,7 @@ const ZOOM_KEY_FACTOR = 1.1;
           type="button"
           (click)="cancelled.emit()"
         >
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
         @if (offerOriginal()) {
           <button
@@ -136,6 +137,7 @@ const ZOOM_KEY_FACTOR = 1.1;
 export class ImageFramerDialog {
   protected readonly text = inject(ADMIN_TEXT).imageFramer;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly zoomMin = ZOOM_MIN * 100;
   protected readonly zoomMax = ZOOM_MAX * 100;
   protected readonly fitted = FITTED;

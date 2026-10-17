@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -72,6 +74,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: ConfirmService, useValue: { ask: h.confirm } },
       {
@@ -275,7 +278,7 @@ describe('OperationsPage', () => {
       const { el } = await render({ owned: true });
 
       expect(masterSwitch(el).getAttribute('aria-checked')).toBe('true');
-      expect(el.textContent).toContain(ownershipText.all.statusOwned);
+      expect(el.textContent).toContain(ownershipText.statusOwned);
     });
 
     it('says "partly" when the areas disagree, and opens the rows', async () => {
@@ -368,7 +371,7 @@ describe('OperationsPage', () => {
       });
       await openHistory(fixture, el);
 
-      expect(el.textContent).toContain(text.historyActorGone);
+      expect(el.textContent).toContain(defaultAdminText.common.actorGone);
     });
 
     it('says so when nothing has been changed yet', async () => {

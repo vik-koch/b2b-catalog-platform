@@ -6,6 +6,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { IconButton } from '../../ui/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -132,6 +133,7 @@ export class ProductRowActions {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   readonly product = input.required<ProductRowState>();
   /** So an editor opened from a row returns to this list, filters and all. */
@@ -171,7 +173,7 @@ export class ProductRowActions {
       await this.confirm.tell({
         heading: this.editText.purgeProduct,
         message: refusal,
-        closeLabel: this.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }
@@ -190,7 +192,7 @@ export class ProductRowActions {
       void this.confirm.tell({
         heading: this.editText.unpricedTitle,
         message: this.common.catalogErrors['product-has-no-price'],
-        closeLabel: this.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }
@@ -201,7 +203,7 @@ export class ProductRowActions {
     const allowed = await mayRestore(
       this.confirm,
       this.ownershipText,
-      this.common.close,
+      this.actionText.close,
       this.product(),
       async () => (await this.settings.load()).includes('catalog'),
     );

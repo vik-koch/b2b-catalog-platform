@@ -1,6 +1,12 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { refuseCountForms } from '@b2b-catalog-platform/shared';
+import {
+  orderStatusLabels,
+  paymentMethodLabels,
+  paymentStateLabels,
+  refuseCountForms,
+} from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
+import { confirmText } from './text-shapes';
 
 /**
  * UI text for the admin surfaces only — the editors, the management screens and
@@ -15,6 +21,12 @@ import * as z from 'zod';
 /** The heading and standfirst of one area's sync log. */
 const syncAreaTextSchema = z
   .object({ title: z.string(), runsDescription: z.string() })
+  .strict();
+
+/** A page's heading, and the paragraph under it where a deployment writes
+ * one — absent, nothing is drawn there. */
+const pageText = z
+  .object({ title: z.string(), intro: z.string().optional() })
   .strict();
 
 /**
@@ -49,10 +61,6 @@ export const adminTextSchema = z
     common: z
       .object({
         save: z.string(),
-        saving: z.string(),
-        cancel: z.string(),
-        /** A dialog that only explains has nothing to cancel. */
-        close: z.string(),
         preview: z.string(),
         resumeEditing: z.string(),
         /** Heading and confirm label of the discard-changes modal. */
@@ -61,8 +69,9 @@ export const adminTextSchema = z
         keepEditing: z.string(),
         /** Open a record for editing; finish editing it. */
         edit: z.string(),
-        done: z.string(),
-        remove: z.string(),
+        delete: z.string(),
+        /** Who did something, once their account has been deleted. */
+        actorGone: z.string(),
         /** Beside a product count, how many of those are not on the
          * storefront: "{count} unpublished". Shown only above zero. */
         unpublishedProducts: z.string(),
@@ -87,7 +96,7 @@ export const adminTextSchema = z
          */
         resizeColumn: z.string(),
         /** Names the boundary being dragged: `{column}`. */
-        resizeColumnOf: z.string(),
+        resizeColumnOfAria: z.string(),
         resetWidths: z.string(),
         filters: z.string(),
         /** How many of something are in effect, beside the word that names
@@ -138,12 +147,30 @@ export const adminTextSchema = z
       .strict(),
     /** The dialog that places a catalog picture in a white square before it
      * is stored. */
+    /** The checks on a person's or company's details as staff are told
+     * about somebody else's; the labels are shared names. */
+    fields: z
+      .object({
+        name: z.object({ required: z.string() }).strict(),
+        firstName: z.object({ required: z.string() }).strict(),
+        lastName: z.object({ required: z.string() }).strict(),
+        email: z.object({ required: z.string(), invalid: z.string() }).strict(),
+        phone: z
+          .object({ required: z.string(), incomplete: z.string() })
+          .strict(),
+        companyName: z.object({ required: z.string() }).strict(),
+        /** `format` carries `{examples}`. */
+        companyId: z
+          .object({ required: z.string(), format: z.string() })
+          .strict(),
+      })
+      .strict(),
     imageFramer: z
       .object({
         heading: z.string(),
         hint: z.string(),
         /** The square's accessible name: it is moved with the arrow keys. */
-        stage: z.string(),
+        stageAria: z.string(),
         zoom: z.string(),
         centre: z.string(),
         fill: z.string(),
@@ -212,6 +239,8 @@ export const adminTextSchema = z
     /** The storefront edit-mode toggle and its inline controls (FR-ADM-01). */
     editMode: z
       .object({
+        purgeConfirm: confirmText,
+        unpublishConfirm: confirmText,
         enable: z.string(),
         disable: z.string(),
         editProduct: z.string(),
@@ -223,7 +252,6 @@ export const adminTextSchema = z
         /** The last removal step (FR-ADM-21), confirmed because it is the one
          * that cannot be undone. `{name}`. */
         purgeProduct: z.string(),
-        purgeConfirm: z.string(),
         editCategory: z.string(),
         editCategories: z.string(),
         /** The way into this category's filter panel (FR-ATTR-11) — or, on
@@ -232,29 +260,19 @@ export const adminTextSchema = z
         /** The overlay under a category grid: everything the storefront hides. */
         hiddenHeading: z.string(),
         hiddenHint: z.string(),
-        deletedBadge: z.string(),
-        unpublishedBadge: z.string(),
-        /** A product no price list prices, and why the publish button will
-         * not take it back onto the storefront. */
-        unpricedBadge: z.string(),
         unpricedHint: z.string(),
         /** The heading over that explanation, where a click asks for it. */
         unpricedTitle: z.string(),
         publishProduct: z.string(),
         unpublishProduct: z.string(),
-        unpublishConfirm: z.string(),
         /** Added to that confirmation when this product is the last one on
          * sale that some live product is paired with; `{names}` lists them. */
         unpublishStranded: z.string(),
-        /** The confirm dialog's cancel, so a storefront component never has to
-         * reach into `common` — admin text is fetched, and only edit-mode
-         * wording is gated on it having loaded. */
-        cancel: z.string(),
         revealError: z.string(),
       })
       .strict(),
     /** Inline static-page editing (FR-ADM-03). */
-    pageEditor: z
+    pages: z
       .object({
         /** The storefront pencil's label. */
         edit: z.string(),
@@ -288,7 +306,7 @@ export const adminTextSchema = z
           .strict(),
         toolbar: z
           .object({
-            label: z.string(),
+            labelAria: z.string(),
             bold: z.string(),
             italic: z.string(),
             underline: z.string(),
@@ -307,7 +325,7 @@ export const adminTextSchema = z
           .strict(),
         linkPanel: z
           .object({
-            heading: z.string(),
+            headingAria: z.string(),
             urlLabel: z.string(),
             placeholder: z.string(),
             /** Names the four forms an address may take. */
@@ -317,7 +335,7 @@ export const adminTextSchema = z
           .strict(),
         imagePanel: z
           .object({
-            heading: z.string(),
+            headingAria: z.string(),
             altLabel: z.string(),
             altPlaceholder: z.string(),
             altHint: z.string(),
@@ -330,447 +348,495 @@ export const adminTextSchema = z
             alignRight: z.string(),
             widthLabel: z.string(),
             remove: z.string(),
-            done: z.string(),
           })
           .strict(),
       })
       .strict(),
-    /** The product Add/Edit screen (FR-ADM-01). */
-    productEditor: z
+    /** The product screens, and what every catalog screen calls a product's
+     * state and how it counts them. */
+    products: z
       .object({
-        newTitle: z.string(),
-        editTitle: z.string(),
-        name: z.string(),
-        price: z.string(),
-        category: z.string(),
-        categoryPlaceholder: z.string(),
-        slug: z.string(),
-        slugHint: z.string(),
-        sourceId: z.string(),
-        sourceIdHint: z.string(),
-        description: z.string(),
-        previewNotice: z.string(),
-        discardConfirm: z.string(),
-        nameRequired: z.string(),
-        categoryRequired: z.string(),
-        priceInvalid: z.string(),
-        /** The price field's label, naming the list it writes: `{list}`. */
-        priceWithList: z.string(),
-        /** What clearing it costs, and the button that says so. */
-        priceCleared: z.string(),
-        saveAndUnpublish: z.string(),
-        /** Stands in for a per-pack or per-box figure with no price behind it. */
-        packagingUnavailable: z.string(),
-        saveError: z.string(),
-        /** Commits the edits and puts the product on the storefront at once
-         * (FR-ADM-06); shown only while it is not published. */
-        saveAndPublish: z.string(),
-        /** Discards, and lands on the storefront page rather than back where
-         * the editor was opened from. */
-        cancelToPage: z.string(),
-        publishError: z.string(),
-        attributes: z
-          .object({
-            heading: z.string(),
-            key: z.string(),
-            value: z.string(),
-            add: z.string(),
-            /** The picker of names the catalog already uses (FR-ATTR-09). */
-            addKeys: z.string(),
-            addKeysHint: z.string(),
-            addKeysEmpty: z.string(),
-            /** `{count}` is the number of names checked. */
-            addKeysApply: z.string(),
-            inTable: z.string(),
-            /** `{count}` products carry the name. */
-            products: z.string(),
-            /** The row badges: what the shop does with this attribute. */
-            filterable: z.string(),
-            notNumeric: z.string(),
-            /** A set's row naming a part it does not have (FR-CAT-10);
-             * `{part}` and `{key}`, the filter it misses. */
-            strayPart: z.string(),
-          })
-          .strict(),
-        /**
-         * Per-tier prices (FR-AUTH-05). The section is only rendered when the
-         * deployment has tiers, but the wording is required all the same —
-         * config is complete-or-die, not conditionally complete.
-         */
-        tierPrices: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            /** Placeholder on an empty tier field: it charges the base price. */
-            usesBase: z.string(),
-            /** `{tier}` is substituted with the tier's name. */
-            invalid: z.string(),
-          })
-          .strict(),
-        images: z
-          .object({
-            heading: z.string(),
-            add: z.string(),
-            /** The picker under a picture: its accessible name, and the
-             * choice for a picture of the whole range (FR-CAT-11). */
-            variant: z.string(),
-            noVariant: z.string(),
-            /** Opens a stored picture in the framer again. */
-            reframe: z.string(),
-          })
-          .strict(),
-        /** The variants an assorted product's pictures show (FR-CAT-11/12). */
-        variants: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            /** A variant's name field, for a screen reader. */
-            name: z.string(),
-            add: z.string(),
-            addPlaceholder: z.string(),
-            addButton: z.string(),
-            /** A variant's remove button; `{name}` is the variant. */
-            remove: z.string(),
-            unavailable: z.string(),
-            /** The pictures column's heading, where the row has columns. */
-            picturesHeading: z.string(),
-            /** How many pictures show a variant; `{count}`. */
-            pictures: z.string(),
-            /** Shown in place of the field once the list is full; `{count}`. */
-            limit: z.string(),
-            /** Under a list with a blank or repeated name, and the save's
-             * refusal of it. */
-            duplicate: z.string(),
-            /** Under the add field, refusing a name the list already has. */
-            exists: z.string(),
-            /** Where every picture shows an unavailable variant. */
-            allWithheld: z.string(),
-          })
-          .strict(),
-        /**
-         * The per-line note a collective item may ask for (FR-CART-08) — the
-         * policy, not the customer's text.
-         */
-        /** The parts a product sold as a set is made of (FR-CAT-10). */
-        parts: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            /** The add field's label, and its placeholder. */
-            add: z.string(),
-            addPlaceholder: z.string(),
-            addButton: z.string(),
-            /** A part's remove button; `{name}` is the part. */
-            remove: z.string(),
-            /** Shown in place of the field once the list is full; `{count}`. */
-            limit: z.string(),
-            /** Under a list of one, and the save's refusal of it. */
-            tooFew: z.string(),
-            /** A refused add; `{max}` is the longest part allowed. */
-            rejected: z.string(),
-          })
-          .strict(),
-        /** The main page's row (FR-CAT-09). */
-        /** What a shut feature box says where the feature is on, as the
-         * list-shaped ones say how many. */
-        switchedOn: z.string(),
-        featured: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            enable: z.string(),
-          })
-          .strict(),
-        lineNote: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            /** The on/off control's own label. */
-            enable: z.string(),
-            prompt: z.string(),
-            /** Shown under the prompt field: blank uses the shop-wide wording. */
-            promptHint: z.string(),
-            promptPlaceholder: z.string(),
-          })
-          .strict(),
-        /**
-         * The documents shown on this product (FR-DOC-02) — the pairings
-         * editor's wording, because it is the same control: a short list
-         * attached to this record, added one at a time and taken off here.
-         */
-        documents: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            add: z.string(),
-            addPlaceholder: z.string(),
-            /** `{name}` substituted — the document being taken off. */
-            remove: z.string(),
-            /** Per row. `{date}` substituted; `noExpiry` where there is none. */
-            expires: z.string(),
-            noExpiry: z.string(),
-            suggestionsLabel: z.string(),
-            noSuggestions: z.string(),
-            /** Announced to a screen reader. `{count}` substituted. */
-            suggestionCount: z.string(),
-          })
-          .strict(),
-        /** The products this one is sold together with (FR-SET-01). */
-        pairings: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            /** The search field's label. */
-            add: z.string(),
-            addPlaceholder: z.string(),
-            /** `{name}` — the remove button's accessible name. */
-            remove: z.string(),
-            /** `{count}` — shown once no more can be added. */
-            limit: z.string(),
-            /** The two states a counterpart can be in and still be listed. */
-            deleted: z.string(),
-            unpublished: z.string(),
-            suggestionsLabel: z.string(),
-            noSuggestions: z.string(),
-            /** `{count}`, for the live region. */
-            suggestionCount: z.string(),
-          })
-          .strict(),
-        /** Pieces on hand, and what a customer is told about them
-         * (FR-STOCK-01/02). */
-        stock: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            pieces: z.string(),
-            threshold: z.string(),
-            /** Introduces the badge a customer would see right now. */
-            preview: z.string(),
-            /** Shown in place of the badge while nothing is tracked. */
-            untracked: z.string(),
-          })
-          .strict(),
-        /**
-         * The product's own tax rate (NFR-LEGAL-11). The empty field shows the
-         * default as its placeholder; `notInEffect` is said where the
-         * deployment charges no tax, since a rate kept then applies to nothing
-         * yet.
-         */
-        taxRate: z
-          .object({
-            label: z.string(),
-            notInEffect: z.string(),
-            invalid: z.string(),
-          })
-          .strict(),
-        /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
-        packaging: z
-          .object({
-            heading: z.string(),
-            hint: z.string(),
-            piecesPerPack: z.string(),
-            packsPerBox: z.string(),
-            minPieceQty: z.string(),
-            /** Under the field: the minimum is a floor, not the increment. */
-            minPieceQtyHint: z.string(),
-            /** Sits inside a piece-count field, after the number. */
-            pieceSuffix: z.string(),
-            packSuffix: z.string(),
-            boxVolume: z.string(),
-            boxWeight: z.string(),
-            boxCount: z.string(),
-            notSoldPerPack: z.string(),
-            notSoldPerBox: z.string(),
-            /** What the entered packaging costs, shown beside the row that
-             * defines each unit. `{price}` is substituted. */
-            pricePerPack: z.string(),
-            pricePerBox: z.string(),
-            minMustFitPacks: z.string(),
-            invalid: z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
-    /** The product-list screen (FR-ADM-01): includes soft-deleted rows, and
-     * carries the grid's filters, search box and sortable headings
-     * (FR-ADM-05). */
-    productList: z
-      .object({
-        title: z.string(),
-        /** How many rows the list holds, filters applied. */
+        deleted: z.string(),
+        unpublished: z.string(),
+        unpriced: z.string(),
+        /** `{count}` products. */
         count: z.string(),
-        deletedBadge: z.string(),
-        /** Marks a product that is not on the storefront yet (FR-ADM-06). */
-        unpublishedBadge: z.string(),
-        empty: z.string(),
-        /** Shown instead of `empty` when filters are what emptied the list. */
-        noResults: z.string(),
-        updated: z.string(),
-        sourceId: z.string(),
-        searchLabel: z.string(),
-        searchPlaceholder: z.string(),
-        clearSearch: z.string(),
-        /** Accessible names for the two column-heading filters, whose visible
-         * text is the selected value rather than a label. */
-        filterState: z.string(),
-        filterCategory: z.string(),
-        /** The attribute drill-down's chip, which has no column to sit in. */
-        filterAttribute: z.string(),
-        clearAttribute: z.string(),
-        /** The tier list's drill-down, shown as a chip for the same reason the
-         * attribute one is: no column of the grid says it. */
-        filterTier: z.string(),
-        clearTier: z.string(),
-        /** Which side of a price list to show: the products it prices, or the
-         * gap. */
-        tierPricedYes: z.string(),
-        tierPricedNo: z.string(),
-        /** The grid's marker for a product no list prices, and what stands in
-         * the price column for it. */
-        unpricedBadge: z.string(),
-        noPrice: z.string(),
-        /** The document list's drill-down, a chip for the same reason. */
-        filterDocument: z.string(),
-        clearDocument: z.string(),
-        stateAll: z.string(),
-        /** The column's own noun, for the phone's sort picker — where "All
-         * states" would read as an ordering rather than a column. */
-        state: z.string(),
-        stateLive: z.string(),
-        stateUnpublished: z.string(),
-        stateDeleted: z.string(),
-        /** Under the empty list when a search found nothing in the catalog but
-         * matches deleted products (FR-ADM-22): `{count}`, then the link that
-         * switches to them. */
-        deletedMatches: z.string(),
-        showDeleted: z.string(),
-        allCategories: z.string(),
-        /** The category filter's option for the products filed in a category
-         * itself, not in its subcategories. `{name}` is the category. */
-        categoryDirect: z.string(),
-        /**
-         * The stock column (FR-ADM-05). The cell is the piece count in the
-         * badge the storefront's three words colour, so the *states* are not
-         * worded again here — they come from the public app text, and a grid
-         * that called "few left" something else would be a second vocabulary
-         * for one fact. These are the column and its filter.
-         */
-        stock: z.string(),
-        stockAll: z.string(),
-        filterStock: z.string(),
-        /** Read out with the figure, so the badge's colour is never the only
-         * thing carrying the state. `{count}` and `{state}`. */
-        stockLabel: z.string(),
-        /** The cell of a product whose stock nobody is counting — a word, not
-         * an empty cell, so "untracked" and "none left" cannot be confused. */
-        stockUntracked: z.string(),
-        /**
-         * The content filter (FR-ADM-20): its two groups of chips, and the
-         * line under a product's name naming what keeps it incomplete.
-         * `{gaps}` is the `gap` words joined.
-         */
-        missingGroup: z.string(),
-        hasGroup: z.string(),
-        missing: z
+        /** The product-list screen (FR-ADM-01): includes soft-deleted rows, and
+         * carries the grid's filters, search box and sortable headings
+         * (FR-ADM-05). */
+        list: z
           .object({
-            incomplete: z.string(),
-            price: z.string(),
-            picture: z.string(),
-            description: z.string(),
-            attributes: z.string(),
-            packaging: z.string(),
-            boxFacts: z.string(),
+            page: pageText,
+            empty: z.string(),
+            /** Shown instead of `empty` when filters are what emptied the
+             * list. */
+            noResults: z.string(),
+            updated: z.string(),
+            sourceId: z.string(),
+            searchAria: z.string(),
+            searchPlaceholder: z.string(),
+            clearSearch: z.string(),
+            /** Accessible names for the two column-heading filters, whose
+             * visible text is the selected value rather than a label. */
+            filterState: z.string(),
+            filterCategory: z.string(),
+            /** The attribute drill-down's chip, which has no column to sit
+             * in. */
+            filterAttribute: z.string(),
+            clearAttributeAria: z.string(),
+            /** The tier list's drill-down, shown as a chip for the same reason
+             * the attribute one is: no column of the grid says it. */
+            filterTier: z.string(),
+            clearTierAria: z.string(),
+            /** Which side of a price list to show: the products it prices, or
+             * the gap. */
+            tierPricedYes: z.string(),
+            tierPricedNo: z.string(),
+            noPrice: z.string(),
+            /** The document list's drill-down, a chip for the same reason. */
+            filterDocument: z.string(),
+            clearDocumentAria: z.string(),
+            stateAll: z.string(),
+            /** The column's own noun, for the phone's sort picker — where "All
+             * states" would read as an ordering rather than a column. */
+            state: z.string(),
+            stateLive: z.string(),
+            /** Under the empty list when a search found nothing in the catalog
+             * but matches deleted products (FR-ADM-22): `{count}`, then the
+             * link that switches to them. */
+            deletedMatches: z.string(),
+            showDeleted: z.string(),
+            allCategories: z.string(),
+            /** The category filter's option for the products filed in a
+             * category itself, not in its subcategories. `{name}` is the
+             * category. */
+            categoryDirect: z.string(),
+            /**
+             * The stock column (FR-ADM-05). The cell is the piece count in the
+             * badge the storefront's three words colour, so the *states* are
+             * not worded again here — they come from the public app text, and a
+             * grid that called "few left" something else would be a second
+             * vocabulary for one fact. These are the column and its filter.
+             */
+            stock: z.string(),
+            stockAll: z.string(),
+            filterStock: z.string(),
+            /** Read out with the figure, so the badge's colour is never the
+             * only thing carrying the state. `{count}` and `{state}`. */
+            stockAria: z.string(),
+            /** The cell of a product whose stock nobody is counting — a word,
+             * not an empty cell, so "untracked" and "none left" cannot be
+             * confused. */
+            stockUntracked: z.string(),
+            /**
+             * The content filter (FR-ADM-20): its two groups of chips, and the
+             * line under a product's name naming what keeps it incomplete.
+             * `{gaps}` is the `gap` words joined.
+             */
+            missingGroupAria: z.string(),
+            hasGroupAria: z.string(),
+            missing: z
+              .object({
+                incomplete: z.string(),
+                price: z.string(),
+                picture: z.string(),
+                description: z.string(),
+                attributes: z.string(),
+                packaging: z.string(),
+                boxFacts: z.string(),
+              })
+              .strict(),
+            has: z
+              .object({
+                featured: z.string(),
+                set: z.string(),
+                variants: z.string(),
+                pairings: z.string(),
+                documents: z.string(),
+                note: z.string(),
+              })
+              .strict(),
+            gapsLabel: z.string(),
+            gap: z
+              .object({
+                price: z.string(),
+                picture: z.string(),
+                description: z.string(),
+                attributes: z.string(),
+              })
+              .strict(),
           })
           .strict(),
-        has: z
+        /** The product Add/Edit screen (FR-ADM-01). */
+        editor: z
           .object({
-            featured: z.string(),
-            set: z.string(),
-            variants: z.string(),
-            pairings: z.string(),
-            documents: z.string(),
-            note: z.string(),
-          })
-          .strict(),
-        gapsLabel: z.string(),
-        gap: z
-          .object({
+            newTitle: z.string(),
+            editTitle: z.string(),
+            name: z.string(),
             price: z.string(),
-            picture: z.string(),
-            description: z.string(),
-            attributes: z.string(),
+            category: z.string(),
+            categoryPlaceholder: z.string(),
+            slug: z.string(),
+            slugHint: z.string(),
+            sourceId: z.string(),
+            sourceIdHint: z.string(),
+            previewNotice: z.string(),
+            discardConfirm: z.string(),
+            nameRequired: z.string(),
+            categoryRequired: z.string(),
+            priceInvalid: z.string(),
+            /** The price field's label, naming the list it writes: `{list}`. */
+            priceWithList: z.string(),
+            /** What clearing it costs, and the button that says so. */
+            priceCleared: z.string(),
+            saveAndUnpublish: z.string(),
+            /** Stands in for a per-pack or per-box figure with no price behind it. */
+            packagingUnavailable: z.string(),
+            saveError: z.string(),
+            /** Commits the edits and puts the product on the storefront at once
+             * (FR-ADM-06); shown only while it is not published. */
+            saveAndPublish: z.string(),
+            /** Discards, and lands on the storefront page rather than back
+             * where the editor was opened from. */
+            cancelToPage: z.string(),
+            publishError: z.string(),
+            attributes: z
+              .object({
+                heading: z.string(),
+                key: z.string(),
+                value: z.string(),
+                addAria: z.string(),
+                /** The picker of names the catalog already uses
+                 * (FR-ATTR-09). */
+                addKeys: z.string(),
+                addKeysHint: z.string(),
+                addKeysEmpty: z.string(),
+                /** `{count}` is the number of names checked. */
+                addKeysApply: z.string(),
+                inTable: z.string(),
+                /** The row badges: what the shop does with this attribute. */
+                filterable: z.string(),
+                notNumeric: z.string(),
+                /** A set's row naming a part it does not have (FR-CAT-10);
+                 * `{part}` and `{key}`, the filter it misses. */
+                strayPart: z.string(),
+              })
+              .strict(),
+            /**
+             * Per-tier prices (FR-AUTH-05). The section is only rendered when
+             * the deployment has tiers, but the wording is required all the
+             * same — config is complete-or-die, not conditionally complete.
+             */
+            tierPrices: z
+              .object({
+                heading: z.string(),
+                hint: z.string(),
+                /** Placeholder on an empty tier field: it charges the base price. */
+                usesBase: z.string(),
+                /** `{tier}` is substituted with the tier's name. */
+                invalid: z.string(),
+              })
+              .strict(),
+            images: z
+              .object({
+                heading: z.string(),
+                add: z.string(),
+                /** The picker under a picture: its accessible name, and the
+                 * choice for a picture of the whole range (FR-CAT-11). */
+                variantAria: z.string(),
+                noVariant: z.string(),
+                /** Opens a stored picture in the framer again. */
+                reframe: z.string(),
+              })
+              .strict(),
+            /** The variants an assorted product's pictures show
+             * (FR-CAT-11/12). */
+            variants: z
+              .object({
+                hint: z.string(),
+                /** A variant's name field, for a screen reader. */
+                nameAria: z.string(),
+                add: z.string(),
+                addPlaceholder: z.string(),
+                addButton: z.string(),
+                /** A variant's remove button; `{name}` is the variant. */
+                removeAria: z.string(),
+                unavailable: z.string(),
+                /** The pictures column's heading, where the row has columns. */
+                picturesHeading: z.string(),
+                /** How many pictures show a variant; `{count}`. */
+                pictures: z.string(),
+                /** Shown in place of the field once the list is full;
+                 * `{count}`. */
+                limit: z.string(),
+                /** Under a list with a blank or repeated name, and the save's
+                 * refusal of it. */
+                duplicate: z.string(),
+                /** Under the add field, refusing a name the list already
+                 * has. */
+                exists: z.string(),
+                /** Where every picture shows an unavailable variant. */
+                allWithheld: z.string(),
+              })
+              .strict(),
+            /**
+             * The per-line note a collective item may ask for (FR-CART-08) —
+             * the policy, not the customer's text.
+             */
+            /** The parts a product sold as a set is made of (FR-CAT-10). */
+            parts: z
+              .object({
+                heading: z.string(),
+                hint: z.string(),
+                /** The add field's label, and its placeholder. */
+                add: z.string(),
+                addPlaceholder: z.string(),
+                addButton: z.string(),
+                /** A part's remove button; `{name}` is the part. */
+                removeAria: z.string(),
+                /** Shown in place of the field once the list is full;
+                 * `{count}`. */
+                limit: z.string(),
+                /** Under a list of one, and the save's refusal of it. */
+                tooFew: z.string(),
+                /** A refused add; `{max}` is the longest part allowed. */
+                rejected: z.string(),
+              })
+              .strict(),
+            /** The main page's row (FR-CAT-09). */
+            /** What a shut feature box says where the feature is on, as the
+             * list-shaped ones say how many. */
+            switchedOn: z.string(),
+            featured: z
+              .object({
+                heading: z.string(),
+                hint: z.string(),
+                enable: z.string(),
+              })
+              .strict(),
+            lineNote: z
+              .object({
+                heading: z.string(),
+                hint: z.string(),
+                /** The on/off control's own label. */
+                enable: z.string(),
+                prompt: z.string(),
+                /** Shown under the prompt field: blank uses the shop-wide wording. */
+                promptHint: z.string(),
+                promptPlaceholder: z.string(),
+              })
+              .strict(),
+            /**
+             * The documents shown on this product (FR-DOC-02) — the pairings
+             * editor's wording, because it is the same control: a short list
+             * attached to this record, added one at a time and taken off here.
+             */
+            documents: z
+              .object({
+                hint: z.string(),
+                add: z.string(),
+                addPlaceholder: z.string(),
+                /** `{name}` substituted — the document being taken off. */
+                removeAria: z.string(),
+                /** Per row. `{date}` substituted; `noExpiry` where there is none. */
+                expires: z.string(),
+                noExpiry: z.string(),
+                suggestionsAria: z.string(),
+                noSuggestions: z.string(),
+                /** Announced to a screen reader. `{count}` substituted. */
+                suggestionCountAria: z.string(),
+              })
+              .strict(),
+            /** The products this one is sold together with (FR-SET-01). */
+            pairings: z
+              .object({
+                hint: z.string(),
+                /** The search field's label. */
+                add: z.string(),
+                addPlaceholder: z.string(),
+                /** `{name}` — the remove button's accessible name. */
+                removeAria: z.string(),
+                /** `{count}` — shown once no more can be added. */
+                limit: z.string(),
+                suggestionsAria: z.string(),
+                noSuggestions: z.string(),
+                /** `{count}`, for the live region. */
+                suggestionCountAria: z.string(),
+              })
+              .strict(),
+            /** Pieces on hand, and what a customer is told about them
+             * (FR-STOCK-01/02). */
+            stock: z
+              .object({
+                heading: z.string(),
+                hint: z.string(),
+                pieces: z.string(),
+                threshold: z.string(),
+                /** Introduces the badge a customer would see right now. */
+                preview: z.string(),
+                /** Shown in place of the badge while nothing is tracked. */
+                untracked: z.string(),
+              })
+              .strict(),
+            /**
+             * The product's own tax rate (NFR-LEGAL-11). The empty field shows
+             * the default as its placeholder; `notInEffect` is said where the
+             * deployment charges no tax, since a rate kept then applies to
+             * nothing yet.
+             */
+            taxRate: z
+              .object({
+                label: z.string(),
+                notInEffect: z.string(),
+                invalid: z.string(),
+              })
+              .strict(),
+            /** Units of sale, and how many pieces the price covers
+             * (FR-UNIT-*). */
+            packaging: z
+              .object({
+                hint: z.string(),
+                minPieceQty: z.string(),
+                /** Under the field: the minimum is a floor, not the
+                 * increment. */
+                minPieceQtyHint: z.string(),
+                boxCount: z.string(),
+                notSoldPerPack: z.string(),
+                notSoldPerBox: z.string(),
+                /** What the entered packaging costs, shown beside the row that
+                 * defines each unit. `{price}` is substituted. */
+                pricePerPack: z.string(),
+                pricePerBox: z.string(),
+                minMustFitPacks: z.string(),
+                invalid: z.string(),
+              })
+              .strict(),
           })
           .strict(),
       })
       .strict(),
-    /** The category list screen (FR-ADM-01): the tree, its row actions and the
-     * reassign-then-delete dialog. */
-    categoryList: z
+    /** The category screens. */
+    categories: z
       .object({
-        title: z.string(),
-        add: z.string(),
-        addChild: z.string(),
-        seeProducts: z.string(),
-        editProducts: z.string(),
-        /** How many products stand under the category. `{count}` substituted;
-         * `noProducts` is the same fact where there are none. */
-        products: z.string(),
-        noProducts: z.string(),
-        /** The products filed in a category that also has subcategories,
-         * leaving theirs out. `{count}` substituted. */
-        directProducts: z.string(),
-        /** Beside a category with no live product beneath it, which the
-         * storefront leaves out of its navigation (FR-ADM-19). */
-        notShown: z.string(),
-        /** The row's way into the category's filter panel (FR-ATTR-11). */
-        editFilters: z.string(),
-        /** The page's way into the whole catalogue's panel (FR-ATTR-12). */
-        catalogFilters: z.string(),
-        edit: z.string(),
-        delete: z.string(),
-        deleting: z.string(),
-        empty: z.string(),
-        /** Drag-and-drop: what a drop does, and that it commits immediately. */
-        reorderHint: z.string(),
-        undo: z.string(),
-        reorderError: z.string(),
-        /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
-        deleteReassignIntro: z.string(),
-        /** After the intro when some of them are deleted products, which move
-         * too (FR-ADM-22). `{count}` substituted. */
-        deleteReassignDeleted: z.string(),
-        reassignLabel: z.string(),
-        reassignPlaceholder: z.string(),
-        deleteBlockedChildren: z.string(),
-        deleteError: z.string(),
-      })
-      .strict(),
-    /**
-     * The category Add/Edit screen (FR-ADM-01) — its own block, mirroring
-     * productEditor. It carries its own field labels rather than borrowing the
-     * product editor's: they are different screens, and sharing them is how the
-     * category slug hint ended up describing a product's web address.
-     */
-    categoryEditor: z
-      .object({
-        newTitle: z.string(),
-        editTitle: z.string(),
-        name: z.string(),
-        shortName: z.string(),
-        shortNameHint: z.string(),
-        parent: z.string(),
-        noParent: z.string(),
-        slug: z.string(),
-        slugHint: z.string(),
-        sourceId: z.string(),
-        sourceIdHint: z.string(),
-        mark: z.string(),
-        markHint: z.string(),
-        discardConfirm: z.string(),
-        nameRequired: z.string(),
-        saveError: z.string(),
+        /** The category list screen (FR-ADM-01): the tree, its row actions and
+         * the reassign-then-delete dialog. */
+        list: z
+          .object({
+            page: pageText,
+            add: z.string(),
+            addChild: z.string(),
+            seeProducts: z.string(),
+            editProducts: z.string(),
+            noProducts: z.string(),
+            /** The products filed in a category that also has subcategories,
+             * leaving theirs out. `{count}` substituted. */
+            directProducts: z.string(),
+            /** Beside a category with no live product beneath it, which the
+             * storefront leaves out of its navigation (FR-ADM-19). */
+            notShown: z.string(),
+            /** The row's way into the category's filter panel (FR-ATTR-11). */
+            editFilters: z.string(),
+            /** The page's way into the whole catalogue's panel (FR-ATTR-12). */
+            catalogFilters: z.string(),
+            empty: z.string(),
+            /** Drag-and-drop: what a drop does, and that it commits
+             * immediately. */
+            reorderHint: z.string(),
+            undo: z.string(),
+            reorderError: z.string(),
+            /** Delete-confirmation modal. `{name}`/`{count}` substituted at render. */
+            deleteTitle: z.string(),
+            deleteConfirm: z.string(),
+            deleteReassignIntro: z.string(),
+            /** After the intro when some of them are deleted products, which
+             * move too (FR-ADM-22). `{count}` substituted. */
+            deleteReassignDeleted: z.string(),
+            reassignLabel: z.string(),
+            reassignPlaceholder: z.string(),
+            deleteBlockedChildren: z.string(),
+            deleteError: z.string(),
+          })
+          .strict(),
+        /**
+         * The category Add/Edit screen (FR-ADM-01) — its own block, mirroring
+         * productEditor. It carries its own field labels rather than borrowing
+         * the product editor's: they are different screens, and sharing them is
+         * how the category slug hint ended up describing a product's web
+         * address.
+         */
+        editor: z
+          .object({
+            newTitle: z.string(),
+            editTitle: z.string(),
+            name: z.string(),
+            shortName: z.string(),
+            shortNameHint: z.string(),
+            parent: z.string(),
+            noParent: z.string(),
+            slug: z.string(),
+            slugHint: z.string(),
+            sourceId: z.string(),
+            sourceIdHint: z.string(),
+            mark: z.string(),
+            markHint: z.string(),
+            discardConfirm: z.string(),
+            nameRequired: z.string(),
+            saveError: z.string(),
+          })
+          .strict(),
+        /**
+         * One category's filter panel (FR-ATTR-11). Nearly all of this wording
+         * is about where the panel comes from: a category shows its parent's
+         * list until it is given one, and the difference between "inherited"
+         * and "set here" is the only thing that makes the reset button legible.
+         */
+        filters: z
+          .object({
+            resetConfirm: confirmText,
+            page: pageText,
+            /** `{category}` substituted — the panel being edited. */
+            heading: z.string(),
+            /** Where the list comes from, keyed by the contract's `source`.
+             * `inherited` takes `{category}`. */
+            sources: z
+              .object({
+                own: z.string(),
+                inherited: z.string(),
+                default: z.string(),
+              })
+              .strict(),
+            /** Per-row state. `{count}` substituted on `products`. */
+            products: z.string(),
+            notPresent: z.string(),
+            /** An attribute declared after this panel was saved, so it is
+             * absent from it rather than deliberately left out. */
+            isNew: z.string(),
+            show: z.string(),
+            reorder: z.string(),
+            save: z.string(),
+            saveError: z.string(),
+            /** Dropping the overlay so the category inherits again. */
+            reset: z.string(),
+            /** Shown after a reset, which stays on the screen — unlike a
+             * save. */
+            resetDone: z.string(),
+            empty: z.string(),
+            /** Offered nowhere: the registry itself is empty. */
+            noDefinitions: z.string(),
+            /** The whole-catalogue panel (FR-ATTR-12): nothing inherits it and
+             * it inherits nothing, so it has its own heading, intro and empty
+             * state in place of `heading`, `intro`, `sources` and `empty`. */
+            catalogHeading: z.string(),
+            catalogIntro: z.string(),
+            catalogEmpty: z.string(),
+            errors: z
+              .object({
+                'category-not-found': z.string(),
+                'attribute-not-found': z.string(),
+              })
+              .strict(),
+          })
+          .strict(),
       })
       .strict(),
     /**
@@ -781,7 +847,7 @@ export const adminTextSchema = z
      */
     sync: z
       .object({
-        title: z.string(),
+        discardConfirm: confirmText,
         description: z.string(),
         modeLabel: z.string(),
         advanced: z.string(),
@@ -851,6 +917,8 @@ export const adminTextSchema = z
         summaryTitle: z.string(),
         /** The same panel, once the run is a record rather than a decision. */
         summaryTitleApplied: z.string(),
+        /** The count tiles. Their first four name a row's change as well, as
+         * its badge: a tile counts the rows wearing it. */
         count: z
           .object({
             create: z.string(),
@@ -902,15 +970,6 @@ export const adminTextSchema = z
         nothingToApply: z.string(),
         /** The same, said about a run that has already happened. */
         nothingChanged: z.string(),
-        /** Change kinds, used as row badges. */
-        kind: z
-          .object({
-            create: z.string(),
-            update: z.string(),
-            softDelete: z.string(),
-            restore: z.string(),
-          })
-          .strict(),
         /**
          * The customer exchange's own words (FR-ADM-11). Only what the catalog
          * cannot lend: a run's counts mean accounts here rather than products,
@@ -954,7 +1013,8 @@ export const adminTextSchema = z
                 claimByEmail: z.string(),
               })
               .strict(),
-            /** The count tiles, in this area's reading of them. */
+            /** The count tiles, in this area's reading of them. A row's badge
+             * is the tile that counts it. */
             count: z
               .object({
                 create: z.string(),
@@ -968,18 +1028,8 @@ export const adminTextSchema = z
                 errors: z.string(),
               })
               .strict(),
-            /** Change kinds, used as row badges. */
-            kind: z
-              .object({
-                invite: z.string(),
-                update: z.string(),
-                disable: z.string(),
-                enable: z.string(),
-                claim: z.string(),
-                'claim-id': z.string(),
-              })
-              .strict(),
-            /** Field names as a diff line labels them. */
+            /** Field names as a diff line labels them, and as the log lists
+             * what a run rewrote. */
             field: z
               .object({
                 email: z.string(),
@@ -1068,8 +1118,14 @@ export const adminTextSchema = z
                 transition: z.string(),
                 /** Only the money was recorded. */
                 payment: z.string(),
-                /** It already said this; nothing was written. */
-                unchanged: z.string(),
+              })
+              .strict(),
+            /** What a run wrote, as the log lists it. */
+            field: z
+              .object({
+                status: z.string(),
+                lines: z.string(),
+                payment: z.string(),
               })
               .strict(),
             /** Said beside a row whose customer was written to. */
@@ -1143,16 +1199,12 @@ export const adminTextSchema = z
         uploadTitle: z.string(),
         newRun: z.string(),
         backToRuns: z.string(),
-        runsDescription: z.string(),
         /**
          * What each area's log is called and what it says about itself. One
          * screen serves every area (ADR 0060), so its heading is the one thing
          * that has to be written per area; everything else on it — the
          * statuses, the columns, why a run was staged — is the same sentence
          * whatever the run carries.
-         *
-         * `title`/`runsDescription` above stay the catalog's, because the
-         * upload screen is still the catalog's alone.
          */
         areas: z
           .object({
@@ -1175,8 +1227,6 @@ export const adminTextSchema = z
         finishedLabel: z.string(),
         /** Giving up on a staged run, and the question asked first. */
         discardRun: z.string(),
-        discardTitle: z.string(),
-        discardMessage: z.string(),
         status: z
           .object({
             previewed: z.string(),
@@ -1192,11 +1242,11 @@ export const adminTextSchema = z
         statusAll: z.string(),
         filterStatus: z.string(),
         /**
-         * What a run rewrote, listed in the log under its counts. Every price
-         * column names its own list through `priceList`, the storefront's
-         * included — which lists a feed writes is the thing an admin is
-         * actually checking. `more` stands for the ones a narrow column has no
-         * room for.
+         * What a catalog run rewrote, listed in the log under its counts. Every
+         * price column names its own list through `priceList`, the
+         * storefront's included — which lists a feed writes is the thing an
+         * admin is actually checking. The other areas name theirs in their own
+         * block.
          */
         field: z
           .object({
@@ -1205,9 +1255,10 @@ export const adminTextSchema = z
             stock: z.string(),
             taxRate: z.string(),
             priceList: z.string(),
-            more: z.string(),
           })
           .strict(),
+        /** `{count}` — the fields a narrow column has no room for. */
+        moreFields: z.string(),
         /** A tax rate going back to, or coming from, the deployment's
          * default — the plan's word for a null rate. */
         taxRateDefault: z.string(),
@@ -1223,10 +1274,11 @@ export const adminTextSchema = z
      * wording here is the badge that marks it and what moving that badge
      * costs.
      */
-    tierList: z
+    tiers: z
       .object({
-        title: z.string(),
-        intro: z.string(),
+        deleteConfirm: confirmText,
+        setDefaultConfirm: confirmText,
+        page: pageText,
         reorderError: z.string(),
         add: z.string(),
         label: z.string(),
@@ -1236,7 +1288,6 @@ export const adminTextSchema = z
         keyHint: z.string(),
         /** Reference counts per row. `{count}` substituted at render. */
         accounts: z.string(),
-        prices: z.string(),
         /** The links those counts carry: into the customer list on this tier,
          * and into the product grid priced by it. */
         seeAccounts: z.string(),
@@ -1250,21 +1301,14 @@ export const adminTextSchema = z
         defaultHint: z.string(),
         /** Moving that badge. `{name}`/`{count}` substituted at render. */
         setDefault: z.string(),
-        setDefaultTitle: z.string(),
-        setDefaultConfirm: z.string(),
         setDefaultWarning: z.string(),
         setDefaultNone: z.string(),
         setDefaultDone: z.string(),
         setDefaultError: z.string(),
-        edit: z.string(),
-        delete: z.string(),
         empty: z.string(),
         saveError: z.string(),
         labelRequired: z.string(),
         keyInvalid: z.string(),
-        /** Delete confirmation. `{name}`/`{key}`/`{reason}` substituted. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
         deleteBlocked: z.string(),
         deleteError: z.string(),
         /**
@@ -1288,10 +1332,10 @@ export const adminTextSchema = z
      * screen cannot take back — a value shown once — so the created-token
      * panel gets three lines of its own rather than a single label.
      */
-    apiTokenList: z
+    apiTokens: z
       .object({
-        title: z.string(),
-        intro: z.string(),
+        revokeConfirm: confirmText,
+        page: pageText,
         add: z.string(),
         create: z.string(),
         name: z.string(),
@@ -1331,1064 +1375,872 @@ export const adminTextSchema = z
         /** The panel that shows the value. `{name}` substituted at render. */
         createdHeading: z.string(),
         createdOnce: z.string(),
-        createdDone: z.string(),
         copy: z.string(),
         copied: z.string(),
         active: z.string(),
         revoked: z.string(),
         /** Per-row facts. `{date}` and `{actor}` substituted at render. */
         created: z.string(),
-        actorGone: z.string(),
         lastUsed: z.string(),
         neverUsed: z.string(),
         empty: z.string(),
         createError: z.string(),
         /** Revocation, which is the only destructive thing here — and it is
          * not undoable: a revoked token is replaced, not restored. */
-        revoke: z.string(),
-        revokeTitle: z.string(),
-        revokeConfirm: z.string(),
-        revokeWarning: z.string(),
+        revokeAria: z.string(),
         revokeError: z.string(),
       })
       .strict(),
-    /**
-     * The filterable-attribute registry (FR-ATTR-01). A definition names an
-     * attribute the products already carry, so most of this wording is about
-     * the exact match between the two — including the two amber notes, which
-     * are the only place a mistyped name shows up before the filter is missing.
-     */
-    attributeList: z
+    /** The attribute screens. */
+    attributes: z
       .object({
-        title: z.string(),
-        intro: z.string(),
-        reorderError: z.string(),
-        add: z.string(),
-        name: z.string(),
-        namePlaceholder: z.string(),
-        nameHint: z.string(),
-        type: z.string(),
-        /** The two attribute types, keyed by the contract's own values. */
-        types: z.object({ text: z.string(), number: z.string() }).strict(),
-        unit: z.string(),
-        unitPlaceholder: z.string(),
-        /** Slug, called what an admin sees it as: the key in a filter URL. */
-        slug: z.string(),
-        slugPlaceholder: z.string(),
-        slugInvalid: z.string(),
-        /** Usage per row. `{count}` substituted at render. */
-        products: z.string(),
-        values: z.string(),
-        unparsed: z.string(),
-        noMatch: z.string(),
-        edit: z.string(),
-        /** The two counts are the ways out of the row: the product grid
-         * narrowed to the attribute, and the inventory expanded on it. */
-        showProducts: z.string(),
-        showUsage: z.string(),
-        delete: z.string(),
-        empty: z.string(),
-        saveError: z.string(),
-        nameRequired: z.string(),
-        /** Delete confirmation. `{name}` substituted. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
-        deleteError: z.string(),
-        /** What the server refused, keyed by its own `code`. */
-        errors: z
-          .object({
-            'attribute-not-found': z.string(),
-            'attribute-name-taken': z.string(),
-            'attribute-slug-taken': z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
-    /**
-     * One category's filter panel (FR-ATTR-11). Nearly all of this wording is
-     * about where the panel comes from: a category shows its parent's list
-     * until it is given one, and the difference between "inherited" and "set
-     * here" is the only thing that makes the reset button legible.
-     */
-    categoryFilters: z
-      .object({
-        title: z.string(),
-        /** `{category}` substituted — the panel being edited. */
-        heading: z.string(),
-        intro: z.string(),
-        /** Where the list comes from, keyed by the contract's `source`.
-         * `inherited` takes `{category}`. */
-        sources: z
-          .object({
-            own: z.string(),
-            inherited: z.string(),
-            default: z.string(),
-          })
-          .strict(),
-        /** Per-row state. `{count}` substituted on `products`. */
-        products: z.string(),
-        notPresent: z.string(),
-        /** An attribute declared after this panel was saved, so it is absent
-         * from it rather than deliberately left out. */
-        isNew: z.string(),
-        show: z.string(),
-        reorder: z.string(),
-        save: z.string(),
-        saveError: z.string(),
-        /** Dropping the overlay so the category inherits again. */
-        reset: z.string(),
-        resetTitle: z.string(),
-        resetConfirm: z.string(),
-        /** Shown after a reset, which stays on the screen — unlike a save. */
-        resetDone: z.string(),
-        empty: z.string(),
-        /** Offered nowhere: the registry itself is empty. */
-        noDefinitions: z.string(),
-        /** The whole-catalogue panel (FR-ATTR-12): nothing inherits it and it
-         * inherits nothing, so it has its own heading, intro and empty state
-         * in place of `heading`, `intro`, `sources` and `empty`. */
-        catalogHeading: z.string(),
-        catalogIntro: z.string(),
-        catalogEmpty: z.string(),
-        errors: z
-          .object({
-            'category-not-found': z.string(),
-            'attribute-not-found': z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
-    /**
-     * The attribute inventory (FR-ATTR-09) — every key and value the products
-     * carry. Its wording is about renaming, because that is the only thing
-     * this screen changes, and a rename here rewrites the whole catalog.
-     */
-    attributeInventory: z
-      .object({
-        title: z.string(),
-        intro: z.string(),
-        toDefinitions: z.string(),
-        /** The two states of the row's link to the registry: a key the shop
-         * filters by leads to its definition, a freetext one is deadened. */
-        toDefinition: z.string(),
-        notFilterable: z.string(),
-        /** Usage per row. `{count}` substituted at render. */
-        products: z.string(),
-        values: z.string(),
-        /** Marks a value that drops out of a number attribute's filter. */
-        notNumeric: z.string(),
-        /** Stands in for a value that is empty, so the row is not a blank. */
-        emptyValue: z.string(),
-        showProducts: z.string(),
-        renameKey: z.string(),
-        renameValue: z.string(),
-        newText: z.string(),
-        /** Rename confirmation. `{from}`/`{to}` substituted. `mergeConfirm`
-         * replaces it where the new text is already in use, since that is a
-         * merge and not a correction. */
-        renameTitle: z.string(),
-        renameConfirm: z.string(),
-        mergeConfirm: z.string(),
-        /** After either, when deleted products carry the text too: they are
-         * rewritten as well (FR-ADM-22). `{count}` substituted. */
-        renameDeleted: z.string(),
-        renameError: z.string(),
-        empty: z.string(),
-      })
-      .strict(),
-    /**
-     * The document list (FR-DOC-01) — the shop's certificates, declarations
-     * and data sheets. The two size lines are the file's own size, formatted
-     * where it is shown rather than by the API, which has no reason to know
-     * how big a number reads well.
-     */
-    documentList: z
-      .object({
-        title: z.string(),
-        /** How many rows the list holds, filters applied. */
-        count: z.string(),
-        add: z.string(),
-        searchLabel: z.string(),
-        searchPlaceholder: z.string(),
-        clearSearch: z.string(),
-        /** Column headings. */
-        titleColumn: z.string(),
-        fileColumn: z.string(),
-        /** What a document's link is called in that column (FR-DOC-05),
-         * beside the file's format. */
-        link: z.string(),
-        issuedColumn: z.string(),
-        expiresColumn: z.string(),
-        statusColumn: z.string(),
-        updatedColumn: z.string(),
-        /** In the expiry cell of a document that never comes due. */
-        noExpiry: z.string(),
         /**
-         * The expiry states (FR-DOC-04) — the badge in the status column and
-         * the options of the filter its heading carries. `statusAll` heads the
-         * column when nothing is filtered, and `statusDue` is two states at
-         * once: what the panel's count links to.
+         * The filterable-attribute registry (FR-ATTR-01). A definition names an
+         * attribute the products already carry, so most of this wording is
+         * about the exact match between the two — including the two amber
+         * notes, which are the only place a mistyped name shows up before the
+         * filter is missing.
          */
-        statusAll: z.string(),
-        statusDue: z.string(),
-        statusExpiring: z.string(),
-        statusExpired: z.string(),
-        statusValid: z.string(),
-        filterStatus: z.string(),
-        edit: z.string(),
-        delete: z.string(),
-        /** The link into the product grid narrowed to this document's
-         * products, and the same control dead: nothing shows it yet.
-         * `{count}` substituted. */
-        productsColumn: z.string(),
-        products: z.string(),
-        seeProducts: z.string(),
-        noProducts: z.string(),
-        empty: z.string(),
-        /** Shown instead of `empty` when the search emptied the list. */
-        noResults: z.string(),
-        loadError: z.string(),
-        /** Delete confirmation. `{name}` substituted. */
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
-        deleteError: z.string(),
-        /** File size, `{size}` substituted. */
-        sizeKb: z.string(),
-        sizeMb: z.string(),
-      })
-      .strict(),
-    /**
-     * The document editor. Replacing the file is the same screen as filling it
-     * in the first time, which is the whole of how a re-issued document
-     * supersedes its predecessor — there is no second flow to word.
-     */
-    documentEditor: z
-      .object({
-        newTitle: z.string(),
-        editTitle: z.string(),
-        title: z.string(),
-        titlePlaceholder: z.string(),
-        titleHint: z.string(),
-        file: z.string(),
-        /** The empty drop target, and the control on a row that already has a
-         * file. */
-        dropHint: z.string(),
-        choose: z.string(),
-        replace: z.string(),
-        open: z.string(),
-        removeFile: z.string(),
-        fileHint: z.string(),
-        uploadError: z.string(),
-        /** The external link (FR-DOC-05) — a register entry, the issuer's
-         * page. Optional beside the file, but one of the two is required. */
-        link: z.string(),
-        linkPlaceholder: z.string(),
-        linkHint: z.string(),
-        openLink: z.string(),
-        linkInvalid: z.string(),
-        issuedAt: z.string(),
-        expiresAt: z.string(),
-        datesHint: z.string(),
-        /**
-         * The product picker (FR-DOC-02) — a catalog to tick through, so its
-         * wording is about narrowing and about the shift-click nobody
-         * discovers on their own.
-         */
-        products: z
+        list: z
           .object({
-            heading: z.string(),
-            hint: z.string(),
-            search: z.string(),
-            searchPlaceholder: z.string(),
-            category: z.string(),
-            allCategories: z.string(),
-            /** The two views of one list. `{count}` substituted on `showLinked`. */
-            showAll: z.string(),
-            showLinked: z.string(),
-            /** What the capped page is not showing. `{count}`/`{total}`. */
-            more: z.string(),
+            deleteConfirm: confirmText,
+            page: pageText,
+            reorderError: z.string(),
+            add: z.string(),
+            name: z.string(),
+            namePlaceholder: z.string(),
+            nameHint: z.string(),
+            type: z.string(),
+            /** The two attribute types, keyed by the contract's own values. */
+            types: z.object({ text: z.string(), number: z.string() }).strict(),
+            unit: z.string(),
+            unitPlaceholder: z.string(),
+            /** Slug, called what an admin sees it as: the key in a filter
+             * URL. */
+            slug: z.string(),
+            slugPlaceholder: z.string(),
+            slugInvalid: z.string(),
+            values: z.string(),
+            unparsed: z.string(),
+            noMatch: z.string(),
+            /** The two counts are the ways out of the row: the product grid
+             * narrowed to the attribute, and the inventory expanded on it. */
+            showProducts: z.string(),
+            showUsage: z.string(),
             empty: z.string(),
-            noneLinked: z.string(),
-            deleted: z.string(),
-            unpublished: z.string(),
-            loadError: z.string(),
+            saveError: z.string(),
+            nameRequired: z.string(),
+            deleteError: z.string(),
+            /** What the server refused, keyed by its own `code`. */
+            errors: z
+              .object({
+                'attribute-not-found': z.string(),
+                'attribute-name-taken': z.string(),
+                'attribute-slug-taken': z.string(),
+              })
+              .strict(),
           })
           .strict(),
-        titleRequired: z.string(),
-        fileOrLinkRequired: z.string(),
-        expiryBeforeIssue: z.string(),
-        saveError: z.string(),
-        discardConfirm: z.string(),
-        notFound: z.string(),
-        errors: z
+        /**
+         * The attribute inventory (FR-ATTR-09) — every key and value the
+         * products carry. Its wording is about renaming, because that is the
+         * only thing this screen changes, and a rename here rewrites the whole
+         * catalog.
+         */
+        inventory: z
           .object({
-            'document-not-found': z.string(),
-            'document-product-not-found': z.string(),
+            page: pageText,
+            toDefinitions: z.string(),
+            /** The two states of the row's link to the registry: a key the shop
+             * filters by leads to its definition, a freetext one is
+             * deadened. */
+            toDefinitionAria: z.string(),
+            notFilterable: z.string(),
+            values: z.string(),
+            /** Marks a value that drops out of a number attribute's filter. */
+            notNumeric: z.string(),
+            /** Stands in for a value that is empty, so the row is not a
+             * blank. */
+            emptyValue: z.string(),
+            showProducts: z.string(),
+            renameKeyAria: z.string(),
+            renameValueAria: z.string(),
+            newTextAria: z.string(),
+            /** Rename confirmation. `{from}`/`{to}` substituted. `mergeConfirm`
+             * replaces it where the new text is already in use, since that is a
+             * merge and not a correction. */
+            renameTitle: z.string(),
+            renameConfirm: z.string(),
+            mergeConfirm: z.string(),
+            /** After either, when deleted products carry the text too: they are
+             * rewritten as well (FR-ADM-22). `{count}` substituted. */
+            renameDeleted: z.string(),
+            renameError: z.string(),
+            empty: z.string(),
           })
           .strict(),
       })
       .strict(),
-    /**
-     * The staff account list (FR-AUTH-03/04). Column headings double as the
-     * sort/filter controls, so several of these are the accessible names of a
-     * control whose visible text is the value in effect rather than a label.
-     * The storefront list's name is not here either: it is that tier row's own
-     * label, which is why the two screens cannot drift apart.
-     */
-    /** The staff order list (FR-AUTH-03) — read-only: an order is a request a
-     * manager answers by phone or mail. */
-    orderList: z
+    /** The document screens. */
+    documents: z
       .object({
-        title: z.string(),
-        /** How many rows the list holds, filters applied. */
-        count: z.string(),
-        searchLabel: z.string(),
-        searchPlaceholder: z.string(),
-        clearSearch: z.string(),
-        empty: z.string(),
-        /** Shown instead of `empty` when the status filter emptied the list. */
-        noResults: z.string(),
-        loadError: z.string(),
-        /** Column headings. */
-        reference: z.string(),
-        placed: z.string(),
-        customer: z.string(),
-        items: z.string(),
-        total: z.string(),
-        payment: z.string(),
-        filterStatus: z.string(),
-        statusAll: z.string(),
-        /** The column's own noun, for the phone's sort picker — where "All
-         * statuses" would read as an ordering rather than a column. */
-        status: z.string(),
-        statusRequested: z.string(),
-        statusApproved: z.string(),
-        /** One state, two readings (FR-ORD-01): the order's own fulfilment
-         * method decides which of the two a row shows. */
-        statusReadyDelivery: z.string(),
-        statusReadyPickup: z.string(),
-        statusCompleted: z.string(),
-        statusDeclined: z.string(),
-        statusCancelled: z.string(),
-        /** Whether anything is owed (FR-ORD-04), read apart from the status.
-         * An order with nothing due says nothing. */
-        filterPayment: z.string(),
-        paymentAll: z.string(),
-        paymentAwaiting: z.string(),
-        /** Staff only: an accepted cash order whose handover nobody has
-         * recorded yet — the tick that is easy to forget. */
-        paymentCash: z.string(),
-        /** Everything the shop has not been paid for, cash and invoiced
-         * alike — what the panel's finished-and-unpaid count links to. */
-        paymentUnpaid: z.string(),
-        paymentPaid: z.string(),
-        /** A guest order: nobody signed in placed it. */
-        guest: z.string(),
-        /** Screen-reader heading for the column of row buttons. */
-        actions: z.string(),
-        /** `{count}` lines on the order. */
-        itemCount: z.string(),
+        /**
+         * The document list (FR-DOC-01) — the shop's certificates, declarations
+         * and data sheets. The two size lines are the file's own size,
+         * formatted where it is shown rather than by the API, which has no
+         * reason to know how big a number reads well.
+         */
+        list: z
+          .object({
+            deleteConfirm: confirmText,
+            page: pageText,
+            /** How many rows the list holds, filters applied. */
+            count: z.string(),
+            add: z.string(),
+            searchAria: z.string(),
+            searchPlaceholder: z.string(),
+            clearSearch: z.string(),
+            /** Column headings. */
+            titleColumn: z.string(),
+            fileColumn: z.string(),
+            /** What a document's link is called in that column (FR-DOC-05),
+             * beside the file's format. */
+            link: z.string(),
+            issuedColumn: z.string(),
+            expiresColumn: z.string(),
+            statusColumn: z.string(),
+            updatedColumn: z.string(),
+            /** In the expiry cell of a document that never comes due. */
+            noExpiry: z.string(),
+            /**
+             * The expiry states (FR-DOC-04) — the badge in the status column
+             * and the options of the filter its heading carries. `statusAll`
+             * heads the column when nothing is filtered, and `statusDue` is two
+             * states at once: what the panel's count links to.
+             */
+            statusAll: z.string(),
+            statusDue: z.string(),
+            statusExpiring: z.string(),
+            statusExpired: z.string(),
+            statusValid: z.string(),
+            filterStatus: z.string(),
+            /** The link into the product grid narrowed to this document's
+             * products, and the same control dead: nothing shows it yet.
+             * `{count}` substituted. */
+            productsColumn: z.string(),
+            seeProducts: z.string(),
+            noProducts: z.string(),
+            empty: z.string(),
+            /** Shown instead of `empty` when the search emptied the list. */
+            noResults: z.string(),
+            loadError: z.string(),
+            deleteError: z.string(),
+          })
+          .strict(),
+        /**
+         * The document editor. Replacing the file is the same screen as filling
+         * it in the first time, which is the whole of how a re-issued document
+         * supersedes its predecessor — there is no second flow to word.
+         */
+        editor: z
+          .object({
+            newTitle: z.string(),
+            editTitle: z.string(),
+            title: z.string(),
+            titlePlaceholder: z.string(),
+            titleHint: z.string(),
+            file: z.string(),
+            /** The empty drop target, and the control on a row that already has
+             * a file. */
+            dropHint: z.string(),
+            choose: z.string(),
+            replace: z.string(),
+            open: z.string(),
+            removeFile: z.string(),
+            fileHint: z.string(),
+            uploadError: z.string(),
+            /** The external link (FR-DOC-05) — a register entry, the issuer's
+             * page. Optional beside the file, but one of the two is
+             * required. */
+            link: z.string(),
+            linkPlaceholder: z.string(),
+            linkHint: z.string(),
+            openLink: z.string(),
+            linkInvalid: z.string(),
+            issuedAt: z.string(),
+            expiresAt: z.string(),
+            datesHint: z.string(),
+            /**
+             * The product picker (FR-DOC-02) — a catalog to tick through, so
+             * its wording is about narrowing and about the shift-click nobody
+             * discovers on their own.
+             */
+            products: z
+              .object({
+                heading: z.string(),
+                hint: z.string(),
+                searchAria: z.string(),
+                searchPlaceholder: z.string(),
+                categoryAria: z.string(),
+                allCategories: z.string(),
+                /** The two views of one list. `{count}` substituted on `showLinked`. */
+                showAll: z.string(),
+                showLinked: z.string(),
+                /** What the capped page is not showing. `{count}`/`{total}`. */
+                more: z.string(),
+                empty: z.string(),
+                noneLinked: z.string(),
+                loadError: z.string(),
+              })
+              .strict(),
+            titleRequired: z.string(),
+            fileOrLinkRequired: z.string(),
+            expiryBeforeIssue: z.string(),
+            saveError: z.string(),
+            discardConfirm: z.string(),
+            notFound: z.string(),
+            errors: z
+              .object({
+                'document-not-found': z.string(),
+                'document-product-not-found': z.string(),
+              })
+              .strict(),
+          })
+          .strict(),
       })
       .strict(),
-    /** One order in full, as staff read it. */
-    orderDetail: z
+    /** The staff order screens, and what they all say alike. */
+    orders: z
       .object({
-        /** `{date}` the request was sent, and `{date}` its status last moved. */
-        placed: z.string(),
         notFound: z.string(),
         loadError: z.string(),
-        back: z.string(),
-        items: z.string(),
-        /** The account it was placed from, or that it was a guest's. */
-        customer: z.string(),
-        /** Opens the summary a guest was mailed (FR-NOTIF-06) — what that
-         * customer is looking at when they ring about the order. Only on a
-         * guest's order; an account holder's own view is the version link. */
-        guestView: z.string(),
-        /** Which price list it was taken from, as the order recorded it. A
-         * null key is the storefront's list — named generically because the
-         * list it was may since have been renamed or replaced. */
+        /** Which price list an order is taken from. A null key is the
+         * storefront's list — named generically because the list it was may
+         * since have been renamed or replaced. */
         tier: z.string(),
         tierDefault: z.string(),
-        /** The terms the order accepted (NFR-LEGAL-10), as the page editor
-         * numbers them: `{version}` and `{date}`. The row is absent where it
-         * accepted none. */
-        terms: z.string(),
+        /** What staff call an order's parts, beside the shared names. Their
+         * own words where the customer's are written for the customer. */
+        account: z.string(),
+        /** An order placed without an account. */
+        guest: z.string(),
+        items: z.string(),
+        note: z.string(),
+        pickupPoint: z.string(),
+        /** The accepted terms as the page editor numbers them: `{version}`
+         * and `{date}`. */
         termsVersion: z.string(),
-        /** The blocks, headed as the checkout asked its questions. */
-        fulfilment: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        invoice: z.string(),
-        billingSame: z.string(),
-        deliveryDate: z.string(),
-        pickupDate: z.string(),
-        whenAny: z.string(),
-        payment: z.string(),
-        cash: z.string(),
-        transfer: z.string(),
-        card: z.string(),
-        contact: z.string(),
-        note: z.string(),
-        /** A line in pieces — `{count} × {price}`, the way the source system
-         * prices. */
-        pieceLine: z.string(),
-        /** Why a declined or cancelled order ended that way. */
-        statusReason: z.string(),
-        /** Every version of the order (FR-ORD-03): what the shop said it
-         * changed, and the difference from the version before it. */
-        revisions: z
-          .object({
-            heading: z.string(),
-            /** `{count}` versions, on the lid of the panel. */
-            subheading: z.string(),
-            /** `{number}` of the version, `{date}` it was written and `{who}`
-             * wrote it. */
-            written: z.string(),
-            /** Version 1 is the order as it was sent, so nobody on the
-             * shop's side wrote it. */
-            authorCustomer: z.string(),
-            /** A later version with no author — an outside system, or a
-             * record made before authors were kept. */
-            authorUnknown: z.string(),
-            /** What each version was written for: the customer sent it, the
-             * shop moved the order, or the shop changed what it says. */
-            submitted: z.string(),
-            moved: z.string(),
-            changed: z.string(),
-            /** Marks the version the customer is being shown. */
-            customerView: z.string(),
-            note: z.string(),
-            changes: z.string(),
-            noChanges: z.string(),
-            loadError: z.string(),
-            /** The version's own name — `{number}` — used as the link to the
-             * page that reads it back, with who wrote it and when beside it. */
-            versionLabel: z.string(),
-            /** The same name inside a running sentence — `{number}`, and
-             * lower-cased where the deployment's language wants it. */
-            versionInline: z.string(),
-            writtenBy: z.string(),
-            /** Which version the customer is on, where this is not it. */
-            customerOn: z.string(),
-            /** When the customer was written to about this version
-             * (FR-NOTIF-03) — `{date}`. */
-            notified: z.string(),
-            /** The way from reading a version to answering the order, and
-             * back the other way. */
-            openControls: z.string(),
-            /** The same link where there is nothing to answer with, because an
-             * external system holds order processing. */
-            openOrder: z.string(),
-            openRevision: z.string(),
-            /** Row labels for the change list, as on the adjustment screen. */
-            line: z.string(),
-            added: z.string(),
-            removed: z.string(),
-            total: z.string(),
-            shipment: z.string(),
-          })
+        statuses: orderStatusLabels,
+        paymentMethods: paymentMethodLabels,
+        /** One state more than a customer reads: a cash order nobody has
+         * ticked yet. */
+        paymentStates: paymentStateLabels
+          .extend({ cashOnHandover: z.string() })
           .strict(),
-        /**
-         * Answering an order (FR-ORD-01/02/04). One label per move a manager
-         * makes, plus the confirmation the two refusals need — declining and
-         * cancelling are quoted at the customer, so both ask why.
-         */
-        actions: z
+        /** The staff order list (FR-AUTH-03) — read-only: an order is a request
+         * a manager answers by phone or mail. */
+        list: z
           .object({
-            /** The list's own two glyphs: opening an order, and opening one
-             * that has not been answered yet. */
-            open: z.string(),
-            answer: z.string(),
-            approve: z.string(),
-            /** Opening the adjustment form (FR-ORD-03) — the other half of
-             * accepting an order, for the case where what the shop accepts is
-             * not what was submitted. */
-            adjust: z.string(),
-            /** Undo an ending: back to a request the shop has to answer. */
-            reopen: z.string(),
-            /**
-             * Staff's undo along the chain — the same three statuses read the
-             * other way round. Their own wording because they are their own
-             * act: "Confirm" on an order already out for delivery would read
-             * as a step forward it is not.
-             */
-            backToRequested: z.string(),
-            backToApproved: z.string(),
-            backToReady: z.string(),
-            ready: z.string(),
-            readyPickup: z.string(),
-            complete: z.string(),
-            decline: z.string(),
-            cancel: z.string(),
-            /** `{action}` names the move being confirmed. */
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
-            /** The tick that decides whether the move reaches the customer's
-             * own page (FR-NOTIF-03), and the line under it. Offered ticked:
-             * clearing it is for a step taken by mistake. */
-            showCustomer: z.string(),
-            showCustomerHint: z.string(),
-            /** The tick that decides whether the move puts a message in the
-             * customer's inbox (FR-NOTIF-03), and the line under it. Offered
-             * ticked for news they have not had yet, and only where the move
-             * reaches their page at all. */
-            notify: z.string(),
-            notifyHint: z.string(),
-            /** The tick that records the money with the move that is the
-             * handover (FR-ORD-04), and the line under it. */
-            markPaid: z.string(),
-            markPaidHint: z.string(),
-            reasonLabel: z.string(),
-            /**
-             * Weighed before ending an order the shop has already been paid
-             * for (FR-ORD-04). The move goes ahead — the platform records what
-             * the shop did — but nothing here sends money back, and this is
-             * where somebody would assume it does.
-             */
-            paidWarning: z.string(),
-            /** Added to the dialog where the shop's payment instructions will
-             * travel with the message this move sends (FR-ORD-05). */
-            notifyAttachment: z.string(),
-            /** And where they would have, had anybody filed them: the move
-             * that makes the money due is the last comfortable moment to
-             * notice the slip is missing. */
-            notifyNoDocument: z.string(),
-            keep: z.string(),
-            /** The move was refused: the order had already been answered. */
-            error: z.string(),
-          })
-          .strict(),
-        /**
-         * Telling the customer where the order has got to (FR-NOTIF-03), on
-         * the one row that exists because it is a decision: their view of the
-         * order has moved on without a word about it, and nothing writes to
-         * them on its own.
-         */
-        /**
-         * What the customer can see and what they have been told — two
-         * questions, always answered, because "nothing to do here" is an
-         * answer a manager needs as much as the other one (FR-NOTIF-03).
-         */
-        tellCustomer: z
-          .object({
-            heading: z.string(),
-            /** `{current}` where their page is level with the order. */
-            on: z.string(),
-            /** `{seen}` the version they are on and `{current}` the one the
-             * order stands on. Both are filled with `revisions.versionInline`,
-             * so the sentence carries the word and this the punctuation. */
-            behind: z.string(),
-            /** The second line: whether a message has ever gone out, and about
-             * which version (`{notified}`). */
-            emailedNever: z.string(),
-            emailedOn: z.string(),
-            /** Moving their page on to the version the order stands on. The
-             * message is a tick on it, not a second button. */
-            update: z.string(),
-            updateConfirmHeading: z.string(),
-            updateConfirmMessage: z.string(),
-            updateConfirm: z.string(),
-            updateNotify: z.string(),
-            updateNotifyHint: z.string(),
-            /** Writing to them about the version they already hold — the
-             * message somebody decided against, or one that never arrived. */
-            email: z.string(),
-            emailAgain: z.string(),
-            emailConfirmHeading: z.string(),
-            emailConfirmMessage: z.string(),
-            emailConfirm: z.string(),
-            keep: z.string(),
-            /** Somebody else moved the order while this page was open. */
-            error: z.string(),
-          })
-          .strict(),
-        /** Recording that the money arrived. Not a transaction — the platform
-         * takes no payment. */
-        paymentState: z
-          .object({
-            heading: z.string(),
-            notDue: z.string(),
-            awaiting: z.string(),
-            /** `{date}` it was recorded. */
-            paid: z.string(),
-            record: z.string(),
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
-            confirm: z.string(),
-            /** Taking the record back — a mis-tick, never a refund. */
-            clear: z.string(),
-            clearConfirmHeading: z.string(),
-            clearConfirmMessage: z.string(),
-            clearConfirm: z.string(),
-            keep: z.string(),
-            error: z.string(),
-          })
-          .strict(),
-        /**
-         * The personal details on the order (NFR-LEGAL-14): when they were
-         * removed, or on a finished guest order, removing them on the
-         * guest's request.
-         */
-        personalData: z
-          .object({
-            heading: z.string(),
-            /** A finished guest order that still carries them. */
-            kept: z.string(),
-            /** `{date}` they were removed. */
-            removed: z.string(),
-            remove: z.string(),
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
-            confirmWarning: z.string(),
-            confirm: z.string(),
-            error: z.string(),
-          })
-          .strict(),
-        /** The two documents an order carries (FR-ORD-05). */
-        documents: z
-          .object({
-            heading: z.string(),
-            summary: z.string(),
-            paymentInstructions: z.string(),
-            /** Said of the summary nobody has replaced. */
-            generated: z.string(),
-            /** `{date}` a file was supplied. */
-            supplied: z.string(),
-            /** A supplied file quoting an order that has changed since:
-             * `{number}` it was filed against, `{current}` where the order is
-             * now. A warning, never a refusal. */
-            outdated: z.string(),
-            open: z.string(),
-            upload: z.string(),
-            replace: z.string(),
-            remove: z.string(),
-            notify: z.string(),
-            notifyHint: z.string(),
-            /** Why the send button is not offered: the customer's own page has
-             * not reached the version the file was filed against. */
-            notifyBehind: z.string(),
-            /** The button afterwards. It stays pressable — a customer who lost
-             * the message is asking for the same document again. */
-            notifySent: z.string(),
-            notifyConfirmHeading: z.string(),
-            notifyConfirmMessage: z.string(),
-            notifyConfirm: z.string(),
-            /** Why staff cannot draw payment instructions themselves. */
-            paymentHint: z.string(),
-            summaryHint: z.string(),
-            removeConfirmHeading: z.string(),
-            removeConfirmMessage: z.string(),
-            removeConfirm: z.string(),
-            keep: z.string(),
-            uploading: z.string(),
-            error: z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
-    /**
-     * Adjusting an order (FR-ORD-03) — a whole new version of it, written on
-     * one screen. Its own catalogue rather than more keys on the detail
-     * screen: this one asks questions, and the other only answers them.
-     */
-    orderAdjust: z
-      .object({
-        /** `{reference}` names the order being adjusted. */
-        title: z.string(),
-        lead: z.string(),
-        save: z.string(),
-        cancel: z.string(),
-        loadError: z.string(),
-        notFound: z.string(),
-        /** Warnings, not refusals: a change is allowed wherever the order
-         * stands, and the screen says what it will sit awkwardly with. */
-        warnPaid: z.string(),
-        warnReady: z.string(),
-        warnEnded: z.string(),
-        /** Whether to write to the customer about this change now
-         * (FR-NOTIF-03). Off by default: the move that follows carries the
-         * news, and this is for the change no move will ever mention. */
-        notify: z.string(),
-        notifyHint: z.string(),
-        lines: z
-          .object({
-            heading: z.string(),
-            /** The staff reading of a quantity: how many of what the price is
-             * per (FR-UNIT-04). */
-            units: z.string(),
-            price: z.string(),
-            remove: z.string(),
-            /** Reordering a line. Not a change to the order — a picking list
-             * is read top to bottom, and the alternative was removing a line
-             * and adding it back, which loses the price it was agreed at. */
-            moveUp: z.string(),
-            moveDown: z.string(),
-            addLabel: z.string(),
-            addPlaceholder: z.string(),
-            noMatches: z.string(),
+            page: pageText,
+            /** How many rows the list holds, filters applied. */
+            count: z.string(),
+            searchAria: z.string(),
+            searchPlaceholder: z.string(),
+            clearSearch: z.string(),
             empty: z.string(),
-            /** What the storefront thinks of the product — staff may use it
-             * anyway. */
-            unpublished: z.string(),
-            deleted: z.string(),
-            outOfStock: z.string(),
-            /** What the quantity field on a line is counted in, printed
-             * inside it. */
-            pieces: z.string(),
-            /** A line priced away from the list it would otherwise take
-             * (FR-CART-09) — allowed, and worth saying. */
-            offList: z.string(),
+            /** Shown instead of `empty` when the status filter emptied the
+             * list. */
+            noResults: z.string(),
+            loadError: z.string(),
+            /** Column headings; the rest are shared names. */
+            placed: z.string(),
+            customer: z.string(),
+            items: z.string(),
+            filterStatus: z.string(),
+            statusAll: z.string(),
+            /** Whether anything is owed (FR-ORD-04), read apart from the
+             * status. An order with nothing due says nothing. */
+            filterPayment: z.string(),
+            paymentAll: z.string(),
+            /** Everything the shop has not been paid for, cash and invoiced
+             * alike — what the panel's finished-and-unpaid count links to. */
+            paymentUnpaid: z.string(),
+            /** Screen-reader heading for the column of row buttons. */
+            actionsAria: z.string(),
+            /** `{count}` lines on the order. */
+            itemCount: z.string(),
+          })
+          .strict(),
+        /** One order in full, as staff read it. */
+        detail: z
+          .object({
+            /** `{date}` the request was sent, and `{date}` its status last moved. */
+            placed: z.string(),
+            back: z.string(),
+            /** Opens the summary a guest was mailed (FR-NOTIF-06) — what that
+             * customer is looking at when they ring about the order. Only on a
+             * guest's order; an account holder's own view is the version
+             * link. */
+            guestView: z.string(),
+            /** The block wording not shared with the storefront. */
+            billingSame: z.string(),
+            whenAny: z.string(),
+            /** The line under every "email the customer" tick: what they are sent. */
+            notifyHint: z.string(),
+            /** A line in pieces — `{count} × {price}`, the way the source
+             * system prices. */
+            pieceLine: z.string(),
+            /** Every version of the order (FR-ORD-03): what the shop said it
+             * changed, and the difference from the version before it. */
+            revisions: z
+              .object({
+                heading: z.string(),
+                /** `{count}` versions, on the lid of the panel. */
+                subheading: z.string(),
+                /** `{number}` of the version, `{date}` it was written and
+                 * `{who}` wrote it. */
+                written: z.string(),
+                /** Version 1 is the order as it was sent, so nobody on the
+                 * shop's side wrote it. */
+                authorCustomer: z.string(),
+                /** A later version with no author — an outside system, or a
+                 * record made before authors were kept. */
+                authorUnknown: z.string(),
+                /** What each version was written for: the customer sent it, the
+                 * shop moved the order, or the shop changed what it says. */
+                submitted: z.string(),
+                moved: z.string(),
+                changed: z.string(),
+                /** Marks the version the customer is being shown. */
+                customerView: z.string(),
+                changes: z.string(),
+                noChanges: z.string(),
+                loadError: z.string(),
+                /** The version's own name — `{number}` — used as the link to
+                 * the page that reads it back, with who wrote it and when
+                 * beside it. */
+                versionLabel: z.string(),
+                /** The same name inside a running sentence — `{number}`, and
+                 * lower-cased where the deployment's language wants it. */
+                versionInline: z.string(),
+                writtenBy: z.string(),
+                /** Which version the customer is on, where this is not it. */
+                customerOn: z.string(),
+                /** When the customer was written to about this version
+                 * (FR-NOTIF-03) — `{date}`. */
+                notified: z.string(),
+                /** The way from reading a version to answering the order, and
+                 * back the other way. */
+                openControls: z.string(),
+                /** The same link where there is nothing to answer with, because
+                 * an external system holds order processing. */
+                openOrder: z.string(),
+                openRevision: z.string(),
+              })
+              .strict(),
+            /**
+             * Answering an order (FR-ORD-01/02/04). One label per move a
+             * manager makes, plus the confirmation the two refusals need —
+             * declining and cancelling are quoted at the customer, so both ask
+             * why.
+             */
+            actions: z
+              .object({
+                /** The list's own two glyphs: opening an order, and opening one
+                 * that has not been answered yet. */
+                open: z.string(),
+                answer: z.string(),
+                approve: z.string(),
+                /** Opening the adjustment form (FR-ORD-03) — the other half of
+                 * accepting an order, for the case where what the shop accepts
+                 * is not what was submitted. */
+                adjust: z.string(),
+                /** Undo an ending: back to a request the shop has to answer. */
+                reopen: z.string(),
+                /**
+                 * Staff's undo along the chain — the same three statuses read
+                 * the other way round. Their own wording because they are their
+                 * own act: "Confirm" on an order already out for delivery would
+                 * read as a step forward it is not.
+                 */
+                backToRequested: z.string(),
+                backToApproved: z.string(),
+                backToReady: z.string(),
+                ready: z.string(),
+                readyPickup: z.string(),
+                complete: z.string(),
+                decline: z.string(),
+                cancel: z.string(),
+                /** The tick that decides whether the move reaches the
+                 * customer's own page (FR-NOTIF-03), and the line under it.
+                 * Offered ticked: clearing it is for a step taken by
+                 * mistake. */
+                showCustomer: z.string(),
+                showCustomerHint: z.string(),
+                /** The tick that decides whether the move puts a message in the
+                 * customer's inbox (FR-NOTIF-03), and the line under it.
+                 * Offered ticked for news they have not had yet, and only where
+                 * the move reaches their page at all. */
+                notify: z.string(),
+                /** The tick that records the money with the move that is the
+                 * handover (FR-ORD-04), and the line under it. */
+                markPaid: z.string(),
+                markPaidHint: z.string(),
+                reasonLabel: z.string(),
+                /**
+                 * `{action}` names the move, in the heading and on the button.
+                 * The warning is weighed before ending an order the shop has
+                 * already been paid for (FR-ORD-04): the move goes ahead, but
+                 * nothing here sends money back, and this is where somebody
+                 * would assume it does.
+                 */
+                confirm: confirmText,
+                /** Added to the dialog where the shop's payment instructions
+                 * will travel with the message this move sends (FR-ORD-05). */
+                notifyAttachment: z.string(),
+                /** And where they would have, had anybody filed them: the move
+                 * that makes the money due is the last comfortable moment to
+                 * notice the slip is missing. */
+                notifyNoDocument: z.string(),
+                /** The move was refused: the order had already been
+                 * answered. */
+                error: z.string(),
+              })
+              .strict(),
+            /**
+             * Telling the customer where the order has got to (FR-NOTIF-03), on
+             * the one row that exists because it is a decision: their view of
+             * the order has moved on without a word about it, and nothing
+             * writes to them on its own.
+             */
+            /**
+             * What the customer can see and what they have been told — two
+             * questions, always answered, because "nothing to do here" is an
+             * answer a manager needs as much as the other one (FR-NOTIF-03).
+             */
+            tellCustomer: z
+              .object({
+                heading: z.string(),
+                /** `{current}` where their page is level with the order. */
+                on: z.string(),
+                /** `{seen}` the version they are on and `{current}` the one the
+                 * order stands on. Both are filled with
+                 * `revisions.versionInline`, so the sentence carries the word
+                 * and this the punctuation. */
+                behind: z.string(),
+                /** The second line: whether a message has ever gone out, and
+                 * about which version (`{notified}`). */
+                emailedNever: z.string(),
+                emailedOn: z.string(),
+                /** Moving their page on to the version the order stands on. The
+                 * message is a tick on it, not a second button. */
+                update: z.string(),
+                updateConfirm: confirmText,
+                updateNotify: z.string(),
+                /** Writing to them about the version they already hold — the
+                 * message somebody decided against, or one that never
+                 * arrived. */
+                email: z.string(),
+                emailAgain: z.string(),
+                emailConfirm: confirmText,
+                /** Somebody else moved the order while this page was open. */
+                error: z.string(),
+              })
+              .strict(),
+            /** Recording that the money arrived. Not a transaction — the
+             * platform takes no payment. */
+            paymentState: z
+              .object({
+                /** `{date}` it was recorded. */
+                paid: z.string(),
+                record: z.string(),
+                recordConfirm: confirmText,
+                /** Taking the record back — a mis-tick, never a refund. */
+                clear: z.string(),
+                clearConfirm: confirmText,
+                error: z.string(),
+              })
+              .strict(),
+            /**
+             * The personal details on the order (NFR-LEGAL-14): when they were
+             * removed, or on a finished guest order, removing them on the
+             * guest's request.
+             */
+            personalData: z
+              .object({
+                heading: z.string(),
+                /** A finished guest order that still carries them. */
+                kept: z.string(),
+                /** `{date}` they were removed. */
+                removed: z.string(),
+                remove: z.string(),
+                confirm: confirmText,
+                error: z.string(),
+              })
+              .strict(),
+            /** The two documents an order carries (FR-ORD-05). */
+            documents: z
+              .object({
+                heading: z.string(),
+                summary: z.string(),
+                paymentInstructions: z.string(),
+                /** Said of the summary nobody has replaced. */
+                generated: z.string(),
+                /** `{date}` a file was supplied. */
+                supplied: z.string(),
+                /** A supplied file quoting an order that has changed since:
+                 * `{number}` it was filed against, `{current}` where the order
+                 * is now. A warning, never a refusal. */
+                outdated: z.string(),
+                open: z.string(),
+                upload: z.string(),
+                replace: z.string(),
+                notify: z.string(),
+                notifyHint: z.string(),
+                /** Why the send button is not offered: the customer's own page
+                 * has not reached the version the file was filed against. */
+                notifyBehind: z.string(),
+                /** The button afterwards. It stays pressable — a customer who
+                 * lost the message is asking for the same document again. */
+                notifySent: z.string(),
+                notifyConfirm: confirmText,
+                /** Why staff cannot draw payment instructions themselves. */
+                paymentHint: z.string(),
+                summaryHint: z.string(),
+                removeConfirm: confirmText,
+                error: z.string(),
+              })
+              .strict(),
           })
           .strict(),
         /**
-         * The identity fields, worded here rather than borrowed from the user
-         * editor: the same field asking about a different thing — the party an
-         * order is invoiced to, not the account that placed it.
+         * Adjusting an order (FR-ORD-03) — a whole new version of it, written
+         * on one screen. Its own catalogue rather than more keys on the detail
+         * screen: this one asks questions, and the other only answers them.
          */
-        partyKindPerson: z.string(),
-        partyKindCompany: z.string(),
-        personName: z.string(),
-        companyId: z.string(),
-        companyName: z.string(),
-        companySuggest: z
+        adjust: z
           .object({
-            suggestionsLabel: z.string(),
-            noSuggestions: z.string(),
-            /** `{count}` suggestions offered. */
-            suggestionCount: z.string(),
+            page: pageText,
+            save: z.string(),
+            cancel: z.string(),
+            /** Warnings, not refusals: a change is allowed wherever the order
+             * stands, and the screen says what it will sit awkwardly with. */
+            warnPaid: z.string(),
+            warnReady: z.string(),
+            warnEnded: z.string(),
+            /** Whether to write to the customer about this change now
+             * (FR-NOTIF-03). Off by default: the move that follows carries the
+             * news, and this is for the change no move will ever mention. */
+            notify: z.string(),
+            notifyHint: z.string(),
+            lines: z
+              .object({
+                /** The staff reading of a quantity: how many of what the price
+                 * is per (FR-UNIT-04). */
+                unitsAria: z.string(),
+                priceAria: z.string(),
+                removeAria: z.string(),
+                /** Reordering a line. Not a change to the order — a picking
+                 * list is read top to bottom, and the alternative was removing
+                 * a line and adding it back, which loses the price it was
+                 * agreed at. */
+                moveUpAria: z.string(),
+                moveDownAria: z.string(),
+                addLabel: z.string(),
+                addPlaceholder: z.string(),
+                noMatches: z.string(),
+                empty: z.string(),
+                /** A line priced away from the list it would otherwise take
+                 * (FR-CART-09) — allowed, and worth saying. */
+                offList: z.string(),
+              })
+              .strict(),
+            /** Who the order is invoiced to; the fields themselves are shared
+             * names. */
+            partyKindPerson: z.string(),
+            partyKindCompany: z.string(),
+            reprice: z.string(),
+            /** The second half of the form, which folds away from the first:
+             * who the order goes to and how it is paid. */
+            detailsHeading: z.string(),
+            billingAddress: z.string(),
+            /** The customer's own words, shown and not editable. */
+            customerHeading: z.string(),
+            /** The day they asked for — `{date}`, or the words for any day. */
+            wished: z.string(),
+            customerNone: z.string(),
+            noteHint: z.string(),
+            noteRequired: z.string(),
+            /** What is about to change, line by line (FR-ORD-03). */
+            changes: z
+              .object({
+                heading: z.string(),
+                none: z.string(),
+                /** Why the priced half of the comparison is missing. */
+                pricingPending: z.string(),
+              })
+              .strict(),
+            /** What the manager should not have to spot for themselves before
+             * signing an adjustment off: `{count}` prices moved from the
+             * version on file, and `{count}` priced away from `{tier}`. */
+            priceNotice: z
+              .object({
+                moved: z.string(),
+                offList: z.string(),
+              })
+              .strict(),
+            confirm: confirmText,
+            errors: z
+              .object({
+                'order-changed': z.string(),
+                'no-change': z.string(),
+                'unknown-product': z.string(),
+                'unknown-tier': z.string(),
+                'invalid-company-id': z.string(),
+                'unsupported-country': z.string(),
+                'invalid-postal-code': z.string(),
+                'unknown-pickup-location': z.string(),
+                'billing-details-required': z.string(),
+                'cash-not-available': z.string(),
+                'billing-address-required': z.string(),
+                'order-not-found': z.string(),
+                /** Anything else: a network that dropped, a server that fell over. */
+                unknown: z.string(),
+              })
+              .strict(),
           })
           .strict(),
-        validation: z
-          .object({
-            nameRequired: z.string(),
-            emailRequired: z.string(),
-            emailInvalid: z.string(),
-            phoneRequired: z.string(),
-            phoneIncomplete: z.string(),
-            companyNameRequired: z.string(),
-            companyIdRequired: z.string(),
-            /** `{examples}` lists the shapes the deployment accepts. */
-            companyIdFormat: z.string(),
-          })
-          .strict(),
-        /** Which list the lines with no price of their own come from. */
-        tier: z.string(),
-        reprice: z.string(),
-        contact: z.string(),
-        contactName: z.string(),
-        contactEmail: z.string(),
-        contactPhone: z.string(),
-        party: z.string(),
-        fulfilment: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        pickupLocation: z.string(),
-        /** The second half of the form, which folds away from the first: who
-         * the order goes to and how it is paid. */
-        detailsHeading: z.string(),
-        deliveryAddress: z.string(),
-        billingAddress: z.string(),
-        payment: z.string(),
-        paymentCash: z.string(),
-        paymentTransfer: z.string(),
-        paymentCard: z.string(),
-        /** The customer's own words, shown and not editable. */
-        customerHeading: z.string(),
-        /** The day they asked for — `{date}`, or the words for any day. */
-        wished: z.string(),
-        customerNone: z.string(),
-        note: z.string(),
-        noteHint: z.string(),
-        noteRequired: z.string(),
-        /** What is about to change, line by line (FR-ORD-03). */
+        /** Row labels for a list of changes to an order — on the adjustment
+         * screen, and between two versions. The total is a shared name. */
         changes: z
           .object({
-            heading: z.string(),
-            none: z.string(),
+            line: z.string(),
             added: z.string(),
             removed: z.string(),
-            total: z.string(),
-            /** Row labels for the things that can change. */
-            line: z.string(),
-            /** The packing estimate, where the products carry one — a change
-             * to the lines usually moves it, and it is what the shop books a
-             * van by. */
+            /** The packing estimate, where the products carry one — what the
+             * shop books a van by. */
             shipment: z.string(),
-            /** Why the priced half of the comparison is missing. */
-            pricingPending: z.string(),
-          })
-          .strict(),
-        /** What the manager should not have to spot for themselves before
-         * signing an adjustment off: `{count}` prices moved from the version
-         * on file, and `{count}` priced away from `{tier}`. */
-        priceNotice: z
-          .object({
-            moved: z.string(),
-            offList: z.string(),
-          })
-          .strict(),
-        confirmHeading: z.string(),
-        confirmMessage: z.string(),
-        confirm: z.string(),
-        keep: z.string(),
-        errors: z
-          .object({
-            'order-changed': z.string(),
-            'no-change': z.string(),
-            'unknown-product': z.string(),
-            'unknown-tier': z.string(),
-            'invalid-company-id': z.string(),
-            'unsupported-country': z.string(),
-            'invalid-postal-code': z.string(),
-            'unknown-pickup-location': z.string(),
-            'billing-details-required': z.string(),
-            'cash-not-available': z.string(),
-            'billing-address-required': z.string(),
-            'order-not-found': z.string(),
-            /** Anything else: a network that dropped, a server that fell over. */
-            unknown: z.string(),
           })
           .strict(),
       })
       .strict(),
-    userList: z
+    /** The account screens, customers and staff alike. */
+    users: z
       .object({
-        /** The two lists, each reached from its own button on the admin panel;
-         * a manager only ever sees the customer one, so neither heading has to
-         * name the distinction. */
-        titleCustomers: z.string(),
-        titleStaff: z.string(),
-        /** How many rows the list holds, filters applied. */
-        count: z.string(),
-        searchLabel: z.string(),
-        searchPlaceholder: z.string(),
-        clearSearch: z.string(),
-        empty: z.string(),
-        /** Shown instead of `empty` when filters are what emptied the list. */
-        noResults: z.string(),
-        loadError: z.string(),
-        /** Column headings. */
-        name: z.string(),
-        email: z.string(),
-        phone: z.string(),
-        companyId: z.string(),
-        registered: z.string(),
-        /** Accessible names for the column-heading filters. */
-        filterRole: z.string(),
-        filterTier: z.string(),
-        /** Only rendered where the deployment configures several formats. */
-        filterCompanyIdFormat: z.string(),
-        filterStatus: z.string(),
-        roleAll: z.string(),
-        roleAdmin: z.string(),
-        roleManager: z.string(),
-        roleUser: z.string(),
-        tierAll: z.string(),
-        companyIdFormatAll: z.string(),
-        /** The accounts carrying no registration number — private persons. */
-        companyIdFormatNone: z.string(),
-        statusAll: z.string(),
-        /** The column's own noun, for the phone's sort picker — where "All
-         * statuses" would read as an ordering rather than a column. */
-        status: z.string(),
-        statusPending: z.string(),
-        statusInvited: z.string(),
-        statusActive: z.string(),
-        statusDisabled: z.string(),
-        statusAnonymized: z.string(),
-        typePerson: z.string(),
-        typeCompany: z.string(),
-        /** Row actions (FR-AUTH-03/04). `actions` names the column for a screen
-         * reader; the rest are the icon buttons' accessible names. `{name}` in
-         * `declineConfirm` is substituted at render. */
-        actions: z.string(),
-        approve: z.string(),
-        edit: z.string(),
-        decline: z.string(),
-        declineTitle: z.string(),
-        declineConfirm: z.string(),
-        /** Switching an account off and on again. `{name}` is substituted. */
-        deactivate: z.string(),
-        deactivateTitle: z.string(),
-        deactivateConfirm: z.string(),
-        reactivate: z.string(),
-        reactivateTitle: z.string(),
-        reactivateConfirm: z.string(),
-        saveError: z.string(),
-        /** The two Add buttons — one per tab, since they create different
-         * things and land on different forms. */
-        addCustomer: z.string(),
-        addStaff: z.string(),
         /**
-         * Every refusal the account surface can answer with, keyed by the API's
-         * own `code`. The editor reads these too, like the status and role
-         * labels above: a refused approval says the same thing wherever the
-         * click came from.
+         * The staff account list (FR-AUTH-03/04). Column headings double as the
+         * sort/filter controls, so several of these are the accessible names of
+         * a control whose visible text is the value in effect rather than a
+         * label. The storefront list's name is not here either: it is that tier
+         * row's own label, which is why the two screens cannot drift apart.
          */
-        errors: z
+        list: z
           .object({
-            'account-not-found': z.string(),
-            'account-not-pending': z.string(),
-            'account-closed': z.string(),
-            'email-taken': z.string(),
-            'account-not-approved': z.string(),
-            'account-not-disabled': z.string(),
-            'account-cannot-sign-in': z.string(),
-            'self-deactivate': z.string(),
-            'self-demote': z.string(),
-            'last-admin': z.string(),
-            'account-not-purgeable': z.string(),
-            /** Deleting an account on request (FR-ADM-23). */
-            'self-delete': z.string(),
-            'account-pending': z.string(),
-            /** Another account already carries that source key (FR-ADM-14). */
-            'source-id-taken': z.string(),
-            /** The three a manager is refused, shown next to the field. */
-            'role-change-admin-only': z.string(),
-            'staff-create-admin-only': z.string(),
-            'source-id-change-admin-only': z.string(),
-            /** No account of this role may skip the sign-in code (FR-AUTH-12). */
-            'not-exemptable': z.string(),
+            declineConfirm: confirmText,
+            reactivateConfirm: confirmText,
+            deactivateConfirm: confirmText,
+            customersPage: pageText,
+            staffPage: pageText,
+            /** How many rows the list holds, filters applied. */
+            count: z.string(),
+            searchAria: z.string(),
+            searchPlaceholder: z.string(),
+            clearSearch: z.string(),
+            empty: z.string(),
+            /** Shown instead of `empty` when filters are what emptied the
+             * list. */
+            noResults: z.string(),
+            loadError: z.string(),
+            registered: z.string(),
+            /** Accessible names for the column-heading filters. */
+            filterRole: z.string(),
+            filterTier: z.string(),
+            /** Only rendered where the deployment configures several
+             * formats. */
+            filterCompanyIdFormat: z.string(),
+            filterStatus: z.string(),
+            roleAll: z.string(),
+            roleAdmin: z.string(),
+            roleManager: z.string(),
+            roleUser: z.string(),
+            tierAll: z.string(),
+            companyIdFormatAll: z.string(),
+            /** The accounts carrying no registration number — private
+             * persons. */
+            companyIdFormatNone: z.string(),
+            statusAll: z.string(),
+            /** The column's own noun, for the phone's sort picker — where "All
+             * statuses" would read as an ordering rather than a column. */
+            status: z.string(),
+            statusPending: z.string(),
+            statusInvited: z.string(),
+            statusActive: z.string(),
+            statusDisabled: z.string(),
+            statusAnonymized: z.string(),
+            /** Row actions (FR-AUTH-03/04). `actionsAria` names the column for a
+             * screen reader; the rest are the icon buttons' accessible names.
+             * `{name}` in `declineConfirm` is substituted at render. */
+            actionsAria: z.string(),
+            approve: z.string(),
+            edit: z.string(),
+            declineAria: z.string(),
+            /** Switching an account off and on again. `{name}` is
+             * substituted. */
+            deactivateAria: z.string(),
+            reactivateAria: z.string(),
+            saveError: z.string(),
+            /** The two Add buttons — one per tab, since they create different
+             * things and land on different forms. */
+            addCustomer: z.string(),
+            addStaff: z.string(),
+            /**
+             * Every refusal the account surface can answer with, keyed by the
+             * API's own `code`. The editor reads these too, like the status and
+             * role labels above: a refused approval says the same thing
+             * wherever the click came from.
+             */
+            errors: z
+              .object({
+                'account-not-found': z.string(),
+                'account-not-pending': z.string(),
+                'account-closed': z.string(),
+                'email-taken': z.string(),
+                'account-not-approved': z.string(),
+                'account-not-disabled': z.string(),
+                'account-cannot-sign-in': z.string(),
+                'self-deactivate': z.string(),
+                'self-demote': z.string(),
+                'last-admin': z.string(),
+                'account-not-purgeable': z.string(),
+                /** Deleting an account on request (FR-ADM-23). */
+                'self-delete': z.string(),
+                'account-pending': z.string(),
+                /** Another account already carries that source key
+                 * (FR-ADM-14). */
+                'source-id-taken': z.string(),
+                /** The three a manager is refused, shown next to the field. */
+                'role-change-admin-only': z.string(),
+                'staff-create-admin-only': z.string(),
+                'source-id-change-admin-only': z.string(),
+                /** No account of this role may skip the sign-in code (FR-AUTH-12). */
+                'not-exemptable': z.string(),
+              })
+              .strict(),
           })
           .strict(),
-      })
-      .strict(),
-    /**
-     * The account editor (FR-AUTH-03/04) — add, edit and approve on one screen.
-     * Status, role, tier and customer-type *labels* are read from `userList`
-     * rather than repeated here: they name the same things, and two copies is
-     * how they drift apart.
-     */
-    userEditor: z
-      .object({
-        newCustomerTitle: z.string(),
-        newStaffTitle: z.string(),
-        editTitle: z.string(),
-        /** Heading while the account is still awaiting a decision. */
-        approveTitle: z.string(),
-        email: z.string(),
-        /** Why the address is shown but not editable. */
-        emailFixed: z.string(),
-        firstName: z.string(),
-        lastName: z.string(),
-        phone: z.string(),
-        companyName: z.string(),
-        companyId: z.string(),
-        companySuggest: z
+        /**
+         * The account editor (FR-AUTH-03/04) — add, edit and approve on one
+         * screen. Status, role, tier and customer-type *labels* are read from
+         * `userList` rather than repeated here: they name the same things, and
+         * two copies is how they drift apart.
+         */
+        editor: z
           .object({
-            suggestionsLabel: z.string(),
-            noSuggestions: z.string(),
-            /** `{count}` is substituted, for the live region. */
-            suggestionCount: z.string(),
+            newCustomerTitle: z.string(),
+            newStaffTitle: z.string(),
+            editTitle: z.string(),
+            /** Heading while the account is still awaiting a decision. */
+            approveTitle: z.string(),
+            /** Why the address is shown but not editable. */
+            emailFixed: z.string(),
+            customerType: z.string(),
+            tier: z.string(),
+            tierChoose: z.string(),
+            role: z.string(),
+            /**
+             * The source system's key for this customer (FR-ADM-14), shown to
+             * an admin only. `sourceIdHint` says what it is for, because it is
+             * the one field on this screen whose effect is on a system the
+             * person reading it cannot see: an account with no key is invisible
+             * to the exchange, and filling it in is how a self-registered
+             * customer joins.
+             */
+            sourceId: z.string(),
+            sourceIdHint: z.string(),
+            /** Said on the create form: nobody is ever sent a password (ADR 0034). */
+            inviteHint: z.string(),
+            /** Re-sending the set-your-password link, for a mail that never
+             * arrived. Only ever shown while the account is still `invited`. */
+            resend: z.string(),
+            resendSent: z.string(),
+            status: z.string(),
+            create: z.string(),
+            approve: z.string(),
+            notFound: z.string(),
+            /** An anonymized account is a record, not an editable one. */
+            closed: z.string(),
+            saveError: z.string(),
+            discardConfirm: z.string(),
+            validation: z
+              .object({
+                tierRequired: z.string(),
+              })
+              .strict(),
           })
           .strict(),
-        customerType: z.string(),
-        tier: z.string(),
-        tierChoose: z.string(),
-        role: z.string(),
         /**
-         * The source system's key for this customer (FR-ADM-14), shown to an
-         * admin only. `sourceIdHint` says what it is for, because it is the
-         * one field on this screen whose effect is on a system the person
-         * reading it cannot see: an account with no key is invisible to the
-         * exchange, and filling it in is how a self-registered customer joins.
+         * One account, read rather than edited (FR-AUTH-03/04) — the same
+         * surface a customer sees of their own record, plus the two facts they
+         * never see: what price list they are on, and what key an exchange
+         * knows them by.
+         *
+         * Only what this screen says *itself* is here. Every field name,
+         * status, role and tier label is `userList`'s or `userEditor`'s, for
+         * the reason those two already share them: one thing, named once.
          */
-        sourceId: z.string(),
-        sourceIdHint: z.string(),
-        /** Said on the create form: nobody is ever sent a password (ADR 0034). */
-        inviteHint: z.string(),
-        /** Re-sending the set-your-password link, for a mail that never
-         * arrived. Only ever shown while the account is still `invited`. */
-        resend: z.string(),
-        resendSent: z.string(),
-        status: z.string(),
-        create: z.string(),
-        approve: z.string(),
-        notFound: z.string(),
-        /** An anonymized account is a record, not an editable one. */
-        closed: z.string(),
-        saveError: z.string(),
-        discardConfirm: z.string(),
-        validation: z
+        detail: z
           .object({
-            firstNameRequired: z.string(),
-            lastNameRequired: z.string(),
-            emailRequired: z.string(),
-            emailInvalid: z.string(),
-            phoneIncomplete: z.string(),
-            companyNameRequired: z.string(),
-            companyIdRequired: z.string(),
-            /** `{examples}` is every sample number the deployment configures. */
-            companyIdFormat: z.string(),
-            tierRequired: z.string(),
+            unexemptConfirm: confirmText,
+            exemptConfirm: confirmText,
+            deleteConfirm: confirmText,
+            detailsHeading: z.string(),
+            accountHeading: z.string(),
+            /** When the registration was decided, and the line for one that has
+             * not been — a pending account is not an account with a missing date. */
+            approved: z.string(),
+            approvedNever: z.string(),
+            /** Said in full rather than as a dash: an empty source key is what
+             * makes an account invisible to the exchange, which is worth a
+             * sentence on the one screen that shows the field. */
+            sourceIdEmpty: z.string(),
+            /** A customer's consent records (NFR-LEGAL-09). */
+            consentsHeading: z.string(),
+            consentsEmpty: z.string(),
+            /**
+             * Deleting the account on the person's request (FR-ADM-23).
+             * `{name}` is substituted in the confirmation; the tick is offered
+             * only where the account consent is asked, and records the reason.
+             */
+            delete: z.string(),
+            deleteConsentWithdrawn: z.string(),
+            deleteConsentWithdrawnHint: z.string(),
+            deleteError: z.string(),
+            /**
+             * The code after the password (FR-AUTH-12), on accounts the
+             * deployment asks for one. `{date}` is a date, `{admin}` the
+             * exempting admin's address, `{name}` the account's name in the
+             * confirmations.
+             */
+            signInHeading: z.string(),
+            signInPhone: z.string(),
+            signInPhoneConfirmed: z.string(),
+            signInPhoneUnconfirmed: z.string(),
+            /** No number a code can reach: the holder cannot sign in. */
+            signInPhoneMissing: z.string(),
+            signInCode: z.string(),
+            signInCodeAlways: z.string(),
+            /** At `always` where a browser may be remembered; `{days}`. */
+            signInCodeAlwaysRemembered: z.string(),
+            signInCodeOnce: z.string(),
+            signInCodeExempt: z.string(),
+            exempt: z.string(),
+            unexempt: z.string(),
+            exemptError: z.string(),
+            back: z.string(),
+            notFound: z.string(),
+            loadError: z.string(),
           })
           .strict(),
-      })
-      .strict(),
-    /**
-     * One account, read rather than edited (FR-AUTH-03/04) — the same surface
-     * a customer sees of their own record, plus the two facts they never see:
-     * what price list they are on, and what key an exchange knows them by.
-     *
-     * Only what this screen says *itself* is here. Every field name, status,
-     * role and tier label is `userList`'s or `userEditor`'s, for the reason
-     * those two already share them: one thing, named once.
-     */
-    userDetail: z
-      .object({
-        detailsHeading: z.string(),
-        accountHeading: z.string(),
-        /** When the registration was decided, and the line for one that has
-         * not been — a pending account is not an account with a missing date. */
-        approved: z.string(),
-        approvedNever: z.string(),
-        /** Said in full rather than as a dash: an empty source key is what
-         * makes an account invisible to the exchange, which is worth a
-         * sentence on the one screen that shows the field. */
-        sourceIdEmpty: z.string(),
-        /** A customer's consent records (NFR-LEGAL-09). */
-        consentsHeading: z.string(),
-        consentsEmpty: z.string(),
-        /**
-         * Deleting the account on the person's request (FR-ADM-23). `{name}`
-         * is substituted in the confirmation; the tick is offered only where
-         * the account consent is asked, and records the reason.
-         */
-        delete: z.string(),
-        deleteTitle: z.string(),
-        deleteConfirm: z.string(),
-        deleteWarning: z.string(),
-        deleteConsentWithdrawn: z.string(),
-        deleteConsentWithdrawnHint: z.string(),
-        deleteError: z.string(),
-        /**
-         * The code after the password (FR-AUTH-12), on accounts the deployment
-         * asks for one. `{date}` is a date, `{admin}` the exempting admin's
-         * address, `{name}` the account's name in the confirmations.
-         */
-        signInHeading: z.string(),
-        signInPhone: z.string(),
-        signInPhoneConfirmed: z.string(),
-        signInPhoneUnconfirmed: z.string(),
-        /** No number a code can reach: the holder cannot sign in. */
-        signInPhoneMissing: z.string(),
-        signInCode: z.string(),
-        signInCodeAlways: z.string(),
-        /** At `always` where a browser may be remembered; `{days}`. */
-        signInCodeAlwaysRemembered: z.string(),
-        signInCodeOnce: z.string(),
-        signInCodeExempt: z.string(),
-        exempt: z.string(),
-        exemptTitle: z.string(),
-        exemptConfirm: z.string(),
-        unexempt: z.string(),
-        unexemptTitle: z.string(),
-        unexemptConfirm: z.string(),
-        exemptError: z.string(),
-        back: z.string(),
-        notFound: z.string(),
-        loadError: z.string(),
       })
       .strict(),
     /**
@@ -2397,12 +2249,12 @@ export const adminTextSchema = z
      */
     consents: z
       .object({
-        title: z.string(),
+        withdrawConfirm: confirmText,
+        page: pageText,
         /** The admin panel's row to the lookup. */
         panelLookup: z.string(),
         /** The panel's row to a consent text; `{purpose}` names it. */
         panelText: z.string(),
-        intro: z.string(),
         byEmail: z.string(),
         byPhone: z.string(),
         search: z.string(),
@@ -2434,12 +2286,6 @@ export const adminTextSchema = z
         /** Beside an account consent still held: how it would end. */
         endsWithAccount: z.string(),
         withdraw: z.string(),
-        withdrawTitle: z.string(),
-        /** `{holder}` and `{date}` name the record. */
-        withdrawConfirm: z.string(),
-        /** The inquiry itself is a mail in the shop's inbox, which the
-         * platform cannot reach: the admin deletes it by hand. */
-        withdrawInbox: z.string(),
         withdrawNote: z.string(),
         withdrawErrors: z
           .object({
@@ -2457,19 +2303,11 @@ export const adminTextSchema = z
         description: z.string(),
         statusOn: z.string(),
         statusOff: z.string(),
-        enable: z.string(),
-        disable: z.string(),
+        enableAria: z.string(),
+        disableAria: z.string(),
         error: z.string(),
       })
       .strict(),
-    /**
-     * The switch that hands an area of the shop's data to an external system
-     * (FR-ADM-10), and the trail of runtime-setting changes shown beside it.
-     *
-     * Keyed by area rather than written out per area: iteration 13 adds a
-     * value, and a deployment that never hands anything over still ships the
-     * wording, because the file is validated whole.
-     */
     /**
      * The switch that hands an area of the shop's data to an external system
      * (FR-ADM-10), and the refusals it produces across the catalog screens.
@@ -2500,16 +2338,14 @@ export const adminTextSchema = z
         take: z.string(),
         /**
          * The master switch, which is a read over the areas and an action
-         * across them — never a stored fourth flag. It needs a third status
-         * the per-area rows do not: a shop where the areas disagree.
+         * across them — never a stored fourth flag. It reads the per-area
+         * statuses and needs one they do not: a shop where the areas disagree.
          */
         all: z
           .object({
             heading: z.string(),
             description: z.string(),
-            statusOwned: z.string(),
             statusMixed: z.string(),
-            statusOwn: z.string(),
             /** `{count}` of `{total}` areas, for the mixed state. */
             statusMixedEffect: z.string(),
             hand: z.string(),
@@ -2584,7 +2420,7 @@ export const adminTextSchema = z
      */
     operations: z
       .object({
-        title: z.string(),
+        page: pageText,
         backToPanel: z.string(),
         maintenanceHeading: z.string(),
         ownershipHeading: z.string(),
@@ -2598,7 +2434,6 @@ export const adminTextSchema = z
         historyMaintenanceOff: z.string(),
         /** `{date}` and `{actor}` */
         historyBy: z.string(),
-        historyActorGone: z.string(),
         /** `{count}` — shown only when the list came back full. */
         historyMore: z.string(),
       })

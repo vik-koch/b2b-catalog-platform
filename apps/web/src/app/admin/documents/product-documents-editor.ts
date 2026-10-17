@@ -11,6 +11,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { fillText, LinkedDocument } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { HighlightedLine } from '../../core/highlighted-line';
@@ -70,7 +71,7 @@ const SUGGESTIONS_SHOWN = 8;
       [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
-        [label]="text.heading"
+        [label]="product.documents"
         [count]="value().length"
         [countLabel]="countLabel()"
         [open]="open()"
@@ -146,7 +147,7 @@ const SUGGESTIONS_SHOWN = 8;
                   <ul
                     [id]="listId"
                     role="listbox"
-                    [attr.aria-label]="text.suggestionsLabel"
+                    [attr.aria-label]="text.suggestionsAria"
                   >
                     @for (item of options(); track item.id; let i = $index) {
                       <li
@@ -186,7 +187,8 @@ export class ProductDocumentsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(DocumentsService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.documents;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.documents;
+  protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
 
   readonly value = input.required<readonly LinkedDocument[]>();
@@ -261,7 +263,7 @@ export class ProductDocumentsEditor implements OnInit {
     const count = this.options().length;
     return count === 0
       ? this.text.noSuggestions
-      : fillText(this.text.suggestionCount, { count });
+      : fillText(this.text.suggestionCountAria, { count });
   });
 
   /** Open where there is something to see — the pairings editor's rule, for
@@ -307,6 +309,6 @@ export class ProductDocumentsEditor implements OnInit {
   }
 
   protected removeLabel(item: LinkedDocument): string {
-    return fillText(this.text.remove, { name: item.title });
+    return fillText(this.text.removeAria, { name: item.title });
   }
 }

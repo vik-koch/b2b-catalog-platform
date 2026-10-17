@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { fillText, OrderSummary } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
 import {
@@ -70,6 +71,7 @@ import {
 export class OrderRows {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   private readonly text = inject(APP_TEXT).orders;
+  private readonly statusNames = inject(COMMON_TEXT).order;
 
   readonly orders = input.required<readonly OrderSummary[]>();
 
@@ -82,7 +84,11 @@ export class OrderRows {
   }
 
   protected statusLabel(order: OrderSummary): string {
-    return orderStatusLabel(order.status, order.fulfilmentMethod, this.text);
+    return orderStatusLabel(
+      order.status,
+      order.fulfilmentMethod,
+      this.statusNames.statuses,
+    );
   }
 
   protected statusTone(order: OrderSummary): StatusTone {
@@ -90,7 +96,10 @@ export class OrderRows {
   }
 
   protected paymentLabel(order: OrderSummary): string | null {
-    return orderPaymentLabel(order.paymentState, this.text);
+    return orderPaymentLabel(
+      order.paymentState,
+      this.statusNames.paymentStates,
+    );
   }
 
   protected paymentTone(order: OrderSummary): StatusTone {

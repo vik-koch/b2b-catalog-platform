@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -7,12 +8,14 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { OrderListPage } from './order-list-page';
 import { OrdersService } from './orders.service';
 
 const text = defaultAppText.orders;
+const names = defaultCommonText.order;
 
 const placed: OrderSummary = {
   reference: 'DEMO-260826-4831',
@@ -50,6 +53,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: OrdersService, useValue: { listMine } },
     ],
@@ -73,7 +77,7 @@ describe('OrderListPage (FR-ACC-01)', () => {
     );
     // The status is the shop's answer, in the customer's words rather than the
     // column's value.
-    expect(el.textContent).toContain(text.statusRequested);
+    expect(el.textContent).toContain(names.statuses.requested);
     expect(el.textContent).not.toContain(placed.status);
     // Formatted from the deployment's own currency, minor units and all.
     expect(el.textContent).toMatch(/129[.,]90/);

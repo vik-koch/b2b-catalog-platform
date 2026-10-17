@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OrderRevision, OwnershipArea } from '@b2b-catalog-platform/shared';
@@ -11,7 +13,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { AdminOrderRevisionPage } from './order-revision-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderDetail;
+const text = defaultAdminText.orders.detail;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -121,8 +123,10 @@ async function render(answer: OrderRevision | null) {
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AdminOrdersService,
@@ -163,7 +167,9 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     // they were written to about this one.
     expect(el.textContent).toContain('Version 2');
     expect(el.textContent).toContain('version 3');
-    expect(el.textContent).toContain(text.paymentState.awaiting);
+    expect(el.textContent).toContain(
+      defaultAdminText.orders.paymentStates.awaiting,
+    );
   });
 
   /**
@@ -205,6 +211,6 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
   it('says so where the version is not there', async () => {
     const { el } = await render(null);
 
-    expect(el.textContent).toContain(text.notFound);
+    expect(el.textContent).toContain(defaultAdminText.orders.notFound);
   });
 });

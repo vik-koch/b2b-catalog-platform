@@ -8,7 +8,7 @@ import { defaultAppText } from '../config/app-text.fixture';
 import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService } from './addresses.service';
 
-const text = defaultAppText.auth.myAccount.addresses;
+const text = defaultAppText.address;
 
 /** What the stubbed provider answers with; set per test. */
 let answers: AddressSuggestion[] = [];
@@ -38,11 +38,7 @@ async function render() {
     new FormControl('', { nonNullable: true }),
   );
   fixture.componentRef.setInput('label', text.street);
-  fixture.componentRef.setInput('text', {
-    suggestionsLabel: text.suggestionsLabel,
-    noSuggestions: text.noSuggestions,
-    suggestionCount: text.suggestionCount,
-  });
+  fixture.componentRef.setInput('text', text.suggest);
   await fixture.whenStable();
   fixture.detectChanges();
 
@@ -195,7 +191,7 @@ describe('AddressSuggestField (FR-CART-11)', () => {
 
     await type('Hafenstra');
 
-    expect(el.textContent).toContain(text.noSuggestions);
+    expect(el.textContent).toContain(text.suggest.noSuggestions);
   });
 
   // The default deployment configures no adapter, so this is the ordinary case:

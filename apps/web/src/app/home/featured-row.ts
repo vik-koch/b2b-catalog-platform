@@ -72,7 +72,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     size="md"
                     type="button"
                     [disabled]="!canBack()"
-                    [attr.aria-label]="text.previous"
+                    [attr.aria-label]="text.previousAria"
                     [attr.aria-controls]="trackId"
                     (click)="page(-1)"
                   >
@@ -83,7 +83,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     size="md"
                     type="button"
                     [disabled]="!canForward()"
-                    [attr.aria-label]="text.next"
+                    [attr.aria-label]="text.nextAria"
                     [attr.aria-controls]="trackId"
                     (click)="page(1)"
                   >

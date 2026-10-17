@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -107,7 +109,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: SyncService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
@@ -317,7 +321,7 @@ describe('SyncRunPage', () => {
 
     expect(el.textContent).toContain(text.customers.accountsTitle);
     expect(el.textContent).toContain('ada@example.com');
-    expect(el.textContent).toContain(text.customers.kind.invite);
+    expect(el.textContent).toContain(text.customers.count.create);
     // The catalog panel's own headings stay away from it.
     expect(el.textContent).not.toContain(text.productsTitle);
   });

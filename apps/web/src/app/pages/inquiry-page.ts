@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
@@ -62,7 +63,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         >
           <div>
             <label for="name" appFieldLabel>
-              {{ text.name }}
+              {{ fields.name.label }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
             <input
@@ -76,7 +77,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             />
             @if (isInvalid('name')) {
               <p class="mt-1 text-sm text-red-600">
-                {{ text.validation.nameRequired }}
+                {{ fields.name.required }}
               </p>
             }
           </div>
@@ -96,7 +97,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
                offered, because a visitor who gives both is being helpful. -->
           <app-email-field
             [control]="form.controls.email"
-            [label]="text.email"
+            [label]="fields.email.label"
             [text]="emailText"
             [required]="preferred() === 'email'"
             [invalid]="isInvalid('email')"
@@ -104,7 +105,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
           <app-phone-field
             [control]="form.controls.phone"
-            [label]="text.phone"
+            [label]="fields.phone.label"
             [text]="phoneText"
             [required]="preferred() === 'phone'"
             [invalid]="isInvalid('phone')"
@@ -149,7 +150,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             type="submit"
             [disabled]="status() === 'submitting'"
           >
-            {{ status() === 'submitting' ? text.submitting : text.submit }}
+            {{ status() === 'submitting' ? actionText.sending : text.submit }}
           </button>
         </form>
       }
@@ -161,21 +162,23 @@ export class InquiryPage {
   private readonly inquiry = inject(InquiryService);
 
   protected readonly text = inject(APP_TEXT).inquiry;
+  protected readonly fields = inject(COMMON_TEXT).fields;
   protected readonly contactChannels: readonly SegmentOption<PreferredContact>[] =
     [
       { value: 'email', label: this.text.preferredEmail },
       { value: 'phone', label: this.text.preferredPhone },
     ];
   protected readonly errors = inject(APP_TEXT).errors;
-  protected readonly heading = inject(APP_TEXT).nav['inquiry'];
+  protected readonly heading = inject(COMMON_TEXT).nav['inquiry'];
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly emailText = {
-    required: this.text.validation.emailRequired,
-    invalid: this.text.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly phoneText = {
-    required: this.text.validation.phoneRequired,
-    incomplete: this.text.validation.phoneIncomplete,
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
   };
   protected readonly status = signal<Status>('idle');
   protected readonly consent = useConsent('contact');

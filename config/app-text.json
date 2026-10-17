@@ -2,21 +2,6 @@
   "footer": {
     "copyright": "© {name} {years}"
   },
-  "nav": {
-    "home": "Home",
-    "about": "About us",
-    "terms": "Terms of sale",
-    "conditions": "Payment & delivery",
-    "privacy": "Privacy",
-    "imprint": "Imprint",
-    "withdrawal": "Right of withdrawal",
-    "contact": "Contact",
-    "consent-contact": "Consent: contact form",
-    "consent-account": "Consent: customer account",
-    "inquiry": "Get in touch",
-    "licenses": "Licenses",
-    "more": "More"
-  },
   "a11y": {
     "homeLink": "{name} — home",
     "utilityNav": "Utility",
@@ -27,7 +12,6 @@
   },
   "catalog": {
     "navLabel": "Catalogue",
-    "viewCategory": "Browse {name}",
     "emptyCategories": "Our catalogue is being set up — please check back soon.",
     "loadError": "Something went wrong loading the catalogue — please try again later.",
     "catalogRoot": "Catalogue",
@@ -38,25 +22,17 @@
     "nextPage": "Next",
     "pageStatus": "Page {page} of {total}",
     "productCount": "Products: {count}",
-    "availability": {
-      "in": "In stock",
-      "low": "Few left",
-      "out": "Out of stock"
-    },
     "set": {
       "short": "Set",
       "full": "Sold as a set: {parts}"
     },
     "variants": {
-      "heading": "Variants",
       "unavailable": "currently unavailable",
       "note": "Variants carry no stock of their own; which are available is confirmed with you after the order is placed.",
-      "mark": "Variants",
-      "markLabel": "Show the variants ({count})",
-      "close": "Close"
+      "markLabel": "Show the variants ({count})"
     },
     "layout": {
-      "label": "Layout",
+      "labelAria": "Layout",
       "grid": "Show as cards",
       "list": "Show as list"
     },
@@ -79,91 +55,74 @@
       "title": "Filters",
       "selected": "({count})",
       "clearAll": "Clear all filters",
-      "appliedLabel": "Applied filters",
-      "remove": "Remove the filter {label}",
+      "appliedAria": "Applied filters",
+      "removeAria": "Remove the filter {label}",
       "noMatches": "No products match the selected filters."
     },
-    "description": "Description",
     "specifications": "Specifications",
     "mainSpecifications": "Main specifications",
     "allSpecifications": "All specifications",
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",
     "backToCatalog": "Back to the catalogue",
-    "viewImage": "Show image {n}",
+    "viewImageAria": "Show image {n}",
     "imagePlaceholder": "No image available",
     "pairings": {
-      "label": "Sold together",
       "marker": "Sold together with other products ({count})",
       "intro": "These are sold with this product. Add what you need without leaving the page.",
-      "close": "Close",
       "loadError": "Something went wrong loading these — please try again later."
     },
     "documents": {
-      "label": "Documents",
-      "hint": "Opens in a new tab",
-      "linkLabel": "Look it up at {host}",
-      "sizeKb": "{size} kB",
-      "sizeMb": "{size} MB"
+      "hintAria": "Opens in a new tab",
+      "linkAria": "Look it up at {host}"
     },
     "units": {
-      "piece": "pcs",
-      "pack": "pk",
-      "box": "bx",
       "perUnit": "per {unit}",
-      "packaging": "Packaging",
       "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
       "packagingPerPack": "{pieces} {pieceUnit} per {packUnit}",
       "minQuantity": "Minimum order",
-      "minQuantityValue": "{qty} {unit}",
-      "packContains": "Pack contains",
-      "boxContains": "Box contains",
-      "boxVolume": "Box volume",
-      "boxWeight": "Box weight",
       "boxCountSuffix": "(for {count})",
       "select": {
         "piece": "Piece",
         "pack": "Pack",
         "box": "Box"
-      },
-      "pieceName": "Piece",
-      "packName": "Pack",
-      "boxName": "Box"
+      }
     }
   },
   "cart": {
     "navLabel": "Cart",
     "title": "Your cart",
-    "summaryLabel": "Cart: {total}, lines: {count}",
+    "summaryAria": "Cart: {total}, lines: {count}",
     "empty": "Your cart is empty.",
     "emptyAction": "Browse the catalogue",
     "loadError": "Something went wrong pricing your cart — please try again later.",
     "storageFailed": "This browser will not keep your cart — it will be gone when you close this page.",
-    "unitLabel": "Unit",
-    "quantityLabel": "Quantity",
+    "unitAria": "Unit",
+    "quantityAria": "Quantity",
     "unitNotSold": "This product is not sold in this unit.",
-    "decrease": "Decrease the quantity",
-    "increase": "Increase the quantity",
+    "decreaseAria": "Decrease the quantity",
+    "increaseAria": "Increase the quantity",
     "noteLabel": "Note",
     "notePrompt": "Anything we should know about this line?",
     "noteAdd": "Add a note to this line",
     "noteEdit": "Edit the note on this line",
-    "noteDone": "Done",
     "add": "Add to cart",
     "addedFor": "Added for {total}",
     "full": "Your cart is full — please place this order before adding more products.",
-    "lineNote": "Note",
-    "remove": "Remove {name}",
+    "lineNoteAria": "Note",
+    "removeAria": "Remove {name}",
     "removeQuestion": "Take this out of the cart?",
     "removeYes": "Remove",
     "removeNo": "Keep",
-    "selectLine": "Select {name}",
+    "selectLineAria": "Select {name}",
     "selectAll": "Select all",
     "clearSelection": "Clear selection",
     "deleteSelected": "Delete selection",
-    "deleteSelectedHeading": "Delete the selected lines",
-    "deleteSelectedConfirm": "Remove the selection from your cart? Lines selected: {count}. This cannot be undone.",
-    "cancel": "Cancel",
+    "deleteSelectedConfirm": {
+      "heading": "Delete the selected lines",
+      "message": "Remove the selection from your cart? Lines selected: {count}. This cannot be undone.",
+      "confirm": "Delete selection"
+    },
     "subtotal": "Subtotal",
     "noPrice": "On request",
     "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
@@ -178,7 +137,7 @@
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
     "changes": {
       "heading": "What changed while your cart waited",
-      "dismiss": "Dismiss this summary",
+      "dismissAria": "Dismiss this summary",
       "unavailable": "{name} is no longer available.",
       "quantity": "{name}: the quantity was adjusted to the nearest we can supply.",
       "price": "{name}: the price changed from {from} to {to}.",
@@ -216,13 +175,10 @@
       "nameRequired": "Please tell us who to ask for.",
       "note": "We invoice whoever you name here, and use your email and phone only to confirm the order."
     },
-    "optional": "optional",
     "party": {
       "heading": "Who should we invoice?",
       "own": "Myself",
       "other": "Somebody else",
-      "person": "A private person",
-      "company": "A company",
       "personName": "Their name",
       "nameRequired": "Please give the name we should invoice.",
       "otherNotice": "We will confirm the price with you — your agreed prices belong to your own account."
@@ -244,8 +200,6 @@
       "unknown": "We will confirm delivery to this address with you."
     },
     "timing": {
-      "deliveryLabel": "Preferred delivery date",
-      "pickupLabel": "Preferred collection date",
       "placeholder": "Select a date…",
       "deliveryHint": "Your preference only: the actual delivery date will be confirmed by a manager.",
       "pickupHint": "Your preference only: the actual collection date will be confirmed by a manager.",
@@ -253,12 +207,9 @@
     },
     "payment": {
       "heading": "How would you like to pay?",
-      "cashTitle": "Cash",
       "cashDeliveryDescription": "Pay when you receive your order.",
       "cashPickupDescription": "Pay when you collect your order.",
-      "transferTitle": "Bank transfer",
       "transferDescription": "We invoice you with our bank details once we confirm your order.",
-      "cardTitle": "Card, arranged with the shop",
       "transferCompanyOnly": "Only for an order invoiced to a company.",
       "cashPersonOnly": "Only for an order invoiced to a private person."
     },
@@ -269,27 +220,17 @@
     "review": {
       "title": "Check your order",
       "intro": "Nothing has been sent yet. Read it over, and send it when it is right.",
-      "items": "Your items",
-      "quantity": "{qty} {unit}",
-      "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
-      "fulfilment": "How it arrives",
-      "invoice": "Who we invoice",
       "billingSame": "Invoiced to the same address.",
       "whenAny": "As soon as you can",
-      "payment": "How it is paid",
-      "note": "Your note",
       "back": "Change something",
       "backToCart": "Back to cart",
       "send": "Review and send"
     },
     "submit": "Order with obligation to pay",
-    "submitting": "Sending…",
     "successHeading": "Thank you — we have your order",
     "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
     "successView": "View your order",
     "successAction": "Back to the catalogue",
-    "successRegister": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
-    "successRegisterAction": "Request an account",
     "errors": {
       "incomplete": "Some answers are missing or need correcting — they are marked on the form.",
       "invalidCompanyId": "That company ID is not in a format we can invoice against. Please check it.",
@@ -307,14 +248,11 @@
     },
     "fulfilment": {
       "heading": "How would you like to receive your order?",
-      "deliveryTitle": "Delivery",
-      "pickupTitle": "Self-pickup",
       "pickupDescription": "Collect your order yourself for free.",
       "conditionsLink": "Delivery conditions",
       "conditionsHeading": "Where we deliver",
       "conditionsNote": "A guide only — we confirm delivery and its cost with every order.",
       "conditionsMore": "Read the full terms",
-      "close": "Close",
       "freeFrom": "Free delivery from {amount}",
       "noFreeDelivery": "Delivery is quoted per order",
       "noDelivery": "We do not deliver to this area.",
@@ -331,39 +269,29 @@
     "awaitingPickup": "{count} ready to collect",
     "filterToPay": "Waiting to be paid",
     "filterToCollect": "Ready to collect",
-    "filterRemove": "Show all orders ({label})",
+    "filterRemoveAria": "Show all orders ({label})",
     "filterEmpty": "Nothing is waiting for you right now.",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
     "itemCount": "Lines: {count}",
-    "statusRequested": "Awaiting confirmation",
-    "statusApproved": "Confirmed",
-    "statusReadyDelivery": "On its way to you",
-    "statusReadyPickup": "Ready to collect",
-    "statusCompleted": "Complete",
-    "statusDeclined": "Declined",
-    "statusCancelled": "Cancelled",
-    "paymentAwaiting": "Payment due",
-    "paymentPaid": "Paid",
     "error": "We could not load your orders right now. Please try again later.",
     "back": "Back to my account",
     "detail": {
       "placed": "Sent {date}",
-      "contact": "Who we ask for",
       "notFound": "We cannot find that order on your account.",
       "backToList": "Back to my orders",
       "error": "We could not load that order right now. Please try again later.",
-      "statusReason": "Why",
-      "changes": "What we changed",
       "cancel": {
         "action": "Cancel this order",
+        "reasonLabel": "Please tell us why",
+        "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."
+      },
+      "cancelConfirm": {
         "heading": "Cancel this order?",
         "message": "We will stop working on order {reference}. You can always send us a new one.",
-        "reasonLabel": "Please tell us why",
-        "paidWarning": "We have already recorded a payment for this order. Cancelling it here does not send the money back — please arrange the refund with us directly.",
         "confirm": "Cancel the order",
-        "keep": "Keep the order",
-        "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."
+        "cancel": "Keep the order",
+        "warning": "We have already recorded a payment for this order. Cancelling it here does not send the money back — please arrange the refund with us directly."
       },
       "documents": {
         "heading": "Documents",
@@ -375,25 +303,23 @@
       "heading": "Your order",
       "intro": "This is the order request you sent us. Nothing is charged and nothing is dispatched until we confirm it with you.",
       "notFound": "This link does not open an order. It may have been mistyped, or the order may have been removed.",
-      "home": "Back to the shop",
-      "register": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
-      "registerAction": "Request an account"
+      "home": "Back to the shop"
     }
   },
   "search": {
     "placeholder": "Search products",
     "submit": "Search",
     "openSearch": "Open search",
-    "closeSearch": "Close search",
-    "clear": "Clear search",
-    "searchNav": "Product search",
-    "suggestionsLabel": "Product suggestions",
-    "suggestionCount": "Suggestions available: {count}. Use the arrow keys to review them.",
+    "closeSearchAria": "Close search",
+    "clearAria": "Clear search",
+    "searchNavAria": "Product search",
+    "suggestionsAria": "Product suggestions",
+    "suggestionCountAria": "Suggestions available: {count}. Use the arrow keys to review them.",
     "noSuggestions": "Nothing found",
     "categoriesLabel": "Matching categories",
     "showAllResults": "Show all results",
-    "addSuggestion": "Add {name} to cart",
-    "suggestionInCart": "{name} is in your cart",
+    "addSuggestionAria": "Add {name} to cart",
+    "suggestionInCartAria": "{name} is in your cart",
     "resultsTitle": "Results for “{query}”",
     "resultCount": "Products found: {count}",
     "noResults": "Nothing matched “{query}”.",
@@ -405,109 +331,27 @@
     "login": "Log in",
     "logout": "Log out",
     "accountNav": "Account",
-    "workMarker": "{count} awaiting your attention",
+    "workMarkerAria": "{count} awaiting your attention",
     "greeting": "Hello, {name}",
     "securityHeading": "Password and security",
     "adminPanel": "Admin panel",
     "staffArea": "Staff area",
     "account": "My account",
-    "email": "Email",
     "password": "Password",
+    "registerInvite": {
+      "text": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
+      "action": "Request an account"
+    },
     "submit": "Log in",
     "submitting": "Logging in…",
     "invalid": "Invalid email or password.",
     "closed": "The shop is closed for maintenance, so customer accounts cannot sign in right now. Please try again later.",
     "error": "Something went wrong logging you in. Please try again.",
-    "myAccount": {
-      "detailsHeading": "My details",
-      "name": "Name",
-      "email": "Email",
-      "phone": "Phone",
-      "customerType": "Account type",
-      "person": "Private person",
-      "company": "Company",
-      "companyName": "Company name",
-      "companyId": "Company ID",
-      "memberSince": "Customer since",
-      "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
-      "error": "We could not load your details right now. Please try again later.",
-      "edit": {
-        "action": "Edit details",
-        "heading": "Edit my details",
-        "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
-        "firstName": "First name",
-        "lastName": "Last name",
-        "submit": "Save changes",
-        "submitting": "Saving…",
-        "cancel": "Cancel",
-        "error": "Something went wrong saving your details. Please try again.",
-        "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
-      },
-      "addresses": {
-        "heading": "My addresses",
-        "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
-        "add": "Add address",
-        "editLabel": "Edit {label}",
-        "remove": "Remove",
-        "removeLabel": "Remove {label}",
-        "removeHeading": "Remove address",
-        "removeConfirm": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
-        "error": "We could not load your addresses right now. Please try again later.",
-        "newHeading": "Add an address",
-        "editHeading": "Edit address",
-        "intro": "Saved addresses are offered at checkout, so you only type one once.",
-        "label": "Name for this address",
-        "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
-        "enterManually": "Enter the address manually",
-        "addressLine": "Address",
-        "street": "Street and number",
-        "street2": "Address line 2",
-        "postalCode": "Postcode",
-        "city": "City",
-        "region": "Region",
-        "country": "Country",
-        "optional": "optional",
-        "submit": "Save address",
-        "submitting": "Saving…",
-        "cancel": "Cancel",
-        "required": "Please fill this in.",
-        "postalCodeFormat": "A postcode here looks like {example}.",
-        "saveError": "Something went wrong saving this address. Please try again.",
-        "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
-        "unsupportedCountry": "We do not deliver to that country. Please choose another.",
-        "suggestionsLabel": "Address suggestions",
-        "noSuggestions": "No matching addresses. Carry on typing it yourself.",
-        "suggestionCount": "Address suggestions: {count}"
-      },
-      "delete": {
-        "action": "Delete my account",
-        "heading": "Delete my account",
-        "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
-        "consequences": [
-          "You will be signed out and will not be able to sign in again.",
-          "Your name, phone number and other details are removed.",
-          "Past orders are kept for our bookkeeping, with your details removed from them.",
-          "You can register again later, but it will be a new account — your earlier orders will not appear in it."
-        ],
-        "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
-        "password": "Your password",
-        "passwordHint": "Confirm with your password to show this is you.",
-        "submit": "Delete my account",
-        "submitting": "Deleting…",
-        "cancel": "Keep my account",
-        "wrongPassword": "That is not your password.",
-        "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
-        "error": "Something went wrong deleting your account. Please try again.",
-        "doneHeading": "Your account has been deleted",
-        "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
-      }
-    },
     "forgotPassword": {
       "link": "Forgot your password?",
       "heading": "Reset your password",
       "intro": "Enter the email address you sign in with and we will send you a link to choose a new password.",
       "submit": "Send me a link",
-      "submitting": "Sending…",
       "successHeading": "Check your email",
       "success": "If there is an account for this address, a link to choose a new password is on its way. It can be used once, and expires an hour after it was sent.",
       "error": "Something went wrong sending your link. Please try again.",
@@ -519,34 +363,12 @@
       "heading": "Create an account",
       "intro": "Tell us about yourself and we will set up your customer account. A colleague reviews every request, so this is not instant — you will receive your password by email once your account is ready.",
       "customerType": "I am registering as",
-      "person": "A private person",
-      "company": "A company",
-      "firstName": "First name",
-      "lastName": "Last name",
-      "phone": "Phone",
-      "companyName": "Company name",
-      "companyId": "Company ID",
       "submit": "Request an account",
-      "submitting": "Sending…",
       "successHeading": "Thank you",
       "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
       "error": "Something went wrong sending your request. Please try again.",
       "haveAccount": "Already have an account?",
-      "validation": {
-        "firstNameRequired": "Please enter your first name.",
-        "lastNameRequired": "Please enter your last name.",
-        "phoneRequired": "Please enter your phone number.",
-        "phoneIncomplete": "Please enter a complete phone number.",
-        "companyNameRequired": "Please enter your company name.",
-        "companyIdRequired": "Please enter your company ID.",
-        "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}."
-      },
-      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}.",
-      "companySuggest": {
-        "suggestionsLabel": "Company suggestions",
-        "noSuggestions": "No matching companies. Carry on typing it yourself.",
-        "suggestionCount": "Company suggestions: {count}"
-      }
+      "companyIdHint": "Any of the numbers we can invoice against, e.g. {examples}."
     },
     "setPassword": {
       "checking": "Checking your link…",
@@ -555,14 +377,12 @@
       "resetHeading": "Choose a new password",
       "resetIntro": "Choose a new password for your account. Anywhere you are still signed in will be signed out.",
       "forAccount": "For",
-      "password": "Password",
       "confirmPassword": "Repeat password",
       "show": "Show",
       "hide": "Hide",
       "generate": "Suggest a strong password",
       "generated": "We filled in a strong password. Save it in your password manager before continuing.",
       "submit": "Save password and continue",
-      "submitting": "Saving…",
       "successHeading": "You are all set",
       "success": "Your password is saved and you are signed in.",
       "expiredHeading": "This link no longer works",
@@ -620,8 +440,6 @@
       "forcedContinue": "Continue"
     },
     "validation": {
-      "emailRequired": "Please enter your email address.",
-      "emailInvalid": "Please enter a valid email address.",
       "passwordRequired": "Please enter your password.",
       "currentPasswordRequired": "Please enter your current password.",
       "newPasswordRequired": "Please enter a new password.",
@@ -636,6 +454,61 @@
       "password-unchanged": "Please choose a password different from your current one."
     }
   },
+  "account": {
+    "detailsHeading": "My details",
+    "customerType": "Account type",
+    "memberSince": "Customer since",
+    "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
+    "error": "We could not load your details right now. Please try again later.",
+    "edit": {
+      "action": "Edit details",
+      "heading": "Edit my details",
+      "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
+      "submit": "Save changes",
+      "error": "Something went wrong saving your details. Please try again.",
+      "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
+    },
+    "addresses": {
+      "heading": "My addresses",
+      "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
+      "add": "Add address",
+      "editAria": "Edit {label}",
+      "removeAria": "Remove {label}",
+      "removeConfirm": {
+        "heading": "Remove address",
+        "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
+        "confirm": "Remove"
+      },
+      "error": "We could not load your addresses right now. Please try again later.",
+      "newHeading": "Add an address",
+      "editHeading": "Edit address",
+      "intro": "Saved addresses are offered at checkout, so you only type one once.",
+      "submit": "Save address",
+      "saveError": "Something went wrong saving this address. Please try again.",
+      "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
+      "unsupportedCountry": "We do not deliver to that country. Please choose another."
+    },
+    "delete": {
+      "action": "Delete my account",
+      "heading": "Delete my account",
+      "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
+      "consequences": [
+        "You will be signed out and will not be able to sign in again.",
+        "Your name, phone number and other details are removed.",
+        "Past orders are kept for our bookkeeping, with your details removed from them.",
+        "You can register again later, but it will be a new account — your earlier orders will not appear in it."
+      ],
+      "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
+      "passwordHint": "Confirm with your password to show this is you.",
+      "submit": "Delete my account",
+      "cancel": "Keep my account",
+      "wrongPassword": "That is not your password.",
+      "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
+      "error": "Something went wrong deleting your account. Please try again.",
+      "doneHeading": "Your account has been deleted",
+      "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
+    }
+  },
   "home": {
     "eyebrow": "Hamburg · Speicherstadt",
     "title": "Wholesale specialty coffee",
@@ -643,8 +516,8 @@
     "categoriesHeading": "Browse by category",
     "featured": {
       "heading": "From our range",
-      "previous": "Previous products",
-      "next": "More products"
+      "previousAria": "Previous products",
+      "nextAria": "More products"
     }
   },
   "pageUpdated": {
@@ -665,26 +538,43 @@
     "changed": "The consent text has just been updated. Please read it and tick the box again.",
     "unavailable": "This form cannot be sent at the moment. Please try again later, or reach us another way."
   },
+  "companySuggest": {
+    "suggestionsAria": "Company suggestions",
+    "noSuggestions": "No matching companies. Carry on typing it yourself.",
+    "suggestionCountAria": "Company suggestions: {count}"
+  },
+  "address": {
+    "label": "Name for this address",
+    "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
+    "enterManually": "Enter the address manually",
+    "addressLine": "Address",
+    "street": "Street and number",
+    "street2": "Address line 2",
+    "postalCode": "Postcode",
+    "city": "City",
+    "region": "Region",
+    "country": "Country",
+    "required": "Please fill this in.",
+    "postalCodeFormat": "A postcode here looks like {example}.",
+    "suggest": {
+      "suggestionsAria": "Address suggestions",
+      "noSuggestions": "No matching addresses. Carry on typing it yourself.",
+      "suggestionCountAria": "Address suggestions: {count}"
+    }
+  },
+  "partyChoice": {
+    "person": "A private person",
+    "company": "A company"
+  },
   "inquiry": {
     "intro": "Send us a message and we will get back to you by your preferred method.",
-    "name": "Name",
-    "email": "Email",
-    "phone": "Phone",
     "preferredContact": "How should we reach you?",
     "preferredEmail": "By email",
     "preferredPhone": "By phone",
     "message": "Message",
     "submit": "Send message",
-    "submitting": "Sending…",
     "success": "Thanks — we have your message and will be in touch soon.",
-    "error": "Something went wrong sending your message. Please try again.",
-    "validation": {
-      "nameRequired": "Please enter your name.",
-      "emailRequired": "Please enter your email address.",
-      "emailInvalid": "Please enter a valid email address.",
-      "phoneRequired": "Please enter your phone number.",
-      "phoneIncomplete": "Please enter a complete phone number."
-    }
+    "error": "Something went wrong sending your message. Please try again."
   },
   "conditions": {
     "paymentHeading": "Payment",
@@ -694,8 +584,8 @@
       "Product pictures show the goods as closely as we can; colours may look slightly different on screen.",
       "Some goods are sold <b>assorted</b>: you receive one of the designs shown. A design you name in your order is a wish we try to meet, not a promise."
     ],
-    "taxIncluded": "All prices include VAT at {rate}\u00a0%. Goods taxed at a reduced rate name it on their product page.",
-    "taxAdded": "All prices are net. VAT at {rate}\u00a0% is added on the invoice; goods taxed at a reduced rate name it on their product page.",
+    "taxIncluded": "All prices include VAT at {rate} %. Goods taxed at a reduced rate name it on their product page.",
+    "taxAdded": "All prices are net. VAT at {rate} % is added on the invoice; goods taxed at a reduced rate name it on their product page.",
     "taxNone": "We charge no VAT: the prices are what you pay.",
     "returnsHeading": "Returns",
     "returnsParagraphs": [
@@ -705,16 +595,6 @@
     "returnsWithdrawalLink": "Your right of withdrawal"
   },
   "tax": {
-    "statement": {
-      "included": "Incl. {rate}\u00a0% VAT",
-      "added": "Plus {rate}\u00a0% VAT",
-      "none": "No VAT charged"
-    },
-    "mixed": {
-      "included": "Incl. VAT at the rate each item states",
-      "added": "Plus VAT at the rate each item states"
-    },
-    "line": "{rate}\u00a0% VAT",
     "atPrice": "{statement}, plus delivery",
     "listing": {
       "included": "All prices include VAT, plus delivery.",

@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { FulfilmentMethod, PaymentMethod } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { ChoiceCard } from '../ui/choice-card';
 
 /**
@@ -35,7 +36,7 @@ import { ChoiceCard } from '../ui/choice-card';
         <app-choice-card
           name="payment"
           value="cash"
-          [title]="text.cashTitle"
+          [title]="names.cash"
           [description]="cashDescription()"
           [checked]="method() === 'cash'"
           [disabled]="!cashAllowed()"
@@ -45,7 +46,7 @@ import { ChoiceCard } from '../ui/choice-card';
         <app-choice-card
           name="payment"
           value="bank-transfer"
-          [title]="text.transferTitle"
+          [title]="names.transfer"
           [description]="
             transferAllowed()
               ? text.transferDescription
@@ -61,6 +62,7 @@ import { ChoiceCard } from '../ui/choice-card';
 })
 export class PaymentChoice {
   protected readonly text = inject(APP_TEXT).checkout.payment;
+  protected readonly names = inject(COMMON_TEXT).order.paymentMethods;
 
   readonly method = input.required<PaymentMethod>();
   /** Only what cash is called: it is handed over on the doorstep or at the

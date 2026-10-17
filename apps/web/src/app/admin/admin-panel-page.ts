@@ -10,6 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
 import { AdminIcon } from '../ui/icons/admin-icon';
@@ -73,7 +74,10 @@ import { SyncService } from './sync/sync.service';
               {{ panelText.orders }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
-              <app-panel-row [label]="orderText.title" link="/admin/orders">
+              <app-panel-row
+                [label]="orderText.page.title"
+                link="/admin/orders"
+              >
                 <!-- Two queues, one screen: an order nobody has answered and
                      one handed over that nobody has been paid for are two
                      jobs with two lists, so they are two notes stacked on the
@@ -125,11 +129,11 @@ import { SyncService } from './sync/sync.service';
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
                 <app-panel-row
-                  [label]="categoryText.title"
+                  [label]="categoryText.page.title"
                   link="/admin/categories"
                 />
                 <app-panel-row
-                  [label]="productText.title"
+                  [label]="productText.page.title"
                   link="/admin/products"
                 >
                   <div class="flex flex-col items-end gap-0.5">
@@ -157,7 +161,7 @@ import { SyncService } from './sync/sync.service';
                      about to lapse is notice — and each opens the list on its
                      own filter. -->
                 <app-panel-row
-                  [label]="documentText.title"
+                  [label]="documentText.page.title"
                   link="/admin/documents"
                 >
                   <div class="flex flex-col items-end gap-0.5">
@@ -255,7 +259,7 @@ import { SyncService } from './sync/sync.service';
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
               <app-panel-row
-                [label]="userText.titleCustomers"
+                [label]="userText.customersPage.title"
                 link="/admin/users"
               >
                 @if (waitingRegistrations(); as count) {
@@ -268,7 +272,7 @@ import { SyncService } from './sync/sync.service';
               </app-panel-row>
               @if (isAdmin()) {
                 <app-panel-row
-                  [label]="userText.titleStaff"
+                  [label]="userText.staffPage.title"
                   link="/admin/users/staff"
                 />
               }
@@ -311,14 +315,17 @@ import { SyncService } from './sync/sync.service';
                 aria-labelledby="admin-registries-heading"
               >
                 <app-panel-row
-                  [label]="attributeText.title"
+                  [label]="attributeText.page.title"
                   link="/admin/attributes"
                 />
                 <app-panel-row
-                  [label]="inventoryText.title"
+                  [label]="inventoryText.page.title"
                   link="/admin/attributes/inventory"
                 />
-                <app-panel-row [label]="tierText.title" link="/admin/tiers" />
+                <app-panel-row
+                  [label]="tierText.page.title"
+                  link="/admin/tiers"
+                />
               </ul>
             </section>
 
@@ -330,7 +337,7 @@ import { SyncService } from './sync/sync.service';
               <section class="order-6 md:order-0">
                 <h2 id="admin-consents-heading" [class]="headingClass">
                   <app-admin-icon name="book-check" class="size-4" />
-                  {{ consentText.title }}
+                  {{ consentText.page.title }}
                 </h2>
                 <ul
                   [class]="cardClass"
@@ -375,7 +382,7 @@ import { SyncService } from './sync/sync.service';
                      wraps them where it is not, and takes a second row's worth
                      of floor when they wrap. -->
                 <app-panel-row
-                  [label]="operationsText.title"
+                  [label]="operationsText.page.title"
                   link="/admin/operations"
                 >
                   @if (maintenanceOn()) {
@@ -406,7 +413,7 @@ import { SyncService } from './sync/sync.service';
                   }
                 </app-panel-row>
                 <app-panel-row
-                  [label]="apiTokenText.title"
+                  [label]="apiTokenText.page.title"
                   link="/admin/api-tokens"
                 />
               </ul>
@@ -437,18 +444,18 @@ export class AdminPanelPage {
   );
   protected readonly text = inject(APP_TEXT).auth;
   protected readonly panelText = inject(ADMIN_TEXT).panel;
-  protected readonly productText = inject(ADMIN_TEXT).productList;
-  protected readonly categoryText = inject(ADMIN_TEXT).categoryList;
-  protected readonly documentText = inject(ADMIN_TEXT).documentList;
-  protected readonly attributeText = inject(ADMIN_TEXT).attributeList;
-  protected readonly inventoryText = inject(ADMIN_TEXT).attributeInventory;
-  protected readonly tierText = inject(ADMIN_TEXT).tierList;
-  protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokenList;
+  protected readonly productText = inject(ADMIN_TEXT).products.list;
+  protected readonly categoryText = inject(ADMIN_TEXT).categories.list;
+  protected readonly documentText = inject(ADMIN_TEXT).documents.list;
+  protected readonly attributeText = inject(ADMIN_TEXT).attributes.list;
+  protected readonly inventoryText = inject(ADMIN_TEXT).attributes.inventory;
+  protected readonly tierText = inject(ADMIN_TEXT).tiers;
+  protected readonly apiTokenText = inject(ADMIN_TEXT).apiTokens;
   protected readonly operationsText = inject(ADMIN_TEXT).operations;
-  protected readonly userText = inject(ADMIN_TEXT).userList;
+  protected readonly userText = inject(ADMIN_TEXT).users.list;
   protected readonly consentText = inject(ADMIN_TEXT).consents;
-  protected readonly orderText = inject(ADMIN_TEXT).orderList;
-  protected readonly navText = inject(APP_TEXT).nav;
+  protected readonly orderText = inject(ADMIN_TEXT).orders.list;
+  protected readonly navText = inject(COMMON_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   protected readonly areas = OWNERSHIP_AREAS;
   // Only what this deployment publishes: an unpublished page has no route to

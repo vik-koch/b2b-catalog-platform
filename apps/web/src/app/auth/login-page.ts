@@ -2,6 +2,7 @@ import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { usePageSeo } from '../core/page-seo';
 import { emailFormat } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
@@ -52,7 +53,7 @@ import { TextButton } from '../ui/link';
              and marking every field on a form marks none of them. -->
           <app-email-field
             [control]="form.controls.email"
-            [label]="text.email"
+            [label]="fields.email.label"
             [text]="emailText"
             [required]="true"
             [marker]="false"
@@ -117,9 +118,10 @@ export class LoginPage {
   private readonly router = inject(Router);
 
   protected readonly text = inject(APP_TEXT).auth;
+  protected readonly fields = inject(COMMON_TEXT).fields;
   protected readonly emailText = {
-    required: this.text.validation.emailRequired,
-    invalid: this.text.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly status = signal<'idle' | 'submitting' | LoginResult>(
     'idle',

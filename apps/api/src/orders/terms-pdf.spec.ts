@@ -1,7 +1,11 @@
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
 import * as schema from '../db/schema';
-import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
+import {
+  demoCommonText,
+  demoMailBranding,
+  demoPdfText,
+} from '../mail/mail-text.fixture';
 import { PdfFaces } from '../pdf/pdf-faces';
 import { demoAdminOrder } from './order.fixture';
 import { TermsPdf } from './terms-pdf';
@@ -26,7 +30,8 @@ const terms = (attached: boolean, rows: unknown[] = [version]) =>
   new TermsPdf(
     dbReturning(rows),
     attached,
-    demoMailText,
+    demoPdfText,
+    demoCommonText,
     demoMailBranding,
     { code: 'EUR', locale: 'de-DE' },
     { prefix: 'CK', timezone: 'Europe/Berlin' },

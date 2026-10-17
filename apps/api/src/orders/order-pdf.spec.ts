@@ -2,7 +2,11 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { PDFDocument } from 'pdf-lib';
 import { AddressConfig } from '@b2b-catalog-platform/shared';
-import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
+import {
+  demoCommonText,
+  demoMailBranding,
+  demoPdfText,
+} from '../mail/mail-text.fixture';
 import { demoAdminOrder } from './order.fixture';
 import { PdfFaces } from '../pdf/pdf-faces';
 import { winAnsi } from '../pdf/pdf-sheet';
@@ -32,7 +36,8 @@ const reference = { prefix: 'CK', timezone: 'UTC' };
 
 const render = (order = demoAdminOrder) =>
   new OrderPdf(
-    demoMailText,
+    demoPdfText,
+    demoCommonText,
     demoMailBranding,
     { code: 'EUR', locale: 'de-DE' },
     address,
@@ -87,7 +92,8 @@ describe('OrderPdf', () => {
    */
   it.skipIf(!hasSystemFont)('embeds a named face as a subset', async () => {
     const named = new OrderPdf(
-      demoMailText,
+      demoPdfText,
+      demoCommonText,
       demoMailBranding,
       { code: 'EUR', locale: 'de-DE' },
       address,

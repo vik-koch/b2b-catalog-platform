@@ -33,7 +33,7 @@ interface AppliedFilter {
     @if (applied().length) {
       <ul
         class="flex flex-wrap items-center gap-2"
-        [attr.aria-label]="text.appliedLabel"
+        [attr.aria-label]="text.appliedAria"
       >
         <!-- The label carries both the attribute's name and the value, and
              attribute names are unique, so it identifies the chip. -->
@@ -75,7 +75,7 @@ export class AppliedFilters {
   );
 
   protected removeLabel(filter: AppliedFilter): string {
-    return this.text.remove.replace('{label}', filter.label);
+    return this.text.removeAria.replace('{label}', filter.label);
   }
 
   protected remove(filter: AppliedFilter): void {

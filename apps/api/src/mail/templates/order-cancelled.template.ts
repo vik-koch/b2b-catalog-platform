@@ -1,4 +1,8 @@
-import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  CommonText,
+  MoneyFormat,
+} from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import {
@@ -23,8 +27,10 @@ export function orderCancelledMail(
   order: AdminOrderDetail,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.orderCancelled;
+  const names = common.order;
 
   return {
     subject: `${t.subject} · ${order.reference}`,
@@ -38,21 +44,24 @@ export function orderCancelledMail(
       ...(order.paymentState === 'paid' ? [t.paidNote] : []),
     ],
     rows: [
-      { label: t.referenceLabel, value: order.reference },
-      { label: t.customerLabel, value: order.customerEmail ?? t.guest },
+      { label: names.reference, value: order.reference },
       {
-        label: t.contactLabel,
+        label: text.orders.account,
+        value: order.customerEmail ?? text.orders.guest,
+      },
+      {
+        label: names.contact,
         value: [order.contact.name, order.contact.phone].join(' · '),
       },
       { label: t.reasonLabel, value: order.statusReason ?? t.reasonNone },
       {
-        label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        label: names.total,
+        value: orderMailTotal(order, currency, common),
       },
     ],
     itemsHeading: t.itemsHeading,
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+      orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),
     action: { label: t.action, path: `/admin/orders/${order.reference}` },
   };

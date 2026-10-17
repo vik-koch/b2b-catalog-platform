@@ -33,7 +33,7 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
   host: { class: 'hidden @min-[38rem]/listing:block' },
   imports: [Icon],
   template: `
-    <div role="group" [attr.aria-label]="text.label" [class]="group">
+    <div role="group" [attr.aria-label]="text.labelAria" [class]="group">
       <button
         type="button"
         [class]="segment('grid')"

@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { currentUrl } from '../core/current-url';
 import { AccountLink } from './account-link';
@@ -101,10 +102,10 @@ import { SearchField } from './search-field';
                 [routerLink]="'/' + route"
                 routerLinkActive
                 ariaCurrentWhenActive="page"
-                [attr.data-label]="text.nav[route]"
+                [attr.data-label]="nav[route]"
                 class="text-stable text-center text-subtle transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
               >
-                {{ text.nav[route] }}
+                {{ nav[route] }}
               </a>
             }
           </nav>
@@ -174,6 +175,7 @@ export class Header {
   });
 
   protected readonly text = inject(APP_TEXT);
+  protected readonly nav = inject(COMMON_TEXT).nav;
   protected readonly branding = this.config.branding;
   protected readonly logo = this.branding.logo;
   /** The mark is painted through a mask (see `.logo-mark`), so it has no

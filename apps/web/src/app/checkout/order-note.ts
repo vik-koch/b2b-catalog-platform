@@ -4,6 +4,7 @@ import { APP_TEXT } from '../config/app-text';
 import { AutoGrow } from '../ui/auto-grow';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * Anything the customer wants to say in words, copied onto the order for the
@@ -41,7 +42,7 @@ import { Input } from '../ui/input';
 })
 export class OrderNote {
   protected readonly text = inject(APP_TEXT).checkout.note;
-  protected readonly optional = inject(APP_TEXT).checkout.optional;
+  protected readonly optional = inject(COMMON_TEXT).optional;
   protected readonly id = 'order-note';
   protected readonly maxLength = ORDER_NOTE_MAX;
 

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ProductAvailability } from '@b2b-catalog-platform/shared';
@@ -33,7 +35,10 @@ async function render() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Host],
-    providers: [{ provide: APP_TEXT, useValue: defaultAppText }],
+    providers: [
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+    ],
   });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
@@ -55,7 +60,9 @@ describe('ProductStatusLine', () => {
     fixture.detectChanges();
 
     const el = line(fixture);
-    expect(el.textContent).toContain(text.availability.low);
+    expect(el.textContent).toContain(
+      defaultCommonText.product.availability.low,
+    );
     expect(el.textContent).toContain(text.set.short);
     expect(el.className).toContain('flex-wrap');
   });

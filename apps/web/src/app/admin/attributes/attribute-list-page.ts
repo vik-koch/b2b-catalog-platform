@@ -40,6 +40,7 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { WarningNote } from '../../ui/warning-note';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -81,7 +82,7 @@ type EditTarget = { id: string } | { id: null } | null;
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -94,7 +95,9 @@ type EditTarget = { id: string } | { id: null } | null;
       </button>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -202,7 +205,7 @@ type EditTarget = { id: string } | { id: null } | null;
                       <button
                         appIconButton
                         type="button"
-                        [attr.aria-label]="text.edit"
+                        [attr.aria-label]="common.edit"
                         [disabled]="editing() !== null"
                         (click)="startEdit(definition)"
                       >
@@ -212,7 +215,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         appIconButton
                         variant="danger"
                         type="button"
-                        [attr.aria-label]="text.delete"
+                        [attr.aria-label]="common.delete"
                         [disabled]="busy()"
                         (click)="remove(definition)"
                       >
@@ -344,7 +347,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
             >
               <app-admin-icon name="save" class="size-4" />
-              {{ busy() ? common.saving : common.save }}
+              {{ busy() ? actionText.saving : common.save }}
             </button>
             <button
               appButton
@@ -356,7 +359,7 @@ type EditTarget = { id: string } | { id: null } | null;
               (click)="cancel()"
             >
               <app-admin-icon name="x" class="size-4" />
-              {{ common.cancel }}
+              {{ actionText.cancel }}
             </button>
           </div>
           @if (formError()) {
@@ -372,9 +375,11 @@ type EditTarget = { id: string } | { id: null } | null;
 export class AttributeListPage {
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).attributeList;
+  protected readonly text = inject(ADMIN_TEXT).attributes.list;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly types = ATTRIBUTE_TYPES;
 
   protected readonly definitions = resource({
@@ -442,7 +447,7 @@ export class AttributeListPage {
   }
 
   protected productsLabel(count: number): string {
-    return this.text.products.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 
   protected valuesLabel(count: number): string {
@@ -535,10 +540,13 @@ export class AttributeListPage {
   protected async remove(definition: AttributeDefinition): Promise<void> {
     this.rowError.set(null);
     const confirmed = await this.confirm.ask({
-      heading: this.text.deleteTitle,
-      message: this.text.deleteConfirm.replace('{name}', definition.name),
-      confirmLabel: this.text.delete,
-      cancelLabel: this.common.cancel,
+      heading: this.text.deleteConfirm.heading,
+      message: this.text.deleteConfirm.message.replace(
+        '{name}',
+        definition.name,
+      ),
+      confirmLabel: this.text.deleteConfirm.confirm,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
     });
     if (!confirmed) return;
 
@@ -574,7 +582,7 @@ export class AttributeListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     useRowAnchor(
       computed(() => (this.name() ? this.rowId(this.name()) : null)),
       computed(() => this.definitions.hasValue()),

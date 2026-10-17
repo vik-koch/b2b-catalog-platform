@@ -58,6 +58,7 @@ import { Link } from '../ui/link';
 import { PrivacyNotice } from '../pages/privacy-notice';
 import { TermsNotice } from '../pages/terms-notice';
 import { WarningNote } from '../ui/warning-note';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -121,9 +122,9 @@ import { WarningNote } from '../ui/warning-note';
 
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-muted">
-          {{ text.successRegister }}
+          {{ invite.text }}
           <a appLink routerLink="/register">
-            {{ text.successRegisterAction }}
+            {{ invite.action }}
           </a>
         </p>
       }
@@ -481,7 +482,7 @@ import { WarningNote } from '../ui/warning-note';
                 [disabled]="sending() || blocked()"
                 (click)="submit()"
               >
-                {{ sending() ? text.submitting : text.submit }}
+                {{ sending() ? actionText.sending : text.submit }}
               </button>
               <button
                 appButton
@@ -531,7 +532,9 @@ export class CheckoutPage {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly text = inject(APP_TEXT).checkout;
+  protected readonly invite = inject(APP_TEXT).auth.registerInvite;
   protected readonly cartText = inject(APP_TEXT).cart;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly addressText = this.text.addresses;
 
   /**

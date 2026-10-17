@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HiddenProduct } from '@b2b-catalog-platform/shared';
@@ -38,7 +40,9 @@ function provide(admin: Partial<AdminCatalogService>) {
       // The tile's edit link is a router link back to the admin editor.
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AdminCatalogService, useValue: admin },
       { provide: ConfirmService, useValue: { tell } },
@@ -82,16 +86,16 @@ describe('HiddenProductsSection', () => {
 
     expect(el.textContent).toContain(text.hiddenHeading);
     expect(el.textContent).toContain('Old Roast');
-    expect(el.textContent).toContain(text.unpublishedBadge);
-    expect(el.textContent).not.toContain(text.unpricedBadge);
-    expect(el.textContent).not.toContain(text.deletedBadge);
+    expect(el.textContent).toContain(defaultAdminText.products.unpublished);
+    expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
+    expect(el.textContent).not.toContain(defaultAdminText.products.deleted);
   });
 
   it('shows both reasons on a product that is unpublished and unpriced', async () => {
     const { el } = await render([hidden({ priceMinor: null })]);
 
-    expect(el.textContent).toContain(text.unpublishedBadge);
-    expect(el.textContent).toContain(text.unpricedBadge);
+    expect(el.textContent).toContain(defaultAdminText.products.unpublished);
+    expect(el.textContent).toContain(defaultAdminText.products.unpriced);
   });
 
   it('publishes a product and emits published', async () => {

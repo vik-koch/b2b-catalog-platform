@@ -80,7 +80,7 @@ export function syncFailedMail(
         ? [{ label: text.syncRun.errorLabel, value: run.error }]
         : []),
     ],
-    action: { label: t.action, path: runPath(run) },
+    action: { label: text.syncRun.openRun, path: runPath(run) },
   };
 }
 
@@ -98,7 +98,7 @@ export function syncRecoveredMail(
     heading: t.heading,
     paragraphs: [t.body],
     rows: [...runRows(run, text, started), ...changes(run, text)],
-    action: { label: t.action, path: runPath(run) },
+    action: { label: text.syncRun.openRun, path: runPath(run) },
   };
 }
 
@@ -134,7 +134,7 @@ export function syncWaitingMail(
     heading: t.heading,
     paragraphs: [t.body],
     rows: [...runRows(run, text, started), ...changes(run, text), ...reason],
-    action: { label: t.action, path: runPath(run) },
+    action: { label: text.syncRun.reviewRun, path: runPath(run) },
   };
 }
 

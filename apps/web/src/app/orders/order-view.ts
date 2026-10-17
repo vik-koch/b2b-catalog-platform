@@ -1,8 +1,6 @@
-import { fillText, OrderLine } from '@b2b-catalog-platform/shared';
+import { CommonText, fillText, OrderLine } from '@b2b-catalog-platform/shared';
 import { formatUnitQuantity } from '../catalog/quantity';
 import { CurrencyConfig } from '../catalog/price';
-import { AppText } from '../config/app-text.type';
-import { OrderBlockLabels } from './order-blocks';
 
 /**
  * How an order reads to the customer it belongs to.
@@ -23,45 +21,20 @@ export function customerQuantity(
   // Only the three fields a quantity is read from, so a screen holding a
   // priced line rather than a placed one reads it in the same words.
   line: Pick<OrderLine, 'unit' | 'quantity' | 'pieces'>,
-  text: AppText,
+  common: CommonText,
   currency: CurrencyConfig,
 ): string {
-  const review = text.checkout.review;
   const qty = formatUnitQuantity(line.quantity, currency);
-  const unit = text.catalog.units[line.unit];
+  const unit = common.units[line.unit];
   if (line.unit === 'piece') {
-    return fillText(review.quantity, { qty, unit });
+    return fillText(common.quantity, { qty, unit });
   }
-  return fillText(review.quantityPieces, {
+  return fillText(common.quantityPieces, {
     qty,
     unit,
     pieces: formatUnitQuantity(line.pieces, currency),
-    pieceUnit: text.catalog.units.piece,
+    pieceUnit: common.units.piece,
   });
-}
-
-/** The headings the customer reads an order's answers under — the checkout's
- * own questions, which is what makes an order read the same before and after
- * it was sent. */
-export function customerBlockLabels(text: AppText): OrderBlockLabels {
-  const checkout = text.checkout;
-  const review = checkout.review;
-  return {
-    fulfilment: review.fulfilment,
-    delivery: checkout.fulfilment.deliveryTitle,
-    pickup: checkout.fulfilment.pickupTitle,
-    invoice: review.invoice,
-    billingSame: review.billingSame,
-    deliveryDate: checkout.timing.deliveryLabel,
-    pickupDate: checkout.timing.pickupLabel,
-    whenAny: review.whenAny,
-    payment: review.payment,
-    cash: checkout.payment.cashTitle,
-    card: checkout.payment.cardTitle,
-    transfer: checkout.payment.transferTitle,
-    contact: text.orders.detail.contact,
-    note: review.note,
-  };
 }
 
 /**

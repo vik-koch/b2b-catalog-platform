@@ -11,9 +11,9 @@ const formats = defaultDeploymentConfig.companyIdInput?.formats ?? [];
 const examples = formats.map((format) => format.example).join(', ');
 
 const text = {
-  suggestionsLabel: 'Company suggestions',
+  suggestionsAria: 'Company suggestions',
   noSuggestions: 'No matching companies.',
-  suggestionCount: 'Company suggestions: {count}',
+  suggestionCountAria: 'Company suggestions: {count}',
   idLabel: 'Company ID',
   nameLabel: 'Company name',
   hint: 'e.g. {examples}',

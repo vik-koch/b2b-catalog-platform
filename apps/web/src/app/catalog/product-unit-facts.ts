@@ -4,6 +4,7 @@ import {
   ProductUnit,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { useProductUnits } from './product-units-view';
 
 /**
@@ -54,6 +55,7 @@ export class ProductUnitFacts {
 
   private readonly units = useProductUnits();
   private readonly text = inject(APP_TEXT).catalog.units;
+  private readonly packing = inject(COMMON_TEXT).packaging;
 
   protected shows(fact: 'minimum' | 'packaging'): boolean {
     return this.show() === 'both' || this.show() === fact;
@@ -69,6 +71,6 @@ export class ProductUnitFacts {
 
   protected readonly packaging = computed(() => {
     const summary = this.units.packagingSummary(this.packagingInfo());
-    return summary === null ? null : `${this.text.packaging}: ${summary}`;
+    return summary === null ? null : `${this.packing.heading}: ${summary}`;
   });
 }

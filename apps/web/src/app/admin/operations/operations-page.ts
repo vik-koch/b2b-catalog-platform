@@ -30,6 +30,7 @@ import { StatusBadge } from '../../ui/status-badge';
 import { Switch } from '../../ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -61,11 +62,14 @@ import { SettingsService } from '../settings/settings.service';
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
     <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
     </div>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <div class="max-w-3xl">
       <!-- Everything here is one row in the database and arrives in one answer,
@@ -94,8 +98,8 @@ import { SettingsService } from '../settings/settings.service';
                 [checked]="state.maintenanceEnabled"
                 [label]="
                   state.maintenanceEnabled
-                    ? maintenanceText.disable
-                    : maintenanceText.enable
+                    ? maintenanceText.disableAria
+                    : maintenanceText.enableAria
                 "
                 [disabled]="pending()"
                 (toggled)="flipMaintenance($event)"
@@ -293,6 +297,7 @@ export class OperationsPage {
   });
 
   protected readonly allText = inject(ADMIN_TEXT).ownership.all;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;
   protected readonly frame = DISCLOSURE_FRAME;
@@ -337,10 +342,10 @@ export class OperationsPage {
   );
   protected readonly allStatus = computed(() =>
     this.allOwned()
-      ? this.allText.statusOwned
+      ? this.ownershipText.statusOwned
       : this.mixed()
         ? this.allText.statusMixed
-        : this.allText.statusOwn,
+        : this.ownershipText.statusOwn,
   );
   /**
    * The rows open on arrival only where the badge above cannot answer on its
@@ -372,7 +377,7 @@ export class OperationsPage {
   });
 
   constructor() {
-    usePageSeo({ name: () => this.text.title, noindex: true });
+    usePageSeo({ name: () => this.text.page.title, noindex: true });
   }
 
   protected toggleHistory(): void {
@@ -417,7 +422,7 @@ export class OperationsPage {
       message: owned ? text.handConfirm : text.takeConfirm,
       warning: owned ? text.handWarning : text.takeWarning,
       confirmLabel: owned ? this.ownershipText.hand : this.ownershipText.take,
-      cancelLabel: this.common.cancel,
+      cancelLabel: this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -437,7 +442,7 @@ export class OperationsPage {
       message: owned ? this.allText.handConfirm : this.allText.takeConfirm,
       warning: owned ? this.allText.handWarning : this.allText.takeWarning,
       confirmLabel: owned ? this.allText.hand : this.allText.take,
-      cancelLabel: this.common.cancel,
+      cancelLabel: this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -529,7 +534,7 @@ export class OperationsPage {
   private who(change: SettingChange): string {
     return fillText(this.text.historyBy, {
       date: this.moment.format(new Date(change.changedAt)),
-      actor: change.actorEmail ?? this.text.historyActorGone,
+      actor: change.actorEmail ?? this.common.actorGone,
     });
   }
 }

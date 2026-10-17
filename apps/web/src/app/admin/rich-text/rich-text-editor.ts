@@ -33,6 +33,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -74,7 +75,7 @@ interface ToolbarAction {
       <div [class]="toolbarClass()">
         <div
           role="toolbar"
-          [attr.aria-label]="text.toolbar.label"
+          [attr.aria-label]="text.toolbar.labelAria"
           class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-border bg-stone-100 p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
@@ -94,7 +95,7 @@ interface ToolbarAction {
           <div
             [class]="panelClass + ' left-2'"
             role="dialog"
-            [attr.aria-label]="link.heading"
+            [attr.aria-label]="link.headingAria"
           >
             <ng-container [ngTemplateOutlet]="linkBody" />
           </div>
@@ -103,7 +104,7 @@ interface ToolbarAction {
           <div
             [class]="panelClass + ' right-2'"
             role="dialog"
-            [attr.aria-label]="image.heading"
+            [attr.aria-label]="image.headingAria"
           >
             <ng-container [ngTemplateOutlet]="imageBody" />
           </div>
@@ -170,7 +171,7 @@ interface ToolbarAction {
             class="sm:mr-auto"
             (click)="removeLink()"
           >
-            {{ common.remove }}
+            {{ actionText.remove }}
           </button>
         }
         <button
@@ -180,7 +181,7 @@ interface ToolbarAction {
           type="button"
           (click)="closeLinkPanel()"
         >
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
         <button
           appButton
@@ -271,7 +272,7 @@ interface ToolbarAction {
           {{ image.remove }}
         </button>
         <button appButton size="sm" type="button" (click)="closeImagePanel()">
-          {{ image.done }}
+          {{ actionText.done }}
         </button>
       </div>
     </ng-template>
@@ -280,7 +281,7 @@ interface ToolbarAction {
       <dialog
         #linkDialog
         appDialogPanel
-        [attr.aria-label]="link.heading"
+        [attr.aria-label]="link.headingAria"
         (cancel)="closeLinkPanel()"
       >
         <ng-container [ngTemplateOutlet]="linkBody" />
@@ -291,7 +292,7 @@ interface ToolbarAction {
       <dialog
         #imageDialog
         appDialogPanel
-        [attr.aria-label]="image.heading"
+        [attr.aria-label]="image.headingAria"
         (cancel)="closeImagePanel()"
       >
         <ng-container [ngTemplateOutlet]="imageBody" />
@@ -300,8 +301,9 @@ interface ToolbarAction {
   `,
 })
 export class RichTextEditor {
-  protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly link = this.text.linkPanel;
   /** Which shape the two panels take — see the template. */
   protected readonly narrow = injectNarrowScreen('sm');

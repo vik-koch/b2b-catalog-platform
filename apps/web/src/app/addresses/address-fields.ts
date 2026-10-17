@@ -19,6 +19,7 @@ import { SelectField } from '../ui/select-field';
 import { AddressForm } from './address-form';
 import { AddressSuggestField } from './address-suggest-field';
 import { TextButton } from '../ui/link';
+import { COMMON_TEXT } from '../config/common-text';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */
@@ -65,7 +66,7 @@ let nextId = 0;
         <div>
           <label [for]="id('label')" appFieldLabel>
             {{ text.label }}
-            <span class="font-normal text-subtle">({{ text.optional }})</span>
+            <span class="font-normal text-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('label')"
@@ -109,7 +110,7 @@ let nextId = 0;
         <div>
           <label [for]="id('street2')" appFieldLabel>
             {{ text.street2 }}
-            <span class="font-normal text-subtle">({{ text.optional }})</span>
+            <span class="font-normal text-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('street2')"
@@ -208,7 +209,7 @@ let nextId = 0;
         <div>
           <label [for]="id('region')" appFieldLabel>
             {{ text.region }}
-            <span class="font-normal text-subtle">({{ text.optional }})</span>
+            <span class="font-normal text-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('region')"
@@ -260,15 +261,12 @@ let nextId = 0;
 export class AddressFields {
   private readonly instance = nextId++;
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.addresses;
+  protected readonly text = inject(APP_TEXT).address;
+  protected readonly optional = inject(COMMON_TEXT).optional;
   protected readonly countries =
     inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
 
-  protected readonly suggestText = {
-    suggestionsLabel: this.text.suggestionsLabel,
-    noSuggestions: this.text.noSuggestions,
-    suggestionCount: this.text.suggestionCount,
-  };
+  protected readonly suggestText = this.text.suggest;
 
   readonly form = input.required<AddressForm>();
   /** Whose `show()` decides which messages are on screen — the page's, because

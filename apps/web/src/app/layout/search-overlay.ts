@@ -44,7 +44,7 @@ const LEAVE_MS = 150;
           (click)="search.close()"
         >
           <app-icon name="close" class="size-6" />
-          <span class="sr-only">{{ text.closeSearch }}</span>
+          <span class="sr-only">{{ text.closeSearchAria }}</span>
         </button>
       </div>
       <!-- The dimmed page is also the way out: tapping it is a decision not to
@@ -56,7 +56,7 @@ const LEAVE_MS = 150;
            consent banner, the admin edit-mode toggle — because all of them
            belong to the page that is being held still. -->
       <button type="button" [class]="scrimClasses()" (click)="search.close()">
-        <span class="sr-only">{{ text.closeSearch }}</span>
+        <span class="sr-only">{{ text.closeSearchAria }}</span>
       </button>
     }
   `,

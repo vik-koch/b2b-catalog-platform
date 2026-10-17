@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -9,6 +10,7 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -18,7 +20,8 @@ import { TiersService } from '../tiers/tiers.service';
 import { AdminOrderAdjustPage } from './order-adjust-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderAdjust;
+const text = defaultAdminText.orders.adjust;
+const names = defaultCommonText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -152,8 +155,10 @@ function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: AdminOrdersService,
@@ -281,7 +286,7 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
       })),
     });
 
-    expect(el.textContent).toContain(text.changes.total);
+    expect(el.textContent).toContain(names.total);
     expect(el.textContent).toMatch(/39[.,]80/);
     expect(el.textContent).toMatch(/19[.,]90/);
   });

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { AdminCategory, OwnershipArea } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
@@ -50,7 +52,9 @@ async function render(
     imports: [CategoryDeleteDialog],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       provideOwnership(...owned),
       {
         provide: AdminCatalogService,
@@ -113,7 +117,7 @@ describe('CategoryDeleteDialog', () => {
     expect(ci.mode()).toBe('reassign');
     const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(shown).toContain(
-      defaultAdminText.categoryList.deleteReassignDeleted.replace(
+      defaultAdminText.categories.list.deleteReassignDeleted.replace(
         '{count}',
         '2',
       ),

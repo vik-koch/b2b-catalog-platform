@@ -40,6 +40,9 @@ import {
 } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
+import { COMMON_TEXT } from '../../config/common-text';
+import { staffBlockLabels } from './staff-block-labels';
+import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { debounced } from '../../core/debounced';
 import { FieldErrors } from '../../core/form-errors';
@@ -47,7 +50,7 @@ import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
@@ -187,7 +190,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
         >
           <div class="max-w-xl">
             <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
-            <p class="mt-2 text-muted">{{ text.lead }}</p>
+            @if (text.page.intro; as intro) {
+              <p class="mt-2 text-muted">{{ intro }}</p>
+            }
 
             <!-- Amber, not red: none of these refuses the adjustment. They
                  are what a manager should have weighed before making it. -->
@@ -218,7 +223,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 [class]="frame + ' ' + disclosureBorder(itemsOpen())"
               >
                 <app-disclosure-toggle
-                  [label]="text.lines.heading"
+                  [label]="ordersText.items"
                   [count]="rows().length"
                   [countLabel]="lineCount()"
                   [open]="itemsOpen()"
@@ -251,7 +256,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
                     <div>
                       <label appFieldLabel for="adjust-tier">
-                        {{ text.tier }}
+                        {{ ordersText.tier }}
                       </label>
                       <!-- The list and the button that applies it, half the
                            row each: they are one action in two parts, and the
@@ -268,7 +273,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             (change)="setTier($any($event.target).value)"
                           >
                             <option value="">
-                              {{ detailText.tierDefault }}
+                              {{ ordersText.tierDefault }}
                             </option>
                             @for (tier of tiers(); track tier.key) {
                               <option [value]="tier.key">
@@ -314,7 +319,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     }
 
                     <section>
-                      <h2 class="mb-2 font-medium">{{ text.fulfilment }}</h2>
+                      <h2 class="mb-2 font-medium">
+                        {{ commonText.fulfilment.label }}
+                      </h2>
                       <!-- How it arrives and where it is collected from are one
                            question with two halves, so they stand on one line
                            and take half of it each: a collection point under a
@@ -327,7 +334,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             for="adjust-fulfilment"
                             class="sr-only"
                           >
-                            {{ text.fulfilment }}
+                            {{ commonText.fulfilment.label }}
                           </label>
                           <app-select-field>
                             <select
@@ -343,14 +350,14 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                 value="delivery"
                                 [selected]="fulfilmentMethod() === 'delivery'"
                               >
-                                {{ text.delivery }}
+                                {{ commonText.fulfilment.delivery }}
                               </option>
                               @if (locations.length) {
                                 <option
                                   value="pickup"
                                   [selected]="fulfilmentMethod() === 'pickup'"
                                 >
-                                  {{ text.pickup }}
+                                  {{ commonText.fulfilment.pickup }}
                                 </option>
                               }
                             </select>
@@ -363,7 +370,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                               for="adjust-pickup"
                               class="sr-only"
                             >
-                              {{ text.pickupLocation }}
+                              {{ ordersText.pickupPoint }}
                             </label>
                             <app-select-field>
                               <select
@@ -395,7 +402,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       @if (fulfilmentMethod() === 'delivery') {
                         <div class="mt-4">
                           <h3 class="mb-2 text-sm font-medium">
-                            {{ text.deliveryAddress }}
+                            {{ names.deliveryAddress }}
                           </h3>
                           <app-address-fields
                             [form]="delivery"
@@ -407,7 +414,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     </section>
 
                     <section>
-                      <h2 class="mb-2 font-medium">{{ text.party }}</h2>
+                      <h2 class="mb-2 font-medium">{{ names.invoicedTo }}</h2>
                       <!-- The same switch registration and the checkout put at
                            the top of this question, for the same reason: a
                            person is a name, a company is a name and a number,
@@ -426,7 +433,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       @if (partyKind() === 'person') {
                         <div>
                           <label appFieldLabel for="adjust-party-person">
-                            {{ text.personName }}
+                            {{ fields.name.label }}
                             <span class="text-accent" aria-hidden="true"
                               >*</span
                             >
@@ -441,7 +448,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           />
                           @if (invalid('personName')) {
                             <p class="mt-1 text-sm text-red-600">
-                              {{ text.validation.nameRequired }}
+                              {{ fields.name.required }}
                             </p>
                           }
                         </div>
@@ -474,9 +481,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     }
 
                     <section>
-                      <h2 class="mb-2 font-medium">{{ text.payment }}</h2>
+                      <h2 class="mb-2 font-medium">{{ names.payment }}</h2>
                       <label appFieldLabel for="adjust-payment" class="sr-only">
-                        {{ text.payment }}
+                        {{ names.payment }}
                       </label>
                       <app-select-field>
                         <select
@@ -507,11 +514,11 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     </section>
 
                     <section>
-                      <h2 class="mb-2 font-medium">{{ text.contact }}</h2>
+                      <h2 class="mb-2 font-medium">{{ names.contact }}</h2>
                       <div class="grid gap-6 sm:grid-cols-[20rem_1fr]">
                         <div>
                           <label appFieldLabel for="adjust-contact-name">
-                            {{ text.contactName }}
+                            {{ fields.name.label }}
                             <span class="text-accent" aria-hidden="true"
                               >*</span
                             >
@@ -526,7 +533,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           />
                           @if (invalidContact('name')) {
                             <p class="mt-1 text-sm text-red-600">
-                              {{ text.validation.nameRequired }}
+                              {{ fields.name.required }}
                             </p>
                           }
                         </div>
@@ -538,7 +545,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           inputId="adjust-contact-phone"
                           autocomplete="off"
                           inputWidth="w-full"
-                          [label]="text.contactPhone"
+                          [label]="fields.phone.label"
                           [control]="contact.controls.phone"
                           [text]="phoneText"
                           [required]="true"
@@ -548,7 +555,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           class="sm:col-span-2"
                           inputId="adjust-contact-email"
                           autocomplete="off"
-                          [label]="text.contactEmail"
+                          [label]="fields.email.label"
                           [control]="contact.controls.email"
                           [text]="emailText"
                           [required]="true"
@@ -605,7 +612,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  thing written before saving, and it is what the customer's
                  mail quotes. -->
             <div class="mt-6">
-              <label appFieldLabel for="adjust-note">{{ text.note }}</label>
+              <label appFieldLabel for="adjust-note">{{
+                names.changeNote
+              }}</label>
               <textarea
                 appInput
                 id="adjust-note"
@@ -675,12 +684,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ text.notFound }}</p>
+      <p class="text-muted">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (loadFailed()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-muted" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
@@ -700,8 +709,17 @@ export class AdminOrderAdjustPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).orderAdjust;
-  protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
+  protected readonly text = inject(ADMIN_TEXT).orders.adjust;
+  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
+  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  private readonly changeText = inject(ADMIN_TEXT).orders.changes;
+  protected readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = this.commonText.order;
+  protected readonly fields = staffFields(
+    this.commonText.fields,
+    inject(ADMIN_TEXT).fields,
+  );
+  private readonly payments = this.ordersText.paymentMethods;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10) — the one state in
@@ -766,12 +784,12 @@ export class AdminOrderAdjustPage {
     { value: 'company', label: this.text.partyKindCompany },
   ];
   protected readonly emailText = {
-    required: this.text.validation.emailRequired,
-    invalid: this.text.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly phoneText = {
-    required: this.text.validation.phoneRequired,
-    incomplete: this.text.validation.phoneIncomplete,
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
   };
   /**
    * How this order may be paid, given who it is invoiced to. A company is
@@ -782,13 +800,13 @@ export class AdminOrderAdjustPage {
   protected readonly paymentOptions = computed(() => {
     const invoiced = {
       value: 'bank-transfer',
-      label: this.text.paymentTransfer,
+      label: this.payments.transfer,
     };
     if (this.partyKind() === 'company') return [invoiced];
     return [
-      { value: 'cash', label: this.text.paymentCash },
+      { value: 'cash', label: this.payments.cash },
       invoiced,
-      { value: 'card-later', label: this.text.paymentCard },
+      { value: 'card-later', label: this.payments.card },
     ];
   });
 
@@ -813,12 +831,12 @@ export class AdminOrderAdjustPage {
   }
 
   protected readonly companyText = {
-    ...this.text.companySuggest,
-    idLabel: this.text.companyId,
-    nameLabel: this.text.companyName,
-    idFormat: this.text.validation.companyIdFormat,
-    idRequired: this.text.validation.companyIdRequired,
-    nameRequired: this.text.validation.companyNameRequired,
+    ...inject(APP_TEXT).companySuggest,
+    idLabel: this.fields.companyId.label,
+    nameLabel: this.fields.companyName.label,
+    idFormat: this.fields.companyId.format,
+    idRequired: this.fields.companyId.required,
+    nameRequired: this.fields.companyName.required,
   };
 
   protected invalid(
@@ -972,7 +990,7 @@ export class AdminOrderAdjustPage {
   }
 
   protected title(): string {
-    return fillText(this.text.title, { reference: this.reference() });
+    return fillText(this.text.page.title, { reference: this.reference() });
   }
 
   /** What is sent — to be priced, and then to be written. Null until the order
@@ -1120,7 +1138,7 @@ export class AdminOrderAdjustPage {
         pieces: line.pieces,
         priceText: line.priceText,
         quantityLabel: answer
-          ? customerQuantity(answer, this.appText, this.currency)
+          ? customerQuantity(answer, this.commonText, this.currency)
           : '',
         note: line.note,
         totalLabel: answer
@@ -1200,12 +1218,17 @@ export class AdminOrderAdjustPage {
         ? orderLineChanges(
             order,
             proposed,
-            this.text.changes,
-            this.appText,
+            { ...this.changeText, total: this.names.total },
+            this.commonText,
             config,
           )
         : []),
-      ...orderBlockChanges(order, proposed, this.detailText, config),
+      ...orderBlockChanges(
+        order,
+        proposed,
+        staffBlockLabels(this.commonText, this.ordersText, this.detailText),
+        config,
+      ),
     ];
   });
 
@@ -1282,7 +1305,7 @@ export class AdminOrderAdjustPage {
   /** The chosen list, as it is named on screen. */
   private tierLabel(): string {
     const key = this.tierKey();
-    if (!key) return this.detailText.tierDefault;
+    if (!key) return this.ordersText.tierDefault;
     return this.tiers().find((tier) => tier.key === key)?.label ?? key;
   }
 
@@ -1431,10 +1454,7 @@ export class AdminOrderAdjustPage {
     this.noteMissing.set(false);
 
     const go = await this.confirm.ask({
-      heading: this.text.confirmHeading,
-      message: this.text.confirmMessage,
-      confirmLabel: this.text.confirm,
-      cancelLabel: this.text.keep,
+      ...confirmRequest(this.text.confirm),
     });
     if (!go) return;
 

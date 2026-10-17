@@ -23,6 +23,7 @@ import {
   variantNameKey,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import {
@@ -75,7 +76,7 @@ let nextId = 0;
       [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
-        [label]="text.heading"
+        [label]="product.variants"
         [count]="value().length"
         [countLabel]="countLabel()"
         [open]="open()"
@@ -137,7 +138,7 @@ let nextId = 0;
                       size="sm"
                       class="min-w-0 flex-1 basis-[calc(100%-1.5rem)] @min-[30rem]/variants:basis-0"
                       autocomplete="off"
-                      [attr.aria-label]="text.name"
+                      [attr.aria-label]="text.nameAria"
                       [attr.maxlength]="nameMax"
                       [attr.aria-invalid]="clashes(variant) ? true : null"
                       [value]="variant.name"
@@ -233,7 +234,8 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.variants;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
+  protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();
@@ -342,7 +344,7 @@ export class ProductVariantsEditor implements OnInit {
   }
 
   protected removeLabel(name: string): string {
-    return fillText(this.text.remove, { name });
+    return fillText(this.text.removeAria, { name });
   }
 
   protected onDrop(event: CdkDragDrop<unknown>): void {

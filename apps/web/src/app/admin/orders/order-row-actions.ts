@@ -58,7 +58,7 @@ import { StaffOrderSummary } from './orders.service';
   `,
 })
 export class OrderRowActions {
-  protected readonly text = inject(ADMIN_TEXT).orderDetail;
+  protected readonly text = inject(ADMIN_TEXT).orders.detail;
 
   readonly order = input.required<StaffOrderSummary>();
   /** So the order page opened from a row returns to this list, filters and

@@ -123,7 +123,7 @@ test.describe('the sold-together marker', () => {
       .getByRole('button', { name: 'Add to cart' })
       .click();
     // The header's link states the count in its accessible name, not on
-    // screen (`cart.summaryLabel` in the demo text).
+    // screen (`cart.summaryAria` in the demo text).
     await expect(
       page.getByRole('link', { name: /^Cart: .+, lines: 1$/ }),
     ).toBeVisible();

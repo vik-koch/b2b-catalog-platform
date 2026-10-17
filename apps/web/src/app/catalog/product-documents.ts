@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, PublicDocument } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import {
   documentFileLabel,
   documentFileSize,
@@ -15,7 +16,7 @@ interface DocumentRow {
   href: string;
   glyph: IconName;
   caption: string;
-  link: { href: string; host: string; label: string } | null;
+  link: { href: string; host: string; ariaLabel: string } | null;
 }
 
 /**
@@ -65,7 +66,7 @@ interface DocumentRow {
                     [href]="link.href"
                     target="_blank"
                     rel="noopener"
-                    [attr.aria-label]="link.label"
+                    [attr.aria-label]="link.ariaLabel"
                     [attr.aria-describedby]="hintId"
                     class="inline-flex items-center gap-1 underline decoration-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
                     >{{ link.host
@@ -106,11 +107,12 @@ interface DocumentRow {
     </ul>
     <!-- Said once and pointed at by every link, rather than repeated into each
          one's accessible name: it is the same promise for all of them. -->
-    <p [id]="hintId" class="sr-only">{{ text.hint }}</p>
+    <p [id]="hintId" class="sr-only">{{ text.hintAria }}</p>
   `,
 })
 export class ProductDocuments {
   protected readonly text = inject(APP_TEXT).catalog.documents;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
   protected readonly hintId = 'product-documents-hint';
 
   readonly documents = input.required<readonly PublicDocument[]>();
@@ -129,10 +131,14 @@ export class ProductDocuments {
         // What the file is and what it weighs — "PDF · 240 kB".
         caption: `${documentFileLabel(file.contentType)} · ${documentFileSize(
           file.byteSize,
-          this.text,
+          this.sizes,
         )}`,
         link: link
-          ? { href: link, host, label: fillText(this.text.linkLabel, { host }) }
+          ? {
+              href: link,
+              host,
+              ariaLabel: fillText(this.text.linkAria, { host }),
+            }
           : null,
       };
     }

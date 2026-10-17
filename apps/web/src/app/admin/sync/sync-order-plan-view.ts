@@ -101,7 +101,9 @@ export class SyncOrderPlanView {
    * said is counted and not listed: a feed that re-sends everything it has
    * would otherwise fill the page with orders nothing happened to. */
   protected readonly answered = computed(() =>
-    this.plan().orders.filter((order) => order.kind !== 'unchanged'),
+    this.plan().orders.filter(
+      (order): order is AnsweredOrder => order.kind !== 'unchanged',
+    ),
   );
 
   protected readonly isNoop = computed(
@@ -123,7 +125,7 @@ export class SyncOrderPlanView {
     ].filter((tile) => tile.value > 0 || tile.label !== 'mailed');
   });
 
-  protected kindTone(kind: OrderWriteResult['kind']): StatusTone {
+  protected kindTone(kind: AnsweredOrder['kind']): StatusTone {
     return KIND_TONE[kind];
   }
 
@@ -141,9 +143,13 @@ export class SyncOrderPlanView {
  * loud one — somebody is being sent different goods or a different total — a
  * move is ordinary progress, and a payment is settled news.
  */
-const KIND_TONE: Record<OrderWriteResult['kind'], StatusTone> = {
+const KIND_TONE: Record<AnsweredOrder['kind'], StatusTone> = {
   adjustment: 'waiting',
   transition: 'info',
   payment: 'ok',
-  unchanged: 'neutral',
+};
+
+/** An order this run wrote — what the list shows. */
+type AnsweredOrder = OrderWriteResult & {
+  kind: Exclude<OrderWriteResult['kind'], 'unchanged'>;
 };

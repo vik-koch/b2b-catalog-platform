@@ -9,6 +9,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../ui/file-target';
 import { MediaService } from './media.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,
@@ -32,7 +33,7 @@ import { MediaService } from './media.service';
           <button
             type="button"
             class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
-            [attr.aria-label]="common.remove"
+            [attr.aria-label]="actionText.remove"
             (click)="valueChange.emit(null)"
           >
             <app-admin-icon name="trash-2" class="size-5 md:size-4" />
@@ -75,6 +76,7 @@ import { MediaService } from './media.service';
 export class ImagePicker {
   private readonly media = inject(MediaService);
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
   protected readonly tileHint = fillText(this.common.imageTileHint, {
     keys: pasteKeys(),

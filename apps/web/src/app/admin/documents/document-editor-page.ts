@@ -9,6 +9,7 @@ import {
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
@@ -268,7 +269,7 @@ import { DocumentsService } from './documents.service';
           (click)="save()"
         >
           <app-admin-icon name="save" class="size-4" />
-          {{ saving() ? common.saving : common.save }}
+          {{ saving() ? actionText.saving : common.save }}
         </button>
         <button
           appButton
@@ -278,7 +279,7 @@ import { DocumentsService } from './documents.service';
           (click)="cancel()"
         >
           <app-admin-icon name="x" class="size-4" />
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
       </div>
     }
@@ -287,9 +288,10 @@ import { DocumentsService } from './documents.service';
 export class DocumentEditorPage implements UnsavedChangesAware {
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(ADMIN_TEXT).documentEditor;
-  protected readonly listText = inject(ADMIN_TEXT).documentList;
+  protected readonly text = inject(ADMIN_TEXT).documents.editor;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
   protected readonly issuedId = 'document-issued-at';
   protected readonly expiresId = 'document-expires-at';
@@ -334,7 +336,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected meta(stored: StoredDocumentFile): string {
     return `${documentFileLabel(stored.contentType)} · ${documentFileSize(
       stored.byteSize,
-      this.listText,
+      this.sizes,
     )}`;
   }
 

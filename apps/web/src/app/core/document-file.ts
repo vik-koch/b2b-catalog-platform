@@ -20,10 +20,10 @@ export function documentLinkHost(link: string): string {
  * kB below a megabyte, MB above it, one decimal either way. */
 export function documentFileSize(
   bytes: number,
-  text: { sizeKb: string; sizeMb: string },
+  text: { kb: string; mb: string },
 ): string {
   const kb = bytes / 1024;
   return kb < 1024
-    ? fillText(text.sizeKb, { size: Math.max(1, Math.round(kb)) })
-    : fillText(text.sizeMb, { size: (kb / 1024).toFixed(1) });
+    ? fillText(text.kb, { size: Math.max(1, Math.round(kb)) })
+    : fillText(text.mb, { size: (kb / 1024).toFixed(1) });
 }

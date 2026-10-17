@@ -1,8 +1,10 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { AppText } from '../config/app-text.type';
 import { defaultAppText } from '../config/app-text.fixture';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -26,6 +28,7 @@ async function render(
     imports: [ConditionsPage],
     providers: [
       provideRouter([]),
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: APP_TEXT,
         useValue: {
@@ -56,6 +59,7 @@ async function render(
 
 const fulfilment = defaultAppText.checkout.fulfilment;
 const payment = defaultAppText.checkout.payment;
+const paymentNames = defaultCommonText.order.paymentMethods;
 
 describe('ConditionsPage', () => {
   it('renders the body, then the zones, pickup points and payment methods', async () => {
@@ -72,9 +76,9 @@ describe('ConditionsPage', () => {
       expect(text).toContain(point.name);
       expect(text).toContain(point.address);
     }
-    expect(text).toContain(payment.cashTitle);
+    expect(text).toContain(paymentNames.cash);
     expect(text).toContain(payment.cashPersonOnly);
-    expect(text).toContain(payment.transferTitle);
+    expect(text).toContain(paymentNames.transfer);
     expect(text).toContain(payment.transferCompanyOnly);
   });
 
@@ -83,7 +87,7 @@ describe('ConditionsPage', () => {
 
     const headings = [...el.querySelectorAll('h2')].map((h) => h.textContent);
     expect(headings.join()).not.toContain(fulfilment.conditionsHeading);
-    expect(headings.join()).not.toContain(fulfilment.pickupTitle);
+    expect(headings.join()).not.toContain(defaultCommonText.fulfilment.pickup);
     // Payment is the platform's rule, so it is there whatever is configured.
     expect(headings.join()).toContain(defaultAppText.conditions.paymentHeading);
   });
@@ -92,7 +96,7 @@ describe('ConditionsPage', () => {
     const el = await render({}, async () => ({ ...conditionsBody, title: '' }));
 
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultAppText.nav['conditions'],
+      defaultCommonText.nav['conditions'],
     );
   });
 
@@ -100,14 +104,14 @@ describe('ConditionsPage', () => {
     const el = await render({}, () => Promise.reject(new Error('down')));
 
     expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
-    expect(el.textContent).not.toContain(payment.cashTitle);
+    expect(el.textContent).not.toContain(paymentNames.cash);
   });
 
   it('shows the load error when the page has no body yet', async () => {
     const el = await render({}, async () => null);
 
     expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
-    expect(el.textContent).not.toContain(payment.cashTitle);
+    expect(el.textContent).not.toContain(paymentNames.cash);
   });
 
   it('states the tax basis with the default rate', async () => {

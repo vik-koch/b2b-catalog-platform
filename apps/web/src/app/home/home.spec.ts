@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
 import { provideRouter } from '@angular/router';
@@ -13,6 +15,7 @@ describe('Home', () => {
       imports: [Home],
       providers: [
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         {
           provide: DEPLOYMENT_CONFIG,
           useValue: {

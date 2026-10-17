@@ -1,5 +1,8 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { refuseCountForms } from '@b2b-catalog-platform/shared';
+import {
+  paymentMethodLabels,
+  refuseCountForms,
+} from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
 
 /**
@@ -24,15 +27,14 @@ const statusMailText = z
 
 /** One sync outcome: its own subject and its own two lines. Subject and
  * preheader are per outcome rather than shared, because these land in an
- * inbox side by side and a common subject would make them one thread. */
+ * inbox side by side and a common subject would make them one thread. The
+ * button into the run is the same in every area, so it is said once. */
 const syncMailText = z
   .object({
     subject: z.string(),
     preheader: z.string(),
     heading: z.string(),
     body: z.string(),
-    /** Button into the admin panel. */
-    action: z.string(),
   })
   .strict();
 
@@ -58,7 +60,11 @@ const syncFeedMails = {
  * publishes them (FR-ADM-06).
  */
 const catalogSyncMails = z
-  .object({ ...syncFeedMails, created: syncMailText })
+  .object({
+    ...syncFeedMails,
+    /** Opens the products awaiting publication rather than the run. */
+    created: syncMailText.extend({ action: z.string() }).strict(),
+  })
   .strict();
 
 /**
@@ -94,33 +100,17 @@ export const mailTextSchema = z
         footerNote: z.string(),
         /** Shown under any set-a-password link, next to its button. */
         linkExpiry: z.string(),
-        /**
-         * How a quantity reads in a mail. A unit is a lens on a piece count
-         * (FR-UNIT-01), so anything but the piece states both figures — a mail
-         * is read months later, beside goods somebody is counting.
-         */
-        units: z
-          .object({ piece: z.string(), pack: z.string(), box: z.string() })
-          .strict(),
-        quantity: z.string(),
-        quantityPieces: z.string(),
-        /**
-         * The tax basis under an order's total (NFR-LEGAL-11), worded as the
-         * storefront words it. `{rate}` is the rate every line shares; the
-         * `mixed` forms stand where the lines differ, and each line then
-         * states its own as `line`.
-         */
-        tax: z
-          .object({
-            included: z.string(),
-            added: z.string(),
-            none: z.string(),
-            mixed: z
-              .object({ included: z.string(), added: z.string() })
-              .strict(),
-            line: z.string(),
-          })
-          .strict(),
+      })
+      .strict(),
+    /** What the staff order mails call an order's parts, where staff read
+     * them differently from customers — the admin has the same words. */
+    orders: z
+      .object({
+        account: z.string(),
+        /** An order placed without an account. */
+        guest: z.string(),
+        items: z.string(),
+        paymentMethods: paymentMethodLabels,
       })
       .strict(),
     /** The email the inquiry form sends to the shop (FR-NAV-06). */
@@ -131,9 +121,6 @@ export const mailTextSchema = z
         /** Inbox preview line, shown before the body in most clients. */
         preheader: z.string(),
         heading: z.string(),
-        name: z.string(),
-        email: z.string(),
-        phone: z.string(),
         preferredContact: z.string(),
         message: z.string(),
       })
@@ -242,15 +229,7 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
-        nameLabel: z.string(),
-        emailLabel: z.string(),
-        phoneLabel: z.string(),
         customerTypeLabel: z.string(),
-        /** The two customer kinds, worded for staff reading the mail. */
-        customerTypePerson: z.string(),
-        customerTypeCompany: z.string(),
-        companyNameLabel: z.string(),
-        companyIdLabel: z.string(),
         /** Button into the admin account list, where it is approved. */
         action: z.string(),
       })
@@ -270,20 +249,6 @@ export const mailTextSchema = z
         body: z.string(),
         /** What happens next: a person reads it and comes back. */
         nextSteps: z.string(),
-        referenceLabel: z.string(),
-        itemsHeading: z.string(),
-        totalLabel: z.string(),
-        fulfilmentLabel: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        /** The terms the order accepted (NFR-LEGAL-10); the row is left out
-         * where it accepted none. */
-        termsLabel: z.string(),
-        /** Names the version by its date; `{date}` is substituted. */
-        termsVersion: z.string(),
-        /** The attached terms' file name, where the deployment attaches them;
-         * `{date}` is the version's day as YYYY-MM-DD. */
-        termsFileName: z.string(),
         /** Button to the order summary the link opens. */
         action: z.string(),
       })
@@ -298,23 +263,6 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
-        referenceLabel: z.string(),
-        customerLabel: z.string(),
-        /** An order placed by nobody with an account. */
-        guest: z.string(),
-        contactLabel: z.string(),
-        partyLabel: z.string(),
-        fulfilmentLabel: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        paymentLabel: z.string(),
-        cash: z.string(),
-        transfer: z.string(),
-        /** A card payment arranged with the manager — never chosen at
-         * checkout, but an order can be adjusted onto it. */
-        card: z.string(),
-        itemsHeading: z.string(),
-        totalLabel: z.string(),
         action: z.string(),
       })
       .strict(),
@@ -331,17 +279,11 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
-        referenceLabel: z.string(),
-        customerLabel: z.string(),
-        /** An order placed by nobody with an account. */
-        guest: z.string(),
-        contactLabel: z.string(),
         /** Precedes the reason the customer gave, where they gave one. */
         reasonLabel: z.string(),
         /** Where they gave none: asking for one is a courtesy, not a
          * condition, so its absence is normal and says so. */
         reasonNone: z.string(),
-        totalLabel: z.string(),
         /** What the shop may still be holding: the money, where a payment was
          * recorded before the order was called off. A refund is arranged
          * outside the platform (FR-ORD-04), so this line is the only prompt
@@ -364,7 +306,6 @@ export const mailTextSchema = z
         heading: z.string(),
         body: z.string(),
         nameLabel: z.string(),
-        emailLabel: z.string(),
         /** How many of their orders were kept and anonymized; `{count}` is
          * substituted. */
         ordersLabel: z.string(),
@@ -390,13 +331,6 @@ export const mailTextSchema = z
         /** The reference is appended, as on every other order mail. */
         subject: z.string(),
         preheader: z.string(),
-        referenceLabel: z.string(),
-        totalLabel: z.string(),
-        /** Precedes the reason a declined or cancelled order carries. */
-        reasonLabel: z.string(),
-        /** What the shop changed about the order, in their words
-         * (FR-ORD-03) — one row per change since the last mail. */
-        changedLabel: z.string(),
         /** Said first wherever a mail carries changes: the reader has to know
          * the order itself moved before being told where it stands. */
         changedIntro: z.string(),
@@ -408,13 +342,6 @@ export const mailTextSchema = z
          * message (FR-ORD-05). Only then: a mail that promised an attachment
          * it does not carry is worse than one that says nothing. */
         attachedNote: z.string(),
-        /** Where the order is going, or where it is waiting. Only on the two
-         * `ready` mails: those are the ones whose wording sends the reader
-         * somewhere, and every other status mail would be repeating the
-         * address back for no reason. */
-        deliveryLabel: z.string(),
-        pickupLabel: z.string(),
-        itemsHeading: z.string(),
         action: z.string(),
         statuses: z
           .object({
@@ -447,8 +374,6 @@ export const mailTextSchema = z
         /** The reference is appended, as on every other order mail. */
         subject: z.string(),
         preheader: z.string(),
-        referenceLabel: z.string(),
-        totalLabel: z.string(),
         action: z.string(),
         /** One entry per kind: what arrived, said in the way that kind of
          * document is talked about. */
@@ -456,73 +381,6 @@ export const mailTextSchema = z
           .object({
             paymentInstructions: statusMailText,
             orderSummary: statusMailText,
-          })
-          .strict(),
-      })
-      .strict(),
-    /**
-     * The wording of the order summary the API draws (FR-ORD-05, FR-ACC-02).
-     *
-     * Server-side like the mails and for the same reason: this text is
-     * rendered by the API into a file, never delivered to a browser. It is not
-     * the admin's or the storefront's wording, and a document is read long
-     * after both.
-     */
-    orderSummaryPdf: z
-      .object({
-        /** Carries `{reference}`. */
-        title: z.string(),
-        placedLabel: z.string(),
-        statusLabel: z.string(),
-        paymentLabel: z.string(),
-        invoiceLabel: z.string(),
-        deliveryLabel: z.string(),
-        pickupLabel: z.string(),
-        whenLabel: z.string(),
-        /** Where the customer named no date. */
-        whenAny: z.string(),
-        contactLabel: z.string(),
-        noteLabel: z.string(),
-        /** The shop's account of what it changed (FR-ORD-03), where there is
-         * one. A document that left them out would state a total the customer
-         * could not account for. */
-        changesLabel: z.string(),
-        itemsLabel: z.string(),
-        quantityLabel: z.string(),
-        lineTotalLabel: z.string(),
-        totalLabel: z.string(),
-        /** As in `orderReceived`. */
-        termsLabel: z.string(),
-        termsVersion: z.string(),
-        /** How to return the goods, printed under the total (NFR-LEGAL-10):
-         * the summary is the paper handed over with them. Absent, nothing is
-         * printed. */
-        returnNotice: z.string().optional(),
-        /** Printed at the foot of every page: what this document is, and what
-         * it is not (ADR 0052). */
-        footer: z.string(),
-        statuses: z
-          .object({
-            requested: z.string(),
-            approved: z.string(),
-            ready: z.string(),
-            completed: z.string(),
-            declined: z.string(),
-            cancelled: z.string(),
-          })
-          .strict(),
-        payments: z
-          .object({
-            cash: z.string(),
-            bankTransfer: z.string(),
-            cardLater: z.string(),
-          })
-          .strict(),
-        paymentStates: z
-          .object({
-            notDue: z.string(),
-            awaiting: z.string(),
-            paid: z.string(),
           })
           .strict(),
       })
@@ -568,6 +426,10 @@ export const mailTextSchema = z
             requested: z.string(),
           })
           .strict(),
+        /** The button into the run, from a failure or a recovery. */
+        openRun: z.string(),
+        /** The same button, from a run that waits for a decision. */
+        reviewRun: z.string(),
         /**
          * The sentences, keyed by the area the run is about.
          *

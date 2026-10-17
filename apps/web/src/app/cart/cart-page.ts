@@ -17,6 +17,7 @@ import { formatPriceMinor } from '../catalog/price';
 import { ProductPairings } from '../catalog/product-pairings';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { debounced } from '../core/debounced';
 import { delayedLoading } from '../core/delayed-loading';
@@ -27,7 +28,7 @@ import { Checkbox } from '../ui/checkbox';
 import { EmptyState } from '../ui/empty-state';
 import { AutoGrow } from '../ui/auto-grow';
 import { Input } from '../ui/input';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
@@ -189,7 +190,7 @@ interface CartRow {
                     type="button"
                     appIconButton
                     class="-mt-1 -mr-1 shrink-0"
-                    [attr.aria-label]="changeText.dismiss"
+                    [attr.aria-label]="changeText.dismissAria"
                     (click)="cart.dismissChanges()"
                   >
                     <app-icon name="close" />
@@ -357,7 +358,7 @@ interface CartRow {
                             class="w-full"
                             [attr.maxlength]="noteMax"
                             [attr.placeholder]="row.notePrompt"
-                            [attr.aria-label]="text.lineNote"
+                            [attr.aria-label]="text.lineNoteAria"
                             [value]="row.note ?? ''"
                             (change)="onNote(row, $event)"
                           ></textarea>
@@ -516,7 +517,8 @@ export class CartPage {
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */
-  private readonly pieceUnit = inject(APP_TEXT).catalog.units.piece;
+  private readonly pieceUnit = inject(COMMON_TEXT).units.piece;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
   private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
 
@@ -843,11 +845,11 @@ export class CartPage {
   }
 
   protected removeLabel(row: CartRow): string {
-    return fillText(this.text.remove, { name: row.name });
+    return fillText(this.text.removeAria, { name: row.name });
   }
 
   protected selectLabel(row: CartRow): string {
-    return fillText(this.text.selectLine, { name: row.name });
+    return fillText(this.text.selectLineAria, { name: row.name });
   }
 
   protected isSelected(key: string): boolean {
@@ -886,10 +888,13 @@ export class CartPage {
     const keys = this.selected();
     if (keys.size === 0) return;
     const ok = await this.confirm.ask({
-      heading: this.text.deleteSelectedHeading,
-      message: fillText(this.text.deleteSelectedConfirm, { count: keys.size }),
-      confirmLabel: this.text.deleteSelected,
-      cancelLabel: this.text.cancel,
+      ...confirmRequest(
+        this.text.deleteSelectedConfirm,
+        this.actionText.cancel,
+      ),
+      message: fillText(this.text.deleteSelectedConfirm.message, {
+        count: keys.size,
+      }),
     });
     if (!ok) return;
     for (const line of this.cart.lines()) {

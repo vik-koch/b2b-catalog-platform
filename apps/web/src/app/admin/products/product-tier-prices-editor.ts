@@ -81,7 +81,7 @@ export interface TierPriceDraft {
   `,
 })
 export class ProductTierPricesEditor {
-  protected readonly text = inject(ADMIN_TEXT).productEditor.tierPrices;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.tierPrices;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   /** The same mark the base price field above carries. */

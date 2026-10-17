@@ -25,6 +25,7 @@ import { Input } from '../../ui/input';
 import { Checkbox } from '../../ui/checkbox';
 import { PageService } from '../../pages/page.service';
 import { trustedRichText } from '../../core/trusted-rich-text';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -136,7 +137,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         (click)="save()"
       >
         <app-admin-icon name="save" class="size-4" />
-        {{ saving() ? common.saving : common.save }}
+        {{ saving() ? actionText.saving : common.save }}
       </button>
       <button
         appButton
@@ -159,7 +160,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
         (click)="cancel()"
       >
         <app-admin-icon name="x" class="size-4" />
-        {{ common.cancel }}
+        {{ actionText.cancel }}
       </button>
     </div>
   `,
@@ -167,7 +168,8 @@ import { trustedRichText } from '../../core/trusted-rich-text';
 export class PageEditor {
   private readonly pageService = inject(PageService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  protected readonly text = inject(ADMIN_TEXT).pages;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */

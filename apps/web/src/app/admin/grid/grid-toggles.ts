@@ -30,7 +30,7 @@ const ON = `${PILL} border-border-secondary bg-primary text-white hover:bg-accen
     @for (group of groups(); track group.param) {
       <div
         role="group"
-        [attr.aria-label]="group.label"
+        [attr.aria-label]="group.ariaLabel"
         class="flex flex-wrap items-center gap-2"
       >
         @for (option of group.options; track option.value) {

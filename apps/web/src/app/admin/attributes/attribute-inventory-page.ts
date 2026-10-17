@@ -26,6 +26,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -64,13 +65,15 @@ type RenameTarget =
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
       </a>
     </div>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.intro }}</p>
+    @if (text.page.intro; as intro) {
+      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+    }
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -170,7 +173,7 @@ type RenameTarget =
                               appIconButton
                               routerLink="/admin/attributes"
                               [queryParams]="{ name: entry.key }"
-                              [attr.aria-label]="text.toDefinition"
+                              [attr.aria-label]="text.toDefinitionAria"
                             >
                               <app-admin-icon name="funnel" />
                             </a>
@@ -187,7 +190,7 @@ type RenameTarget =
                           <button
                             appIconButton
                             type="button"
-                            [attr.aria-label]="text.renameKey"
+                            [attr.aria-label]="text.renameKeyAria"
                             [disabled]="busy()"
                             (click)="
                               startRename({ kind: 'key', key: entry.key })
@@ -298,7 +301,7 @@ type RenameTarget =
                                     <button
                                       appIconButton
                                       type="button"
-                                      [attr.aria-label]="text.renameValue"
+                                      [attr.aria-label]="text.renameValueAria"
                                       [disabled]="busy()"
                                       (click)="
                                         startRename({
@@ -397,7 +400,7 @@ type RenameTarget =
             class="w-72"
             name="rename"
             autocomplete="off"
-            [attr.aria-label]="text.newText"
+            [attr.aria-label]="text.newTextAria"
             [value]="draft()"
             (input)="draft.set($any($event.target).value)"
           />
@@ -409,7 +412,7 @@ type RenameTarget =
             [disabled]="busy()"
           >
             <app-admin-icon name="save" class="size-4" />
-            {{ busy() ? common.saving : common.save }}
+            {{ busy() ? actionText.saving : common.save }}
           </button>
           <button
             appButton
@@ -421,7 +424,7 @@ type RenameTarget =
             (click)="cancel()"
           >
             <app-admin-icon name="x" class="size-4" />
-            {{ common.cancel }}
+            {{ actionText.cancel }}
           </button>
         </form>
       </ng-template>
@@ -434,9 +437,11 @@ export class AttributeInventoryPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
-  protected readonly text = inject(ADMIN_TEXT).attributeInventory;
+  protected readonly text = inject(ADMIN_TEXT).attributes.inventory;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   protected readonly keys = resource({ loader: () => this.service.listKeys() });
   protected readonly showSkeleton = delayedLoading(this.keys.isLoading);
@@ -518,7 +523,7 @@ export class AttributeInventoryPage {
   }
 
   protected productsLabel(count: number): string {
-    return this.text.products.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 
   protected valuesLabel(count: number): string {
@@ -569,7 +574,7 @@ export class AttributeInventoryPage {
         .filter(Boolean)
         .join(' '),
       confirmLabel: this.common.save,
-      cancelLabel: this.common.cancel,
+      cancelLabel: this.actionText.cancel,
     });
     if (!confirmed) return;
 
@@ -616,7 +621,7 @@ export class AttributeInventoryPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
     // Arriving with ?key= — from a product's attribute grid, or from the
     // registry — should land on that row, not merely open it somewhere below.
     useRowAnchor(

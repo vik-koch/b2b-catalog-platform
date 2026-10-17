@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../../config/common-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -9,6 +10,7 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -18,7 +20,8 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderDetailPage } from './order-detail-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderDetail;
+const text = defaultAdminText.orders.detail;
+const names = defaultCommonText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -167,8 +170,10 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { user: signal({ role }) } },
       {
@@ -202,9 +207,9 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   it('shows what only staff see', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(text.customer);
+    expect(el.textContent).toContain(defaultAdminText.orders.account);
     expect(el.textContent).toContain('alex@example.com');
-    expect(el.textContent).toContain(text.tier);
+    expect(el.textContent).toContain(defaultAdminText.orders.tier);
     expect(el.textContent).toContain('wholesale');
   });
 
@@ -217,8 +222,8 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
       customerEmail: null,
     });
 
-    expect(el.textContent).toContain(text.tierDefault);
-    expect(el.textContent).toContain(defaultAdminText.orderList.guest);
+    expect(el.textContent).toContain(defaultAdminText.orders.tierDefault);
+    expect(el.textContent).toContain(defaultAdminText.orders.guest);
   });
 
   // NFR-LEGAL-10: the version to hand the customer, as the page editor
@@ -229,35 +234,37 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
       termsVersion: 3,
       termsDate: '2026-09-01T10:00:00.000Z',
     });
-    expect(accepted.el.textContent).toContain(text.terms);
+    expect(accepted.el.textContent).toContain(defaultCommonText.nav['terms']);
     expect(accepted.el.textContent).toMatch(/Version 3, updated on .*2026/);
 
     const none = await render(placed);
-    expect(none.el.textContent).not.toContain(text.terms);
+    expect(none.el.textContent).not.toContain(defaultCommonText.nav['terms']);
   });
 
   it('reads the order back in the admin’s own words', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(text.items);
-    expect(el.textContent).toContain(text.invoice);
+    expect(el.textContent).toContain(defaultAdminText.orders.items);
+    expect(el.textContent).toContain(names.invoicedTo);
     expect(el.textContent).toContain('Kontor GmbH · DE123456789');
     expect(el.textContent).toContain(text.billingSame);
-    expect(el.textContent).toContain(text.transfer);
+    expect(el.textContent).toContain(
+      defaultAdminText.orders.paymentMethods.transfer,
+    );
     expect(el.textContent).toContain(text.whenAny);
   });
 
   it('says an unknown reference opens nothing', async () => {
     const { el } = await render(null);
 
-    expect(el.textContent).toContain(text.notFound);
+    expect(el.textContent).toContain(defaultAdminText.orders.notFound);
   });
 
   it('says so when the order cannot be read', async () => {
     const { el } = await render('reject');
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      text.loadError,
+      defaultAdminText.orders.loadError,
     );
   });
 });
@@ -329,7 +336,9 @@ describe('AdminOrderDetailPage answering an order', () => {
   it('records a payment on an order that owes one, and never twice', async () => {
     const owing = await render({ ...placed, paymentState: 'awaiting' });
     expect(buttons(owing.el)).toContain(text.paymentState.record);
-    expect(owing.el.textContent).toContain(text.paymentState.awaiting);
+    expect(owing.el.textContent).toContain(
+      defaultAdminText.orders.paymentStates.awaiting,
+    );
 
     const settled = await render({
       ...placed,
@@ -534,14 +543,14 @@ describe('AdminOrderDetailPage answering an order', () => {
     expect(el.textContent).toContain('Emailed');
 
     // The comparison is behind its own fold, and is not run until it opens.
-    expect(el.textContent).not.toContain(text.revisions.total);
+    expect(el.textContent).not.toContain(names.total);
     const differences = [...el.querySelectorAll('button')].find(
       (button) => button.textContent?.trim() === text.revisions.changes,
     );
     differences?.click();
     fixture.detectChanges();
 
-    expect(el.textContent).toContain(text.revisions.total);
+    expect(el.textContent).toContain(names.total);
   });
 
   /** The escape hatch, forwarded as answered: a step taken by mistake is the
@@ -688,7 +697,7 @@ describe('AdminOrderDetailPage while orders are externally owned', () => {
     const { el } = await render(placed);
 
     expect(allButtons(el)).not.toContain(text.documents.upload);
-    expect(allButtons(el)).not.toContain(text.documents.remove);
+    expect(allButtons(el)).not.toContain(defaultCommonText.actions.remove);
   });
 });
 

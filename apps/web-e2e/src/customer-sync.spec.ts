@@ -74,10 +74,12 @@ test('a preview says how many people it would email, and writes nothing', async 
 
   // Two invitations, and the mail count that goes with them — the figure
   // somebody is about to be asked about.
-  // The count tiles, matched exactly: the preset descriptions above use the
-  // same words in sentences.
-  await expect(page.getByText('Invited', { exact: true })).toBeVisible();
-  await expect(page.getByText('Links sent', { exact: true })).toBeVisible();
+  // The count tiles, matched as tile terms: the preset descriptions above use
+  // the same words in sentences, and each row's badge repeats its tile's word.
+  const tile = (name: string) =>
+    page.getByRole('term').filter({ hasText: new RegExp(`^${name}$`) });
+  await expect(tile('Invited')).toBeVisible();
+  await expect(tile('Links sent')).toBeVisible();
   await expect(
     page.getByRole('link', { name: `e2e-web-${R}-1@example.test` }),
   ).toBeVisible();

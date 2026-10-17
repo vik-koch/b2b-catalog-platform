@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -19,9 +21,9 @@ import { ConfirmAnswer } from '../../ui/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 
-const text = defaultAdminText.userDetail;
-const listText = defaultAdminText.userList;
-const editorText = defaultAdminText.userEditor;
+const text = defaultAdminText.users.detail;
+const listText = defaultAdminText.users.list;
+const editorText = defaultAdminText.users.editor;
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {
@@ -122,6 +124,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: {

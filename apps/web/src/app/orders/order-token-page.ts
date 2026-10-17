@@ -6,14 +6,15 @@ import { AuthService } from '../auth/auth.service';
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
-import { orderBlocks } from './order-blocks';
-import { customerBlockLabels, customerQuantity } from './order-view';
+import { customerBlockLabels, orderBlocks } from './order-blocks';
+import { customerQuantity } from './order-view';
 import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
@@ -84,15 +85,13 @@ import { OrdersService } from './orders.service';
                  the order. -->
             @if (order.statusReason; as reason) {
               <p class="mt-1 text-muted">
-                <span class="text-subtle">
-                  {{ orderText.detail.statusReason }}:
-                </span>
+                <span class="text-subtle"> {{ names.reason }}: </span>
                 {{ reason }}
               </p>
             }
             @if (order.changes.length) {
               <div class="mt-1 text-muted">
-                <span class="text-subtle">{{ orderText.detail.changes }}:</span>
+                <span class="text-subtle">{{ names.changeNote }}:</span>
                 @for (change of order.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
@@ -139,14 +138,14 @@ import { OrdersService } from './orders.service';
                  next. -->
             @if (!signedIn()) {
               <div class="mt-5 rounded-lg border border-border p-5">
-                <p class="text-sm text-muted">{{ text.register }}</p>
+                <p class="text-sm text-muted">{{ invite.text }}</p>
                 <a
                   appButton
                   variant="secondary"
                   routerLink="/register"
                   class="mt-4 w-full"
                 >
-                  {{ text.registerAction }}
+                  {{ invite.action }}
                 </a>
               </div>
             }
@@ -178,8 +177,11 @@ export class OrderTokenPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = this.commonText.order;
   protected readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.public;
+  protected readonly invite = this.appText.auth.registerInvite;
 
   /**
    * Whether the reader has an account of their own. The cookie hint rather
@@ -229,7 +231,7 @@ export class OrderTokenPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.appText, this.currency),
+      quantity: customerQuantity(line, this.commonText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Only once the lines differ: a rate the total names would otherwise
       // be said on every line for nothing.
@@ -241,11 +243,15 @@ export class OrderTokenPage {
     const order = this.detail();
     if (!order) return [];
 
-    return orderBlocks(order, customerBlockLabels(this.appText), {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      order,
+      customerBlockLabels(this.commonText, this.appText.checkout.review),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   protected placed(order: OrderDetail): string {
@@ -260,7 +266,7 @@ export class OrderTokenPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.orderText,
+      this.names.statuses,
     );
   }
 
@@ -269,7 +275,7 @@ export class OrderTokenPage {
   }
 
   protected paymentLabel(order: OrderDetail): string | null {
-    return orderPaymentLabel(order.paymentState, this.orderText);
+    return orderPaymentLabel(order.paymentState, this.names.paymentStates);
   }
 
   protected paymentTone(order: OrderDetail): StatusTone {

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OwnershipArea, Pagination } from '@b2b-catalog-platform/shared';
@@ -12,7 +14,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderListPage } from './order-list-page';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
-const text = defaultAdminText.orderList;
+const text = defaultAdminText.orders.list;
 
 const placed: StaffOrderSummary = {
   reference: 'DEMO-260826-4831',
@@ -70,8 +72,10 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AdminOrdersService, useValue: { list, ...api } },
     ],
@@ -123,7 +127,9 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain('Alex Fischer');
     expect(el.textContent).toContain('alex@example.com');
-    expect(el.textContent).toContain(text.statusRequested);
+    expect(el.textContent).toContain(
+      defaultAdminText.orders.statuses.requested,
+    );
     expect(
       // The title opens the version the row describes, read-only; the row's
       // action opens the screen where the order is answered.
@@ -148,7 +154,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
   it('names a guest order as one', async () => {
     const { el } = await render([{ ...placed, customerEmail: null }]);
 
-    expect(el.textContent).toContain(text.guest);
+    expect(el.textContent).toContain(defaultAdminText.orders.guest);
   });
 
   it('passes the status filter to the API, and drops a nonsense one', async () => {
@@ -242,7 +248,7 @@ describe('AdminOrderListPage row actions', () => {
     [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
       control.getAttribute('aria-label'),
     );
-  const actions = defaultAdminText.orderDetail.actions;
+  const actions = defaultAdminText.orders.detail.actions;
 
   it('marks an unanswered row as a decision, and offers to decline it', async () => {
     const { el } = await render([placed]);
@@ -303,7 +309,7 @@ describe('AdminOrderListPage row actions', () => {
  * to be able to see what the customer sees.
  */
 describe('AdminOrderListPage while orders are externally owned', () => {
-  const actions = defaultAdminText.orderDetail.actions;
+  const actions = defaultAdminText.orders.detail.actions;
   const labels = (el: HTMLElement) =>
     [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
       control.getAttribute('aria-label'),

@@ -17,15 +17,16 @@ import {
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { Skeleton } from '../ui/skeleton';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderBlocks } from './order-blocks';
+import { customerBlockLabels, orderBlocks } from './order-blocks';
 import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import {
@@ -34,7 +35,7 @@ import {
   orderStatusLabel,
   orderStatusTone,
 } from './order-status';
-import { customerBlockLabels, customerQuantity } from './order-view';
+import { customerQuantity } from './order-view';
 import { OrdersService } from './orders.service';
 
 /**
@@ -92,7 +93,7 @@ import { OrdersService } from './orders.service';
                  is part of the status, not a fact beside it. -->
             @if (detail.statusReason; as reason) {
               <p class="mt-1 text-muted">
-                <span class="text-subtle">{{ text.statusReason }}:</span>
+                <span class="text-subtle">{{ names.reason }}:</span>
                 {{ reason }}
               </p>
             }
@@ -101,7 +102,7 @@ import { OrdersService } from './orders.service';
                  that says why it differs from the one that was sent. -->
             @if (detail.changes.length) {
               <div class="mt-1 text-muted">
-                <span class="text-subtle">{{ text.changes }}:</span>
+                <span class="text-subtle">{{ names.changeNote }}:</span>
                 @for (change of detail.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
@@ -200,6 +201,9 @@ export class OrderDetailPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly names = this.commonText.order;
   private readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.detail;
 
@@ -241,7 +245,7 @@ export class OrderDetailPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.appText, this.currency),
+      quantity: customerQuantity(line, this.commonText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Only once the lines differ: a rate the total names would otherwise
       // be said on every line for nothing.
@@ -257,11 +261,15 @@ export class OrderDetailPage {
     const detail = this.detail();
     if (!detail) return [];
 
-    return orderBlocks(detail, customerBlockLabels(this.appText), {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      detail,
+      customerBlockLabels(this.commonText, this.appText.checkout.review),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   protected placed(detail: OrderDetail): string {
@@ -274,7 +282,7 @@ export class OrderDetailPage {
     return orderStatusLabel(
       detail.status,
       detail.fulfilmentMethod,
-      this.orderText,
+      this.names.statuses,
     );
   }
 
@@ -283,7 +291,7 @@ export class OrderDetailPage {
   }
 
   protected paymentLabel(detail: OrderDetail): string | null {
-    return orderPaymentLabel(detail.paymentState, this.orderText);
+    return orderPaymentLabel(detail.paymentState, this.names.paymentStates);
   }
 
   protected paymentTone(detail: OrderDetail): StatusTone {
@@ -315,16 +323,14 @@ export class OrderDetailPage {
    */
   protected async cancel(detail: OrderDetail): Promise<void> {
     const reason = await this.confirm.askWithReason({
-      heading: this.text.cancel.heading,
-      message: fillText(this.text.cancel.message, {
+      ...confirmRequest(this.text.cancelConfirm, this.actionText.cancel),
+      message: fillText(this.text.cancelConfirm.message, {
         reference: detail.reference,
       }),
       warning:
         detail.paymentState === 'paid'
-          ? this.text.cancel.paidWarning
+          ? this.text.cancelConfirm.warning
           : undefined,
-      confirmLabel: this.text.cancel.confirm,
-      cancelLabel: this.text.cancel.keep,
       reasonLabel: this.text.cancel.reasonLabel,
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
       // Asked, not insisted on: the shop's own refusals owe the customer an

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ActivatedRoute, convertToParamMap } from '@angular/router';
@@ -12,7 +14,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
 import { DocumentEditorPage } from './document-editor-page';
 import { DocumentsService } from './documents.service';
 
-const text = defaultAdminText.documentEditor;
+const text = defaultAdminText.documents.editor;
 
 const storedFile = {
   url: '/documents/aaaaaaaaaaaa.pdf',
@@ -65,7 +67,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: DocumentsService, useValue: service },
       // The picker inside the form asks for the catalog; nothing here is about

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { PageVersion } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -7,7 +9,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { PageService } from '../../pages/page.service';
 import { PageHistory } from './page-history';
 
-const text = defaultAdminText.pageEditor.history;
+const text = defaultAdminText.pages.history;
 
 const version = (n: number, extra: Partial<PageVersion> = {}): PageVersion => ({
   version: n,
@@ -24,6 +26,7 @@ async function render(versions: PageVersion[]) {
     imports: [PageHistory],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: PageService,

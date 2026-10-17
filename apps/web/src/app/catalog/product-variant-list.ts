@@ -1,6 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { ProductImage, ProductVariant } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 
 /** Where a variant's first picture is in the gallery, or -1 where it has none
  * on show — none uploaded yet, or withheld while it is unavailable. */
@@ -29,7 +30,7 @@ export function firstPictureOf(
       [id]="headingId"
       class="mb-3 font-medium text-subtle text-xs tracking-wide uppercase"
     >
-      {{ text.heading }}
+      {{ product.variants }}
     </h2>
     <ul class="flex flex-wrap gap-1.5" [attr.aria-labelledby]="headingId">
       @for (variant of variants(); track variant.name) {
@@ -65,6 +66,7 @@ export function firstPictureOf(
 })
 export class ProductVariantList {
   protected readonly text = inject(APP_TEXT).catalog.variants;
+  protected readonly product = inject(COMMON_TEXT).product;
 
   readonly variants = input.required<readonly ProductVariant[]>();
   /** The pictures on show, in gallery order. */

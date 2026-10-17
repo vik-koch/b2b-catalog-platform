@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -78,6 +80,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: SyncService, useValue: service },
@@ -173,7 +176,41 @@ describe('SyncRunsPage', () => {
     expect(el.textContent).not.toContain(
       fillText(text.field.priceList, { key: 'wholesale' }),
     );
-    expect(el.textContent).toContain(fillText(text.field.more, { count: 1 }));
+    expect(el.textContent).toContain(fillText(text.moreFields, { count: 1 }));
+  });
+
+  /** Each area's runs write their own fields, and its log names them in its
+   * own words rather than as the keys the summary stores. */
+  it("names a customer run's fields in the customer area's words", async () => {
+    const { el } = await render(
+      [
+        run({
+          area: 'customers',
+          summary: { ...summary, fields: ['tier', 'companyName'] },
+        }),
+      ],
+      '',
+      'customers',
+    );
+
+    expect(el.textContent).toContain(text.customers.field.tier);
+    expect(el.textContent).toContain(text.customers.field.companyName);
+  });
+
+  it("names an order run's fields in the order area's words", async () => {
+    const { el } = await render(
+      [
+        run({
+          area: 'orders',
+          summary: { ...summary, fields: ['status', 'lines'] },
+        }),
+      ],
+      '',
+      'orders',
+    );
+
+    expect(el.textContent).toContain(text.orders.field.status);
+    expect(el.textContent).toContain(text.orders.field.lines);
   });
 
   /** A run the source and the catalog agree about is over on arrival: it is

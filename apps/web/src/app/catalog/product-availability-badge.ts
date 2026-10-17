@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ProductAvailability } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
 
 /**
@@ -53,7 +53,7 @@ export class ProductAvailabilityBadge {
     return tones[this.availability() ?? 'in'];
   });
 
-  private readonly text = inject(APP_TEXT).catalog.availability;
+  private readonly text = inject(COMMON_TEXT).product.availability;
 
   protected readonly label = computed(() => {
     const state = this.availability();

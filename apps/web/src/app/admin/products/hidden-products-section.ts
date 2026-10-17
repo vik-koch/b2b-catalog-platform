@@ -23,6 +23,7 @@ import { AdminIcon } from '../../ui/icons/admin-icon';
 import { StatusBadge } from '../../ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../editor-return';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category
@@ -67,13 +68,13 @@ import { injectEditorReturnParams } from '../editor-return';
                   <div [class]="body">
                     <p class="mb-1 flex flex-wrap gap-1">
                       <span appStatusBadge tone="waiting">{{
-                        text.unpublishedBadge
+                        productStates.unpublished
                       }}</span>
                       <!-- The second reason, and the one the button below
                            cannot resolve: nothing prices this product. -->
                       @if (item.priceMinor === null) {
                         <span appStatusBadge tone="danger">{{
-                          text.unpricedBadge
+                          productStates.unpriced
                         }}</span>
                       }
                     </p>
@@ -146,6 +147,8 @@ export class HiddenProductsSection {
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).editMode;
+  protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   readonly categorySlug = input.required<string>();
   /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */
@@ -206,7 +209,7 @@ export class HiddenProductsSection {
 
   protected actionLabel(item: HiddenProduct): string {
     return this.busy() === item.slug
-      ? this.common.saving
+      ? this.actionText.saving
       : this.text.publishProduct;
   }
 
@@ -217,7 +220,7 @@ export class HiddenProductsSection {
       await this.confirm.tell({
         heading: this.text.unpricedTitle,
         message: this.common.catalogErrors['product-has-no-price'],
-        closeLabel: this.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }

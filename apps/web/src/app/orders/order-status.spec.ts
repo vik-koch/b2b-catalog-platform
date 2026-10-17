@@ -8,13 +8,13 @@ import {
 } from './order-status';
 
 const labels: OrderStatusLabels = {
-  statusRequested: 'Awaiting confirmation',
-  statusApproved: 'Confirmed',
-  statusReadyDelivery: 'On its way',
-  statusReadyPickup: 'Ready to collect',
-  statusCompleted: 'Complete',
-  statusDeclined: 'Declined',
-  statusCancelled: 'Cancelled',
+  requested: 'Awaiting confirmation',
+  approved: 'Confirmed',
+  readyDelivery: 'On its way',
+  readyPickup: 'Ready to collect',
+  completed: 'Complete',
+  declined: 'Declined',
+  cancelled: 'Cancelled',
 };
 
 describe('orderStatusLabel', () => {
@@ -87,9 +87,9 @@ describe('orderStatusTone', () => {
 });
 
 const paymentLabels: StaffPaymentLabels = {
-  paymentAwaiting: 'Awaiting payment',
-  paymentCash: 'Cash on handover',
-  paymentPaid: 'Paid',
+  awaiting: 'Awaiting payment',
+  cashOnHandover: 'Cash on handover',
+  paid: 'Paid',
 };
 
 const money = (

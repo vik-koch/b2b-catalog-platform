@@ -11,6 +11,7 @@ import {
   AdminProductListItem,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { currencySymbol } from '../../catalog/price';
 import { HighlightedLine } from '../../core/highlighted-line';
@@ -110,14 +111,14 @@ export interface AdjustLineRow {
                hint below would be four lines for two numbers, and a form of
                forty lines is read by scrolling. -->
           <div class="mt-1 flex flex-wrap items-center gap-2">
-            <app-unit-field class="w-28" [unit]="text.pieces">
+            <app-unit-field class="w-28" [unit]="pieceUnit">
               <input
                 [class]="unitFieldInput"
                 type="number"
                 min="1"
                 step="1"
                 [id]="id + '-pieces-' + i"
-                [attr.aria-label]="text.units"
+                [attr.aria-label]="text.unitsAria"
                 [disabled]="disabled()"
                 [value]="line.pieces"
                 (input)="piecesTyped(i, $any($event.target).value)"
@@ -130,7 +131,7 @@ export interface AdjustLineRow {
                 type="text"
                 inputmode="decimal"
                 [id]="id + '-price-' + i"
-                [attr.aria-label]="text.price"
+                [attr.aria-label]="text.priceAria"
                 [disabled]="disabled()"
                 [value]="line.priceText"
                 (input)="priceTyped(i, $any($event.target).value)"
@@ -192,7 +193,7 @@ export interface AdjustLineRow {
                   appIconButton
                   type="button"
                   [disabled]="disabled() || i === 0"
-                  [attr.aria-label]="moveLabel(line, text.moveUp)"
+                  [attr.aria-label]="moveLabel(line, text.moveUpAria)"
                   (click)="moved.emit({ from: i, to: i - 1 })"
                 >
                   <app-admin-icon name="chevron-up" />
@@ -201,7 +202,7 @@ export interface AdjustLineRow {
                   appIconButton
                   type="button"
                   [disabled]="disabled() || i === lines().length - 1"
-                  [attr.aria-label]="moveLabel(line, text.moveDown)"
+                  [attr.aria-label]="moveLabel(line, text.moveDownAria)"
                   (click)="moved.emit({ from: i, to: i + 1 })"
                 >
                   <app-admin-icon name="chevron-down" />
@@ -273,7 +274,7 @@ export interface AdjustLineRow {
                 </span>
                 @if (item.publishedAt === null) {
                   <span class="block text-xs text-subtle">
-                    {{ text.unpublished }}
+                    {{ products.unpublished }}
                   </span>
                 }
               </li>
@@ -286,7 +287,10 @@ export interface AdjustLineRow {
 })
 export class OrderAdjustLines {
   private readonly catalog = inject(AdminCatalogService);
-  protected readonly text = inject(ADMIN_TEXT).orderAdjust.lines;
+  protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
+  protected readonly products = inject(ADMIN_TEXT).products;
+  protected readonly pieceUnit = inject(COMMON_TEXT).units.piece;
+  private readonly availability = inject(COMMON_TEXT).product.availability;
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly panel = SUGGEST_PANEL;
@@ -338,7 +342,7 @@ export class OrderAdjustLines {
   }
 
   protected removeLabel(line: AdjustLineRow): string {
-    return `${this.text.remove}: ${line.name}`;
+    return `${this.text.removeAria}: ${line.name}`;
   }
 
   protected moveLabel(line: AdjustLineRow, action: string): string {
@@ -346,9 +350,9 @@ export class OrderAdjustLines {
   }
 
   protected flagLabel(flag: AdjustmentLineFlag): string {
-    if (flag === 'deleted') return this.text.deleted;
-    if (flag === 'unpublished') return this.text.unpublished;
-    return this.text.outOfStock;
+    if (flag === 'deleted') return this.products.deleted;
+    if (flag === 'unpublished') return this.products.unpublished;
+    return this.availability.out;
   }
 
   protected tone(flag: AdjustmentLineFlag): 'danger' | 'waiting' {

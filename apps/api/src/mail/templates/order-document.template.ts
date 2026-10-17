@@ -1,4 +1,5 @@
 import {
+  CommonText,
   MoneyFormat,
   OrderDetail,
   OrderDocumentKind,
@@ -26,8 +27,10 @@ export function orderDocumentMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.orderDocument;
+  const names = common.order;
   const wording =
     kind === 'payment-instructions'
       ? t.kinds.paymentInstructions
@@ -39,10 +42,10 @@ export function orderDocumentMail(
     heading: wording.heading,
     paragraphs: [wording.body],
     rows: [
-      { label: t.referenceLabel, value: order.reference },
+      { label: names.reference, value: order.reference },
       {
-        label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        label: names.total,
+        value: orderMailTotal(order, currency, common),
       },
     ],
     action: {

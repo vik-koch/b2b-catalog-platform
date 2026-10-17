@@ -5,6 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import {
+  CommonText,
   formatPhone,
   PhoneConfig,
   RegisterRequest,
@@ -20,6 +21,7 @@ import {
 } from '../config/deployment-config';
 import { env } from '../env';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { newRegistrationMail } from '../mail/templates/new-registration.template';
 import { registrationReceivedMail } from '../mail/templates/registration-received.template';
@@ -44,6 +46,7 @@ export class RegistrationService {
     private readonly passwords: PasswordService,
     private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(COMMON_TEXT) private readonly common: CommonText,
     @Inject(COMPANY_ID_RULE) private readonly companyIdMatches: CompanyIdRule,
     private readonly addresses: AddressesService,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
@@ -192,6 +195,7 @@ export class RegistrationService {
           phone: formatPhone(request.phone, this.phoneInput),
         },
         this.text,
+        this.common,
       ),
       { to: staffInbox },
       'staff notification',

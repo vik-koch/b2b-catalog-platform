@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminOrderDetail,
@@ -9,7 +11,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderDetail.documents;
+const text = defaultAdminText.orders.detail.documents;
 
 const generated: AdminOrderDocument = {
   kind: 'order-summary',
@@ -43,6 +45,7 @@ async function render(
     imports: [OrderDocumentsPanel],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ConfirmService, useValue: { ask: vi.fn(async () => true) } },
       {
         provide: AdminOrdersService,
@@ -112,13 +115,13 @@ describe('OrderDocumentsPanel', () => {
     expect(rowLabels(el)).toContain(text.summary);
     expect(el.textContent).toContain('PDF');
     // A supplied file can be taken back; a generated one cannot.
-    expect(el.textContent).toContain(text.remove);
+    expect(el.textContent).toContain(defaultCommonText.actions.remove);
   });
 
   it('has nothing to remove where nothing was supplied', async () => {
     const { el } = await render(order());
 
-    expect(el.textContent).not.toContain(text.remove);
+    expect(el.textContent).not.toContain(defaultCommonText.actions.remove);
   });
 
   /**

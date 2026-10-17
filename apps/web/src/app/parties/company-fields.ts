@@ -113,8 +113,8 @@ export class CompanyFields {
 
   /** Only the type-ahead half of the wording reaches the fields themselves. */
   protected suggestText(): SuggestListText {
-    const { suggestionsLabel, noSuggestions, suggestionCount } = this.text();
-    return { suggestionsLabel, noSuggestions, suggestionCount };
+    const { suggestionsAria, noSuggestions, suggestionCountAria } = this.text();
+    return { suggestionsAria, noSuggestions, suggestionCountAria };
   }
 
   protected hint(): string | undefined {

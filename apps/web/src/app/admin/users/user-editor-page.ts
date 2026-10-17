@@ -11,6 +11,9 @@ import {
   UserRole,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { APP_TEXT } from '../../config/app-text';
+import { COMMON_TEXT } from '../../config/common-text';
+import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { AuthService } from '../../auth/auth.service';
 import {
@@ -97,7 +100,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
           <dl
             class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm wrap-break-word"
           >
-            <dt class="text-subtle">{{ text.email }}</dt>
+            <dt class="text-subtle">{{ fields.email.label }}</dt>
             <dd class="font-medium text-stone-700">{{ user.email }}</dd>
             <dt class="text-subtle">{{ listText.registered }}</dt>
             <dd class="text-subtle">{{ registered() }}</dd>
@@ -142,7 +145,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
             (click)="cancel()"
           >
             <app-admin-icon name="x" class="size-4" />
-            {{ common.cancel }}
+            {{ actionText.cancel }}
           </button>
         } @else {
           <form
@@ -154,7 +157,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
             @if (isNew) {
               <app-email-field
                 [control]="form.controls.email"
-                [label]="text.email"
+                [label]="fields.email.label"
                 [text]="emailText"
                 [required]="true"
                 [invalid]="isInvalid('email')"
@@ -178,7 +181,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
             <div class="grid gap-6 sm:grid-cols-2">
               <div>
                 <label for="firstName" appFieldLabel>
-                  {{ text.firstName }}
+                  {{ fields.firstName.label }}
                   <span class="text-accent" aria-hidden="true">*</span>
                 </label>
                 <input
@@ -194,14 +197,14 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                 />
                 @if (isInvalid('firstName')) {
                   <p class="mt-1 text-sm text-red-600">
-                    {{ text.validation.firstNameRequired }}
+                    {{ fields.firstName.required }}
                   </p>
                 }
               </div>
 
               <div>
                 <label for="lastName" appFieldLabel>
-                  {{ text.lastName }}
+                  {{ fields.lastName.label }}
                   <span class="text-accent" aria-hidden="true">*</span>
                 </label>
                 <input
@@ -217,7 +220,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                 />
                 @if (isInvalid('lastName')) {
                   <p class="mt-1 text-sm text-red-600">
-                    {{ text.validation.lastNameRequired }}
+                    {{ fields.lastName.required }}
                   </p>
                 }
               </div>
@@ -240,7 +243,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                not have is not a reason to block the account. -->
             <app-phone-field
               [control]="form.controls.phone"
-              [label]="text.phone"
+              [label]="fields.phone.label"
               [text]="phoneText"
               [invalid]="isInvalid('phone')"
               autocomplete="off"
@@ -345,7 +348,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   [disabled]="saving()"
                 >
                   <app-admin-icon [name]="submitIcon()" class="size-4" />
-                  {{ saving() ? common.saving : submitLabel() }}
+                  {{ saving() ? actionText.saving : submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
                    decision. Correcting a typo without taking that decision has
@@ -388,7 +391,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                 (click)="cancel()"
               >
                 <app-admin-icon name="x" class="size-4" />
-                {{ common.cancel }}
+                {{ actionText.cancel }}
               </button>
             </div>
           </form>
@@ -406,15 +409,21 @@ export class UserEditorPage implements UnsavedChangesAware {
   private readonly auth = inject(AuthService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
-  protected readonly text = inject(ADMIN_TEXT).userEditor;
+  protected readonly text = inject(ADMIN_TEXT).users.editor;
+  protected readonly fields = staffFields(
+    inject(COMMON_TEXT).fields,
+    inject(ADMIN_TEXT).fields,
+  );
+  private readonly kinds = inject(COMMON_TEXT).partyKind;
   /** Shared vocabulary — the same words the list uses for the same things. */
-  protected readonly listText = inject(ADMIN_TEXT).userList;
+  protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
-    { value: 'person', label: this.listText.typePerson },
-    { value: 'company', label: this.listText.typeCompany },
+    { value: 'person', label: this.kinds.person },
+    { value: 'company', label: this.kinds.company },
   ];
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default
@@ -439,21 +448,21 @@ export class UserEditorPage implements UnsavedChangesAware {
   // storefront's. Held as fields so the object identity is stable across change
   // detection.
   protected readonly emailText = {
-    required: this.text.validation.emailRequired,
-    invalid: this.text.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   // No `required` wording: the number is optional on this screen, so there is
   // no such refusal to word.
   protected readonly phoneText = {
-    incomplete: this.text.validation.phoneIncomplete,
+    incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...this.text.companySuggest,
-    idLabel: this.text.companyId,
-    nameLabel: this.text.companyName,
-    idFormat: this.text.validation.companyIdFormat,
-    idRequired: this.text.validation.companyIdRequired,
-    nameRequired: this.text.validation.companyNameRequired,
+    ...inject(APP_TEXT).companySuggest,
+    idLabel: this.fields.companyId.label,
+    nameLabel: this.fields.companyName.label,
+    idFormat: this.fields.companyId.format,
+    idRequired: this.fields.companyId.required,
+    nameRequired: this.fields.companyName.required,
   };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');

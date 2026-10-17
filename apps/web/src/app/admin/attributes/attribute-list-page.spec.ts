@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AttributeDefinition } from '@b2b-catalog-platform/shared';
@@ -11,7 +13,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AttributeListPage } from './attribute-list-page';
 import { AttributesService } from './attributes.service';
 
-const text = defaultAdminText.attributeList;
+const text = defaultAdminText.attributes.list;
 
 function definition(
   overrides: Partial<AttributeDefinition> = {},
@@ -61,7 +63,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AttributesService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
@@ -146,7 +150,9 @@ describe('AttributeListPage', () => {
     // The unit rides with the type: it is a property of the definition, not of
     // any one value.
     expect(el.textContent).toContain(`${text.types.number} (cm)`);
-    expect(el.textContent).toContain(text.products.replace('{count}', '4'));
+    expect(el.textContent).toContain(
+      defaultAdminText.products.count.replace('{count}', '4'),
+    );
     expect(el.textContent).toContain(text.values.replace('{count}', '3'));
   });
 
@@ -238,7 +244,7 @@ describe('AttributeListPage', () => {
       definitions: [definition({ name: 'Lenght', slug: 'lenght' })],
     });
 
-    await press(text.edit);
+    await press(defaultAdminText.common.edit);
     const name = el.querySelector<HTMLInputElement>('#attribute-name');
     expect(name?.value).toBe('Lenght');
 
@@ -271,7 +277,7 @@ describe('AttributeListPage', () => {
       definitions: [definition()],
     });
 
-    await press(text.delete);
+    await press(defaultAdminText.common.delete);
 
     expect(confirm.ask).toHaveBeenCalled();
     expect(service.remove).toHaveBeenCalledWith('attr-1');
@@ -283,7 +289,7 @@ describe('AttributeListPage', () => {
       confirmed: false,
     });
 
-    await press(text.delete);
+    await press(defaultAdminText.common.delete);
 
     expect(service.remove).not.toHaveBeenCalled();
   });

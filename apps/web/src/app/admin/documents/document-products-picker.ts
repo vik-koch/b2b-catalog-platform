@@ -81,7 +81,7 @@ type View = 'all' | 'linked';
         type="search"
         autocomplete="off"
         class="w-full"
-        [attr.aria-label]="text.search"
+        [attr.aria-label]="text.searchAria"
         [placeholder]="text.searchPlaceholder"
         [value]="query()"
         (input)="query.set($any($event.target).value)"
@@ -90,7 +90,7 @@ type View = 'all' | 'linked';
         <select
           appInput
           class="w-full"
-          [attr.aria-label]="text.category"
+          [attr.aria-label]="text.categoryAria"
           [value]="categoryId()"
           (change)="categoryId.set($any($event.target).value)"
         >
@@ -127,9 +127,13 @@ type View = 'all' | 'linked';
             />
             <span class="min-w-0 flex-1 truncate">{{ row.name }}</span>
             @if (row.deleted) {
-              <span appStatusBadge tone="danger">{{ text.deleted }}</span>
+              <span appStatusBadge tone="danger">{{
+                productStates.deleted
+              }}</span>
             } @else if (row.unpublished) {
-              <span appStatusBadge tone="waiting">{{ text.unpublished }}</span>
+              <span appStatusBadge tone="waiting">{{
+                productStates.unpublished
+              }}</span>
             }
             <span class="w-32 shrink-0 truncate text-right text-xs text-subtle">
               {{ row.category }}
@@ -152,7 +156,8 @@ type View = 'all' | 'linked';
 export class DocumentProductsPicker {
   private readonly service = inject(AdminCatalogService);
   private readonly layout = inject(AlternateLayout);
-  protected readonly text = inject(ADMIN_TEXT).documentEditor.products;
+  protected readonly text = inject(ADMIN_TEXT).documents.editor.products;
+  protected readonly productStates = inject(ADMIN_TEXT).products;
 
   readonly value = input.required<readonly DocumentProduct[]>();
   readonly valueChange = output<DocumentProduct[]>();

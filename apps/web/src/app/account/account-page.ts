@@ -12,13 +12,14 @@ import {
 import { AddressesService } from '../addresses/addresses.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPhone } from '../core/contact-fields';
 import { usePageSeo } from '../core/page-seo';
 import { OrderRows } from '../orders/order-rows';
 import { OrdersService } from '../orders/orders.service';
 import { Button } from '../ui/button';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
@@ -386,10 +387,12 @@ export class AccountPage {
   private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
 
   protected readonly text = inject(APP_TEXT).auth;
-  protected readonly accountText = inject(APP_TEXT).auth.myAccount;
-  protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
-  protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
+  protected readonly accountText = inject(APP_TEXT).account;
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly deleteText = inject(APP_TEXT).account.delete;
+  protected readonly addressText = inject(APP_TEXT).account.addresses;
   protected readonly orderText = inject(APP_TEXT).orders;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   private readonly work = inject(WorkService);
 
@@ -466,11 +469,11 @@ export class AccountPage {
   /** The name the icon-only buttons carry, since the row's own text is not
    * their label. */
   protected editLabel(address: Address): string {
-    return fillText(this.addressText.editLabel, { label: this.name(address) });
+    return fillText(this.addressText.editAria, { label: this.name(address) });
   }
 
   protected removeLabel(address: Address): string {
-    return fillText(this.addressText.removeLabel, {
+    return fillText(this.addressText.removeAria, {
       label: this.name(address),
     });
   }
@@ -482,13 +485,10 @@ export class AccountPage {
    */
   protected async remove(address: Address): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.addressText.removeHeading,
-      message: this.addressText.removeConfirm.replace(
-        '{label}',
-        this.name(address),
-      ),
-      confirmLabel: this.addressText.remove,
-      cancelLabel: this.text.myAccount.edit.cancel,
+      ...confirmRequest(this.addressText.removeConfirm, this.actionText.cancel),
+      message: fillText(this.addressText.removeConfirm.message, {
+        label: this.name(address),
+      }),
     });
     if (!confirmed) return;
 
@@ -506,22 +506,30 @@ export class AccountPage {
     if (!profile) return [];
 
     const t = this.accountText;
+    const fields = this.commonText.fields;
+    const kinds = this.commonText.partyKind;
     const name = formatPersonName(profile.firstName, profile.lastName);
     const type =
       profile.customerType === 'company'
-        ? t.company
+        ? kinds.company
         : profile.customerType === 'person'
-          ? t.person
+          ? kinds.person
           : null;
 
     return [
-      { label: t.name, value: name },
-      { label: t.email, value: profile.email },
+      { label: fields.name.label, value: name },
+      { label: fields.email.label, value: profile.email },
       // Stored as bare digits; read back with the deployment's own grouping.
-      { label: t.phone, value: formatPhone(profile.phone, this.phoneInput) },
+      {
+        label: fields.phone.label,
+        value: formatPhone(profile.phone, this.phoneInput),
+      },
       { label: t.customerType, value: type ?? '' },
-      { label: t.companyId, value: profile.companyRegistrationId ?? '' },
-      { label: t.companyName, value: profile.companyName ?? '' },
+      {
+        label: fields.companyId.label,
+        value: profile.companyRegistrationId ?? '',
+      },
+      { label: fields.companyName.label, value: profile.companyName ?? '' },
       { label: t.memberSince, value: this.formatDate(profile.createdAt) },
     ].filter((row) => row.value !== '');
   });

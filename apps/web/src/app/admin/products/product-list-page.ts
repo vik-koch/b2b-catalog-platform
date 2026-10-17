@@ -20,13 +20,14 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../catalog/price.pipe';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { APP_TEXT } from '../../config/app-text';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { stableValue } from '../../core/stable-value';
 import { Button } from '../../ui/button';
 import { Link } from '../../ui/link';
-import { ConfirmService } from '../../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
@@ -102,9 +103,10 @@ function knownValues<T extends string>(
   ],
   template: `
     <app-admin-list-header
-      [title]="text.title"
+      [title]="text.page.title"
+      [intro]="text.page.intro"
       [query]="query() ?? ''"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -135,7 +137,7 @@ function knownValues<T extends string>(
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
         [total]="data.pagination.total"
-        [countLabel]="text.count"
+        [countLabel]="productStates.count"
       >
         <!-- A search that finds nothing in the catalog may be looking for a
              product that was deleted (FR-ADM-22); the archive keeps the
@@ -204,7 +206,7 @@ function knownValues<T extends string>(
           </td>
           <td class="text-stone-700">
             @if (item.priceMinor === null) {
-              <span [title]="text.unpricedBadge">{{ text.noPrice }}</span>
+              <span [title]="productStates.unpriced">{{ text.noPrice }}</span>
             } @else {
               {{ item.priceMinor | price }}
             }
@@ -304,7 +306,7 @@ function knownValues<T extends string>(
             <ng-container recordMeta>
               <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
                 @if (item.priceMinor === null) {
-                  {{ text.unpricedBadge }}
+                  {{ productStates.unpriced }}
                 } @else {
                   {{ item.priceMinor | price }}
                 }
@@ -378,24 +380,27 @@ export class ProductListPage {
   private readonly documentService = inject(DocumentsService);
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productList;
+  protected readonly text = inject(ADMIN_TEXT).products.list;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
+  protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly settings = inject(SettingsService);
   private readonly purgeText: PurgeText = {
     ...this.editText,
-    cancel: this.common.cancel,
-    close: this.common.close,
+    cancel: this.actionText.cancel,
+    close: this.actionText.close,
     ordered: this.common.catalogErrors['product-ordered'],
     owned: inject(ADMIN_TEXT).ownership.productPurge,
     errors: this.common.catalogErrors,
   };
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
-  protected readonly productText = inject(ADMIN_TEXT).productEditor;
+  protected readonly productText = inject(ADMIN_TEXT).products.editor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   /** The storefront's three words for a stock state, reused rather than
    * restated: the grid and the badge a customer sees name one fact. */
-  protected readonly availabilityText = this.catalogText.availability;
+  protected readonly availabilityText =
+    inject(COMMON_TEXT).product.availability;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
@@ -505,7 +510,7 @@ export class ProductListPage {
    * glyphs its row draws, then the gaps. */
   protected readonly toggles = computed<GridToggleGroup[]>(() => [
     {
-      label: this.text.hasGroup,
+      ariaLabel: this.text.hasGroupAria,
       param: 'has',
       options: PRODUCT_FEATURES.map((feature) => ({
         value: feature,
@@ -515,7 +520,7 @@ export class ProductListPage {
       selected: this.hasKeys(),
     },
     {
-      label: this.text.missingGroup,
+      ariaLabel: this.text.missingGroupAria,
       param: 'missing',
       options: PRODUCT_GAP_FILTERS.map((gap) => ({
         value: gap,
@@ -682,7 +687,7 @@ export class ProductListPage {
         value: this.categoryDirect()
           ? this.categoryId() + DIRECT_SUFFIX
           : this.categoryId(),
-        ariaLabel: this.text.filterCategory,
+        label: this.text.filterCategory,
         toParams: this.categoryParams,
       },
     },
@@ -704,7 +709,7 @@ export class ProductListPage {
         param: 'availability',
         options: this.stockOptions,
         value: this.availabilityKey() ?? '',
-        ariaLabel: this.text.filterStock,
+        label: this.text.filterStock,
       },
       minWidth: 110,
     },
@@ -719,7 +724,7 @@ export class ProductListPage {
         param: 'state',
         options: this.stateOptions,
         value: this.stateParam(),
-        ariaLabel: this.text.filterState,
+        label: this.text.filterState,
       },
       minWidth: 120,
     },
@@ -756,7 +761,7 @@ export class ProductListPage {
             : this.text.tierPricedYes,
         value: tier,
         clearParams: { tierId: null, tierPriced: null, page: null },
-        clearLabel: this.text.clearTier,
+        clearLabel: this.text.clearTierAria,
       });
     }
     const document = this.documentFilter();
@@ -765,7 +770,7 @@ export class ProductListPage {
         label: this.text.filterDocument,
         value: document,
         clearParams: { documentId: null, page: null },
-        clearLabel: this.text.clearDocument,
+        clearLabel: this.text.clearDocumentAria,
       });
     }
     const attribute = this.attributeFilter();
@@ -776,7 +781,7 @@ export class ProductListPage {
           ? `${attribute.key} = ${attribute.value}`
           : attribute.key,
         clearParams: { attributeKey: null, attributeValue: null, page: null },
-        clearLabel: this.text.clearAttribute,
+        clearLabel: this.text.clearAttributeAria,
       });
     }
     return chips;
@@ -806,8 +811,10 @@ export class ProductListPage {
     deletedAt: string | null;
     publishedAt: string | null;
   }): string {
-    if (item.deletedAt) return this.text.stateDeleted;
-    return item.publishedAt ? this.text.stateLive : this.text.stateUnpublished;
+    if (item.deletedAt) return this.productStates.deleted;
+    return item.publishedAt
+      ? this.text.stateLive
+      : this.productStates.unpublished;
   }
 
   protected stateTone(item: {
@@ -832,16 +839,16 @@ export class ProductListPage {
 
   /** The editor's own word for a piece, not a second spelling of it: a
    * deployment that says "ea" or "St." says it once. */
-  protected readonly pieceSuffix = this.productText.packaging.pieceSuffix;
+  protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
 
   /** What the badge says when it is read rather than seen: the figure and the
-   * state it resolves to. The unit is in the wording of `stockLabel`, so the
+   * state it resolves to. The unit is in the wording of `stockAria`, so the
    * suffix beside the figure is not read out twice. */
   protected stockLabel(item: {
     stockPieces: number | null;
     availability: ProductAvailability | null;
   }): string {
-    return fillText(this.text.stockLabel, {
+    return fillText(this.text.stockAria, {
       count: String(item.stockPieces ?? 0),
       state: this.availabilityText[item.availability ?? 'in'],
     });
@@ -880,8 +887,8 @@ export class ProductListPage {
   protected readonly stateOptions: GridFilterOption[] = [
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
-    { value: 'unpublished', label: this.text.stateUnpublished },
-    { value: 'deleted', label: this.text.stateDeleted },
+    { value: 'unpublished', label: this.productStates.unpublished },
+    { value: 'deleted', label: this.productStates.deleted },
   ];
 
   protected products = resource({
@@ -930,10 +937,11 @@ export class ProductListPage {
     if (
       !publish &&
       !(await this.confirm.ask({
-        heading: this.editText.unpublishProduct,
+        ...confirmRequest(
+          this.editText.unpublishConfirm,
+          this.actionText.cancel,
+        ),
         message: await this.admin.unpublishMessage(item, this.editText),
-        confirmLabel: this.editText.unpublishProduct,
-        cancelLabel: this.common.cancel,
         confirmVariant: 'danger',
       }))
     ) {
@@ -997,6 +1005,6 @@ export class ProductListPage {
     });
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
-    usePageSeo({ name: () => this.text.title });
+    usePageSeo({ name: () => this.text.page.title });
   }
 }

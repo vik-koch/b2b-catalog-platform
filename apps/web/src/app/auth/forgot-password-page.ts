@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { emailFormat } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
@@ -57,7 +58,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         >
           <app-email-field
             [control]="form.controls.email"
-            [label]="authText.email"
+            [label]="fields.email.label"
             [text]="emailText"
             [required]="true"
             [invalid]="isInvalid()"
@@ -69,7 +70,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               type="submit"
               [disabled]="status() === 'submitting'"
             >
-              {{ status() === 'submitting' ? text.submitting : text.submit }}
+              {{ status() === 'submitting' ? actionText.sending : text.submit }}
             </button>
             <a appTextButton routerLink="/login" class="text-sm">
               {{ text.backToLogin }}
@@ -88,12 +89,12 @@ export class ForgotPasswordPage {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
 
-  protected readonly authText = inject(APP_TEXT).auth;
   protected readonly text = inject(APP_TEXT).auth.forgotPassword;
-  protected readonly validation = inject(APP_TEXT).auth.validation;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly emailText = {
-    required: this.validation.emailRequired,
-    invalid: this.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly status = signal<Status>('idle');
 

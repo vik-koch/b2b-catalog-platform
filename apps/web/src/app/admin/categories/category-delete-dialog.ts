@@ -20,6 +20,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
@@ -94,7 +95,7 @@ import { categoryDescendantIds } from './category-tree';
           type="button"
           (click)="cancelled.emit()"
         >
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
         @if (
           mode() !== 'loading' &&
@@ -110,7 +111,7 @@ import { categoryDescendantIds } from './category-tree';
             (click)="confirm()"
           >
             <app-admin-icon name="trash-2" class="size-4" />
-            {{ deleting() ? text.deleting : text.delete }}
+            {{ deleting() ? actionText.deleting : common.delete }}
           </button>
         }
       </div>
@@ -120,9 +121,9 @@ import { categoryDescendantIds } from './category-tree';
 export class CategoryDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categoryList;
+  protected readonly text = inject(ADMIN_TEXT).categories.list;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly productText = inject(ADMIN_TEXT).productEditor;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

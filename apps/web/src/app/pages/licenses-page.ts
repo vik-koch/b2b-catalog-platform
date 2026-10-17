@@ -7,6 +7,7 @@ import {
   resource,
 } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { Skeleton } from '../ui/skeleton';
@@ -80,7 +81,7 @@ export class LicensesPage {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly text = inject(APP_TEXT).licenses;
-  protected readonly heading = inject(APP_TEXT).nav['licenses'];
+  protected readonly heading = inject(COMMON_TEXT).nav['licenses'];
 
   // `undefined` is the server's answer — nothing was fetched, so the list stays
   // out of the rendered HTML entirely rather than briefly claiming to be empty.

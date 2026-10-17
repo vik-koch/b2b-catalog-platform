@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';
@@ -70,7 +71,7 @@ export class StaticPage {
   private pageService = inject(PageService);
 
   protected readonly text = inject(APP_TEXT).errors;
-  private readonly navText = inject(APP_TEXT).nav;
+  private readonly navText = inject(COMMON_TEXT).nav;
   protected readonly editorFrom = injectEditorReturnParams();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * page body — see trustedRichText. */
@@ -86,7 +87,7 @@ export class StaticPage {
    * role are both known — see editAwareContent. */
   private readonly content = editAwareContent({
     ready: computed(() => this.page() !== undefined),
-    section: 'pageEditor',
+    section: 'pages',
   });
   protected readonly ready = this.content.ready;
   protected readonly canEdit = this.content.controls;

@@ -16,6 +16,7 @@ import {
   userStatusSchema,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPhone } from '../../core/contact-fields';
 import { usePageSeo } from '../../core/page-seo';
@@ -115,9 +116,10 @@ const typeRank = (t: StaffUser['customerType']): number =>
   ],
   template: `
     <app-admin-list-header
-      [title]="title()"
+      [title]="page().title"
+      [intro]="page().intro"
       [query]="query() ?? ''"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -265,7 +267,9 @@ export class UserListPage {
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);
-  protected readonly text = inject(ADMIN_TEXT).userList;
+  protected readonly text = inject(ADMIN_TEXT).users.list;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  private readonly kinds = inject(COMMON_TEXT).partyKind;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
 
@@ -279,8 +283,8 @@ export class UserListPage {
   readonly kind = input<UserKind>('customer');
   protected readonly isCustomers = computed(() => this.kind() === 'customer');
   protected readonly isStaff = computed(() => this.kind() === 'staff');
-  protected readonly title = computed(() =>
-    this.isStaff() ? this.text.titleStaff : this.text.titleCustomers,
+  protected readonly page = computed(() =>
+    this.isStaff() ? this.text.staffPage : this.text.customersPage,
   );
 
   /*
@@ -389,11 +393,11 @@ export class UserListPage {
   protected readonly columns = computed<GridColumn[]>(() => [
     {
       key: 'name',
-      label: this.text.name,
+      label: this.fields.name.label,
       sort: { asc: 'name', desc: 'name_desc' },
       minWidth: 180,
     },
-    { key: 'phone', label: this.text.phone, minWidth: 110 },
+    { key: 'phone', label: this.fields.phone.label, minWidth: 110 },
     // The heading itself, as with role/tier/status: its "all" option is what
     // names the column. A plain label only where the deployment configures no
     // formats, since then there is nothing to name.
@@ -401,7 +405,7 @@ export class UserListPage {
       ? [
           {
             key: 'companyId',
-            label: this.text.companyId,
+            label: this.fields.companyId.label,
             minWidth: 100,
             ...(this.hasCompanyIdFormats
               ? {
@@ -409,7 +413,7 @@ export class UserListPage {
                     param: 'companyIdFormat',
                     options: this.companyIdFormatOptions,
                     value: this.companyIdFormat(),
-                    ariaLabel: this.text.filterCompanyIdFormat,
+                    label: this.text.filterCompanyIdFormat,
                   },
                 }
               : {}),
@@ -426,7 +430,7 @@ export class UserListPage {
               param: 'role',
               options: this.staffRoleOptions,
               value: this.roleParam(),
-              ariaLabel: this.text.filterRole,
+              label: this.text.filterRole,
             },
           } satisfies GridColumn,
         ]
@@ -441,7 +445,7 @@ export class UserListPage {
               param: 'tier',
               options: this.tierOptions(),
               value: this.tier(),
-              ariaLabel: this.text.filterTier,
+              label: this.text.filterTier,
             },
           } satisfies GridColumn,
         ]
@@ -458,7 +462,7 @@ export class UserListPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusParam(),
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
     },
     {
@@ -472,7 +476,7 @@ export class UserListPage {
     // Two glyphs at 24px, with the gap and the cell's own padding.
     {
       key: 'actions',
-      srLabel: this.text.actions,
+      srLabel: this.text.actionsAria,
       align: 'right',
       fixedWidth: 64,
     },
@@ -545,6 +549,7 @@ export class UserListPage {
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   /** So an editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 
@@ -576,7 +581,7 @@ export class UserListPage {
       await this.confirm.tell({
         heading: this.text.addCustomer,
         message: this.ownershipText.accountCreate,
-        closeLabel: this.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }
@@ -599,20 +604,16 @@ export class UserListPage {
     this.pageError.set(null);
     const off = !active;
     const locked = this.lockedMessage();
+    const dialog = off
+      ? this.text.deactivateConfirm
+      : this.text.reactivateConfirm;
     const ok = await this.confirm.ask({
-      heading: off ? this.text.deactivateTitle : this.text.reactivateTitle,
-      message:
-        locked ??
-        (off
-          ? this.text.deactivateConfirm
-          : this.text.reactivateConfirm
-        ).replace('{name}', this.name(user)),
-      confirmLabel: locked
-        ? null
-        : off
-          ? this.text.deactivate
-          : this.text.reactivate,
-      cancelLabel: locked ? this.common.close : this.common.cancel,
+      heading: dialog.heading,
+      message: locked ?? dialog.message.replace('{name}', this.name(user)),
+      confirmLabel: locked ? null : dialog.confirm,
+      cancelLabel: locked
+        ? this.actionText.close
+        : (dialog.cancel ?? this.actionText.cancel),
       confirmVariant: off ? 'danger' : 'primary',
     });
     if (locked || !ok) return;
@@ -633,13 +634,15 @@ export class UserListPage {
     this.pageError.set(null);
     const locked = this.lockedMessage();
     const ok = await this.confirm.ask({
-      heading: this.text.declineTitle,
+      heading: this.text.declineConfirm.heading,
       message:
         locked === null
-          ? this.text.declineConfirm.replace('{name}', this.name(user))
+          ? this.text.declineConfirm.message.replace('{name}', this.name(user))
           : this.ownershipText.accountDecline,
-      confirmLabel: locked ? null : this.text.decline,
-      cancelLabel: locked ? this.common.close : this.common.cancel,
+      confirmLabel: locked ? null : this.text.declineConfirm.confirm,
+      cancelLabel: locked
+        ? this.actionText.close
+        : (this.text.declineConfirm.cancel ?? this.actionText.cancel),
       confirmVariant: 'danger',
     });
     if (locked || !ok) return;
@@ -686,7 +689,7 @@ export class UserListPage {
 
   protected typeLabel(type: StaffUser['customerType']): string {
     if (!type) return this.dash;
-    return type === 'company' ? this.text.typeCompany : this.text.typePerson;
+    return type === 'company' ? this.kinds.company : this.kinds.person;
   }
 
   protected statusLabel(status: StaffUser['status']): string {
@@ -732,7 +735,7 @@ export class UserListPage {
   }
 
   constructor() {
-    usePageSeo({ name: () => this.title() });
+    usePageSeo({ name: () => this.page().title });
     // Asked for here rather than at the click: the answer is cached for the
     // app's lifetime, and a dialog that had to wait for it would open on a
     // question it cannot yet word.

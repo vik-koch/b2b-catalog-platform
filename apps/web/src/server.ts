@@ -10,6 +10,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
 import { preloadAppText } from './app/config/app-text.server';
+import { preloadCommonText } from './app/config/common-text.server';
 import { getAdminText, preloadAdminText } from './app/config/admin-text.server';
 import { preloadDeploymentConfig } from './app/config/deployment-config.server';
 import { injectCartShell } from './app/cart/cart-shell.server';
@@ -292,6 +293,7 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   getAssetsMiddleware();
   preloadDeploymentConfig();
   preloadAppText();
+  preloadCommonText();
   preloadAdminText();
 
   const port = requireEnv('WEB_PORT');

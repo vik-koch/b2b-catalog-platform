@@ -1,32 +1,22 @@
 {
   "common": {
     "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
-    "linkExpiry": "This link can be used once, and expires seven days after it was sent.",
-    "units": {
-      "piece": "pcs",
-      "pack": "pk",
-      "box": "bx"
-    },
-    "quantity": "{qty} {unit}",
-    "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
-    "tax": {
-      "included": "incl. {rate}\u00a0% VAT",
-      "added": "plus {rate}\u00a0% VAT",
-      "none": "no VAT charged",
-      "mixed": {
-        "included": "incl. VAT at the rate each item states",
-        "added": "plus VAT at the rate each item states"
-      },
-      "line": "{rate}\u00a0% VAT"
+    "linkExpiry": "This link can be used once, and expires seven days after it was sent."
+  },
+  "orders": {
+    "account": "Account",
+    "guest": "Guest",
+    "items": "Ordered",
+    "paymentMethods": {
+      "cash": "Cash",
+      "transfer": "Bank transfer",
+      "card": "Card, arranged with the customer"
     }
   },
   "inquiry": {
     "subject": "Inquiry",
     "preheader": "A visitor sent an inquiry through the contact form.",
     "heading": "New inquiry",
-    "name": "Name",
-    "email": "Email",
-    "phone": "Phone",
     "preferredContact": "Preferred contact",
     "message": "Message"
   },
@@ -87,14 +77,7 @@
     "preheader": "Someone requested a customer account.",
     "heading": "New registration",
     "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
-    "nameLabel": "Name",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone",
     "customerTypeLabel": "Registering as",
-    "customerTypePerson": "Private person",
-    "customerTypeCompany": "Company",
-    "companyNameLabel": "Company name",
-    "companyIdLabel": "Company ID",
     "action": "Open the account list"
   },
   "orderReceived": {
@@ -103,15 +86,6 @@
     "heading": "Thank you — we have your order",
     "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
     "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
-    "referenceLabel": "Order",
-    "itemsHeading": "Your items",
-    "totalLabel": "Total",
-    "fulfilmentLabel": "How it arrives",
-    "delivery": "Delivery",
-    "pickup": "Self-pickup",
-    "termsLabel": "Terms of sale",
-    "termsVersion": "As updated on {date}",
-    "termsFileName": "terms-of-sale-{date}.pdf",
     "action": "Open your order"
   },
   "newOrder": {
@@ -119,20 +93,6 @@
     "preheader": "A customer has sent an order request.",
     "heading": "New order request",
     "body": "A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.",
-    "referenceLabel": "Order",
-    "customerLabel": "Account",
-    "guest": "Guest — no account",
-    "contactLabel": "Contact",
-    "partyLabel": "Invoice to",
-    "fulfilmentLabel": "How it arrives",
-    "delivery": "Delivery",
-    "pickup": "Self-pickup",
-    "paymentLabel": "Payment",
-    "cash": "Cash",
-    "transfer": "Bank transfer",
-    "card": "Card, arranged with the customer",
-    "itemsHeading": "Ordered",
-    "totalLabel": "Total",
     "action": "Open the order"
   },
   "orderCancelled": {
@@ -140,13 +100,8 @@
     "preheader": "A customer has called off their order.",
     "heading": "Order called off",
     "body": "A customer has called off an order that was still waiting for an answer. Nothing more is expected of you — but if anything was already set aside for it, it can go back on the shelf.",
-    "referenceLabel": "Order",
-    "customerLabel": "Account",
-    "guest": "Guest — no account",
-    "contactLabel": "Contact",
     "reasonLabel": "Reason given",
     "reasonNone": "None given",
-    "totalLabel": "Total",
     "paidNote": "A payment is recorded against this order. Any refund is arranged with the customer directly — nothing here moves money.",
     "itemsHeading": "Was ordered",
     "action": "Open the order"
@@ -157,7 +112,6 @@
     "heading": "Account closed",
     "body": "A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.",
     "nameLabel": "Was",
-    "emailLabel": "Email",
     "ordersLabel": "Orders kept",
     "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
     "action": "Open the order list"
@@ -165,16 +119,9 @@
   "orderStatusChanged": {
     "subject": "Your order",
     "preheader": "There is news about your order.",
-    "referenceLabel": "Order",
-    "totalLabel": "Total",
-    "reasonLabel": "Reason",
-    "changedLabel": "Change note",
     "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
     "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
     "attachedNote": "Our payment details for this order are attached to this message.",
-    "deliveryLabel": "Delivery address",
-    "pickupLabel": "Collect from",
-    "itemsHeading": "Your items",
     "action": "Open your order",
     "statuses": {
       "changed": {
@@ -214,8 +161,6 @@
   "orderDocument": {
     "subject": "A document for your order",
     "preheader": "There is a document with your order.",
-    "referenceLabel": "Order",
-    "totalLabel": "Total",
     "action": "Open your order",
     "kinds": {
       "paymentInstructions": {
@@ -226,46 +171,6 @@
         "heading": "A copy of your order",
         "body": "We have put a copy of your order with it, which you can open from the link below. Nothing about the order itself has changed."
       }
-    }
-  },
-  "orderSummaryPdf": {
-    "title": "Order {reference}",
-    "placedLabel": "Placed",
-    "statusLabel": "Status",
-    "paymentLabel": "Payment",
-    "invoiceLabel": "Invoiced to",
-    "deliveryLabel": "Delivery address",
-    "pickupLabel": "Collect from",
-    "whenLabel": "Preferred date",
-    "whenAny": "No date given",
-    "contactLabel": "Contact",
-    "noteLabel": "Your note",
-    "changesLabel": "What we changed",
-    "itemsLabel": "Item",
-    "quantityLabel": "Quantity",
-    "lineTotalLabel": "Total",
-    "totalLabel": "Order total",
-    "termsLabel": "Terms of sale",
-    "termsVersion": "As updated on {date}",
-    "returnNotice": "Unopened goods can be returned within 14 days of delivery. Write to us naming the order reference; the terms of sale set out the details.",
-    "footer": "This document states the order as it stands. It is not an invoice.",
-    "statuses": {
-      "requested": "Requested",
-      "approved": "Confirmed",
-      "ready": "Ready",
-      "completed": "Completed",
-      "declined": "Declined",
-      "cancelled": "Cancelled"
-    },
-    "payments": {
-      "cash": "Cash",
-      "bankTransfer": "Bank transfer",
-      "cardLater": "Card, arranged with us"
-    },
-    "paymentStates": {
-      "notDue": "Nothing due yet",
-      "awaiting": "Awaiting payment",
-      "paid": "Paid"
     }
   },
   "syncRun": {
@@ -279,28 +184,27 @@
       "policy": "Its effect is larger than an automatic update is allowed to be",
       "requested": "The source asked for it to be reviewed"
     },
+    "openRun": "Open the run",
+    "reviewRun": "Review the update",
     "areas": {
       "catalog": {
         "failed": {
           "subject": "Catalog update failed",
           "preheader": "An automatic catalog update did not go through.",
           "heading": "An automatic catalog update failed",
-          "body": "Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system.",
-          "action": "Open the run"
+          "body": "Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system."
         },
         "recovered": {
           "subject": "Catalog updates are working again",
           "preheader": "The automatic catalog update went through.",
           "heading": "Catalog updates are working again",
-          "body": "The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes.",
-          "action": "Open the run"
+          "body": "The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
         },
         "waiting": {
           "subject": "A catalog update is waiting for you",
           "preheader": "An automatic catalog update needs your decision.",
           "heading": "A catalog update is waiting for you",
-          "body": "It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do.",
-          "action": "Review the update"
+          "body": "It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do."
         },
         "created": {
           "subject": "New products from your system",
@@ -315,22 +219,19 @@
           "subject": "Customer update failed",
           "preheader": "An automatic customer update did not go through.",
           "heading": "An automatic customer update failed",
-          "body": "Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system.",
-          "action": "Open the run"
+          "body": "Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system."
         },
         "recovered": {
           "subject": "Customer updates are working again",
           "preheader": "The automatic customer update went through.",
           "heading": "Customer updates are working again",
-          "body": "The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes.",
-          "action": "Open the run"
+          "body": "The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
         },
         "waiting": {
           "subject": "A customer update is waiting for you",
           "preheader": "An automatic customer update needs your decision.",
           "heading": "A customer update is waiting for you",
-          "body": "It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do.",
-          "action": "Review the update"
+          "body": "It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do."
         }
       },
       "orders": {
@@ -338,15 +239,13 @@
           "subject": "Order updates failed",
           "preheader": "An automatic order update did not go through.",
           "heading": "An automatic order update failed",
-          "body": "Your orders are unchanged, which means customers are waiting to hear where theirs stands and nobody here has been told to answer them by hand. Until this is fixed, orders placed in the shop will not be answered — pass this message on to whoever looks after the connection to your system.",
-          "action": "Open the run"
+          "body": "Your orders are unchanged, which means customers are waiting to hear where theirs stands and nobody here has been told to answer them by hand. Until this is fixed, orders placed in the shop will not be answered — pass this message on to whoever looks after the connection to your system."
         },
         "recovered": {
           "subject": "Order updates are working again",
           "preheader": "The automatic order update went through.",
           "heading": "Order updates are working again",
-          "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps.",
-          "action": "Open the run"
+          "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps."
         }
       }
     }

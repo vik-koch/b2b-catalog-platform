@@ -162,7 +162,7 @@ export class OrderListPage {
       : this.text.filterToCollect,
   );
   protected removeLabel(): string {
-    return fillText(this.text.filterRemove, { label: this.filterLabel() });
+    return fillText(this.text.filterRemoveAria, { label: this.filterLabel() });
   }
 
   /** Paging keeps whatever the list is narrowed to: a second page of "ready to

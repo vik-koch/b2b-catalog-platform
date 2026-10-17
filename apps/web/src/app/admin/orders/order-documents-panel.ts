@@ -14,10 +14,11 @@ import {
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminOrdersService } from './orders.service';
 
@@ -126,7 +127,7 @@ interface DocumentRow {
                   <app-admin-icon name="upload" class="size-4" />
                   {{
                     busy() === row.kind
-                      ? text.uploading
+                      ? common.uploading
                       : row.supplied
                         ? text.replace
                         : text.upload
@@ -161,7 +162,7 @@ interface DocumentRow {
                     [disabled]="busy() !== null"
                     (click)="remove(row.kind)"
                   >
-                    {{ text.remove }}
+                    {{ actionText.remove }}
                   </button>
                 }
               </div>
@@ -194,10 +195,12 @@ interface DocumentRow {
 export class OrderDocumentsPanel {
   private readonly api = inject(AdminOrdersService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).orderDetail.documents;
+  protected readonly text = inject(ADMIN_TEXT).orders.detail.documents;
+  protected readonly common = inject(ADMIN_TEXT).common;
   // The two size words, which the document list already owns: a file's size
   // reads the same wherever it is written.
-  private readonly sizes = inject(ADMIN_TEXT).documentList;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   readonly order = input.required<AdminOrderDetail>();
   /**
@@ -321,10 +324,7 @@ export class OrderDocumentsPanel {
 
   protected async notify(kind: OrderDocumentKind): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.text.notifyConfirmHeading,
-      message: this.text.notifyConfirmMessage,
-      confirmLabel: this.text.notifyConfirm,
-      cancelLabel: this.text.keep,
+      ...confirmRequest(this.text.notifyConfirm),
     });
     if (!confirmed) return;
 
@@ -341,10 +341,7 @@ export class OrderDocumentsPanel {
 
   protected async remove(kind: OrderDocumentKind): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.text.removeConfirmHeading,
-      message: this.text.removeConfirmMessage,
-      confirmLabel: this.text.removeConfirm,
-      cancelLabel: this.text.keep,
+      ...confirmRequest(this.text.removeConfirm),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
