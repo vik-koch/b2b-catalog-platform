@@ -64,7 +64,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
         >
           <div>
             <label for="password" appFieldLabel>
-              {{ text.password }}
+              {{ password }}
               <span class="text-accent" aria-hidden="true">*</span>
             </label>
             <input
@@ -116,6 +116,7 @@ export class AccountDeletePage {
   private readonly auth = inject(AuthService);
 
   protected readonly text = inject(APP_TEXT).auth.myAccount.delete;
+  protected readonly password = inject(APP_TEXT).auth.password;
   protected readonly validation = inject(APP_TEXT).auth.validation;
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
   protected readonly status = signal<Status>('idle');

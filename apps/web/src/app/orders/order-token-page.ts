@@ -138,14 +138,14 @@ import { OrdersService } from './orders.service';
                  next. -->
             @if (!signedIn()) {
               <div class="mt-5 rounded-lg border border-border p-5">
-                <p class="text-sm text-muted">{{ text.register }}</p>
+                <p class="text-sm text-muted">{{ invite.text }}</p>
                 <a
                   appButton
                   variant="secondary"
                   routerLink="/register"
                   class="mt-4 w-full"
                 >
-                  {{ text.registerAction }}
+                  {{ invite.action }}
                 </a>
               </div>
             }
@@ -181,6 +181,7 @@ export class OrderTokenPage {
   protected readonly names = this.commonText.order;
   protected readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.public;
+  protected readonly invite = this.appText.auth.registerInvite;
 
   /**
    * Whether the reader has an account of their own. The cookie hint rather

@@ -41,7 +41,7 @@ import { Input } from '../ui/input';
 })
 export class OrderNote {
   protected readonly text = inject(APP_TEXT).checkout.note;
-  protected readonly optional = inject(APP_TEXT).checkout.optional;
+  protected readonly optional = inject(APP_TEXT).common.optional;
   protected readonly id = 'order-note';
   protected readonly maxLength = ORDER_NOTE_MAX;
 

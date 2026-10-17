@@ -135,7 +135,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
   it('offers an account once the order is already sent', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(text.register);
+    expect(el.textContent).toContain(defaultAppText.auth.registerInvite.text);
     expect(el.querySelector('a[href="/register"]')).not.toBeNull();
   });
 
@@ -144,7 +144,9 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
   it('makes no account offer to a reader who has one', async () => {
     const { el } = await render(placed, 'user');
 
-    expect(el.textContent).not.toContain(text.register);
+    expect(el.textContent).not.toContain(
+      defaultAppText.auth.registerInvite.text,
+    );
     expect(el.querySelector('a[href="/register"]')).toBeNull();
     // Still their order, still readable: the token is the credential here, and
     // whoever holds the link may not be the customer whose order it is.

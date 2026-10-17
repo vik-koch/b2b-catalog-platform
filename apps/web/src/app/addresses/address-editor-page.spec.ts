@@ -18,6 +18,7 @@ import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService } from './addresses.service';
 
 const text = defaultAppText.auth.myAccount.addresses;
+const fieldText = defaultAppText.address;
 
 /** Two shapes, the short one first — the order a picker offers them in. */
 const shortFormat = {
@@ -237,7 +238,7 @@ describe('AddressEditorPage', () => {
 
         expect(h.create).not.toHaveBeenCalled();
         expect(el.textContent).toContain(
-          text.postalCodeFormat.replace(
+          fieldText.postalCodeFormat.replace(
             '{example}',
             defaultDeploymentConfig.address?.countries[0].postalCode?.example ??
               '',
@@ -252,7 +253,7 @@ describe('AddressEditorPage', () => {
 
         await submit();
 
-        expect(el.textContent).toContain(text.required);
+        expect(el.textContent).toContain(fieldText.required);
         expect(el.textContent).not.toContain('20457');
       });
     });
@@ -263,7 +264,7 @@ describe('AddressEditorPage', () => {
       await submit();
 
       expect(h.create).not.toHaveBeenCalled();
-      expect(el.textContent).toContain(text.required);
+      expect(el.textContent).toContain(fieldText.required);
     });
 
     it('sends the trimmed address, empty optional fields as null', async () => {

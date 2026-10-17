@@ -10,6 +10,13 @@
     "consentBanner": "Cookie consent",
     "scrollToTop": "Back to top"
   },
+  "common": {
+    "optional": "optional",
+    "cancel": "Cancel",
+    "close": "Close",
+    "sending": "Sending…",
+    "saving": "Saving…"
+  },
   "catalog": {
     "navLabel": "Catalogue",
     "viewCategory": "Browse {name}",
@@ -30,8 +37,7 @@
     "variants": {
       "unavailable": "currently unavailable",
       "note": "Variants carry no stock of their own; which are available is confirmed with you after the order is placed.",
-      "markLabel": "Show the variants ({count})",
-      "close": "Close"
+      "markLabel": "Show the variants ({count})"
     },
     "layout": {
       "label": "Layout",
@@ -72,7 +78,6 @@
     "pairings": {
       "marker": "Sold together with other products ({count})",
       "intro": "These are sold with this product. Add what you need without leaving the page.",
-      "close": "Close",
       "loadError": "Something went wrong loading these — please try again later."
     },
     "documents": {
@@ -122,9 +127,11 @@
     "selectAll": "Select all",
     "clearSelection": "Clear selection",
     "deleteSelected": "Delete selection",
-    "deleteSelectedHeading": "Delete the selected lines",
-    "deleteSelectedConfirm": "Remove the selection from your cart? Lines selected: {count}. This cannot be undone.",
-    "cancel": "Cancel",
+    "deleteSelectedConfirm": {
+      "heading": "Delete the selected lines",
+      "message": "Remove the selection from your cart? Lines selected: {count}. This cannot be undone.",
+      "confirm": "Delete selection"
+    },
     "subtotal": "Subtotal",
     "noPrice": "On request",
     "totalIncomplete": "Some lines could not be priced — the subtotal covers the rest.",
@@ -177,13 +184,10 @@
       "nameRequired": "Please tell us who to ask for.",
       "note": "We invoice whoever you name here, and use your email and phone only to confirm the order."
     },
-    "optional": "optional",
     "party": {
       "heading": "Who should we invoice?",
       "own": "Myself",
       "other": "Somebody else",
-      "person": "A private person",
-      "company": "A company",
       "personName": "Their name",
       "nameRequired": "Please give the name we should invoice.",
       "otherNotice": "We will confirm the price with you — your agreed prices belong to your own account."
@@ -232,13 +236,10 @@
       "send": "Review and send"
     },
     "submit": "Order with obligation to pay",
-    "submitting": "Sending…",
     "successHeading": "Thank you — we have your order",
     "success": "Your order request is {reference}. We will confirm the details, the delivery and the price with you shortly.",
     "successView": "View your order",
     "successAction": "Back to the catalogue",
-    "successRegister": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
-    "successRegisterAction": "Request an account",
     "errors": {
       "incomplete": "Some answers are missing or need correcting — they are marked on the form.",
       "invalidCompanyId": "That company ID is not in a format we can invoice against. Please check it.",
@@ -261,7 +262,6 @@
       "conditionsHeading": "Where we deliver",
       "conditionsNote": "A guide only — we confirm delivery and its cost with every order.",
       "conditionsMore": "Read the full terms",
-      "close": "Close",
       "freeFrom": "Free delivery from {amount}",
       "noFreeDelivery": "Delivery is quoted per order",
       "noDelivery": "We do not deliver to this area.",
@@ -292,13 +292,15 @@
       "error": "We could not load that order right now. Please try again later.",
       "cancel": {
         "action": "Cancel this order",
+        "reasonLabel": "Please tell us why",
+        "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."
+      },
+      "cancelConfirm": {
         "heading": "Cancel this order?",
         "message": "We will stop working on order {reference}. You can always send us a new one.",
-        "reasonLabel": "Please tell us why",
-        "paidWarning": "We have already recorded a payment for this order. Cancelling it here does not send the money back — please arrange the refund with us directly.",
         "confirm": "Cancel the order",
-        "keep": "Keep the order",
-        "error": "We could not cancel that order. It may already have moved on — please reload the page or call us."
+        "cancel": "Keep the order",
+        "warning": "We have already recorded a payment for this order. Cancelling it here does not send the money back — please arrange the refund with us directly."
       },
       "documents": {
         "heading": "Documents",
@@ -310,9 +312,7 @@
       "heading": "Your order",
       "intro": "This is the order request you sent us. Nothing is charged and nothing is dispatched until we confirm it with you.",
       "notFound": "This link does not open an order. It may have been mistyped, or the order may have been removed.",
-      "home": "Back to the shop",
-      "register": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
-      "registerAction": "Request an account"
+      "home": "Back to the shop"
     }
   },
   "search": {
@@ -347,6 +347,10 @@
     "staffArea": "Staff area",
     "account": "My account",
     "password": "Password",
+    "registerInvite": {
+      "text": "Ordering with us often? Ask for a customer account and we will keep your prices and addresses for next time.",
+      "action": "Request an account"
+    },
     "submit": "Log in",
     "submitting": "Logging in…",
     "invalid": "Invalid email or password.",
@@ -363,8 +367,6 @@
         "heading": "Edit my details",
         "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
         "submit": "Save changes",
-        "submitting": "Saving…",
-        "cancel": "Cancel",
         "error": "Something went wrong saving your details. Please try again.",
         "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
       },
@@ -375,34 +377,19 @@
         "editLabel": "Edit {label}",
         "remove": "Remove",
         "removeLabel": "Remove {label}",
-        "removeHeading": "Remove address",
-        "removeConfirm": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
+        "removeConfirm": {
+          "heading": "Remove address",
+          "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
+          "confirm": "Remove"
+        },
         "error": "We could not load your addresses right now. Please try again later.",
         "newHeading": "Add an address",
         "editHeading": "Edit address",
         "intro": "Saved addresses are offered at checkout, so you only type one once.",
-        "label": "Name for this address",
-        "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
-        "enterManually": "Enter the address manually",
-        "addressLine": "Address",
-        "street": "Street and number",
-        "street2": "Address line 2",
-        "postalCode": "Postcode",
-        "city": "City",
-        "region": "Region",
-        "country": "Country",
-        "optional": "optional",
         "submit": "Save address",
-        "submitting": "Saving…",
-        "cancel": "Cancel",
-        "required": "Please fill this in.",
-        "postalCodeFormat": "A postcode here looks like {example}.",
         "saveError": "Something went wrong saving this address. Please try again.",
         "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
-        "unsupportedCountry": "We do not deliver to that country. Please choose another.",
-        "suggestionsLabel": "Address suggestions",
-        "noSuggestions": "No matching addresses. Carry on typing it yourself.",
-        "suggestionCount": "Address suggestions: {count}"
+        "unsupportedCountry": "We do not deliver to that country. Please choose another."
       },
       "delete": {
         "action": "Delete my account",
@@ -415,7 +402,6 @@
           "You can register again later, but it will be a new account — your earlier orders will not appear in it."
         ],
         "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
-        "password": "Your password",
         "passwordHint": "Confirm with your password to show this is you.",
         "submit": "Delete my account",
         "submitting": "Deleting…",
@@ -432,7 +418,6 @@
       "heading": "Reset your password",
       "intro": "Enter the email address you sign in with and we will send you a link to choose a new password.",
       "submit": "Send me a link",
-      "submitting": "Sending…",
       "successHeading": "Check your email",
       "success": "If there is an account for this address, a link to choose a new password is on its way. It can be used once, and expires an hour after it was sent.",
       "error": "Something went wrong sending your link. Please try again.",
@@ -444,10 +429,7 @@
       "heading": "Create an account",
       "intro": "Tell us about yourself and we will set up your customer account. A colleague reviews every request, so this is not instant — you will receive your password by email once your account is ready.",
       "customerType": "I am registering as",
-      "person": "A private person",
-      "company": "A company",
       "submit": "Request an account",
-      "submitting": "Sending…",
       "successHeading": "Thank you",
       "success": "If we can set up an account for this address, you will receive an email shortly. Our team reviews every request, so your password may take a little while to arrive.",
       "error": "Something went wrong sending your request. Please try again.",
@@ -461,14 +443,12 @@
       "resetHeading": "Choose a new password",
       "resetIntro": "Choose a new password for your account. Anywhere you are still signed in will be signed out.",
       "forAccount": "For",
-      "password": "Password",
       "confirmPassword": "Repeat password",
       "show": "Show",
       "hide": "Hide",
       "generate": "Suggest a strong password",
       "generated": "We filled in a strong password. Save it in your password manager before continuing.",
       "submit": "Save password and continue",
-      "submitting": "Saving…",
       "successHeading": "You are all set",
       "success": "Your password is saved and you are signed in.",
       "expiredHeading": "This link no longer works",
@@ -574,6 +554,29 @@
     "noSuggestions": "No matching companies. Carry on typing it yourself.",
     "suggestionCount": "Company suggestions: {count}"
   },
+  "address": {
+    "label": "Name for this address",
+    "labelHint": "Only if you keep several — “Shop”, “Warehouse”, “Home”. Left empty, it is listed by its street.",
+    "enterManually": "Enter the address manually",
+    "addressLine": "Address",
+    "street": "Street and number",
+    "street2": "Address line 2",
+    "postalCode": "Postcode",
+    "city": "City",
+    "region": "Region",
+    "country": "Country",
+    "required": "Please fill this in.",
+    "postalCodeFormat": "A postcode here looks like {example}.",
+    "suggest": {
+      "suggestionsLabel": "Address suggestions",
+      "noSuggestions": "No matching addresses. Carry on typing it yourself.",
+      "suggestionCount": "Address suggestions: {count}"
+    }
+  },
+  "partyChoice": {
+    "person": "A private person",
+    "company": "A company"
+  },
   "inquiry": {
     "intro": "Send us a message and we will get back to you by your preferred method.",
     "preferredContact": "How should we reach you?",
@@ -581,7 +584,6 @@
     "preferredPhone": "By phone",
     "message": "Message",
     "submit": "Send message",
-    "submitting": "Sending…",
     "success": "Thanks — we have your message and will be in touch soon.",
     "error": "Something went wrong sending your message. Please try again."
   },
@@ -593,8 +595,8 @@
       "Product pictures show the goods as closely as we can; colours may look slightly different on screen.",
       "Some goods are sold <b>assorted</b>: you receive one of the designs shown. A design you name in your order is a wish we try to meet, not a promise."
     ],
-    "taxIncluded": "All prices include VAT at {rate}\u00a0%. Goods taxed at a reduced rate name it on their product page.",
-    "taxAdded": "All prices are net. VAT at {rate}\u00a0% is added on the invoice; goods taxed at a reduced rate name it on their product page.",
+    "taxIncluded": "All prices include VAT at {rate} %. Goods taxed at a reduced rate name it on their product page.",
+    "taxAdded": "All prices are net. VAT at {rate} % is added on the invoice; goods taxed at a reduced rate name it on their product page.",
     "taxNone": "We charge no VAT: the prices are what you pay.",
     "returnsHeading": "Returns",
     "returnsParagraphs": [

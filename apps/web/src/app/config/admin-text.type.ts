@@ -6,6 +6,7 @@ import {
   refuseCountForms,
 } from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
+import { confirmText } from './text-shapes';
 
 /**
  * UI text for the admin surfaces only — the editors, the management screens and
@@ -26,18 +27,6 @@ const syncAreaTextSchema = z
  * one — absent, nothing is drawn there. */
 const pageText = z
   .object({ title: z.string(), intro: z.string().optional() })
-  .strict();
-
-/** A confirmation dialog's words. A view decides when to show `warning`;
- * without a `cancel` of its own the dialog uses the common one. */
-const confirmText = z
-  .object({
-    heading: z.string(),
-    message: z.string(),
-    confirm: z.string(),
-    cancel: z.string().optional(),
-    warning: z.string().optional(),
-  })
   .strict();
 
 /**

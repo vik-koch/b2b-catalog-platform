@@ -211,7 +211,7 @@ describe('the sold-together panel (FR-SET-05)', () => {
     await settle();
 
     const close = [...el.querySelectorAll('button')].find((button) =>
-      button.textContent?.includes(text.close),
+      button.textContent?.includes(defaultAppText.common.close),
     );
     close?.click();
     await settle();

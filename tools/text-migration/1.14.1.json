@@ -1273,6 +1273,152 @@
         "mail-text.json:syncRun.areas.catalog.waiting.action",
         "mail-text.json:syncRun.areas.customers.waiting.action"
       ]
+    },
+    "app-text.json:common.optional": {
+      "from": [
+        "app-text.json:checkout.optional",
+        "app-text.json:auth.myAccount.addresses.optional"
+      ]
+    },
+    "app-text.json:common.cancel": {
+      "from": [
+        "app-text.json:cart.cancel",
+        "app-text.json:auth.myAccount.edit.cancel",
+        "app-text.json:auth.myAccount.addresses.cancel"
+      ]
+    },
+    "app-text.json:common.close": {
+      "from": [
+        "app-text.json:catalog.variants.close",
+        "app-text.json:catalog.pairings.close",
+        "app-text.json:checkout.fulfilment.close"
+      ]
+    },
+    "app-text.json:common.sending": {
+      "from": [
+        "app-text.json:checkout.submitting",
+        "app-text.json:auth.forgotPassword.submitting",
+        "app-text.json:auth.register.submitting",
+        "app-text.json:inquiry.submitting"
+      ]
+    },
+    "app-text.json:common.saving": {
+      "from": [
+        "app-text.json:auth.myAccount.edit.submitting",
+        "app-text.json:auth.myAccount.addresses.submitting",
+        "app-text.json:auth.setPassword.submitting"
+      ]
+    },
+    "app-text.json:cart.deleteSelectedConfirm.heading": {
+      "from": ["app-text.json:cart.deleteSelectedHeading"]
+    },
+    "app-text.json:cart.deleteSelectedConfirm.message": {
+      "from": ["app-text.json:cart.deleteSelectedConfirm"]
+    },
+    "app-text.json:cart.deleteSelectedConfirm.confirm": {
+      "from": ["app-text.json:cart.deleteSelected"],
+      "copy": true
+    },
+    "app-text.json:auth.myAccount.addresses.removeConfirm.heading": {
+      "from": ["app-text.json:auth.myAccount.addresses.removeHeading"]
+    },
+    "app-text.json:auth.myAccount.addresses.removeConfirm.message": {
+      "from": ["app-text.json:auth.myAccount.addresses.removeConfirm"]
+    },
+    "app-text.json:auth.myAccount.addresses.removeConfirm.confirm": {
+      "from": ["app-text.json:auth.myAccount.addresses.remove"],
+      "copy": true
+    },
+    "app-text.json:orders.detail.cancelConfirm.heading": {
+      "from": ["app-text.json:orders.detail.cancel.heading"]
+    },
+    "app-text.json:orders.detail.cancelConfirm.message": {
+      "from": ["app-text.json:orders.detail.cancel.message"]
+    },
+    "app-text.json:orders.detail.cancelConfirm.confirm": {
+      "from": ["app-text.json:orders.detail.cancel.confirm"]
+    },
+    "app-text.json:orders.detail.cancelConfirm.cancel": {
+      "from": ["app-text.json:orders.detail.cancel.keep"]
+    },
+    "app-text.json:orders.detail.cancelConfirm.warning": {
+      "from": ["app-text.json:orders.detail.cancel.paidWarning"]
+    },
+    "app-text.json:address.label": {
+      "from": ["app-text.json:auth.myAccount.addresses.label"]
+    },
+    "app-text.json:address.labelHint": {
+      "from": ["app-text.json:auth.myAccount.addresses.labelHint"]
+    },
+    "app-text.json:address.enterManually": {
+      "from": ["app-text.json:auth.myAccount.addresses.enterManually"]
+    },
+    "app-text.json:address.addressLine": {
+      "from": ["app-text.json:auth.myAccount.addresses.addressLine"]
+    },
+    "app-text.json:address.street": {
+      "from": ["app-text.json:auth.myAccount.addresses.street"]
+    },
+    "app-text.json:address.street2": {
+      "from": ["app-text.json:auth.myAccount.addresses.street2"]
+    },
+    "app-text.json:address.postalCode": {
+      "from": ["app-text.json:auth.myAccount.addresses.postalCode"]
+    },
+    "app-text.json:address.city": {
+      "from": ["app-text.json:auth.myAccount.addresses.city"]
+    },
+    "app-text.json:address.region": {
+      "from": ["app-text.json:auth.myAccount.addresses.region"]
+    },
+    "app-text.json:address.country": {
+      "from": ["app-text.json:auth.myAccount.addresses.country"]
+    },
+    "app-text.json:address.required": {
+      "from": ["app-text.json:auth.myAccount.addresses.required"]
+    },
+    "app-text.json:address.postalCodeFormat": {
+      "from": ["app-text.json:auth.myAccount.addresses.postalCodeFormat"]
+    },
+    "app-text.json:address.suggest.suggestionsLabel": {
+      "from": ["app-text.json:auth.myAccount.addresses.suggestionsLabel"]
+    },
+    "app-text.json:address.suggest.noSuggestions": {
+      "from": ["app-text.json:auth.myAccount.addresses.noSuggestions"]
+    },
+    "app-text.json:address.suggest.suggestionCount": {
+      "from": ["app-text.json:auth.myAccount.addresses.suggestionCount"]
+    },
+    "app-text.json:auth.password": {
+      "from": [
+        "app-text.json:auth.password",
+        "app-text.json:auth.setPassword.password",
+        "app-text.json:auth.myAccount.delete.password"
+      ]
+    },
+    "app-text.json:partyChoice.person": {
+      "from": [
+        "app-text.json:checkout.party.person",
+        "app-text.json:auth.register.person"
+      ]
+    },
+    "app-text.json:partyChoice.company": {
+      "from": [
+        "app-text.json:checkout.party.company",
+        "app-text.json:auth.register.company"
+      ]
+    },
+    "app-text.json:auth.registerInvite.text": {
+      "from": [
+        "app-text.json:checkout.successRegister",
+        "app-text.json:orders.public.register"
+      ]
+    },
+    "app-text.json:auth.registerInvite.action": {
+      "from": [
+        "app-text.json:checkout.successRegisterAction",
+        "app-text.json:orders.public.registerAction"
+      ]
     }
   },
   "drop": [

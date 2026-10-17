@@ -41,10 +41,10 @@ type Status = 'idle' | 'submitting' | 'error';
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
-              {{ submitting() ? text.submitting : text.submit }}
+              {{ submitting() ? common.saving : text.submit }}
             </button>
             <a appButton variant="secondary" routerLink="/account">
-              {{ text.cancel }}
+              {{ common.cancel }}
             </a>
           </div>
 
@@ -66,6 +66,8 @@ export class AddressEditorPage {
   private readonly router = inject(Router);
 
   protected readonly text = inject(APP_TEXT).auth.myAccount.addresses;
+  protected readonly common = inject(APP_TEXT).common;
+  private readonly fieldText = inject(APP_TEXT).address;
 
   private readonly addressId = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.addressId === null;
@@ -131,8 +133,8 @@ export class AddressEditorPage {
   private postalCodeMessage(): string {
     const rule = this.form.postalCodeRule();
     return rule
-      ? fillText(this.text.postalCodeFormat, { example: rule.example })
-      : this.text.required;
+      ? fillText(this.fieldText.postalCodeFormat, { example: rule.example })
+      : this.fieldText.required;
   }
 
   protected submitting(): boolean {

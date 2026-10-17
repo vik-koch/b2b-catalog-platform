@@ -202,11 +202,11 @@ test.describe('my account', () => {
       page.getByText('your earlier orders will not appear in it'),
     ).toBeVisible();
 
-    await page.getByLabel('Your password').fill('not-my-password');
+    await page.getByLabel('Password', { exact: true }).fill('not-my-password');
     await page.getByRole('button', { name: 'Delete my account' }).click();
     await expect(page.getByRole('alert')).toContainText('not your password');
 
-    await page.getByLabel('Your password').fill(PASSWORD);
+    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
     await page.getByRole('button', { name: 'Delete my account' }).click();
     await expect(
       page.getByRole('heading', { name: 'Your account has been deleted' }),

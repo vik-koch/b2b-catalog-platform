@@ -69,7 +69,7 @@ import { FieldLabel } from '../ui/field-label';
 export class PreferredDate {
   protected readonly text = inject(APP_TEXT).checkout.timing;
   protected readonly names = inject(COMMON_TEXT).order;
-  protected readonly optional = inject(APP_TEXT).checkout.optional;
+  protected readonly optional = inject(APP_TEXT).common.optional;
   protected readonly id = 'preferred-date';
 
   /** Only what the label is called: a delivery is brought, a pickup collected. */

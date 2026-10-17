@@ -150,7 +150,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             type="submit"
             [disabled]="status() === 'submitting'"
           >
-            {{ status() === 'submitting' ? text.submitting : text.submit }}
+            {{ status() === 'submitting' ? common.sending : text.submit }}
           </button>
         </form>
       }
@@ -162,6 +162,7 @@ export class InquiryPage {
   private readonly inquiry = inject(InquiryService);
 
   protected readonly text = inject(APP_TEXT).inquiry;
+  protected readonly common = inject(APP_TEXT).common;
   protected readonly fields = inject(COMMON_TEXT).fields;
   protected readonly contactChannels: readonly SegmentOption<PreferredContact>[] =
     [

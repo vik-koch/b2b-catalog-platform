@@ -119,12 +119,12 @@ export class GuestDetails {
   protected readonly fields = inject(COMMON_TEXT).fields;
   private readonly companySuggest = inject(APP_TEXT).companySuggest;
   protected readonly text = inject(APP_TEXT).checkout.contact;
-  protected readonly partyText = inject(APP_TEXT).checkout.party;
+  private readonly partyChoice = inject(APP_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
   protected readonly kinds: readonly SegmentOption<Party>[] = [
-    { value: 'person', label: this.partyText.person },
-    { value: 'company', label: this.partyText.company },
+    { value: 'person', label: this.partyChoice.person },
+    { value: 'company', label: this.partyChoice.company },
   ];
 
   /** The same messages the sign-up form shows for the same fields. */

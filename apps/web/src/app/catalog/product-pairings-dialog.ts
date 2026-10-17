@@ -110,7 +110,7 @@ import { WarningNote } from '../ui/warning-note';
 
         <div appDialogActions>
           <button appButton variant="secondary" type="button" (click)="close()">
-            {{ text.close }}
+            {{ common.close }}
           </button>
         </div>
       </dialog>
@@ -119,6 +119,7 @@ import { WarningNote } from '../ui/warning-note';
 })
 export class ProductPairingsDialog {
   protected readonly text = inject(APP_TEXT).catalog.pairings;
+  protected readonly common = inject(APP_TEXT).common;
   protected readonly pairingsName = inject(COMMON_TEXT).product.pairings;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairings = inject(PairingsService);

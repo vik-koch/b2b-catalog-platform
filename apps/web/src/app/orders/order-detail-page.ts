@@ -23,7 +23,7 @@ import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { Skeleton } from '../ui/skeleton';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
 import { customerBlockLabels, orderBlocks } from './order-blocks';
@@ -322,16 +322,14 @@ export class OrderDetailPage {
    */
   protected async cancel(detail: OrderDetail): Promise<void> {
     const reason = await this.confirm.askWithReason({
-      heading: this.text.cancel.heading,
-      message: fillText(this.text.cancel.message, {
+      ...confirmRequest(this.text.cancelConfirm, this.appText.common.cancel),
+      message: fillText(this.text.cancelConfirm.message, {
         reference: detail.reference,
       }),
       warning:
         detail.paymentState === 'paid'
-          ? this.text.cancel.paidWarning
+          ? this.text.cancelConfirm.warning
           : undefined,
-      confirmLabel: this.text.cancel.confirm,
-      cancelLabel: this.text.cancel.keep,
       reasonLabel: this.text.cancel.reasonLabel,
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
       // Asked, not insisted on: the shop's own refusals owe the customer an

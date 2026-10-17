@@ -28,7 +28,7 @@ import { Checkbox } from '../ui/checkbox';
 import { EmptyState } from '../ui/empty-state';
 import { AutoGrow } from '../ui/auto-grow';
 import { Input } from '../ui/input';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
@@ -507,6 +507,7 @@ export class CartPage {
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
   protected readonly text = inject(APP_TEXT).cart;
+  private readonly common = inject(APP_TEXT).common;
   protected readonly changeText = this.text.changes;
   /** What moved while the cart waited (FR-CART-10) — the cart's own answer,
    * reported once per visit and put away from here. */
@@ -887,10 +888,10 @@ export class CartPage {
     const keys = this.selected();
     if (keys.size === 0) return;
     const ok = await this.confirm.ask({
-      heading: this.text.deleteSelectedHeading,
-      message: fillText(this.text.deleteSelectedConfirm, { count: keys.size }),
-      confirmLabel: this.text.deleteSelected,
-      cancelLabel: this.text.cancel,
+      ...confirmRequest(this.text.deleteSelectedConfirm, this.common.cancel),
+      message: fillText(this.text.deleteSelectedConfirm.message, {
+        count: keys.size,
+      }),
     });
     if (!ok) return;
     for (const line of this.cart.lines()) {

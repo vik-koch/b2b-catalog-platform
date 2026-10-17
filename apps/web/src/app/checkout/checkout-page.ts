@@ -121,9 +121,9 @@ import { WarningNote } from '../ui/warning-note';
 
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-muted">
-          {{ text.successRegister }}
+          {{ invite.text }}
           <a appLink routerLink="/register">
-            {{ text.successRegisterAction }}
+            {{ invite.action }}
           </a>
         </p>
       }
@@ -481,7 +481,7 @@ import { WarningNote } from '../ui/warning-note';
                 [disabled]="sending() || blocked()"
                 (click)="submit()"
               >
-                {{ sending() ? text.submitting : text.submit }}
+                {{ sending() ? common.sending : text.submit }}
               </button>
               <button
                 appButton
@@ -531,6 +531,8 @@ export class CheckoutPage {
   private readonly route = inject(ActivatedRoute);
 
   protected readonly text = inject(APP_TEXT).checkout;
+  protected readonly common = inject(APP_TEXT).common;
+  protected readonly invite = inject(APP_TEXT).auth.registerInvite;
   protected readonly cartText = inject(APP_TEXT).cart;
   protected readonly addressText = this.text.addresses;
 

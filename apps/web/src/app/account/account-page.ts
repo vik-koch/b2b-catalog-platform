@@ -19,7 +19,7 @@ import { usePageSeo } from '../core/page-seo';
 import { OrderRows } from '../orders/order-rows';
 import { OrdersService } from '../orders/orders.service';
 import { Button } from '../ui/button';
-import { ConfirmService } from '../ui/confirm.service';
+import { confirmRequest, ConfirmService } from '../ui/confirm.service';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { Skeleton } from '../ui/skeleton';
@@ -391,6 +391,7 @@ export class AccountPage {
   private readonly commonText = inject(COMMON_TEXT);
   protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
   protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
+  private readonly common = inject(APP_TEXT).common;
   protected readonly orderText = inject(APP_TEXT).orders;
 
   private readonly work = inject(WorkService);
@@ -484,13 +485,10 @@ export class AccountPage {
    */
   protected async remove(address: Address): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.addressText.removeHeading,
-      message: this.addressText.removeConfirm.replace(
-        '{label}',
-        this.name(address),
-      ),
-      confirmLabel: this.addressText.remove,
-      cancelLabel: this.text.myAccount.edit.cancel,
+      ...confirmRequest(this.addressText.removeConfirm, this.common.cancel),
+      message: fillText(this.addressText.removeConfirm.message, {
+        label: this.name(address),
+      }),
     });
     if (!confirmed) return;
 

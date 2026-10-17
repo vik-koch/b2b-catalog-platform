@@ -540,9 +540,7 @@ describe('CheckoutPage', () => {
       ).not.toBeNull();
       expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
-      expect(page.text()).toContain(
-        defaultAppText.auth.myAccount.addresses.enterManually,
-      );
+      expect(page.text()).toContain(defaultAppText.address.enterManually);
     });
 
     it('reads back the parts the street line does not say', async () => {
@@ -603,9 +601,7 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       expect(postcodeShown(page.el)).toBe(true);
-      expect(page.text()).not.toContain(
-        defaultAppText.auth.myAccount.addresses.enterManually,
-      );
+      expect(page.text()).not.toContain(defaultAppText.address.enterManually);
     });
 
     it('asks for a billing address only once it differs from delivery', async () => {

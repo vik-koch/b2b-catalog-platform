@@ -1,6 +1,17 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
 import { refuseCountForms } from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
+import { confirmText } from './text-shapes';
+
+/** A suggestion list under a field: its name, what it says when nothing
+ * matches, and `{count}` for the live region. */
+const suggestText = z
+  .object({
+    suggestionsLabel: z.string(),
+    noSuggestions: z.string(),
+    suggestionCount: z.string(),
+  })
+  .strict();
 
 /**
  * Frontend-only UI text — the human-readable chrome wording (nav labels,
@@ -47,6 +58,18 @@ export const appTextSchema = z
         consentBanner: z.string(),
         /** Floating back-to-top control. */
         scrollToTop: z.string(),
+      })
+      .strict(),
+    /** Words every storefront form or panel uses alike: the marker on a field
+     * that may stay empty, the busy states of a sending and a saving button,
+     * and the buttons that leave a form or close a panel. */
+    common: z
+      .object({
+        optional: z.string(),
+        cancel: z.string(),
+        close: z.string(),
+        sending: z.string(),
+        saving: z.string(),
       })
       .strict(),
     /** Storefront catalog chrome (FR-CAT). */
@@ -99,7 +122,6 @@ export const appTextSchema = z
             unavailable: z.string(),
             note: z.string(),
             markLabel: z.string(),
-            close: z.string(),
           })
           .strict(),
         layout: z
@@ -188,7 +210,6 @@ export const appTextSchema = z
             marker: z.string(),
             /** Read under the heading, once the panel is open. */
             intro: z.string(),
-            close: z.string(),
             /** Where the counterparts could not be fetched. */
             loadError: z.string(),
           })
@@ -309,10 +330,8 @@ export const appTextSchema = z
         selectAll: z.string(),
         clearSelection: z.string(),
         deleteSelected: z.string(),
-        deleteSelectedHeading: z.string(),
-        /** `{count}` lines. */
-        deleteSelectedConfirm: z.string(),
-        cancel: z.string(),
+        /** `{count}` lines in the message. */
+        deleteSelectedConfirm: confirmText,
         subtotal: z.string(),
         /** Shown instead of a figure where a line cannot be priced. */
         noPrice: z.string(),
@@ -473,9 +492,6 @@ export const appTextSchema = z
             note: z.string(),
           })
           .strict(),
-        /** The marker on the fields that are not required — the date and the
-         * note, which the form asks for rather than needs. */
-        optional: z.string(),
         /**
          * Who the order is invoiced to (FR-CART-09) — the account's own party
          * or somebody else. The *address* row asks where the paperwork goes;
@@ -491,8 +507,6 @@ export const appTextSchema = z
              * kind of party asked inside it — the same switch registration
              * puts at the top of its own form. */
             other: z.string(),
-            person: z.string(),
-            company: z.string(),
             /** The name of a person being invoiced, which is the whole of what
              * a private party is. */
             personName: z.string(),
@@ -626,7 +640,6 @@ export const appTextSchema = z
           })
           .strict(),
         submit: z.string(),
-        submitting: z.string(),
         successHeading: z.string(),
         /** `{reference}` — the number to quote when asking about the order. */
         success: z.string(),
@@ -634,10 +647,6 @@ export const appTextSchema = z
          * customer, the mailed link's page for a guest. */
         successView: z.string(),
         successAction: z.string(),
-        /** Shown to a guest on the confirmation, where waiting for approval
-         * costs them nothing: the one place an account is worth offering. */
-        successRegister: z.string(),
-        successRegisterAction: z.string(),
         /**
          * What a refusal means, in the customer's words. The API answers with
          * a code and never with a sentence, so every one of them is named
@@ -688,7 +697,6 @@ export const appTextSchema = z
             /** Link out of the dialog to the full conditions page, shown only
              * where the deployment publishes one. */
             conditionsMore: z.string(),
-            close: z.string(),
             /** A zone's free-delivery minimum; `{amount}` is substituted. */
             freeFrom: z.string(),
             /** Shown for a zone that quotes no minimum — said out loud, so an
@@ -780,23 +788,20 @@ export const appTextSchema = z
             cancel: z
               .object({
                 action: z.string(),
-                heading: z.string(),
-                message: z.string(),
                 /** Why — the shop reads it, so it is asked for rather than
                  * optional. */
                 reasonLabel: z.string(),
-                /**
-                 * Said only where a payment has already been recorded against
-                 * the order (FR-ORD-04). The platform records money arriving
-                 * and never moves it, so cancelling here settles nothing — and
-                 * this sentence is the only place anybody is told that.
-                 */
-                paidWarning: z.string(),
-                confirm: z.string(),
-                keep: z.string(),
                 error: z.string(),
               })
               .strict(),
+            /**
+             * Its dialog. The `warning` is said only where a payment has
+             * already been recorded against the order (FR-ORD-04). The
+             * platform records money arriving and never moves it, so
+             * cancelling here settles nothing — and this sentence is the only
+             * place anybody is told that.
+             */
+            cancelConfirm: confirmText,
             error: z.string(),
           })
           .strict(),
@@ -812,10 +817,6 @@ export const appTextSchema = z
             /** A token that opens nothing: mistyped, or an order since gone. */
             notFound: z.string(),
             home: z.string(),
-            /** Offered here rather than at checkout: approval takes days, and
-             * an order already sent costs nothing to wait for. */
-            register: z.string(),
-            registerAction: z.string(),
           })
           .strict(),
       })
@@ -898,7 +899,14 @@ export const appTextSchema = z
          * they approve — no catalog, pricing or site controls. */
         staffArea: z.string(),
         account: z.string(),
+        /** The password field, wherever an account's password is asked for. */
         password: z.string(),
+        /** Offered to a guest after an order — on the confirmation and on the
+         * page a mailed link opens — where waiting for approval costs them
+         * nothing. */
+        registerInvite: z
+          .object({ text: z.string(), action: z.string() })
+          .strict(),
         submit: z.string(),
         submitting: z.string(),
         invalid: z.string(),
@@ -928,8 +936,6 @@ export const appTextSchema = z
                 heading: z.string(),
                 intro: z.string(),
                 submit: z.string(),
-                submitting: z.string(),
-                cancel: z.string(),
                 error: z.string(),
                 /**
                  * Under a number that receives sign-in codes (FR-AUTH-12):
@@ -939,12 +945,8 @@ export const appTextSchema = z
               })
               .strict(),
             /**
-             * The saved delivery/invoice addresses (FR-CART-04), and the form
-             * that edits one. An address is a place and carries no identity:
-             * who is invoiced is the order's own question, worded at checkout.
-             * The suggestion wording is here rather than under a provider's
-             * name: a deployment with no adapter configured never shows it, but
-             * the file loads whole either way.
+             * The saved delivery/invoice addresses (FR-CART-04), and the page
+             * that edits one. The fields themselves are `address`.
              */
             addresses: z
               .object({
@@ -954,48 +956,19 @@ export const appTextSchema = z
                 /** The icon-only row buttons take their accessible name from
                  * `{label}`, the address itself. */
                 editLabel: z.string(),
-                /** The wording on the confirm dialog's own button. */
                 remove: z.string(),
                 removeLabel: z.string(),
                 /** `{label}` is the address's own name. */
-                removeConfirm: z.string(),
-                removeHeading: z.string(),
+                removeConfirm: confirmText,
                 error: z.string(),
                 newHeading: z.string(),
                 editHeading: z.string(),
                 intro: z.string(),
-                label: z.string(),
-                labelHint: z.string(),
-                /** Opens the full address fields where the form asked for the street
-                 * alone. Always offered, never only after a provider fails. */
-                enterManually: z.string(),
-                /** The one field a suggesting form asks for before anything is
-                 * picked: it takes the whole address, and calling it the street
-                 * would be asking for a part of what it wants. */
-                addressLine: z.string(),
-                street: z.string(),
-                street2: z.string(),
-                postalCode: z.string(),
-                city: z.string(),
-                region: z.string(),
-                country: z.string(),
-                optional: z.string(),
                 submit: z.string(),
-                submitting: z.string(),
-                cancel: z.string(),
-                required: z.string(),
-                /** `{example}` — a real code in the shape this country's take,
-                 * from the deployment's own postal rule. */
-                postalCodeFormat: z.string(),
                 saveError: z.string(),
                 /** The book is full — a refusal the form has to explain. */
                 limitReached: z.string(),
                 unsupportedCountry: z.string(),
-                /** The suggestion combobox (FR-CART-11). */
-                suggestionsLabel: z.string(),
-                noSuggestions: z.string(),
-                /** `{count}` suggestions, for the live region. */
-                suggestionCount: z.string(),
               })
               .strict(),
             /**
@@ -1021,7 +994,6 @@ export const appTextSchema = z
                  * that is worth knowing before the button rather than after.
                  */
                 openOrders: z.string(),
-                password: z.string(),
                 passwordHint: z.string(),
                 submit: z.string(),
                 submitting: z.string(),
@@ -1051,7 +1023,6 @@ export const appTextSchema = z
             heading: z.string(),
             intro: z.string(),
             submit: z.string(),
-            submitting: z.string(),
             successHeading: z.string(),
             success: z.string(),
             error: z.string(),
@@ -1072,11 +1043,8 @@ export const appTextSchema = z
             intro: z.string(),
             /** The person/company choice staff use to read the request. */
             customerType: z.string(),
-            person: z.string(),
-            company: z.string(),
             companyIdHint: z.string(),
             submit: z.string(),
-            submitting: z.string(),
             /** Shown in place of the form once the request is in. */
             successHeading: z.string(),
             success: z.string(),
@@ -1101,7 +1069,6 @@ export const appTextSchema = z
             resetIntro: z.string(),
             /** Which account this link belongs to. */
             forAccount: z.string(),
-            password: z.string(),
             confirmPassword: z.string(),
             /** Reveal toggle on the password field. */
             show: z.string(),
@@ -1110,7 +1077,6 @@ export const appTextSchema = z
             generate: z.string(),
             generated: z.string(),
             submit: z.string(),
-            submitting: z.string(),
             successHeading: z.string(),
             success: z.string(),
             /** The link was expired, already used, or never valid. */
@@ -1301,14 +1267,43 @@ export const appTextSchema = z
       .strict(),
     /** The company search under a registration number field, in every form
      * that asks for one — the storefront's and the admin's alike. */
-    companySuggest: z
+    companySuggest: suggestText,
+    /**
+     * The address fields, in every form that asks for an address — the
+     * address book's, checkout's and the admin's order adjustment alike. An
+     * address is a place and carries no identity: who is invoiced is the
+     * order's own question. The suggestion wording is here rather than under
+     * a provider's name: a deployment with no adapter configured never shows
+     * it, but the file loads whole either way.
+     */
+    address: z
       .object({
-        suggestionsLabel: z.string(),
-        noSuggestions: z.string(),
-        /** `{count}` is substituted, for the live region. */
-        suggestionCount: z.string(),
+        /** The address's own name, for a book that keeps several. */
+        label: z.string(),
+        labelHint: z.string(),
+        /** Opens the full address fields where the form asked for the street
+         * alone. Always offered, never only after a provider fails. */
+        enterManually: z.string(),
+        /** The one field a suggesting form asks for before anything is
+         * picked: it takes the whole address, and calling it the street
+         * would be asking for a part of what it wants. */
+        addressLine: z.string(),
+        street: z.string(),
+        street2: z.string(),
+        postalCode: z.string(),
+        city: z.string(),
+        region: z.string(),
+        country: z.string(),
+        required: z.string(),
+        /** `{example}` — a real code in the shape this country's take,
+         * from the deployment's own postal rule. */
+        postalCodeFormat: z.string(),
+        /** The suggestion combobox (FR-CART-11). */
+        suggest: suggestText,
       })
       .strict(),
+    /** Who a registration or an order is for, as the choice offers it. */
+    partyChoice: z.object({ person: z.string(), company: z.string() }).strict(),
     inquiry: z
       .object({
         intro: z.string(),
@@ -1317,7 +1312,6 @@ export const appTextSchema = z
         preferredPhone: z.string(),
         message: z.string(),
         submit: z.string(),
-        submitting: z.string(),
         success: z.string(),
         error: z.string(),
       })

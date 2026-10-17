@@ -107,7 +107,7 @@ import { Popover } from '../ui/popover';
               type="button"
               (click)="cancelled.emit()"
             >
-              {{ text.cancel }}
+              {{ common.cancel }}
             </button>
             <button appButton type="button" (click)="done.emit()">
               {{ text.noteDone }}
@@ -132,6 +132,7 @@ import { Popover } from '../ui/popover';
 })
 export class ProductNoteEditor {
   protected readonly text = inject(APP_TEXT).cart;
+  protected readonly common = inject(APP_TEXT).common;
   protected readonly noteMax = CART_NOTE_MAX;
 
   /** The note as it stands. This is a view of it, never the copy of record. */

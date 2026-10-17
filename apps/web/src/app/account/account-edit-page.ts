@@ -131,12 +131,12 @@ type Status = 'idle' | 'submitting' | 'error';
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
-              {{ submitting() ? text.submitting : text.submit }}
+              {{ submitting() ? common.saving : text.submit }}
             </button>
             <!-- A link, because it goes somewhere — styled as a button so it
                  reads as the other half of the pair rather than as prose. -->
             <a appButton variant="secondary" routerLink="/account">
-              {{ text.cancel }}
+              {{ common.cancel }}
             </a>
           </div>
 
@@ -161,6 +161,7 @@ export class AccountEditPage {
   private readonly router = inject(Router);
 
   protected readonly text = inject(APP_TEXT).auth.myAccount.edit;
+  protected readonly common = inject(APP_TEXT).common;
   protected readonly accountText = inject(APP_TEXT).auth.myAccount;
   protected readonly fields = inject(COMMON_TEXT).fields;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;

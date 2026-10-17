@@ -145,11 +145,12 @@ export class PartyChoice {
   private readonly fields = inject(COMMON_TEXT).fields;
 
   protected readonly text = inject(APP_TEXT).checkout.party;
+  private readonly partyChoice = inject(APP_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
   protected readonly kinds: readonly SegmentOption<Party>[] = [
-    { value: 'person', label: this.text.person },
-    { value: 'company', label: this.text.company },
+    { value: 'person', label: this.partyChoice.person },
+    { value: 'company', label: this.partyChoice.company },
   ];
   protected readonly companyText = {
     ...inject(APP_TEXT).companySuggest,

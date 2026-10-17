@@ -729,7 +729,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     await view.click(text.noteEdit);
     await view.typeNote('Slate after all');
     expect(view.cart.lines()[0].note).toBe('Slate after all');
-    await view.click(text.cancel);
+    await view.click(defaultAppText.common.cancel);
 
     expect(view.cart.lines()[0].note).toBe('Sand only');
   });
