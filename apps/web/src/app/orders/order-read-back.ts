@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * An order read back: its lines, then one block per question it answers. Used
@@ -24,7 +24,7 @@ import { APP_TEXT } from '../config/app-text';
   template: `
     <div class="space-y-8">
       <section>
-        <h2 class="mb-2 font-medium">{{ itemsHeading() || text.items }}</h2>
+        <h2 class="mb-2 font-medium">{{ itemsHeading() || itemsDefault }}</h2>
         <ul class="divide-y divide-border border-y border-border">
           @for (line of lines(); track line.key) {
             <li class="flex items-baseline justify-between gap-4 py-2 text-sm">
@@ -81,7 +81,7 @@ import { APP_TEXT } from '../config/app-text';
   `,
 })
 export class OrderReadBack {
-  protected readonly text = inject(APP_TEXT).checkout.review;
+  protected readonly itemsDefault = inject(COMMON_TEXT).order.items.customer;
 
   /** The lines' heading, where the page has its own wording for it — the
    * admin's text is a separate catalogue from the shop's. */

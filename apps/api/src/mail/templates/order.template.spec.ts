@@ -61,7 +61,7 @@ describe('orderReceivedMail', () => {
     });
     expect(mail.items?.[1].quantity).toBe('3 pcs');
     expect(mail.rows).toContainEqual({
-      label: t.totalLabel,
+      label: demoCommonText.order.total,
       value: expect.stringContaining('126,00'),
     });
     // The price list and the account behind the order are staff's to know.
@@ -73,7 +73,7 @@ describe('orderReceivedMail', () => {
   // NFR-LEGAL-11: the basis the order was submitted under, after the total.
   it('names the rate its lines share after the total, and no line rate', () => {
     expect(mail.rows).toContainEqual({
-      label: t.totalLabel,
+      label: demoCommonText.order.total,
       value: expect.stringMatching(/126,00.* · incl\. 19\u00a0% VAT$/),
     });
     expect(mail.items?.[1].quantity).toBe('3 pcs');
@@ -93,7 +93,7 @@ describe('orderReceivedMail', () => {
     );
 
     expect(mixed.rows).toContainEqual({
-      label: t.totalLabel,
+      label: demoCommonText.order.total,
       value: expect.stringContaining(
         '· incl. VAT at the rate each item states',
       ),
@@ -116,7 +116,7 @@ describe('orderReceivedMail', () => {
     );
 
     expect(untaxed.rows).toContainEqual({
-      label: t.totalLabel,
+      label: demoCommonText.order.total,
       value: expect.stringContaining('· no VAT charged'),
     });
   });
@@ -132,7 +132,7 @@ describe('orderReceivedMail', () => {
     );
 
     expect(late.rows).toContainEqual({
-      label: t.termsLabel,
+      label: demoCommonText.nav['terms'],
       value: 'As updated on 1. September 2026',
     });
   });
@@ -147,7 +147,9 @@ describe('orderReceivedMail', () => {
       'UTC',
     );
 
-    expect(none.rows?.map((row) => row.label)).not.toContain(t.termsLabel);
+    expect(none.rows?.map((row) => row.label)).not.toContain(
+      demoCommonText.nav['terms'],
+    );
   });
 });
 
@@ -241,7 +243,7 @@ describe('orderStatusChangedMail', () => {
 
     expect(mail.heading).toBe(t.statuses.readyDelivery.heading);
     expect(mail.rows).toContainEqual({
-      label: t.deliveryLabel,
+      label: demoCommonText.order.deliveryAddress,
       value: 'Hafenstraße 12, 20359 Hamburg',
     });
   });
@@ -265,7 +267,7 @@ describe('orderStatusChangedMail', () => {
 
     expect(mail.heading).toBe(t.statuses.readyPickup.heading);
     expect(mail.rows).toContainEqual({
-      label: t.pickupLabel,
+      label: demoCommonText.order.pickupPoint.customer,
       value: 'Harbour store · Quay 3',
     });
   });
@@ -300,7 +302,7 @@ describe('orderStatusChangedMail', () => {
     );
 
     expect(mail.rows).toContainEqual({
-      label: t.reasonLabel,
+      label: demoCommonText.order.reason,
       value: 'Out of stock',
     });
   });
@@ -324,7 +326,7 @@ describe('orderStatusChangedMail', () => {
     expect(mail.paragraphs).toContain(t.changedIntro);
     expect(mail.paragraphs).not.toContain(t.statuses.approved.body);
     expect(mail.rows).toContainEqual({
-      label: t.changedLabel,
+      label: demoCommonText.order.changeNote,
       value: 'One box instead of two, as agreed.',
     });
   });

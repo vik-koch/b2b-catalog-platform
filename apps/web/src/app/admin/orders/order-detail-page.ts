@@ -713,7 +713,7 @@ export class AdminOrderDetailPage {
    * them. */
   protected termsLabel(order: AdminOrderDetail): string | null {
     if (order.termsVersion === null || order.termsDate === null) return null;
-    return fillText(this.text.termsVersion, {
+    return fillText(this.names.termsVersion.staff, {
       version: order.termsVersion,
       date: this.shopDayFormat.format(new Date(order.termsDate)),
     });

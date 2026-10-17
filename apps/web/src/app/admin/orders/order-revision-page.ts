@@ -10,18 +10,14 @@ import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
-import { orderBlocks } from '../../orders/order-blocks';
+import { orderBlockLabels, orderBlocks } from '../../orders/order-blocks';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
 } from '../../orders/order-read-back';
 import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
-import {
-  customerBlockLabels,
-  customerQuantity,
-  orderDateTimeFormat,
-} from '../../orders/order-view';
+import { customerQuantity, orderDateTimeFormat } from '../../orders/order-view';
 import { Button } from '../../ui/button';
 import { Skeleton } from '../../ui/skeleton';
 import { StatusBadge, StatusTone } from '../../ui/status-badge';
@@ -215,7 +211,8 @@ export class AdminOrderRevisionPage {
 
   protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  protected readonly names = inject(COMMON_TEXT).order;
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = this.commonText.order;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -272,11 +269,19 @@ export class AdminOrderRevisionPage {
   protected readonly blocks = computed<ReviewBlock[]>(() => {
     const order = this.revision();
     if (!order) return [];
-    return orderBlocks(order, customerBlockLabels(this.appText), {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      order,
+      orderBlockLabels(
+        this.commonText,
+        'customer',
+        this.appText.checkout.review,
+      ),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   protected statusLabel(): string {

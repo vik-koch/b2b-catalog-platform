@@ -86,15 +86,6 @@
     "heading": "Thank you — we have your order",
     "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
     "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
-    "referenceLabel": "Order",
-    "itemsHeading": "Your items",
-    "totalLabel": "Total",
-    "fulfilmentLabel": "How it arrives",
-    "delivery": "Delivery",
-    "pickup": "Self-pickup",
-    "termsLabel": "Terms of sale",
-    "termsVersion": "As updated on {date}",
-    "termsFileName": "terms-of-sale-{date}.pdf",
     "action": "Open your order"
   },
   "newOrder": {
@@ -129,16 +120,9 @@
   "orderStatusChanged": {
     "subject": "Your order",
     "preheader": "There is news about your order.",
-    "referenceLabel": "Order",
-    "totalLabel": "Total",
-    "reasonLabel": "Reason",
-    "changedLabel": "Change note",
     "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
     "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
     "attachedNote": "Our payment details for this order are attached to this message.",
-    "deliveryLabel": "Delivery address",
-    "pickupLabel": "Collect from",
-    "itemsHeading": "Your items",
     "action": "Open your order",
     "statuses": {
       "changed": {
@@ -178,8 +162,6 @@
   "orderDocument": {
     "subject": "A document for your order",
     "preheader": "There is a document with your order.",
-    "referenceLabel": "Order",
-    "totalLabel": "Total",
     "action": "Open your order",
     "kinds": {
       "paymentInstructions": {

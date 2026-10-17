@@ -132,17 +132,15 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
 
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(names.statuses.customer.requested);
-    expect(el.textContent).toContain(review.fulfilment);
-    expect(el.textContent).toContain(review.invoice);
+    expect(el.textContent).toContain(defaultCommonText.fulfilment.label);
+    expect(el.textContent).toContain(names.invoicedTo);
     // The party carries its registration number, and the invoice went to the
     // same place as the goods.
     expect(el.textContent).toContain('Kontor GmbH · DE123456789');
     expect(el.textContent).toContain(review.billingSame);
-    expect(el.textContent).toContain(
-      defaultAppText.checkout.payment.transferTitle,
-    );
+    expect(el.textContent).toContain(names.paymentMethods.customer.transfer);
     // The contact block is this page's own: weeks later it says who to ring.
-    expect(el.textContent).toContain(text.detail.contact);
+    expect(el.textContent).toContain(names.contact);
     expect(el.textContent).toContain('alex@example.com');
     expect(el.textContent).toContain(placed.customerNote);
   });
@@ -188,13 +186,9 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
       pickup: { key: 'harbour', name: 'Harbour store', address: 'Quay 3' },
     });
 
-    expect(el.textContent).toContain(
-      defaultAppText.checkout.fulfilment.pickupTitle,
-    );
+    expect(el.textContent).toContain(defaultCommonText.fulfilment.pickup);
     expect(el.textContent).toContain('Harbour store');
-    expect(el.textContent).toContain(
-      defaultAppText.checkout.timing.pickupLabel,
-    );
+    expect(el.textContent).toContain(names.preferredPickup);
     // Not "invoiced to the same address": there was no delivery address to
     // repeat, so the billing one is written out.
     expect(el.textContent).not.toContain(review.billingSame);
@@ -270,7 +264,7 @@ describe('OrderDetailPage cancelling an order', () => {
       statusReason: 'Out of stock until October',
     });
 
-    expect(el.textContent).toContain(text.detail.statusReason);
+    expect(el.textContent).toContain(names.reason);
     expect(el.textContent).toContain('Out of stock until October');
     expect(cancelButton(el)).toBeUndefined();
   });

@@ -99,7 +99,7 @@ import { PageService } from './page.service';
         @if (pickupLocations.length) {
           <section>
             <h2 class="text-2xl font-normal tracking-tight">
-              {{ fulfilmentText.pickupTitle }}
+              {{ commonText.fulfilment.pickup }}
             </h2>
             <p class="mt-1 mb-4 text-muted">
               {{ fulfilmentText.pickupDescription }}
@@ -151,7 +151,7 @@ import { PageService } from './page.service';
             <li [class]="cardClass">
               <app-icon name="banknote" [class]="cardMark" />
               <div class="min-w-0 flex-1">
-                <p class="font-medium">{{ paymentText.cashTitle }}</p>
+                <p class="font-medium">{{ paymentNames.cash }}</p>
                 <p class="mt-1 text-sm text-muted">
                   {{ pageText.cashDescription }}
                 </p>
@@ -163,7 +163,7 @@ import { PageService } from './page.service';
             <li [class]="cardClass">
               <app-icon name="landmark" [class]="cardMark" />
               <div class="min-w-0 flex-1">
-                <p class="font-medium">{{ paymentText.transferTitle }}</p>
+                <p class="font-medium">{{ paymentNames.transfer }}</p>
                 <p class="mt-1 text-sm text-muted">
                   {{ paymentText.transferDescription }}
                 </p>
@@ -223,7 +223,10 @@ import { PageService } from './page.service';
 })
 export class ConditionsPage {
   private readonly appText = inject(APP_TEXT);
-  private readonly nav = inject(COMMON_TEXT).nav;
+  protected readonly commonText = inject(COMMON_TEXT);
+  private readonly nav = this.commonText.nav;
+  protected readonly paymentNames =
+    this.commonText.order.paymentMethods.customer;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 

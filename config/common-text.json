@@ -49,6 +49,18 @@
       "customer": "Your items",
       "staff": "Ordered"
     },
+    "note": {
+      "customer": "Your note",
+      "staff": "Customer note"
+    },
+    "pickupPoint": {
+      "customer": "Collect from",
+      "staff": "Collection point"
+    },
+    "termsVersion": {
+      "customer": "As updated on {date}",
+      "staff": "Version {version}, updated on {date}"
+    },
     "statuses": {
       "customer": {
         "requested": "Awaiting confirmation",

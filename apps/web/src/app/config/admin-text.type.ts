@@ -1713,14 +1713,9 @@ export const adminTextSchema = z
          * customer is looking at when they ring about the order. Only on a
          * guest's order; an account holder's own view is the version link. */
         guestView: z.string(),
-        /** The terms the order accepted (NFR-LEGAL-10), as the page editor
-         * numbers them: `{version}` and `{date}`. Absent where it accepted
-         * none. */
-        termsVersion: z.string(),
         /** The block wording not shared with the storefront. */
         billingSame: z.string(),
         whenAny: z.string(),
-        note: z.string(),
         /** The line under every "email the customer" tick: what they are sent. */
         notifyHint: z.string(),
         /** A line in pieces — `{count} × {price}`, the way the source system
@@ -2008,7 +2003,6 @@ export const adminTextSchema = z
           })
           .strict(),
         reprice: z.string(),
-        pickupLocation: z.string(),
         /** The second half of the form, which folds away from the first: who
          * the order goes to and how it is paid. */
         detailsHeading: z.string(),

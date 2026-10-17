@@ -5,6 +5,7 @@ import {
   localToday,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DateField } from '../ui/date-field';
 import { FieldLabel } from '../ui/field-label';
 
@@ -35,7 +36,9 @@ import { FieldLabel } from '../ui/field-label';
   host: { class: 'block' },
   template: `
     <label [for]="id" appFieldLabel>
-      {{ method() === 'pickup' ? text.pickupLabel : text.deliveryLabel }}
+      {{
+        method() === 'pickup' ? names.preferredPickup : names.preferredDelivery
+      }}
       <span class="font-normal text-subtle">({{ optional }})</span>
     </label>
     <app-date-field
@@ -65,6 +68,7 @@ import { FieldLabel } from '../ui/field-label';
 })
 export class PreferredDate {
   protected readonly text = inject(APP_TEXT).checkout.timing;
+  protected readonly names = inject(COMMON_TEXT).order;
   protected readonly optional = inject(APP_TEXT).checkout.optional;
   protected readonly id = 'preferred-date';
 

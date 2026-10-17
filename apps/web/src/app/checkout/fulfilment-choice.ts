@@ -1,6 +1,7 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ChoiceCard } from '../ui/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
@@ -38,7 +39,7 @@ import { Link } from '../ui/link';
         <app-choice-card
           name="fulfilment"
           value="delivery"
-          [title]="text.deliveryTitle"
+          [title]="names.delivery"
           [checked]="method() === 'delivery'"
           (chosen)="methodChange.emit('delivery')"
         >
@@ -64,7 +65,7 @@ import { Link } from '../ui/link';
           <app-choice-card
             name="fulfilment"
             value="pickup"
-            [title]="text.pickupTitle"
+            [title]="names.pickup"
             [description]="text.pickupDescription"
             [checked]="method() === 'pickup'"
             (chosen)="methodChange.emit('pickup')"
@@ -82,6 +83,7 @@ export class FulfilmentChoice {
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(APP_TEXT).checkout.fulfilment;
+  protected readonly names = inject(COMMON_TEXT).fulfilment;
   protected readonly hasPickup =
     (this.config.pickup?.locations.length ?? 0) > 0;
   protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;

@@ -87,6 +87,13 @@ export const commonTextSchema = z
         guest: z.string(),
         /** The heading over an order's lines. */
         items: perReader(z.string()),
+        /** The customer's own note on the order. */
+        note: perReader(z.string()),
+        /** Where a collected order is picked up. */
+        pickupPoint: perReader(z.string()),
+        /** The terms the order accepted: `{date}` they were last changed, and
+         * for staff `{version}` as the page editor numbers them. */
+        termsVersion: perReader(z.string()),
         /** `ready` reads by fulfilment: on its way, or waiting to be collected. */
         statuses: perReader(statusLabels),
         paymentMethods: perReader(paymentMethodLabels),

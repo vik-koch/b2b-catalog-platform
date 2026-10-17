@@ -367,7 +367,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                               for="adjust-pickup"
                               class="sr-only"
                             >
-                              {{ text.pickupLocation }}
+                              {{ names.pickupPoint.staff }}
                             </label>
                             <app-select-field>
                               <select

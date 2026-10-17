@@ -56,6 +56,7 @@ export class OrderPdf {
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
     const t = this.text.orderSummary;
+    const names = this.common.order;
     const pdf = await PDFDocument.create();
     const { faces, encode } = await this.faces.embed(pdf);
 
@@ -68,33 +69,33 @@ export class OrderPdf {
     sheet.gap(12);
 
     sheet.field(t.placedLabel, this.day(order.createdAt));
-    sheet.field(t.statusLabel, t.statuses[order.status]);
-    sheet.field(t.paymentLabel, this.payment(order));
-    sheet.field(t.contactLabel, [
+    sheet.field(names.status, this.status(order));
+    sheet.field(names.payment, this.payment(order));
+    sheet.field(names.contact, [
       order.contact.name,
       order.contact.email,
       order.contact.phone,
     ]);
-    sheet.field(t.invoiceLabel, [
+    sheet.field(names.invoicedTo, [
       order.party.registrationId
         ? `${order.party.name} · ${order.party.registrationId}`
         : order.party.name,
       ...this.lines(order.billingAddress),
     ]);
     sheet.field(
-      order.pickup ? t.pickupLabel : t.deliveryLabel,
+      order.pickup ? names.pickupPoint.customer : names.deliveryAddress,
       order.pickup
         ? [order.pickup.name, order.pickup.address]
         : this.lines(order.deliveryAddress),
     );
     sheet.field(
-      t.whenLabel,
+      order.pickup ? names.preferredPickup : names.preferredDelivery,
       order.preferredDate ? this.day(order.preferredDate) : t.whenAny,
     );
     if (order.termsDate) {
       sheet.field(
-        t.termsLabel,
-        fillText(t.termsVersion, {
+        this.common.nav['terms'],
+        fillText(names.termsVersion.customer, {
           date: shopDay(
             order.termsDate,
             this.currency.locale,
@@ -103,8 +104,10 @@ export class OrderPdf {
         }),
       );
     }
-    if (order.customerNote) sheet.field(t.noteLabel, order.customerNote);
-    if (order.changes.length > 0) sheet.field(t.changesLabel, order.changes);
+    if (order.customerNote) {
+      sheet.field(names.note.customer, order.customerNote);
+    }
+    if (order.changes.length > 0) sheet.field(names.changeNote, order.changes);
 
     sheet.gap(10);
     // A line states its own rate only once the lines differ — the total
@@ -125,7 +128,7 @@ export class OrderPdf {
       }),
     );
     sheet.total(
-      t.totalLabel,
+      names.total,
       formatMoneyMinor(order.totalMinor, this.currency),
       orderTaxStatement(order, this.currency.locale, this.common),
     );
@@ -138,18 +141,28 @@ export class OrderPdf {
     return Buffer.from(await pdf.save());
   }
 
+  /** Where the order stands, in the customer's words: `ready` reads by how
+   * the goods reach them. */
+  private status(order: OrderDetail): string {
+    const statuses = this.common.order.statuses.customer;
+    if (order.status !== 'ready') return statuses[order.status];
+    return order.pickup ? statuses.readyPickup : statuses.readyDelivery;
+  }
+
   /** How the order is paid, and whether it has been. */
   private payment(order: OrderDetail): string {
-    const t = this.text.orderSummary;
+    const names = this.common.order;
+    const methods = names.paymentMethods.customer;
+    const states = names.paymentStates.customer;
     const method = {
-      cash: t.payments.cash,
-      'bank-transfer': t.payments.bankTransfer,
-      'card-later': t.payments.cardLater,
+      cash: methods.cash,
+      'bank-transfer': methods.transfer,
+      'card-later': methods.card,
     }[order.paymentMethod];
     const state = {
-      'not-due': t.paymentStates.notDue,
-      awaiting: t.paymentStates.awaiting,
-      paid: t.paymentStates.paid,
+      'not-due': states.notDue,
+      awaiting: states.awaiting,
+      paid: states.paid,
     }[order.paymentState];
     return `${method} · ${state}`;
   }

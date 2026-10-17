@@ -26,7 +26,7 @@ import { Button } from '../ui/button';
 import { ConfirmService } from '../ui/confirm.service';
 import { Skeleton } from '../ui/skeleton';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderBlocks } from './order-blocks';
+import { orderBlockLabels, orderBlocks } from './order-blocks';
 import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import {
@@ -35,7 +35,7 @@ import {
   orderStatusLabel,
   orderStatusTone,
 } from './order-status';
-import { customerBlockLabels, customerQuantity } from './order-view';
+import { customerQuantity } from './order-view';
 import { OrdersService } from './orders.service';
 
 /**
@@ -93,7 +93,7 @@ import { OrdersService } from './orders.service';
                  is part of the status, not a fact beside it. -->
             @if (detail.statusReason; as reason) {
               <p class="mt-1 text-muted">
-                <span class="text-subtle">{{ text.statusReason }}:</span>
+                <span class="text-subtle">{{ names.reason }}:</span>
                 {{ reason }}
               </p>
             }
@@ -102,7 +102,7 @@ import { OrdersService } from './orders.service';
                  that says why it differs from the one that was sent. -->
             @if (detail.changes.length) {
               <div class="mt-1 text-muted">
-                <span class="text-subtle">{{ text.changes }}:</span>
+                <span class="text-subtle">{{ names.changeNote }}:</span>
                 @for (change of detail.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
@@ -201,7 +201,8 @@ export class OrderDetailPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
-  private readonly statusNames = inject(COMMON_TEXT).order;
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = this.commonText.order;
   private readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.detail;
 
@@ -259,11 +260,19 @@ export class OrderDetailPage {
     const detail = this.detail();
     if (!detail) return [];
 
-    return orderBlocks(detail, customerBlockLabels(this.appText), {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      detail,
+      orderBlockLabels(
+        this.commonText,
+        'customer',
+        this.appText.checkout.review,
+      ),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   protected placed(detail: OrderDetail): string {
@@ -276,7 +285,7 @@ export class OrderDetailPage {
     return orderStatusLabel(
       detail.status,
       detail.fulfilmentMethod,
-      this.statusNames.statuses.customer,
+      this.names.statuses.customer,
     );
   }
 
@@ -287,7 +296,7 @@ export class OrderDetailPage {
   protected paymentLabel(detail: OrderDetail): string | null {
     return orderPaymentLabel(
       detail.paymentState,
-      this.statusNames.paymentStates.customer,
+      this.names.paymentStates.customer,
     );
   }
 

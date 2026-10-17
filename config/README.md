@@ -166,7 +166,7 @@ mode off.
 `attachToReceipt` is required. Switch it on where the jurisdiction wants the
 terms on a medium the customer keeps, which a link to a page that can change
 is not: the receipt then carries the accepted version as a PDF, named by
-`orderReceived.termsFileName` in `mail-text.json`. The demo switches it on, as
+`terms.fileName` in `pdf-text.json`. The demo switches it on, as
 an EU shop would. The PDF is set in the same face as the order summary, so a
 deployment writing in a non-Latin script needs `branding.font.pdf` for it too.
 

@@ -243,20 +243,6 @@ export const mailTextSchema = z
         body: z.string(),
         /** What happens next: a person reads it and comes back. */
         nextSteps: z.string(),
-        referenceLabel: z.string(),
-        itemsHeading: z.string(),
-        totalLabel: z.string(),
-        fulfilmentLabel: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        /** The terms the order accepted (NFR-LEGAL-10); the row is left out
-         * where it accepted none. */
-        termsLabel: z.string(),
-        /** Names the version by its date; `{date}` is substituted. */
-        termsVersion: z.string(),
-        /** The attached terms' file name, where the deployment attaches them;
-         * `{date}` is the version's day as YYYY-MM-DD. */
-        termsFileName: z.string(),
         /** Button to the order summary the link opens. */
         action: z.string(),
       })
@@ -340,13 +326,6 @@ export const mailTextSchema = z
         /** The reference is appended, as on every other order mail. */
         subject: z.string(),
         preheader: z.string(),
-        referenceLabel: z.string(),
-        totalLabel: z.string(),
-        /** Precedes the reason a declined or cancelled order carries. */
-        reasonLabel: z.string(),
-        /** What the shop changed about the order, in their words
-         * (FR-ORD-03) — one row per change since the last mail. */
-        changedLabel: z.string(),
         /** Said first wherever a mail carries changes: the reader has to know
          * the order itself moved before being told where it stands. */
         changedIntro: z.string(),
@@ -358,13 +337,6 @@ export const mailTextSchema = z
          * message (FR-ORD-05). Only then: a mail that promised an attachment
          * it does not carry is worse than one that says nothing. */
         attachedNote: z.string(),
-        /** Where the order is going, or where it is waiting. Only on the two
-         * `ready` mails: those are the ones whose wording sends the reader
-         * somewhere, and every other status mail would be repeating the
-         * address back for no reason. */
-        deliveryLabel: z.string(),
-        pickupLabel: z.string(),
-        itemsHeading: z.string(),
         action: z.string(),
         statuses: z
           .object({
@@ -397,8 +369,6 @@ export const mailTextSchema = z
         /** The reference is appended, as on every other order mail. */
         subject: z.string(),
         preheader: z.string(),
-        referenceLabel: z.string(),
-        totalLabel: z.string(),
         action: z.string(),
         /** One entry per kind: what arrived, said in the way that kind of
          * document is talked about. */

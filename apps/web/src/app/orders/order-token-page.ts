@@ -13,8 +13,8 @@ import { usePageSeo } from '../core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
-import { orderBlocks } from './order-blocks';
-import { customerBlockLabels, customerQuantity } from './order-view';
+import { orderBlockLabels, orderBlocks } from './order-blocks';
+import { customerQuantity } from './order-view';
 import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
@@ -85,15 +85,13 @@ import { OrdersService } from './orders.service';
                  the order. -->
             @if (order.statusReason; as reason) {
               <p class="mt-1 text-muted">
-                <span class="text-subtle">
-                  {{ orderText.detail.statusReason }}:
-                </span>
+                <span class="text-subtle"> {{ names.reason }}: </span>
                 {{ reason }}
               </p>
             }
             @if (order.changes.length) {
               <div class="mt-1 text-muted">
-                <span class="text-subtle">{{ orderText.detail.changes }}:</span>
+                <span class="text-subtle">{{ names.changeNote }}:</span>
                 @for (change of order.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
@@ -179,7 +177,8 @@ export class OrderTokenPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
-  private readonly statusNames = inject(COMMON_TEXT).order;
+  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = this.commonText.order;
   protected readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.public;
 
@@ -243,11 +242,19 @@ export class OrderTokenPage {
     const order = this.detail();
     if (!order) return [];
 
-    return orderBlocks(order, customerBlockLabels(this.appText), {
-      address: this.config.address,
-      phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
-    });
+    return orderBlocks(
+      order,
+      orderBlockLabels(
+        this.commonText,
+        'customer',
+        this.appText.checkout.review,
+      ),
+      {
+        address: this.config.address,
+        phoneInput: this.config.phoneInput,
+        locale: this.currency.locale,
+      },
+    );
   });
 
   protected placed(order: OrderDetail): string {
@@ -262,7 +269,7 @@ export class OrderTokenPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.statusNames.statuses.customer,
+      this.names.statuses.customer,
     );
   }
 
@@ -273,7 +280,7 @@ export class OrderTokenPage {
   protected paymentLabel(order: OrderDetail): string | null {
     return orderPaymentLabel(
       order.paymentState,
-      this.statusNames.paymentStates.customer,
+      this.names.paymentStates.customer,
     );
   }
 

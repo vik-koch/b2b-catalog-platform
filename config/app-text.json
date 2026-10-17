@@ -229,8 +229,6 @@
       "unknown": "We will confirm delivery to this address with you."
     },
     "timing": {
-      "deliveryLabel": "Preferred delivery date",
-      "pickupLabel": "Preferred collection date",
       "placeholder": "Select a date…",
       "deliveryHint": "Your preference only: the actual delivery date will be confirmed by a manager.",
       "pickupHint": "Your preference only: the actual collection date will be confirmed by a manager.",
@@ -238,12 +236,9 @@
     },
     "payment": {
       "heading": "How would you like to pay?",
-      "cashTitle": "Cash",
       "cashDeliveryDescription": "Pay when you receive your order.",
       "cashPickupDescription": "Pay when you collect your order.",
-      "transferTitle": "Bank transfer",
       "transferDescription": "We invoice you with our bank details once we confirm your order.",
-      "cardTitle": "Card, arranged with the shop",
       "transferCompanyOnly": "Only for an order invoiced to a company.",
       "cashPersonOnly": "Only for an order invoiced to a private person."
     },
@@ -254,15 +249,10 @@
     "review": {
       "title": "Check your order",
       "intro": "Nothing has been sent yet. Read it over, and send it when it is right.",
-      "items": "Your items",
       "quantity": "{qty} {unit}",
       "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
-      "fulfilment": "How it arrives",
-      "invoice": "Who we invoice",
       "billingSame": "Invoiced to the same address.",
       "whenAny": "As soon as you can",
-      "payment": "How it is paid",
-      "note": "Your note",
       "back": "Change something",
       "backToCart": "Back to cart",
       "send": "Review and send"
@@ -292,8 +282,6 @@
     },
     "fulfilment": {
       "heading": "How would you like to receive your order?",
-      "deliveryTitle": "Delivery",
-      "pickupTitle": "Self-pickup",
       "pickupDescription": "Collect your order yourself for free.",
       "conditionsLink": "Delivery conditions",
       "conditionsHeading": "Where we deliver",
@@ -325,12 +313,9 @@
     "back": "Back to my account",
     "detail": {
       "placed": "Sent {date}",
-      "contact": "Who we ask for",
       "notFound": "We cannot find that order on your account.",
       "backToList": "Back to my orders",
       "error": "We could not load that order right now. Please try again later.",
-      "statusReason": "Why",
-      "changes": "What we changed",
       "cancel": {
         "action": "Cancel this order",
         "heading": "Cancel this order?",

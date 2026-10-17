@@ -1019,10 +1019,8 @@
     "placed": "Sent {date}",
     "back": "Back to orders",
     "guestView": "Open what they see",
-    "termsVersion": "Version {version}, updated on {date}",
     "billingSame": "Invoiced to the same address.",
     "whenAny": "As soon as possible",
-    "note": "Customer note",
     "notifyHint": "They are sent the order as it now stands, together with anything the shop has noted since the last message.",
     "pieceLine": "{count} × {price}",
     "revisions": {
@@ -1201,7 +1199,6 @@
       "suggestionCount": "Company suggestions: {count}"
     },
     "reprice": "Reprice from this list",
-    "pickupLocation": "Collection point",
     "detailsHeading": "Delivery, invoice and contact",
     "billingAddress": "Invoice address",
     "customerHeading": "What the customer asked for",

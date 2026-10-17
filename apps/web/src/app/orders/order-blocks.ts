@@ -40,7 +40,7 @@ export interface OrderBlockLabels {
 export function orderBlockLabels(
   names: CommonText,
   reader: 'customer' | 'staff',
-  view: Pick<OrderBlockLabels, 'billingSame' | 'whenAny' | 'note'>,
+  view: Pick<OrderBlockLabels, 'billingSame' | 'whenAny'>,
 ): OrderBlockLabels {
   const order = names.order;
   return {
@@ -54,6 +54,7 @@ export function orderBlockLabels(
     pickupDate: order.preferredPickup,
     payment: order.payment,
     contact: order.contact,
+    note: order.note[reader],
   };
 }
 

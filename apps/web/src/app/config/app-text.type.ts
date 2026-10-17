@@ -597,8 +597,6 @@ export const appTextSchema = z
          */
         timing: z
           .object({
-            deliveryLabel: z.string(),
-            pickupLabel: z.string(),
             /** What an empty field says. A native date input cannot take a
              * `placeholder`, and what it draws instead is a different thing in
              * every engine — "dd.mm.yyyy" on a desktop, an empty box on iOS —
@@ -622,17 +620,11 @@ export const appTextSchema = z
         payment: z
           .object({
             heading: z.string(),
-            cashTitle: z.string(),
             /** Cash is paid at the hand-over, which is a different moment
              * depending on who is doing the travelling. */
             cashDeliveryDescription: z.string(),
             cashPickupDescription: z.string(),
-            transferTitle: z.string(),
             transferDescription: z.string(),
-            /** A card payment arranged with the shop. Never offered at
-             * checkout — a manager sets it while answering the order — but the
-             * order still has to read it back. */
-            cardTitle: z.string(),
             /** Why the option is there but cannot be taken: a bank transfer
              * invoices a legal entity, so it needs a company party. Said at
              * the row rather than refused after the form is filled. */
@@ -664,22 +656,17 @@ export const appTextSchema = z
             /** Says nothing has gone anywhere yet: the whole point of the
              * screen is that this is the last reversible moment. */
             intro: z.string(),
-            items: z.string(),
             /** `{qty} {unit}` — a line's quantity as its own unit reads it. */
             quantity: z.string(),
             /** The same, for a line bought by the pack or the box: what that
              * comes to in pieces is what the shop picks and the customer
              * receives, and a review is where it is worth stating. */
             quantityPieces: z.string(),
-            fulfilment: z.string(),
-            invoice: z.string(),
             /** Where the invoice goes to the delivery address, said instead of
              * printing the same four lines twice. */
             billingSame: z.string(),
             /** No date asked for, which is an answer rather than a blank. */
             whenAny: z.string(),
-            payment: z.string(),
-            note: z.string(),
             /** Back to the form. Not "edit": there is one form and this is a
              * look at it, not a separate document. */
             back: z.string(),
@@ -741,11 +728,6 @@ export const appTextSchema = z
         fulfilment: z
           .object({
             heading: z.string(),
-            /** Delivery gets no sentence: what it means is not in question,
-             * and the conditions link under it is the answer to the only
-             * thing that is. */
-            deliveryTitle: z.string(),
-            pickupTitle: z.string(),
             pickupDescription: z.string(),
             /** Opens the zone list, which the conditions page also shows. */
             conditionsLink: z.string(),
@@ -824,18 +806,10 @@ export const appTextSchema = z
           .object({
             /** `{date}` the request was sent. */
             placed: z.string(),
-            contact: z.string(),
             /** Somebody else's reference, or one that never existed —
              * the API tells the two apart for nobody. */
             notFound: z.string(),
             backToList: z.string(),
-            /** Precedes the reason a declined or cancelled order carries. */
-            statusReason: z.string(),
-            /** What the shop changed about the order, in their words
-             * (FR-ORD-03) — shown beside where the order stands, because an
-             * order that changed without a word about why is the one thing an
-             * adjustment must never be. */
-            changes: z.string(),
             /**
              * What the customer can open on the order (FR-ORD-05): the
              * summary the shop draws, and the payment details where it has

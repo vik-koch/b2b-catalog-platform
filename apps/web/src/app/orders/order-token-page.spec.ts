@@ -127,7 +127,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
       defaultCommonText.order.statuses.customer.requested,
     );
     expect(el.textContent).toContain('2 pk (12 pcs)');
-    expect(el.textContent).toContain(defaultAppText.checkout.review.invoice);
+    expect(el.textContent).toContain(defaultCommonText.order.invoicedTo);
   });
 
   // Approval takes days, so the account is offered here rather than between a
