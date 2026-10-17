@@ -34,10 +34,10 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
   needs it, rather than injected into every visitor's document (ADR 0009,
   amendment 2). Non-secret, like everything else on this side of the line.
-- `mail-text.json` → `MailText`, the wording the **API** renders: every email
-  the app sends, one section per message, plus the order summary it draws as a
-  PDF (`orderSummaryPdf`). **Server-only** — rendered in the API, never sent to
-  a browser. The branding (shop name, header colour), the typeface and the
+- `mail-text.json` → `MailText`, every email the app sends, one section per
+  message. **Server-only** — rendered in the API, never sent to a browser.
+- `pdf-text.json` → `PdfText`, the order summary the API draws as a PDF.
+  **Server-only**, like the mail text. The branding (shop name, header colour), the typeface and the
   money formatting come from `deployment.json`.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
@@ -48,6 +48,7 @@ DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api
 APP_TEXT_FILE=/config/app-text.json              # web
 ADMIN_TEXT_FILE=/config/admin-text.json          # web
 MAIL_TEXT_FILE=/config/mail-text.json            # api
+PDF_TEXT_FILE=/config/pdf-text.json              # api
 COMMON_TEXT_FILE=/config/common-text.json        # web + api
 ```
 
@@ -169,7 +170,7 @@ is not: the receipt then carries the accepted version as a PDF, named by
 an EU shop would. The PDF is set in the same face as the order summary, so a
 deployment writing in a non-Latin script needs `branding.font.pdf` for it too.
 
-The order summary prints `orderSummaryPdf.returnNotice` from `mail-text.json`
+The order summary prints `orderSummary.returnNotice` from `pdf-text.json`
 under the total, where it is set: the summary is the paper handed over with the
 goods, so it can tell the customer in writing how to return them. Leave the key
 out to print nothing.
@@ -329,6 +330,7 @@ config/
   app-text.json        # web public text   (browser-delivered)
   admin-text.json      # web admin text    (fetched by admins)
   mail-text.json       # api email wording (server-only)
+  pdf-text.json        # api PDF wording   (server-only)
   password-blocklist.txt # api password rules  (server-only)
   assets/
     logo.svg

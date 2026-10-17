@@ -1,4 +1,8 @@
-import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  CommonText,
+  MoneyFormat,
+} from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import {
@@ -23,6 +27,7 @@ export function orderCancelledMail(
   order: AdminOrderDetail,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.orderCancelled;
 
@@ -47,12 +52,12 @@ export function orderCancelledMail(
       { label: t.reasonLabel, value: order.statusReason ?? t.reasonNone },
       {
         label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        value: orderMailTotal(order, currency, common),
       },
     ],
     itemsHeading: t.itemsHeading,
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+      orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),
     action: { label: t.action, path: `/admin/orders/${order.reference}` },
   };

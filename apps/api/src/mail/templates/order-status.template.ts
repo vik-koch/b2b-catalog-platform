@@ -1,4 +1,5 @@
 import {
+  CommonText,
   MoneyFormat,
   OrderDetail,
   OrderNotice,
@@ -100,6 +101,7 @@ export function orderStatusChangedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
   /** What the shop said about every change made since this customer was last
    * written to, oldest first. Empty where nothing about the order changed. */
   changes: readonly string[] = [],
@@ -147,12 +149,12 @@ export function orderStatusChangedMail(
         : []),
       {
         label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        value: orderMailTotal(order, currency, common),
       },
     ],
     itemsHeading: t.itemsHeading,
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+      orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),
     action: {
       label: t.action,

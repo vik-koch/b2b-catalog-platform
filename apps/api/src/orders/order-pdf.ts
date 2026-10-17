@@ -6,6 +6,7 @@ import {
 } from '../mail/templates/order-items';
 import {
   addressLines,
+  CommonText,
   fillText,
   formatMoneyMinor,
   MoneyFormat,
@@ -21,8 +22,9 @@ import {
   ORDER_REFERENCE_CONFIG,
 } from '../config/deployment-config';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
-import { MAIL_TEXT, MailText } from '../mail/mail-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { PdfFaces } from '../pdf/pdf-faces';
+import { PDF_TEXT, PdfText } from '../pdf/pdf-text';
 import { Sheet } from '../pdf/pdf-sheet';
 import { shopDay } from './shop-day';
 
@@ -42,7 +44,8 @@ import { shopDay } from './shop-day';
 @Injectable()
 export class OrderPdf {
   constructor(
-    @Inject(MAIL_TEXT) private readonly text: MailText,
+    @Inject(PDF_TEXT) private readonly text: PdfText,
+    @Inject(COMMON_TEXT) private readonly common: CommonText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ADDRESS_CONFIG) private readonly address: AddressConfig | undefined,
@@ -52,7 +55,7 @@ export class OrderPdf {
   ) {}
 
   async orderSummary(order: OrderDetail): Promise<Buffer> {
-    const t = this.text.orderSummaryPdf;
+    const t = this.text.orderSummary;
     const pdf = await PDFDocument.create();
     const { faces, encode } = await this.faces.embed(pdf);
 
@@ -112,7 +115,7 @@ export class OrderPdf {
       [t.itemsLabel, t.quantityLabel, t.lineTotalLabel],
       order.lines.map((line) => {
         const rate = perLineTax
-          ? orderLineTax(line, this.currency.locale, this.text)
+          ? orderLineTax(line, this.currency.locale, this.common)
           : null;
         return [
           [line.name, rate, line.note].filter(Boolean).join('\n'),
@@ -124,7 +127,7 @@ export class OrderPdf {
     sheet.total(
       t.totalLabel,
       formatMoneyMinor(order.totalMinor, this.currency),
-      orderTaxStatement(order, this.currency.locale, this.text),
+      orderTaxStatement(order, this.currency.locale, this.common),
     );
     if (t.returnNotice) {
       sheet.gap(16);
@@ -137,7 +140,7 @@ export class OrderPdf {
 
   /** How the order is paid, and whether it has been. */
   private payment(order: OrderDetail): string {
-    const t = this.text.orderSummaryPdf;
+    const t = this.text.orderSummary;
     const method = {
       cash: t.payments.cash,
       'bank-transfer': t.payments.bankTransfer,
@@ -157,13 +160,13 @@ export class OrderPdf {
    * reason: the document is read beside goods somebody is counting.
    */
   private quantity(line: OrderDetail['lines'][number]): string {
-    const units = this.text.common.units;
+    const units = this.common.units;
     return line.unit === 'piece'
-      ? fillText(this.text.common.quantity, {
+      ? fillText(this.common.quantity, {
           qty: line.quantity,
           unit: units.piece,
         })
-      : fillText(this.text.common.quantityPieces, {
+      : fillText(this.common.quantityPieces, {
           qty: line.quantity,
           unit: units[line.unit],
           pieces: line.pieces,

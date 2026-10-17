@@ -2,7 +2,7 @@ import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { MailDispatcher } from '../mail/mail-dispatcher';
-import { demoMailText } from '../mail/mail-text.fixture';
+import { demoCommonText, demoMailText } from '../mail/mail-text.fixture';
 import { env } from '../env';
 import { OrderNotifications } from './order-notifications';
 import { demoAdminOrder } from './order.fixture';
@@ -34,10 +34,16 @@ describe('OrderNotifications', () => {
       // The failure paths log; the assertions are about what survives them.
     });
     mail = dispatcherOver(send);
-    notifications = new OrderNotifications(mail, demoMailText, currency, {
-      prefix: 'CK',
-      timezone: 'UTC',
-    });
+    notifications = new OrderNotifications(
+      mail,
+      demoMailText,
+      demoCommonText,
+      currency,
+      {
+        prefix: 'CK',
+        timezone: 'UTC',
+      },
+    );
   });
 
   afterEach(() => error.mockRestore());

@@ -94,33 +94,6 @@ export const mailTextSchema = z
         footerNote: z.string(),
         /** Shown under any set-a-password link, next to its button. */
         linkExpiry: z.string(),
-        /**
-         * How a quantity reads in a mail. A unit is a lens on a piece count
-         * (FR-UNIT-01), so anything but the piece states both figures — a mail
-         * is read months later, beside goods somebody is counting.
-         */
-        units: z
-          .object({ piece: z.string(), pack: z.string(), box: z.string() })
-          .strict(),
-        quantity: z.string(),
-        quantityPieces: z.string(),
-        /**
-         * The tax basis under an order's total (NFR-LEGAL-11), worded as the
-         * storefront words it. `{rate}` is the rate every line shares; the
-         * `mixed` forms stand where the lines differ, and each line then
-         * states its own as `line`.
-         */
-        tax: z
-          .object({
-            included: z.string(),
-            added: z.string(),
-            none: z.string(),
-            mixed: z
-              .object({ included: z.string(), added: z.string() })
-              .strict(),
-            line: z.string(),
-          })
-          .strict(),
       })
       .strict(),
     /** The email the inquiry form sends to the shop (FR-NAV-06). */
@@ -456,73 +429,6 @@ export const mailTextSchema = z
           .object({
             paymentInstructions: statusMailText,
             orderSummary: statusMailText,
-          })
-          .strict(),
-      })
-      .strict(),
-    /**
-     * The wording of the order summary the API draws (FR-ORD-05, FR-ACC-02).
-     *
-     * Server-side like the mails and for the same reason: this text is
-     * rendered by the API into a file, never delivered to a browser. It is not
-     * the admin's or the storefront's wording, and a document is read long
-     * after both.
-     */
-    orderSummaryPdf: z
-      .object({
-        /** Carries `{reference}`. */
-        title: z.string(),
-        placedLabel: z.string(),
-        statusLabel: z.string(),
-        paymentLabel: z.string(),
-        invoiceLabel: z.string(),
-        deliveryLabel: z.string(),
-        pickupLabel: z.string(),
-        whenLabel: z.string(),
-        /** Where the customer named no date. */
-        whenAny: z.string(),
-        contactLabel: z.string(),
-        noteLabel: z.string(),
-        /** The shop's account of what it changed (FR-ORD-03), where there is
-         * one. A document that left them out would state a total the customer
-         * could not account for. */
-        changesLabel: z.string(),
-        itemsLabel: z.string(),
-        quantityLabel: z.string(),
-        lineTotalLabel: z.string(),
-        totalLabel: z.string(),
-        /** As in `orderReceived`. */
-        termsLabel: z.string(),
-        termsVersion: z.string(),
-        /** How to return the goods, printed under the total (NFR-LEGAL-10):
-         * the summary is the paper handed over with them. Absent, nothing is
-         * printed. */
-        returnNotice: z.string().optional(),
-        /** Printed at the foot of every page: what this document is, and what
-         * it is not (ADR 0052). */
-        footer: z.string(),
-        statuses: z
-          .object({
-            requested: z.string(),
-            approved: z.string(),
-            ready: z.string(),
-            completed: z.string(),
-            declined: z.string(),
-            cancelled: z.string(),
-          })
-          .strict(),
-        payments: z
-          .object({
-            cash: z.string(),
-            bankTransfer: z.string(),
-            cardLater: z.string(),
-          })
-          .strict(),
-        paymentStates: z
-          .object({
-            notDue: z.string(),
-            awaiting: z.string(),
-            paid: z.string(),
           })
           .strict(),
       })

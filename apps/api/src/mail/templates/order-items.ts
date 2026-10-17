@@ -1,4 +1,5 @@
 import {
+  CommonText,
   fillText,
   formatMoneyMinor,
   formatTaxRate,
@@ -7,7 +8,6 @@ import {
   sharedTaxRate,
 } from '@b2b-catalog-platform/shared';
 import { MailItem } from '../mail-layout';
-import { MailText } from '../mail-text';
 
 /**
  * A line as both order mails state it, from the order's own snapshots: the
@@ -18,25 +18,25 @@ import { MailText } from '../mail-text';
 export function orderMailItem(
   line: OrderDetail['lines'][number],
   currency: MoneyFormat,
-  text: MailText,
+  common: CommonText,
   /** Whether the order's lines differ in rate, so each states its own. */
   perLineTax = false,
 ): MailItem {
-  const units = text.common.units;
+  const units = common.units;
   const quantity =
     line.unit === 'piece'
-      ? fillText(text.common.quantity, {
+      ? fillText(common.quantity, {
           qty: line.quantity,
           unit: units.piece,
         })
-      : fillText(text.common.quantityPieces, {
+      : fillText(common.quantityPieces, {
           qty: line.quantity,
           unit: units[line.unit],
           pieces: line.pieces,
           pieceUnit: units.piece,
         });
 
-  const rate = perLineTax ? orderLineTax(line, currency.locale, text) : null;
+  const rate = perLineTax ? orderLineTax(line, currency.locale, common) : null;
 
   return {
     name: line.name,
@@ -65,9 +65,9 @@ export function orderLinesDifferInTax(order: OrderDetail): boolean {
 export function orderTaxStatement(
   order: OrderDetail,
   locale: string | undefined,
-  text: MailText,
+  common: CommonText,
 ): string {
-  const tax = text.common.tax;
+  const tax = common.tax;
   if (order.taxBasis === 'none') return tax.none;
   const shared = sharedTaxRate(order.lines.map((line) => line.taxRate));
   return shared === null || shared === undefined
@@ -79,11 +79,11 @@ export function orderTaxStatement(
 export function orderLineTax(
   line: OrderDetail['lines'][number],
   locale: string | undefined,
-  text: MailText,
+  common: CommonText,
 ): string | null {
   return line.taxRate === null
     ? null
-    : fillText(text.common.tax.line, {
+    : fillText(common.tax.line, {
         rate: formatTaxRate(line.taxRate, locale),
       });
 }
@@ -92,8 +92,8 @@ export function orderLineTax(
 export function orderMailTotal(
   order: OrderDetail,
   currency: MoneyFormat,
-  text: MailText,
+  common: CommonText,
 ): string {
   const total = formatMoneyMinor(order.totalMinor, currency);
-  return `${total} · ${orderTaxStatement(order, currency.locale, text)}`;
+  return `${total} · ${orderTaxStatement(order, currency.locale, common)}`;
 }

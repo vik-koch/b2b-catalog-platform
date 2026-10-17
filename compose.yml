@@ -67,6 +67,9 @@ services:
       # mount below; the branding on those mails comes from the same mount's
       # deployment.json, and APP_ORIGIN makes their links absolute.
       MAIL_TEXT_FILE: ${MAIL_TEXT_FILE:-/config/mail-text.json}
+      # The order summary's wording, and the names mail, the summary and the
+      # web share.
+      PDF_TEXT_FILE: ${PDF_TEXT_FILE:-/config/pdf-text.json}
       COMMON_TEXT_FILE: ${COMMON_TEXT_FILE:-/config/common-text.json}
       # Optional common-password blocklist; unset means none (see .env.example).
       PASSWORD_BLOCKLIST_FILE: ${PASSWORD_BLOCKLIST_FILE:-/config/password-blocklist.txt}

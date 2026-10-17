@@ -1,6 +1,6 @@
 import { MoneyFormat } from '@b2b-catalog-platform/shared';
 import { demoAdminOrder as order } from '../../orders/order.fixture';
-import { demoMailText } from '../mail-text.fixture';
+import { demoCommonText, demoMailText } from '../mail-text.fixture';
 import { newOrderMail } from './new-order.template';
 import { orderReceivedMail } from './order-received.template';
 import { orderStatusChangedMail } from './order-status.template';
@@ -15,6 +15,7 @@ describe('orderReceivedMail', () => {
     'tok-123',
     currency,
     demoMailText,
+    demoCommonText,
     'UTC',
   );
 
@@ -34,7 +35,14 @@ describe('orderReceivedMail', () => {
   // An account holder can already open the order signed in, so no capability
   // URL is mailed for it — and the token page is written for a stranger.
   it('links an account holder to their own order page instead', () => {
-    const mine = orderReceivedMail(order, null, currency, demoMailText, 'UTC');
+    const mine = orderReceivedMail(
+      order,
+      null,
+      currency,
+      demoMailText,
+      demoCommonText,
+      'UTC',
+    );
 
     expect(mine.action).toEqual({
       label: t.action,
@@ -66,7 +74,7 @@ describe('orderReceivedMail', () => {
   it('names the rate its lines share after the total, and no line rate', () => {
     expect(mail.rows).toContainEqual({
       label: t.totalLabel,
-      value: expect.stringMatching(/126,00.* · incl\. 19 % VAT$/),
+      value: expect.stringMatching(/126,00.* · incl\. 19\u00a0% VAT$/),
     });
     expect(mail.items?.[1].quantity).toBe('3 pcs');
   });
@@ -80,6 +88,7 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
       'UTC',
     );
 
@@ -89,7 +98,7 @@ describe('orderReceivedMail', () => {
         '· incl. VAT at the rate each item states',
       ),
     });
-    expect(mixed.items?.[1].quantity).toBe('3 pcs · 7 % VAT');
+    expect(mixed.items?.[1].quantity).toBe('3 pcs · 7\u00a0% VAT');
   });
 
   it('says no tax is charged on an order submitted under that basis', () => {
@@ -102,6 +111,7 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
       'UTC',
     );
 
@@ -117,6 +127,7 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
       'Europe/Berlin',
     );
 
@@ -132,6 +143,7 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
       'UTC',
     );
 
@@ -141,7 +153,7 @@ describe('orderReceivedMail', () => {
 
 describe('newOrderMail', () => {
   const t = demoMailText.newOrder;
-  const mail = newOrderMail(order, currency, demoMailText);
+  const mail = newOrderMail(order, currency, demoMailText, demoCommonText);
 
   // What a manager decides on before opening anything, read on a phone.
   it('carries who it is for, who to ring and what it comes to', () => {
@@ -177,6 +189,7 @@ describe('newOrderMail', () => {
       { ...order, customerEmail: null },
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(guest.rows).toContainEqual({
@@ -195,6 +208,7 @@ describe('newOrderMail', () => {
       },
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(pickup.rows).toContainEqual({
@@ -221,6 +235,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(mail.heading).toBe(t.statuses.readyDelivery.heading);
@@ -244,6 +259,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(mail.heading).toBe(t.statuses.readyPickup.heading);
@@ -263,6 +279,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(JSON.stringify(mail.rows)).not.toContain('Hafenstraße');
@@ -278,6 +295,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(mail.rows).toContainEqual({
@@ -297,6 +315,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
       ['One box instead of two, as agreed.'],
     );
 
@@ -320,6 +339,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
+      demoCommonText,
     );
 
     expect(mail.heading).toBe(t.statuses.approved.heading);

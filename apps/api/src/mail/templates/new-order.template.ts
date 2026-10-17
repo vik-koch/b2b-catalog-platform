@@ -1,4 +1,8 @@
-import { AdminOrderDetail, MoneyFormat } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  CommonText,
+  MoneyFormat,
+} from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import { orderMailItem, orderMailTotal } from './order-items';
@@ -16,6 +20,7 @@ export function newOrderMail(
   order: AdminOrderDetail,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.newOrder;
   const party = order.party.registrationId
@@ -58,14 +63,14 @@ export function newOrderMail(
       },
       {
         label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        value: orderMailTotal(order, currency, common),
       },
     ],
     itemsHeading: t.itemsHeading,
     // Staff read every line's rate, shared or not: it is what a line
     // reconciles against the shop's own invoice by.
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, order.taxBasis !== 'none'),
+      orderMailItem(line, currency, common, order.taxBasis !== 'none'),
     ),
     action: { label: t.action, path: `/admin/orders/${order.reference}` },
   };

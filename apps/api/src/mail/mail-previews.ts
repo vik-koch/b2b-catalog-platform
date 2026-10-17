@@ -6,8 +6,9 @@ import {
 } from '@b2b-catalog-platform/shared';
 import type { MailBranding } from './mail-branding';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
-import { demoMailText } from './mail-text.fixture';
+import { demoCommonText, demoMailText } from './mail-text.fixture';
 import type { MailText } from './mail-text';
+import type { CommonText } from '@b2b-catalog-platform/shared';
 import { demoAdminOrder } from '../orders/order.fixture';
 import { accountDeletedMail } from './templates/account-deleted.template';
 import { inquiryMail } from './templates/inquiry.template';
@@ -275,7 +276,10 @@ const ORDERS_APPLIED_RUN: SyncRun = {
  * (the generator) — which is what makes this gallery a way to proof-read a
  * translation without sending a single message.
  */
-export function buildMailPreviews(text: MailText): readonly MailPreview[] {
+export function buildMailPreviews(
+  text: MailText,
+  common: CommonText,
+): readonly MailPreview[] {
   return [
     {
       slug: 'inquiry',
@@ -391,21 +395,21 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
       shows: 'receipt',
       title: 'Order received — guest',
       note: 'The receipt. For a guest the token link is the only record of what they sent.',
-      content: orderReceivedMail(order, TOKEN, currency, text, 'UTC'),
+      content: orderReceivedMail(order, TOKEN, currency, text, common, 'UTC'),
     },
     {
       slug: 'order-received-account',
       group: 'Orders',
       title: 'Order received — account holder',
       note: 'The same receipt without a capability link: they can open the order signed in.',
-      content: orderReceivedMail(order, null, currency, text, 'UTC'),
+      content: orderReceivedMail(order, null, currency, text, common, 'UTC'),
     },
     {
       slug: 'new-order',
       group: 'Orders',
       title: 'New order (to the shop)',
       note: 'The staff notification, linking into the admin order view.',
-      content: newOrderMail(order, currency, text),
+      content: newOrderMail(order, currency, text, common),
     },
     {
       slug: 'order-cancelled-staff',
@@ -416,6 +420,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         { ...order, status: 'cancelled', statusReason: CUSTOMER_REASON },
         currency,
         text,
+        common,
       ),
     },
     {
@@ -431,6 +436,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -446,6 +452,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
         [],
         true,
       ),
@@ -463,6 +470,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -478,6 +486,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -493,6 +502,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -508,6 +518,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -523,6 +534,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -538,6 +550,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -552,6 +565,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
     {
@@ -567,6 +581,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
         CHANGES,
       ),
     },
@@ -582,6 +597,7 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         TOKEN,
         currency,
         text,
+        common,
         CHANGES,
       ),
     },
@@ -669,13 +685,14 @@ export function buildMailPreviews(text: MailText): readonly MailPreview[] {
         null,
         currency,
         text,
+        common,
       ),
     },
   ];
 }
 
 /** The demo set, which is what the specs assert against. */
-export const mailPreviews = buildMailPreviews(demoMailText);
+export const mailPreviews = buildMailPreviews(demoMailText, demoCommonText);
 
 /**
  * Which preview shows the message an order journey names. Derived rather than
@@ -696,9 +713,10 @@ export interface RenderedMailPreview extends MailPreview {
 /** The previews as a recipient would receive them, both parts. */
 export function renderMailPreviews(
   text: MailText = demoMailText,
+  common: CommonText = demoCommonText,
   branding: MailBranding = demoMailBranding,
 ): readonly RenderedMailPreview[] {
-  return buildMailPreviews(text).map((preview) => ({
+  return buildMailPreviews(text, common).map((preview) => ({
     ...preview,
     rendered: renderMail(preview.content, branding, text.common.footerNote),
   }));

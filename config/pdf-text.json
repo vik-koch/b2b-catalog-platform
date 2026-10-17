@@ -1,0 +1,42 @@
+{
+  "orderSummary": {
+    "title": "Order {reference}",
+    "placedLabel": "Placed",
+    "statusLabel": "Status",
+    "paymentLabel": "Payment",
+    "invoiceLabel": "Invoiced to",
+    "deliveryLabel": "Delivery address",
+    "pickupLabel": "Collect from",
+    "whenLabel": "Preferred date",
+    "whenAny": "No date given",
+    "contactLabel": "Contact",
+    "noteLabel": "Your note",
+    "changesLabel": "What we changed",
+    "itemsLabel": "Item",
+    "quantityLabel": "Quantity",
+    "lineTotalLabel": "Total",
+    "totalLabel": "Order total",
+    "termsLabel": "Terms of sale",
+    "termsVersion": "As updated on {date}",
+    "returnNotice": "Unopened goods can be returned within 14 days of delivery. Write to us naming the order reference; the terms of sale set out the details.",
+    "footer": "This document states the order as it stands. It is not an invoice.",
+    "statuses": {
+      "requested": "Requested",
+      "approved": "Confirmed",
+      "ready": "Ready",
+      "completed": "Completed",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    },
+    "payments": {
+      "cash": "Cash",
+      "bankTransfer": "Bank transfer",
+      "cardLater": "Card, arranged with us"
+    },
+    "paymentStates": {
+      "notDue": "Nothing due yet",
+      "awaiting": "Awaiting payment",
+      "paid": "Paid"
+    }
+  }
+}

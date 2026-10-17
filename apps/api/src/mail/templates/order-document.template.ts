@@ -1,4 +1,5 @@
 import {
+  CommonText,
   MoneyFormat,
   OrderDetail,
   OrderDocumentKind,
@@ -26,6 +27,7 @@ export function orderDocumentMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.orderDocument;
   const wording =
@@ -42,7 +44,7 @@ export function orderDocumentMail(
       { label: t.referenceLabel, value: order.reference },
       {
         label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        value: orderMailTotal(order, currency, common),
       },
     ],
     action: {

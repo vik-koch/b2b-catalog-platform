@@ -1,4 +1,5 @@
 import {
+  CommonText,
   fillText,
   MoneyFormat,
   OrderDetail,
@@ -32,6 +33,7 @@ export function orderReceivedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
+  common: CommonText,
   /** The shop's timezone, which the terms' date is read in. */
   timeZone: string,
 ): MailContent {
@@ -53,7 +55,7 @@ export function orderReceivedMail(
       },
       {
         label: t.totalLabel,
-        value: orderMailTotal(order, currency, text),
+        value: orderMailTotal(order, currency, common),
       },
       ...(order.termsDate
         ? [
@@ -68,7 +70,7 @@ export function orderReceivedMail(
     ],
     itemsHeading: t.itemsHeading,
     items: order.lines.map((line) =>
-      orderMailItem(line, currency, text, orderLinesDifferInTax(order)),
+      orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),
     action: {
       label: t.action,
