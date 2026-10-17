@@ -87,7 +87,7 @@ export class StaticPage {
    * role are both known — see editAwareContent. */
   private readonly content = editAwareContent({
     ready: computed(() => this.page() !== undefined),
-    section: 'pageEditor',
+    section: 'pages',
   });
   protected readonly ready = this.content.ready;
   protected readonly canEdit = this.content.controls;

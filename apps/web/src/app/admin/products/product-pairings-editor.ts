@@ -199,7 +199,7 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.pairings;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
   protected readonly product = inject(COMMON_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;

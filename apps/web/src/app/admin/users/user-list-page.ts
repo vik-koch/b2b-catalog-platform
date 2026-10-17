@@ -267,7 +267,7 @@ export class UserListPage {
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);
-  protected readonly text = inject(ADMIN_TEXT).userList;
+  protected readonly text = inject(ADMIN_TEXT).users.list;
   protected readonly fields = inject(COMMON_TEXT).fields;
   private readonly kinds = inject(COMMON_TEXT).partyKind;
   protected readonly defaultSort = DEFAULT_USER_SORT;

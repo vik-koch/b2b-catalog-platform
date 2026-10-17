@@ -374,7 +374,7 @@ type EditTarget = { id: string } | { id: null } | null;
 export class AttributeListPage {
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).attributeList;
+  protected readonly text = inject(ADMIN_TEXT).attributes.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;

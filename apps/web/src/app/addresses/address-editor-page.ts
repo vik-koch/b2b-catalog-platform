@@ -65,7 +65,7 @@ export class AddressEditorPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.addresses;
+  protected readonly text = inject(APP_TEXT).account.addresses;
   protected readonly common = inject(APP_TEXT).common;
   private readonly fieldText = inject(APP_TEXT).address;
 

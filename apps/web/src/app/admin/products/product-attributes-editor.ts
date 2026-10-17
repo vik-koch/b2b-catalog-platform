@@ -280,7 +280,7 @@ import {
 })
 export class ProductAttributesEditor {
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:
    * the action glyphs are already finger-sized a breakpoint earlier, and four
    * of them plus two cells do not fit the table between the two. */

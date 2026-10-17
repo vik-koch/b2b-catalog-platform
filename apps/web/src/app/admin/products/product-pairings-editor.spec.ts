@@ -12,7 +12,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { AdminCatalogService } from '../admin-catalog.service';
 import { ProductPairingsEditor } from './product-pairings-editor';
 
-const text = defaultAdminText.productEditor.pairings;
+const text = defaultAdminText.products.editor.pairings;
 
 const listItem = (
   overrides: Partial<AdminProductListItem> & { slug: string; name: string },

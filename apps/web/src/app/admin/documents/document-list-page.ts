@@ -289,7 +289,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
 export class DocumentListPage {
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).documentList;
+  protected readonly text = inject(ADMIN_TEXT).documents.list;
   private readonly sizes = inject(COMMON_TEXT).fileSize;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;

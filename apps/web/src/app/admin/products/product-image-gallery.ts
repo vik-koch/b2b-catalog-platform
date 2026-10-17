@@ -178,7 +178,7 @@ import { MediaService } from '../media/media.service';
 export class ProductImageGallery {
   private readonly media = inject(MediaService);
   private readonly framer = inject(ImageFramerService);
-  protected readonly text = inject(ADMIN_TEXT).productEditor.images;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.images;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
   protected readonly tileHint = fillText(this.common.imageTileHint, {

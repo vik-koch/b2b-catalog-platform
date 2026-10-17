@@ -409,14 +409,14 @@ export class UserEditorPage implements UnsavedChangesAware {
   private readonly auth = inject(AuthService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
-  protected readonly text = inject(ADMIN_TEXT).userEditor;
+  protected readonly text = inject(ADMIN_TEXT).users.editor;
   protected readonly fields = staffFields(
     inject(COMMON_TEXT).fields,
     inject(ADMIN_TEXT).fields,
   );
   private readonly kinds = inject(COMMON_TEXT).partyKind;
   /** Shared vocabulary — the same words the list uses for the same things. */
-  protected readonly listText = inject(ADMIN_TEXT).userList;
+  protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
     { value: 'person', label: this.kinds.person },
     { value: 'company', label: this.kinds.company },

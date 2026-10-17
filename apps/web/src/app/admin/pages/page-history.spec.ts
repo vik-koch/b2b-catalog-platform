@@ -9,7 +9,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { PageService } from '../../pages/page.service';
 import { PageHistory } from './page-history';
 
-const text = defaultAdminText.pageEditor.history;
+const text = defaultAdminText.pages.history;
 
 const version = (n: number, extra: Partial<PageVersion> = {}): PageVersion => ({
   version: n,

@@ -19,7 +19,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
 
-const text = defaultAdminText.userList;
+const text = defaultAdminText.users.list;
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {

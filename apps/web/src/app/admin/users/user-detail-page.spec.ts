@@ -21,9 +21,9 @@ import { ConfirmAnswer } from '../../ui/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 
-const text = defaultAdminText.userDetail;
-const listText = defaultAdminText.userList;
-const editorText = defaultAdminText.userEditor;
+const text = defaultAdminText.users.detail;
+const listText = defaultAdminText.users.list;
+const editorText = defaultAdminText.users.editor;
 
 function user(overrides: Partial<StaffUser> = {}): StaffUser {
   return {

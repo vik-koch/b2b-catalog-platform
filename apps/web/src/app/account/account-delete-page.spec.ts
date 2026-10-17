@@ -10,7 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { AccountDeletePage } from './account-delete-page';
 import { AccountService, DeleteAccountResult } from './account.service';
 
-const text = defaultAppText.auth.myAccount.delete;
+const text = defaultAppText.account.delete;
 
 async function render(outcome: DeleteAccountResult | 'throw') {
   const deleteAccount = vi.fn(async () => {

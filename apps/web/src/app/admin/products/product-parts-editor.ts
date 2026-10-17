@@ -135,7 +135,7 @@ export class ProductPartsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.parts;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.parts;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.set;
 
   readonly value = input.required<readonly string[]>();

@@ -24,7 +24,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
 import { StaffUsersService } from './users.service';
 
-const text = defaultAdminText.userEditor;
+const text = defaultAdminText.users.editor;
 
 /** The demo deployment's own rules, which the form is built from. */
 const phone = defaultDeploymentConfig.phoneInput;
@@ -428,7 +428,9 @@ describe('UserEditorPage', () => {
   it('shows where the account stands, in the list\u2019s own words', async () => {
     const { el } = await render({ account: user({ status: 'disabled' }) });
 
-    expect(el.textContent).toContain(defaultAdminText.userList.statusDisabled);
+    expect(el.textContent).toContain(
+      defaultAdminText.users.list.statusDisabled,
+    );
   });
 
   it('says so when the account is not there (or not the caller’s to see)', async () => {
@@ -503,7 +505,7 @@ describe('UserEditorPage', () => {
     await press(defaultAdminText.common.save);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      defaultAdminText.userList.errors['last-admin'],
+      defaultAdminText.users.list.errors['last-admin'],
     );
     expect(navigateByUrl).not.toHaveBeenCalled();
   });

@@ -199,7 +199,7 @@ import { CategoryPicker } from './category-picker';
 export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly admin = inject(AdminCatalogService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(ADMIN_TEXT).categoryEditor;
+  protected readonly text = inject(ADMIN_TEXT).categories.editor;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   private readonly ownership = inject(SettingsService);

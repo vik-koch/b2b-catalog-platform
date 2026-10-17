@@ -175,11 +175,11 @@ export function parseCount(text: string): number | null {
 })
 export class ProductPackagingEditor {
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.packaging;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.packaging;
   protected readonly packing = inject(COMMON_TEXT).packaging;
   private readonly unitNames = inject(COMMON_TEXT).units;
   private readonly unavailable =
-    inject(ADMIN_TEXT).productEditor.packagingUnavailable;
+    inject(ADMIN_TEXT).products.editor.packagingUnavailable;
   /** Below `md` a three-column table of typed cells has no room; the glyph
    * sizes turn on the same line. */
   protected readonly narrow = injectNarrowScreen('md');

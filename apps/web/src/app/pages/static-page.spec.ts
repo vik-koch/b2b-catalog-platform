@@ -60,7 +60,7 @@ async function render(
 
 const editLink = (el: HTMLElement) =>
   el.querySelector<HTMLAnchorElement>(
-    `a[aria-label="${defaultAdminText.pageEditor.edit}"]`,
+    `a[aria-label="${defaultAdminText.pages.edit}"]`,
   );
 
 describe('StaticPage', () => {
@@ -153,7 +153,7 @@ describe('StaticPage — before it has been written', () => {
     expect(el.querySelector('h1')?.textContent).toContain(
       defaultCommonText.nav['about'],
     );
-    expect(el.textContent).toContain(defaultAdminText.pageEditor.emptyNotice);
+    expect(el.textContent).toContain(defaultAdminText.pages.emptyNotice);
     expect(editLink(el)?.getAttribute('href')).toContain(
       '/admin/pages/about/edit',
     );

@@ -369,7 +369,7 @@ const SCOPE_ROWS: readonly {
 export class ApiTokenListPage {
   private readonly service = inject(ApiTokensService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).apiTokenList;
+  protected readonly text = inject(ADMIN_TEXT).apiTokens;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;

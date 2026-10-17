@@ -13,8 +13,10 @@ import { localtestEnv, workspaceRoot } from './support/localtest';
  */
 const text = JSON.parse(
   readFileSync(join(workspaceRoot, 'config/admin-text.json'), 'utf8'),
-) as { orderDetail: { documents: { heading: string; summary: string } } };
-const documents = text.orderDetail.documents;
+) as {
+  orders: { detail: { documents: { heading: string; summary: string } } };
+};
+const documents = text.orders.detail.documents;
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];

@@ -10,7 +10,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { DocumentsService } from './documents.service';
 import { ProductDocumentsEditor } from './product-documents-editor';
 
-const text = defaultAdminText.productEditor.documents;
+const text = defaultAdminText.products.editor.documents;
 
 const linked = (
   overrides: Partial<LinkedDocument> & { id: string; title: string },

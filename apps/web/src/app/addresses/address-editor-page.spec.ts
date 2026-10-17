@@ -17,7 +17,7 @@ import { AddressEditorPage } from './address-editor-page';
 import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService } from './addresses.service';
 
-const text = defaultAppText.auth.myAccount.addresses;
+const text = defaultAppText.account.addresses;
 const fieldText = defaultAppText.address;
 
 /** Two shapes, the short one first — the order a picker offers them in. */

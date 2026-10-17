@@ -234,7 +234,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.variants;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
   protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 

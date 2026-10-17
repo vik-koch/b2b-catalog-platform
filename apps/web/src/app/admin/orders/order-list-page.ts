@@ -240,7 +240,7 @@ export class AdminOrderListPage {
   private readonly ownership = inject(SettingsService);
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
-  protected readonly text = inject(ADMIN_TEXT).orderList;
+  protected readonly text = inject(ADMIN_TEXT).orders.list;
   protected readonly names = inject(COMMON_TEXT).order;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly statuses = this.ordersText.statuses;
@@ -452,7 +452,7 @@ export class AdminOrderListPage {
   // --- Row actions -------------------------------------------------------
 
   private readonly confirm = inject(ConfirmService);
-  private readonly detailText = inject(ADMIN_TEXT).orderDetail;
+  private readonly detailText = inject(ADMIN_TEXT).orders.detail;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** So the order page opened from here returns to this list, filters and
    * all. */

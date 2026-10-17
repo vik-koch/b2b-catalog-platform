@@ -300,7 +300,7 @@ interface ToolbarAction {
   `,
 })
 export class RichTextEditor {
-  protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly link = this.text.linkPanel;
   /** Which shape the two panels take — see the template. */

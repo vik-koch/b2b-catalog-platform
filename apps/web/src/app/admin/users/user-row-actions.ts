@@ -78,7 +78,7 @@ import { IconButton } from '../../ui/icon-button';
   `,
 })
 export class UserRowActions {
-  protected readonly text = inject(ADMIN_TEXT).userList;
+  protected readonly text = inject(ADMIN_TEXT).users.list;
 
   readonly user = input.required<StaffUser>();
   /** So an editor opened from a row returns to this list, filters and all. */

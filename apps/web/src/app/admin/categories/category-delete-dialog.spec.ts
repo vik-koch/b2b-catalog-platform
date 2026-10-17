@@ -117,7 +117,7 @@ describe('CategoryDeleteDialog', () => {
     expect(ci.mode()).toBe('reassign');
     const shown = (fixture.nativeElement as HTMLElement).textContent ?? '';
     expect(shown).toContain(
-      defaultAdminText.categoryList.deleteReassignDeleted.replace(
+      defaultAdminText.categories.list.deleteReassignDeleted.replace(
         '{count}',
         '2',
       ),

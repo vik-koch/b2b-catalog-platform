@@ -20,7 +20,7 @@ import { TiersService } from '../tiers/tiers.service';
 import { AdminOrderAdjustPage } from './order-adjust-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderAdjust;
+const text = defaultAdminText.orders.adjust;
 const names = defaultCommonText.order;
 
 const address = {

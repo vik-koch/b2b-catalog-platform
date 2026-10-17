@@ -195,7 +195,7 @@ interface DocumentRow {
 export class OrderDocumentsPanel {
   private readonly api = inject(AdminOrdersService);
   private readonly confirm = inject(ConfirmService);
-  protected readonly text = inject(ADMIN_TEXT).orderDetail.documents;
+  protected readonly text = inject(ADMIN_TEXT).orders.detail.documents;
   // The two size words, which the document list already owns: a file's size
   // reads the same wherever it is written.
   private readonly sizes = inject(COMMON_TEXT).fileSize;

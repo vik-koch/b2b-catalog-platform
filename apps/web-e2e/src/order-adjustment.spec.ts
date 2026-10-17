@@ -12,21 +12,31 @@ import { localtestEnv, workspaceRoot } from './support/localtest';
 const adminText = JSON.parse(
   readFileSync(join(workspaceRoot, 'config/admin-text.json'), 'utf8'),
 ) as {
-  orderDetail: {
-    actions: { adjust: string };
-    revisions: { heading: string; changes: string; openControls: string };
-    tellCustomer: { update: string };
-  };
-  orderAdjust: {
-    save: string;
-    confirm: string;
-    note: string;
-    lines: { units: string };
-    changes: { none: string; total: string };
+  orders: {
+    detail: {
+      actions: { adjust: string };
+      revisions: {
+        heading: string;
+        subheading: string;
+        changes: string;
+        openControls: string;
+      };
+      tellCustomer: { update: string };
+    };
+    adjust: {
+      save: string;
+      confirm: { confirm: string };
+      lines: { units: string };
+      changes: { none: string };
+    };
   };
 };
-const detail = adminText.orderDetail;
-const adjust = adminText.orderAdjust;
+const commonText = JSON.parse(
+  readFileSync(join(workspaceRoot, 'config/common-text.json'), 'utf8'),
+) as { order: { total: string; changeNote: string } };
+const detail = adminText.orders.detail;
+const adjust = adminText.orders.adjust;
+const names = commonText.order;
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];
@@ -71,7 +81,7 @@ test.describe('adjusting an order', () => {
       .getByRole('button', { name: detail.revisions.changes })
       .first()
       .click();
-    await expect(page.getByText(adjust.changes.total).first()).toBeVisible();
+    await expect(page.getByText(names.total).first()).toBeVisible();
   });
 
   /**
@@ -126,7 +136,7 @@ test.describe('adjusting an order', () => {
 
     // The server prices the draft; what the change list shows is its answer,
     // and nothing on the page works the total out for itself.
-    await expect(page.getByText(adjust.changes.total)).toBeVisible();
+    await expect(page.getByText(names.total)).toBeVisible();
     // Whatever the width, the page itself never scrolls sideways.
     expect(
       await page.evaluate(
@@ -150,9 +160,9 @@ test.describe('adjusting an order', () => {
 
     const quantity = page.getByLabel(adjust.lines.units).first();
     await quantity.fill(String(Number(await quantity.inputValue()) + 1));
-    await page.getByLabel(adjust.note).fill('One more pack, as agreed.');
+    await page.getByLabel(names.changeNote).fill('One more pack, as agreed.');
     await page.getByRole('button', { name: adjust.save }).click();
-    await page.getByRole('button', { name: adjust.confirm }).click();
+    await page.getByRole('button', { name: adjust.confirm.confirm }).click();
 
     await expect(page).toHaveURL(new RegExp(`/admin/orders/${REFERENCE}$`));
     // The first of them: this spec adds one more note to the same seeded order

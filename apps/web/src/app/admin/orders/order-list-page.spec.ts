@@ -14,7 +14,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderListPage } from './order-list-page';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
-const text = defaultAdminText.orderList;
+const text = defaultAdminText.orders.list;
 
 const placed: StaffOrderSummary = {
   reference: 'DEMO-260826-4831',
@@ -248,7 +248,7 @@ describe('AdminOrderListPage row actions', () => {
     [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
       control.getAttribute('aria-label'),
     );
-  const actions = defaultAdminText.orderDetail.actions;
+  const actions = defaultAdminText.orders.detail.actions;
 
   it('marks an unanswered row as a decision, and offers to decline it', async () => {
     const { el } = await render([placed]);
@@ -309,7 +309,7 @@ describe('AdminOrderListPage row actions', () => {
  * to be able to see what the customer sees.
  */
 describe('AdminOrderListPage while orders are externally owned', () => {
-  const actions = defaultAdminText.orderDetail.actions;
+  const actions = defaultAdminText.orders.detail.actions;
   const labels = (el: HTMLElement) =>
     [...el.querySelectorAll('tbody a, tbody button')].map((control) =>
       control.getAttribute('aria-label'),

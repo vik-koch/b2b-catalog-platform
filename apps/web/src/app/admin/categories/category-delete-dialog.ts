@@ -120,9 +120,9 @@ import { categoryDescendantIds } from './category-tree';
 export class CategoryDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categoryList;
+  protected readonly text = inject(ADMIN_TEXT).categories.list;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly productText = inject(ADMIN_TEXT).productEditor;
+  protected readonly productText = inject(ADMIN_TEXT).products.editor;
 
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

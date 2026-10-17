@@ -363,7 +363,7 @@ describe('ProductAttributesEditor grid', () => {
   });
 });
 
-const text = defaultAdminText.productEditor.attributes;
+const text = defaultAdminText.products.editor.attributes;
 
 const known = (key: string, productCount = 3): AttributeKeyUsage => ({
   key,

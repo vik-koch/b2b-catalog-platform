@@ -167,7 +167,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
 export class PageEditor {
   private readonly pageService = inject(PageService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  protected readonly text = inject(ADMIN_TEXT).pages;
   private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */

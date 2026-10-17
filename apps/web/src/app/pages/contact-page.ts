@@ -134,7 +134,7 @@ export class ContactPage {
       () =>
         !this.pageResource.isLoading() && this.pageResource.status() !== 'idle',
     ),
-    section: 'pageEditor',
+    section: 'pages',
   });
   protected readonly ready = this.content.ready;
   protected readonly canEdit = this.content.controls;

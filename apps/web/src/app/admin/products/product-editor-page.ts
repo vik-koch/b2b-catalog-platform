@@ -653,7 +653,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
     inject(DEPLOYMENT_CONFIG).catalog.lowStockThresholdPieces ??
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor;
+  protected readonly text = inject(ADMIN_TEXT).products.editor;
   /** The grid's glyphs, on the sections that set what they stand for. */
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;

@@ -160,9 +160,9 @@ export class AccountEditPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.edit;
+  protected readonly text = inject(APP_TEXT).account.edit;
   protected readonly common = inject(APP_TEXT).common;
-  protected readonly accountText = inject(APP_TEXT).auth.myAccount;
+  protected readonly accountText = inject(APP_TEXT).account;
   protected readonly fields = inject(COMMON_TEXT).fields;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly phoneText = {

@@ -356,63 +356,6 @@
     "invalid": "Invalid email or password.",
     "closed": "The shop is closed for maintenance, so customer accounts cannot sign in right now. Please try again later.",
     "error": "Something went wrong logging you in. Please try again.",
-    "myAccount": {
-      "detailsHeading": "My details",
-      "customerType": "Account type",
-      "memberSince": "Customer since",
-      "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
-      "error": "We could not load your details right now. Please try again later.",
-      "edit": {
-        "action": "Edit details",
-        "heading": "Edit my details",
-        "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
-        "submit": "Save changes",
-        "error": "Something went wrong saving your details. Please try again.",
-        "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
-      },
-      "addresses": {
-        "heading": "My addresses",
-        "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
-        "add": "Add address",
-        "editLabel": "Edit {label}",
-        "remove": "Remove",
-        "removeLabel": "Remove {label}",
-        "removeConfirm": {
-          "heading": "Remove address",
-          "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
-          "confirm": "Remove"
-        },
-        "error": "We could not load your addresses right now. Please try again later.",
-        "newHeading": "Add an address",
-        "editHeading": "Edit address",
-        "intro": "Saved addresses are offered at checkout, so you only type one once.",
-        "submit": "Save address",
-        "saveError": "Something went wrong saving this address. Please try again.",
-        "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
-        "unsupportedCountry": "We do not deliver to that country. Please choose another."
-      },
-      "delete": {
-        "action": "Delete my account",
-        "heading": "Delete my account",
-        "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
-        "consequences": [
-          "You will be signed out and will not be able to sign in again.",
-          "Your name, phone number and other details are removed.",
-          "Past orders are kept for our bookkeeping, with your details removed from them.",
-          "You can register again later, but it will be a new account — your earlier orders will not appear in it."
-        ],
-        "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
-        "passwordHint": "Confirm with your password to show this is you.",
-        "submit": "Delete my account",
-        "submitting": "Deleting…",
-        "cancel": "Keep my account",
-        "wrongPassword": "That is not your password.",
-        "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
-        "error": "Something went wrong deleting your account. Please try again.",
-        "doneHeading": "Your account has been deleted",
-        "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
-      }
-    },
     "forgotPassword": {
       "link": "Forgot your password?",
       "heading": "Reset your password",
@@ -518,6 +461,63 @@
       "password-contains-email": "Please choose a password that does not contain your email address.",
       "password-contains-shop-name": "Please choose a password that does not contain the name of this shop.",
       "password-unchanged": "Please choose a password different from your current one."
+    }
+  },
+  "account": {
+    "detailsHeading": "My details",
+    "customerType": "Account type",
+    "memberSince": "Customer since",
+    "changeHint": "To change your email address, or the details your account was set up with, get in touch and we will update them for you.",
+    "error": "We could not load your details right now. Please try again later.",
+    "edit": {
+      "action": "Edit details",
+      "heading": "Edit my details",
+      "intro": "Change how you are called and how we reach you. To change anything else, get in touch and we will update it for you.",
+      "submit": "Save changes",
+      "error": "Something went wrong saving your details. Please try again.",
+      "phoneLocked": "We send your sign-in codes to this number. To change it, get in touch with us."
+    },
+    "addresses": {
+      "heading": "My addresses",
+      "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
+      "add": "Add address",
+      "editLabel": "Edit {label}",
+      "remove": "Remove",
+      "removeLabel": "Remove {label}",
+      "removeConfirm": {
+        "heading": "Remove address",
+        "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
+        "confirm": "Remove"
+      },
+      "error": "We could not load your addresses right now. Please try again later.",
+      "newHeading": "Add an address",
+      "editHeading": "Edit address",
+      "intro": "Saved addresses are offered at checkout, so you only type one once.",
+      "submit": "Save address",
+      "saveError": "Something went wrong saving this address. Please try again.",
+      "limitReached": "You have reached the maximum number of saved addresses. Remove one to add another.",
+      "unsupportedCountry": "We do not deliver to that country. Please choose another."
+    },
+    "delete": {
+      "action": "Delete my account",
+      "heading": "Delete my account",
+      "intro": "This closes your account and removes your personal details from our records. It cannot be undone.",
+      "consequences": [
+        "You will be signed out and will not be able to sign in again.",
+        "Your name, phone number and other details are removed.",
+        "Past orders are kept for our bookkeeping, with your details removed from them.",
+        "You can register again later, but it will be a new account — your earlier orders will not appear in it."
+      ],
+      "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
+      "passwordHint": "Confirm with your password to show this is you.",
+      "submit": "Delete my account",
+      "submitting": "Deleting…",
+      "cancel": "Keep my account",
+      "wrongPassword": "That is not your password.",
+      "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",
+      "error": "Something went wrong deleting your account. Please try again.",
+      "doneHeading": "Your account has been deleted",
+      "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
     }
   },
   "home": {

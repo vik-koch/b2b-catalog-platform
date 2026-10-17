@@ -14,7 +14,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
 import { DocumentEditorPage } from './document-editor-page';
 import { DocumentsService } from './documents.service';
 
-const text = defaultAdminText.documentEditor;
+const text = defaultAdminText.documents.editor;
 
 const storedFile = {
   url: '/documents/aaaaaaaaaaaa.pdf',

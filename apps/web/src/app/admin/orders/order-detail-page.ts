@@ -594,9 +594,9 @@ export class AdminOrderDetailPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).orderDetail;
+  protected readonly text = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  private readonly changeText = inject(ADMIN_TEXT).orderChanges;
+  private readonly changeText = inject(ADMIN_TEXT).orders.changes;
   protected readonly names = inject(COMMON_TEXT).order;
   protected readonly pageNames = inject(COMMON_TEXT).nav;
   private readonly commonText = inject(COMMON_TEXT);

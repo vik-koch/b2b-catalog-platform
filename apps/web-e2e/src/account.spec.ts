@@ -73,7 +73,9 @@ async function arrange(
 async function logIn(page: Page, email: string) {
   await page.goto('/login');
   await page.getByLabel('Email').fill(email);
-  await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+  await page
+    .getByRole('textbox', { name: 'Password', exact: true })
+    .fill(PASSWORD);
   await page.getByRole('button', { name: 'Log in' }).click();
 }
 
@@ -202,11 +204,15 @@ test.describe('my account', () => {
       page.getByText('your earlier orders will not appear in it'),
     ).toBeVisible();
 
-    await page.getByLabel('Password', { exact: true }).fill('not-my-password');
+    await page
+      .getByRole('textbox', { name: 'Password', exact: true })
+      .fill('not-my-password');
     await page.getByRole('button', { name: 'Delete my account' }).click();
     await expect(page.getByRole('alert')).toContainText('not your password');
 
-    await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+    await page
+      .getByRole('textbox', { name: 'Password', exact: true })
+      .fill(PASSWORD);
     await page.getByRole('button', { name: 'Delete my account' }).click();
     await expect(
       page.getByRole('heading', { name: 'Your account has been deleted' }),

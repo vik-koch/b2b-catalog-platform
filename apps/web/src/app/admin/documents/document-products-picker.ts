@@ -156,7 +156,7 @@ type View = 'all' | 'linked';
 export class DocumentProductsPicker {
   private readonly service = inject(AdminCatalogService);
   private readonly layout = inject(AlternateLayout);
-  protected readonly text = inject(ADMIN_TEXT).documentEditor.products;
+  protected readonly text = inject(ADMIN_TEXT).documents.editor.products;
   protected readonly productStates = inject(ADMIN_TEXT).products;
 
   readonly value = input.required<readonly DocumentProduct[]>();

@@ -209,7 +209,7 @@ export class AdminOrderRevisionPage {
   private readonly currency = this.config.catalog.currency;
   private readonly appText = inject(APP_TEXT);
 
-  protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
+  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly commonText = inject(COMMON_TEXT);
   protected readonly names = this.commonText.order;

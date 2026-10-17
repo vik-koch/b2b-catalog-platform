@@ -7,7 +7,7 @@ import { OrderBlockLabels, orderBlockLabels } from '../../orders/order-blocks';
 export function staffBlockLabels(
   names: CommonText,
   orders: AdminText['orders'],
-  detail: AdminText['orderDetail'],
+  detail: AdminText['orders']['detail'],
 ): OrderBlockLabels {
   return orderBlockLabels(names, {
     billingSame: detail.billingSame,

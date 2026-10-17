@@ -118,7 +118,7 @@ import { AttributeHint } from './attribute-hints';
 })
 export class AttributeKeyPicker {
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   private readonly productsText = inject(ADMIN_TEXT).products;
 
   /** Every name the catalog knows, declared or freetext, alphabetically. */

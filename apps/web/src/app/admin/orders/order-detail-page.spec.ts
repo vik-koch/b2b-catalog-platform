@@ -20,7 +20,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AdminOrderDetailPage } from './order-detail-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderDetail;
+const text = defaultAdminText.orders.detail;
 const names = defaultCommonText.order;
 
 const address = {

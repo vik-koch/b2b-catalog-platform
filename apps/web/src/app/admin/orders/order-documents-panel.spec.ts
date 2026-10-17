@@ -11,7 +11,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderDetail.documents;
+const text = defaultAdminText.orders.detail.documents;
 
 const generated: AdminOrderDocument = {
   kind: 'order-summary',

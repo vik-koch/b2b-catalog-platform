@@ -217,7 +217,7 @@ import {
 })
 export class ProductAttributesNarrow {
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
+  protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly dash = '—';
 
   readonly value = input.required<ProductAttribute[]>();

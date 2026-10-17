@@ -387,10 +387,10 @@ export class AccountPage {
   private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
 
   protected readonly text = inject(APP_TEXT).auth;
-  protected readonly accountText = inject(APP_TEXT).auth.myAccount;
+  protected readonly accountText = inject(APP_TEXT).account;
   private readonly commonText = inject(COMMON_TEXT);
-  protected readonly deleteText = inject(APP_TEXT).auth.myAccount.delete;
-  protected readonly addressText = inject(APP_TEXT).auth.myAccount.addresses;
+  protected readonly deleteText = inject(APP_TEXT).account.delete;
+  protected readonly addressText = inject(APP_TEXT).account.addresses;
   private readonly common = inject(APP_TEXT).common;
   protected readonly orderText = inject(APP_TEXT).orders;
 

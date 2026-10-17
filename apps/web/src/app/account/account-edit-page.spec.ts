@@ -14,7 +14,7 @@ import { AuthService } from '../auth/auth.service';
 import { AccountEditPage } from './account-edit-page';
 import { AccountService } from './account.service';
 
-const text = defaultAppText.auth.myAccount.edit;
+const text = defaultAppText.account.edit;
 const config = defaultDeploymentConfig;
 
 const stored: AccountProfile = {

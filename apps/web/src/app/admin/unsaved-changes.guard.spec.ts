@@ -46,24 +46,26 @@ describe('unsavedChangesGuard', () => {
   });
 
   it('lets a clean editor leave without asking', async () => {
-    const guard = unsavedChangesGuard((t) => t.productEditor.discardConfirm);
+    const guard = unsavedChangesGuard((t) => t.products.editor.discardConfirm);
 
     expect(await run(guard, { hasUnsavedChanges: () => false })).toBe(true);
     expect(asked).toBeUndefined();
   });
 
   it('asks with the wording the caller picked', async () => {
-    const guard = unsavedChangesGuard((t) => t.productEditor.discardConfirm);
+    const guard = unsavedChangesGuard((t) => t.products.editor.discardConfirm);
 
     expect(await run(guard, { hasUnsavedChanges: () => true })).toBe(true);
-    expect(asked?.message).toBe(defaultAdminText.productEditor.discardConfirm);
+    expect(asked?.message).toBe(
+      defaultAdminText.products.editor.discardConfirm,
+    );
   });
 
   it('asks each editor its own question', async () => {
-    const guard = unsavedChangesGuard((t) => t.userEditor.discardConfirm);
+    const guard = unsavedChangesGuard((t) => t.users.editor.discardConfirm);
 
     await run(guard, { hasUnsavedChanges: () => true });
 
-    expect(asked?.message).toBe(defaultAdminText.userEditor.discardConfirm);
+    expect(asked?.message).toBe(defaultAdminText.users.editor.discardConfirm);
   });
 });

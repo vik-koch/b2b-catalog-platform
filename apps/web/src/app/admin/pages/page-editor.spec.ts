@@ -9,7 +9,7 @@ import { defaultAdminText } from '../../config/admin-text.fixture';
 import { PageEditor } from './page-editor';
 import { PageService } from '../../pages/page.service';
 
-const text = defaultAdminText.pageEditor;
+const text = defaultAdminText.pages;
 
 const about: PageContent = {
   version: 1,

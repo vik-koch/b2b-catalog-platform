@@ -18,7 +18,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AttributeInventoryPage } from './attribute-inventory-page';
 import { AttributesService } from './attributes.service';
 
-const text = defaultAdminText.attributeInventory;
+const text = defaultAdminText.attributes.inventory;
 
 function key(overrides: Partial<AttributeKeyUsage> = {}): AttributeKeyUsage {
   return {

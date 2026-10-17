@@ -115,7 +115,7 @@ export class AccountDeletePage {
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
 
-  protected readonly text = inject(APP_TEXT).auth.myAccount.delete;
+  protected readonly text = inject(APP_TEXT).account.delete;
   protected readonly password = inject(APP_TEXT).auth.password;
   protected readonly validation = inject(APP_TEXT).auth.validation;
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;

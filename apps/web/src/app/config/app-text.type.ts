@@ -915,102 +915,6 @@ export const appTextSchema = z
         closed: z.string(),
         error: z.string(),
         /**
-         * The account holder's own area. Sections rather than one flat list,
-         * because this is where addresses and order history land next.
-         */
-        myAccount: z
-          .object({
-            /** Names the details section — the heading over the card, since
-             * the card no longer carries one of its own. */
-            detailsHeading: z.string(),
-            customerType: z.string(),
-            memberSince: z.string(),
-            /** Shown against the fields the account holder cannot edit here —
-             * the ones staff approved the account on. */
-            changeHint: z.string(),
-            error: z.string(),
-            /** Correcting your own name and phone number. */
-            edit: z
-              .object({
-                action: z.string(),
-                heading: z.string(),
-                intro: z.string(),
-                submit: z.string(),
-                error: z.string(),
-                /**
-                 * Under a number that receives sign-in codes (FR-AUTH-12):
-                 * shown, not offered, and who to ask to change it.
-                 */
-                phoneLocked: z.string(),
-              })
-              .strict(),
-            /**
-             * The saved delivery/invoice addresses (FR-CART-04), and the page
-             * that edits one. The fields themselves are `address`.
-             */
-            addresses: z
-              .object({
-                heading: z.string(),
-                empty: z.string(),
-                add: z.string(),
-                /** The icon-only row buttons take their accessible name from
-                 * `{label}`, the address itself. */
-                editLabel: z.string(),
-                remove: z.string(),
-                removeLabel: z.string(),
-                /** `{label}` is the address's own name. */
-                removeConfirm: confirmText,
-                error: z.string(),
-                newHeading: z.string(),
-                editHeading: z.string(),
-                intro: z.string(),
-                submit: z.string(),
-                saveError: z.string(),
-                /** The book is full — a refusal the form has to explain. */
-                limitReached: z.string(),
-                unsupportedCountry: z.string(),
-              })
-              .strict(),
-            /**
-             * Deleting your own account (FR-AUTH-06). The copy carries the
-             * honest reading of "delete": the row survives so past orders keep
-             * their history, and registering again is a new account rather
-             * than an undo.
-             */
-            delete: z
-              .object({
-                action: z.string(),
-                heading: z.string(),
-                intro: z.string(),
-                /** What is kept and what goes, in the visitor's own terms. */
-                consequences: z.array(z.string()),
-                /**
-                 * Said only where the shop is still working on something for
-                 * this customer (FR-AUTH-06). `{count}` is how many.
-                 *
-                 * It refuses nothing. The order is one the shop agreed to
-                 * fill and is owed for, so it stays — but it stays without the
-                 * name, address and telephone number it was placed with, and
-                 * that is worth knowing before the button rather than after.
-                 */
-                openOrders: z.string(),
-                passwordHint: z.string(),
-                submit: z.string(),
-                submitting: z.string(),
-                cancel: z.string(),
-                wrongPassword: z.string(),
-                /** The last admin cannot leave; staff-only, but it must say so
-                 * rather than fail silently. */
-                lastAdmin: z.string(),
-                error: z.string(),
-                /** Shown on the public site once the account is gone. */
-                doneHeading: z.string(),
-                done: z.string(),
-              })
-              .strict(),
-          })
-          .strict(),
-        /**
          * Asking for a reset link (FR-AUTH-02). The success copy has to be
          * written for someone who may have typed an address with no account:
          * it can promise nothing more than "if there is an account, a mail is
@@ -1199,6 +1103,102 @@ export const appTextSchema = z
             'password-contains-email': z.string(),
             'password-contains-shop-name': z.string(),
             'password-unchanged': z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    /**
+     * The account holder's own area. Sections rather than one flat list,
+     * because this is where addresses and order history land next.
+     */
+    account: z
+      .object({
+        /** Names the details section — the heading over the card, since
+         * the card no longer carries one of its own. */
+        detailsHeading: z.string(),
+        customerType: z.string(),
+        memberSince: z.string(),
+        /** Shown against the fields the account holder cannot edit here —
+         * the ones staff approved the account on. */
+        changeHint: z.string(),
+        error: z.string(),
+        /** Correcting your own name and phone number. */
+        edit: z
+          .object({
+            action: z.string(),
+            heading: z.string(),
+            intro: z.string(),
+            submit: z.string(),
+            error: z.string(),
+            /**
+             * Under a number that receives sign-in codes (FR-AUTH-12):
+             * shown, not offered, and who to ask to change it.
+             */
+            phoneLocked: z.string(),
+          })
+          .strict(),
+        /**
+         * The saved delivery/invoice addresses (FR-CART-04), and the page
+         * that edits one. The fields themselves are `address`.
+         */
+        addresses: z
+          .object({
+            heading: z.string(),
+            empty: z.string(),
+            add: z.string(),
+            /** The icon-only row buttons take their accessible name from
+             * `{label}`, the address itself. */
+            editLabel: z.string(),
+            remove: z.string(),
+            removeLabel: z.string(),
+            /** `{label}` is the address's own name. */
+            removeConfirm: confirmText,
+            error: z.string(),
+            newHeading: z.string(),
+            editHeading: z.string(),
+            intro: z.string(),
+            submit: z.string(),
+            saveError: z.string(),
+            /** The book is full — a refusal the form has to explain. */
+            limitReached: z.string(),
+            unsupportedCountry: z.string(),
+          })
+          .strict(),
+        /**
+         * Deleting your own account (FR-AUTH-06). The copy carries the
+         * honest reading of "delete": the row survives so past orders keep
+         * their history, and registering again is a new account rather
+         * than an undo.
+         */
+        delete: z
+          .object({
+            action: z.string(),
+            heading: z.string(),
+            intro: z.string(),
+            /** What is kept and what goes, in the visitor's own terms. */
+            consequences: z.array(z.string()),
+            /**
+             * Said only where the shop is still working on something for
+             * this customer (FR-AUTH-06). `{count}` is how many.
+             *
+             * It refuses nothing. The order is one the shop agreed to
+             * fill and is owed for, so it stays — but it stays without the
+             * name, address and telephone number it was placed with, and
+             * that is worth knowing before the button rather than after.
+             */
+            openOrders: z.string(),
+            passwordHint: z.string(),
+            submit: z.string(),
+            submitting: z.string(),
+            cancel: z.string(),
+            wrongPassword: z.string(),
+            /** The last admin cannot leave; staff-only, but it must say so
+             * rather than fail silently. */
+            lastAdmin: z.string(),
+            error: z.string(),
+            /** Shown on the public site once the account is gone. */
+            doneHeading: z.string(),
+            done: z.string(),
           })
           .strict(),
       })

@@ -17,7 +17,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { ApiTokenListPage } from './api-token-list-page';
 import { ApiTokensService } from './api-tokens.service';
 
-const text = defaultAdminText.apiTokenList;
+const text = defaultAdminText.apiTokens;
 
 function token(overrides: Partial<ApiToken> = {}): ApiToken {
   return {

@@ -709,10 +709,10 @@ export class AdminOrderAdjustPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
-  protected readonly text = inject(ADMIN_TEXT).orderAdjust;
-  protected readonly detailText = inject(ADMIN_TEXT).orderDetail;
+  protected readonly text = inject(ADMIN_TEXT).orders.adjust;
+  protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  private readonly changeText = inject(ADMIN_TEXT).orderChanges;
+  private readonly changeText = inject(ADMIN_TEXT).orders.changes;
   protected readonly commonText = inject(COMMON_TEXT);
   protected readonly names = this.commonText.order;
   protected readonly fields = staffFields(

@@ -14,7 +14,7 @@ import { provideOwnership } from '../settings/settings.fixture';
 import { TierListPage } from './tier-list-page';
 import { TiersService } from './tiers.service';
 
-const text = defaultAdminText.tierList;
+const text = defaultAdminText.tiers;
 
 function tier(overrides: Partial<CustomerTier> = {}): CustomerTier {
   return {

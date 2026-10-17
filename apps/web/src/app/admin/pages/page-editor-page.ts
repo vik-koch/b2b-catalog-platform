@@ -46,7 +46,7 @@ import { injectEditorReturn } from '../editor-return';
 })
 export class PageEditorPage implements UnsavedChangesAware {
   private readonly pageService = inject(PageService);
-  protected readonly text = inject(ADMIN_TEXT).pageEditor;
+  protected readonly text = inject(ADMIN_TEXT).pages;
 
   protected readonly slug = (inject(ActivatedRoute).snapshot.paramMap.get(
     'slug',

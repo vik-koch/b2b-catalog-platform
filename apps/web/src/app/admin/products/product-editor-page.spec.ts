@@ -26,7 +26,7 @@ import { AttributesService } from '../attributes/attributes.service';
 import { ConfirmService } from '../../ui/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 
-const text = defaultAdminText.productEditor;
+const text = defaultAdminText.products.editor;
 
 const category: AdminCategory = {
   id: 'cat-1',

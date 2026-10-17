@@ -288,8 +288,8 @@ import { DocumentsService } from './documents.service';
 export class DocumentEditorPage implements UnsavedChangesAware {
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(ADMIN_TEXT).documentEditor;
-  protected readonly listText = inject(ADMIN_TEXT).documentList;
+  protected readonly text = inject(ADMIN_TEXT).documents.editor;
+  protected readonly listText = inject(ADMIN_TEXT).documents.list;
   private readonly sizes = inject(COMMON_TEXT).fileSize;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');

@@ -64,7 +64,7 @@ import { trustedRichText } from '../../core/trusted-rich-text';
 })
 export class PageHistory {
   private readonly pageService = inject(PageService);
-  protected readonly text = inject(ADMIN_TEXT).pageEditor.history;
+  protected readonly text = inject(ADMIN_TEXT).pages.history;
   protected readonly safeBody = trustedRichText();
 
   readonly slug = input.required<PageSlug>();

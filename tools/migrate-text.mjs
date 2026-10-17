@@ -11,7 +11,8 @@
  * deployment has wins, and a later one with a different value is reported — a
  * merge that may not hold in that deployment's language. `new` marks wording
  * that did not exist before; `copy` takes a value without moving it, where the
- * old key stays as it is.
+ * old key stays as it is. `moves` carries a whole block to a new place, with
+ * whatever is left in it once those keys have gone.
  *
  * Node's built-ins only, so an operator needs no checkout: this file and the
  * map, downloaded from the release tag, are enough. The deployment's files were
@@ -100,6 +101,15 @@ const set = (files, key, value) => {
   for (const part of path.slice(0, -1)) node = node[part] ??= {};
   node[path.at(-1)] = value;
 };
+const merge = (files, key, block) => {
+  const { file, path } = split(key);
+  for (const [part, value] of Object.entries(block)) {
+    const at = `${file}:${[...path, part].join('.')}`;
+    if (value && typeof value === 'object' && !Array.isArray(value)) {
+      merge(files, at, value);
+    } else set(files, at, value);
+  }
+};
 
 /** The deployment's files in the release's structure, and what to tell its
  * operator about them. */
@@ -136,6 +146,12 @@ function migrate(original) {
     for (const source of rule.from ?? []) remove(files, source);
   }
   for (const key of map.drop) remove(files, key);
+  for (const [from, to] of Object.entries(map.moves ?? {})) {
+    const block = get(files, from);
+    if (block === undefined) continue;
+    remove(files, from);
+    merge(files, to, block);
+  }
   for (const [target, value] of Object.entries(values)) {
     set(files, target, value);
   }

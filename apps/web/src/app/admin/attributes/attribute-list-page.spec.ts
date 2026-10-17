@@ -13,7 +13,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { AttributeListPage } from './attribute-list-page';
 import { AttributesService } from './attributes.service';
 
-const text = defaultAdminText.attributeList;
+const text = defaultAdminText.attributes.list;
 
 function definition(
   overrides: Partial<AttributeDefinition> = {},

@@ -369,7 +369,7 @@ export class TierListPage {
   private readonly service = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
   private readonly settings = inject(SettingsService);
-  protected readonly text = inject(ADMIN_TEXT).tierList;
+  protected readonly text = inject(ADMIN_TEXT).tiers;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly common = inject(ADMIN_TEXT).common;

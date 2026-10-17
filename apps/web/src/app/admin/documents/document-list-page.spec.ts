@@ -13,7 +13,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { DocumentListPage } from './document-list-page';
 import { DocumentsService } from './documents.service';
 
-const text = defaultAdminText.documentList;
+const text = defaultAdminText.documents.list;
 
 const storedFile = {
   url: '/documents/aaaaaaaaaaaa.pdf',

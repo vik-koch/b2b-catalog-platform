@@ -287,7 +287,7 @@ export interface AdjustLineRow {
 })
 export class OrderAdjustLines {
   private readonly catalog = inject(AdminCatalogService);
-  protected readonly text = inject(ADMIN_TEXT).orderAdjust.lines;
+  protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
   protected readonly products = inject(ADMIN_TEXT).products;
   protected readonly pieceUnit = inject(COMMON_TEXT).units.piece;
   private readonly availability = inject(COMMON_TEXT).product.availability;

@@ -23,6 +23,7 @@ import { ConfirmService } from '../ui/confirm.service';
 import { AccountService } from './account.service';
 
 const text = defaultAppText.auth;
+const accountText = defaultAppText.account;
 
 const customer: AccountProfile = {
   email: 'alex@example.com',
@@ -180,7 +181,7 @@ describe('AccountPage', () => {
       defaultCommonText.fields.companyName.label,
     );
     expect(el.textContent).not.toContain(defaultCommonText.fields.phone.label);
-    expect(el.textContent).not.toContain(text.myAccount.customerType);
+    expect(el.textContent).not.toContain(accountText.customerType);
     expect(el.textContent).not.toContain(
       defaultCommonText.fields.companyId.label,
     );
@@ -200,14 +201,14 @@ describe('AccountPage', () => {
         'a[href="/account/addresses/addr-1/edit"]',
       );
       expect(edit?.getAttribute('aria-label')).toBe(
-        text.myAccount.addresses.editLabel.replace('{label}', 'Shop'),
+        accountText.addresses.editLabel.replace('{label}', 'Shop'),
       );
       expect(edit?.textContent?.trim()).toBe('');
       expect(
-        buttonByLabel(el, text.myAccount.addresses.removeLabel).getAttribute(
+        buttonByLabel(el, accountText.addresses.removeLabel).getAttribute(
           'aria-label',
         ),
-      ).toBe(text.myAccount.addresses.removeLabel.replace('{label}', 'Shop'));
+      ).toBe(accountText.addresses.removeLabel.replace('{label}', 'Shop'));
     });
 
     // Nothing was named at checkout, so the row is headed by its own first
@@ -244,13 +245,13 @@ describe('AccountPage', () => {
     it('says the book is empty rather than showing an empty list', async () => {
       const { el } = await render(customer, []);
 
-      expect(el.textContent).toContain(text.myAccount.addresses.empty);
+      expect(el.textContent).toContain(accountText.addresses.empty);
     });
 
     it('removes an address once it is confirmed, then re-reads the list', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress]);
 
-      buttonByLabel(el, text.myAccount.addresses.removeLabel).click();
+      buttonByLabel(el, accountText.addresses.removeLabel).click();
       await fixture.whenStable();
 
       expect(h.ask).toHaveBeenCalledTimes(1);
@@ -261,7 +262,7 @@ describe('AccountPage', () => {
     it('leaves the address alone when the question is declined', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress], false);
 
-      buttonByLabel(el, text.myAccount.addresses.removeLabel).click();
+      buttonByLabel(el, accountText.addresses.removeLabel).click();
       await fixture.whenStable();
 
       expect(h.remove).not.toHaveBeenCalled();
@@ -270,7 +271,7 @@ describe('AccountPage', () => {
     it('reports a book it could not load without hiding the rest', async () => {
       const { el } = await render(customer, 'reject');
 
-      expect(el.textContent).toContain(text.myAccount.addresses.error);
+      expect(el.textContent).toContain(accountText.addresses.error);
       expect(el.textContent).toContain('Fischer Alex');
     });
   });
@@ -432,6 +433,6 @@ describe('AccountPage', () => {
     const link = el.querySelector('a[href="/change-password"]');
 
     expect(link?.textContent).toContain(text.changePassword.heading);
-    expect(el.textContent).toContain(text.myAccount.error);
+    expect(el.textContent).toContain(accountText.error);
   });
 });

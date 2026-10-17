@@ -257,10 +257,10 @@ export class UserDetailPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly confirm = inject(ConfirmService);
 
-  protected readonly text = inject(ADMIN_TEXT).userDetail;
+  protected readonly text = inject(ADMIN_TEXT).users.detail;
   /** The same words the list and the editor use for the same things. */
-  protected readonly listText = inject(ADMIN_TEXT).userList;
-  protected readonly editorText = inject(ADMIN_TEXT).userEditor;
+  protected readonly listText = inject(ADMIN_TEXT).users.list;
+  protected readonly editorText = inject(ADMIN_TEXT).users.editor;
   private readonly commonText = inject(COMMON_TEXT);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;

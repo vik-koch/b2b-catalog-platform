@@ -137,7 +137,7 @@ function knownValues<T extends string>(
         [filtered]="filtered()"
         [emptyMessage]="filtered() ? text.noResults : text.empty"
         [total]="data.pagination.total"
-        [countLabel]="text.count"
+        [countLabel]="productStates.count"
       >
         <!-- A search that finds nothing in the catalog may be looking for a
              product that was deleted (FR-ADM-22); the archive keeps the
@@ -380,7 +380,7 @@ export class ProductListPage {
   private readonly documentService = inject(DocumentsService);
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).productList;
+  protected readonly text = inject(ADMIN_TEXT).products.list;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   private readonly settings = inject(SettingsService);
@@ -394,7 +394,7 @@ export class ProductListPage {
   };
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
-  protected readonly productText = inject(ADMIN_TEXT).productEditor;
+  protected readonly productText = inject(ADMIN_TEXT).products.editor;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   /** The storefront's three words for a stock state, reused rather than
    * restated: the grid and the badge a customer sees name one fact. */

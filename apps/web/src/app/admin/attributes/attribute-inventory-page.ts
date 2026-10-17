@@ -436,7 +436,7 @@ export class AttributeInventoryPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
-  protected readonly text = inject(ADMIN_TEXT).attributeInventory;
+  protected readonly text = inject(ADMIN_TEXT).attributes.inventory;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;

@@ -222,7 +222,7 @@ export class CustomerSyncUploadPage {
   protected readonly text = inject(ADMIN_TEXT).sync;
   /** Where an applied run's accounts are: the customer list, named by its own
    * heading rather than by a second word for the same screen. */
-  protected readonly usersText = inject(ADMIN_TEXT).userList;
+  protected readonly usersText = inject(ADMIN_TEXT).users.list;
 
   /** Whether an external system owns the customer accounts (FR-ADM-10). */
   protected readonly customersOwned = computed(

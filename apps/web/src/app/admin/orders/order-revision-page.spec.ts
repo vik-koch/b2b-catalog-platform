@@ -13,7 +13,7 @@ import { defaultDeploymentConfig } from '../../config/deployment-config.fixture'
 import { AdminOrderRevisionPage } from './order-revision-page';
 import { AdminOrdersService } from './orders.service';
 
-const text = defaultAdminText.orderDetail;
+const text = defaultAdminText.orders.detail;
 
 const address = {
   street: 'Hafenstraße 12',

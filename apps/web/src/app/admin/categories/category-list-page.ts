@@ -385,7 +385,7 @@ const EDGE_SLACK = 24;
 export class CategoryListPage {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
-  protected readonly text = inject(ADMIN_TEXT).categoryList;
+  protected readonly text = inject(ADMIN_TEXT).categories.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
