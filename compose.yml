@@ -318,7 +318,9 @@ services:
   # Off-host copy: set all of BACKUP_S3_* and BACKUP_AGE_PUBLIC_KEY or none
   # (deploy.sh refuses a partial set). The archive is then encrypted and also
   # uploaded. The bucket is never pruned from here: its key should only be able
-  # to upload, and a lifecycle rule on the bucket expires copies.
+  # to upload, and a lifecycle rule on the bucket expires copies. With that
+  # copy in place the local archives only need to cover a quick restore, so
+  # MEDIA_BACKUP_KEEP_DAYS can keep them shorter than the dumps.
   media-backup:
     image: offen/docker-volume-backup:v2
     profiles: ['backup']
@@ -328,7 +330,7 @@ services:
       BACKUP_FILENAME: 'backup-%Y-%m-%dT%H-%M-%S.tar.gz'
       BACKUP_LATEST_SYMLINK: backup-latest
       BACKUP_PRUNING_PREFIX: 'backup-'
-      BACKUP_RETENTION_DAYS: ${BACKUP_KEEP_DAYS:-14}
+      BACKUP_RETENTION_DAYS: ${MEDIA_BACKUP_KEEP_DAYS:-${BACKUP_KEEP_DAYS:-14}}
       BACKUP_SKIP_BACKENDS_FROM_PRUNE: s3
       AGE_PUBLIC_KEYS: ${BACKUP_AGE_PUBLIC_KEY:-}
       AWS_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}

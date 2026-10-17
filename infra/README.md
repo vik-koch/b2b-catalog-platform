@@ -365,14 +365,15 @@ Long-lived stacks (dev, prod) opt into the `backup` profile via
 `db-backup` dumps the database (ADR 0017), keeping daily, weekly and monthly
 copies under `/srv/b2b/<stack>/backups`. Then `media-backup` packs the latest
 dump and the media volume into **one archive** in `backups/archive` (ADRs 0028,
-0067), kept for `BACKUP_KEEP_DAYS`. An archive is always a matched pair: the
+0067), kept for `MEDIA_BACKUP_KEEP_DAYS` (default: `BACKUP_KEEP_DAYS`). An archive is always a matched pair: the
 media is archived after the dump, and uploads are append-only, so it holds
 every image the dump references.
 
 Set the `BACKUP_S3_*` settings and `BACKUP_AGE_PUBLIC_KEY` (all of them or none,
 see `.env.stack.example`) and each night's archive is also encrypted and
 uploaded to an S3-compatible bucket. Without them the archives stay on the VM,
-and losing the VM loses them too.
+and losing the VM loses them too. With them, the VM only needs the last few
+nights for a quick restore: set `MEDIA_BACKUP_KEEP_DAYS` to 2 or 3.
 
 ```bash
 # take a fresh pair on the VM and download it (plus the stack .env)
