@@ -101,6 +101,8 @@ jobs:
           BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
           BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
           BACKUP_AGE_PUBLIC_KEY: ${{ vars.BACKUP_AGE_PUBLIC_KEY }}
+          # Days the paired archives stay on the VM; unset -> BACKUP_KEEP_DAYS.
+          MEDIA_BACKUP_KEEP_DAYS: ${{ vars.MEDIA_BACKUP_KEEP_DAYS }}
         run: |
           : "${DEPLOY_HOST:?repo variable DEPLOY_HOST is not set}"
           : "${APP_DOMAIN:?repo variable PROD_APP_DOMAIN is not set}"
@@ -138,6 +140,7 @@ jobs:
           BACKUP_S3_ACCESS_KEY_ID=$BACKUP_S3_ACCESS_KEY_ID
           BACKUP_S3_SECRET_ACCESS_KEY=$BACKUP_S3_SECRET_ACCESS_KEY
           BACKUP_AGE_PUBLIC_KEY=$BACKUP_AGE_PUBLIC_KEY
+          MEDIA_BACKUP_KEEP_DAYS=$MEDIA_BACKUP_KEEP_DAYS
           POSTGRES_DB=b2b_catalog
           POSTGRES_USER=b2b_catalog
           POSTGRES_PASSWORD=$POSTGRES_PASSWORD
