@@ -1,0 +1,613 @@
+{
+  "from": "v1.14.0",
+  "keys": {
+    "common-text.json:nav.home": {
+      "from": ["app-text.json:nav.home"]
+    },
+    "common-text.json:nav.about": {
+      "from": ["app-text.json:nav.about"]
+    },
+    "common-text.json:nav.terms": {
+      "from": [
+        "app-text.json:nav.terms",
+        "admin-text.json:orderDetail.terms",
+        "mail-text.json:orderReceived.termsLabel",
+        "mail-text.json:orderSummaryPdf.termsLabel"
+      ]
+    },
+    "common-text.json:nav.conditions": {
+      "from": ["app-text.json:nav.conditions"]
+    },
+    "common-text.json:nav.privacy": {
+      "from": ["app-text.json:nav.privacy"]
+    },
+    "common-text.json:nav.imprint": {
+      "from": ["app-text.json:nav.imprint"]
+    },
+    "common-text.json:nav.withdrawal": {
+      "from": ["app-text.json:nav.withdrawal"]
+    },
+    "common-text.json:nav.contact": {
+      "from": ["app-text.json:nav.contact"]
+    },
+    "common-text.json:nav.consent-contact": {
+      "from": ["app-text.json:nav.consent-contact"]
+    },
+    "common-text.json:nav.consent-account": {
+      "from": ["app-text.json:nav.consent-account"]
+    },
+    "common-text.json:nav.inquiry": {
+      "from": ["app-text.json:nav.inquiry"]
+    },
+    "common-text.json:nav.licenses": {
+      "from": ["app-text.json:nav.licenses"]
+    },
+    "common-text.json:nav.more": {
+      "from": ["app-text.json:nav.more"]
+    },
+    "common-text.json:units.piece": {
+      "from": ["mail-text.json:common.units.piece"]
+    },
+    "common-text.json:units.pack": {
+      "from": ["mail-text.json:common.units.pack"]
+    },
+    "common-text.json:units.box": {
+      "from": ["mail-text.json:common.units.box"]
+    },
+    "common-text.json:quantity": {
+      "from": ["mail-text.json:common.quantity"]
+    },
+    "common-text.json:quantityPieces": {
+      "from": ["mail-text.json:common.quantityPieces"]
+    },
+    "common-text.json:tax.included": {
+      "from": ["mail-text.json:common.tax.included"]
+    },
+    "common-text.json:tax.added": {
+      "from": ["mail-text.json:common.tax.added"]
+    },
+    "common-text.json:tax.none": {
+      "from": ["mail-text.json:common.tax.none"]
+    },
+    "common-text.json:tax.mixed.included": {
+      "from": ["mail-text.json:common.tax.mixed.included"]
+    },
+    "common-text.json:tax.mixed.added": {
+      "from": ["mail-text.json:common.tax.mixed.added"]
+    },
+    "common-text.json:tax.line": {
+      "from": ["mail-text.json:common.tax.line"]
+    },
+    "common-text.json:order.reference": {
+      "from": [
+        "mail-text.json:orderReceived.referenceLabel",
+        "admin-text.json:orderList.reference",
+        "mail-text.json:newOrder.referenceLabel",
+        "mail-text.json:orderCancelled.referenceLabel",
+        "mail-text.json:orderStatusChanged.referenceLabel",
+        "mail-text.json:orderDocument.referenceLabel"
+      ]
+    },
+    "common-text.json:order.status": {
+      "from": [
+        "admin-text.json:orderList.status",
+        "mail-text.json:orderSummaryPdf.statusLabel"
+      ]
+    },
+    "common-text.json:order.total": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.totalLabel",
+        "admin-text.json:orderDetail.revisions.total",
+        "admin-text.json:orderAdjust.changes.total",
+        "admin-text.json:orderList.total",
+        "mail-text.json:orderReceived.totalLabel",
+        "mail-text.json:newOrder.totalLabel",
+        "mail-text.json:orderCancelled.totalLabel",
+        "mail-text.json:orderStatusChanged.totalLabel",
+        "mail-text.json:orderDocument.totalLabel"
+      ]
+    },
+    "common-text.json:order.reason": {
+      "from": [
+        "mail-text.json:orderStatusChanged.reasonLabel",
+        "admin-text.json:orderDetail.statusReason",
+        "app-text.json:orders.detail.statusReason"
+      ]
+    },
+    "common-text.json:order.changeNote": {
+      "from": [
+        "mail-text.json:orderStatusChanged.changedLabel",
+        "admin-text.json:orderDetail.revisions.note",
+        "admin-text.json:orderAdjust.note",
+        "app-text.json:orders.detail.changes",
+        "mail-text.json:orderSummaryPdf.changesLabel"
+      ]
+    },
+    "common-text.json:order.contact": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.contactLabel",
+        "admin-text.json:orderDetail.contact",
+        "admin-text.json:orderAdjust.contact",
+        "mail-text.json:newOrder.contactLabel",
+        "mail-text.json:orderCancelled.contactLabel",
+        "app-text.json:orders.detail.contact"
+      ]
+    },
+    "common-text.json:order.invoicedTo": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.invoiceLabel",
+        "admin-text.json:orderDetail.invoice",
+        "admin-text.json:orderAdjust.party",
+        "mail-text.json:newOrder.partyLabel",
+        "app-text.json:checkout.review.invoice"
+      ]
+    },
+    "common-text.json:order.payment": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.paymentLabel",
+        "admin-text.json:orderDetail.payment",
+        "admin-text.json:orderAdjust.payment",
+        "admin-text.json:orderList.payment",
+        "admin-text.json:orderDetail.paymentState.heading",
+        "mail-text.json:newOrder.paymentLabel",
+        "app-text.json:checkout.review.payment"
+      ]
+    },
+    "common-text.json:order.deliveryAddress": {
+      "from": [
+        "mail-text.json:orderStatusChanged.deliveryLabel",
+        "mail-text.json:orderSummaryPdf.deliveryLabel",
+        "admin-text.json:orderAdjust.deliveryAddress"
+      ]
+    },
+    "common-text.json:order.preferredDelivery": {
+      "from": [
+        "app-text.json:checkout.timing.deliveryLabel",
+        "admin-text.json:orderDetail.deliveryDate"
+      ]
+    },
+    "common-text.json:order.preferredPickup": {
+      "from": [
+        "app-text.json:checkout.timing.pickupLabel",
+        "admin-text.json:orderDetail.pickupDate"
+      ]
+    },
+    "common-text.json:order.account": {
+      "from": [
+        "admin-text.json:orderDetail.customer",
+        "mail-text.json:newOrder.customerLabel",
+        "mail-text.json:orderCancelled.customerLabel"
+      ]
+    },
+    "common-text.json:order.guest": {
+      "from": [
+        "admin-text.json:orderList.guest",
+        "mail-text.json:newOrder.guest",
+        "mail-text.json:orderCancelled.guest"
+      ]
+    },
+    "common-text.json:order.items.customer": {
+      "from": [
+        "app-text.json:checkout.review.items",
+        "mail-text.json:orderReceived.itemsHeading",
+        "mail-text.json:orderStatusChanged.itemsHeading"
+      ]
+    },
+    "common-text.json:order.items.staff": {
+      "from": [
+        "admin-text.json:orderDetail.items",
+        "admin-text.json:orderAdjust.lines.heading",
+        "mail-text.json:newOrder.itemsHeading"
+      ]
+    },
+    "common-text.json:order.note.customer": {
+      "from": [
+        "app-text.json:checkout.review.note",
+        "mail-text.json:orderSummaryPdf.noteLabel"
+      ]
+    },
+    "common-text.json:order.note.staff": {
+      "from": ["admin-text.json:orderDetail.note"]
+    },
+    "common-text.json:order.pickupPoint.customer": {
+      "from": [
+        "mail-text.json:orderStatusChanged.pickupLabel",
+        "mail-text.json:orderSummaryPdf.pickupLabel"
+      ]
+    },
+    "common-text.json:order.pickupPoint.staff": {
+      "from": ["admin-text.json:orderAdjust.pickupLocation"]
+    },
+    "common-text.json:order.termsVersion.customer": {
+      "from": [
+        "mail-text.json:orderReceived.termsVersion",
+        "mail-text.json:orderSummaryPdf.termsVersion"
+      ]
+    },
+    "common-text.json:order.termsVersion.staff": {
+      "from": ["admin-text.json:orderDetail.termsVersion"]
+    },
+    "common-text.json:order.statuses.customer.requested": {
+      "from": ["app-text.json:orders.statusRequested"]
+    },
+    "common-text.json:order.statuses.staff.requested": {
+      "from": ["admin-text.json:orderList.statusRequested"]
+    },
+    "common-text.json:order.statuses.customer.approved": {
+      "from": ["app-text.json:orders.statusApproved"]
+    },
+    "common-text.json:order.statuses.staff.approved": {
+      "from": ["admin-text.json:orderList.statusApproved"]
+    },
+    "common-text.json:order.statuses.customer.readyDelivery": {
+      "from": ["app-text.json:orders.statusReadyDelivery"]
+    },
+    "common-text.json:order.statuses.staff.readyDelivery": {
+      "from": ["admin-text.json:orderList.statusReadyDelivery"]
+    },
+    "common-text.json:order.statuses.customer.readyPickup": {
+      "from": ["app-text.json:orders.statusReadyPickup"]
+    },
+    "common-text.json:order.statuses.staff.readyPickup": {
+      "from": ["admin-text.json:orderList.statusReadyPickup"]
+    },
+    "common-text.json:order.statuses.customer.completed": {
+      "from": ["app-text.json:orders.statusCompleted"]
+    },
+    "common-text.json:order.statuses.staff.completed": {
+      "from": ["admin-text.json:orderList.statusCompleted"]
+    },
+    "common-text.json:order.statuses.customer.declined": {
+      "from": ["app-text.json:orders.statusDeclined"]
+    },
+    "common-text.json:order.statuses.staff.declined": {
+      "from": ["admin-text.json:orderList.statusDeclined"]
+    },
+    "common-text.json:order.statuses.customer.cancelled": {
+      "from": ["app-text.json:orders.statusCancelled"]
+    },
+    "common-text.json:order.statuses.staff.cancelled": {
+      "from": ["admin-text.json:orderList.statusCancelled"]
+    },
+    "common-text.json:order.paymentMethods.customer.cash": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.payments.cash",
+        "app-text.json:checkout.payment.cashTitle"
+      ]
+    },
+    "common-text.json:order.paymentMethods.customer.transfer": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.payments.bankTransfer",
+        "app-text.json:checkout.payment.transferTitle"
+      ]
+    },
+    "common-text.json:order.paymentMethods.customer.card": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.payments.cardLater",
+        "app-text.json:checkout.payment.cardTitle"
+      ]
+    },
+    "common-text.json:order.paymentMethods.staff.cash": {
+      "from": [
+        "admin-text.json:orderDetail.cash",
+        "admin-text.json:orderAdjust.paymentCash",
+        "mail-text.json:newOrder.cash"
+      ]
+    },
+    "common-text.json:order.paymentMethods.staff.transfer": {
+      "from": [
+        "admin-text.json:orderDetail.transfer",
+        "admin-text.json:orderAdjust.paymentTransfer",
+        "mail-text.json:newOrder.transfer"
+      ]
+    },
+    "common-text.json:order.paymentMethods.staff.card": {
+      "from": [
+        "admin-text.json:orderDetail.card",
+        "admin-text.json:orderAdjust.paymentCard",
+        "mail-text.json:newOrder.card"
+      ]
+    },
+    "common-text.json:order.paymentStates.customer.notDue": {
+      "from": ["mail-text.json:orderSummaryPdf.paymentStates.notDue"]
+    },
+    "common-text.json:order.paymentStates.customer.awaiting": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.paymentStates.awaiting",
+        "app-text.json:orders.paymentAwaiting"
+      ]
+    },
+    "common-text.json:order.paymentStates.customer.paid": {
+      "from": [
+        "mail-text.json:orderSummaryPdf.paymentStates.paid",
+        "app-text.json:orders.paymentPaid"
+      ]
+    },
+    "common-text.json:order.paymentStates.staff.notDue": {
+      "from": ["admin-text.json:orderDetail.paymentState.notDue"]
+    },
+    "common-text.json:order.paymentStates.staff.awaiting": {
+      "from": [
+        "admin-text.json:orderList.paymentAwaiting",
+        "admin-text.json:orderDetail.paymentState.awaiting"
+      ]
+    },
+    "common-text.json:order.paymentStates.staff.paid": {
+      "from": ["admin-text.json:orderList.paymentPaid"]
+    },
+    "common-text.json:order.paymentStates.staff.cashOnHandover": {
+      "from": ["admin-text.json:orderList.paymentCash"]
+    },
+    "common-text.json:fulfilment.label": {
+      "from": [
+        "app-text.json:checkout.review.fulfilment",
+        "admin-text.json:orderDetail.fulfilment",
+        "admin-text.json:orderAdjust.fulfilment",
+        "mail-text.json:orderReceived.fulfilmentLabel",
+        "mail-text.json:newOrder.fulfilmentLabel"
+      ]
+    },
+    "common-text.json:fulfilment.delivery": {
+      "from": [
+        "app-text.json:checkout.fulfilment.deliveryTitle",
+        "admin-text.json:orderDetail.delivery",
+        "admin-text.json:orderAdjust.delivery",
+        "mail-text.json:orderReceived.delivery",
+        "mail-text.json:newOrder.delivery"
+      ]
+    },
+    "common-text.json:fulfilment.pickup": {
+      "from": [
+        "app-text.json:checkout.fulfilment.pickupTitle",
+        "admin-text.json:orderDetail.pickup",
+        "admin-text.json:orderAdjust.pickup",
+        "mail-text.json:orderReceived.pickup",
+        "mail-text.json:newOrder.pickup"
+      ]
+    },
+    "common-text.json:fields.name.label": {
+      "from": [
+        "admin-text.json:orderAdjust.personName",
+        "admin-text.json:orderAdjust.contactName"
+      ]
+    },
+    "common-text.json:fields.name.required": {
+      "from": ["admin-text.json:orderAdjust.validation.nameRequired"]
+    },
+    "common-text.json:fields.email.label": {
+      "from": ["admin-text.json:orderAdjust.contactEmail"]
+    },
+    "common-text.json:fields.email.required": {
+      "from": ["admin-text.json:orderAdjust.validation.emailRequired"]
+    },
+    "common-text.json:fields.email.invalid": {
+      "from": ["admin-text.json:orderAdjust.validation.emailInvalid"]
+    },
+    "common-text.json:fields.phone.label": {
+      "from": ["admin-text.json:orderAdjust.contactPhone"]
+    },
+    "common-text.json:fields.phone.required": {
+      "from": ["admin-text.json:orderAdjust.validation.phoneRequired"]
+    },
+    "common-text.json:fields.phone.incomplete": {
+      "from": ["admin-text.json:orderAdjust.validation.phoneIncomplete"]
+    },
+    "common-text.json:fields.companyName.label": {
+      "from": ["admin-text.json:orderAdjust.companyName"]
+    },
+    "common-text.json:fields.companyName.required": {
+      "from": ["admin-text.json:orderAdjust.validation.companyNameRequired"]
+    },
+    "common-text.json:fields.companyId.label": {
+      "from": ["admin-text.json:orderAdjust.companyId"]
+    },
+    "common-text.json:fields.companyId.required": {
+      "from": ["admin-text.json:orderAdjust.validation.companyIdRequired"]
+    },
+    "common-text.json:fields.companyId.format": {
+      "from": ["admin-text.json:orderAdjust.validation.companyIdFormat"]
+    },
+    "pdf-text.json:orderSummary.title": {
+      "from": ["mail-text.json:orderSummaryPdf.title"]
+    },
+    "pdf-text.json:orderSummary.placedLabel": {
+      "from": ["mail-text.json:orderSummaryPdf.placedLabel"]
+    },
+    "pdf-text.json:orderSummary.whenAny": {
+      "from": ["mail-text.json:orderSummaryPdf.whenAny"]
+    },
+    "pdf-text.json:orderSummary.itemsLabel": {
+      "from": ["mail-text.json:orderSummaryPdf.itemsLabel"]
+    },
+    "pdf-text.json:orderSummary.quantityLabel": {
+      "from": ["mail-text.json:orderSummaryPdf.quantityLabel"]
+    },
+    "pdf-text.json:orderSummary.lineTotalLabel": {
+      "from": ["mail-text.json:orderSummaryPdf.lineTotalLabel"]
+    },
+    "pdf-text.json:orderSummary.returnNotice": {
+      "from": ["mail-text.json:orderSummaryPdf.returnNotice"],
+      "optional": true
+    },
+    "pdf-text.json:orderSummary.footer": {
+      "from": ["mail-text.json:orderSummaryPdf.footer"]
+    },
+    "pdf-text.json:terms.fileName": {
+      "from": ["mail-text.json:orderReceived.termsFileName"]
+    },
+    "admin-text.json:orders.notFound": {
+      "from": [
+        "admin-text.json:orderDetail.notFound",
+        "admin-text.json:orderAdjust.notFound"
+      ]
+    },
+    "admin-text.json:orders.loadError": {
+      "from": [
+        "admin-text.json:orderDetail.loadError",
+        "admin-text.json:orderAdjust.loadError"
+      ]
+    },
+    "admin-text.json:orders.tier": {
+      "from": [
+        "admin-text.json:orderDetail.tier",
+        "admin-text.json:orderAdjust.tier"
+      ]
+    },
+    "admin-text.json:orders.tierDefault": {
+      "from": ["admin-text.json:orderDetail.tierDefault"]
+    },
+    "admin-text.json:orderChanges.line": {
+      "from": [
+        "admin-text.json:orderDetail.revisions.line",
+        "admin-text.json:orderAdjust.changes.line"
+      ]
+    },
+    "admin-text.json:orderChanges.added": {
+      "from": [
+        "admin-text.json:orderDetail.revisions.added",
+        "admin-text.json:orderAdjust.changes.added"
+      ]
+    },
+    "admin-text.json:orderChanges.removed": {
+      "from": [
+        "admin-text.json:orderDetail.revisions.removed",
+        "admin-text.json:orderAdjust.changes.removed"
+      ]
+    },
+    "admin-text.json:orderChanges.shipment": {
+      "from": [
+        "admin-text.json:orderDetail.revisions.shipment",
+        "admin-text.json:orderAdjust.changes.shipment"
+      ]
+    },
+    "admin-text.json:orderDetail.notifyHint": {
+      "from": [
+        "admin-text.json:orderDetail.actions.notifyHint",
+        "admin-text.json:orderDetail.tellCustomer.updateNotifyHint"
+      ]
+    },
+    "admin-text.json:orderDetail.actions.confirm.heading": {
+      "from": ["admin-text.json:orderDetail.actions.confirmHeading"]
+    },
+    "admin-text.json:orderDetail.actions.confirm.message": {
+      "from": ["admin-text.json:orderDetail.actions.confirmMessage"]
+    },
+    "admin-text.json:orderDetail.actions.confirm.confirm": {
+      "new": "{action}"
+    },
+    "admin-text.json:orderDetail.actions.confirm.cancel": {
+      "from": ["admin-text.json:orderDetail.actions.keep"]
+    },
+    "admin-text.json:orderDetail.actions.confirm.warning": {
+      "from": ["admin-text.json:orderDetail.actions.paidWarning"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.updateConfirm.heading": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.updateConfirmHeading"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.updateConfirm.message": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.updateConfirmMessage"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.updateConfirm.confirm": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.updateConfirm"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.updateConfirm.cancel": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.keep"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.emailConfirm.heading": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.emailConfirmHeading"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.emailConfirm.message": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.emailConfirmMessage"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.emailConfirm.confirm": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.emailConfirm"]
+    },
+    "admin-text.json:orderDetail.tellCustomer.emailConfirm.cancel": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.keep"]
+    },
+    "admin-text.json:orderDetail.paymentState.recordConfirm.heading": {
+      "from": ["admin-text.json:orderDetail.paymentState.confirmHeading"]
+    },
+    "admin-text.json:orderDetail.paymentState.recordConfirm.message": {
+      "from": ["admin-text.json:orderDetail.paymentState.confirmMessage"]
+    },
+    "admin-text.json:orderDetail.paymentState.recordConfirm.confirm": {
+      "from": ["admin-text.json:orderDetail.paymentState.confirm"]
+    },
+    "admin-text.json:orderDetail.paymentState.recordConfirm.cancel": {
+      "from": ["admin-text.json:orderDetail.paymentState.keep"]
+    },
+    "admin-text.json:orderDetail.paymentState.clearConfirm.heading": {
+      "from": ["admin-text.json:orderDetail.paymentState.clearConfirmHeading"]
+    },
+    "admin-text.json:orderDetail.paymentState.clearConfirm.message": {
+      "from": ["admin-text.json:orderDetail.paymentState.clearConfirmMessage"]
+    },
+    "admin-text.json:orderDetail.paymentState.clearConfirm.confirm": {
+      "from": ["admin-text.json:orderDetail.paymentState.clearConfirm"]
+    },
+    "admin-text.json:orderDetail.paymentState.clearConfirm.cancel": {
+      "from": ["admin-text.json:orderDetail.paymentState.keep"]
+    },
+    "admin-text.json:orderDetail.personalData.confirm.heading": {
+      "from": ["admin-text.json:orderDetail.personalData.confirmHeading"]
+    },
+    "admin-text.json:orderDetail.personalData.confirm.message": {
+      "from": ["admin-text.json:orderDetail.personalData.confirmMessage"]
+    },
+    "admin-text.json:orderDetail.personalData.confirm.confirm": {
+      "from": ["admin-text.json:orderDetail.personalData.confirm"]
+    },
+    "admin-text.json:orderDetail.personalData.confirm.cancel": {
+      "new": "Keep the details"
+    },
+    "admin-text.json:orderDetail.personalData.confirm.warning": {
+      "from": ["admin-text.json:orderDetail.personalData.confirmWarning"]
+    },
+    "admin-text.json:orderDetail.documents.notifyConfirm.heading": {
+      "from": ["admin-text.json:orderDetail.documents.notifyConfirmHeading"]
+    },
+    "admin-text.json:orderDetail.documents.notifyConfirm.message": {
+      "from": ["admin-text.json:orderDetail.documents.notifyConfirmMessage"]
+    },
+    "admin-text.json:orderDetail.documents.notifyConfirm.confirm": {
+      "from": ["admin-text.json:orderDetail.documents.notifyConfirm"]
+    },
+    "admin-text.json:orderDetail.documents.notifyConfirm.cancel": {
+      "from": ["admin-text.json:orderDetail.tellCustomer.keep"]
+    },
+    "admin-text.json:orderDetail.documents.removeConfirm.heading": {
+      "from": ["admin-text.json:orderDetail.documents.removeConfirmHeading"]
+    },
+    "admin-text.json:orderDetail.documents.removeConfirm.message": {
+      "from": ["admin-text.json:orderDetail.documents.removeConfirmMessage"]
+    },
+    "admin-text.json:orderDetail.documents.removeConfirm.confirm": {
+      "from": ["admin-text.json:orderDetail.documents.removeConfirm"]
+    },
+    "admin-text.json:orderDetail.documents.removeConfirm.cancel": {
+      "from": ["admin-text.json:orderDetail.documents.keep"]
+    },
+    "admin-text.json:orderAdjust.confirm.heading": {
+      "from": ["admin-text.json:orderAdjust.confirmHeading"]
+    },
+    "admin-text.json:orderAdjust.confirm.message": {
+      "from": ["admin-text.json:orderAdjust.confirmMessage"]
+    },
+    "admin-text.json:orderAdjust.confirm.confirm": {
+      "from": ["admin-text.json:orderAdjust.confirm"]
+    },
+    "admin-text.json:orderAdjust.confirm.cancel": {
+      "from": ["admin-text.json:orderAdjust.keep"]
+    }
+  },
+  "drop": [
+    "mail-text.json:orderSummaryPdf.whenLabel",
+    "mail-text.json:orderSummaryPdf.statuses.requested",
+    "mail-text.json:orderSummaryPdf.statuses.approved",
+    "mail-text.json:orderSummaryPdf.statuses.ready",
+    "mail-text.json:orderSummaryPdf.statuses.completed",
+    "mail-text.json:orderSummaryPdf.statuses.declined",
+    "mail-text.json:orderSummaryPdf.statuses.cancelled"
+  ]
+}

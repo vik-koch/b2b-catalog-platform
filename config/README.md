@@ -442,3 +442,23 @@ The document `<title>` is not an asset: it is `branding.title` in
 repo's committed demo config; a real deployment sets `CONFIG_DIR` to its own
 directory of files (held in the private deployment repo), copied into
 `/srv/b2b/<stack>/config` before the stack starts.
+
+## When a release moves text keys
+
+The text files are loaded whole, so a release that renames, merges or adds a
+text key stops a deployment with the old files from booting. Such a release
+ships a map in `tools/text-migration/<version>.json`, and the tool applies it
+to a deployment's own files, keeping their wording:
+
+```
+node tools/migrate-text.mjs --release 1.14.1 --config-dir <dir>           # report only
+node tools/migrate-text.mjs --release 1.14.1 --config-dir <dir> --write
+```
+
+It needs Node and nothing else: no checkout and no `npm ci`. The script and
+the release's map, downloaded from the release tag with the map in a
+`text-migration/` folder beside the script (or passed with `--map <file>`), are
+enough. It reports what it cannot decide: wording new in the release (written
+in English), keys merged from several old ones whose values differed in the
+deployment, and counting texts still written in two forms. A deployment several
+releases behind runs each release's map in order.

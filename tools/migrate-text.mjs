@@ -1,0 +1,298 @@
+#!/usr/bin/env node
+/**
+ * Moves a deployment's text files to the key structure of a release, keeping
+ * the deployment's own wording.
+ *
+ *   node migrate-text.mjs --release 1.14.1 --config-dir <dir> [--write]
+ *
+ * Without `--write` it only reports. The map for a release is
+ * `text-migration/<release>.json` beside this script, or `--map <file>`: every
+ * new key names the old keys its value comes from, the first one the
+ * deployment has wins, and a later one with a different value is reported — a
+ * merge that may not hold in that deployment's language. `new` marks wording
+ * that did not exist before.
+ *
+ * Node's built-ins only, so an operator needs no checkout: this file and the
+ * map, downloaded from the release tag, are enough. The deployment's files were
+ * valid at the release the map starts from — the app does not boot otherwise —
+ * and `--check` proves the map turns valid into valid, so all that is left to
+ * find here is the counting texts still written in two forms.
+ *
+ * `--check` is the CI half, run from a checkout after `npm ci`: it migrates the
+ * demo config of the release the map starts from (read from git) and validates
+ * the result against today's schemas, so a key the map forgot fails CI rather
+ * than an operator's boot. It checks the newest map unless told otherwise:
+ * older ones end at a structure the schemas have since left, so a deployment
+ * several releases behind runs each map in turn.
+ */
+import { execFileSync } from 'node:child_process';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const HERE = dirname(fileURLToPath(import.meta.url));
+const MAPS = join(HERE, 'text-migration');
+const FILES = [
+  'common-text.json',
+  'app-text.json',
+  'admin-text.json',
+  'mail-text.json',
+  'pdf-text.json',
+];
+
+const flag = (name) => {
+  const at = process.argv.indexOf(`--${name}`);
+  return at >= 0 ? process.argv[at + 1] : undefined;
+};
+const check = process.argv.includes('--check');
+const write = process.argv.includes('--write');
+const configDir = flag('config-dir');
+const mapFile =
+  flag('map') ??
+  join(MAPS, `${flag('release') ?? (check ? newestRelease() : '')}.json`);
+if (!existsSync(mapFile) || (!check && !configDir)) {
+  console.error(
+    'usage: node migrate-text.mjs --release <version> --config-dir <dir> [--write]\n' +
+      '       node migrate-text.mjs --map <file> --config-dir <dir> [--write]\n' +
+      '       node migrate-text.mjs --check [--release <version>]',
+  );
+  process.exit(2);
+}
+const map = JSON.parse(readFileSync(mapFile, 'utf8'));
+
+function newestRelease() {
+  const byVersion = (a, b) => a.localeCompare(b, undefined, { numeric: true });
+  return readdirSync(MAPS)
+    .filter((file) => file.endsWith('.json'))
+    .map((file) => file.replace(/\.json$/, ''))
+    .sort(byVersion)
+    .at(-1);
+}
+
+const split = (key) => {
+  const [file, path] = key.split(':');
+  return { file, path: path.split('.') };
+};
+const get = (files, key) => {
+  const { file, path } = split(key);
+  return path.reduce((node, part) => node?.[part], files[file]);
+};
+const remove = (files, key) => {
+  const { file, path } = split(key);
+  const parents = [];
+  let node = files[file];
+  for (const part of path.slice(0, -1)) {
+    if (node?.[part] === undefined) return;
+    parents.push([node, part]);
+    node = node[part];
+  }
+  if (node) delete node[path.at(-1)];
+  // An object emptied by the move goes too: the schemas have no empty ones.
+  for (const [parent, part] of parents.reverse()) {
+    if (Object.keys(parent[part]).length > 0) break;
+    delete parent[part];
+  }
+};
+const set = (files, key, value) => {
+  const { file, path } = split(key);
+  let node = (files[file] ??= {});
+  for (const part of path.slice(0, -1)) node = node[part] ??= {};
+  node[path.at(-1)] = value;
+};
+
+/** The deployment's files in the release's structure, and what to tell its
+ * operator about them. */
+function migrate(original) {
+  const files = structuredClone(original);
+  const report = { added: [], conflicts: [], dropped: [], missing: [] };
+  const values = {};
+
+  // Read every value before moving any: a target may sit where a source was.
+  for (const [target, rule] of Object.entries(map.keys)) {
+    const found = (rule.from ?? [])
+      .map((source) => ({ source, value: get(original, source) }))
+      .filter(({ value }) => value !== undefined);
+    if (found.length > 0) {
+      values[target] = found[0].value;
+      const others = found.filter(({ value }) => value !== found[0].value);
+      if (others.length > 0) {
+        report.conflicts.push({ target, kept: found[0], others });
+      }
+    } else if (rule.new !== undefined) {
+      values[target] = rule.new;
+      report.added.push({ target, value: rule.new });
+    } else if (!rule.optional) {
+      report.missing.push(target);
+    }
+  }
+  for (const key of map.drop) {
+    const value = get(original, key);
+    if (value !== undefined) report.dropped.push({ key, value });
+  }
+
+  for (const rule of Object.values(map.keys)) {
+    for (const source of rule.from ?? []) remove(files, source);
+  }
+  for (const key of map.drop) remove(files, key);
+  for (const [target, value] of Object.entries(values)) {
+    set(files, target, value);
+  }
+  return { files, report };
+}
+
+/** Keys in the order the release's own demo files have them, so a migrated
+ * file reads like the one it will be compared with. */
+function orderedLike(value, template) {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return value;
+  }
+  const known = Object.keys(template ?? {}).filter((key) => key in value);
+  const rest = Object.keys(value).filter((key) => !known.includes(key));
+  return Object.fromEntries(
+    [...known, ...rest].map((key) => [
+      key,
+      orderedLike(value[key], template?.[key]),
+    ]),
+  );
+}
+
+/** Counting texts still written as `singular|plural`, which the release
+ * refuses at boot (the same test as the schemas' `refuseCountForms`). */
+function countForms(files) {
+  const found = [];
+  const walk = (value, where) => {
+    if (typeof value === 'string') {
+      if (value.includes('{count}') && value.includes('|')) found.push(where);
+    } else if (value && typeof value === 'object') {
+      for (const [key, item] of Object.entries(value)) {
+        walk(item, where.endsWith(':') ? `${where}${key}` : `${where}.${key}`);
+      }
+    }
+  };
+  for (const file of FILES) walk(files[file], `${file}:`);
+  return found;
+}
+
+const SCHEMAS = {
+  'common-text.json': [
+    'libs/shared/src/lib/common-text.ts',
+    'commonTextSchema',
+  ],
+  'app-text.json': [
+    'apps/web/src/app/config/app-text.type.ts',
+    'appTextSchema',
+  ],
+  'admin-text.json': [
+    'apps/web/src/app/config/admin-text.type.ts',
+    'adminTextSchema',
+  ],
+  'mail-text.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],
+  'pdf-text.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
+};
+
+/** Schema problems other than the counting texts. Only for `--check`: loads
+ * the schemas from source, which needs the workspace's packages. */
+async function validate(files) {
+  const { loadTypeScript } = await import('./lib/generated-docs.mjs');
+  const problems = [];
+  for (const [file, [entry, name]] of Object.entries(SCHEMAS)) {
+    const schema = (await loadTypeScript(entry))[name];
+    const result = schema.safeParse(files[file] ?? {});
+    for (const issue of result.success ? [] : result.error.issues) {
+      if (/counting text has one form/.test(issue.message)) continue;
+      problems.push(`${file}:${issue.path.join('.')}: ${issue.message}`);
+    }
+  }
+  return problems;
+}
+
+function readDemoAt(ref) {
+  const files = {};
+  for (const file of FILES) {
+    try {
+      files[file] = JSON.parse(
+        execFileSync('git', ['show', `${ref}:config/${file}`], {
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'ignore'],
+        }),
+      );
+    } catch {
+      // A file the release had not introduced yet.
+    }
+  }
+  return files;
+}
+
+function readDir(dir) {
+  const files = {};
+  for (const file of FILES) {
+    const path = join(dir, file);
+    if (existsSync(path)) files[file] = JSON.parse(readFileSync(path, 'utf8'));
+  }
+  return files;
+}
+
+const quoted = (value) => JSON.stringify(value);
+function section(title, lines) {
+  if (lines.length === 0) return;
+  console.log(`\n${title}`);
+  for (const line of lines) console.log(`  ${line}`);
+}
+
+const original = check ? readDemoAt(map.from) : readDir(configDir);
+const { files, report } = migrate(original);
+// Run from a checkout, the release's demo config sits beside the tools.
+const demo = readDir(join(HERE, '..', 'config'));
+for (const file of FILES) {
+  if (files[file]) files[file] = orderedLike(files[file], demo[file]);
+}
+
+console.log(
+  `migrate-text: ${map.from} → ${mapFile.replace(/.*\//, '').replace(/\.json$/, '')}, ` +
+    (check ? `demo config at ${map.from}` : configDir),
+);
+section(
+  'New wording, written in English — translate it:',
+  report.added.map(({ target, value }) => `${target} = ${quoted(value)}`),
+);
+section(
+  'Merged keys whose values differed — the first was kept, check it reads right everywhere:',
+  report.conflicts.flatMap(({ target, kept, others }) => [
+    `${target} = ${quoted(kept.value)}  (from ${kept.source})`,
+    ...others.map(
+      ({ source, value }) => `    was ${quoted(value)} at ${source}`,
+    ),
+  ]),
+);
+section(
+  'Dropped, no longer used:',
+  report.dropped.map(({ key, value }) => `${key} = ${quoted(value)}`),
+);
+section(
+  'Counting texts to reword without "|" (the deployment does not boot until then):',
+  countForms(files),
+);
+section('Missing from your files, so nothing to carry over:', report.missing);
+
+if (check) {
+  // The demo was worded for this release by hand, so only a broken structure
+  // fails here — never the wording reported above.
+  const problems = await validate(files);
+  section('Invalid after migration:', problems);
+  if (problems.length + report.missing.length > 0) {
+    console.error('\nThe map is incomplete.');
+    process.exit(1);
+  }
+  console.log('\nThe map is complete.');
+} else if (write) {
+  const written = FILES.filter((file) => files[file]);
+  for (const file of written) {
+    writeFileSync(
+      join(configDir, file),
+      `${JSON.stringify(files[file], null, 2)}\n`,
+    );
+  }
+  console.log(`\nWrote ${written.length} files to ${configDir}.`);
+} else {
+  console.log('\nNothing written. Pass --write to write the files.');
+}
