@@ -21,6 +21,7 @@ import { StaticPageReuseStrategy } from './core/route-reuse';
 import { ScrollRestoration } from './core/scroll-restoration';
 import { CartRepricing } from './cart/cart-repricing';
 import { provideAppText } from './config/app-text';
+import { provideCommonText } from './config/common-text';
 import { provideDeploymentConfig } from './config/deployment-config';
 import { provideSuggestionsEnabled } from './config/suggestions-enabled';
 
@@ -55,6 +56,7 @@ export const appConfig: ApplicationConfig = {
     // (app.config.server.ts) are merged last and override these on SSR.
     provideDeploymentConfig(),
     provideAppText(),
+    provideCommonText(),
     provideSuggestionsEnabled(),
     // Nothing injects it, and it has to run wherever the visitor happens to
     // be: a cart priced for somebody else is corrected as the session changes,

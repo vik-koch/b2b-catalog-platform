@@ -1,5 +1,6 @@
 import { SHELL_STATE_ELEMENT_ID, ShellState } from './shell-state';
 import { getAppText } from './app-text.server';
+import { getCommonText } from './common-text.server';
 import { getDeploymentConfig } from './deployment-config.server';
 import { getSuggestionsEnabled } from './suggestions-enabled.server';
 
@@ -22,6 +23,7 @@ function getShellStateScript(): string {
     const state: ShellState = {
       deploymentConfig: getDeploymentConfig(),
       appText: getAppText(),
+      commonText: getCommonText(),
       suggestionsEnabled: getSuggestionsEnabled(),
     };
     const json = JSON.stringify(state).replace(/</g, '\\u003c');

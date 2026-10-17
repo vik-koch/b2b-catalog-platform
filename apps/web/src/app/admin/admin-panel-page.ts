@@ -10,6 +10,7 @@ import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
 import { AdminIcon } from '../ui/icons/admin-icon';
@@ -448,7 +449,7 @@ export class AdminPanelPage {
   protected readonly userText = inject(ADMIN_TEXT).userList;
   protected readonly consentText = inject(ADMIN_TEXT).consents;
   protected readonly orderText = inject(ADMIN_TEXT).orderList;
-  protected readonly navText = inject(APP_TEXT).nav;
+  protected readonly navText = inject(COMMON_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   protected readonly areas = OWNERSHIP_AREAS;
   // Only what this deployment publishes: an unpublished page has no route to

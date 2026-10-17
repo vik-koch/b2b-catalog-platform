@@ -1,5 +1,6 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
@@ -104,9 +105,10 @@ import { trustedRichText } from '../core/trusted-rich-text';
 })
 export class ContactPage {
   private readonly appText = inject(APP_TEXT);
+  private readonly nav = inject(COMMON_TEXT).nav;
   private readonly pageService = inject(PageService);
 
-  protected readonly heading = this.appText.nav['contact'];
+  protected readonly heading = this.nav['contact'];
   protected readonly errorText = this.appText.errors;
   protected readonly locations = inject(DEPLOYMENT_CONFIG).locations;
   protected readonly editorFrom = injectEditorReturnParams();

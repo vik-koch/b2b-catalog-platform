@@ -31,11 +31,6 @@ export const appTextSchema = z
       })
       .strict(),
     /**
-     * Keyed by nav route segment — page slugs (PAGE_SLUGS) plus feature routes
-     * like `contact`. Open by design (a record), so no `.strict()`.
-     */
-    nav: z.record(z.string(), z.string()),
-    /**
      * Text only assistive technology reads: landmark names and the accessible
      * names of controls whose visible content is an icon or a logo. It is still
      * user-facing copy in one language, so it belongs here rather than baked

@@ -3,6 +3,8 @@ import { Page } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -65,6 +67,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: options.config ?? testConfig },
       { provide: InquiryService, useValue: { submit } },
       { provide: PageService, useValue: { getPage } },

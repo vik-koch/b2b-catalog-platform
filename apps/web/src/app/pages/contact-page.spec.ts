@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   ContactLocation,
@@ -30,6 +32,7 @@ async function render(
     imports: [ContactPage],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config(locations) },
       { provide: PageService, useValue: { getPage } },
       {
@@ -59,7 +62,7 @@ describe('ContactPage', () => {
     ]);
 
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultAppText.nav['contact'],
+      defaultCommonText.nav['contact'],
     );
     expect(el.textContent).toContain('HQ');
     expect(el.textContent).toContain('Main St 1');

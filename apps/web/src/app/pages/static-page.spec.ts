@@ -6,6 +6,8 @@ import { Page as PageContent } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { loadAdminText } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -37,6 +39,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: EditModeService,
@@ -148,7 +151,7 @@ describe('StaticPage — before it has been written', () => {
     expect(el.querySelector('app-load-error-view')).toBeNull();
     // Headed by its navigation label, so the page is named before it exists.
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultAppText.nav['about'],
+      defaultCommonText.nav['about'],
     );
     expect(el.textContent).toContain(defaultAdminText.pageEditor.emptyNotice);
     expect(editLink(el)?.getAttribute('href')).toContain(
@@ -171,6 +174,7 @@ describe('StaticPage — when the API cannot be reached', () => {
       providers: [
         provideRouter([]),
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: EditModeService,

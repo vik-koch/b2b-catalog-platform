@@ -61,6 +61,9 @@ const rendered = (slug) =>
 const { mailTextSchema } = await loadTypeScript(
   'apps/api/src/mail/mail-text.ts',
 );
+const { commonTextSchema } = await loadTypeScript(
+  'libs/shared/src/lib/common-text.ts',
+);
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
   'apps/api/src/mail/mail-previews.ts',
 );
@@ -70,17 +73,22 @@ const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
  * file with a section missing has to say which one — that is most of the point
  * of rendering somebody else's config here.
  */
-const parsed = mailTextSchema.safeParse(
-  JSON.parse(readFileSync(`${CONFIG_DIR}/mail-text.json`, 'utf8')),
-);
-if (!parsed.success) {
-  console.error(
-    `${CONFIG_DIR}/mail-text.json is not valid mail wording:\n${parsed.error.issues
-      .map((issue) => `  ${issue.path.join('.')}: ${issue.message}`)
-      .join('\n')}`,
+const parseConfig = (schema, file) => {
+  const parsed = schema.safeParse(
+    JSON.parse(readFileSync(`${CONFIG_DIR}/${file}`, 'utf8')),
   );
-  process.exit(1);
-}
+  if (!parsed.success) {
+    console.error(
+      `${CONFIG_DIR}/${file} is not valid:\n${parsed.error.issues
+        .map((issue) => `  ${issue.path.join('.')}: ${issue.message}`)
+        .join('\n')}`,
+    );
+    process.exit(1);
+  }
+  return parsed.data;
+};
+const mailText = parseConfig(mailTextSchema, 'mail-text.json');
+const commonText = parseConfig(commonTextSchema, 'common-text.json');
 const deployment = JSON.parse(
   readFileSync(`${CONFIG_DIR}/deployment.json`, 'utf8'),
 );
@@ -98,7 +106,7 @@ const escape = (value) =>
     (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch],
   );
 
-const previews = renderMailPreviews(parsed.data, branding);
+const previews = renderMailPreviews(mailText, commonText, branding);
 const files = {};
 for (const preview of previews) {
   files[`${DIR}/${preview.slug}.html`] = preview.rendered.html;

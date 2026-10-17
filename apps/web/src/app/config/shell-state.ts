@@ -1,3 +1,4 @@
+import type { CommonText } from '@b2b-catalog-platform/shared';
 import { AppText } from './app-text.type';
 import { DeploymentConfig } from './deployment-config.type';
 
@@ -12,6 +13,7 @@ import { DeploymentConfig } from './deployment-config.type';
 export interface ShellState {
   deploymentConfig: DeploymentConfig;
   appText: AppText;
+  commonText: CommonText;
   /** Whether a suggestion provider is configured — an environment variable
    * rather than a config file, so it travels here (see
    * suggestions-enabled.ts). */

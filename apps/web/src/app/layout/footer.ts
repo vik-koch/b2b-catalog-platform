@@ -1,6 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import type { ElsewhereLink } from '../config/deployment-config.type';
 import { ConsentService } from '../consent/consent.service';
@@ -125,10 +126,10 @@ import { ScrollToTop } from './scroll-to-top';
                   [routerLink]="'/' + slug"
                   routerLinkActive
                   ariaCurrentWhenActive="page"
-                  [attr.data-label]="text.nav[slug]"
+                  [attr.data-label]="nav[slug]"
                   class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
-                  {{ text.nav[slug] }}
+                  {{ nav[slug] }}
                 </a>
               }
               <!-- Consent withdrawal must be as easy as giving it; shown only
@@ -152,7 +153,7 @@ import { ScrollToTop } from './scroll-to-top';
                    however many a deployment lists, the row keeps its shape.
                    An empty list leaves the group out entirely. -->
               <div class="flex flex-wrap items-center gap-4">
-                <a appButton routerLink="/inquiry">{{ text.nav['inquiry'] }}</a>
+                <a appButton routerLink="/inquiry">{{ nav['inquiry'] }}</a>
                 @for (link of elsewhere; track link.url) {
                   <a
                     [href]="link.url"
@@ -196,6 +197,7 @@ export class Footer {
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(APP_TEXT);
+  protected readonly nav = inject(COMMON_TEXT).nav;
   protected readonly consent = inject(ConsentService);
   protected readonly branding = this.config.branding;
   /** Which pages the legal nav links, and in what order. */

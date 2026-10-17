@@ -4,6 +4,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import {
   canonicalPhone,
@@ -167,7 +168,7 @@ export class InquiryPage {
       { value: 'phone', label: this.text.preferredPhone },
     ];
   protected readonly errors = inject(APP_TEXT).errors;
-  protected readonly heading = inject(APP_TEXT).nav['inquiry'];
+  protected readonly heading = inject(COMMON_TEXT).nav['inquiry'];
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly emailText = {
     required: this.text.validation.emailRequired,

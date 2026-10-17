@@ -10,6 +10,8 @@ import {
 import { APP_TEXT } from '../config/app-text';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -60,6 +62,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: DEPLOYMENT_CONFIG, useValue: deployment },
       {

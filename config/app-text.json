@@ -2,21 +2,6 @@
   "footer": {
     "copyright": "© {name} {years}"
   },
-  "nav": {
-    "home": "Home",
-    "about": "About us",
-    "terms": "Terms of sale",
-    "conditions": "Payment & delivery",
-    "privacy": "Privacy",
-    "imprint": "Imprint",
-    "withdrawal": "Right of withdrawal",
-    "contact": "Contact",
-    "consent-contact": "Consent: contact form",
-    "consent-account": "Consent: customer account",
-    "inquiry": "Get in touch",
-    "licenses": "Licenses",
-    "more": "More"
-  },
   "a11y": {
     "homeLink": "{name} — home",
     "utilityNav": "Utility",

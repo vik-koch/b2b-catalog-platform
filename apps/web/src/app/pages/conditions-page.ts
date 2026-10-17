@@ -2,6 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText, formatTaxRate } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { AppText } from '../config/app-text.type';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
@@ -222,6 +223,7 @@ import { PageService } from './page.service';
 })
 export class ConditionsPage {
   private readonly appText = inject(APP_TEXT);
+  private readonly nav = inject(COMMON_TEXT).nav;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 
@@ -229,7 +231,7 @@ export class ConditionsPage {
     'flex gap-3 rounded-lg border border-border p-4';
   protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
 
-  protected readonly navLabel = this.appText.nav['conditions'] ?? '';
+  protected readonly navLabel = this.nav['conditions'] ?? '';
   protected readonly errorText = this.appText.errors;
   protected readonly pageText = this.appText.conditions;
   protected readonly fulfilmentText = this.appText.checkout.fulfilment;

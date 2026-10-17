@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -21,6 +23,7 @@ async function renderWith(deployment: DeploymentConfig) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: deployment },
     ],
   });
@@ -58,8 +61,8 @@ describe('Footer', () => {
 
   it('always renders the legal nav links', async () => {
     const el = await render(false);
-    expect(el.textContent).toContain(defaultAppText.nav['privacy']);
-    expect(el.textContent).toContain(defaultAppText.nav['imprint']);
+    expect(el.textContent).toContain(defaultCommonText.nav['privacy']);
+    expect(el.textContent).toContain(defaultCommonText.nav['imprint']);
   });
 
   // The attribution page is a code route, not a published page, so the only
@@ -67,7 +70,7 @@ describe('Footer', () => {
   // deployment with no obligation to show it drops it there.
   it('links the license notice when the deployment lists it', async () => {
     const el = await render(false);
-    expect(el.textContent).toContain(defaultAppText.nav['licenses']);
+    expect(el.textContent).toContain(defaultCommonText.nav['licenses']);
   });
 
   // FR-NAV-07. The mark is a mask, so the link's words are what identifies it;
@@ -210,6 +213,6 @@ describe('Footer', () => {
       },
     });
 
-    expect(el.textContent).not.toContain(defaultAppText.nav['licenses']);
+    expect(el.textContent).not.toContain(defaultCommonText.nav['licenses']);
   });
 });

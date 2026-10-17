@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { AppText } from '../config/app-text.type';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -26,6 +28,7 @@ async function render(
     imports: [ConditionsPage],
     providers: [
       provideRouter([]),
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: APP_TEXT,
         useValue: {
@@ -92,7 +95,7 @@ describe('ConditionsPage', () => {
     const el = await render({}, async () => ({ ...conditionsBody, title: '' }));
 
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultAppText.nav['conditions'],
+      defaultCommonText.nav['conditions'],
     );
   });
 

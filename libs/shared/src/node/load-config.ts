@@ -15,6 +15,14 @@ export function loadConfig<T>(
       `${envVar} is not set — it must name a mounted config file (see config/README.md)`,
     );
   }
+  return loadConfigFile(schema, path);
+}
+
+/** Load and validate a config file by its path. */
+export function loadConfigFile<T>(
+  schema: ZodType<T>,
+  path: string,
+): DeepReadonly<T> {
   const raw = JSON.parse(readFileSync(path, 'utf8'));
   // parse() yields the mutable T; expose it through its deep-readonly view. The
   // cast is sound (a value is trivially a read-only view of itself) but needed —

@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About us",
+    "terms": "Terms of sale",
+    "conditions": "Payment & delivery",
+    "privacy": "Privacy",
+    "imprint": "Imprint",
+    "withdrawal": "Right of withdrawal",
+    "contact": "Contact",
+    "consent-contact": "Consent: contact form",
+    "consent-account": "Consent: customer account",
+    "inquiry": "Get in touch",
+    "licenses": "Licenses",
+    "more": "More"
+  },
+  "units": {
+    "piece": "pcs",
+    "pack": "pk",
+    "box": "bx"
+  },
+  "quantity": "{qty} {unit}",
+  "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
+  "tax": {
+    "included": "incl. {rate}\u00a0% VAT",
+    "added": "plus {rate}\u00a0% VAT",
+    "none": "no VAT charged",
+    "mixed": {
+      "included": "incl. VAT at the rate each item states",
+      "added": "plus VAT at the rate each item states"
+    },
+    "line": "{rate}\u00a0% VAT"
+  }
+}

@@ -21,8 +21,13 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   formats money for the mails, and mints the order reference. It also reads
   which consent texts are published, because those are the consents its forms
   require.
-- `app-text.json` → `AppText`, the **public** UI-text catalog (nav labels,
-  storefront chrome, the login form, error messages).
+- `common-text.json` → `CommonText`, the shop's **shared names**: what the
+  storefront, the admin, mail and the order summary would otherwise each repeat
+  (page names, units, the tax statements). Only names, never a sentence written
+  for one reader. **Browser-delivered** via shell state and **also loaded by the
+  API**.
+- `app-text.json` → `AppText`, the **public** UI-text catalog (storefront
+  chrome, the login form, error messages).
   **Browser-delivered** via shell state.
 - `admin-text.json` → `AdminText`, the wording of the **admin** surfaces
   (editors, management screens, catalog sync, storefront edit mode).
@@ -43,6 +48,7 @@ DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api
 APP_TEXT_FILE=/config/app-text.json              # web
 ADMIN_TEXT_FILE=/config/admin-text.json          # web
 MAIL_TEXT_FILE=/config/mail-text.json            # api
+COMMON_TEXT_FILE=/config/common-text.json        # web + api
 ```
 
 A deployment may also mount a **common-password blocklist** — a plain
@@ -207,8 +213,8 @@ its own rate; staff screens state every line's rate regardless. An order keeps
 the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
-The wording is `tax` and `conditions.tax*` in `app-text.json`, and `common.tax`
-in `mail-text.json` for the mails and the order summary. `{rate}` is the rate
+The wording is `tax` and `conditions.tax*` in `app-text.json`, and `tax` in
+`common-text.json` for the mails and the order summary. `{rate}` is the rate
 written as the deployment writes numbers; the `mixed` forms are the totals that
 name no rate.
 
@@ -319,6 +325,7 @@ Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 ```
 config/
   deployment.json      # web + api config  (browser-delivered)
+  common-text.json     # shared names      (browser-delivered, api too)
   app-text.json        # web public text   (browser-delivered)
   admin-text.json      # web admin text    (fetched by admins)
   mail-text.json       # api email wording (server-only)

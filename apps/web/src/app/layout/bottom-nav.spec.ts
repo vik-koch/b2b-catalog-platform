@@ -7,6 +7,8 @@ import { WorkService } from '../work/work.service';
 import { workStub } from '../work/work.fixture';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { BottomNav } from './bottom-nav';
@@ -27,6 +29,7 @@ async function render(url = '/catalog', role: UserRole | null = null) {
     providers: [
       provideRouter([{ path: '**', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: authStub(role) },
       { provide: WorkService, useValue: workStub() },

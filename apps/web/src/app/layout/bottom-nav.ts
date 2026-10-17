@@ -9,6 +9,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { currentUrl } from '../core/current-url';
 import { Icon } from '../ui/icons/icon';
@@ -89,7 +90,7 @@ const LEAVE_MS = 150;
             [class]="menuRow"
             (click)="close()"
           >
-            {{ text.nav['home'] }}
+            {{ nav['home'] }}
           </a>
           @for (route of menuRoutes; track route) {
             <a
@@ -98,7 +99,7 @@ const LEAVE_MS = 150;
               [class]="menuRow"
               (click)="close()"
             >
-              {{ text.nav[route] }}
+              {{ nav[route] }}
             </a>
           }
           <!-- What a session adds. Staff order histories are their own list in
@@ -195,7 +196,7 @@ const LEAVE_MS = 150;
               <app-icon name="menu" class="size-6" />
             }
             <span [class]="tab.labelRow">
-              <span [class]="tab.label">{{ text.nav['more'] }}</span>
+              <span [class]="tab.label">{{ nav['more'] }}</span>
             </span>
           </button>
         </div>
@@ -227,6 +228,7 @@ export class BottomNav {
   );
 
   protected readonly text = inject(APP_TEXT);
+  protected readonly nav = inject(COMMON_TEXT).nav;
   protected readonly orders = this.text.orders;
   protected readonly search = this.text.search;
   protected readonly a11y = this.text.a11y;
