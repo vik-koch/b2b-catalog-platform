@@ -25,9 +25,6 @@ export interface ConfirmRequest {
   checks?: readonly ConfirmCheck[];
 }
 
-/** A confirmation that may say why. Required by default, because the usual
- * case is a reason quoted at somebody; optional where it is a courtesy to the
- * reader rather than an explanation owed to them. */
 /** A dialog's words as a deployment writes them (`confirmText` in the text
  * schemas). */
 export interface ConfirmText {
@@ -49,6 +46,9 @@ export function confirmRequest(text: ConfirmText, cancel = ''): ConfirmRequest {
   };
 }
 
+/** A confirmation that may say why. Required by default, because the usual
+ * case is a reason quoted at somebody; optional where it is a courtesy to the
+ * reader rather than an explanation owed to them. */
 export interface ReasonRequest extends ConfirmRequest {
   reasonLabel: string;
   reasonMaxLength: number;

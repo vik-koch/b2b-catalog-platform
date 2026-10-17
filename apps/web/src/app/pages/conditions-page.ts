@@ -233,7 +233,7 @@ export class ConditionsPage {
     'flex gap-3 rounded-lg border border-border p-4';
   protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
 
-  protected readonly navLabel = this.nav['conditions'] ?? '';
+  protected readonly navLabel = this.nav.conditions;
   protected readonly errorText = this.appText.errors;
   protected readonly pageText = this.appText.conditions;
   protected readonly fulfilmentText = this.appText.checkout.fulfilment;

@@ -65,8 +65,6 @@ export const appTextSchema = z
       .object({
         /** Main navbar action label (icon button). */
         navLabel: z.string(),
-        /** Accessible label for a category card link; `{name}` is substituted. */
-        viewCategory: z.string(),
         emptyCategories: z.string(),
         loadError: z.string(),
         /** Category grid (FR-CAT-03/04). */

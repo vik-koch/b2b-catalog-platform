@@ -63,7 +63,7 @@ export function orderReceivedMail(
       ...(order.termsDate
         ? [
             {
-              label: common.nav['terms'],
+              label: common.nav.terms,
               value: fillText(names.termsVersion, {
                 date: shopDay(order.termsDate, currency.locale, timeZone),
               }),

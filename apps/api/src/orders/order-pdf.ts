@@ -94,7 +94,7 @@ export class OrderPdf {
     );
     if (order.termsDate) {
       sheet.field(
-        this.common.nav['terms'],
+        this.common.nav.terms,
         fillText(names.termsVersion, {
           date: shopDay(
             order.termsDate,

@@ -62,18 +62,18 @@
     },
     "email": {
       "required": "An email address is required.",
-      "invalid": "Please enter a valid email address."
+      "invalid": "This email address is not valid."
     },
     "phone": {
       "required": "A phone number is required.",
       "incomplete": "This phone number is incomplete."
     },
     "companyName": {
-      "required": "Please enter the company name."
+      "required": "A company name is required."
     },
     "companyId": {
       "required": "A company ID is required.",
-      "format": "Please enter it in one of the expected formats, e.g. {examples}."
+      "format": "This company ID matches none of the expected formats, e.g. {examples}."
     }
   },
   "imageFramer": {
@@ -148,11 +148,11 @@
     "pageTitle": "Page title",
     "previewNotice": "Preview — this is how the page will look once saved.",
     "discardConfirm": "Discard your unsaved changes to this page?",
-    "titleRequired": "Please enter a page title.",
+    "titleRequired": "A page title is required.",
     "saveError": "Something went wrong saving this page. Please try again.",
     "consentLabel": "Box wording",
     "consentLabelHint": "The sentence beside the box on the form. Put the words that open this text in square brackets, once: I [consent] to … Saved together with the text as one version.",
-    "consentLabelRequired": "Please enter the box wording.",
+    "consentLabelRequired": "The box wording is required.",
     "consentLabelLink": "Put the words that open this text in square brackets, exactly once.",
     "consentPreview": "On the form",
     "history": {
@@ -280,9 +280,9 @@
       "sourceIdHint": "The legacy/import key. Leave empty for a product created here; set it to match a future import.",
       "previewNotice": "Preview — this is how the product will look once saved.",
       "discardConfirm": "Discard your unsaved changes to this product?",
-      "nameRequired": "Please enter a product name.",
-      "categoryRequired": "Please choose a category.",
-      "priceInvalid": "Please enter a valid price.",
+      "nameRequired": "A product name is required.",
+      "categoryRequired": "A category is required.",
+      "priceInvalid": "This price is not valid.",
       "saveError": "Something went wrong saving this product. Please try again.",
       "saveAndPublish": "Save and publish",
       "cancelToPage": "Discard and view page",
@@ -398,7 +398,7 @@
         "heading": "Tier prices",
         "hint": "Leave a price empty to charge that list the storefront price above.",
         "usesBase": "n/a",
-        "invalid": "Please enter a valid price for “{tier}”."
+        "invalid": "The price for “{tier}” is not valid."
       },
       "priceWithList": "Price ({list})",
       "priceCleared": "With no price in this list the product cannot be on the storefront. Saving will take it off.",
@@ -448,7 +448,7 @@
       "mark": "Mark",
       "markHint": "A square picture filling the right end of the category's chip, edge to edge. Leave the margin you want inside the picture; a transparent background shows the chip through.",
       "discardConfirm": "Discard your unsaved changes to this category?",
-      "nameRequired": "Please enter a category name.",
+      "nameRequired": "A category name is required.",
       "saveError": "This category could not be saved. Please try again."
     },
     "filters": {
@@ -1373,7 +1373,7 @@
       "saveError": "This account could not be saved. Please try again.",
       "discardConfirm": "Discard the changes to this account?",
       "validation": {
-        "tierRequired": "Please choose a tier."
+        "tierRequired": "A tier is required."
       }
     },
     "detail": {

@@ -1706,6 +1706,7 @@
   "drop": [
     "admin-text.json:sync.title",
     "admin-text.json:sync.runsDescription",
+    "app-text.json:catalog.viewCategory",
     "app-text.json:catalog.units.pieceName",
     "app-text.json:catalog.units.packName",
     "app-text.json:catalog.units.boxName",

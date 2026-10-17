@@ -21,11 +21,12 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   formats money for the mails, and mints the order reference. It also reads
   which consent texts are published, because those are the consents its forms
   require.
-- `common-text.json` → `CommonText`, the shop's **shared names**: what the
+- `common-text.json` → `CommonText`, the shop's **shared names** — what the
   storefront, the admin, mail and the order summary would otherwise each repeat
-  (page names, units, the tax statements). Only names, never a sentence written
-  for one reader. **Browser-delivered** via shell state and **also loaded by the
-  API**.
+  (page names, units, the tax statements) — and what customers read in more
+  than one place, such as a field's check or an order's status. Never wording
+  only staff read. **Browser-delivered** via shell state and **also loaded by
+  the API**.
 - `app-text.json` → `AppText`, the **public** UI-text catalog (storefront
   chrome, the login form, error messages).
   **Browser-delivered** via shell state.
@@ -36,9 +37,12 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   amendment 2). Non-secret, like everything else on this side of the line.
 - `mail-text.json` → `MailText`, every email the app sends, one section per
   message. **Server-only** — rendered in the API, never sent to a browser.
-- `pdf-text.json` → `PdfText`, the order summary the API draws as a PDF.
-  **Server-only**, like the mail text. The branding (shop name, header colour), the typeface and the
-  money formatting come from `deployment.json`.
+- `pdf-text.json` → `PdfText`, the documents the API draws as PDFs: the order
+  summary, and the file name of the terms attached to a receipt.
+  **Server-only**, like the mail text.
+
+The mails and the PDFs take the branding (shop name, header colour), the
+typeface and the money formatting from `deployment.json`.
 
 A name that reads the same to customers and staff is in `common-text.json`
 once; where staff word a thing differently (order statuses, the messages under
@@ -47,9 +51,10 @@ mail needs it. `common-text.json` reaches every visitor, so nothing only staff
 read goes there. Controls that read the same on every screen — Cancel, Close,
 Remove, "Saving…" — are its `actions`; a control that names what it does
 ("Delete selection") keeps its own key, and staff-only verbs (Save, Edit,
-Delete) are the admin text's `common`. Wording for entries the deployment itself defines — delivery
-zones, collection points, company-ID formats — sits beside those entries in
-`deployment.json`. ADR 0018 (amendment) has the reasons.
+Delete) are the admin text's `common`. Wording for entries the deployment
+itself defines — delivery zones, collection points, company-ID formats — sits
+beside those entries in `deployment.json`. ADR 0018 (amendment) has the
+reasons.
 
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):
@@ -481,5 +486,6 @@ the release's map, downloaded from the release tag with the map in a
 `text-migration/` folder beside the script (or passed with `--map <file>`), are
 enough. It reports what it cannot decide: wording new in the release (written
 in English), keys merged from several old ones whose values differed in the
-deployment, and counting texts still written in two forms. A deployment several
+deployment, counting texts still written in two forms, and keys the release
+requires that the deployment's files never had. A deployment several
 releases behind runs each release's map in order.

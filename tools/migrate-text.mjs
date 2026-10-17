@@ -290,7 +290,10 @@ section(
   'Counting texts to reword without "|" (the deployment does not boot until then):',
   countForms(files),
 );
-section('Missing from your files, so nothing to carry over:', report.missing);
+section(
+  'Missing from your files — the release requires them, so write them before deploying:',
+  report.missing,
+);
 
 if (check) {
   // The demo was worded for this release by hand, so only a broken structure

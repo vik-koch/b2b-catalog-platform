@@ -123,10 +123,12 @@ Which file a text belongs in follows four rules:
 4. **Counting texts have one form** (ADR 0009, amendment 4).
 
 Recurring parts share a shape. An admin page is `{ title, intro? }` and a
-confirmation dialog `{ heading, message, confirm, cancel?, warning? }`. The
-optional ones are the only optional texts: an absent intro draws nothing, and a
-dialog without its own `cancel` uses the common one. Neither can leave a word of
-another language on screen, so the whole-file rule still holds.
+confirmation dialog `{ heading, message, confirm, cancel?, warning? }`. An
+absent intro draws nothing, and a dialog without its own `cancel` uses the
+common one. Every optional text works one of those two ways — it is left out,
+like the order summary's return notice, or a common word stands in — so none
+can leave a word of another language on screen, and the whole-file rule still
+holds.
 
 Inside a file, keys group by domain, then by screen (`orders.detail`,
 `products.editor`); a domain with one screen is that screen. A text only a

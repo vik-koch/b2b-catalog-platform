@@ -195,7 +195,7 @@ const MARK_PAID = 'markPaid';
                   {{ order.tierKey ?? ordersText.tierDefault }}
                 </dd>
                 @if (termsLabel(order); as terms) {
-                  <dt [class]="term">{{ pageNames['terms'] }}</dt>
+                  <dt [class]="term">{{ pageNames.terms }}</dt>
                   <dd [class]="value">{{ terms }}</dd>
                 }
 

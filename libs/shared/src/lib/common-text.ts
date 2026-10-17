@@ -1,6 +1,7 @@
 import * as z from 'zod';
 import type { DeepReadonly } from '../node/deep-readonly';
 import { refuseCountForms } from './fill-text';
+import { PAGE_SLUGS } from './page-constants';
 
 /** An order status per reading — `ready` reads by fulfilment: on its way, or
  * waiting to be collected. Customers' set here, staff's in the admin text. */
@@ -24,6 +25,18 @@ export const paymentStateLabels = z
   .object({ notDue: z.string(), awaiting: z.string(), paid: z.string() })
   .strict();
 
+/** The routes the code names a page by, beside the page slugs. */
+const NAV_ROUTES = [
+  ...PAGE_SLUGS,
+  'home',
+  'inquiry',
+  'licenses',
+  'more',
+] as const;
+const navNames = Object.fromEntries(
+  NAV_ROUTES.map((route) => [route, z.string()]),
+) as Record<(typeof NAV_ROUTES)[number], z.ZodString>;
+
 const field = <T extends z.ZodRawShape>(checks: T) =>
   z.object({ label: z.string(), ...checks }).strict();
 
@@ -37,10 +50,11 @@ const field = <T extends z.ZodRawShape>(checks: T) =>
 export const commonTextSchema = z
   .object({
     /**
-     * Names of the shop's pages and routes, keyed by route segment — page
-     * slugs plus feature routes like `inquiry`. Open by design (a record).
+     * Names of the shop's pages and routes, keyed by route segment. Every page
+     * slug and the routes the code names are required, since a page or a mail
+     * may name any of them; any other segment a deployment links may be added.
      */
-    nav: z.record(z.string(), z.string()),
+    nav: z.object(navNames).catchall(z.string()),
     /**
      * Controls that say the same on every screen, for customers and staff:
      * a dialog's way out, a row's remove button, a button's progress word. A

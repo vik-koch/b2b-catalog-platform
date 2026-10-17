@@ -11,9 +11,10 @@ import { StatusTone } from '../ui/status-badge';
 export type OrderAudience = 'customer' | 'staff';
 
 /**
- * The words a deployment puts on the statuses — one set per reader in the
- * shared names (`order.statuses`), so one function serves both and the two
- * cannot drift into describing different workflows.
+ * The words a deployment puts on the statuses — one set per reader, the
+ * customer's in the common text (`order.statuses`) and staff's in the admin
+ * text (`orders.statuses`), under the same keys, so one function serves both
+ * and the two cannot drift into describing different workflows.
  *
  * `ready` is two keys and one state (ADR 0050): a collected order is waiting
  * to be picked up, a delivered one is on its way. Which sentence is read is
@@ -84,7 +85,7 @@ export function orderStatusTone(
 
 /**
  * The two things worth saying about the money in a listing — one set per
- * reader (`order.paymentStates`), as the statuses are.
+ * reader (`paymentStates` beside the statuses), as the statuses are.
  */
 export interface OrderPaymentLabels {
   readonly awaiting: string;
