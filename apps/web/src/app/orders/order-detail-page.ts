@@ -202,6 +202,7 @@ export class OrderDetailPage {
 
   private readonly appText = inject(APP_TEXT);
   private readonly commonText = inject(COMMON_TEXT);
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly names = this.commonText.order;
   private readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.detail;
@@ -322,7 +323,7 @@ export class OrderDetailPage {
    */
   protected async cancel(detail: OrderDetail): Promise<void> {
     const reason = await this.confirm.askWithReason({
-      ...confirmRequest(this.text.cancelConfirm, this.appText.common.cancel),
+      ...confirmRequest(this.text.cancelConfirm, this.actionText.cancel),
       message: fillText(this.text.cancelConfirm.message, {
         reference: detail.reference,
       }),

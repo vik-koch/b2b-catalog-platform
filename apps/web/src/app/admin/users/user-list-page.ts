@@ -549,6 +549,7 @@ export class UserListPage {
   private readonly router = inject(Router);
   protected readonly common = inject(ADMIN_TEXT).common;
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   /** So an editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 
@@ -580,7 +581,7 @@ export class UserListPage {
       await this.confirm.tell({
         heading: this.text.addCustomer,
         message: this.ownershipText.accountCreate,
-        closeLabel: this.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }
@@ -611,8 +612,8 @@ export class UserListPage {
       message: locked ?? dialog.message.replace('{name}', this.name(user)),
       confirmLabel: locked ? null : dialog.confirm,
       cancelLabel: locked
-        ? this.common.close
-        : (dialog.cancel ?? this.common.cancel),
+        ? this.actionText.close
+        : (dialog.cancel ?? this.actionText.cancel),
       confirmVariant: off ? 'danger' : 'primary',
     });
     if (locked || !ok) return;
@@ -640,8 +641,8 @@ export class UserListPage {
           : this.ownershipText.accountDecline,
       confirmLabel: locked ? null : this.text.declineConfirm.confirm,
       cancelLabel: locked
-        ? this.common.close
-        : (this.text.declineConfirm.cancel ?? this.common.cancel),
+        ? this.actionText.close
+        : (this.text.declineConfirm.cancel ?? this.actionText.cancel),
       confirmVariant: 'danger',
     });
     if (locked || !ok) return;

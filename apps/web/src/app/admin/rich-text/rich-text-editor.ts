@@ -33,6 +33,7 @@ import { FieldLabel } from '../../ui/field-label';
 import { Input } from '../../ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -170,7 +171,7 @@ interface ToolbarAction {
             class="sm:mr-auto"
             (click)="removeLink()"
           >
-            {{ common.remove }}
+            {{ actionText.remove }}
           </button>
         }
         <button
@@ -180,7 +181,7 @@ interface ToolbarAction {
           type="button"
           (click)="closeLinkPanel()"
         >
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
         <button
           appButton
@@ -271,7 +272,7 @@ interface ToolbarAction {
           {{ image.remove }}
         </button>
         <button appButton size="sm" type="button" (click)="closeImagePanel()">
-          {{ common.done }}
+          {{ actionText.done }}
         </button>
       </div>
     </ng-template>
@@ -302,6 +303,7 @@ interface ToolbarAction {
 export class RichTextEditor {
   protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly link = this.text.linkPanel;
   /** Which shape the two panels take — see the template. */
   protected readonly narrow = injectNarrowScreen('sm');

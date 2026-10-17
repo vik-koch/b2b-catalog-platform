@@ -26,6 +26,7 @@ import { ConfirmService } from '../../ui/confirm.service';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -411,7 +412,7 @@ type RenameTarget =
             [disabled]="busy()"
           >
             <app-admin-icon name="save" class="size-4" />
-            {{ busy() ? common.saving : common.save }}
+            {{ busy() ? actionText.saving : common.save }}
           </button>
           <button
             appButton
@@ -423,7 +424,7 @@ type RenameTarget =
             (click)="cancel()"
           >
             <app-admin-icon name="x" class="size-4" />
-            {{ common.cancel }}
+            {{ actionText.cancel }}
           </button>
         </form>
       </ng-template>
@@ -440,6 +441,7 @@ export class AttributeInventoryPage {
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   protected readonly keys = resource({ loader: () => this.service.listKeys() });
   protected readonly showSkeleton = delayedLoading(this.keys.isLoading);
@@ -572,7 +574,7 @@ export class AttributeInventoryPage {
         .filter(Boolean)
         .join(' '),
       confirmLabel: this.common.save,
-      cancelLabel: this.common.cancel,
+      cancelLabel: this.actionText.cancel,
     });
     if (!confirmed) return;
 

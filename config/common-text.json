@@ -14,6 +14,16 @@
     "licenses": "Licenses",
     "more": "More"
   },
+  "actions": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "done": "Done",
+    "saving": "Saving…",
+    "sending": "Sending…",
+    "remove": "Remove",
+    "deleting": "Deleting…"
+  },
+  "optional": "optional",
   "units": {
     "piece": "pcs",
     "pack": "pk",
@@ -22,14 +32,14 @@
   "quantity": "{qty} {unit}",
   "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
   "tax": {
-    "included": "incl. {rate}\u00a0% VAT",
-    "added": "plus {rate}\u00a0% VAT",
+    "included": "incl. {rate} % VAT",
+    "added": "plus {rate} % VAT",
     "none": "no VAT charged",
     "mixed": {
       "included": "incl. VAT at the rate each item states",
       "added": "plus VAT at the rate each item states"
     },
-    "line": "{rate}\u00a0% VAT"
+    "line": "{rate} % VAT"
   },
   "packaging": {
     "heading": "Packaging",

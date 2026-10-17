@@ -458,7 +458,7 @@ describe('UserEditorPage', () => {
       expect(button(defaultAdminText.common.save)).toBeUndefined();
       expect(button(text.resend)).toBeUndefined();
       // The way back stays, as it does on the catalog's locked route.
-      expect(button(defaultAdminText.common.cancel)).toBeDefined();
+      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
     });
 
     it('offers no approval either', async () => {
@@ -480,7 +480,7 @@ describe('UserEditorPage', () => {
         defaultAdminText.ownership.accountCreate,
       );
       expect(field('firstName')).toBeNull();
-      expect(button(defaultAdminText.common.cancel)).toBeDefined();
+      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
     });
 
     it('leaves a staff account editable', async () => {

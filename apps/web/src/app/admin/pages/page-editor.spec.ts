@@ -172,7 +172,7 @@ describe('PageEditor', () => {
     fixture.componentInstance.closed.subscribe(closed);
     const confirm = vi.spyOn(window, 'confirm');
 
-    buttonNamed(el, defaultAdminText.common.cancel).click();
+    buttonNamed(el, defaultCommonText.actions.cancel).click();
     await fixture.whenStable();
 
     expect(confirm).not.toHaveBeenCalled();
@@ -188,7 +188,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = 'Changed';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, defaultAdminText.common.cancel).click();
+    buttonNamed(el, defaultCommonText.actions.cancel).click();
     await fixture.whenStable();
 
     expect(closed).not.toHaveBeenCalled();

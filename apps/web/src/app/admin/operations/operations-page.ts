@@ -30,6 +30,7 @@ import { StatusBadge } from '../../ui/status-badge';
 import { Switch } from '../../ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -296,6 +297,7 @@ export class OperationsPage {
   });
 
   protected readonly allText = inject(ADMIN_TEXT).ownership.all;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;
   protected readonly frame = DISCLOSURE_FRAME;
@@ -420,7 +422,7 @@ export class OperationsPage {
       message: owned ? text.handConfirm : text.takeConfirm,
       warning: owned ? text.handWarning : text.takeWarning,
       confirmLabel: owned ? this.ownershipText.hand : this.ownershipText.take,
-      cancelLabel: this.common.cancel,
+      cancelLabel: this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;
@@ -440,7 +442,7 @@ export class OperationsPage {
       message: owned ? this.allText.handConfirm : this.allText.takeConfirm,
       warning: owned ? this.allText.handWarning : this.allText.takeWarning,
       confirmLabel: owned ? this.allText.hand : this.allText.take,
-      cancelLabel: this.common.cancel,
+      cancelLabel: this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;

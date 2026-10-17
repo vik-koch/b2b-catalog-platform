@@ -31,6 +31,7 @@ import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
@@ -210,6 +211,7 @@ export class SyncRunPage {
   protected readonly text = inject(ADMIN_TEXT).sync;
   private readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
 
   constructor() {
@@ -338,7 +340,7 @@ export class SyncRunPage {
       heading: this.text.discardConfirm.heading,
       message: this.text.discardConfirm.message,
       confirmLabel: this.text.discardConfirm.confirm,
-      cancelLabel: this.text.discardConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.discardConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!ok) return;

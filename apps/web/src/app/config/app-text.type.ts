@@ -60,18 +60,6 @@ export const appTextSchema = z
         scrollToTop: z.string(),
       })
       .strict(),
-    /** Words every storefront form or panel uses alike: the marker on a field
-     * that may stay empty, the busy states of a sending and a saving button,
-     * and the buttons that leave a form or close a panel. */
-    common: z
-      .object({
-        optional: z.string(),
-        cancel: z.string(),
-        close: z.string(),
-        sending: z.string(),
-        saving: z.string(),
-      })
-      .strict(),
     /** Storefront catalog chrome (FR-CAT). */
     catalog: z
       .object({
@@ -299,9 +287,6 @@ export const appTextSchema = z
          * pressing it does — there is no room there for a labelled field. */
         noteAdd: z.string(),
         noteEdit: z.string(),
-        /** Closes the note on a phone, where it is a modal rather than a
-         * bubble and so has no "click away" to close it. */
-        noteDone: z.string(),
         add: z.string(),
         /** Replaces the add button once the product is in the cart, so the
          * controls above read as an edit of that line; `{total}` is what the
@@ -1147,7 +1132,6 @@ export const appTextSchema = z
             /** The icon-only row buttons take their accessible name from
              * `{label}`, the address itself. */
             editAria: z.string(),
-            remove: z.string(),
             removeAria: z.string(),
             /** `{label}` is the address's own name. */
             removeConfirm: confirmText,
@@ -1187,7 +1171,6 @@ export const appTextSchema = z
             openOrders: z.string(),
             passwordHint: z.string(),
             submit: z.string(),
-            submitting: z.string(),
             cancel: z.string(),
             wrongPassword: z.string(),
             /** The last admin cannot leave; staff-only, but it must say so

@@ -260,7 +260,9 @@ describe('DocumentListPage', () => {
   it('deletes a document once it is confirmed', async () => {
     const { el, service, confirm } = await render();
 
-    el.querySelector<HTMLElement>(`[title="${text.delete}"]`)?.click();
+    el.querySelector<HTMLElement>(
+      `[title="${defaultAdminText.common.delete}"]`,
+    )?.click();
     await Promise.resolve();
 
     expect(confirm.ask).toHaveBeenCalled();
@@ -270,7 +272,9 @@ describe('DocumentListPage', () => {
   it('deletes nothing when the confirmation is declined', async () => {
     const { el, service } = await render({ confirmed: false });
 
-    el.querySelector<HTMLElement>(`[title="${text.delete}"]`)?.click();
+    el.querySelector<HTMLElement>(
+      `[title="${defaultAdminText.common.delete}"]`,
+    )?.click();
     await Promise.resolve();
 
     expect(service.remove).not.toHaveBeenCalled();

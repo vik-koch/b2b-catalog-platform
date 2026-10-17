@@ -244,7 +244,7 @@ describe('AttributeListPage', () => {
       definitions: [definition({ name: 'Lenght', slug: 'lenght' })],
     });
 
-    await press(text.edit);
+    await press(defaultAdminText.common.edit);
     const name = el.querySelector<HTMLInputElement>('#attribute-name');
     expect(name?.value).toBe('Lenght');
 
@@ -277,7 +277,7 @@ describe('AttributeListPage', () => {
       definitions: [definition()],
     });
 
-    await press(text.delete);
+    await press(defaultAdminText.common.delete);
 
     expect(confirm.ask).toHaveBeenCalled();
     expect(service.remove).toHaveBeenCalledWith('attr-1');
@@ -289,7 +289,7 @@ describe('AttributeListPage', () => {
       confirmed: false,
     });
 
-    await press(text.delete);
+    await press(defaultAdminText.common.delete);
 
     expect(service.remove).not.toHaveBeenCalled();
   });

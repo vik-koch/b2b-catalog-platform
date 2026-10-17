@@ -44,7 +44,10 @@ A name that reads the same to customers and staff is in `common-text.json`
 once; where staff word a thing differently (order statuses, the messages under
 a field), theirs is in `admin-text.json`, and in `mail-text.json` where a staff
 mail needs it. `common-text.json` reaches every visitor, so nothing only staff
-read goes there. Wording for entries the deployment itself defines — delivery
+read goes there. Controls that read the same on every screen — Cancel, Close,
+Remove, "Saving…" — are its `actions`; a control that names what it does
+("Delete selection") keeps its own key, and staff-only verbs (Save, Edit,
+Delete) are the admin text's `common`. Wording for entries the deployment itself defines — delivery
 zones, collection points, company-ID formats — sits beside those entries in
 `deployment.json`. ADR 0018 (amendment) has the reasons.
 

@@ -61,10 +61,6 @@ export const adminTextSchema = z
     common: z
       .object({
         save: z.string(),
-        saving: z.string(),
-        cancel: z.string(),
-        /** A dialog that only explains has nothing to cancel. */
-        close: z.string(),
         preview: z.string(),
         resumeEditing: z.string(),
         /** Heading and confirm label of the discard-changes modal. */
@@ -73,10 +69,9 @@ export const adminTextSchema = z
         keepEditing: z.string(),
         /** Open a record for editing; finish editing it. */
         edit: z.string(),
-        done: z.string(),
+        delete: z.string(),
         /** Who did something, once their account has been deleted. */
         actorGone: z.string(),
-        remove: z.string(),
         /** Beside a product count, how many of those are not on the
          * storefront: "{count} unpublished". Shown only above zero. */
         unpublishedProducts: z.string(),
@@ -273,10 +268,6 @@ export const adminTextSchema = z
         /** Added to that confirmation when this product is the last one on
          * sale that some live product is paired with; `{names}` lists them. */
         unpublishStranded: z.string(),
-        /** The confirm dialog's cancel, so a storefront component never has to
-         * reach into `common` — admin text is fetched, and only edit-mode
-         * wording is gated on it having loaded. */
-        cancel: z.string(),
         revealError: z.string(),
       })
       .strict(),
@@ -747,9 +738,6 @@ export const adminTextSchema = z
             editFilters: z.string(),
             /** The page's way into the whole catalogue's panel (FR-ATTR-12). */
             catalogFilters: z.string(),
-            edit: z.string(),
-            delete: z.string(),
-            deleting: z.string(),
             empty: z.string(),
             /** Drag-and-drop: what a drop does, and that it commits
              * immediately. */
@@ -1317,8 +1305,6 @@ export const adminTextSchema = z
         setDefaultNone: z.string(),
         setDefaultDone: z.string(),
         setDefaultError: z.string(),
-        edit: z.string(),
-        delete: z.string(),
         empty: z.string(),
         saveError: z.string(),
         labelRequired: z.string(),
@@ -1437,12 +1423,10 @@ export const adminTextSchema = z
             values: z.string(),
             unparsed: z.string(),
             noMatch: z.string(),
-            edit: z.string(),
             /** The two counts are the ways out of the row: the product grid
              * narrowed to the attribute, and the inventory expanded on it. */
             showProducts: z.string(),
             showUsage: z.string(),
-            delete: z.string(),
             empty: z.string(),
             saveError: z.string(),
             nameRequired: z.string(),
@@ -1540,8 +1524,6 @@ export const adminTextSchema = z
             statusExpired: z.string(),
             statusValid: z.string(),
             filterStatus: z.string(),
-            edit: z.string(),
-            delete: z.string(),
             /** The link into the product grid narrowed to this document's
              * products, and the same control dead: nothing shows it yet.
              * `{count}` substituted. */
@@ -1913,7 +1895,6 @@ export const adminTextSchema = z
                 open: z.string(),
                 upload: z.string(),
                 replace: z.string(),
-                remove: z.string(),
                 notify: z.string(),
                 notifyHint: z.string(),
                 /** Why the send button is not offered: the customer's own page
@@ -1927,7 +1908,6 @@ export const adminTextSchema = z
                 paymentHint: z.string(),
                 summaryHint: z.string(),
                 removeConfirm: confirmText,
-                uploading: z.string(),
                 error: z.string(),
               })
               .strict(),

@@ -697,7 +697,7 @@ describe('AdminOrderDetailPage while orders are externally owned', () => {
     const { el } = await render(placed);
 
     expect(allButtons(el)).not.toContain(text.documents.upload);
-    expect(allButtons(el)).not.toContain(text.documents.remove);
+    expect(allButtons(el)).not.toContain(defaultCommonText.actions.remove);
   });
 });
 

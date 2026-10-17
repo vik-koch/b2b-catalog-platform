@@ -331,8 +331,8 @@ const EDGE_SLACK = 24;
                             'edit',
                           ]"
                           [queryParams]="editorFrom()"
-                          [attr.aria-label]="text.edit"
-                          [title]="text.edit"
+                          [attr.aria-label]="common.edit"
+                          [title]="common.edit"
                         >
                           <app-admin-icon name="pencil" />
                         </a>
@@ -340,8 +340,8 @@ const EDGE_SLACK = 24;
                           appIconButton
                           variant="danger"
                           type="button"
-                          [attr.aria-label]="text.delete"
-                          [title]="text.delete"
+                          [attr.aria-label]="common.delete"
+                          [title]="common.delete"
                           (click)="deletingCategory.set(node.category)"
                         >
                           <app-admin-icon name="trash-2" />

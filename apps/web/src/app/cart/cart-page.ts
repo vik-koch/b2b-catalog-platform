@@ -507,7 +507,6 @@ export class CartPage {
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
   protected readonly text = inject(APP_TEXT).cart;
-  private readonly common = inject(APP_TEXT).common;
   protected readonly changeText = this.text.changes;
   /** What moved while the cart waited (FR-CART-10) — the cart's own answer,
    * reported once per visit and put away from here. */
@@ -519,6 +518,7 @@ export class CartPage {
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */
   private readonly pieceUnit = inject(COMMON_TEXT).units.piece;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
   private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
 
@@ -888,7 +888,10 @@ export class CartPage {
     const keys = this.selected();
     if (keys.size === 0) return;
     const ok = await this.confirm.ask({
-      ...confirmRequest(this.text.deleteSelectedConfirm, this.common.cancel),
+      ...confirmRequest(
+        this.text.deleteSelectedConfirm,
+        this.actionText.cancel,
+      ),
       message: fillText(this.text.deleteSelectedConfirm.message, {
         count: keys.size,
       }),

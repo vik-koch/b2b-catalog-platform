@@ -35,6 +35,7 @@ import { Skeleton } from '../../ui/skeleton';
 import { adminDayFormat } from '../grid/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 type SearchBy = 'email' | 'phone';
 
@@ -126,6 +127,7 @@ export class ConsentLookupPage {
   protected readonly text = inject(ADMIN_TEXT).consents;
   private readonly common = inject(ADMIN_TEXT).common;
   private readonly fields = inject(ADMIN_TEXT).fields;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,
@@ -227,7 +229,7 @@ export class ConsentLookupPage {
       // the shop's inbox, and only a person can delete it there.
       warning: this.text.withdrawConfirm.warning,
       confirmLabel: this.text.withdrawConfirm.confirm,
-      cancelLabel: this.text.withdrawConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.withdrawConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
       reasonLabel: this.text.withdrawNote,
       reasonMaxLength: CONSENT_WITHDRAWAL_NOTE_MAX,

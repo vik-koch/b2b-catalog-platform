@@ -10,13 +10,6 @@
     "consentBanner": "Cookie consent",
     "scrollToTop": "Back to top"
   },
-  "common": {
-    "optional": "optional",
-    "cancel": "Cancel",
-    "close": "Close",
-    "sending": "Sending…",
-    "saving": "Saving…"
-  },
   "catalog": {
     "navLabel": "Catalogue",
     "viewCategory": "Browse {name}",
@@ -114,7 +107,6 @@
     "notePrompt": "Anything we should know about this line?",
     "noteAdd": "Add a note to this line",
     "noteEdit": "Edit the note on this line",
-    "noteDone": "Done",
     "add": "Add to cart",
     "addedFor": "Added for {total}",
     "full": "Your cart is full — please place this order before adding more products.",
@@ -482,7 +474,6 @@
       "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
       "add": "Add address",
       "editAria": "Edit {label}",
-      "remove": "Remove",
       "removeAria": "Remove {label}",
       "removeConfirm": {
         "heading": "Remove address",
@@ -511,7 +502,6 @@
       "openOrders": "We are still working on {count} of your orders. Deleting your account does not cancel them — we will fill them as agreed — but we will no longer have your name or phone number on them. Please call us if you would rather wait until they are finished.",
       "passwordHint": "Confirm with your password to show this is you.",
       "submit": "Delete my account",
-      "submitting": "Deleting…",
       "cancel": "Keep my account",
       "wrongPassword": "That is not your password.",
       "lastAdmin": "This is the only administrator account. Another administrator must exist before it can be deleted.",

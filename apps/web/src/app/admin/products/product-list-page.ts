@@ -383,11 +383,12 @@ export class ProductListPage {
   protected readonly text = inject(ADMIN_TEXT).products.list;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly settings = inject(SettingsService);
   private readonly purgeText: PurgeText = {
     ...this.editText,
-    cancel: this.common.cancel,
-    close: this.common.close,
+    cancel: this.actionText.cancel,
+    close: this.actionText.close,
     ordered: this.common.catalogErrors['product-ordered'],
     owned: inject(ADMIN_TEXT).ownership.productPurge,
     errors: this.common.catalogErrors,
@@ -936,7 +937,10 @@ export class ProductListPage {
     if (
       !publish &&
       !(await this.confirm.ask({
-        ...confirmRequest(this.editText.unpublishConfirm, this.common.cancel),
+        ...confirmRequest(
+          this.editText.unpublishConfirm,
+          this.actionText.cancel,
+        ),
         message: await this.admin.unpublishMessage(item, this.editText),
         confirmVariant: 'danger',
       }))

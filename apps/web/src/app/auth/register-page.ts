@@ -193,7 +193,9 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             [disabled]="status() === 'submitting'"
           >
             {{
-              status() === 'submitting' ? common.sending : text.register.submit
+              status() === 'submitting'
+                ? actionText.sending
+                : text.register.submit
             }}
           </button>
         </form>
@@ -215,12 +217,12 @@ export class RegisterPage {
   protected readonly fields = inject(COMMON_TEXT).fields;
   private readonly companySuggest = inject(APP_TEXT).companySuggest;
   private readonly partyChoice = inject(APP_TEXT).partyChoice;
-  protected readonly common = inject(APP_TEXT).common;
   protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
     { value: 'person', label: this.partyChoice.person },
     { value: 'company', label: this.partyChoice.company },
   ];
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 

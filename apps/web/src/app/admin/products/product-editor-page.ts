@@ -567,7 +567,7 @@ import {
             (click)="save()"
           >
             <app-admin-icon name="save" class="size-4" />
-            {{ saving() ? common.saving : saveLabel() }}
+            {{ saving() ? actionText.saving : saveLabel() }}
           </button>
         }
         <!-- Only while the product is off the storefront: publishing is one
@@ -614,7 +614,7 @@ import {
           (click)="cancel()"
         >
           <app-admin-icon name="x" class="size-4" />
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
         <!-- Cancel puts the admin back where they came from, which for an
              editor opened from the admin list is the admin list — so seeing
@@ -682,6 +682,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   /** The piece abbreviation, printed inside both stock fields — the same one
    * the packaging rows use, so the two blocks measure in one word. */
   protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly unitFieldInputCompact = UNIT_FIELD_INPUT_COMPACT;
 
@@ -1355,7 +1356,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
         ),
         confirmLabel: this.text.saveAndUnpublish,
         cancelLabel:
-          this.editText.unpublishConfirm.cancel ?? this.common.cancel,
+          this.editText.unpublishConfirm.cancel ?? this.actionText.cancel,
         confirmVariant: 'danger',
       }))
     ) {

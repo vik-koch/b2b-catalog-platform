@@ -269,16 +269,16 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         appIconButton
         [routerLink]="['/admin/documents', document.id, 'edit']"
         [queryParams]="editorFrom()"
-        [attr.aria-label]="text.edit"
-        [title]="text.edit"
+        [attr.aria-label]="common.edit"
+        [title]="common.edit"
       >
         <app-admin-icon name="pencil" />
       </a>
       <button
         type="button"
         appIconButton
-        [attr.aria-label]="text.delete"
-        [title]="text.delete"
+        [attr.aria-label]="common.delete"
+        [title]="common.delete"
         (click)="remove(document)"
       >
         <app-admin-icon name="trash-2" />
@@ -293,6 +293,7 @@ export class DocumentListPage {
   private readonly sizes = inject(COMMON_TEXT).fileSize;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
@@ -480,7 +481,7 @@ export class DocumentListPage {
         name: document.title,
       }),
       confirmLabel: this.text.deleteConfirm.confirm,
-      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!ok) return;

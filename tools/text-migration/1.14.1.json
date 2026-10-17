@@ -1251,13 +1251,6 @@
         "admin-text.json:operations.historyActorGone"
       ]
     },
-    "admin-text.json:common.done": {
-      "from": [
-        "admin-text.json:common.done",
-        "admin-text.json:apiTokenList.createdDone",
-        "admin-text.json:pageEditor.imagePanel.done"
-      ]
-    },
     "mail-text.json:syncRun.openRun": {
       "from": [
         "mail-text.json:syncRun.areas.catalog.failed.action",
@@ -1272,41 +1265,6 @@
       "from": [
         "mail-text.json:syncRun.areas.catalog.waiting.action",
         "mail-text.json:syncRun.areas.customers.waiting.action"
-      ]
-    },
-    "app-text.json:common.optional": {
-      "from": [
-        "app-text.json:checkout.optional",
-        "app-text.json:auth.myAccount.addresses.optional"
-      ]
-    },
-    "app-text.json:common.cancel": {
-      "from": [
-        "app-text.json:cart.cancel",
-        "app-text.json:auth.myAccount.edit.cancel",
-        "app-text.json:auth.myAccount.addresses.cancel"
-      ]
-    },
-    "app-text.json:common.close": {
-      "from": [
-        "app-text.json:catalog.variants.close",
-        "app-text.json:catalog.pairings.close",
-        "app-text.json:checkout.fulfilment.close"
-      ]
-    },
-    "app-text.json:common.sending": {
-      "from": [
-        "app-text.json:checkout.submitting",
-        "app-text.json:auth.forgotPassword.submitting",
-        "app-text.json:auth.register.submitting",
-        "app-text.json:inquiry.submitting"
-      ]
-    },
-    "app-text.json:common.saving": {
-      "from": [
-        "app-text.json:auth.myAccount.edit.submitting",
-        "app-text.json:auth.myAccount.addresses.submitting",
-        "app-text.json:auth.setPassword.submitting"
       ]
     },
     "app-text.json:cart.deleteSelectedConfirm.heading": {
@@ -1638,6 +1596,89 @@
     },
     "app-text.json:search.suggestionsAria": {
       "from": ["app-text.json:search.suggestionsLabel"]
+    },
+    "common-text.json:actions.cancel": {
+      "from": [
+        "app-text.json:cart.cancel",
+        "app-text.json:auth.myAccount.edit.cancel",
+        "app-text.json:auth.myAccount.addresses.cancel",
+        "admin-text.json:common.cancel",
+        "admin-text.json:editMode.cancel"
+      ]
+    },
+    "common-text.json:actions.close": {
+      "from": [
+        "app-text.json:catalog.variants.close",
+        "app-text.json:catalog.pairings.close",
+        "app-text.json:checkout.fulfilment.close",
+        "admin-text.json:common.close"
+      ]
+    },
+    "common-text.json:actions.done": {
+      "from": [
+        "app-text.json:cart.noteDone",
+        "admin-text.json:common.done",
+        "admin-text.json:apiTokenList.createdDone",
+        "admin-text.json:pageEditor.imagePanel.done"
+      ]
+    },
+    "common-text.json:actions.saving": {
+      "from": [
+        "app-text.json:auth.myAccount.edit.submitting",
+        "app-text.json:auth.myAccount.addresses.submitting",
+        "app-text.json:auth.setPassword.submitting",
+        "admin-text.json:common.saving"
+      ]
+    },
+    "common-text.json:actions.sending": {
+      "from": [
+        "app-text.json:checkout.submitting",
+        "app-text.json:auth.forgotPassword.submitting",
+        "app-text.json:auth.register.submitting",
+        "app-text.json:inquiry.submitting"
+      ]
+    },
+    "common-text.json:actions.remove": {
+      "from": [
+        "app-text.json:auth.myAccount.addresses.remove",
+        "admin-text.json:common.remove",
+        "admin-text.json:orderDetail.documents.remove"
+      ]
+    },
+    "common-text.json:actions.deleting": {
+      "from": [
+        "app-text.json:auth.myAccount.delete.submitting",
+        "admin-text.json:categoryList.deleting"
+      ]
+    },
+    "common-text.json:optional": {
+      "from": [
+        "app-text.json:checkout.optional",
+        "app-text.json:auth.myAccount.addresses.optional"
+      ]
+    },
+    "admin-text.json:common.edit": {
+      "from": [
+        "admin-text.json:common.edit",
+        "admin-text.json:categoryList.edit",
+        "admin-text.json:tierList.edit",
+        "admin-text.json:attributeList.edit",
+        "admin-text.json:documentList.edit"
+      ]
+    },
+    "admin-text.json:common.delete": {
+      "from": [
+        "admin-text.json:categoryList.delete",
+        "admin-text.json:tierList.delete",
+        "admin-text.json:attributeList.delete",
+        "admin-text.json:documentList.delete"
+      ]
+    },
+    "admin-text.json:common.uploading": {
+      "from": [
+        "admin-text.json:common.uploading",
+        "admin-text.json:orderDetail.documents.uploading"
+      ]
     }
   },
   "moves": {

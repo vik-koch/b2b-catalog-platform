@@ -25,6 +25,7 @@ import { injectEditorReturn } from '../editor-return';
 import { categoryDescendantIds } from './category-tree';
 import { ImagePicker } from '../media/image-picker';
 import { CategoryPicker } from './category-picker';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * Edit a category (FR-ADM-01) on its own screen at
@@ -180,7 +181,7 @@ import { CategoryPicker } from './category-picker';
           (click)="save()"
         >
           <app-admin-icon name="save" class="size-4" />
-          {{ saving() ? common.saving : common.save }}
+          {{ saving() ? actionText.saving : common.save }}
         </button>
         <button
           appButton
@@ -190,7 +191,7 @@ import { CategoryPicker } from './category-picker';
           (click)="cancel()"
         >
           <app-admin-icon name="x" class="size-4" />
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
       </div>
     }
@@ -202,6 +203,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   protected readonly text = inject(ADMIN_TEXT).categories.editor;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly ownership = inject(SettingsService);
 
   /**

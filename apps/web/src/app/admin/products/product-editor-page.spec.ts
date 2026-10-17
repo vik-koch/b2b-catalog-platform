@@ -1306,7 +1306,7 @@ describe('ProductEditorPage', () => {
         b.textContent?.trim(),
       );
       expect(labels).not.toContain(defaultAdminText.common.save);
-      expect(labels).toContain(defaultAdminText.common.cancel);
+      expect(labels).toContain(defaultCommonText.actions.cancel);
     });
 
     it('still offers the form when nothing is owned', async () => {

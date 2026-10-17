@@ -34,6 +34,7 @@ import {
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
 } from './product-detail-view';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * The product page route (FR-CAT-05): loads a product by slug and renders it
@@ -166,6 +167,7 @@ export class ProductDetail {
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
   protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly columns = PRODUCT_PAGE_COLUMNS;
   protected readonly sectionCell = PRODUCT_PAGE_SECTION_CELL;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -250,7 +252,7 @@ export class ProductDetail {
       await this.confirm.tell({
         heading: text.unpricedTitle,
         message: all.common.catalogErrors['product-has-no-price'],
-        closeLabel: all.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }
@@ -262,7 +264,7 @@ export class ProductDetail {
     const admin = this.injector.get(AdminCatalogService);
     if (!hidden) {
       const confirmed = await this.confirm.ask({
-        ...confirmRequest(text.unpublishConfirm, text.cancel),
+        ...confirmRequest(text.unpublishConfirm, this.actionText.cancel),
         message: await admin.unpublishMessage(item, text),
         confirmVariant: 'danger',
       });

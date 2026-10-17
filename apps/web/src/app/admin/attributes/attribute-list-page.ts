@@ -40,6 +40,7 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { WarningNote } from '../../ui/warning-note';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -204,7 +205,7 @@ type EditTarget = { id: string } | { id: null } | null;
                       <button
                         appIconButton
                         type="button"
-                        [attr.aria-label]="text.edit"
+                        [attr.aria-label]="common.edit"
                         [disabled]="editing() !== null"
                         (click)="startEdit(definition)"
                       >
@@ -214,7 +215,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         appIconButton
                         variant="danger"
                         type="button"
-                        [attr.aria-label]="text.delete"
+                        [attr.aria-label]="common.delete"
                         [disabled]="busy()"
                         (click)="remove(definition)"
                       >
@@ -346,7 +347,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
             >
               <app-admin-icon name="save" class="size-4" />
-              {{ busy() ? common.saving : common.save }}
+              {{ busy() ? actionText.saving : common.save }}
             </button>
             <button
               appButton
@@ -358,7 +359,7 @@ type EditTarget = { id: string } | { id: null } | null;
               (click)="cancel()"
             >
               <app-admin-icon name="x" class="size-4" />
-              {{ common.cancel }}
+              {{ actionText.cancel }}
             </button>
           </div>
           @if (formError()) {
@@ -378,6 +379,7 @@ export class AttributeListPage {
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly types = ATTRIBUTE_TYPES;
 
   protected readonly definitions = resource({
@@ -544,7 +546,7 @@ export class AttributeListPage {
         definition.name,
       ),
       confirmLabel: this.text.deleteConfirm.confirm,
-      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
     });
     if (!confirmed) return;
 

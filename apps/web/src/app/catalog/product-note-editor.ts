@@ -20,6 +20,7 @@ import { Icon } from '../ui/icons/icon';
 import { IconButton } from '../ui/icon-button';
 import { Input } from '../ui/input';
 import { Popover } from '../ui/popover';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * The line note's button and its field (FR-CART-08) — a bubble on a pointer, a
@@ -107,10 +108,10 @@ import { Popover } from '../ui/popover';
               type="button"
               (click)="cancelled.emit()"
             >
-              {{ common.cancel }}
+              {{ actionText.cancel }}
             </button>
             <button appButton type="button" (click)="done.emit()">
-              {{ text.noteDone }}
+              {{ actionText.done }}
             </button>
           </div>
         </dialog>
@@ -132,7 +133,7 @@ import { Popover } from '../ui/popover';
 })
 export class ProductNoteEditor {
   protected readonly text = inject(APP_TEXT).cart;
-  protected readonly common = inject(APP_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly noteMax = CART_NOTE_MAX;
 
   /** The note as it stands. This is a view of it, never the copy of record. */

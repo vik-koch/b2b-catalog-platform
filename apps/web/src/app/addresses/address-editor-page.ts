@@ -10,6 +10,7 @@ import { Skeleton } from '../ui/skeleton';
 import { AddressFields } from './address-fields';
 import { createAddressForm } from './address-form';
 import { AddressesService, SaveAddressResult } from './addresses.service';
+import { COMMON_TEXT } from '../config/common-text';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -41,10 +42,10 @@ type Status = 'idle' | 'submitting' | 'error';
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
-              {{ submitting() ? common.saving : text.submit }}
+              {{ submitting() ? actionText.saving : text.submit }}
             </button>
             <a appButton variant="secondary" routerLink="/account">
-              {{ common.cancel }}
+              {{ actionText.cancel }}
             </a>
           </div>
 
@@ -66,8 +67,8 @@ export class AddressEditorPage {
   private readonly router = inject(Router);
 
   protected readonly text = inject(APP_TEXT).account.addresses;
-  protected readonly common = inject(APP_TEXT).common;
   private readonly fieldText = inject(APP_TEXT).address;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   private readonly addressId = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.addressId === null;

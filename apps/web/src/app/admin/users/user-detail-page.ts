@@ -264,6 +264,7 @@ export class UserDetailPage {
   private readonly commonText = inject(COMMON_TEXT);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;
   private readonly dateFormat = new Intl.DateTimeFormat(
@@ -464,7 +465,7 @@ export class UserDetailPage {
     const exempt = !this.isExempt();
     const dialog = exempt ? this.text.exemptConfirm : this.text.unexemptConfirm;
     const confirmed = await this.confirm.ask({
-      ...confirmRequest(dialog, this.common.cancel),
+      ...confirmRequest(dialog, this.actionText.cancel),
       message: fillText(dialog.message, { name: this.name() }),
     });
     if (!confirmed) return;
@@ -616,7 +617,7 @@ export class UserDetailPage {
       message: fillText(this.text.deleteConfirm.message, { name: this.name() }),
       warning: this.text.deleteConfirm.warning,
       confirmLabel: this.text.deleteConfirm.confirm,
-      cancelLabel: this.text.deleteConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.deleteConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
       checks: this.accountConsentAsked()
         ? [

@@ -84,7 +84,7 @@ import { ProductVariantGallery } from './product-variant-gallery';
               type="button"
               (click)="open.set(false)"
             >
-              {{ common.close }}
+              {{ actionText.close }}
             </button>
           </div>
         </dialog>
@@ -108,8 +108,8 @@ import { ProductVariantGallery } from './product-variant-gallery';
 })
 export class ProductVariantsMark {
   protected readonly text = inject(APP_TEXT).catalog.variants;
-  protected readonly common = inject(APP_TEXT).common;
   protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   readonly variants = input.required<readonly ProductVariant[]>();
   readonly images = input.required<readonly ProductImage[]>();

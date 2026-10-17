@@ -707,7 +707,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     const field = view.noteField() as HTMLTextAreaElement;
     field.value = 'Slate only';
     field.dispatchEvent(new Event('input'));
-    await view.click(text.noteDone);
+    await view.click(defaultCommonText.actions.done);
 
     expect(view.el.querySelector('dialog')).toBe(null);
     await view.click(text.add);
@@ -721,7 +721,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     const view = await render(noted);
     await view.click(text.noteAdd);
     await view.typeNote('Sand only');
-    await view.click(text.noteDone);
+    await view.click(defaultCommonText.actions.done);
     await view.click(text.add);
 
     // Typed and left, which is the sequence pressing Cancel really makes: the
@@ -729,7 +729,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     await view.click(text.noteEdit);
     await view.typeNote('Slate after all');
     expect(view.cart.lines()[0].note).toBe('Slate after all');
-    await view.click(defaultAppText.common.cancel);
+    await view.click(defaultCommonText.actions.cancel);
 
     expect(view.cart.lines()[0].note).toBe('Sand only');
   });

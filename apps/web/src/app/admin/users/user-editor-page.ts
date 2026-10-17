@@ -145,7 +145,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
             (click)="cancel()"
           >
             <app-admin-icon name="x" class="size-4" />
-            {{ common.cancel }}
+            {{ actionText.cancel }}
           </button>
         } @else {
           <form
@@ -348,7 +348,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                   [disabled]="saving()"
                 >
                   <app-admin-icon [name]="submitIcon()" class="size-4" />
-                  {{ saving() ? common.saving : submitLabel() }}
+                  {{ saving() ? actionText.saving : submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
                    decision. Correcting a typo without taking that decision has
@@ -391,7 +391,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                 (click)="cancel()"
               >
                 <app-admin-icon name="x" class="size-4" />
-                {{ common.cancel }}
+                {{ actionText.cancel }}
               </button>
             </div>
           </form>
@@ -423,6 +423,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   ];
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default

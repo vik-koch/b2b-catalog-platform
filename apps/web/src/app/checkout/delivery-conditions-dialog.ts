@@ -13,6 +13,7 @@ import { Button } from '../ui/button';
 import { DialogPanel } from '../ui/dialog-panel';
 import { TextButton } from '../ui/link';
 import { DeliveryZoneList } from './delivery-zone-list';
+import { COMMON_TEXT } from '../config/common-text';
 
 /**
  * Where this deployment delivers, and what an order has to reach for delivery
@@ -64,7 +65,7 @@ import { DeliveryZoneList } from './delivery-zone-list';
           type="button"
           (click)="closed.emit()"
         >
-          {{ common.close }}
+          {{ actionText.close }}
         </button>
       </div>
     </dialog>
@@ -76,7 +77,7 @@ export class DeliveryConditionsDialog {
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
   protected readonly text = inject(APP_TEXT).checkout.fulfilment;
-  protected readonly common = inject(APP_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   /** Only where the deployment publishes the page — an unpublished slug is a
    * 404, and the dialog would be linking checkout into one. */
   protected readonly conditionsPath = (

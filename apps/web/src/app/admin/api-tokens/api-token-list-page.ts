@@ -24,6 +24,7 @@ import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -176,7 +177,7 @@ const SCOPE_ROWS: readonly {
             class="mt-3"
             (click)="dismiss()"
           >
-            {{ common.done }}
+            {{ actionText.done }}
           </button>
         </div>
       }
@@ -334,7 +335,7 @@ const SCOPE_ROWS: readonly {
                     [disabled]="busy()"
                   >
                     <app-admin-icon name="save" class="size-4" />
-                    {{ busy() ? common.saving : text.create }}
+                    {{ busy() ? actionText.saving : text.create }}
                   </button>
                   <button
                     appButton
@@ -346,7 +347,7 @@ const SCOPE_ROWS: readonly {
                     (click)="cancel()"
                   >
                     <app-admin-icon name="x" class="size-4" />
-                    {{ common.cancel }}
+                    {{ actionText.cancel }}
                   </button>
                 </div>
                 @if (formError()) {
@@ -372,6 +373,7 @@ export class ApiTokenListPage {
   protected readonly text = inject(ADMIN_TEXT).apiTokens;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
 
   /** Widened for the same reason `defaultScopes` widens: the template asks
@@ -506,7 +508,7 @@ export class ApiTokenListPage {
       message: this.fill(this.text.revokeConfirm.message, token.name),
       warning: this.text.revokeConfirm.warning,
       confirmLabel: this.text.revokeConfirm.confirm,
-      cancelLabel: this.text.revokeConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.revokeConfirm.cancel ?? this.actionText.cancel,
       confirmVariant: 'danger',
     });
     if (!confirmed) return;

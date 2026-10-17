@@ -115,13 +115,13 @@ describe('OrderDocumentsPanel', () => {
     expect(rowLabels(el)).toContain(text.summary);
     expect(el.textContent).toContain('PDF');
     // A supplied file can be taken back; a generated one cannot.
-    expect(el.textContent).toContain(text.remove);
+    expect(el.textContent).toContain(defaultCommonText.actions.remove);
   });
 
   it('has nothing to remove where nothing was supplied', async () => {
     const { el } = await render(order());
 
-    expect(el.textContent).not.toContain(text.remove);
+    expect(el.textContent).not.toContain(defaultCommonText.actions.remove);
   });
 
   /**

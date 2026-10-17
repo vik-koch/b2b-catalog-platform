@@ -34,6 +34,7 @@ import { injectEditorReturn } from '../editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -209,7 +210,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 (click)="save()"
               >
                 <app-admin-icon name="save" class="size-4" />
-                {{ busy() ? common.saving : text.save }}
+                {{ busy() ? actionText.saving : text.save }}
               </button>
               <button
                 appButton
@@ -220,7 +221,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 (click)="cancel()"
               >
                 <app-admin-icon name="x" class="size-4" />
-                {{ common.cancel }}
+                {{ actionText.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {
                 <button
@@ -265,6 +266,7 @@ export class CategoryFiltersPage {
   protected readonly text = inject(ADMIN_TEXT).categories.filters;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   /** The category being edited, from the route — absent for the whole
    * catalogue's panel. */
@@ -419,7 +421,7 @@ export class CategoryFiltersPage {
       heading: this.text.resetConfirm.heading,
       message: this.text.resetConfirm.message,
       confirmLabel: this.text.resetConfirm.confirm,
-      cancelLabel: this.text.resetConfirm.cancel ?? this.common.cancel,
+      cancelLabel: this.text.resetConfirm.cancel ?? this.actionText.cancel,
     });
     if (!ok) return;
 

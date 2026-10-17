@@ -3,6 +3,7 @@ import { Params, Router } from '@angular/router';
 import { adminText } from '../../config/admin-text';
 import { ConfirmService } from '../../ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The gesture behind the admin product list's "add a product" button.
@@ -17,6 +18,7 @@ import { SettingsService } from '../settings/settings.service';
  */
 @Injectable({ providedIn: 'root' })
 export class ProductCreateService {
+  private readonly actionText = inject(COMMON_TEXT).actions;
   private readonly ownership = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
@@ -39,7 +41,7 @@ export class ProductCreateService {
       await this.confirm.tell({
         heading: text.editMode.addProduct,
         message: text.ownership.productCreate,
-        closeLabel: text.common.close,
+        closeLabel: this.actionText.close,
       });
       return;
     }

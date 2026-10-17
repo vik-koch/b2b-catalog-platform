@@ -249,7 +249,7 @@ describe('ApiTokenListPage', () => {
     expect(el.textContent).toContain(created.token);
 
     const dismiss = [...el.querySelectorAll<HTMLButtonElement>('button')].find(
-      (button) => button.textContent?.trim() === defaultAdminText.common.done,
+      (button) => button.textContent?.trim() === defaultCommonText.actions.done,
     );
     dismiss?.click();
     await fixture.whenStable();

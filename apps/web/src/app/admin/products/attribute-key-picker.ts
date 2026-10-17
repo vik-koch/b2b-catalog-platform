@@ -18,6 +18,7 @@ import { DialogPanel } from '../../ui/dialog-panel';
 import { HintBadge } from '../../ui/hint-badge';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AttributeHint } from './attribute-hints';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * "Add attributes" — the names the catalog already uses, in a dialog opened
@@ -100,7 +101,7 @@ import { AttributeHint } from './attribute-hints';
           type="button"
           (click)="closed.emit()"
         >
-          {{ common.cancel }}
+          {{ actionText.cancel }}
         </button>
         <button
           appButton
@@ -120,6 +121,7 @@ export class AttributeKeyPicker {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   private readonly productsText = inject(ADMIN_TEXT).products;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   /** Every name the catalog knows, declared or freetext, alphabetically. */
   readonly hints = input.required<readonly AttributeHint[]>();

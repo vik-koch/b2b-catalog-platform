@@ -70,7 +70,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               type="submit"
               [disabled]="status() === 'submitting'"
             >
-              {{ status() === 'submitting' ? common.sending : text.submit }}
+              {{ status() === 'submitting' ? actionText.sending : text.submit }}
             </button>
             <a appTextButton routerLink="/login" class="text-sm">
               {{ text.backToLogin }}
@@ -89,10 +89,9 @@ export class ForgotPasswordPage {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
 
-  protected readonly authText = inject(APP_TEXT).auth;
   protected readonly text = inject(APP_TEXT).auth.forgotPassword;
-  protected readonly common = inject(APP_TEXT).common;
   protected readonly fields = inject(COMMON_TEXT).fields;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,

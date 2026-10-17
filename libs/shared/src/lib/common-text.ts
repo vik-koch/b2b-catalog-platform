@@ -41,6 +41,25 @@ export const commonTextSchema = z
      * slugs plus feature routes like `inquiry`. Open by design (a record).
      */
     nav: z.record(z.string(), z.string()),
+    /**
+     * Controls that say the same on every screen, for customers and staff:
+     * a dialog's way out, a row's remove button, a button's progress word. A
+     * control that names what it does ("Delete selection") keeps its own key
+     * with its screen; staff-only verbs are in the admin text's `common`.
+     */
+    actions: z
+      .object({
+        cancel: z.string(),
+        close: z.string(),
+        done: z.string(),
+        saving: z.string(),
+        sending: z.string(),
+        remove: z.string(),
+        deleting: z.string(),
+      })
+      .strict(),
+    /** Beside a field that may be left empty. */
+    optional: z.string(),
     /** Short unit names, as a quantity is stated beside goods. */
     units: z
       .object({ piece: z.string(), pack: z.string(), box: z.string() })

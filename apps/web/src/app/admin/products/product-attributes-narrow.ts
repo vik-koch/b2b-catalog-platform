@@ -34,6 +34,7 @@ import {
   attributeRowKey,
   attributeRowStatus,
 } from './attribute-hints';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
@@ -122,7 +123,7 @@ import {
                   (click)="cancel()"
                 >
                   <app-admin-icon name="x" class="size-4" />
-                  {{ common.cancel }}
+                  {{ actionText.cancel }}
                 </button>
               </div>
             </form>
@@ -202,7 +203,7 @@ import {
                   appIconButton
                   variant="danger"
                   type="button"
-                  [attr.aria-label]="common.remove"
+                  [attr.aria-label]="actionText.remove"
                   (click)="remove($index)"
                 >
                   <app-admin-icon name="trash-2" />
@@ -218,6 +219,7 @@ import {
 export class ProductAttributesNarrow {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly dash = '—';
 
   readonly value = input.required<ProductAttribute[]>();

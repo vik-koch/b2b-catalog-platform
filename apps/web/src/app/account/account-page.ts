@@ -391,8 +391,8 @@ export class AccountPage {
   private readonly commonText = inject(COMMON_TEXT);
   protected readonly deleteText = inject(APP_TEXT).account.delete;
   protected readonly addressText = inject(APP_TEXT).account.addresses;
-  private readonly common = inject(APP_TEXT).common;
   protected readonly orderText = inject(APP_TEXT).orders;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   private readonly work = inject(WorkService);
 
@@ -485,7 +485,7 @@ export class AccountPage {
    */
   protected async remove(address: Address): Promise<void> {
     const confirmed = await this.confirm.ask({
-      ...confirmRequest(this.addressText.removeConfirm, this.common.cancel),
+      ...confirmRequest(this.addressText.removeConfirm, this.actionText.cancel),
       message: fillText(this.addressText.removeConfirm.message, {
         label: this.name(address),
       }),

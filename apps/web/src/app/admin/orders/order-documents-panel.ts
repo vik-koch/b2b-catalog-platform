@@ -127,7 +127,7 @@ interface DocumentRow {
                   <app-admin-icon name="upload" class="size-4" />
                   {{
                     busy() === row.kind
-                      ? text.uploading
+                      ? common.uploading
                       : row.supplied
                         ? text.replace
                         : text.upload
@@ -162,7 +162,7 @@ interface DocumentRow {
                     [disabled]="busy() !== null"
                     (click)="remove(row.kind)"
                   >
-                    {{ text.remove }}
+                    {{ actionText.remove }}
                   </button>
                 }
               </div>
@@ -196,9 +196,11 @@ export class OrderDocumentsPanel {
   private readonly api = inject(AdminOrdersService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).orders.detail.documents;
+  protected readonly common = inject(ADMIN_TEXT).common;
   // The two size words, which the document list already owns: a file's size
   // reads the same wherever it is written.
   private readonly sizes = inject(COMMON_TEXT).fileSize;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
 
   readonly order = input.required<AdminOrderDetail>();
   /**

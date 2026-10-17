@@ -22,6 +22,7 @@ import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
+import { COMMON_TEXT } from '../../config/common-text';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
@@ -103,7 +104,7 @@ import { MediaService } from '../media/media.service';
                   <button
                     type="button"
                     class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
-                    [attr.aria-label]="common.remove"
+                    [attr.aria-label]="actionText.remove"
                     (click)="remove($index)"
                   >
                     <app-admin-icon name="trash-2" class="size-5 md:size-4" />
@@ -180,6 +181,7 @@ export class ProductImageGallery {
   private readonly framer = inject(ImageFramerService);
   protected readonly text = inject(ADMIN_TEXT).products.editor.images;
   protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
   protected readonly tileHint = fillText(this.common.imageTileHint, {
     keys: pasteKeys(),
