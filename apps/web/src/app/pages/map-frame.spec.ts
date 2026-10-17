@@ -4,7 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig, MapEmbed } from '../config/deployment-config.type';
+import { DeploymentConfig, MapEmbed } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { MapFrame } from './map-frame';
 

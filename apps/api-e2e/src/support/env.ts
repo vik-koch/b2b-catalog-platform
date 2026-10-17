@@ -18,3 +18,9 @@ const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 export function mediaPath(...segments: string[]): string {
   return resolve(workspaceRoot, requireEnv('MEDIA_ROOT'), ...segments);
 }
+
+/** A file of the config directory the suite reads, CONFIG_PATH being relative
+ * to the workspace root like MEDIA_ROOT. */
+export function configFile(file: string): string {
+  return resolve(workspaceRoot, requireEnv('CONFIG_PATH'), file);
+}

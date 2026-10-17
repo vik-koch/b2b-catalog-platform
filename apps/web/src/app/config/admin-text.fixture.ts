@@ -8,5 +8,5 @@ import { AdminText, adminTextSchema } from './admin-text.type';
  */
 export const defaultAdminText: AdminText = loadConfig(
   adminTextSchema,
-  'ADMIN_TEXT_FILE',
+  'texts/admin.json',
 );

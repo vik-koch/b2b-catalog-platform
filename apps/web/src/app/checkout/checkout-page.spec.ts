@@ -7,13 +7,13 @@ import {
   firstOrderDate,
   localToday,
   OrderSubmission,
+  DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
-import { DeploymentConfig } from '../config/deployment-config.type';
 import { SUGGESTIONS_ENABLED } from '../config/suggestions-enabled';
 import { AccountService } from '../account/account.service';
 import { AuthService } from '../auth/auth.service';

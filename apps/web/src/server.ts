@@ -5,6 +5,7 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
+import { configPath } from '@b2b-catalog-platform/shared/node';
 import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -63,22 +64,19 @@ function getAngularApp(): AngularNodeAppEngine {
 
 /**
  * Per-deployment asset overrides (logo, favicon), served ahead of the baked
- * static so a deployment can replace them from its mounted config dir.
- * CONFIG_ASSETS_DIR points at the *assets subdir* of the config mount, never
- * the mount root: only files placed under it are web-served!
+ * static so a deployment can replace them from its mounted config dir. Only
+ * the *assets subdir* of the mount is served, never the mount root: the JSON
+ * beside it includes what only the API may read.
  */
 let assetsMiddleware: express.Handler | undefined;
 
 function getAssetsMiddleware() {
   if (!assetsMiddleware) {
-    const configAssetsDir = process.env['CONFIG_ASSETS_DIR'];
-    if (!configAssetsDir) {
-      throw new Error(
-        `CONFIG_ASSETS_DIR is not set — it must name a mounted config folder (see config/README.md)`,
-      );
-    }
+    const configAssetsDir = configPath('assets');
     if (!existsSync(configAssetsDir)) {
-      throw new Error(`Folder under CONFIG_ASSETS_DIR does not exist!`);
+      throw new Error(
+        `The config directory has no assets/ folder: ${configAssetsDir}`,
+      );
     }
     assetsMiddleware = express.static(configAssetsDir, {
       maxAge: '1y',

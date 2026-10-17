@@ -12,6 +12,7 @@ import {
   AdminProduct,
   CustomerTier,
   fillText,
+  DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -19,7 +20,6 @@ import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAppText } from '../../config/app-text.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { DeploymentConfig } from '../../config/deployment-config.type';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';

@@ -1,21 +1,28 @@
 import { DeepReadonly } from './deep-readonly';
 import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { ZodType } from 'zod';
 
 /**
- * Load and validate a config file from a mounted JSON file with `envVar` name.
+ * Where a file of the mounted config directory is: `file` is named relative
+ * to `CONFIG_PATH`, the one variable that says where the directory is.
  */
-export function loadConfig<T>(
-  schema: ZodType<T>,
-  envVar: string,
-): DeepReadonly<T> {
-  const path = process.env[envVar];
-  if (!path) {
+export function configPath(file: string): string {
+  const dir = process.env['CONFIG_PATH'];
+  if (!dir) {
     throw new Error(
-      `${envVar} is not set — it must name a mounted config file (see config/README.md)`,
+      'CONFIG_PATH is not set — it must name the mounted config directory (see config/README.md)',
     );
   }
-  return loadConfigFile(schema, path);
+  return join(dir, file);
+}
+
+/** Load and validate a file of the mounted config directory. */
+export function loadConfig<T>(
+  schema: ZodType<T>,
+  file: string,
+): DeepReadonly<T> {
+  return loadConfigFile(schema, configPath(file));
 }
 
 /** Load and validate a config file by its path. */

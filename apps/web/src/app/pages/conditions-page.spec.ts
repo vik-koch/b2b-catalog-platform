@@ -6,7 +6,7 @@ import { AppText } from '../config/app-text.type';
 import { defaultAppText } from '../config/app-text.fixture';
 import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { EditModeService } from '../admin/edit-mode.service';
 import { ConditionsPage } from './conditions-page';

@@ -1,7 +1,7 @@
 import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
-import { requireEnv } from '../support/env';
+import { configFile, requireEnv } from '../support/env';
 import { deleteMatching, messagesMatching } from '../support/mailpit';
 import { readFileSync } from 'node:fs';
 
@@ -44,7 +44,7 @@ function sessionCookie(setCookie: string[] | undefined): string {
 /** The deployment's own wording, read where the app reads it: a subject
  * asserted as a literal here would pass against the catalog's. */
 const mailText = JSON.parse(
-  readFileSync(requireEnv('MAIL_TEXT_FILE'), 'utf8'),
+  readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
   syncRun: {
     areas: Record<string, Record<string, { subject: string }>>;

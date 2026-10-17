@@ -10,7 +10,7 @@ import { localtestEnv, workspaceRoot } from './support/localtest';
  * than the next time the button stops working.
  */
 const adminText = JSON.parse(
-  readFileSync(join(workspaceRoot, 'config/admin-text.json'), 'utf8'),
+  readFileSync(join(workspaceRoot, 'config/texts/admin.json'), 'utf8'),
 ) as {
   orders: {
     detail: {
@@ -32,7 +32,7 @@ const adminText = JSON.parse(
   };
 };
 const commonText = JSON.parse(
-  readFileSync(join(workspaceRoot, 'config/common-text.json'), 'utf8'),
+  readFileSync(join(workspaceRoot, 'config/texts/common.json'), 'utf8'),
 ) as { order: { total: string; changeNote: string } };
 const detail = adminText.orders.detail;
 const adjust = adminText.orders.adjust;

@@ -1,22 +1,18 @@
-import {
-  addressConfigSchema,
-  companyIdInputSchema,
-  customerSyncPolicySchema,
-  deliveryConfigSchema,
-  KEYBOARD_LAYOUTS,
-  orderReferenceConfigSchema,
-  consentConfigSchema,
-  retentionConfigSchema,
-  taxConfigSchema,
-  termsConfigSchema,
-  pagesConfigSchema,
-  phoneInputSchema,
-  sessionConfigSchema,
-  signInStepConfigSchema,
-  syncPolicySchema,
-} from '@b2b-catalog-platform/shared';
-import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
+// Namespace import, not `{ z }`: the named form defeats tree shaking and
+// pulls zod's 63 locale files into the bundle (colinhacks/zod#6050).
 import * as z from 'zod';
+import type { DeepReadonly } from '../node/deep-readonly';
+import { addressConfigSchema } from './address-config';
+import { companyIdInputSchema, phoneInputSchema } from './contact-config';
+import { consentConfigSchema } from './consent-config';
+import { KEYBOARD_LAYOUTS } from './keyboard-layout';
+import {
+  deliveryConfigSchema,
+  orderReferenceConfigSchema,
+} from './order-config';
+import { pagesConfigSchema } from './pages-config';
+import { signInStepConfigSchema } from './sign-in-step-config';
+import { taxConfigSchema } from './tax-config';
 
 /**
  * A map embed — restricted to an iframe URL by design.
@@ -146,12 +142,10 @@ export const elsewhereLinkSchema = z
 export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
 
 /**
- * Per-deployment configuration for the app chrome — branding/identity and
- * feature flags.
- *
- * Injected into every document the Node process serves (see shell-state.ts) —
- * no separate public config endpoint, no runtime fetch. Non-secret by
- * construction: the browser needs them to render.
+ * The deployment's public facts: `deployment.json`, read whole by the web and
+ * the API alike. The web injects it into every document it serves, so
+ * everything here is visible to any visitor — what only the API needs is
+ * `api.json` (the API's `apiConfigSchema`).
  */
 export const deploymentConfigSchema = z
   .object({
@@ -260,12 +254,6 @@ export const deploymentConfigSchema = z
      * draws its box, and its text is read under its form.
      */
     consent: consentConfigSchema,
-    /** How the receipt hands over the accepted terms. Read by the API only;
-     * checked here so both sides fail on the same file. */
-    terms: termsConfigSchema,
-    /** How long consent and destruction records are kept. Read by the API
-     * only; checked here for the same reason. */
-    retention: retentionConfigSchema,
     /** The tax basis prices are quoted on (NFR-LEGAL-11), stated under every
      * total and on the conditions page. */
     tax: taxConfigSchema,
@@ -406,12 +394,9 @@ export const deploymentConfigSchema = z
      * literal separator.
      */
     phoneInput: phoneInputSchema.optional(),
-    /** The second sign-in step (FR-AUTH-12). Read by the API only; checked
-     * here because both apps parse the same file. */
+    /** The second sign-in step (FR-AUTH-12): applied by the API, and shown
+     * on an account's admin page. */
     signInStep: signInStepConfigSchema.optional(),
-    /** How long a session lasts without use (FR-AUTH-12). Read by the API
-     * only, like the step. */
-    session: sessionConfigSchema.optional(),
     /**
      * The business registration number a company gives when it registers
      * (FR-AUTH-01). Jurisdiction-specific, so it is deployment config rather
@@ -434,9 +419,8 @@ export const deploymentConfigSchema = z
      */
     delivery: deliveryConfigSchema.optional(),
     /**
-     * How order references read. Server-side in effect — the browser never
-     * builds one — but the config file is validated whole, so the shape is
-     * declared here as well.
+     * How order references read, and the shop's time zone, which dates are
+     * given in on both sides.
      */
     orderReference: orderReferenceConfigSchema.optional(),
     /**
@@ -445,19 +429,6 @@ export const deploymentConfigSchema = z
      * is why a deployment that takes orders configures it.
      */
     address: addressConfigSchema.optional(),
-    /**
-     * What an automated catalog run may do without a person looking
-     * (FR-ADM-07). Server-side in effect — the browser never applies a run —
-     * but the config file is validated whole, so the shape is declared here as
-     * well, exactly as `orderReference` is.
-     */
-    sync: z
-      .object({
-        autoApply: syncPolicySchema.optional(),
-        customerAutoApply: customerSyncPolicySchema.optional(),
-      })
-      .strict()
-      .optional(),
   })
   .strict();
 

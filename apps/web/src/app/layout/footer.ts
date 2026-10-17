@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import type { ElsewhereLink } from '../config/deployment-config.type';
+import type { ElsewhereLink } from '@b2b-catalog-platform/shared';
 import { ConsentService } from '../consent/consent.service';
 import { Button } from '../ui/button';
 import { telHref } from './contact-info';

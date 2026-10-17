@@ -3,10 +3,8 @@ import { DEPLOYMENT_CONFIG } from './deployment-config';
 import {
   DeploymentConfig,
   deploymentConfigSchema,
-} from './deployment-config.type';
+} from '@b2b-catalog-platform/shared';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-
-const CONFIG_ENV_VAR = 'DEPLOYMENT_CONFIG_FILE';
 
 /**
  * Read once per process: the mounted file is immutable for the container's
@@ -22,7 +20,7 @@ let cachedDeploymentConfig: DeploymentConfig | undefined;
 export function getDeploymentConfig(): DeploymentConfig {
   return (cachedDeploymentConfig ??= loadConfig(
     deploymentConfigSchema,
-    CONFIG_ENV_VAR,
+    'deployment.json',
   ));
 }
 

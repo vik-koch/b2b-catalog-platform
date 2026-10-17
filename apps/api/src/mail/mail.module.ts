@@ -29,12 +29,12 @@ import { SmtpMailer } from './smtp-mailer';
     { provide: MAILER, useClass: SmtpMailer },
     {
       provide: MAIL_TEXT,
-      useFactory: () => loadConfig(mailTextSchema, 'MAIL_TEXT_FILE'),
+      useFactory: () => loadConfig(mailTextSchema, 'texts/mail.json'),
     },
     { provide: COMMON_TEXT, useFactory: loadCommonText },
     {
       provide: PDF_TEXT,
-      useFactory: () => loadConfig(pdfTextSchema, 'PDF_TEXT_FILE'),
+      useFactory: () => loadConfig(pdfTextSchema, 'texts/pdf.json'),
     },
     { provide: MAIL_BRANDING, useFactory: loadMailBranding },
     MailService,

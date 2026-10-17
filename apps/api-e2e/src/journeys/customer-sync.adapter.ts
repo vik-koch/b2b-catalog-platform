@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
-import { requireEnv } from '../support/env';
+import { configFile, requireEnv } from '../support/env';
 import {
   deleteMatching,
   messageBody,
@@ -97,7 +97,9 @@ const asStaff = (
  * on it: a reworded template must not fail these specs. What they are about is
  * *which* message arrived — and, more often, that none did.
  */
-const mailText = JSON.parse(readFileSync(requireEnv('MAIL_TEXT_FILE'), 'utf8'));
+const mailText = JSON.parse(
+  readFileSync(configFile('texts/mail.json'), 'utf8'),
+);
 
 /** The shop's three, in the customer exchange's own words (FR-NOTIF-09). */
 const SHOP_MAIL_KINDS: Readonly<Record<string, string>> = {

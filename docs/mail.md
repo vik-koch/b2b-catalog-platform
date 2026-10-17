@@ -3,7 +3,7 @@
 # Email gallery
 
 Every message the app can send, rendered from this deployment's own
-`config/mail-text.json` and `config/deployment.json`. Both parts of each
+`config/texts/mail.json` and `config/deployment.json`. Both parts of each
 message are committed as the mailer would send them: read the plain text to
 review a change without wading through table markup, and open the rendered
 view to see it as a recipient would.

@@ -6,7 +6,7 @@ import { provideRouter } from '@angular/router';
 import { Home } from './home';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { FeaturedRowService } from './featured-row.service';
 
 describe('Home', () => {

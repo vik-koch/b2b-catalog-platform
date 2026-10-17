@@ -12,7 +12,7 @@ import { localtestEnv, workspaceRoot } from './support/localtest';
  * the two ends agree on the address.
  */
 const text = JSON.parse(
-  readFileSync(join(workspaceRoot, 'config/admin-text.json'), 'utf8'),
+  readFileSync(join(workspaceRoot, 'config/texts/admin.json'), 'utf8'),
 ) as {
   orders: { detail: { documents: { heading: string; summary: string } } };
 };

@@ -3,7 +3,7 @@ import { hash } from '@node-rs/argon2';
 import axios from 'axios';
 import { Client } from 'pg';
 import { priceProduct } from '../support/catalog-fixture';
-import { requireEnv } from '../support/env';
+import { configFile, requireEnv } from '../support/env';
 import { JourneyRun } from '../support/journey/journey';
 import {
   orderJourneyAdapter,
@@ -49,7 +49,7 @@ const TOTAL_MINOR = BASE_MINOR * PIECES;
  * this suite, not break it.
  */
 const deployment = JSON.parse(
-  readFileSync(requireEnv('DEPLOYMENT_CONFIG_FILE'), 'utf8'),
+  readFileSync(configFile('deployment.json'), 'utf8'),
 ) as { pickup?: { locations: { key: string }[] } };
 const PICKUP_KEY = deployment.pickup?.locations[0]?.key ?? null;
 

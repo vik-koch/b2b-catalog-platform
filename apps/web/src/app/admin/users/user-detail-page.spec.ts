@@ -7,12 +7,12 @@ import {
   CustomerTier,
   OwnershipArea,
   StaffUser,
+  type DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import type { DeploymentConfig } from '../../config/deployment-config.type';
 import { AuthService } from '../../auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';

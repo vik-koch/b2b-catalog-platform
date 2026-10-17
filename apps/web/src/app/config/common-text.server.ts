@@ -10,7 +10,7 @@ let cachedCommonText: CommonText | undefined;
 export function getCommonText(): CommonText {
   return (cachedCommonText ??= loadConfig(
     commonTextSchema,
-    'COMMON_TEXT_FILE',
+    'texts/common.json',
   ));
 }
 

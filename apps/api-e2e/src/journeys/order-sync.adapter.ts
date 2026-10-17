@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
-import { requireEnv } from '../support/env';
+import { configFile, requireEnv } from '../support/env';
 import {
   deleteMatching,
   messageBody,
@@ -97,7 +97,7 @@ const asStaff = (ctx: OrderSyncJourneyContext, url: string) =>
  * *which* message arrived — and, more often, that none did.
  */
 const mailText = JSON.parse(
-  readFileSync(requireEnv('MAIL_TEXT_FILE'), 'utf8'),
+  readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
   orderReceived: { subject: string };
   orderStatusChanged: {

@@ -1,209 +1,49 @@
 import {
   AddressConfig,
-  addressConfigSchema,
+  CompanyIdFormat,
   CONSENT_PURPOSES,
   ConsentPurpose,
-  CompanyIdFormat,
-  consentConfigSchema,
-  companyIdInputSchema,
-  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   CustomerSyncPolicy,
-  customerSyncPolicySchema,
   DEFAULT_CUSTOMER_SYNC_POLICY,
+  DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
+  DEFAULT_SESSION_IDLE_DAYS,
   DEFAULT_SYNC_POLICY,
   DeliveryConfig,
-  deliveryConfigSchema,
-  KEYBOARD_LAYOUTS,
+  deploymentConfigSchema,
   KeyboardLayout,
   MoneyFormat,
   normalizePhone,
   OrderReferenceConfig,
-  orderReferenceConfigSchema,
-  SyncPolicy,
-  syncPolicySchema,
   PhoneConfig,
-  phoneInputSchema,
-  pagesConfigSchema,
   RetentionConfig,
-  retentionConfigSchema,
-  DEFAULT_SESSION_IDLE_DAYS,
-  sessionConfigSchema,
   SignInStepConfig,
-  signInStepConfigSchema,
+  SyncPolicy,
   TaxConfig,
-  taxConfigSchema,
-  termsConfigSchema,
 } from '@b2b-catalog-platform/shared';
-import { dirname, join } from 'node:path';
-import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import * as z from 'zod';
+import { join } from 'node:path';
+import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
+import { loadApiConfig } from './api-config';
+import type * as z from 'zod';
 
 /**
- * The slice of the deployment config the **API** needs. The web app validates
- * that same mounted file whole (apps/web config/deployment-config.type.ts);
- * this schema is deliberately narrow and non-strict, because the API neither
- * knows nor cares about the chrome, pages and map keys living beside these.
- */
-export const apiDeploymentConfigSchema = z
-  .object({
-    /**
-     * Which pages the deployment publishes. The API reads only whether the
-     * terms are, which decides whether an order records them; the rest is
-     * checked here so both sides fail on the same file.
-     */
-    pages: pagesConfigSchema,
-    /** Which consents the forms ask for (NFR-LEGAL-09). */
-    consent: consentConfigSchema,
-    /** Whether the receipt attaches the accepted terms (NFR-LEGAL-10). */
-    terms: termsConfigSchema,
-    /** How long consent and destruction records are kept (NFR-LEGAL-09/12). */
-    retention: retentionConfigSchema,
-    /** The tax basis prices are quoted on (NFR-LEGAL-11). */
-    tax: taxConfigSchema,
-    /** Mail branding: who a message is from, and in what colour. */
-    branding: z
-      .object({
-        name: z.string(),
-        theme: z.object({ primary: z.string() }),
-        /**
-         * The face the API prints its PDFs in (FR-ORD-05). Only the `pdf`
-         * half of the web app's `font` block reaches here — a `woff2` is what
-         * a browser wants and not what a PDF can embed — and the two files are
-         * paths under the assets directory beside this config file. Absent,
-         * the API prints in the face it ships with.
-         */
-        font: z
-          .object({
-            pdf: z.object({ regular: z.string(), bold: z.string() }).optional(),
-          })
-          .passthrough()
-          .optional(),
-      })
-      // Non-strict for the same reason: `title`, `startYear` and the rest
-      // belong to the web app, and a key added there must not fail the API.
-      .passthrough(),
-    /**
-     * The shapes a company ID may take. Jurisdiction-specific,
-     * so it lives here rather than in the shared contract, and the API applies
-     * them as well as the browser — a rule enforced only client-side is not a
-     * rule. The schema is the shared one, so the two apps cannot drift about
-     * what a format is or which ones are coherent.
-     */
-    companyIdInput: companyIdInputSchema.optional(),
-    /**
-     * Whether an order carries an invoice address of its own (FR-CART-07).
-     * The API applies it as well as the browser: a form that stops asking is
-     * not what makes an order's billing columns empty — this is.
-     */
-    billingAddressEnabled: z.boolean(),
-    /**
-     * How this deployment groups a phone number. Numbers are stored unmasked,
-     * so the API needs the mask for the same reason the browser does: a staff
-     * notification has to be readable by whoever it wakes up.
-     */
-    phoneInput: phoneInputSchema.optional(),
-    /** The second sign-in step (FR-AUTH-12). Absent means off. */
-    signInStep: signInStepConfigSchema.optional(),
-    /** How long a session lasts without use. Absent means the default. */
-    session: sessionConfigSchema.optional(),
-    /**
-     * Where the deployment ships. The API applies the country list as well as
-     * the browser — a `<select>` is an entry aid, not a rule.
-     */
-    address: addressConfigSchema.optional(),
-    /**
-     * Where an order may be collected. Its own list, not the contact page's
-     * offices: goods come from a warehouse as readily as from an office, and
-     * neither list is a subset of the other.
-     *
-     * The API validates a submitted pickup key against this and snapshots the
-     * point's name and address onto the order, so a later rename or removal
-     * leaves past orders readable. What the form draws beside them — the
-     * description, the map link — is the web app's business, hence the
-     * passthrough.
-     */
-    pickup: z
-      .object({
-        locations: z.array(
-          z
-            .object({
-              key: z.string().min(1),
-              name: z.string(),
-              address: z.string().min(1),
-            })
-            .passthrough(),
-        ),
-      })
-      .passthrough()
-      .optional(),
-    /**
-     * Delivery zones (FR-CART-07). The server re-derives the zone from the
-     * submitted address rather than trusting the browser's — a free-delivery
-     * threshold is not something a customer picks.
-     */
-    delivery: deliveryConfigSchema.optional(),
-    /** The order reference's prefix and the timezone its date is read in. */
-    orderReference: orderReferenceConfigSchema.optional(),
-    /**
-     * The currency an order is priced in, snapshotted onto it: this key is
-     * editable, and an old order must keep saying what it was priced in.
-     */
-    catalog: z
-      .object({
-        currency: z
-          .object({ code: z.string(), locale: z.string().optional() })
-          .passthrough(),
-        /**
-         * Where "few left" sits for a product with neither a box nor a pack to
-         * measure it in (FR-STOCK-02) — the last rung of the ladder, so it is
-         * only ever reached by a product sold loose.
-         */
-        lowStockThresholdPieces: z.number().int().positive().optional(),
-        /**
-         * Whether an order is refused where the cart is missing what its
-         * products are sold with (FR-SET-04). Optional and off by default: a
-         * deployment that says nothing gets the advisory rule, which is what
-         * the cart already showed. The API applies it as well as the browser —
-         * a rule enforced only client-side is not a rule.
-         */
-        pairingsEnforced: z.boolean().optional(),
-      })
-      .passthrough()
-      .optional(),
-    /** The keyboard layout a query is also read on (FR-SEARCH-08). */
-    search: z
-      .object({ alternateLayout: z.enum(KEYBOARD_LAYOUTS).optional() })
-      .passthrough()
-      .optional(),
-    /**
-     * What an unattended catalog run may do to itself (FR-ADM-07). API-only —
-     * the browser never decides this — but the config file is validated whole,
-     * so the web app declares the shape as well.
-     */
-    sync: z
-      .object({
-        autoApply: syncPolicySchema.optional(),
-        /** The same, for an unattended customer run (FR-ADM-11). Its own key
-         * and its own ceilings: the two areas do not measure the same harm. */
-        customerAutoApply: customerSyncPolicySchema.optional(),
-      })
-      .passthrough()
-      .optional(),
-  })
-  .passthrough();
-
-export type ApiDeploymentConfig = z.infer<typeof apiDeploymentConfigSchema>;
-
-/**
+ * `deployment.json`, read whole and as strictly as the web reads it — one
+ * schema for both, so a misspelled key stops either. What only the API needs
+ * is in `api.json` (api-config.ts).
+ *
+ * Typed as the parsed value, not the read-only view the web injects: the
+ * loaders below hand its parts to services typed by the shared schemas.
+ *
  * Read once per process: the mounted file is immutable for the container's
  * lifetime. A bad or missing file throws at boot, from the module factories
  * that call this.
  */
+type ApiDeploymentConfig = z.infer<typeof deploymentConfigSchema>;
+
 let cached: ApiDeploymentConfig | undefined;
 export function loadApiDeploymentConfig(): ApiDeploymentConfig {
   return (cached ??= loadConfig(
-    apiDeploymentConfigSchema,
-    'DEPLOYMENT_CONFIG_FILE',
+    deploymentConfigSchema,
+    'deployment.json',
   ) as ApiDeploymentConfig);
 }
 
@@ -213,9 +53,9 @@ export function resetApiDeploymentConfig(): void {
 }
 
 /**
- * Where a deployment's own assets live: the `assets/` directory beside the
- * config file, which is the layout config/README.md documents and the one the
- * web server already serves from. Derived rather than given its own variable —
+ * Where a deployment's own assets live: the `assets/` directory of the
+ * mounted config, which is the layout config/README.md documents and the one
+ * the web server already serves from. Derived rather than given its own variable —
  * one mount, one place, and nothing to keep in step.
  */
 export const PDF_FONT = 'PDF_FONT';
@@ -228,9 +68,7 @@ export interface PdfFontFiles {
 export function loadPdfFont(): PdfFontFiles | undefined {
   const pdf = loadApiDeploymentConfig().branding.font?.pdf;
   if (!pdf) return undefined;
-  const configFile = process.env['DEPLOYMENT_CONFIG_FILE'];
-  if (!configFile) return undefined;
-  const assets = join(dirname(configFile), 'assets');
+  const assets = configPath('assets');
   // A path out of the assets directory is a configuration mistake, not an
   // attack — the file is the operator's own — but the boot is where a mistake
   // should be noticed rather than the first time somebody asks for a PDF.
@@ -268,7 +106,7 @@ export function loadTermsPublished(): boolean {
 export const TERMS_ATTACHED = 'TERMS_ATTACHED';
 
 export function loadTermsAttached(): boolean {
-  return loadApiDeploymentConfig().terms.attachToReceipt;
+  return loadApiConfig().terms.attachToReceipt;
 }
 
 /** The tax basis and default rate, which a product's own rate falls back
@@ -283,7 +121,7 @@ export function loadTaxConfig(): TaxConfig {
 export const RETENTION = 'RETENTION';
 
 export function loadRetention(): RetentionConfig {
-  return loadApiDeploymentConfig().retention;
+  return loadApiConfig().retention;
 }
 
 /**
@@ -302,9 +140,7 @@ export function loadSignInStep(): SignInStepConfig | undefined {
 }
 
 export function loadSessionIdleDays(): number {
-  return (
-    loadApiDeploymentConfig().session?.idleDays ?? DEFAULT_SESSION_IDLE_DAYS
-  );
+  return loadApiConfig().session?.idleDays ?? DEFAULT_SESSION_IDLE_DAYS;
 }
 
 /**
@@ -445,7 +281,7 @@ export const PAIRINGS_ENFORCED = 'PAIRINGS_ENFORCED';
 export const SYNC_POLICY = 'SYNC_POLICY';
 
 export function loadSyncPolicy(): SyncPolicy {
-  return loadApiDeploymentConfig().sync?.autoApply ?? DEFAULT_SYNC_POLICY;
+  return loadApiConfig().sync?.autoApply ?? DEFAULT_SYNC_POLICY;
 }
 
 /** The customer exchange's own ceilings (FR-ADM-11). */
@@ -453,8 +289,7 @@ export const CUSTOMER_SYNC_POLICY = 'CUSTOMER_SYNC_POLICY';
 
 export function loadCustomerSyncPolicy(): CustomerSyncPolicy {
   return (
-    loadApiDeploymentConfig().sync?.customerAutoApply ??
-    DEFAULT_CUSTOMER_SYNC_POLICY
+    loadApiConfig().sync?.customerAutoApply ?? DEFAULT_CUSTOMER_SYNC_POLICY
   );
 }
 
