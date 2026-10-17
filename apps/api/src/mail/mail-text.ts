@@ -271,23 +271,6 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
-        referenceLabel: z.string(),
-        customerLabel: z.string(),
-        /** An order placed by nobody with an account. */
-        guest: z.string(),
-        contactLabel: z.string(),
-        partyLabel: z.string(),
-        fulfilmentLabel: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        paymentLabel: z.string(),
-        cash: z.string(),
-        transfer: z.string(),
-        /** A card payment arranged with the manager — never chosen at
-         * checkout, but an order can be adjusted onto it. */
-        card: z.string(),
-        itemsHeading: z.string(),
-        totalLabel: z.string(),
         action: z.string(),
       })
       .strict(),
@@ -304,17 +287,11 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
-        referenceLabel: z.string(),
-        customerLabel: z.string(),
-        /** An order placed by nobody with an account. */
-        guest: z.string(),
-        contactLabel: z.string(),
         /** Precedes the reason the customer gave, where they gave one. */
         reasonLabel: z.string(),
         /** Where they gave none: asking for one is a courtesy, not a
          * condition, so its absence is normal and says so. */
         reasonNone: z.string(),
-        totalLabel: z.string(),
         /** What the shop may still be holding: the money, where a payment was
          * recorded before the order was called off. A refund is arranged
          * outside the platform (FR-ORD-04), so this line is the only prompt

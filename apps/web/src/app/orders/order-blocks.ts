@@ -1,13 +1,16 @@
-import { OrderAddress, OrderDetail } from '@b2b-catalog-platform/shared';
+import {
+  CommonText,
+  OrderAddress,
+  OrderDetail,
+} from '@b2b-catalog-platform/shared';
 import { formatPhone } from '../core/contact-fields';
 import { addressLines } from '../addresses/address-format';
 import { ReviewBlock } from './order-read-back';
 
 /**
  * The wording one screen puts on an order's answers. Passed in rather than
- * injected: the customer reads an order in the shop's public text and staff
- * read it in the admin's, and the same order must not be described differently
- * by the two.
+ * injected: the customer and staff read the same order, mostly in shared
+ * names, and it must not be described differently by the two.
  */
 export interface OrderBlockLabels {
   readonly fulfilment: string;
@@ -28,6 +31,30 @@ export interface OrderBlockLabels {
   readonly card: string;
   readonly contact: string;
   readonly note: string;
+}
+
+/**
+ * The block labels for one reader: the names are shared, the payment methods
+ * are the reader's own set, and the rest is the screen's wording.
+ */
+export function orderBlockLabels(
+  names: CommonText,
+  reader: 'customer' | 'staff',
+  view: Pick<OrderBlockLabels, 'billingSame' | 'whenAny' | 'note'>,
+): OrderBlockLabels {
+  const order = names.order;
+  return {
+    ...view,
+    ...order.paymentMethods[reader],
+    fulfilment: names.fulfilment.label,
+    delivery: names.fulfilment.delivery,
+    pickup: names.fulfilment.pickup,
+    invoice: order.invoicedTo,
+    deliveryDate: order.preferredDelivery,
+    pickupDate: order.preferredPickup,
+    payment: order.payment,
+    contact: order.contact,
+  };
 }
 
 /** What turning the order's own fields into lines needs from the deployment. */

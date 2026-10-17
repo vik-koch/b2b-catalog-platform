@@ -11,23 +11,22 @@ import { StatusTone } from '../ui/status-badge';
 export type OrderAudience = 'customer' | 'staff';
 
 /**
- * The words a deployment puts on the statuses. Both catalogues carry these
- * keys under the same names — the public one for customers and the admin one
- * for staff — so one function serves both and the two cannot drift into
- * describing different workflows.
+ * The words a deployment puts on the statuses — one set per reader in the
+ * shared names (`order.statuses`), so one function serves both and the two
+ * cannot drift into describing different workflows.
  *
  * `ready` is two keys and one state (ADR 0050): a collected order is waiting
  * to be picked up, a delivered one is on its way. Which sentence is read is
  * decided by the order's own fulfilment method, never by a second status.
  */
 export interface OrderStatusLabels {
-  readonly statusRequested: string;
-  readonly statusApproved: string;
-  readonly statusReadyDelivery: string;
-  readonly statusReadyPickup: string;
-  readonly statusCompleted: string;
-  readonly statusDeclined: string;
-  readonly statusCancelled: string;
+  readonly requested: string;
+  readonly approved: string;
+  readonly readyDelivery: string;
+  readonly readyPickup: string;
+  readonly completed: string;
+  readonly declined: string;
+  readonly cancelled: string;
 }
 
 export function orderStatusLabel(
@@ -35,18 +34,10 @@ export function orderStatusLabel(
   fulfilment: FulfilmentMethod,
   labels: OrderStatusLabels,
 ): string {
-  const ready =
-    fulfilment === 'pickup'
-      ? labels.statusReadyPickup
-      : labels.statusReadyDelivery;
-  return {
-    requested: labels.statusRequested,
-    approved: labels.statusApproved,
-    ready,
-    completed: labels.statusCompleted,
-    declined: labels.statusDeclined,
-    cancelled: labels.statusCancelled,
-  }[status];
+  if (status === 'ready') {
+    return fulfilment === 'pickup' ? labels.readyPickup : labels.readyDelivery;
+  }
+  return labels[status];
 }
 
 /**
@@ -66,8 +57,7 @@ export function orderStatusLabel(
  * the same state is a plain fact when it is being brought to them.
  *
  * The tone is shared; the wording is not — a customer reads "Awaiting
- * confirmation" where staff read the state itself, and the two texts live in
- * their own catalogues.
+ * confirmation" where staff read the state itself.
  */
 export function orderStatusTone(
   status: OrderStatus,
@@ -93,18 +83,17 @@ export function orderStatusTone(
 }
 
 /**
- * The two things worth saying about the money in a listing. Both catalogues
- * carry these keys, as they do the status ones — staff scan the same column a
- * customer reads on their own order.
+ * The two things worth saying about the money in a listing — one set per
+ * reader (`order.paymentStates`), as the statuses are.
  */
 export interface OrderPaymentLabels {
-  readonly paymentAwaiting: string;
-  readonly paymentPaid: string;
+  readonly awaiting: string;
+  readonly paid: string;
 }
 
 /** What staff read on top of that: the cash order nobody has ticked yet. */
 export interface StaffPaymentLabels extends OrderPaymentLabels {
-  readonly paymentCash: string;
+  readonly cashOnHandover: string;
 }
 
 /**
@@ -117,8 +106,8 @@ export function orderPaymentLabel(
   state: PaymentState,
   labels: OrderPaymentLabels,
 ): string | null {
-  if (state === 'awaiting') return labels.paymentAwaiting;
-  return state === 'paid' ? labels.paymentPaid : null;
+  if (state === 'awaiting') return labels.awaiting;
+  return state === 'paid' ? labels.paid : null;
 }
 
 /**
@@ -170,7 +159,7 @@ export function staffPaymentBadge(
   labels: StaffPaymentLabels,
 ): { label: string; tone: StatusTone } | null {
   if (order.paymentState === 'paid') {
-    return { label: labels.paymentPaid, tone: 'ok' };
+    return { label: labels.paid, tone: 'ok' };
   }
   // The one call to act. Which word it wears follows the method — a finished
   // cash order is a handover nobody ticked, an invoiced one is money that
@@ -179,18 +168,18 @@ export function staffPaymentBadge(
     return {
       label:
         order.paymentMethod === 'cash'
-          ? labels.paymentCash
-          : labels.paymentAwaiting,
+          ? labels.cashOnHandover
+          : labels.awaiting,
       tone: 'waiting',
     };
   }
   if (order.paymentState === 'awaiting') {
-    return { label: labels.paymentAwaiting, tone: 'neutral' };
+    return { label: labels.awaiting, tone: 'neutral' };
   }
   const owedInCash =
     order.paymentMethod === 'cash' &&
     order.status !== 'requested' &&
     order.status !== 'declined' &&
     order.status !== 'cancelled';
-  return owedInCash ? { label: labels.paymentCash, tone: 'neutral' } : null;
+  return owedInCash ? { label: labels.cashOnHandover, tone: 'neutral' } : null;
 }

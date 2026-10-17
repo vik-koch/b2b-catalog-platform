@@ -153,25 +153,26 @@ describe('orderReceivedMail', () => {
 
 describe('newOrderMail', () => {
   const t = demoMailText.newOrder;
+  const names = demoCommonText.order;
   const mail = newOrderMail(order, currency, demoMailText, demoCommonText);
 
   // What a manager decides on before opening anything, read on a phone.
   it('carries who it is for, who to ring and what it comes to', () => {
     expect(mail.rows).toContainEqual({
-      label: t.customerLabel,
+      label: names.account,
       value: 'alex@example.com',
     });
     expect(mail.rows).toContainEqual({
-      label: t.contactLabel,
+      label: names.contact,
       value: 'Alex Fischer · +49 40 1234567 · alex@example.com',
     });
     expect(mail.rows).toContainEqual({
-      label: t.partyLabel,
+      label: names.invoicedTo,
       value: 'Kontor GmbH · DE123456789',
     });
     expect(mail.rows).toContainEqual({
-      label: t.paymentLabel,
-      value: t.transfer,
+      label: names.payment,
+      value: names.paymentMethods.staff.transfer,
     });
   });
 
@@ -193,8 +194,8 @@ describe('newOrderMail', () => {
     );
 
     expect(guest.rows).toContainEqual({
-      label: t.customerLabel,
-      value: t.guest,
+      label: names.account,
+      value: names.guest,
     });
   });
 
@@ -212,8 +213,8 @@ describe('newOrderMail', () => {
     );
 
     expect(pickup.rows).toContainEqual({
-      label: t.fulfilmentLabel,
-      value: `${t.pickup} · Harbour store`,
+      label: demoCommonText.fulfilment.label,
+      value: `${demoCommonText.fulfilment.pickup} · Harbour store`,
     });
   });
 });

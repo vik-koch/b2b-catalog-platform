@@ -23,6 +23,7 @@ export function newOrderMail(
   common: CommonText,
 ): MailContent {
   const t = text.newOrder;
+  const names = common.order;
   const party = order.party.registrationId
     ? `${order.party.name} · ${order.party.registrationId}`
     : order.party.name;
@@ -33,40 +34,42 @@ export function newOrderMail(
     heading: t.heading,
     paragraphs: [t.body],
     rows: [
-      { label: t.referenceLabel, value: order.reference },
+      { label: names.reference, value: order.reference },
       // A guest order says so rather than leaving the row blank: "no account"
       // is a fact about the order, and it decides how the price was quoted.
-      { label: t.customerLabel, value: order.customerEmail ?? t.guest },
+      { label: names.account, value: order.customerEmail ?? names.guest },
       {
         // Name, phone, address — all three, in the order a manager uses them.
         // The address is not repeated from the account row: a guest order has
         // no account, and then this is the only way back to the customer.
-        label: t.contactLabel,
+        label: names.contact,
         value: [
           order.contact.name,
           order.contact.phone,
           order.contact.email,
         ].join(' · '),
       },
-      { label: t.partyLabel, value: party },
+      { label: names.invoicedTo, value: party },
       {
-        label: t.fulfilmentLabel,
-        value: order.pickup ? `${t.pickup} · ${order.pickup.name}` : t.delivery,
+        label: common.fulfilment.label,
+        value: order.pickup
+          ? `${common.fulfilment.pickup} · ${order.pickup.name}`
+          : common.fulfilment.delivery,
       },
       {
-        label: t.paymentLabel,
+        label: names.payment,
         value: {
-          'bank-transfer': t.transfer,
-          'card-later': t.card,
-          cash: t.cash,
+          'bank-transfer': names.paymentMethods.staff.transfer,
+          'card-later': names.paymentMethods.staff.card,
+          cash: names.paymentMethods.staff.cash,
         }[order.paymentMethod],
       },
       {
-        label: t.totalLabel,
+        label: names.total,
         value: orderMailTotal(order, currency, common),
       },
     ],
-    itemsHeading: t.itemsHeading,
+    itemsHeading: names.items.staff,
     // Staff read every line's rate, shared or not: it is what a line
     // reconciles against the shop's own invoice by.
     items: order.lines.map((line) =>

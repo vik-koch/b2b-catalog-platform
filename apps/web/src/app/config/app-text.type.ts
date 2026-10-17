@@ -812,23 +812,6 @@ export const appTextSchema = z
         emptyAction: z.string(),
         /** `{count}` lines on an order, as the cart counts them. */
         itemCount: z.string(),
-        /**
-         * Where an order stands (FR-ORD-01), in the customer's words. Ready
-         * is two keys and one state: an order waiting on the shelf and one
-         * out for delivery are the same moment in the shop's work, and the
-         * order's own fulfilment method decides which sentence is read.
-         */
-        statusRequested: z.string(),
-        statusApproved: z.string(),
-        statusReadyDelivery: z.string(),
-        statusReadyPickup: z.string(),
-        statusCompleted: z.string(),
-        statusDeclined: z.string(),
-        statusCancelled: z.string(),
-        /** Whether anything is owed (FR-ORD-04). An order with nothing due
-         * says nothing at all, so there is no key for it. */
-        paymentAwaiting: z.string(),
-        paymentPaid: z.string(),
         error: z.string(),
         back: z.string(),
         /**

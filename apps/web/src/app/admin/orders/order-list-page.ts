@@ -21,6 +21,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
@@ -41,7 +42,7 @@ import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
 import { injectEditorReturnParams } from '../editor-return';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
@@ -121,7 +122,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
               {{ order.contactName }}
             </span>
             <span class="block truncate text-xs text-subtle">
-              {{ order.customerEmail ?? text.guest }}
+              {{ order.customerEmail ?? names.guest }}
             </span>
           </td>
           <td class="truncate text-subtle">
@@ -239,6 +240,8 @@ export class AdminOrderListPage {
   private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
 
   protected readonly text = inject(ADMIN_TEXT).orderList;
+  protected readonly names = inject(COMMON_TEXT).order;
+  private readonly statuses = this.names.statuses.staff;
 
   /** Whether an external system answers orders (FR-ADM-10). An answer still in
    * flight counts as not owned, exactly as the account screens read it; the API
@@ -285,10 +288,13 @@ export class AdminOrderListPage {
    */
   protected readonly paymentOptions: GridFilterOption[] = [
     { value: '', label: this.text.paymentAll },
-    { value: 'awaiting', label: this.text.paymentAwaiting },
-    { value: 'cash', label: this.text.paymentCash },
+    { value: 'awaiting', label: this.names.paymentStates.staff.awaiting },
+    {
+      value: 'cash',
+      label: this.names.paymentStates.staff.cashOnHandover,
+    },
     { value: 'unpaid', label: this.text.paymentUnpaid },
-    { value: 'paid', label: this.text.paymentPaid },
+    { value: 'paid', label: this.names.paymentStates.staff.paid },
   ];
 
   /**
@@ -339,10 +345,10 @@ export class AdminOrderListPage {
    * list. A computed because the status filter's own value is part of it.
    */
   protected readonly columns = computed<GridColumn[]>(() => [
-    { key: 'reference', label: this.text.reference, minWidth: 140 },
+    { key: 'reference', label: this.names.reference, minWidth: 140 },
     { key: 'customer', label: this.text.customer, minWidth: 140 },
     { key: 'items', label: this.text.items, minWidth: 80 },
-    { key: 'total', label: this.text.total, minWidth: 90 },
+    { key: 'total', label: this.names.total, minWidth: 90 },
     // Filtered, not sorted: an ordering of three unrelated readings is not a
     // question anybody asks, but "what is still owed me" is — and a cash order
     // waiting to be ticked is the one piece of work that would otherwise sit
@@ -350,7 +356,7 @@ export class AdminOrderListPage {
     {
       key: 'payment',
       label: this.text.paymentAll,
-      sortName: this.text.payment,
+      sortName: this.names.payment,
       filter: {
         param: 'payment',
         options: this.paymentOptions,
@@ -362,7 +368,7 @@ export class AdminOrderListPage {
     {
       key: 'status',
       label: this.text.statusAll,
-      sortName: this.text.status,
+      sortName: this.names.status,
       // The one column that both filters and sorts: what a manager narrows by
       // is also what they want at the top when they open the list.
       sort: { asc: 'status', desc: 'status_desc' },
@@ -407,12 +413,12 @@ export class AdminOrderListPage {
    */
   protected readonly statusOptions: GridFilterOption[] = [
     { value: '', label: this.text.statusAll },
-    { value: 'requested', label: this.text.statusRequested },
-    { value: 'approved', label: this.text.statusApproved },
-    { value: 'ready', label: this.text.statusReadyDelivery },
-    { value: 'completed', label: this.text.statusCompleted },
-    { value: 'declined', label: this.text.statusDeclined },
-    { value: 'cancelled', label: this.text.statusCancelled },
+    { value: 'requested', label: this.statuses.requested },
+    { value: 'approved', label: this.statuses.approved },
+    { value: 'ready', label: this.statuses.readyDelivery },
+    { value: 'completed', label: this.statuses.completed },
+    { value: 'declined', label: this.statuses.declined },
+    { value: 'cancelled', label: this.statuses.cancelled },
   ];
 
   protected total(order: StaffOrderSummary): string {
@@ -424,7 +430,11 @@ export class AdminOrderListPage {
   }
 
   protected statusLabel(order: StaffOrderSummary): string {
-    return orderStatusLabel(order.status, order.fulfilmentMethod, this.text);
+    return orderStatusLabel(
+      order.status,
+      order.fulfilmentMethod,
+      this.statuses,
+    );
   }
 
   protected statusTone(order: StaffOrderSummary): StatusTone {
@@ -434,7 +444,7 @@ export class AdminOrderListPage {
   protected paymentBadge(
     order: StaffOrderSummary,
   ): { label: string; tone: StatusTone } | null {
-    return staffPaymentBadge(order, this.text);
+    return staffPaymentBadge(order, this.names.paymentStates.staff);
   }
 
   // --- Row actions -------------------------------------------------------
@@ -442,7 +452,6 @@ export class AdminOrderListPage {
   private readonly confirm = inject(ConfirmService);
   private readonly detailText = inject(ADMIN_TEXT).orderDetail;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  private readonly common = inject(ADMIN_TEXT).common;
   /** So the order page opened from here returns to this list, filters and
    * all. */
   protected readonly editorFrom = injectEditorReturnParams();
@@ -468,10 +477,9 @@ export class AdminOrderListPage {
     const actions = this.detailText.actions;
     const label = to === 'declined' ? actions.decline : actions.cancel;
     const answer = await this.confirm.askDetailed({
-      heading: fillText(actions.confirmHeading, { action: label }),
-      message: actions.confirmMessage,
-      confirmLabel: label,
-      cancelLabel: this.common.cancel,
+      ...confirmRequest(actions.confirm),
+      heading: fillText(actions.confirm.heading, { action: label }),
+      confirmLabel: fillText(actions.confirm.confirm, { action: label }),
       reasonLabel: actions.reasonLabel,
       reasonMaxLength: ORDER_STATUS_REASON_MAX,
       // Ticked, and worked out without asking what the customer has already
@@ -484,7 +492,7 @@ export class AdminOrderListPage {
         {
           key: 'notify',
           label: actions.notify,
-          hint: actions.notifyHint,
+          hint: this.detailText.notifyHint,
           checked: notifyByDefault(order.status, to, []),
         },
       ],

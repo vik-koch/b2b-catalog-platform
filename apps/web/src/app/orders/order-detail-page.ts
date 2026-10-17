@@ -17,6 +17,7 @@ import {
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { delayedLoading } from '../core/delayed-loading';
 import { usePageSeo } from '../core/page-seo';
@@ -200,6 +201,7 @@ export class OrderDetailPage {
   private readonly currency = this.config.catalog.currency;
 
   private readonly appText = inject(APP_TEXT);
+  private readonly statusNames = inject(COMMON_TEXT).order;
   private readonly orderText = this.appText.orders;
   protected readonly text = this.orderText.detail;
 
@@ -274,7 +276,7 @@ export class OrderDetailPage {
     return orderStatusLabel(
       detail.status,
       detail.fulfilmentMethod,
-      this.orderText,
+      this.statusNames.statuses.customer,
     );
   }
 
@@ -283,7 +285,10 @@ export class OrderDetailPage {
   }
 
   protected paymentLabel(detail: OrderDetail): string | null {
-    return orderPaymentLabel(detail.paymentState, this.orderText);
+    return orderPaymentLabel(
+      detail.paymentState,
+      this.statusNames.paymentStates.customer,
+    );
   }
 
   protected paymentTone(detail: OrderDetail): StatusTone {

@@ -17,7 +17,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
 import { AdminOrdersService } from './orders.service';
 
@@ -321,10 +321,7 @@ export class OrderDocumentsPanel {
 
   protected async notify(kind: OrderDocumentKind): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.text.notifyConfirmHeading,
-      message: this.text.notifyConfirmMessage,
-      confirmLabel: this.text.notifyConfirm,
-      cancelLabel: this.text.keep,
+      ...confirmRequest(this.text.notifyConfirm),
     });
     if (!confirmed) return;
 
@@ -341,10 +338,7 @@ export class OrderDocumentsPanel {
 
   protected async remove(kind: OrderDocumentKind): Promise<void> {
     const confirmed = await this.confirm.ask({
-      heading: this.text.removeConfirmHeading,
-      message: this.text.removeConfirmMessage,
-      confirmLabel: this.text.removeConfirm,
-      cancelLabel: this.text.keep,
+      ...confirmRequest(this.text.removeConfirm),
       confirmVariant: 'danger',
     });
     if (!confirmed) return;

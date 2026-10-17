@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { OrderDetail } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { ConfirmService } from '../ui/confirm.service';
@@ -10,6 +12,7 @@ import { OrderDetailPage } from './order-detail-page';
 import { OrdersService } from './orders.service';
 
 const text = defaultAppText.orders;
+const names = defaultCommonText.order;
 const review = defaultAppText.checkout.review;
 
 const address = {
@@ -110,6 +113,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: OrdersService, useValue: { getMine, ...api } },
     ],
@@ -127,7 +131,7 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     const { el } = await render(placed);
 
     expect(el.textContent).toContain(placed.reference);
-    expect(el.textContent).toContain(text.statusRequested);
+    expect(el.textContent).toContain(names.statuses.customer.requested);
     expect(el.textContent).toContain(review.fulfilment);
     expect(el.textContent).toContain(review.invoice);
     // The party carries its registration number, and the invoice went to the
@@ -209,7 +213,7 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     const { el } = await render(null);
 
     expect(el.textContent).toContain(text.detail.notFound);
-    expect(el.textContent).not.toContain(text.statusRequested);
+    expect(el.textContent).not.toContain(names.statuses.customer.requested);
   });
 
   it('says so when the order cannot be read', async () => {

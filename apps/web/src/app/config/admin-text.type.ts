@@ -17,6 +17,17 @@ const syncAreaTextSchema = z
   .object({ title: z.string(), runsDescription: z.string() })
   .strict();
 
+/** A confirmation dialog's words. A view decides when to show `warning`. */
+const confirmText = z
+  .object({
+    heading: z.string(),
+    message: z.string(),
+    confirm: z.string(),
+    cancel: z.string(),
+    warning: z.string().optional(),
+  })
+  .strict();
+
 /**
  * One ownership area's copy. The two directions carry a warning each because
  * they are opposite losses: handing over takes the shop's own way in away,
@@ -1635,6 +1646,30 @@ export const adminTextSchema = z
      * The storefront list's name is not here either: it is that tier row's own
      * label, which is why the two screens cannot drift apart.
      */
+    /** What every staff order screen says alike. */
+    orders: z
+      .object({
+        notFound: z.string(),
+        loadError: z.string(),
+        /** Which price list an order is taken from. A null key is the
+         * storefront's list — named generically because the list it was may
+         * since have been renamed or replaced. */
+        tier: z.string(),
+        tierDefault: z.string(),
+      })
+      .strict(),
+    /** Row labels for a list of changes to an order — on the adjustment
+     * screen, and between two versions. The total is a shared name. */
+    orderChanges: z
+      .object({
+        line: z.string(),
+        added: z.string(),
+        removed: z.string(),
+        /** The packing estimate, where the products carry one — what the shop
+         * books a van by. */
+        shipment: z.string(),
+      })
+      .strict(),
     /** The staff order list (FR-AUTH-03) — read-only: an order is a request a
      * manager answers by phone or mail. */
     orderList: z
@@ -1649,41 +1684,19 @@ export const adminTextSchema = z
         /** Shown instead of `empty` when the status filter emptied the list. */
         noResults: z.string(),
         loadError: z.string(),
-        /** Column headings. */
-        reference: z.string(),
+        /** Column headings; the rest are shared names. */
         placed: z.string(),
         customer: z.string(),
         items: z.string(),
-        total: z.string(),
-        payment: z.string(),
         filterStatus: z.string(),
         statusAll: z.string(),
-        /** The column's own noun, for the phone's sort picker — where "All
-         * statuses" would read as an ordering rather than a column. */
-        status: z.string(),
-        statusRequested: z.string(),
-        statusApproved: z.string(),
-        /** One state, two readings (FR-ORD-01): the order's own fulfilment
-         * method decides which of the two a row shows. */
-        statusReadyDelivery: z.string(),
-        statusReadyPickup: z.string(),
-        statusCompleted: z.string(),
-        statusDeclined: z.string(),
-        statusCancelled: z.string(),
         /** Whether anything is owed (FR-ORD-04), read apart from the status.
          * An order with nothing due says nothing. */
         filterPayment: z.string(),
         paymentAll: z.string(),
-        paymentAwaiting: z.string(),
-        /** Staff only: an accepted cash order whose handover nobody has
-         * recorded yet — the tick that is easy to forget. */
-        paymentCash: z.string(),
         /** Everything the shop has not been paid for, cash and invoiced
          * alike — what the panel's finished-and-unpaid count links to. */
         paymentUnpaid: z.string(),
-        paymentPaid: z.string(),
-        /** A guest order: nobody signed in placed it. */
-        guest: z.string(),
         /** Screen-reader heading for the column of row buttons. */
         actions: z.string(),
         /** `{count}` lines on the order. */
@@ -1695,46 +1708,24 @@ export const adminTextSchema = z
       .object({
         /** `{date}` the request was sent, and `{date}` its status last moved. */
         placed: z.string(),
-        notFound: z.string(),
-        loadError: z.string(),
         back: z.string(),
-        items: z.string(),
-        /** The account it was placed from, or that it was a guest's. */
-        customer: z.string(),
         /** Opens the summary a guest was mailed (FR-NOTIF-06) — what that
          * customer is looking at when they ring about the order. Only on a
          * guest's order; an account holder's own view is the version link. */
         guestView: z.string(),
-        /** Which price list it was taken from, as the order recorded it. A
-         * null key is the storefront's list — named generically because the
-         * list it was may since have been renamed or replaced. */
-        tier: z.string(),
-        tierDefault: z.string(),
         /** The terms the order accepted (NFR-LEGAL-10), as the page editor
-         * numbers them: `{version}` and `{date}`. The row is absent where it
-         * accepted none. */
-        terms: z.string(),
+         * numbers them: `{version}` and `{date}`. Absent where it accepted
+         * none. */
         termsVersion: z.string(),
-        /** The blocks, headed as the checkout asked its questions. */
-        fulfilment: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
-        invoice: z.string(),
+        /** The block wording not shared with the storefront. */
         billingSame: z.string(),
-        deliveryDate: z.string(),
-        pickupDate: z.string(),
         whenAny: z.string(),
-        payment: z.string(),
-        cash: z.string(),
-        transfer: z.string(),
-        card: z.string(),
-        contact: z.string(),
         note: z.string(),
+        /** The line under every "email the customer" tick: what they are sent. */
+        notifyHint: z.string(),
         /** A line in pieces — `{count} × {price}`, the way the source system
          * prices. */
         pieceLine: z.string(),
-        /** Why a declined or cancelled order ended that way. */
-        statusReason: z.string(),
         /** Every version of the order (FR-ORD-03): what the shop said it
          * changed, and the difference from the version before it. */
         revisions: z
@@ -1758,7 +1749,6 @@ export const adminTextSchema = z
             changed: z.string(),
             /** Marks the version the customer is being shown. */
             customerView: z.string(),
-            note: z.string(),
             changes: z.string(),
             noChanges: z.string(),
             loadError: z.string(),
@@ -1781,12 +1771,6 @@ export const adminTextSchema = z
              * external system holds order processing. */
             openOrder: z.string(),
             openRevision: z.string(),
-            /** Row labels for the change list, as on the adjustment screen. */
-            line: z.string(),
-            added: z.string(),
-            removed: z.string(),
-            total: z.string(),
-            shipment: z.string(),
           })
           .strict(),
         /**
@@ -1821,9 +1805,6 @@ export const adminTextSchema = z
             complete: z.string(),
             decline: z.string(),
             cancel: z.string(),
-            /** `{action}` names the move being confirmed. */
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
             /** The tick that decides whether the move reaches the customer's
              * own page (FR-NOTIF-03), and the line under it. Offered ticked:
              * clearing it is for a step taken by mistake. */
@@ -1834,19 +1815,18 @@ export const adminTextSchema = z
              * ticked for news they have not had yet, and only where the move
              * reaches their page at all. */
             notify: z.string(),
-            notifyHint: z.string(),
             /** The tick that records the money with the move that is the
              * handover (FR-ORD-04), and the line under it. */
             markPaid: z.string(),
             markPaidHint: z.string(),
             reasonLabel: z.string(),
             /**
-             * Weighed before ending an order the shop has already been paid
-             * for (FR-ORD-04). The move goes ahead — the platform records what
-             * the shop did — but nothing here sends money back, and this is
-             * where somebody would assume it does.
+             * `{action}` names the move, in the heading and on the button. The
+             * warning is weighed before ending an order the shop has already
+             * been paid for (FR-ORD-04): the move goes ahead, but nothing here
+             * sends money back, and this is where somebody would assume it does.
              */
-            paidWarning: z.string(),
+            confirm: confirmText,
             /** Added to the dialog where the shop's payment instructions will
              * travel with the message this move sends (FR-ORD-05). */
             notifyAttachment: z.string(),
@@ -1854,7 +1834,6 @@ export const adminTextSchema = z
              * that makes the money due is the last comfortable moment to
              * notice the slip is missing. */
             notifyNoDocument: z.string(),
-            keep: z.string(),
             /** The move was refused: the order had already been answered. */
             error: z.string(),
           })
@@ -1886,19 +1865,13 @@ export const adminTextSchema = z
             /** Moving their page on to the version the order stands on. The
              * message is a tick on it, not a second button. */
             update: z.string(),
-            updateConfirmHeading: z.string(),
-            updateConfirmMessage: z.string(),
-            updateConfirm: z.string(),
+            updateConfirm: confirmText,
             updateNotify: z.string(),
-            updateNotifyHint: z.string(),
             /** Writing to them about the version they already hold — the
              * message somebody decided against, or one that never arrived. */
             email: z.string(),
             emailAgain: z.string(),
-            emailConfirmHeading: z.string(),
-            emailConfirmMessage: z.string(),
-            emailConfirm: z.string(),
-            keep: z.string(),
+            emailConfirm: confirmText,
             /** Somebody else moved the order while this page was open. */
             error: z.string(),
           })
@@ -1907,21 +1880,13 @@ export const adminTextSchema = z
          * takes no payment. */
         paymentState: z
           .object({
-            heading: z.string(),
-            notDue: z.string(),
-            awaiting: z.string(),
             /** `{date}` it was recorded. */
             paid: z.string(),
             record: z.string(),
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
-            confirm: z.string(),
+            recordConfirm: confirmText,
             /** Taking the record back — a mis-tick, never a refund. */
             clear: z.string(),
-            clearConfirmHeading: z.string(),
-            clearConfirmMessage: z.string(),
-            clearConfirm: z.string(),
-            keep: z.string(),
+            clearConfirm: confirmText,
             error: z.string(),
           })
           .strict(),
@@ -1938,10 +1903,7 @@ export const adminTextSchema = z
             /** `{date}` they were removed. */
             removed: z.string(),
             remove: z.string(),
-            confirmHeading: z.string(),
-            confirmMessage: z.string(),
-            confirmWarning: z.string(),
-            confirm: z.string(),
+            confirm: confirmText,
             error: z.string(),
           })
           .strict(),
@@ -1971,16 +1933,11 @@ export const adminTextSchema = z
             /** The button afterwards. It stays pressable — a customer who lost
              * the message is asking for the same document again. */
             notifySent: z.string(),
-            notifyConfirmHeading: z.string(),
-            notifyConfirmMessage: z.string(),
-            notifyConfirm: z.string(),
+            notifyConfirm: confirmText,
             /** Why staff cannot draw payment instructions themselves. */
             paymentHint: z.string(),
             summaryHint: z.string(),
-            removeConfirmHeading: z.string(),
-            removeConfirmMessage: z.string(),
-            removeConfirm: z.string(),
-            keep: z.string(),
+            removeConfirm: confirmText,
             uploading: z.string(),
             error: z.string(),
           })
@@ -1999,8 +1956,6 @@ export const adminTextSchema = z
         lead: z.string(),
         save: z.string(),
         cancel: z.string(),
-        loadError: z.string(),
-        notFound: z.string(),
         /** Warnings, not refusals: a change is allowed wherever the order
          * stands, and the screen says what it will sit awkwardly with. */
         warnPaid: z.string(),
@@ -2013,7 +1968,6 @@ export const adminTextSchema = z
         notifyHint: z.string(),
         lines: z
           .object({
-            heading: z.string(),
             /** The staff reading of a quantity: how many of what the price is
              * per (FR-UNIT-04). */
             units: z.string(),
@@ -2041,16 +1995,10 @@ export const adminTextSchema = z
             offList: z.string(),
           })
           .strict(),
-        /**
-         * The identity fields, worded here rather than borrowed from the user
-         * editor: the same field asking about a different thing — the party an
-         * order is invoiced to, not the account that placed it.
-         */
+        /** Who the order is invoiced to; the fields themselves are shared
+         * names. */
         partyKindPerson: z.string(),
         partyKindCompany: z.string(),
-        personName: z.string(),
-        companyId: z.string(),
-        companyName: z.string(),
         companySuggest: z
           .object({
             suggestionsLabel: z.string(),
@@ -2059,46 +2007,17 @@ export const adminTextSchema = z
             suggestionCount: z.string(),
           })
           .strict(),
-        validation: z
-          .object({
-            nameRequired: z.string(),
-            emailRequired: z.string(),
-            emailInvalid: z.string(),
-            phoneRequired: z.string(),
-            phoneIncomplete: z.string(),
-            companyNameRequired: z.string(),
-            companyIdRequired: z.string(),
-            /** `{examples}` lists the shapes the deployment accepts. */
-            companyIdFormat: z.string(),
-          })
-          .strict(),
-        /** Which list the lines with no price of their own come from. */
-        tier: z.string(),
         reprice: z.string(),
-        contact: z.string(),
-        contactName: z.string(),
-        contactEmail: z.string(),
-        contactPhone: z.string(),
-        party: z.string(),
-        fulfilment: z.string(),
-        delivery: z.string(),
-        pickup: z.string(),
         pickupLocation: z.string(),
         /** The second half of the form, which folds away from the first: who
          * the order goes to and how it is paid. */
         detailsHeading: z.string(),
-        deliveryAddress: z.string(),
         billingAddress: z.string(),
-        payment: z.string(),
-        paymentCash: z.string(),
-        paymentTransfer: z.string(),
-        paymentCard: z.string(),
         /** The customer's own words, shown and not editable. */
         customerHeading: z.string(),
         /** The day they asked for — `{date}`, or the words for any day. */
         wished: z.string(),
         customerNone: z.string(),
-        note: z.string(),
         noteHint: z.string(),
         noteRequired: z.string(),
         /** What is about to change, line by line (FR-ORD-03). */
@@ -2106,15 +2025,6 @@ export const adminTextSchema = z
           .object({
             heading: z.string(),
             none: z.string(),
-            added: z.string(),
-            removed: z.string(),
-            total: z.string(),
-            /** Row labels for the things that can change. */
-            line: z.string(),
-            /** The packing estimate, where the products carry one — a change
-             * to the lines usually moves it, and it is what the shop books a
-             * van by. */
-            shipment: z.string(),
             /** Why the priced half of the comparison is missing. */
             pricingPending: z.string(),
           })
@@ -2128,10 +2038,7 @@ export const adminTextSchema = z
             offList: z.string(),
           })
           .strict(),
-        confirmHeading: z.string(),
-        confirmMessage: z.string(),
-        confirm: z.string(),
-        keep: z.string(),
+        confirm: confirmText,
         errors: z
           .object({
             'order-changed': z.string(),

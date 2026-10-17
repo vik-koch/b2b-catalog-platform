@@ -5,6 +5,8 @@ import { signal } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { OrderTokenPage } from './order-token-page';
@@ -98,6 +100,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: OrdersService, useValue: { getByToken } },
       {
@@ -120,7 +123,9 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
 
     expect(getByToken).toHaveBeenCalledWith('tok-123');
     expect(el.textContent).toContain(placed.reference);
-    expect(el.textContent).toContain(defaultAppText.orders.statusRequested);
+    expect(el.textContent).toContain(
+      defaultCommonText.order.statuses.customer.requested,
+    );
     expect(el.textContent).toContain('2 pk (12 pcs)');
     expect(el.textContent).toContain(defaultAppText.checkout.review.invoice);
   });

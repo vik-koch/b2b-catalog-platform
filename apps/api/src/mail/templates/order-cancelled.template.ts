@@ -30,6 +30,7 @@ export function orderCancelledMail(
   common: CommonText,
 ): MailContent {
   const t = text.orderCancelled;
+  const names = common.order;
 
   return {
     subject: `${t.subject} · ${order.reference}`,
@@ -43,15 +44,15 @@ export function orderCancelledMail(
       ...(order.paymentState === 'paid' ? [t.paidNote] : []),
     ],
     rows: [
-      { label: t.referenceLabel, value: order.reference },
-      { label: t.customerLabel, value: order.customerEmail ?? t.guest },
+      { label: names.reference, value: order.reference },
+      { label: names.account, value: order.customerEmail ?? names.guest },
       {
-        label: t.contactLabel,
+        label: names.contact,
         value: [order.contact.name, order.contact.phone].join(' · '),
       },
       { label: t.reasonLabel, value: order.statusReason ?? t.reasonNone },
       {
-        label: t.totalLabel,
+        label: names.total,
         value: orderMailTotal(order, currency, common),
       },
     ],
