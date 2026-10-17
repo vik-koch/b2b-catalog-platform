@@ -1,5 +1,8 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { refuseCountForms } from '@b2b-catalog-platform/shared';
+import {
+  paymentMethodLabels,
+  refuseCountForms,
+} from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
 
 /**
@@ -96,6 +99,17 @@ export const mailTextSchema = z
         linkExpiry: z.string(),
       })
       .strict(),
+    /** What the staff order mails call an order's parts, where staff read
+     * them differently from customers — the admin has the same words. */
+    orders: z
+      .object({
+        account: z.string(),
+        /** An order placed without an account. */
+        guest: z.string(),
+        items: z.string(),
+        paymentMethods: paymentMethodLabels,
+      })
+      .strict(),
     /** The email the inquiry form sends to the shop (FR-NAV-06). */
     inquiry: z
       .object({
@@ -104,9 +118,6 @@ export const mailTextSchema = z
         /** Inbox preview line, shown before the body in most clients. */
         preheader: z.string(),
         heading: z.string(),
-        name: z.string(),
-        email: z.string(),
-        phone: z.string(),
         preferredContact: z.string(),
         message: z.string(),
       })
@@ -215,15 +226,7 @@ export const mailTextSchema = z
         preheader: z.string(),
         heading: z.string(),
         body: z.string(),
-        nameLabel: z.string(),
-        emailLabel: z.string(),
-        phoneLabel: z.string(),
         customerTypeLabel: z.string(),
-        /** The two customer kinds, worded for staff reading the mail. */
-        customerTypePerson: z.string(),
-        customerTypeCompany: z.string(),
-        companyNameLabel: z.string(),
-        companyIdLabel: z.string(),
         /** Button into the admin account list, where it is approved. */
         action: z.string(),
       })
@@ -300,7 +303,6 @@ export const mailTextSchema = z
         heading: z.string(),
         body: z.string(),
         nameLabel: z.string(),
-        emailLabel: z.string(),
         /** How many of their orders were kept and anonymized; `{count}` is
          * substituted. */
         ordersLabel: z.string(),

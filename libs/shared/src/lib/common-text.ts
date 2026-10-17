@@ -2,10 +2,9 @@ import * as z from 'zod';
 import type { DeepReadonly } from '../node/deep-readonly';
 import { refuseCountForms } from './fill-text';
 
-const perReader = <T extends z.ZodType>(labels: T) =>
-  z.object({ customer: labels, staff: labels }).strict();
-
-const statusLabels = z
+/** An order status per reading — `ready` reads by fulfilment: on its way, or
+ * waiting to be collected. Customers' set here, staff's in the admin text. */
+export const orderStatusLabels = z
   .object({
     requested: z.string(),
     approved: z.string(),
@@ -17,22 +16,23 @@ const statusLabels = z
   })
   .strict();
 
-const paymentMethodLabels = z
+export const paymentMethodLabels = z
   .object({ cash: z.string(), transfer: z.string(), card: z.string() })
   .strict();
 
-const paymentStateLabels = z
+export const paymentStateLabels = z
   .object({ notDue: z.string(), awaiting: z.string(), paid: z.string() })
   .strict();
 
-const field = <T extends z.ZodRawShape>(errors: T) =>
-  z.object({ label: z.string(), ...errors }).strict();
+const field = <T extends z.ZodRawShape>(checks: T) =>
+  z.object({ label: z.string(), ...checks }).strict();
 
 /**
- * The shop's shared names: what a thing is called, wherever more than one text
- * file needs it — the storefront, the admin, mail and the order summary all
- * read it from here. Names and the checks on a field, never a view's own
- * sentences. Public: the browser receives it on every page.
+ * The shop's shared names, and the wording its customers read in more than one
+ * place — the storefront, mail and the order summary read it from here, and the
+ * admin borrows the names. Public: the browser receives it on every page, so
+ * nothing written only for staff belongs here; that wording is in the admin
+ * text, and in the mail text where staff mail needs it.
  */
 export const commonTextSchema = z
   .object({
@@ -64,9 +64,8 @@ export const commonTextSchema = z
       })
       .strict(),
     /**
-     * What an order and its parts are called. Where staff and customers read
-     * a set differently — statuses, payment methods, payment states — the
-     * whole set exists once per reader, never half shared.
+     * What an order and its parts are called. The names read the same to
+     * staff; the sets below them are the customer's, and staff have their own.
      */
     order: z
       .object({
@@ -81,42 +80,34 @@ export const commonTextSchema = z
         deliveryAddress: z.string(),
         preferredDelivery: z.string(),
         preferredPickup: z.string(),
-        /** The customer account an order was placed from, as staff read it. */
-        account: z.string(),
-        /** An order placed without an account. */
-        guest: z.string(),
         /** The heading over an order's lines. */
-        items: perReader(z.string()),
+        items: z.string(),
         /** The customer's own note on the order. */
-        note: perReader(z.string()),
+        note: z.string(),
         /** Where a collected order is picked up. */
-        pickupPoint: perReader(z.string()),
-        /** The terms the order accepted: `{date}` they were last changed, and
-         * for staff `{version}` as the page editor numbers them. */
-        termsVersion: perReader(z.string()),
-        /** `ready` reads by fulfilment: on its way, or waiting to be collected. */
-        statuses: perReader(statusLabels),
-        paymentMethods: perReader(paymentMethodLabels),
-        paymentStates: z
-          .object({
-            customer: paymentStateLabels,
-            /** Staff read one state more: a cash order nobody has ticked yet. */
-            staff: paymentStateLabels
-              .extend({ cashOnHandover: z.string() })
-              .strict(),
-          })
-          .strict(),
+        pickupPoint: z.string(),
+        /** `{date}` the accepted terms were last changed. */
+        termsVersion: z.string(),
+        statuses: orderStatusLabels,
+        paymentMethods: paymentMethodLabels,
+        paymentStates: paymentStateLabels,
       })
       .strict(),
     /** How an order reaches the customer. */
     fulfilment: z
       .object({ label: z.string(), delivery: z.string(), pickup: z.string() })
       .strict(),
-    /** A party's details, as every form that asks for them labels and checks
-     * them. `companyId.format` carries `{examples}`. */
+    /** Whether a customer or an order's party is a private person or a
+     * company. */
+    partyKind: z.object({ person: z.string(), company: z.string() }).strict(),
+    /** A person's or company's details: the labels, which staff read too, and
+     * the checks as a customer is told about their own. `companyId.format`
+     * carries `{examples}`. */
     fields: z
       .object({
         name: field({ required: z.string() }),
+        firstName: field({ required: z.string() }),
+        lastName: field({ required: z.string() }),
         email: field({ required: z.string(), invalid: z.string() }),
         phone: field({ required: z.string(), incomplete: z.string() }),
         companyName: field({ required: z.string() }),

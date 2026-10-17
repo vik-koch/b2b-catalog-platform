@@ -34,18 +34,24 @@ export interface OrderBlockLabels {
 }
 
 /**
- * The block labels for one reader: the names are shared, the payment methods
- * are the reader's own set, and the rest is the screen's wording.
+ * The block labels: the shared names, plus what the reader's own text says —
+ * the payment methods, the note, and the screen's two sentences.
  */
 export function orderBlockLabels(
   names: CommonText,
-  reader: 'customer' | 'staff',
-  view: Pick<OrderBlockLabels, 'billingSame' | 'whenAny'>,
+  view: Pick<
+    OrderBlockLabels,
+    'billingSame' | 'whenAny' | 'note' | 'cash' | 'transfer' | 'card'
+  >,
 ): OrderBlockLabels {
   const order = names.order;
   return {
-    ...view,
-    ...order.paymentMethods[reader],
+    billingSame: view.billingSame,
+    whenAny: view.whenAny,
+    note: view.note,
+    cash: view.cash,
+    transfer: view.transfer,
+    card: view.card,
     fulfilment: names.fulfilment.label,
     delivery: names.fulfilment.delivery,
     pickup: names.fulfilment.pickup,
@@ -54,8 +60,20 @@ export function orderBlockLabels(
     pickupDate: order.preferredPickup,
     payment: order.payment,
     contact: order.contact,
-    note: order.note[reader],
   };
+}
+
+/** The labels a customer reads an order under. */
+export function customerBlockLabels(
+  names: CommonText,
+  review: Pick<OrderBlockLabels, 'billingSame' | 'whenAny'>,
+): OrderBlockLabels {
+  return orderBlockLabels(names, {
+    billingSame: review.billingSame,
+    whenAny: review.whenAny,
+    note: names.order.note,
+    ...names.order.paymentMethods,
+  });
 }
 
 /** What turning the order's own fields into lines needs from the deployment. */

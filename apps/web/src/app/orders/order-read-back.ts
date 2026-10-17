@@ -81,7 +81,7 @@ import { COMMON_TEXT } from '../config/common-text';
   `,
 })
 export class OrderReadBack {
-  protected readonly itemsDefault = inject(COMMON_TEXT).order.items.customer;
+  protected readonly itemsDefault = inject(COMMON_TEXT).order.items;
 
   /** The lines' heading, where the page has its own wording for it — the
    * admin's text is a separate catalogue from the shop's. */

@@ -59,7 +59,7 @@ async function render(
 
 const fulfilment = defaultAppText.checkout.fulfilment;
 const payment = defaultAppText.checkout.payment;
-const paymentNames = defaultCommonText.order.paymentMethods.customer;
+const paymentNames = defaultCommonText.order.paymentMethods;
 
 describe('ConditionsPage', () => {
   it('renders the body, then the zones, pickup points and payment methods', async () => {

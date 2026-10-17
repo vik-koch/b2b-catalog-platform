@@ -43,68 +43,28 @@
     "deliveryAddress": "Delivery address",
     "preferredDelivery": "Preferred delivery date",
     "preferredPickup": "Preferred collection date",
-    "account": "Account",
-    "guest": "Guest",
-    "items": {
-      "customer": "Your items",
-      "staff": "Ordered"
-    },
-    "note": {
-      "customer": "Your note",
-      "staff": "Customer note"
-    },
-    "pickupPoint": {
-      "customer": "Collect from",
-      "staff": "Collection point"
-    },
-    "termsVersion": {
-      "customer": "As updated on {date}",
-      "staff": "Version {version}, updated on {date}"
-    },
+    "items": "Your items",
+    "note": "Your note",
+    "pickupPoint": "Collect from",
+    "termsVersion": "As updated on {date}",
     "statuses": {
-      "customer": {
-        "requested": "Awaiting confirmation",
-        "approved": "Confirmed",
-        "readyDelivery": "On its way to you",
-        "readyPickup": "Ready to collect",
-        "completed": "Complete",
-        "declined": "Declined",
-        "cancelled": "Cancelled"
-      },
-      "staff": {
-        "requested": "Requested",
-        "approved": "Confirmed",
-        "readyDelivery": "Handed over for delivery",
-        "readyPickup": "Ready for pickup",
-        "completed": "Complete",
-        "declined": "Declined",
-        "cancelled": "Cancelled"
-      }
+      "requested": "Awaiting confirmation",
+      "approved": "Confirmed",
+      "readyDelivery": "On its way to you",
+      "readyPickup": "Ready to collect",
+      "completed": "Complete",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
     },
     "paymentMethods": {
-      "customer": {
-        "cash": "Cash",
-        "transfer": "Bank transfer",
-        "card": "Card, arranged with us"
-      },
-      "staff": {
-        "cash": "Cash",
-        "transfer": "Bank transfer",
-        "card": "Card, arranged with the customer"
-      }
+      "cash": "Cash",
+      "transfer": "Bank transfer",
+      "card": "Card, arranged with us"
     },
     "paymentStates": {
-      "customer": {
-        "notDue": "Nothing due yet",
-        "awaiting": "Awaiting payment",
-        "paid": "Paid"
-      },
-      "staff": {
-        "notDue": "Nothing due",
-        "awaiting": "Awaiting payment",
-        "paid": "Paid",
-        "cashOnHandover": "Cash on handover"
-      }
+      "notDue": "Nothing due yet",
+      "awaiting": "Awaiting payment",
+      "paid": "Paid"
     }
   },
   "fulfilment": {
@@ -112,28 +72,40 @@
     "delivery": "Delivery",
     "pickup": "Self-pickup"
   },
+  "partyKind": {
+    "person": "Private person",
+    "company": "Company"
+  },
   "fields": {
     "name": {
       "label": "Name",
-      "required": "A name is required."
+      "required": "Please enter your name."
+    },
+    "firstName": {
+      "label": "First name",
+      "required": "Please enter your first name."
+    },
+    "lastName": {
+      "label": "Last name",
+      "required": "Please enter your last name."
     },
     "email": {
       "label": "Email",
-      "required": "An email address is required.",
+      "required": "Please enter your email address.",
       "invalid": "Please enter a valid email address."
     },
     "phone": {
       "label": "Phone",
-      "required": "A phone number is required.",
-      "incomplete": "This phone number is incomplete."
+      "required": "Please enter your phone number.",
+      "incomplete": "Please enter a complete phone number."
     },
     "companyName": {
       "label": "Company name",
-      "required": "Please enter the company name."
+      "required": "Please enter your company name."
     },
     "companyId": {
       "label": "Company ID",
-      "required": "A company ID is required.",
+      "required": "Please enter your company ID.",
       "format": "Please enter it in one of the expected formats, e.g. {examples}."
     }
   }

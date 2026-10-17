@@ -53,7 +53,7 @@ function destination(
   if (order.pickup) {
     return [
       {
-        label: names.pickupPoint.customer,
+        label: names.pickupPoint,
         value: `${order.pickup.name} · ${order.pickup.address}`,
       },
     ];
@@ -153,7 +153,7 @@ export function orderStatusChangedMail(
         value: orderMailTotal(order, currency, common),
       },
     ],
-    itemsHeading: names.items.customer,
+    itemsHeading: names.items,
     items: order.lines.map((line) =>
       orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),

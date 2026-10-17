@@ -10,7 +10,7 @@ import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
-import { orderBlockLabels, orderBlocks } from '../../orders/order-blocks';
+import { customerBlockLabels, orderBlocks } from '../../orders/order-blocks';
 import {
   OrderReadBack,
   ReadBackLine,
@@ -77,8 +77,8 @@ import { revisionKindLabel } from './revision-labels';
               <dl
                 class="grid gap-x-6 gap-y-3 wrap-break-word sm:grid-cols-[7rem_1fr]"
               >
-                <dt class="text-subtle">{{ names.account }}</dt>
-                <dd>{{ order.customerEmail ?? names.guest }}</dd>
+                <dt class="text-subtle">{{ ordersText.account }}</dt>
+                <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
                 <dt class="text-subtle">{{ ordersText.tier }}</dt>
                 <dd>{{ order.tierKey ?? ordersText.tierDefault }}</dd>
 
@@ -271,11 +271,7 @@ export class AdminOrderRevisionPage {
     if (!order) return [];
     return orderBlocks(
       order,
-      orderBlockLabels(
-        this.commonText,
-        'customer',
-        this.appText.checkout.review,
-      ),
+      customerBlockLabels(this.commonText, this.appText.checkout.review),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -290,7 +286,7 @@ export class AdminOrderRevisionPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.names.statuses.staff,
+      this.ordersText.statuses,
     );
   }
 
@@ -354,7 +350,7 @@ export class AdminOrderRevisionPage {
   protected paymentLabel(): string {
     const order = this.revision();
     if (!order) return '';
-    const states = this.names.paymentStates.staff;
+    const states = this.ordersText.paymentStates;
     if (order.paymentState === 'awaiting') return states.awaiting;
     if (order.paymentState !== 'paid') return states.notDue;
     return fillText(this.detailText.paymentState.paid, {

@@ -77,7 +77,7 @@ describe('OrderListPage (FR-ACC-01)', () => {
     );
     // The status is the shop's answer, in the customer's words rather than the
     // column's value.
-    expect(el.textContent).toContain(names.statuses.customer.requested);
+    expect(el.textContent).toContain(names.statuses.requested);
     expect(el.textContent).not.toContain(placed.status);
     // Formatted from the deployment's own currency, minor units and all.
     expect(el.textContent).toMatch(/129[.,]90/);

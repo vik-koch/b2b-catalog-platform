@@ -294,6 +294,7 @@ export function buildMailPreviews(
           message: 'Do you deliver to Altona?',
         },
         text,
+        common,
       ),
     },
     {
@@ -320,6 +321,7 @@ export function buildMailPreviews(
           companyRegistrationId: 'DE123456789',
         },
         text,
+        common,
       ),
     },
     {
@@ -387,6 +389,7 @@ export function buildMailPreviews(
           openOrders: 1,
         },
         text,
+        common,
       ),
     },
     {

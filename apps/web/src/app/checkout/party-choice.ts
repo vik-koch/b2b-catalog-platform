@@ -3,6 +3,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { CompanyFields } from '../parties/company-fields';
 import { ChoiceBranch } from '../ui/choice-branch';
 import { Input } from '../ui/input';
@@ -141,7 +142,7 @@ export class PartyChoice {
   /** Sign-up's wording, whole: the same pair of fields asking the same thing
    * of the same kind of party, and a second copy of it would be two ways of
    * saying which numbers are accepted. */
-  private readonly registerText = inject(APP_TEXT).auth.register;
+  private readonly fields = inject(COMMON_TEXT).fields;
 
   protected readonly text = inject(APP_TEXT).checkout.party;
   /** Typed as the whole choice, not just these two: the pill hands back
@@ -151,15 +152,15 @@ export class PartyChoice {
     { value: 'company', label: this.text.company },
   ];
   protected readonly companyText = {
-    ...this.registerText.companySuggest,
-    idLabel: this.registerText.companyId,
-    nameLabel: this.registerText.companyName,
+    ...inject(APP_TEXT).companySuggest,
+    idLabel: this.fields.companyId.label,
+    nameLabel: this.fields.companyName.label,
     // No hint here, unlike registration: which numbers are accepted is
     // something to read while opening an account, not a paragraph to step over
     // on the way to sending an order. A wrong one still says so.
-    idFormat: this.registerText.validation.companyIdFormat,
-    idRequired: this.registerText.validation.companyIdRequired,
-    nameRequired: this.registerText.validation.companyNameRequired,
+    idFormat: this.fields.companyId.format,
+    idRequired: this.fields.companyId.required,
+    nameRequired: this.fields.companyName.required,
   };
 
   readonly party = input.required<Party>();

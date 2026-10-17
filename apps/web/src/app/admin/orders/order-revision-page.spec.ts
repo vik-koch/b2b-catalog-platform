@@ -14,7 +14,6 @@ import { AdminOrderRevisionPage } from './order-revision-page';
 import { AdminOrdersService } from './orders.service';
 
 const text = defaultAdminText.orderDetail;
-const names = defaultCommonText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -167,7 +166,9 @@ describe('AdminOrderRevisionPage (FR-ORD-03)', () => {
     // they were written to about this one.
     expect(el.textContent).toContain('Version 2');
     expect(el.textContent).toContain('version 3');
-    expect(el.textContent).toContain(names.paymentStates.staff.awaiting);
+    expect(el.textContent).toContain(
+      defaultAdminText.orders.paymentStates.awaiting,
+    );
   });
 
   /**

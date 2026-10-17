@@ -15,7 +15,6 @@ import { AdminOrderListPage } from './order-list-page';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 
 const text = defaultAdminText.orderList;
-const names = defaultCommonText.order;
 
 const placed: StaffOrderSummary = {
   reference: 'DEMO-260826-4831',
@@ -127,7 +126,9 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain('Alex Fischer');
     expect(el.textContent).toContain('alex@example.com');
-    expect(el.textContent).toContain(names.statuses.staff.requested);
+    expect(el.textContent).toContain(
+      defaultAdminText.orders.statuses.requested,
+    );
     expect(
       // The title opens the version the row describes, read-only; the row's
       // action opens the screen where the order is answered.
@@ -152,7 +153,7 @@ describe('AdminOrderListPage (FR-AUTH-03)', () => {
   it('names a guest order as one', async () => {
     const { el } = await render([{ ...placed, customerEmail: null }]);
 
-    expect(el.textContent).toContain(names.guest);
+    expect(el.textContent).toContain(defaultAdminText.orders.guest);
   });
 
   it('passes the status filter to the API, and drops a nonsense one', async () => {

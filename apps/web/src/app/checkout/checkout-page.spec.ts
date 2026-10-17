@@ -758,8 +758,8 @@ describe('CheckoutPage', () => {
     it('offers cash and bank transfer, and never card', async () => {
       const page = await render({ person: true });
 
-      expect(page.text()).toContain(names.paymentMethods.customer.cash);
-      expect(page.text()).toContain(names.paymentMethods.customer.transfer);
+      expect(page.text()).toContain(names.paymentMethods.cash);
+      expect(page.text()).toContain(names.paymentMethods.transfer);
       expect(page.radio('payment', 'card-later')).toBeNull();
       expect(page.drafts.draft().paymentMethod).toBe('cash');
     });
@@ -932,9 +932,7 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).not.toContain(text.review.title);
-      expect(page.text()).toContain(
-        defaultAppText.auth.validation.emailInvalid,
-      );
+      expect(page.text()).toContain(defaultCommonText.fields.email.invalid);
     });
 
     it('asks a company for its own name and a person to ring', async () => {
@@ -1026,7 +1024,7 @@ describe('CheckoutPage', () => {
       expect(page.text()).toContain(text.review.whenAny);
       // The unit it was bought in, and what that comes to in pieces.
       expect(page.text()).toContain('2 pk (12 pcs)');
-      expect(page.text()).toContain(names.paymentMethods.customer.transfer);
+      expect(page.text()).toContain(names.paymentMethods.transfer);
       expect(page.text()).toContain('Ring the bell at the back gate.');
       // Nothing to edit here: the form is one click back.
       expect(page.el.querySelector('#order-note')).toBeNull();

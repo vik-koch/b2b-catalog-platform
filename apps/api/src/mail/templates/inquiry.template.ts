@@ -1,4 +1,4 @@
-import { InquiryRequest } from '@b2b-catalog-platform/shared';
+import { CommonText, InquiryRequest } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 
@@ -13,16 +13,18 @@ import { MailText } from '../mail-text';
 export function inquiryMail(
   submission: InquiryRequest,
   text: MailText,
+  common: CommonText,
 ): MailContent {
   const t = text.inquiry;
+  const fields = common.fields;
   return {
     subject: `${t.subject}: ${submission.name}`,
     preheader: t.preheader,
     heading: t.heading,
     rows: [
-      { label: t.name, value: submission.name },
-      { label: t.email, value: submission.email ?? '—' },
-      { label: t.phone, value: submission.phone ?? '—' },
+      { label: fields.name.label, value: submission.name },
+      { label: fields.email.label, value: submission.email ?? '—' },
+      { label: fields.phone.label, value: submission.phone ?? '—' },
       { label: t.preferredContact, value: submission.preferredContact },
       { label: t.message, value: submission.message ?? '—' },
     ],

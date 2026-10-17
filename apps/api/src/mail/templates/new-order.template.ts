@@ -24,6 +24,7 @@ export function newOrderMail(
 ): MailContent {
   const t = text.newOrder;
   const names = common.order;
+  const staff = text.orders;
   const party = order.party.registrationId
     ? `${order.party.name} · ${order.party.registrationId}`
     : order.party.name;
@@ -37,7 +38,7 @@ export function newOrderMail(
       { label: names.reference, value: order.reference },
       // A guest order says so rather than leaving the row blank: "no account"
       // is a fact about the order, and it decides how the price was quoted.
-      { label: names.account, value: order.customerEmail ?? names.guest },
+      { label: staff.account, value: order.customerEmail ?? staff.guest },
       {
         // Name, phone, address — all three, in the order a manager uses them.
         // The address is not repeated from the account row: a guest order has
@@ -59,9 +60,9 @@ export function newOrderMail(
       {
         label: names.payment,
         value: {
-          'bank-transfer': names.paymentMethods.staff.transfer,
-          'card-later': names.paymentMethods.staff.card,
-          cash: names.paymentMethods.staff.cash,
+          'bank-transfer': staff.paymentMethods.transfer,
+          'card-later': staff.paymentMethods.card,
+          cash: staff.paymentMethods.cash,
         }[order.paymentMethod],
       },
       {
@@ -69,7 +70,7 @@ export function newOrderMail(
         value: orderMailTotal(order, currency, common),
       },
     ],
-    itemsHeading: names.items.staff,
+    itemsHeading: staff.items,
     // Staff read every line's rate, shared or not: it is what a line
     // reconciles against the shop's own invoice by.
     items: order.lines.map((line) =>

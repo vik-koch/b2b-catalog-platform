@@ -76,7 +76,7 @@ export class TermsPdf {
           contentType: 'application/pdf',
           bytes: await this.render(
             version,
-            fillText(this.common.order.termsVersion.customer, {
+            fillText(this.common.order.termsVersion, {
               date: shopDay(iso, this.currency.locale, zone),
             }),
           ),

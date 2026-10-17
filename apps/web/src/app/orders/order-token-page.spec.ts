@@ -124,7 +124,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     expect(getByToken).toHaveBeenCalledWith('tok-123');
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(
-      defaultCommonText.order.statuses.customer.requested,
+      defaultCommonText.order.statuses.requested,
     );
     expect(el.textContent).toContain('2 pk (12 pcs)');
     expect(el.textContent).toContain(defaultCommonText.order.invoicedTo);

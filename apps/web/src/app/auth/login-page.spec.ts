@@ -6,6 +6,8 @@ import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { AuthService, LoginResult } from './auth.service';
 import { LoginPage } from './login-page';
 import { adminUser as admin, plainUser } from './auth-user.fixture';
@@ -35,6 +37,7 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AuthService,
@@ -80,7 +83,7 @@ describe('LoginPage', () => {
     await sync();
 
     expect(login).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.emailRequired);
+    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
     expect(el.textContent).toContain(text.validation.passwordRequired);
   });
 
@@ -93,7 +96,7 @@ describe('LoginPage', () => {
     await sync();
 
     expect(login).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.emailInvalid);
+    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
   });
 
   it('signs an admin in and lands them in the panel', async () => {

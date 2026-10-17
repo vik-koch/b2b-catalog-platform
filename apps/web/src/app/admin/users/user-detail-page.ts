@@ -16,6 +16,7 @@ import {
   StaffUser,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { AuthService } from '../../auth/auth.service';
 import { formatPhone } from '../../core/contact-fields';
@@ -260,6 +261,7 @@ export class UserDetailPage {
   /** The same words the list and the editor use for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).userList;
   protected readonly editorText = inject(ADMIN_TEXT).userEditor;
+  private readonly commonText = inject(COMMON_TEXT);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
 
@@ -519,23 +521,28 @@ export class UserDetailPage {
     const person = this.user();
     if (!person) return [];
     const editor = this.editorText;
+    const fields = this.commonText.fields;
+    const kinds = this.commonText.partyKind;
     const type =
       person.customerType === 'company'
-        ? this.listText.typeCompany
+        ? kinds.company
         : person.customerType === 'person'
-          ? this.listText.typePerson
+          ? kinds.person
           : '';
 
     return [
-      { label: editor.email, value: person.email },
+      { label: fields.email.label, value: person.email },
       // Stored as bare digits; read back with the deployment's own grouping.
       {
-        label: editor.phone,
+        label: fields.phone.label,
         value: formatPhone(person.phone, this.phoneInput),
       },
       { label: editor.customerType, value: type },
-      { label: editor.companyId, value: person.companyRegistrationId ?? '' },
-      { label: editor.companyName, value: person.companyName ?? '' },
+      {
+        label: fields.companyId.label,
+        value: person.companyRegistrationId ?? '',
+      },
+      { label: fields.companyName.label, value: person.companyName ?? '' },
     ].filter((row) => row.value !== '');
   });
 

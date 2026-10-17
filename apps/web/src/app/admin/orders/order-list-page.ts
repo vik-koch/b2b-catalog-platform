@@ -122,7 +122,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
               {{ order.contactName }}
             </span>
             <span class="block truncate text-xs text-subtle">
-              {{ order.customerEmail ?? names.guest }}
+              {{ order.customerEmail ?? ordersText.guest }}
             </span>
           </td>
           <td class="truncate text-subtle">
@@ -241,7 +241,8 @@ export class AdminOrderListPage {
 
   protected readonly text = inject(ADMIN_TEXT).orderList;
   protected readonly names = inject(COMMON_TEXT).order;
-  private readonly statuses = this.names.statuses.staff;
+  protected readonly ordersText = inject(ADMIN_TEXT).orders;
+  private readonly statuses = this.ordersText.statuses;
 
   /** Whether an external system answers orders (FR-ADM-10). An answer still in
    * flight counts as not owned, exactly as the account screens read it; the API
@@ -288,13 +289,13 @@ export class AdminOrderListPage {
    */
   protected readonly paymentOptions: GridFilterOption[] = [
     { value: '', label: this.text.paymentAll },
-    { value: 'awaiting', label: this.names.paymentStates.staff.awaiting },
+    { value: 'awaiting', label: this.ordersText.paymentStates.awaiting },
     {
       value: 'cash',
-      label: this.names.paymentStates.staff.cashOnHandover,
+      label: this.ordersText.paymentStates.cashOnHandover,
     },
     { value: 'unpaid', label: this.text.paymentUnpaid },
-    { value: 'paid', label: this.names.paymentStates.staff.paid },
+    { value: 'paid', label: this.ordersText.paymentStates.paid },
   ];
 
   /**
@@ -444,7 +445,7 @@ export class AdminOrderListPage {
   protected paymentBadge(
     order: StaffOrderSummary,
   ): { label: string; tone: StatusTone } | null {
-    return staffPaymentBadge(order, this.names.paymentStates.staff);
+    return staffPaymentBadge(order, this.ordersText.paymentStates);
   }
 
   // --- Row actions -------------------------------------------------------

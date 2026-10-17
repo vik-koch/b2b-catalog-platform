@@ -131,14 +131,14 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     const { el } = await render(placed);
 
     expect(el.textContent).toContain(placed.reference);
-    expect(el.textContent).toContain(names.statuses.customer.requested);
+    expect(el.textContent).toContain(names.statuses.requested);
     expect(el.textContent).toContain(defaultCommonText.fulfilment.label);
     expect(el.textContent).toContain(names.invoicedTo);
     // The party carries its registration number, and the invoice went to the
     // same place as the goods.
     expect(el.textContent).toContain('Kontor GmbH · DE123456789');
     expect(el.textContent).toContain(review.billingSame);
-    expect(el.textContent).toContain(names.paymentMethods.customer.transfer);
+    expect(el.textContent).toContain(names.paymentMethods.transfer);
     // The contact block is this page's own: weeks later it says who to ring.
     expect(el.textContent).toContain(names.contact);
     expect(el.textContent).toContain('alex@example.com');
@@ -207,7 +207,7 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     const { el } = await render(null);
 
     expect(el.textContent).toContain(text.detail.notFound);
-    expect(el.textContent).not.toContain(names.statuses.customer.requested);
+    expect(el.textContent).not.toContain(names.statuses.requested);
   });
 
   it('says so when the order cannot be read', async () => {

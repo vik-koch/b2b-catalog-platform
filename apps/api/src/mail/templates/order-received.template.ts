@@ -64,14 +64,14 @@ export function orderReceivedMail(
         ? [
             {
               label: common.nav['terms'],
-              value: fillText(names.termsVersion.customer, {
+              value: fillText(names.termsVersion, {
                 date: shopDay(order.termsDate, currency.locale, timeZone),
               }),
             },
           ]
         : []),
     ],
-    itemsHeading: names.items.customer,
+    itemsHeading: names.items,
     items: order.lines.map((line) =>
       orderMailItem(line, currency, common, orderLinesDifferInTax(order)),
     ),

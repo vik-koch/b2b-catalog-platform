@@ -161,7 +161,7 @@ describe('newOrderMail', () => {
   // What a manager decides on before opening anything, read on a phone.
   it('carries who it is for, who to ring and what it comes to', () => {
     expect(mail.rows).toContainEqual({
-      label: names.account,
+      label: demoMailText.orders.account,
       value: 'alex@example.com',
     });
     expect(mail.rows).toContainEqual({
@@ -174,7 +174,7 @@ describe('newOrderMail', () => {
     });
     expect(mail.rows).toContainEqual({
       label: names.payment,
-      value: names.paymentMethods.staff.transfer,
+      value: demoMailText.orders.paymentMethods.transfer,
     });
   });
 
@@ -196,8 +196,8 @@ describe('newOrderMail', () => {
     );
 
     expect(guest.rows).toContainEqual({
-      label: names.account,
-      value: names.guest,
+      label: demoMailText.orders.account,
+      value: demoMailText.orders.guest,
     });
   });
 
@@ -267,7 +267,7 @@ describe('orderStatusChangedMail', () => {
 
     expect(mail.heading).toBe(t.statuses.readyPickup.heading);
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.pickupPoint.customer,
+      label: demoCommonText.order.pickupPoint,
       value: 'Harbour store · Quay 3',
     });
   });

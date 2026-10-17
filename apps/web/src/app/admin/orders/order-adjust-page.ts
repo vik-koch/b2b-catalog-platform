@@ -41,7 +41,8 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { APP_TEXT } from '../../config/app-text';
 import { COMMON_TEXT } from '../../config/common-text';
-import { orderBlockLabels } from '../../orders/order-blocks';
+import { staffBlockLabels } from './staff-block-labels';
+import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { debounced } from '../../core/debounced';
 import { FieldErrors } from '../../core/form-errors';
@@ -220,7 +221,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 [class]="frame + ' ' + disclosureBorder(itemsOpen())"
               >
                 <app-disclosure-toggle
-                  [label]="names.items.staff"
+                  [label]="ordersText.items"
                   [count]="rows().length"
                   [countLabel]="lineCount()"
                   [open]="itemsOpen()"
@@ -367,7 +368,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                               for="adjust-pickup"
                               class="sr-only"
                             >
-                              {{ names.pickupPoint.staff }}
+                              {{ ordersText.pickupPoint }}
                             </label>
                             <app-select-field>
                               <select
@@ -712,8 +713,11 @@ export class AdminOrderAdjustPage {
   private readonly changeText = inject(ADMIN_TEXT).orderChanges;
   protected readonly commonText = inject(COMMON_TEXT);
   protected readonly names = this.commonText.order;
-  protected readonly fields = this.commonText.fields;
-  private readonly payments = this.names.paymentMethods.staff;
+  protected readonly fields = staffFields(
+    this.commonText.fields,
+    inject(ADMIN_TEXT).fields,
+  );
+  private readonly payments = this.ordersText.paymentMethods;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10) — the one state in
@@ -825,7 +829,7 @@ export class AdminOrderAdjustPage {
   }
 
   protected readonly companyText = {
-    ...this.text.companySuggest,
+    ...inject(APP_TEXT).companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     idFormat: this.fields.companyId.format,
@@ -1220,7 +1224,7 @@ export class AdminOrderAdjustPage {
       ...orderBlockChanges(
         order,
         proposed,
-        orderBlockLabels(this.commonText, 'staff', this.detailText),
+        staffBlockLabels(this.commonText, this.ordersText, this.detailText),
         config,
       ),
     ];

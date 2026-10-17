@@ -62,7 +62,7 @@ import { ChoiceCard } from '../ui/choice-card';
 })
 export class PaymentChoice {
   protected readonly text = inject(APP_TEXT).checkout.payment;
-  protected readonly names = inject(COMMON_TEXT).order.paymentMethods.customer;
+  protected readonly names = inject(COMMON_TEXT).order.paymentMethods;
 
   readonly method = input.required<PaymentMethod>();
   /** Only what cash is called: it is handed over on the doorstep or at the

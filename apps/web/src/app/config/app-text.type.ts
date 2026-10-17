@@ -948,7 +948,6 @@ export const appTextSchema = z
          * they approve — no catalog, pricing or site controls. */
         staffArea: z.string(),
         account: z.string(),
-        email: z.string(),
         password: z.string(),
         submit: z.string(),
         submitting: z.string(),
@@ -966,14 +965,7 @@ export const appTextSchema = z
             /** Names the details section — the heading over the card, since
              * the card no longer carries one of its own. */
             detailsHeading: z.string(),
-            name: z.string(),
-            email: z.string(),
-            phone: z.string(),
             customerType: z.string(),
-            person: z.string(),
-            company: z.string(),
-            companyName: z.string(),
-            companyId: z.string(),
             memberSince: z.string(),
             /** Shown against the fields the account holder cannot edit here —
              * the ones staff approved the account on. */
@@ -985,8 +977,6 @@ export const appTextSchema = z
                 action: z.string(),
                 heading: z.string(),
                 intro: z.string(),
-                firstName: z.string(),
-                lastName: z.string(),
                 submit: z.string(),
                 submitting: z.string(),
                 cancel: z.string(),
@@ -1134,22 +1124,7 @@ export const appTextSchema = z
             customerType: z.string(),
             person: z.string(),
             company: z.string(),
-            firstName: z.string(),
-            lastName: z.string(),
-            phone: z.string(),
-            /** The invoiced party, required of a business alongside its id. */
-            companyName: z.string(),
-            /** Business registration number; its format is deployment config. */
-            companyId: z.string(),
             companyIdHint: z.string(),
-            companySuggest: z
-              .object({
-                suggestionsLabel: z.string(),
-                noSuggestions: z.string(),
-                /** `{count}` is substituted, for the live region. */
-                suggestionCount: z.string(),
-              })
-              .strict(),
             submit: z.string(),
             submitting: z.string(),
             /** Shown in place of the form once the request is in. */
@@ -1158,18 +1133,6 @@ export const appTextSchema = z
             error: z.string(),
             /** Link back to the login page from the register page. */
             haveAccount: z.string(),
-            validation: z
-              .object({
-                firstNameRequired: z.string(),
-                lastNameRequired: z.string(),
-                phoneRequired: z.string(),
-                phoneIncomplete: z.string(),
-                companyNameRequired: z.string(),
-                companyIdRequired: z.string(),
-                /** Carries the deployment's own example; `{example}` is substituted. */
-                companyIdFormat: z.string(),
-              })
-              .strict(),
           })
           .strict(),
         /**
@@ -1296,8 +1259,6 @@ export const appTextSchema = z
           .strict(),
         validation: z
           .object({
-            emailRequired: z.string(),
-            emailInvalid: z.string(),
             passwordRequired: z.string(),
             currentPasswordRequired: z.string(),
             newPasswordRequired: z.string(),
@@ -1388,12 +1349,19 @@ export const appTextSchema = z
         unavailable: z.string(),
       })
       .strict(),
+    /** The company search under a registration number field, in every form
+     * that asks for one — the storefront's and the admin's alike. */
+    companySuggest: z
+      .object({
+        suggestionsLabel: z.string(),
+        noSuggestions: z.string(),
+        /** `{count}` is substituted, for the live region. */
+        suggestionCount: z.string(),
+      })
+      .strict(),
     inquiry: z
       .object({
         intro: z.string(),
-        name: z.string(),
-        email: z.string(),
-        phone: z.string(),
         preferredContact: z.string(),
         preferredEmail: z.string(),
         preferredPhone: z.string(),
@@ -1402,15 +1370,6 @@ export const appTextSchema = z
         submitting: z.string(),
         success: z.string(),
         error: z.string(),
-        validation: z
-          .object({
-            nameRequired: z.string(),
-            emailRequired: z.string(),
-            emailInvalid: z.string(),
-            phoneRequired: z.string(),
-            phoneIncomplete: z.string(),
-          })
-          .strict(),
       })
       .strict(),
     /**

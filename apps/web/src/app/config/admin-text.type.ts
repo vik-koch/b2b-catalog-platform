@@ -1,5 +1,10 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
-import { refuseCountForms } from '@b2b-catalog-platform/shared';
+import {
+  orderStatusLabels,
+  paymentMethodLabels,
+  paymentStateLabels,
+  refuseCountForms,
+} from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
 
 /**
@@ -149,6 +154,24 @@ export const adminTextSchema = z
       .strict(),
     /** The dialog that places a catalog picture in a white square before it
      * is stored. */
+    /** The checks on a person's or company's details as staff are told
+     * about somebody else's; the labels are shared names. */
+    fields: z
+      .object({
+        name: z.object({ required: z.string() }).strict(),
+        firstName: z.object({ required: z.string() }).strict(),
+        lastName: z.object({ required: z.string() }).strict(),
+        email: z.object({ required: z.string(), invalid: z.string() }).strict(),
+        phone: z
+          .object({ required: z.string(), incomplete: z.string() })
+          .strict(),
+        companyName: z.object({ required: z.string() }).strict(),
+        /** `format` carries `{examples}`. */
+        companyId: z
+          .object({ required: z.string(), format: z.string() })
+          .strict(),
+      })
+      .strict(),
     imageFramer: z
       .object({
         heading: z.string(),
@@ -1656,6 +1679,24 @@ export const adminTextSchema = z
          * since have been renamed or replaced. */
         tier: z.string(),
         tierDefault: z.string(),
+        /** What staff call an order's parts, beside the shared names. Their
+         * own words where the customer's are written for the customer. */
+        account: z.string(),
+        /** An order placed without an account. */
+        guest: z.string(),
+        items: z.string(),
+        note: z.string(),
+        pickupPoint: z.string(),
+        /** The accepted terms as the page editor numbers them: `{version}`
+         * and `{date}`. */
+        termsVersion: z.string(),
+        statuses: orderStatusLabels,
+        paymentMethods: paymentMethodLabels,
+        /** One state more than a customer reads: a cash order nobody has
+         * ticked yet. */
+        paymentStates: paymentStateLabels
+          .extend({ cashOnHandover: z.string() })
+          .strict(),
       })
       .strict(),
     /** Row labels for a list of changes to an order — on the adjustment
@@ -1994,14 +2035,6 @@ export const adminTextSchema = z
          * names. */
         partyKindPerson: z.string(),
         partyKindCompany: z.string(),
-        companySuggest: z
-          .object({
-            suggestionsLabel: z.string(),
-            noSuggestions: z.string(),
-            /** `{count}` suggestions offered. */
-            suggestionCount: z.string(),
-          })
-          .strict(),
         reprice: z.string(),
         /** The second half of the form, which folds away from the first: who
          * the order goes to and how it is paid. */
@@ -2069,11 +2102,6 @@ export const adminTextSchema = z
         /** Shown instead of `empty` when filters are what emptied the list. */
         noResults: z.string(),
         loadError: z.string(),
-        /** Column headings. */
-        name: z.string(),
-        email: z.string(),
-        phone: z.string(),
-        companyId: z.string(),
         registered: z.string(),
         /** Accessible names for the column-heading filters. */
         filterRole: z.string(),
@@ -2098,8 +2126,6 @@ export const adminTextSchema = z
         statusActive: z.string(),
         statusDisabled: z.string(),
         statusAnonymized: z.string(),
-        typePerson: z.string(),
-        typeCompany: z.string(),
         /** Row actions (FR-AUTH-03/04). `actions` names the column for a screen
          * reader; the rest are the icon buttons' accessible names. `{name}` in
          * `declineConfirm` is substituted at render. */
@@ -2168,22 +2194,8 @@ export const adminTextSchema = z
         editTitle: z.string(),
         /** Heading while the account is still awaiting a decision. */
         approveTitle: z.string(),
-        email: z.string(),
         /** Why the address is shown but not editable. */
         emailFixed: z.string(),
-        firstName: z.string(),
-        lastName: z.string(),
-        phone: z.string(),
-        companyName: z.string(),
-        companyId: z.string(),
-        companySuggest: z
-          .object({
-            suggestionsLabel: z.string(),
-            noSuggestions: z.string(),
-            /** `{count}` is substituted, for the live region. */
-            suggestionCount: z.string(),
-          })
-          .strict(),
         customerType: z.string(),
         tier: z.string(),
         tierChoose: z.string(),
@@ -2213,15 +2225,6 @@ export const adminTextSchema = z
         discardConfirm: z.string(),
         validation: z
           .object({
-            firstNameRequired: z.string(),
-            lastNameRequired: z.string(),
-            emailRequired: z.string(),
-            emailInvalid: z.string(),
-            phoneIncomplete: z.string(),
-            companyNameRequired: z.string(),
-            companyIdRequired: z.string(),
-            /** `{examples}` is every sample number the deployment configures. */
-            companyIdFormat: z.string(),
             tierRequired: z.string(),
           })
           .strict(),

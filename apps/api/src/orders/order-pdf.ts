@@ -83,7 +83,7 @@ export class OrderPdf {
       ...this.lines(order.billingAddress),
     ]);
     sheet.field(
-      order.pickup ? names.pickupPoint.customer : names.deliveryAddress,
+      order.pickup ? names.pickupPoint : names.deliveryAddress,
       order.pickup
         ? [order.pickup.name, order.pickup.address]
         : this.lines(order.deliveryAddress),
@@ -95,7 +95,7 @@ export class OrderPdf {
     if (order.termsDate) {
       sheet.field(
         this.common.nav['terms'],
-        fillText(names.termsVersion.customer, {
+        fillText(names.termsVersion, {
           date: shopDay(
             order.termsDate,
             this.currency.locale,
@@ -105,7 +105,7 @@ export class OrderPdf {
       );
     }
     if (order.customerNote) {
-      sheet.field(names.note.customer, order.customerNote);
+      sheet.field(names.note, order.customerNote);
     }
     if (order.changes.length > 0) sheet.field(names.changeNote, order.changes);
 
@@ -144,7 +144,7 @@ export class OrderPdf {
   /** Where the order stands, in the customer's words: `ready` reads by how
    * the goods reach them. */
   private status(order: OrderDetail): string {
-    const statuses = this.common.order.statuses.customer;
+    const statuses = this.common.order.statuses;
     if (order.status !== 'ready') return statuses[order.status];
     return order.pickup ? statuses.readyPickup : statuses.readyDelivery;
   }
@@ -152,8 +152,8 @@ export class OrderPdf {
   /** How the order is paid, and whether it has been. */
   private payment(order: OrderDetail): string {
     const names = this.common.order;
-    const methods = names.paymentMethods.customer;
-    const states = names.paymentStates.customer;
+    const methods = names.paymentMethods;
+    const states = names.paymentStates;
     const method = {
       cash: methods.cash,
       'bank-transfer': methods.transfer,

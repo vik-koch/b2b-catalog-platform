@@ -3,6 +3,7 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { FieldErrors } from '../core/form-errors';
 import { CompanyFields } from '../parties/company-fields';
 import { EmailField } from '../ui/email-field';
@@ -93,7 +94,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
         <app-email-field
           inputId="contact-email"
           [control]="emailControl()"
-          [label]="authText.email"
+          [label]="fields.email.label"
           [text]="emailText"
           [required]="true"
           [invalid]="errors().show(emailControl())"
@@ -102,7 +103,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
         <app-phone-field
           inputId="contact-phone"
           [control]="phoneControl()"
-          [label]="authText.register.phone"
+          [label]="fields.phone.label"
           [text]="phoneText"
           [required]="true"
           [invalid]="errors().show(phoneControl())"
@@ -115,6 +116,8 @@ import { PartyChoice as Party } from './checkout-draft.service';
 })
 export class GuestDetails {
   protected readonly authText = inject(APP_TEXT).auth;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  private readonly companySuggest = inject(APP_TEXT).companySuggest;
   protected readonly text = inject(APP_TEXT).checkout.contact;
   protected readonly partyText = inject(APP_TEXT).checkout.party;
   /** Typed as the whole choice, not just these two: the pill hands back
@@ -126,20 +129,20 @@ export class GuestDetails {
 
   /** The same messages the sign-up form shows for the same fields. */
   protected readonly emailText = {
-    required: this.authText.validation.emailRequired,
-    invalid: this.authText.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly phoneText = {
-    required: this.authText.register.validation.phoneRequired,
-    incomplete: this.authText.register.validation.phoneIncomplete,
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...this.authText.register.companySuggest,
-    idLabel: this.authText.register.companyId,
-    nameLabel: this.authText.register.companyName,
-    idFormat: this.authText.register.validation.companyIdFormat,
-    idRequired: this.authText.register.validation.companyIdRequired,
-    nameRequired: this.authText.register.validation.companyNameRequired,
+    ...this.companySuggest,
+    idLabel: this.fields.companyId.label,
+    nameLabel: this.fields.companyName.label,
+    idFormat: this.fields.companyId.format,
+    idRequired: this.fields.companyId.required,
+    nameRequired: this.fields.companyName.required,
   };
 
   readonly party = input.required<Party>();

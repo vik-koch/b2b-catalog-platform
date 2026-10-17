@@ -31,7 +31,8 @@ import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
-import { orderBlockLabels, orderBlocks } from '../../orders/order-blocks';
+import { orderBlocks } from '../../orders/order-blocks';
+import { staffBlockLabels } from './staff-block-labels';
 import {
   OrderReadBack,
   ReadBackLine,
@@ -146,9 +147,9 @@ const MARK_PAID = 'markPaid';
             -->
             <section class="mt-4 rounded-lg border border-border p-5 text-sm">
               <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
-                <dt [class]="term">{{ names.account }}</dt>
+                <dt [class]="term">{{ ordersText.account }}</dt>
                 <dd [class]="value">
-                  {{ order.customerEmail ?? names.guest }}
+                  {{ order.customerEmail ?? ordersText.guest }}
                   <!-- A guest reads this order through the link they were
                        mailed and through nothing else, so when they ring to
                        say the page shows something different, this is the
@@ -541,7 +542,7 @@ const MARK_PAID = 'markPaid';
                  the order first and checks it second. -->
             <app-order-read-back
               class="mt-8 max-w-xl"
-              [itemsHeading]="names.items.staff"
+              [itemsHeading]="ordersText.items"
               [lines]="lines()"
               [blocks]="blocks()"
             />
@@ -693,7 +694,7 @@ export class AdminOrderDetailPage {
     if (!order) return [];
     return orderBlocks(
       order,
-      orderBlockLabels(this.commonText, 'staff', this.text),
+      staffBlockLabels(this.commonText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -713,7 +714,7 @@ export class AdminOrderDetailPage {
    * them. */
   protected termsLabel(order: AdminOrderDetail): string | null {
     if (order.termsVersion === null || order.termsDate === null) return null;
-    return fillText(this.names.termsVersion.staff, {
+    return fillText(this.ordersText.termsVersion, {
       version: order.termsVersion,
       date: this.shopDayFormat.format(new Date(order.termsDate)),
     });
@@ -740,7 +741,7 @@ export class AdminOrderDetailPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.names.statuses.staff,
+      this.ordersText.statuses,
     );
   }
 
@@ -749,7 +750,7 @@ export class AdminOrderDetailPage {
   }
 
   protected paymentLabel(order: AdminOrderDetail): string {
-    const states = this.names.paymentStates.staff;
+    const states = this.ordersText.paymentStates;
     if (order.paymentState === 'awaiting') return states.awaiting;
     if (order.paymentState !== 'paid') return states.notDue;
     return fillText(this.text.paymentState.paid, {
@@ -794,7 +795,7 @@ export class AdminOrderDetailPage {
       status: orderStatusLabel(
         version.status,
         version.fulfilmentMethod,
-        this.names.statuses.staff,
+        this.ordersText.statuses,
       ),
       tone: orderStatusTone(version.status, 'staff', version.fulfilmentMethod),
       customerView: version.customerView,
@@ -863,7 +864,7 @@ export class AdminOrderDetailPage {
       versions[index],
       { ...this.changeText, total: this.names.total },
       this.appText,
-      orderBlockLabels(this.commonText, 'staff', this.text),
+      staffBlockLabels(this.commonText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,

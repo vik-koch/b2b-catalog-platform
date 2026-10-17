@@ -13,7 +13,7 @@ import { usePageSeo } from '../core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
 import { Button } from '../ui/button';
 import { Skeleton } from '../ui/skeleton';
-import { orderBlockLabels, orderBlocks } from './order-blocks';
+import { customerBlockLabels, orderBlocks } from './order-blocks';
 import { customerQuantity } from './order-view';
 import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
@@ -244,11 +244,7 @@ export class OrderTokenPage {
 
     return orderBlocks(
       order,
-      orderBlockLabels(
-        this.commonText,
-        'customer',
-        this.appText.checkout.review,
-      ),
+      customerBlockLabels(this.commonText, this.appText.checkout.review),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -269,7 +265,7 @@ export class OrderTokenPage {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.names.statuses.customer,
+      this.names.statuses,
     );
   }
 
@@ -278,10 +274,7 @@ export class OrderTokenPage {
   }
 
   protected paymentLabel(order: OrderDetail): string | null {
-    return orderPaymentLabel(
-      order.paymentState,
-      this.names.paymentStates.customer,
-    );
+    return orderPaymentLabel(order.paymentState, this.names.paymentStates);
   }
 
   protected paymentTone(order: OrderDetail): StatusTone {

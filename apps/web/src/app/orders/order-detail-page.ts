@@ -26,7 +26,7 @@ import { Button } from '../ui/button';
 import { ConfirmService } from '../ui/confirm.service';
 import { Skeleton } from '../ui/skeleton';
 import { StatusBadge, StatusTone } from '../ui/status-badge';
-import { orderBlockLabels, orderBlocks } from './order-blocks';
+import { customerBlockLabels, orderBlocks } from './order-blocks';
 import { OrderDocumentsList } from './order-documents-list';
 import { OrderReadBack, ReadBackLine, ReviewBlock } from './order-read-back';
 import {
@@ -262,11 +262,7 @@ export class OrderDetailPage {
 
     return orderBlocks(
       detail,
-      orderBlockLabels(
-        this.commonText,
-        'customer',
-        this.appText.checkout.review,
-      ),
+      customerBlockLabels(this.commonText, this.appText.checkout.review),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -285,7 +281,7 @@ export class OrderDetailPage {
     return orderStatusLabel(
       detail.status,
       detail.fulfilmentMethod,
-      this.names.statuses.customer,
+      this.names.statuses,
     );
   }
 
@@ -294,10 +290,7 @@ export class OrderDetailPage {
   }
 
   protected paymentLabel(detail: OrderDetail): string | null {
-    return orderPaymentLabel(
-      detail.paymentState,
-      this.names.paymentStates.customer,
-    );
+    return orderPaymentLabel(detail.paymentState, this.names.paymentStates);
   }
 
   protected paymentTone(detail: OrderDetail): StatusTone {

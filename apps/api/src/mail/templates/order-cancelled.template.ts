@@ -45,7 +45,10 @@ export function orderCancelledMail(
     ],
     rows: [
       { label: names.reference, value: order.reference },
-      { label: names.account, value: order.customerEmail ?? names.guest },
+      {
+        label: text.orders.account,
+        value: order.customerEmail ?? text.orders.guest,
+      },
       {
         label: names.contact,
         value: [order.contact.name, order.contact.phone].join(' · '),

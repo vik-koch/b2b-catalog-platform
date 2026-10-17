@@ -160,7 +160,7 @@ describe('AccountPage', () => {
     expect(el.textContent).toContain('Fischer Alex');
     expect(el.textContent).toContain(customer.email);
     expect(el.textContent).toContain(customer.phone);
-    expect(el.textContent).toContain(text.myAccount.company);
+    expect(el.textContent).toContain(defaultCommonText.partyKind.company);
     expect(el.textContent).toContain(customer.companyRegistrationId);
   });
 
@@ -176,11 +176,15 @@ describe('AccountPage', () => {
       companyRegistrationId: null,
     });
 
-    expect(el.textContent).not.toContain(text.myAccount.companyName);
-    expect(el.textContent).not.toContain(text.myAccount.phone);
+    expect(el.textContent).not.toContain(
+      defaultCommonText.fields.companyName.label,
+    );
+    expect(el.textContent).not.toContain(defaultCommonText.fields.phone.label);
     expect(el.textContent).not.toContain(text.myAccount.customerType);
-    expect(el.textContent).not.toContain(text.myAccount.companyId);
-    expect(el.textContent).toContain(text.myAccount.email);
+    expect(el.textContent).not.toContain(
+      defaultCommonText.fields.companyId.label,
+    );
+    expect(el.textContent).toContain(defaultCommonText.fields.email.label);
   });
 
   describe('the address book (FR-CART-04)', () => {
@@ -377,6 +381,7 @@ describe('AccountPage', () => {
       providers: [
         provideRouter([]),
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: AuthService,

@@ -1,4 +1,4 @@
-import { demoMailText } from '../mail-text.fixture';
+import { demoCommonText, demoMailText } from '../mail-text.fixture';
 import { newRegistrationMail } from './new-registration.template';
 import { registrationReceivedMail } from './registration-received.template';
 
@@ -31,17 +31,19 @@ describe('newRegistrationMail', () => {
     customerType: 'person',
   } as const;
   const t = demoMailText.newRegistration;
-  const mail = newRegistrationMail(person, demoMailText);
+  const fields = demoCommonText.fields;
+  const kinds = demoCommonText.partyKind;
+  const mail = newRegistrationMail(person, demoMailText, demoCommonText);
 
   // This mail is what a manager reads before deciding whether the applicant is
   // a customer they already know, so it repeats everything submitted.
   it('carries every detail staff have to act on', () => {
     expect(mail.rows).toEqual([
       // Family name first, as every staff-facing list of people reads.
-      { label: t.nameLabel, value: 'Doe Jane' },
-      { label: t.emailLabel, value: 'jane@example.com' },
-      { label: t.phoneLabel, value: '+49 40 1234567' },
-      { label: t.customerTypeLabel, value: t.customerTypePerson },
+      { label: fields.name.label, value: 'Doe Jane' },
+      { label: fields.email.label, value: 'jane@example.com' },
+      { label: fields.phone.label, value: '+49 40 1234567' },
+      { label: t.customerTypeLabel, value: kinds.person },
     ]);
   });
 
@@ -53,18 +55,21 @@ describe('newRegistrationMail', () => {
         companyRegistrationId: '123456789',
       },
       demoMailText,
+      demoCommonText,
     );
 
     expect(company.rows).toContainEqual({
-      label: t.companyIdLabel,
+      label: fields.companyId.label,
       value: '123456789',
     });
     expect(company.rows).toContainEqual({
       label: t.customerTypeLabel,
-      value: t.customerTypeCompany,
+      value: kinds.company,
     });
     // A private person gets no empty row where the number would be.
-    expect(mail.rows?.map((r) => r.label)).not.toContain(t.companyIdLabel);
+    expect(mail.rows?.map((r) => r.label)).not.toContain(
+      fields.companyId.label,
+    );
   });
 
   it('links into the account list, as a path the layout resolves', () => {

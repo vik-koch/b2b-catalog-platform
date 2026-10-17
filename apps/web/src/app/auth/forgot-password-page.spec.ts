@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { AuthService } from './auth.service';
@@ -17,6 +19,7 @@ async function render(outcome: 'ok' | 'error' = 'ok') {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { forgotPassword } },
     ],
@@ -65,9 +68,7 @@ describe('ForgotPasswordPage', () => {
     await submit();
 
     expect(forgotPassword).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(
-      defaultAppText.auth.validation.emailInvalid,
-    );
+    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
   });
 
   it('asks for an address before submitting at all', async () => {
@@ -76,9 +77,7 @@ describe('ForgotPasswordPage', () => {
     await submit();
 
     expect(forgotPassword).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(
-      defaultAppText.auth.validation.emailRequired,
-    );
+    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
   });
 
   // A failed request is the only thing worth reporting: the server's answer is

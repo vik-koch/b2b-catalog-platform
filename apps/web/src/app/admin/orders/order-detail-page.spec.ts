@@ -206,7 +206,7 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   it('shows what only staff see', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(names.account);
+    expect(el.textContent).toContain(defaultAdminText.orders.account);
     expect(el.textContent).toContain('alex@example.com');
     expect(el.textContent).toContain(defaultAdminText.orders.tier);
     expect(el.textContent).toContain('wholesale');
@@ -222,7 +222,7 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
     });
 
     expect(el.textContent).toContain(defaultAdminText.orders.tierDefault);
-    expect(el.textContent).toContain(names.guest);
+    expect(el.textContent).toContain(defaultAdminText.orders.guest);
   });
 
   // NFR-LEGAL-10: the version to hand the customer, as the page editor
@@ -243,11 +243,13 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
   it('reads the order back in the admin’s own words', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(names.items.staff);
+    expect(el.textContent).toContain(defaultAdminText.orders.items);
     expect(el.textContent).toContain(names.invoicedTo);
     expect(el.textContent).toContain('Kontor GmbH · DE123456789');
     expect(el.textContent).toContain(text.billingSame);
-    expect(el.textContent).toContain(names.paymentMethods.staff.transfer);
+    expect(el.textContent).toContain(
+      defaultAdminText.orders.paymentMethods.transfer,
+    );
     expect(el.textContent).toContain(text.whenAny);
   });
 
@@ -333,7 +335,9 @@ describe('AdminOrderDetailPage answering an order', () => {
   it('records a payment on an order that owes one, and never twice', async () => {
     const owing = await render({ ...placed, paymentState: 'awaiting' });
     expect(buttons(owing.el)).toContain(text.paymentState.record);
-    expect(owing.el.textContent).toContain(names.paymentStates.staff.awaiting);
+    expect(owing.el.textContent).toContain(
+      defaultAdminText.orders.paymentStates.awaiting,
+    );
 
     const settled = await render({
       ...placed,

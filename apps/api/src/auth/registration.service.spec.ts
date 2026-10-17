@@ -9,7 +9,12 @@ import {
   PHONE_RULE,
 } from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
-import { demoMailText, demoPhoneInput } from '../mail/mail-text.fixture';
+import { COMMON_TEXT } from '../config/common-text';
+import {
+  demoCommonText,
+  demoMailText,
+  demoPhoneInput,
+} from '../mail/mail-text.fixture';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { UsersService } from '../users/users.service';
@@ -64,6 +69,7 @@ describe('RegistrationService', () => {
         { provide: UsersService, useValue: { findByEmail, createPending } },
         { provide: MailDispatcher, useValue: dispatcherOver(send) },
         { provide: MAIL_TEXT, useValue: demoMailText },
+        { provide: COMMON_TEXT, useValue: demoCommonText },
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
         { provide: AddressesService, useValue: { seed } },
         { provide: PHONE_INPUT, useValue: demoPhoneInput },
@@ -120,7 +126,7 @@ describe('RegistrationService', () => {
       { rows?: { label: string; value: string }[] },
     ];
     expect(staffMail.rows).toContainEqual({
-      label: demoMailText.newRegistration.phoneLabel,
+      label: demoCommonText.fields.phone.label,
       value: '+49 (401) 234-5678',
     });
   });

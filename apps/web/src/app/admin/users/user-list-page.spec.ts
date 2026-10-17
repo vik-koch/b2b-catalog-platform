@@ -8,6 +8,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { AuthService } from '../../auth/auth.service';
@@ -98,6 +100,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -375,7 +378,9 @@ describe('UserListPage', () => {
         config: { ...defaultDeploymentConfig, companyIdInput: undefined },
       });
 
-      expect(el.textContent).toContain(text.companyId);
+      expect(el.textContent).toContain(
+        defaultCommonText.fields.companyId.label,
+      );
       expect(el.textContent).not.toContain(text.companyIdFormatAll);
     });
 

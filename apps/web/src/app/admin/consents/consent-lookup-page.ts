@@ -123,13 +123,13 @@ export class ConsentLookupPage {
 
   protected readonly text = inject(ADMIN_TEXT).consents;
   private readonly common = inject(ADMIN_TEXT).common;
-  private readonly validation = inject(ADMIN_TEXT).userEditor.validation;
+  private readonly fields = inject(ADMIN_TEXT).fields;
   protected readonly emailText = {
-    required: this.validation.emailRequired,
-    invalid: this.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly phoneText = {
-    incomplete: this.validation.phoneIncomplete,
+    incomplete: this.fields.phone.incomplete,
   };
 
   /** From the query string, by input binding; absent arrives as undefined. */

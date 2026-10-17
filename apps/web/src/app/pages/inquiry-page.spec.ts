@@ -95,7 +95,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.nameRequired);
+    expect(el.textContent).toContain(defaultCommonText.fields.name.required);
   });
 
   it('requires email when "by email" is chosen (the default)', async () => {
@@ -106,8 +106,10 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.emailRequired);
-    expect(el.textContent).not.toContain(text.validation.phoneRequired);
+    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
+    expect(el.textContent).not.toContain(
+      defaultCommonText.fields.phone.required,
+    );
   });
 
   it('switches the required field to phone when "by phone" is chosen', async () => {
@@ -120,8 +122,10 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.phoneRequired);
-    expect(el.textContent).not.toContain(text.validation.emailRequired);
+    expect(el.textContent).toContain(defaultCommonText.fields.phone.required);
+    expect(el.textContent).not.toContain(
+      defaultCommonText.fields.email.required,
+    );
   });
 
   it('blocks submit until the consent box is ticked', async () => {
@@ -148,7 +152,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.emailInvalid);
+    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
   });
 
   it('submits a valid inquiry and shows the success message', async () => {
@@ -186,7 +190,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(text.validation.phoneIncomplete);
+    expect(el.textContent).toContain(defaultCommonText.fields.phone.incomplete);
   });
 
   it('masks the phone and submits it with the configured country code', async () => {

@@ -184,8 +184,8 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
           heading: names.payment,
           lines: [
             draft.paymentMethod === 'bank-transfer'
-              ? names.paymentMethods.customer.transfer
-              : names.paymentMethods.customer.cash,
+              ? names.paymentMethods.transfer
+              : names.paymentMethods.cash,
           ],
         },
       ];
@@ -193,7 +193,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
       // answered by leaving it alone.
       if (draft.customerNote) {
         blocks.push({
-          heading: names.note.customer,
+          heading: names.note,
           lines: [draft.customerNote],
         });
       }

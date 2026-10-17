@@ -53,6 +53,32 @@
       "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
     }
   },
+  "fields": {
+    "name": {
+      "required": "A name is required."
+    },
+    "firstName": {
+      "required": "A first name is required."
+    },
+    "lastName": {
+      "required": "A last name is required."
+    },
+    "email": {
+      "required": "An email address is required.",
+      "invalid": "Please enter a valid email address."
+    },
+    "phone": {
+      "required": "A phone number is required.",
+      "incomplete": "This phone number is incomplete."
+    },
+    "companyName": {
+      "required": "Please enter the company name."
+    },
+    "companyId": {
+      "required": "A company ID is required.",
+      "format": "Please enter it in one of the expected formats, e.g. {examples}."
+    }
+  },
   "imageFramer": {
     "heading": "Frame the picture",
     "hint": "Drag the picture to move it. Zoom out for a wider white border, or in to crop.",
@@ -987,7 +1013,33 @@
     "notFound": "There is no order with that reference.",
     "loadError": "The order could not be loaded. Please try again.",
     "tier": "Price list",
-    "tierDefault": "Default"
+    "tierDefault": "Default",
+    "account": "Account",
+    "guest": "Guest",
+    "items": "Ordered",
+    "note": "Customer note",
+    "pickupPoint": "Collection point",
+    "termsVersion": "Version {version}, updated on {date}",
+    "statuses": {
+      "requested": "Requested",
+      "approved": "Confirmed",
+      "readyDelivery": "Handed over for delivery",
+      "readyPickup": "Ready for pickup",
+      "completed": "Complete",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "transfer": "Bank transfer",
+      "card": "Card, arranged with the customer"
+    },
+    "paymentStates": {
+      "notDue": "Nothing due",
+      "awaiting": "Awaiting payment",
+      "paid": "Paid",
+      "cashOnHandover": "Cash on handover"
+    }
   },
   "orderChanges": {
     "line": "Line",
@@ -1193,11 +1245,6 @@
     },
     "partyKindPerson": "A person",
     "partyKindCompany": "A company",
-    "companySuggest": {
-      "suggestionsLabel": "Company suggestions",
-      "noSuggestions": "No matching companies. Carry on typing it yourself.",
-      "suggestionCount": "Company suggestions: {count}"
-    },
     "reprice": "Reprice from this list",
     "detailsHeading": "Delivery, invoice and contact",
     "billingAddress": "Invoice address",
@@ -1247,10 +1294,6 @@
     "empty": "No accounts yet.",
     "noResults": "No accounts match these filters.",
     "loadError": "The account list could not be loaded. Please try again.",
-    "name": "Name",
-    "email": "Email",
-    "phone": "Phone",
-    "companyId": "Company ID",
     "registered": "Registered",
     "filterRole": "Filter by role",
     "filterTier": "Filter by tier",
@@ -1270,8 +1313,6 @@
     "statusActive": "Active",
     "statusDisabled": "Deactivated",
     "statusAnonymized": "Closed",
-    "typePerson": "Person",
-    "typeCompany": "Company",
     "actions": "Actions",
     "approve": "Review and approve",
     "edit": "Edit account",
@@ -1313,18 +1354,7 @@
     "newStaffTitle": "New staff account",
     "editTitle": "Edit account",
     "approveTitle": "Approve registration",
-    "email": "Email",
     "emailFixed": "The email address is the sign-in name and cannot be changed here.",
-    "firstName": "First name",
-    "lastName": "Last name",
-    "phone": "Phone",
-    "companyName": "Company name",
-    "companyId": "Company ID",
-    "companySuggest": {
-      "suggestionsLabel": "Company suggestions",
-      "noSuggestions": "No matching companies. Carry on typing it yourself.",
-      "suggestionCount": "Company suggestions: {count}"
-    },
     "customerType": "Customer type",
     "tier": "Tier",
     "tierChoose": "Select a tier…",
@@ -1342,14 +1372,6 @@
     "saveError": "This account could not be saved. Please try again.",
     "discardConfirm": "Discard the changes to this account?",
     "validation": {
-      "firstNameRequired": "A first name is required.",
-      "lastNameRequired": "A last name is required.",
-      "emailRequired": "An email address is required.",
-      "emailInvalid": "Please enter a valid email address.",
-      "phoneIncomplete": "This phone number is incomplete.",
-      "companyNameRequired": "Please enter the company name.",
-      "companyIdRequired": "A company ID is required.",
-      "companyIdFormat": "Please enter it in one of the expected formats, e.g. {examples}.",
       "tierRequired": "Please choose a tier."
     }
   },

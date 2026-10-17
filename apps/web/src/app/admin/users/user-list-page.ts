@@ -16,6 +16,7 @@ import {
   userStatusSchema,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { formatPhone } from '../../core/contact-fields';
 import { usePageSeo } from '../../core/page-seo';
@@ -266,6 +267,8 @@ export class UserListPage {
   private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);
   protected readonly text = inject(ADMIN_TEXT).userList;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  private readonly kinds = inject(COMMON_TEXT).partyKind;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
 
@@ -389,11 +392,11 @@ export class UserListPage {
   protected readonly columns = computed<GridColumn[]>(() => [
     {
       key: 'name',
-      label: this.text.name,
+      label: this.fields.name.label,
       sort: { asc: 'name', desc: 'name_desc' },
       minWidth: 180,
     },
-    { key: 'phone', label: this.text.phone, minWidth: 110 },
+    { key: 'phone', label: this.fields.phone.label, minWidth: 110 },
     // The heading itself, as with role/tier/status: its "all" option is what
     // names the column. A plain label only where the deployment configures no
     // formats, since then there is nothing to name.
@@ -401,7 +404,7 @@ export class UserListPage {
       ? [
           {
             key: 'companyId',
-            label: this.text.companyId,
+            label: this.fields.companyId.label,
             minWidth: 100,
             ...(this.hasCompanyIdFormats
               ? {
@@ -686,7 +689,7 @@ export class UserListPage {
 
   protected typeLabel(type: StaffUser['customerType']): string {
     if (!type) return this.dash;
-    return type === 'company' ? this.text.typeCompany : this.text.typePerson;
+    return type === 'company' ? this.kinds.company : this.kinds.person;
   }
 
   protected statusLabel(status: StaffUser['status']): string {

@@ -3,13 +3,20 @@
     "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
     "linkExpiry": "This link can be used once, and expires seven days after it was sent."
   },
+  "orders": {
+    "account": "Account",
+    "guest": "Guest",
+    "items": "Ordered",
+    "paymentMethods": {
+      "cash": "Cash",
+      "transfer": "Bank transfer",
+      "card": "Card, arranged with the customer"
+    }
+  },
   "inquiry": {
     "subject": "Inquiry",
     "preheader": "A visitor sent an inquiry through the contact form.",
     "heading": "New inquiry",
-    "name": "Name",
-    "email": "Email",
-    "phone": "Phone",
     "preferredContact": "Preferred contact",
     "message": "Message"
   },
@@ -70,14 +77,7 @@
     "preheader": "Someone requested a customer account.",
     "heading": "New registration",
     "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
-    "nameLabel": "Name",
-    "emailLabel": "Email",
-    "phoneLabel": "Phone",
     "customerTypeLabel": "Registering as",
-    "customerTypePerson": "Private person",
-    "customerTypeCompany": "Company",
-    "companyNameLabel": "Company name",
-    "companyIdLabel": "Company ID",
     "action": "Open the account list"
   },
   "orderReceived": {
@@ -112,7 +112,6 @@
     "heading": "Account closed",
     "body": "A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.",
     "nameLabel": "Was",
-    "emailLabel": "Email",
     "ordersLabel": "Orders kept",
     "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
     "action": "Open the order list"

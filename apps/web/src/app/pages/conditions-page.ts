@@ -225,8 +225,7 @@ export class ConditionsPage {
   private readonly appText = inject(APP_TEXT);
   protected readonly commonText = inject(COMMON_TEXT);
   private readonly nav = this.commonText.nav;
-  protected readonly paymentNames =
-    this.commonText.order.paymentMethods.customer;
+  protected readonly paymentNames = this.commonText.order.paymentMethods;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 

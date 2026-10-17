@@ -87,7 +87,7 @@ export class OrderRows {
     return orderStatusLabel(
       order.status,
       order.fulfilmentMethod,
-      this.statusNames.statuses.customer,
+      this.statusNames.statuses,
     );
   }
 
@@ -98,7 +98,7 @@ export class OrderRows {
   protected paymentLabel(order: OrderSummary): string | null {
     return orderPaymentLabel(
       order.paymentState,
-      this.statusNames.paymentStates.customer,
+      this.statusNames.paymentStates,
     );
   }
 

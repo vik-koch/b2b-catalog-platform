@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { emailFormat } from '../core/contact-fields';
 import { FieldErrors } from '../core/form-errors';
 import { usePageSeo } from '../core/page-seo';
@@ -57,7 +58,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         >
           <app-email-field
             [control]="form.controls.email"
-            [label]="authText.email"
+            [label]="fields.email.label"
             [text]="emailText"
             [required]="true"
             [invalid]="isInvalid()"
@@ -90,10 +91,10 @@ export class ForgotPasswordPage {
 
   protected readonly authText = inject(APP_TEXT).auth;
   protected readonly text = inject(APP_TEXT).auth.forgotPassword;
-  protected readonly validation = inject(APP_TEXT).auth.validation;
+  protected readonly fields = inject(COMMON_TEXT).fields;
   protected readonly emailText = {
-    required: this.validation.emailRequired,
-    invalid: this.validation.emailInvalid,
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
   };
   protected readonly status = signal<Status>('idle');
 
