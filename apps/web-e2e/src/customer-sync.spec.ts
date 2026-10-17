@@ -160,6 +160,6 @@ test('claiming is opted into, and the preview warns before anything is applied',
   await expect(
     page.getByText('Claimed', { exact: true }).first(),
   ).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('will be claimed');
+  await expect(page.getByRole('status')).toContainText('this run will claim');
   await expect(page.getByRole('button', { name: 'Apply' })).toBeEnabled();
 });

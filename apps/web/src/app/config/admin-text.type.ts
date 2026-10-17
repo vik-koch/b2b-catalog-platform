@@ -1,4 +1,5 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
+import { refuseCountForms } from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
 
 /**
@@ -2603,6 +2604,7 @@ export const adminTextSchema = z
       })
       .strict(),
   })
-  .strict();
+  .strict()
+  .superRefine(refuseCountForms);
 
 export type AdminText = DeepReadonly<z.infer<typeof adminTextSchema>>;

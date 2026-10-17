@@ -37,7 +37,7 @@
     "prevPage": "Previous",
     "nextPage": "Next",
     "pageStatus": "Page {page} of {total}",
-    "productCount": "{count} product|{count} products",
+    "productCount": "Products: {count}",
     "availability": {
       "in": "In stock",
       "low": "Few left",
@@ -52,7 +52,7 @@
       "unavailable": "currently unavailable",
       "note": "Variants carry no stock of their own; which are available is confirmed with you after the order is placed.",
       "mark": "Variants",
-      "markLabel": "Show the {count} variants",
+      "markLabel": "Show the variants ({count})",
       "close": "Close"
     },
     "layout": {
@@ -94,7 +94,7 @@
     "imagePlaceholder": "No image available",
     "pairings": {
       "label": "Sold together",
-      "marker": "Sold together with {count} product|Sold together with {count} products",
+      "marker": "Sold together with other products ({count})",
       "intro": "These are sold with this product. Add what you need without leaving the page.",
       "close": "Close",
       "loadError": "Something went wrong loading these — please try again later."
@@ -134,7 +134,7 @@
   "cart": {
     "navLabel": "Cart",
     "title": "Your cart",
-    "summaryLabel": "Cart: {count} line, {total}|Cart: {count} lines, {total}",
+    "summaryLabel": "Cart: {total}, lines: {count}",
     "empty": "Your cart is empty.",
     "emptyAction": "Browse the catalogue",
     "loadError": "Something went wrong pricing your cart — please try again later.",
@@ -162,7 +162,7 @@
     "clearSelection": "Clear selection",
     "deleteSelected": "Delete selection",
     "deleteSelectedHeading": "Delete the selected lines",
-    "deleteSelectedConfirm": "Remove the selected line from your cart? This cannot be undone.|Remove the {count} selected lines from your cart? This cannot be undone.",
+    "deleteSelectedConfirm": "Remove the selection from your cart? Lines selected: {count}. This cannot be undone.",
     "cancel": "Cancel",
     "subtotal": "Subtotal",
     "noPrice": "On request",
@@ -197,8 +197,8 @@
     "pairing": {
       "shortAction": "Add {count} {unit}",
       "shortReason": "of what this is sold with.",
-      "summary": "{count} product in your cart is missing what it is sold with.|{count} products in your cart are missing what they are sold with.",
-      "summaryEnforced": "{count} product in your cart cannot be ordered without what it is sold with.|{count} products in your cart cannot be ordered without what they are sold with."
+      "summary": "Products in your cart missing what they are sold with: {count}.",
+      "summaryEnforced": "Products in your cart that cannot be ordered without what they are sold with: {count}."
     }
   },
   "checkout": {
@@ -335,7 +335,7 @@
     "filterEmpty": "Nothing is waiting for you right now.",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
-    "itemCount": "{count} line|{count} lines",
+    "itemCount": "Lines: {count}",
     "statusRequested": "Awaiting confirmation",
     "statusApproved": "Confirmed",
     "statusReadyDelivery": "On its way to you",
@@ -388,14 +388,14 @@
     "clear": "Clear search",
     "searchNav": "Product search",
     "suggestionsLabel": "Product suggestions",
-    "suggestionCount": "{count} suggestion available. Use the arrow keys to review it.|{count} suggestions available. Use the arrow keys to review them.",
+    "suggestionCount": "Suggestions available: {count}. Use the arrow keys to review them.",
     "noSuggestions": "Nothing found",
     "categoriesLabel": "Matching categories",
     "showAllResults": "Show all results",
     "addSuggestion": "Add {name} to cart",
     "suggestionInCart": "{name} is in your cart",
     "resultsTitle": "Results for “{query}”",
-    "resultCount": "{count} product found|{count} products found",
+    "resultCount": "Products found: {count}",
     "noResults": "Nothing matched “{query}”.",
     "noResultsHint": "Check the spelling, or try fewer words.",
     "emptyQuery": "Type a product name to search the catalogue.",
@@ -477,7 +477,7 @@
         "unsupportedCountry": "We do not deliver to that country. Please choose another.",
         "suggestionsLabel": "Address suggestions",
         "noSuggestions": "No matching addresses. Carry on typing it yourself.",
-        "suggestionCount": "{count} address suggestion|{count} address suggestions"
+        "suggestionCount": "Address suggestions: {count}"
       },
       "delete": {
         "action": "Delete my account",
@@ -545,7 +545,7 @@
       "companySuggest": {
         "suggestionsLabel": "Company suggestions",
         "noSuggestions": "No matching companies. Carry on typing it yourself.",
-        "suggestionCount": "{count} company suggestion|{count} company suggestions"
+        "suggestionCount": "Company suggestions: {count}"
       }
     },
     "setPassword": {

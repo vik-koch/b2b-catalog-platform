@@ -173,9 +173,9 @@ test.describe('the product grid stock column', () => {
     // in the grey badge, and the state is what a screen reader is told.
     const empty = row('Nordic Pull').first();
     await expect(empty).toBeVisible();
-    await expect(
-      empty.getByLabel('0 pieces in stock — Out of stock'),
-    ).toHaveText('0 pcs');
+    await expect(empty.getByLabel('In stock: 0 pcs — Out of stock')).toHaveText(
+      '0 pcs',
+    );
 
     // And the other two states exclude it, so the filter is the stored state
     // rather than a text match.
@@ -226,7 +226,7 @@ test.describe('admin grids on a phone', () => {
       .first();
     await expect(record).toBeVisible();
     await expect(
-      record.getByLabel('0 pieces in stock — Out of stock'),
+      record.getByLabel('In stock: 0 pcs — Out of stock'),
     ).toHaveText('0 pcs');
 
     // The column heading a desktop filters from is in the sheet here, and the

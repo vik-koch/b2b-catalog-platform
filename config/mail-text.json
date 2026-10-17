@@ -159,7 +159,7 @@
     "nameLabel": "Was",
     "emailLabel": "Email",
     "ordersLabel": "Orders kept",
-    "openOrdersNote": "{count} of those orders have not ended yet. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
+    "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
     "action": "Open the order list"
   },
   "orderStatusChanged": {

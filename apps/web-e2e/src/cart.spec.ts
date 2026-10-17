@@ -95,14 +95,14 @@ test('adds a chosen unit to the cart, counts it in the header, and keeps it', as
   );
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 line, .+/,
+    /^Cart: .+, lines: 1$/,
   );
 
   // The whole point of storing it: it is still there on the next visit.
   await page.reload();
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 line, .+/,
+    /^Cart: .+, lines: 1$/,
   );
 
   await cartLink(page).click();
@@ -180,14 +180,14 @@ test('sells from a grid card, and then edits that line from it', async ({
   await expect(card.getByText(/Added for/)).toBeVisible();
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 line, .+/,
+    /^Cart: .+, lines: 1$/,
   );
 
   // The stepper now edits the line rather than describing a second one.
   await card.getByRole('button', { name: 'Increase the quantity' }).click();
   await expect(cartLink(page)).toHaveAttribute(
     'aria-label',
-    /Cart: 1 line, .+/,
+    /^Cart: .+, lines: 1$/,
   );
   await cartLink(page).click();
   await expect(lines(page)).toHaveCount(1);
@@ -250,7 +250,10 @@ test('writes a note from a listing card, beside the price', async ({
   }
   await card.getByRole('button', { name: 'Add to cart' }).click();
 
-  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 1 line,/);
+  await expect(cartLink(page)).toHaveAttribute(
+    'aria-label',
+    /^Cart: .+, lines: 1$/,
+  );
   await cartLink(page).click();
   await expect(page.getByRole('textbox', { name: /Note/ })).toHaveValue(
     'Sand only',
@@ -278,7 +281,10 @@ test('prices the cart on the server and empties it when asked', async ({
   await dialog.getByRole('button', { name: 'Delete selection' }).click();
 
   await expect(page.getByText('Your cart is empty.')).toBeVisible();
-  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 0 lines/);
+  await expect(cartLink(page)).toHaveAttribute(
+    'aria-label',
+    /^Cart: .+, lines: 0$/,
+  );
 });
 
 /**
@@ -318,7 +324,10 @@ test('will not sell a product that is out of stock', async ({ page }) => {
     card.getByRole('button', { name: 'Add to cart' }),
   ).toBeDisabled();
 
-  await expect(cartLink(page)).toHaveAttribute('aria-label', /Cart: 0 lines/);
+  await expect(cartLink(page)).toHaveAttribute(
+    'aria-label',
+    /^Cart: .+, lines: 0$/,
+  );
 });
 
 /**

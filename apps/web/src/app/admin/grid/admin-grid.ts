@@ -356,7 +356,7 @@ export class AdminGrid<T> {
    * this out and its rows are counted.
    */
   readonly total = input<number | null>(null);
-  /** The count as the list words it — "{count} product(s)". None, no line. */
+  /** The count as the list words it — "Products: {count}". None, no line. */
   readonly countLabel = input('');
 
   /** Absent while the list is empty: the empty message already says so. */

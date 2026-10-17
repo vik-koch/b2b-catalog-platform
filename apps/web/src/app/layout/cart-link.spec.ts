@@ -93,7 +93,7 @@ describe('CartLink', () => {
 
     expect(view.text()).toBe(text.navLabel);
     // The spoken label carries the exact figure; only the chip is shortened.
-    expect(view.ariaLabel()).toBe('Cart: 0 lines, 0,00 €');
+    expect(view.ariaLabel()).toBe('Cart: 0,00 €, lines: 0');
   });
 
   // The server cannot read localStorage, so anything it announced would be an
