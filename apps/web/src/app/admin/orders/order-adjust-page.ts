@@ -1136,7 +1136,7 @@ export class AdminOrderAdjustPage {
         pieces: line.pieces,
         priceText: line.priceText,
         quantityLabel: answer
-          ? customerQuantity(answer, this.appText, this.currency)
+          ? customerQuantity(answer, this.commonText, this.currency)
           : '',
         note: line.note,
         totalLabel: answer
@@ -1217,7 +1217,7 @@ export class AdminOrderAdjustPage {
             order,
             proposed,
             { ...this.changeText, total: this.names.total },
-            this.appText,
+            this.commonText,
             config,
           )
         : []),

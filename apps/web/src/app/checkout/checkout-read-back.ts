@@ -52,7 +52,6 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
   const text = inject(APP_TEXT).checkout;
-  const catalogText = inject(APP_TEXT).catalog;
   const common = inject(COMMON_TEXT);
   const names = common.order;
   const locations = config.pickup?.locations ?? [];
@@ -64,17 +63,16 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
    * actually picks is worth spelling out beside the one that was ordered.
    */
   const lineQuantity = (line: CartStoredLine): string => {
-    const review = text.review;
-    const units = catalogText.units;
+    const units = common.units;
     const qty = formatUnitQuantity(
       unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
       config.catalog.currency,
     );
     const unit = units[line.unit];
     if (line.unit === 'piece') {
-      return fillText(review.quantity, { qty, unit });
+      return fillText(common.quantity, { qty, unit });
     }
-    return fillText(review.quantityPieces, {
+    return fillText(common.quantityPieces, {
       qty,
       unit,
       pieces: formatUnitQuantity(line.pieces, config.catalog.currency),

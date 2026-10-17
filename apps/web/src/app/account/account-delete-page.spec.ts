@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
@@ -22,6 +24,7 @@ async function render(outcome: DeleteAccountResult | 'throw') {
     providers: [
       provideRouter([{ path: '', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { logout } },
       { provide: AccountService, useValue: { deleteAccount } },

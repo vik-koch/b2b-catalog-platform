@@ -43,6 +43,7 @@ import { SettingsService } from '../settings/settings.service';
 import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
 import { ProductDetailView } from '../../catalog/product-detail-view';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
@@ -137,16 +138,16 @@ import {
            somebody editing it is actually asking. -->
       @if (!isNew && !loading() && !notFound()) {
         @if (deleted()) {
-          <span appStatusBadge tone="danger">{{ editText.deletedBadge }}</span>
+          <span appStatusBadge tone="danger">{{ productStates.deleted }}</span>
         } @else {
           @if (!published()) {
             <span appStatusBadge tone="waiting">{{
-              editText.unpublishedBadge
+              productStates.unpublished
             }}</span>
           }
           @if (priceCleared()) {
             <span appStatusBadge tone="danger">{{
-              editText.unpricedBadge
+              productStates.unpriced
             }}</span>
           }
         }
@@ -363,7 +364,7 @@ import {
         </div>
 
         <div>
-          <span appFieldLabel>{{ text.description }}</span>
+          <span appFieldLabel>{{ product.description }}</span>
           <app-rich-text-editor
             preset="product"
             [value]="description()"
@@ -658,6 +659,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** The badge wording, shared with the storefront's hidden-products overlay. */
   protected readonly editText = inject(ADMIN_TEXT).editMode;
+  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly productStates = inject(ADMIN_TEXT).products;
   private readonly ownership = inject(SettingsService);
 
   /**
@@ -678,7 +681,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   );
   /** The piece abbreviation, printed inside both stock fields — the same one
    * the packaging rows use, so the two blocks measure in one word. */
-  protected readonly pieceSuffix = this.text.packaging.pieceSuffix;
+  protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly unitFieldInputCompact = UNIT_FIELD_INPUT_COMPACT;
 

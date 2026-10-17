@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -32,6 +34,7 @@ function render(
     imports: [ProductPackagingEditor],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
     ],
   });

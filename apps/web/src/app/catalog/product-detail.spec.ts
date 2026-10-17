@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { signal } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
@@ -57,6 +59,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: CatalogService, useValue: { getProduct: async () => result } },
       // An admin session where the test names an admin read, a guest's
@@ -148,7 +151,7 @@ describe('ProductDetail', () => {
       }),
     );
 
-    expect(root.textContent).toContain(defaultAppText.catalog.documents.label);
+    expect(root.textContent).toContain(defaultCommonText.product.documents);
     expect(
       root.querySelector('a[href="/documents/aaaaaaaaaaaa.pdf"]')?.textContent,
     ).toContain('Certificate of analysis');
@@ -157,9 +160,7 @@ describe('ProductDetail', () => {
   it('heads no document section when there is nothing current to show', async () => {
     const root = el(await render({ ...product, documents: [] }));
 
-    expect(root.textContent).not.toContain(
-      defaultAppText.catalog.documents.label,
-    );
+    expect(root.textContent).not.toContain(defaultCommonText.product.documents);
   });
 
   it('renders the attributes as a specifications table', async () => {
@@ -285,10 +286,10 @@ describe('ProductDetail', () => {
 
         const heading = el(fixture).querySelector('h1')?.parentElement;
         expect(heading?.textContent).toContain(
-          defaultAdminText.editMode.unpublishedBadge,
+          defaultAdminText.products.unpublished,
         );
         expect(heading?.textContent).toContain(
-          defaultAdminText.editMode.unpricedBadge,
+          defaultAdminText.products.unpriced,
         );
       } finally {
         vi.unstubAllGlobals();

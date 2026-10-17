@@ -386,11 +386,12 @@ export class CategoryListPage {
   private readonly admin = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).categoryList;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
 
   protected productsLabel(count: number): string {
-    return fillText(this.text.products, { count });
+    return fillText(this.productsText.count, { count });
   }
 
   protected directProductsLabel(count: number): string {

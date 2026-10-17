@@ -46,37 +46,71 @@
       "from": ["app-text.json:nav.more"]
     },
     "common-text.json:units.piece": {
-      "from": ["mail-text.json:common.units.piece"]
+      "from": [
+        "mail-text.json:common.units.piece",
+        "app-text.json:catalog.units.piece",
+        "admin-text.json:productEditor.packaging.pieceSuffix",
+        "admin-text.json:orderAdjust.lines.pieces"
+      ]
     },
     "common-text.json:units.pack": {
-      "from": ["mail-text.json:common.units.pack"]
+      "from": [
+        "mail-text.json:common.units.pack",
+        "app-text.json:catalog.units.pack",
+        "admin-text.json:productEditor.packaging.packSuffix"
+      ]
     },
     "common-text.json:units.box": {
-      "from": ["mail-text.json:common.units.box"]
+      "from": [
+        "mail-text.json:common.units.box",
+        "app-text.json:catalog.units.box"
+      ]
     },
     "common-text.json:quantity": {
-      "from": ["mail-text.json:common.quantity"]
+      "from": [
+        "mail-text.json:common.quantity",
+        "app-text.json:catalog.units.minQuantityValue",
+        "app-text.json:checkout.review.quantity"
+      ]
     },
     "common-text.json:quantityPieces": {
-      "from": ["mail-text.json:common.quantityPieces"]
+      "from": [
+        "mail-text.json:common.quantityPieces",
+        "app-text.json:checkout.review.quantityPieces"
+      ]
     },
     "common-text.json:tax.included": {
-      "from": ["mail-text.json:common.tax.included"]
+      "from": [
+        "mail-text.json:common.tax.included",
+        "app-text.json:tax.statement.included"
+      ]
     },
     "common-text.json:tax.added": {
-      "from": ["mail-text.json:common.tax.added"]
+      "from": [
+        "mail-text.json:common.tax.added",
+        "app-text.json:tax.statement.added"
+      ]
     },
     "common-text.json:tax.none": {
-      "from": ["mail-text.json:common.tax.none"]
+      "from": [
+        "mail-text.json:common.tax.none",
+        "app-text.json:tax.statement.none"
+      ]
     },
     "common-text.json:tax.mixed.included": {
-      "from": ["mail-text.json:common.tax.mixed.included"]
+      "from": [
+        "mail-text.json:common.tax.mixed.included",
+        "app-text.json:tax.mixed.included"
+      ]
     },
     "common-text.json:tax.mixed.added": {
-      "from": ["mail-text.json:common.tax.mixed.added"]
+      "from": [
+        "mail-text.json:common.tax.mixed.added",
+        "app-text.json:tax.mixed.added"
+      ]
     },
     "common-text.json:tax.line": {
-      "from": ["mail-text.json:common.tax.line"]
+      "from": ["mail-text.json:common.tax.line", "app-text.json:tax.line"]
     },
     "common-text.json:order.reference": {
       "from": [
@@ -763,9 +797,128 @@
     },
     "admin-text.json:orderAdjust.confirm.cancel": {
       "from": ["admin-text.json:orderAdjust.keep"]
+    },
+    "common-text.json:packaging.heading": {
+      "from": [
+        "app-text.json:catalog.units.packaging",
+        "admin-text.json:productEditor.packaging.heading"
+      ]
+    },
+    "common-text.json:packaging.packContains": {
+      "from": [
+        "app-text.json:catalog.units.packContains",
+        "admin-text.json:productEditor.packaging.piecesPerPack"
+      ]
+    },
+    "common-text.json:packaging.boxContains": {
+      "from": [
+        "app-text.json:catalog.units.boxContains",
+        "admin-text.json:productEditor.packaging.packsPerBox"
+      ]
+    },
+    "common-text.json:packaging.boxVolume": {
+      "from": [
+        "app-text.json:catalog.units.boxVolume",
+        "admin-text.json:productEditor.packaging.boxVolume"
+      ]
+    },
+    "common-text.json:packaging.boxWeight": {
+      "from": [
+        "app-text.json:catalog.units.boxWeight",
+        "admin-text.json:productEditor.packaging.boxWeight"
+      ]
+    },
+    "common-text.json:product.description": {
+      "from": [
+        "app-text.json:catalog.description",
+        "admin-text.json:productEditor.description"
+      ]
+    },
+    "common-text.json:product.documents": {
+      "from": [
+        "app-text.json:catalog.documents.label",
+        "admin-text.json:productEditor.documents.heading"
+      ]
+    },
+    "common-text.json:product.variants": {
+      "from": [
+        "app-text.json:catalog.variants.heading",
+        "app-text.json:catalog.variants.mark",
+        "admin-text.json:productEditor.variants.heading"
+      ]
+    },
+    "common-text.json:product.pairings": {
+      "from": [
+        "app-text.json:catalog.pairings.label",
+        "admin-text.json:productEditor.pairings.heading"
+      ]
+    },
+    "common-text.json:product.availability.in": {
+      "from": ["app-text.json:catalog.availability.in"]
+    },
+    "common-text.json:product.availability.low": {
+      "from": ["app-text.json:catalog.availability.low"]
+    },
+    "common-text.json:product.availability.out": {
+      "from": [
+        "app-text.json:catalog.availability.out",
+        "admin-text.json:orderAdjust.lines.outOfStock"
+      ]
+    },
+    "common-text.json:fileSize.kb": {
+      "from": [
+        "app-text.json:catalog.documents.sizeKb",
+        "admin-text.json:documentList.sizeKb"
+      ]
+    },
+    "common-text.json:fileSize.mb": {
+      "from": [
+        "app-text.json:catalog.documents.sizeMb",
+        "admin-text.json:documentList.sizeMb"
+      ]
+    },
+    "admin-text.json:products.deleted": {
+      "from": [
+        "admin-text.json:productList.deletedBadge",
+        "admin-text.json:productList.stateDeleted",
+        "admin-text.json:editMode.deletedBadge",
+        "admin-text.json:productEditor.pairings.deleted",
+        "admin-text.json:documentEditor.products.deleted",
+        "admin-text.json:orderAdjust.lines.deleted"
+      ]
+    },
+    "admin-text.json:products.unpublished": {
+      "from": [
+        "admin-text.json:productList.unpublishedBadge",
+        "admin-text.json:productList.stateUnpublished",
+        "admin-text.json:editMode.unpublishedBadge",
+        "admin-text.json:productEditor.pairings.unpublished",
+        "admin-text.json:documentEditor.products.unpublished",
+        "admin-text.json:orderAdjust.lines.unpublished"
+      ]
+    },
+    "admin-text.json:products.unpriced": {
+      "from": [
+        "admin-text.json:productList.unpricedBadge",
+        "admin-text.json:editMode.unpricedBadge"
+      ]
+    },
+    "admin-text.json:products.count": {
+      "from": [
+        "admin-text.json:productList.count",
+        "admin-text.json:categoryList.products",
+        "admin-text.json:tierList.prices",
+        "admin-text.json:attributeList.products",
+        "admin-text.json:attributeInventory.products",
+        "admin-text.json:productEditor.attributes.products",
+        "admin-text.json:documentList.products"
+      ]
     }
   },
   "drop": [
+    "app-text.json:catalog.units.pieceName",
+    "app-text.json:catalog.units.packName",
+    "app-text.json:catalog.units.boxName",
     "mail-text.json:orderSummaryPdf.whenLabel",
     "mail-text.json:orderSummaryPdf.statuses.requested",
     "mail-text.json:orderSummaryPdf.statuses.approved",

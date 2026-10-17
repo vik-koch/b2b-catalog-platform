@@ -31,6 +31,28 @@
     },
     "line": "{rate}\u00a0% VAT"
   },
+  "packaging": {
+    "heading": "Packaging",
+    "packContains": "Pack contains",
+    "boxContains": "Box contains",
+    "boxVolume": "Box volume",
+    "boxWeight": "Box weight"
+  },
+  "product": {
+    "description": "Description",
+    "documents": "Documents",
+    "variants": "Variants",
+    "pairings": "Sold together",
+    "availability": {
+      "in": "In stock",
+      "low": "Few left",
+      "out": "Out of stock"
+    }
+  },
+  "fileSize": {
+    "kb": "{size} kB",
+    "mb": "{size} MB"
+  },
   "order": {
     "reference": "Order",
     "status": "Status",

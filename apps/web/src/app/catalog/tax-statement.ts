@@ -6,6 +6,7 @@ import {
   TaxBasis,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
 /**
@@ -18,13 +19,14 @@ export function useTaxStatement() {
   const tax = config.tax;
   const locale = config.catalog.currency.locale;
   const text = inject(APP_TEXT).tax;
+  const statements = inject(COMMON_TEXT).tax;
 
   const rateText = (rate: number) => formatTaxRate(rate, locale);
   const statement = (basis: TaxBasis, rate: number | null): string => {
-    if (basis === 'none') return text.statement.none;
+    if (basis === 'none') return statements.none;
     return rate === null
-      ? text.mixed[basis]
-      : fillText(text.statement[basis], { rate: rateText(rate) });
+      ? statements.mixed[basis]
+      : fillText(statements[basis], { rate: rateText(rate) });
   };
   const defaultRate = tax.basis === 'none' ? null : tax.rate;
 
@@ -51,7 +53,9 @@ export function useTaxStatement() {
 
     /** One line's rate, as a line states it. */
     line(rate: number | null): string {
-      return rate === null ? '' : fillText(text.line, { rate: rateText(rate) });
+      return rate === null
+        ? ''
+        : fillText(statements.line, { rate: rateText(rate) });
     },
 
     /** Beside a price, naming the product's rate as the API resolved it;

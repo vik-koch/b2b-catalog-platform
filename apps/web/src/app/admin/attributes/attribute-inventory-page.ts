@@ -435,6 +435,7 @@ export class AttributeInventoryPage {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   protected readonly text = inject(ADMIN_TEXT).attributeInventory;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
 
@@ -518,7 +519,7 @@ export class AttributeInventoryPage {
   }
 
   protected productsLabel(count: number): string {
-    return this.text.products.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 
   protected valuesLabel(count: number): string {

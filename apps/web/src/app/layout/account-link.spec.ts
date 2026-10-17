@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { computed, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -34,6 +36,7 @@ async function render(
     providers: [
       provideRouter([{ path: 'admin', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: AuthService, useValue: { user, resolved, hintedRole } },
       { provide: WorkService, useValue: work },
     ],

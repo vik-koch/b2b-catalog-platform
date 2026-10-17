@@ -1,8 +1,8 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import { COMMON_TEXT } from '../config/common-text';
 import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';

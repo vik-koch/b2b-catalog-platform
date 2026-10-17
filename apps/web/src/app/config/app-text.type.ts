@@ -75,18 +75,6 @@ export const appTextSchema = z
          * buttons' accessible names rather than visible labels.
          */
         /**
-         * The three words a stock badge is (FR-STOCK-03). Wording only — the
-         * tone is the design system's, and a product whose stock is untracked
-         * shows no badge at all, so there is no fourth key.
-         */
-        availability: z
-          .object({
-            in: z.string(),
-            low: z.string(),
-            out: z.string(),
-          })
-          .strict(),
-        /**
          * The marker of a product sold as a set of parts (FR-CAT-10). `short`
          * is the badge on a card or a line, `full` the product page's and the
          * short badge's tooltip, `{parts}` the parts joined by " + ".
@@ -108,10 +96,8 @@ export const appTextSchema = z
          */
         variants: z
           .object({
-            heading: z.string(),
             unavailable: z.string(),
             note: z.string(),
-            mark: z.string(),
             markLabel: z.string(),
             close: z.string(),
           })
@@ -177,9 +163,6 @@ export const appTextSchema = z
             noMatches: z.string(),
           })
           .strict(),
-        /** Product detail (FR-CAT-05). The two headings the page's lower
-         * half is split into, each of which is also its own anchor. */
-        description: z.string(),
         specifications: z.string(),
         /** Heads the four facts beside the photo, and the link under them
          * goes to the whole table. */
@@ -202,7 +185,6 @@ export const appTextSchema = z
          */
         pairings: z
           .object({
-            label: z.string(),
             marker: z.string(),
             /** Read under the heading, once the panel is open. */
             intro: z.string(),
@@ -220,15 +202,10 @@ export const appTextSchema = z
          */
         documents: z
           .object({
-            label: z.string(),
             hint: z.string(),
             /** The accessible name of a document's link beside its file
              * (FR-DOC-05); must contain `{host}`, which is what it shows. */
             linkLabel: z.string(),
-            /** `{size}` is a whole number of kB. */
-            sizeKb: z.string(),
-            /** `{size}` is a megabyte figure with one decimal. */
-            sizeMb: z.string(),
           })
           .strict(),
         /**
@@ -238,13 +215,8 @@ export const appTextSchema = z
          */
         units: z
           .object({
-            piece: z.string(),
-            pack: z.string(),
-            box: z.string(),
             /** Price labels; `{unit}` is one of the abbreviations above. */
             perUnit: z.string(),
-            /** Row label for the packaging summary in the spec table. */
-            packaging: z.string(),
             /**
              * The summary itself. `{packs}`/`{pieces}`/`{total}` are counts and
              * `{packUnit}`/`{pieceUnit}` the abbreviations, so a deployment can
@@ -254,14 +226,6 @@ export const appTextSchema = z
             /** Used where a product has packs but no box. */
             packagingPerPack: z.string(),
             minQuantity: z.string(),
-            /** `{qty}` is the minimum, `{unit}` the piece abbreviation. */
-            minQuantityValue: z.string(),
-            /** Specification-table labels for the pieces in one pack and one
-             * box; left out where the product ships as several boxes. */
-            packContains: z.string(),
-            boxContains: z.string(),
-            boxVolume: z.string(),
-            boxWeight: z.string(),
             boxCountSuffix: z.string(),
             /**
              * The unit selector's own labels. Separate from the words below on
@@ -276,14 +240,6 @@ export const appTextSchema = z
                 box: z.string(),
               })
               .strict(),
-            /**
-             * The full unit words, for the cart — there a unit stands on its
-             * own rather than after a number, and an abbreviation reads as a
-             * typo ("Pk").
-             */
-            pieceName: z.string(),
-            packName: z.string(),
-            boxName: z.string(),
           })
           .strict(),
       })
@@ -656,12 +612,6 @@ export const appTextSchema = z
             /** Says nothing has gone anywhere yet: the whole point of the
              * screen is that this is the last reversible moment. */
             intro: z.string(),
-            /** `{qty} {unit}` — a line's quantity as its own unit reads it. */
-            quantity: z.string(),
-            /** The same, for a line bought by the pack or the box: what that
-             * comes to in pieces is what the shop picks and the customer
-             * receives, and a review is where it is worth stating. */
-            quantityPieces: z.string(),
             /** Where the invoice goes to the delivery address, said instead of
              * printing the same four lines twice. */
             billingSame: z.string(),
@@ -1408,20 +1358,6 @@ export const appTextSchema = z
      */
     tax: z
       .object({
-        /** Under a total and beside a price, one per basis. `{rate}` is the
-         * rate, written as the deployment writes numbers. */
-        statement: z
-          .object({
-            included: z.string(),
-            added: z.string(),
-            none: z.string(),
-          })
-          .strict(),
-        /** Under a total whose lines are taxed at different rates: the
-         * basis alone, each line stating its own. */
-        mixed: z.object({ included: z.string(), added: z.string() }).strict(),
-        /** One line's rate, where the lines differ; `{rate}`. */
-        line: z.string(),
         /** Under a listing, which may hold goods at different rates and so
          * names none. Nothing is said where no tax is charged. */
         listing: z.object({ included: z.string(), added: z.string() }).strict(),

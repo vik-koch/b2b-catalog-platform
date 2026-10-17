@@ -14,6 +14,7 @@ import {
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
@@ -197,7 +198,7 @@ export class OrderDocumentsPanel {
   protected readonly text = inject(ADMIN_TEXT).orderDetail.documents;
   // The two size words, which the document list already owns: a file's size
   // reads the same wherever it is written.
-  private readonly sizes = inject(ADMIN_TEXT).documentList;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
 
   readonly order = input.required<AdminOrderDetail>();
   /**

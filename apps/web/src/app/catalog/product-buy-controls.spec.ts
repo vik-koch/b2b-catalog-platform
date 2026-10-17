@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductDetail } from '@b2b-catalog-platform/shared';
@@ -93,6 +95,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -306,14 +309,14 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged, true, false, 'row');
 
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 100 ${unitText.piece}`,
+      `${unitText.minQuantity}: 100 ${defaultCommonText.units.piece}`,
     );
 
     await view.chooseUnit(unitText.select.pack);
 
     // The same minimum, in the words the stepper stops in.
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 10 ${unitText.pack}`,
+      `${unitText.minQuantity}: 10 ${defaultCommonText.units.pack}`,
     );
   });
 

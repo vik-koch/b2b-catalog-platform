@@ -127,9 +127,6 @@
     "editFilters": "Edit filters",
     "hiddenHeading": "Not on the storefront",
     "hiddenHint": "These products are in this category but customers cannot see them.",
-    "deletedBadge": "Deleted",
-    "unpublishedBadge": "Not published",
-    "unpricedBadge": "No price",
     "unpricedHint": "Give this product a price before publishing it.",
     "unpricedTitle": "This product has no price",
     "publishProduct": "Publish",
@@ -212,7 +209,6 @@
     "slugHint": "Used in the product's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
     "sourceId": "Article number (optional)",
     "sourceIdHint": "The legacy/import key. Leave empty for a product created here; set it to match a future import.",
-    "description": "Description",
     "previewNotice": "Preview — this is how the product will look once saved.",
     "discardConfirm": "Discard your unsaved changes to this product?",
     "nameRequired": "Please enter a product name.",
@@ -232,7 +228,6 @@
       "addKeysEmpty": "No product carries an attribute yet.",
       "addKeysApply": "Add attributes ({count})",
       "inTable": "already here",
-      "products": "Products: {count}",
       "filterable": "The shop filters by this attribute.",
       "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
       "strayPart": "“{part}” is not one of this product's parts, so this row is not filtered as “{key}”. Check the spelling against the parts above."
@@ -245,7 +240,6 @@
       "reframe": "Frame again"
     },
     "variants": {
-      "heading": "Variants",
       "hint": "For an assorted article whose colours or designs are not separate articles. Name each variant, then choose under each picture which one it shows. A picture of the whole range shows none. Mark a variant currently unavailable to hide its pictures until it is back; delete it only if it will never be offered again.",
       "name": "Variant name",
       "add": "Add a variant",
@@ -286,7 +280,6 @@
       "promptPlaceholder": "Which colour?"
     },
     "documents": {
-      "heading": "Documents",
       "hint": "Certificates, declarations and data sheets shown on this product. The same documents can be put on many products at once from the document itself.",
       "add": "Add a document",
       "addPlaceholder": "Search documents by title…",
@@ -298,14 +291,11 @@
       "suggestionCount": "Document suggestions: {count}"
     },
     "pairings": {
-      "heading": "Sold together",
       "hint": "Products this one is sold with. It works both ways: the product you pick is paired with this one too, and removing it here removes it there.",
       "add": "Add a product",
       "addPlaceholder": "Search products by name…",
       "remove": "Remove “{name}”",
       "limit": "Up to {count} products can be paired with one product.",
-      "deleted": "Deleted",
-      "unpublished": "Not published",
       "suggestionsLabel": "Product suggestions",
       "noSuggestions": "No products match.",
       "suggestionCount": "Product suggestions: {count}"
@@ -324,17 +314,10 @@
       "invalid": "The VAT rate must be a percent from 0 to 100, with at most two decimals."
     },
     "packaging": {
-      "heading": "Packaging",
       "hint": "Leave a unit empty if the product is not sold that way.",
-      "piecesPerPack": "Pack contains",
-      "packsPerBox": "Box contains",
       "minPieceQty": "Minimum pieces",
       "minPieceQtyHint": "The smallest order. Piece orders then move by one pack, or one piece if this is under a pack.",
-      "boxVolume": "Box volume",
-      "boxWeight": "Box weight",
       "boxCount": "Boxes shipped",
-      "pieceSuffix": "pcs",
-      "packSuffix": "pk",
       "pricePerPack": "{price} per pack",
       "pricePerBox": "{price} per box",
       "notSoldPerPack": "Not sold per pack",
@@ -355,9 +338,6 @@
   },
   "productList": {
     "title": "Products",
-    "count": "Products: {count}",
-    "deletedBadge": "Deleted",
-    "unpublishedBadge": "Not published",
     "empty": "No products yet.",
     "noResults": "No products match these filters.",
     "updated": "Updated",
@@ -370,8 +350,6 @@
     "filterCategory": "Filter by category",
     "stateAll": "All states",
     "stateLive": "Live",
-    "stateUnpublished": "Not published",
-    "stateDeleted": "Deleted",
     "deletedMatches": "Deleted products matching: {count}.",
     "showDeleted": "Show deleted products",
     "allCategories": "All categories",
@@ -389,7 +367,6 @@
     "clearDocument": "Clear the document filter",
     "tierPricedYes": "Priced in this list",
     "tierPricedNo": "Not priced in this list",
-    "unpricedBadge": "No price",
     "noPrice": "—",
     "missingGroup": "Missing",
     "hasGroup": "Has",
@@ -424,7 +401,6 @@
     "addChild": "Add subcategory",
     "seeProducts": "See category products",
     "editProducts": "Edit category products",
-    "products": "Products: {count}",
     "noProducts": "No products yet",
     "directProducts": "Products without subcategories: {count}",
     "notShown": "Not shown in the shop",
@@ -756,7 +732,6 @@
     "keyPlaceholder": "wholesale",
     "keyHint": "The catalog file addresses this list as a “price:wholesale” column. One word — letters, digits, hyphens and underscores.",
     "accounts": "Customers: {count}",
-    "prices": "Products: {count}",
     "seeAccounts": "Show the accounts on this price list",
     "seePrices": "Show the products this tier prices",
     "defaultHint": "Guests, staff and customers without a tier are charged this list.",
@@ -852,7 +827,6 @@
     "slug": "URL key",
     "slugPlaceholder": "from the name",
     "slugInvalid": "Use lowercase letters, digits and hyphens, e.g. “colour”.",
-    "products": "Products: {count}",
     "values": "Values: {count}",
     "unparsed": "Values that cannot be read as a number: {count}. They stay on the product page and are left out of this filter.",
     "noMatch": "No product carries an attribute with this name. Check the spelling against a product's attribute table.",
@@ -909,7 +883,6 @@
     "toDefinitions": "Filterable attributes",
     "toDefinition": "Filterable — show its definition",
     "notFilterable": "Not filterable",
-    "products": "Products: {count}",
     "values": "Values: {count}",
     "notNumeric": "not a number",
     "emptyValue": "(no value)",
@@ -948,7 +921,6 @@
     "edit": "Edit",
     "delete": "Delete",
     "productsColumn": "Products",
-    "products": "Products: {count}",
     "seeProducts": "Show the products this document is on",
     "noProducts": "No product shows this document yet",
     "empty": "No documents yet.",
@@ -956,9 +928,7 @@
     "loadError": "The documents could not be loaded. Please try again.",
     "deleteTitle": "Delete document",
     "deleteConfirm": "Delete “{name}”? The file is removed from the shop.",
-    "deleteError": "This document could not be deleted. Please try again.",
-    "sizeKb": "{size} kB",
-    "sizeMb": "{size} MB"
+    "deleteError": "This document could not be deleted. Please try again."
   },
   "documentEditor": {
     "newTitle": "New document",
@@ -994,8 +964,6 @@
       "more": "Showing the first {count} of {total}. Narrow the search or pick a category to reach the rest.",
       "empty": "No product matches this search.",
       "noneLinked": "This document is not on any product yet.",
-      "deleted": "Deleted",
-      "unpublished": "Not published",
       "loadError": "The products could not be loaded. Please try again."
     },
     "titleRequired": "A title is required.",
@@ -1046,6 +1014,12 @@
     "added": "Added",
     "removed": "Removed",
     "shipment": "Estimated weight and volume"
+  },
+  "products": {
+    "deleted": "Deleted",
+    "unpublished": "Not published",
+    "unpriced": "No price",
+    "count": "Products: {count}"
   },
   "orderList": {
     "title": "Orders",
@@ -1237,10 +1211,6 @@
       "addPlaceholder": "Search by name",
       "noMatches": "Nothing matches that.",
       "empty": "An order needs at least one line.",
-      "unpublished": "Not published",
-      "deleted": "Deleted",
-      "outOfStock": "Out of stock",
-      "pieces": "pcs",
       "offList": "Off list"
     },
     "partyKindPerson": "A person",

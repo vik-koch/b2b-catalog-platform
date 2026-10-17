@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -29,6 +31,7 @@ async function render(state: ProductRowState, owned: OwnershipArea[] = []) {
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ConfirmService, useValue: { tell } },
       provideOwnership(...owned),
     ],

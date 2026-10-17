@@ -40,6 +40,14 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
   **Server-only**, like the mail text. The branding (shop name, header colour), the typeface and the
   money formatting come from `deployment.json`.
 
+A name that reads the same to customers and staff is in `common-text.json`
+once; where staff word a thing differently (order statuses, the messages under
+a field), theirs is in `admin-text.json`, and in `mail-text.json` where a staff
+mail needs it. `common-text.json` reaches every visitor, so nothing only staff
+read goes there. Wording for entries the deployment itself defines — delivery
+zones, collection points, company-ID formats — sits beside those entries in
+`deployment.json`. ADR 0018 (amendment) has the reasons.
+
 Each container is pointed at its file by the stack `.env` (compose defaults them
 to the paths below, so this is only needed to rename a file):
 
@@ -214,10 +222,11 @@ its own rate; staff screens state every line's rate regardless. An order keeps
 the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
-The wording is `tax` and `conditions.tax*` in `app-text.json`, and `tax` in
-`common-text.json` for the mails and the order summary. `{rate}` is the rate
-written as the deployment writes numbers; the `mixed` forms are the totals that
-name no rate.
+The statements are `tax` in `common-text.json`, one wording for the storefront,
+the mails and the order summary; `tax` in `app-text.json` holds only what the
+storefront adds beside a price and under a listing, and `conditions.tax*` the
+conditions page. `{rate}` is the rate written as the deployment writes numbers;
+the `mixed` forms are the totals that name no rate.
 
 ### Retention
 

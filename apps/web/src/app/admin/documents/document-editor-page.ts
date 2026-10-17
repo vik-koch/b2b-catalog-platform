@@ -9,6 +9,7 @@ import {
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
 import { Button } from '../../ui/button';
@@ -289,6 +290,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documentEditor;
   protected readonly listText = inject(ADMIN_TEXT).documentList;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
   protected readonly issuedId = 'document-issued-at';
@@ -334,7 +336,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected meta(stored: StoredDocumentFile): string {
     return `${documentFileLabel(stored.contentType)} · ${documentFileSize(
       stored.byteSize,
-      this.listText,
+      this.sizes,
     )}`;
   }
 

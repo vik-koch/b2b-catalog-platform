@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
@@ -29,6 +31,7 @@ describe('unsavedChangesGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         {
           provide: ConfirmService,
           useValue: {

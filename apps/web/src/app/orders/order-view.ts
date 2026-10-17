@@ -1,7 +1,6 @@
-import { fillText, OrderLine } from '@b2b-catalog-platform/shared';
+import { CommonText, fillText, OrderLine } from '@b2b-catalog-platform/shared';
 import { formatUnitQuantity } from '../catalog/quantity';
 import { CurrencyConfig } from '../catalog/price';
-import { AppText } from '../config/app-text.type';
 
 /**
  * How an order reads to the customer it belongs to.
@@ -22,20 +21,19 @@ export function customerQuantity(
   // Only the three fields a quantity is read from, so a screen holding a
   // priced line rather than a placed one reads it in the same words.
   line: Pick<OrderLine, 'unit' | 'quantity' | 'pieces'>,
-  text: AppText,
+  common: CommonText,
   currency: CurrencyConfig,
 ): string {
-  const review = text.checkout.review;
   const qty = formatUnitQuantity(line.quantity, currency);
-  const unit = text.catalog.units[line.unit];
+  const unit = common.units[line.unit];
   if (line.unit === 'piece') {
-    return fillText(review.quantity, { qty, unit });
+    return fillText(common.quantity, { qty, unit });
   }
-  return fillText(review.quantityPieces, {
+  return fillText(common.quantityPieces, {
     qty,
     unit,
     pieces: formatUnitQuantity(line.pieces, currency),
-    pieceUnit: text.catalog.units.piece,
+    pieceUnit: common.units.piece,
   });
 }
 

@@ -11,6 +11,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { fillText, LinkedDocument } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { HighlightedLine } from '../../core/highlighted-line';
@@ -70,7 +71,7 @@ const SUGGESTIONS_SHOWN = 8;
       [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
-        [label]="text.heading"
+        [label]="product.documents"
         [count]="value().length"
         [countLabel]="countLabel()"
         [open]="open()"
@@ -187,6 +188,7 @@ export class ProductDocumentsEditor implements OnInit {
   private readonly service = inject(DocumentsService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.documents;
+  protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
 
   readonly value = input.required<readonly LinkedDocument[]>();

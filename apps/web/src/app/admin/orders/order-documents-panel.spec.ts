@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminOrderDetail,
@@ -43,6 +45,7 @@ async function render(
     imports: [OrderDocumentsPanel],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ConfirmService, useValue: { ask: vi.fn(async () => true) } },
       {
         provide: AdminOrdersService,

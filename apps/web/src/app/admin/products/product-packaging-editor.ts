@@ -2,6 +2,7 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { injectNarrowScreen } from '../../core/narrow-screen';
 import { FieldLabel } from '../../ui/field-label';
@@ -65,7 +66,7 @@ export function parseCount(text: string): number | null {
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
     <fieldset class="min-w-0">
-      <legend appFieldLabel>{{ text.heading }}</legend>
+      <legend appFieldLabel>{{ packing.heading }}</legend>
       <p class="mb-2 text-xs text-subtle">{{ text.hint }}</p>
 
       @if (narrow()) {
@@ -175,6 +176,8 @@ export function parseCount(text: string): number | null {
 export class ProductPackagingEditor {
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly text = inject(ADMIN_TEXT).productEditor.packaging;
+  protected readonly packing = inject(COMMON_TEXT).packaging;
+  private readonly unitNames = inject(COMMON_TEXT).units;
   private readonly unavailable =
     inject(ADMIN_TEXT).productEditor.packagingUnavailable;
   /** Below `md` a three-column table of typed cells has no room; the glyph
@@ -224,28 +227,28 @@ export class ProductPackagingEditor {
     });
 
     return [
-      row('piecesPerPack', this.text.piecesPerPack, {
+      row('piecesPerPack', this.packing.packContains, {
         placeholder: this.text.notSoldPerPack,
-        suffix: this.text.pieceSuffix,
+        suffix: this.unitNames.piece,
         price: prices.pack,
       }),
       row('minPieceQty', this.text.minPieceQty, {
         placeholder: '1',
-        suffix: this.text.pieceSuffix,
+        suffix: this.unitNames.piece,
         hint: this.text.minPieceQtyHint,
       }),
-      row('packsPerBox', this.text.packsPerBox, {
+      row('packsPerBox', this.packing.boxContains, {
         placeholder: this.text.notSoldPerBox,
-        suffix: this.text.packSuffix,
+        suffix: this.unitNames.pack,
         price: prices.box,
         enabled: hasPack,
       }),
-      row('boxVolume', this.text.boxVolume, {
+      row('boxVolume', this.packing.boxVolume, {
         suffix: this.units.volume,
         decimal: true,
         enabled: hasBox,
       }),
-      row('boxWeight', this.text.boxWeight, {
+      row('boxWeight', this.packing.boxWeight, {
         suffix: this.units.weight,
         decimal: true,
         enabled: hasBox,

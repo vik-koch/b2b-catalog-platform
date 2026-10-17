@@ -20,6 +20,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../catalog/price.pipe';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { APP_TEXT } from '../../config/app-text';
 import { delayedLoading } from '../../core/delayed-loading';
 import { usePageSeo } from '../../core/page-seo';
@@ -204,7 +205,7 @@ function knownValues<T extends string>(
           </td>
           <td class="text-stone-700">
             @if (item.priceMinor === null) {
-              <span [title]="text.unpricedBadge">{{ text.noPrice }}</span>
+              <span [title]="productStates.unpriced">{{ text.noPrice }}</span>
             } @else {
               {{ item.priceMinor | price }}
             }
@@ -304,7 +305,7 @@ function knownValues<T extends string>(
             <ng-container recordMeta>
               <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
                 @if (item.priceMinor === null) {
-                  {{ text.unpricedBadge }}
+                  {{ productStates.unpriced }}
                 } @else {
                   {{ item.priceMinor | price }}
                 }
@@ -380,6 +381,7 @@ export class ProductListPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productList;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
+  protected readonly productStates = inject(ADMIN_TEXT).products;
   private readonly settings = inject(SettingsService);
   private readonly purgeText: PurgeText = {
     ...this.editText,
@@ -395,7 +397,8 @@ export class ProductListPage {
   protected readonly catalogText = inject(APP_TEXT).catalog;
   /** The storefront's three words for a stock state, reused rather than
    * restated: the grid and the badge a customer sees name one fact. */
-  protected readonly availabilityText = this.catalogText.availability;
+  protected readonly availabilityText =
+    inject(COMMON_TEXT).product.availability;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
@@ -806,8 +809,10 @@ export class ProductListPage {
     deletedAt: string | null;
     publishedAt: string | null;
   }): string {
-    if (item.deletedAt) return this.text.stateDeleted;
-    return item.publishedAt ? this.text.stateLive : this.text.stateUnpublished;
+    if (item.deletedAt) return this.productStates.deleted;
+    return item.publishedAt
+      ? this.text.stateLive
+      : this.productStates.unpublished;
   }
 
   protected stateTone(item: {
@@ -832,7 +837,7 @@ export class ProductListPage {
 
   /** The editor's own word for a piece, not a second spelling of it: a
    * deployment that says "ea" or "St." says it once. */
-  protected readonly pieceSuffix = this.productText.packaging.pieceSuffix;
+  protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
 
   /** What the badge says when it is read rather than seen: the figure and the
    * state it resolves to. The unit is in the wording of `stockLabel`, so the
@@ -880,8 +885,8 @@ export class ProductListPage {
   protected readonly stateOptions: GridFilterOption[] = [
     { value: '', label: this.text.stateAll },
     { value: 'live', label: this.text.stateLive },
-    { value: 'unpublished', label: this.text.stateUnpublished },
-    { value: 'deleted', label: this.text.stateDeleted },
+    { value: 'unpublished', label: this.productStates.unpublished },
+    { value: 'deleted', label: this.productStates.deleted },
   ];
 
   protected products = resource({

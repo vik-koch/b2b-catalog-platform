@@ -368,6 +368,7 @@ export class TierListPage {
   private readonly confirm = inject(ConfirmService);
   private readonly settings = inject(SettingsService);
   protected readonly text = inject(ADMIN_TEXT).tierList;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
@@ -496,7 +497,7 @@ export class TierListPage {
   }
 
   protected pricesLabel(count: number): string {
-    return this.text.prices.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 
   protected unpricedLabel(count: number): string {

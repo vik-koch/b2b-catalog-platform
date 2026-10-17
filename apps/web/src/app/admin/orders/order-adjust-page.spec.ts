@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -9,7 +10,6 @@ import {
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../config/admin-text.fixture';
-import { COMMON_TEXT } from '../../config/common-text';
 import { defaultCommonText } from '../../config/common-text.fixture';
 import { APP_TEXT } from '../../config/app-text';
 import { defaultAppText } from '../../config/app-text.fixture';
@@ -158,6 +158,7 @@ function render(
       { provide: COMMON_TEXT, useValue: defaultCommonText },
       provideOwnership(...owned),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: AdminOrdersService,

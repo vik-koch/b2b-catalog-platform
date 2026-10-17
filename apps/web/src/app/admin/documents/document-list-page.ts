@@ -16,6 +16,7 @@ import {
   ProductDocument,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { delayedLoading } from '../../core/delayed-loading';
@@ -288,6 +289,8 @@ export class DocumentListPage {
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).documentList;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly editorFrom = injectEditorReturnParams();
 
@@ -434,7 +437,7 @@ export class DocumentListPage {
   protected readonly pageError = signal<string | null>(null);
 
   protected productCount(document: ProductDocument): string {
-    return fillText(this.text.products, { count: document.productCount });
+    return fillText(this.productsText.count, { count: document.productCount });
   }
 
   /** Where the title leads: the file, or the link when there is none. */
@@ -448,7 +451,7 @@ export class DocumentListPage {
       file &&
         `${documentFileLabel(file.contentType)} · ${documentFileSize(
           file.byteSize,
-          this.text,
+          this.sizes,
         )}`,
       link && this.text.link,
     ]

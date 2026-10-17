@@ -17,6 +17,7 @@ import { formatPriceMinor } from '../catalog/price';
 import { ProductPairings } from '../catalog/product-pairings';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { debounced } from '../core/debounced';
 import { delayedLoading } from '../core/delayed-loading';
@@ -516,7 +517,7 @@ export class CartPage {
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */
-  private readonly pieceUnit = inject(APP_TEXT).catalog.units.piece;
+  private readonly pieceUnit = inject(COMMON_TEXT).units.piece;
   /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
   private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
 

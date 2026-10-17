@@ -258,7 +258,7 @@ export class AdminOrderRevisionPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.appText, this.currency),
+      quantity: customerQuantity(line, this.commonText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Always, for staff: the rate is what a line reconciles against the
       // shop's own invoice by, shared with its neighbours or not.

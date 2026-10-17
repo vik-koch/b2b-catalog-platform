@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -164,7 +166,9 @@ async function render(
     imports: [ProductEditorPage],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       options.catalogOwned ? provideOwnership('catalog') : provideOwnership(),
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: Router, useValue: { navigate: h.navigate } },
@@ -219,7 +223,6 @@ async function render(
 /** The price field's caption, which names the list it writes. */
 const priceLabel = fillText(text.priceWithList, { list: baseList.label });
 /** The badge wording, shared with the storefront's hidden-products overlay. */
-const editText = defaultAdminText.editMode;
 
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
   // A mandatory field's caption carries a trailing asterisk; the caption is
@@ -811,7 +814,7 @@ describe('ProductEditorPage', () => {
 
       // The note's box beside it, opened while the note is still off.
       buttonByText(el, text.lineNote.heading).click();
-      buttonByText(el, variantsText.heading).click();
+      buttonByText(el, defaultCommonText.product.variants).click();
       fixture.detectChanges();
       setInput(
         box(el).querySelector(
@@ -1001,9 +1004,11 @@ describe('ProductEditorPage', () => {
         { product: publishedProduct },
       );
 
-      expect(el.textContent).not.toContain(editText.unpublishedBadge);
-      expect(el.textContent).not.toContain(editText.unpricedBadge);
-      expect(el.textContent).not.toContain(editText.deletedBadge);
+      expect(el.textContent).not.toContain(
+        defaultAdminText.products.unpublished,
+      );
+      expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
+      expect(el.textContent).not.toContain(defaultAdminText.products.deleted);
     });
 
     it('badges a deleted product as deleted only, and offers no publish', async () => {
@@ -1020,8 +1025,10 @@ describe('ProductEditorPage', () => {
 
       // Restoring is the one step back from deleted (FR-ADM-01), so the
       // unpublished badge and the publish button would only point past it.
-      expect(el.textContent).toContain(editText.deletedBadge);
-      expect(el.textContent).not.toContain(editText.unpublishedBadge);
+      expect(el.textContent).toContain(defaultAdminText.products.deleted);
+      expect(el.textContent).not.toContain(
+        defaultAdminText.products.unpublished,
+      );
       expect(el.textContent).not.toContain(text.saveAndPublish);
     });
 
@@ -1032,14 +1039,14 @@ describe('ProductEditorPage', () => {
         { product: publishedProduct },
       );
 
-      expect(el.textContent).not.toContain(editText.unpricedBadge);
+      expect(el.textContent).not.toContain(defaultAdminText.products.unpriced);
 
       setInput(inputByLabel(el, priceLabel), '');
       fixture.detectChanges();
 
       // What the product will be after the save, which is the question
       // somebody editing it is asking.
-      expect(el.textContent).toContain(editText.unpricedBadge);
+      expect(el.textContent).toContain(defaultAdminText.products.unpriced);
     });
   });
 

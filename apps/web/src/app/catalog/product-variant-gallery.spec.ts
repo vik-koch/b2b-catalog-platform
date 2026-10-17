@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ProductImage, ProductVariant } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
@@ -32,7 +34,10 @@ function render(
 ): ComponentFixture<ProductVariantGallery> {
   TestBed.configureTestingModule({
     imports: [ProductVariantGallery],
-    providers: [{ provide: APP_TEXT, useValue: defaultAppText }],
+    providers: [
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+    ],
   });
   const fixture = TestBed.createComponent(ProductVariantGallery);
   fixture.componentRef.setInput('images', given.images ?? images);

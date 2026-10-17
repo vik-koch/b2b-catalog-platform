@@ -1,9 +1,9 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OrderDetail } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import { COMMON_TEXT } from '../config/common-text';
 import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
@@ -157,7 +157,6 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
   // NFR-LEGAL-11: the basis the order was submitted under, whatever the
   // deployment quotes today, and each line's rate once they differ.
   it('states the order’s own basis, and each line’s rate once they differ', async () => {
-    const tax = defaultAppText.tax;
     const { el } = await render({
       ...placed,
       taxBasis: 'added',
@@ -165,9 +164,9 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     });
     const text = el.textContent ?? '';
 
-    expect(text).toContain(tax.mixed.added);
-    expect(text).toContain(tax.line.replace('{rate}', '7'));
-    expect(text).toContain(tax.line.replace('{rate}', '19'));
+    expect(text).toContain(defaultCommonText.tax.mixed.added);
+    expect(text).toContain(defaultCommonText.tax.line.replace('{rate}', '7'));
+    expect(text).toContain(defaultCommonText.tax.line.replace('{rate}', '19'));
   });
 
   it('links a line only while its product can still be opened', async () => {

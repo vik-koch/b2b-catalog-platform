@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -51,6 +53,7 @@ async function render(available = true, given = item) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -167,7 +170,7 @@ describe('ProductRow', () => {
       const mark = el.querySelector<HTMLButtonElement>(
         'app-product-variants-mark button',
       );
-      expect(mark?.textContent).toContain(variantsText.mark);
+      expect(mark?.textContent).toContain(defaultCommonText.product.variants);
       expect(mark?.getAttribute('aria-expanded')).toBe('false');
     });
 

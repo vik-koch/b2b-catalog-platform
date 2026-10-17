@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CustomerTier, fillText } from '@b2b-catalog-platform/shared';
@@ -81,7 +83,9 @@ async function render(
       // The price count links into the product grid.
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       provideOwnership(...(options.owned ? (['catalog'] as const) : [])),
       { provide: TiersService, useValue: service },
@@ -349,7 +353,9 @@ describe('TierListPage', () => {
     expect(service.remove).not.toHaveBeenCalled();
     const alert = el.querySelector('[role="alert"]');
     expect(alert?.textContent).toContain(fillText(text.accounts, { count: 3 }));
-    expect(alert?.textContent).toContain(fillText(text.prices, { count: 12 }));
+    expect(alert?.textContent).toContain(
+      fillText(defaultAdminText.products.count, { count: 12 }),
+    );
   });
 
   it('keeps the tier when the confirmation is declined', async () => {

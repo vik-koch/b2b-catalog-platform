@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { Location } from '@angular/common';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -73,6 +75,7 @@ async function renderAt(url?: string) {
     providers: [
       provideRouter([{ path: '**', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: CatalogService, useValue: catalogStub },
       { provide: CartService, useValue: cartStub },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
@@ -167,6 +170,7 @@ describe('SearchField', () => {
       providers: [
         provideRouter([{ path: '**', children: [] }]),
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         { provide: CatalogService, useValue: catalogStub },
         { provide: CartService, useValue: cartStub },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },

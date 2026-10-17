@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminProductListItem,
@@ -44,6 +46,7 @@ async function render(value: PairedProduct[] = [], ownSlug = 'cup') {
     imports: [ProductPairingsEditor],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AdminCatalogService, useValue: { listProducts } },
     ],
@@ -186,7 +189,7 @@ describe('ProductPairingsEditor (FR-SET-01)', () => {
     ]);
 
     expect(el.textContent).toContain('Gone lid');
-    expect(el.textContent).toContain(text.deleted);
+    expect(el.textContent).toContain(defaultAdminText.products.deleted);
 
     const remove = el.querySelector<HTMLButtonElement>(
       `button[aria-label="${text.remove.replace('{name}', 'Gone lid')}"]`,

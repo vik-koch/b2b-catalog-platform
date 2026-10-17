@@ -266,11 +266,6 @@ export const adminTextSchema = z
         /** The overlay under a category grid: everything the storefront hides. */
         hiddenHeading: z.string(),
         hiddenHint: z.string(),
-        deletedBadge: z.string(),
-        unpublishedBadge: z.string(),
-        /** A product no price list prices, and why the publish button will
-         * not take it back onto the storefront. */
-        unpricedBadge: z.string(),
         unpricedHint: z.string(),
         /** The heading over that explanation, where a click asks for it. */
         unpricedTitle: z.string(),
@@ -382,7 +377,6 @@ export const adminTextSchema = z
         slugHint: z.string(),
         sourceId: z.string(),
         sourceIdHint: z.string(),
-        description: z.string(),
         previewNotice: z.string(),
         discardConfirm: z.string(),
         nameRequired: z.string(),
@@ -416,8 +410,6 @@ export const adminTextSchema = z
             /** `{count}` is the number of names checked. */
             addKeysApply: z.string(),
             inTable: z.string(),
-            /** `{count}` products carry the name. */
-            products: z.string(),
             /** The row badges: what the shop does with this attribute. */
             filterable: z.string(),
             notNumeric: z.string(),
@@ -456,7 +448,6 @@ export const adminTextSchema = z
         /** The variants an assorted product's pictures show (FR-CAT-11/12). */
         variants: z
           .object({
-            heading: z.string(),
             hint: z.string(),
             /** A variant's name field, for a screen reader. */
             name: z.string(),
@@ -534,7 +525,6 @@ export const adminTextSchema = z
          */
         documents: z
           .object({
-            heading: z.string(),
             hint: z.string(),
             add: z.string(),
             addPlaceholder: z.string(),
@@ -552,7 +542,6 @@ export const adminTextSchema = z
         /** The products this one is sold together with (FR-SET-01). */
         pairings: z
           .object({
-            heading: z.string(),
             hint: z.string(),
             /** The search field's label. */
             add: z.string(),
@@ -561,9 +550,6 @@ export const adminTextSchema = z
             remove: z.string(),
             /** `{count}` — shown once no more can be added. */
             limit: z.string(),
-            /** The two states a counterpart can be in and still be listed. */
-            deleted: z.string(),
-            unpublished: z.string(),
             suggestionsLabel: z.string(),
             noSuggestions: z.string(),
             /** `{count}`, for the live region. */
@@ -600,18 +586,10 @@ export const adminTextSchema = z
         /** Units of sale, and how many pieces the price covers (FR-UNIT-*). */
         packaging: z
           .object({
-            heading: z.string(),
             hint: z.string(),
-            piecesPerPack: z.string(),
-            packsPerBox: z.string(),
             minPieceQty: z.string(),
             /** Under the field: the minimum is a floor, not the increment. */
             minPieceQtyHint: z.string(),
-            /** Sits inside a piece-count field, after the number. */
-            pieceSuffix: z.string(),
-            packSuffix: z.string(),
-            boxVolume: z.string(),
-            boxWeight: z.string(),
             boxCount: z.string(),
             notSoldPerPack: z.string(),
             notSoldPerBox: z.string(),
@@ -631,11 +609,6 @@ export const adminTextSchema = z
     productList: z
       .object({
         title: z.string(),
-        /** How many rows the list holds, filters applied. */
-        count: z.string(),
-        deletedBadge: z.string(),
-        /** Marks a product that is not on the storefront yet (FR-ADM-06). */
-        unpublishedBadge: z.string(),
         empty: z.string(),
         /** Shown instead of `empty` when filters are what emptied the list. */
         noResults: z.string(),
@@ -659,9 +632,6 @@ export const adminTextSchema = z
          * gap. */
         tierPricedYes: z.string(),
         tierPricedNo: z.string(),
-        /** The grid's marker for a product no list prices, and what stands in
-         * the price column for it. */
-        unpricedBadge: z.string(),
         noPrice: z.string(),
         /** The document list's drill-down, a chip for the same reason. */
         filterDocument: z.string(),
@@ -671,8 +641,6 @@ export const adminTextSchema = z
          * states" would read as an ordering rather than a column. */
         state: z.string(),
         stateLive: z.string(),
-        stateUnpublished: z.string(),
-        stateDeleted: z.string(),
         /** Under the empty list when a search found nothing in the catalog but
          * matches deleted products (FR-ADM-22): `{count}`, then the link that
          * switches to them. */
@@ -746,9 +714,6 @@ export const adminTextSchema = z
         addChild: z.string(),
         seeProducts: z.string(),
         editProducts: z.string(),
-        /** How many products stand under the category. `{count}` substituted;
-         * `noProducts` is the same fact where there are none. */
-        products: z.string(),
         noProducts: z.string(),
         /** The products filed in a category that also has subcategories,
          * leaving theirs out. `{count}` substituted. */
@@ -1270,7 +1235,6 @@ export const adminTextSchema = z
         keyHint: z.string(),
         /** Reference counts per row. `{count}` substituted at render. */
         accounts: z.string(),
-        prices: z.string(),
         /** The links those counts carry: into the customer list on this tier,
          * and into the product grid priced by it. */
         seeAccounts: z.string(),
@@ -1410,8 +1374,6 @@ export const adminTextSchema = z
         slug: z.string(),
         slugPlaceholder: z.string(),
         slugInvalid: z.string(),
-        /** Usage per row. `{count}` substituted at render. */
-        products: z.string(),
         values: z.string(),
         unparsed: z.string(),
         noMatch: z.string(),
@@ -1506,8 +1468,6 @@ export const adminTextSchema = z
          * filters by leads to its definition, a freetext one is deadened. */
         toDefinition: z.string(),
         notFilterable: z.string(),
-        /** Usage per row. `{count}` substituted at render. */
-        products: z.string(),
         values: z.string(),
         /** Marks a value that drops out of a number attribute's filter. */
         notNumeric: z.string(),
@@ -1575,7 +1535,6 @@ export const adminTextSchema = z
          * products, and the same control dead: nothing shows it yet.
          * `{count}` substituted. */
         productsColumn: z.string(),
-        products: z.string(),
         seeProducts: z.string(),
         noProducts: z.string(),
         empty: z.string(),
@@ -1586,9 +1545,6 @@ export const adminTextSchema = z
         deleteTitle: z.string(),
         deleteConfirm: z.string(),
         deleteError: z.string(),
-        /** File size, `{size}` substituted. */
-        sizeKb: z.string(),
-        sizeMb: z.string(),
       })
       .strict(),
     /**
@@ -1643,8 +1599,6 @@ export const adminTextSchema = z
             more: z.string(),
             empty: z.string(),
             noneLinked: z.string(),
-            deleted: z.string(),
-            unpublished: z.string(),
             loadError: z.string(),
           })
           .strict(),
@@ -1697,6 +1651,17 @@ export const adminTextSchema = z
         paymentStates: paymentStateLabels
           .extend({ cashOnHandover: z.string() })
           .strict(),
+      })
+      .strict(),
+    /** What every catalog screen calls a product's state, and how it counts
+     * them. */
+    products: z
+      .object({
+        deleted: z.string(),
+        unpublished: z.string(),
+        unpriced: z.string(),
+        /** `{count}` products. */
+        count: z.string(),
       })
       .strict(),
     /** Row labels for a list of changes to an order — on the adjustment
@@ -2018,14 +1983,6 @@ export const adminTextSchema = z
             addPlaceholder: z.string(),
             noMatches: z.string(),
             empty: z.string(),
-            /** What the storefront thinks of the product — staff may use it
-             * anyway. */
-            unpublished: z.string(),
-            deleted: z.string(),
-            outOfStock: z.string(),
-            /** What the quantity field on a line is counted in, printed
-             * inside it. */
-            pieces: z.string(),
             /** A line priced away from the list it would otherwise take
              * (FR-CART-09) — allowed, and worth saying. */
             offList: z.string(),

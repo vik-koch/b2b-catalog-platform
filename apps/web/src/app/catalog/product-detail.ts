@@ -107,15 +107,15 @@ import {
                 @if (statusText(); as status) {
                   @if (hidden.deleted) {
                     <span appStatusBadge tone="danger">{{
-                      status.deletedBadge
+                      status.deleted
                     }}</span>
                   } @else {
                     <span appStatusBadge tone="waiting">{{
-                      status.unpublishedBadge
+                      status.unpublished
                     }}</span>
                     @if (hidden.unpriced) {
                       <span appStatusBadge tone="danger">{{
-                        status.unpricedBadge
+                        status.unpriced
                       }}</span>
                     }
                   }
@@ -192,7 +192,7 @@ export class ProductDetail {
 
   /** The badge wording, fetched like every admin word: null until it has
    * arrived, or for good where fetching it failed. */
-  protected readonly statusText = computed(() => adminText()?.editMode ?? null);
+  protected readonly statusText = computed(() => adminText()?.products ?? null);
   private readonly textFailed = signal(false);
   private readonly statusSettled = computed(
     () => this.statusText() !== null || this.textFailed(),

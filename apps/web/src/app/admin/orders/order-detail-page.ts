@@ -863,7 +863,7 @@ export class AdminOrderDetailPage {
       before,
       versions[index],
       { ...this.changeText, total: this.names.total },
-      this.appText,
+      this.commonText,
       staffBlockLabels(this.commonText, this.ordersText, this.text),
       {
         address: this.config.address,

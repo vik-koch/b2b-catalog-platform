@@ -14,6 +14,7 @@ import {
   ProductVariant,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { injectNarrowScreen } from '../core/narrow-screen';
 import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
@@ -59,7 +60,7 @@ import { ProductVariantGallery } from './product-variant-gallery';
       (click)="toggle()"
     >
       <app-icon name="palette" class="size-3.5 shrink-0" />
-      <span [class]="word">{{ text.mark }}</span>
+      <span [class]="word">{{ product.variants }}</span>
     </button>
 
     @if (open()) {
@@ -107,6 +108,7 @@ import { ProductVariantGallery } from './product-variant-gallery';
 })
 export class ProductVariantsMark {
   protected readonly text = inject(APP_TEXT).catalog.variants;
+  protected readonly product = inject(COMMON_TEXT).product;
 
   readonly variants = input.required<readonly ProductVariant[]>();
   readonly images = input.required<readonly ProductImage[]>();

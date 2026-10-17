@@ -1,4 +1,4 @@
-import { OrderDetail } from '@b2b-catalog-platform/shared';
+import { CommonText, OrderDetail } from '@b2b-catalog-platform/shared';
 import { CurrencyConfig, formatPriceMinor } from '../../catalog/price';
 import {
   orderBlocks,
@@ -6,7 +6,6 @@ import {
   OrderBlockLabels,
 } from '../../orders/order-blocks';
 import { customerQuantity } from '../../orders/order-view';
-import { AppText } from '../../config/app-text.type';
 import { OrderChange } from './order-adjust-changes';
 
 /** The words a change list needs of its own. Everything else it says comes
@@ -54,12 +53,12 @@ export function orderChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  text: AppText,
+  common: CommonText,
   blockLabels: OrderBlockLabels,
   config: OrderChangeConfig,
 ): OrderChange[] {
   return [
-    ...orderLineChanges(before, after, labels, text, config),
+    ...orderLineChanges(before, after, labels, common, config),
     ...orderBlockChanges(before, after, blockLabels, config),
   ];
 }
@@ -78,7 +77,7 @@ export function orderLineChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  text: AppText,
+  common: CommonText,
   config: OrderChangeConfig,
 ): OrderChange[] {
   const { currency } = config;
@@ -86,7 +85,7 @@ export function orderLineChanges(
   // The customer's own reading of the quantity, unit words and all, because
   // that is the reading the rest of the order is written in.
   const line = (entry: OrderDetail['lines'][number]) =>
-    `${customerQuantity(entry, text, currency)} · ${formatPriceMinor(entry.lineTotalMinor, currency)}`;
+    `${customerQuantity(entry, common, currency)} · ${formatPriceMinor(entry.lineTotalMinor, currency)}`;
 
   const was = new Map(before.lines.map((entry) => [entry.slug, entry]));
   const is = new Map(after.lines.map((entry) => [entry.slug, entry]));

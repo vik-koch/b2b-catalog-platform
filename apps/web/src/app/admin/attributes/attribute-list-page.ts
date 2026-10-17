@@ -373,6 +373,7 @@ export class AttributeListPage {
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).attributeList;
+  private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly types = ATTRIBUTE_TYPES;
@@ -442,7 +443,7 @@ export class AttributeListPage {
   }
 
   protected productsLabel(count: number): string {
-    return this.text.products.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 
   protected valuesLabel(count: number): string {

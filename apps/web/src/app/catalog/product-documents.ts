@@ -1,6 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, PublicDocument } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import {
   documentFileLabel,
   documentFileSize,
@@ -111,6 +112,7 @@ interface DocumentRow {
 })
 export class ProductDocuments {
   protected readonly text = inject(APP_TEXT).catalog.documents;
+  private readonly sizes = inject(COMMON_TEXT).fileSize;
   protected readonly hintId = 'product-documents-hint';
 
   readonly documents = input.required<readonly PublicDocument[]>();
@@ -129,7 +131,7 @@ export class ProductDocuments {
         // What the file is and what it weighs — "PDF · 240 kB".
         caption: `${documentFileLabel(file.contentType)} · ${documentFileSize(
           file.byteSize,
-          this.text,
+          this.sizes,
         )}`,
         link: link
           ? { href: link, host, label: fillText(this.text.linkLabel, { host }) }

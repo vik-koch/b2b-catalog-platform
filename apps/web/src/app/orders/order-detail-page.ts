@@ -244,7 +244,7 @@ export class OrderDetailPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.appText, this.currency),
+      quantity: customerQuantity(line, this.commonText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Only once the lines differ: a rate the total names would otherwise
       // be said on every line for nothing.

@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { Location } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
@@ -76,7 +78,9 @@ async function render(
         withComponentInputBinding(),
       ),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AttributesService, useValue: service },
       { provide: ConfirmService, useValue: confirm },
@@ -171,7 +175,9 @@ describe('AttributeInventoryPage', () => {
     });
 
     expect(el.textContent).toContain('Colour');
-    expect(el.textContent).toContain(text.products.replace('{count}', '4'));
+    expect(el.textContent).toContain(
+      defaultAdminText.products.count.replace('{count}', '4'),
+    );
     expect(el.textContent).toContain(text.values.replace('{count}', '2'));
     // Most attributes are freetext, and none of them is a problem to be fixed:
     // the affordance is deadened in place rather than dropped, so the row's

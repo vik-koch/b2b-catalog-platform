@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../../config/common-text';
+import { defaultCommonText } from '../../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../../config/app-text';
@@ -34,7 +36,9 @@ async function render(
     imports: [PageEditor],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: PageService, useValue: { updatePage } },
     ],
   });
@@ -83,7 +87,9 @@ describe('PageEditor', () => {
       imports: [PageEditor],
       providers: [
         { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
         { provide: PageService, useValue: { updatePage: vi.fn() } },
       ],
     });

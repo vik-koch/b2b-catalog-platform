@@ -1,5 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { APP_TEXT } from '../config/app-text';
+import { COMMON_TEXT } from '../config/common-text';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
@@ -60,13 +61,14 @@ import { PairingsService } from './pairings.service';
              between the two halves is an explicit ngsp entity, which is the
              whitespace the compiler keeps. -->
         <!-- prettier-ignore -->
-        <span><button type="button" [class]="linkClass()" (click)="open()">{{ message()?.link ?? text.label }}</button>@if (message(); as said) {&ngsp;{{ said.rest }}}</span>
+        <span><button type="button" [class]="linkClass()" (click)="open()">{{ message()?.link ?? product.pairings }}</button>@if (message(); as said) {&ngsp;{{ said.rest }}}</span>
       </p>
     }
   `,
 })
 export class ProductPairings {
   protected readonly text = inject(APP_TEXT).catalog.pairings;
+  protected readonly product = inject(COMMON_TEXT).product;
   private readonly pairings = inject(PairingsService);
 
   readonly slug = input.required<string>();

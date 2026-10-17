@@ -1,3 +1,4 @@
+import { COMMON_TEXT } from '../config/common-text';
 import { signal } from '@angular/core';
 import { afterAll, beforeAll, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
@@ -6,7 +7,6 @@ import { Page as PageContent } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { loadAdminText } from '../config/admin-text';
 import { defaultAppText } from '../config/app-text.fixture';
-import { COMMON_TEXT } from '../config/common-text';
 import { defaultCommonText } from '../config/common-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';

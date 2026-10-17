@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { RESPONSE_INIT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { APP_TEXT } from '../config/app-text';
@@ -15,6 +17,7 @@ function render(responseInit?: ResponseInit) {
     imports: [LoadErrorView],
     providers: [
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       ...(responseInit
         ? [{ provide: RESPONSE_INIT, useValue: responseInit }]
         : []),

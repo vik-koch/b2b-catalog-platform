@@ -14,6 +14,7 @@ import {
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { HighlightedLine } from '../../core/highlighted-line';
 import { AlternateLayout } from '../../core/alternate-layout';
 import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
@@ -73,7 +74,7 @@ const SUGGESTIONS_SHOWN = 8;
       [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
-        [label]="text.heading"
+        [label]="product.pairings"
         [count]="value().length"
         [countLabel]="countLabel()"
         [open]="open()"
@@ -97,11 +98,11 @@ const SUGGESTIONS_SHOWN = 8;
                   <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>
                   @if (item.deleted) {
                     <span appStatusBadge tone="danger">
-                      {{ text.deleted }}
+                      {{ productStates.deleted }}
                     </span>
                   } @else if (item.unpublished) {
                     <span appStatusBadge tone="waiting">
-                      {{ text.unpublished }}
+                      {{ productStates.unpublished }}
                     </span>
                   }
                   <button
@@ -176,7 +177,7 @@ const SUGGESTIONS_SHOWN = 8;
                           </span>
                           @if (item.publishedAt === null) {
                             <span class="block text-xs text-subtle">
-                              {{ text.unpublished }}
+                              {{ productStates.unpublished }}
                             </span>
                           }
                         </li>
@@ -199,6 +200,8 @@ export class ProductPairingsEditor implements OnInit {
   private readonly service = inject(AdminCatalogService);
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.pairings;
+  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;
 
   readonly value = input.required<readonly PairedProduct[]>();

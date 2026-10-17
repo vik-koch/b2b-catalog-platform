@@ -23,6 +23,7 @@ import {
   variantNameKey,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
+import { COMMON_TEXT } from '../../config/common-text';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
 import {
@@ -75,7 +76,7 @@ let nextId = 0;
       [class]="frame + ' ' + disclosureBorder(open())"
     >
       <app-disclosure-toggle
-        [label]="text.heading"
+        [label]="product.variants"
         [count]="value().length"
         [countLabel]="countLabel()"
         [open]="open()"
@@ -234,6 +235,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.variants;
+  protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();

@@ -119,6 +119,7 @@ import { AttributeHint } from './attribute-hints';
 export class AttributeKeyPicker {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly text = inject(ADMIN_TEXT).productEditor.attributes;
+  private readonly productsText = inject(ADMIN_TEXT).products;
 
   /** Every name the catalog knows, declared or freetext, alphabetically. */
   readonly hints = input.required<readonly AttributeHint[]>();
@@ -165,6 +166,6 @@ export class AttributeKeyPicker {
   }
 
   protected productsLabel(count: number): string {
-    return this.text.products.replace('{count}', String(count));
+    return this.productsText.count.replace('{count}', String(count));
   }
 }

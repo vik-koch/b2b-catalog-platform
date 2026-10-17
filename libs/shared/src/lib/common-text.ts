@@ -63,6 +63,32 @@ export const commonTextSchema = z
         line: z.string(),
       })
       .strict(),
+    /** A product's packing, as the product page states it and the editor
+     * asks for it. */
+    packaging: z
+      .object({
+        heading: z.string(),
+        packContains: z.string(),
+        boxContains: z.string(),
+        boxVolume: z.string(),
+        boxWeight: z.string(),
+      })
+      .strict(),
+    /** What a product's parts are called, on its page and in its editor. */
+    product: z
+      .object({
+        description: z.string(),
+        documents: z.string(),
+        variants: z.string(),
+        /** The products sold together with this one. */
+        pairings: z.string(),
+        availability: z
+          .object({ in: z.string(), low: z.string(), out: z.string() })
+          .strict(),
+      })
+      .strict(),
+    /** A document's size: `{size}` in kilobytes, or megabytes from one up. */
+    fileSize: z.object({ kb: z.string(), mb: z.string() }).strict(),
     /**
      * What an order and its parts are called. The names read the same to
      * staff; the sets below them are the customer's, and staff have their own.

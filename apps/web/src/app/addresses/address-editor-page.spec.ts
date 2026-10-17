@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
@@ -80,6 +82,7 @@ async function render(options: Options = {}) {
     providers: [
       provideRouter([{ path: 'account', children: [] }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.twoCompanyIdFormats

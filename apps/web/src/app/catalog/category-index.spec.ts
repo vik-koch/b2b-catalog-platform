@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
@@ -47,6 +49,7 @@ async function render(getCategoryTree: () => Promise<CategoryNode[]>) {
     providers: [
       provideRouter([]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: CatalogService, useValue: { getCategoryTree } },
     ],
   });

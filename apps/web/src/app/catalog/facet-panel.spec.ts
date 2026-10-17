@@ -1,3 +1,5 @@
+import { COMMON_TEXT } from '../config/common-text';
+import { defaultCommonText } from '../config/common-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -38,6 +40,7 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
     providers: [
       provideRouter([{ path: '**', component: Host }]),
       { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
       // The panel reads the sort-control flag to decide whether anything
       // stands above the facets, so the token has to be there.
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
