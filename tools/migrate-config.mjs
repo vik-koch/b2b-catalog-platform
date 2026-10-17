@@ -1,18 +1,21 @@
 #!/usr/bin/env node
 /**
- * Moves a deployment's text files to the key structure of a release, keeping
- * the deployment's own wording.
+ * Moves a deployment's config directory to the structure of a release, keeping
+ * the deployment's own wording and settings.
  *
- *   node migrate-text.mjs --release 1.14.1 --config-dir <dir> [--write]
+ *   node migrate-config.mjs --release 1.14.1 --config-dir <dir> [--write]
  *
  * Without `--write` it only reports. The map for a release is
- * `text-migration/<release>.json` beside this script, or `--map <file>`: every
+ * `config-migration/<release>.json` beside this script, or `--map <file>`: every
  * new key names the old keys its value comes from, the first one the
  * deployment has wins, and a later one with a different value is reported — a
  * merge that may not hold in that deployment's language. `new` marks wording
  * that did not exist before; `copy` takes a value without moving it, where the
  * old key stays as it is. `moves` carries a whole block to a new place, with
- * whatever is left in it once those keys have gone.
+ * whatever is left in it once those keys have gone — into another file too.
+ * `files` names the files the deployment had at the release the map starts
+ * from, and where each now lives; keys name them by those names, targets by
+ * the release's. A file the map does not move keeps its name.
  *
  * Node's built-ins only, so an operator needs no checkout: this file and the
  * map, downloaded from the release tag, are enough. The deployment's files were
@@ -28,19 +31,44 @@
  * several releases behind runs each map in turn.
  */
 import { execFileSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const MAPS = join(HERE, 'text-migration');
-const FILES = [
-  'common-text.json',
-  'app-text.json',
-  'admin-text.json',
-  'mail-text.json',
-  'pdf-text.json',
-];
+const MAPS = join(HERE, 'config-migration');
+
+/** The release's files, and the schema `--check` validates each against. */
+const SCHEMAS = {
+  'deployment.json': [
+    'libs/shared/src/lib/deployment-config.ts',
+    'deploymentConfigSchema',
+  ],
+  'api.json': ['apps/api/src/config/api-config.ts', 'apiConfigSchema'],
+  'texts/common.json': [
+    'libs/shared/src/lib/common-text.ts',
+    'commonTextSchema',
+  ],
+  'texts/app.json': [
+    'apps/web/src/app/config/app-text.type.ts',
+    'appTextSchema',
+  ],
+  'texts/admin.json': [
+    'apps/web/src/app/config/admin-text.type.ts',
+    'adminTextSchema',
+  ],
+  'texts/mail.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],
+  'texts/pdf.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
+};
+const FILES = Object.keys(SCHEMAS);
+const isText = (file) => file.startsWith('texts/');
 
 const flag = (name) => {
   const at = process.argv.indexOf(`--${name}`);
@@ -54,13 +82,16 @@ const mapFile =
   join(MAPS, `${flag('release') ?? (check ? newestRelease() : '')}.json`);
 if (!existsSync(mapFile) || (!check && !configDir)) {
   console.error(
-    'usage: node migrate-text.mjs --release <version> --config-dir <dir> [--write]\n' +
-      '       node migrate-text.mjs --map <file> --config-dir <dir> [--write]\n' +
-      '       node migrate-text.mjs --check [--release <version>]',
+    'usage: node migrate-config.mjs --release <version> --config-dir <dir> [--write]\n' +
+      '       node migrate-config.mjs --map <file> --config-dir <dir> [--write]\n' +
+      '       node migrate-config.mjs --check [--release <version>]',
   );
   process.exit(2);
 }
 const map = JSON.parse(readFileSync(mapFile, 'utf8'));
+/** The files a deployment had at the release the map starts from. */
+const RENAMES = map.files ?? Object.fromEntries(FILES.map((f) => [f, f]));
+const SOURCE_FILES = Object.keys(RENAMES);
 
 function newestRelease() {
   const byVersion = (a, b) => a.localeCompare(b, undefined, { numeric: true });
@@ -103,8 +134,9 @@ const set = (files, key, value) => {
 };
 const merge = (files, key, block) => {
   const { file, path } = split(key);
+  const base = path.filter(Boolean);
   for (const [part, value] of Object.entries(block)) {
-    const at = `${file}:${[...path, part].join('.')}`;
+    const at = `${file}:${[...base, part].join('.')}`;
     if (value && typeof value === 'object' && !Array.isArray(value)) {
       merge(files, at, value);
     } else set(files, at, value);
@@ -131,7 +163,7 @@ function migrate(original) {
       }
     } else if (rule.new !== undefined) {
       values[target] = rule.new;
-      report.added.push({ target, value: rule.new });
+      report.added.push({ target, value: rule.new, file: split(target).file });
     } else if (!rule.optional) {
       report.missing.push(target);
     }
@@ -151,6 +183,11 @@ function migrate(original) {
     if (block === undefined) continue;
     remove(files, from);
     merge(files, to, block);
+  }
+  for (const [from, to] of Object.entries(RENAMES)) {
+    if (from === to || files[from] === undefined) continue;
+    merge(files, `${to}:`, files[from]);
+    delete files[from];
   }
   for (const [target, value] of Object.entries(values)) {
     set(files, target, value);
@@ -187,26 +224,9 @@ function countForms(files) {
       }
     }
   };
-  for (const file of FILES) walk(files[file], `${file}:`);
+  for (const file of FILES.filter(isText)) walk(files[file], `${file}:`);
   return found;
 }
-
-const SCHEMAS = {
-  'common-text.json': [
-    'libs/shared/src/lib/common-text.ts',
-    'commonTextSchema',
-  ],
-  'app-text.json': [
-    'apps/web/src/app/config/app-text.type.ts',
-    'appTextSchema',
-  ],
-  'admin-text.json': [
-    'apps/web/src/app/config/admin-text.type.ts',
-    'adminTextSchema',
-  ],
-  'mail-text.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],
-  'pdf-text.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
-};
 
 /** Schema problems other than the counting texts. Only for `--check`: loads
  * the schemas from source, which needs the workspace's packages. */
@@ -226,7 +246,7 @@ async function validate(files) {
 
 function readDemoAt(ref) {
   const files = {};
-  for (const file of FILES) {
+  for (const file of SOURCE_FILES) {
     try {
       files[file] = JSON.parse(
         execFileSync('git', ['show', `${ref}:config/${file}`], {
@@ -241,9 +261,9 @@ function readDemoAt(ref) {
   return files;
 }
 
-function readDir(dir) {
+function readDir(dir, names) {
   const files = {};
-  for (const file of FILES) {
+  for (const file of names) {
     const path = join(dir, file);
     if (existsSync(path)) files[file] = JSON.parse(readFileSync(path, 'utf8'));
   }
@@ -257,21 +277,38 @@ function section(title, lines) {
   for (const line of lines) console.log(`  ${line}`);
 }
 
-const original = check ? readDemoAt(map.from) : readDir(configDir);
+const original = check
+  ? readDemoAt(map.from)
+  : readDir(configDir, SOURCE_FILES);
 const { files, report } = migrate(original);
 // Run from a checkout, the release's demo config sits beside the tools.
-const demo = readDir(join(HERE, '..', 'config'));
+const demo = readDir(join(HERE, '..', 'config'), FILES);
+const moved = Object.entries(RENAMES).filter(
+  ([from, to]) => from !== to && original[from] !== undefined,
+);
 for (const file of FILES) {
   if (files[file]) files[file] = orderedLike(files[file], demo[file]);
 }
 
 console.log(
-  `migrate-text: ${map.from} → ${mapFile.replace(/.*\//, '').replace(/\.json$/, '')}, ` +
+  `migrate-config: ${map.from} → ${mapFile.replace(/.*\//, '').replace(/\.json$/, '')}, ` +
     (check ? `demo config at ${map.from}` : configDir),
 );
 section(
+  'Moved files:',
+  moved.map(([from, to]) => `${from} → ${to}`),
+);
+section(
   'New wording, written in English — translate it:',
-  report.added.map(({ target, value }) => `${target} = ${quoted(value)}`),
+  report.added
+    .filter(({ file }) => isText(file))
+    .map(({ target, value }) => `${target} = ${quoted(value)}`),
+);
+section(
+  "New settings, set to the demo's value — decide them:",
+  report.added
+    .filter(({ file }) => !isText(file))
+    .map(({ target, value }) => `${target} = ${quoted(value)}`),
 );
 section(
   'Merged keys whose values differed — the first was kept, check it reads right everywhere:',
@@ -308,12 +345,17 @@ if (check) {
 } else if (write) {
   const written = FILES.filter((file) => files[file]);
   for (const file of written) {
+    mkdirSync(dirname(join(configDir, file)), { recursive: true });
     writeFileSync(
       join(configDir, file),
       `${JSON.stringify(files[file], null, 2)}\n`,
     );
   }
-  console.log(`\nWrote ${written.length} files to ${configDir}.`);
+  for (const [from] of moved) rmSync(join(configDir, from));
+  console.log(
+    `\nWrote ${written.length} files to ${configDir}` +
+      (moved.length ? ` and removed the ${moved.length} they replace.` : '.'),
+  );
 } else {
   console.log('\nNothing written. Pass --write to write the files.');
 }
