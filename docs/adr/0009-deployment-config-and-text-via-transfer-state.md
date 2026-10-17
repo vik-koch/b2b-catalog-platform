@@ -3,7 +3,8 @@
 **Status:** accepted · **Date:** 2026-07-20 · **Amended:** 2026-07-25 (delivery
 mechanism: TransferState → an injected `<script>`), 2026-07-30 (the text is split
 by audience; the admin half is fetched), 2026-09-10 (a counting text may carry a
-singular and a plural form) — see the _Amendments_ below
+singular and a plural form), 2026-10-14 (withdrawn again: counting texts are
+worded without plural forms) — see the _Amendments_ below
 
 ## Context
 
@@ -191,3 +192,23 @@ table; the mechanism is there for it if that ever stops being true.
 - (−) A `|` in a counting text is now syntax. A deployment that wants a literal
   one in such a string cannot have it — no text does today, and the ones that
   count are the only ones affected.
+
+## Amendment 4 — 2026-10-14: counting texts carry no plural forms
+
+Amendment 3 left two conventions side by side: the storefront's `|` forms and
+the admin's `product(s)`. Neither carries into another language. Two forms only
+fit a language with exactly two, and `(s)` only fits English. A deployment whose
+language has more forms already words around the number, and that is the one
+convention that works everywhere: the count stands where it needs no agreement,
+as in "Products found: {count}" or "Tries left: {count}".
+
+So that is now the only convention. `fillText` substitutes placeholders and
+nothing else. A text that contains `{count}` and a `|` fails validation at boot,
+naming its key, so an override written for Amendment 3 is reworded rather than
+shown with both forms on screen.
+
+- (+) One rule for every text and every language, and nothing for the code to
+  know about grammar.
+- (−) Some English sentences read slightly stiffer than their two-form versions.
+- (−) A deployment with `|` texts has to reword them before it boots on this
+  release.

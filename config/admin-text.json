@@ -204,9 +204,9 @@
       "addKeys": "Add attributes",
       "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
       "addKeysEmpty": "No product carries an attribute yet.",
-      "addKeysApply": "Add {count} attribute(s)",
+      "addKeysApply": "Add attributes ({count})",
       "inTable": "already here",
-      "products": "{count} product(s)",
+      "products": "Products: {count}",
       "filterable": "The shop filters by this attribute.",
       "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
       "strayPart": "“{part}” is not one of this product's parts, so this row is not filtered as “{key}”. Check the spelling against the parts above."
@@ -269,7 +269,7 @@
       "noExpiry": "No expiry",
       "suggestionsLabel": "Document suggestions",
       "noSuggestions": "No documents match.",
-      "suggestionCount": "{count} document suggestions"
+      "suggestionCount": "Document suggestions: {count}"
     },
     "pairings": {
       "heading": "Sold together",
@@ -282,7 +282,7 @@
       "unpublished": "Not published",
       "suggestionsLabel": "Product suggestions",
       "noSuggestions": "No products match.",
-      "suggestionCount": "{count} product suggestions"
+      "suggestionCount": "Product suggestions: {count}"
     },
     "stock": {
       "heading": "Stock",
@@ -329,7 +329,7 @@
   },
   "productList": {
     "title": "Products",
-    "count": "{count} product(s)",
+    "count": "Products: {count}",
     "deletedBadge": "Deleted",
     "unpublishedBadge": "Not published",
     "empty": "No products yet.",
@@ -346,14 +346,14 @@
     "stateLive": "Live",
     "stateUnpublished": "Not published",
     "stateDeleted": "Deleted",
-    "deletedMatches": "{count} deleted product(s) match.",
+    "deletedMatches": "Deleted products matching: {count}.",
     "showDeleted": "Show deleted products",
     "allCategories": "All categories",
     "categoryDirect": "{name}, without subcategories",
     "stock": "Stock",
     "stockAll": "Any stock",
     "filterStock": "Filter by stock",
-    "stockLabel": "{count} pieces in stock — {state}",
+    "stockLabel": "In stock: {count} pcs — {state}",
     "stockUntracked": "—",
     "filterAttribute": "Attribute",
     "clearAttribute": "Clear the attribute filter",
@@ -398,9 +398,9 @@
     "addChild": "Add subcategory",
     "seeProducts": "See category products",
     "editProducts": "Edit category products",
-    "products": "{count} product(s)",
+    "products": "Products: {count}",
     "noProducts": "No products yet",
-    "directProducts": "{count} product(s) without subcategories",
+    "directProducts": "Products without subcategories: {count}",
     "notShown": "Not shown in the shop",
     "editFilters": "Edit category filters",
     "catalogFilters": "Catalogue filters",
@@ -413,8 +413,8 @@
     "reorderError": "This move could not be saved. Please try again.",
     "deleteTitle": "Delete category",
     "deleteConfirm": "Delete “{name}”?",
-    "deleteReassignIntro": "“{name}” still has {count} product(s). Choose a category to move them to, then delete.",
-    "deleteReassignDeleted": "{count} of them are deleted products; they move too.",
+    "deleteReassignIntro": "Products still in “{name}”: {count}. Choose a category to move them to, then delete.",
+    "deleteReassignDeleted": "Deleted products among them: {count}. They move too.",
     "reassignLabel": "Move products to",
     "reassignPlaceholder": "Select a category…",
     "deleteBlockedChildren": "“{name}” has subcategories. Delete or move those first.",
@@ -556,9 +556,9 @@
         "company-details-incomplete": "A company needs both a name and a company ID; this row has one without the other.",
         "invalid-value": "The “{column}” column of this row says “{value}”, which is not something that column can hold. The row is skipped; the rest of the file is not."
       },
-      "claimWarning": "{count} account(s) registered on the shop will be claimed by this run, matched on their email address. From then on the source key names that person, and the next run can change their price list or switch them off. Check the rows below first.",
-      "claimByIdWarning": "{count} account(s) will be claimed by the ID the source system named. That ID came from this shop, so it is a deliberate choice rather than a guess — but it is only as right as the mapping on the other side. From then on the source key names that person.",
-      "disableWarning": "{count} customer(s) will lose access. They stay in the account list and can be switched back on."
+      "claimWarning": "Accounts registered on the shop that this run will claim, matched on their email address: {count}. From then on the source key names that person, and the next run can change their price list or switch them off. Check the rows below first.",
+      "claimByIdWarning": "Accounts this run will claim by the ID the source system named: {count}. That ID came from this shop, so it is a deliberate choice rather than a guess — but it is only as right as the mapping on the other side. From then on the source key names that person.",
+      "disableWarning": "Customers who will lose access: {count}. They stay in the account list and can be switched back on."
     },
     "orders": {
       "ordersTitle": "Orders",
@@ -591,7 +591,7 @@
     },
     "truncated": "Only the first entries are listed; the counts above cover the whole file.",
     "nothingToApply": "This run would change nothing.",
-    "deleteWarning": "{count} product(s) will be hidden from the storefront. They stay in the catalog and can be restored.",
+    "deleteWarning": "Products to be hidden from the storefront: {count}. They stay in the catalog and can be restored.",
     "deleteConfirmLabel": "Type {word} to confirm",
     "deleteConfirmWord": "HIDE",
     "apply": "Apply these changes",
@@ -610,7 +610,7 @@
     "applied": "Applied.",
     "discard": "Discard",
     "historyEmpty": "No sync has run yet.",
-    "historyCount": "{count} run(s)",
+    "historyCount": "Runs: {count}",
     "mode": {
       "full": "Complete catalog export",
       "fullHint": "The file lists every product. Names, prices and categories are updated, new products are added, and products missing from the file can be hidden.",
@@ -729,8 +729,8 @@
     "key": "Sync key",
     "keyPlaceholder": "wholesale",
     "keyHint": "The catalog file addresses this list as a “price:wholesale” column. One word — letters, digits, hyphens and underscores.",
-    "accounts": "{count} customer(s)",
-    "prices": "{count} product(s)",
+    "accounts": "Customers: {count}",
+    "prices": "Products: {count}",
     "seeAccounts": "Show the accounts on this price list",
     "seePrices": "Show the products this tier prices",
     "defaultHint": "Guests, staff and customers without a tier are charged this list.",
@@ -756,9 +756,9 @@
     "setDefault": "Show this list on the storefront",
     "setDefaultTitle": "Change the storefront's price list",
     "setDefaultConfirm": "Show “{name}” to everybody who is not on a tier?",
-    "setDefaultWarning": "{count} product(s) have no price in this list and will be taken off the storefront until somebody prices them.",
+    "setDefaultWarning": "Products without a price in this list: {count}. They will be taken off the storefront until somebody prices them.",
     "setDefaultNone": "Every product on the storefront has a price in this list.",
-    "setDefaultDone": "{count} product(s) were taken off the storefront.",
+    "setDefaultDone": "Products taken off the storefront: {count}.",
     "setDefaultError": "The storefront's price list could not be changed. Please try again.",
     "seeUnpriced": "Show the products this list does not price",
     "unpriced": "{count} not priced"
@@ -826,9 +826,9 @@
     "slug": "URL key",
     "slugPlaceholder": "from the name",
     "slugInvalid": "Use lowercase letters, digits and hyphens, e.g. “colour”.",
-    "products": "{count} product(s)",
-    "values": "{count} value(s)",
-    "unparsed": "{count} value(s) cannot be read as a number. They stay on the product page and are left out of this filter.",
+    "products": "Products: {count}",
+    "values": "Values: {count}",
+    "unparsed": "Values that cannot be read as a number: {count}. They stay on the product page and are left out of this filter.",
     "noMatch": "No product carries an attribute with this name. Check the spelling against a product's attribute table.",
     "edit": "Edit",
     "showProducts": "Show the products carrying this attribute",
@@ -856,7 +856,7 @@
       "inherited": "Inherited from {category}. Saving here gives this category a list of its own.",
       "default": "No filter list has been set, so every attribute is offered in the order of the attribute list."
     },
-    "products": "{count} product(s) here",
+    "products": "Products here: {count}",
     "notPresent": "No product here carries it",
     "isNew": "Added after this list was saved, so it is not offered yet.",
     "show": "Offer as a filter",
@@ -883,8 +883,8 @@
     "toDefinitions": "Filterable attributes",
     "toDefinition": "Filterable — show its definition",
     "notFilterable": "Not filterable",
-    "products": "{count} product(s)",
-    "values": "{count} value(s)",
+    "products": "Products: {count}",
+    "values": "Values: {count}",
     "notNumeric": "not a number",
     "emptyValue": "(no value)",
     "showProducts": "Show the products",
@@ -894,13 +894,13 @@
     "renameTitle": "Rename across the catalog",
     "renameConfirm": "Rename “{from}” to “{to}” on every product carrying it?",
     "mergeConfirm": "“{to}” is already in use. Renaming “{from}” merges the two — every product carrying “{from}” will carry “{to}” instead. Continue?",
-    "renameDeleted": "It also rewrites {count} deleted product(s), so they carry the new text if restored.",
+    "renameDeleted": "It also rewrites deleted products ({count}), so they carry the new text if restored.",
     "renameError": "This rename could not be saved. Please try again.",
     "empty": "No product carries an attribute yet."
   },
   "documentList": {
     "title": "Documents",
-    "count": "{count} document(s)",
+    "count": "Documents: {count}",
     "add": "Add document",
     "searchLabel": "Find a document",
     "searchPlaceholder": "Search by title, file name or link",
@@ -922,7 +922,7 @@
     "edit": "Edit",
     "delete": "Delete",
     "productsColumn": "Products",
-    "products": "{count} product(s)",
+    "products": "Products: {count}",
     "seeProducts": "Show the products this document is on",
     "noProducts": "No product shows this document yet",
     "empty": "No documents yet.",
@@ -985,7 +985,7 @@
   },
   "orderList": {
     "title": "Orders",
-    "count": "{count} order(s)",
+    "count": "Orders: {count}",
     "searchLabel": "Search orders",
     "searchPlaceholder": "Reference, name, email...",
     "clearSearch": "Clear search",
@@ -1016,7 +1016,7 @@
     "paymentPaid": "Paid",
     "guest": "Guest",
     "actions": "Actions",
-    "itemCount": "{count} lines"
+    "itemCount": "Lines: {count}"
   },
   "orderDetail": {
     "placed": "Sent {date}",
@@ -1215,7 +1215,7 @@
     "companySuggest": {
       "suggestionsLabel": "Company suggestions",
       "noSuggestions": "No matching companies. Carry on typing it yourself.",
-      "suggestionCount": "{count} company suggestions"
+      "suggestionCount": "Company suggestions: {count}"
     },
     "validation": {
       "nameRequired": "A name is required.",
@@ -1281,14 +1281,14 @@
     },
     "detailsHeading": "Delivery, invoice and contact",
     "priceNotice": {
-      "moved": "{count} line prices differ from the version on file. Save this only if that is what was agreed.",
-      "offList": "{count} lines are priced away from {tier}. That is allowed — check it is deliberate."
+      "moved": "Line prices that differ from the version on file: {count}. Save this only if that is what was agreed.",
+      "offList": "Lines priced away from {tier}: {count}. That is allowed — check it is deliberate."
     }
   },
   "userList": {
     "titleCustomers": "Customers",
     "titleStaff": "Staff",
-    "count": "{count} account(s)",
+    "count": "Accounts: {count}",
     "searchLabel": "Search accounts",
     "searchPlaceholder": "Search by name, email, etc...",
     "clearSearch": "Clear search",
@@ -1371,7 +1371,7 @@
     "companySuggest": {
       "suggestionsLabel": "Company suggestions",
       "noSuggestions": "No matching companies. Carry on typing it yourself.",
-      "suggestionCount": "{count} company suggestions"
+      "suggestionCount": "Company suggestions: {count}"
     },
     "customerType": "Customer type",
     "tier": "Tier",
@@ -1524,7 +1524,7 @@
       "statusOwned": "Managed by an external system",
       "statusMixed": "Partly managed by an external system",
       "statusOwn": "Managed in the shop",
-      "statusMixedEffect": "{count} of {total} areas are managed by an external system.",
+      "statusMixedEffect": "Areas managed by an external system: {count} of {total}.",
       "hand": "Hand everything over",
       "take": "Take everything back",
       "handTitle": "Hand the whole shop over",
@@ -1539,7 +1539,7 @@
     "fieldLocked": "The catalog is managed by an external system, so this is set there rather than here. To edit it in the shop, take the catalog back under Data ownership in the admin panel.",
     "fieldLockedShort": "Set by the external system that manages the catalog.",
     "categoryHasProducts": "This category still has products in it. While the catalog is managed by an external system, products cannot be moved between categories here — empty it in that system first, or take the catalog back under Data ownership in the admin panel.",
-    "categoryHasDeletedProducts": "This category still holds {count} deleted product(s). While the catalog is managed by an external system, they cannot be moved between categories here. A product deleted permanently no longer holds it; one that was ever ordered always will. You can still rename it, change its address and move it to the end of the list.",
+    "categoryHasDeletedProducts": "Deleted products this category still holds: {count}. While the catalog is managed by an external system, they cannot be moved between categories here. A product deleted permanently no longer holds it; one that was ever ordered always will. You can still rename it, change its address and move it to the end of the list.",
     "productPurge": "The external system still sends this product, so deleting it permanently would only bring it back as a new one. It stays deleted.",
     "productRestoreTitle": "Removed by the external system",
     "productRestore": "The external system removed this product because it no longer sends it. It comes back by itself when that system sends it again. To restore it here, take the catalog back under Data ownership in the admin panel.",

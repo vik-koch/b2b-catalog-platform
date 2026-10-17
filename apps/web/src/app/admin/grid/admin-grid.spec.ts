@@ -49,7 +49,7 @@ const columns: GridColumn[] = [
       [trackBy]="byId"
       [sort]="null"
       [total]="total()"
-      countLabel="{count} row(s)"
+      countLabel="Rows: {count}"
       emptyMessage="Nothing here"
     >
       <ng-template appGridRow [of]="rows()" let-row>
@@ -194,11 +194,11 @@ describe('AdminGrid on a desktop (FR-ADM-05)', () => {
   // there are across every page, which is the number a filter is judged by.
   it('counts the rows, or the total a paged list names', () => {
     const { fixture, el } = render();
-    expect(el.textContent).toContain('2 row(s)');
+    expect(el.textContent).toContain('Rows: 2');
 
     fixture.componentInstance.total.set(140);
     fixture.detectChanges();
-    expect(el.textContent).toContain('140 row(s)');
+    expect(el.textContent).toContain('Rows: 140');
   });
 
   it('says which of the two nothings an empty grid is', () => {
@@ -210,7 +210,7 @@ describe('AdminGrid on a desktop (FR-ADM-05)', () => {
     expect(el.querySelector('table')).not.toBeNull();
     expect(el.textContent).toContain('Nothing here');
     // The empty message already says it; "0 rows" beside it says it twice.
-    expect(el.textContent).not.toContain('row(s)');
+    expect(el.textContent).not.toContain('Rows:');
   });
 });
 
@@ -224,7 +224,7 @@ describe('AdminGrid on a phone', () => {
     const items = el.querySelectorAll('li');
     expect(items.length).toBe(rows.length);
     expect(items[0].textContent).toContain('Alex — active');
-    expect(el.textContent).toContain('2 row(s)');
+    expect(el.textContent).toContain('Rows: 2');
   });
 
   // The filters live in the column headings, and there are none here: without

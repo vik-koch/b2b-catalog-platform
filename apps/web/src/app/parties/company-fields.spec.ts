@@ -13,7 +13,7 @@ const examples = formats.map((format) => format.example).join(', ');
 const text = {
   suggestionsLabel: 'Company suggestions',
   noSuggestions: 'No matching companies.',
-  suggestionCount: '{count} company suggestions',
+  suggestionCount: 'Company suggestions: {count}',
   idLabel: 'Company ID',
   nameLabel: 'Company name',
   hint: 'e.g. {examples}',

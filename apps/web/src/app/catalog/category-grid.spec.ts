@@ -248,7 +248,7 @@ describe('CategoryGrid', () => {
       }),
     );
 
-    expect(el(f).textContent).toContain('60 products');
+    expect(el(f).textContent).toContain('Products: 60');
   });
 
   it('shows pagination with prev/next links when there is more than one page', async () => {

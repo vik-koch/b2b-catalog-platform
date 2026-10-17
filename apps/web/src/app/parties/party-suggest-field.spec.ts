@@ -18,7 +18,7 @@ const kontor: PartySuggestion = {
 const text = {
   suggestionsLabel: 'Company suggestions',
   noSuggestions: 'No matching companies. Carry on typing it yourself.',
-  suggestionCount: '{count} company suggestions',
+  suggestionCount: 'Company suggestions: {count}',
 };
 
 async function render() {

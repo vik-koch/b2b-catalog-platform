@@ -2,7 +2,7 @@ Account closed
 
 A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.
 
-1 of those orders have not ended yet. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.
+Orders among them that have not ended yet: 1. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.
 
 Was: Doe Jane
 Email: jane@example.com

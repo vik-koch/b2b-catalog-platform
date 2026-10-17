@@ -33,7 +33,7 @@ const PANEL = 'Sold together';
  * line's marker is named after what to add rather than after the panel. */
 const SHORT_ACTION = /^Add \d+ /;
 const SHORT = 'of what this is sold with';
-const SUMMARY = 'products in your cart are missing what they are sold with';
+const SUMMARY = 'Products in your cart missing what they are sold with';
 
 async function logIn(page: Page): Promise<void> {
   await page.goto('/login');
@@ -107,7 +107,9 @@ test.describe('the sold-together marker', () => {
     // The glyph, in the price row beside where a note's bubble would be. Its
     // accessible name is the count, since a card has no line to spare for one.
     const card = page.locator('li').filter({ hasText: 'Takeaway Cup 300' });
-    await card.getByRole('button', { name: /Sold together with 2/ }).click();
+    await card
+      .getByRole('button', { name: /Sold together with other products \(2\)/ })
+      .click();
 
     const panel = page.getByRole('dialog');
     await expect(panel.getByText(LID_FLAT)).toBeVisible();
@@ -123,7 +125,7 @@ test.describe('the sold-together marker', () => {
     // The header's link states the count in its accessible name, not on
     // screen (`cart.summaryLabel` in the demo text).
     await expect(
-      page.getByRole('link', { name: /^Cart: 1 line/ }),
+      page.getByRole('link', { name: /^Cart: .+, lines: 1$/ }),
     ).toBeVisible();
 
     await panel.getByRole('button', { name: 'Close' }).click();

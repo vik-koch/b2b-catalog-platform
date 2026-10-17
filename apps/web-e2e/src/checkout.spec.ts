@@ -112,7 +112,7 @@ test('a guest orders, and the mailed link opens it without a session', async ({
   // Placing it empties the cart: what was ordered is no longer waiting to be.
   await expect(page.getByRole('link', { name: /^Cart/ })).toHaveAttribute(
     'aria-label',
-    /Cart: 0 lines/,
+    /^Cart: .+, lines: 0$/,
   );
 
   // Both mails: the customer's way back, and the shop's copy (FR-NOTIF-05/06).

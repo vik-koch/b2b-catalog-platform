@@ -1,4 +1,5 @@
 import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
+import { refuseCountForms } from '@b2b-catalog-platform/shared';
 import * as z from 'zod';
 
 /**
@@ -587,7 +588,8 @@ export const mailTextSchema = z
       })
       .strict(),
   })
-  .strict();
+  .strict()
+  .superRefine(refuseCountForms);
 
 export type MailText = DeepReadonly<z.infer<typeof mailTextSchema>>;
 
