@@ -340,10 +340,10 @@ export class OperationsPage {
   );
   protected readonly allStatus = computed(() =>
     this.allOwned()
-      ? this.allText.statusOwned
+      ? this.ownershipText.statusOwned
       : this.mixed()
         ? this.allText.statusMixed
-        : this.allText.statusOwn,
+        : this.ownershipText.statusOwn,
   );
   /**
    * The rows open on arrival only where the badge above cannot answer on its
@@ -532,7 +532,7 @@ export class OperationsPage {
   private who(change: SettingChange): string {
     return fillText(this.text.historyBy, {
       date: this.moment.format(new Date(change.changedAt)),
-      actor: change.actorEmail ?? this.text.historyActorGone,
+      actor: change.actorEmail ?? this.common.actorGone,
     });
   }
 }

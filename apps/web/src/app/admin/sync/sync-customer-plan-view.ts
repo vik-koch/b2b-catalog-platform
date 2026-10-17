@@ -74,7 +74,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
           @for (account of plan().accounts; track account.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(account.kind)">
-                {{ text.customers.kind[account.kind] }}
+                {{ text.customers.count[kindCount[account.kind]] }}
               </span>
               <!-- Always the account list narrowed to this address, never the
                    account's own page: one this run creates has no page at the
@@ -292,6 +292,8 @@ export class SyncCustomerPlanView {
     );
   }
 
+  protected readonly kindCount = KIND_COUNT;
+
   protected kindTone(kind: CustomerAccountChange['kind']): StatusTone {
     return KIND_TONE[kind];
   }
@@ -347,6 +349,16 @@ const ALWAYS_SHOWN: ReadonlySet<string> = new Set([
   'softDelete',
   'errors',
 ]);
+
+/** The tile that counts a change, whose word is the change's badge too. */
+const KIND_COUNT = {
+  invite: 'create',
+  update: 'update',
+  disable: 'softDelete',
+  enable: 'restore',
+  claim: 'claimed',
+  'claim-id': 'claimedById',
+} as const satisfies Record<CustomerAccountChange['kind'], string>;
 
 /** What the run would do to somebody, in the app's own tones: an account
  * arriving is settled, one losing access is a refusal, one coming back is worth

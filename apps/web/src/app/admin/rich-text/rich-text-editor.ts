@@ -271,7 +271,7 @@ interface ToolbarAction {
           {{ image.remove }}
         </button>
         <button appButton size="sm" type="button" (click)="closeImagePanel()">
-          {{ image.done }}
+          {{ common.done }}
         </button>
       </div>
     </ng-template>

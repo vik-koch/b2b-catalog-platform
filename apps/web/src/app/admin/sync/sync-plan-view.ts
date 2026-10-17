@@ -119,7 +119,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
           @for (product of plan().products; track product.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(product.kind)">
-                {{ text.kind[product.kind] }}
+                {{ text.count[product.kind] }}
               </span>
               <!-- Always the list narrowed to this product's sync key, never
                    the editor: a product this run creates has no page to link to

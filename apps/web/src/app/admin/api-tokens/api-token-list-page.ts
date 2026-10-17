@@ -176,7 +176,7 @@ const SCOPE_ROWS: readonly {
             class="mt-3"
             (click)="dismiss()"
           >
-            {{ text.createdDone }}
+            {{ common.done }}
           </button>
         </div>
       }
@@ -427,7 +427,7 @@ export class ApiTokenListPage {
   protected createdLine(token: ApiToken): string {
     return this.text.created
       .replace('{date}', this.moment().format(new Date(token.createdAt)))
-      .replace('{actor}', token.createdBy ?? this.text.actorGone);
+      .replace('{actor}', token.createdBy ?? this.common.actorGone);
   }
 
   /**

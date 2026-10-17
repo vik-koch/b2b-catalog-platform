@@ -85,6 +85,8 @@ export const adminTextSchema = z
         /** Open a record for editing; finish editing it. */
         edit: z.string(),
         done: z.string(),
+        /** Who did something, once their account has been deleted. */
+        actorGone: z.string(),
         remove: z.string(),
         /** Beside a product count, how many of those are not on the
          * storefront: "{count} unpublished". Shown only above zero. */
@@ -366,7 +368,6 @@ export const adminTextSchema = z
             alignRight: z.string(),
             widthLabel: z.string(),
             remove: z.string(),
-            done: z.string(),
           })
           .strict(),
       })
@@ -857,6 +858,8 @@ export const adminTextSchema = z
         summaryTitle: z.string(),
         /** The same panel, once the run is a record rather than a decision. */
         summaryTitleApplied: z.string(),
+        /** The count tiles. Their first four name a row's change as well, as
+         * its badge: a tile counts the rows wearing it. */
         count: z
           .object({
             create: z.string(),
@@ -908,15 +911,6 @@ export const adminTextSchema = z
         nothingToApply: z.string(),
         /** The same, said about a run that has already happened. */
         nothingChanged: z.string(),
-        /** Change kinds, used as row badges. */
-        kind: z
-          .object({
-            create: z.string(),
-            update: z.string(),
-            softDelete: z.string(),
-            restore: z.string(),
-          })
-          .strict(),
         /**
          * The customer exchange's own words (FR-ADM-11). Only what the catalog
          * cannot lend: a run's counts mean accounts here rather than products,
@@ -960,7 +954,8 @@ export const adminTextSchema = z
                 claimByEmail: z.string(),
               })
               .strict(),
-            /** The count tiles, in this area's reading of them. */
+            /** The count tiles, in this area's reading of them. A row's badge
+             * is the tile that counts it. */
             count: z
               .object({
                 create: z.string(),
@@ -974,18 +969,8 @@ export const adminTextSchema = z
                 errors: z.string(),
               })
               .strict(),
-            /** Change kinds, used as row badges. */
-            kind: z
-              .object({
-                invite: z.string(),
-                update: z.string(),
-                disable: z.string(),
-                enable: z.string(),
-                claim: z.string(),
-                'claim-id': z.string(),
-              })
-              .strict(),
-            /** Field names as a diff line labels them. */
+            /** Field names as a diff line labels them, and as the log lists
+             * what a run rewrote. */
             field: z
               .object({
                 email: z.string(),
@@ -1074,8 +1059,14 @@ export const adminTextSchema = z
                 transition: z.string(),
                 /** Only the money was recorded. */
                 payment: z.string(),
-                /** It already said this; nothing was written. */
-                unchanged: z.string(),
+              })
+              .strict(),
+            /** What a run wrote, as the log lists it. */
+            field: z
+              .object({
+                status: z.string(),
+                lines: z.string(),
+                payment: z.string(),
               })
               .strict(),
             /** Said beside a row whose customer was written to. */
@@ -1149,16 +1140,12 @@ export const adminTextSchema = z
         uploadTitle: z.string(),
         newRun: z.string(),
         backToRuns: z.string(),
-        runsDescription: z.string(),
         /**
          * What each area's log is called and what it says about itself. One
          * screen serves every area (ADR 0060), so its heading is the one thing
          * that has to be written per area; everything else on it — the
          * statuses, the columns, why a run was staged — is the same sentence
          * whatever the run carries.
-         *
-         * `title`/`runsDescription` above stay the catalog's, because the
-         * upload screen is still the catalog's alone.
          */
         areas: z
           .object({
@@ -1196,11 +1183,11 @@ export const adminTextSchema = z
         statusAll: z.string(),
         filterStatus: z.string(),
         /**
-         * What a run rewrote, listed in the log under its counts. Every price
-         * column names its own list through `priceList`, the storefront's
-         * included — which lists a feed writes is the thing an admin is
-         * actually checking. `more` stands for the ones a narrow column has no
-         * room for.
+         * What a catalog run rewrote, listed in the log under its counts. Every
+         * price column names its own list through `priceList`, the
+         * storefront's included — which lists a feed writes is the thing an
+         * admin is actually checking. The other areas name theirs in their own
+         * block.
          */
         field: z
           .object({
@@ -1209,9 +1196,10 @@ export const adminTextSchema = z
             stock: z.string(),
             taxRate: z.string(),
             priceList: z.string(),
-            more: z.string(),
           })
           .strict(),
+        /** `{count}` — the fields a narrow column has no room for. */
+        moreFields: z.string(),
         /** A tax rate going back to, or coming from, the deployment's
          * default — the plan's word for a null rate. */
         taxRateDefault: z.string(),
@@ -1330,14 +1318,12 @@ export const adminTextSchema = z
         /** The panel that shows the value. `{name}` substituted at render. */
         createdHeading: z.string(),
         createdOnce: z.string(),
-        createdDone: z.string(),
         copy: z.string(),
         copied: z.string(),
         active: z.string(),
         revoked: z.string(),
         /** Per-row facts. `{date}` and `{actor}` substituted at render. */
         created: z.string(),
-        actorGone: z.string(),
         lastUsed: z.string(),
         neverUsed: z.string(),
         empty: z.string(),
@@ -2333,16 +2319,14 @@ export const adminTextSchema = z
         take: z.string(),
         /**
          * The master switch, which is a read over the areas and an action
-         * across them — never a stored fourth flag. It needs a third status
-         * the per-area rows do not: a shop where the areas disagree.
+         * across them — never a stored fourth flag. It reads the per-area
+         * statuses and needs one they do not: a shop where the areas disagree.
          */
         all: z
           .object({
             heading: z.string(),
             description: z.string(),
-            statusOwned: z.string(),
             statusMixed: z.string(),
-            statusOwn: z.string(),
             /** `{count}` of `{total}` areas, for the mixed state. */
             statusMixedEffect: z.string(),
             hand: z.string(),
@@ -2431,7 +2415,6 @@ export const adminTextSchema = z
         historyMaintenanceOff: z.string(),
         /** `{date}` and `{actor}` */
         historyBy: z.string(),
-        historyActorGone: z.string(),
         /** `{count}` — shown only when the list came back full. */
         historyMore: z.string(),
       })

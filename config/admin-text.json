@@ -11,6 +11,7 @@
     "keepEditing": "Keep editing",
     "edit": "Edit",
     "done": "Done",
+    "actorGone": "a deleted account",
     "remove": "Remove",
     "unpublishedProducts": "{count} unpublished",
     "restore": "Restore",
@@ -202,8 +203,7 @@
       "alignCenter": "Center",
       "alignRight": "Right",
       "widthLabel": "Size",
-      "remove": "Remove image",
-      "done": "Done"
+      "remove": "Remove image"
     }
   },
   "productEditor": {
@@ -499,9 +499,9 @@
       "price-is-zero": "The price in column “{column}” is zero. A product without a price is sent without that column, not with a zero in it.",
       "stock-not-an-integer": "The stock “{stock}” is not a whole number of pieces.",
       "tax-rate-invalid": "The tax rate “{taxRate}” is not a percent from 0 to 100.",
-      "unknown-price-list": "There is no price list “{key}” — this catalogue has {known}.",
+      "unknown-price-list": "There is no price list “{key}” — this catalog has {known}.",
       "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",
-      "unknown-category": "The category “{name}” ({key}) is not in the catalogue, and this run does not create categories.",
+      "unknown-category": "The category “{name}” ({key}) is not in the catalog, and this run does not create categories.",
       "cannot-create-product": "This product is new, and a new product needs a name, a price and a category."
     },
     "customers": {
@@ -535,14 +535,6 @@
         "mailed": "Links sent",
         "unchanged": "Unchanged",
         "errors": "Skipped"
-      },
-      "kind": {
-        "invite": "New",
-        "update": "Updated",
-        "disable": "Switched off",
-        "enable": "Switched on",
-        "claim": "Claimed",
-        "claim-id": "Claimed by ID"
       },
       "field": {
         "email": "email",
@@ -584,8 +576,12 @@
       "kind": {
         "adjustment": "Changed",
         "transition": "Moved",
-        "payment": "Payment",
-        "unchanged": "Unchanged"
+        "payment": "Payment"
+      },
+      "field": {
+        "status": "statuses",
+        "lines": "order lines",
+        "payment": "payments"
       },
       "notifiedRow": "customer was written to",
       "rowErrors": {
@@ -657,12 +653,6 @@
       "kept": "Kept",
       "errors": "Skipped rows"
     },
-    "kind": {
-      "create": "New",
-      "update": "Changed",
-      "softDelete": "Hidden",
-      "restore": "Restored"
-    },
     "status": {
       "previewed": "Waiting",
       "applied": "Applied",
@@ -687,7 +677,6 @@
     "uploadTitle": "Manual sync",
     "newRun": "Manual sync",
     "backToRuns": "All runs",
-    "runsDescription": "Every catalog run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied.",
     "areas": {
       "catalog": {
         "title": "Catalog sync",
@@ -718,9 +707,9 @@
       "category": "categories",
       "stock": "stock levels",
       "taxRate": "VAT rates",
-      "priceList": "prices ({key})",
-      "more": "+{count}"
+      "priceList": "prices ({key})"
     },
+    "moreFields": "+{count}",
     "taxRateDefault": "standard rate",
     "discardConfirm": {
       "heading": "Discard this run?",
@@ -817,13 +806,11 @@
     },
     "createdHeading": "“{name}” created",
     "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",
-    "createdDone": "Done",
     "copy": "Copy",
     "copied": "Copied",
     "active": "Active",
     "revoked": "Revoked",
     "created": "Created {date} by {actor}",
-    "actorGone": "a deleted account",
     "lastUsed": "Last used {date}",
     "neverUsed": "Never used",
     "empty": "No machine tokens yet.",
@@ -1540,9 +1527,7 @@
     "all": {
       "heading": "The whole shop",
       "description": "Every area at once. Areas can also be handed over one at a time below.",
-      "statusOwned": "Managed by an external system",
       "statusMixed": "Partly managed by an external system",
-      "statusOwn": "Managed in the shop",
       "statusMixedEffect": "Areas managed by an external system: {count} of {total}.",
       "hand": "Hand everything over",
       "take": "Take everything back",
@@ -1586,7 +1571,6 @@
     "historyMaintenanceOn": "Maintenance mode turned on",
     "historyMaintenanceOff": "Maintenance mode turned off",
     "historyBy": "{date} by {actor}",
-    "historyActorGone": "a deleted account",
     "historyMore": "Only the {count} most recent changes are shown."
   }
 }

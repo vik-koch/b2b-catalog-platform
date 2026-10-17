@@ -27,15 +27,14 @@ const statusMailText = z
 
 /** One sync outcome: its own subject and its own two lines. Subject and
  * preheader are per outcome rather than shared, because these land in an
- * inbox side by side and a common subject would make them one thread. */
+ * inbox side by side and a common subject would make them one thread. The
+ * button into the run is the same in every area, so it is said once. */
 const syncMailText = z
   .object({
     subject: z.string(),
     preheader: z.string(),
     heading: z.string(),
     body: z.string(),
-    /** Button into the admin panel. */
-    action: z.string(),
   })
   .strict();
 
@@ -61,7 +60,11 @@ const syncFeedMails = {
  * publishes them (FR-ADM-06).
  */
 const catalogSyncMails = z
-  .object({ ...syncFeedMails, created: syncMailText })
+  .object({
+    ...syncFeedMails,
+    /** Opens the products awaiting publication rather than the run. */
+    created: syncMailText.extend({ action: z.string() }).strict(),
+  })
   .strict();
 
 /**
@@ -423,6 +426,10 @@ export const mailTextSchema = z
             requested: z.string(),
           })
           .strict(),
+        /** The button into the run, from a failure or a recovery. */
+        openRun: z.string(),
+        /** The same button, from a run that waits for a decision. */
+        reviewRun: z.string(),
         /**
          * The sentences, keyed by the area the run is about.
          *

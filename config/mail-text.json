@@ -184,28 +184,27 @@
       "policy": "Its effect is larger than an automatic update is allowed to be",
       "requested": "The source asked for it to be reviewed"
     },
+    "openRun": "Open the run",
+    "reviewRun": "Review the update",
     "areas": {
       "catalog": {
         "failed": {
           "subject": "Catalog update failed",
           "preheader": "An automatic catalog update did not go through.",
           "heading": "An automatic catalog update failed",
-          "body": "Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system.",
-          "action": "Open the run"
+          "body": "Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system."
         },
         "recovered": {
           "subject": "Catalog updates are working again",
           "preheader": "The automatic catalog update went through.",
           "heading": "Catalog updates are working again",
-          "body": "The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes.",
-          "action": "Open the run"
+          "body": "The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
         },
         "waiting": {
           "subject": "A catalog update is waiting for you",
           "preheader": "An automatic catalog update needs your decision.",
           "heading": "A catalog update is waiting for you",
-          "body": "It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do.",
-          "action": "Review the update"
+          "body": "It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do."
         },
         "created": {
           "subject": "New products from your system",
@@ -220,22 +219,19 @@
           "subject": "Customer update failed",
           "preheader": "An automatic customer update did not go through.",
           "heading": "An automatic customer update failed",
-          "body": "Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system.",
-          "action": "Open the run"
+          "body": "Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system."
         },
         "recovered": {
           "subject": "Customer updates are working again",
           "preheader": "The automatic customer update went through.",
           "heading": "Customer updates are working again",
-          "body": "The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes.",
-          "action": "Open the run"
+          "body": "The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
         },
         "waiting": {
           "subject": "A customer update is waiting for you",
           "preheader": "An automatic customer update needs your decision.",
           "heading": "A customer update is waiting for you",
-          "body": "It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do.",
-          "action": "Review the update"
+          "body": "It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do."
         }
       },
       "orders": {
@@ -243,15 +239,13 @@
           "subject": "Order updates failed",
           "preheader": "An automatic order update did not go through.",
           "heading": "An automatic order update failed",
-          "body": "Your orders are unchanged, which means customers are waiting to hear where theirs stands and nobody here has been told to answer them by hand. Until this is fixed, orders placed in the shop will not be answered — pass this message on to whoever looks after the connection to your system.",
-          "action": "Open the run"
+          "body": "Your orders are unchanged, which means customers are waiting to hear where theirs stands and nobody here has been told to answer them by hand. Until this is fixed, orders placed in the shop will not be answered — pass this message on to whoever looks after the connection to your system."
         },
         "recovered": {
           "subject": "Order updates are working again",
           "preheader": "The automatic order update went through.",
           "heading": "Order updates are working again",
-          "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps.",
-          "action": "Open the run"
+          "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps."
         }
       }
     }

@@ -321,7 +321,7 @@ describe('SyncRunPage', () => {
 
     expect(el.textContent).toContain(text.customers.accountsTitle);
     expect(el.textContent).toContain('ada@example.com');
-    expect(el.textContent).toContain(text.customers.kind.invite);
+    expect(el.textContent).toContain(text.customers.count.create);
     // The catalog panel's own headings stay away from it.
     expect(el.textContent).not.toContain(text.productsTitle);
   });

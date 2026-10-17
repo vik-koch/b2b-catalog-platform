@@ -278,7 +278,7 @@ describe('OperationsPage', () => {
       const { el } = await render({ owned: true });
 
       expect(masterSwitch(el).getAttribute('aria-checked')).toBe('true');
-      expect(el.textContent).toContain(ownershipText.all.statusOwned);
+      expect(el.textContent).toContain(ownershipText.statusOwned);
     });
 
     it('says "partly" when the areas disagree, and opens the rows', async () => {
@@ -371,7 +371,7 @@ describe('OperationsPage', () => {
       });
       await openHistory(fixture, el);
 
-      expect(el.textContent).toContain(text.historyActorGone);
+      expect(el.textContent).toContain(defaultAdminText.common.actorGone);
     });
 
     it('says so when nothing has been changed yet', async () => {

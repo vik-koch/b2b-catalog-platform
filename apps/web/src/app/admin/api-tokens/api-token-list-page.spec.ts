@@ -156,7 +156,7 @@ describe('ApiTokenListPage', () => {
   it('names a deleted issuer rather than leaving the line blank', async () => {
     const { el } = await render({ tokens: [token({ createdBy: null })] });
 
-    expect(el.textContent).toContain(text.actorGone);
+    expect(el.textContent).toContain(defaultAdminText.common.actorGone);
   });
 
   it('shows a revoked token, marked, with no revoke button left on it', async () => {
@@ -249,7 +249,7 @@ describe('ApiTokenListPage', () => {
     expect(el.textContent).toContain(created.token);
 
     const dismiss = [...el.querySelectorAll<HTMLButtonElement>('button')].find(
-      (button) => button.textContent?.trim() === text.createdDone,
+      (button) => button.textContent?.trim() === defaultAdminText.common.done,
     );
     dismiss?.click();
     await fixture.whenStable();
