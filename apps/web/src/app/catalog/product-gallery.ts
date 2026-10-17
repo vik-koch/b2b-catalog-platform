@@ -282,7 +282,7 @@ export class ProductGallery {
   }
 
   protected thumbLabel(index: number): string {
-    return this.text.viewImage.replace('{n}', String(index + 1));
+    return this.text.viewImageAria.replace('{n}', String(index + 1));
   }
 
   private touchStartX = 0;

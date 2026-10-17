@@ -83,7 +83,7 @@ describe('ProductDocuments', () => {
     ]);
     const hint = el.querySelector('a')?.getAttribute('aria-describedby');
 
-    expect(el.querySelector(`#${hint}`)?.textContent).toContain(text.hint);
+    expect(el.querySelector(`#${hint}`)?.textContent).toContain(text.hintAria);
     expect(el.querySelectorAll('a')).toHaveLength(2);
   });
 

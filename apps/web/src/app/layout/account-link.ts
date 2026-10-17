@@ -172,7 +172,7 @@ export class AccountLink {
 
   /** What the marker says out loud — the figure it does not draw. */
   protected readonly markerLabel = computed(() =>
-    fillText(this.text.workMarker, { count: this.work.total() }),
+    fillText(this.text.workMarkerAria, { count: this.work.total() }),
   );
 
   /**

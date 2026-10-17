@@ -104,7 +104,7 @@ let nextId = 0;
       role="search"
       action="/search"
       method="get"
-      [attr.aria-label]="text.searchNav"
+      [attr.aria-label]="text.searchNavAria"
       (submit)="submit($event)"
     >
       <!-- Field and button are two boxes butted together, not one. The edge
@@ -163,7 +163,7 @@ let nextId = 0;
               (click)="clear()"
             >
               <app-icon name="close" class="size-4" />
-              <span class="sr-only">{{ text.clear }}</span>
+              <span class="sr-only">{{ text.clearAria }}</span>
             </button>
           }
 
@@ -195,7 +195,7 @@ let nextId = 0;
             <div
               [id]="listId"
               role="grid"
-              [attr.aria-label]="text.suggestionsLabel"
+              [attr.aria-label]="text.suggestionsAria"
               class="flex min-h-0 flex-1 flex-col"
             >
               @if (categories().length) {
@@ -621,7 +621,7 @@ export class SearchField {
     if (!this.panelOpen()) return '';
     return this.noMatches()
       ? this.text.noSuggestions
-      : fillText(this.text.suggestionCount, {
+      : fillText(this.text.suggestionCountAria, {
           count: this.suggestions().length + this.categories().length,
         });
   });
@@ -704,11 +704,11 @@ export class SearchField {
   }
 
   protected addLabel(item: ProductListItem): string {
-    return fillText(this.text.addSuggestion, { name: item.name });
+    return fillText(this.text.addSuggestionAria, { name: item.name });
   }
 
   protected inCartLabel(item: ProductListItem): string {
-    return fillText(this.text.suggestionInCart, { name: item.name });
+    return fillText(this.text.suggestionInCartAria, { name: item.name });
   }
 
   protected markFailed(src: string): void {

@@ -469,11 +469,11 @@ export class AccountPage {
   /** The name the icon-only buttons carry, since the row's own text is not
    * their label. */
   protected editLabel(address: Address): string {
-    return fillText(this.addressText.editLabel, { label: this.name(address) });
+    return fillText(this.addressText.editAria, { label: this.name(address) });
   }
 
   protected removeLabel(address: Address): string {
-    return fillText(this.addressText.removeLabel, {
+    return fillText(this.addressText.removeAria, {
       label: this.name(address),
     });
   }

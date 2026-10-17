@@ -101,7 +101,7 @@ export const adminTextSchema = z
          */
         resizeColumn: z.string(),
         /** Names the boundary being dragged: `{column}`. */
-        resizeColumnOf: z.string(),
+        resizeColumnOfAria: z.string(),
         resetWidths: z.string(),
         filters: z.string(),
         /** How many of something are in effect, beside the word that names
@@ -175,7 +175,7 @@ export const adminTextSchema = z
         heading: z.string(),
         hint: z.string(),
         /** The square's accessible name: it is moved with the arrow keys. */
-        stage: z.string(),
+        stageAria: z.string(),
         zoom: z.string(),
         centre: z.string(),
         fill: z.string(),
@@ -315,7 +315,7 @@ export const adminTextSchema = z
           .strict(),
         toolbar: z
           .object({
-            label: z.string(),
+            labelAria: z.string(),
             bold: z.string(),
             italic: z.string(),
             underline: z.string(),
@@ -334,7 +334,7 @@ export const adminTextSchema = z
           .strict(),
         linkPanel: z
           .object({
-            heading: z.string(),
+            headingAria: z.string(),
             urlLabel: z.string(),
             placeholder: z.string(),
             /** Names the four forms an address may take. */
@@ -344,7 +344,7 @@ export const adminTextSchema = z
           .strict(),
         imagePanel: z
           .object({
-            heading: z.string(),
+            headingAria: z.string(),
             altLabel: z.string(),
             altPlaceholder: z.string(),
             altHint: z.string(),
@@ -382,7 +382,7 @@ export const adminTextSchema = z
             noResults: z.string(),
             updated: z.string(),
             sourceId: z.string(),
-            searchLabel: z.string(),
+            searchAria: z.string(),
             searchPlaceholder: z.string(),
             clearSearch: z.string(),
             /** Accessible names for the two column-heading filters, whose
@@ -392,11 +392,11 @@ export const adminTextSchema = z
             /** The attribute drill-down's chip, which has no column to sit
              * in. */
             filterAttribute: z.string(),
-            clearAttribute: z.string(),
+            clearAttributeAria: z.string(),
             /** The tier list's drill-down, shown as a chip for the same reason
              * the attribute one is: no column of the grid says it. */
             filterTier: z.string(),
-            clearTier: z.string(),
+            clearTierAria: z.string(),
             /** Which side of a price list to show: the products it prices, or
              * the gap. */
             tierPricedYes: z.string(),
@@ -404,7 +404,7 @@ export const adminTextSchema = z
             noPrice: z.string(),
             /** The document list's drill-down, a chip for the same reason. */
             filterDocument: z.string(),
-            clearDocument: z.string(),
+            clearDocumentAria: z.string(),
             stateAll: z.string(),
             /** The column's own noun, for the phone's sort picker — where "All
              * states" would read as an ordering rather than a column. */
@@ -432,7 +432,7 @@ export const adminTextSchema = z
             filterStock: z.string(),
             /** Read out with the figure, so the badge's colour is never the
              * only thing carrying the state. `{count}` and `{state}`. */
-            stockLabel: z.string(),
+            stockAria: z.string(),
             /** The cell of a product whose stock nobody is counting — a word,
              * not an empty cell, so "untracked" and "none left" cannot be
              * confused. */
@@ -442,8 +442,8 @@ export const adminTextSchema = z
              * line under a product's name naming what keeps it incomplete.
              * `{gaps}` is the `gap` words joined.
              */
-            missingGroup: z.string(),
-            hasGroup: z.string(),
+            missingGroupAria: z.string(),
+            hasGroupAria: z.string(),
             missing: z
               .object({
                 incomplete: z.string(),
@@ -514,7 +514,7 @@ export const adminTextSchema = z
                 heading: z.string(),
                 key: z.string(),
                 value: z.string(),
-                add: z.string(),
+                addAria: z.string(),
                 /** The picker of names the catalog already uses
                  * (FR-ATTR-09). */
                 addKeys: z.string(),
@@ -552,7 +552,7 @@ export const adminTextSchema = z
                 add: z.string(),
                 /** The picker under a picture: its accessible name, and the
                  * choice for a picture of the whole range (FR-CAT-11). */
-                variant: z.string(),
+                variantAria: z.string(),
                 noVariant: z.string(),
                 /** Opens a stored picture in the framer again. */
                 reframe: z.string(),
@@ -564,12 +564,12 @@ export const adminTextSchema = z
               .object({
                 hint: z.string(),
                 /** A variant's name field, for a screen reader. */
-                name: z.string(),
+                nameAria: z.string(),
                 add: z.string(),
                 addPlaceholder: z.string(),
                 addButton: z.string(),
                 /** A variant's remove button; `{name}` is the variant. */
-                remove: z.string(),
+                removeAria: z.string(),
                 unavailable: z.string(),
                 /** The pictures column's heading, where the row has columns. */
                 picturesHeading: z.string(),
@@ -602,7 +602,7 @@ export const adminTextSchema = z
                 addPlaceholder: z.string(),
                 addButton: z.string(),
                 /** A part's remove button; `{name}` is the part. */
-                remove: z.string(),
+                removeAria: z.string(),
                 /** Shown in place of the field once the list is full;
                  * `{count}`. */
                 limit: z.string(),
@@ -646,14 +646,14 @@ export const adminTextSchema = z
                 add: z.string(),
                 addPlaceholder: z.string(),
                 /** `{name}` substituted — the document being taken off. */
-                remove: z.string(),
+                removeAria: z.string(),
                 /** Per row. `{date}` substituted; `noExpiry` where there is none. */
                 expires: z.string(),
                 noExpiry: z.string(),
-                suggestionsLabel: z.string(),
+                suggestionsAria: z.string(),
                 noSuggestions: z.string(),
                 /** Announced to a screen reader. `{count}` substituted. */
-                suggestionCount: z.string(),
+                suggestionCountAria: z.string(),
               })
               .strict(),
             /** The products this one is sold together with (FR-SET-01). */
@@ -664,13 +664,13 @@ export const adminTextSchema = z
                 add: z.string(),
                 addPlaceholder: z.string(),
                 /** `{name}` — the remove button's accessible name. */
-                remove: z.string(),
+                removeAria: z.string(),
                 /** `{count}` — shown once no more can be added. */
                 limit: z.string(),
-                suggestionsLabel: z.string(),
+                suggestionsAria: z.string(),
                 noSuggestions: z.string(),
                 /** `{count}`, for the live region. */
-                suggestionCount: z.string(),
+                suggestionCountAria: z.string(),
               })
               .strict(),
             /** Pieces on hand, and what a customer is told about them
@@ -1401,7 +1401,7 @@ export const adminTextSchema = z
         createError: z.string(),
         /** Revocation, which is the only destructive thing here — and it is
          * not undoable: a revoked token is replaced, not restored. */
-        revoke: z.string(),
+        revokeAria: z.string(),
         revokeError: z.string(),
       })
       .strict(),
@@ -1470,7 +1470,7 @@ export const adminTextSchema = z
             /** The two states of the row's link to the registry: a key the shop
              * filters by leads to its definition, a freetext one is
              * deadened. */
-            toDefinition: z.string(),
+            toDefinitionAria: z.string(),
             notFilterable: z.string(),
             values: z.string(),
             /** Marks a value that drops out of a number attribute's filter. */
@@ -1479,9 +1479,9 @@ export const adminTextSchema = z
              * blank. */
             emptyValue: z.string(),
             showProducts: z.string(),
-            renameKey: z.string(),
-            renameValue: z.string(),
-            newText: z.string(),
+            renameKeyAria: z.string(),
+            renameValueAria: z.string(),
+            newTextAria: z.string(),
             /** Rename confirmation. `{from}`/`{to}` substituted. `mergeConfirm`
              * replaces it where the new text is already in use, since that is a
              * merge and not a correction. */
@@ -1513,7 +1513,7 @@ export const adminTextSchema = z
             /** How many rows the list holds, filters applied. */
             count: z.string(),
             add: z.string(),
-            searchLabel: z.string(),
+            searchAria: z.string(),
             searchPlaceholder: z.string(),
             clearSearch: z.string(),
             /** Column headings. */
@@ -1597,9 +1597,9 @@ export const adminTextSchema = z
               .object({
                 heading: z.string(),
                 hint: z.string(),
-                search: z.string(),
+                searchAria: z.string(),
                 searchPlaceholder: z.string(),
-                category: z.string(),
+                categoryAria: z.string(),
                 allCategories: z.string(),
                 /** The two views of one list. `{count}` substituted on `showLinked`. */
                 showAll: z.string(),
@@ -1662,7 +1662,7 @@ export const adminTextSchema = z
             page: pageText,
             /** How many rows the list holds, filters applied. */
             count: z.string(),
-            searchLabel: z.string(),
+            searchAria: z.string(),
             searchPlaceholder: z.string(),
             clearSearch: z.string(),
             empty: z.string(),
@@ -1684,7 +1684,7 @@ export const adminTextSchema = z
              * alike — what the panel's finished-and-unpaid count links to. */
             paymentUnpaid: z.string(),
             /** Screen-reader heading for the column of row buttons. */
-            actions: z.string(),
+            actionsAria: z.string(),
             /** `{count}` lines on the order. */
             itemCount: z.string(),
           })
@@ -1957,15 +1957,15 @@ export const adminTextSchema = z
               .object({
                 /** The staff reading of a quantity: how many of what the price
                  * is per (FR-UNIT-04). */
-                units: z.string(),
-                price: z.string(),
-                remove: z.string(),
+                unitsAria: z.string(),
+                priceAria: z.string(),
+                removeAria: z.string(),
                 /** Reordering a line. Not a change to the order — a picking
                  * list is read top to bottom, and the alternative was removing
                  * a line and adding it back, which loses the price it was
                  * agreed at. */
-                moveUp: z.string(),
-                moveDown: z.string(),
+                moveUpAria: z.string(),
+                moveDownAria: z.string(),
                 addLabel: z.string(),
                 addPlaceholder: z.string(),
                 noMatches: z.string(),
@@ -2063,7 +2063,7 @@ export const adminTextSchema = z
             staffPage: pageText,
             /** How many rows the list holds, filters applied. */
             count: z.string(),
-            searchLabel: z.string(),
+            searchAria: z.string(),
             searchPlaceholder: z.string(),
             clearSearch: z.string(),
             empty: z.string(),
@@ -2097,17 +2097,17 @@ export const adminTextSchema = z
             statusActive: z.string(),
             statusDisabled: z.string(),
             statusAnonymized: z.string(),
-            /** Row actions (FR-AUTH-03/04). `actions` names the column for a
+            /** Row actions (FR-AUTH-03/04). `actionsAria` names the column for a
              * screen reader; the rest are the icon buttons' accessible names.
              * `{name}` in `declineConfirm` is substituted at render. */
-            actions: z.string(),
+            actionsAria: z.string(),
             approve: z.string(),
             edit: z.string(),
-            decline: z.string(),
+            declineAria: z.string(),
             /** Switching an account off and on again. `{name}` is
              * substituted. */
-            deactivate: z.string(),
-            reactivate: z.string(),
+            deactivateAria: z.string(),
+            reactivateAria: z.string(),
             saveError: z.string(),
             /** The two Add buttons — one per tab, since they create different
              * things and land on different forms. */
@@ -2323,8 +2323,8 @@ export const adminTextSchema = z
         description: z.string(),
         statusOn: z.string(),
         statusOff: z.string(),
-        enable: z.string(),
-        disable: z.string(),
+        enableAria: z.string(),
+        disableAria: z.string(),
         error: z.string(),
       })
       .strict(),

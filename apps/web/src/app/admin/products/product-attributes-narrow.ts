@@ -185,7 +185,7 @@ import {
                 <button
                   appIconButton
                   type="button"
-                  [attr.aria-label]="text.add"
+                  [attr.aria-label]="text.addAria"
                   (click)="addBelow($index)"
                 >
                   <app-admin-icon name="plus" />

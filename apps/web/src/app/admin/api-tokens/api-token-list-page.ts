@@ -217,7 +217,7 @@ const SCOPE_ROWS: readonly {
                       appIconButton
                       variant="danger"
                       type="button"
-                      [attr.aria-label]="text.revoke"
+                      [attr.aria-label]="text.revokeAria"
                       [disabled]="busy()"
                       (click)="revoke(token)"
                     >

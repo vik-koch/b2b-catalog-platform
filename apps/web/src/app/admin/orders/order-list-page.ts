@@ -79,7 +79,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query()"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -363,7 +363,7 @@ export class AdminOrderListPage {
         param: 'payment',
         options: this.paymentOptions,
         value: this.paymentParam(),
-        ariaLabel: this.text.filterPayment,
+        label: this.text.filterPayment,
       },
       minWidth: 130,
     },
@@ -378,7 +378,7 @@ export class AdminOrderListPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusParam(),
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
       minWidth: 110,
     },
@@ -391,7 +391,7 @@ export class AdminOrderListPage {
     // Two glyphs at 24px, with the gap and the cell's own padding.
     {
       key: 'actions',
-      srLabel: this.text.actions,
+      srLabel: this.text.actionsAria,
       align: 'right',
       fixedWidth: 64,
     },

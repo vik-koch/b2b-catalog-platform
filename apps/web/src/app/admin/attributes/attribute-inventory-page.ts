@@ -172,7 +172,7 @@ type RenameTarget =
                               appIconButton
                               routerLink="/admin/attributes"
                               [queryParams]="{ name: entry.key }"
-                              [attr.aria-label]="text.toDefinition"
+                              [attr.aria-label]="text.toDefinitionAria"
                             >
                               <app-admin-icon name="funnel" />
                             </a>
@@ -189,7 +189,7 @@ type RenameTarget =
                           <button
                             appIconButton
                             type="button"
-                            [attr.aria-label]="text.renameKey"
+                            [attr.aria-label]="text.renameKeyAria"
                             [disabled]="busy()"
                             (click)="
                               startRename({ kind: 'key', key: entry.key })
@@ -300,7 +300,7 @@ type RenameTarget =
                                     <button
                                       appIconButton
                                       type="button"
-                                      [attr.aria-label]="text.renameValue"
+                                      [attr.aria-label]="text.renameValueAria"
                                       [disabled]="busy()"
                                       (click)="
                                         startRename({
@@ -399,7 +399,7 @@ type RenameTarget =
             class="w-72"
             name="rename"
             autocomplete="off"
-            [attr.aria-label]="text.newText"
+            [attr.aria-label]="text.newTextAria"
             [value]="draft()"
             (input)="draft.set($any($event.target).value)"
           />

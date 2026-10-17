@@ -190,7 +190,7 @@ interface CartRow {
                     type="button"
                     appIconButton
                     class="-mt-1 -mr-1 shrink-0"
-                    [attr.aria-label]="changeText.dismiss"
+                    [attr.aria-label]="changeText.dismissAria"
                     (click)="cart.dismissChanges()"
                   >
                     <app-icon name="close" />
@@ -358,7 +358,7 @@ interface CartRow {
                             class="w-full"
                             [attr.maxlength]="noteMax"
                             [attr.placeholder]="row.notePrompt"
-                            [attr.aria-label]="text.lineNote"
+                            [attr.aria-label]="text.lineNoteAria"
                             [value]="row.note ?? ''"
                             (change)="onNote(row, $event)"
                           ></textarea>
@@ -845,11 +845,11 @@ export class CartPage {
   }
 
   protected removeLabel(row: CartRow): string {
-    return fillText(this.text.remove, { name: row.name });
+    return fillText(this.text.removeAria, { name: row.name });
   }
 
   protected selectLabel(row: CartRow): string {
-    return fillText(this.text.selectLine, { name: row.name });
+    return fillText(this.text.selectLineAria, { name: row.name });
   }
 
   protected isSelected(key: string): boolean {

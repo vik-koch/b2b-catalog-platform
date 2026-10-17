@@ -203,7 +203,7 @@ export interface BuyableProduct {
     <ng-template #unitsBlock>
       <div
         role="radiogroup"
-        [attr.aria-label]="text.unitLabel"
+        [attr.aria-label]="text.unitAria"
         [class]="group()"
       >
         @for (option of options(); track option.unit) {
@@ -271,7 +271,7 @@ export interface BuyableProduct {
           <button
             type="button"
             [class]="stepperButton() + ' rounded-l-md border-r-0'"
-            [attr.aria-label]="text.decrease"
+            [attr.aria-label]="text.decreaseAria"
             [disabled]="!sellable()"
             (click)="step(-1)"
           >
@@ -326,7 +326,7 @@ export interface BuyableProduct {
             [appNumericField]="whole() ? 'integer' : 'decimal'"
             [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
-            [attr.aria-label]="text.quantityLabel"
+            [attr.aria-label]="text.quantityAria"
             [disabled]="!sellable()"
             [value]="fieldText()"
             (input)="onQuantityInput($event)"
@@ -346,7 +346,7 @@ export interface BuyableProduct {
         <button
           type="button"
           [class]="stepperButton() + ' rounded-r-md border-l-0'"
-          [attr.aria-label]="text.increase"
+          [attr.aria-label]="text.increaseAria"
           [disabled]="!sellable()"
           (click)="step(1)"
         >

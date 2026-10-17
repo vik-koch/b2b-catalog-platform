@@ -119,7 +119,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [title]="page().title"
       [intro]="page().intro"
       [query]="query() ?? ''"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -413,7 +413,7 @@ export class UserListPage {
                     param: 'companyIdFormat',
                     options: this.companyIdFormatOptions,
                     value: this.companyIdFormat(),
-                    ariaLabel: this.text.filterCompanyIdFormat,
+                    label: this.text.filterCompanyIdFormat,
                   },
                 }
               : {}),
@@ -430,7 +430,7 @@ export class UserListPage {
               param: 'role',
               options: this.staffRoleOptions,
               value: this.roleParam(),
-              ariaLabel: this.text.filterRole,
+              label: this.text.filterRole,
             },
           } satisfies GridColumn,
         ]
@@ -445,7 +445,7 @@ export class UserListPage {
               param: 'tier',
               options: this.tierOptions(),
               value: this.tier(),
-              ariaLabel: this.text.filterTier,
+              label: this.text.filterTier,
             },
           } satisfies GridColumn,
         ]
@@ -462,7 +462,7 @@ export class UserListPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusParam(),
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
     },
     {
@@ -476,7 +476,7 @@ export class UserListPage {
     // Two glyphs at 24px, with the gap and the cell's own padding.
     {
       key: 'actions',
-      srLabel: this.text.actions,
+      srLabel: this.text.actionsAria,
       align: 'right',
       fixedWidth: 64,
     },

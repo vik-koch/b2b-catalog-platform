@@ -40,7 +40,7 @@
       "markLabel": "Show the variants ({count})"
     },
     "layout": {
-      "label": "Layout",
+      "labelAria": "Layout",
       "grid": "Show as cards",
       "list": "Show as list"
     },
@@ -63,8 +63,8 @@
       "title": "Filters",
       "selected": "({count})",
       "clearAll": "Clear all filters",
-      "appliedLabel": "Applied filters",
-      "remove": "Remove the filter {label}",
+      "appliedAria": "Applied filters",
+      "removeAria": "Remove the filter {label}",
       "noMatches": "No products match the selected filters."
     },
     "specifications": "Specifications",
@@ -73,7 +73,7 @@
     "productNotFound": "This product could not be found. It may have been removed.",
     "categoryNotFound": "This category could not be found. It may have been removed.",
     "backToCatalog": "Back to the catalogue",
-    "viewImage": "Show image {n}",
+    "viewImageAria": "Show image {n}",
     "imagePlaceholder": "No image available",
     "pairings": {
       "marker": "Sold together with other products ({count})",
@@ -81,8 +81,8 @@
       "loadError": "Something went wrong loading these — please try again later."
     },
     "documents": {
-      "hint": "Opens in a new tab",
-      "linkLabel": "Look it up at {host}"
+      "hintAria": "Opens in a new tab",
+      "linkAria": "Look it up at {host}"
     },
     "units": {
       "perUnit": "per {unit}",
@@ -100,16 +100,16 @@
   "cart": {
     "navLabel": "Cart",
     "title": "Your cart",
-    "summaryLabel": "Cart: {total}, lines: {count}",
+    "summaryAria": "Cart: {total}, lines: {count}",
     "empty": "Your cart is empty.",
     "emptyAction": "Browse the catalogue",
     "loadError": "Something went wrong pricing your cart — please try again later.",
     "storageFailed": "This browser will not keep your cart — it will be gone when you close this page.",
-    "unitLabel": "Unit",
-    "quantityLabel": "Quantity",
+    "unitAria": "Unit",
+    "quantityAria": "Quantity",
     "unitNotSold": "This product is not sold in this unit.",
-    "decrease": "Decrease the quantity",
-    "increase": "Increase the quantity",
+    "decreaseAria": "Decrease the quantity",
+    "increaseAria": "Increase the quantity",
     "noteLabel": "Note",
     "notePrompt": "Anything we should know about this line?",
     "noteAdd": "Add a note to this line",
@@ -118,12 +118,12 @@
     "add": "Add to cart",
     "addedFor": "Added for {total}",
     "full": "Your cart is full — please place this order before adding more products.",
-    "lineNote": "Note",
-    "remove": "Remove {name}",
+    "lineNoteAria": "Note",
+    "removeAria": "Remove {name}",
     "removeQuestion": "Take this out of the cart?",
     "removeYes": "Remove",
     "removeNo": "Keep",
-    "selectLine": "Select {name}",
+    "selectLineAria": "Select {name}",
     "selectAll": "Select all",
     "clearSelection": "Clear selection",
     "deleteSelected": "Delete selection",
@@ -146,7 +146,7 @@
     "shipmentUncovered": "Lines not covered by this estimate: {count}",
     "changes": {
       "heading": "What changed while your cart waited",
-      "dismiss": "Dismiss this summary",
+      "dismissAria": "Dismiss this summary",
       "unavailable": "{name} is no longer available.",
       "quantity": "{name}: the quantity was adjusted to the nearest we can supply.",
       "price": "{name}: the price changed from {from} to {to}.",
@@ -278,7 +278,7 @@
     "awaitingPickup": "{count} ready to collect",
     "filterToPay": "Waiting to be paid",
     "filterToCollect": "Ready to collect",
-    "filterRemove": "Show all orders ({label})",
+    "filterRemoveAria": "Show all orders ({label})",
     "filterEmpty": "Nothing is waiting for you right now.",
     "empty": "You have not sent us an order yet.",
     "emptyAction": "Browse the catalogue",
@@ -319,16 +319,16 @@
     "placeholder": "Search products",
     "submit": "Search",
     "openSearch": "Open search",
-    "closeSearch": "Close search",
-    "clear": "Clear search",
-    "searchNav": "Product search",
-    "suggestionsLabel": "Product suggestions",
-    "suggestionCount": "Suggestions available: {count}. Use the arrow keys to review them.",
+    "closeSearchAria": "Close search",
+    "clearAria": "Clear search",
+    "searchNavAria": "Product search",
+    "suggestionsAria": "Product suggestions",
+    "suggestionCountAria": "Suggestions available: {count}. Use the arrow keys to review them.",
     "noSuggestions": "Nothing found",
     "categoriesLabel": "Matching categories",
     "showAllResults": "Show all results",
-    "addSuggestion": "Add {name} to cart",
-    "suggestionInCart": "{name} is in your cart",
+    "addSuggestionAria": "Add {name} to cart",
+    "suggestionInCartAria": "{name} is in your cart",
     "resultsTitle": "Results for “{query}”",
     "resultCount": "Products found: {count}",
     "noResults": "Nothing matched “{query}”.",
@@ -340,7 +340,7 @@
     "login": "Log in",
     "logout": "Log out",
     "accountNav": "Account",
-    "workMarker": "{count} awaiting your attention",
+    "workMarkerAria": "{count} awaiting your attention",
     "greeting": "Hello, {name}",
     "securityHeading": "Password and security",
     "adminPanel": "Admin panel",
@@ -481,9 +481,9 @@
       "heading": "My addresses",
       "empty": "No saved addresses yet. Add one and it will be offered at checkout.",
       "add": "Add address",
-      "editLabel": "Edit {label}",
+      "editAria": "Edit {label}",
       "remove": "Remove",
-      "removeLabel": "Remove {label}",
+      "removeAria": "Remove {label}",
       "removeConfirm": {
         "heading": "Remove address",
         "message": "Remove “{label}” from your saved addresses? Orders already placed keep the address they were sent to.",
@@ -527,8 +527,8 @@
     "categoriesHeading": "Browse by category",
     "featured": {
       "heading": "From our range",
-      "previous": "Previous products",
-      "next": "More products"
+      "previousAria": "Previous products",
+      "nextAria": "More products"
     }
   },
   "pageUpdated": {
@@ -550,9 +550,9 @@
     "unavailable": "This form cannot be sent at the moment. Please try again later, or reach us another way."
   },
   "companySuggest": {
-    "suggestionsLabel": "Company suggestions",
+    "suggestionsAria": "Company suggestions",
     "noSuggestions": "No matching companies. Carry on typing it yourself.",
-    "suggestionCount": "Company suggestions: {count}"
+    "suggestionCountAria": "Company suggestions: {count}"
   },
   "address": {
     "label": "Name for this address",
@@ -568,9 +568,9 @@
     "required": "Please fill this in.",
     "postalCodeFormat": "A postcode here looks like {example}.",
     "suggest": {
-      "suggestionsLabel": "Address suggestions",
+      "suggestionsAria": "Address suggestions",
       "noSuggestions": "No matching addresses. Carry on typing it yourself.",
-      "suggestionCount": "Address suggestions: {count}"
+      "suggestionCountAria": "Address suggestions: {count}"
     }
   },
   "partyChoice": {

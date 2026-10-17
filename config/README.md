@@ -88,6 +88,15 @@ as the JSON escape ` `: `"paid in full"`. It is valid JSON, it
 parses to a real non-breaking space, and unlike a pasted one it stays visible to
 whoever edits the file next. Status badges do not need it: they never wrap.
 
+### Texts nobody sees
+
+A key ending in `Aria` is never on screen: a screen reader reads it out. It is
+the name of an icon-only button, a hint only a screen reader hears, or an
+announcement such as how many suggestions appeared. It can be a whole phrase
+and need not fit anywhere, so word it to be heard. A tooltip is not one of
+these — it shows on hover — so its key has no suffix. CI
+(`tools/check-aria-text.mjs`) fails if an `…Aria` text is ever put on screen.
+
 ### The seller line
 
 A jurisdiction that wants the seller identifiable on every page, not only on

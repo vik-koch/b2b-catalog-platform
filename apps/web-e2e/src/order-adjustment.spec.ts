@@ -26,7 +26,7 @@ const adminText = JSON.parse(
     adjust: {
       save: string;
       confirm: { confirm: string };
-      lines: { units: string };
+      lines: { unitsAria: string };
       changes: { none: string };
     };
   };
@@ -131,7 +131,7 @@ test.describe('adjusting an order', () => {
     // Seeded from the order: nothing has changed, and the list says so.
     await expect(page.getByText(adjust.changes.none)).toBeVisible();
 
-    const quantity = page.getByLabel(adjust.lines.units).first();
+    const quantity = page.getByLabel(adjust.lines.unitsAria).first();
     await quantity.fill(String(Number(await quantity.inputValue()) + 1));
 
     // The server prices the draft; what the change list shows is its answer,
@@ -158,7 +158,7 @@ test.describe('adjusting an order', () => {
     await logIn(page);
     await page.goto(`/admin/orders/${REFERENCE}/adjust`);
 
-    const quantity = page.getByLabel(adjust.lines.units).first();
+    const quantity = page.getByLabel(adjust.lines.unitsAria).first();
     await quantity.fill(String(Number(await quantity.inputValue()) + 1));
     await page.getByLabel(names.changeNote).fill('One more pack, as agreed.');
     await page.getByRole('button', { name: adjust.save }).click();

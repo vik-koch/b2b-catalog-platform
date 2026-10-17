@@ -122,7 +122,7 @@ export class CartLink {
   /** One sentence, because a badge read on its own says nothing — and with the
    * exact total, since a spoken label costs the navbar no width. */
   protected readonly summary = computed(() =>
-    fillText(this.text.summaryLabel, {
+    fillText(this.text.summaryAria, {
       count: this.count(),
       total: formatPriceMinor(this.cart.totalMinor(), this.currency),
     }),

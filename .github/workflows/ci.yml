@@ -66,6 +66,10 @@ jobs:
       # files today's schemas accept, or an operator's boot would find the gap.
       - run: node tools/migrate-text.mjs --check
 
+      # A text key named …Aria tells its translator nobody sees it: an
+      # accessible name, a screen-reader-only hint or an announcement.
+      - run: node tools/check-aria-text.mjs
+
       - run: cp .env.example .env
 
       - run: npx nx run-many -t lint typecheck test build format-check

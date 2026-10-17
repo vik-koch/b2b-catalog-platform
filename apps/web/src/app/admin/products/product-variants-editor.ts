@@ -138,7 +138,7 @@ let nextId = 0;
                       size="sm"
                       class="min-w-0 flex-1 basis-[calc(100%-1.5rem)] @min-[30rem]/variants:basis-0"
                       autocomplete="off"
-                      [attr.aria-label]="text.name"
+                      [attr.aria-label]="text.nameAria"
                       [attr.maxlength]="nameMax"
                       [attr.aria-invalid]="clashes(variant) ? true : null"
                       [value]="variant.name"
@@ -344,7 +344,7 @@ export class ProductVariantsEditor implements OnInit {
   }
 
   protected removeLabel(name: string): string {
-    return fillText(this.text.remove, { name });
+    return fillText(this.text.removeAria, { name });
   }
 
   protected onDrop(event: CdkDragDrop<unknown>): void {

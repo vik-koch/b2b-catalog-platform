@@ -50,7 +50,7 @@ import { IconButton } from '../../ui/icon-button';
         type="button"
         appIconButton
         variant="danger"
-        [attr.aria-label]="text.decline"
+        [attr.aria-label]="text.declineAria"
         (click)="declined.emit(user())"
       >
         <app-admin-icon name="trash-2" />
@@ -59,7 +59,7 @@ import { IconButton } from '../../ui/icon-button';
       <button
         type="button"
         appIconButton
-        [attr.aria-label]="text.reactivate"
+        [attr.aria-label]="text.reactivateAria"
         (click)="activeChanged.emit({ user: user(), active: true })"
       >
         <app-admin-icon name="rotate-ccw" />
@@ -69,7 +69,7 @@ import { IconButton } from '../../ui/icon-button';
         type="button"
         appIconButton
         variant="danger"
-        [attr.aria-label]="text.deactivate"
+        [attr.aria-label]="text.deactivateAria"
         (click)="activeChanged.emit({ user: user(), active: false })"
       >
         <app-admin-icon name="circle-slash" />

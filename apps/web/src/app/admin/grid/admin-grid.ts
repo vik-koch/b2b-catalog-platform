@@ -220,7 +220,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         [param]="filter.param"
                         [options]="filter.options"
                         [value]="filter.value"
-                        [ariaLabel]="filter.ariaLabel"
+                        [ariaLabel]="filter.label"
                         [toParams]="filter.toParams"
                       />
                     } @else if (column.sort; as columnSort) {
@@ -484,7 +484,7 @@ export class AdminGrid<T> {
   }
 
   protected resizeLabel(column: GridColumn): string {
-    return fillText(this.common.resizeColumnOf, {
+    return fillText(this.common.resizeColumnOfAria, {
       column: column.label ?? column.srLabel ?? column.key,
     });
   }

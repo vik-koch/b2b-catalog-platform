@@ -118,7 +118,7 @@ export interface AdjustLineRow {
                 min="1"
                 step="1"
                 [id]="id + '-pieces-' + i"
-                [attr.aria-label]="text.units"
+                [attr.aria-label]="text.unitsAria"
                 [disabled]="disabled()"
                 [value]="line.pieces"
                 (input)="piecesTyped(i, $any($event.target).value)"
@@ -131,7 +131,7 @@ export interface AdjustLineRow {
                 type="text"
                 inputmode="decimal"
                 [id]="id + '-price-' + i"
-                [attr.aria-label]="text.price"
+                [attr.aria-label]="text.priceAria"
                 [disabled]="disabled()"
                 [value]="line.priceText"
                 (input)="priceTyped(i, $any($event.target).value)"
@@ -193,7 +193,7 @@ export interface AdjustLineRow {
                   appIconButton
                   type="button"
                   [disabled]="disabled() || i === 0"
-                  [attr.aria-label]="moveLabel(line, text.moveUp)"
+                  [attr.aria-label]="moveLabel(line, text.moveUpAria)"
                   (click)="moved.emit({ from: i, to: i - 1 })"
                 >
                   <app-admin-icon name="chevron-up" />
@@ -202,7 +202,7 @@ export interface AdjustLineRow {
                   appIconButton
                   type="button"
                   [disabled]="disabled() || i === lines().length - 1"
-                  [attr.aria-label]="moveLabel(line, text.moveDown)"
+                  [attr.aria-label]="moveLabel(line, text.moveDownAria)"
                   (click)="moved.emit({ from: i, to: i + 1 })"
                 >
                   <app-admin-icon name="chevron-down" />
@@ -342,7 +342,7 @@ export class OrderAdjustLines {
   }
 
   protected removeLabel(line: AdjustLineRow): string {
-    return `${this.text.remove}: ${line.name}`;
+    return `${this.text.removeAria}: ${line.name}`;
   }
 
   protected moveLabel(line: AdjustLineRow, action: string): string {

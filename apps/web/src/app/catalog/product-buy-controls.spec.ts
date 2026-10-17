@@ -340,7 +340,7 @@ describe('ProductBuyControls', () => {
     await view.blurQuantity();
     expect(view.text()).toContain(corrected);
 
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
 
     expect(view.text()).not.toContain(corrected);
   });
@@ -351,11 +351,11 @@ describe('ProductBuyControls', () => {
   it('steps pieces by the pack, and stops at the minimum', async () => {
     const view = await render(packaged);
 
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
     expect(view.quantityInput().value).toBe('110');
 
-    await view.click(text.decrease);
-    await view.click(text.decrease);
+    await view.click(text.decreaseAria);
+    await view.click(text.decreaseAria);
 
     expect(view.quantityInput().value).toBe('100');
   });
@@ -367,10 +367,10 @@ describe('ProductBuyControls', () => {
     await view.chooseUnit(unitText.select.box);
     expect(view.quantityInput().value).toBe('2,5');
 
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
     expect(view.quantityInput().value).toBe('3');
 
-    await view.click(text.decrease);
+    await view.click(text.decreaseAria);
     expect(view.quantityInput().value).toBe('2,5');
   });
 
@@ -516,7 +516,7 @@ describe('ProductBuyControls', () => {
     // Counted in boxes, 100 pieces is two and a half of them — so one press
     // offers three, not three and a half.
     await view.chooseUnit(unitText.select.box);
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
 
     expect(view.quantityInput().value).toBe('3');
     expect(view.text()).toContain('84,00');
@@ -526,7 +526,7 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged);
     await view.click(text.add);
 
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
 
     expect(view.cart.lines()).toHaveLength(1);
     expect(view.cart.lines()[0].pieces).toBe(110);
@@ -552,7 +552,7 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged);
     await view.click(text.add);
 
-    await view.click(text.decrease);
+    await view.click(text.decreaseAria);
 
     expect(view.text()).toContain(text.removeQuestion);
     expect(view.cart.lines()).toHaveLength(1);
@@ -566,7 +566,7 @@ describe('ProductBuyControls', () => {
   it('keeps the line where the question is answered by clicking elsewhere', async () => {
     const view = await render(packaged);
     await view.click(text.add);
-    await view.click(text.decrease);
+    await view.click(text.decreaseAria);
 
     await view.pressOutside();
 
@@ -578,7 +578,7 @@ describe('ProductBuyControls', () => {
   it('does not offer to remove a product that is not in the cart', async () => {
     const view = await render(packaged);
 
-    await view.click(text.decrease);
+    await view.click(text.decreaseAria);
 
     expect(view.text()).not.toContain(text.removeQuestion);
     expect(view.quantityInput().value).toBe('100');
@@ -776,12 +776,12 @@ describe('ProductBuyControls, a product that takes a note', () => {
       expect(view.quantityInput().disabled).toBe(true);
       expect(
         view.el.querySelector<HTMLButtonElement>(
-          `[aria-label="${defaultAppText.cart.increase}"]`,
+          `[aria-label="${defaultAppText.cart.increaseAria}"]`,
         )?.disabled,
       ).toBe(true);
       expect(
         view.el.querySelector<HTMLButtonElement>(
-          `[aria-label="${defaultAppText.cart.decrease}"]`,
+          `[aria-label="${defaultAppText.cart.decreaseAria}"]`,
         )?.disabled,
       ).toBe(true);
     });

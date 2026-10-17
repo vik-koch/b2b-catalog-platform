@@ -16,7 +16,7 @@ interface DocumentRow {
   href: string;
   glyph: IconName;
   caption: string;
-  link: { href: string; host: string; label: string } | null;
+  link: { href: string; host: string; ariaLabel: string } | null;
 }
 
 /**
@@ -66,7 +66,7 @@ interface DocumentRow {
                     [href]="link.href"
                     target="_blank"
                     rel="noopener"
-                    [attr.aria-label]="link.label"
+                    [attr.aria-label]="link.ariaLabel"
                     [attr.aria-describedby]="hintId"
                     class="inline-flex items-center gap-1 underline decoration-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
                     >{{ link.host
@@ -107,7 +107,7 @@ interface DocumentRow {
     </ul>
     <!-- Said once and pointed at by every link, rather than repeated into each
          one's accessible name: it is the same promise for all of them. -->
-    <p [id]="hintId" class="sr-only">{{ text.hint }}</p>
+    <p [id]="hintId" class="sr-only">{{ text.hintAria }}</p>
   `,
 })
 export class ProductDocuments {
@@ -134,7 +134,11 @@ export class ProductDocuments {
           this.sizes,
         )}`,
         link: link
-          ? { href: link, host, label: fillText(this.text.linkLabel, { host }) }
+          ? {
+              href: link,
+              host,
+              ariaLabel: fillText(this.text.linkAria, { host }),
+            }
           : null,
       };
     }

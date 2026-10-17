@@ -204,6 +204,6 @@ export class ProductPartsEditor implements OnInit {
   }
 
   protected removeLabel(part: string): string {
-    return fillText(this.text.remove, { name: part });
+    return fillText(this.text.removeAria, { name: part });
   }
 }

@@ -27,7 +27,7 @@ const columns: GridColumn[] = [
         { value: 'pending', label: 'Pending' },
       ],
       value: 'pending',
-      ariaLabel: 'Filter by status',
+      label: 'Filter by status',
     },
   },
 ];

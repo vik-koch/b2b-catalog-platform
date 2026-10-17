@@ -34,7 +34,7 @@ const columns: GridColumn[] = [
         { value: 'active', label: 'Active' },
       ],
       value: '',
-      ariaLabel: 'Filter by status',
+      label: 'Filter by status',
     },
   },
   // Not negotiable: two glyphs need what they need.

@@ -152,7 +152,7 @@ const SUGGESTIONS_SHOWN = 8;
                     <ul
                       [id]="listId"
                       role="listbox"
-                      [attr.aria-label]="text.suggestionsLabel"
+                      [attr.aria-label]="text.suggestionsAria"
                     >
                       @for (
                         item of options();
@@ -274,7 +274,7 @@ export class ProductPairingsEditor implements OnInit {
     const count = this.options().length;
     return count === 0
       ? this.text.noSuggestions
-      : fillText(this.text.suggestionCount, { count });
+      : fillText(this.text.suggestionCountAria, { count });
   });
 
   /** Open where there is something to see. Read once, in `ngOnInit`: a panel
@@ -321,6 +321,6 @@ export class ProductPairingsEditor implements OnInit {
   }
 
   protected removeLabel(item: PairedProduct): string {
-    return fillText(this.text.remove, { name: item.name });
+    return fillText(this.text.removeAria, { name: item.name });
   }
 }

@@ -106,7 +106,7 @@ function knownValues<T extends string>(
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query() ?? ''"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -509,7 +509,7 @@ export class ProductListPage {
    * glyphs its row draws, then the gaps. */
   protected readonly toggles = computed<GridToggleGroup[]>(() => [
     {
-      label: this.text.hasGroup,
+      ariaLabel: this.text.hasGroupAria,
       param: 'has',
       options: PRODUCT_FEATURES.map((feature) => ({
         value: feature,
@@ -519,7 +519,7 @@ export class ProductListPage {
       selected: this.hasKeys(),
     },
     {
-      label: this.text.missingGroup,
+      ariaLabel: this.text.missingGroupAria,
       param: 'missing',
       options: PRODUCT_GAP_FILTERS.map((gap) => ({
         value: gap,
@@ -686,7 +686,7 @@ export class ProductListPage {
         value: this.categoryDirect()
           ? this.categoryId() + DIRECT_SUFFIX
           : this.categoryId(),
-        ariaLabel: this.text.filterCategory,
+        label: this.text.filterCategory,
         toParams: this.categoryParams,
       },
     },
@@ -708,7 +708,7 @@ export class ProductListPage {
         param: 'availability',
         options: this.stockOptions,
         value: this.availabilityKey() ?? '',
-        ariaLabel: this.text.filterStock,
+        label: this.text.filterStock,
       },
       minWidth: 110,
     },
@@ -723,7 +723,7 @@ export class ProductListPage {
         param: 'state',
         options: this.stateOptions,
         value: this.stateParam(),
-        ariaLabel: this.text.filterState,
+        label: this.text.filterState,
       },
       minWidth: 120,
     },
@@ -760,7 +760,7 @@ export class ProductListPage {
             : this.text.tierPricedYes,
         value: tier,
         clearParams: { tierId: null, tierPriced: null, page: null },
-        clearLabel: this.text.clearTier,
+        clearLabel: this.text.clearTierAria,
       });
     }
     const document = this.documentFilter();
@@ -769,7 +769,7 @@ export class ProductListPage {
         label: this.text.filterDocument,
         value: document,
         clearParams: { documentId: null, page: null },
-        clearLabel: this.text.clearDocument,
+        clearLabel: this.text.clearDocumentAria,
       });
     }
     const attribute = this.attributeFilter();
@@ -780,7 +780,7 @@ export class ProductListPage {
           ? `${attribute.key} = ${attribute.value}`
           : attribute.key,
         clearParams: { attributeKey: null, attributeValue: null, page: null },
-        clearLabel: this.text.clearAttribute,
+        clearLabel: this.text.clearAttributeAria,
       });
     }
     return chips;
@@ -841,13 +841,13 @@ export class ProductListPage {
   protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
 
   /** What the badge says when it is read rather than seen: the figure and the
-   * state it resolves to. The unit is in the wording of `stockLabel`, so the
+   * state it resolves to. The unit is in the wording of `stockAria`, so the
    * suffix beside the figure is not read out twice. */
   protected stockLabel(item: {
     stockPieces: number | null;
     availability: ProductAvailability | null;
   }): string {
-    return fillText(this.text.stockLabel, {
+    return fillText(this.text.stockAria, {
       count: String(item.stockPieces ?? 0),
       state: this.availabilityText[item.availability ?? 'in'],
     });

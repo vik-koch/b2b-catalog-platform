@@ -16,9 +16,9 @@ const kontor: PartySuggestion = {
 };
 
 const text = {
-  suggestionsLabel: 'Company suggestions',
+  suggestionsAria: 'Company suggestions',
   noSuggestions: 'No matching companies. Carry on typing it yourself.',
-  suggestionCount: 'Company suggestions: {count}',
+  suggestionCountAria: 'Company suggestions: {count}',
 };
 
 async function render() {

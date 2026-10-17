@@ -584,7 +584,7 @@
         "admin-text.json:userList.typeCompany"
       ]
     },
-    "app-text.json:companySuggest.suggestionsLabel": {
+    "app-text.json:companySuggest.suggestionsAria": {
       "from": [
         "app-text.json:auth.register.companySuggest.suggestionsLabel",
         "admin-text.json:userEditor.companySuggest.suggestionsLabel",
@@ -598,7 +598,7 @@
         "admin-text.json:orderAdjust.companySuggest.noSuggestions"
       ]
     },
-    "app-text.json:companySuggest.suggestionCount": {
+    "app-text.json:companySuggest.suggestionCountAria": {
       "from": [
         "app-text.json:auth.register.companySuggest.suggestionCount",
         "admin-text.json:userEditor.companySuggest.suggestionCount",
@@ -1380,13 +1380,13 @@
     "app-text.json:address.postalCodeFormat": {
       "from": ["app-text.json:auth.myAccount.addresses.postalCodeFormat"]
     },
-    "app-text.json:address.suggest.suggestionsLabel": {
+    "app-text.json:address.suggest.suggestionsAria": {
       "from": ["app-text.json:auth.myAccount.addresses.suggestionsLabel"]
     },
     "app-text.json:address.suggest.noSuggestions": {
       "from": ["app-text.json:auth.myAccount.addresses.noSuggestions"]
     },
-    "app-text.json:address.suggest.suggestionCount": {
+    "app-text.json:address.suggest.suggestionCountAria": {
       "from": ["app-text.json:auth.myAccount.addresses.suggestionCount"]
     },
     "app-text.json:auth.password": {
@@ -1419,6 +1419,225 @@
         "app-text.json:checkout.successRegisterAction",
         "app-text.json:orders.public.registerAction"
       ]
+    },
+    "admin-text.json:apiTokens.revokeAria": {
+      "from": ["admin-text.json:apiTokenList.revoke"]
+    },
+    "admin-text.json:attributes.inventory.newTextAria": {
+      "from": ["admin-text.json:attributeInventory.newText"]
+    },
+    "admin-text.json:attributes.inventory.renameKeyAria": {
+      "from": ["admin-text.json:attributeInventory.renameKey"]
+    },
+    "admin-text.json:attributes.inventory.renameValueAria": {
+      "from": ["admin-text.json:attributeInventory.renameValue"]
+    },
+    "admin-text.json:attributes.inventory.toDefinitionAria": {
+      "from": ["admin-text.json:attributeInventory.toDefinition"]
+    },
+    "admin-text.json:common.resizeColumnOfAria": {
+      "from": ["admin-text.json:common.resizeColumnOf"]
+    },
+    "admin-text.json:documents.editor.products.categoryAria": {
+      "from": ["admin-text.json:documentEditor.products.category"]
+    },
+    "admin-text.json:documents.editor.products.searchAria": {
+      "from": ["admin-text.json:documentEditor.products.search"]
+    },
+    "admin-text.json:imageFramer.stageAria": {
+      "from": ["admin-text.json:imageFramer.stage"]
+    },
+    "admin-text.json:orders.adjust.lines.moveDownAria": {
+      "from": ["admin-text.json:orderAdjust.lines.moveDown"]
+    },
+    "admin-text.json:orders.adjust.lines.moveUpAria": {
+      "from": ["admin-text.json:orderAdjust.lines.moveUp"]
+    },
+    "admin-text.json:orders.adjust.lines.priceAria": {
+      "from": ["admin-text.json:orderAdjust.lines.price"]
+    },
+    "admin-text.json:orders.adjust.lines.removeAria": {
+      "from": ["admin-text.json:orderAdjust.lines.remove"]
+    },
+    "admin-text.json:orders.adjust.lines.unitsAria": {
+      "from": ["admin-text.json:orderAdjust.lines.units"]
+    },
+    "admin-text.json:pages.imagePanel.headingAria": {
+      "from": ["admin-text.json:pageEditor.imagePanel.heading"]
+    },
+    "admin-text.json:pages.linkPanel.headingAria": {
+      "from": ["admin-text.json:pageEditor.linkPanel.heading"]
+    },
+    "admin-text.json:pages.toolbar.labelAria": {
+      "from": ["admin-text.json:pageEditor.toolbar.label"]
+    },
+    "admin-text.json:products.editor.attributes.addAria": {
+      "from": ["admin-text.json:productEditor.attributes.add"]
+    },
+    "admin-text.json:products.editor.documents.removeAria": {
+      "from": ["admin-text.json:productEditor.documents.remove"]
+    },
+    "admin-text.json:products.editor.documents.suggestionCountAria": {
+      "from": ["admin-text.json:productEditor.documents.suggestionCount"]
+    },
+    "admin-text.json:products.editor.documents.suggestionsAria": {
+      "from": ["admin-text.json:productEditor.documents.suggestionsLabel"]
+    },
+    "admin-text.json:products.editor.images.variantAria": {
+      "from": ["admin-text.json:productEditor.images.variant"]
+    },
+    "admin-text.json:products.editor.pairings.removeAria": {
+      "from": ["admin-text.json:productEditor.pairings.remove"]
+    },
+    "admin-text.json:products.editor.pairings.suggestionCountAria": {
+      "from": ["admin-text.json:productEditor.pairings.suggestionCount"]
+    },
+    "admin-text.json:products.editor.pairings.suggestionsAria": {
+      "from": ["admin-text.json:productEditor.pairings.suggestionsLabel"]
+    },
+    "admin-text.json:products.editor.parts.removeAria": {
+      "from": ["admin-text.json:productEditor.parts.remove"]
+    },
+    "admin-text.json:products.editor.variants.nameAria": {
+      "from": ["admin-text.json:productEditor.variants.name"]
+    },
+    "admin-text.json:products.editor.variants.removeAria": {
+      "from": ["admin-text.json:productEditor.variants.remove"]
+    },
+    "admin-text.json:products.list.stockAria": {
+      "from": ["admin-text.json:productList.stockLabel"]
+    },
+    "admin-text.json:products.list.clearTierAria": {
+      "from": ["admin-text.json:productList.clearTier"]
+    },
+    "admin-text.json:products.list.clearDocumentAria": {
+      "from": ["admin-text.json:productList.clearDocument"]
+    },
+    "admin-text.json:products.list.clearAttributeAria": {
+      "from": ["admin-text.json:productList.clearAttribute"]
+    },
+    "admin-text.json:products.list.searchAria": {
+      "from": ["admin-text.json:productList.searchLabel"]
+    },
+    "admin-text.json:products.list.hasGroupAria": {
+      "from": ["admin-text.json:productList.hasGroup"]
+    },
+    "admin-text.json:products.list.missingGroupAria": {
+      "from": ["admin-text.json:productList.missingGroup"]
+    },
+    "admin-text.json:orders.list.searchAria": {
+      "from": ["admin-text.json:orderList.searchLabel"]
+    },
+    "admin-text.json:orders.list.actionsAria": {
+      "from": ["admin-text.json:orderList.actions"]
+    },
+    "admin-text.json:documents.list.searchAria": {
+      "from": ["admin-text.json:documentList.searchLabel"]
+    },
+    "admin-text.json:users.list.searchAria": {
+      "from": ["admin-text.json:userList.searchLabel"]
+    },
+    "admin-text.json:users.list.actionsAria": {
+      "from": ["admin-text.json:userList.actions"]
+    },
+    "admin-text.json:users.list.deactivateAria": {
+      "from": ["admin-text.json:userList.deactivate"]
+    },
+    "admin-text.json:users.list.declineAria": {
+      "from": ["admin-text.json:userList.decline"]
+    },
+    "admin-text.json:users.list.reactivateAria": {
+      "from": ["admin-text.json:userList.reactivate"]
+    },
+    "admin-text.json:maintenance.enableAria": {
+      "from": ["admin-text.json:maintenance.enable"]
+    },
+    "admin-text.json:maintenance.disableAria": {
+      "from": ["admin-text.json:maintenance.disable"]
+    },
+    "app-text.json:account.addresses.editAria": {
+      "from": ["app-text.json:auth.myAccount.addresses.editLabel"]
+    },
+    "app-text.json:account.addresses.removeAria": {
+      "from": ["app-text.json:auth.myAccount.addresses.removeLabel"]
+    },
+    "app-text.json:auth.workMarkerAria": {
+      "from": ["app-text.json:auth.workMarker"]
+    },
+    "app-text.json:cart.changes.dismissAria": {
+      "from": ["app-text.json:cart.changes.dismiss"]
+    },
+    "app-text.json:cart.decreaseAria": {
+      "from": ["app-text.json:cart.decrease"]
+    },
+    "app-text.json:cart.increaseAria": {
+      "from": ["app-text.json:cart.increase"]
+    },
+    "app-text.json:cart.lineNoteAria": {
+      "from": ["app-text.json:cart.lineNote"]
+    },
+    "app-text.json:cart.quantityAria": {
+      "from": ["app-text.json:cart.quantityLabel"]
+    },
+    "app-text.json:cart.removeAria": {
+      "from": ["app-text.json:cart.remove"]
+    },
+    "app-text.json:cart.selectLineAria": {
+      "from": ["app-text.json:cart.selectLine"]
+    },
+    "app-text.json:cart.summaryAria": {
+      "from": ["app-text.json:cart.summaryLabel"]
+    },
+    "app-text.json:cart.unitAria": {
+      "from": ["app-text.json:cart.unitLabel"]
+    },
+    "app-text.json:catalog.documents.hintAria": {
+      "from": ["app-text.json:catalog.documents.hint"]
+    },
+    "app-text.json:catalog.documents.linkAria": {
+      "from": ["app-text.json:catalog.documents.linkLabel"]
+    },
+    "app-text.json:catalog.filters.appliedAria": {
+      "from": ["app-text.json:catalog.filters.appliedLabel"]
+    },
+    "app-text.json:catalog.filters.removeAria": {
+      "from": ["app-text.json:catalog.filters.remove"]
+    },
+    "app-text.json:catalog.layout.labelAria": {
+      "from": ["app-text.json:catalog.layout.label"]
+    },
+    "app-text.json:catalog.viewImageAria": {
+      "from": ["app-text.json:catalog.viewImage"]
+    },
+    "app-text.json:home.featured.nextAria": {
+      "from": ["app-text.json:home.featured.next"]
+    },
+    "app-text.json:home.featured.previousAria": {
+      "from": ["app-text.json:home.featured.previous"]
+    },
+    "app-text.json:orders.filterRemoveAria": {
+      "from": ["app-text.json:orders.filterRemove"]
+    },
+    "app-text.json:search.addSuggestionAria": {
+      "from": ["app-text.json:search.addSuggestion"]
+    },
+    "app-text.json:search.clearAria": {
+      "from": ["app-text.json:search.clear"]
+    },
+    "app-text.json:search.closeSearchAria": {
+      "from": ["app-text.json:search.closeSearch"]
+    },
+    "app-text.json:search.searchNavAria": {
+      "from": ["app-text.json:search.searchNav"]
+    },
+    "app-text.json:search.suggestionCountAria": {
+      "from": ["app-text.json:search.suggestionCount"]
+    },
+    "app-text.json:search.suggestionInCartAria": {
+      "from": ["app-text.json:search.suggestionInCart"]
+    },
+    "app-text.json:search.suggestionsAria": {
+      "from": ["app-text.json:search.suggestionsLabel"]
     }
   },
   "moves": {

@@ -458,7 +458,7 @@ describe('UserListPage', () => {
       users: [user({ id: 'p1', status: 'pending' })],
     });
 
-    await rowAction(text.decline);
+    await rowAction(text.declineAria);
 
     expect(confirm.ask).toHaveBeenCalled();
     expect(service.remove).toHaveBeenCalledWith('p1');
@@ -477,7 +477,7 @@ describe('UserListPage', () => {
         ownedAreas: ['customers'],
       });
 
-      await rowAction(text.decline);
+      await rowAction(text.declineAria);
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -494,7 +494,7 @@ describe('UserListPage', () => {
         ownedAreas: ['customers'],
       });
 
-      await rowAction(text.deactivate);
+      await rowAction(text.deactivateAria);
 
       expect(confirm.ask).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -513,7 +513,7 @@ describe('UserListPage', () => {
         ownedAreas: ['customers'],
       });
 
-      await rowAction(text.deactivate);
+      await rowAction(text.deactivateAria);
 
       expect(service.setActive).toHaveBeenCalledWith('s1', false);
     });
@@ -525,7 +525,7 @@ describe('UserListPage', () => {
       confirmed: false,
     });
 
-    await rowAction(text.decline);
+    await rowAction(text.declineAria);
 
     expect(service.remove).not.toHaveBeenCalled();
   });
@@ -539,7 +539,7 @@ describe('UserListPage', () => {
       code: 'account-not-purgeable',
     });
 
-    await rowAction(text.decline);
+    await rowAction(text.declineAria);
 
     // No dialog is left to carry it, so the page says so itself.
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
@@ -614,7 +614,7 @@ describe('UserListPage', () => {
 
   it('deactivates an approved account, and switches a deactivated one back on', async () => {
     const off = await render({ users: [user({ id: 'u1', status: 'active' })] });
-    await off.rowAction(text.deactivate);
+    await off.rowAction(text.deactivateAria);
     expect(off.confirm.ask).toHaveBeenCalled();
     expect(off.service.setActive).toHaveBeenCalledWith('u1', false);
 
@@ -623,13 +623,13 @@ describe('UserListPage', () => {
     const invited = await render({
       users: [user({ id: 'u2', status: 'invited' })],
     });
-    await invited.rowAction(text.deactivate);
+    await invited.rowAction(text.deactivateAria);
     expect(invited.service.setActive).toHaveBeenCalledWith('u2', false);
 
     const on = await render({
       users: [user({ id: 'u1', status: 'disabled' })],
     });
-    await on.rowAction(text.reactivate);
+    await on.rowAction(text.reactivateAria);
     expect(on.service.setActive).toHaveBeenCalledWith('u1', true);
   });
 
@@ -638,7 +638,7 @@ describe('UserListPage', () => {
       users: [user({ status: 'pending' })],
     });
     // Nobody has decided on it yet: the actions are approve and decline.
-    expect(pending.el.textContent).not.toContain(text.deactivate);
+    expect(pending.el.textContent).not.toContain(text.deactivateAria);
 
     const closed = await render({ users: [user({ status: 'anonymized' })] });
     expect(closed.el.querySelectorAll('tbody button')).toHaveLength(0);
@@ -650,7 +650,7 @@ describe('UserListPage', () => {
     });
     service.setActive.mockResolvedValueOnce({ ok: false, code: 'last-admin' });
 
-    await rowAction(text.deactivate);
+    await rowAction(text.deactivateAria);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       text.errors['last-admin'],

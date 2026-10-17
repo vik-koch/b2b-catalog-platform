@@ -266,7 +266,7 @@ export class SyncRunsPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusFilter() ?? '',
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
     },
     { key: 'changes', label: this.text.col.changes, minWidth: 100 },

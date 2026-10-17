@@ -81,7 +81,7 @@ type View = 'all' | 'linked';
         type="search"
         autocomplete="off"
         class="w-full"
-        [attr.aria-label]="text.search"
+        [attr.aria-label]="text.searchAria"
         [placeholder]="text.searchPlaceholder"
         [value]="query()"
         (input)="query.set($any($event.target).value)"
@@ -90,7 +90,7 @@ type View = 'all' | 'linked';
         <select
           appInput
           class="w-full"
-          [attr.aria-label]="text.category"
+          [attr.aria-label]="text.categoryAria"
           [value]="categoryId()"
           (change)="categoryId.set($any($event.target).value)"
         >

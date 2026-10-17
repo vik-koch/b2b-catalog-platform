@@ -201,14 +201,14 @@ describe('AccountPage', () => {
         'a[href="/account/addresses/addr-1/edit"]',
       );
       expect(edit?.getAttribute('aria-label')).toBe(
-        accountText.addresses.editLabel.replace('{label}', 'Shop'),
+        accountText.addresses.editAria.replace('{label}', 'Shop'),
       );
       expect(edit?.textContent?.trim()).toBe('');
       expect(
-        buttonByLabel(el, accountText.addresses.removeLabel).getAttribute(
+        buttonByLabel(el, accountText.addresses.removeAria).getAttribute(
           'aria-label',
         ),
-      ).toBe(accountText.addresses.removeLabel.replace('{label}', 'Shop'));
+      ).toBe(accountText.addresses.removeAria.replace('{label}', 'Shop'));
     });
 
     // Nothing was named at checkout, so the row is headed by its own first
@@ -251,7 +251,7 @@ describe('AccountPage', () => {
     it('removes an address once it is confirmed, then re-reads the list', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress]);
 
-      buttonByLabel(el, accountText.addresses.removeLabel).click();
+      buttonByLabel(el, accountText.addresses.removeAria).click();
       await fixture.whenStable();
 
       expect(h.ask).toHaveBeenCalledTimes(1);
@@ -262,7 +262,7 @@ describe('AccountPage', () => {
     it('leaves the address alone when the question is declined', async () => {
       const { fixture, el, h } = await render(customer, [savedAddress], false);
 
-      buttonByLabel(el, accountText.addresses.removeLabel).click();
+      buttonByLabel(el, accountText.addresses.removeAria).click();
       await fixture.whenStable();
 
       expect(h.remove).not.toHaveBeenCalled();

@@ -74,7 +74,7 @@ interface ToolbarAction {
       <div [class]="toolbarClass()">
         <div
           role="toolbar"
-          [attr.aria-label]="text.toolbar.label"
+          [attr.aria-label]="text.toolbar.labelAria"
           class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-border bg-stone-100 p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
@@ -94,7 +94,7 @@ interface ToolbarAction {
           <div
             [class]="panelClass + ' left-2'"
             role="dialog"
-            [attr.aria-label]="link.heading"
+            [attr.aria-label]="link.headingAria"
           >
             <ng-container [ngTemplateOutlet]="linkBody" />
           </div>
@@ -103,7 +103,7 @@ interface ToolbarAction {
           <div
             [class]="panelClass + ' right-2'"
             role="dialog"
-            [attr.aria-label]="image.heading"
+            [attr.aria-label]="image.headingAria"
           >
             <ng-container [ngTemplateOutlet]="imageBody" />
           </div>
@@ -280,7 +280,7 @@ interface ToolbarAction {
       <dialog
         #linkDialog
         appDialogPanel
-        [attr.aria-label]="link.heading"
+        [attr.aria-label]="link.headingAria"
         (cancel)="closeLinkPanel()"
       >
         <ng-container [ngTemplateOutlet]="linkBody" />
@@ -291,7 +291,7 @@ interface ToolbarAction {
       <dialog
         #imageDialog
         appDialogPanel
-        [attr.aria-label]="image.heading"
+        [attr.aria-label]="image.headingAria"
         (cancel)="closeImagePanel()"
       >
         <ng-container [ngTemplateOutlet]="imageBody" />

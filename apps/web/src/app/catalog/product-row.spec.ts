@@ -78,7 +78,9 @@ describe('ProductRow', () => {
     const el = await render();
 
     expect(el.querySelector('[role=radiogroup]')).not.toBeNull();
-    expect(el.querySelector(`[aria-label="${text.increase}"]`)).not.toBeNull();
+    expect(
+      el.querySelector(`[aria-label="${text.increaseAria}"]`),
+    ).not.toBeNull();
     expect(el.textContent).toContain(text.add);
     // The minimum goes with the quantity, the packaging with the price.
     expect(el.textContent).toContain('Minimum order');

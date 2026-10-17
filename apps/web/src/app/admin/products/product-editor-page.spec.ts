@@ -747,7 +747,7 @@ describe('ProductEditorPage', () => {
 
       (
         box(el).querySelector(
-          `[aria-label="${fillText(variantsText.remove, { name: 'Slate' })}"]`,
+          `[aria-label="${fillText(variantsText.removeAria, { name: 'Slate' })}"]`,
         ) as HTMLButtonElement
       ).click();
       fixture.detectChanges();
@@ -858,7 +858,9 @@ describe('ProductEditorPage', () => {
       expect(field.getAttribute('aria-invalid')).toBe('true');
       expect(field.value).toBe('slate');
       expect(
-        box(el).querySelectorAll(`input[aria-label="${variantsText.name}"]`),
+        box(el).querySelectorAll(
+          `input[aria-label="${variantsText.nameAria}"]`,
+        ),
       ).toHaveLength(2);
     });
 
@@ -870,7 +872,7 @@ describe('ProductEditorPage', () => {
       );
 
       const name = box(el).querySelectorAll<HTMLInputElement>(
-        `input[aria-label="${variantsText.name}"]`,
+        `input[aria-label="${variantsText.nameAria}"]`,
       )[1];
       setInput(name, ' sand ');
       fixture.detectChanges();

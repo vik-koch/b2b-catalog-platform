@@ -7,9 +7,9 @@ import { confirmText } from './text-shapes';
  * matches, and `{count}` for the live region. */
 const suggestText = z
   .object({
-    suggestionsLabel: z.string(),
+    suggestionsAria: z.string(),
     noSuggestions: z.string(),
-    suggestionCount: z.string(),
+    suggestionCountAria: z.string(),
   })
   .strict();
 
@@ -126,7 +126,7 @@ export const appTextSchema = z
           .strict(),
         layout: z
           .object({
-            label: z.string(),
+            labelAria: z.string(),
             grid: z.string(),
             list: z.string(),
           })
@@ -176,9 +176,9 @@ export const appTextSchema = z
             selected: z.string(),
             clearAll: z.string(),
             /** Accessible name of the chip row. */
-            appliedLabel: z.string(),
+            appliedAria: z.string(),
             /** A chip's remove button; `{label}` is "Attribute: value". */
-            remove: z.string(),
+            removeAria: z.string(),
             /** Shown where the grid would be, when a selection matches
              * nothing — beside the panel that can undo it, never instead of
              * it. */
@@ -195,7 +195,7 @@ export const appTextSchema = z
         /** Back link on the catalogue's 404 screens. */
         backToCatalog: z.string(),
         /** Gallery thumbnail label; `{n}` is substituted. */
-        viewImage: z.string(),
+        viewImageAria: z.string(),
         /** Caption shown on the fallback tile when a product has no photo. */
         imagePlaceholder: z.string(),
         /**
@@ -215,18 +215,16 @@ export const appTextSchema = z
           })
           .strict(),
         /**
-         * The documents a product page lists (FR-DOC-03). `label` heads the
-         * section; `hint` is the accessible name every link carries, because
-         * each one leaves the page for a file. The two size words are the
-         * caption under a title — the same pair the admin list uses, said
-         * again here because storefront and admin text are separate audiences.
+         * The documents a product page lists (FR-DOC-03). `hintAria` is the
+         * description every link carries, because each one leaves the page
+         * for a file.
          */
         documents: z
           .object({
-            hint: z.string(),
+            hintAria: z.string(),
             /** The accessible name of a document's link beside its file
              * (FR-DOC-05); must contain `{host}`, which is what it shows. */
-            linkLabel: z.string(),
+            linkAria: z.string(),
           })
           .strict(),
         /**
@@ -277,7 +275,7 @@ export const appTextSchema = z
         title: z.string(),
         /** The header control's accessible name; `{count}` lines, `{total}`
          * money — one sentence, because a badge read on its own says nothing. */
-        summaryLabel: z.string(),
+        summaryAria: z.string(),
         empty: z.string(),
         emptyAction: z.string(),
         loadError: z.string(),
@@ -286,14 +284,14 @@ export const appTextSchema = z
         storageFailed: z.string(),
 
         /** The buying block on the product page. */
-        unitLabel: z.string(),
-        quantityLabel: z.string(),
+        unitAria: z.string(),
+        quantityAria: z.string(),
         /** Said in the bubble under a unit the product is not sold in — the
          * segment is shown rather than hidden, so it has to answer for itself. */
         unitNotSold: z.string(),
         /** The stepper buttons' accessible names — their content is an icon. */
-        decrease: z.string(),
-        increase: z.string(),
+        decreaseAria: z.string(),
+        increaseAria: z.string(),
         noteLabel: z.string(),
         /** Fallback prompt where the product names none of its own. */
         notePrompt: z.string(),
@@ -314,16 +312,16 @@ export const appTextSchema = z
         full: z.string(),
 
         /** The cart page. */
-        lineNote: z.string(),
+        lineNoteAria: z.string(),
         /** `{name}` is the product. */
-        remove: z.string(),
+        removeAria: z.string(),
         /** Asked in the bubble under the stepper when `−` goes below the
          * smallest quantity the product is sold in, and the two answers. */
         removeQuestion: z.string(),
         removeYes: z.string(),
         removeNo: z.string(),
         /** A row's tick box, named by the product it selects: `{name}`. */
-        selectLine: z.string(),
+        selectLineAria: z.string(),
         /** The two controls above the lines. The first toggles: it offers the
          * whole cart until the whole cart is ticked, and giving the ticks back
          * after that. */
@@ -376,7 +374,7 @@ export const appTextSchema = z
           .object({
             heading: z.string(),
             /** The control that puts the summary away. */
-            dismiss: z.string(),
+            dismissAria: z.string(),
             unavailable: z.string(),
             /** The quantity was rounded to one the shop can supply; the line
              * itself shows the figure that stands, so this names none. */
@@ -744,7 +742,7 @@ export const appTextSchema = z
         filterToPay: z.string(),
         filterToCollect: z.string(),
         /** The chip's dismiss control; `{label}` is the chip's own words. */
-        filterRemove: z.string(),
+        filterRemoveAria: z.string(),
         /** Where the narrowed history has nothing in it — the queue emptied
          * between the marker being drawn and the link being followed. */
         filterEmpty: z.string(),
@@ -829,18 +827,18 @@ export const appTextSchema = z
         /** Accessible name of the submit control and the mobile toggle. */
         submit: z.string(),
         openSearch: z.string(),
-        closeSearch: z.string(),
-        clear: z.string(),
+        closeSearchAria: z.string(),
+        clearAria: z.string(),
         /** Landmark name for the search form. */
-        searchNav: z.string(),
+        searchNavAria: z.string(),
         /** Accessible name of the suggestion list (FR-SEARCH-05). */
-        suggestionsLabel: z.string(),
+        suggestionsAria: z.string(),
         /**
          * Announced to screen readers when suggestions appear; `{count}` is
          * substituted. Never shown on screen — the list itself is the visual
          * form of this message.
          */
-        suggestionCount: z.string(),
+        suggestionCountAria: z.string(),
         /**
          * Shown in the suggestion panel when a typed query matched no product
          * name. Deliberately terse: it is a status inside a dropdown, not the
@@ -854,10 +852,10 @@ export const appTextSchema = z
         showAllResults: z.string(),
         /** Accessible name of a suggestion's icon-only add button
          * (FR-SEARCH-06); `{name}` is the product's. */
-        addSuggestion: z.string(),
+        addSuggestionAria: z.string(),
         /** Accessible name of the mark that replaces it once the product is
          * in the cart; `{name}` is the product's. */
-        suggestionInCart: z.string(),
+        suggestionInCartAria: z.string(),
         /** Results heading; `{query}` is substituted. */
         resultsTitle: z.string(),
         /** Result count; `{count}` is substituted. Shown for one or more hits. */
@@ -887,7 +885,7 @@ export const appTextSchema = z
          * `{count}` is substituted — the dot itself never shows a figure, so
          * this is the only place the total is spelled out.
          */
-        workMarker: z.string(),
+        workMarkerAria: z.string(),
         /** `{name}` — the account holder's first name, or their address when
          * the account carries no name (staff, the bootstrap admin). */
         greeting: z.string(),
@@ -1148,9 +1146,9 @@ export const appTextSchema = z
             add: z.string(),
             /** The icon-only row buttons take their accessible name from
              * `{label}`, the address itself. */
-            editLabel: z.string(),
+            editAria: z.string(),
             remove: z.string(),
-            removeLabel: z.string(),
+            removeAria: z.string(),
             /** `{label}` is the address's own name. */
             removeConfirm: confirmText,
             error: z.string(),
@@ -1219,8 +1217,8 @@ export const appTextSchema = z
             heading: z.string(),
             /** The arrow buttons' accessible names; a mouse has no other way
              * to move a row that scrolls sideways. */
-            previous: z.string(),
-            next: z.string(),
+            previousAria: z.string(),
+            nextAria: z.string(),
           })
           .strict(),
       })

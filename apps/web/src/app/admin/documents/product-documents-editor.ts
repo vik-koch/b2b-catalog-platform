@@ -147,7 +147,7 @@ const SUGGESTIONS_SHOWN = 8;
                   <ul
                     [id]="listId"
                     role="listbox"
-                    [attr.aria-label]="text.suggestionsLabel"
+                    [attr.aria-label]="text.suggestionsAria"
                   >
                     @for (item of options(); track item.id; let i = $index) {
                       <li
@@ -263,7 +263,7 @@ export class ProductDocumentsEditor implements OnInit {
     const count = this.options().length;
     return count === 0
       ? this.text.noSuggestions
-      : fillText(this.text.suggestionCount, { count });
+      : fillText(this.text.suggestionCountAria, { count });
   });
 
   /** Open where there is something to see — the pairings editor's rule, for
@@ -309,6 +309,6 @@ export class ProductDocumentsEditor implements OnInit {
   }
 
   protected removeLabel(item: LinkedDocument): string {
-    return fillText(this.text.remove, { name: item.title });
+    return fillText(this.text.removeAria, { name: item.title });
   }
 }

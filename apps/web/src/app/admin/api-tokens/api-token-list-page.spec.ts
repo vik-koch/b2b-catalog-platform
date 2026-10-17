@@ -165,7 +165,7 @@ describe('ApiTokenListPage', () => {
     });
 
     expect(el.textContent).toContain(text.revoked);
-    expect(byLabel(text.revoke)).toBeNull();
+    expect(byLabel(text.revokeAria)).toBeNull();
   });
 
   /** There is more than one capability now, so the ticks start empty and the
@@ -278,7 +278,7 @@ describe('ApiTokenListPage', () => {
       confirmed: false,
     });
 
-    byLabel(text.revoke)?.click();
+    byLabel(text.revokeAria)?.click();
     await Promise.resolve();
 
     expect(confirm.ask).toHaveBeenCalled();
@@ -288,7 +288,7 @@ describe('ApiTokenListPage', () => {
   it('revokes a token once the question is answered', async () => {
     const { service, byLabel } = await render({ tokens: [token()] });
 
-    byLabel(text.revoke)?.click();
+    byLabel(text.revokeAria)?.click();
     await Promise.resolve();
     await Promise.resolve();
 

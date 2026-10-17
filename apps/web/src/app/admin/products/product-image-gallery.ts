@@ -117,7 +117,7 @@ import { MediaService } from '../media/media.service';
                   appInput
                   size="sm"
                   class="w-full truncate"
-                  [attr.aria-label]="text.variant"
+                  [attr.aria-label]="text.variantAria"
                   [title]="variantName(image.variantId)"
                   (change)="setVariant($index, $any($event.target).value)"
                 >

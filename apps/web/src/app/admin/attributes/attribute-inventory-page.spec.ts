@@ -183,7 +183,7 @@ describe('AttributeInventoryPage', () => {
     // the affordance is deadened in place rather than dropped, so the row's
     // actions do not shift between one key and the next.
     expect(badge(row(el, 'Colour'), text.notFilterable)).not.toBeNull();
-    expect(badge(row(el, 'Colour'), text.toDefinition)).toBeNull();
+    expect(badge(row(el, 'Colour'), text.toDefinitionAria)).toBeNull();
   });
 
   it('sends a key the shop filters by to its definition', async () => {
@@ -191,7 +191,7 @@ describe('AttributeInventoryPage', () => {
       keys: [key({ definition: { id: 'def-1', type: 'text' } })],
     });
 
-    const link = badge(row(el, 'Colour'), text.toDefinition);
+    const link = badge(row(el, 'Colour'), text.toDefinitionAria);
     // The key is the name: they are matched exactly, which is the whole
     // premise of the registry.
     expect(link?.getAttribute('href')).toBe('/admin/attributes?name=Colour');
@@ -250,7 +250,7 @@ describe('AttributeInventoryPage', () => {
       key: 'Colour',
     });
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await type('Color');
     await submit();
 
@@ -286,7 +286,7 @@ describe('AttributeInventoryPage', () => {
       keys: [key({ key: 'Lenght' })],
     });
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await type('Length');
     await submit();
 
@@ -310,7 +310,7 @@ describe('AttributeInventoryPage', () => {
       keys: [key({ key: 'Lenght', deletedProductCount: 2 })],
     });
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await type('Length');
     await submit();
 
@@ -331,7 +331,7 @@ describe('AttributeInventoryPage', () => {
       keys: [key({ key: 'Colour' }), key({ key: 'colour' })],
     });
 
-    await press(text.renameKey, 1);
+    await press(text.renameKeyAria, 1);
     await type('Colour');
     await submit();
 
@@ -350,7 +350,7 @@ describe('AttributeInventoryPage', () => {
       confirmed: false,
     });
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await type('Length');
     await submit();
 
@@ -362,7 +362,7 @@ describe('AttributeInventoryPage', () => {
       keys: [key({ key: 'Colour' })],
     });
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await submit();
 
     expect(confirm.ask).not.toHaveBeenCalled();
@@ -376,7 +376,7 @@ describe('AttributeInventoryPage', () => {
     });
 
     await expand('Colour');
-    await press(text.renameValue);
+    await press(text.renameValueAria);
     await type('Blue');
     await submit();
 
@@ -422,7 +422,7 @@ describe('AttributeInventoryPage', () => {
       key: 'Colour',
     });
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await type('Color');
     await submit();
 
@@ -438,7 +438,7 @@ describe('AttributeInventoryPage', () => {
 
     expect(el.textContent).toContain(text.emptyValue);
 
-    await press(text.renameValue);
+    await press(text.renameValueAria);
     await type('Dark');
     await submit();
 
@@ -455,7 +455,7 @@ describe('AttributeInventoryPage', () => {
     });
     service.renameKey.mockRejectedValueOnce(new Error('nope'));
 
-    await press(text.renameKey);
+    await press(text.renameKeyAria);
     await type('Length');
     await submit();
 

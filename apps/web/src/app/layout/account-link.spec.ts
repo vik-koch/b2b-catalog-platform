@@ -166,7 +166,7 @@ describe('AccountLink', () => {
     // Never a number on screen: for an admin it would be a sum of queues that
     // have nothing to do with each other.
     expect(marker()?.textContent?.trim()).toBe('');
-    expect(markerLabel()).toBe(text.workMarker.replace('{count}', '5'));
+    expect(markerLabel()).toBe(text.workMarkerAria.replace('{count}', '5'));
   });
 
   it('shows no marker when every queue is empty', async () => {

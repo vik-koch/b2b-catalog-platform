@@ -181,18 +181,18 @@ async function render(
     quantities: () =>
       [
         ...el.querySelectorAll(
-          `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+          `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
         ),
       ].map((input) => (input as HTMLInputElement).value),
     rowLabels: () => [...el.querySelectorAll('dt')].map((d) => d.textContent),
     /** The first row's quantity field. */
     quantityInput: () =>
       el.querySelector(
-        `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+        `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
       ) as HTMLInputElement,
     async type(value: string) {
       const input = el.querySelector(
-        `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+        `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
       ) as HTMLInputElement;
       input.value = value;
       input.dispatchEvent(new Event('input'));
@@ -201,7 +201,7 @@ async function render(
     async blurQuantity() {
       (
         el.querySelector(
-          `input[aria-label="${defaultAppText.cart.quantityLabel}"]`,
+          `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
         ) as HTMLInputElement
       ).dispatchEvent(new Event('blur'));
       await rerender();
@@ -263,7 +263,7 @@ describe('CartPage', () => {
   it('edits the line in place from the row’s own controls', async () => {
     const view = await render({ lines: [addition()] });
 
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
 
     expect(view.cart.lines()[0].pieces).toBe(18);
     expect(view.quantities()).toEqual(['3']);
@@ -434,7 +434,7 @@ describe('CartPage', () => {
     expect(view.text()).toContain('7.500');
 
     // Two packs to three, which is three quarters of a box.
-    await view.click(text.increase);
+    await view.click(text.increaseAria);
 
     expect(view.quantities()).toEqual(['3']);
     expect(view.text()).toContain('11.250');
@@ -738,7 +738,7 @@ describe('CartPage', () => {
     const controls = [
       ...view.el.querySelectorAll('app-product-row button'),
     ] as HTMLButtonElement[];
-    for (const label of [text.decrease, text.increase]) {
+    for (const label of [text.decreaseAria, text.increaseAria]) {
       const key = controls.find((b) => b.getAttribute('aria-label') === label);
       expect(key?.disabled).toBe(true);
     }
@@ -969,7 +969,7 @@ describe('CartPage', () => {
     expect(view.text()).toContain('Filter Roast');
     expect(view.text()).toContain('150,00');
 
-    await view.click(text.changes.dismiss);
+    await view.click(text.changes.dismissAria);
 
     expect(view.text()).not.toContain(text.changes.heading);
   });

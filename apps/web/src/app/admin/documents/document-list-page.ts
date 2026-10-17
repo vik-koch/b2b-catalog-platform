@@ -87,7 +87,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="term()"
-      [searchLabel]="text.searchLabel"
+      [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
@@ -377,7 +377,7 @@ export class DocumentListPage {
         param: 'status',
         options: this.statusOptions,
         value: this.statusFilter(),
-        ariaLabel: this.text.filterStatus,
+        label: this.text.filterStatus,
       },
     },
     { key: 'updated', label: this.text.updatedColumn, minWidth: 96 },

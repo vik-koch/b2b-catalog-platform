@@ -97,8 +97,8 @@ import { SettingsService } from '../settings/settings.service';
                 [checked]="state.maintenanceEnabled"
                 [label]="
                   state.maintenanceEnabled
-                    ? maintenanceText.disable
-                    : maintenanceText.enable
+                    ? maintenanceText.disableAria
+                    : maintenanceText.enableAria
                 "
                 [disabled]="pending()"
                 (toggled)="flipMaintenance($event)"

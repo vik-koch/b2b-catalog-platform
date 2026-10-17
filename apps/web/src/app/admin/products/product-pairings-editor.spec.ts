@@ -192,7 +192,7 @@ describe('ProductPairingsEditor (FR-SET-01)', () => {
     expect(el.textContent).toContain(defaultAdminText.products.deleted);
 
     const remove = el.querySelector<HTMLButtonElement>(
-      `button[aria-label="${text.remove.replace('{name}', 'Gone lid')}"]`,
+      `button[aria-label="${text.removeAria.replace('{name}', 'Gone lid')}"]`,
     );
     remove?.click();
     expect(emitted).toEqual([[]]);

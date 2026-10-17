@@ -81,7 +81,7 @@ let nextId = 0;
           <ul
             [id]="listId"
             role="listbox"
-            [attr.aria-label]="text().suggestionsLabel"
+            [attr.aria-label]="text().suggestionsAria"
           >
             @for (item of list.suggestions(); track $index; let i = $index) {
               <li
