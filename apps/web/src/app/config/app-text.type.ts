@@ -31,6 +31,53 @@ const suggestText = z
  */
 export const appTextSchema = z
   .object({
+    // What describes the shop comes first: the landing page, the map notices
+    // and the footer.
+    /** Storefront landing (FR-CAT-01): intro above the category showcase; the
+     * heading is `branding.tagline`. */
+    home: z
+      .object({
+        eyebrow: z.string(),
+        intro: z.string(),
+        /** Over the category index, below the white band. */
+        categoriesHeading: z.string(),
+        /** The row of products above the categories (FR-CAT-09). Its heading
+         * must not promise a selection: most of the row is often drawn at
+         * random. */
+        featured: z
+          .object({
+            heading: z.string(),
+            /** The arrow buttons' accessible names; a mouse has no other way
+             * to move a row that scrolls sideways. */
+            previousAria: z.string(),
+            nextAria: z.string(),
+          })
+          .strict(),
+      })
+      .strict(),
+    map: z
+      .object({
+        /** In place of a map that waits for consent: who it comes from and
+         * what loading it hands them. `{provider}` is `mapProvider`. */
+        consentNotice: z.string(),
+        /** A button under the notice that loads the map, giving the same
+         * consent the banner asks for. Without it the notice stands alone
+         * and the banner is the only way in. */
+        load: z.string().optional(),
+      })
+      .strict(),
+    consent: z
+      .object({
+        /** The cookie banner; `{provider}` is `mapProvider`. */
+        message: z.string(),
+        policyLink: z.string(),
+        /** Straight after the link, as `privacyNotice.after`. */
+        policyLinkAfter: z.string(),
+        accept: z.string(),
+        reject: z.string(),
+        settings: z.string(),
+      })
+      .strict(),
     /**
      * Footer chrome. `copyright` carries the whole line so a deployment owns
      * the symbol and word order; `{name}` and `{years}` are substituted at
@@ -1182,28 +1229,6 @@ export const appTextSchema = z
           .strict(),
       })
       .strict(),
-    /** Storefront landing (FR-CAT-01): intro above the category showcase. */
-    home: z
-      .object({
-        eyebrow: z.string(),
-        title: z.string(),
-        intro: z.string(),
-        /** Over the category index, below the white band. */
-        categoriesHeading: z.string(),
-        /** The row of products above the categories (FR-CAT-09). Its heading
-         * must not promise a selection: most of the row is often drawn at
-         * random. */
-        featured: z
-          .object({
-            heading: z.string(),
-            /** The arrow buttons' accessible names; a mouse has no other way
-             * to move a row that scrolls sideways. */
-            previousAria: z.string(),
-            nextAria: z.string(),
-          })
-          .strict(),
-      })
-      .strict(),
     /**
      * Under a legal page's text, when it last changed. `{date}` is
      * substituted, written out in the deployment's locale.
@@ -1351,28 +1376,6 @@ export const appTextSchema = z
         intro: z.string(),
         unavailable: z.string(),
         unknownLicense: z.string(),
-      })
-      .strict(),
-    map: z
-      .object({
-        /** In place of a map that waits for consent: who it comes from and
-         * what loading it hands them. */
-        consentNotice: z.string(),
-        /** A button under the notice that loads the map, giving the same
-         * consent the banner asks for. Without it the notice stands alone
-         * and the banner is the only way in. */
-        load: z.string().optional(),
-      })
-      .strict(),
-    consent: z
-      .object({
-        message: z.string(),
-        policyLink: z.string(),
-        /** Straight after the link, as `privacyNotice.after`. */
-        policyLinkAfter: z.string(),
-        accept: z.string(),
-        reject: z.string(),
-        settings: z.string(),
       })
       .strict(),
     errors: z

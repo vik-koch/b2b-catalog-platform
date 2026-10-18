@@ -2238,6 +2238,9 @@
       "from": [
         "app-text.json:home.title"
       ]
+    },
+    "deployment.json:mapProvider": {
+      "new": "OpenStreetMap"
     }
   },
   "moves": {

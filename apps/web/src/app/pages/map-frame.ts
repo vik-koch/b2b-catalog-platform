@@ -1,7 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import { APP_TEXT } from '../config/app-text';
-import { MapEmbed } from '@b2b-catalog-platform/shared';
+import { fillText, MapEmbed } from '@b2b-catalog-platform/shared';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
 import { Button } from '../ui/button';
 
@@ -28,7 +29,7 @@ import { Button } from '../ui/button';
         class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-stone-100 p-6 text-center text-sm text-subtle"
         [class]="shapeClass()"
       >
-        <p class="max-w-md">{{ text.consentNotice }}</p>
+        <p class="max-w-md">{{ notice }}</p>
         <!-- Click-to-load: the visitor who said no to the banner, or never
              answered it, can still choose to see the map. It is the same
              consent, so it is recorded the same way and the banner goes. -->
@@ -58,6 +59,9 @@ export class MapFrame {
   );
 
   protected readonly text = inject(APP_TEXT).map;
+  protected readonly notice = fillText(this.text.consentNotice, {
+    provider: inject(DEPLOYMENT_CONFIG).mapProvider,
+  });
 
   // URLs are deployment-owned/trusted; the URL-only contract keeps this a
   // resource-URL trust, never script execution.

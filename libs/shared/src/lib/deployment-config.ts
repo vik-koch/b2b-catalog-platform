@@ -358,6 +358,13 @@ export const deploymentConfigSchema = z
      */
     locations: z.array(contactLocationSchema),
     /**
+     * Who serves the map embeds, by name ("OpenStreetMap"), for the texts that
+     * tell a visitor where a map comes from: `{provider}` in the notice in
+     * place of a withheld map and in the cookie banner. One name for the
+     * deployment rather than one per map, as those texts name one.
+     */
+    mapProvider: z.string().min(1),
+    /**
      * Where an order may be collected (FR-CART-07). Optional: a deployment
      * that configures none does not offer self-pickup at all, which is why
      * this is absent rather than an empty list.

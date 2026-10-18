@@ -65,7 +65,8 @@ describe('MapFrame', () => {
     );
 
     expect(el.querySelector('iframe')).toBeNull();
-    expect(el.textContent).toContain(defaultAppText.map.consentNotice);
+    expect(el.textContent).toContain(defaultDeploymentConfig.mapProvider);
+    expect(el.textContent).not.toContain('{provider}');
   });
 
   // Click-to-load: the placeholder itself gives the consent the banner asks
