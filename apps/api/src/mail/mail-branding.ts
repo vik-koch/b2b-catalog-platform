@@ -9,6 +9,8 @@ export interface MailBranding {
   readonly primaryColor: string;
   /** Public origin, for links back into the shop. No trailing slash. */
   readonly siteUrl: string;
+  /** The language the message is written in, which it declares. */
+  readonly locale: string;
 }
 
 export const MAIL_BRANDING = 'MAIL_BRANDING';
@@ -29,5 +31,6 @@ export function loadMailBranding(): MailBranding {
     name: config.branding.name,
     primaryColor: config.branding.theme.primary,
     siteUrl: origin.replace(/\/+$/, ''),
+    locale: config.locale,
   };
 }

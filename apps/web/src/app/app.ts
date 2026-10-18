@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, DOCUMENT, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
@@ -155,6 +155,10 @@ export class App {
     // baked index.html, so overriding branding needs no rebuild. Runs during
     // SSR too, so the served HTML (and crawlers) get the right title.
     inject(Title).setTitle(this.branding.title);
+    // The language the text is written in, from the same config and for the
+    // same reason: a screen reader picks its voice by it, and a browser its
+    // hyphenation and spell-checking.
+    inject(DOCUMENT).documentElement.lang = inject(DEPLOYMENT_CONFIG).locale;
 
     // Starts recording which listing the visitor is standing at, so leaving
     // the cart returns to the shelf rather than to the front of the shop.

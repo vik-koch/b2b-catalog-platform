@@ -100,6 +100,7 @@ export class TermsPdf {
     const { faces, encode } = await this.faces.embed(pdf);
     pdf.setTitle(terms.title);
     pdf.setProducer(this.branding.name);
+    pdf.setLanguage(this.branding.locale);
 
     const sheet = new Sheet(pdf, faces, encode);
     sheet.heading(this.branding.name, 16);

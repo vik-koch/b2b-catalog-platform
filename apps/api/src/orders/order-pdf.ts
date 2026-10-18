@@ -62,6 +62,7 @@ export class OrderPdf {
 
     pdf.setTitle(fillText(t.title, { reference: order.reference }));
     pdf.setProducer(this.branding.name);
+    pdf.setLanguage(this.branding.locale);
 
     const sheet = new Sheet(pdf, faces, encode);
     sheet.heading(this.branding.name, 16);
