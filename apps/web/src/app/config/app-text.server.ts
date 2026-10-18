@@ -3,8 +3,6 @@ import { APP_TEXT } from './app-text';
 import { AppText, appTextSchema } from './app-text.type';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
-const APP_TEXT_ENV_VAR = 'APP_TEXT_FILE';
-
 /**
  * Read once per process: the mounted file is immutable for the container's
  * lifetime, so there's no reason to re-read and re-validate on every SSR
@@ -17,7 +15,7 @@ let cachedAppText: AppText | undefined;
 
 /** The validated catalog. Also the source for the injected shell state. */
 export function getAppText(): AppText {
-  return (cachedAppText ??= loadConfig(appTextSchema, APP_TEXT_ENV_VAR));
+  return (cachedAppText ??= loadConfig(appTextSchema, 'texts/app.json'));
 }
 
 /**

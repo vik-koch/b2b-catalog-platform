@@ -15,16 +15,16 @@ import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
  */
 export const demoMailText: MailText = loadConfigFile(
   mailTextSchema,
-  'config/mail-text.json',
+  'config/texts/mail.json',
 );
 
 export const demoCommonText: CommonText = loadConfigFile(
   commonTextSchema,
-  'config/common-text.json',
+  'config/texts/common.json',
 );
 export const demoPdfText: PdfText = loadConfigFile(
   pdfTextSchema,
-  'config/pdf-text.json',
+  'config/texts/pdf.json',
 );
 
 /** Demo branding for tests, mirroring config/deployment.json. */

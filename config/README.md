@@ -2,7 +2,7 @@
 
 This directory is bind-mounted read-only into **both** the `web` and `api`
 containers at `/config` (see `compose.yml`). It is the single per-deployment
-config surface branding, text and wording are retuned here without
+config surface: branding, text and wording are retuned here without
 rebuilding the public image.
 
 The public repo commits the **demo (Coffee Kontor) config** here; dev, demo, the
@@ -11,62 +11,71 @@ own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 
 ## The files
 
+```
+deployment.json      the deployment's public facts      web + api, sent to every visitor
+api.json             what only the API reads            api
+texts/common.json    shared names                       web (every page) + api
+texts/app.json       the storefront's wording           web (every page)
+texts/admin.json     the admin's wording                web (fetched by admins)
+texts/mail.json      every email                        api
+texts/pdf.json       the documents the API draws        api
+assets/              logo, favicon, fonts               served by the web
+password-blocklist.txt                                  api, optional
+```
+
 - `deployment.json` → `DeploymentConfig` (branding, contact, seller line, locations,
-  cookie-consent flag, whether orders carry an invoice address, phone and
-  company-id input rules, address rules, currency, collection points, delivery
-  zones, order-reference format).
-  **Browser-delivered** via shell state, and **also loaded by the API**, which
-  reads the halves an order depends on: it validates a submitted collection
-  point, resolves the delivery zone itself rather than trusting the browser's,
-  formats money for the mails, and mints the order reference. It also reads
-  which consent texts are published, because those are the consents its forms
-  require.
-- `common-text.json` → `CommonText`, the shop's **shared names** — what the
+  cookie-consent flag, which consents are asked for, whether orders carry an
+  invoice address, phone and company-id input rules, address rules, currency,
+  tax basis, collection points, delivery zones, order-reference format, the
+  second sign-in step). **Everything in it is visible to any visitor**: the web
+  injects the whole file into every page. The API reads it too, for the halves
+  an order depends on: it validates a submitted collection point, resolves the
+  delivery zone itself rather than trusting the browser's, formats money for
+  the mails, and mints the order reference.
+- `api.json` → `ApiConfig`, what only the API reads and a visitor has no use
+  for: whether the receipt attaches the terms, how long records are kept, how
+  long a session lasts, and what an unattended sync run may do. A new setting
+  goes here unless the browser needs it.
+- `texts/common.json` → `CommonText`, the shop's **shared names** — what the
   storefront, the admin, mail and the order summary would otherwise each repeat
-  (page names, units, the tax statements) — and what customers read in more
-  than one place, such as a field's check or an order's status. Never wording
-  only staff read. **Browser-delivered** via shell state and **also loaded by
-  the API**.
-- `app-text.json` → `AppText`, the **public** UI-text catalog (storefront
+  (page names, units, the tax statements, the controls every screen has) — and
+  what customers read in more than one place, such as a field's check or an
+  order's status. Never wording only staff read. **Browser-delivered** via
+  shell state and **also loaded by the API**.
+- `texts/app.json` → `AppText`, the **public** UI-text catalog (storefront
   chrome, the login form, error messages).
   **Browser-delivered** via shell state.
-- `admin-text.json` → `AdminText`, the wording of the **admin** surfaces
+- `texts/admin.json` → `AdminText`, the wording of the **admin** surfaces
   (editors, management screens, catalog sync, storefront edit mode).
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
   needs it, rather than injected into every visitor's document (ADR 0009,
   amendment 2). Non-secret, like everything else on this side of the line.
-- `mail-text.json` → `MailText`, every email the app sends, one section per
+- `texts/mail.json` → `MailText`, every email the app sends, one section per
   message. **Server-only** — rendered in the API, never sent to a browser.
-- `pdf-text.json` → `PdfText`, the documents the API draws as PDFs: the order
+- `texts/pdf.json` → `PdfText`, the documents the API draws as PDFs: the order
   summary, and the file name of the terms attached to a receipt.
   **Server-only**, like the mail text.
 
 The mails and the PDFs take the branding (shop name, header colour), the
 typeface and the money formatting from `deployment.json`.
 
-A name that reads the same to customers and staff is in `common-text.json`
+A name that reads the same to customers and staff is in `texts/common.json`
 once; where staff word a thing differently (order statuses, the messages under
-a field), theirs is in `admin-text.json`, and in `mail-text.json` where a staff
-mail needs it. `common-text.json` reaches every visitor, so nothing only staff
-read goes there. Controls that read the same on every screen — Cancel, Close,
-Remove, "Saving…" — are its `actions`; a control that names what it does
+a field), theirs is in `texts/admin.json`, and in `texts/mail.json` where a
+staff mail needs it. `texts/common.json` reaches every visitor, so nothing only
+staff read goes there. Controls that read the same on every screen — Cancel,
+Close, Remove, "Saving…" — are its `actions`; a control that names what it does
 ("Delete selection") keeps its own key, and staff-only verbs (Save, Edit,
 Delete) are the admin text's `common`. Wording for entries the deployment
 itself defines — delivery zones, collection points, company-ID formats — sits
 beside those entries in `deployment.json`. ADR 0018 (amendment) has the
 reasons.
 
-Each container is pointed at its file by the stack `.env` (compose defaults them
-to the paths below, so this is only needed to rename a file):
-
-```
-DEPLOYMENT_CONFIG_FILE=/config/deployment.json   # web + api
-APP_TEXT_FILE=/config/app-text.json              # web
-ADMIN_TEXT_FILE=/config/admin-text.json          # web
-MAIL_TEXT_FILE=/config/mail-text.json            # api
-PDF_TEXT_FILE=/config/pdf-text.json              # api
-COMMON_TEXT_FILE=/config/common-text.json        # web + api
-```
+Both containers find the directory through one variable, `CONFIG_PATH`, which
+compose sets to the `/config` mount; for `nx serve` the workspace `.env` points
+it at this directory (`CONFIG_PATH=config`). Every file is named relative to
+it, so there is nothing else to wire, and a deployment cannot point one file
+somewhere the others are not.
 
 A deployment may also mount a **common-password blocklist** — a plain
 newline-separated file of passwords to refuse, named by `PASSWORD_BLOCKLIST_FILE`
@@ -76,17 +85,18 @@ deployment rather than to this repo. Published top-N lists are the usual source.
 Without one, the length floor and the pattern rules still apply. The committed
 demo list is deliberately short; replace it, do not extend it in this repo.
 
-> The browser-delivered vs server-only split is deliberate: values on the web
-> tokens end up in page source, so never put anything sensitive there. Keeping
-> the files separate keeps that line visible (ADR 0018).
+> The browser-delivered vs server-only split is deliberate: what the web reads
+> ends up in page source, so never put anything sensitive there, and nothing
+> only the API needs either. Keeping the files separate keeps that line visible
+> (ADR 0018).
 
-Each file must be **complete** (no partial overrides). The authoritative shape of
-each is its Zod schema: `apps/web/src/app/config/deployment-config.type.ts`,
-`.../app-text.type.ts`, `.../admin-text.type.ts`, and
-`apps/api/src/mail/mail-text.ts`. The API reads its own narrower slice of
-`deployment.json` through `apps/api/src/config/deployment-config.ts`, so the web
-schema stays the authority on the whole file. The committed demo files are the
-worked example to copy from.
+Each file must be **complete** (no partial overrides), and an unknown key stops
+the boot as surely as a missing one. The authoritative shape of each is its Zod
+schema: `libs/shared/src/lib/deployment-config.ts` (read by both apps),
+`apps/api/src/config/api-config.ts`, `libs/shared/src/lib/common-text.ts`,
+`apps/web/src/app/config/app-text.type.ts`, `.../admin-text.type.ts`,
+`apps/api/src/mail/mail-text.ts` and `apps/api/src/pdf/pdf-text.ts`. The
+committed demo files are the worked example to copy from.
 
 ### Keeping two words on one line
 
@@ -169,13 +179,13 @@ sending it without the consent. So write the text before switching it on.
 
 Whether or not a box is asked, the contact form, registration and checkout
 carry a line pointing at the privacy page, worded by `privacyNotice` in
-`app-text.json`. It shows only where `privacy` is published.
+`texts/app.json`. It shows only where `privacy` is published.
 
 ### Terms of sale
 
 Publishing `terms` gives the shop a page of terms that every order accepts.
 Checkout says so beside the submit button, worded by `termsNotice` in
-`app-text.json`. Each order records the version of the terms current when it
+`texts/app.json`. Each order records the version of the terms current when it
 was sent. Staff see that version on the order, and the customer's receipt and
 the order summary name its date. A deployment that does not publish `terms`
 records nothing and says nothing, and neither does one that publishes it before
@@ -188,14 +198,15 @@ mode off.
 }
 ```
 
+The switch is in `api.json`, since only the API acts on it, and
 `attachToReceipt` is required. Switch it on where the jurisdiction wants the
 terms on a medium the customer keeps, which a link to a page that can change
 is not: the receipt then carries the accepted version as a PDF, named by
-`terms.fileName` in `pdf-text.json`. The demo switches it on, as
+`terms.fileName` in `texts/pdf.json`. The demo switches it on, as
 an EU shop would. The PDF is set in the same face as the order summary, so a
 deployment writing in a non-Latin script needs `branding.font.pdf` for it too.
 
-The order summary prints `orderSummary.returnNotice` from `pdf-text.json`
+The order summary prints `orderSummary.returnNotice` from `texts/pdf.json`
 under the total, where it is set: the summary is the paper handed over with the
 goods, so it can tell the customer in writing how to return them. Leave the key
 out to print nothing.
@@ -239,8 +250,8 @@ its own rate; staff screens state every line's rate regardless. An order keeps
 the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
-The statements are `tax` in `common-text.json`, one wording for the storefront,
-the mails and the order summary; `tax` in `app-text.json` holds only what the
+The statements are `tax` in `texts/common.json`, one wording for the storefront,
+the mails and the order summary; `tax` in `texts/app.json` holds only what the
 storefront adds beside a price and under a listing, and `conditions.tax*` the
 conditions page. `{rate}` is the rate written as the deployment writes numbers;
 the `mixed` forms are the totals that name no rate.
@@ -259,7 +270,7 @@ sweep checks daily, starting a minute after the API boots.
 }
 ```
 
-All three keys are required, in days, because each period is a legal decision
+`retention` is in `api.json`, and all three keys are required, in days, because each period is a legal decision
 for the deployment.
 
 - `consentRecordDays` is how long a consent record is kept, counted from its
@@ -322,7 +333,7 @@ The provider is a sidecar of the deployment's own, set in the environment (see
 `.env.example`), and a deployment sets one of the two:
 
 - `SIGN_IN_CODE_URL`: codes, sent by the code sidecar. The text a code travels
-  in is `signInCode.message` in `mail-text.json`; keep it to one SMS, since a
+  in is `signInCode.message` in `texts/mail.json`; keep it to one SMS, since a
   second part costs a second message.
 - `SIGN_IN_CALL_URL`: calls, checked by the call sidecar. The site shows the
   number to call and goes on by itself once the call has come.
@@ -333,8 +344,8 @@ fine for trying the feature out but is no second factor.
 
 ### How long a session lasts
 
-A session renews while it is used and ends after `session.idleDays` without
-use. Optional, and absent means 7. A deployment that asks for the step at every
+A session renews while it is used and ends after `session.idleDays` (in
+`api.json`) without use. Optional, and absent means 7. A deployment that asks for the step at every
 sign-in usually sets it longer, so a customer who keeps coming back is rarely
 asked: each new session is a message or a call to pay for. The demo leaves it out.
 
@@ -351,13 +362,10 @@ Per-deployment **assets** live in an `assets/` **subdirectory** of this mount:
 
 ```
 config/
-  deployment.json      # web + api config  (browser-delivered)
-  common-text.json     # shared names      (browser-delivered, api too)
-  app-text.json        # web public text   (browser-delivered)
-  admin-text.json      # web admin text    (fetched by admins)
-  mail-text.json       # api email wording (server-only)
-  pdf-text.json        # api PDF wording   (server-only)
-  password-blocklist.txt # api password rules  (server-only)
+  deployment.json
+  api.json
+  texts/
+  password-blocklist.txt
   assets/
     logo.svg
     favicon.svg
@@ -366,18 +374,12 @@ config/
     fonts/             # optional: @font-face css + woff2 files
 ```
 
-The path of the folder is defined by the following environment variable:
-
-```
-CONFIG_ASSETS_DIR=/config/assets                 # web
-```
-
 The web SSR server serves `assets/` ahead of the baked static files: a request
 for `/logo.svg` or `/favicon.svg` is answered from `config/assets/`.
 
 > Only `assets/` is web-served — never the mount root. The `*.json` (especially
-> the **server-only** `mail-text.json`) sit beside it and are never reachable
-> from a browser.
+> the **server-only** `api.json` and `texts/mail.json`) sit beside it and are
+> never reachable from a browser.
 
 `logo.svg` is drawn as a **CSS mask**, not as an image: it takes the theme's
 colours, so it answers a pointer with the accent like every other control in the
@@ -469,23 +471,29 @@ repo's committed demo config; a real deployment sets `CONFIG_DIR` to its own
 directory of files (held in the private deployment repo), copied into
 `/srv/b2b/<stack>/config` before the stack starts.
 
-## When a release moves text keys
+## When a release moves config keys or files
 
-The text files are loaded whole, so a release that renames, merges or adds a
-text key stops a deployment with the old files from booting. Such a release
-ships a map in `tools/text-migration/<version>.json`, and the tool applies it
-to a deployment's own files, keeping their wording:
+Every file is loaded whole, so a release that renames, merges or adds a key, or
+moves a file, stops a deployment with the old files from booting. Such a
+release ships a map in `tools/config-migration/<version>.json`, and the tool
+applies it to a deployment's own config directory, keeping its wording and
+settings:
 
 ```
-node tools/migrate-text.mjs --release 1.14.1 --config-dir <dir>           # report only
-node tools/migrate-text.mjs --release 1.14.1 --config-dir <dir> --write
+node tools/migrate-config.mjs --release 1.14.1 --config-dir <dir>           # report only
+node tools/migrate-config.mjs --release 1.14.1 --config-dir <dir> --write
 ```
+
+Run it where the deployment's config is kept — for a real deployment, in the
+change that moves it to the new release — never on the server at boot.
 
 It needs Node and nothing else: no checkout and no `npm ci`. The script and
 the release's map, downloaded from the release tag with the map in a
-`text-migration/` folder beside the script (or passed with `--map <file>`), are
-enough. It reports what it cannot decide: wording new in the release (written
-in English), keys merged from several old ones whose values differed in the
-deployment, counting texts still written in two forms, and keys the release
-requires that the deployment's files never had. A deployment several
+`config-migration/` folder beside the script (or passed with `--map <file>`),
+are enough. With `--write` it writes the release's files and removes the ones
+they replace. It reports what it cannot decide: wording new in the release
+(written in English), settings new in the release (set to the demo's value),
+keys merged from several old ones whose values differed in the deployment,
+counting texts still written in two forms, and keys the release requires that
+the deployment's files never had. A deployment several
 releases behind runs each release's map in order.

@@ -1,6 +1,8 @@
-import type { CommonText } from '@b2b-catalog-platform/shared';
+import {
+  type CommonText,
+  DeploymentConfig,
+} from '@b2b-catalog-platform/shared';
 import { AppText } from './app-text.type';
-import { DeploymentConfig } from './deployment-config.type';
 
 /**
  * Per-deployment values the browser needs before it can render any chrome.

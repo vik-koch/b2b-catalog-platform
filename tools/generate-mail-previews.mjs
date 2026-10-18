@@ -8,7 +8,7 @@
  * of every message, exactly as the mailer would send them — and a reworded
  * template shows up as a reviewable diff.
  *
- * They are rendered from `config/mail-text.json` and `config/deployment.json`
+ * They are rendered from `config/texts/mail.json` and `config/deployment.json`
  * rather than from a fixture, which makes this the way to proof-read a
  * deployment's wording — a translation especially — without sending anything:
  *
@@ -87,8 +87,8 @@ const parseConfig = (schema, file) => {
   }
   return parsed.data;
 };
-const mailText = parseConfig(mailTextSchema, 'mail-text.json');
-const commonText = parseConfig(commonTextSchema, 'common-text.json');
+const mailText = parseConfig(mailTextSchema, 'texts/mail.json');
+const commonText = parseConfig(commonTextSchema, 'texts/common.json');
 const deployment = JSON.parse(
   readFileSync(`${CONFIG_DIR}/deployment.json`, 'utf8'),
 );
@@ -193,7 +193,7 @@ function renderIndex(previews) {
     '# Email gallery',
     '',
     "Every message the app can send, rendered from this deployment's own",
-    '`config/mail-text.json` and `config/deployment.json`. Both parts of each',
+    '`config/texts/mail.json` and `config/deployment.json`. Both parts of each',
     'message are committed as the mailer would send them: read the plain text to',
     'review a change without wading through table markup, and open the rendered',
     'view to see it as a recipient would.',

@@ -4,7 +4,7 @@ import * as z from 'zod';
 
 /**
  * The wording of the documents the API draws, loaded whole from the mounted
- * PDF_TEXT_FILE at boot. Server-only, like the mail text: it is rendered into
+ * `texts/pdf.json` at boot. Server-only, like the mail text: it is rendered into
  * a file and read long after the screens that offered it.
  */
 export const pdfTextSchema = z

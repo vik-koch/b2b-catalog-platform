@@ -1,8 +1,9 @@
 # 0018 — One mounted config directory carries the whole per-deployment config
 
-**Status:** accepted · **Date:** 2026-07-23 · **Amended:** 2026-10-17 (five text
-files, which text goes where, how keys are grouped and named, and a migration
-for each release that moves keys) — see the _Amendment_ below
+**Status:** accepted · **Date:** 2026-07-23 · **Amended:** 2026-10-17 (the
+directory's layout, which text goes where, how keys are grouped and named, and
+a migration for each release that moves keys or files) — see the _Amendment_
+below
 
 ## Context
 
@@ -87,35 +88,47 @@ a config field (`branding.title`), set at runtime via the Angular Title service.
 - (−) Adding a UI-text key is a coordinated change: each deployment's config must
   gain the key before upgrading, or boot fails. Deliberate, but a release note.
 
-## Amendment — 2026-10-17: five text files, and which text goes where
+## Amendment — 2026-10-17: the directory's layout, and which text goes where
 
 The text had grown in three files that repeated each other: "Company ID" six
 times, the payment methods in four places, the order summary's wording inside
-the mail's. It is now five files, split by audience as before:
+the mail's. `deployment.json`, which the web injects into every page, also held
+what only the API acts on — how long records are kept, what a sync run may do
+unattended. And every file had a variable of its own. The directory is now:
 
-| File               | Read by                      | Holds                                                        |
-| ------------------ | ---------------------------- | ------------------------------------------------------------ |
-| `common-text.json` | web (every page) and the API | shared names, and what customers read in more than one place |
-| `app-text.json`    | web (every page)             | the storefront's own wording                                 |
-| `admin-text.json`  | web (fetched by admins)      | the admin's own wording, staff's names for things            |
-| `mail-text.json`   | API                          | the messages                                                 |
-| `pdf-text.json`    | API                          | the documents the API draws                                  |
+| File                | Read by                      | Holds                                                        |
+| ------------------- | ---------------------------- | ------------------------------------------------------------ |
+| `deployment.json`   | web (every page) and the API | the deployment's public facts                                |
+| `api.json`          | API                          | the settings only the API acts on                            |
+| `texts/common.json` | web (every page) and the API | shared names, and what customers read in more than one place |
+| `texts/app.json`    | web (every page)             | the storefront's own wording                                 |
+| `texts/admin.json`  | web (fetched by admins)      | the admin's own wording, staff's names for things            |
+| `texts/mail.json`   | API                          | the messages                                                 |
+| `texts/pdf.json`    | API                          | the documents the API draws                                  |
+
+What the web reads reaches every visitor, so a setting goes to `api.json`
+unless the browser needs it. `deployment.json` has one schema, in the shared
+library, which both apps parse whole and strictly — before, the API read a
+loose slice of it, and only the web's check caught a misspelled key. One
+variable, `CONFIG_PATH`, names the directory and every file is named relative
+to it, in place of the `*_FILE` variable per file the decision above
+describes.
 
 Which file a text belongs in follows four rules:
 
 1. **One key per thing, per reader.** A name that reads the same to staff and
-   customers ("Order total", "Company ID") is one key in `common-text.json`.
+   customers ("Order total", "Company ID") is one key in `texts/common.json`.
    Where the readers word a set differently — order statuses, payment methods —
-   the customer's set is in `common-text.json` and staff's in `admin-text.json`,
+   the customer's set is in `texts/common.json` and staff's in `texts/admin.json`,
    never half shared. A field's label is a name; the message that checks it is
    written for its reader. Controls are the same: Cancel, Close and Remove are
-   one key each in `common-text.json`'s `actions`, unless a button names what
+   one key each in `texts/common.json`'s `actions`, unless a button names what
    it does ("Delete selection").
-2. **`common-text.json` is public.** It is injected into every page, so nothing
+2. **`texts/common.json` is public.** It is injected into every page, so nothing
    only staff read belongs there — staff-only verbs (Save, Edit, Delete) are
    the admin text's `common`. The few staff words a staff mail needs
-   ("Account", "Card, arranged with the customer") are in `mail-text.json` as
-   well as `admin-text.json`: the API does not read admin text.
+   ("Account", "Card, arranged with the customer") are in `texts/mail.json` as
+   well as `texts/admin.json`: the API does not read admin text.
 3. **Who defines the set decides the file.** A set the code knows — page slugs,
    statuses, fields — is keyed in a text file. Entries a deployment invents —
    delivery zones, collection points, company-ID formats — carry their own
@@ -135,19 +148,23 @@ Inside a file, keys group by domain, then by screen (`orders.detail`,
 screen reader reads ends in `Aria`, so its translator knows nobody sees it and
 it need not fit anywhere; CI fails if one is ever shown.
 
-A release that moves keys ships a map, `tools/text-migration/<version>.json`,
-and `tools/migrate-text.mjs` applies it to a deployment's own files, keeping
-their wording. It needs Node and nothing else, and reports what it cannot
-decide: wording new in the release, merged keys whose values differed, and
-counting texts still in two forms. CI migrates the previous release's demo
+A release that moves keys or files ships a map,
+`tools/config-migration/<version>.json`, and `tools/migrate-config.mjs` applies
+it to a deployment's config directory, keeping its wording and settings. It
+needs Node and nothing else, and reports what it cannot decide: wording and
+settings new in the release, merged keys whose values differed, and counting
+texts still in two forms. CI migrates the previous release's demo
 config with the newest map and validates the result, so a forgotten key fails
 there rather than in an operator's boot.
 
 - (+) A thing is named in one place per reader; the public payload carries no
-  staff wording.
+  staff wording, and no setting only the API needs.
+- (+) One variable points a container at its config; a file cannot be pointed
+  somewhere the others are not.
 - (+) A translator reads context from the structure: where a key sits names
   its screen, and the suffix says when nobody sees it.
 - (+) An upgrade that moves text is one command per deployment, not a diff to
   read by hand.
 - (−) A handful of staff words exist twice, in the admin and the mail text.
-- (−) Each release that moves keys owes a map, kept complete by the CI check.
+- (−) Each release that moves keys or files owes a map, kept complete by the
+  CI check.

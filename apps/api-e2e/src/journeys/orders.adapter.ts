@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
 import { notifyByDefault, OrderStatus } from '@b2b-catalog-platform/shared';
-import { requireEnv } from '../support/env';
+import { configFile } from '../support/env';
 import {
   deleteMatching,
   messageBody,
@@ -96,7 +96,7 @@ const customerOrder = (ctx: OrderJourneyContext, cache: Map<string, unknown>) =>
  * the words in it are not the point.
  */
 const mailText = JSON.parse(
-  readFileSync(requireEnv('MAIL_TEXT_FILE'), 'utf8'),
+  readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as {
   orderReceived: { subject: string };
   orderStatusChanged: {

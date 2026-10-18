@@ -1,0 +1,25 @@
+{
+  "terms": {
+    "attachToReceipt": true
+  },
+  "retention": {
+    "consentRecordDays": 1095,
+    "destructionRecordDays": 1095,
+    "orderDays": 1095
+  },
+  "sync": {
+    "autoApply": {
+      "maxCreates": 100,
+      "maxSoftDeletes": 0,
+      "maxChangedShare": 0.5,
+      "maxCategoriesCreated": 5,
+      "maxCategoriesEmptied": 0
+    },
+    "customerAutoApply": {
+      "maxInvites": 25,
+      "maxDisables": 0,
+      "maxClaims": 0,
+      "maxIdClaims": 0
+    }
+  }
+}

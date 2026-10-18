@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import axios, { AxiosResponse } from 'axios';
-import { requireEnv } from '../support/env';
+import { configFile } from '../support/env';
 import {
   deleteMatching,
   messageBody,
@@ -121,7 +121,7 @@ async function idOf(ctx: AccountJourneyContext): Promise<string> {
  * *which* message arrived — and, more often, that none did.
  */
 const mailText = JSON.parse(
-  readFileSync(requireEnv('MAIL_TEXT_FILE'), 'utf8'),
+  readFileSync(configFile('texts/mail.json'), 'utf8'),
 ) as Record<string, { heading?: string }>;
 
 /** Which message is which, by heading, in the names the journeys use. */

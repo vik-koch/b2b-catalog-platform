@@ -13,10 +13,10 @@ const deployment = JSON.parse(
   pickup: { locations: { name: string; address: string }[] };
 };
 const appText = JSON.parse(
-  readFileSync(join(workspaceRoot, 'config/app-text.json'), 'utf8'),
+  readFileSync(join(workspaceRoot, 'config/texts/app.json'), 'utf8'),
 ) as { checkout: { fulfilment: { noDelivery: string } } };
 const commonText = JSON.parse(
-  readFileSync(join(workspaceRoot, 'config/common-text.json'), 'utf8'),
+  readFileSync(join(workspaceRoot, 'config/texts/common.json'), 'utf8'),
 ) as { order: { paymentMethods: { cash: string; transfer: string } } };
 
 test('renders the about page from SSR without a browser refetch', async ({

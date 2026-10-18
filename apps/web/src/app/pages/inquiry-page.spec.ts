@@ -1,12 +1,11 @@
 import { COMMON_TEXT } from '../config/common-text';
 import { TestBed } from '@angular/core/testing';
-import { Page } from '@b2b-catalog-platform/shared';
+import { Page, DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { defaultCommonText } from '../config/common-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';

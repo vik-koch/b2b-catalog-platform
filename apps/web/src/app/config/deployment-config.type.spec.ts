@@ -1,4 +1,4 @@
-import { deploymentConfigSchema } from './deployment-config.type';
+import { deploymentConfigSchema } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from './deployment-config.fixture';
 
 /**

@@ -1,5 +1,5 @@
 import { InjectionToken, Provider } from '@angular/core';
-import { DeploymentConfig } from './deployment-config.type';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { readShellState } from './shell-state';
 
 export const DEPLOYMENT_CONFIG = new InjectionToken<DeploymentConfig>(

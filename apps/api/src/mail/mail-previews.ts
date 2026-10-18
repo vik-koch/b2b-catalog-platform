@@ -272,7 +272,7 @@ const ORDERS_APPLIED_RUN: SyncRun = {
  * Every message, in whatever wording it is handed.
  *
  * A function rather than a constant so the same set can be rendered from the
- * demo fixture (the specs) or from a deployment's own mounted `mail-text.json`
+ * demo fixture (the specs) or from a deployment's own mounted `texts/mail.json`
  * (the generator) — which is what makes this gallery a way to proof-read a
  * translation without sending a single message.
  */

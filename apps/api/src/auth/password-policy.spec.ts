@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resetApiDeploymentConfig } from '../config/deployment-config';
@@ -6,30 +6,16 @@ import { PasswordPolicy, PasswordRejectedError } from './password-policy';
 
 /**
  * The policy reads the shop's name from the mounted deployment config, so the
- * spec mounts one of its own rather than depending on the workspace's relative
- * path resolving from the runner's working directory.
+ * spec mounts one of its own: the demo's, renamed.
  */
 function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
   const dir = mkdtempSync(join(tmpdir(), 'policy-'));
-  const config = join(dir, 'config.json');
+  const demo = JSON.parse(readFileSync('config/deployment.json', 'utf8'));
   writeFileSync(
-    config,
-    JSON.stringify({
-      branding: { name, theme: { primary: '#000' } },
-      // Required of every config, and beside the point of this spec.
-      billingAddressEnabled: true,
-      pages: { published: [], headerNav: [], footerNav: [] },
-      consent: { contact: false, account: false },
-      terms: { attachToReceipt: false },
-      retention: {
-        consentRecordDays: 1095,
-        destructionRecordDays: 1095,
-        orderDays: 1095,
-      },
-      tax: { basis: 'none' },
-    }),
+    join(dir, 'deployment.json'),
+    JSON.stringify({ ...demo, branding: { ...demo.branding, name } }),
   );
-  process.env['DEPLOYMENT_CONFIG_FILE'] = config;
+  process.env['CONFIG_PATH'] = dir;
 
   // The blocklist is deployment configuration, so the spec supplies one — a
   // few entries standing in for the published list a real deployment mounts.
@@ -47,7 +33,7 @@ function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
  * password — which is the argument for having this file at all.
  */
 describe('PasswordPolicy', () => {
-  const originalConfig = process.env['DEPLOYMENT_CONFIG_FILE'];
+  const originalConfig = process.env['CONFIG_PATH'];
   const originalList = process.env['PASSWORD_BLOCKLIST_FILE'];
   const policy = withShopName('Coffee Kontor', [
     'password',
@@ -58,7 +44,7 @@ describe('PasswordPolicy', () => {
   ]);
 
   afterAll(() => {
-    process.env['DEPLOYMENT_CONFIG_FILE'] = originalConfig;
+    process.env['CONFIG_PATH'] = originalConfig;
     process.env['PASSWORD_BLOCKLIST_FILE'] = originalList;
     resetApiDeploymentConfig();
   });

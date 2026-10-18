@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { ContactInfo } from './contact-info';
 

@@ -12,7 +12,7 @@ import * as z from 'zod';
  * of scope): each deployment ships its one language here.
  *
  * Zod-first: the `MailText` type is inferred from the schema, which validates
- * the mounted per-deployment file (MAIL_TEXT_FILE) as one whole unit at boot,
+ * the mounted per-deployment file (`texts/mail.json`) as one whole unit at boot,
  * so a template whose wording is missing fails the startup rather than sending
  * a half-empty message. The image ships no default.
  *

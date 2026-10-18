@@ -5,5 +5,5 @@ import { loadConfig } from '@b2b-catalog-platform/shared/node';
 export const COMMON_TEXT = 'COMMON_TEXT';
 
 export function loadCommonText(): CommonText {
-  return loadConfig(commonTextSchema, 'COMMON_TEXT_FILE');
+  return loadConfig(commonTextSchema, 'texts/common.json');
 }

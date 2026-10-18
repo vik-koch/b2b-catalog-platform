@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { APP_TEXT } from '../config/app-text';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { CookieConsent } from './cookie-consent';
 

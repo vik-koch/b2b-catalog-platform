@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Client } from 'pg';
 import { seedPages } from '@b2b-catalog-platform/seed';
 import { priceProduct } from '../support/catalog-fixture';
-import { mediaPath, requireEnv } from '../support/env';
+import { configFile, mediaPath, requireEnv } from '../support/env';
 import {
   deleteMatching,
   messageBody,
@@ -61,7 +61,7 @@ const slugs = {
  * or a re-cut zone should move this suite, not break it.
  */
 const deployment = JSON.parse(
-  readFileSync(requireEnv('DEPLOYMENT_CONFIG_FILE'), 'utf8'),
+  readFileSync(configFile('deployment.json'), 'utf8'),
 ) as {
   pickup?: { locations: { key: string; name: string }[] };
   delivery?: {

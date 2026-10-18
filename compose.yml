@@ -63,17 +63,14 @@ services:
       MAIL_USER: ${MAIL_USER:-}
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_SECURE: ${MAIL_SECURE:-false}
-      # Server-only email wording, loaded whole from a file in the ./config
-      # mount below; the branding on those mails comes from the same mount's
-      # deployment.json, and APP_ORIGIN makes their links absolute.
-      MAIL_TEXT_FILE: ${MAIL_TEXT_FILE:-/config/mail-text.json}
-      # The order summary's wording, and the names mail, the summary and the
-      # web share.
-      PDF_TEXT_FILE: ${PDF_TEXT_FILE:-/config/pdf-text.json}
-      COMMON_TEXT_FILE: ${COMMON_TEXT_FILE:-/config/common-text.json}
+      # The ./config mount below: deployment.json, api.json and the mail, PDF
+      # and shared wording under texts/, each loaded whole. Literal, not
+      # ${VAR:-…}: Nx puts the workspace .env's relative dev path into the
+      # environment, and an interpolated default would let it leak in here.
+      # APP_ORIGIN makes the mails' links absolute.
+      CONFIG_PATH: /config
       # Optional common-password blocklist; unset means none (see .env.example).
       PASSWORD_BLOCKLIST_FILE: ${PASSWORD_BLOCKLIST_FILE:-/config/password-blocklist.txt}
-      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
       APP_ORIGIN: https://${APP_DOMAIN:?}
       # The deployment's suggestion sidecar, where a stack runs one (ADR
       # 0040/0041) — addresses and companies both. Empty by default, which is
@@ -141,15 +138,10 @@ services:
       SEO_INDEXABLE: ${SEO_INDEXABLE:-false}
       # SSR reaches the API directly on the stack network, not through Traefik.
       API_URL: http://api:3000/api
-      # SSR-injected chrome config and UI text, loaded whole from files in the
-      # ./config mount below.
-      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
-      APP_TEXT_FILE: ${APP_TEXT_FILE:-/config/app-text.json}
-      ADMIN_TEXT_FILE: ${ADMIN_TEXT_FILE:-/config/admin-text.json}
-      COMMON_TEXT_FILE: ${COMMON_TEXT_FILE:-/config/common-text.json}
-      # Per-deployment asset overrides (logo, favicon) live in the assets subdir
-      # of the same mount: served by the SSR server.
-      CONFIG_ASSETS_DIR: /config/assets
+      # SSR-injected chrome config and UI text, loaded whole from the ./config
+      # mount below; its assets/ subdir (logo, favicon) is served by the SSR
+      # server, and nothing else of it is. Literal for the reason the api's is.
+      CONFIG_PATH: /config
       # The same variable the API reads, for a different question: the API
       # calls the sidecar, the rendering process only needs to know whether
       # there is one — a form that suggests asks for less up front.
@@ -269,8 +261,8 @@ services:
       # first in a SEED=1 deploy) has already created /media node-owned.
       MEDIA_ROOT: /media
       # The seed writes consent records only for the purposes this deployment
-      # asks for, so it reads the same config file the api does.
-      DEPLOYMENT_CONFIG_FILE: ${DEPLOYMENT_CONFIG_FILE:-/config/deployment.json}
+      # asks for, so it reads the same config the api does.
+      CONFIG_PATH: /config
     volumes:
       - mediadata:/media
       - ./config:/config:ro

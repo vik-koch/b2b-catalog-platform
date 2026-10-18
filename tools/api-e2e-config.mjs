@@ -1,14 +1,15 @@
 #!/usr/bin/env node
 /**
- * Writes the deployment config the api-e2e run serves: the demo's own, with
- * both consents switched on.
+ * Writes the config directory the api-e2e run serves: the demo's own, with
+ * both consents switched on in `deployment.json`.
  *
  * The demo deployment asks for no consent, which is the right answer for the
  * shop it stands for, but the suite has to drive the forms that do. Derived
  * rather than committed as a second file, so the two cannot drift: everything
  * but the switch is the demo's, read fresh on every run.
  *
- * `assets/` is resolved beside the config file, so it is linked in, not copied.
+ * Everything else is the demo's and is linked in, not copied: `api.json`, the
+ * texts, the assets and the blocklist.
  *
  * Run by `api:serve-e2e` before it starts; `.env.serve-e2e` points the API at
  * the result.
@@ -36,9 +37,8 @@ writeFileSync(
   join(OUT, 'deployment.json'),
   JSON.stringify(config, null, 2) + '\n',
 );
-symlinkSync(
-  relative(resolve(OUT), resolve(SOURCE, 'assets')),
-  join(OUT, 'assets'),
-);
+for (const name of ['api.json', 'texts', 'assets', 'password-blocklist.txt']) {
+  symlinkSync(relative(resolve(OUT), resolve(SOURCE, name)), join(OUT, name));
+}
 
-console.log(`api-e2e config: wrote ${OUT}/deployment.json`);
+console.log(`api-e2e config: wrote ${OUT}`);

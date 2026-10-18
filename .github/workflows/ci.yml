@@ -61,10 +61,11 @@ jobs:
       - run: node tools/generate-customer-sync.mjs --check
       - run: node tools/generate-order-sync.mjs --check
 
-      # A release that moves text keys ships a map for the deployments' own
-      # files. Migrating the previous release's demo config with it has to give
-      # files today's schemas accept, or an operator's boot would find the gap.
-      - run: node tools/migrate-text.mjs --check
+      # A release that moves config keys or files ships a map for the
+      # deployments' own config. Migrating the previous release's demo config
+      # with it has to give files today's schemas accept, or an operator's boot
+      # would find the gap.
+      - run: node tools/migrate-config.mjs --check
 
       # A text key named …Aria tells its translator nobody sees it: an
       # accessible name, a screen-reader-only hint or an announcement.

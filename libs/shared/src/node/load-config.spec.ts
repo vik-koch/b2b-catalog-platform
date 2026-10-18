@@ -25,69 +25,70 @@ const complete = {
 };
 
 describe('loadConfig', () => {
-  const ENV_VAR = 'TEST_CONFIG_FILE';
+  const original = process.env['CONFIG_PATH'];
   let dir: string;
 
   const write = (name: string, contents: string) => {
-    const file = join(dir, name);
-    writeFileSync(file, contents);
-    process.env[ENV_VAR] = file;
+    writeFileSync(join(dir, name), contents);
+    return name;
   };
 
   beforeEach(() => {
     dir = mkdtempSync(join(tmpdir(), 'load-config-'));
+    process.env['CONFIG_PATH'] = dir;
   });
 
   afterEach(() => {
-    delete process.env[ENV_VAR];
+    if (original === undefined) delete process.env['CONFIG_PATH'];
+    else process.env['CONFIG_PATH'] = original;
     rmSync(dir, { recursive: true, force: true });
   });
 
   it('reads and validates a complete config file', () => {
-    write('config.json', JSON.stringify(complete));
-    expect(loadConfig(schema, ENV_VAR)).toEqual(complete);
+    const file = write('config.json', JSON.stringify(complete));
+    expect(loadConfig(schema, file)).toEqual(complete);
   });
 
-  it('throws when the env var is unset — no built-in default', () => {
-    delete process.env[ENV_VAR];
-    expect(() => loadConfig(schema, ENV_VAR)).toThrow();
+  it('throws when CONFIG_PATH is unset — no built-in default', () => {
+    const file = write('config.json', JSON.stringify(complete));
+    delete process.env['CONFIG_PATH'];
+    expect(() => loadConfig(schema, file)).toThrow(/CONFIG_PATH/);
   });
 
   it('throws when the file is missing', () => {
-    process.env[ENV_VAR] = join(dir, 'does-not-exist.json');
-    expect(() => loadConfig(schema, ENV_VAR)).toThrow();
+    expect(() => loadConfig(schema, 'does-not-exist.json')).toThrow();
   });
 
   it('throws on invalid JSON', () => {
-    write('broken.json', '{ not json');
-    expect(() => loadConfig(schema, ENV_VAR)).toThrow();
+    const file = write('broken.json', '{ not json');
+    expect(() => loadConfig(schema, file)).toThrow();
   });
 
   it('throws on a missing required key rather than filling a default', () => {
     // cookieConsentEnabled omitted — no merge fills it, so validation fails.
-    write(
+    const file = write(
       'partial.json',
       JSON.stringify({
         branding: complete.branding,
         locations: complete.locations,
       }),
     );
-    expect(() => loadConfig(schema, ENV_VAR)).toThrow();
+    expect(() => loadConfig(schema, file)).toThrow();
   });
 
   it('throws on an unknown key (a typo in the config file)', () => {
-    write(
+    const file = write(
       'typo.json',
       JSON.stringify({ ...complete, branding: { naem: 'x' } }),
     );
-    expect(() => loadConfig(schema, ENV_VAR)).toThrow();
+    expect(() => loadConfig(schema, file)).toThrow();
   });
 
   it('throws on a value of the wrong type', () => {
-    write(
+    const file = write(
       'wrong.json',
       JSON.stringify({ ...complete, cookieConsentEnabled: 'yes' }),
     );
-    expect(() => loadConfig(schema, ENV_VAR)).toThrow();
+    expect(() => loadConfig(schema, file)).toThrow();
   });
 });

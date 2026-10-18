@@ -3,8 +3,6 @@ import { ADMIN_TEXT } from './admin-text';
 import { AdminText, adminTextSchema } from './admin-text.type';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
-const ADMIN_TEXT_ENV_VAR = 'ADMIN_TEXT_FILE';
-
 /**
  * Read once per process, like the public text: the mounted file is immutable
  * for the container's lifetime. A bad file throws here and keeps the stack
@@ -14,7 +12,7 @@ const ADMIN_TEXT_ENV_VAR = 'ADMIN_TEXT_FILE';
 let cachedAdminText: AdminText | undefined;
 
 export function getAdminText(): AdminText {
-  return (cachedAdminText ??= loadConfig(adminTextSchema, ADMIN_TEXT_ENV_VAR));
+  return (cachedAdminText ??= loadConfig(adminTextSchema, 'texts/admin.json'));
 }
 
 /**

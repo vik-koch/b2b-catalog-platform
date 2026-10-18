@@ -1,11 +1,14 @@
 import { Component, computed, inject, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, formatTaxRate } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  formatTaxRate,
+  DeploymentConfig,
+} from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
 import { AppText } from '../config/app-text.type';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '../config/deployment-config.type';
 import { injectEditorReturnParams } from '../admin/editor-return';
 import { editAwareContent } from '../admin/edit-aware-content';
 import { EditActions } from '../admin/edit-actions';

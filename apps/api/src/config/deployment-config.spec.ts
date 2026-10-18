@@ -1,4 +1,4 @@
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
@@ -8,8 +8,6 @@ import {
   resetApiDeploymentConfig,
 } from './deployment-config';
 
-const branding = { name: 'Shop', theme: { primary: '#000000' } };
-
 /** The pages section with only `published` set, and no links. */
 const pages = (published: string[]) => ({
   published,
@@ -17,25 +15,18 @@ const pages = (published: string[]) => ({
   footerNav: [],
 });
 
-/** Required of every config, and beside the point of every test here. */
-const required = {
-  billingAddressEnabled: true,
-  pages: pages([]),
-  consent: { contact: false, account: false },
-  terms: { attachToReceipt: false },
-  retention: {
-    consentRecordDays: 1095,
-    destructionRecordDays: 1095,
-    orderDays: 1095,
-  },
-  tax: { basis: 'none' },
-};
+/** The committed demo file: every key the strict schema requires, so a test
+ * states only what it is about. An `undefined` drops a key. */
+const demo = JSON.parse(readFileSync('config/deployment.json', 'utf8'));
 
-/** Points DEPLOYMENT_CONFIG_FILE at a config written for this test. */
+/** Points CONFIG_PATH at a directory holding a config written for this test. */
 function withConfig(config: Record<string, unknown>): void {
-  const file = join(mkdtempSync(join(tmpdir(), 'deployment-')), 'config.json');
-  writeFileSync(file, JSON.stringify({ branding, ...required, ...config }));
-  process.env['DEPLOYMENT_CONFIG_FILE'] = file;
+  const dir = mkdtempSync(join(tmpdir(), 'deployment-'));
+  writeFileSync(
+    join(dir, 'deployment.json'),
+    JSON.stringify({ ...demo, ...config }),
+  );
+  process.env['CONFIG_PATH'] = dir;
   resetApiDeploymentConfig();
 }
 
@@ -46,10 +37,10 @@ const vat = {
 };
 
 describe('loadCompanyIdRule', () => {
-  const original = process.env['DEPLOYMENT_CONFIG_FILE'];
+  const original = process.env['CONFIG_PATH'];
 
   afterEach(() => {
-    process.env['DEPLOYMENT_CONFIG_FILE'] = original;
+    process.env['CONFIG_PATH'] = original;
     resetApiDeploymentConfig();
   });
 
@@ -98,7 +89,7 @@ describe('loadCompanyIdRule', () => {
   // Without a configured format there is no format rule — the contract's
   // envelope (present, trimmed, length-capped) is all that applies.
   it('accepts anything when the deployment configures no pattern', () => {
-    withConfig({});
+    withConfig({ companyIdInput: undefined });
 
     expect(loadCompanyIdRule()('whatever-123')).toBe(true);
   });
@@ -161,10 +152,10 @@ describe('loadCompanyIdRule', () => {
 });
 
 describe('loadConsentPurposesAsked', () => {
-  const original = process.env['DEPLOYMENT_CONFIG_FILE'];
+  const original = process.env['CONFIG_PATH'];
 
   afterEach(() => {
-    process.env['DEPLOYMENT_CONFIG_FILE'] = original;
+    process.env['CONFIG_PATH'] = original;
     resetApiDeploymentConfig();
   });
 
