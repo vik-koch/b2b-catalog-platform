@@ -224,10 +224,9 @@ describe('StaticPage — the date a legal text changed', () => {
     expect(updated?.textContent?.trim()).toBe(
       defaultAppText.pageUpdated.label.replace(
         '{date}',
-        new Intl.DateTimeFormat(
-          defaultDeploymentConfig.catalog.currency.locale,
-          { dateStyle: 'long' },
-        ).format(new Date(about.updatedAt)),
+        new Intl.DateTimeFormat(defaultDeploymentConfig.locale, {
+          dateStyle: 'long',
+        }).format(new Date(about.updatedAt)),
       ),
     );
 

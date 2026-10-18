@@ -273,7 +273,7 @@ export class UserListPage {
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
 
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   private readonly collator = new Intl.Collator(this.locale, {
     sensitivity: 'base',

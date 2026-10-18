@@ -33,7 +33,6 @@ const terms = (attached: boolean, rows: unknown[] = [version]) =>
     demoPdfText,
     demoCommonText,
     demoMailBranding,
-    { code: 'EUR', locale: 'de-DE' },
     { prefix: 'CK', timezone: 'Europe/Berlin' },
     new PdfFaces(undefined),
   );

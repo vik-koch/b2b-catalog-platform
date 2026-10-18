@@ -22,6 +22,7 @@ import {
   OrderStatus,
   transitionHasReason,
   TransitionTarget,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../cart/order-summary';
 import { formatPriceMinor } from '../../catalog/price';
@@ -591,7 +592,7 @@ export class AdminOrderDetailPage {
   private readonly auth = inject(AuthService);
   private readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
 
   private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orders.detail;
@@ -698,7 +699,7 @@ export class AdminOrderDetailPage {
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
+        locale: this.config.locale,
       },
     );
   });
@@ -868,7 +869,7 @@ export class AdminOrderDetailPage {
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
+        locale: this.config.locale,
         currency: this.currency,
         boxUnits: this.config.catalog.boxUnits,
       },
@@ -1335,22 +1336,19 @@ export class AdminOrderDetailPage {
     this.order.reload();
   }
 
-  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
+  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
   });
 
   /** The day a page's "Last updated" line names, in the shop's timezone. */
-  private readonly shopDayFormat = new Intl.DateTimeFormat(
-    this.currency.locale,
-    {
-      dateStyle: 'long',
-      timeZone: this.config.orderReference?.timezone ?? 'UTC',
-    },
-  );
+  private readonly shopDayFormat = new Intl.DateTimeFormat(this.config.locale, {
+    dateStyle: 'long',
+    timeZone: this.config.orderReference?.timezone ?? 'UTC',
+  });
 
   /** For the two facts a manager reads as moments rather than as days: when
    * the order last moved, and when the payment was recorded. */
-  private readonly dateTimeFormat = orderDateTimeFormat(this.currency.locale);
+  private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
 
   constructor() {
     void this.ownership.load();

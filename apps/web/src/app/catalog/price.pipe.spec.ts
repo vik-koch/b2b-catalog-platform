@@ -7,7 +7,8 @@ const norm = (s: string): string => s.replace(/\u00A0/g, ' ');
 
 function pipeWithCurrency(code: string, locale: string): PricePipe {
   const config = {
-    catalog: { currency: { code, locale } },
+    locale,
+    catalog: { currency: { code } },
   } as unknown as DeploymentConfig;
   TestBed.configureTestingModule({
     providers: [PricePipe, { provide: DEPLOYMENT_CONFIG, useValue: config }],

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { totalMinor } from '@b2b-catalog-platform/shared';
+import { totalMinor, moneyFormat } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { COMMON_TEXT } from '../../config/common-text';
@@ -183,7 +183,7 @@ export class ProductPackagingEditor {
   /** Below `md` a three-column table of typed cells has no room; the glyph
    * sizes turn on the same line. */
   protected readonly narrow = injectNarrowScreen('md');
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   readonly value = input.required<PackagingDraft>();
   /** The piece price, so each level can show what it will be sold for. */

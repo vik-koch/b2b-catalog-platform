@@ -296,7 +296,7 @@ export class DocumentListPage {
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();
 
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly layout = inject(AlternateLayout);
   private readonly dayFormat = adminDayFormat(this.locale);
 

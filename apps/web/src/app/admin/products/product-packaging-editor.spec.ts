@@ -17,8 +17,9 @@ import {
 const plainSpaces = (text: string) => text.replace(/[\u00a0\u202f]/g, ' ');
 
 const config = {
+  locale: 'de-DE',
   catalog: {
-    currency: { code: 'EUR', locale: 'de-DE' },
+    currency: { code: 'EUR' },
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
 } as unknown as DeploymentConfig;

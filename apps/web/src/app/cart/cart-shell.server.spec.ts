@@ -2,8 +2,9 @@ import { formatPriceMinorShort } from '../catalog/price';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { cartShellSource } from './cart-shell.server';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 
-const currency = defaultDeploymentConfig.catalog.currency;
+const currency = moneyFormat(defaultDeploymentConfig);
 
 /** One stored line, reduced to the two fields the pre-paint script reads. */
 function seed(...totals: (number | null)[]): void {

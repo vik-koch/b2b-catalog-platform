@@ -379,7 +379,7 @@ export class AccountPage {
 
   private readonly account = inject(AccountService);
   private readonly api = inject(OrdersService);
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   private readonly addressBook = inject(AddressesService);

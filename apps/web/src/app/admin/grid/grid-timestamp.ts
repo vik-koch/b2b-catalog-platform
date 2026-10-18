@@ -37,7 +37,7 @@ import { adminDayFormat } from './admin-date';
   host: { '[class]': 'inline() ? "inline-flex items-baseline gap-1" : ""' },
 })
 export class GridTimestamp {
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   /** An ISO instant, as every API here returns one. */
   readonly value = input.required<string>();

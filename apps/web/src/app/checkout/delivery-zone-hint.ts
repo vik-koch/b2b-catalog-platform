@@ -1,5 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { fillText, resolveDeliveryZone } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  resolveDeliveryZone,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
@@ -47,7 +51,7 @@ import { WarningNote } from '../ui/warning-note';
 })
 export class DeliveryZoneHint {
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
   private readonly zones = this.config.delivery?.zones ?? [];
   private readonly cart = inject(CartService);
 

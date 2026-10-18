@@ -1,5 +1,6 @@
 import { getDeploymentConfig } from '../config/deployment-config.server';
 import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 
 /**
  * The inline script that draws the navbar's cart figures before the page's
@@ -25,7 +26,7 @@ import { CART_STORAGE_KEY, CART_STORAGE_VERSION } from './cart-storage';
  * case is the flash this exists to remove.
  */
 function buildCartShellScript(): string {
-  const { code, locale } = getDeploymentConfig().catalog.currency;
+  const { code, locale } = moneyFormat(getDeploymentConfig());
   return `<script>${cartShellSource(locale, code)}</script>`;
 }
 

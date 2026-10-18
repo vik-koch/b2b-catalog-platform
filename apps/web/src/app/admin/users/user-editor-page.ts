@@ -568,10 +568,9 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.isApproval() ? 'circle-check' : 'save',
   );
 
-  private readonly dateFormat = new Intl.DateTimeFormat(
-    this.config.catalog.currency.locale,
-    { dateStyle: 'medium' },
-  );
+  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
+    dateStyle: 'medium',
+  });
   protected readonly registered = computed(() => {
     const iso = this.account()?.createdAt;
     return iso ? this.dateFormat.format(new Date(iso)) : '';

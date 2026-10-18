@@ -12,6 +12,7 @@ import {
   CART_NOTE_MAX,
   CartLineIssue,
   fillText,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { ProductPairings } from '../catalog/product-pairings';
@@ -503,7 +504,7 @@ export class CartPage {
   private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
   private readonly catalogConfig = inject(DEPLOYMENT_CONFIG).catalog;
-  private readonly currency = this.catalogConfig.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
   protected readonly text = inject(APP_TEXT).cart;

@@ -3,6 +3,7 @@ import {
   AddressInput,
   fillText,
   unitQuantity,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { AddressForm } from '../addresses/address-form';
 import { addressLines } from '../addresses/address-format';
@@ -66,7 +67,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
     const units = common.units;
     const qty = formatUnitQuantity(
       unitQuantity(line.packaging, line.unit, line.pieces) ?? line.pieces,
-      config.catalog.currency,
+      moneyFormat(config),
     );
     const unit = units[line.unit];
     if (line.unit === 'piece') {
@@ -75,7 +76,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
     return fillText(common.quantityPieces, {
       qty,
       unit,
-      pieces: formatUnitQuantity(line.pieces, config.catalog.currency),
+      pieces: formatUnitQuantity(line.pieces, moneyFormat(config)),
       pieceUnit: units.piece,
     });
   };
@@ -115,7 +116,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
   const tax = useTaxStatement();
 
   const formatDate = (iso: string): string =>
-    new Intl.DateTimeFormat(config.catalog.currency.locale, {
+    new Intl.DateTimeFormat(config.locale, {
       dateStyle: 'long',
     }).format(new Date(`${iso}T00:00:00`));
 
@@ -133,7 +134,7 @@ export function createCheckoutReadBack(deps: ReadBackDeps) {
         total:
           line.lineTotalMinor === null
             ? '—'
-            : formatPriceMinor(line.lineTotalMinor, config.catalog.currency),
+            : formatPriceMinor(line.lineTotalMinor, moneyFormat(config)),
         taxRate:
           perLine && line.taxRate != null ? tax.line(line.taxRate) : null,
       }));

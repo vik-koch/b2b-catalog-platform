@@ -1687,6 +1687,9 @@
         "admin-text.json:common.uploading",
         "admin-text.json:orderDetail.documents.uploading"
       ]
+    },
+    "deployment.json:locale": {
+      "from": ["deployment.json:catalog.currency.locale"]
     }
   },
   "moves": {

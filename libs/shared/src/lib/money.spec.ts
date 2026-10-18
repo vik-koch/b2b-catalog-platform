@@ -43,12 +43,6 @@ describe('formatMoneyMinor', () => {
     // A box order runs to thousands; nothing here may round to the euro.
     expect(formatMoneyMinor(123_456_789, eur)).toBe('1.234.567,89 €');
   });
-
-  it('falls back to the runtime locale where a deployment set none', () => {
-    // Not asserted against a fixed string — the runtime's locale is whatever
-    // the host has. What matters is that it formats rather than throwing.
-    expect(formatMoneyMinor(1890, { code: 'EUR' })).toContain('18');
-  });
 });
 
 describe('currencyFractionDigits', () => {

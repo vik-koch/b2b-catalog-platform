@@ -22,6 +22,7 @@ import {
   PartySuggestion,
   PaymentMethod,
   ProductUnit,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { AddressFields } from '../../addresses/address-fields';
 import { AddressForm } from '../../addresses/address-form';
@@ -706,7 +707,7 @@ export class AdminOrderAdjustPage {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
 
   private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust;
@@ -1208,7 +1209,7 @@ export class AdminOrderAdjustPage {
     const config = {
       address: this.config.address,
       phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
+      locale: this.config.locale,
       currency: this.currency,
       boxUnits: this.config.catalog.boxUnits,
     };
@@ -1416,7 +1417,7 @@ export class AdminOrderAdjustPage {
   private wish(order: AdminOrderDetail): string {
     if (!order.preferredDate) return this.detailText.whenAny;
     return new Date(order.preferredDate).toLocaleDateString(
-      this.currency.locale,
+      this.config.locale,
       { dateStyle: 'long' },
     );
   }

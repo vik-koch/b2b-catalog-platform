@@ -194,7 +194,7 @@ function renderHtml(
   }
 
   return `<!doctype html>
-<html lang="und">
+<html lang="${escapeHtml(branding.locale)}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">

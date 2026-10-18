@@ -13,6 +13,7 @@ import {
   fillText,
   ORDER_STATUS_REASON_MAX,
   OrderDetail,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
@@ -198,7 +199,7 @@ export class OrderDetailPage {
   private readonly api = inject(OrdersService);
   private readonly confirm = inject(ConfirmService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
 
   private readonly appText = inject(APP_TEXT);
   private readonly commonText = inject(COMMON_TEXT);
@@ -267,7 +268,7 @@ export class OrderDetailPage {
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
+        locale: this.config.locale,
       },
     );
   });
@@ -353,7 +354,7 @@ export class OrderDetailPage {
     }
   }
 
-  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
+  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
   });
 

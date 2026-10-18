@@ -116,9 +116,7 @@ type SearchBy = 'email' | 'phone';
 export class ConsentLookupPage {
   private readonly service = inject(ConsentsService);
   private readonly confirm = inject(ConfirmService);
-  private readonly dayFormat = adminDayFormat(
-    inject(DEPLOYMENT_CONFIG).catalog.currency.locale,
-  );
+  private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
   /** Why the last withdrawal was not saved, until the next one is tried. */
   protected readonly withdrawError = signal<string | null>(null);
   private readonly router = inject(Router);

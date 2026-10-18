@@ -19,8 +19,9 @@ import { SyncService } from './sync.service';
 const text = defaultAdminText.sync;
 
 const config = {
+  locale: 'de-DE',
   branding: { title: 'Test Shop' },
-  catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
+  catalog: { currency: { code: 'EUR' } },
 } as unknown as DeploymentConfig;
 
 const emptySummary = {

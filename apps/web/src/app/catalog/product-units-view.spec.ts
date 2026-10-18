@@ -8,8 +8,9 @@ import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { useProductUnits } from './product-units-view';
 
 const config = {
+  locale: 'de-DE',
   catalog: {
-    currency: { code: 'EUR', locale: 'de-DE' },
+    currency: { code: 'EUR' },
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
 } as unknown as DeploymentConfig;

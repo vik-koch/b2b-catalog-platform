@@ -17,7 +17,7 @@ import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 export function useTaxStatement() {
   const config = inject(DEPLOYMENT_CONFIG);
   const tax = config.tax;
-  const locale = config.catalog.currency.locale;
+  const locale = config.locale;
   const text = inject(APP_TEXT).tax;
   const statements = inject(COMMON_TEXT).tax;
 

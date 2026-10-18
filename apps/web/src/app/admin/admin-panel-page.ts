@@ -472,7 +472,7 @@ export class AdminPanelPage {
       purpose: this.consentText.purposes[purpose],
     });
   }
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** One heading, one card frame, written once: seven sections spelling the
@@ -589,7 +589,7 @@ export class AdminPanelPage {
 
   private syncMoment(finishedAt: string | null | undefined): string | null {
     if (!finishedAt) return null;
-    return adminMomentFormat(this.currency.locale).format(new Date(finishedAt));
+    return adminMomentFormat(this.locale).format(new Date(finishedAt));
   }
 
   // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable
@@ -616,7 +616,7 @@ export class AdminPanelPage {
     const deployed = info.deployedAt
       ? this.panelText.deployedAt.replace(
           '{date}',
-          new Intl.DateTimeFormat(this.currency.locale, {
+          new Intl.DateTimeFormat(this.locale, {
             dateStyle: 'medium',
             timeStyle: 'short',
           }).format(new Date(info.deployedAt)),

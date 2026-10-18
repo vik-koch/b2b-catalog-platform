@@ -29,6 +29,7 @@ import {
   slugify,
   splitAttributeKey,
   totalMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import {
   currencySymbol,
@@ -645,7 +646,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly tax = inject(DEPLOYMENT_CONFIG).tax;
   /** The last rung of the "few left" ladder; the API applies the same figure
    * from the same key. */
@@ -736,9 +738,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly taxRateInput = signal('');
   /** The default rate, shown in the empty field. */
   protected readonly taxRatePlaceholder =
-    this.tax.basis === 'none'
-      ? ''
-      : formatTaxRate(this.tax.rate, this.currency.locale);
+    this.tax.basis === 'none' ? '' : formatTaxRate(this.tax.rate, this.locale);
   /** Under a basis that charges no tax a rate is kept but applies to
    * nothing yet, which the field alone would not say. */
   protected readonly taxRateNotInEffect = this.tax.basis === 'none';
@@ -1070,7 +1070,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       this.taxRateInput.set(
         product.taxRate === null
           ? ''
-          : formatTaxRate(product.taxRate, this.currency.locale),
+          : formatTaxRate(product.taxRate, this.locale),
       );
       this.lowStockThresholdInput.set(
         product.lowStockThresholdPieces?.toString() ?? '',

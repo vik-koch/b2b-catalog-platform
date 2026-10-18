@@ -3,11 +3,10 @@ import { Logger } from '@nestjs/common';
 import { SyncArea, SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
-import { demoMailText } from '../mail/mail-text.fixture';
+import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';
 import { NotificationAudiences } from '../mail/notification-audience';
 import { SyncNotifications } from './sync-notifications';
 
-const currency = { code: 'EUR', locale: 'de-DE' };
 const ADMIN = 'admin@example.com';
 const OPS = 'ops@example.com';
 
@@ -86,7 +85,7 @@ describe('SyncNotifications', () => {
       mail,
       new NotificationAudiences({ admin: ADMIN }),
       demoMailText,
-      currency,
+      demoMailBranding,
     );
   });
 
@@ -198,7 +197,7 @@ describe('SyncNotifications', () => {
       mail,
       new NotificationAudiences({ admin: ADMIN, ops: OPS }),
       demoMailText,
-      currency,
+      demoMailBranding,
     );
 
     notifications.announce(run('failed'), 'applied');

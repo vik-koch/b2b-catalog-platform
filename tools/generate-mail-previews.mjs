@@ -98,6 +98,7 @@ const branding = {
   // Not the deployment's real origin: that is an environment variable, and a
   // gallery whose links changed with whoever generated it would be unreviewable.
   siteUrl: 'https://shop.example.com',
+  locale: deployment.locale,
 };
 
 const escape = (value) =>

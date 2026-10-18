@@ -288,7 +288,7 @@ export class OperationsPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   private readonly settingsService = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly moment = adminMomentFormat(this.locale);
   /** "Catalog and Customer accounts", in the deployment's own locale. */
   private readonly areaJoin = new Intl.ListFormat(this.locale, {

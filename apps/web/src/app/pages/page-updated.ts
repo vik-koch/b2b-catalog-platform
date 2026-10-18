@@ -25,13 +25,10 @@ export class PageUpdated {
 
   private readonly text = inject(APP_TEXT).pageUpdated;
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly format = new Intl.DateTimeFormat(
-    this.config.catalog.currency.locale,
-    {
-      dateStyle: 'long',
-      timeZone: this.config.orderReference?.timezone ?? 'UTC',
-    },
-  );
+  private readonly format = new Intl.DateTimeFormat(this.config.locale, {
+    dateStyle: 'long',
+    timeZone: this.config.orderReference?.timezone ?? 'UTC',
+  });
 
   protected readonly label = computed(() =>
     isDatedPage(this.slug())

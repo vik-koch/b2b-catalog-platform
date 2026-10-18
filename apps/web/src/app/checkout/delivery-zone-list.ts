@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from '../catalog/price';
@@ -58,7 +58,7 @@ const SPAN: Record<number, string> = {
 })
 export class DeliveryZoneList {
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
 
   protected readonly text = inject(APP_TEXT).checkout.fulfilment;
   protected readonly zones = this.config.delivery?.zones ?? [];

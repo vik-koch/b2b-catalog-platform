@@ -374,7 +374,7 @@ export class ApiTokenListPage {
   protected readonly common = inject(ADMIN_TEXT).common;
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly actionText = inject(COMMON_TEXT).actions;
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   /** Widened for the same reason `defaultScopes` widens: the template asks
    * how many there are. */

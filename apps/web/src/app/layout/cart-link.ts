@@ -1,7 +1,7 @@
 import { isPlatformBrowser } from '@angular/common';
 import { Component, computed, inject, input, PLATFORM_ID } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
@@ -108,7 +108,7 @@ export class CartLink {
   protected readonly active = computed(
     () => this.url().split(/[?#]/)[0] === '/cart',
   );
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   protected readonly text = inject(APP_TEXT).cart;

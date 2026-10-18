@@ -65,6 +65,7 @@ export const demoMailBranding: MailBranding = {
   name: 'Demo Shop',
   primaryColor: '#6f4e37',
   siteUrl: 'https://shop.example.com',
+  locale: currency.locale,
 };
 
 const pickupOffice: OrderPickup = {

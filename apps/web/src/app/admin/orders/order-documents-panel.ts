@@ -15,11 +15,13 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { COMMON_TEXT } from '../../config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
 import { documentFileLabel, documentFileSize } from '../../core/document-file';
 import { Button } from '../../ui/button';
 import { IconButton } from '../../ui/icon-button';
 import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
 import { AdminIcon } from '../../ui/icons/admin-icon';
+import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
 
 /** One line of the list: a document that exists, or a kind that could. */
@@ -201,6 +203,7 @@ export class OrderDocumentsPanel {
   // reads the same wherever it is written.
   private readonly sizes = inject(COMMON_TEXT).fileSize;
   protected readonly actionText = inject(COMMON_TEXT).actions;
+  private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
 
   readonly order = input.required<AdminOrderDetail>();
   /**
@@ -358,6 +361,6 @@ export class OrderDocumentsPanel {
   }
 
   private day(iso: string | null): string {
-    return iso ? new Date(iso).toLocaleDateString() : '';
+    return iso ? this.dayFormat.format(new Date(iso)) : '';
   }
 }

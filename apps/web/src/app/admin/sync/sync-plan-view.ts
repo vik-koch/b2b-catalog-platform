@@ -13,6 +13,7 @@ import {
   CatalogSyncProductChange,
   CatalogSyncRowError,
   formatTaxRate,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -239,7 +240,8 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
 })
 export class SyncPlanView {
   protected readonly text = inject(ADMIN_TEXT).sync;
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   readonly plan = input.required<CatalogSyncPlan>();
   /** A staged run, which can still be acted on. False for a record. */
@@ -349,7 +351,7 @@ export class SyncPlanView {
     if (field === 'taxRate') {
       return value === null
         ? this.text.taxRateDefault
-        : `${formatTaxRate(Number(value), this.currency.locale)}\u00a0%`;
+        : `${formatTaxRate(Number(value), this.locale)}\u00a0%`;
     }
     if (value === null) return '—';
     if (typeof value === 'number') {

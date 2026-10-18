@@ -28,9 +28,11 @@ const OVERRIDE_MINOR = 1;
 
 /** The deployment's own currency and locale — the same source the app formats
  * prices from, so this spec cannot drift from the page it reads. */
-const { code, locale } = JSON.parse(
+const deployment = JSON.parse(
   readFileSync(join(workspaceRoot, 'config/deployment.json'), 'utf8'),
-).catalog.currency;
+);
+const { locale } = deployment;
+const { code } = deployment.catalog.currency;
 
 const currency = new Intl.NumberFormat(locale, {
   style: 'currency',

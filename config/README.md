@@ -23,7 +23,7 @@ assets/              logo, favicon, fonts               served by the web
 password-blocklist.txt                                  api, optional
 ```
 
-- `deployment.json` → `DeploymentConfig` (branding, contact, seller line, locations,
+- `deployment.json` → `DeploymentConfig` (the locale, branding, contact, seller line, locations,
   cookie-consent flag, which consents are asked for, whether orders carry an
   invoice address, phone and company-id input rules, address rules, currency,
   tax basis, collection points, delivery zones, order-reference format, the
@@ -97,6 +97,21 @@ schema: `libs/shared/src/lib/deployment-config.ts` (read by both apps),
 `apps/web/src/app/config/app-text.type.ts`, `.../admin-text.type.ts`,
 `apps/api/src/mail/mail-text.ts` and `apps/api/src/pdf/pdf-text.ts`. The
 committed demo files are the worked example to copy from.
+
+### The locale
+
+`locale` is the one language the deployment speaks, as a BCP 47 tag in its
+canonical form (`"de-DE"`, not `"de_DE"`):
+
+```json
+"locale": "de-DE"
+```
+
+It is the language every page and mail declares — what a screen reader picks
+its voice by — and the conventions every date, number and amount follows,
+on the pages, in the mails and in the PDFs. Set it to the language the texts
+are written in, with the region whose conventions the shop keeps. The
+currency itself is `catalog.currency.code`.
 
 ### Keeping two words on one line
 
