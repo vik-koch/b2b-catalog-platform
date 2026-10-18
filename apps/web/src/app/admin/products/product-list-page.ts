@@ -379,7 +379,7 @@ export class ProductListPage {
   private readonly tierService = inject(TiersService);
   private readonly documentService = inject(DocumentsService);
   private readonly router = inject(Router);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.list;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
@@ -389,9 +389,9 @@ export class ProductListPage {
     ...this.editText,
     cancel: this.actionText.cancel,
     close: this.actionText.close,
-    ordered: this.common.catalogErrors['product-ordered'],
+    ordered: this.adminText.catalogErrors['product-ordered'],
     owned: inject(ADMIN_TEXT).ownership.productPurge,
-    errors: this.common.catalogErrors,
+    errors: this.adminText.catalogErrors,
   };
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);

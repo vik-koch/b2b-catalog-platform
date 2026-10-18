@@ -181,7 +181,7 @@ import { COMMON_TEXT } from '../../config/common-text';
           (click)="save()"
         >
           <app-admin-icon name="save" class="size-4" />
-          {{ saving() ? actionText.saving : common.save }}
+          {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
           appButton
@@ -201,7 +201,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly admin = inject(AdminCatalogService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).categories.editor;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly ownership = inject(SettingsService);
@@ -395,7 +395,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private refusalText(code: CategorySaveErrorCode): string {
     return code === 'catalog-externally-owned'
       ? this.ownershipText.fieldLocked
-      : this.common.catalogErrors[code];
+      : this.adminText.catalogErrors[code];
   }
 
   protected cancel(): void {

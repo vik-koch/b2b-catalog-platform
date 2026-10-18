@@ -1,54 +1,57 @@
 {
-  "common": {
+  "actions": {
     "save": "Save",
     "preview": "Preview",
     "resumeEditing": "Back to editing",
-    "discardTitle": "Discard changes?",
-    "discard": "Discard changes",
-    "keepEditing": "Keep editing",
     "edit": "Edit",
     "delete": "Delete",
-    "actorGone": "a deleted account",
-    "unpublishedProducts": "{count} unpublished",
     "restore": "Restore",
-    "reorder": "Drag to reorder",
-    "uploading": "Uploading…",
-    "datePlaceholder": "Select a date…",
-    "uploadError": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+    "reorder": "Drag to reorder"
+  },
+  "discard": {
+    "heading": "Discard changes?",
+    "confirm": "Discard changes",
+    "cancel": "Keep editing"
+  },
+  "upload": {
+    "progress": "Uploading…",
+    "error": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
     "pasteHint": "or paste a copied file with {keys}",
-    "imageTileHint": "Drop a picture on the tile, or paste a copied one with {keys}.",
+    "tileHint": "Drop a picture on the tile, or paste a copied one with {keys}."
+  },
+  "grid": {
     "clearFilters": "Clear filters",
     "resizeColumn": "Drag to resize. Double-click to fit the columns to their content.",
     "resizeColumnOfAria": "Resize {column}",
     "resetWidths": "Reset column widths",
     "filters": "Filters",
-    "countSuffix": "({count})",
-    "sortLabel": "Sort",
+    "sort": "Sort",
     "sortDefault": "Default order",
-    "tierDefault": "Default ({list})",
     "sortAscending": "{column}, ascending",
-    "sortDescending": "{column}, descending",
-    "catalogErrors": {
-      "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
-      "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
-      "reassign-target-not-found": "The category you picked to move the products into no longer exists.",
-      "category-has-subcategories": "This category still has subcategories. Delete or move those first.",
-      "category-has-products": "This category still has products. Pick a category to move them into.",
-      "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
-      "category-cycle": "A category cannot be moved inside one of its own subcategories.",
-      "slug-taken": "That web address is already used by something else. Please pick another.",
-      "source-id-taken": "That catalogue ID is already used by another product or category.",
-      "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
-      "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
-      "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
-      "pairing-self": "A product cannot be sold together with itself.",
-      "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
-      "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
-      "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
-      "product-deleted": "This product is deleted. Restore it first, then publish it.",
-      "product-not-deleted": "Only a deleted product can be deleted permanently. Delete it first.",
-      "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
-    }
+    "sortDescending": "{column}, descending"
+  },
+  "countSuffix": "({count})",
+  "actorGone": "a deleted account",
+  "catalogErrors": {
+    "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
+    "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
+    "reassign-target-not-found": "The category you picked to move the products into no longer exists.",
+    "category-has-subcategories": "This category still has subcategories. Delete or move those first.",
+    "category-has-products": "This category still has products. Pick a category to move them into.",
+    "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
+    "category-cycle": "A category cannot be moved inside one of its own subcategories.",
+    "slug-taken": "That web address is already used by something else. Please pick another.",
+    "source-id-taken": "That catalogue ID is already used by another product or category.",
+    "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
+    "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
+    "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
+    "pairing-self": "A product cannot be sold together with itself.",
+    "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
+    "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
+    "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
+    "product-deleted": "This product is deleted. Restore it first, then publish it.",
+    "product-not-deleted": "Only a deleted product can be deleted permanently. Delete it first.",
+    "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
   },
   "fields": {
     "name": {
@@ -206,6 +209,7 @@
     "unpublished": "Not published",
     "unpriced": "No price",
     "count": "Products: {count}",
+    "unpublishedCount": "{count} unpublished",
     "list": {
       "page": {
         "title": "Products"
@@ -767,6 +771,7 @@
     "seeAccounts": "Show the accounts on this price list",
     "seePrices": "Show the products this tier prices",
     "defaultHint": "Guests, staff and customers without a tier are charged this list.",
+    "defaultName": "Default ({list})",
     "empty": "No price lists yet.",
     "saveError": "This tier could not be saved. Please try again.",
     "labelRequired": "A name is required.",
@@ -956,6 +961,7 @@
       "title": "Title",
       "titlePlaceholder": "Certificate of analysis",
       "titleHint": "What this document is called wherever it is listed.",
+      "datePlaceholder": "Select a date…",
       "file": "File",
       "dropHint": "Drop the file here",
       "choose": "or choose a file",

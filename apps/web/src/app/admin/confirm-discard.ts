@@ -5,7 +5,7 @@ import { ConfirmService } from '../ui/confirm.service';
 /**
  * The one discard-unsaved-changes prompt, shared by the editors' Cancel buttons
  * and the canDeactivate guards. Only the message differs per editor; the
- * heading and the two labels are common admin wording.
+ * heading and the two labels are the admin text's `discard`.
  *
  * Must be called in an injection context — a guard body, or a component field
  * initialiser, which is what `injectConfirmDiscard` is for.
@@ -16,13 +16,13 @@ export function confirmDiscard(message: string): Promise<boolean> {
 
 /** `confirmDiscard` bound to the current injector, callable later. */
 export function injectConfirmDiscard(): (message: string) => Promise<boolean> {
-  const common = inject(ADMIN_TEXT).common;
+  const text = inject(ADMIN_TEXT).discard;
   const confirm = inject(ConfirmService);
   return (message) =>
     confirm.ask({
-      heading: common.discardTitle,
+      heading: text.heading,
       message,
-      confirmLabel: common.discard,
-      cancelLabel: common.keepEditing,
+      confirmLabel: text.confirm,
+      cancelLabel: text.cancel,
     });
 }

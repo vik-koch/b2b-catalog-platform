@@ -114,7 +114,7 @@ describe('ProductRowActions', () => {
         text.publishProduct,
         text.unpublishProduct,
         text.deleteProduct,
-        defaultAdminText.common.restore,
+        defaultAdminText.actions.restore,
         text.purgeProduct,
       ].filter((label) => byLabel(label) !== null);
 
@@ -144,7 +144,7 @@ describe('ProductRowActions', () => {
       );
 
       expect(offered(byLabel)).toEqual([
-        defaultAdminText.common.restore,
+        defaultAdminText.actions.restore,
         text.purgeProduct,
       ]);
     });
@@ -162,7 +162,7 @@ describe('ProductRowActions', () => {
       expect(purgeRequested).not.toHaveBeenCalled();
       expect(tell).toHaveBeenCalledWith(
         expect.objectContaining({
-          message: defaultAdminText.common.catalogErrors['product-ordered'],
+          message: defaultAdminText.catalogErrors['product-ordered'],
         }),
       );
     });
@@ -222,7 +222,7 @@ describe('ProductRowActions', () => {
         ['catalog'],
       );
 
-      byLabel(defaultAdminText.common.restore)?.click();
+      byLabel(defaultAdminText.actions.restore)?.click();
       await fixture.whenStable();
 
       expect(restored).not.toHaveBeenCalled();
@@ -241,7 +241,7 @@ describe('ProductRowActions', () => {
         }),
       );
 
-      byLabel(defaultAdminText.common.restore)?.click();
+      byLabel(defaultAdminText.actions.restore)?.click();
       await fixture.whenStable();
 
       expect(restored).toHaveBeenCalled();

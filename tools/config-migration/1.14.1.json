@@ -1253,7 +1253,7 @@
         "admin-text.json:ownership.all.statusOwn"
       ]
     },
-    "texts/admin.json:common.actorGone": {
+    "texts/admin.json:actorGone": {
       "from": [
         "admin-text.json:apiTokenList.actorGone",
         "admin-text.json:operations.historyActorGone"
@@ -1401,7 +1401,7 @@
     "texts/admin.json:attributes.inventory.toDefinitionAria": {
       "from": ["admin-text.json:attributeInventory.toDefinition"]
     },
-    "texts/admin.json:common.resizeColumnOfAria": {
+    "texts/admin.json:grid.resizeColumnOfAria": {
       "from": ["admin-text.json:common.resizeColumnOf"]
     },
     "texts/admin.json:documents.editor.products.categoryAria": {
@@ -1665,7 +1665,7 @@
         "app-text.json:auth.myAccount.addresses.optional"
       ]
     },
-    "texts/admin.json:common.edit": {
+    "texts/admin.json:actions.edit": {
       "from": [
         "admin-text.json:common.edit",
         "admin-text.json:categoryList.edit",
@@ -1674,7 +1674,7 @@
         "admin-text.json:documentList.edit"
       ]
     },
-    "texts/admin.json:common.delete": {
+    "texts/admin.json:actions.delete": {
       "from": [
         "admin-text.json:categoryList.delete",
         "admin-text.json:tierList.delete",
@@ -1682,7 +1682,7 @@
         "admin-text.json:documentList.delete"
       ]
     },
-    "texts/admin.json:common.uploading": {
+    "texts/admin.json:upload.progress": {
       "from": [
         "admin-text.json:common.uploading",
         "admin-text.json:orderDetail.documents.uploading"
@@ -1696,9 +1696,79 @@
     },
     "deployment.json:mapProvider": {
       "new": "OpenStreetMap"
+    },
+    "texts/admin.json:actions.save": {
+      "from": ["admin-text.json:common.save"]
+    },
+    "texts/admin.json:actions.preview": {
+      "from": ["admin-text.json:common.preview"]
+    },
+    "texts/admin.json:actions.resumeEditing": {
+      "from": ["admin-text.json:common.resumeEditing"]
+    },
+    "texts/admin.json:actions.restore": {
+      "from": ["admin-text.json:common.restore"]
+    },
+    "texts/admin.json:actions.reorder": {
+      "from": ["admin-text.json:common.reorder"]
+    },
+    "texts/admin.json:discard.heading": {
+      "from": ["admin-text.json:common.discardTitle"]
+    },
+    "texts/admin.json:discard.confirm": {
+      "from": ["admin-text.json:common.discard"]
+    },
+    "texts/admin.json:discard.cancel": {
+      "from": ["admin-text.json:common.keepEditing"]
+    },
+    "texts/admin.json:upload.error": {
+      "from": ["admin-text.json:common.uploadError"]
+    },
+    "texts/admin.json:upload.pasteHint": {
+      "from": ["admin-text.json:common.pasteHint"]
+    },
+    "texts/admin.json:upload.tileHint": {
+      "from": ["admin-text.json:common.imageTileHint"]
+    },
+    "texts/admin.json:grid.clearFilters": {
+      "from": ["admin-text.json:common.clearFilters"]
+    },
+    "texts/admin.json:grid.resizeColumn": {
+      "from": ["admin-text.json:common.resizeColumn"]
+    },
+    "texts/admin.json:grid.resetWidths": {
+      "from": ["admin-text.json:common.resetWidths"]
+    },
+    "texts/admin.json:grid.filters": {
+      "from": ["admin-text.json:common.filters"]
+    },
+    "texts/admin.json:grid.sort": {
+      "from": ["admin-text.json:common.sortLabel"]
+    },
+    "texts/admin.json:grid.sortDefault": {
+      "from": ["admin-text.json:common.sortDefault"]
+    },
+    "texts/admin.json:grid.sortAscending": {
+      "from": ["admin-text.json:common.sortAscending"]
+    },
+    "texts/admin.json:grid.sortDescending": {
+      "from": ["admin-text.json:common.sortDescending"]
+    },
+    "texts/admin.json:countSuffix": {
+      "from": ["admin-text.json:common.countSuffix"]
+    },
+    "texts/admin.json:products.unpublishedCount": {
+      "from": ["admin-text.json:common.unpublishedProducts"]
+    },
+    "texts/admin.json:tiers.defaultName": {
+      "from": ["admin-text.json:common.tierDefault"]
+    },
+    "texts/admin.json:documents.editor.datePlaceholder": {
+      "from": ["admin-text.json:common.datePlaceholder"]
     }
   },
   "moves": {
+    "admin-text.json:common.catalogErrors": "admin-text.json:catalogErrors",
     "admin-text.json:pageEditor": "admin-text.json:pages",
     "admin-text.json:productList": "admin-text.json:products.list",
     "admin-text.json:productEditor": "admin-text.json:products.editor",

@@ -128,7 +128,7 @@ let nextId = 0;
                     <span
                       cdkDragHandle
                       class="inline-flex cursor-grab text-subtle active:cursor-grabbing"
-                      [attr.aria-label]="common.reorder"
+                      [attr.aria-label]="adminText.actions.reorder"
                     >
                       <app-admin-icon name="grip-vertical" class="size-4" />
                     </span>
@@ -233,7 +233,7 @@ let nextId = 0;
 export class ProductVariantsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
   protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
@@ -255,7 +255,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly inputId = `variants-add-${nextId}`;
 
   protected readonly countLabel = computed(() =>
-    fillText(this.common.countSuffix, { count: this.value().length }),
+    fillText(this.adminText.countSuffix, { count: this.value().length }),
   );
 
   protected readonly limitLabel = computed(() =>

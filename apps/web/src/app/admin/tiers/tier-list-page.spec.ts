@@ -164,7 +164,7 @@ describe('TierListPage', () => {
       tiers: [defaultTier()],
     });
 
-    byLabel(defaultAdminText.common.delete)?.click();
+    byLabel(defaultAdminText.actions.delete)?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -270,7 +270,7 @@ describe('TierListPage', () => {
       tiers: [tier({ id: 'tier-9', key: 'trade', label: 'Trade' })],
     });
 
-    byLabel(defaultAdminText.common.edit)?.click();
+    byLabel(defaultAdminText.actions.edit)?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -299,7 +299,7 @@ describe('TierListPage', () => {
         owned: true,
       });
 
-      byLabel(defaultAdminText.common.edit)?.click();
+      byLabel(defaultAdminText.actions.edit)?.click();
       await fixture.whenStable();
       fixture.detectChanges();
 
@@ -330,7 +330,7 @@ describe('TierListPage', () => {
       tiers: [tier({ id: 'tier-9' })],
     });
 
-    byLabel(defaultAdminText.common.delete)?.click();
+    byLabel(defaultAdminText.actions.delete)?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -343,7 +343,7 @@ describe('TierListPage', () => {
       tiers: [tier({ userCount: 3, priceCount: 12 })],
     });
 
-    byLabel(defaultAdminText.common.delete)?.click();
+    byLabel(defaultAdminText.actions.delete)?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -364,7 +364,7 @@ describe('TierListPage', () => {
       confirmed: false,
     });
 
-    byLabel(defaultAdminText.common.delete)?.click();
+    byLabel(defaultAdminText.actions.delete)?.click();
     await fixture.whenStable();
     fixture.detectChanges();
 

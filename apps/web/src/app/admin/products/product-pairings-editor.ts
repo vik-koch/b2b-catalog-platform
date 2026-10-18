@@ -198,7 +198,7 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(AdminCatalogService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
   protected readonly product = inject(COMMON_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
@@ -255,7 +255,7 @@ export class ProductPairingsEditor implements OnInit {
   });
 
   protected readonly countLabel = computed(() =>
-    fillText(this.common.countSuffix, { count: this.value().length }),
+    fillText(this.adminText.countSuffix, { count: this.value().length }),
   );
 
   protected readonly limitLabel = computed(() =>

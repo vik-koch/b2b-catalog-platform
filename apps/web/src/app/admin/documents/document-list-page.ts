@@ -269,16 +269,16 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         appIconButton
         [routerLink]="['/admin/documents', document.id, 'edit']"
         [queryParams]="editorFrom()"
-        [attr.aria-label]="common.edit"
-        [title]="common.edit"
+        [attr.aria-label]="adminText.actions.edit"
+        [title]="adminText.actions.edit"
       >
         <app-admin-icon name="pencil" />
       </a>
       <button
         type="button"
         appIconButton
-        [attr.aria-label]="common.delete"
-        [title]="common.delete"
+        [attr.aria-label]="adminText.actions.delete"
+        [title]="adminText.actions.delete"
         (click)="remove(document)"
       >
         <app-admin-icon name="trash-2" />
@@ -292,7 +292,7 @@ export class DocumentListPage {
   protected readonly text = inject(ADMIN_TEXT).documents.list;
   private readonly sizes = inject(COMMON_TEXT).fileSize;
   private readonly productsText = inject(ADMIN_TEXT).products;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();
 
@@ -385,7 +385,7 @@ export class DocumentListPage {
     // Two glyphs at 24px, with the gap and the cell's own padding.
     {
       key: 'actions',
-      srLabel: this.common.edit,
+      srLabel: this.adminText.actions.edit,
       align: 'right',
       fixedWidth: 64,
     },

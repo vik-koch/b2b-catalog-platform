@@ -123,7 +123,7 @@ export class ConsentLookupPage {
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   protected readonly text = inject(ADMIN_TEXT).consents;
-  private readonly common = inject(ADMIN_TEXT).common;
+  private readonly adminText = inject(ADMIN_TEXT);
   private readonly fields = inject(ADMIN_TEXT).fields;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly emailText = {

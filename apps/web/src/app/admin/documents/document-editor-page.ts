@@ -141,7 +141,7 @@ import { DocumentsService } from './documents.service';
                   (filesReceived)="upload($event[0])"
                 >
                   <app-admin-icon name="upload" class="size-4" />
-                  {{ uploading() ? common.uploading : text.replace }}
+                  {{ uploading() ? adminText.upload.progress : text.replace }}
                 </button>
                 <!-- Leaves the link as the document; the bytes go when the
                    sweep finds nothing pointing at them. -->
@@ -174,7 +174,7 @@ import { DocumentsService } from './documents.service';
             >
               <app-admin-icon name="upload" class="size-6 mb-2" />
               <span class="font-medium">{{
-                uploading() ? common.uploading : text.dropHint
+                uploading() ? adminText.upload.progress : text.dropHint
               }}</span>
               <span class="text-sm">{{ text.choose }}</span>
               <span class="hidden text-xs pointer-fine:block">{{
@@ -232,7 +232,7 @@ import { DocumentsService } from './documents.service';
             <app-date-field
               [fieldId]="issuedId"
               [value]="issuedAt() || null"
-              [placeholder]="common.datePlaceholder"
+              [placeholder]="adminText.documents.editor.datePlaceholder"
               (valueChange)="issuedAt.set($event ?? '')"
             />
           </div>
@@ -241,7 +241,7 @@ import { DocumentsService } from './documents.service';
             <app-date-field
               [fieldId]="expiresId"
               [value]="expiresAt() || null"
-              [placeholder]="common.datePlaceholder"
+              [placeholder]="adminText.documents.editor.datePlaceholder"
               (valueChange)="expiresAt.set($event ?? '')"
             />
           </div>
@@ -269,7 +269,7 @@ import { DocumentsService } from './documents.service';
           (click)="save()"
         >
           <app-admin-icon name="save" class="size-4" />
-          {{ saving() ? actionText.saving : common.save }}
+          {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
           appButton
@@ -290,7 +290,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documents.editor;
   private readonly sizes = inject(COMMON_TEXT).fileSize;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
   protected readonly issuedId = 'document-issued-at';
@@ -371,7 +371,7 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     });
   }
 
-  protected readonly pasteHint = fillText(this.common.pasteHint, {
+  protected readonly pasteHint = fillText(this.adminText.upload.pasteHint, {
     keys: pasteKeys(),
   });
 

@@ -28,7 +28,7 @@ describe('UnpublishedCount', () => {
 
     const link = el.querySelector('a');
     expect(link?.textContent?.trim()).toBe(
-      defaultAdminText.common.unpublishedProducts.replace('{count}', '4'),
+      defaultAdminText.products.unpublishedCount.replace('{count}', '4'),
     );
     const href = link?.getAttribute('href') ?? '';
     expect(href).toContain('/admin/products');

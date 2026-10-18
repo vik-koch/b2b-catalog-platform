@@ -721,7 +721,7 @@ export class AdminOrderAdjustPage {
     inject(ADMIN_TEXT).fields,
   );
   private readonly payments = this.ordersText.paymentMethods;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** Whether an external system answers orders (FR-ADM-10) — the one state in
    * which this screen has nothing to offer at all. */
@@ -1114,7 +1114,7 @@ export class AdminOrderAdjustPage {
   });
 
   protected lineCount(): string {
-    return fillText(this.common.countSuffix, { count: this.lines().length });
+    return fillText(this.adminText.countSuffix, { count: this.lines().length });
   }
 
   /**

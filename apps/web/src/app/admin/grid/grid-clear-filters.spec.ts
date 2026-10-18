@@ -7,7 +7,7 @@ import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
 import { GridClearFilters } from './grid-clear-filters';
 
-const label = defaultAdminText.common.clearFilters;
+const label = defaultAdminText.grid.clearFilters;
 
 @Component({
   imports: [GridClearFilters],

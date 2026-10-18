@@ -112,7 +112,7 @@ import { COMMON_TEXT } from '../../config/common-text';
               <div appRecordFormActions>
                 <button appButton size="sm" type="submit" class="gap-2">
                   <app-admin-icon name="save" class="size-4" />
-                  {{ common.save }}
+                  {{ adminText.actions.save }}
                 </button>
                 <button
                   appButton
@@ -138,7 +138,7 @@ import { COMMON_TEXT } from '../../config/common-text';
                 appIconButton
                 size="lead"
                 class="cursor-grab active:cursor-grabbing"
-                [attr.aria-label]="common.reorder"
+                [attr.aria-label]="adminText.actions.reorder"
               >
                 <app-admin-icon name="grip-vertical" />
               </span>
@@ -194,7 +194,7 @@ import { COMMON_TEXT } from '../../config/common-text';
                 <button
                   appIconButton
                   type="button"
-                  [attr.aria-label]="common.edit"
+                  [attr.aria-label]="adminText.actions.edit"
                   (click)="open($index)"
                 >
                   <app-admin-icon name="pencil" />
@@ -217,7 +217,7 @@ import { COMMON_TEXT } from '../../config/common-text';
   `,
 })
 export class ProductAttributesNarrow {
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly dash = '—';

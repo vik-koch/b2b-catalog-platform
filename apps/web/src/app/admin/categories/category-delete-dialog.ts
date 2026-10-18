@@ -111,7 +111,7 @@ import { COMMON_TEXT } from '../../config/common-text';
             (click)="confirm()"
           >
             <app-admin-icon name="trash-2" class="size-4" />
-            {{ deleting() ? actionText.deleting : common.delete }}
+            {{ deleting() ? actionText.deleting : adminText.actions.delete }}
           </button>
         }
       </div>
@@ -120,7 +120,7 @@ import { COMMON_TEXT } from '../../config/common-text';
 })
 export class CategoryDeleteDialog {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
@@ -231,7 +231,7 @@ export class CategoryDeleteDialog {
         this.reassignTo() || undefined,
       );
       if (result.ok) return this.deleted.emit();
-      this.error.set(this.common.catalogErrors[result.code]);
+      this.error.set(this.adminText.catalogErrors[result.code]);
     } catch {
       // An unexpected status used to reject unhandled, leaving the dialog
       // spinning on "deleting" with nothing said.

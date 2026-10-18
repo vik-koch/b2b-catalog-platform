@@ -59,7 +59,7 @@ export const commonTextSchema = z
      * Controls that say the same on every screen, for customers and staff:
      * a dialog's way out, a row's remove button, a button's progress word. A
      * control that names what it does ("Delete selection") keeps its own key
-     * with its screen; staff-only verbs are in the admin text's `common`.
+     * with its screen; staff-only verbs are in the admin text's `actions`.
      */
     actions: z
       .object({

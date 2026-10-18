@@ -7,7 +7,7 @@ import { ADMIN_TEXT } from '../config/admin-text';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { AdminListHeader } from './list-header';
 
-const clearLabel = defaultAdminText.common.clearFilters;
+const clearLabel = defaultAdminText.grid.clearFilters;
 
 /** A caller, since the actions are projected rather than configured. */
 @Component({

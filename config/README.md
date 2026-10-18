@@ -66,7 +66,7 @@ staff mail needs it. `texts/common.json` reaches every visitor, so nothing only
 staff read goes there. Controls that read the same on every screen — Cancel,
 Close, Remove, "Saving…" — are its `actions`; a control that names what it does
 ("Delete selection") keeps its own key, and staff-only verbs (Save, Edit,
-Delete) are the admin text's `common`. Wording for entries the deployment
+Delete) are the admin text's `actions`. Wording for entries the deployment
 itself defines — delivery zones, collection points, company-ID formats — sits
 beside those entries in `deployment.json`. ADR 0018 (amendment) has the
 reasons.

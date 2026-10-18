@@ -120,7 +120,7 @@ describe('DocumentListPage', () => {
       documents: [document({ productCount: 5, unpublishedProductCount: 4 })],
     });
 
-    const label = defaultAdminText.common.unpublishedProducts.replace(
+    const label = defaultAdminText.products.unpublishedCount.replace(
       '{count}',
       '4',
     );
@@ -261,7 +261,7 @@ describe('DocumentListPage', () => {
     const { el, service, confirm } = await render();
 
     el.querySelector<HTMLElement>(
-      `[title="${defaultAdminText.common.delete}"]`,
+      `[title="${defaultAdminText.actions.delete}"]`,
     )?.click();
     await Promise.resolve();
 
@@ -273,7 +273,7 @@ describe('DocumentListPage', () => {
     const { el, service } = await render({ confirmed: false });
 
     el.querySelector<HTMLElement>(
-      `[title="${defaultAdminText.common.delete}"]`,
+      `[title="${defaultAdminText.actions.delete}"]`,
     )?.click();
     await Promise.resolve();
 

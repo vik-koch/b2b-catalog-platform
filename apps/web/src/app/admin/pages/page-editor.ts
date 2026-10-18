@@ -137,7 +137,7 @@ import { COMMON_TEXT } from '../../config/common-text';
         (click)="save()"
       >
         <app-admin-icon name="save" class="size-4" />
-        {{ saving() ? actionText.saving : common.save }}
+        {{ saving() ? actionText.saving : adminText.actions.save }}
       </button>
       <button
         appButton
@@ -150,7 +150,11 @@ import { COMMON_TEXT } from '../../config/common-text';
           [name]="previewing() ? 'pencil' : 'eye'"
           class="size-4"
         />
-        {{ previewing() ? common.resumeEditing : common.preview }}
+        {{
+          previewing()
+            ? adminText.actions.resumeEditing
+            : adminText.actions.preview
+        }}
       </button>
       <button
         appButton
@@ -167,7 +171,7 @@ import { COMMON_TEXT } from '../../config/common-text';
 })
 export class PageEditor {
   private readonly pageService = inject(PageService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly confirmDiscard = injectConfirmDiscard();

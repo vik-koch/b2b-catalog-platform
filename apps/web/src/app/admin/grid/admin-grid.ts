@@ -98,7 +98,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           [toggles]="toggles()"
           [sort]="sort()"
           [defaultSort]="defaultSort()"
-          [defaultSortLabel]="defaultSortLabel() || common.sortDefault"
+          [defaultSortLabel]="defaultSortLabel() || adminText.grid.sortDefault"
           [filtered]="filtered()"
         />
 
@@ -173,7 +173,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           <p class="text-subtle" aria-live="polite">{{ countText() }}</p>
           @if (customised()) {
             <button type="button" appTextButton (click)="resetWidths()">
-              {{ common.resetWidths }}
+              {{ adminText.grid.resetWidths }}
             </button>
           }
         </div>
@@ -251,7 +251,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         tabindex="0"
                         class="group/handle absolute top-0 right-0 z-10 flex h-full w-3 translate-x-1/2 cursor-col-resize touch-none items-stretch justify-center"
                         [attr.aria-label]="resizeLabel(column)"
-                        [title]="common.resizeColumn"
+                        [title]="adminText.grid.resizeColumn"
                         (pointerdown)="startDrag($event, handleAt()[$index])"
                         (dblclick)="resetWidths()"
                         (keydown)="onHandleKey($event, handleAt()[$index])"
@@ -294,7 +294,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
 })
 export class AdminGrid<T> {
   private readonly store = inject(GridWidthsStore);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
 
   /*
    * Both widths are watched, and the input picks between them. A media query
@@ -484,7 +484,7 @@ export class AdminGrid<T> {
   }
 
   protected resizeLabel(column: GridColumn): string {
-    return fillText(this.common.resizeColumnOfAria, {
+    return fillText(this.adminText.grid.resizeColumnOfAria, {
       column: column.label ?? column.srLabel ?? column.key,
     });
   }

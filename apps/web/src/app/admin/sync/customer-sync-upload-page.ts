@@ -255,7 +255,7 @@ export class CustomerSyncUploadPage {
   protected readonly applying = signal(false);
   protected readonly applyError = signal<string | null>(null);
   protected readonly appliedRun = signal<SyncRun | null>(null);
-  protected readonly pasteHint = fillText(inject(ADMIN_TEXT).common.pasteHint, {
+  protected readonly pasteHint = fillText(inject(ADMIN_TEXT).upload.pasteHint, {
     keys: pasteKeys(),
   });
 

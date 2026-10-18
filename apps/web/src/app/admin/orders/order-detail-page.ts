@@ -604,7 +604,7 @@ export class AdminOrderDetailPage {
   protected readonly revisionText = this.text.revisions;
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /**
    * Whether an external system answers orders (FR-ADM-10). Read the way the
@@ -959,7 +959,9 @@ export class AdminOrderDetailPage {
   });
 
   protected revisionCount(order: AdminOrderDetail): string {
-    return fillText(this.common.countSuffix, { count: order.revisionNumber });
+    return fillText(this.adminText.countSuffix, {
+      count: order.revisionNumber,
+    });
   }
 
   /**

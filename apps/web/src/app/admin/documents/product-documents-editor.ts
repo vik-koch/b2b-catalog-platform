@@ -186,7 +186,7 @@ export class ProductDocumentsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(DocumentsService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.documents;
   protected readonly product = inject(COMMON_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
@@ -248,7 +248,7 @@ export class ProductDocumentsEditor implements OnInit {
   });
 
   protected readonly countLabel = computed(() =>
-    fillText(this.common.countSuffix, { count: this.value().length }),
+    fillText(this.adminText.countSuffix, { count: this.value().length }),
   );
 
   protected readonly activeOptionId = computed(() =>

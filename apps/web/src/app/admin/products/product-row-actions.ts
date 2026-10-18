@@ -62,8 +62,8 @@ export interface ProductRowState {
       <button
         type="button"
         appIconButton
-        [attr.aria-label]="common.restore"
-        [title]="common.restore"
+        [attr.aria-label]="adminText.actions.restore"
+        [title]="adminText.actions.restore"
         (click)="onRestoreClick()"
       >
         <app-admin-icon name="rotate-ccw" />
@@ -130,7 +130,7 @@ export interface ProductRowState {
 export class ProductRowActions {
   private readonly confirm = inject(ConfirmService);
   private readonly settings = inject(SettingsService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
@@ -158,7 +158,7 @@ export class ProductRowActions {
   private refusalFor(catalogOwned: boolean): string | null {
     return purgeRefusal(
       {
-        ordered: this.common.catalogErrors['product-ordered'],
+        ordered: this.adminText.catalogErrors['product-ordered'],
         owned: this.ownershipText.productPurge,
       },
       this.product(),
@@ -191,7 +191,7 @@ export class ProductRowActions {
     if (this.cannotPublish()) {
       void this.confirm.tell({
         heading: this.editText.unpricedTitle,
-        message: this.common.catalogErrors['product-has-no-price'],
+        message: this.adminText.catalogErrors['product-has-no-price'],
         closeLabel: this.actionText.close,
       });
       return;

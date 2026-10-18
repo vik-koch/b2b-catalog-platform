@@ -37,8 +37,8 @@ import { IconButton } from '../../ui/icon-button';
         variant="danger"
         routerLink="."
         [queryParams]="keep()"
-        [attr.aria-label]="common.clearFilters"
-        [title]="common.clearFilters"
+        [attr.aria-label]="adminText.grid.clearFilters"
+        [title]="adminText.grid.clearFilters"
       >
         <app-admin-icon name="funnel-x" />
       </a>
@@ -48,8 +48,8 @@ import { IconButton } from '../../ui/icon-button';
         type="button"
         disabled
         class="opacity-40"
-        [attr.aria-label]="common.clearFilters"
-        [title]="common.clearFilters"
+        [attr.aria-label]="adminText.grid.clearFilters"
+        [title]="adminText.grid.clearFilters"
       >
         <app-admin-icon name="funnel-x" />
       </button>
@@ -57,7 +57,7 @@ import { IconButton } from '../../ui/icon-button';
   `,
 })
 export class GridClearFilters {
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
 
   /** Whether anything — a filter, a chip, the search box — is narrowing the
    * list, which is the only state in which there is something to clear. */
