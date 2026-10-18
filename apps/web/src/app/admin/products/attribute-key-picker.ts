@@ -118,7 +118,7 @@ import { COMMON_TEXT } from '../../config/common-text';
   `,
 })
 export class AttributeKeyPicker {
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly actionText = inject(COMMON_TEXT).actions;

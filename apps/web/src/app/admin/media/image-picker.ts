@@ -59,7 +59,7 @@ import { COMMON_TEXT } from '../../config/common-text';
       >
         <app-admin-icon name="image-plus" class="size-6" />
         <span class="text-xs">{{
-          uploading() ? common.uploading : label()
+          uploading() ? adminText.upload.progress : label()
         }}</span>
       </button>
       <!-- A pointer's hint: a phone has no shortcut, and drops nothing. -->
@@ -75,10 +75,10 @@ import { COMMON_TEXT } from '../../config/common-text';
 })
 export class ImagePicker {
   private readonly media = inject(MediaService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
-  protected readonly tileHint = fillText(this.common.imageTileHint, {
+  protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),
   });
 
@@ -115,7 +115,7 @@ export class ImagePicker {
         await this.media.uploadCatalogImage(file, this.square()),
       );
     } catch {
-      this.error.set(this.common.uploadError);
+      this.error.set(this.adminText.upload.error);
     } finally {
       this.uploading.set(false);
     }

@@ -74,7 +74,7 @@ import { COMMON_TEXT } from '../../config/common-text';
             <div
               cdkDragHandle
               class="relative size-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
-              [attr.aria-label]="common.reorder"
+              [attr.aria-label]="adminText.actions.reorder"
             >
               <img
                 [src]="image.thumb"
@@ -160,7 +160,7 @@ import { COMMON_TEXT } from '../../config/common-text';
           >
             <app-admin-icon name="image-plus" class="size-6" />
             <span class="text-xs">
-              {{ uploading() ? common.uploading : text.add }}
+              {{ uploading() ? adminText.upload.progress : text.add }}
             </span>
           </button>
         </li>
@@ -180,10 +180,10 @@ export class ProductImageGallery {
   private readonly media = inject(MediaService);
   private readonly framer = inject(ImageFramerService);
   protected readonly text = inject(ADMIN_TEXT).products.editor.images;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
-  protected readonly tileHint = fillText(this.common.imageTileHint, {
+  protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),
   });
 
@@ -225,7 +225,7 @@ export class ProductImageGallery {
       }
       this.valueChange.emit([...this.value(), ...uploaded]);
     } catch {
-      this.error.set(this.common.uploadError);
+      this.error.set(this.adminText.upload.error);
     } finally {
       this.uploading.set(false);
     }
@@ -260,7 +260,7 @@ export class ProductImageGallery {
         ),
       );
     } catch {
-      this.error.set(this.common.uploadError);
+      this.error.set(this.adminText.upload.error);
     } finally {
       this.uploading.set(false);
     }

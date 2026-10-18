@@ -372,7 +372,7 @@ describe('OperationsPage', () => {
       });
       await openHistory(fixture, el);
 
-      expect(el.textContent).toContain(defaultAdminText.common.actorGone);
+      expect(el.textContent).toContain(defaultAdminText.actorGone);
     });
 
     it('says so when nothing has been changed yet', async () => {

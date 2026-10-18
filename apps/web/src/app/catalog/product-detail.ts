@@ -251,7 +251,7 @@ export class ProductDetail {
     if (hidden?.unpriced) {
       await this.confirm.tell({
         heading: text.unpricedTitle,
-        message: all.common.catalogErrors['product-has-no-price'],
+        message: all.catalogErrors['product-has-no-price'],
         closeLabel: this.actionText.close,
       });
       return;

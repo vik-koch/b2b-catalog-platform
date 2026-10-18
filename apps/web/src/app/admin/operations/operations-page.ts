@@ -285,7 +285,7 @@ export class OperationsPage {
   protected readonly text = inject(ADMIN_TEXT).operations;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly maintenanceText = inject(ADMIN_TEXT).maintenance;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   private readonly settingsService = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
@@ -534,7 +534,7 @@ export class OperationsPage {
   private who(change: SettingChange): string {
     return fillText(this.text.historyBy, {
       date: this.moment.format(new Date(change.changedAt)),
-      actor: change.actorEmail ?? this.common.actorGone,
+      actor: change.actorEmail ?? this.adminText.actorGone,
     });
   }
 }

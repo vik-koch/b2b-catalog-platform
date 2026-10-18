@@ -69,7 +69,7 @@ describe('PageEditor', () => {
   it('shows the body in a prose container when previewing', async () => {
     const { fixture, el } = await render();
 
-    buttonNamed(el, defaultAdminText.common.preview).click();
+    buttonNamed(el, defaultAdminText.actions.preview).click();
     await fixture.whenStable();
 
     expect(el.querySelector('.prose')?.innerHTML).toContain('Original copy.');
@@ -99,7 +99,7 @@ describe('PageEditor', () => {
     await fixture.whenStable();
     const el = fixture.nativeElement as HTMLElement;
 
-    buttonNamed(el, defaultAdminText.common.preview).click();
+    buttonNamed(el, defaultAdminText.actions.preview).click();
     await fixture.whenStable();
 
     const link = el.querySelector('.prose a') as HTMLAnchorElement;
@@ -112,9 +112,9 @@ describe('PageEditor', () => {
   it('returns to editing from preview', async () => {
     const { fixture, el } = await render();
 
-    buttonNamed(el, defaultAdminText.common.preview).click();
+    buttonNamed(el, defaultAdminText.actions.preview).click();
     await fixture.whenStable();
-    buttonNamed(el, defaultAdminText.common.resumeEditing).click();
+    buttonNamed(el, defaultAdminText.actions.resumeEditing).click();
     await fixture.whenStable();
 
     expect(el.querySelector('input')?.value).toBe('About us');
@@ -131,7 +131,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = 'Renamed';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, defaultAdminText.common.save).click();
+    buttonNamed(el, defaultAdminText.actions.save).click();
     await fixture.whenStable();
 
     expect(updatePage).toHaveBeenCalledWith('about', {
@@ -147,7 +147,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = '   ';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, defaultAdminText.common.save).click();
+    buttonNamed(el, defaultAdminText.actions.save).click();
     await fixture.whenStable();
 
     expect(updatePage).not.toHaveBeenCalled();
@@ -159,7 +159,7 @@ describe('PageEditor', () => {
       vi.fn().mockRejectedValue(new Error('boom')),
     );
 
-    buttonNamed(el, defaultAdminText.common.save).click();
+    buttonNamed(el, defaultAdminText.actions.save).click();
     await fixture.whenStable();
 
     expect(el.textContent).toContain(text.saveError);
@@ -213,7 +213,7 @@ describe('PageEditor', () => {
       expect(wording.value).toBe('I [consent].');
       wording.value = '  I [agree].  ';
       wording.dispatchEvent(new Event('input'));
-      buttonNamed(el, defaultAdminText.common.save).click();
+      buttonNamed(el, defaultAdminText.actions.save).click();
       await fixture.whenStable();
 
       expect(updatePage).toHaveBeenCalledWith('consent-contact', {
@@ -229,7 +229,7 @@ describe('PageEditor', () => {
       const wording = el.querySelector('textarea') as HTMLTextAreaElement;
       wording.value = ' ';
       wording.dispatchEvent(new Event('input'));
-      buttonNamed(el, defaultAdminText.common.save).click();
+      buttonNamed(el, defaultAdminText.actions.save).click();
       await fixture.whenStable();
 
       expect(updatePage).not.toHaveBeenCalled();
@@ -242,7 +242,7 @@ describe('PageEditor', () => {
       const wording = el.querySelector('textarea') as HTMLTextAreaElement;
       wording.value = 'I agree.';
       wording.dispatchEvent(new Event('input'));
-      buttonNamed(el, defaultAdminText.common.save).click();
+      buttonNamed(el, defaultAdminText.actions.save).click();
       await fixture.whenStable();
 
       expect(updatePage).not.toHaveBeenCalled();
@@ -252,7 +252,7 @@ describe('PageEditor', () => {
     it('previews the box as the form shows it', async () => {
       const { fixture, el } = await renderConsent();
 
-      buttonNamed(el, defaultAdminText.common.preview).click();
+      buttonNamed(el, defaultAdminText.actions.preview).click();
       await fixture.whenStable();
 
       const box = el.querySelector('input[type="checkbox"]');

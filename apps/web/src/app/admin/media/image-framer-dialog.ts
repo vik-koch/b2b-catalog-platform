@@ -136,7 +136,7 @@ const ZOOM_KEY_FACTOR = 1.1;
 })
 export class ImageFramerDialog {
   protected readonly text = inject(ADMIN_TEXT).imageFramer;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly zoomMin = ZOOM_MIN * 100;
   protected readonly zoomMax = ZOOM_MAX * 100;

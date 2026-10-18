@@ -146,7 +146,7 @@ async function render(
   };
   const save = async () => {
     const button = [...el.querySelectorAll('button')].find((b) =>
-      b.textContent?.includes(defaultAdminText.common.save),
+      b.textContent?.includes(defaultAdminText.actions.save),
     );
     button?.click();
     await settle();

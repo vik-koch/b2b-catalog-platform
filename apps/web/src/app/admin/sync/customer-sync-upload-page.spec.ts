@@ -122,7 +122,7 @@ async function runPreview(
   input.dispatchEvent(new Event('change'));
   fixture.detectChanges();
 
-  buttonWith(el, defaultAdminText.common.preview).click();
+  buttonWith(el, defaultAdminText.actions.preview).click();
   await fixture.whenStable();
   fixture.detectChanges();
 }

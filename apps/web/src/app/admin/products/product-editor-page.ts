@@ -604,7 +604,11 @@ import {
               [name]="previewing() ? 'pencil' : 'eye'"
               class="size-4"
             />
-            {{ previewing() ? common.resumeEditing : common.preview }}
+            {{
+              previewing()
+                ? adminText.actions.resumeEditing
+                : adminText.actions.preview
+            }}
           </button>
         }
         <button
@@ -654,7 +658,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly lowStockFallback =
     inject(DEPLOYMENT_CONFIG).catalog.lowStockThresholdPieces ??
     DEFAULT_LOW_STOCK_THRESHOLD_PIECES;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor;
   /** The grid's glyphs, on the sections that set what they stand for. */
   protected readonly glyphs = PRODUCT_FEATURE_GLYPHS;
@@ -822,7 +826,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly saveLabel = computed(() =>
     this.priceCleared() && this.published()
       ? this.text.saveAndUnpublish
-      : this.common.save,
+      : this.adminText.actions.save,
   );
 
   /**
@@ -1371,7 +1375,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
         : await this.service.updateProduct(existingSlug, body);
 
     if (!result.ok) {
-      this.error.set(this.common.catalogErrors[result.code]);
+      this.error.set(this.adminText.catalogErrors[result.code]);
       this.saving.set(false);
       return;
     }

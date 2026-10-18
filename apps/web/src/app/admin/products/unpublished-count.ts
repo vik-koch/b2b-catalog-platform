@@ -24,7 +24,7 @@ import { LINK_BASE, LINK_TONES } from '../../ui/link';
   `,
 })
 export class UnpublishedCount {
-  private readonly common = inject(ADMIN_TEXT).common;
+  private readonly adminText = inject(ADMIN_TEXT);
 
   readonly count = input.required<number>();
   /** The narrowing the count beside it links with. */
@@ -36,6 +36,6 @@ export class UnpublishedCount {
     state: 'unpublished',
   }));
   protected readonly label = computed(() =>
-    fillText(this.common.unpublishedProducts, { count: this.count() }),
+    fillText(this.adminText.products.unpublishedCount, { count: this.count() }),
   );
 }

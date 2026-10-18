@@ -123,8 +123,8 @@ type EditTarget = { id: string } | { id: null } | null;
                       appIconButton
                       size="lead"
                       class="cursor-grab active:cursor-grabbing"
-                      [attr.aria-label]="common.reorder"
-                      [title]="common.reorder"
+                      [attr.aria-label]="adminText.actions.reorder"
+                      [title]="adminText.actions.reorder"
                     >
                       <app-admin-icon name="grip-vertical" />
                     </span>
@@ -218,7 +218,7 @@ type EditTarget = { id: string } | { id: null } | null;
                       <button
                         appIconButton
                         type="button"
-                        [attr.aria-label]="common.edit"
+                        [attr.aria-label]="adminText.actions.edit"
                         [disabled]="editing() !== null"
                         (click)="startEdit(tier)"
                       >
@@ -232,7 +232,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         appIconButton
                         variant="danger"
                         type="button"
-                        [attr.aria-label]="common.delete"
+                        [attr.aria-label]="adminText.actions.delete"
                         [disabled]="busy()"
                         (click)="remove(tier)"
                       >
@@ -341,7 +341,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
             >
               <app-admin-icon name="save" class="size-4" />
-              {{ busy() ? actionText.saving : common.save }}
+              {{ busy() ? actionText.saving : adminText.actions.save }}
             </button>
             <button
               appButton
@@ -373,7 +373,7 @@ export class TierListPage {
   protected readonly text = inject(ADMIN_TEXT).tiers;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly actionText = inject(COMMON_TEXT).actions;
 

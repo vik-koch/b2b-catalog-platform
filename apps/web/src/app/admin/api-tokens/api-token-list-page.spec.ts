@@ -156,7 +156,7 @@ describe('ApiTokenListPage', () => {
   it('names a deleted issuer rather than leaving the line blank', async () => {
     const { el } = await render({ tokens: [token({ createdBy: null })] });
 
-    expect(el.textContent).toContain(defaultAdminText.common.actorGone);
+    expect(el.textContent).toContain(defaultAdminText.actorGone);
   });
 
   it('shows a revoked token, marked, with no revoke button left on it', async () => {

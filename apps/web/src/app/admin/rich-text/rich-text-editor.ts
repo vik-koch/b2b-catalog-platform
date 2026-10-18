@@ -129,12 +129,12 @@ interface ToolbarAction {
 
     @if (uploading()) {
       <p class="mt-2 text-sm text-muted" role="status">
-        {{ common.uploading }}
+        {{ adminText.upload.progress }}
       </p>
     }
     @if (uploadError()) {
       <p class="mt-2 text-sm text-red-700" role="alert">
-        {{ common.uploadError }}
+        {{ adminText.upload.error }}
       </p>
     }
 
@@ -302,7 +302,7 @@ interface ToolbarAction {
 })
 export class RichTextEditor {
   protected readonly text = inject(ADMIN_TEXT).pages;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(COMMON_TEXT).actions;
   protected readonly link = this.text.linkPanel;
   /** Which shape the two panels take — see the template. */

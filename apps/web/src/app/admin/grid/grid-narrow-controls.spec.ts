@@ -8,7 +8,7 @@ import { defaultAdminText } from '../../config/admin-text.fixture';
 import { GridChip, GridColumn } from './grid-column';
 import { GridNarrowControls } from './grid-narrow-controls';
 
-const common = defaultAdminText.common;
+const adminText = defaultAdminText;
 
 const columns: GridColumn[] = [
   { key: 'name', label: 'Name', sort: { asc: 'name', desc: 'name_desc' } },
@@ -140,7 +140,7 @@ describe('GridNarrowControls (FR-ADM-05)', () => {
     const { el } = await render();
     const button = el.querySelector('button');
 
-    expect(button?.textContent).toContain(common.filters);
+    expect(button?.textContent).toContain(adminText.grid.filters);
     expect(button?.textContent).toContain('2');
   });
 

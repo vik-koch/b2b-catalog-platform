@@ -227,7 +227,7 @@ import { COMMON_TEXT } from '../../config/common-text';
                       type="button"
                       cdkDragHandle
                       class="cursor-grab active:cursor-grabbing"
-                      [attr.aria-label]="common.reorder"
+                      [attr.aria-label]="adminText.actions.reorder"
                     >
                       <app-admin-icon name="grip-vertical" />
                     </button>
@@ -280,7 +280,7 @@ import { COMMON_TEXT } from '../../config/common-text';
   `,
 })
 export class ProductAttributesEditor {
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:

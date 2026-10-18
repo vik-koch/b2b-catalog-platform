@@ -363,7 +363,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
                     (click)="submit(false)"
                   >
                     <app-admin-icon name="save" class="size-4" />
-                    {{ common.save }}
+                    {{ adminText.actions.save }}
                   </button>
                 }
               }
@@ -421,7 +421,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     { value: 'person', label: this.kinds.person },
     { value: 'company', label: this.kinds.company },
   ];
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly ownership = inject(SettingsService);
@@ -432,7 +432,7 @@ export class UserEditorPage implements UnsavedChangesAware {
    * list looking like one choice among several.
    */
   protected readonly baseTierLabel = computed(() =>
-    this.common.tierDefault.replace(
+    this.adminText.tiers.defaultName.replace(
       '{list}',
       this.tiers().find((t) => t.isDefault)?.label ?? '',
     ),
@@ -561,7 +561,7 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   protected readonly submitLabel = computed(() => {
     if (this.isNew) return this.text.create;
-    return this.isApproval() ? this.text.approve : this.common.save;
+    return this.isApproval() ? this.text.approve : this.adminText.actions.save;
   });
 
   protected readonly submitIcon = computed<AdminIconName>(() =>

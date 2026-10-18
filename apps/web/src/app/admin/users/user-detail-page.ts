@@ -262,7 +262,7 @@ export class UserDetailPage {
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly editorText = inject(ADMIN_TEXT).users.editor;
   private readonly commonText = inject(COMMON_TEXT);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
 
@@ -585,7 +585,7 @@ export class UserDetailPage {
     if (tierId) {
       return tiers.find((t) => t.id === tierId)?.label ?? '—';
     }
-    return this.common.tierDefault.replace(
+    return this.adminText.tiers.defaultName.replace(
       '{list}',
       tiers.find((t) => t.isDefault)?.label ?? '',
     );

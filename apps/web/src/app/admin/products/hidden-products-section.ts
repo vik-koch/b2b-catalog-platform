@@ -145,7 +145,7 @@ export class HiddenProductsSection {
   private readonly confirm = inject(ConfirmService);
   /** So the editor's cancel lands back on the page the tile was on. */
   protected readonly editorFrom = injectEditorReturnParams();
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly actionText = inject(COMMON_TEXT).actions;
@@ -219,7 +219,7 @@ export class HiddenProductsSection {
     if (this.cannotPublish(item)) {
       await this.confirm.tell({
         heading: this.text.unpricedTitle,
-        message: this.common.catalogErrors['product-has-no-price'],
+        message: this.adminText.catalogErrors['product-has-no-price'],
         closeLabel: this.actionText.close,
       });
       return;

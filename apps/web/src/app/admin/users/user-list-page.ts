@@ -537,7 +537,7 @@ export class UserListPage {
    * somebody made, and the column should not read as if one had been made.
    */
   private readonly baseTierLabel = computed(() =>
-    this.common.tierDefault.replace(
+    this.adminText.tiers.defaultName.replace(
       '{list}',
       this.tierList.value()?.tiers.find((t) => t.isDefault)?.label ?? '',
     ),
@@ -547,7 +547,7 @@ export class UserListPage {
 
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   /** So an editor opened from here returns to this list, filters and all. */

@@ -178,7 +178,7 @@ import { SyncService } from './sync.service';
 export class SyncRunsPage {
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   private readonly auth = inject(AuthService);
 
   /**

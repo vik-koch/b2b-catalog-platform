@@ -412,7 +412,7 @@ type RenameTarget =
             [disabled]="busy()"
           >
             <app-admin-icon name="save" class="size-4" />
-            {{ busy() ? actionText.saving : common.save }}
+            {{ busy() ? actionText.saving : adminText.actions.save }}
           </button>
           <button
             appButton
@@ -439,7 +439,7 @@ export class AttributeInventoryPage {
   private readonly location = inject(Location);
   protected readonly text = inject(ADMIN_TEXT).attributes.inventory;
   private readonly productsText = inject(ADMIN_TEXT).products;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly actionText = inject(COMMON_TEXT).actions;
 
@@ -573,7 +573,7 @@ export class AttributeInventoryPage {
       ]
         .filter(Boolean)
         .join(' '),
-      confirmLabel: this.common.save,
+      confirmLabel: this.adminText.actions.save,
       cancelLabel: this.actionText.cancel,
     });
     if (!confirmed) return;

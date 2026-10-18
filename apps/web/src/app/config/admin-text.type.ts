@@ -53,100 +53,100 @@ const ownershipAreaText = z
 export const adminTextSchema = z
   .object({
     /**
-     * Wording shared verbatim by several admin screens. Only genuinely
+     * Controls that read the same on every admin screen. Only genuinely
      * identical strings live here; anything that reads better with its subject
      * named ("Discard your unsaved changes to this product?") stays with its
-     * own screen.
+     * own screen. Cancel, Close and Remove are the common text's.
      */
-    common: z
+    actions: z
       .object({
         save: z.string(),
         preview: z.string(),
         resumeEditing: z.string(),
-        /** Heading and confirm label of the discard-changes modal. */
-        discardTitle: z.string(),
-        discard: z.string(),
-        keepEditing: z.string(),
-        /** Open a record for editing; finish editing it. */
+        /** Open a record for editing. */
         edit: z.string(),
         delete: z.string(),
-        /** Who did something, once their account has been deleted. */
-        actorGone: z.string(),
-        /** Beside a product count, how many of those are not on the
-         * storefront: "{count} unpublished". Shown only above zero. */
-        unpublishedProducts: z.string(),
         restore: z.string(),
         reorder: z.string(),
-        uploading: z.string(),
-        /** What an empty date field says: a native one draws a different thing
-         * in every engine, so the app draws its own. */
-        datePlaceholder: z.string(),
-        uploadError: z.string(),
+      })
+      .strict(),
+    /** The discard-unsaved-changes dialog every editor shares; the message is
+     * each editor's own. */
+    discard: z
+      .object({
+        heading: z.string(),
+        confirm: z.string(),
+        cancel: z.string(),
+      })
+      .strict(),
+    /** Every place that takes a picture or a file. */
+    upload: z
+      .object({
+        progress: z.string(),
+        error: z.string(),
         /** Under a file target's own wording; `{keys}` is the shortcut as
          * this keyboard writes it. */
         pasteHint: z.string(),
         /** Beside an image tile, too small to say it on: `{keys}` as above. */
-        imageTileHint: z.string(),
-        /** The way back to an unfiltered grid, on every admin list. */
+        tileHint: z.string(),
+      })
+      .strict(),
+    /**
+     * The admin grids' own controls: the way back to an unfiltered grid, the
+     * column widths an admin drags, and the filter and sort pickers a phone
+     * gets in place of the column headings it has no room for.
+     */
+    grid: z
+      .object({
         clearFilters: z.string(),
-        /*
-         * The admin grids' own controls: the column widths an admin drags, and
-         * the filter and sort pickers a phone gets in place of the column
-         * headings it has no room for.
-         */
         resizeColumn: z.string(),
         /** Names the boundary being dragged: `{column}`. */
         resizeColumnOfAria: z.string(),
         resetWidths: z.string(),
         filters: z.string(),
-        /** How many of something are in effect, beside the word that names
-         * them — filters on a grid, checked names in the attribute picker:
-         * `{count}`. */
-        countSuffix: z.string(),
-        sortLabel: z.string(),
+        sort: z.string(),
         /** The ordering a grid has when nothing is chosen. */
         sortDefault: z.string(),
-        /** What an account with no tier of its own is charged, naming the
-         * storefront's list: `{list}`. A null tier is not a blank — it is the
-         * default list, and the screens say which one that is. */
-        tierDefault: z.string(),
         /** One line of the phone's sort picker: `{column}`. */
         sortAscending: z.string(),
         sortDescending: z.string(),
-        /**
-         * Every refusal a catalog write can answer with, keyed by the API's own
-         * `code`. Shared rather than per-screen because it genuinely is: the
-         * product editor and the category delete dialog can both be told a slug
-         * is taken or a category is gone, and one copy is how the two stay
-         * saying the same thing.
-         */
-        catalogErrors: z
-          .object({
-            'product-not-found': z.string(),
-            'category-not-found': z.string(),
-            'reassign-target-not-found': z.string(),
-            'category-has-subcategories': z.string(),
-            'category-has-products': z.string(),
-            'category-reassign-to-self': z.string(),
-            'category-cycle': z.string(),
-            'slug-taken': z.string(),
-            'source-id-taken': z.string(),
-            'tier-not-found': z.string(),
-            'paired-product-not-found': z.string(),
-            'document-not-found': z.string(),
-            'pairing-self': z.string(),
-            'slug-or-source-id-taken': z.string(),
-            'product-has-no-price': z.string(),
-            'product-published': z.string(),
-            'product-deleted': z.string(),
-            'product-not-deleted': z.string(),
-            'product-ordered': z.string(),
-          })
-          .strict(),
       })
       .strict(),
-    /** The dialog that places a catalog picture in a white square before it
-     * is stored. */
+    /** How many of something are in effect, beside the word that names them —
+     * filters on a grid, checked names in the attribute picker: `{count}`. */
+    countSuffix: z.string(),
+    /** Who did something, once their account has been deleted. */
+    actorGone: z.string(),
+    /**
+     * Every refusal a catalog write can answer with, keyed by the API's own
+     * `code`. Shared rather than per-screen because it genuinely is: the
+     * product editor and the category delete dialog can both be told a slug
+     * is taken or a category is gone, and one copy is how the two stay
+     * saying the same thing.
+     */
+    catalogErrors: z
+      .object({
+        'product-not-found': z.string(),
+        'category-not-found': z.string(),
+        'reassign-target-not-found': z.string(),
+        'category-has-subcategories': z.string(),
+        'category-has-products': z.string(),
+        'category-reassign-to-self': z.string(),
+        'category-cycle': z.string(),
+        'slug-taken': z.string(),
+        'source-id-taken': z.string(),
+        'tier-not-found': z.string(),
+        'paired-product-not-found': z.string(),
+        'document-not-found': z.string(),
+        'pairing-self': z.string(),
+        'slug-or-source-id-taken': z.string(),
+        'product-has-no-price': z.string(),
+        'product-published': z.string(),
+        'product-deleted': z.string(),
+        'product-not-deleted': z.string(),
+        'product-ordered': z.string(),
+      })
+      .strict(),
     /** The checks on a person's or company's details as staff are told
      * about somebody else's; the labels are shared names. */
     fields: z
@@ -165,6 +165,8 @@ export const adminTextSchema = z
           .strict(),
       })
       .strict(),
+    /** The dialog that places a catalog picture in a white square before it
+     * is stored. */
     imageFramer: z
       .object({
         heading: z.string(),
@@ -361,6 +363,9 @@ export const adminTextSchema = z
         unpriced: z.string(),
         /** `{count}` products. */
         count: z.string(),
+        /** Beside a product count, how many of those are not on the
+         * storefront: "{count} unpublished". Shown only above zero. */
+        unpublishedCount: z.string(),
         /** The product-list screen (FR-ADM-01): includes soft-deleted rows, and
          * carries the grid's filters, search box and sortable headings
          * (FR-ADM-05). */
@@ -1276,6 +1281,10 @@ export const adminTextSchema = z
      */
     tiers: z
       .object({
+        /** What an account with no tier of its own is charged, naming the
+         * storefront's list: `{list}`. A null tier is not a blank — it is the
+         * default list, and the screens say which one that is. */
+        defaultName: z.string(),
         deleteConfirm: confirmText,
         setDefaultConfirm: confirmText,
         page: pageText,
@@ -1549,6 +1558,9 @@ export const adminTextSchema = z
             title: z.string(),
             titlePlaceholder: z.string(),
             titleHint: z.string(),
+            /** What an empty date field says: a native one draws a different
+             * thing in every engine, so the app draws its own. */
+            datePlaceholder: z.string(),
             file: z.string(),
             /** The empty drop target, and the control on a row that already has
              * a file. */

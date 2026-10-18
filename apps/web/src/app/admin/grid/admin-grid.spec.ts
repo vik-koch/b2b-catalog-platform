@@ -184,13 +184,13 @@ describe('AdminGrid on a desktop (FR-ADM-05)', () => {
     // One boundary: the last column owns none, and a fixed column has no share
     // to trade with the one before it.
     expect(el.querySelectorAll('[role="separator"]').length).toBe(1);
-    expect(el.textContent).toContain(defaultAdminText.common.resetWidths);
+    expect(el.textContent).toContain(defaultAdminText.grid.resetWidths);
   });
 
   it('offers no reset where the widths are the measured ones', () => {
     const { el } = render();
 
-    expect(el.textContent).not.toContain(defaultAdminText.common.resetWidths);
+    expect(el.textContent).not.toContain(defaultAdminText.grid.resetWidths);
   });
 
   // An unpaged list holds exactly what it shows; a paged one says how many
@@ -235,8 +235,8 @@ describe('AdminGrid on a phone', () => {
   it('carries the filters and the sort the headings would have held', () => {
     const { el } = render();
 
-    expect(el.textContent).toContain(defaultAdminText.common.filters);
-    expect(el.textContent).toContain(defaultAdminText.common.sortLabel);
+    expect(el.textContent).toContain(defaultAdminText.grid.filters);
+    expect(el.textContent).toContain(defaultAdminText.grid.sort);
     // Both the sortable column and the filtered one, in one disclosure.
     const selects = el.querySelectorAll('select');
     expect(selects.length).toBe(2);

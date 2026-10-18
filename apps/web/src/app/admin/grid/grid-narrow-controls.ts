@@ -79,7 +79,7 @@ interface SortOption {
           [class]="frame + ' ' + disclosureBorder(open())"
         >
           <app-disclosure-toggle
-            [label]="common.filters"
+            [label]="adminText.grid.filters"
             [count]="activeCount()"
             [countLabel]="countLabel()"
             [open]="open()"
@@ -93,12 +93,12 @@ interface SortOption {
                 [id]="panelId"
                 class="grid gap-4 border-t border-border p-4"
                 role="group"
-                [attr.aria-label]="common.filters"
+                [attr.aria-label]="adminText.grid.filters"
               >
                 @if (sortOptions().length) {
                   <label class="block">
                     <span class="mb-1 block text-sm text-subtle">{{
-                      common.sortLabel
+                      adminText.grid.sort
                     }}</span>
                     <app-select-field>
                       <select
@@ -215,7 +215,7 @@ export class GridNarrowControls {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   private readonly navigate = injectGridNav();
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly panelId = 'grid-filters-panel';
 
   readonly columns = input.required<readonly GridColumn[]>();
@@ -245,7 +245,7 @@ export class GridNarrowControls {
   /** The count as the deployment words it — parentheses, as the storefront's
    * facet panel has always shown it. */
   protected readonly countLabel = computed(() =>
-    fillText(this.common.countSuffix, { count: this.activeCount() }),
+    fillText(this.adminText.countSuffix, { count: this.activeCount() }),
   );
 
   protected readonly filters = computed(() =>
@@ -271,11 +271,11 @@ export class GridNarrowControls {
       const label = column.sortName ?? column.label ?? column.key;
       const asc = {
         value: sort.asc,
-        label: fillText(this.common.sortAscending, { column: label }),
+        label: fillText(this.adminText.grid.sortAscending, { column: label }),
       };
       const desc = {
         value: sort.desc,
-        label: fillText(this.common.sortDescending, { column: label }),
+        label: fillText(this.adminText.grid.sortDescending, { column: label }),
       };
       return sort.descFirst ? [desc, asc] : [asc, desc];
     }),

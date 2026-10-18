@@ -264,7 +264,7 @@ export class CategoryFiltersPage {
   /** Back where the panel was opened from — the grid, or the category list. */
   private readonly returnTo = injectEditorReturn();
   protected readonly text = inject(ADMIN_TEXT).categories.filters;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly actionText = inject(COMMON_TEXT).actions;
 

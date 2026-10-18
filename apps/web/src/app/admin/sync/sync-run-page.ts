@@ -209,7 +209,7 @@ export class SyncRunPage {
   private readonly confirm = inject(ConfirmService);
   private readonly ownership = inject(SettingsService);
   protected readonly text = inject(ADMIN_TEXT).sync;
-  private readonly common = inject(ADMIN_TEXT).common;
+  private readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;

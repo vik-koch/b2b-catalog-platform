@@ -134,7 +134,7 @@ let nextId = 0;
 export class ProductPartsEditor implements OnInit {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.parts;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.set;
 
@@ -157,7 +157,7 @@ export class ProductPartsEditor implements OnInit {
   );
 
   protected readonly countLabel = computed(() =>
-    fillText(this.common.countSuffix, { count: this.value().length }),
+    fillText(this.adminText.countSuffix, { count: this.value().length }),
   );
 
   protected readonly limitLabel = computed(() =>

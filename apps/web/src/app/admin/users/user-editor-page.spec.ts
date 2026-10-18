@@ -229,7 +229,7 @@ describe('UserEditorPage', () => {
     });
 
     await type('lastName', 'Doe-Smith');
-    await press(defaultAdminText.common.save);
+    await press(defaultAdminText.actions.save);
 
     expect(service.update).toHaveBeenCalledWith('u1', {
       firstName: 'Jane',
@@ -289,7 +289,7 @@ describe('UserEditorPage', () => {
     });
 
     await type('lastName', 'Doh');
-    await press(defaultAdminText.common.save);
+    await press(defaultAdminText.actions.save);
 
     expect(service.update).toHaveBeenCalled();
     expect(service.approve).not.toHaveBeenCalled();
@@ -302,7 +302,7 @@ describe('UserEditorPage', () => {
     });
     expect(asManager.field('role')).toBeNull();
 
-    await asManager.press(defaultAdminText.common.save);
+    await asManager.press(defaultAdminText.actions.save);
     // Absent, not `undefined`-and-refused: the API rejects the field outright,
     // and a manager's ordinary save must not trip that.
     expect(asManager.service.update.mock.calls[0][1]).not.toHaveProperty(
@@ -323,7 +323,7 @@ describe('UserEditorPage', () => {
     const asManager = await render({ account: user(), role: 'manager' });
     expect(asManager.field('sourceId')).toBeNull();
 
-    await asManager.press(defaultAdminText.common.save);
+    await asManager.press(defaultAdminText.actions.save);
     expect(asManager.service.update.mock.calls[0][1]).not.toHaveProperty(
       'sourceId',
     );
@@ -348,11 +348,11 @@ describe('UserEditorPage', () => {
     });
 
     await type('sourceId', '  C-77  ');
-    await press(defaultAdminText.common.save);
+    await press(defaultAdminText.actions.save);
     expect(service.update.mock.calls[0][1]).toMatchObject({ sourceId: 'C-77' });
 
     await type('sourceId', '');
-    await press(defaultAdminText.common.save);
+    await press(defaultAdminText.actions.save);
     // Cleared means "this account carries none", which is a real state and the
     // one every self-registered account is in.
     expect(service.update.mock.calls[1][1]).toMatchObject({ sourceId: null });
@@ -405,7 +405,7 @@ describe('UserEditorPage', () => {
     });
 
     expect(el.textContent).toContain(text.closed);
-    expect(button(defaultAdminText.common.save)).toBeUndefined();
+    expect(button(defaultAdminText.actions.save)).toBeUndefined();
   });
 
   it('sends a password link to any account that may sign in', async () => {
@@ -455,7 +455,7 @@ describe('UserEditorPage', () => {
         defaultAdminText.ownership.accountLocked,
       );
       expect((field('firstName') as HTMLInputElement).disabled).toBe(true);
-      expect(button(defaultAdminText.common.save)).toBeUndefined();
+      expect(button(defaultAdminText.actions.save)).toBeUndefined();
       expect(button(text.resend)).toBeUndefined();
       // The way back stays, as it does on the catalog's locked route.
       expect(button(defaultCommonText.actions.cancel)).toBeDefined();
@@ -492,7 +492,7 @@ describe('UserEditorPage', () => {
       });
 
       expect((field('firstName') as HTMLInputElement).disabled).toBe(false);
-      expect(button(defaultAdminText.common.save)).toBeDefined();
+      expect(button(defaultAdminText.actions.save)).toBeDefined();
     });
   });
 
@@ -502,7 +502,7 @@ describe('UserEditorPage', () => {
     });
     service.update.mockResolvedValueOnce({ ok: false, code: 'last-admin' });
 
-    await press(defaultAdminText.common.save);
+    await press(defaultAdminText.actions.save);
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
       defaultAdminText.users.list.errors['last-admin'],

@@ -220,8 +220,8 @@ const EDGE_SLACK = 24;
                         appIconButton
                         size="lead"
                         class="cursor-grab active:cursor-grabbing"
-                        [attr.aria-label]="common.reorder"
-                        [title]="common.reorder"
+                        [attr.aria-label]="adminText.actions.reorder"
+                        [title]="adminText.actions.reorder"
                       >
                         <app-admin-icon name="grip-vertical" />
                       </span>
@@ -331,8 +331,8 @@ const EDGE_SLACK = 24;
                             'edit',
                           ]"
                           [queryParams]="editorFrom()"
-                          [attr.aria-label]="common.edit"
-                          [title]="common.edit"
+                          [attr.aria-label]="adminText.actions.edit"
+                          [title]="adminText.actions.edit"
                         >
                           <app-admin-icon name="pencil" />
                         </a>
@@ -340,8 +340,8 @@ const EDGE_SLACK = 24;
                           appIconButton
                           variant="danger"
                           type="button"
-                          [attr.aria-label]="common.delete"
-                          [title]="common.delete"
+                          [attr.aria-label]="adminText.actions.delete"
+                          [title]="adminText.actions.delete"
                           (click)="deletingCategory.set(node.category)"
                         >
                           <app-admin-icon name="trash-2" />
@@ -384,7 +384,7 @@ const EDGE_SLACK = 24;
 })
 export class CategoryListPage {
   private readonly admin = inject(AdminCatalogService);
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly catalogText = inject(APP_TEXT).catalog;

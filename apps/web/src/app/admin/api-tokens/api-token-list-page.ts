@@ -371,7 +371,7 @@ export class ApiTokenListPage {
   private readonly service = inject(ApiTokensService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).apiTokens;
-  protected readonly common = inject(ADMIN_TEXT).common;
+  protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
@@ -429,7 +429,7 @@ export class ApiTokenListPage {
   protected createdLine(token: ApiToken): string {
     return this.text.created
       .replace('{date}', this.moment().format(new Date(token.createdAt)))
-      .replace('{actor}', token.createdBy ?? this.common.actorGone);
+      .replace('{actor}', token.createdBy ?? this.adminText.actorGone);
   }
 
   /**

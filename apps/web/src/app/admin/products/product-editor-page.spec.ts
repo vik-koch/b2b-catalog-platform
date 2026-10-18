@@ -252,7 +252,7 @@ function tierInput(el: HTMLElement, tierLabel: string): HTMLInputElement {
 
 function saveButton(el: HTMLElement): HTMLButtonElement {
   const button = [...el.querySelectorAll('button')].find((b) =>
-    b.textContent?.includes(defaultAdminText.common.save),
+    b.textContent?.includes(defaultAdminText.actions.save),
   );
   if (!button) throw new Error('no save button');
   return button;
@@ -1112,7 +1112,7 @@ describe('ProductEditorPage', () => {
         { product: publishedProduct },
       );
 
-      buttonByText(el, defaultAdminText.common.save).click();
+      buttonByText(el, defaultAdminText.actions.save).click();
       await fixture.whenStable();
 
       expect(h.ask).not.toHaveBeenCalled();
@@ -1306,7 +1306,7 @@ describe('ProductEditorPage', () => {
       const labels = [...el.querySelectorAll('button')].map((b) =>
         b.textContent?.trim(),
       );
-      expect(labels).not.toContain(defaultAdminText.common.save);
+      expect(labels).not.toContain(defaultAdminText.actions.save);
       expect(labels).toContain(defaultCommonText.actions.cancel);
     });
 
