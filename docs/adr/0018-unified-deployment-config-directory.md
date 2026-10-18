@@ -1,8 +1,8 @@
 # 0018 — One mounted config directory carries the whole per-deployment config
 
 **Status:** accepted · **Date:** 2026-07-23 · **Amended:** 2026-10-17 (the
-directory's layout, which text goes where, how keys are grouped and named, and
-a migration for each release that moves keys or files) — see the _Amendment_
+directory's layout, which text goes where, how keys are grouped and named, one
+locale, and a migration for each release that moves keys or files) — see the _Amendment_
 below
 
 ## Context
@@ -88,7 +88,7 @@ a config field (`branding.title`), set at runtime via the Angular Title service.
 - (−) Adding a UI-text key is a coordinated change: each deployment's config must
   gain the key before upgrading, or boot fails. Deliberate, but a release note.
 
-## Amendment — 2026-10-17: the directory's layout, and which text goes where
+## Amendment — 2026-10-17 (v1.14.1): the directory's layout, and which text goes where
 
 The text had grown in three files that repeated each other: "Company ID" six
 times, the payment methods in four places, the order summary's wording inside
@@ -126,7 +126,7 @@ Which file a text belongs in follows four rules:
    it does ("Delete selection").
 2. **`texts/common.json` is public.** It is injected into every page, so nothing
    only staff read belongs there — staff-only verbs (Save, Edit, Delete) are
-   the admin text's `common`. The few staff words a staff mail needs
+   the admin text's `actions`. The few staff words a staff mail needs
    ("Account", "Card, arranged with the customer") are in `texts/mail.json` as
    well as `texts/admin.json`: the API does not read admin text.
 3. **Who defines the set decides the file.** A set the code knows — page slugs,
@@ -140,6 +140,12 @@ names it: the tagline is `branding.tagline`, which is the landing page's
 heading and, after the name, the document title (in place of `branding.title`
 above); the map provider's name is `mapProvider`, which the map notice and
 the cookie banner fill in as `{provider}`.
+
+The deployment speaks one `locale`, a BCP 47 tag at the top of
+`deployment.json`. It is the language every page, mail and PDF declares and
+the conventions every date, number and amount is formatted by. It replaces the
+locale the currency carried, which formatted money only, so a month name can
+no longer come out in another language than the sentence around it.
 
 Recurring parts share a shape. An admin page is `{ title, intro? }` and a
 confirmation dialog `{ heading, message, confirm, cancel?, warning? }`. An
