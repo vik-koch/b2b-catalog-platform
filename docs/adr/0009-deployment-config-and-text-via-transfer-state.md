@@ -193,7 +193,7 @@ table; the mechanism is there for it if that ever stops being true.
   one in such a string cannot have it — no text does today, and the ones that
   count are the only ones affected.
 
-## Amendment 4 — 2026-10-14: counting texts carry no plural forms
+## Amendment 4 — 2026-10-14 (v1.14.1): counting texts carry no plural forms
 
 Amendment 3 left two conventions side by side: the storefront's `|` forms and
 the admin's `product(s)`. Neither carries into another language. Two forms only

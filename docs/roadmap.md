@@ -983,3 +983,12 @@ Notes:
   describe the platform as it stands: what it does, what it deliberately does not, and how it
   compares with the alternatives. Which EU-facing compliance topics a demo should carry is
   still to be decided.
+- **The deployment's text and configuration are restructured** (v1.14.1, 2026-10-18). The
+  text moved into `config/texts/`, with names the storefront, the admin and the mails share
+  in one file of its own, and the settings only the API reads left `deployment.json` for
+  `api.json`, so they no longer reach every visitor. Keys are grouped by screen, and a text
+  only a screen reader hears says so in its name. One `locale` now sets the language every
+  page, mail and document declares and the formats they use, and the shop's tagline and its
+  map provider are settings the texts refer to rather than repeat. A release that moves keys
+  or files ships a map, and `tools/migrate-config.mjs` applies it to a deployment's own
+  files.

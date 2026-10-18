@@ -4,7 +4,7 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.14.0` — a compliance pass before going live. Consent is
+> **Status:** `v1.14.1` — `v1.14.0` was a compliance pass before going live. Consent is
 > offered per purpose rather than presumed, given against a versioned text and kept as a
 > record; an order accepts the terms of sale as they stood, and its prices state their tax
 > basis with a rate per line. Destroying personal data leaves a record, a finished order loses
@@ -16,8 +16,11 @@ catalog management with file-based bulk sync.
 > search, accounts and tiered pricing, units of sale, attribute filtering, cart and checkout,
 > stock availability and work-awaiting indicators, sold-together sets, product documents,
 > order processing, automated catalog feed, customer exchange, order exchange, storefront
-> presentation, compliance). Online card payment stays deferred until the shop is live and has
-> handled real orders.
+> presentation, compliance). `v1.14.1` restructures the deployment's text and configuration:
+> one key for a thing per reader, counts worded without plural forms, the settings only the API
+> reads in a file of their own, one locale for the whole deployment, and a tool that moves a
+> deployment's own files to the new layout. Online card payment stays deferred until the shop
+> is live and has handled real orders.
 
 ## Key features
 
