@@ -1,4 +1,5 @@
 {
+  "locale": "de-DE",
   "branding": {
     "name": "Coffee Kontor",
     "title": "Coffee Kontor — wholesale specialty coffee",
@@ -44,8 +45,7 @@
   "billingAddressEnabled": true,
   "catalog": {
     "currency": {
-      "code": "EUR",
-      "locale": "de-DE"
+      "code": "EUR"
     },
     "boxUnits": {
       "volume": "m³",

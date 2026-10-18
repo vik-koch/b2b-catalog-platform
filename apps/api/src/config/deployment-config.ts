@@ -12,6 +12,7 @@ import {
   deploymentConfigSchema,
   KeyboardLayout,
   MoneyFormat,
+  moneyFormat,
   normalizePhone,
   OrderReferenceConfig,
   PhoneConfig,
@@ -242,15 +243,13 @@ export function loadOrderCurrency(): string {
 }
 
 /**
- * The same currency, with the locale the amounts are written in — what the
- * order mails format against. A deployment that configures no locale gets the
- * runtime's, which is what asking for none means.
+ * The same currency, in the deployment's locale — what the order mails, the
+ * PDFs and the sync notices format amounts and dates against.
  */
 export const MONEY_FORMAT = 'MONEY_FORMAT';
 
 export function loadMoneyFormat(): MoneyFormat {
-  const currency = loadApiDeploymentConfig().catalog?.currency;
-  return { code: currency?.code ?? 'EUR', locale: currency?.locale };
+  return moneyFormat(loadApiDeploymentConfig());
 }
 
 /**

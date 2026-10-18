@@ -147,8 +147,28 @@ export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
  * everything here is visible to any visitor — what only the API needs is
  * `api.json` (the API's `apiConfigSchema`).
  */
+/** Whether `tag` is a language tag `Intl` accepts, in its canonical form —
+ * "de-DE", not "de_DE" or "de-de", so a `lang` attribute reads it as written. */
+function isLocale(tag: string): boolean {
+  try {
+    return Intl.getCanonicalLocales(tag)[0] === tag;
+  } catch {
+    return false;
+  }
+}
+
 export const deploymentConfigSchema = z
   .object({
+    /**
+     * The one locale the deployment speaks, as a BCP 47 tag ("de-DE"): the
+     * language its text is written in, which a page and a mail declare, and
+     * the conventions every date, number and amount is formatted by. One
+     * setting, so a month name never comes out in another language than the
+     * sentence around it. Required, so formatting is deterministic under SSR.
+     */
+    locale: z.string().refine(isLocale, {
+      message: 'not a BCP 47 language tag, such as "de-DE"',
+    }),
     branding: z
       .object({
         name: z.string(),
@@ -276,9 +296,7 @@ export const deploymentConfigSchema = z
     /**
      * Catalog presentation. Prices come from the API as integer minor units and
      * are currency-agnostic; this is where a deployment names its single
-     * currency and how to format it. `locale` is required so formatting is
-     * deterministic under SSR (symbol placement and grouping differ per locale)
-     * — it matches the deployment's one shipped locale.
+     * currency. How an amount is written is `locale`'s.
      */
     catalog: z
       .object({
@@ -286,8 +304,6 @@ export const deploymentConfigSchema = z
           .object({
             /** ISO 4217 code, e.g. "EUR". Drives symbol and fraction digits. */
             code: z.string(),
-            /** BCP 47 locale for number formatting, e.g. "de-DE". */
-            locale: z.string(),
           })
           .strict(),
         /**

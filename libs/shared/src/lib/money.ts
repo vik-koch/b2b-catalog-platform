@@ -8,16 +8,23 @@
 export interface MoneyFormat {
   /** ISO 4217, e.g. "EUR". */
   readonly code: string;
-  /** BCP 47, e.g. "de-DE". Absent falls back to the runtime's own locale,
-   * which is what a deployment that configured none has asked for. */
-  readonly locale?: string;
+  /** BCP 47, e.g. "de-DE": the deployment's locale. */
+  readonly locale: string;
+}
+
+/** How a deployment writes its amounts: its currency, in its locale. */
+export function moneyFormat(config: {
+  readonly locale: string;
+  readonly catalog: { readonly currency: { readonly code: string } };
+}): MoneyFormat {
+  return { code: config.catalog.currency.code, locale: config.locale };
 }
 
 // Formatter construction is comparatively expensive; cache one per code+locale.
 const formatters = new Map<string, Intl.NumberFormat>();
 
 function formatterFor(currency: MoneyFormat): Intl.NumberFormat {
-  const key = `${currency.locale ?? ''}:${currency.code}`;
+  const key = `${currency.locale}:${currency.code}`;
   let formatter = formatters.get(key);
   if (!formatter) {
     formatter = new Intl.NumberFormat(currency.locale, {
