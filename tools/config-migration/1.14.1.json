@@ -1690,6 +1690,12 @@
     },
     "deployment.json:locale": {
       "from": ["deployment.json:catalog.currency.locale"]
+    },
+    "deployment.json:branding.tagline": {
+      "from": ["app-text.json:home.title"]
+    },
+    "deployment.json:mapProvider": {
+      "new": "OpenStreetMap"
     }
   },
   "moves": {
@@ -1719,6 +1725,7 @@
     "deployment.json:sync": "api.json:sync"
   },
   "drop": [
+    "deployment.json:branding.title",
     "admin-text.json:sync.title",
     "admin-text.json:sync.runsDescription",
     "app-text.json:catalog.viewCategory",

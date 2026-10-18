@@ -2,7 +2,7 @@
   "locale": "de-DE",
   "branding": {
     "name": "Coffee Kontor",
-    "title": "Coffee Kontor — wholesale specialty coffee",
+    "tagline": "Wholesale specialty coffee",
     "startYear": 2021,
     "logo": {
       "width": 166,
@@ -68,6 +68,7 @@
       }
     }
   ],
+  "mapProvider": "OpenStreetMap",
   "pickup": {
     "locations": [
       {

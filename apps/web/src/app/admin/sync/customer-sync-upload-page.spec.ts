@@ -18,7 +18,7 @@ const text = defaultAdminText.sync;
 
 // Only the branding the page title is built from; nothing here reads a price.
 const config = {
-  branding: { title: 'Test Shop' },
+  branding: { name: 'Test Shop', tagline: 'Test tagline' },
 } as unknown as DeploymentConfig;
 
 const emptySummary = {

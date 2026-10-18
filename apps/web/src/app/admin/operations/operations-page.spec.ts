@@ -22,7 +22,7 @@ const maintenanceText = defaultAdminText.maintenance;
 
 const config = {
   locale: 'de-DE',
-  branding: { title: 'Test Shop' },
+  branding: { name: 'Test Shop', tagline: 'Test tagline' },
   catalog: { currency: { code: 'EUR' } },
 } as unknown as DeploymentConfig;
 

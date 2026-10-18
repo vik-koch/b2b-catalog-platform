@@ -6,22 +6,17 @@ import { provideRouter } from '@angular/router';
 import { Home } from './home';
 import { defaultAppText } from '../config/app-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { FeaturedRowService } from './featured-row.service';
 
 describe('Home', () => {
-  it('renders the placeholder', async () => {
+  it('heads the page with the tagline', async () => {
     await TestBed.configureTestingModule({
       imports: [Home],
       providers: [
         { provide: APP_TEXT, useValue: defaultAppText },
         { provide: COMMON_TEXT, useValue: defaultCommonText },
-        {
-          provide: DEPLOYMENT_CONFIG,
-          useValue: {
-            branding: { title: 'Test Shop' },
-          } as unknown as DeploymentConfig,
-        },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         provideRouter([]),
         { provide: FeaturedRowService, useValue: { row: async () => [] } },
       ],
@@ -32,7 +27,7 @@ describe('Home', () => {
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toContain(
-      'Wholesale specialty coffee',
+      defaultDeploymentConfig.branding.tagline,
     );
   });
 });

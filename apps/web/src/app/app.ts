@@ -11,6 +11,7 @@ import { PairingsService } from './catalog/pairings.service';
 import { ProductPairingsDialog } from './catalog/product-pairings-dialog';
 import { DEPLOYMENT_CONFIG } from './config/deployment-config';
 import { CookieConsent } from './consent/cookie-consent';
+import { shopTitle } from './core/page-seo';
 import { BottomNav } from './layout/bottom-nav';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
@@ -154,7 +155,7 @@ export class App {
     // Set the document title from the per-deployment config rather than the
     // baked index.html, so overriding branding needs no rebuild. Runs during
     // SSR too, so the served HTML (and crawlers) get the right title.
-    inject(Title).setTitle(this.branding.title);
+    inject(Title).setTitle(shopTitle(this.branding));
     // The language the text is written in, from the same config and for the
     // same reason: a screen reader picks its voice by it, and a browser its
     // hyphenation and spell-checking.

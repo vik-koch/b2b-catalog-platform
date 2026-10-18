@@ -24,7 +24,7 @@ password-blocklist.txt                                  api, optional
 ```
 
 - `deployment.json` → `DeploymentConfig` (the locale, branding, contact, seller line, locations,
-  cookie-consent flag, which consents are asked for, whether orders carry an
+  map provider, cookie-consent flag, which consents are asked for, whether orders carry an
   invoice address, phone and company-id input rules, address rules, currency,
   tax basis, collection points, delivery zones, order-reference format, the
   second sign-in step). **Everything in it is visible to any visitor**: the web
@@ -97,6 +97,26 @@ schema: `libs/shared/src/lib/deployment-config.ts` (read by both apps),
 `apps/web/src/app/config/app-text.type.ts`, `.../admin-text.type.ts`,
 `apps/api/src/mail/mail-text.ts` and `apps/api/src/pdf/pdf-text.ts`. The
 committed demo files are the worked example to copy from.
+
+### What describes your shop
+
+Most of these files are wording any shop of the kind would use. These are the
+parts that are about one shop, and a new deployment rewrites all of them:
+
+- `deployment.json`: `branding` (the name, the tagline, the logo's size, the
+  colours, the first year of the copyright), `seller`, `contact`, `locations`
+  and `mapProvider`, `pickup`, `delivery`, `elsewhere`.
+- `texts/app.json`: `home`, `map`, `consent` and `footer`, first in the file.
+- `assets/`: the logo and the favicon (below).
+- The static pages — about, conditions, terms, privacy, imprint, withdrawal and
+  the contact page's text — are written in the admin, not here. The privacy
+  policy names the map provider too, so a change of provider changes it as
+  well.
+
+`branding.tagline` says what the shop is in a line. It is the landing page's
+heading, and with the name the title of every page that has none of its own:
+`Coffee Kontor — Wholesale specialty coffee`. `mapProvider` is who serves the
+map embeds; the map notice and the cookie banner name it as `{provider}`.
 
 ### The locale
 
@@ -476,8 +496,9 @@ CDN link makes every visitor's browser announce itself to a third party before
 the page has drawn, which is also a consent question nobody wants to answer.
 Omit `font` entirely to keep the system stack.
 
-The document `<title>` is not an asset: it is `branding.title` in
-`deployment.json`, set at runtime so it needs no rebuild either.
+The document `<title>` is not an asset: it is built from `branding.name` and
+`branding.tagline` in `deployment.json`, at runtime, so it needs no rebuild
+either.
 
 ## Deploying a real deployment's config
 

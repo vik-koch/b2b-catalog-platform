@@ -1,4 +1,26 @@
 {
+  "home": {
+    "eyebrow": "Hamburg · Speicherstadt",
+    "intro": "Browse our range by category below, or open the full catalogue.",
+    "categoriesHeading": "Browse by category",
+    "featured": {
+      "heading": "From our range",
+      "previousAria": "Previous products",
+      "nextAria": "More products"
+    }
+  },
+  "map": {
+    "consentNotice": "This map is loaded from {provider}, which receives your IP address when it loads. It stays hidden until you allow it.",
+    "load": "Show the map"
+  },
+  "consent": {
+    "message": "This site sets only the cookies it needs to work. The map on our contact page is loaded from {provider}, which receives your IP address when it loads, so we ask first. More in our",
+    "policyLink": "privacy policy",
+    "policyLinkAfter": ".",
+    "accept": "Accept",
+    "reject": "Reject",
+    "settings": "Cookie settings"
+  },
   "footer": {
     "copyright": "© {name} {years}"
   },
@@ -509,17 +531,6 @@
       "done": "Your account is closed and your personal details have been removed. We have sent a confirmation to your email address."
     }
   },
-  "home": {
-    "eyebrow": "Hamburg · Speicherstadt",
-    "title": "Wholesale specialty coffee",
-    "intro": "Browse our range by category below, or open the full catalogue.",
-    "categoriesHeading": "Browse by category",
-    "featured": {
-      "heading": "From our range",
-      "previousAria": "Previous products",
-      "nextAria": "More products"
-    }
-  },
   "pageUpdated": {
     "label": "Last updated {date}"
   },
@@ -605,18 +616,6 @@
     "intro": "This site is built with open source software. The packages below are part of the code your browser downloads, and are used under the licenses shown.",
     "unavailable": "The license list is only generated for production builds and is not available here.",
     "unknownLicense": "License not declared"
-  },
-  "map": {
-    "consentNotice": "This map is loaded from OpenStreetMap, which receives your IP address when it loads. It stays hidden until you allow it.",
-    "load": "Show the map"
-  },
-  "consent": {
-    "message": "This site sets only the cookies it needs to work. The map on our contact page is loaded from OpenStreetMap, which receives your IP address when it loads, so we ask first. More in our",
-    "policyLink": "privacy policy",
-    "policyLinkAfter": ".",
-    "accept": "Accept",
-    "reject": "Reject",
-    "settings": "Cookie settings"
   },
   "errors": {
     "notFoundTitle": "Page not found",

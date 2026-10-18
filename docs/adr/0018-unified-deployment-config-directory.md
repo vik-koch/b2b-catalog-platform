@@ -135,6 +135,12 @@ Which file a text belongs in follows four rules:
    wording in `deployment.json`, since a text schema cannot name them.
 4. **Counting texts have one form** (ADR 0009, amendment 4).
 
+A fact about the shop that a text would repeat is a setting, and the text
+names it: the tagline is `branding.tagline`, which is the landing page's
+heading and, after the name, the document title (in place of `branding.title`
+above); the map provider's name is `mapProvider`, which the map notice and
+the cookie banner fill in as `{provider}`.
+
 Recurring parts share a shape. An admin page is `{ title, intro? }` and a
 confirmation dialog `{ heading, message, confirm, cancel?, warning? }`. An
 absent intro draws nothing, and a dialog without its own `cancel` uses the

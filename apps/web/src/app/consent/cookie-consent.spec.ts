@@ -41,6 +41,8 @@ describe('CookieConsent', () => {
     const banner = el.querySelector(BANNER);
 
     expect(banner).not.toBeNull();
+    expect(banner?.textContent).toContain(defaultDeploymentConfig.mapProvider);
+    expect(banner?.textContent).not.toContain('{provider}');
     expect(banner?.textContent).toContain(defaultAppText.consent.accept);
     expect(banner?.textContent).toContain(defaultAppText.consent.reject);
   });

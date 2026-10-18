@@ -2,6 +2,8 @@ import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Button } from '../ui/button';
 import { APP_TEXT } from '../config/app-text';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ConsentService } from './consent.service';
 import { Link } from '../ui/link';
 
@@ -28,7 +30,7 @@ import { Link } from '../ui/link';
           class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
           <p class="text-sm text-muted">
-            {{ text.message }}
+            {{ message }}
             <a appLink routerLink="/privacy">{{ text.policyLink }}</a
             >{{ text.policyLinkAfter }}
           </p>
@@ -49,6 +51,9 @@ export class CookieConsent {
   protected readonly consent = inject(ConsentService);
   protected readonly text = inject(APP_TEXT).consent;
   protected readonly a11y = inject(APP_TEXT).a11y;
+  protected readonly message = fillText(this.text.message, {
+    provider: inject(DEPLOYMENT_CONFIG).mapProvider,
+  });
   protected readonly ready = signal(false);
 
   constructor() {
