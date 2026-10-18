@@ -29,6 +29,7 @@ import {
   slugify,
   splitAttributeKey,
   totalMinor,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import {
   currencySymbol,
@@ -645,7 +646,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly confirm = inject(ConfirmService);
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly tax = inject(DEPLOYMENT_CONFIG).tax;
   /** The last rung of the "few left" ladder; the API applies the same figure
    * from the same key. */

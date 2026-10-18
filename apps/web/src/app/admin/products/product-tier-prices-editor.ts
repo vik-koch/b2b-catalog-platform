@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { CustomerTier } from '@b2b-catalog-platform/shared';
+import { CustomerTier, moneyFormat } from '@b2b-catalog-platform/shared';
 import { currencySymbol, parsePriceInput } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
@@ -83,7 +83,7 @@ export interface TierPriceDraft {
 export class ProductTierPricesEditor {
   protected readonly text = inject(ADMIN_TEXT).products.editor.tierPrices;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   /** The same mark the base price field above carries. */
   protected readonly currencySuffix = currencySymbol(this.currency);
 

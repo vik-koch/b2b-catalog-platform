@@ -201,7 +201,7 @@ export class ProductDocumentsEditor implements OnInit {
   protected readonly panelId = `documents-panel-${nextId}`;
   protected readonly inputId = `document-search-${nextId}`;
 
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly dayFormat = adminDayFormat(this.locale);
 
   /**

@@ -18,6 +18,7 @@ import {
   StaffPaymentFilter,
   staffPaymentFilterSchema,
   TransitionTarget,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -238,7 +239,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
 export class AdminOrderListPage {
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   protected readonly text = inject(ADMIN_TEXT).orders.list;
   protected readonly names = inject(COMMON_TEXT).order;

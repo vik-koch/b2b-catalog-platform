@@ -74,7 +74,7 @@ export class PageHistory {
     loader: ({ params }) => this.pageService.listVersions(params.slug),
   });
 
-  private readonly locale = inject(DEPLOYMENT_CONFIG).catalog.currency.locale;
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly dayFormat = adminDayFormat(this.locale);
   private readonly timeFormat = new Intl.DateTimeFormat(this.locale, {
     timeStyle: 'short',

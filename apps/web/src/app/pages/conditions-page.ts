@@ -294,6 +294,6 @@ function taxSentence(
   const { tax } = config;
   if (tax.basis === 'none') return text.taxNone;
   return fillText(tax.basis === 'included' ? text.taxIncluded : text.taxAdded, {
-    rate: formatTaxRate(tax.rate, config.catalog.currency.locale),
+    rate: formatTaxRate(tax.rate, config.locale),
   });
 }

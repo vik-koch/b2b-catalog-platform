@@ -3,6 +3,7 @@ import { effect, inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { formatPriceMinorShort } from '../catalog/price';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { CartService } from './cart.service';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 
 /**
  * Keeps the navbar cart's figures — the line count and the running total — on
@@ -23,7 +24,7 @@ import { CartService } from './cart.service';
 @Injectable({ providedIn: 'root' })
 export class CartFigures {
   private readonly cart = inject(CartService);
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly root = inject(DOCUMENT).documentElement;
 
   constructor() {

@@ -267,10 +267,9 @@ export class UserDetailPage {
   protected readonly actionText = inject(COMMON_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;
-  private readonly dateFormat = new Intl.DateTimeFormat(
-    this.config.catalog.currency.locale,
-    { dateStyle: 'long' },
-  );
+  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
+    dateStyle: 'long',
+  });
 
   /** From the route, by input binding. */
   readonly id = input.required<string>();

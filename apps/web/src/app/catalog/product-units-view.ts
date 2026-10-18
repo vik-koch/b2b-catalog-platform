@@ -9,6 +9,7 @@ import {
   ProductUnit,
   UnitPrices,
   unitQuantity,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
@@ -52,8 +53,9 @@ export function useProductUnits() {
   const common = inject(COMMON_TEXT);
   const units = common.units;
   const packing = common.packaging;
-  const config = inject(DEPLOYMENT_CONFIG).catalog;
-  const currency = config.currency;
+  const deployment = inject(DEPLOYMENT_CONFIG);
+  const config = deployment.catalog;
+  const currency = moneyFormat(deployment);
 
   const perUnit = (unit: string) => fillText(text.perUnit, { unit });
 

@@ -22,6 +22,7 @@ import {
   OrderStatus,
   transitionHasReason,
   TransitionTarget,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../cart/order-summary';
 import { formatPriceMinor } from '../../catalog/price';
@@ -591,7 +592,7 @@ export class AdminOrderDetailPage {
   private readonly auth = inject(AuthService);
   private readonly isAdmin = computed(() => this.auth.user()?.role === 'admin');
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
 
   private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orders.detail;

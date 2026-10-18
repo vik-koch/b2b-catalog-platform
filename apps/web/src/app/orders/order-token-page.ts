@@ -1,7 +1,11 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { useTaxStatement } from '../catalog/tax-statement';
 import { RouterLink } from '@angular/router';
-import { fillText, OrderDetail } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  OrderDetail,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { OrderSummary } from '../cart/order-summary';
 import { formatPriceMinor } from '../catalog/price';
@@ -174,7 +178,7 @@ export class OrderTokenPage {
   private readonly api = inject(OrdersService);
   private readonly auth = inject(AuthService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
 
   private readonly appText = inject(APP_TEXT);
   private readonly commonText = inject(COMMON_TEXT);

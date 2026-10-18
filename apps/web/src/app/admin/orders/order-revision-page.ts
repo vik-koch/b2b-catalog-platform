@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { useTaxStatement } from '../../catalog/tax-statement';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
+import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../cart/order-summary';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -206,7 +206,7 @@ export class AdminOrderRevisionPage {
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly currency = this.config.catalog.currency;
+  private readonly currency = moneyFormat(this.config);
   private readonly appText = inject(APP_TEXT);
 
   protected readonly detailText = inject(ADMIN_TEXT).orders.detail;

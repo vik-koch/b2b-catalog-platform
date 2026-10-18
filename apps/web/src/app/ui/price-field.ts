@@ -2,6 +2,7 @@ import { Directive, inject } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { isPartialPrice } from '../catalog/price';
 import { refuseUnless } from './refuse-input';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 
 /**
  * Keeps a price field to what a price can look like.
@@ -17,7 +18,7 @@ import { refuseUnless } from './refuse-input';
   host: { '(beforeinput)': 'onBeforeInput($event)' },
 })
 export class PriceField {
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   protected onBeforeInput(event: InputEvent): void {
     refuseUnless(event, (next) => isPartialPrice(next, this.currency));

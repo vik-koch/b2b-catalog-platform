@@ -5,6 +5,7 @@ import {
   ConsentPurpose,
   fillText,
   OWNERSHIP_AREAS,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
@@ -472,7 +473,7 @@ export class AdminPanelPage {
       purpose: this.consentText.purposes[purpose],
     });
   }
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** One heading, one card frame, written once: seven sections spelling the

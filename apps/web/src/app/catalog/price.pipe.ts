@@ -1,6 +1,7 @@
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from './price';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 
 /**
  * `{{ product.priceMinor | price }}` → a localised currency string, using the
@@ -9,7 +10,7 @@ import { formatPriceMinor } from './price';
  */
 @Pipe({ name: 'price' })
 export class PricePipe implements PipeTransform {
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   transform(priceMinor: number): string {
     return formatPriceMinor(priceMinor, this.currency);

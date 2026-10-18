@@ -13,6 +13,7 @@ import {
   CatalogSyncProductChange,
   CatalogSyncRowError,
   formatTaxRate,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../catalog/price';
 import { ADMIN_TEXT } from '../../config/admin-text';
@@ -239,7 +240,7 @@ import { StatusBadge, StatusTone } from '../../ui/status-badge';
 })
 export class SyncPlanView {
   protected readonly text = inject(ADMIN_TEXT).sync;
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   readonly plan = input.required<CatalogSyncPlan>();
   /** A staged run, which can still be acted on. False for a record. */

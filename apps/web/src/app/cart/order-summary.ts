@@ -3,6 +3,7 @@ import {
   fillText,
   ShipmentSummary,
   TaxBasis,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { useTaxStatement } from '../catalog/tax-statement';
@@ -81,7 +82,7 @@ import { WarningNote } from '../ui/warning-note';
 })
 export class OrderSummary {
   private readonly boxUnits = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   protected readonly text = inject(APP_TEXT).cart;
   private readonly tax = useTaxStatement();

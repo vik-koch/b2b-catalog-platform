@@ -110,9 +110,7 @@ export class ConsentRecordList {
   protected readonly slugs = CONSENT_PAGE_SLUGS;
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
-  private readonly momentFormat = adminMomentFormat(
-    this.config.catalog.currency.locale,
-  );
+  private readonly momentFormat = adminMomentFormat(this.config.locale);
 
   protected moment(iso: string): string {
     return this.momentFormat.format(new Date(iso));

@@ -9,6 +9,7 @@ import {
 import {
   AdjustmentLineFlag,
   AdminProductListItem,
+  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { COMMON_TEXT } from '../../config/common-text';
@@ -291,7 +292,7 @@ export class OrderAdjustLines {
   protected readonly products = inject(ADMIN_TEXT).products;
   protected readonly pieceUnit = inject(COMMON_TEXT).units.piece;
   private readonly availability = inject(COMMON_TEXT).product.availability;
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly panel = SUGGEST_PANEL;
   protected readonly id = `adjust-lines-${++nextId}`;

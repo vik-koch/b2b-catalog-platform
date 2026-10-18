@@ -1,6 +1,10 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, OrderSummary } from '@b2b-catalog-platform/shared';
+import {
+  fillText,
+  OrderSummary,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
 import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
@@ -69,7 +73,7 @@ import {
   `,
 })
 export class OrderRows {
-  private readonly currency = inject(DEPLOYMENT_CONFIG).catalog.currency;
+  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly text = inject(APP_TEXT).orders;
   private readonly statusNames = inject(COMMON_TEXT).order;
 
