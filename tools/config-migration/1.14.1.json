@@ -10,14 +10,10 @@
   },
   "keys": {
     "texts/common.json:nav.home": {
-      "from": [
-        "app-text.json:nav.home"
-      ]
+      "from": ["app-text.json:nav.home"]
     },
     "texts/common.json:nav.about": {
-      "from": [
-        "app-text.json:nav.about"
-      ]
+      "from": ["app-text.json:nav.about"]
     },
     "texts/common.json:nav.terms": {
       "from": [
@@ -28,54 +24,34 @@
       ]
     },
     "texts/common.json:nav.conditions": {
-      "from": [
-        "app-text.json:nav.conditions"
-      ]
+      "from": ["app-text.json:nav.conditions"]
     },
     "texts/common.json:nav.privacy": {
-      "from": [
-        "app-text.json:nav.privacy"
-      ]
+      "from": ["app-text.json:nav.privacy"]
     },
     "texts/common.json:nav.imprint": {
-      "from": [
-        "app-text.json:nav.imprint"
-      ]
+      "from": ["app-text.json:nav.imprint"]
     },
     "texts/common.json:nav.withdrawal": {
-      "from": [
-        "app-text.json:nav.withdrawal"
-      ]
+      "from": ["app-text.json:nav.withdrawal"]
     },
     "texts/common.json:nav.contact": {
-      "from": [
-        "app-text.json:nav.contact"
-      ]
+      "from": ["app-text.json:nav.contact"]
     },
     "texts/common.json:nav.consent-contact": {
-      "from": [
-        "app-text.json:nav.consent-contact"
-      ]
+      "from": ["app-text.json:nav.consent-contact"]
     },
     "texts/common.json:nav.consent-account": {
-      "from": [
-        "app-text.json:nav.consent-account"
-      ]
+      "from": ["app-text.json:nav.consent-account"]
     },
     "texts/common.json:nav.inquiry": {
-      "from": [
-        "app-text.json:nav.inquiry"
-      ]
+      "from": ["app-text.json:nav.inquiry"]
     },
     "texts/common.json:nav.licenses": {
-      "from": [
-        "app-text.json:nav.licenses"
-      ]
+      "from": ["app-text.json:nav.licenses"]
     },
     "texts/common.json:nav.more": {
-      "from": [
-        "app-text.json:nav.more"
-      ]
+      "from": ["app-text.json:nav.more"]
     },
     "texts/common.json:units.piece": {
       "from": [
@@ -142,10 +118,7 @@
       ]
     },
     "texts/common.json:tax.line": {
-      "from": [
-        "mail-text.json:common.tax.line",
-        "app-text.json:tax.line"
-      ]
+      "from": ["mail-text.json:common.tax.line", "app-text.json:tax.line"]
     },
     "texts/common.json:order.reference": {
       "from": [
@@ -242,9 +215,7 @@
       ]
     },
     "texts/admin.json:orders.account": {
-      "from": [
-        "admin-text.json:orderDetail.customer"
-      ]
+      "from": ["admin-text.json:orderDetail.customer"]
     },
     "texts/mail.json:orders.account": {
       "from": [
@@ -253,9 +224,7 @@
       ]
     },
     "texts/admin.json:orders.guest": {
-      "from": [
-        "admin-text.json:orderList.guest"
-      ]
+      "from": ["admin-text.json:orderList.guest"]
     },
     "texts/mail.json:orders.guest": {
       "from": [
@@ -277,9 +246,7 @@
       ]
     },
     "texts/mail.json:orders.items": {
-      "from": [
-        "mail-text.json:newOrder.itemsHeading"
-      ]
+      "from": ["mail-text.json:newOrder.itemsHeading"]
     },
     "texts/common.json:order.note": {
       "from": [
@@ -288,9 +255,7 @@
       ]
     },
     "texts/admin.json:orders.note": {
-      "from": [
-        "admin-text.json:orderDetail.note"
-      ]
+      "from": ["admin-text.json:orderDetail.note"]
     },
     "texts/common.json:order.pickupPoint": {
       "from": [
@@ -299,9 +264,7 @@
       ]
     },
     "texts/admin.json:orders.pickupPoint": {
-      "from": [
-        "admin-text.json:orderAdjust.pickupLocation"
-      ]
+      "from": ["admin-text.json:orderAdjust.pickupLocation"]
     },
     "texts/common.json:order.termsVersion": {
       "from": [
@@ -310,79 +273,49 @@
       ]
     },
     "texts/admin.json:orders.termsVersion": {
-      "from": [
-        "admin-text.json:orderDetail.termsVersion"
-      ]
+      "from": ["admin-text.json:orderDetail.termsVersion"]
     },
     "texts/common.json:order.statuses.requested": {
-      "from": [
-        "app-text.json:orders.statusRequested"
-      ]
+      "from": ["app-text.json:orders.statusRequested"]
     },
     "texts/admin.json:orders.statuses.requested": {
-      "from": [
-        "admin-text.json:orderList.statusRequested"
-      ]
+      "from": ["admin-text.json:orderList.statusRequested"]
     },
     "texts/common.json:order.statuses.approved": {
-      "from": [
-        "app-text.json:orders.statusApproved"
-      ]
+      "from": ["app-text.json:orders.statusApproved"]
     },
     "texts/admin.json:orders.statuses.approved": {
-      "from": [
-        "admin-text.json:orderList.statusApproved"
-      ]
+      "from": ["admin-text.json:orderList.statusApproved"]
     },
     "texts/common.json:order.statuses.readyDelivery": {
-      "from": [
-        "app-text.json:orders.statusReadyDelivery"
-      ]
+      "from": ["app-text.json:orders.statusReadyDelivery"]
     },
     "texts/admin.json:orders.statuses.readyDelivery": {
-      "from": [
-        "admin-text.json:orderList.statusReadyDelivery"
-      ]
+      "from": ["admin-text.json:orderList.statusReadyDelivery"]
     },
     "texts/common.json:order.statuses.readyPickup": {
-      "from": [
-        "app-text.json:orders.statusReadyPickup"
-      ]
+      "from": ["app-text.json:orders.statusReadyPickup"]
     },
     "texts/admin.json:orders.statuses.readyPickup": {
-      "from": [
-        "admin-text.json:orderList.statusReadyPickup"
-      ]
+      "from": ["admin-text.json:orderList.statusReadyPickup"]
     },
     "texts/common.json:order.statuses.completed": {
-      "from": [
-        "app-text.json:orders.statusCompleted"
-      ]
+      "from": ["app-text.json:orders.statusCompleted"]
     },
     "texts/admin.json:orders.statuses.completed": {
-      "from": [
-        "admin-text.json:orderList.statusCompleted"
-      ]
+      "from": ["admin-text.json:orderList.statusCompleted"]
     },
     "texts/common.json:order.statuses.declined": {
-      "from": [
-        "app-text.json:orders.statusDeclined"
-      ]
+      "from": ["app-text.json:orders.statusDeclined"]
     },
     "texts/admin.json:orders.statuses.declined": {
-      "from": [
-        "admin-text.json:orderList.statusDeclined"
-      ]
+      "from": ["admin-text.json:orderList.statusDeclined"]
     },
     "texts/common.json:order.statuses.cancelled": {
-      "from": [
-        "app-text.json:orders.statusCancelled"
-      ]
+      "from": ["app-text.json:orders.statusCancelled"]
     },
     "texts/admin.json:orders.statuses.cancelled": {
-      "from": [
-        "admin-text.json:orderList.statusCancelled"
-      ]
+      "from": ["admin-text.json:orderList.statusCancelled"]
     },
     "texts/common.json:order.paymentMethods.cash": {
       "from": [
@@ -409,9 +342,7 @@
       ]
     },
     "texts/mail.json:orders.paymentMethods.cash": {
-      "from": [
-        "mail-text.json:newOrder.cash"
-      ]
+      "from": ["mail-text.json:newOrder.cash"]
     },
     "texts/admin.json:orders.paymentMethods.transfer": {
       "from": [
@@ -420,9 +351,7 @@
       ]
     },
     "texts/mail.json:orders.paymentMethods.transfer": {
-      "from": [
-        "mail-text.json:newOrder.transfer"
-      ]
+      "from": ["mail-text.json:newOrder.transfer"]
     },
     "texts/admin.json:orders.paymentMethods.card": {
       "from": [
@@ -431,14 +360,10 @@
       ]
     },
     "texts/mail.json:orders.paymentMethods.card": {
-      "from": [
-        "mail-text.json:newOrder.card"
-      ]
+      "from": ["mail-text.json:newOrder.card"]
     },
     "texts/common.json:order.paymentStates.notDue": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.paymentStates.notDue"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.paymentStates.notDue"]
     },
     "texts/common.json:order.paymentStates.awaiting": {
       "from": [
@@ -453,9 +378,7 @@
       ]
     },
     "texts/admin.json:orders.paymentStates.notDue": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.notDue"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.notDue"]
     },
     "texts/admin.json:orders.paymentStates.awaiting": {
       "from": [
@@ -464,14 +387,10 @@
       ]
     },
     "texts/admin.json:orders.paymentStates.paid": {
-      "from": [
-        "admin-text.json:orderList.paymentPaid"
-      ]
+      "from": ["admin-text.json:orderList.paymentPaid"]
     },
     "texts/admin.json:orders.paymentStates.cashOnHandover": {
-      "from": [
-        "admin-text.json:orderList.paymentCash"
-      ]
+      "from": ["admin-text.json:orderList.paymentCash"]
     },
     "texts/common.json:fulfilment.label": {
       "from": [
@@ -501,19 +420,13 @@
       ]
     },
     "texts/admin.json:fields.name.required": {
-      "from": [
-        "admin-text.json:orderAdjust.validation.nameRequired"
-      ]
+      "from": ["admin-text.json:orderAdjust.validation.nameRequired"]
     },
     "texts/admin.json:fields.firstName.required": {
-      "from": [
-        "admin-text.json:userEditor.validation.firstNameRequired"
-      ]
+      "from": ["admin-text.json:userEditor.validation.firstNameRequired"]
     },
     "texts/admin.json:fields.lastName.required": {
-      "from": [
-        "admin-text.json:userEditor.validation.lastNameRequired"
-      ]
+      "from": ["admin-text.json:userEditor.validation.lastNameRequired"]
     },
     "texts/admin.json:fields.email.required": {
       "from": [
@@ -528,9 +441,7 @@
       ]
     },
     "texts/admin.json:fields.phone.required": {
-      "from": [
-        "admin-text.json:orderAdjust.validation.phoneRequired"
-      ]
+      "from": ["admin-text.json:orderAdjust.validation.phoneRequired"]
     },
     "texts/admin.json:fields.phone.incomplete": {
       "from": [
@@ -568,9 +479,7 @@
       ]
     },
     "texts/common.json:fields.name.required": {
-      "from": [
-        "app-text.json:inquiry.validation.nameRequired"
-      ]
+      "from": ["app-text.json:inquiry.validation.nameRequired"]
     },
     "texts/common.json:fields.firstName.label": {
       "from": [
@@ -580,9 +489,7 @@
       ]
     },
     "texts/common.json:fields.firstName.required": {
-      "from": [
-        "app-text.json:auth.register.validation.firstNameRequired"
-      ]
+      "from": ["app-text.json:auth.register.validation.firstNameRequired"]
     },
     "texts/common.json:fields.lastName.label": {
       "from": [
@@ -592,9 +499,7 @@
       ]
     },
     "texts/common.json:fields.lastName.required": {
-      "from": [
-        "app-text.json:auth.register.validation.lastNameRequired"
-      ]
+      "from": ["app-text.json:auth.register.validation.lastNameRequired"]
     },
     "texts/common.json:fields.email.label": {
       "from": [
@@ -655,9 +560,7 @@
       ]
     },
     "texts/common.json:fields.companyName.required": {
-      "from": [
-        "app-text.json:auth.register.validation.companyNameRequired"
-      ]
+      "from": ["app-text.json:auth.register.validation.companyNameRequired"]
     },
     "texts/common.json:fields.companyId.label": {
       "from": [
@@ -670,14 +573,10 @@
       ]
     },
     "texts/common.json:fields.companyId.required": {
-      "from": [
-        "app-text.json:auth.register.validation.companyIdRequired"
-      ]
+      "from": ["app-text.json:auth.register.validation.companyIdRequired"]
     },
     "texts/common.json:fields.companyId.format": {
-      "from": [
-        "app-text.json:auth.register.validation.companyIdFormat"
-      ]
+      "from": ["app-text.json:auth.register.validation.companyIdFormat"]
     },
     "texts/common.json:partyKind.person": {
       "from": [
@@ -715,50 +614,32 @@
       ]
     },
     "texts/pdf.json:orderSummary.title": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.title"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.title"]
     },
     "texts/pdf.json:orderSummary.placedLabel": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.placedLabel"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.placedLabel"]
     },
     "texts/pdf.json:orderSummary.whenAny": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.whenAny"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.whenAny"]
     },
     "texts/pdf.json:orderSummary.itemsLabel": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.itemsLabel"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.itemsLabel"]
     },
     "texts/pdf.json:orderSummary.quantityLabel": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.quantityLabel"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.quantityLabel"]
     },
     "texts/pdf.json:orderSummary.lineTotalLabel": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.lineTotalLabel"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.lineTotalLabel"]
     },
     "texts/pdf.json:orderSummary.returnNotice": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.returnNotice"
-      ],
+      "from": ["mail-text.json:orderSummaryPdf.returnNotice"],
       "optional": true
     },
     "texts/pdf.json:orderSummary.footer": {
-      "from": [
-        "mail-text.json:orderSummaryPdf.footer"
-      ]
+      "from": ["mail-text.json:orderSummaryPdf.footer"]
     },
     "texts/pdf.json:terms.fileName": {
-      "from": [
-        "mail-text.json:orderReceived.termsFileName"
-      ]
+      "from": ["mail-text.json:orderReceived.termsFileName"]
     },
     "texts/admin.json:orders.notFound": {
       "from": [
@@ -779,9 +660,7 @@
       ]
     },
     "texts/admin.json:orders.tierDefault": {
-      "from": [
-        "admin-text.json:orderDetail.tierDefault"
-      ]
+      "from": ["admin-text.json:orderDetail.tierDefault"]
     },
     "texts/admin.json:orders.changes.line": {
       "from": [
@@ -814,190 +693,118 @@
       ]
     },
     "texts/admin.json:orders.detail.actions.confirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.actions.confirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.actions.confirmHeading"]
     },
     "texts/admin.json:orders.detail.actions.confirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.actions.confirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.actions.confirmMessage"]
     },
     "texts/admin.json:orders.detail.actions.confirm.confirm": {
       "new": "{action}"
     },
     "texts/admin.json:orders.detail.actions.confirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.actions.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.actions.keep"]
     },
     "texts/admin.json:orders.detail.actions.confirm.warning": {
-      "from": [
-        "admin-text.json:orderDetail.actions.paidWarning"
-      ]
+      "from": ["admin-text.json:orderDetail.actions.paidWarning"]
     },
     "texts/admin.json:orders.detail.tellCustomer.updateConfirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.updateConfirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.updateConfirmHeading"]
     },
     "texts/admin.json:orders.detail.tellCustomer.updateConfirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.updateConfirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.updateConfirmMessage"]
     },
     "texts/admin.json:orders.detail.tellCustomer.updateConfirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.updateConfirm"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.updateConfirm"]
     },
     "texts/admin.json:orders.detail.tellCustomer.updateConfirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.keep"]
     },
     "texts/admin.json:orders.detail.tellCustomer.emailConfirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.emailConfirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.emailConfirmHeading"]
     },
     "texts/admin.json:orders.detail.tellCustomer.emailConfirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.emailConfirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.emailConfirmMessage"]
     },
     "texts/admin.json:orders.detail.tellCustomer.emailConfirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.emailConfirm"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.emailConfirm"]
     },
     "texts/admin.json:orders.detail.tellCustomer.emailConfirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.keep"]
     },
     "texts/admin.json:orders.detail.paymentState.recordConfirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.confirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.confirmHeading"]
     },
     "texts/admin.json:orders.detail.paymentState.recordConfirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.confirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.confirmMessage"]
     },
     "texts/admin.json:orders.detail.paymentState.recordConfirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.confirm"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.confirm"]
     },
     "texts/admin.json:orders.detail.paymentState.recordConfirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.keep"]
     },
     "texts/admin.json:orders.detail.paymentState.clearConfirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.clearConfirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.clearConfirmHeading"]
     },
     "texts/admin.json:orders.detail.paymentState.clearConfirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.clearConfirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.clearConfirmMessage"]
     },
     "texts/admin.json:orders.detail.paymentState.clearConfirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.clearConfirm"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.clearConfirm"]
     },
     "texts/admin.json:orders.detail.paymentState.clearConfirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.paymentState.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.paymentState.keep"]
     },
     "texts/admin.json:orders.detail.personalData.confirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.personalData.confirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.personalData.confirmHeading"]
     },
     "texts/admin.json:orders.detail.personalData.confirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.personalData.confirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.personalData.confirmMessage"]
     },
     "texts/admin.json:orders.detail.personalData.confirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.personalData.confirm"
-      ]
+      "from": ["admin-text.json:orderDetail.personalData.confirm"]
     },
     "texts/admin.json:orders.detail.personalData.confirm.cancel": {
       "new": "Keep the details"
     },
     "texts/admin.json:orders.detail.personalData.confirm.warning": {
-      "from": [
-        "admin-text.json:orderDetail.personalData.confirmWarning"
-      ]
+      "from": ["admin-text.json:orderDetail.personalData.confirmWarning"]
     },
     "texts/admin.json:orders.detail.documents.notifyConfirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.documents.notifyConfirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.notifyConfirmHeading"]
     },
     "texts/admin.json:orders.detail.documents.notifyConfirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.documents.notifyConfirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.notifyConfirmMessage"]
     },
     "texts/admin.json:orders.detail.documents.notifyConfirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.documents.notifyConfirm"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.notifyConfirm"]
     },
     "texts/admin.json:orders.detail.documents.notifyConfirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.tellCustomer.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.tellCustomer.keep"]
     },
     "texts/admin.json:orders.detail.documents.removeConfirm.heading": {
-      "from": [
-        "admin-text.json:orderDetail.documents.removeConfirmHeading"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.removeConfirmHeading"]
     },
     "texts/admin.json:orders.detail.documents.removeConfirm.message": {
-      "from": [
-        "admin-text.json:orderDetail.documents.removeConfirmMessage"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.removeConfirmMessage"]
     },
     "texts/admin.json:orders.detail.documents.removeConfirm.confirm": {
-      "from": [
-        "admin-text.json:orderDetail.documents.removeConfirm"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.removeConfirm"]
     },
     "texts/admin.json:orders.detail.documents.removeConfirm.cancel": {
-      "from": [
-        "admin-text.json:orderDetail.documents.keep"
-      ]
+      "from": ["admin-text.json:orderDetail.documents.keep"]
     },
     "texts/admin.json:orders.adjust.confirm.heading": {
-      "from": [
-        "admin-text.json:orderAdjust.confirmHeading"
-      ]
+      "from": ["admin-text.json:orderAdjust.confirmHeading"]
     },
     "texts/admin.json:orders.adjust.confirm.message": {
-      "from": [
-        "admin-text.json:orderAdjust.confirmMessage"
-      ]
+      "from": ["admin-text.json:orderAdjust.confirmMessage"]
     },
     "texts/admin.json:orders.adjust.confirm.confirm": {
-      "from": [
-        "admin-text.json:orderAdjust.confirm"
-      ]
+      "from": ["admin-text.json:orderAdjust.confirm"]
     },
     "texts/admin.json:orders.adjust.confirm.cancel": {
-      "from": [
-        "admin-text.json:orderAdjust.keep"
-      ]
+      "from": ["admin-text.json:orderAdjust.keep"]
     },
     "texts/common.json:packaging.heading": {
       "from": [
@@ -1055,14 +862,10 @@
       ]
     },
     "texts/common.json:product.availability.in": {
-      "from": [
-        "app-text.json:catalog.availability.in"
-      ]
+      "from": ["app-text.json:catalog.availability.in"]
     },
     "texts/common.json:product.availability.low": {
-      "from": [
-        "app-text.json:catalog.availability.low"
-      ]
+      "from": ["app-text.json:catalog.availability.low"]
     },
     "texts/common.json:product.availability.out": {
       "from": [
@@ -1120,388 +923,244 @@
       ]
     },
     "texts/admin.json:products.list.page.title": {
-      "from": [
-        "admin-text.json:productList.title"
-      ]
+      "from": ["admin-text.json:productList.title"]
     },
     "texts/admin.json:categories.list.page.title": {
-      "from": [
-        "admin-text.json:categoryList.title"
-      ]
+      "from": ["admin-text.json:categoryList.title"]
     },
     "texts/admin.json:documents.list.page.title": {
-      "from": [
-        "admin-text.json:documentList.title"
-      ]
+      "from": ["admin-text.json:documentList.title"]
     },
     "texts/admin.json:orders.list.page.title": {
-      "from": [
-        "admin-text.json:orderList.title"
-      ]
+      "from": ["admin-text.json:orderList.title"]
     },
     "texts/admin.json:operations.page.title": {
-      "from": [
-        "admin-text.json:operations.title"
-      ]
+      "from": ["admin-text.json:operations.title"]
     },
     "texts/admin.json:tiers.page.title": {
-      "from": [
-        "admin-text.json:tierList.title"
-      ]
+      "from": ["admin-text.json:tierList.title"]
     },
     "texts/admin.json:tiers.page.intro": {
-      "from": [
-        "admin-text.json:tierList.intro"
-      ],
+      "from": ["admin-text.json:tierList.intro"],
       "optional": true
     },
     "texts/admin.json:apiTokens.page.title": {
-      "from": [
-        "admin-text.json:apiTokenList.title"
-      ]
+      "from": ["admin-text.json:apiTokenList.title"]
     },
     "texts/admin.json:apiTokens.page.intro": {
-      "from": [
-        "admin-text.json:apiTokenList.intro"
-      ],
+      "from": ["admin-text.json:apiTokenList.intro"],
       "optional": true
     },
     "texts/admin.json:attributes.list.page.title": {
-      "from": [
-        "admin-text.json:attributeList.title"
-      ]
+      "from": ["admin-text.json:attributeList.title"]
     },
     "texts/admin.json:attributes.list.page.intro": {
-      "from": [
-        "admin-text.json:attributeList.intro"
-      ],
+      "from": ["admin-text.json:attributeList.intro"],
       "optional": true
     },
     "texts/admin.json:categories.filters.page.title": {
-      "from": [
-        "admin-text.json:categoryFilters.title"
-      ]
+      "from": ["admin-text.json:categoryFilters.title"]
     },
     "texts/admin.json:categories.filters.page.intro": {
-      "from": [
-        "admin-text.json:categoryFilters.intro"
-      ],
+      "from": ["admin-text.json:categoryFilters.intro"],
       "optional": true
     },
     "texts/admin.json:attributes.inventory.page.title": {
-      "from": [
-        "admin-text.json:attributeInventory.title"
-      ]
+      "from": ["admin-text.json:attributeInventory.title"]
     },
     "texts/admin.json:attributes.inventory.page.intro": {
-      "from": [
-        "admin-text.json:attributeInventory.intro"
-      ],
+      "from": ["admin-text.json:attributeInventory.intro"],
       "optional": true
     },
     "texts/admin.json:consents.page.title": {
-      "from": [
-        "admin-text.json:consents.title"
-      ]
+      "from": ["admin-text.json:consents.title"]
     },
     "texts/admin.json:consents.page.intro": {
-      "from": [
-        "admin-text.json:consents.intro"
-      ],
+      "from": ["admin-text.json:consents.intro"],
       "optional": true
     },
     "texts/admin.json:orders.adjust.page.title": {
-      "from": [
-        "admin-text.json:orderAdjust.title"
-      ]
+      "from": ["admin-text.json:orderAdjust.title"]
     },
     "texts/admin.json:orders.adjust.page.intro": {
-      "from": [
-        "admin-text.json:orderAdjust.lead"
-      ],
+      "from": ["admin-text.json:orderAdjust.lead"],
       "optional": true
     },
     "texts/admin.json:users.list.customersPage.title": {
-      "from": [
-        "admin-text.json:userList.titleCustomers"
-      ]
+      "from": ["admin-text.json:userList.titleCustomers"]
     },
     "texts/admin.json:users.list.staffPage.title": {
-      "from": [
-        "admin-text.json:userList.titleStaff"
-      ]
+      "from": ["admin-text.json:userList.titleStaff"]
     },
     "texts/admin.json:apiTokens.revokeConfirm.heading": {
-      "from": [
-        "admin-text.json:apiTokenList.revokeTitle"
-      ]
+      "from": ["admin-text.json:apiTokenList.revokeTitle"]
     },
     "texts/admin.json:apiTokens.revokeConfirm.message": {
-      "from": [
-        "admin-text.json:apiTokenList.revokeConfirm"
-      ]
+      "from": ["admin-text.json:apiTokenList.revokeConfirm"]
     },
     "texts/admin.json:apiTokens.revokeConfirm.confirm": {
-      "from": [
-        "admin-text.json:apiTokenList.revoke"
-      ],
+      "from": ["admin-text.json:apiTokenList.revoke"],
       "copy": true
     },
     "texts/admin.json:apiTokens.revokeConfirm.warning": {
-      "from": [
-        "admin-text.json:apiTokenList.revokeWarning"
-      ]
+      "from": ["admin-text.json:apiTokenList.revokeWarning"]
     },
     "texts/admin.json:attributes.list.deleteConfirm.heading": {
-      "from": [
-        "admin-text.json:attributeList.deleteTitle"
-      ]
+      "from": ["admin-text.json:attributeList.deleteTitle"]
     },
     "texts/admin.json:attributes.list.deleteConfirm.message": {
-      "from": [
-        "admin-text.json:attributeList.deleteConfirm"
-      ]
+      "from": ["admin-text.json:attributeList.deleteConfirm"]
     },
     "texts/admin.json:attributes.list.deleteConfirm.confirm": {
-      "from": [
-        "admin-text.json:attributeList.delete"
-      ],
+      "from": ["admin-text.json:attributeList.delete"],
       "copy": true
     },
     "texts/admin.json:categories.filters.resetConfirm.heading": {
-      "from": [
-        "admin-text.json:categoryFilters.resetTitle"
-      ]
+      "from": ["admin-text.json:categoryFilters.resetTitle"]
     },
     "texts/admin.json:categories.filters.resetConfirm.message": {
-      "from": [
-        "admin-text.json:categoryFilters.resetConfirm"
-      ]
+      "from": ["admin-text.json:categoryFilters.resetConfirm"]
     },
     "texts/admin.json:categories.filters.resetConfirm.confirm": {
-      "from": [
-        "admin-text.json:categoryFilters.reset"
-      ],
+      "from": ["admin-text.json:categoryFilters.reset"],
       "copy": true
     },
     "texts/admin.json:consents.withdrawConfirm.heading": {
-      "from": [
-        "admin-text.json:consents.withdrawTitle"
-      ]
+      "from": ["admin-text.json:consents.withdrawTitle"]
     },
     "texts/admin.json:consents.withdrawConfirm.message": {
-      "from": [
-        "admin-text.json:consents.withdrawConfirm"
-      ]
+      "from": ["admin-text.json:consents.withdrawConfirm"]
     },
     "texts/admin.json:consents.withdrawConfirm.confirm": {
-      "from": [
-        "admin-text.json:consents.withdraw"
-      ],
+      "from": ["admin-text.json:consents.withdraw"],
       "copy": true
     },
     "texts/admin.json:consents.withdrawConfirm.warning": {
-      "from": [
-        "admin-text.json:consents.withdrawInbox"
-      ]
+      "from": ["admin-text.json:consents.withdrawInbox"]
     },
     "texts/admin.json:documents.list.deleteConfirm.heading": {
-      "from": [
-        "admin-text.json:documentList.deleteTitle"
-      ]
+      "from": ["admin-text.json:documentList.deleteTitle"]
     },
     "texts/admin.json:documents.list.deleteConfirm.message": {
-      "from": [
-        "admin-text.json:documentList.deleteConfirm"
-      ]
+      "from": ["admin-text.json:documentList.deleteConfirm"]
     },
     "texts/admin.json:documents.list.deleteConfirm.confirm": {
-      "from": [
-        "admin-text.json:documentList.delete"
-      ],
+      "from": ["admin-text.json:documentList.delete"],
       "copy": true
     },
     "texts/admin.json:sync.discardConfirm.heading": {
-      "from": [
-        "admin-text.json:sync.discardTitle"
-      ]
+      "from": ["admin-text.json:sync.discardTitle"]
     },
     "texts/admin.json:sync.discardConfirm.message": {
-      "from": [
-        "admin-text.json:sync.discardMessage"
-      ]
+      "from": ["admin-text.json:sync.discardMessage"]
     },
     "texts/admin.json:sync.discardConfirm.confirm": {
-      "from": [
-        "admin-text.json:sync.discardRun"
-      ],
+      "from": ["admin-text.json:sync.discardRun"],
       "copy": true
     },
     "texts/admin.json:tiers.setDefaultConfirm.heading": {
-      "from": [
-        "admin-text.json:tierList.setDefaultTitle"
-      ]
+      "from": ["admin-text.json:tierList.setDefaultTitle"]
     },
     "texts/admin.json:tiers.setDefaultConfirm.message": {
-      "from": [
-        "admin-text.json:tierList.setDefaultConfirm"
-      ]
+      "from": ["admin-text.json:tierList.setDefaultConfirm"]
     },
     "texts/admin.json:tiers.setDefaultConfirm.confirm": {
-      "from": [
-        "admin-text.json:tierList.setDefault"
-      ],
+      "from": ["admin-text.json:tierList.setDefault"],
       "copy": true
     },
     "texts/admin.json:tiers.deleteConfirm.heading": {
-      "from": [
-        "admin-text.json:tierList.deleteTitle"
-      ]
+      "from": ["admin-text.json:tierList.deleteTitle"]
     },
     "texts/admin.json:tiers.deleteConfirm.message": {
-      "from": [
-        "admin-text.json:tierList.deleteConfirm"
-      ]
+      "from": ["admin-text.json:tierList.deleteConfirm"]
     },
     "texts/admin.json:tiers.deleteConfirm.confirm": {
-      "from": [
-        "admin-text.json:tierList.delete"
-      ],
+      "from": ["admin-text.json:tierList.delete"],
       "copy": true
     },
     "texts/admin.json:users.detail.deleteConfirm.heading": {
-      "from": [
-        "admin-text.json:userDetail.deleteTitle"
-      ]
+      "from": ["admin-text.json:userDetail.deleteTitle"]
     },
     "texts/admin.json:users.detail.deleteConfirm.message": {
-      "from": [
-        "admin-text.json:userDetail.deleteConfirm"
-      ]
+      "from": ["admin-text.json:userDetail.deleteConfirm"]
     },
     "texts/admin.json:users.detail.deleteConfirm.confirm": {
-      "from": [
-        "admin-text.json:userDetail.delete"
-      ],
+      "from": ["admin-text.json:userDetail.delete"],
       "copy": true
     },
     "texts/admin.json:users.detail.deleteConfirm.warning": {
-      "from": [
-        "admin-text.json:userDetail.deleteWarning"
-      ]
+      "from": ["admin-text.json:userDetail.deleteWarning"]
     },
     "texts/admin.json:users.detail.exemptConfirm.heading": {
-      "from": [
-        "admin-text.json:userDetail.exemptTitle"
-      ]
+      "from": ["admin-text.json:userDetail.exemptTitle"]
     },
     "texts/admin.json:users.detail.exemptConfirm.message": {
-      "from": [
-        "admin-text.json:userDetail.exemptConfirm"
-      ]
+      "from": ["admin-text.json:userDetail.exemptConfirm"]
     },
     "texts/admin.json:users.detail.exemptConfirm.confirm": {
-      "from": [
-        "admin-text.json:userDetail.exempt"
-      ],
+      "from": ["admin-text.json:userDetail.exempt"],
       "copy": true
     },
     "texts/admin.json:users.detail.unexemptConfirm.heading": {
-      "from": [
-        "admin-text.json:userDetail.unexemptTitle"
-      ]
+      "from": ["admin-text.json:userDetail.unexemptTitle"]
     },
     "texts/admin.json:users.detail.unexemptConfirm.message": {
-      "from": [
-        "admin-text.json:userDetail.unexemptConfirm"
-      ]
+      "from": ["admin-text.json:userDetail.unexemptConfirm"]
     },
     "texts/admin.json:users.detail.unexemptConfirm.confirm": {
-      "from": [
-        "admin-text.json:userDetail.unexempt"
-      ],
+      "from": ["admin-text.json:userDetail.unexempt"],
       "copy": true
     },
     "texts/admin.json:users.list.deactivateConfirm.heading": {
-      "from": [
-        "admin-text.json:userList.deactivateTitle"
-      ]
+      "from": ["admin-text.json:userList.deactivateTitle"]
     },
     "texts/admin.json:users.list.deactivateConfirm.message": {
-      "from": [
-        "admin-text.json:userList.deactivateConfirm"
-      ]
+      "from": ["admin-text.json:userList.deactivateConfirm"]
     },
     "texts/admin.json:users.list.deactivateConfirm.confirm": {
-      "from": [
-        "admin-text.json:userList.deactivate"
-      ],
+      "from": ["admin-text.json:userList.deactivate"],
       "copy": true
     },
     "texts/admin.json:users.list.reactivateConfirm.heading": {
-      "from": [
-        "admin-text.json:userList.reactivateTitle"
-      ]
+      "from": ["admin-text.json:userList.reactivateTitle"]
     },
     "texts/admin.json:users.list.reactivateConfirm.message": {
-      "from": [
-        "admin-text.json:userList.reactivateConfirm"
-      ]
+      "from": ["admin-text.json:userList.reactivateConfirm"]
     },
     "texts/admin.json:users.list.reactivateConfirm.confirm": {
-      "from": [
-        "admin-text.json:userList.reactivate"
-      ],
+      "from": ["admin-text.json:userList.reactivate"],
       "copy": true
     },
     "texts/admin.json:users.list.declineConfirm.heading": {
-      "from": [
-        "admin-text.json:userList.declineTitle"
-      ]
+      "from": ["admin-text.json:userList.declineTitle"]
     },
     "texts/admin.json:users.list.declineConfirm.message": {
-      "from": [
-        "admin-text.json:userList.declineConfirm"
-      ]
+      "from": ["admin-text.json:userList.declineConfirm"]
     },
     "texts/admin.json:users.list.declineConfirm.confirm": {
-      "from": [
-        "admin-text.json:userList.decline"
-      ],
+      "from": ["admin-text.json:userList.decline"],
       "copy": true
     },
     "texts/admin.json:editMode.unpublishConfirm.heading": {
-      "from": [
-        "admin-text.json:editMode.unpublishProduct"
-      ],
+      "from": ["admin-text.json:editMode.unpublishProduct"],
       "copy": true
     },
     "texts/admin.json:editMode.unpublishConfirm.message": {
-      "from": [
-        "admin-text.json:editMode.unpublishConfirm"
-      ]
+      "from": ["admin-text.json:editMode.unpublishConfirm"]
     },
     "texts/admin.json:editMode.unpublishConfirm.confirm": {
-      "from": [
-        "admin-text.json:editMode.unpublishProduct"
-      ],
+      "from": ["admin-text.json:editMode.unpublishProduct"],
       "copy": true
     },
     "texts/admin.json:editMode.purgeConfirm.heading": {
-      "from": [
-        "admin-text.json:editMode.purgeProduct"
-      ],
+      "from": ["admin-text.json:editMode.purgeProduct"],
       "copy": true
     },
     "texts/admin.json:editMode.purgeConfirm.message": {
-      "from": [
-        "admin-text.json:editMode.purgeConfirm"
-      ]
+      "from": ["admin-text.json:editMode.purgeConfirm"]
     },
     "texts/admin.json:editMode.purgeConfirm.confirm": {
-      "from": [
-        "admin-text.json:editMode.purgeProduct"
-      ],
+      "from": ["admin-text.json:editMode.purgeProduct"],
       "copy": true
     },
     "texts/admin.json:sync.count.create": {
@@ -1580,9 +1239,7 @@
       "new": "payments"
     },
     "texts/admin.json:sync.moreFields": {
-      "from": [
-        "admin-text.json:sync.field.more"
-      ]
+      "from": ["admin-text.json:sync.field.more"]
     },
     "texts/admin.json:ownership.statusOwned": {
       "from": [
@@ -1619,136 +1276,84 @@
       ]
     },
     "texts/app.json:cart.deleteSelectedConfirm.heading": {
-      "from": [
-        "app-text.json:cart.deleteSelectedHeading"
-      ]
+      "from": ["app-text.json:cart.deleteSelectedHeading"]
     },
     "texts/app.json:cart.deleteSelectedConfirm.message": {
-      "from": [
-        "app-text.json:cart.deleteSelectedConfirm"
-      ]
+      "from": ["app-text.json:cart.deleteSelectedConfirm"]
     },
     "texts/app.json:cart.deleteSelectedConfirm.confirm": {
-      "from": [
-        "app-text.json:cart.deleteSelected"
-      ],
+      "from": ["app-text.json:cart.deleteSelected"],
       "copy": true
     },
     "texts/app.json:account.addresses.removeConfirm.heading": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.removeHeading"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.removeHeading"]
     },
     "texts/app.json:account.addresses.removeConfirm.message": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.removeConfirm"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.removeConfirm"]
     },
     "texts/app.json:account.addresses.removeConfirm.confirm": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.remove"
-      ],
+      "from": ["app-text.json:auth.myAccount.addresses.remove"],
       "copy": true
     },
     "texts/app.json:orders.detail.cancelConfirm.heading": {
-      "from": [
-        "app-text.json:orders.detail.cancel.heading"
-      ]
+      "from": ["app-text.json:orders.detail.cancel.heading"]
     },
     "texts/app.json:orders.detail.cancelConfirm.message": {
-      "from": [
-        "app-text.json:orders.detail.cancel.message"
-      ]
+      "from": ["app-text.json:orders.detail.cancel.message"]
     },
     "texts/app.json:orders.detail.cancelConfirm.confirm": {
-      "from": [
-        "app-text.json:orders.detail.cancel.confirm"
-      ]
+      "from": ["app-text.json:orders.detail.cancel.confirm"]
     },
     "texts/app.json:orders.detail.cancelConfirm.cancel": {
-      "from": [
-        "app-text.json:orders.detail.cancel.keep"
-      ]
+      "from": ["app-text.json:orders.detail.cancel.keep"]
     },
     "texts/app.json:orders.detail.cancelConfirm.warning": {
-      "from": [
-        "app-text.json:orders.detail.cancel.paidWarning"
-      ]
+      "from": ["app-text.json:orders.detail.cancel.paidWarning"]
     },
     "texts/app.json:address.label": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.label"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.label"]
     },
     "texts/app.json:address.labelHint": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.labelHint"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.labelHint"]
     },
     "texts/app.json:address.enterManually": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.enterManually"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.enterManually"]
     },
     "texts/app.json:address.addressLine": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.addressLine"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.addressLine"]
     },
     "texts/app.json:address.street": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.street"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.street"]
     },
     "texts/app.json:address.street2": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.street2"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.street2"]
     },
     "texts/app.json:address.postalCode": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.postalCode"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.postalCode"]
     },
     "texts/app.json:address.city": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.city"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.city"]
     },
     "texts/app.json:address.region": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.region"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.region"]
     },
     "texts/app.json:address.country": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.country"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.country"]
     },
     "texts/app.json:address.required": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.required"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.required"]
     },
     "texts/app.json:address.postalCodeFormat": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.postalCodeFormat"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.postalCodeFormat"]
     },
     "texts/app.json:address.suggest.suggestionsAria": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.suggestionsLabel"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.suggestionsLabel"]
     },
     "texts/app.json:address.suggest.noSuggestions": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.noSuggestions"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.noSuggestions"]
     },
     "texts/app.json:address.suggest.suggestionCountAria": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.suggestionCount"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.suggestionCount"]
     },
     "texts/app.json:auth.password": {
       "from": [
@@ -1782,369 +1387,223 @@
       ]
     },
     "texts/admin.json:apiTokens.revokeAria": {
-      "from": [
-        "admin-text.json:apiTokenList.revoke"
-      ]
+      "from": ["admin-text.json:apiTokenList.revoke"]
     },
     "texts/admin.json:attributes.inventory.newTextAria": {
-      "from": [
-        "admin-text.json:attributeInventory.newText"
-      ]
+      "from": ["admin-text.json:attributeInventory.newText"]
     },
     "texts/admin.json:attributes.inventory.renameKeyAria": {
-      "from": [
-        "admin-text.json:attributeInventory.renameKey"
-      ]
+      "from": ["admin-text.json:attributeInventory.renameKey"]
     },
     "texts/admin.json:attributes.inventory.renameValueAria": {
-      "from": [
-        "admin-text.json:attributeInventory.renameValue"
-      ]
+      "from": ["admin-text.json:attributeInventory.renameValue"]
     },
     "texts/admin.json:attributes.inventory.toDefinitionAria": {
-      "from": [
-        "admin-text.json:attributeInventory.toDefinition"
-      ]
+      "from": ["admin-text.json:attributeInventory.toDefinition"]
     },
     "texts/admin.json:common.resizeColumnOfAria": {
-      "from": [
-        "admin-text.json:common.resizeColumnOf"
-      ]
+      "from": ["admin-text.json:common.resizeColumnOf"]
     },
     "texts/admin.json:documents.editor.products.categoryAria": {
-      "from": [
-        "admin-text.json:documentEditor.products.category"
-      ]
+      "from": ["admin-text.json:documentEditor.products.category"]
     },
     "texts/admin.json:documents.editor.products.searchAria": {
-      "from": [
-        "admin-text.json:documentEditor.products.search"
-      ]
+      "from": ["admin-text.json:documentEditor.products.search"]
     },
     "texts/admin.json:imageFramer.stageAria": {
-      "from": [
-        "admin-text.json:imageFramer.stage"
-      ]
+      "from": ["admin-text.json:imageFramer.stage"]
     },
     "texts/admin.json:orders.adjust.lines.moveDownAria": {
-      "from": [
-        "admin-text.json:orderAdjust.lines.moveDown"
-      ]
+      "from": ["admin-text.json:orderAdjust.lines.moveDown"]
     },
     "texts/admin.json:orders.adjust.lines.moveUpAria": {
-      "from": [
-        "admin-text.json:orderAdjust.lines.moveUp"
-      ]
+      "from": ["admin-text.json:orderAdjust.lines.moveUp"]
     },
     "texts/admin.json:orders.adjust.lines.priceAria": {
-      "from": [
-        "admin-text.json:orderAdjust.lines.price"
-      ]
+      "from": ["admin-text.json:orderAdjust.lines.price"]
     },
     "texts/admin.json:orders.adjust.lines.removeAria": {
-      "from": [
-        "admin-text.json:orderAdjust.lines.remove"
-      ]
+      "from": ["admin-text.json:orderAdjust.lines.remove"]
     },
     "texts/admin.json:orders.adjust.lines.unitsAria": {
-      "from": [
-        "admin-text.json:orderAdjust.lines.units"
-      ]
+      "from": ["admin-text.json:orderAdjust.lines.units"]
     },
     "texts/admin.json:pages.imagePanel.headingAria": {
-      "from": [
-        "admin-text.json:pageEditor.imagePanel.heading"
-      ]
+      "from": ["admin-text.json:pageEditor.imagePanel.heading"]
     },
     "texts/admin.json:pages.linkPanel.headingAria": {
-      "from": [
-        "admin-text.json:pageEditor.linkPanel.heading"
-      ]
+      "from": ["admin-text.json:pageEditor.linkPanel.heading"]
     },
     "texts/admin.json:pages.toolbar.labelAria": {
-      "from": [
-        "admin-text.json:pageEditor.toolbar.label"
-      ]
+      "from": ["admin-text.json:pageEditor.toolbar.label"]
     },
     "texts/admin.json:products.editor.attributes.addAria": {
-      "from": [
-        "admin-text.json:productEditor.attributes.add"
-      ]
+      "from": ["admin-text.json:productEditor.attributes.add"]
     },
     "texts/admin.json:products.editor.documents.removeAria": {
-      "from": [
-        "admin-text.json:productEditor.documents.remove"
-      ]
+      "from": ["admin-text.json:productEditor.documents.remove"]
     },
     "texts/admin.json:products.editor.documents.suggestionCountAria": {
-      "from": [
-        "admin-text.json:productEditor.documents.suggestionCount"
-      ]
+      "from": ["admin-text.json:productEditor.documents.suggestionCount"]
     },
     "texts/admin.json:products.editor.documents.suggestionsAria": {
-      "from": [
-        "admin-text.json:productEditor.documents.suggestionsLabel"
-      ]
+      "from": ["admin-text.json:productEditor.documents.suggestionsLabel"]
     },
     "texts/admin.json:products.editor.images.variantAria": {
-      "from": [
-        "admin-text.json:productEditor.images.variant"
-      ]
+      "from": ["admin-text.json:productEditor.images.variant"]
     },
     "texts/admin.json:products.editor.pairings.removeAria": {
-      "from": [
-        "admin-text.json:productEditor.pairings.remove"
-      ]
+      "from": ["admin-text.json:productEditor.pairings.remove"]
     },
     "texts/admin.json:products.editor.pairings.suggestionCountAria": {
-      "from": [
-        "admin-text.json:productEditor.pairings.suggestionCount"
-      ]
+      "from": ["admin-text.json:productEditor.pairings.suggestionCount"]
     },
     "texts/admin.json:products.editor.pairings.suggestionsAria": {
-      "from": [
-        "admin-text.json:productEditor.pairings.suggestionsLabel"
-      ]
+      "from": ["admin-text.json:productEditor.pairings.suggestionsLabel"]
     },
     "texts/admin.json:products.editor.parts.removeAria": {
-      "from": [
-        "admin-text.json:productEditor.parts.remove"
-      ]
+      "from": ["admin-text.json:productEditor.parts.remove"]
     },
     "texts/admin.json:products.editor.variants.nameAria": {
-      "from": [
-        "admin-text.json:productEditor.variants.name"
-      ]
+      "from": ["admin-text.json:productEditor.variants.name"]
     },
     "texts/admin.json:products.editor.variants.removeAria": {
-      "from": [
-        "admin-text.json:productEditor.variants.remove"
-      ]
+      "from": ["admin-text.json:productEditor.variants.remove"]
     },
     "texts/admin.json:products.list.stockAria": {
-      "from": [
-        "admin-text.json:productList.stockLabel"
-      ]
+      "from": ["admin-text.json:productList.stockLabel"]
     },
     "texts/admin.json:products.list.clearTierAria": {
-      "from": [
-        "admin-text.json:productList.clearTier"
-      ]
+      "from": ["admin-text.json:productList.clearTier"]
     },
     "texts/admin.json:products.list.clearDocumentAria": {
-      "from": [
-        "admin-text.json:productList.clearDocument"
-      ]
+      "from": ["admin-text.json:productList.clearDocument"]
     },
     "texts/admin.json:products.list.clearAttributeAria": {
-      "from": [
-        "admin-text.json:productList.clearAttribute"
-      ]
+      "from": ["admin-text.json:productList.clearAttribute"]
     },
     "texts/admin.json:products.list.searchAria": {
-      "from": [
-        "admin-text.json:productList.searchLabel"
-      ]
+      "from": ["admin-text.json:productList.searchLabel"]
     },
     "texts/admin.json:products.list.hasGroupAria": {
-      "from": [
-        "admin-text.json:productList.hasGroup"
-      ]
+      "from": ["admin-text.json:productList.hasGroup"]
     },
     "texts/admin.json:products.list.missingGroupAria": {
-      "from": [
-        "admin-text.json:productList.missingGroup"
-      ]
+      "from": ["admin-text.json:productList.missingGroup"]
     },
     "texts/admin.json:orders.list.searchAria": {
-      "from": [
-        "admin-text.json:orderList.searchLabel"
-      ]
+      "from": ["admin-text.json:orderList.searchLabel"]
     },
     "texts/admin.json:orders.list.actionsAria": {
-      "from": [
-        "admin-text.json:orderList.actions"
-      ]
+      "from": ["admin-text.json:orderList.actions"]
     },
     "texts/admin.json:documents.list.searchAria": {
-      "from": [
-        "admin-text.json:documentList.searchLabel"
-      ]
+      "from": ["admin-text.json:documentList.searchLabel"]
     },
     "texts/admin.json:users.list.searchAria": {
-      "from": [
-        "admin-text.json:userList.searchLabel"
-      ]
+      "from": ["admin-text.json:userList.searchLabel"]
     },
     "texts/admin.json:users.list.actionsAria": {
-      "from": [
-        "admin-text.json:userList.actions"
-      ]
+      "from": ["admin-text.json:userList.actions"]
     },
     "texts/admin.json:users.list.deactivateAria": {
-      "from": [
-        "admin-text.json:userList.deactivate"
-      ]
+      "from": ["admin-text.json:userList.deactivate"]
     },
     "texts/admin.json:users.list.declineAria": {
-      "from": [
-        "admin-text.json:userList.decline"
-      ]
+      "from": ["admin-text.json:userList.decline"]
     },
     "texts/admin.json:users.list.reactivateAria": {
-      "from": [
-        "admin-text.json:userList.reactivate"
-      ]
+      "from": ["admin-text.json:userList.reactivate"]
     },
     "texts/admin.json:maintenance.enableAria": {
-      "from": [
-        "admin-text.json:maintenance.enable"
-      ]
+      "from": ["admin-text.json:maintenance.enable"]
     },
     "texts/admin.json:maintenance.disableAria": {
-      "from": [
-        "admin-text.json:maintenance.disable"
-      ]
+      "from": ["admin-text.json:maintenance.disable"]
     },
     "texts/app.json:account.addresses.editAria": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.editLabel"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.editLabel"]
     },
     "texts/app.json:account.addresses.removeAria": {
-      "from": [
-        "app-text.json:auth.myAccount.addresses.removeLabel"
-      ]
+      "from": ["app-text.json:auth.myAccount.addresses.removeLabel"]
     },
     "texts/app.json:auth.workMarkerAria": {
-      "from": [
-        "app-text.json:auth.workMarker"
-      ]
+      "from": ["app-text.json:auth.workMarker"]
     },
     "texts/app.json:cart.changes.dismissAria": {
-      "from": [
-        "app-text.json:cart.changes.dismiss"
-      ]
+      "from": ["app-text.json:cart.changes.dismiss"]
     },
     "texts/app.json:cart.decreaseAria": {
-      "from": [
-        "app-text.json:cart.decrease"
-      ]
+      "from": ["app-text.json:cart.decrease"]
     },
     "texts/app.json:cart.increaseAria": {
-      "from": [
-        "app-text.json:cart.increase"
-      ]
+      "from": ["app-text.json:cart.increase"]
     },
     "texts/app.json:cart.lineNoteAria": {
-      "from": [
-        "app-text.json:cart.lineNote"
-      ]
+      "from": ["app-text.json:cart.lineNote"]
     },
     "texts/app.json:cart.quantityAria": {
-      "from": [
-        "app-text.json:cart.quantityLabel"
-      ]
+      "from": ["app-text.json:cart.quantityLabel"]
     },
     "texts/app.json:cart.removeAria": {
-      "from": [
-        "app-text.json:cart.remove"
-      ]
+      "from": ["app-text.json:cart.remove"]
     },
     "texts/app.json:cart.selectLineAria": {
-      "from": [
-        "app-text.json:cart.selectLine"
-      ]
+      "from": ["app-text.json:cart.selectLine"]
     },
     "texts/app.json:cart.summaryAria": {
-      "from": [
-        "app-text.json:cart.summaryLabel"
-      ]
+      "from": ["app-text.json:cart.summaryLabel"]
     },
     "texts/app.json:cart.unitAria": {
-      "from": [
-        "app-text.json:cart.unitLabel"
-      ]
+      "from": ["app-text.json:cart.unitLabel"]
     },
     "texts/app.json:catalog.documents.hintAria": {
-      "from": [
-        "app-text.json:catalog.documents.hint"
-      ]
+      "from": ["app-text.json:catalog.documents.hint"]
     },
     "texts/app.json:catalog.documents.linkAria": {
-      "from": [
-        "app-text.json:catalog.documents.linkLabel"
-      ]
+      "from": ["app-text.json:catalog.documents.linkLabel"]
     },
     "texts/app.json:catalog.filters.appliedAria": {
-      "from": [
-        "app-text.json:catalog.filters.appliedLabel"
-      ]
+      "from": ["app-text.json:catalog.filters.appliedLabel"]
     },
     "texts/app.json:catalog.filters.removeAria": {
-      "from": [
-        "app-text.json:catalog.filters.remove"
-      ]
+      "from": ["app-text.json:catalog.filters.remove"]
     },
     "texts/app.json:catalog.layout.labelAria": {
-      "from": [
-        "app-text.json:catalog.layout.label"
-      ]
+      "from": ["app-text.json:catalog.layout.label"]
     },
     "texts/app.json:catalog.viewImageAria": {
-      "from": [
-        "app-text.json:catalog.viewImage"
-      ]
+      "from": ["app-text.json:catalog.viewImage"]
     },
     "texts/app.json:home.featured.nextAria": {
-      "from": [
-        "app-text.json:home.featured.next"
-      ]
+      "from": ["app-text.json:home.featured.next"]
     },
     "texts/app.json:home.featured.previousAria": {
-      "from": [
-        "app-text.json:home.featured.previous"
-      ]
+      "from": ["app-text.json:home.featured.previous"]
     },
     "texts/app.json:orders.filterRemoveAria": {
-      "from": [
-        "app-text.json:orders.filterRemove"
-      ]
+      "from": ["app-text.json:orders.filterRemove"]
     },
     "texts/app.json:search.addSuggestionAria": {
-      "from": [
-        "app-text.json:search.addSuggestion"
-      ]
+      "from": ["app-text.json:search.addSuggestion"]
     },
     "texts/app.json:search.clearAria": {
-      "from": [
-        "app-text.json:search.clear"
-      ]
+      "from": ["app-text.json:search.clear"]
     },
     "texts/app.json:search.closeSearchAria": {
-      "from": [
-        "app-text.json:search.closeSearch"
-      ]
+      "from": ["app-text.json:search.closeSearch"]
     },
     "texts/app.json:search.searchNavAria": {
-      "from": [
-        "app-text.json:search.searchNav"
-      ]
+      "from": ["app-text.json:search.searchNav"]
     },
     "texts/app.json:search.suggestionCountAria": {
-      "from": [
-        "app-text.json:search.suggestionCount"
-      ]
+      "from": ["app-text.json:search.suggestionCount"]
     },
     "texts/app.json:search.suggestionInCartAria": {
-      "from": [
-        "app-text.json:search.suggestionInCart"
-      ]
+      "from": ["app-text.json:search.suggestionInCart"]
     },
     "texts/app.json:search.suggestionsAria": {
-      "from": [
-        "app-text.json:search.suggestionsLabel"
-      ]
+      "from": ["app-text.json:search.suggestionsLabel"]
     },
     "texts/common.json:actions.cancel": {
       "from": [
@@ -2230,14 +1689,10 @@
       ]
     },
     "deployment.json:locale": {
-      "from": [
-        "deployment.json:catalog.currency.locale"
-      ]
+      "from": ["deployment.json:catalog.currency.locale"]
     },
     "deployment.json:branding.tagline": {
-      "from": [
-        "app-text.json:home.title"
-      ]
+      "from": ["app-text.json:home.title"]
     },
     "deployment.json:mapProvider": {
       "new": "OpenStreetMap"
