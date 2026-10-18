@@ -476,8 +476,9 @@ CDN link makes every visitor's browser announce itself to a third party before
 the page has drawn, which is also a consent question nobody wants to answer.
 Omit `font` entirely to keep the system stack.
 
-The document `<title>` is not an asset: it is `branding.title` in
-`deployment.json`, set at runtime so it needs no rebuild either.
+The document `<title>` is not an asset: it is built from `branding.name` and
+`branding.tagline` in `deployment.json`, at runtime, so it needs no rebuild
+either.
 
 ## Deploying a real deployment's config
 

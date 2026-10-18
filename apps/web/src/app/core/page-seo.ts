@@ -2,12 +2,20 @@ import { DestroyRef, effect, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
+/** The shop's own document title, for a page that has no name of its own. */
+export function shopTitle(branding: {
+  readonly name: string;
+  readonly tagline: string;
+}): string {
+  return `${branding.name} — ${branding.tagline}`;
+}
+
 /**
  * Keeps the document `<title>` (and optional meta description) in sync with the
  * current page, for SSR and client navigation alike (NFR-SEO-01). The page name
- * is composed with the deployment's shop title — `"<name> — <shop>"` — falling
- * back to the bare shop title while the name is still null/undefined (e.g. a
- * resource loading or a not-found). Call from a component's injection context;
+ * is composed with the shop's name — `"<page> — <shop>"` — falling back to the
+ * shop's own title while the name is still null/undefined (e.g. a resource
+ * loading or a not-found). Call from a component's injection context;
  * the reactive `name`/`description` getters re-run as their signals settle.
  */
 export function usePageSeo(opts: {
@@ -28,12 +36,11 @@ export function usePageSeo(opts: {
 }): void {
   const title = inject(Title);
   const meta = inject(Meta);
-  const brandingName = inject(DEPLOYMENT_CONFIG).branding.name;
-  const brandingTitle = inject(DEPLOYMENT_CONFIG).branding.title;
+  const branding = inject(DEPLOYMENT_CONFIG).branding;
 
   effect(() => {
     const name = opts.name();
-    title.setTitle(name ? `${name} — ${brandingName}` : brandingTitle);
+    title.setTitle(name ? `${name} — ${branding.name}` : shopTitle(branding));
   });
 
   if (opts.noindex) {

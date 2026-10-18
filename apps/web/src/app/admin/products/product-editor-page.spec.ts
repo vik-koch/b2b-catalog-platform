@@ -79,7 +79,7 @@ const storedProduct: AdminProduct = {
 
 const config = {
   locale: 'de-DE',
-  branding: { title: 'Test Shop' },
+  branding: { name: 'Test Shop', tagline: 'Test tagline' },
   catalog: {
     currency: { code: 'EUR' },
     boxUnits: { volume: 'm³', weight: 'kg' },

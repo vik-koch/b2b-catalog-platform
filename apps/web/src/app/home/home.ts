@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { CategoryIndex } from '../catalog/category-index';
 import { FeaturedRow } from './featured-row';
 import { APP_TEXT } from '../config/app-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { usePageSeo } from '../core/page-seo';
 
 /**
@@ -30,7 +31,7 @@ const BAND =
         <h1
           class="mt-3 max-w-2xl text-3xl font-medium tracking-tight sm:text-5xl"
         >
-          {{ text.home.title }}
+          {{ tagline }}
         </h1>
         <p class="mt-4 max-w-xl text-lg text-muted">
           {{ text.home.intro }}
@@ -53,6 +54,7 @@ const BAND =
 })
 export class Home {
   protected readonly text = inject(APP_TEXT);
+  protected readonly tagline = inject(DEPLOYMENT_CONFIG).branding.tagline;
   /** The room under the row is the band's, so the edge sits clear of the
    * cards and the categories start below it. */
   protected readonly band = 'mb-4 ' + BAND;

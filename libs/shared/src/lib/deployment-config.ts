@@ -173,11 +173,12 @@ export const deploymentConfigSchema = z
       .object({
         name: z.string(),
         /**
-         * Document `<title>` for the whole site, set at runtime by the root
-         * component via the Angular Title service (so SSR emits it and crawlers
-         * see it).
+         * What the shop is, in a line: the landing page's heading, and with
+         * the name the document `<title>` of every page that has none of its
+         * own (`{name} — {tagline}`). Set at runtime, so SSR emits it and
+         * crawlers see it.
          */
-        title: z.string(),
+        tagline: z.string().min(1),
         /**
          * First year of the copyright range in the footer. The end of the range
          * is the current year, so it never needs maintaining; a shop that
