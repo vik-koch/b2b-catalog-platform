@@ -1,10 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  MoneyFormat,
-  SyncRun,
-  SyncRunStatus,
-} from '@b2b-catalog-platform/shared';
-import { MONEY_FORMAT } from '../config/deployment-config';
+import { SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
+import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
 import {
@@ -77,7 +73,7 @@ export class SyncNotifications {
     private readonly mail: MailDispatcher,
     private readonly audiences: NotificationAudiences,
     @Inject(MAIL_TEXT) private readonly text: MailText,
-    @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
+    @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
   ) {}
 
   /**
@@ -132,7 +128,7 @@ export class SyncNotifications {
   }
 
   private when(run: SyncRun): string {
-    return new Intl.DateTimeFormat(this.currency.locale, {
+    return new Intl.DateTimeFormat(this.branding.locale, {
       dateStyle: 'medium',
       timeStyle: 'short',
     }).format(new Date(run.startedAt));

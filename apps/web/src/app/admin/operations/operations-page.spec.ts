@@ -21,8 +21,9 @@ const ownershipText = defaultAdminText.ownership;
 const maintenanceText = defaultAdminText.maintenance;
 
 const config = {
+  locale: 'de-DE',
   branding: { title: 'Test Shop' },
-  catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
+  catalog: { currency: { code: 'EUR' } },
 } as unknown as DeploymentConfig;
 
 const change = (over: Partial<SettingChange> = {}): SettingChange => ({

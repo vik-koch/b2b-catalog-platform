@@ -275,7 +275,7 @@ export class AdminOrderRevisionPage {
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
+        locale: this.config.locale,
       },
     );
   });
@@ -366,8 +366,8 @@ export class AdminOrderRevisionPage {
     return state === 'awaiting' ? 'waiting' : 'neutral';
   }
 
-  private readonly dateTimeFormat = orderDateTimeFormat(this.currency.locale);
-  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
+  private readonly dateTimeFormat = orderDateTimeFormat(this.config.locale);
+  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
   });
 

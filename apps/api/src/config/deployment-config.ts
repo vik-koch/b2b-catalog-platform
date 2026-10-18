@@ -243,8 +243,8 @@ export function loadOrderCurrency(): string {
 }
 
 /**
- * The same currency, in the deployment's locale — what the order mails, the
- * PDFs and the sync notices format amounts and dates against.
+ * The same currency, in the deployment's locale — what the order mails and
+ * the order PDF format amounts against.
  */
 export const MONEY_FORMAT = 'MONEY_FORMAT';
 

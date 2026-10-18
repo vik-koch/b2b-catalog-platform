@@ -1209,7 +1209,7 @@ export class AdminOrderAdjustPage {
     const config = {
       address: this.config.address,
       phoneInput: this.config.phoneInput,
-      locale: this.currency.locale,
+      locale: this.config.locale,
       currency: this.currency,
       boxUnits: this.config.catalog.boxUnits,
     };
@@ -1417,7 +1417,7 @@ export class AdminOrderAdjustPage {
   private wish(order: AdminOrderDetail): string {
     if (!order.preferredDate) return this.detailText.whenAny;
     return new Date(order.preferredDate).toLocaleDateString(
-      this.currency.locale,
+      this.config.locale,
       { dateStyle: 'long' },
     );
   }

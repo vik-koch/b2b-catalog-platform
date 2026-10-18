@@ -24,8 +24,6 @@ import { MailModule } from '../mail/mail.module';
 import {
   LOW_STOCK_THRESHOLD_PIECES,
   loadLowStockThresholdPieces,
-  MONEY_FORMAT,
-  loadMoneyFormat,
   SYNC_POLICY,
   loadSyncPolicy,
   CUSTOMER_SYNC_POLICY,
@@ -82,9 +80,6 @@ import { AccountInvitations } from '../users/account-invitations';
     },
     { provide: SYNC_POLICY, useFactory: loadSyncPolicy },
     { provide: CUSTOMER_SYNC_POLICY, useFactory: loadCustomerSyncPolicy },
-    // Only for the locale its dates are written in: a mail about a run states
-    // when it ran, and the deployment writes one kind of timestamp.
-    { provide: MONEY_FORMAT, useFactory: loadMoneyFormat },
   ],
 })
 export class SyncModule {}

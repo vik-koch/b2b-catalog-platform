@@ -74,6 +74,7 @@ import {
 })
 export class OrderRows {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   private readonly text = inject(APP_TEXT).orders;
   private readonly statusNames = inject(COMMON_TEXT).order;
 
@@ -114,7 +115,7 @@ export class OrderRows {
     return this.dateFormat.format(new Date(iso));
   }
 
-  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
+  private readonly dateFormat = new Intl.DateTimeFormat(this.locale, {
     dateStyle: 'long',
   });
 }

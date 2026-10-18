@@ -99,7 +99,7 @@ export class OrderPdf {
         fillText(names.termsVersion, {
           date: shopDay(
             order.termsDate,
-            this.currency.locale,
+            this.branding.locale,
             this.reference.timezone,
           ),
         }),
@@ -119,7 +119,7 @@ export class OrderPdf {
       [t.itemsLabel, t.quantityLabel, t.lineTotalLabel],
       order.lines.map((line) => {
         const rate = perLineTax
-          ? orderLineTax(line, this.currency.locale, this.common)
+          ? orderLineTax(line, this.branding.locale, this.common)
           : null;
         return [
           [line.name, rate, line.note].filter(Boolean).join('\n'),
@@ -131,7 +131,7 @@ export class OrderPdf {
     sheet.total(
       names.total,
       formatMoneyMinor(order.totalMinor, this.currency),
-      orderTaxStatement(order, this.currency.locale, this.common),
+      orderTaxStatement(order, this.branding.locale, this.common),
     );
     if (t.returnNotice) {
       sheet.gap(16);
@@ -194,7 +194,7 @@ export class OrderPdf {
    * comes out a day earlier than the page that offered it.
    */
   private day(iso: string): string {
-    return new Intl.DateTimeFormat(this.currency.locale, {
+    return new Intl.DateTimeFormat(this.branding.locale, {
       dateStyle: 'long',
       timeZone: 'UTC',
     }).format(new Date(iso));

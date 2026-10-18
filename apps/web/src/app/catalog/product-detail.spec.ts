@@ -49,8 +49,9 @@ async function render(
   admin?: { getProductPage: () => Promise<ProductPage | null> },
 ): Promise<ComponentFixture<ProductDetail>> {
   const config = {
+    locale: 'de-DE',
     branding: { title: 'Test Shop' },
-    catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
+    catalog: { currency: { code: 'EUR' } },
     tax: defaultDeploymentConfig.tax,
   } as unknown as DeploymentConfig;
   TestBed.configureTestingModule({

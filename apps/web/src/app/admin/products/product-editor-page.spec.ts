@@ -78,9 +78,10 @@ const storedProduct: AdminProduct = {
 };
 
 const config = {
+  locale: 'de-DE',
   branding: { title: 'Test Shop' },
   catalog: {
-    currency: { code: 'EUR', locale: 'de-DE' },
+    currency: { code: 'EUR' },
     boxUnits: { volume: 'm³', weight: 'kg' },
   },
   tax: { basis: 'included', rate: 19, statedAtPrices: true },

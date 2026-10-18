@@ -5,7 +5,6 @@ import {
   ConsentPurpose,
   fillText,
   OWNERSHIP_AREAS,
-  moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../auth/auth.service';
 import { SignedInAs } from '../auth/signed-in-as';
@@ -473,7 +472,7 @@ export class AdminPanelPage {
       purpose: this.consentText.purposes[purpose],
     });
   }
-  private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
+  private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** One heading, one card frame, written once: seven sections spelling the
@@ -590,7 +589,7 @@ export class AdminPanelPage {
 
   private syncMoment(finishedAt: string | null | undefined): string | null {
     if (!finishedAt) return null;
-    return adminMomentFormat(this.currency.locale).format(new Date(finishedAt));
+    return adminMomentFormat(this.locale).format(new Date(finishedAt));
   }
 
   // A dev deployment's version is the full `sha-<40 hex>` image tag — unreadable
@@ -617,7 +616,7 @@ export class AdminPanelPage {
     const deployed = info.deployedAt
       ? this.panelText.deployedAt.replace(
           '{date}',
-          new Intl.DateTimeFormat(this.currency.locale, {
+          new Intl.DateTimeFormat(this.locale, {
             dateStyle: 'medium',
             timeStyle: 'short',
           }).format(new Date(info.deployedAt)),

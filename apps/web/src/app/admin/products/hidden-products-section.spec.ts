@@ -26,7 +26,8 @@ const hidden = (overrides: Partial<HiddenProduct> = {}): HiddenProduct => ({
 });
 
 const config = {
-  catalog: { currency: { code: 'EUR', locale: 'de-DE' } },
+  locale: 'de-DE',
+  catalog: { currency: { code: 'EUR' } },
 } as unknown as DeploymentConfig;
 
 const tell = vi.fn(async () => undefined);

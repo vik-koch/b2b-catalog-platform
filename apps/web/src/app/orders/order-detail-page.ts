@@ -268,7 +268,7 @@ export class OrderDetailPage {
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
+        locale: this.config.locale,
       },
     );
   });
@@ -354,7 +354,7 @@ export class OrderDetailPage {
     }
   }
 
-  private readonly dateFormat = new Intl.DateTimeFormat(this.currency.locale, {
+  private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',
   });
 

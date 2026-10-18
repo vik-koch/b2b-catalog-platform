@@ -7,6 +7,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../config/admin-text';
 import { defaultAdminText } from '../../config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
 import { ConfirmService } from '../../ui/confirm.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { AdminOrdersService } from './orders.service';
@@ -46,6 +48,7 @@ async function render(
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: ConfirmService, useValue: { ask: vi.fn(async () => true) } },
       {
         provide: AdminOrdersService,

@@ -2,7 +2,6 @@ import {
   AdminOrderDetail,
   CommonText,
   fillText,
-  MoneyFormat,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
 import { Inject, Injectable, Logger } from '@nestjs/common';
@@ -10,7 +9,6 @@ import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
 import {
-  MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
   TERMS_ATTACHED,
 } from '../config/deployment-config';
@@ -42,7 +40,6 @@ export class TermsPdf {
     @Inject(PDF_TEXT) private readonly text: PdfText,
     @Inject(COMMON_TEXT) private readonly common: CommonText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
-    @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ORDER_REFERENCE_CONFIG)
     private readonly reference: OrderReferenceConfig,
     private readonly faces: PdfFaces,
@@ -77,7 +74,7 @@ export class TermsPdf {
           bytes: await this.render(
             version,
             fillText(this.common.order.termsVersion, {
-              date: shopDay(iso, this.currency.locale, zone),
+              date: shopDay(iso, this.branding.locale, zone),
             }),
           ),
         },

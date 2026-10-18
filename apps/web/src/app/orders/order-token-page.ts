@@ -253,14 +253,14 @@ export class OrderTokenPage {
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
-        locale: this.currency.locale,
+        locale: this.config.locale,
       },
     );
   });
 
   protected placed(order: OrderDetail): string {
     return fillText(this.orderText.detail.placed, {
-      date: new Intl.DateTimeFormat(this.currency.locale, {
+      date: new Intl.DateTimeFormat(this.config.locale, {
         dateStyle: 'long',
       }).format(new Date(order.createdAt)),
     });
