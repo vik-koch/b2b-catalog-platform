@@ -17,13 +17,19 @@ const env = z
     CONFIG_PATH: z.string().min(1),
     // The seed bundle (seed/README.md).
     SEED_PATH: z.string().min(1),
+    // `placeholder` draws every picture instead of downloading the bundle's
+    // photos — what the e2e suites seed, so no test run needs the network.
+    SEED_PICTURES: z.enum(['download', 'placeholder']).default('download'),
   })
   .parse(process.env);
 
 async function main() {
   const bundle = loadSeedBundle(env.SEED_PATH);
   const { consent } = loadConfig(deploymentConfigSchema, 'deployment.json');
-  await runSeed(env.DATABASE_URL, bundle, env.MEDIA_ROOT, consent);
+  await runSeed(env.DATABASE_URL, bundle, env.MEDIA_ROOT, {
+    consent,
+    pictures: env.SEED_PICTURES,
+  });
   console.log(`Seeded from ${env.SEED_PATH}`);
 }
 

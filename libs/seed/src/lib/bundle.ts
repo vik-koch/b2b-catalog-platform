@@ -25,6 +25,7 @@ import {
  *   documents.json   documents and the products they are shown on
  *   pages.json       page titles and consent wording
  *   pages/<slug>.html  each page's body
+ *   marks/<name>.svg   the icons category marks are drawn with
  */
 
 const attribute = z.strictObject({ key: z.string(), value: z.string() });
@@ -35,8 +36,12 @@ const category = z.strictObject({
   name: z.string(),
   /** Parent's sourceId, or null for a top-level category. */
   parentKey: z.string().nullable(),
-  /** A generated mark. False leaves the category name-only. */
-  hasMark: z.boolean(),
+  /** The icon its mark is drawn with, `marks/<mark>.svg`. Null leaves the
+   * category name-only. */
+  mark: z
+    .string()
+    .regex(/^[a-z0-9-]+$/, 'an icon file name, without .svg')
+    .nullable(),
 });
 
 const attributeDefinition = z.strictObject({
@@ -57,11 +62,42 @@ const packaging = z.strictObject({
   boxCount: z.number().int().positive().optional(),
 });
 
+const colour = z.string().regex(/^#[0-9a-f]{6}$/i, 'a #rrggbb colour');
+
+/**
+ * One picture. With a `url` it is a photo the seed downloads and stores like an
+ * upload; without one, or when the download fails or the seed runs with
+ * placeholders only, it is a generated placeholder — so a product shows the
+ * same number of pictures either way.
+ */
+const picture = z.strictObject({
+  /** The image file itself, as the library's CDN serves it. */
+  url: z.url().optional(),
+  /** The library page the photo is credited on. Never shown; kept for the
+   * record of where it came from. */
+  source: z.url().optional(),
+  credit: z.string().optional(),
+  /**
+   * The square to keep, as fractions: `x` and `y` of the photo's width and
+   * height for the top-left corner, `size` of its shorter edge. Absent: the
+   * centred square.
+   */
+  crop: z
+    .strictObject({
+      x: z.number().min(0).max(1),
+      y: z.number().min(0).max(1),
+      size: z.number().gt(0).max(1),
+    })
+    .optional(),
+  /** Recolours the photo, keeping its light and shade. */
+  tint: colour.optional(),
+});
+
 const variant = z.strictObject({
   name: z.string(),
-  /** A CSS colour the placeholder cup is drawn in. */
-  glaze: z.string(),
-  pictures: z.number().int().nonnegative(),
+  /** The colour its placeholders are drawn in. A photo carries its own. */
+  colour: colour.optional(),
+  pictures: z.array(picture),
   /** Currently unavailable: its pictures are withheld. */
   unavailable: z.boolean().optional(),
 });
@@ -76,7 +112,8 @@ const product = z.strictObject({
   priceMinor: z.number().int().nonnegative(),
   descriptionHtml: z.string(),
   attributes: z.array(attribute),
-  imageCount: z.number().int().nonnegative(),
+  /** The gallery, in order. Empty: the product has no picture yet. */
+  pictures: z.array(picture),
   /** Units of sale. Absent: sold by the piece. */
   packaging: packaging.optional(),
   /** Pieces on hand. Absent: stock is not tracked. */
@@ -90,7 +127,7 @@ const product = z.strictObject({
   /** Offered first to the main page's row. */
   featured: z.boolean().optional(),
   /** The variants an assorted article comes in, each with its own pictures
-   * after the `imageCount` pictures of the whole range. */
+   * after the `pictures` of the whole range. */
   variants: z.array(variant).optional(),
   /** Off the storefront. Absent: published. */
   state: z.enum(['unpublished', 'deleted']).optional(),
@@ -244,6 +281,7 @@ const pages = z.strictObject({
 });
 
 export type ProductSeed = z.infer<typeof product>;
+export type PictureSeed = z.infer<typeof picture>;
 export type OrderSeed = z.infer<typeof order>;
 export type OrderLineSeed = z.infer<typeof orderLine>;
 export type DocumentSeed = z.infer<typeof document>;
@@ -259,6 +297,8 @@ export interface SeedBundle {
   orders: z.infer<typeof orders>;
   documents: DocumentSeed[];
   pages: PageSeed[];
+  /** The icons the categories name, by name: what is inside each `<svg>`. */
+  marks: Record<string, string>;
 }
 
 /** Read and validate the bundle in `dir`. Throws naming the file that fails. */
@@ -272,8 +312,9 @@ export function loadSeedBundle(dir: string): SeedBundle {
     }
     return result.data;
   };
+  const catalogSeed = read(catalog, 'catalog.json');
   return {
-    catalog: read(catalog, 'catalog.json'),
+    catalog: catalogSeed,
     accounts: read(accounts, 'accounts.json'),
     orders: read(orders, 'orders.json'),
     documents: read(documents, 'documents.json').documents,
@@ -285,7 +326,22 @@ export function loadSeedBundle(dir: string): SeedBundle {
         'utf8',
       ).replace(/\n$/, ''),
     })),
+    marks: Object.fromEntries(
+      catalogSeed.categories
+        .flatMap((category) => (category.mark ? [category.mark] : []))
+        .map((name) => [name, iconOf(join(dir, 'marks', `${name}.svg`))]),
+    ),
   };
+}
+
+/** An icon file's drawing: the elements inside its `<svg>`, to be placed in
+ * another. A 24-unit stroked icon, as the bundled ones are. */
+function iconOf(path: string): string {
+  const svg = readFileSync(path, 'utf8');
+  const open = svg.indexOf('>', svg.indexOf('<svg'));
+  const close = svg.lastIndexOf('</svg>');
+  if (open < 0 || close < open) throw new Error(`${path} is not an SVG`);
+  return svg.slice(open + 1, close).trim();
 }
 
 /** One page of a bundle. Throws if the bundle has none by that slug. */

@@ -91,11 +91,12 @@ export default async function globalSetup() {
     const { consent } = JSON.parse(
       readFileSync(resolve(workspaceRoot, 'config/deployment.json'), 'utf8'),
     );
+    // Placeholders, not the bundle's photos: no test run needs the network.
     await seedDatabase(
       client,
       fixtureSeed,
       resolve(workspaceRoot, env['MEDIA_ROOT']),
-      consent,
+      { consent, pictures: 'placeholder' },
     );
     // bootstrap-admin flags its account as still using the password the deploy
     // gave it, so the app forces a change on first sign-in. Clear it here: the

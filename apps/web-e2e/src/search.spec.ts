@@ -313,7 +313,9 @@ test.describe('sort controls (FR-SEARCH-04)', () => {
     page,
     isMobile,
   }) => {
-    await page.goto('/catalog/espresso?page=2');
+    // The whole catalogue, the one listing of the demo that runs to a second
+    // page.
+    await page.goto('/catalog?page=2');
 
     await sortByPrice(page, isMobile, 'price_desc');
 

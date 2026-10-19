@@ -5,126 +5,98 @@
       "slug": "coffee-beans",
       "name": "Coffee Beans",
       "parentKey": null,
-      "hasMark": true
+      "mark": "bean"
     },
     {
       "sourceId": "espresso",
       "slug": "espresso",
       "name": "Espresso Roasts",
       "parentKey": "coffee-beans",
-      "hasMark": true
+      "mark": "coffee"
     },
     {
       "sourceId": "filter",
       "slug": "filter",
       "name": "Filter Roasts",
       "parentKey": "coffee-beans",
-      "hasMark": true
+      "mark": "funnel"
     },
     {
       "sourceId": "decaf",
       "slug": "decaf",
       "name": "Decaf",
       "parentKey": "coffee-beans",
-      "hasMark": false
+      "mark": "bean-off"
     },
     {
       "sourceId": "single-origin",
       "slug": "single-origin",
       "name": "Single Origin",
       "parentKey": "coffee-beans",
-      "hasMark": true
+      "mark": "map-pin"
     },
     {
       "sourceId": "tea",
       "slug": "tea",
       "name": "Tea",
       "parentKey": null,
-      "hasMark": true
+      "mark": "leaf"
     },
     {
       "sourceId": "equipment",
       "slug": "equipment",
       "name": "Equipment",
       "parentKey": null,
-      "hasMark": true
+      "mark": "settings"
     },
     {
       "sourceId": "grinders",
       "slug": "grinders",
       "name": "Grinders",
       "parentKey": "equipment",
-      "hasMark": true
+      "mark": "cog"
     },
     {
       "sourceId": "machines",
       "slug": "machines",
       "name": "Espresso Machines",
       "parentKey": "equipment",
-      "hasMark": true
+      "mark": null
     },
     {
       "sourceId": "accessories",
       "slug": "accessories",
       "name": "Accessories",
       "parentKey": null,
-      "hasMark": true
-    },
-    {
-      "sourceId": "cold-brew",
-      "slug": "cold-brew",
-      "name": "Cold Brew & RTD",
-      "parentKey": null,
-      "hasMark": true
+      "mark": "wrench"
     },
     {
       "sourceId": "syrups",
       "slug": "syrups",
       "name": "Syrups & Flavours",
       "parentKey": null,
-      "hasMark": true
+      "mark": "droplet"
     },
     {
       "sourceId": "chocolate",
       "slug": "chocolate",
       "name": "Chocolate & Cocoa",
       "parentKey": null,
-      "hasMark": true
-    },
-    {
-      "sourceId": "milk",
-      "slug": "milk",
-      "name": "Milk & Alternatives",
-      "parentKey": null,
-      "hasMark": true
+      "mark": "cookie"
     },
     {
       "sourceId": "cups",
       "slug": "cups",
       "name": "Cups & Glassware",
       "parentKey": null,
-      "hasMark": true
+      "mark": "cup-soda"
     },
     {
       "sourceId": "cleaning",
       "slug": "cleaning",
       "name": "Cleaning & Care",
       "parentKey": null,
-      "hasMark": true
-    },
-    {
-      "sourceId": "filters",
-      "slug": "filters",
-      "name": "Filters & Papers",
-      "parentKey": null,
-      "hasMark": true
-    },
-    {
-      "sourceId": "gifts",
-      "slug": "gifts",
-      "name": "Gift Sets",
-      "parentKey": null,
-      "hasMark": true
+      "mark": "brush-cleaning"
     }
   ],
   "attributes": [
@@ -202,7 +174,20 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12024938/pexels-photo-12024938.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024938/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12003038/pexels-photo-12003038.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12003038/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4302269/pexels-photo-4302269.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4302269/"
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -242,7 +227,20 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12039675/pexels-photo-12039675.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12039675/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6728979/pexels-photo-6728979.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6728979/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/942800/pexels-photo-942800.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942800/"
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -282,7 +280,20 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12024976/pexels-photo-12024976.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024976/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12007828/pexels-photo-12007828.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12007828/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/10433523/pexels-photo-10433523.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/10433523/"
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -322,7 +333,16 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/942805/pexels-photo-942805.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942805/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/1420711/pexels-photo-1420711.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/1420711/"
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -335,15 +355,15 @@
     },
     {
       "sourceId": "ESP-005",
-      "slug": "speicher-blend",
-      "name": "Speicher Blend",
+      "slug": "faehrmann",
+      "name": "Fährmann",
       "categoryKey": "espresso",
       "priceMinor": 1850,
-      "descriptionHtml": "<p>Speicher Blend is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>red apple and praline</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Fährmann is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>peanut and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
       "attributes": [
         {
           "key": "Origin",
-          "value": "Ethiopia / Brazil"
+          "value": "Brazil / Peru"
         },
         {
           "key": "Roast level",
@@ -355,14 +375,14 @@
         },
         {
           "key": "Tasting notes",
-          "value": "red apple and praline"
+          "value": "peanut and cocoa"
         },
         {
           "key": "Net weight",
           "value": "1000"
         }
       ],
-      "imageCount": 0,
+      "pictures": [],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -402,7 +422,35 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12003038/pexels-photo-12003038.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12003038/",
+          "crop": {
+            "x": 0.55,
+            "y": 0.25,
+            "size": 0.5
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/12024938/pexels-photo-12024938.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024938/",
+          "crop": {
+            "x": 0.07,
+            "y": 0.25,
+            "size": 0.6
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/4302269/pexels-photo-4302269.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4302269/",
+          "crop": {
+            "x": 0.45,
+            "y": 0.0,
+            "size": 0.9
+          }
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -443,52 +491,17 @@
           "value": "1000"
         }
       ],
-      "imageCount": 1,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/16012139/pexels-photo-16012139.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/16012139/"
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "minPieceQty": 6
       },
       "stockPieces": 4,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-008",
-      "slug": "morgengruss",
-      "name": "Morgengruss",
-      "categoryKey": "espresso",
-      "priceMinor": 1970,
-      "descriptionHtml": "<p>Morgengruss is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>milk chocolate and almond</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Honduras"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "milk chocolate and almond"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 128,
       "taxRate": 7
     },
     {
@@ -520,7 +533,17 @@
           "value": "1000"
         }
       ],
-      "imageCount": 1,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/13427971/pexels-photo-13427971.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/13427971/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.0,
+            "size": 1.0
+          }
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "packsPerBox": 4,
@@ -529,166 +552,6 @@
         "boxWeight": "6.400"
       },
       "stockPieces": 0,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-010",
-      "slug": "alster-reserve",
-      "name": "Alster Reserve",
-      "categoryKey": "espresso",
-      "priceMinor": 2050,
-      "descriptionHtml": "<p>Alster Reserve is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>toffee and hazelnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Peru"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "toffee and hazelnut"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 0,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 24,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 130,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-011",
-      "slug": "kaicaf-bar",
-      "name": "Kaicafé Bar",
-      "categoryKey": "espresso",
-      "priceMinor": 2090,
-      "descriptionHtml": "<p>Kaicafé Bar is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dark cocoa and cane sugar</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Vietnam / Brazil"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "dark cocoa and cane sugar"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 1,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-012",
-      "slug": "espresso-dolce",
-      "name": "Espresso Dolce",
-      "categoryKey": "espresso",
-      "priceMinor": 2130,
-      "descriptionHtml": "<p>Espresso Dolce is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>caramel and milk chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Colombia / Brazil"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "caramel and milk chocolate"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400",
-        "boxCount": 2
-      },
-      "stockPieces": 132,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-013",
-      "slug": "torrefatto-scuro",
-      "name": "Torrefatto Scuro",
-      "categoryKey": "espresso",
-      "priceMinor": 2170,
-      "descriptionHtml": "<p>Torrefatto Scuro is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>clove and dark chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "India"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "clove and dark chocolate"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 133,
       "taxRate": 7
     },
     {
@@ -720,490 +583,21 @@
           "value": "1000"
         }
       ],
-      "imageCount": 1,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/16480801/pexels-photo-16480801.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/16480801/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/36719062/pexels-photo-36719062.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/36719062/"
+        }
+      ],
       "packaging": {
         "piecesPerPack": 6,
         "minPieceQty": 6
       },
       "stockPieces": 4,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-015",
-      "slug": "doppio-intenso",
-      "name": "Doppio Intenso",
-      "categoryKey": "espresso",
-      "priceMinor": 2250,
-      "descriptionHtml": "<p>Doppio Intenso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>molasses and roasted nut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Uganda"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "molasses and roasted nut"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 0,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 24,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 135,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-016",
-      "slug": "levante-blend",
-      "name": "Levante Blend",
-      "categoryKey": "espresso",
-      "priceMinor": 2290,
-      "descriptionHtml": "<p>Levante Blend is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dried fruit and spice</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Yemen / Ethiopia"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "dried fruit and spice"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 136,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-017",
-      "slug": "f-hrmann",
-      "name": "Fährmann",
-      "categoryKey": "espresso",
-      "priceMinor": 2330,
-      "descriptionHtml": "<p>Fährmann is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>peanut and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Brazil / Peru"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "peanut and cocoa"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 137,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-018",
-      "slug": "signature-ristretto",
-      "name": "Signature Ristretto",
-      "categoryKey": "espresso",
-      "priceMinor": 2370,
-      "descriptionHtml": "<p>Signature Ristretto is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa and cherry</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Guatemala / Brazil"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "cocoa and cherry"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400",
-        "boxCount": 2
-      },
-      "stockPieces": 0,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-019",
-      "slug": "contadora",
-      "name": "ContADORA",
-      "categoryKey": "espresso",
-      "priceMinor": 2410,
-      "descriptionHtml": "<p>ContADORA is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>red fruit and caramel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Panama"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "red fruit and caramel"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 1,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 139,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-020",
-      "slug": "nero-assoluto",
-      "name": "Nero Assoluto",
-      "categoryKey": "espresso",
-      "priceMinor": 2450,
-      "descriptionHtml": "<p>Nero Assoluto is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>bitter chocolate and pepper</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "India / Uganda"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "bitter chocolate and pepper"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 0,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 24,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 140,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-021",
-      "slug": "warehouse-espresso",
-      "name": "Warehouse Espresso",
-      "categoryKey": "espresso",
-      "priceMinor": 2490,
-      "descriptionHtml": "<p>Warehouse Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>chocolate and brown sugar</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Blend"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "chocolate and brown sugar"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "minPieceQty": 6
-      },
-      "stockPieces": 4,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-022",
-      "slug": "fortezza",
-      "name": "Fortezza",
-      "categoryKey": "espresso",
-      "priceMinor": 2530,
-      "descriptionHtml": "<p>Fortezza is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>roasted almond and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Brazil"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "roasted almond and cocoa"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-023",
-      "slug": "miscela-verde",
-      "name": "Miscela Verde",
-      "categoryKey": "espresso",
-      "priceMinor": 2570,
-      "descriptionHtml": "<p>Miscela Verde is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>orange and toffee</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Colombia"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "orange and toffee"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 143,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-024",
-      "slug": "kontor-reserve",
-      "name": "Kontor Reserve",
-      "categoryKey": "espresso",
-      "priceMinor": 2610,
-      "descriptionHtml": "<p>Kontor Reserve is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>floral and caramel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Ethiopia / Colombia"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "floral and caramel"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400",
-        "boxCount": 2
-      },
-      "stockPieces": 144,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-025",
-      "slug": "aroma-nero",
-      "name": "Aroma Nero",
-      "categoryKey": "espresso",
-      "priceMinor": 2650,
-      "descriptionHtml": "<p>Aroma Nero is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>chocolate and hazelnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Honduras / Brazil"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "chocolate and hazelnut"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 0,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 24,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 145,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "ESP-026",
-      "slug": "ultimo-espresso",
-      "name": "Ultimo Espresso",
-      "categoryKey": "espresso",
-      "priceMinor": 2690,
-      "descriptionHtml": "<p>Ultimo Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa, nut and a syrupy body</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
-        {
-          "key": "Origin",
-          "value": "Blend"
-        },
-        {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Mixed"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "cocoa, nut and a syrupy body"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
-        }
-      ],
-      "imageCount": 1,
-      "packaging": {
-        "piecesPerPack": 6,
-        "packsPerBox": 4,
-        "minPieceQty": 6,
-        "boxVolume": "0.072",
-        "boxWeight": "6.400"
-      },
-      "stockPieces": 146,
       "taxRate": 7
     },
     {
@@ -1235,7 +629,25 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7937408/pexels-photo-7937408.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7937408/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12039675/pexels-photo-12039675.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12039675/",
+          "crop": {
+            "x": 0.3,
+            "y": 0.05,
+            "size": 0.9
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/942808/pexels-photo-942808.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942808/"
+        }
+      ],
       "stockPieces": 0,
       "taxRate": 7
     },
@@ -1268,7 +680,21 @@
           "value": "1000"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/4109740/pexels-photo-4109740.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4109740/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12024976/pexels-photo-12024976.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024976/",
+          "crop": {
+            "x": 0.11,
+            "y": 0.15,
+            "size": 0.62
+          }
+        }
+      ],
       "stockPieces": 4,
       "taxRate": 7
     },
@@ -1301,7 +727,16 @@
           "value": "1000"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6014623/pexels-photo-6014623.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6014623/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4109752/pexels-photo-4109752.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4109752/"
+        }
+      ],
       "stockPieces": 149,
       "taxRate": 7
     },
@@ -1334,41 +769,17 @@
           "value": "1000"
         }
       ],
-      "imageCount": 0,
-      "stockPieces": 150,
-      "taxRate": 7
-    },
-    {
-      "sourceId": "DEC-002",
-      "slug": "nacht-decaf",
-      "name": "Nacht Decaf Espresso",
-      "categoryKey": "decaf",
-      "priceMinor": 2090,
-      "descriptionHtml": "<p>Nacht Decaf Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa and caramel, fully decaffeinated</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
-      "attributes": [
+      "pictures": [
         {
-          "key": "Origin",
-          "value": "Brazil"
+          "url": "https://images.pexels.com/photos/7658171/pexels-photo-7658171.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7658171/"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
-        },
-        {
-          "key": "Process",
-          "value": "Swiss Water"
-        },
-        {
-          "key": "Tasting notes",
-          "value": "cocoa and caramel"
-        },
-        {
-          "key": "Net weight",
-          "value": "1000"
+          "url": "https://images.pexels.com/photos/7658348/pexels-photo-7658348.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7658348/"
         }
       ],
-      "imageCount": 2,
-      "stockPieces": 151,
+      "stockPieces": 150,
       "taxRate": 7
     },
     {
@@ -1400,7 +811,25 @@
           "value": "1000"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/22679460/pexels-photo-22679460.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/22679460/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4815899/pexels-photo-4815899.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4815899/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6728979/pexels-photo-6728979.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6728979/",
+          "crop": {
+            "x": 0.4,
+            "y": 0.1,
+            "size": 0.8
+          }
+        }
+      ],
       "stockPieces": 152,
       "taxRate": 7
     },
@@ -1433,7 +862,21 @@
           "value": "1000"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7175976/pexels-photo-7175976.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7175976/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/942800/pexels-photo-942800.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942800/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.0,
+            "size": 0.9
+          }
+        }
+      ],
       "taxRate": 7
     },
     {
@@ -1465,7 +908,21 @@
           "value": "1000"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9420149/pexels-photo-9420149.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9420149/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12007828/pexels-photo-12007828.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12007828/",
+          "crop": {
+            "x": 0.5,
+            "y": 0.1,
+            "size": 0.85
+          }
+        }
+      ],
       "stockPieces": 154,
       "taxRate": 7
     },
@@ -1490,7 +947,21 @@
           "value": "500"
         }
       ],
-      "imageCount": 0,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6448535/pexels-photo-6448535.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6448535/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8329983/pexels-photo-8329983.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8329983/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.35,
+            "size": 1.0
+          }
+        }
+      ],
       "stockPieces": 4,
       "taxRate": 7
     },
@@ -1515,7 +986,16 @@
           "value": "250"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8329972/pexels-photo-8329972.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8329972/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4390014/pexels-photo-4390014.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4390014/"
+        }
+      ],
       "stockPieces": 0,
       "taxRate": 7
     },
@@ -1540,7 +1020,16 @@
           "value": "ca. 250"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/33988115/pexels-photo-33988115.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/33988115/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6694176/pexels-photo-6694176.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6694176/"
+        }
+      ],
       "stockPieces": 157,
       "taxRate": 7
     },
@@ -1565,7 +1054,25 @@
           "value": "1.2 kg"
         }
       ],
-      "imageCount": 3,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/5825362/pexels-photo-5825362.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5825362/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4509577/pexels-photo-4509577.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4509577/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/5825362/pexels-photo-5825362.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5825362/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.15,
+            "size": 0.5
+          }
+        }
+      ],
       "stockPieces": 158
     },
     {
@@ -1585,7 +1092,16 @@
           "value": "Anodised aluminium"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/29527477/pexels-photo-29527477.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/29527477/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/29527481/pexels-photo-29527481.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/29527481/"
+        }
+      ],
       "stockPieces": 159
     },
     {
@@ -1609,7 +1125,30 @@
           "value": "58 mm"
         }
       ],
-      "imageCount": 0,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6032792/pexels-photo-6032792.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6032792/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6032787/pexels-photo-6032787.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6032787/",
+          "crop": {
+            "x": 0.48,
+            "y": 0.2,
+            "size": 0.75
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/6032797/pexels-photo-6032797.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6032797/",
+          "crop": {
+            "x": 0.38,
+            "y": 0.42,
+            "size": 0.6
+          }
+        }
+      ],
       "stockPieces": 160
     },
     {
@@ -1629,7 +1168,16 @@
           "value": "Stainless / walnut"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/18272583/pexels-photo-18272583.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/18272583/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8936986/pexels-photo-8936986.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8936986/"
+        }
+      ],
       "stockPieces": 161
     },
     {
@@ -1649,49 +1197,193 @@
           "value": "Stainless steel"
         }
       ],
-      "imageCount": 2,
+      "pictures": [],
       "stockPieces": 4
     },
     {
-      "sourceId": "CUP-001",
-      "slug": "cappuccino-cup-set",
-      "name": "Cappuccino Cup Set (6)",
-      "categoryKey": "cups",
-      "priceMinor": 5400,
-      "descriptionHtml": "<p>A set of six 190&nbsp;ml porcelain cappuccino cups and saucers.</p>",
+      "sourceId": "SYR-001",
+      "slug": "creme-caramel-syrup",
+      "name": "Crème Caramel Syrup 1 L",
+      "categoryKey": "syrups",
+      "priceMinor": 1190,
+      "descriptionHtml": "<p>A burnt-sugar caramel syrup for lattes and iced coffee, in a 1&nbsp;litre glass bottle.</p>",
       "attributes": [
         {
           "key": "Volume",
-          "value": "190"
+          "value": "1000"
+        },
+        {
+          "key": "Flavour",
+          "value": "Caramel"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9105961/pexels-photo-9105961.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9105961/",
+          "crop": {
+            "x": 0.45,
+            "y": 0.0,
+            "size": 1.0
+          }
+        }
+      ],
+      "stockPieces": 140,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "CHO-001",
+      "slug": "drinking-chocolate",
+      "name": "Drinking Chocolate 1 kg",
+      "categoryKey": "chocolate",
+      "priceMinor": 1890,
+      "descriptionHtml": "<p>A <strong>32&nbsp;% cocoa</strong> drinking chocolate that dissolves in steamed milk without lumps.</p>",
+      "attributes": [
+        {
+          "key": "Cocoa",
+          "value": "32 %"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/13428094/pexels-photo-13428094.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/13428094/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/5078591/pexels-photo-5078591.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5078591/",
+          "crop": {
+            "x": 0.35,
+            "y": 0.1,
+            "size": 0.7
+          }
+        }
+      ],
+      "stockPieces": 90,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "CLN-001",
+      "slug": "burr-brush",
+      "name": "Burr Cleaning Brush",
+      "categoryKey": "cleaning",
+      "priceMinor": 690,
+      "descriptionHtml": "<p>A soft natural-bristle brush for the burrs and chute of a grinder.</p>",
+      "attributes": [
+        {
+          "key": "Bristles",
+          "value": "Natural"
+        },
+        {
+          "key": "Handle",
+          "value": "Beech"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/4827571/pexels-photo-4827571.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4827571/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/18272581/pexels-photo-18272581.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/18272581/"
+        }
+      ],
+      "stockPieces": 35
+    },
+    {
+      "sourceId": "CUP-001",
+      "slug": "stoneware-cup-set",
+      "name": "Stoneware Cup Set (6)",
+      "categoryKey": "cups",
+      "priceMinor": 5400,
+      "descriptionHtml": "<p>Six handmade 200&nbsp;ml stoneware cups for flat whites and cortados, in the glaze of your choice.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "200"
         },
         {
           "key": "Pieces",
-          "value": "6 cups + saucers"
+          "value": "6 cups"
         }
       ],
-      "imageCount": 1,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7214897/pexels-photo-7214897.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7214897/",
+          "crop": {
+            "x": 0.29,
+            "y": 0.0,
+            "size": 0.95
+          }
+        }
+      ],
       "lineNoteEnabled": true,
       "lineNotePrompt": "Which glazes, and how many of each?",
       "variants": [
         {
-          "name": "Sand",
-          "glaze": "#d8c3a0",
-          "pictures": 2
-        },
-        {
-          "name": "Slate",
-          "glaze": "#5b6670",
-          "pictures": 1
-        },
-        {
-          "name": "Speckled off-white",
-          "glaze": "#efe9df",
-          "pictures": 1
-        },
-        {
           "name": "Terracotta",
-          "glaze": "#b5623f",
-          "pictures": 1,
+          "colour": "#b5623f",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/7214897/pexels-photo-7214897.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/7214897/",
+              "crop": {
+                "x": 0.2,
+                "y": 0.35,
+                "size": 0.45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mustard",
+          "colour": "#d9a62e",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/7214897/pexels-photo-7214897.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/7214897/",
+              "crop": {
+                "x": 0.58,
+                "y": 0.35,
+                "size": 0.45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Two-tone sand and clay",
+          "colour": "#d8c3a0",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/11889246/pexels-photo-11889246.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/11889246/"
+            },
+            {
+              "url": "https://images.pexels.com/photos/11889246/pexels-photo-11889246.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/11889246/",
+              "crop": {
+                "x": 0.2,
+                "y": 0.3,
+                "size": 0.6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rust",
+          "colour": "#8a3b24",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/28486217/pexels-photo-28486217.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/28486217/"
+            }
+          ],
           "unavailable": true
         }
       ],
@@ -1714,7 +1406,20 @@
           "value": "6 glasses"
         }
       ],
-      "imageCount": 2
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/5490117/pexels-photo-5490117.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5490117/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/35758580/pexels-photo-35758580.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/35758580/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12975714/pexels-photo-12975714.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12975714/"
+        }
+      ]
     },
     {
       "sourceId": "CUP-003",
@@ -1737,7 +1442,16 @@
           "value": "50 cups"
         }
       ],
-      "imageCount": 0,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9878735/pexels-photo-9878735.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9878735/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8100998/pexels-photo-8100998.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8100998/"
+        }
+      ],
       "stockPieces": 240,
       "featured": true
     },
@@ -1758,7 +1472,17 @@
           "value": "50 lids"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9878735/pexels-photo-9878735.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9878735/",
+          "crop": {
+            "x": 0.38,
+            "y": 0.15,
+            "size": 0.3
+          }
+        }
+      ],
       "stockPieces": 166
     },
     {
@@ -1778,7 +1502,17 @@
           "value": "50 lids"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7319334/pexels-photo-7319334.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7319334/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.05,
+            "size": 0.5
+          }
+        }
+      ],
       "stockPieces": 167
     },
     {
@@ -1810,7 +1544,21 @@
           "value": "Polystyrene"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9462453/pexels-photo-9462453.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9462453/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/9462450/pexels-photo-9462450.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9462450/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.3,
+            "size": 0.8
+          }
+        }
+      ],
       "parts": ["cup", "lid"],
       "packaging": {
         "piecesPerPack": 50,
@@ -1852,7 +1600,17 @@
           "value": "1000"
         }
       ],
-      "imageCount": 2,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/942803/pexels-photo-942803.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942803/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.0,
+            "size": 0.6
+          }
+        }
+      ],
       "state": "unpublished",
       "stockPieces": 4,
       "taxRate": 7
@@ -1886,7 +1644,17 @@
           "value": "1000"
         }
       ],
-      "imageCount": 0,
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7658174/pexels-photo-7658174.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7658174/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.45,
+            "size": 1.0
+          }
+        }
+      ],
       "state": "deleted",
       "stockPieces": 170,
       "taxRate": 7

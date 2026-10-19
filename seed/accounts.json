@@ -11,10 +11,8 @@
         "decaf": 0.15,
         "single-origin": 0.12,
         "tea": 0.12,
-        "cold-brew": 0.1,
         "syrups": 0.1,
         "chocolate": 0.1,
-        "milk": 0.08,
         "grinders": 0.07,
         "machines": 0.07
       }

@@ -21,7 +21,7 @@ const ADMIN_PASSWORD = env['ADMIN_PASSWORD'];
 /** The cups category: one product with a figure, one without — the mix the
  * reserved line exists for. */
 const LISTING = '/catalog/cups';
-const TRACKED = 'Cappuccino Cup Set (6)';
+const TRACKED = 'Stoneware Cup Set (6)';
 const UNTRACKED = 'Latte Glass Set (6)';
 /** Seeded with four pieces, under every threshold in the catalog. */
 const LOW_STOCK = 'barista-reserve';

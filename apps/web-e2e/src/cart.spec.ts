@@ -7,7 +7,7 @@ import { expect, Page, test } from '@playwright/test';
  * server rather than by the page that stored it.
  *
  * `hafen-espresso` is seeded packaged — six to a pack, four packs to a box, a
- * six-piece minimum. `cappuccino-cup-set` is the seeded product with a line
+ * six-piece minimum. `stoneware-cup-set` is the seeded product with a line
  * note enabled.
  */
 
@@ -197,7 +197,7 @@ test('sells from a grid card, and then edits that line from it', async ({
 });
 
 test('carries a line note through to the cart', async ({ page }) => {
-  await page.goto('/product/cappuccino-cup-set');
+  await page.goto('/product/stoneware-cup-set');
 
   // The prompt is the product's own, not a generic one, and it is what the
   // empty field asks for rather than a line under it.
@@ -206,14 +206,14 @@ test('carries a line note through to the cart', async ({ page }) => {
     'placeholder',
     'Which glazes, and how many of each?',
   );
-  await note.fill('Three sand, three slate');
+  await note.fill('Three terracotta, three mustard');
   await page.getByRole('button', { name: 'Add to cart' }).click();
 
   await cartLink(page).click();
   // On the cart the note is a field, not a sentence: it is read there before
   // the order goes in, and changed in the same place.
   await expect(page.getByRole('textbox', { name: /Note/ })).toHaveValue(
-    'Three sand, three slate',
+    'Three terracotta, three mustard',
   );
 });
 
@@ -223,11 +223,11 @@ test('writes a note from a listing card, beside the price', async ({
   page,
   isMobile,
 }) => {
-  await page.goto('/search?q=Cappuccino');
+  await page.goto('/search?q=Stoneware');
 
   const card = page
     .locator('li')
-    .filter({ has: page.locator('a[href="/product/cappuccino-cup-set"]') })
+    .filter({ has: page.locator('a[href="/product/stoneware-cup-set"]') })
     .first();
   await card.getByRole('button', { name: /note/i }).click();
   // The same field in the shape the width allows: a bubble beside the price
@@ -242,7 +242,7 @@ test('writes a note from a listing card, beside the price', async ({
     'Which glazes, and how many of each?',
   );
 
-  await field.fill('Sand only');
+  await field.fill('Terracotta only');
   if (isMobile) {
     await panel.getByRole('button', { name: 'Done' }).click();
   } else {
@@ -256,7 +256,7 @@ test('writes a note from a listing card, beside the price', async ({
   );
   await cartLink(page).click();
   await expect(page.getByRole('textbox', { name: /Note/ })).toHaveValue(
-    'Sand only',
+    'Terracotta only',
   );
 });
 
@@ -265,7 +265,7 @@ test('prices the cart on the server and empties it when asked', async ({
 }) => {
   await page.goto('/product/hafen-espresso');
   await page.getByRole('button', { name: 'Add to cart' }).click();
-  await page.goto('/product/cappuccino-cup-set');
+  await page.goto('/product/stoneware-cup-set');
   await page.getByRole('button', { name: 'Add to cart' }).click();
 
   await cartLink(page).click();
