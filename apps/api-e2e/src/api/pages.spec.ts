@@ -1,10 +1,11 @@
 import { hash } from '@node-rs/argon2';
-import { pageSeeds, seedPages } from '@b2b-catalog-platform/seed';
+import { seedPages } from '@b2b-catalog-platform/seed';
 import { PAGE_BODY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
+import { fixtureSeed } from '../support/seed-fixture';
 
 const ADMIN_EMAIL = 'e2e-pages-admin@example.com';
 const MANAGER_EMAIL = 'e2e-pages-manager@example.com';
@@ -30,7 +31,7 @@ async function loginAs(email: string): Promise<string> {
 }
 
 describe('GET /pages/:slug', () => {
-  it.each(pageSeeds.map((seed) => [seed.slug, seed] as const))(
+  it.each(fixtureSeed.pages.map((seed) => [seed.slug, seed] as const))(
     'returns the seeded %s page in exactly the contract shape',
     async (slug, seed) => {
       const res = await axios.get(`/pages/${slug}`);
@@ -92,7 +93,7 @@ describe('PUT /pages/:slug (FR-ADM-03)', () => {
   // Every edit mutates shared state, so restore the seeded content afterwards
   // and leave no test users behind.
   afterEach(async () => {
-    await seedPages(client);
+    await seedPages(client, fixtureSeed.pages);
   });
 
   afterAll(async () => {

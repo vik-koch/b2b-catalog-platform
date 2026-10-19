@@ -1,13 +1,29 @@
-import { hash } from '@node-rs/argon2';
-import { bootstrapAdmin } from '@b2b-catalog-platform/seed';
 import axios from 'axios';
+import { execFileSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 const EMAIL = 'e2e-bootstrap-admin@example.com';
 const PASSWORD = 'bootstrap-password-1';
 
-describe('bootstrapAdmin (create-if-missing)', () => {
+const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
+
+/** Runs the one-shot a deployment runs, and returns what it logged. */
+function bootstrapAdmin(password: string): string {
+  return execFileSync('node', ['dist/apps/api/main.js'], {
+    cwd: workspaceRoot,
+    encoding: 'utf8',
+    env: {
+      ...process.env,
+      RUN_MODE: 'bootstrap-admin',
+      ADMIN_EMAIL: EMAIL,
+      ADMIN_PASSWORD: password,
+    },
+  });
+}
+
+describe('bootstrap-admin one-shot (create-if-missing)', () => {
   let client: Client;
 
   beforeAll(async () => {
@@ -22,22 +38,24 @@ describe('bootstrapAdmin (create-if-missing)', () => {
   });
 
   it('creates the admin when absent, then leaves it untouched on re-run', async () => {
-    const firstHash = await hash(PASSWORD);
-    const created = await bootstrapAdmin(client, EMAIL, firstHash);
-    expect(created).toBe(true);
+    expect(bootstrapAdmin(PASSWORD)).toContain(`created ${EMAIL}`);
+    const { rows: first } = await client.query(
+      'SELECT "passwordHash", role FROM users WHERE email = $1',
+      [EMAIL],
+    );
 
     // A second run with different credentials must be a no-op — never clobber
     // an admin who may have changed their password since the first deploy.
-    const secondHash = await hash('a-completely-different-password');
-    const createdAgain = await bootstrapAdmin(client, EMAIL, secondHash);
-    expect(createdAgain).toBe(false);
+    expect(bootstrapAdmin('a-completely-different-password')).toContain(
+      'already exists, left unchanged',
+    );
 
     const { rows } = await client.query(
       'SELECT "passwordHash", role FROM users WHERE email = $1',
       [EMAIL],
     );
     expect(rows).toHaveLength(1);
-    expect(rows[0].passwordHash).toBe(firstHash); // original preserved
+    expect(rows[0].passwordHash).toBe(first[0].passwordHash); // original preserved
     expect(rows[0].role).toBe('admin');
   });
 

@@ -1,6 +1,9 @@
+import { pageSeed } from '@b2b-catalog-platform/seed';
 import { expect, Page, test } from '@playwright/test';
-import { aboutPageSeed } from '@b2b-catalog-platform/seed';
 import { localtestEnv } from './support/localtest';
+import { fixtureSeed } from './support/seed-fixture';
+
+const aboutPageSeed = pageSeed(fixtureSeed, 'about');
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];

@@ -40,12 +40,12 @@ export async function setup() {
   await waitForPortOpen(port, { host });
 
   // 4. Seed the data the specs assert against, through the real one-shot
-  // (idempotent). Running the built bundle rather than importing the seed lib
-  // exercises the same container entry point a deployment uses.
-  execSync('node dist/apps/api/main.js', {
+  // (idempotent). Running the built seeder rather than importing the seed lib
+  // exercises the same entry point a deployment uses.
+  execSync('node dist/apps/seeder/main.cjs', {
     cwd: workspaceRoot,
     stdio: 'inherit',
-    env: { ...process.env, RUN_MODE: 'seed' },
+    env: { ...process.env, SEED_PATH: 'seed' },
   });
 }
 

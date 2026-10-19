@@ -1,4 +1,5 @@
 import { seedDatabase } from '@b2b-catalog-platform/seed';
+import { fixtureSeed } from './seed-fixture';
 import { execSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -92,6 +93,7 @@ export default async function globalSetup() {
     );
     await seedDatabase(
       client,
+      fixtureSeed,
       resolve(workspaceRoot, env['MEDIA_ROOT']),
       consent,
     );

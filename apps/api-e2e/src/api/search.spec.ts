@@ -1,4 +1,3 @@
-import { productSeeds } from '@b2b-catalog-platform/seed';
 import {
   CATALOG_PAGE_SIZE,
   SEARCH_QUERY_MAX_LENGTH,
@@ -7,6 +6,9 @@ import {
 import axios from 'axios';
 import { Client } from 'pg';
 import { requireEnv } from '../support/env';
+import { fixtureSeed } from '../support/seed-fixture';
+
+const productSeeds = fixtureSeed.catalog.products;
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
 const search = (q: string, page?: number) =>

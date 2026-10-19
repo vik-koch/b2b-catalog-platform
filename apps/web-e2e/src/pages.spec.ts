@@ -1,8 +1,12 @@
-import { aboutPageSeed, conditionsPageSeed } from '@b2b-catalog-platform/seed';
+import { pageSeed } from '@b2b-catalog-platform/seed';
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { workspaceRoot } from './support/localtest';
+import { fixtureSeed } from './support/seed-fixture';
+
+const aboutPageSeed = pageSeed(fixtureSeed, 'about');
+const conditionsPageSeed = pageSeed(fixtureSeed, 'conditions');
 
 /** Read from the file the app states the conditions from, so this spec cannot
  * drift from the page it reads. */
