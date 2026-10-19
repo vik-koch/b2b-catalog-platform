@@ -545,9 +545,12 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
 
    For a non-prod stack, append `compose.mailpit.yml` to add the Mailpit sink +
    reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file), and set
-   `SEED=1` to load demo content (prod leaves it unset — see below):
+   `SEED=1` to load demo content (prod leaves it unset — see below). Seeding
+   runs the seeder from your build, so build it first; `SEED_DIR` names the
+   seed bundle, the committed demo's [seed/](../seed/) by default:
 
    ```sh
+   npx nx build seeder
    SSH_OPTS="-i /path/to/deploy-private-key" SEED=1 \
      infra/deploy.sh <host> <app-env-file> infra/traefik/.env compose.mailpit.yml
    ```
@@ -555,8 +558,9 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    It SSHes as `deploy`, copies the [shared Traefik stack](traefik/) and the
    app stack (root [compose.yml](../compose.yml) + the given env file, derived
    from [.env.stack.example](../.env.stack.example)) into `/srv/b2b/`, brings
-   both up, runs the one-shot `seed` service **only when `SEED` is set**
-   (idempotent upsert — off by default so prod is never seeded by accident), and
+   both up, copies the seeder and the bundle and runs the one-shot `seed`
+   service **only when `SEED` is set** (idempotent upsert — off by default so
+   prod is never seeded by accident), and
    smoke-checks `https://$APP_DOMAIN` (incl. a seeded API page when seeded). Stacks land
    in `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
 

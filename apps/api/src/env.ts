@@ -13,9 +13,9 @@ const EnvSchema = z
     API_PORT: z.coerce.number().int().positive(),
     DATABASE_URL: z.url(),
     // Set by the one-shot tool containers (see compose.yml): "migrate" applies
-    // pending migrations, "seed" upserts demo content, "bootstrap-admin" creates
-    // the seeded admin if missing. Unset = normal server.
-    RUN_MODE: z.enum(['migrate', 'seed', 'bootstrap-admin']).optional(),
+    // pending migrations, "bootstrap-admin" creates the first admin if missing.
+    // Unset = normal server.
+    RUN_MODE: z.enum(['migrate', 'bootstrap-admin']).optional(),
     // Bootstrap admin credentials — required only in bootstrap-admin mode (the
     // refinement below). Plaintext is hashed by the one-shot and never stored;
     // the account is created-if-missing, so this is meaningful on first deploy
@@ -26,7 +26,7 @@ const EnvSchema = z
     ADMIN_EMAIL: emailField(320).optional(),
     ADMIN_PASSWORD: z.string().min(8).optional(),
     // SMTP mail transport. Declared optional but required in server
-    // mode by the refinement below — the migrate/seed one-shots never send
+    // mode by the refinement below — the one-shots never send
     // mail. Dev/demo point these at Mailpit; prod at a real provider.
     MAIL_HOST: z.string().optional(),
     MAIL_PORT: z.coerce.number().int().positive().optional(),
@@ -67,7 +67,7 @@ const EnvSchema = z
     // app, so nothing relative resolves. Required in server mode.
     APP_ORIGIN: z.url().optional(),
     // Secret that signs the session JWT. Required in server mode
-    // (see refinement below); the migrate/seed one-shots never sign tokens.
+    // (see refinement below); the one-shots never sign tokens.
     // Min length keeps a weak/short key from being accepted.
     JWT_SECRET: z.string().min(32).optional(),
     // Trusted proxy hops for rate limiting. 0 (default) = trust none,
@@ -127,7 +127,7 @@ const EnvSchema = z
   })
   .superRefine((val, ctx) => {
     // Only the running server sends mail; require its config there, not on the
-    // migrate/seed one-shots.
+    // one-shots.
     if (val.RUN_MODE === undefined) {
       const required = [
         'MAIL_HOST',
