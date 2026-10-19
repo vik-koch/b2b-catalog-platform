@@ -1,0 +1,41 @@
+{
+  "name": "seeder",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/seeder/src",
+  "projectType": "application",
+  "tags": ["scope:seed", "platform:node"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "cache": true,
+      "options": {
+        "main": "apps/seeder/src/main.ts",
+        "outputPath": "dist/apps/seeder",
+        "tsConfig": "apps/seeder/tsconfig.app.json",
+        "platform": "node",
+        "format": ["cjs"],
+        "bundle": true,
+        "thirdParty": false,
+        "generatePackageJson": true,
+        "sourcemap": true
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": ["tsc -p apps/seeder/tsconfig.app.json --noEmit"]
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node dist/apps/seeder/main.cjs",
+        "env": {
+          "SEED_PATH": "seed"
+        }
+      }
+    }
+  }
+}

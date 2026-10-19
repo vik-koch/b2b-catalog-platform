@@ -4,13 +4,7 @@ import {
   ConsentConfig,
   ConsentPurpose,
 } from '@b2b-catalog-platform/shared';
-import { accountSeeds } from './account-data';
-
-/** A fictional inquiry, so a search by address finds something on a demo. */
-export const inquiryConsentSeed = {
-  email: 'einkauf@cafe-am-hafen.example',
-  phone: '+490401234599',
-};
+import { SeedBundle } from './bundle';
 
 /**
  * The consents the demo's people would have given (NFR-LEGAL-09), for the
@@ -19,16 +13,19 @@ export const inquiryConsentSeed = {
  *
  * A customer who registered gave the account consent on the form, dated when
  * they registered. An invited one has not chosen a password yet, so has not
- * been asked; the box waits on their first password. Create-if-missing, like
- * the accounts: a record is never written twice, and never changed.
+ * been asked; the box waits on their first password. The bundle's inquiry is a
+ * contact-form consent with no account behind it, so a search by address finds
+ * something on a demo. Create-if-missing, like the accounts: a record is never
+ * written twice, and never changed.
  */
 export async function seedConsents(
   client: Client,
+  accounts: SeedBundle['accounts'],
   asked: ConsentConfig,
 ): Promise<void> {
   if (asked.account) {
     const version = await currentVersion(client, 'account');
-    const registered = accountSeeds.filter(
+    const registered = accounts.accounts.filter(
       (account) =>
         account.role === 'user' &&
         ['pending', 'active', 'disabled'].includes(account.status),
@@ -56,7 +53,7 @@ export async function seedConsents(
          SELECT 'contact', $1, $2::varchar, $3::varchar, now() - interval '9 days'
           WHERE NOT EXISTS (
             SELECT 1 FROM consents WHERE purpose = 'contact' AND email = $2)`,
-        [version, inquiryConsentSeed.email, inquiryConsentSeed.phone],
+        [version, accounts.inquiry.email, accounts.inquiry.phone],
       );
     }
   }

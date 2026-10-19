@@ -8,14 +8,7 @@ import {
   splitAttributeKey,
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
-import {
-  attributeDefinitionSeeds,
-  catalogFilterSeeds,
-  categorySeeds,
-  pairingSeeds,
-  ProductSeed,
-  productSeeds,
-} from './catalog-data';
+import { ProductSeed, SeedBundle } from './bundle';
 import {
   generateCategoryMark,
   generateGlazeImage,
@@ -30,11 +23,12 @@ import {
  */
 export async function seedCatalog(
   client: Client,
+  catalog: SeedBundle['catalog'],
   mediaRoot: string,
 ): Promise<void> {
   const idByKey = new Map<string, string>();
 
-  for (const category of categorySeeds) {
+  for (const [sortOrder, category] of catalog.categories.entries()) {
     const mark = category.hasMark
       ? await generateCategoryMark(mediaRoot, category.sourceId)
       : null;
@@ -55,14 +49,14 @@ export async function seedCatalog(
         category.slug,
         category.name,
         parentId,
-        category.sortOrder,
+        sortOrder,
         mark ? JSON.stringify(mark) : null,
       ],
     );
     idByKey.set(category.sourceId, rows[0].id);
   }
 
-  for (const product of productSeeds) {
+  for (const product of catalog.products) {
     const categoryId = idByKey.get(product.categoryKey);
     if (!categoryId) {
       throw new Error(
@@ -159,9 +153,9 @@ export async function seedCatalog(
     );
   }
 
-  await seedAttributeDefinitions(client);
-  await seedCatalogFilters(client);
-  await seedPairings(client);
+  await seedAttributeDefinitions(client, catalog.attributes);
+  await seedCatalogFilters(client, catalog.catalogFilters);
+  await seedPairings(client, catalog.pairings);
 }
 
 /**
@@ -233,8 +227,11 @@ function seedVariantId(sourceId: string, name: string): string {
  * in the demo survives a re-seed, since nothing here can tell it from one of
  * these apart from the pair it names.
  */
-async function seedPairings(client: Client): Promise<void> {
-  for (const [one, other] of pairingSeeds) {
+async function seedPairings(
+  client: Client,
+  pairings: SeedBundle['catalog']['pairings'],
+): Promise<void> {
+  for (const [one, other] of pairings) {
     await client.query(
       `INSERT INTO product_pairings ("productAId", "productBId")
        SELECT least(a.id, b.id), greatest(a.id, b.id)
@@ -253,8 +250,11 @@ async function seedPairings(client: Client): Promise<void> {
  * Definitions hold no product data, so nothing depends on the order they land
  * in relative to the products.
  */
-async function seedAttributeDefinitions(client: Client): Promise<void> {
-  for (const [index, definition] of attributeDefinitionSeeds.entries()) {
+async function seedAttributeDefinitions(
+  client: Client,
+  definitions: SeedBundle['catalog']['attributes'],
+): Promise<void> {
+  for (const [index, definition] of definitions.entries()) {
     await client.query(
       `INSERT INTO attribute_definitions (name, slug, type, unit, "sortOrder")
        VALUES ($1, $2, $3, $4, $5)
@@ -276,8 +276,11 @@ async function seedAttributeDefinitions(client: Client): Promise<void> {
  * The catalogue index's panel (FR-ATTR-12). Only adds what is missing: an
  * attribute the admin has since hidden or moved stays as they left it.
  */
-async function seedCatalogFilters(client: Client): Promise<void> {
-  for (const [index, slug] of catalogFilterSeeds.entries()) {
+async function seedCatalogFilters(
+  client: Client,
+  slugs: readonly string[],
+): Promise<void> {
+  for (const [index, slug] of slugs.entries()) {
     await client.query(
       `INSERT INTO catalog_attributes ("attributeId", "sortOrder")
        SELECT id, $2 FROM attribute_definitions WHERE slug = $1
