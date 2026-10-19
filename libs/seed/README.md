@@ -1,21 +1,14 @@
 # seed
 
-Single source of truth for seed data and the idempotent seeding routine.
+The idempotent seeding routine and the schema of a seed bundle. It holds no
+content: what it writes comes from a bundle — the committed demo's is
+[seed/](../../seed/), whose README describes the format and what each case in
+it is there to show.
 
-Consumers: the `api-e2e` and `web-e2e` global-setups (and, later, the demo
-deployment's seed step) — so tests, local stacks and demo servers all serve
-the same content.
+Consumers: the seeder one-shot (`apps/seeder`, run by the `seed` compose
+service and by `nx run seeder:seed`), the `api-e2e` global setup (through the
+built seeder) and the `web-e2e` one (calling `seedDatabase` directly), and the
+specs that assert against seeded content (`loadSeedBundle`).
 
-What it seeds: static pages, the demo catalog (categories, products, generated
-placeholder images), the `wholesale` customer tier with its price list, and the
-demo accounts — two managers plus a roster of customers spread across every
-account status. Pages, catalog and prices are upserted; accounts are
+Pages, catalog and prices are upserted; accounts, orders and consents are
 create-if-missing, so a demo click-through survives the next deploy.
-
-The accounts that can sign in share one published password (`DEMO_PASSWORD` in
-`account-data.ts`) — this seeds the public demo, and the dev-only `seed` one-shot
-never runs where real accounts live.
-
-Nothing here collides with the e2e suites: seeded addresses use reserved
-`.example` domains, never the `@example.com` those suites claim, and the tier key
-is `wholesale` where every e2e tier key is prefixed `e2e-`.

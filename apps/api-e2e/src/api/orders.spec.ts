@@ -6,6 +6,7 @@ import { Client } from 'pg';
 import { seedPages } from '@b2b-catalog-platform/seed';
 import { priceProduct } from '../support/catalog-fixture';
 import { configFile, mediaPath, requireEnv } from '../support/env';
+import { fixtureSeed } from '../support/seed-fixture';
 import {
   deleteMatching,
   messageBody,
@@ -834,7 +835,7 @@ describe('Cart and orders (FR-CART-01…04)', () => {
         expect(read.data.termsVersion).toBe(before.version + 1);
       } finally {
         // The seeded text back on top, as the pages suite expects it.
-        await seedPages(client);
+        await seedPages(client, fixtureSeed.pages);
       }
     });
   });

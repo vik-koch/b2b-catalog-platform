@@ -12,6 +12,7 @@ import { basename } from 'node:path';
 import { Client } from 'pg';
 import sharp from 'sharp';
 import { mediaPath, requireEnv } from '../support/env';
+import { fixtureSeed } from '../support/seed-fixture';
 
 // The LocalMediaStore writes to MEDIA_ROOT (created by global-setup).
 const storedWidth = async (mediaUrl: string): Promise<number | undefined> => {
@@ -226,7 +227,7 @@ describe('POST /media (0021)', () => {
       await client2.connect();
     });
     afterAll(async () => {
-      await seedPages(client2);
+      await seedPages(client2, fixtureSeed.pages);
       await client2.end();
     });
 

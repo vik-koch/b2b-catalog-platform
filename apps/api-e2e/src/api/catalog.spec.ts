@@ -1,15 +1,17 @@
 import {
-  attributeDefinitionSeeds,
-  categorySeeds,
-  pairingSeeds,
-  productSeeds,
-} from '@b2b-catalog-platform/seed';
-import {
   CATALOG_PAGE_SIZE,
   FEATURED_ROW_SIZE,
   parseAttributeNumber,
 } from '@b2b-catalog-platform/shared';
 import axios from 'axios';
+import { fixtureSeed } from '../support/seed-fixture';
+
+const {
+  attributes: attributeDefinitionSeeds,
+  categories: categorySeeds,
+  pairings: pairingSeeds,
+  products: productSeeds,
+} = fixtureSeed.catalog;
 
 const get = (url: string) => axios.get(url, { validateStatus: () => true });
 

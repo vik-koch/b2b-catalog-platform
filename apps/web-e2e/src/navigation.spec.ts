@@ -1,10 +1,11 @@
-import {
-  aboutPageSeed,
-  imprintPageSeed,
-  privacyPageSeed,
-  withdrawalPageSeed,
-} from '@b2b-catalog-platform/seed';
+import { pageSeed } from '@b2b-catalog-platform/seed';
 import { expect, test } from '@playwright/test';
+import { fixtureSeed } from './support/seed-fixture';
+
+const aboutPageSeed = pageSeed(fixtureSeed, 'about');
+const imprintPageSeed = pageSeed(fixtureSeed, 'imprint');
+const privacyPageSeed = pageSeed(fixtureSeed, 'privacy');
+const withdrawalPageSeed = pageSeed(fixtureSeed, 'withdrawal');
 
 // Exactly one utility nav is visible at a time: the header's top bar (sm+) or
 // the bottom bar's "More" panel once opened.

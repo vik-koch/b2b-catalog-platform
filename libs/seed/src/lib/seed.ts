@@ -1,7 +1,7 @@
 import { Client } from 'pg';
 import { ConsentConfig } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
-import { pageSeeds } from './data';
+import { SeedBundle } from './bundle';
 import { seedAccounts } from './account-seed';
 import { seedConsents } from './consent-seed';
 import { seedCatalog } from './catalog-seed';
@@ -10,8 +10,8 @@ import { seedOrders } from './order-seed';
 
 /**
  * Idempotent: safe to run against a stack that was seeded before (e2e reruns,
- * demo redeploys). Expects migrations to have been applied (the API does this
- * on startup before it starts listening).
+ * demo redeploys). Expects migrations to have been applied (the deploy runs the
+ * `migrate` one-shot first).
  *
  * Bodies pass through the same sanitizer as admin edits, so seeds cannot drift
  * into markup the editor could never reproduce.
@@ -19,12 +19,15 @@ import { seedOrders } from './order-seed';
 /** Static page content only — split out so tests can restore pages without
  * re-running the (image-generating) catalog seed. A seed that differs from the
  * current text is saved as its next version, never over one. */
-export async function seedPages(client: Client): Promise<void> {
-  for (const seed of pageSeeds) {
+export async function seedPages(
+  client: Client,
+  pages: SeedBundle['pages'],
+): Promise<void> {
+  for (const seed of pages) {
     const page = {
       title: seed.title,
       bodyHtml: sanitizeRichText(seed.bodyHtml),
-      consentLabel: seed.consentLabel,
+      consentLabel: seed.consentLabel ?? null,
     };
     const { rows } = await client.query<typeof page & { version: number }>(
       `SELECT version, title, "bodyHtml", "consentLabel" FROM page_versions
@@ -61,37 +64,35 @@ export async function seedPages(client: Client): Promise<void> {
  */
 export async function seedDatabase(
   client: Client,
+  bundle: SeedBundle,
   mediaRoot: string,
   consent: ConsentConfig,
 ): Promise<void> {
-  await seedPages(client);
-  await seedCatalog(client, mediaRoot);
+  await seedPages(client, bundle.pages);
+  await seedCatalog(client, bundle.catalog, mediaRoot);
   // Independent of the catalog: a document is a record of its own, and nothing
   // links the two yet.
-  await seedDocuments(client, mediaRoot);
-  // Last: the wholesale price list needs the products it prices to exist.
-  await seedAccounts(client);
+  await seedDocuments(client, bundle.documents, mediaRoot);
+  // Last: the tier price lists need the products they price to exist.
+  await seedAccounts(client, bundle);
   // …and an order needs both — the products it lines up and the account it
   // was priced for.
-  await seedOrders(client);
+  await seedOrders(client, bundle);
   // After the accounts and the pages: a record names both.
-  await seedConsents(client, consent);
+  await seedConsents(client, bundle.accounts, consent);
 }
 
-/**
- * Connect, seed, disconnect. For one-shot use from the deploy pipeline, where
- * the `migrate` one-shot has already applied the schema and postgres is healthy
- * before this runs; the e2e harnesses call seedDatabase directly instead.
- */
+/** Connect, seed, disconnect — the one-shot's whole job. */
 export async function runSeed(
   connectionString: string,
+  bundle: SeedBundle,
   mediaRoot: string,
   consent: ConsentConfig,
 ): Promise<void> {
   const client = new Client({ connectionString });
   try {
     await client.connect();
-    await seedDatabase(client, mediaRoot, consent);
+    await seedDatabase(client, bundle, mediaRoot, consent);
   } finally {
     await client.end().catch(() => undefined);
   }

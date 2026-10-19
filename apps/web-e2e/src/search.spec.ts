@@ -1,5 +1,7 @@
-import { productSeeds } from '@b2b-catalog-platform/seed';
 import { expect, Page, test } from '@playwright/test';
+import { fixtureSeed } from './support/seed-fixture';
+
+const productSeeds = fixtureSeed.catalog.products;
 
 /** A seeded product whose name has a distinctive first word to search for. */
 const product = productSeeds.find((p) => p.name === 'Hafen Espresso');

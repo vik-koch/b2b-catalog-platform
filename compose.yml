@@ -224,7 +224,7 @@ services:
       - internal
 
   # One-shot admin bootstrap — reuses the API image in RUN_MODE=bootstrap-admin
-  # to create the seeded admin if it does not already exist (create-if-missing:
+  # to create the first admin if it does not already exist (create-if-missing:
   # never overwrites a changed password or real content), then exits. Unlike the
   # dev-only content `seed`, this runs on every `up` in every environment —
   # including prod — so an admin always exists. api waits on it completing.
@@ -245,27 +245,40 @@ services:
     networks:
       - internal
 
-  # One-shot seeder — reuses the API image in RUN_MODE=seed to upsert seed
-  # data, then exits. In the 'tools' profile so `up` never starts it.
+  # One-shot seeder — writes a seed bundle's demo content, then exits. In the
+  # 'tools' profile so `up` never starts it. A stock Node image rather than the
+  # API's, so no image that serves a shop carries the seed or its content:
+  # deploy.sh puts the built seeder (dist/apps/seeder) and the bundle beside
+  # this file, and its dependencies are installed on every run from the
+  # lockfile the build pruned.
   seed:
-    image: ${API_IMAGE:?}
+    image: node:24-alpine
     profiles: ['tools']
     restart: 'no'
+    # The api's own uid, so the pictures it writes are the api's to serve and
+    # prune. The mount is read-only, so it installs into a copy of its own (not
+    # a working_dir: Docker would create that one root-owned).
+    user: node
+    command:
+      - sh
+      - -c
+      - cp -r /seeder /tmp/seeder && cd /tmp/seeder && npm ci --omit=dev --no-audit --no-fund --loglevel=error && node main.cjs
     environment:
-      RUN_MODE: seed
-      API_PORT: 3000
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
-      # Seeds generate placeholder images through the same media store the api
-      # writes uploads to, so the seeder needs the root and the shared volume —
-      # without them the seed crashes on an undefined path. The api (which runs
-      # first in a SEED=1 deploy) has already created /media node-owned.
+      # The seed stores its pictures and documents where the api stores
+      # uploads. The api (which runs first in a SEED=1 deploy) has already
+      # created /media node-owned.
       MEDIA_ROOT: /media
       # The seed writes consent records only for the purposes this deployment
       # asks for, so it reads the same config the api does.
       CONFIG_PATH: /config
+      SEED_PATH: /seed
+      NPM_CONFIG_UPDATE_NOTIFIER: 'false'
     volumes:
       - mediadata:/media
       - ./config:/config:ro
+      - ./seeder:/seeder:ro
+      - ./seed:/seed:ro
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,35 +1,35 @@
 import { randomBytes } from 'node:crypto';
 import { hash } from '@node-rs/argon2';
 import { Client } from 'pg';
-import {
-  accountSeeds,
-  DEMO_PASSWORD,
-  managerEmails,
-  wholesalePriceMinor,
-  wholesaleTier,
-  type AccountSeed,
-} from './account-data';
-import { productSeeds } from './catalog-data';
+import { AccountSeed, SeedBundle, TierSeed } from './bundle';
 
 /**
- * The demo accounts and the wholesale price list they buy from (FR-AUTH-05).
+ * The demo accounts and the price lists they buy from (FR-AUTH-05).
  *
  * Two different kinds of idempotency, on purpose:
  *
- *  - the tier and its prices are **upserted**, like the catalog content beside
- *    them, so a re-seed brings a demo stack back to the prices it advertises;
+ *  - the tiers and their prices are **upserted**, like the catalog content
+ *    beside them, so a re-seed brings a demo stack back to the prices it
+ *    advertises;
  *  - the accounts are **create-if-missing**, like the bootstrap admin, because
  *    they are people: whoever clicked around the demo and approved a pending
  *    registration keeps that decision through the next deploy.
  */
-export async function seedAccounts(client: Client): Promise<void> {
-  const tierId = await upsertWholesaleTier(client);
-  await upsertWholesalePrices(client, tierId);
+export async function seedAccounts(
+  client: Client,
+  { accounts, catalog }: Pick<SeedBundle, 'accounts' | 'catalog'>,
+): Promise<void> {
+  const tierIds = new Map<string, string>();
+  for (const tier of accounts.tiers) {
+    const tierId = await upsertTier(client, tier);
+    tierIds.set(tier.key, tierId);
+    await upsertTierPrices(client, tier, tierId, catalog.products);
+  }
 
   // Both hashes computed once and shared by every row that needs them. Sharing
   // is fine and self-documenting here — these are fixtures, and the accounts
   // that can sign in all share the published demo password anyway.
-  const demoHash = await hash(DEMO_PASSWORD);
+  const demoHash = await hash(accounts.password);
   // Nobody holds this one: an argon2 hash of a secret that is discarded the
   // moment it is used, which is how the app itself parks an account that has no
   // password yet (pending, invited) or may never have one again (disabled,
@@ -38,42 +38,59 @@ export async function seedAccounts(client: Client): Promise<void> {
   const unusableHash = await hash(randomBytes(32).toString('hex'));
 
   // Staff first: they are the approver every approved customer points at.
-  for (const [index, account] of accountSeeds.entries()) {
+  for (const [index, account] of accounts.accounts.entries()) {
     if (account.role === 'user') continue;
     await insertAccount(client, account, index, {
       demoHash,
       unusableHash,
-      tierId,
+      tierIds,
     });
   }
 
+  const managerEmails = accounts.accounts
+    .filter((account) => account.role === 'manager')
+    .map((account) => account.email);
   const { rows } = await client.query<{ id: string }>(
     'SELECT id FROM users WHERE email = ANY($1) ORDER BY email LIMIT 1',
     [managerEmails],
   );
   const approverId = rows[0]?.id ?? null;
 
-  for (const [index, account] of accountSeeds.entries()) {
+  for (const [index, account] of accounts.accounts.entries()) {
     if (account.role !== 'user') continue;
     await insertAccount(client, account, index, {
       demoHash,
       unusableHash,
-      tierId,
+      tierIds,
       approverId,
     });
   }
 }
 
-async function upsertWholesaleTier(client: Client): Promise<string> {
+async function upsertTier(client: Client, tier: TierSeed): Promise<string> {
   const { rows } = await client.query<{ id: string }>(
     `INSERT INTO customer_tiers (key, label, "sortOrder") VALUES ($1, $2, $3)
      ON CONFLICT (key) DO UPDATE SET
        label = EXCLUDED.label, "sortOrder" = EXCLUDED."sortOrder",
        "updatedAt" = now()
      RETURNING id`,
-    [wholesaleTier.key, wholesaleTier.label, wholesaleTier.sortOrder],
+    [tier.key, tier.label, tier.sortOrder],
   );
   return rows[0].id;
+}
+
+/**
+ * The tier's price for a product, or null where the tier does not price it.
+ * Rounded down to whole ten cents, which is how a real price list reads.
+ */
+function tierPriceMinor(
+  tier: TierSeed,
+  categoryKey: string,
+  priceMinor: number,
+): number | null {
+  const discount = tier.discounts[categoryKey];
+  if (discount === undefined) return null;
+  return Math.floor((priceMinor * (1 - discount)) / 10) * 10;
 }
 
 /**
@@ -81,12 +98,15 @@ async function upsertWholesaleTier(client: Client): Promise<string> {
  * names get a row — the rest fall back to the default list's price, which is
  * the behaviour worth being able to see on the demo.
  */
-async function upsertWholesalePrices(
+async function upsertTierPrices(
   client: Client,
+  tier: TierSeed,
   tierId: string,
+  products: SeedBundle['catalog']['products'],
 ): Promise<void> {
-  for (const product of productSeeds) {
-    const priceMinor = wholesalePriceMinor(
+  for (const product of products) {
+    const priceMinor = tierPriceMinor(
+      tier,
       product.categoryKey,
       product.priceMinor,
     );
@@ -105,7 +125,7 @@ async function upsertWholesalePrices(
 interface Context {
   demoHash: string;
   unusableHash: string;
-  tierId: string;
+  tierIds: ReadonlyMap<string, string>;
   approverId?: string | null;
 }
 
@@ -124,8 +144,14 @@ async function insertAccount(
   client: Client,
   account: AccountSeed,
   index: number,
-  { demoHash, unusableHash, tierId, approverId = null }: Context,
+  { demoHash, unusableHash, tierIds, approverId = null }: Context,
 ): Promise<void> {
+  const tierId = account.tier === null ? null : tierIds.get(account.tier);
+  if (tierId === undefined) {
+    throw new Error(
+      `Seed account ${account.email} names unknown tier ${account.tier}`,
+    );
+  }
   // Spread the timestamps, so the account list (newest first) has an order
   // worth looking at instead of one indistinguishable block.
   const ageInDays = index * 3 + 1;
@@ -161,7 +187,7 @@ async function insertAccount(
       account.phone,
       account.customerType,
       account.companyRegistrationId,
-      account.wholesale ? tierId : null,
+      tierId,
       approved ? new Date(Date.now() - ageInDays * 86_400_000) : null,
       approved ? approverId : null,
       ageInDays,

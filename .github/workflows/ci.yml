@@ -75,6 +75,16 @@ jobs:
 
       - run: npx nx run-many -t lint typecheck test build format-check
 
+      # The dev deploy seeds, and the seeder runs from this build (deploy.sh):
+      # it is not an image, so nothing else carries it to the VM.
+      - if: github.event_name == 'push'
+        uses: actions/upload-artifact@v7
+        with:
+          name: seeder
+          path: dist/apps/seeder
+          if-no-files-found: error
+          retention-days: 1
+
       # ADR 0043's rule, not its size budget: the first load must contain no
       # schema runtime. The budget moves as the app grows; this does not.
       - run: npx nx build web --statsJson
@@ -254,6 +264,11 @@ jobs:
       url: https://${{ vars.DEV_APP_DOMAIN }}
     steps:
       - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: seeder
+          path: dist/apps/seeder
 
       - name: Write SSH key
         run: |

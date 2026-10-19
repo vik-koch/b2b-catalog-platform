@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import { DocumentSeed, documentSeeds } from './document-data';
+import { DocumentSeed } from './bundle';
 import {
   placeholderPdf,
   storePlaceholderDocument,
@@ -21,9 +21,10 @@ function day(days: number | null): string | null {
  */
 export async function seedDocuments(
   client: Client,
+  documents: readonly DocumentSeed[],
   mediaRoot: string,
 ): Promise<void> {
-  for (const seed of documentSeeds) {
+  for (const seed of documents) {
     const file = seed.file
       ? await storePlaceholderDocument(
           mediaRoot,

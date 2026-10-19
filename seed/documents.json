@@ -1,0 +1,64 @@
+{
+  "documents": [
+    {
+      "title": "Certificate of analysis",
+      "file": {
+        "fileName": "certificate-of-analysis.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "A real deployment uploads the certificate issued by its laboratory."
+        ]
+      },
+      "issuedDaysAgo": 60,
+      "expiresInDays": 300,
+      "categorySlugs": ["espresso"]
+    },
+    {
+      "title": "Organic certification",
+      "file": {
+        "fileName": "organic-certification.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "Certifications are renewed by replacing the file on this document."
+        ]
+      },
+      "link": "https://example.org/register/organic/DE-0000-0001",
+      "issuedDaysAgo": 400,
+      "expiresInDays": 20,
+      "categorySlugs": ["filter", "single-origin"]
+    },
+    {
+      "title": "Import declaration",
+      "file": {
+        "fileName": "import-declaration.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "This one has lapsed: the shop shows it to nobody until it is replaced."
+        ]
+      },
+      "issuedDaysAgo": 400,
+      "expiresInDays": -15,
+      "categorySlugs": ["espresso"]
+    },
+    {
+      "title": "Product data sheet",
+      "file": {
+        "fileName": "product-data-sheet.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "A data sheet has no expiry date, so it is always current."
+        ]
+      },
+      "issuedDaysAgo": null,
+      "expiresInDays": null,
+      "productSlugs": ["takeaway-cup-300", "takeaway-lid-flat"]
+    },
+    {
+      "title": "Declaration of conformity",
+      "link": "https://example.org/register/conformity/0000-0002",
+      "issuedDaysAgo": 120,
+      "expiresInDays": 900,
+      "productSlugs": ["takeaway-cup-300", "takeaway-lid-flat"]
+    }
+  ]
+}

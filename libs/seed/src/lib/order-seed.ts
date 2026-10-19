@@ -6,17 +6,7 @@ import {
   totalMinor,
   unitQuantity,
 } from '@b2b-catalog-platform/shared';
-import { wholesaleTier } from './account-data';
-import {
-  addressSeeds,
-  orderSeeds,
-  pickupSnapshots,
-  type OrderLineSeed,
-  type OrderSeed,
-} from './order-data';
-
-/** The currency the demo prices in, snapshotted onto every order it seeds. */
-const CURRENCY = 'EUR';
+import { OrderLineSeed, OrderSeed, SeedBundle } from './bundle';
 
 /**
  * Saved addresses and placed orders for the demo.
@@ -31,8 +21,11 @@ const CURRENCY = 'EUR';
  * a line total, the piece price's basis, the shipment estimate — so the demo
  * orders stay consistent with the prices the storefront is showing.
  */
-export async function seedOrders(client: Client): Promise<void> {
-  for (const [email, addresses] of Object.entries(addressSeeds)) {
+export async function seedOrders(
+  client: Client,
+  { accounts, orders }: Pick<SeedBundle, 'accounts' | 'orders'>,
+): Promise<void> {
+  for (const { email, addresses = [] } of accounts.accounts) {
     for (const address of addresses) {
       await client.query(
         // Casts throughout: an untyped parameter in a SELECT list is inferred
@@ -58,7 +51,7 @@ export async function seedOrders(client: Client): Promise<void> {
     }
   }
 
-  for (const order of orderSeeds) await insertOrder(client, order);
+  for (const order of orders.orders) await insertOrder(client, order, orders);
 }
 
 interface ProductRow {
@@ -79,14 +72,10 @@ interface ProductRow {
   taxRate: number;
 }
 
-/**
- * The basis the demo's orders are submitted under, as `config/deployment.json`
- * quotes it (NFR-LEGAL-11). Written down here rather than read: the seed
- * writes rows directly, and a demo order placed under some other basis would
- * be a fixture describing a shop that does not exist.
- */
-const DEMO_TAX_BASIS = 'included';
-const DEMO_DEFAULT_TAX_RATE = 19;
+/** What an order snapshots of the deployment config (NFR-LEGAL-11): the
+ * bundle writes it down rather than the seed reading it, because a demo order
+ * placed under some other basis would describe a shop that does not exist. */
+type Snapshot = Omit<SeedBundle['orders'], 'orders'>;
 
 const packagingOf = (row: ProductRow): ProductPackaging => ({
   piecesPerPack: row.piecesPerPack,
@@ -94,7 +83,11 @@ const packagingOf = (row: ProductRow): ProductPackaging => ({
   minPieceQty: row.minPieceQty,
 });
 
-async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
+async function insertOrder(
+  client: Client,
+  order: OrderSeed,
+  snapshot: Snapshot,
+): Promise<void> {
   const { rows: existing } = await client.query(
     'SELECT 1 FROM orders WHERE reference = $1',
     [order.reference],
@@ -121,8 +114,16 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
     client,
     versions.flatMap((version) => version.lines),
     tierKey,
+    snapshot.defaultTaxRate,
   );
-  const pickup = order.pickupKey ? pickupSnapshots[order.pickupKey] : null;
+  const pickup = order.pickupKey
+    ? snapshot.pickupPoints[order.pickupKey]
+    : null;
+  if (order.pickupKey && !pickup) {
+    throw new Error(
+      `order ${order.reference}: no pickup point ${order.pickupKey}`,
+    );
+  }
 
   // The order row carries identity and workflow; what it says lives on its
   // versions (ADR 0051), and it points at the one that stands.
@@ -154,7 +155,7 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
       // would be a fixture pretending to be a record.
       order.paymentState ?? 'not-due',
       `${order.placedOn}T09:00:00+02:00`,
-      DEMO_TAX_BASIS,
+      snapshot.taxBasis,
     ],
   );
   const orderId = inserted[0].id;
@@ -221,7 +222,7 @@ async function insertOrder(client: Client, order: OrderSeed): Promise<void> {
         priced.shipment.weight,
         priced.shipment.approximate,
         priced.shipment.uncoveredLines,
-        CURRENCY,
+        snapshot.currency,
         tierKey,
         // A demo history rather than a recorded one: the version the customer
         // sent, and the shop's change to it. The order's own status lands on
@@ -316,12 +317,13 @@ async function accountOf(
   client: Client,
   email: string,
 ): Promise<{ id: string; tierKey: string | null } | null> {
-  const { rows } = await client.query<{ id: string; tierId: string | null }>(
-    'SELECT id, "tierId" FROM users WHERE email = $1',
+  const { rows } = await client.query<{ id: string; tierKey: string | null }>(
+    `SELECT u.id, t.key AS "tierKey"
+       FROM users u LEFT JOIN customer_tiers t ON t.id = u."tierId"
+      WHERE u.email = $1`,
     [email],
   );
-  if (rows.length === 0) return null;
-  return { id: rows[0].id, tierKey: rows[0].tierId ? wholesaleTier.key : null };
+  return rows[0] ?? null;
 }
 
 /** Every product an order names, with the price its buyer's tier resolves to. */
@@ -329,6 +331,7 @@ async function productRows(
   client: Client,
   lines: OrderLineSeed[],
   tierKey: string | null,
+  defaultTaxRate: number,
 ): Promise<Map<string, ProductRow>> {
   const { rows } = await client.query<ProductRow>(
     `SELECT p.id, p."sourceId", p.slug, p.name,
@@ -344,7 +347,7 @@ async function productRows(
        LEFT JOIN customer_tiers t ON t.key = $2
        LEFT JOIN product_prices pp ON pp."productId" = p.id AND pp."tierId" = t.id
       WHERE p."sourceId" = ANY($1)`,
-    [lines.map((line) => line.sourceId), tierKey, DEMO_DEFAULT_TAX_RATE],
+    [lines.map((line) => line.sourceId), tierKey, defaultTaxRate],
   );
   return new Map(rows.map((row) => [row.sourceId, row]));
 }

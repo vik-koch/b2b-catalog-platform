@@ -1,6 +1,8 @@
 import { expect, Page, test } from '@playwright/test';
-import { DEMO_PASSWORD } from '@b2b-catalog-platform/seed';
 import { localtestEnv } from './support/localtest';
+import { fixtureSeed } from './support/seed-fixture';
+
+const DEMO_PASSWORD = fixtureSeed.accounts.password;
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];

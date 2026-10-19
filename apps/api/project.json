@@ -108,16 +108,6 @@
         }
       }
     },
-    "db-seed": {
-      "executor": "nx:run-commands",
-      "dependsOn": ["build"],
-      "options": {
-        "command": "node dist/apps/api/main.js",
-        "env": {
-          "RUN_MODE": "seed"
-        }
-      }
-    },
     "db-bootstrap-admin": {
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
@@ -135,7 +125,7 @@
         "parallel": false,
         "commands": [
           "nx run api:db-migrate",
-          "nx run api:db-seed",
+          "nx run seeder:seed",
           "nx run api:db-bootstrap-admin",
           "nx run api:serve"
         ]

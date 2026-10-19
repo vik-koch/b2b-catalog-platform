@@ -1,6 +1,7 @@
 # 0012 — Apply migrations via a one-shot container; run them from the app bundle
 
-**Status:** accepted · **Date:** 2026-07-21
+**Status:** accepted · **Date:** 2026-07-21 · **Amended:** 2026-10-19 (the
+seed leaves the API image) — see the _Amendment_ below
 
 ## Context
 
@@ -50,3 +51,25 @@ containers/replicas and couples migration to serving).
 - (−) Local `nx serve api` no longer sets up the schema on its own; a clean
   setup needs `db-migrate` (and `db-seed`) first — the `serve-fresh` target
   bundles all three.
+
+## Amendment — 2026-10-19: the seed leaves the API image
+
+The `seed` one-shot no longer reuses the API image, and the seed no longer
+carries its content. A separately built **seeder** (`apps/seeder`: one bundled
+file plus the lockfile the build prunes) runs on a stock `node:24-alpine`,
+installs its dependencies on every run, and reads the demo content from a
+mounted **seed bundle** — JSON files and one HTML file per page, `seed/` for
+the committed demo. With `SEED=1` the deploy copies both beside the stack; local
+dev runs `nx run seeder:seed`, and `serve-fresh` chains migrate → seed → serve
+as before.
+
+Why: the image a real shop runs carried the whole demo — product texts, page
+bodies, the demo accounts and their published password — and a second demo in
+another language would have added a second one. As files, each demo deployment
+brings its own bundle beside its config, and the image carries neither.
+
+The seeder still writes plain SQL against the schema, so it is built from the
+same commit as the images it seeds for. A published seed image was considered
+and rejected: another multi-arch build per release, for a tool only demo stacks
+run. The install on each run costs a few seconds and needs the registry
+reachable from the stack, which a demo stack has.

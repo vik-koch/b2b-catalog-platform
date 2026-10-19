@@ -13,3 +13,6 @@
 
 # ID-keyed table: prettier pads every cell to the widest row.
 /docs/roadmap.md
+
+# Page bodies as the seed stores them: reflowing one changes the stored text
+/seed/pages

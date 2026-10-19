@@ -27,7 +27,9 @@
 # stack is up (dev/demo do — they need demo content). Prod leaves it unset, so a
 # real catalog is never overwritten by an accidental seed: the seed one-shot is
 # also parked in the 'tools' compose profile, so nothing but this explicit,
-# opted-in step ever runs it.
+# opted-in step ever runs it. It needs the built seeder (`npx nx build seeder`
+# -> dist/apps/seeder) and a seed bundle: SEED_DIR, by default this repo's
+# committed demo bundle (seed/).
 #
 # Images: `up --no-build` pulls images missing on the host (never builds — the
 # VM has no source tree). To rehearse before CI has published any images,
@@ -43,6 +45,12 @@ obs_env=${OBSERVABILITY_ENV:-}
 seed=${SEED:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
+seeder_dir=$repo_root/dist/apps/seeder
+seed_dir=${SEED_DIR:-$repo_root/seed}
+if [ -n "$seed" ]; then
+  [ -f "$seeder_dir/main.cjs" ] || { echo "SEED=1 needs the built seeder: npx nx build seeder" >&2; exit 1; }
+  [ -f "$seed_dir/catalog.json" ] || { echo "SEED_DIR $seed_dir holds no seed bundle" >&2; exit 1; }
+fi
 
 # STACK_NAME doubles as the stack's directory (= compose project) on the VM so
 # several stacks (dev / prod / demo) can coexist; APP_DOMAIN is smoke-checked.
@@ -183,7 +191,14 @@ run "docker image prune -af --filter until=168h" || echo "WARNING: image prune f
 # has already run the `migrate` one-shot — so the schema exists by the time this
 # runs. Prod never sets SEED, so its data is left untouched.
 if [ -n "$seed" ]; then
-  echo "==> Seeding database"
+  echo "==> Seeding database from $seed_dir"
+  # Replaced wholesale, like the config, so nothing lingers from an earlier
+  # bundle. Only the one-shot mounts these, and it is not running.
+  for dir in seeder seed; do
+    run "rm -rf /srv/b2b/$stack/$dir && mkdir -p /srv/b2b/$stack/$dir"
+  done
+  tar -C "$seeder_dir" -cf - . | run "tar -C /srv/b2b/$stack/seeder -xf -"
+  tar -C "$seed_dir" -cf - . | run "tar -C /srv/b2b/$stack/seed -xf -"
   run "cd /srv/b2b/$stack && docker compose run --rm seed"
 fi
 

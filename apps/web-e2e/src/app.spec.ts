@@ -1,6 +1,9 @@
-import { aboutPageSeed } from '@b2b-catalog-platform/seed';
+import { pageSeed } from '@b2b-catalog-platform/seed';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { expect, test } from '@playwright/test';
+import { fixtureSeed } from './support/seed-fixture';
+
+const aboutPageSeed = pageSeed(fixtureSeed, 'about');
 
 test('renders the home placeholder', async ({ page }) => {
   await page.goto('/');

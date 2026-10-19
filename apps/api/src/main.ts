@@ -3,11 +3,10 @@ import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
 import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared';
-import { runBootstrapAdmin, runSeed } from '@b2b-catalog-platform/seed';
-import { loadApiDeploymentConfig } from './config/deployment-config';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
 import { hashPassword } from './auth/password-hashing';
+import { runBootstrapAdmin } from './users/bootstrap-admin';
 import { scheduleMediaPrune } from './media/prune/media-prune-scheduler';
 import { RetentionSweep } from './destruction/retention-sweep';
 import { env } from './env';
@@ -96,21 +95,10 @@ async function main() {
   // One-shot tool containers (compose.yml) that do their job and exit instead
   // of starting the server:
   //   migrate         — apply pending migrations; api waits on it completing.
-  //   seed            — upsert demo content (dev only, runs after migrate).
-  //   bootstrap-admin — create the seeded admin if missing (every env).
+  //   bootstrap-admin — create the first admin if missing (every env).
   if (env.RUN_MODE === 'migrate') {
     await runMigrations();
     Logger.log('Database migrations complete');
-    return;
-  }
-
-  if (env.RUN_MODE === 'seed') {
-    await runSeed(
-      env.DATABASE_URL,
-      env.MEDIA_ROOT as string,
-      loadApiDeploymentConfig().consent,
-    );
-    Logger.log('Database seeding complete');
     return;
   }
 

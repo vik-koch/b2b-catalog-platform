@@ -61,6 +61,16 @@ jobs:
           echo "ip=$(terraform output -raw ipv4_address)" >> "$GITHUB_OUTPUT"
           echo "fqdn=$(terraform output -raw demo_fqdn)" >> "$GITHUB_OUTPUT"
 
+      # The seeder is not an image: deploy.sh copies this build to the VM.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npx nx build seeder
+
       - name: Write SSH key
         run: |
           printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > .deploy-key

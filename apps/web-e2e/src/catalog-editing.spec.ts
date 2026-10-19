@@ -1,6 +1,9 @@
 import { expect, Page, test } from '@playwright/test';
-import { categorySeeds, productSeeds } from '@b2b-catalog-platform/seed';
 import { documentOf, localtestEnv } from './support/localtest';
+import { fixtureSeed } from './support/seed-fixture';
+
+const { categories: categorySeeds, products: productSeeds } =
+  fixtureSeed.catalog;
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];

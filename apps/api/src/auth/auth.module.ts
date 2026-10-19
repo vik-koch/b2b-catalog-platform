@@ -47,7 +47,7 @@ import {
 // env.ts requires JWT_SECRET in server mode; this narrows the optional type and
 // fails fast if the module is ever instantiated without it. Called from a
 // factory, never at module-evaluation time: main.ts imports AppModule
-// unconditionally, and the one-shot RUN_MODEs (migrate, seed, bootstrap-admin)
+// unconditionally, and the one-shot RUN_MODEs (migrate, bootstrap-admin)
 // exit before Nest boots — they have no session to sign and are given no secret.
 function jwtSecret(): string {
   if (!env.JWT_SECRET) {
