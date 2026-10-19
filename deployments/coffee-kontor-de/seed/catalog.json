@@ -2,29 +2,29 @@
   "categories": [
     {
       "sourceId": "coffee-beans",
-      "slug": "coffee-beans",
-      "name": "Coffee Beans",
+      "slug": "kaffeebohnen",
+      "name": "Kaffeebohnen",
       "parentKey": null,
       "mark": "bean"
     },
     {
       "sourceId": "espresso",
       "slug": "espresso",
-      "name": "Espresso Roasts",
+      "name": "Espressoröstungen",
       "parentKey": "coffee-beans",
       "mark": "coffee"
     },
     {
       "sourceId": "filter",
       "slug": "filter",
-      "name": "Filter Roasts",
+      "name": "Filterröstungen",
       "parentKey": "coffee-beans",
       "mark": "funnel"
     },
     {
       "sourceId": "decaf",
-      "slug": "decaf",
-      "name": "Decaf",
+      "slug": "entkoffeiniert",
+      "name": "Entkoffeiniert",
       "parentKey": "coffee-beans",
       "mark": "bean-off"
     },
@@ -37,113 +37,113 @@
     },
     {
       "sourceId": "tea",
-      "slug": "tea",
-      "name": "Tea",
+      "slug": "tee",
+      "name": "Tee",
       "parentKey": null,
       "mark": "leaf"
     },
     {
       "sourceId": "equipment",
-      "slug": "equipment",
-      "name": "Equipment",
+      "slug": "ausstattung",
+      "name": "Ausstattung",
       "parentKey": null,
       "mark": "settings"
     },
     {
       "sourceId": "grinders",
-      "slug": "grinders",
-      "name": "Grinders",
+      "slug": "muehlen",
+      "name": "Mühlen",
       "parentKey": "equipment",
       "mark": "cog"
     },
     {
       "sourceId": "machines",
-      "slug": "machines",
-      "name": "Espresso Machines",
+      "slug": "espressomaschinen",
+      "name": "Espressomaschinen",
       "parentKey": "equipment",
       "mark": null
     },
     {
       "sourceId": "accessories",
-      "slug": "accessories",
-      "name": "Accessories",
+      "slug": "zubehoer",
+      "name": "Zubehör",
       "parentKey": null,
       "mark": "wrench"
     },
     {
       "sourceId": "syrups",
-      "slug": "syrups",
-      "name": "Syrups & Flavours",
+      "slug": "sirupe",
+      "name": "Sirupe & Aromen",
       "parentKey": null,
       "mark": "droplet"
     },
     {
       "sourceId": "chocolate",
-      "slug": "chocolate",
-      "name": "Chocolate & Cocoa",
+      "slug": "schokolade",
+      "name": "Schokolade & Kakao",
       "parentKey": null,
       "mark": "cookie"
     },
     {
       "sourceId": "cups",
-      "slug": "cups",
-      "name": "Cups & Glassware",
+      "slug": "tassen-glaeser",
+      "name": "Tassen & Gläser",
       "parentKey": null,
       "mark": "cup-soda"
     },
     {
       "sourceId": "cleaning",
-      "slug": "cleaning",
-      "name": "Cleaning & Care",
+      "slug": "reinigung",
+      "name": "Reinigung & Pflege",
       "parentKey": null,
       "mark": "brush-cleaning"
     }
   ],
   "attributes": [
     {
-      "name": "Origin",
-      "slug": "origin",
+      "name": "Herkunft",
+      "slug": "herkunft",
       "type": "text",
       "unit": null
     },
     {
-      "name": "Roast level",
-      "slug": "roast-level",
+      "name": "Röstgrad",
+      "slug": "roestgrad",
       "type": "text",
       "unit": null
     },
     {
-      "name": "Process",
-      "slug": "process",
+      "name": "Aufbereitung",
+      "slug": "aufbereitung",
       "type": "text",
       "unit": null
     },
     {
-      "name": "Type",
-      "slug": "type",
+      "name": "Sorte",
+      "slug": "sorte",
       "type": "text",
       "unit": null
     },
     {
-      "name": "Net weight",
-      "slug": "net-weight",
+      "name": "Nettogewicht",
+      "slug": "nettogewicht",
       "type": "number",
       "unit": "g"
     },
     {
-      "name": "Volume",
-      "slug": "volume",
+      "name": "Volumen",
+      "slug": "volumen",
       "type": "number",
       "unit": "ml"
     },
     {
-      "name": "Colour",
-      "slug": "colour",
+      "name": "Farbe",
+      "slug": "farbe",
       "type": "text",
       "unit": null
     }
   ],
-  "catalogFilters": ["origin"],
+  "catalogFilters": ["herkunft"],
   "products": [
     {
       "sourceId": "ESP-001",
@@ -151,26 +151,26 @@
       "name": "Hafen Espresso",
       "categoryKey": "espresso",
       "priceMinor": 1690,
-      "descriptionHtml": "<p>Hafen Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dark chocolate and hazelnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Hafen Espresso ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Zartbitterschokolade und Haselnuss</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Brazil / India blend"
+          "key": "Herkunft",
+          "value": "Brasilien / Indien, Mischung"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "dark chocolate and hazelnut"
+          "key": "Geschmacksnoten",
+          "value": "Zartbitterschokolade und Haselnuss"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -204,26 +204,26 @@
       "name": "Kontor Classic",
       "categoryKey": "espresso",
       "priceMinor": 1730,
-      "descriptionHtml": "<p>Kontor Classic is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>caramel and toasted almond</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Kontor Classic ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Karamell und geröstete Mandel</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Central America blend"
+          "key": "Herkunft",
+          "value": "Mittelamerika, Mischung"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "caramel and toasted almond"
+          "key": "Geschmacksnoten",
+          "value": "Karamell und geröstete Mandel"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -257,26 +257,26 @@
       "name": "Notturno Ristretto",
       "categoryKey": "espresso",
       "priceMinor": 1770,
-      "descriptionHtml": "<p>Notturno Ristretto is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa and dried fig</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Notturno Ristretto ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Kakao und getrocknete Feige</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Indonesia"
+          "key": "Herkunft",
+          "value": "Indonesien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "cocoa and dried fig"
+          "key": "Geschmacksnoten",
+          "value": "Kakao und getrocknete Feige"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -310,26 +310,26 @@
       "name": "Crema d'Oro",
       "categoryKey": "espresso",
       "priceMinor": 1810,
-      "descriptionHtml": "<p>Crema d'Oro is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>brown sugar and orange peel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Crema d'Oro ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>brauner Zucker und Orangenschale</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Colombia"
+          "key": "Herkunft",
+          "value": "Kolumbien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "brown sugar and orange peel"
+          "key": "Geschmacksnoten",
+          "value": "brauner Zucker und Orangenschale"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -359,26 +359,26 @@
       "name": "Fährmann",
       "categoryKey": "espresso",
       "priceMinor": 1850,
-      "descriptionHtml": "<p>Fährmann is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>peanut and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Fährmann ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Erdnuss und Kakao</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Brazil / Peru"
+          "key": "Herkunft",
+          "value": "Brasilien / Peru"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "peanut and cocoa"
+          "key": "Geschmacksnoten",
+          "value": "Erdnuss und Kakao"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -399,26 +399,26 @@
       "name": "Elbe Dark",
       "categoryKey": "espresso",
       "priceMinor": 1890,
-      "descriptionHtml": "<p>Elbe Dark is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dark chocolate and walnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Elbe Dark ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Zartbitterschokolade und Walnuss</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Brazil"
+          "key": "Herkunft",
+          "value": "Brasilien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "dark chocolate and walnut"
+          "key": "Geschmacksnoten",
+          "value": "Zartbitterschokolade und Walnuss"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -464,30 +464,30 @@
     },
     {
       "sourceId": "ESP-007",
-      "slug": "roastery-no-7",
-      "name": "Roastery No. 7",
+      "slug": "roestwerk-nr-7",
+      "name": "Röstwerk Nr. 7",
       "categoryKey": "espresso",
       "priceMinor": 1930,
-      "descriptionHtml": "<p>Roastery No. 7 is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>baking spice and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Röstwerk Nr. 7 ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Lebkuchengewürz und Kakao</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
+          "key": "Herkunft",
           "value": "Guatemala"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "baking spice and cocoa"
+          "key": "Geschmacksnoten",
+          "value": "Lebkuchengewürz und Kakao"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -510,26 +510,26 @@
       "name": "Nordic Pull",
       "categoryKey": "espresso",
       "priceMinor": 2010,
-      "descriptionHtml": "<p>Nordic Pull is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blackcurrant and molasses</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Nordic Pull ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Schwarze Johannisbeere und Melasse</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Kenya / Brazil"
+          "key": "Herkunft",
+          "value": "Kenia / Brasilien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "blackcurrant and molasses"
+          "key": "Geschmacksnoten",
+          "value": "Schwarze Johannisbeere und Melasse"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -560,26 +560,26 @@
       "name": "Barista Reserve",
       "categoryKey": "espresso",
       "priceMinor": 2210,
-      "descriptionHtml": "<p>Barista Reserve is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>stone fruit and praline</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Barista Reserve ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Steinobst und Praline</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Ethiopia"
+          "key": "Herkunft",
+          "value": "Äthiopien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium-dark"
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
         },
         {
-          "key": "Process",
-          "value": "Mixed"
+          "key": "Aufbereitung",
+          "value": "Gemischt"
         },
         {
-          "key": "Tasting notes",
-          "value": "stone fruit and praline"
+          "key": "Geschmacksnoten",
+          "value": "Steinobst und Praline"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -606,26 +606,26 @@
       "name": "Yirgacheffe Filter",
       "categoryKey": "filter",
       "priceMinor": 2290,
-      "descriptionHtml": "<p>Yirgacheffe Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>jasmine, bergamot and stone fruit</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Yirgacheffe Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Jasmin, Bergamotte und Steinobst</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Ethiopia"
+          "key": "Herkunft",
+          "value": "Äthiopien"
         },
         {
-          "key": "Roast level",
-          "value": "Light"
+          "key": "Röstgrad",
+          "value": "Hell"
         },
         {
-          "key": "Process",
-          "value": "Washed"
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
         },
         {
-          "key": "Tasting notes",
-          "value": "jasmine and bergamot"
+          "key": "Geschmacksnoten",
+          "value": "Jasmin und Bergamotte"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -657,26 +657,26 @@
       "name": "Huila Filter",
       "categoryKey": "filter",
       "priceMinor": 2190,
-      "descriptionHtml": "<p>Huila Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>red berries and panela</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Huila Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>rote Beeren und Panela</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Colombia"
+          "key": "Herkunft",
+          "value": "Kolumbien"
         },
         {
-          "key": "Roast level",
-          "value": "Light-medium"
+          "key": "Röstgrad",
+          "value": "Hell bis mittel"
         },
         {
-          "key": "Process",
-          "value": "Washed"
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
         },
         {
-          "key": "Tasting notes",
-          "value": "red berries and panela"
+          "key": "Geschmacksnoten",
+          "value": "rote Beeren und Panela"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -704,26 +704,26 @@
       "name": "Kenya AB Filter",
       "categoryKey": "filter",
       "priceMinor": 2490,
-      "descriptionHtml": "<p>Kenya AB Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blackcurrant and a juicy acidity</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Kenya AB Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Schwarze Johannisbeere und eine saftige Säure</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Kenya"
+          "key": "Herkunft",
+          "value": "Kenia"
         },
         {
-          "key": "Roast level",
-          "value": "Light"
+          "key": "Röstgrad",
+          "value": "Hell"
         },
         {
-          "key": "Process",
-          "value": "Washed"
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
         },
         {
-          "key": "Tasting notes",
-          "value": "blackcurrant"
+          "key": "Geschmacksnoten",
+          "value": "Schwarze Johannisbeere"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -746,26 +746,26 @@
       "name": "Ohne Decaf",
       "categoryKey": "decaf",
       "priceMinor": 1990,
-      "descriptionHtml": "<p>Ohne Decaf is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>milk chocolate and roasted nut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Ohne Decaf ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Vollmilchschokolade und geröstete Nuss</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Colombia"
+          "key": "Herkunft",
+          "value": "Kolumbien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium"
+          "key": "Röstgrad",
+          "value": "Mittel"
         },
         {
-          "key": "Process",
-          "value": "Sugarcane EA"
+          "key": "Aufbereitung",
+          "value": "Zuckerrohr-EA"
         },
         {
-          "key": "Tasting notes",
-          "value": "milk chocolate"
+          "key": "Geschmacksnoten",
+          "value": "Vollmilchschokolade"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -784,30 +784,30 @@
     },
     {
       "sourceId": "SO-001",
-      "slug": "gesha-limited",
-      "name": "Gesha Limited Lot",
+      "slug": "gesha-limitiert",
+      "name": "Gesha, limitierte Partie",
       "categoryKey": "single-origin",
       "priceMinor": 3890,
-      "descriptionHtml": "<p>Gesha Limited Lot is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>jasmine, peach and bergamot</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Gesha, limitierte Partie ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Jasmin, Pfirsich und Bergamotte</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
+          "key": "Herkunft",
           "value": "Panama"
         },
         {
-          "key": "Roast level",
-          "value": "Light"
+          "key": "Röstgrad",
+          "value": "Hell"
         },
         {
-          "key": "Process",
-          "value": "Washed"
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
         },
         {
-          "key": "Tasting notes",
-          "value": "jasmine and peach"
+          "key": "Geschmacksnoten",
+          "value": "Jasmin und Pfirsich"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -839,26 +839,26 @@
       "name": "Sidamo Natural",
       "categoryKey": "single-origin",
       "priceMinor": 2590,
-      "descriptionHtml": "<p>Sidamo Natural is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blueberry and dark chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Sidamo Natural ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Blaubeere und Zartbitterschokolade</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Ethiopia"
+          "key": "Herkunft",
+          "value": "Äthiopien"
         },
         {
-          "key": "Roast level",
-          "value": "Light-medium"
+          "key": "Röstgrad",
+          "value": "Hell bis mittel"
         },
         {
-          "key": "Process",
+          "key": "Aufbereitung",
           "value": "Natural"
         },
         {
-          "key": "Tasting notes",
-          "value": "blueberry"
+          "key": "Geschmacksnoten",
+          "value": "Blaubeere"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -885,26 +885,26 @@
       "name": "Antigua Single Origin",
       "categoryKey": "single-origin",
       "priceMinor": 2390,
-      "descriptionHtml": "<p>Antigua Single Origin is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa, orange and caramel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Antigua Single Origin ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Kakao, Orange und Karamell</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
+          "key": "Herkunft",
           "value": "Guatemala"
         },
         {
-          "key": "Roast level",
-          "value": "Medium"
+          "key": "Röstgrad",
+          "value": "Mittel"
         },
         {
-          "key": "Process",
-          "value": "Washed"
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
         },
         {
-          "key": "Tasting notes",
-          "value": "cocoa and orange"
+          "key": "Geschmacksnoten",
+          "value": "Kakao und Orange"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -928,22 +928,22 @@
     },
     {
       "sourceId": "TEA-001",
-      "slug": "ostfriesen-broken",
-      "name": "Ostfriesen Broken",
+      "slug": "ostfriesische-mischung",
+      "name": "Ostfriesische Mischung",
       "categoryKey": "tea",
       "priceMinor": 1290,
-      "descriptionHtml": "<p>A robust Assam broken-leaf blend, <strong>malty and strong</strong> — the classic base for a hearty cup.</p>",
+      "descriptionHtml": "<p>Eine kräftige Assam-Broken-Mischung, <strong>malzig und stark</strong> – die klassische Grundlage für eine herzhafte Tasse.</p>",
       "attributes": [
         {
-          "key": "Type",
-          "value": "Black tea"
+          "key": "Sorte",
+          "value": "Schwarztee"
         },
         {
-          "key": "Origin",
+          "key": "Herkunft",
           "value": "Assam"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "500"
         }
       ],
@@ -967,22 +967,22 @@
     },
     {
       "sourceId": "TEA-002",
-      "slug": "sencha-green",
-      "name": "Sencha Green",
+      "slug": "sencha-gruentee",
+      "name": "Sencha Grüntee",
       "categoryKey": "tea",
       "priceMinor": 1490,
-      "descriptionHtml": "<p>Grassy, fresh Japanese sencha with a gentle sweetness.</p>",
+      "descriptionHtml": "<p>Grasiger, frischer japanischer Sencha mit sanfter Süße.</p>",
       "attributes": [
         {
-          "key": "Type",
-          "value": "Green tea"
+          "key": "Sorte",
+          "value": "Grüntee"
         },
         {
-          "key": "Origin",
+          "key": "Herkunft",
           "value": "Japan"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "250"
         }
       ],
@@ -1001,22 +1001,22 @@
     },
     {
       "sourceId": "TEA-003",
-      "slug": "pfefferminz",
-      "name": "Pfefferminz Herbal",
+      "slug": "pfefferminztee",
+      "name": "Pfefferminztee",
       "categoryKey": "tea",
       "priceMinor": 990,
-      "descriptionHtml": "<p>Pure peppermint leaf, caffeine-free and bright.</p>",
+      "descriptionHtml": "<p>Reine Pfefferminzblätter, koffeinfrei und frisch.</p>",
       "attributes": [
         {
-          "key": "Type",
-          "value": "Herbal"
+          "key": "Sorte",
+          "value": "Kräutertee"
         },
         {
-          "key": "Origin",
-          "value": "Germany"
+          "key": "Herkunft",
+          "value": "Deutschland"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "ca. 250"
         }
       ],
@@ -1039,19 +1039,19 @@
       "name": "Kontor Grind One",
       "categoryKey": "grinders",
       "priceMinor": 34900,
-      "descriptionHtml": "<p>A flat-burr shop grinder for a busy counter. Stepless adjustment, quiet motor.</p>",
+      "descriptionHtml": "<p>Eine Ladenmühle mit Scheibenmahlwerk für den vollen Tresen. Stufenlos einstellbar, leiser Motor.</p>",
       "attributes": [
         {
-          "key": "Burr",
-          "value": "64 mm flat"
+          "key": "Mahlwerk",
+          "value": "64 mm, Scheiben"
         },
         {
-          "key": "Adjustment",
-          "value": "Stepless"
+          "key": "Einstellung",
+          "value": "Stufenlos"
         },
         {
-          "key": "Hopper",
-          "value": "1.2 kg"
+          "key": "Bohnenbehälter",
+          "value": "1,2 kg"
         }
       ],
       "pictures": [
@@ -1077,19 +1077,19 @@
     },
     {
       "sourceId": "GRD-002",
-      "slug": "kontor-hand-grinder",
-      "name": "Kontor Hand Grinder",
+      "slug": "kontor-handmuehle",
+      "name": "Kontor Handmühle",
       "categoryKey": "grinders",
       "priceMinor": 8900,
-      "descriptionHtml": "<p>A precise hand grinder for filter brewing on the go.</p>",
+      "descriptionHtml": "<p>Eine präzise Handmühle für Filterkaffee unterwegs.</p>",
       "attributes": [
         {
-          "key": "Burr",
-          "value": "38 mm conical"
+          "key": "Mahlwerk",
+          "value": "38 mm, Kegel"
         },
         {
-          "key": "Body",
-          "value": "Anodised aluminium"
+          "key": "Gehäuse",
+          "value": "Eloxiertes Aluminium"
         }
       ],
       "pictures": [
@@ -1106,22 +1106,22 @@
     },
     {
       "sourceId": "MCH-001",
-      "slug": "hafen-dual-boiler",
-      "name": "Hafen Dual Boiler",
+      "slug": "hafen-dualboiler",
+      "name": "Hafen Dualboiler",
       "categoryKey": "machines",
       "priceMinor": 189000,
-      "descriptionHtml": "<p>A dual-boiler espresso machine for simultaneous brewing and steaming, PID controlled.</p>",
+      "descriptionHtml": "<p>Eine Espressomaschine mit zwei Boilern für gleichzeitiges Brühen und Aufschäumen, PID-gesteuert.</p>",
       "attributes": [
         {
-          "key": "Boilers",
-          "value": "Dual"
+          "key": "Boiler",
+          "value": "Zwei"
         },
         {
-          "key": "Control",
+          "key": "Steuerung",
           "value": "PID"
         },
         {
-          "key": "Portafilter",
+          "key": "Siebträger",
           "value": "58 mm"
         }
       ],
@@ -1154,18 +1154,18 @@
     {
       "sourceId": "ACC-001",
       "slug": "tamper-58",
-      "name": "Precision Tamper 58 mm",
+      "name": "Präzisions-Tamper 58 mm",
       "categoryKey": "accessories",
       "priceMinor": 4500,
-      "descriptionHtml": "<p>A weighted 58&nbsp;mm stainless tamper with a walnut handle.</p>",
+      "descriptionHtml": "<p>Ein beschwerter 58&nbsp;mm-Tamper aus Edelstahl mit Griff aus Walnuss.</p>",
       "attributes": [
         {
-          "key": "Diameter",
+          "key": "Durchmesser",
           "value": "58 mm"
         },
         {
           "key": "Material",
-          "value": "Stainless / walnut"
+          "value": "Edelstahl / Walnuss"
         }
       ],
       "pictures": [
@@ -1182,19 +1182,19 @@
     },
     {
       "sourceId": "ACC-002",
-      "slug": "milk-pitcher-05",
-      "name": "Milk Pitcher 0.5 L",
+      "slug": "milchkaennchen-05",
+      "name": "Milchkännchen 0,5 l",
       "categoryKey": "accessories",
       "priceMinor": 2900,
-      "descriptionHtml": "<p>A 0.5&nbsp;litre stainless steaming pitcher with a sharp spout for latte art.</p>",
+      "descriptionHtml": "<p>Ein Aufschäumkännchen aus Edelstahl, 0,5&nbsp;Liter, mit spitzem Ausguss für Latte Art.</p>",
       "attributes": [
         {
-          "key": "Capacity",
-          "value": "0.5 L"
+          "key": "Fassungsvermögen",
+          "value": "0,5 l"
         },
         {
           "key": "Material",
-          "value": "Stainless steel"
+          "value": "Edelstahl"
         }
       ],
       "pictures": [],
@@ -1202,19 +1202,19 @@
     },
     {
       "sourceId": "SYR-001",
-      "slug": "creme-caramel-syrup",
-      "name": "Crème Caramel Syrup 1 L",
+      "slug": "creme-caramel-sirup",
+      "name": "Crème-Caramel-Sirup 1 l",
       "categoryKey": "syrups",
       "priceMinor": 1190,
-      "descriptionHtml": "<p>A burnt-sugar caramel syrup for lattes and iced coffee, in a 1&nbsp;litre glass bottle.</p>",
+      "descriptionHtml": "<p>Ein Karamellsirup aus gebranntem Zucker für Latte und Eiskaffee, in der 1&nbsp;Liter-Glasflasche.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "1000"
         },
         {
-          "key": "Flavour",
-          "value": "Caramel"
+          "key": "Geschmack",
+          "value": "Karamell"
         }
       ],
       "pictures": [
@@ -1233,18 +1233,18 @@
     },
     {
       "sourceId": "CHO-001",
-      "slug": "drinking-chocolate",
-      "name": "Drinking Chocolate 1 kg",
+      "slug": "trinkschokolade",
+      "name": "Trinkschokolade 1 kg",
       "categoryKey": "chocolate",
       "priceMinor": 1890,
-      "descriptionHtml": "<p>A <strong>32&nbsp;% cocoa</strong> drinking chocolate that dissolves in steamed milk without lumps.</p>",
+      "descriptionHtml": "<p>Eine Trinkschokolade mit <strong>32&nbsp;% Kakao</strong>, die sich ohne Klümpchen in aufgeschäumter Milch löst.</p>",
       "attributes": [
         {
-          "key": "Cocoa",
+          "key": "Kakaoanteil",
           "value": "32 %"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -1268,19 +1268,19 @@
     },
     {
       "sourceId": "CLN-001",
-      "slug": "burr-brush",
-      "name": "Burr Cleaning Brush",
+      "slug": "mahlwerkpinsel",
+      "name": "Reinigungspinsel fürs Mahlwerk",
       "categoryKey": "cleaning",
       "priceMinor": 690,
-      "descriptionHtml": "<p>A soft natural-bristle brush for the burrs and chute of a grinder.</p>",
+      "descriptionHtml": "<p>Ein weicher Pinsel mit Naturborsten für Mahlwerk und Auswurf einer Mühle.</p>",
       "attributes": [
         {
-          "key": "Bristles",
-          "value": "Natural"
+          "key": "Borsten",
+          "value": "Natur"
         },
         {
-          "key": "Handle",
-          "value": "Beech"
+          "key": "Griff",
+          "value": "Buche"
         }
       ],
       "pictures": [
@@ -1297,19 +1297,19 @@
     },
     {
       "sourceId": "CUP-001",
-      "slug": "stoneware-cup-set",
-      "name": "Stoneware Cup Set (6)",
+      "slug": "steinzeug-tassenset",
+      "name": "Steinzeug-Tassenset (6)",
       "categoryKey": "cups",
       "priceMinor": 5400,
-      "descriptionHtml": "<p>Six handmade 200&nbsp;ml stoneware cups for flat whites and cortados, in the glaze of your choice.</p>",
+      "descriptionHtml": "<p>Sechs handgemachte Steinzeugtassen à 200&nbsp;ml für Flat White und Cortado, in der Glasur Ihrer Wahl.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "200"
         },
         {
-          "key": "Pieces",
-          "value": "6 cups"
+          "key": "Stückzahl",
+          "value": "6 Tassen"
         }
       ],
       "pictures": [
@@ -1324,10 +1324,10 @@
         }
       ],
       "lineNoteEnabled": true,
-      "lineNotePrompt": "Which glazes, and how many of each?",
+      "lineNotePrompt": "Welche Glasuren, und wie viele von jeder?",
       "variants": [
         {
-          "name": "Terracotta",
+          "name": "Terrakotta",
           "colour": "#b5623f",
           "pictures": [
             {
@@ -1342,7 +1342,7 @@
           ]
         },
         {
-          "name": "Mustard",
+          "name": "Senfgelb",
           "colour": "#d9a62e",
           "pictures": [
             {
@@ -1357,7 +1357,7 @@
           ]
         },
         {
-          "name": "Two-tone sand and clay",
+          "name": "Zweifarbig Sand und Ton",
           "colour": "#d8c3a0",
           "pictures": [
             {
@@ -1376,7 +1376,7 @@
           ]
         },
         {
-          "name": "Rust",
+          "name": "Rost",
           "colour": "#8a3b24",
           "pictures": [
             {
@@ -1391,19 +1391,19 @@
     },
     {
       "sourceId": "CUP-002",
-      "slug": "latte-glass-set",
-      "name": "Latte Glass Set (6)",
+      "slug": "latte-glaeser",
+      "name": "Latte-Gläser (6)",
       "categoryKey": "cups",
       "priceMinor": 4200,
-      "descriptionHtml": "<p>Six double-walled 300&nbsp;ml latte glasses.</p>",
+      "descriptionHtml": "<p>Sechs doppelwandige Latte-Gläser à 300&nbsp;ml.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "300"
         },
         {
-          "key": "Pieces",
-          "value": "6 glasses"
+          "key": "Stückzahl",
+          "value": "6 Gläser"
         }
       ],
       "pictures": [
@@ -1423,23 +1423,23 @@
     },
     {
       "sourceId": "CUP-003",
-      "slug": "takeaway-cup-300",
-      "name": "Takeaway Cup 300 ml (50)",
+      "slug": "to-go-becher-300",
+      "name": "To-go-Becher 300 ml (50)",
       "categoryKey": "cups",
       "priceMinor": 1350,
-      "descriptionHtml": "<p>Fifty double-walled 300&nbsp;ml takeaway cups, unprinted.</p>",
+      "descriptionHtml": "<p>Fünfzig doppelwandige To-go-Becher à 300&nbsp;ml, unbedruckt.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "300"
         },
         {
-          "key": "Colour",
-          "value": "White"
+          "key": "Farbe",
+          "value": "Weiß"
         },
         {
-          "key": "Pieces",
-          "value": "50 cups"
+          "key": "Stückzahl",
+          "value": "50 Becher"
         }
       ],
       "pictures": [
@@ -1457,19 +1457,19 @@
     },
     {
       "sourceId": "CUP-004",
-      "slug": "takeaway-lid-flat",
-      "name": "Takeaway Lid, Flat (50)",
+      "slug": "to-go-deckel-flach",
+      "name": "To-go-Deckel, flach (50)",
       "categoryKey": "cups",
       "priceMinor": 490,
-      "descriptionHtml": "<p>Fifty flat sip lids for the 300&nbsp;ml takeaway cup.</p>",
+      "descriptionHtml": "<p>Fünfzig flache Trinkdeckel für den 300&nbsp;ml-To-go-Becher.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "300"
         },
         {
-          "key": "Pieces",
-          "value": "50 lids"
+          "key": "Stückzahl",
+          "value": "50 Deckel"
         }
       ],
       "pictures": [
@@ -1487,19 +1487,19 @@
     },
     {
       "sourceId": "CUP-005",
-      "slug": "takeaway-lid-domed",
-      "name": "Takeaway Lid, Domed (50)",
+      "slug": "to-go-deckel-gewoelbt",
+      "name": "To-go-Deckel, gewölbt (50)",
       "categoryKey": "cups",
       "priceMinor": 540,
-      "descriptionHtml": "<p>Fifty domed lids for the 300&nbsp;ml takeaway cup, for topped drinks.</p>",
+      "descriptionHtml": "<p>Fünfzig gewölbte Deckel für den 300&nbsp;ml-To-go-Becher, für Getränke mit Haube.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "300"
         },
         {
-          "key": "Pieces",
-          "value": "50 lids"
+          "key": "Stückzahl",
+          "value": "50 Deckel"
         }
       ],
       "pictures": [
@@ -1517,31 +1517,31 @@
     },
     {
       "sourceId": "CUP-006",
-      "slug": "takeaway-cup-lid-set-400",
-      "name": "Takeaway Cup with Lid 400 ml",
+      "slug": "to-go-becher-deckel-400",
+      "name": "To-go-Becher mit Deckel 400 ml",
       "categoryKey": "cups",
       "priceMinor": 38,
-      "descriptionHtml": "<p>A 400&nbsp;ml double-walled takeaway cup in black with a white sip lid, sold together as one set.</p>",
+      "descriptionHtml": "<p>Ein doppelwandiger To-go-Becher, 400&nbsp;ml, in Schwarz mit weißem Trinkdeckel, zusammen als ein Set verkauft.</p>",
       "attributes": [
         {
-          "key": "Volume",
+          "key": "Volumen",
           "value": "400"
         },
         {
-          "key": "Colour (cup)",
-          "value": "Black"
+          "key": "Farbe (Becher)",
+          "value": "Schwarz"
         },
         {
-          "key": "Colour (lid)",
-          "value": "White"
+          "key": "Farbe (Deckel)",
+          "value": "Weiß"
         },
         {
-          "key": "Material (cup)",
-          "value": "Paper, PE-lined"
+          "key": "Material (Becher)",
+          "value": "Papier, PE-beschichtet"
         },
         {
-          "key": "Material (lid)",
-          "value": "Polystyrene"
+          "key": "Material (Deckel)",
+          "value": "Polystyrol"
         }
       ],
       "pictures": [
@@ -1559,7 +1559,7 @@
           }
         }
       ],
-      "parts": ["cup", "lid"],
+      "parts": ["Becher", "Deckel"],
       "packaging": {
         "piecesPerPack": 50,
         "packsPerBox": 2,
@@ -1577,26 +1577,26 @@
       "name": "Guji Natural Filter",
       "categoryKey": "filter",
       "priceMinor": 2390,
-      "descriptionHtml": "<p>Guji Natural Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blueberry and dark chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Guji Natural Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Blaubeere und Zartbitterschokolade</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Ethiopia"
+          "key": "Herkunft",
+          "value": "Äthiopien"
         },
         {
-          "key": "Roast level",
-          "value": "Light"
+          "key": "Röstgrad",
+          "value": "Hell"
         },
         {
-          "key": "Process",
+          "key": "Aufbereitung",
           "value": "Natural"
         },
         {
-          "key": "Tasting notes",
-          "value": "blueberry"
+          "key": "Geschmacksnoten",
+          "value": "Blaubeere"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],
@@ -1621,26 +1621,26 @@
       "name": "Sumatra Filter",
       "categoryKey": "filter",
       "priceMinor": 2090,
-      "descriptionHtml": "<p>Sumatra Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cedar and dark cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "descriptionHtml": "<p>Sumatra Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Zedernholz und dunkler Kakao</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
       "attributes": [
         {
-          "key": "Origin",
-          "value": "Indonesia"
+          "key": "Herkunft",
+          "value": "Indonesien"
         },
         {
-          "key": "Roast level",
-          "value": "Medium"
+          "key": "Röstgrad",
+          "value": "Mittel"
         },
         {
-          "key": "Process",
-          "value": "Wet-hulled"
+          "key": "Aufbereitung",
+          "value": "Nass geschält"
         },
         {
-          "key": "Tasting notes",
-          "value": "cedar and cocoa"
+          "key": "Geschmacksnoten",
+          "value": "Zedernholz und Kakao"
         },
         {
-          "key": "Net weight",
+          "key": "Nettogewicht",
           "value": "1000"
         }
       ],

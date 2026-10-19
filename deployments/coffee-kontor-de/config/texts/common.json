@@ -1,62 +1,62 @@
 {
   "nav": {
-    "home": "Home",
-    "about": "About us",
-    "terms": "Terms of sale",
-    "conditions": "Payment & delivery",
-    "privacy": "Privacy",
-    "imprint": "Imprint",
-    "withdrawal": "Right of withdrawal",
-    "contact": "Contact",
-    "consent-contact": "Consent: contact form",
-    "consent-account": "Consent: customer account",
-    "inquiry": "Get in touch",
-    "licenses": "Licenses",
-    "more": "More"
+    "home": "Startseite",
+    "about": "Über uns",
+    "terms": "AGB",
+    "conditions": "Zahlung & Lieferung",
+    "privacy": "Datenschutz",
+    "imprint": "Impressum",
+    "withdrawal": "Widerrufsrecht",
+    "contact": "Kontakt",
+    "consent-contact": "Einwilligung: Kontaktformular",
+    "consent-account": "Einwilligung: Kundenkonto",
+    "inquiry": "Schreiben Sie uns",
+    "licenses": "Lizenzen",
+    "more": "Mehr"
   },
   "actions": {
-    "cancel": "Cancel",
-    "close": "Close",
-    "done": "Done",
-    "saving": "Saving…",
-    "sending": "Sending…",
-    "remove": "Remove",
-    "deleting": "Deleting…"
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "done": "Fertig",
+    "saving": "Wird gespeichert…",
+    "sending": "Wird gesendet…",
+    "remove": "Entfernen",
+    "deleting": "Wird gelöscht…"
   },
   "optional": "optional",
   "units": {
-    "piece": "pcs",
-    "pack": "pk",
-    "box": "bx"
+    "piece": "Stk.",
+    "pack": "Pck.",
+    "box": "Ktn."
   },
   "quantity": "{qty} {unit}",
   "quantityPieces": "{qty} {unit} ({pieces} {pieceUnit})",
   "tax": {
-    "included": "incl. {rate} % VAT",
-    "added": "plus {rate} % VAT",
-    "none": "no VAT charged",
+    "included": "inkl. {rate} % MwSt.",
+    "added": "zzgl. {rate} % MwSt.",
+    "none": "keine MwSt. berechnet",
     "mixed": {
-      "included": "incl. VAT at the rate each item states",
-      "added": "plus VAT at the rate each item states"
+      "included": "inkl. MwSt. zum jeweils angegebenen Satz",
+      "added": "zzgl. MwSt. zum jeweils angegebenen Satz"
     },
-    "line": "{rate} % VAT"
+    "line": "{rate} % MwSt."
   },
   "packaging": {
-    "heading": "Packaging",
-    "packContains": "Pack contains",
-    "boxContains": "Box contains",
-    "boxVolume": "Box volume",
-    "boxWeight": "Box weight"
+    "heading": "Verpackung",
+    "packContains": "Inhalt der Packung",
+    "boxContains": "Inhalt des Kartons",
+    "boxVolume": "Volumen des Kartons",
+    "boxWeight": "Gewicht des Kartons"
   },
   "product": {
-    "description": "Description",
-    "documents": "Documents",
-    "variants": "Variants",
-    "pairings": "Sold together",
+    "description": "Beschreibung",
+    "documents": "Dokumente",
+    "variants": "Varianten",
+    "pairings": "Zusammen verkauft",
     "availability": {
-      "in": "In stock",
-      "low": "Few left",
-      "out": "Out of stock"
+      "in": "Vorrätig",
+      "low": "Nur noch wenige",
+      "out": "Ausverkauft"
     }
   },
   "fileSize": {
@@ -64,81 +64,81 @@
     "mb": "{size} MB"
   },
   "order": {
-    "reference": "Order",
+    "reference": "Bestellung",
     "status": "Status",
-    "total": "Order total",
-    "reason": "Reason",
-    "changeNote": "Change note",
-    "contact": "Contact",
-    "invoicedTo": "Invoiced to",
-    "payment": "Payment",
-    "deliveryAddress": "Delivery address",
-    "preferredDelivery": "Preferred delivery date",
-    "preferredPickup": "Preferred collection date",
-    "items": "Your items",
-    "note": "Your note",
-    "pickupPoint": "Collect from",
-    "termsVersion": "As updated on {date}",
+    "total": "Gesamtbetrag",
+    "reason": "Grund",
+    "changeNote": "Hinweis zur Änderung",
+    "contact": "Ansprechperson",
+    "invoicedTo": "Rechnungsempfänger",
+    "payment": "Zahlung",
+    "deliveryAddress": "Lieferadresse",
+    "preferredDelivery": "Gewünschter Liefertermin",
+    "preferredPickup": "Gewünschter Abholtermin",
+    "items": "Ihre Positionen",
+    "note": "Ihre Anmerkung",
+    "pickupPoint": "Abholort",
+    "termsVersion": "Stand vom {date}",
     "statuses": {
-      "requested": "Awaiting confirmation",
-      "approved": "Confirmed",
-      "readyDelivery": "On its way to you",
-      "readyPickup": "Ready to collect",
-      "completed": "Complete",
-      "declined": "Declined",
-      "cancelled": "Cancelled"
+      "requested": "Wartet auf Bestätigung",
+      "approved": "Bestätigt",
+      "readyDelivery": "Unterwegs zu Ihnen",
+      "readyPickup": "Abholbereit",
+      "completed": "Abgeschlossen",
+      "declined": "Abgelehnt",
+      "cancelled": "Storniert"
     },
     "paymentMethods": {
-      "cash": "Cash",
-      "transfer": "Bank transfer",
-      "card": "Card, arranged with us"
+      "cash": "Barzahlung",
+      "transfer": "Überweisung",
+      "card": "Karte, nach Absprache mit uns"
     },
     "paymentStates": {
-      "notDue": "Nothing due yet",
-      "awaiting": "Awaiting payment",
-      "paid": "Paid"
+      "notDue": "Noch nichts fällig",
+      "awaiting": "Zahlung ausstehend",
+      "paid": "Bezahlt"
     }
   },
   "fulfilment": {
-    "label": "How it arrives",
-    "delivery": "Delivery",
-    "pickup": "Self-pickup"
+    "label": "Lieferart",
+    "delivery": "Lieferung",
+    "pickup": "Selbstabholung"
   },
   "partyKind": {
-    "person": "Private person",
-    "company": "Company"
+    "person": "Privatperson",
+    "company": "Unternehmen"
   },
   "fields": {
     "name": {
       "label": "Name",
-      "required": "Please enter your name."
+      "required": "Bitte geben Sie Ihren Namen ein."
     },
     "firstName": {
-      "label": "First name",
-      "required": "Please enter your first name."
+      "label": "Vorname",
+      "required": "Bitte geben Sie Ihren Vornamen ein."
     },
     "lastName": {
-      "label": "Last name",
-      "required": "Please enter your last name."
+      "label": "Nachname",
+      "required": "Bitte geben Sie Ihren Nachnamen ein."
     },
     "email": {
-      "label": "Email",
-      "required": "Please enter your email address.",
-      "invalid": "Please enter a valid email address."
+      "label": "E-Mail",
+      "required": "Bitte geben Sie Ihre E-Mail-Adresse ein.",
+      "invalid": "Bitte geben Sie eine gültige E-Mail-Adresse ein."
     },
     "phone": {
-      "label": "Phone",
-      "required": "Please enter your phone number.",
-      "incomplete": "Please enter a complete phone number."
+      "label": "Telefon",
+      "required": "Bitte geben Sie Ihre Telefonnummer ein.",
+      "incomplete": "Bitte geben Sie eine vollständige Telefonnummer ein."
     },
     "companyName": {
-      "label": "Company name",
-      "required": "Please enter your company name."
+      "label": "Firmenname",
+      "required": "Bitte geben Sie Ihren Firmennamen ein."
     },
     "companyId": {
-      "label": "Company ID",
-      "required": "Please enter your company ID.",
-      "format": "Please enter it in one of the expected formats, e.g. {examples}."
+      "label": "Unternehmenskennung",
+      "required": "Bitte geben Sie Ihre Unternehmenskennung ein.",
+      "format": "Bitte geben Sie sie in einem der erwarteten Formate ein, z. B. {examples}."
     }
   }
 }

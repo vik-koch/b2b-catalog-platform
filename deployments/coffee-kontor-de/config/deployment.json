@@ -2,7 +2,7 @@
   "locale": "de-DE",
   "branding": {
     "name": "Coffee Kontor",
-    "tagline": "Wholesale specialty coffee",
+    "tagline": "Spezialitätenkaffee für den Großhandel",
     "startYear": 2021,
     "logo": {
       "width": 166,
@@ -60,7 +60,7 @@
   },
   "locations": [
     {
-      "name": "Speicherstadt Office",
+      "name": "Büro Speicherstadt",
       "description": "Am Sandtorkai 30, 20457 Hamburg",
       "map": {
         "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
@@ -73,16 +73,16 @@
     "locations": [
       {
         "key": "speicherstadt",
-        "name": "Speicherstadt Office",
+        "name": "Büro Speicherstadt",
         "address": "Am Sandtorkai 30, 20457 Hamburg",
-        "description": "Weekdays 9:00–17:00, at the counter on the ground floor.",
+        "description": "Werktags 9:00–17:00 Uhr, am Tresen im Erdgeschoss.",
         "mapUrl": "https://www.openstreetmap.org/?mlat=53.5430&mlon=9.9880#map=17/53.5430/9.9880"
       },
       {
         "key": "altona",
-        "name": "Altona Warehouse",
+        "name": "Lager Altona",
         "address": "Ottenser Hauptstraße 10, 22765 Hamburg",
-        "description": "Weekdays 7:00–15:00, loading bay at the rear.",
+        "description": "Werktags 7:00–15:00 Uhr, Laderampe auf der Rückseite.",
         "mapUrl": "https://www.openstreetmap.org/?mlat=53.5510&mlon=9.9350#map=17/53.5510/9.9350"
       }
     ]
@@ -115,8 +115,8 @@
     "zones": [
       {
         "key": "city",
-        "title": "Hamburg city",
-        "description": "Delivered by our own van, usually within two working days.",
+        "title": "Stadtgebiet Hamburg",
+        "description": "Mit unserem eigenen Transporter, meist innerhalb von zwei Werktagen.",
         "freeFromMinor": 15000,
         "match": {
           "postalPrefixes": ["20", "21", "22"]
@@ -124,8 +124,8 @@
       },
       {
         "key": "north",
-        "title": "Northern Germany",
-        "description": "Forwarded by our carrier, two to four working days.",
+        "title": "Norddeutschland",
+        "description": "Über unsere Spedition, zwei bis vier Werktage.",
         "freeFromMinor": 40000,
         "match": {
           "postalRanges": [
@@ -138,8 +138,8 @@
       },
       {
         "key": "rest",
-        "title": "Rest of Germany",
-        "description": "Collect your order from us, or send your own carrier to our warehouse.",
+        "title": "Übriges Deutschland",
+        "description": "Holen Sie Ihre Bestellung bei uns ab oder schicken Sie Ihre eigene Spedition zu unserem Lager.",
         "delivers": false,
         "match": {
           "all": true
@@ -151,7 +151,7 @@
     "countries": [
       {
         "code": "DE",
-        "label": "Germany",
+        "label": "Deutschland",
         "postalCode": {
           "pattern": "^[0-9]{5}$",
           "example": "20457",
@@ -164,13 +164,13 @@
     "formats": [
       {
         "key": "vat",
-        "label": "VAT number",
+        "label": "USt-IdNr.",
         "pattern": "^DE[0-9]{9}$",
         "example": "DE123456789"
       },
       {
         "key": "tax",
-        "label": "Tax number",
+        "label": "Steuernummer",
         "pattern": "^[0-9]{10}$",
         "example": "1234567890"
       }

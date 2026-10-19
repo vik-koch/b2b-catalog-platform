@@ -4,11 +4,11 @@
   "defaultTaxRate": 19,
   "pickupPoints": {
     "speicherstadt": {
-      "name": "Speicherstadt Office",
+      "name": "Büro Speicherstadt",
       "address": "Am Sandtorkai 30, 20457 Hamburg"
     },
     "altona": {
-      "name": "Altona Warehouse",
+      "name": "Lager Altona",
       "address": "Ottenser Hauptstraße 10, 22765 Hamburg"
     }
   },
@@ -39,7 +39,7 @@
         "zoneKey": "city",
         "freeFromMinor": 15000
       },
-      "customerNote": "Please ring at the side entrance, the shop is closed until 9.",
+      "customerNote": "Bitte am Seiteneingang klingeln, der Laden öffnet erst um 9.",
       "lines": [
         {
           "sourceId": "ESP-001",
@@ -87,7 +87,7 @@
           "sourceId": "CUP-001",
           "unit": "piece",
           "pieces": 4,
-          "note": "Two terracotta, two mustard please."
+          "note": "Bitte zwei in Terrakotta, zwei in Senfgelb."
         }
       ]
     },
@@ -136,7 +136,7 @@
       "email": null,
       "status": "cancelled",
       "paymentMethod": "cash",
-      "statusReason": "Called us the same afternoon — ordering again next month.",
+      "statusReason": "Hat am selben Nachmittag angerufen – bestellt nächsten Monat wieder.",
       "contactName": "Timo Reinders",
       "contactEmail": "t.reinders@mail.example",
       "contactPhone": "+494012019001",
@@ -156,7 +156,7 @@
         "zoneKey": "north",
         "freeFromMinor": 40000
       },
-      "customerNote": "Ordered by mistake, sorry — placed the same thing twice.",
+      "customerNote": "Versehentlich bestellt, Entschuldigung – dasselbe zweimal aufgegeben.",
       "lines": [
         {
           "sourceId": "ESP-005",
@@ -183,7 +183,7 @@
         "country": "DE"
       },
       "pickupKey": "altona",
-      "customerNote": "Collecting on the way to the market, some time after ten.",
+      "customerNote": "Hole auf dem Weg zum Markt ab, irgendwann nach zehn.",
       "lines": [
         {
           "sourceId": "ESP-002",
@@ -197,7 +197,7 @@
         }
       ],
       "adjustment": {
-        "note": "Only 12 of the espresso left in that roast — agreed on the phone to take those and the cups as ordered.",
+        "note": "Von dieser Röstung waren nur noch 12 Espresso da – telefonisch vereinbart, diese und die Tassen wie bestellt zu nehmen.",
         "on": "2026-09-02",
         "lines": [
           {

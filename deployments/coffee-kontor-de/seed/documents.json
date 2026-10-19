@@ -1,12 +1,12 @@
 {
   "documents": [
     {
-      "title": "Certificate of analysis",
+      "title": "Analysezertifikat",
       "file": {
-        "fileName": "certificate-of-analysis.pdf",
+        "fileName": "analysezertifikat.pdf",
         "body": [
-          "Placeholder document for the demo shop.",
-          "A real deployment uploads the certificate issued by its laboratory."
+          "Platzhalterdokument für den Demo-Shop.",
+          "Eine echte Installation lädt das Zertifikat hoch, das ihr Labor ausgestellt hat."
         ]
       },
       "issuedDaysAgo": 60,
@@ -14,12 +14,12 @@
       "categorySlugs": ["espresso"]
     },
     {
-      "title": "Organic certification",
+      "title": "Bio-Zertifizierung",
       "file": {
-        "fileName": "organic-certification.pdf",
+        "fileName": "bio-zertifizierung.pdf",
         "body": [
-          "Placeholder document for the demo shop.",
-          "Certifications are renewed by replacing the file on this document."
+          "Platzhalterdokument für den Demo-Shop.",
+          "Zertifizierungen werden erneuert, indem man die Datei dieses Dokuments ersetzt."
         ]
       },
       "link": "https://example.org/register/organic/DE-0000-0001",
@@ -28,12 +28,12 @@
       "categorySlugs": ["filter", "single-origin"]
     },
     {
-      "title": "Import declaration",
+      "title": "Einfuhrerklärung",
       "file": {
-        "fileName": "import-declaration.pdf",
+        "fileName": "einfuhrerklaerung.pdf",
         "body": [
-          "Placeholder document for the demo shop.",
-          "This one has lapsed: the shop shows it to nobody until it is replaced."
+          "Platzhalterdokument für den Demo-Shop.",
+          "Dieses ist abgelaufen: Der Shop zeigt es niemandem, bis es ersetzt wird."
         ]
       },
       "issuedDaysAgo": 400,
@@ -41,24 +41,24 @@
       "categorySlugs": ["espresso"]
     },
     {
-      "title": "Product data sheet",
+      "title": "Produktdatenblatt",
       "file": {
-        "fileName": "product-data-sheet.pdf",
+        "fileName": "produktdatenblatt.pdf",
         "body": [
-          "Placeholder document for the demo shop.",
-          "A data sheet has no expiry date, so it is always current."
+          "Platzhalterdokument für den Demo-Shop.",
+          "Ein Datenblatt hat kein Ablaufdatum und ist daher immer aktuell."
         ]
       },
       "issuedDaysAgo": null,
       "expiresInDays": null,
-      "productSlugs": ["takeaway-cup-300", "takeaway-lid-flat"]
+      "productSlugs": ["to-go-becher-300", "to-go-deckel-flach"]
     },
     {
-      "title": "Declaration of conformity",
+      "title": "Konformitätserklärung",
       "link": "https://example.org/register/conformity/0000-0002",
       "issuedDaysAgo": 120,
       "expiresInDays": 900,
-      "productSlugs": ["takeaway-cup-300", "takeaway-lid-flat"]
+      "productSlugs": ["to-go-becher-300", "to-go-deckel-flach"]
     }
   ]
 }

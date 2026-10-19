@@ -1,251 +1,251 @@
 {
   "common": {
-    "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
-    "linkExpiry": "This link can be used once, and expires seven days after it was sent."
+    "footerNote": "Diese Nachricht wurde automatisch von unserem Onlineshop verschickt. Bitte antworten Sie nicht an diese Adresse.",
+    "linkExpiry": "Dieser Link lässt sich einmal verwenden und läuft sieben Tage nach dem Versand ab."
   },
   "orders": {
-    "account": "Account",
-    "guest": "Guest",
-    "items": "Ordered",
+    "account": "Konto",
+    "guest": "Gast",
+    "items": "Bestellt",
     "paymentMethods": {
-      "cash": "Cash",
-      "transfer": "Bank transfer",
-      "card": "Card, arranged with the customer"
+      "cash": "Barzahlung",
+      "transfer": "Überweisung",
+      "card": "Karte, nach Absprache mit dem Kunden"
     }
   },
   "inquiry": {
-    "subject": "Inquiry",
-    "preheader": "A visitor sent an inquiry through the contact form.",
-    "heading": "New inquiry",
-    "preferredContact": "Preferred contact",
-    "message": "Message"
+    "subject": "Anfrage",
+    "preheader": "Über das Kontaktformular ist eine Anfrage eingegangen.",
+    "heading": "Neue Anfrage",
+    "preferredContact": "Bevorzugter Kontaktweg",
+    "message": "Nachricht"
   },
   "registrationReceived": {
-    "subject": "We received your registration",
-    "preheader": "Your registration is with our team.",
-    "heading": "Thank you for registering",
-    "body": "We have received your registration and passed it to our team.",
-    "nextSteps": "A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet."
+    "subject": "Ihr Kontoantrag ist bei uns",
+    "preheader": "Ihr Antrag liegt bei unserem Team.",
+    "heading": "Vielen Dank für Ihren Antrag",
+    "body": "Wir haben Ihren Antrag erhalten und an unser Team weitergegeben.",
+    "nextSteps": "Jemand aus dem Team prüft ihn und richtet Ihr Konto ein. Sobald es bereit ist, erhalten Sie eine zweite E-Mail mit Ihrem Passwort. Bis dahin können Sie sich noch nicht anmelden."
   },
   "accountApproved": {
-    "subject": "Your account is ready",
-    "preheader": "Choose a password to start ordering.",
-    "heading": "Your account is ready",
-    "body": "Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.",
-    "action": "Choose your password"
+    "subject": "Ihr Konto ist bereit",
+    "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
+    "heading": "Ihr Konto ist bereit",
+    "body": "Ihr Antrag wurde angenommen und Ihr Kundenkonto ist eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+    "action": "Passwort wählen"
   },
   "accountCreated": {
-    "subject": "An account has been created for you",
-    "preheader": "Choose a password to start ordering.",
-    "heading": "An account has been created for you",
-    "body": "We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.",
-    "action": "Choose your password"
+    "subject": "Für Sie wurde ein Konto eingerichtet",
+    "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
+    "heading": "Für Sie wurde ein Konto eingerichtet",
+    "body": "Wir haben Ihnen in unserem Onlineshop ein Kundenkonto eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+    "action": "Passwort wählen"
   },
   "passwordReset": {
-    "subject": "Reset your password",
-    "preheader": "Choose a new password for your account.",
-    "heading": "Reset your password",
-    "body": "Someone asked to reset the password for your customer account. Choose a new one and you can sign in again straight away.",
-    "expiry": "This link can be used once, and expires an hour after it was sent.",
-    "ignore": "If this was not you, you can ignore this message — your password stays as it is, and nobody can use this link without your mailbox.",
-    "action": "Choose a new password"
+    "subject": "Passwort zurücksetzen",
+    "preheader": "Wählen Sie ein neues Passwort für Ihr Konto.",
+    "heading": "Passwort zurücksetzen",
+    "body": "Jemand hat darum gebeten, das Passwort Ihres Kundenkontos zurückzusetzen. Wählen Sie ein neues, und Sie können sich sofort wieder anmelden.",
+    "expiry": "Dieser Link lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
+    "ignore": "Wenn Sie das nicht waren, können Sie diese Nachricht ignorieren – Ihr Passwort bleibt, wie es ist, und ohne Ihr Postfach kann niemand diesen Link verwenden.",
+    "action": "Neues Passwort wählen"
   },
   "signInCode": {
-    "message": "{code} is your Coffee Kontor sign-in code.",
-    "subject": "Your sign-in code",
-    "preheader": "Enter this code to finish signing in.",
-    "heading": "Your sign-in code",
-    "ignore": "If you did not try to sign in, change your password: someone else knows it."
+    "message": "{code} ist Ihr Anmeldecode für Coffee Kontor.",
+    "subject": "Ihr Anmeldecode",
+    "preheader": "Geben Sie diesen Code ein, um die Anmeldung abzuschließen.",
+    "heading": "Ihr Anmeldecode",
+    "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
   },
   "signInCall": {
-    "subject": "Finish signing in",
-    "preheader": "Open the link instead of calling.",
-    "heading": "Finish signing in",
-    "body": "This message stands in for the call to the shop. Open the link and the sign-in page you left open goes on by itself.",
-    "action": "Finish signing in",
-    "ignore": "If you did not try to sign in, change your password: someone else knows it."
+    "subject": "Anmeldung abschließen",
+    "preheader": "Öffnen Sie den Link, statt anzurufen.",
+    "heading": "Anmeldung abschließen",
+    "body": "Diese Nachricht ersetzt den Anruf beim Shop. Öffnen Sie den Link, und die Anmeldeseite, die Sie offen gelassen haben, geht von selbst weiter.",
+    "action": "Anmeldung abschließen",
+    "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
   },
   "accountDeleted": {
-    "subject": "Your account has been deleted",
-    "preheader": "Your customer account and personal details have been removed.",
-    "heading": "Your account has been deleted",
-    "body": "Your customer account is closed and your personal details have been removed from our records. This email address is no longer connected to an account with us.",
-    "orders": "Past orders are kept for our bookkeeping, with your details removed from them. If you register again later, it will be a new account — your earlier orders will not appear in it."
+    "subject": "Ihr Konto wurde gelöscht",
+    "preheader": "Ihr Kundenkonto und Ihre persönlichen Angaben wurden entfernt.",
+    "heading": "Ihr Konto wurde gelöscht",
+    "body": "Ihr Kundenkonto ist geschlossen, und Ihre persönlichen Angaben wurden aus unseren Unterlagen entfernt. Diese E-Mail-Adresse gehört bei uns zu keinem Konto mehr.",
+    "orders": "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben. Wenn Sie sich später neu registrieren, ist das ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
   },
   "newRegistration": {
-    "subject": "New registration",
-    "preheader": "Someone requested a customer account.",
-    "heading": "New registration",
-    "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
-    "customerTypeLabel": "Registering as",
-    "action": "Open the account list"
+    "subject": "Neuer Kontoantrag",
+    "preheader": "Jemand hat ein Kundenkonto beantragt.",
+    "heading": "Neuer Kontoantrag",
+    "body": "Jemand hat ein Kundenkonto beantragt. Prüfen Sie den Antrag, und wenn er echt ist, nehmen Sie ihn an und weisen Sie dem Kunden eine Kundengruppe zu.",
+    "customerTypeLabel": "Beantragt als",
+    "action": "Kontenliste öffnen"
   },
   "orderReceived": {
-    "subject": "We have your order request",
-    "preheader": "Your order request has reached us.",
-    "heading": "Thank you — we have your order",
-    "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
-    "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
-    "action": "Open your order"
+    "subject": "Ihre Bestellanfrage ist bei uns",
+    "preheader": "Ihre Bestellanfrage ist bei uns eingegangen.",
+    "heading": "Vielen Dank – Ihre Bestellung ist bei uns",
+    "body": "Ihre Bestellanfrage {reference} ist bei uns eingegangen. Noch wird nichts berechnet und nichts verschickt.",
+    "nextSteps": "Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze. Über den Link unten können Sie Ihre Bestellung jederzeit öffnen.",
+    "action": "Bestellung öffnen"
   },
   "newOrder": {
-    "subject": "New order request",
-    "preheader": "A customer has sent an order request.",
-    "heading": "New order request",
-    "body": "A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.",
-    "action": "Open the order"
+    "subject": "Neue Bestellanfrage",
+    "preheader": "Ein Kunde hat eine Bestellanfrage geschickt.",
+    "heading": "Neue Bestellanfrage",
+    "body": "Ein Kunde hat eine Bestellanfrage geschickt. Öffnen Sie sie, prüfen Sie Positionen und Preis und bestätigen Sie sie dann mit dem Kunden.",
+    "action": "Bestellung öffnen"
   },
   "orderCancelled": {
-    "subject": "Order called off",
-    "preheader": "A customer has called off their order.",
-    "heading": "Order called off",
-    "body": "A customer has called off an order that was still waiting for an answer. Nothing more is expected of you — but if anything was already set aside for it, it can go back on the shelf.",
-    "reasonLabel": "Reason given",
-    "reasonNone": "None given",
-    "paidNote": "A payment is recorded against this order. Any refund is arranged with the customer directly — nothing here moves money.",
-    "itemsHeading": "Was ordered",
-    "action": "Open the order"
+    "subject": "Bestellung vom Kunden storniert",
+    "preheader": "Ein Kunde hat seine Bestellung storniert.",
+    "heading": "Bestellung vom Kunden storniert",
+    "body": "Ein Kunde hat eine Bestellung storniert, die noch auf eine Antwort wartete. Von Ihnen wird nichts mehr erwartet – aber falls schon etwas dafür zurückgelegt wurde, kann es zurück ins Regal.",
+    "reasonLabel": "Angegebener Grund",
+    "reasonNone": "Keiner angegeben",
+    "paidNote": "Zu dieser Bestellung ist eine Zahlung verbucht. Eine Erstattung klären Sie direkt mit dem Kunden – hier wird kein Geld bewegt.",
+    "itemsHeading": "Bestellt war",
+    "action": "Bestellung öffnen"
   },
   "accountClosed": {
-    "subject": "A customer closed their account",
-    "preheader": "A customer has closed their account.",
-    "heading": "Account closed",
-    "body": "A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.",
-    "nameLabel": "Was",
-    "ordersLabel": "Orders kept",
-    "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
-    "action": "Open the order list"
+    "subject": "Ein Kunde hat sein Konto geschlossen",
+    "preheader": "Ein Kunde hat sein Konto geschlossen.",
+    "heading": "Konto geschlossen",
+    "body": "Ein Kunde hat sein Konto geschlossen. Seine Angaben sind gelöscht; seine früheren Bestellungen bleiben für die Buchhaltung erhalten, ohne alles, was ihn erkennbar macht.",
+    "nameLabel": "War",
+    "ordersLabel": "Erhaltene Bestellungen",
+    "openOrdersNote": "Davon noch nicht abgeschlossen: {count}. Sie müssen sie weiterhin abwickeln, und sie lassen sich keinem Kunden mehr zuordnen – prüfen Sie sie also zuerst.",
+    "action": "Bestellliste öffnen"
   },
   "orderStatusChanged": {
-    "subject": "Your order",
-    "preheader": "There is news about your order.",
-    "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
-    "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
-    "attachedNote": "Our payment details for this order are attached to this message.",
-    "action": "Open your order",
+    "subject": "Ihre Bestellung",
+    "preheader": "Es gibt Neuigkeiten zu Ihrer Bestellung.",
+    "changedIntro": "Wir haben diese Bestellung seit unserer letzten Nachricht geändert – was wir geändert haben, steht unten, und Inhalt und Gesamtbetrag sind die, die jetzt gelten.",
+    "correctedIntro": "Wir haben unseren Stand dieser Bestellung korrigiert: Sie war weiter vorangeschritten, als sie sollte. Wo sie jetzt steht, sehen Sie unten.",
+    "attachedNote": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an dieser Nachricht.",
+    "action": "Bestellung öffnen",
     "statuses": {
       "changed": {
-        "heading": "We have changed your order",
-        "body": "Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply."
+        "heading": "Wir haben Ihre Bestellung geändert",
+        "body": "Der Stand Ihrer Bestellung ist unverändert – Inhalt und Gesamtbetrag haben sich geändert. Es gelten die unten aufgeführten."
       },
       "reopened": {
-        "heading": "Your order is back with us",
-        "body": "We have put your order back in our queue and will come back to you about it shortly. Anything we told you about it before no longer applies."
+        "heading": "Ihre Bestellung liegt wieder bei uns",
+        "body": "Wir haben Ihre Bestellung wieder in unsere Bearbeitung genommen und melden uns in Kürze dazu. Was wir Ihnen vorher dazu gesagt haben, gilt nicht mehr."
       },
       "approved": {
-        "heading": "Your order is confirmed",
-        "body": "We have confirmed your order. We will let you know as soon as it is ready."
+        "heading": "Ihre Bestellung ist bestätigt",
+        "body": "Wir haben Ihre Bestellung bestätigt. Sobald sie bereit ist, sagen wir Ihnen Bescheid."
       },
       "readyDelivery": {
-        "heading": "Your order is on its way",
-        "body": "Your order has left us for delivery to the address below."
+        "heading": "Ihre Bestellung ist unterwegs",
+        "body": "Ihre Bestellung hat uns verlassen und wird an die Adresse unten geliefert."
       },
       "readyPickup": {
-        "heading": "Your order is ready to collect",
-        "body": "Your order is packed and waiting at the pickup location below. Please bring your order number."
+        "heading": "Ihre Bestellung ist abholbereit",
+        "body": "Ihre Bestellung ist gepackt und wartet am Abholort unten. Bitte bringen Sie Ihre Bestellnummer mit."
       },
       "completed": {
-        "heading": "Your order is complete",
-        "body": "Your order is finished. Thank you — we look forward to the next one."
+        "heading": "Ihre Bestellung ist abgeschlossen",
+        "body": "Ihre Bestellung ist erledigt. Vielen Dank – wir freuen uns auf die nächste."
       },
       "declined": {
-        "heading": "We cannot fill this order",
-        "body": "We are sorry: we are unable to fill this order. The reason is below, and you are welcome to call us about it."
+        "heading": "Wir können diese Bestellung nicht ausführen",
+        "body": "Es tut uns leid: Wir können diese Bestellung nicht ausführen. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
       },
       "cancelled": {
-        "heading": "Your order has been cancelled",
-        "body": "This order has been cancelled and will not be filled. The reason is below, and you are welcome to call us about it."
+        "heading": "Ihre Bestellung wurde storniert",
+        "body": "Diese Bestellung wurde storniert und wird nicht ausgeführt. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
       }
     }
   },
   "orderDocument": {
-    "subject": "A document for your order",
-    "preheader": "There is a document with your order.",
-    "action": "Open your order",
+    "subject": "Ein Dokument zu Ihrer Bestellung",
+    "preheader": "Zu Ihrer Bestellung gibt es ein Dokument.",
+    "action": "Bestellung öffnen",
     "kinds": {
       "paymentInstructions": {
-        "heading": "How to pay for your order",
-        "body": "Our payment details for this order are attached. Nothing about the order itself has changed."
+        "heading": "So bezahlen Sie Ihre Bestellung",
+        "body": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an. An der Bestellung selbst hat sich nichts geändert."
       },
       "orderSummary": {
-        "heading": "A copy of your order",
-        "body": "We have put a copy of your order with it, which you can open from the link below. Nothing about the order itself has changed."
+        "heading": "Eine Kopie Ihrer Bestellung",
+        "body": "Wir haben eine Kopie Ihrer Bestellung beigelegt, die Sie über den Link unten öffnen können. An der Bestellung selbst hat sich nichts geändert."
       }
     }
   },
   "syncRun": {
-    "startedLabel": "Started",
+    "startedLabel": "Gestartet",
     "labelLabel": "Export",
-    "sourceLabel": "Source",
-    "changesLabel": "Changes",
-    "errorLabel": "What went wrong",
-    "reasonLabel": "Why it is waiting",
+    "sourceLabel": "Quelle",
+    "changesLabel": "Änderungen",
+    "errorLabel": "Was schiefging",
+    "reasonLabel": "Warum er wartet",
     "reasons": {
-      "policy": "Its effect is larger than an automatic update is allowed to be",
-      "requested": "The source asked for it to be reviewed"
+      "policy": "Seine Auswirkung ist größer, als eine automatische Aktualisierung sein darf",
+      "requested": "Die Quelle hat um Prüfung gebeten"
     },
-    "openRun": "Open the run",
-    "reviewRun": "Review the update",
+    "openRun": "Lauf öffnen",
+    "reviewRun": "Aktualisierung prüfen",
     "areas": {
       "catalog": {
         "failed": {
-          "subject": "Catalog update failed",
-          "preheader": "An automatic catalog update did not go through.",
-          "heading": "An automatic catalog update failed",
-          "body": "Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system."
+          "subject": "Katalogaktualisierung fehlgeschlagen",
+          "preheader": "Eine automatische Katalogaktualisierung ist nicht durchgegangen.",
+          "heading": "Eine automatische Katalogaktualisierung ist fehlgeschlagen",
+          "body": "Ihr Katalog ist unverändert, und der Shop zeigt, was er vorher gezeigt hat. Solange das nicht behoben ist, veralten Preise und Bestände nach und nach – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
         },
         "recovered": {
-          "subject": "Catalog updates are working again",
-          "preheader": "The automatic catalog update went through.",
-          "heading": "Catalog updates are working again",
-          "body": "The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
+          "subject": "Katalogaktualisierungen funktionieren wieder",
+          "preheader": "Die automatische Katalogaktualisierung ist durchgegangen.",
+          "heading": "Katalogaktualisierungen funktionieren wieder",
+          "body": "Die Anbindung an Ihr System liefert wieder, und Ihr Katalog ist aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
         },
         "waiting": {
-          "subject": "A catalog update is waiting for you",
-          "preheader": "An automatic catalog update needs your decision.",
-          "heading": "A catalog update is waiting for you",
-          "body": "It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do."
+          "subject": "Eine Katalogaktualisierung wartet auf Sie",
+          "preheader": "Eine automatische Katalogaktualisierung braucht Ihre Entscheidung.",
+          "heading": "Eine Katalogaktualisierung wartet auf Sie",
+          "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, was sie ändern würde, und übernehmen oder verwerfen Sie sie – im Shop ändert sich nichts, bis Sie das tun."
         },
         "created": {
-          "subject": "New products from your system",
-          "preheader": "An automatic catalog update brought new products.",
-          "heading": "New products arrived",
-          "body": "They are in your catalog but not on the shop: a new product stays off the storefront until you have given it its description and pictures and published it.",
-          "action": "Open the new products"
+          "subject": "Neue Produkte aus Ihrem System",
+          "preheader": "Eine automatische Katalogaktualisierung hat neue Produkte gebracht.",
+          "heading": "Neue Produkte eingetroffen",
+          "body": "Sie sind in Ihrem Katalog, aber nicht im Shop: Ein neues Produkt bleibt unsichtbar, bis Sie ihm Beschreibung und Bilder gegeben und es veröffentlicht haben.",
+          "action": "Neue Produkte öffnen"
         }
       },
       "customers": {
         "failed": {
-          "subject": "Customer update failed",
-          "preheader": "An automatic customer update did not go through.",
-          "heading": "An automatic customer update failed",
-          "body": "Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system."
+          "subject": "Kundenaktualisierung fehlgeschlagen",
+          "preheader": "Eine automatische Kundenaktualisierung ist nicht durchgegangen.",
+          "heading": "Eine automatische Kundenaktualisierung ist fehlgeschlagen",
+          "body": "Ihre Kundenkonten sind unverändert, und wer sich anmelden konnte, kann es weiterhin. Solange das nicht behoben ist, erreichen neue Kunden und geänderte Kundengruppen den Shop nicht, und Sie müssen sie womöglich von Hand eintragen – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
         },
         "recovered": {
-          "subject": "Customer updates are working again",
-          "preheader": "The automatic customer update went through.",
-          "heading": "Customer updates are working again",
-          "body": "The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
+          "subject": "Kundenaktualisierungen funktionieren wieder",
+          "preheader": "Die automatische Kundenaktualisierung ist durchgegangen.",
+          "heading": "Kundenaktualisierungen funktionieren wieder",
+          "body": "Die Anbindung an Ihr System liefert wieder, und Ihre Kundenkonten sind aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
         },
         "waiting": {
-          "subject": "A customer update is waiting for you",
-          "preheader": "An automatic customer update needs your decision.",
-          "heading": "A customer update is waiting for you",
-          "body": "It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do."
+          "subject": "Eine Kundenaktualisierung wartet auf Sie",
+          "preheader": "Eine automatische Kundenaktualisierung braucht Ihre Entscheidung.",
+          "heading": "Eine Kundenaktualisierung wartet auf Sie",
+          "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, welche Konten sie einladen, ändern oder abschalten würde, und übernehmen oder verwerfen Sie sie – niemandes Zugang ändert sich, bis Sie das tun."
         }
       },
       "orders": {
         "failed": {
-          "subject": "Order updates failed",
-          "preheader": "An automatic order update did not go through.",
-          "heading": "An automatic order update failed",
-          "body": "Your orders are unchanged, which means customers are waiting to hear where theirs stands and nobody here has been told to answer them by hand. Until this is fixed, orders placed in the shop will not be answered — pass this message on to whoever looks after the connection to your system."
+          "subject": "Bestellaktualisierungen fehlgeschlagen",
+          "preheader": "Eine automatische Bestellaktualisierung ist nicht durchgegangen.",
+          "heading": "Eine automatische Bestellaktualisierung ist fehlgeschlagen",
+          "body": "Ihre Bestellungen sind unverändert – Kunden warten also auf Nachricht zum Stand ihrer Bestellung, und niemand hier ist beauftragt, ihnen von Hand zu antworten. Solange das nicht behoben ist, bleiben Bestellungen aus dem Shop unbeantwortet – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
         },
         "recovered": {
-          "subject": "Order updates are working again",
-          "preheader": "The automatic order update went through.",
-          "heading": "Order updates are working again",
-          "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps."
+          "subject": "Bestellaktualisierungen funktionieren wieder",
+          "preheader": "Die automatische Bestellaktualisierung ist durchgegangen.",
+          "heading": "Bestellaktualisierungen funktionieren wieder",
+          "body": "Die Anbindung an Ihr System beantwortet wieder Bestellungen. Was sie während der Unterbrechung bearbeitet hat, kommt mit der nächsten Aktualisierung: Eine Bestellung bringt ihren aktuellen Stand, keine Liste von Schritten."
         }
       }
     }

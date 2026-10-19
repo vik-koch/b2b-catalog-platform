@@ -1,15 +1,15 @@
 {
   "orderSummary": {
-    "title": "Order {reference}",
-    "placedLabel": "Placed",
-    "whenAny": "No date given",
-    "itemsLabel": "Item",
-    "quantityLabel": "Quantity",
-    "lineTotalLabel": "Total",
-    "returnNotice": "Unopened goods can be returned within 14 days of delivery. Write to us naming the order reference; the terms of sale set out the details.",
-    "footer": "This document states the order as it stands. It is not an invoice."
+    "title": "Bestellung {reference}",
+    "placedLabel": "Aufgegeben",
+    "whenAny": "Kein Termin angegeben",
+    "itemsLabel": "Produkt",
+    "quantityLabel": "Menge",
+    "lineTotalLabel": "Summe",
+    "returnNotice": "Ungeöffnete Ware kann innerhalb von 14 Tagen nach der Lieferung zurückgegeben werden. Schreiben Sie uns unter Angabe der Bestellnummer; die Einzelheiten regeln die AGB.",
+    "footer": "Dieses Dokument gibt die Bestellung in ihrem aktuellen Stand wieder. Es ist keine Rechnung."
   },
   "terms": {
-    "fileName": "terms-of-sale-{date}.pdf"
+    "fileName": "agb-{date}.pdf"
   }
 }

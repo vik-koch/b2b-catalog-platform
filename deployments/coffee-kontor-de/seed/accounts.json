@@ -2,8 +2,14 @@
   "password": "demo-kontor-2021",
   "tiers": [
     {
+      "key": "default",
+      "label": "Grundpreisliste",
+      "sortOrder": -1,
+      "discounts": {}
+    },
+    {
       "key": "wholesale",
-      "label": "Wholesale",
+      "label": "Großhandel",
       "sortOrder": 0,
       "discounts": {
         "espresso": 0.18,
@@ -60,9 +66,9 @@
           "country": "DE"
         },
         {
-          "label": "Warehouse",
+          "label": "Lager",
           "street": "Billstraße 82",
-          "street2": "Gate 3",
+          "street2": "Tor 3",
           "postalCode": "20539",
           "city": "Hamburg",
           "country": "DE"
@@ -210,7 +216,7 @@
       "tier": null,
       "addresses": [
         {
-          "label": "Home",
+          "label": "Zuhause",
           "street": "Holstenstraße 9",
           "postalCode": "22767",
           "city": "Hamburg",
@@ -285,7 +291,7 @@
       "tier": "wholesale",
       "addresses": [
         {
-          "label": "Home",
+          "label": "Zuhause",
           "street": "Sierichstraße 44",
           "postalCode": "22301",
           "city": "Hamburg",
