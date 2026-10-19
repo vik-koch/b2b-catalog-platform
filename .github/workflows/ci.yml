@@ -67,6 +67,10 @@ jobs:
       # would find the gap.
       - run: node tools/migrate-config.mjs --check
 
+      # The suites load only the test fixture; a committed deployment that
+      # would not boot or seed has to fail here instead of on its stack.
+      - run: node tools/check-deployments.mjs
+
       # A text key named …Aria tells its translator nobody sees it: an
       # accessible name, a screen-reader-only hint or an announcement.
       - run: node tools/check-aria-text.mjs
