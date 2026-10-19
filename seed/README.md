@@ -22,6 +22,7 @@ orders.json       placed orders, and the config values they snapshot
 documents.json    certificates and data sheets, and what they are shown on
 pages.json        each static page's title (and a consent page's box wording)
 pages/<slug>.html each static page's body, as the rich-text editor stores it
+marks/<name>.svg  the icons the category marks are drawn with
 ```
 
 Money is in minor units (`1690` = 16.90). Products, categories and orders are
@@ -34,6 +35,14 @@ Upserted on every run: pages (as a new version when the text differs), the
 catalog, tiers and prices, documents. Created only when missing: accounts,
 addresses, orders and consents — they are people and events, so a visitor's
 changes on a demo survive the next deploy.
+
+## Category marks
+
+A category's `mark` names an icon in `marks/`; the seed draws it on a tinted
+disc, the way an uploaded mark is shown on a chip. The icons are
+[Lucide](https://lucide.dev)'s, copied from the `lucide-static` package the web
+app already uses — ISC-licensed, see `marks/LICENSE`. Any 24-unit stroked icon
+in that style works; add the file, then name it.
 
 ## Pictures
 
@@ -68,29 +77,34 @@ it to another record.
 
 ### Catalog
 
-| Case                                                                                              | Where                                                                                   |
-| ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| A category that paginates (page size 24)                                                          | 26 espresso roasts, `ESP-001`…`026`                                                     |
-| Several pictures: tile slider, detail gallery                                                     | three on `ESP-001`…`004`, `ESP-006`, `FIL-001`, `SO-001`, `GRD-001`; two on most others |
-| No picture at all                                                                                 | every 5th product in file order (`pictures: []`)                                        |
-| A category without a mark, the name-only chip                                                     | `decaf` (`hasMark: false`)                                                              |
-| Packs and boxes, the usual case                                                                   | espresso: six bags to a pack, four packs to a box                                       |
-| A minimum above the pack size                                                                     | every 5th espresso (`minPieceQty: 24`)                                                  |
-| Shipped as two boxes                                                                              | every 6th espresso (`boxCount: 2`)                                                      |
-| Packs but no box                                                                                  | every 7th espresso                                                                      |
-| Sold by the single bag, pack opened                                                               | `ESP-003`, `ESP-011`, `ESP-019` (`minPieceQty: 1`)                                      |
-| Stock not tracked, no badge                                                                       | every 11th product in file order (no `stockPieces`)                                     |
-| Out of stock                                                                                      | every 9th product in file order (`stockPieces: 0`)                                      |
-| Few left, under every threshold                                                                   | every 7th product in file order (`stockPieces: 4`)                                      |
-| Reduced tax rate beside the default one                                                           | coffee and tea at 7 %, the rest at the config's 19 %                                    |
-| An attribute nobody declared, plain text                                                          | "Tasting notes"                                                                         |
-| A number attribute stored unit-free; one value that does not parse                                | "Net weight", and `TEA-003`'s "ca. 250"                                                 |
-| An assorted article: line note, variants on pictures, a long variant name, an unavailable variant | `CUP-001`                                                                               |
-| Sold together (pairing): one cup, two lids                                                        | `CUP-003` with `CUP-004` and `CUP-005`                                                  |
-| Sold as a set of parts, with an attribute per part; three boxes per hundred sets; few left        | `CUP-006`                                                                               |
-| The featured row: two featured among the random fill                                              | `CUP-003`, `CUP-006`                                                                    |
-| Unpublished, and deleted                                                                          | `FIL-090`, `FIL-091`                                                                    |
-| The catalogue index's filter panel                                                                | `catalogFilters`: origin                                                                |
+| Case                                                                                              | Where                                                                                                         |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| A listing that pages (page size 24)                                                               | the whole catalogue: 33 products on the storefront                                                            |
+| Several pictures: tile slider, detail gallery                                                     | three on `ESP-001`…`003`, `ESP-006`, `FIL-001`, `SO-001`, `GRD-001`, `MCH-001`, `CUP-002`; two on most others |
+| No picture at all                                                                                 | `ESP-005`, `ACC-002` (`pictures: []`)                                                                         |
+| A category without a mark, the name-only chip                                                     | `machines` (`mark: null`)                                                                                     |
+| Packs and boxes, the usual case                                                                   | espresso: six bags to a pack, four packs to a box                                                             |
+| A minimum above the pack size                                                                     | `ESP-005` (`minPieceQty: 24`)                                                                                 |
+| Shipped as two boxes                                                                              | `ESP-006` (`boxCount: 2`)                                                                                     |
+| Packs but no box                                                                                  | `ESP-007`, `ESP-014`                                                                                          |
+| Sold by the single bag, pack opened                                                               | `ESP-003` (`minPieceQty: 1`)                                                                                  |
+| Stock not tracked, no badge                                                                       | `SO-002`, `CUP-002` (no `stockPieces`)                                                                        |
+| Out of stock                                                                                      | `ESP-009`, `FIL-001`, `TEA-002` (`stockPieces: 0`)                                                            |
+| Few left, under every threshold                                                                   | `ESP-007`, `ESP-014`, `FIL-002`, `TEA-001`, `ACC-002` (`stockPieces: 4`)                                      |
+| Reduced tax rate beside the default one                                                           | coffee, tea, syrup and chocolate at 7 %, the rest at the config's 19 %                                        |
+| An attribute nobody declared, plain text                                                          | "Tasting notes"                                                                                               |
+| A number attribute stored unit-free; one value that does not parse                                | "Net weight", and `TEA-003`'s "ca. 250"                                                                       |
+| An assorted article: line note, variants on pictures, a long variant name, an unavailable variant | `CUP-001`                                                                                                     |
+| Sold together (pairing): one cup, two lids                                                        | `CUP-003` with `CUP-004` and `CUP-005`                                                                        |
+| Sold as a set of parts, with an attribute per part; three boxes per hundred sets; few left        | `CUP-006`                                                                                                     |
+| The featured row: two featured among the random fill                                              | `CUP-003`, `CUP-006`                                                                                          |
+| Unpublished, and deleted                                                                          | `FIL-090`, `FIL-091`                                                                                          |
+| The catalogue index's filter panel                                                                | `catalogFilters`: origin                                                                                      |
+
+The photos are studio shots on white or light grey where the library has one,
+and café scenes where it does not (the shop grinder, the tamper, the brush).
+Several products share a photo under different crops — a whole shot and a
+detail — which is also how a product shows several pictures of itself.
 
 ### Accounts
 

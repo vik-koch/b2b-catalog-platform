@@ -24,7 +24,7 @@ import {
  */
 export async function seedCatalog(
   client: Client,
-  catalog: SeedBundle['catalog'],
+  { catalog, marks }: Pick<SeedBundle, 'catalog' | 'marks'>,
   mediaRoot: string,
   pictureMode: PictureMode,
 ): Promise<void> {
@@ -32,8 +32,12 @@ export async function seedCatalog(
   const photos = new CatalogPhotos(mediaRoot, pictureMode);
 
   for (const [sortOrder, category] of catalog.categories.entries()) {
-    const mark = category.hasMark
-      ? await generateCategoryMark(mediaRoot, category.sourceId)
+    const mark = category.mark
+      ? await generateCategoryMark(
+          mediaRoot,
+          category.sourceId,
+          marks[category.mark],
+        )
       : null;
     const parentId = category.parentKey
       ? (idByKey.get(category.parentKey) ?? null)

@@ -25,6 +25,7 @@ import {
  *   documents.json   documents and the products they are shown on
  *   pages.json       page titles and consent wording
  *   pages/<slug>.html  each page's body
+ *   marks/<name>.svg   the icons category marks are drawn with
  */
 
 const attribute = z.strictObject({ key: z.string(), value: z.string() });
@@ -35,8 +36,12 @@ const category = z.strictObject({
   name: z.string(),
   /** Parent's sourceId, or null for a top-level category. */
   parentKey: z.string().nullable(),
-  /** A generated mark. False leaves the category name-only. */
-  hasMark: z.boolean(),
+  /** The icon its mark is drawn with, `marks/<mark>.svg`. Null leaves the
+   * category name-only. */
+  mark: z
+    .string()
+    .regex(/^[a-z0-9-]+$/, 'an icon file name, without .svg')
+    .nullable(),
 });
 
 const attributeDefinition = z.strictObject({
@@ -292,6 +297,8 @@ export interface SeedBundle {
   orders: z.infer<typeof orders>;
   documents: DocumentSeed[];
   pages: PageSeed[];
+  /** The icons the categories name, by name: what is inside each `<svg>`. */
+  marks: Record<string, string>;
 }
 
 /** Read and validate the bundle in `dir`. Throws naming the file that fails. */
@@ -305,8 +312,9 @@ export function loadSeedBundle(dir: string): SeedBundle {
     }
     return result.data;
   };
+  const catalogSeed = read(catalog, 'catalog.json');
   return {
-    catalog: read(catalog, 'catalog.json'),
+    catalog: catalogSeed,
     accounts: read(accounts, 'accounts.json'),
     orders: read(orders, 'orders.json'),
     documents: read(documents, 'documents.json').documents,
@@ -318,7 +326,22 @@ export function loadSeedBundle(dir: string): SeedBundle {
         'utf8',
       ).replace(/\n$/, ''),
     })),
+    marks: Object.fromEntries(
+      catalogSeed.categories
+        .flatMap((category) => (category.mark ? [category.mark] : []))
+        .map((name) => [name, iconOf(join(dir, 'marks', `${name}.svg`))]),
+    ),
   };
+}
+
+/** An icon file's drawing: the elements inside its `<svg>`, to be placed in
+ * another. A 24-unit stroked icon, as the bundled ones are. */
+function iconOf(path: string): string {
+  const svg = readFileSync(path, 'utf8');
+  const open = svg.indexOf('>', svg.indexOf('<svg'));
+  const close = svg.lastIndexOf('</svg>');
+  if (open < 0 || close < open) throw new Error(`${path} is not an SVG`);
+  return svg.slice(open + 1, close).trim();
 }
 
 /** One page of a bundle. Throws if the bundle has none by that slug. */

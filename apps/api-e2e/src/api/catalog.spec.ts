@@ -74,7 +74,7 @@ describe('GET /catalog/categories (FR-CAT-01/02)', () => {
 });
 
 describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
-  it('paginates a deep category and never leaks internal fields', async () => {
+  it('pages a deep category and never leaks internal fields', async () => {
     const res = await get('/catalog/categories/espresso/products');
 
     expect(res.status).toBe(200);
@@ -84,7 +84,9 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
       total: inEspresso.length,
       totalPages: Math.ceil(inEspresso.length / CATALOG_PAGE_SIZE),
     });
-    expect(res.data.items).toHaveLength(CATALOG_PAGE_SIZE);
+    expect(res.data.items).toHaveLength(
+      Math.min(inEspresso.length, CATALOG_PAGE_SIZE),
+    );
 
     const item = res.data.items[0];
     expect(Object.keys(item).sort()).toEqual([
@@ -125,11 +127,12 @@ describe('GET /catalog/categories/:slug/products (FR-CAT-03/04)', () => {
     expect(res.data.category.subcategories).toEqual([]);
   });
 
+  // No one category of the demo fills a page; the whole catalogue does.
   it('returns the remaining page', async () => {
-    const res = await get('/catalog/categories/espresso/products?page=2');
+    const res = await get('/catalog/products?page=2');
 
     expect(res.data.pagination.page).toBe(2);
-    expect(res.data.items).toHaveLength(inEspresso.length - CATALOG_PAGE_SIZE);
+    expect(res.data.items).toHaveLength(liveSeeds.length - CATALOG_PAGE_SIZE);
   });
 
   it('includes products from descendant categories on a parent (Pattern A)', async () => {

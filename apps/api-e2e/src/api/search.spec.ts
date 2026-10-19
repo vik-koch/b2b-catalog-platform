@@ -40,7 +40,7 @@ describe('GET /catalog/search (FR-SEARCH-01…03)', () => {
     // one of this product's words, and only the start of the other's.
     ['a word another product merely starts with', 'grind', 'Kontor Grind One'],
     ['a dropped apostrophe', 'crema doro', "Crema d'Oro"],
-    ['a dropped accent', 'kaicafe bar', 'Kaicafé Bar'],
+    ['a dropped accent', 'creme caramel', 'Crème Caramel Syrup 1 L'],
     ['a transposed letter', 'nordic pull', 'Nordic Pull'],
   ])('ranks %s first', async (_label, query, expected) => {
     const res = await search(query);
@@ -234,7 +234,7 @@ describe('GET /catalog/search/suggestions (FR-SEARCH-05)', () => {
   // producing more matches than the cap. No single seeded word does — the
   // demo names are too varied — and a cap only proves itself against a
   // result set larger than the cap.
-  const overMatching = 'espresso kontor reserve';
+  const overMatching = 'espresso kontor reserve filter takeaway set';
 
   it('caps the list even when far more products match', async () => {
     const suggestions = await suggest(overMatching);

@@ -73,7 +73,7 @@ export async function seedDatabase(
   { consent, pictures }: SeedOptions,
 ): Promise<void> {
   await seedPages(client, bundle.pages);
-  await seedCatalog(client, bundle.catalog, mediaRoot, pictures);
+  await seedCatalog(client, bundle, mediaRoot, pictures);
   // Independent of the catalog: a document is a record of its own, and nothing
   // links the two yet.
   await seedDocuments(client, bundle.documents, mediaRoot);
