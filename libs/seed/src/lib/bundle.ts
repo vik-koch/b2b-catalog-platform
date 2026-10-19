@@ -57,11 +57,42 @@ const packaging = z.strictObject({
   boxCount: z.number().int().positive().optional(),
 });
 
+const colour = z.string().regex(/^#[0-9a-f]{6}$/i, 'a #rrggbb colour');
+
+/**
+ * One picture. With a `url` it is a photo the seed downloads and stores like an
+ * upload; without one, or when the download fails or the seed runs with
+ * placeholders only, it is a generated placeholder — so a product shows the
+ * same number of pictures either way.
+ */
+const picture = z.strictObject({
+  /** The image file itself, as the library's CDN serves it. */
+  url: z.url().optional(),
+  /** The library page the photo is credited on. Never shown; kept for the
+   * record of where it came from. */
+  source: z.url().optional(),
+  credit: z.string().optional(),
+  /**
+   * The square to keep, as fractions: `x` and `y` of the photo's width and
+   * height for the top-left corner, `size` of its shorter edge. Absent: the
+   * centred square.
+   */
+  crop: z
+    .strictObject({
+      x: z.number().min(0).max(1),
+      y: z.number().min(0).max(1),
+      size: z.number().gt(0).max(1),
+    })
+    .optional(),
+  /** Recolours the photo, keeping its light and shade. */
+  tint: colour.optional(),
+});
+
 const variant = z.strictObject({
   name: z.string(),
-  /** A CSS colour the placeholder cup is drawn in. */
-  glaze: z.string(),
-  pictures: z.number().int().nonnegative(),
+  /** The colour its placeholders are drawn in. A photo carries its own. */
+  colour: colour.optional(),
+  pictures: z.array(picture),
   /** Currently unavailable: its pictures are withheld. */
   unavailable: z.boolean().optional(),
 });
@@ -76,7 +107,8 @@ const product = z.strictObject({
   priceMinor: z.number().int().nonnegative(),
   descriptionHtml: z.string(),
   attributes: z.array(attribute),
-  imageCount: z.number().int().nonnegative(),
+  /** The gallery, in order. Empty: the product has no picture yet. */
+  pictures: z.array(picture),
   /** Units of sale. Absent: sold by the piece. */
   packaging: packaging.optional(),
   /** Pieces on hand. Absent: stock is not tracked. */
@@ -90,7 +122,7 @@ const product = z.strictObject({
   /** Offered first to the main page's row. */
   featured: z.boolean().optional(),
   /** The variants an assorted article comes in, each with its own pictures
-   * after the `imageCount` pictures of the whole range. */
+   * after the `pictures` of the whole range. */
   variants: z.array(variant).optional(),
   /** Off the storefront. Absent: published. */
   state: z.enum(['unpublished', 'deleted']).optional(),
@@ -244,6 +276,7 @@ const pages = z.strictObject({
 });
 
 export type ProductSeed = z.infer<typeof product>;
+export type PictureSeed = z.infer<typeof picture>;
 export type OrderSeed = z.infer<typeof order>;
 export type OrderLineSeed = z.infer<typeof orderLine>;
 export type DocumentSeed = z.infer<typeof document>;

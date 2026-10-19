@@ -9,10 +9,11 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { ProductSeed, SeedBundle } from './bundle';
+import { CatalogPhotos, PictureMode } from './catalog-photos';
 import {
   generateCategoryMark,
   generateGlazeImage,
-  generateProductImages,
+  generateProductImage,
 } from './catalog-placeholders';
 
 /**
@@ -25,8 +26,10 @@ export async function seedCatalog(
   client: Client,
   catalog: SeedBundle['catalog'],
   mediaRoot: string,
+  pictureMode: PictureMode,
 ): Promise<void> {
   const idByKey = new Map<string, string>();
+  const photos = new CatalogPhotos(mediaRoot, pictureMode);
 
   for (const [sortOrder, category] of catalog.categories.entries()) {
     const mark = category.hasMark
@@ -63,7 +66,11 @@ export async function seedCatalog(
         `Seed product ${product.sourceId} references unknown category ${product.categoryKey}`,
       );
     }
-    const { images, variants } = await productPictures(mediaRoot, product);
+    const { images, variants } = await productPictures(
+      mediaRoot,
+      photos,
+      product,
+    );
 
     const packaging = product.packaging ?? {};
     // The seed writes rows directly, so it owns the recompute the admin save
@@ -160,52 +167,53 @@ export async function seedCatalog(
 
 /**
  * A product's gallery: its own pictures first, then each variant's (FR-CAT-11).
- * A product with variants is drawn as glazed cups — the range side by side,
- * then one glaze per picture — so each label names what the picture shows.
+ * A picture without a photo is drawn: as glazed cups for a product with
+ * variants — the range side by side, then one colour per variant's picture,
+ * so each label names what the picture shows — and as the bean otherwise.
  */
 async function productPictures(
   mediaRoot: string,
+  photos: CatalogPhotos,
   product: ProductSeed,
 ): Promise<{
   images: { full: string; thumb: string; variantId?: string }[];
   variants: { id: string; name: string; unavailable: boolean }[];
 }> {
   const seeds = product.variants ?? [];
-  if (seeds.length === 0) {
-    return {
-      images: await generateProductImages(
-        mediaRoot,
-        product.slug,
-        product.imageCount,
-      ),
-      variants: [],
-    };
-  }
-
-  const glazes = seeds.map((variant) => variant.glaze);
+  const colours = seeds.map((variant) => variant.colour ?? DEFAULT_GLAZE);
   const images: { full: string; thumb: string; variantId?: string }[] = [];
-  for (let i = 1; i <= product.imageCount; i++) {
+  for (const [index, picture] of product.pictures.entries()) {
+    const seed = `${product.slug}-${index + 1}`;
     images.push(
-      await generateGlazeImage(mediaRoot, `${product.slug}-${i}`, glazes),
+      (await photos.store(picture)) ??
+        (seeds.length === 0
+          ? await generateProductImage(mediaRoot, seed)
+          : await generateGlazeImage(mediaRoot, seed, colours)),
     );
   }
+
   const variants = seeds.map((variant) => ({
     id: seedVariantId(product.sourceId, variant.name),
     name: variant.name,
     unavailable: variant.unavailable ?? false,
   }));
   for (const [index, variant] of seeds.entries()) {
-    for (let i = 1; i <= variant.pictures; i++) {
-      const image = await generateGlazeImage(
-        mediaRoot,
-        `${product.slug}-${variant.name}-${i}`,
-        [variant.glaze],
-      );
+    for (const [i, picture] of variant.pictures.entries()) {
+      const image =
+        (await photos.store(picture)) ??
+        (await generateGlazeImage(
+          mediaRoot,
+          `${product.slug}-${variant.name}-${i + 1}`,
+          [colours[index]],
+        ));
       images.push({ ...image, variantId: variants[index].id });
     }
   }
   return { images, variants };
 }
+
+/** A placeholder cup's colour where the variant names none. */
+const DEFAULT_GLAZE = '#efe9df';
 
 /** The same id on every re-seed, so a re-seed rewrites rather than renames. */
 function seedVariantId(sourceId: string, name: string): string {

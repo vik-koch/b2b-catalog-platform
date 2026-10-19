@@ -35,6 +35,25 @@ catalog, tiers and prices, documents. Created only when missing: accounts,
 addresses, orders and consents — they are people and events, so a visitor's
 changes on a demo survive the next deploy.
 
+## Pictures
+
+A product's `pictures` (and a variant's) is its gallery, in order. An entry
+with a `url` is a photo: the seed downloads it, keeps the square `crop` names
+(fractions of the photo; the centred square without one), applies a `tint` if
+it has one, and stores it at the catalog's two sizes as an admin upload would
+be. An empty entry `{}` is a generated placeholder, and so is a photo whose
+download fails — the seed warns and carries on, so a dead link costs a picture,
+not the seed. `source` and `credit` record where a photo came from; nothing
+shows them.
+
+Photos are linked, never committed: the bundle points at a library's CDN
+(Unsplash and Pexels need no attribution) and every seed run fetches them, so a
+dead link is replaced by editing the bundle. Seeded with
+`SEED_PICTURES=placeholder`, every entry is drawn instead — what the e2e suites
+do, so a test run needs no network and a product shows the same number of
+pictures either way. A variant's `colour` is what its placeholders are drawn
+in.
+
 Addresses use reserved `.example` domains and never the `@example.com` the e2e
 suites claim, and no tier key starts with `e2e-`, so a seeded stack and a test
 run never reach for the same row. The password in `accounts.json` is public on
@@ -53,7 +72,7 @@ it to another record.
 | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | A category that paginates (page size 24)                                                          | 26 espresso roasts, `ESP-001`…`026`                                                     |
 | Several pictures: tile slider, detail gallery                                                     | three on `ESP-001`…`004`, `ESP-006`, `FIL-001`, `SO-001`, `GRD-001`; two on most others |
-| No picture at all                                                                                 | every 5th product in file order (`imageCount: 0`)                                       |
+| No picture at all                                                                                 | every 5th product in file order (`pictures: []`)                                        |
 | A category without a mark, the name-only chip                                                     | `decaf` (`hasMark: false`)                                                              |
 | Packs and boxes, the usual case                                                                   | espresso: six bags to a pack, four packs to a box                                       |
 | A minimum above the pack size                                                                     | every 5th espresso (`minPieceQty: 24`)                                                  |

@@ -14,8 +14,8 @@ import { CatalogImage, MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
 
 // Match the catalog media profile (MEDIA_CATALOG_FULL_WIDTH / _THUMB_WIDTH) so
 // the demo images are representative of what an admin upload produces.
-const FULL_PX = 1000;
-const THUMB_PX = 300;
+export const FULL_PX = 1000;
+export const THUMB_PX = 300;
 
 function hash(seed: string): number {
   let h = 2166136261;
@@ -49,6 +49,14 @@ function placeholderSvg(seed: string, px: number): string {
 /** Rasterise, content-address, and write once — mirrors LocalMediaStore.put. */
 async function store(mediaRoot: string, svg: string): Promise<string> {
   const bytes = await sharp(Buffer.from(svg)).webp({ quality: 80 }).toBuffer();
+  return storeImage(mediaRoot, bytes);
+}
+
+/** Content-address WebP bytes and write them once; returns the media URL. */
+export async function storeImage(
+  mediaRoot: string,
+  bytes: Buffer,
+): Promise<string> {
   const id = createHash('sha256').update(bytes).digest('hex').slice(0, 12);
   const filename = `${id}.webp`;
   const path = join(mediaRoot, filename);
@@ -73,19 +81,6 @@ export async function generateProductImage(
     store(mediaRoot, placeholderSvg(seed, THUMB_PX)),
   ]);
   return { full, thumb };
-}
-
-/** `count` ordered gallery images for a product. */
-export async function generateProductImages(
-  mediaRoot: string,
-  seed: string,
-  count: number,
-): Promise<CatalogImage[]> {
-  const images: CatalogImage[] = [];
-  for (let i = 1; i <= count; i++) {
-    images.push(await generateProductImage(mediaRoot, `${seed}-${i}`));
-  }
-  return images;
 }
 
 /** A cup and saucer in one glaze, on a plain warm ground; `angle` tilts it, so

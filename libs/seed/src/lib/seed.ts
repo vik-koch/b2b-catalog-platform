@@ -2,6 +2,7 @@ import { Client } from 'pg';
 import { ConsentConfig } from '@b2b-catalog-platform/shared';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { SeedBundle } from './bundle';
+import { PictureMode } from './catalog-photos';
 import { seedAccounts } from './account-seed';
 import { seedConsents } from './consent-seed';
 import { seedCatalog } from './catalog-seed';
@@ -57,19 +58,22 @@ export async function seedPages(
   }
 }
 
-/**
- * `consent` is the deployment's own switch, handed in rather than read here:
- * the e2e harness seeds from outside the stack, where the stack's config path
- * does not exist.
- */
+export interface SeedOptions {
+  /** The deployment's own switch, handed in rather than read here: the e2e
+   * harness seeds from outside the stack, where the stack's config path does
+   * not exist. */
+  consent: ConsentConfig;
+  pictures: PictureMode;
+}
+
 export async function seedDatabase(
   client: Client,
   bundle: SeedBundle,
   mediaRoot: string,
-  consent: ConsentConfig,
+  { consent, pictures }: SeedOptions,
 ): Promise<void> {
   await seedPages(client, bundle.pages);
-  await seedCatalog(client, bundle.catalog, mediaRoot);
+  await seedCatalog(client, bundle.catalog, mediaRoot, pictures);
   // Independent of the catalog: a document is a record of its own, and nothing
   // links the two yet.
   await seedDocuments(client, bundle.documents, mediaRoot);
@@ -87,12 +91,12 @@ export async function runSeed(
   connectionString: string,
   bundle: SeedBundle,
   mediaRoot: string,
-  consent: ConsentConfig,
+  options: SeedOptions,
 ): Promise<void> {
   const client = new Client({ connectionString });
   try {
     await client.connect();
-    await seedDatabase(client, bundle, mediaRoot, consent);
+    await seedDatabase(client, bundle, mediaRoot, options);
   } finally {
     await client.end().catch(() => undefined);
   }
