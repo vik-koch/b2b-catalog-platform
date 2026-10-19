@@ -5,9 +5,11 @@ containers at `/config` (see `compose.yml`). It is the single per-deployment
 config surface: branding, text and wording are retuned here without
 rebuilding the public image.
 
-The public repo commits the **demo (Coffee Kontor) config** here; dev, demo, the
-local smoke test and the unit tests all run on it. A real deployment ships its
-own copy instead (via `CONFIG_DIR`, see below) and never commits it here.
+The public repo commits the **demo (Coffee Kontor) config** here, in English;
+the demo prod stack, the local smoke test and the test suites run on it. The
+dev stack runs a translated copy from [deployments/](../deployments/README.md).
+A real deployment ships its own copy instead (via `CONFIG_DIR`, see below) and
+never commits it here.
 
 ## The files
 
@@ -521,7 +523,9 @@ node tools/migrate-config.mjs --release 1.14.1 --config-dir <dir> --write
 ```
 
 Run it where the deployment's config is kept — for a real deployment, in the
-change that moves it to the new release — never on the server at boot.
+change that moves it to the new release; for the ones in
+[deployments/](../deployments/README.md), in the change that moves the keys in
+this one — never on the server at boot.
 
 It needs Node and nothing else: no checkout and no `npm ci`. The script and
 the release's map, downloaded from the release tag with the map in a

@@ -1,0 +1,253 @@
+{
+  "common": {
+    "footerNote": "This message was sent automatically by our online shop. Please do not reply to this address.",
+    "linkExpiry": "This link can be used once, and expires seven days after it was sent."
+  },
+  "orders": {
+    "account": "Account",
+    "guest": "Guest",
+    "items": "Ordered",
+    "paymentMethods": {
+      "cash": "Cash",
+      "transfer": "Bank transfer",
+      "card": "Card, arranged with the customer"
+    }
+  },
+  "inquiry": {
+    "subject": "Inquiry",
+    "preheader": "A visitor sent an inquiry through the contact form.",
+    "heading": "New inquiry",
+    "preferredContact": "Preferred contact",
+    "message": "Message"
+  },
+  "registrationReceived": {
+    "subject": "We received your registration",
+    "preheader": "Your registration is with our team.",
+    "heading": "Thank you for registering",
+    "body": "We have received your registration and passed it to our team.",
+    "nextSteps": "A colleague will review it and set up your account. You will receive a second email with your password as soon as it is ready. Until then you cannot sign in yet."
+  },
+  "accountApproved": {
+    "subject": "Your account is ready",
+    "preheader": "Choose a password to start ordering.",
+    "heading": "Your account is ready",
+    "body": "Your registration has been approved and your customer account is set up. Choose a password and you can start ordering right away.",
+    "action": "Choose your password"
+  },
+  "accountCreated": {
+    "subject": "An account has been created for you",
+    "preheader": "Choose a password to start ordering.",
+    "heading": "An account has been created for you",
+    "body": "We have set up a customer account for you at our online shop. Choose a password and you can start ordering right away.",
+    "action": "Choose your password"
+  },
+  "passwordReset": {
+    "subject": "Reset your password",
+    "preheader": "Choose a new password for your account.",
+    "heading": "Reset your password",
+    "body": "Someone asked to reset the password for your customer account. Choose a new one and you can sign in again straight away.",
+    "expiry": "This link can be used once, and expires an hour after it was sent.",
+    "ignore": "If this was not you, you can ignore this message — your password stays as it is, and nobody can use this link without your mailbox.",
+    "action": "Choose a new password"
+  },
+  "signInCode": {
+    "message": "{code} is your Coffee Kontor sign-in code.",
+    "subject": "Your sign-in code",
+    "preheader": "Enter this code to finish signing in.",
+    "heading": "Your sign-in code",
+    "ignore": "If you did not try to sign in, change your password: someone else knows it."
+  },
+  "signInCall": {
+    "subject": "Finish signing in",
+    "preheader": "Open the link instead of calling.",
+    "heading": "Finish signing in",
+    "body": "This message stands in for the call to the shop. Open the link and the sign-in page you left open goes on by itself.",
+    "action": "Finish signing in",
+    "ignore": "If you did not try to sign in, change your password: someone else knows it."
+  },
+  "accountDeleted": {
+    "subject": "Your account has been deleted",
+    "preheader": "Your customer account and personal details have been removed.",
+    "heading": "Your account has been deleted",
+    "body": "Your customer account is closed and your personal details have been removed from our records. This email address is no longer connected to an account with us.",
+    "orders": "Past orders are kept for our bookkeeping, with your details removed from them. If you register again later, it will be a new account — your earlier orders will not appear in it."
+  },
+  "newRegistration": {
+    "subject": "New registration",
+    "preheader": "Someone requested a customer account.",
+    "heading": "New registration",
+    "body": "Someone has requested a customer account. Review the request and, if it is genuine, approve it and assign the customer a price tier.",
+    "customerTypeLabel": "Registering as",
+    "action": "Open the account list"
+  },
+  "orderReceived": {
+    "subject": "We have your order request",
+    "preheader": "Your order request has reached us.",
+    "heading": "Thank you — we have your order",
+    "body": "Your order request {reference} has reached us. Nothing is charged and nothing is dispatched yet.",
+    "nextSteps": "We will confirm the details, the delivery and the price with you shortly. You can open your order with the link below at any time.",
+    "action": "Open your order"
+  },
+  "newOrder": {
+    "subject": "New order request",
+    "preheader": "A customer has sent an order request.",
+    "heading": "New order request",
+    "body": "A customer has sent an order request. Open it to check the lines and the price, then confirm it with them.",
+    "action": "Open the order"
+  },
+  "orderCancelled": {
+    "subject": "Order called off",
+    "preheader": "A customer has called off their order.",
+    "heading": "Order called off",
+    "body": "A customer has called off an order that was still waiting for an answer. Nothing more is expected of you — but if anything was already set aside for it, it can go back on the shelf.",
+    "reasonLabel": "Reason given",
+    "reasonNone": "None given",
+    "paidNote": "A payment is recorded against this order. Any refund is arranged with the customer directly — nothing here moves money.",
+    "itemsHeading": "Was ordered",
+    "action": "Open the order"
+  },
+  "accountClosed": {
+    "subject": "A customer closed their account",
+    "preheader": "A customer has closed their account.",
+    "heading": "Account closed",
+    "body": "A customer has closed their account. Their details are gone; their past orders were kept for the books, with everything identifying removed from them.",
+    "nameLabel": "Was",
+    "ordersLabel": "Orders kept",
+    "openOrdersNote": "Orders among them that have not ended yet: {count}. They are still yours to settle, and they can no longer be traced back to a customer — so check them before anything else.",
+    "action": "Open the order list"
+  },
+  "orderStatusChanged": {
+    "subject": "Your order",
+    "preheader": "There is news about your order.",
+    "changedIntro": "We have changed this order since we last wrote to you — what we changed is noted below, and the contents and total are the ones that now apply.",
+    "correctedIntro": "We have corrected our record of this order: it had moved further along than it should have. Where it now stands is below.",
+    "attachedNote": "Our payment details for this order are attached to this message.",
+    "action": "Open your order",
+    "statuses": {
+      "changed": {
+        "heading": "We have changed your order",
+        "body": "Where your order stands has not changed — its contents and total have. The ones below are the ones that now apply."
+      },
+      "reopened": {
+        "heading": "Your order is back with us",
+        "body": "We have put your order back in our queue and will come back to you about it shortly. Anything we told you about it before no longer applies."
+      },
+      "approved": {
+        "heading": "Your order is confirmed",
+        "body": "We have confirmed your order. We will let you know as soon as it is ready."
+      },
+      "readyDelivery": {
+        "heading": "Your order is on its way",
+        "body": "Your order has left us for delivery to the address below."
+      },
+      "readyPickup": {
+        "heading": "Your order is ready to collect",
+        "body": "Your order is packed and waiting at the pickup location below. Please bring your order number."
+      },
+      "completed": {
+        "heading": "Your order is complete",
+        "body": "Your order is finished. Thank you — we look forward to the next one."
+      },
+      "declined": {
+        "heading": "We cannot fill this order",
+        "body": "We are sorry: we are unable to fill this order. The reason is below, and you are welcome to call us about it."
+      },
+      "cancelled": {
+        "heading": "Your order has been cancelled",
+        "body": "This order has been cancelled and will not be filled. The reason is below, and you are welcome to call us about it."
+      }
+    }
+  },
+  "orderDocument": {
+    "subject": "A document for your order",
+    "preheader": "There is a document with your order.",
+    "action": "Open your order",
+    "kinds": {
+      "paymentInstructions": {
+        "heading": "How to pay for your order",
+        "body": "Our payment details for this order are attached. Nothing about the order itself has changed."
+      },
+      "orderSummary": {
+        "heading": "A copy of your order",
+        "body": "We have put a copy of your order with it, which you can open from the link below. Nothing about the order itself has changed."
+      }
+    }
+  },
+  "syncRun": {
+    "startedLabel": "Started",
+    "labelLabel": "Export",
+    "sourceLabel": "Source",
+    "changesLabel": "Changes",
+    "errorLabel": "What went wrong",
+    "reasonLabel": "Why it is waiting",
+    "reasons": {
+      "policy": "Its effect is larger than an automatic update is allowed to be",
+      "requested": "The source asked for it to be reviewed"
+    },
+    "openRun": "Open the run",
+    "reviewRun": "Review the update",
+    "areas": {
+      "catalog": {
+        "failed": {
+          "subject": "Catalog update failed",
+          "preheader": "An automatic catalog update did not go through.",
+          "heading": "An automatic catalog update failed",
+          "body": "Your catalog is unchanged and the shop is serving what it served before. Until this is fixed, prices and stock will slowly go out of date — pass this message on to whoever looks after the connection to your system."
+        },
+        "recovered": {
+          "subject": "Catalog updates are working again",
+          "preheader": "The automatic catalog update went through.",
+          "heading": "Catalog updates are working again",
+          "body": "The connection to your system is delivering again, and your catalog is up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
+        },
+        "waiting": {
+          "subject": "A catalog update is waiting for you",
+          "preheader": "An automatic catalog update needs your decision.",
+          "heading": "A catalog update is waiting for you",
+          "body": "It has not been applied. Look at what it would change, then apply it or discard it — nothing on the shop moves until you do."
+        },
+        "created": {
+          "subject": "New products from your system",
+          "preheader": "An automatic catalog update brought new products.",
+          "heading": "New products arrived",
+          "body": "They are in your catalog but not on the shop: a new product stays off the storefront until you have given it its description and pictures and published it.",
+          "action": "Open the new products"
+        }
+      },
+      "customers": {
+        "failed": {
+          "subject": "Customer update failed",
+          "preheader": "An automatic customer update did not go through.",
+          "heading": "An automatic customer update failed",
+          "body": "Your customer accounts are unchanged and everybody who could sign in still can. Until this is fixed, new customers and changed price groups will not reach the shop and you may have to enter them by hand — pass this message on to whoever looks after the connection to your system."
+        },
+        "recovered": {
+          "subject": "Customer updates are working again",
+          "preheader": "The automatic customer update went through.",
+          "heading": "Customer updates are working again",
+          "body": "The connection to your system is delivering again, and your customer accounts are up to date. Nothing was lost in the meantime: an update carries the current state rather than a list of changes."
+        },
+        "waiting": {
+          "subject": "A customer update is waiting for you",
+          "preheader": "An automatic customer update needs your decision.",
+          "heading": "A customer update is waiting for you",
+          "body": "It has not been applied. Look at which accounts it would invite, change or switch off, then apply it or discard it — nobody's access changes until you do."
+        }
+      },
+      "orders": {
+        "failed": {
+          "subject": "Order updates failed",
+          "preheader": "An automatic order update did not go through.",
+          "heading": "An automatic order update failed",
+          "body": "Your orders are unchanged, which means customers are waiting to hear where theirs stands and nobody here has been told to answer them by hand. Until this is fixed, orders placed in the shop will not be answered — pass this message on to whoever looks after the connection to your system."
+        },
+        "recovered": {
+          "subject": "Order updates are working again",
+          "preheader": "The automatic order update went through.",
+          "heading": "Order updates are working again",
+          "body": "The connection to your system is answering orders again. Anything it worked out while it was disconnected arrives with the next update: an order carries the state it is now in rather than a list of steps."
+        }
+      }
+    }
+  }
+}

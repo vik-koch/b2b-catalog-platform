@@ -4,7 +4,8 @@ The demo content of the fictional Hamburg coffee roastery: catalog, accounts,
 orders, documents and static pages. It is what the e2e suites seed and assert
 against, what `nx run seeder:seed` writes into a local database, and what a demo
 stack is seeded with unless its deploy names another bundle (`SEED_DIR`, see
-[infra/README.md](../infra/README.md)). It belongs with the committed
+[infra/README.md](../infra/README.md)) — the dev stack seeds the German copy in
+[deployments/](../deployments/README.md). It belongs with the committed
 [config/](../config/): the orders it holds snapshot that config's pickup points,
 delivery zones and tax basis.
 

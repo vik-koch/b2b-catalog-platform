@@ -290,6 +290,9 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           # Dev shows demo content, so seed after deploy (prod never does).
           SEED: '1'
+          # Dev is the German Coffee Kontor, not the test fixture.
+          CONFIG_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/config
+          SEED_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/seed
           # Guards the dev Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}

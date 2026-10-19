@@ -1,0 +1,179 @@
+{
+  "locale": "de-DE",
+  "branding": {
+    "name": "Coffee Kontor",
+    "tagline": "Wholesale specialty coffee",
+    "startYear": 2021,
+    "logo": {
+      "width": 166,
+      "height": 40
+    },
+    "theme": {
+      "primary": "#6f4e37",
+      "primaryDeep": "#573d2b",
+      "secondary": "#8b6f52",
+      "accent": "#b45309"
+    }
+  },
+  "pages": {
+    "published": [
+      "about",
+      "contact",
+      "conditions",
+      "terms",
+      "privacy",
+      "imprint",
+      "withdrawal"
+    ],
+    "headerNav": ["about", "contact", "conditions"],
+    "footerNav": ["terms", "privacy", "imprint", "withdrawal", "licenses"]
+  },
+  "consent": {
+    "contact": false,
+    "account": false
+  },
+  "seller": {
+    "name": "Coffee Kontor GmbH",
+    "registration": ["HRB 000000 Hamburg", "USt-IdNr. DE000000000"]
+  },
+  "tax": {
+    "basis": "included",
+    "rate": 19,
+    "statedAtPrices": true
+  },
+  "cookieConsentEnabled": true,
+  "billingAddressEnabled": true,
+  "catalog": {
+    "currency": {
+      "code": "EUR"
+    },
+    "boxUnits": {
+      "volume": "m³",
+      "weight": "kg"
+    },
+    "lowStockThresholdPieces": 10,
+    "pairingsEnforced": false,
+    "sortControlsEnabled": true
+  },
+  "search": {
+    "alternateLayout": "de"
+  },
+  "locations": [
+    {
+      "name": "Speicherstadt Office",
+      "description": "Am Sandtorkai 30, 20457 Hamburg",
+      "map": {
+        "url": "https://www.openstreetmap.org/export/embed.html?bbox=9.9820%2C53.5400%2C9.9950%2C53.5460&layer=mapnik&marker=53.5430%2C9.9880",
+        "consentRequired": true
+      }
+    }
+  ],
+  "mapProvider": "OpenStreetMap",
+  "pickup": {
+    "locations": [
+      {
+        "key": "speicherstadt",
+        "name": "Speicherstadt Office",
+        "address": "Am Sandtorkai 30, 20457 Hamburg",
+        "description": "Weekdays 9:00–17:00, at the counter on the ground floor.",
+        "mapUrl": "https://www.openstreetmap.org/?mlat=53.5430&mlon=9.9880#map=17/53.5430/9.9880"
+      },
+      {
+        "key": "altona",
+        "name": "Altona Warehouse",
+        "address": "Ottenser Hauptstraße 10, 22765 Hamburg",
+        "description": "Weekdays 7:00–15:00, loading bay at the rear.",
+        "mapUrl": "https://www.openstreetmap.org/?mlat=53.5510&mlon=9.9350#map=17/53.5510/9.9350"
+      }
+    ]
+  },
+  "contact": {
+    "phone": "+49 40 1234567",
+    "email": "hallo@coffee-kontor.example"
+  },
+  "elsewhere": [
+    {
+      "label": "Bohnenpost",
+      "url": "https://bohnenpost.example/coffee-kontor",
+      "icon": "bohnenpost.svg"
+    },
+    {
+      "label": "Marktplatz",
+      "url": "https://marktplatz.example/shops/coffee-kontor",
+      "icon": "marktplatz.svg"
+    }
+  ],
+  "phoneInput": {
+    "countryCode": "+49",
+    "mask": "(###) ###-####"
+  },
+  "orderReference": {
+    "prefix": "CK",
+    "timezone": "Europe/Berlin"
+  },
+  "delivery": {
+    "zones": [
+      {
+        "key": "city",
+        "title": "Hamburg city",
+        "description": "Delivered by our own van, usually within two working days.",
+        "freeFromMinor": 15000,
+        "match": {
+          "postalPrefixes": ["20", "21", "22"]
+        }
+      },
+      {
+        "key": "north",
+        "title": "Northern Germany",
+        "description": "Forwarded by our carrier, two to four working days.",
+        "freeFromMinor": 40000,
+        "match": {
+          "postalRanges": [
+            {
+              "from": "17000",
+              "to": "27999"
+            }
+          ]
+        }
+      },
+      {
+        "key": "rest",
+        "title": "Rest of Germany",
+        "description": "Collect your order from us, or send your own carrier to our warehouse.",
+        "delivers": false,
+        "match": {
+          "all": true
+        }
+      }
+    ]
+  },
+  "address": {
+    "countries": [
+      {
+        "code": "DE",
+        "label": "Germany",
+        "postalCode": {
+          "pattern": "^[0-9]{5}$",
+          "example": "20457",
+          "mask": "#####"
+        }
+      }
+    ]
+  },
+  "companyIdInput": {
+    "formats": [
+      {
+        "key": "vat",
+        "label": "VAT number",
+        "pattern": "^DE[0-9]{9}$",
+        "example": "DE123456789"
+      },
+      {
+        "key": "tax",
+        "label": "Tax number",
+        "pattern": "^[0-9]{10}$",
+        "example": "1234567890"
+      }
+    ]
+  }
+}
