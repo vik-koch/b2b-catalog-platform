@@ -23,6 +23,15 @@ export function formatUnitQuantity(
   return text.replace('.', decimalSeparator(currency));
 }
 
+/** A stored decimal such as a box's volume or weight ("0.072") in the
+ * deployment's separator, its digits as stored. */
+export function formatStoredDecimal(
+  value: string,
+  currency: CurrencyConfig,
+): string {
+  return value.replace('.', decimalSeparator(currency));
+}
+
 /**
  * What was typed, or null where it is not a quantity at all.
  *

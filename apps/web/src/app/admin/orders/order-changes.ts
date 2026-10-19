@@ -5,6 +5,7 @@ import {
   OrderBlockConfig,
   OrderBlockLabels,
 } from '../../orders/order-blocks';
+import { formatStoredDecimal } from '../../catalog/quantity';
 import { customerQuantity } from '../../orders/order-view';
 import { OrderChange } from './order-adjust-changes';
 
@@ -126,8 +127,8 @@ export function orderLineChanges(
   // What it comes to on a pallet. Derived rather than typed, but a real change
   // to the order all the same: two boxes fewer is a different van, and the
   // shop reads this figure before it books one.
-  const wasShipment = shipmentText(before, config.boxUnits);
-  const isShipment = shipmentText(after, config.boxUnits);
+  const wasShipment = shipmentText(before, config);
+  const isShipment = shipmentText(after, config);
   if (wasShipment !== isShipment) {
     changes.push({
       label: labels.shipment,
@@ -172,12 +173,16 @@ export function orderBlockChanges(
  */
 function shipmentText(
   order: ComparedOrder,
-  boxUnits: OrderChangeConfig['boxUnits'],
+  { boxUnits, currency }: OrderChangeConfig,
 ): string | null {
   const { weight, volume, approximate } = order.shipment;
   const parts = [
-    weight === null ? null : `${weight} ${boxUnits.weight}`,
-    volume === null ? null : `${volume} ${boxUnits.volume}`,
+    weight === null
+      ? null
+      : `${formatStoredDecimal(weight, currency)} ${boxUnits.weight}`,
+    volume === null
+      ? null
+      : `${formatStoredDecimal(volume, currency)} ${boxUnits.volume}`,
   ].filter((part): part is string => part !== null);
   if (parts.length === 0) return null;
   return approximate ? `≈ ${parts.join(' · ')}` : parts.join(' · ');

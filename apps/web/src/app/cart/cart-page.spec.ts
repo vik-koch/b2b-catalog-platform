@@ -416,8 +416,8 @@ describe('CartPage', () => {
     // answers this time.
     const view = await render({ reload: true, answer: new Error('offline') });
 
-    expect(view.text()).toContain('7.500');
-    expect(view.text()).toContain('0.060');
+    expect(view.text()).toContain('7,500');
+    expect(view.text()).toContain('0,060');
     expect(view.rowLabels()).toContain(text.shipmentCartons);
   });
 
@@ -431,14 +431,14 @@ describe('CartPage', () => {
         { cartons: 2, volume: '0.060', weight: '7.500', coveredLines: 1 },
       ),
     });
-    expect(view.text()).toContain('7.500');
+    expect(view.text()).toContain('7,500');
 
     // Two packs to three, which is three quarters of a box.
     await view.click(text.increaseAria);
 
     expect(view.quantities()).toEqual(['3']);
-    expect(view.text()).toContain('11.250');
-    expect(view.text()).not.toContain('7.500');
+    expect(view.text()).toContain('11,250');
+    expect(view.text()).not.toContain('7,500');
   });
 
   // Drawn from the browser's own copy, so a reload has the row complete on the
@@ -822,8 +822,8 @@ describe('CartPage', () => {
       text.shipmentCartons,
       text.subtotal,
     ]);
-    expect(view.text()).toContain('1.250');
-    expect(view.text()).toContain('18.400');
+    expect(view.text()).toContain('1,250');
+    expect(view.text()).toContain('18,400');
     expect(view.text()).toContain(text.shipmentApproximate);
     expect(view.text()).toContain('Lines not covered by this estimate: 2');
   });

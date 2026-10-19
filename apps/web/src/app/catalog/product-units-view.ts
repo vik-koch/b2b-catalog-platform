@@ -15,7 +15,7 @@ import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from './price';
-import { formatUnitQuantity } from './quantity';
+import { formatStoredDecimal, formatUnitQuantity } from './quantity';
 
 /** One priced unit, ready to render. */
 export interface UnitPriceRow {
@@ -190,13 +190,13 @@ export function useProductUnits() {
       if (box.volume) {
         rows.push({
           label: label(packing.boxVolume),
-          value: `${box.volume} ${config.boxUnits.volume}`,
+          value: `${formatStoredDecimal(box.volume, currency)} ${config.boxUnits.volume}`,
         });
       }
       if (box.weight) {
         rows.push({
           label: label(packing.boxWeight),
-          value: `${box.weight} ${config.boxUnits.weight}`,
+          value: `${formatStoredDecimal(box.weight, currency)} ${config.boxUnits.weight}`,
         });
       }
       return rows;

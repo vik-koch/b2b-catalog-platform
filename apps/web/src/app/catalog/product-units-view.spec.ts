@@ -107,8 +107,8 @@ describe('packagingRows', () => {
     expect(units().packagingRows(packaged, box)).toEqual([
       { label: 'Pack contains', value: '6 pcs' },
       { label: 'Box contains', value: '24 pcs' },
-      { label: 'Box volume', value: '0.250 m³' },
-      { label: 'Box weight', value: '12.500 kg' },
+      { label: 'Box volume', value: '0,250 m³' },
+      { label: 'Box weight', value: '12,500 kg' },
     ]);
   });
 

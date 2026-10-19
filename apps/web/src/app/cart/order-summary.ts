@@ -6,6 +6,7 @@ import {
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../catalog/price';
+import { formatStoredDecimal } from '../catalog/quantity';
 import { useTaxStatement } from '../catalog/tax-statement';
 import { APP_TEXT } from '../config/app-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
@@ -137,13 +138,13 @@ export class OrderSummary {
       if (shipment.weight) {
         rows.push({
           label: this.text.shipmentWeight,
-          value: `${shipment.weight} ${this.boxUnits.weight}`,
+          value: `${formatStoredDecimal(shipment.weight, this.currency)} ${this.boxUnits.weight}`,
         });
       }
       if (shipment.volume) {
         rows.push({
           label: this.text.shipmentVolume,
-          value: `${shipment.volume} ${this.boxUnits.volume}`,
+          value: `${formatStoredDecimal(shipment.volume, this.currency)} ${this.boxUnits.volume}`,
         });
       }
       rows.push({
