@@ -1,0 +1,15 @@
+{
+  "orderSummary": {
+    "title": "Bestellung {reference}",
+    "placedLabel": "Aufgegeben",
+    "whenAny": "Kein Termin angegeben",
+    "itemsLabel": "Produkt",
+    "quantityLabel": "Menge",
+    "lineTotalLabel": "Summe",
+    "returnNotice": "Ungeöffnete Ware kann innerhalb von 14 Tagen nach der Lieferung zurückgegeben werden. Schreiben Sie uns unter Angabe der Bestellnummer; die Einzelheiten regeln die AGB.",
+    "footer": "Dieses Dokument gibt die Bestellung in ihrem aktuellen Stand wieder. Es ist keine Rechnung."
+  },
+  "terms": {
+    "fileName": "agb-{date}.pdf"
+  }
+}

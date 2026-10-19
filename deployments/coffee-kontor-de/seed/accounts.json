@@ -1,0 +1,418 @@
+{
+  "password": "demo-kontor-2021",
+  "tiers": [
+    {
+      "key": "default",
+      "label": "Grundpreisliste",
+      "sortOrder": -1,
+      "discounts": {}
+    },
+    {
+      "key": "wholesale",
+      "label": "Großhandel",
+      "sortOrder": 0,
+      "discounts": {
+        "espresso": 0.18,
+        "filter": 0.15,
+        "decaf": 0.15,
+        "single-origin": 0.12,
+        "tea": 0.12,
+        "syrups": 0.1,
+        "chocolate": 0.1,
+        "grinders": 0.07,
+        "machines": 0.07
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "email": "office1@coffee-kontor.example",
+      "role": "manager",
+      "status": "active",
+      "firstName": "Birte",
+      "lastName": "Ahrens",
+      "phone": "+494012345001",
+      "customerType": null,
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "office2@coffee-kontor.example",
+      "role": "manager",
+      "status": "active",
+      "firstName": "Jonas",
+      "lastName": "Petersen",
+      "phone": "+494012345002",
+      "customerType": null,
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "einkauf@cafe-nordlicht.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Lena",
+      "lastName": "Brinkmann",
+      "phone": "+494012010001",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234501",
+      "tier": "wholesale",
+      "addresses": [
+        {
+          "label": "Café",
+          "street": "Osterstraße 114",
+          "postalCode": "20255",
+          "city": "Hamburg",
+          "country": "DE"
+        },
+        {
+          "label": "Lager",
+          "street": "Billstraße 82",
+          "street2": "Tor 3",
+          "postalCode": "20539",
+          "city": "Hamburg",
+          "country": "DE"
+        }
+      ]
+    },
+    {
+      "email": "bestellung@roesterei-eimsbuettel.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Tobias",
+      "lastName": "Wendt",
+      "phone": "+494012010002",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234502",
+      "tier": "wholesale"
+    },
+    {
+      "email": "office@hafenkantine.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Marlene",
+      "lastName": "Suhr",
+      "phone": "+494012010003",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234503",
+      "tier": "wholesale",
+      "addresses": [
+        {
+          "street": "Große Elbstraße 27",
+          "postalCode": "22767",
+          "city": "Hamburg",
+          "country": "DE"
+        }
+      ]
+    },
+    {
+      "email": "kontakt@backhaus-altona.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Hendrik",
+      "lastName": "Voss",
+      "phone": "+494012010004",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234504",
+      "tier": "wholesale"
+    },
+    {
+      "email": "einkauf@hotel-elbblick.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Sabine",
+      "lastName": "Rohde",
+      "phone": "+494012010005",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234505",
+      "tier": "wholesale"
+    },
+    {
+      "email": "info@kantine-speicherstadt.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Yusuf",
+      "lastName": "Demir",
+      "phone": "+494012010006",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234506",
+      "tier": "wholesale"
+    },
+    {
+      "email": "einkauf@buchcafe-ottensen.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Clara",
+      "lastName": "Wieland",
+      "phone": "+494012010007",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234507",
+      "tier": "wholesale"
+    },
+    {
+      "email": "bestellung@kaffeebar-schanze.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Nils",
+      "lastName": "Grote",
+      "phone": "+494012010008",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234508",
+      "tier": "wholesale"
+    },
+    {
+      "email": "office@coworking-hammerbrook.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Petra",
+      "lastName": "Lindemann",
+      "phone": "+494012010009",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234509",
+      "tier": "wholesale"
+    },
+    {
+      "email": "einkauf@bistro-winterhude.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Ali",
+      "lastName": "Haddad",
+      "phone": "+494012010010",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234510",
+      "tier": "wholesale"
+    },
+    {
+      "email": "hallo@atelier-stpauli.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Marie",
+      "lastName": "Kroeger",
+      "phone": "+494012010011",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234511",
+      "tier": null
+    },
+    {
+      "email": "kontakt@buero-harvestehude.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Sven",
+      "lastName": "Thiel",
+      "phone": "+494012010012",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234512",
+      "tier": null
+    },
+    {
+      "email": "anna.behrens@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Anna",
+      "lastName": "Behrens",
+      "phone": "+494012010013",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null,
+      "addresses": [
+        {
+          "label": "Zuhause",
+          "street": "Holstenstraße 9",
+          "postalCode": "22767",
+          "city": "Hamburg",
+          "country": "DE"
+        }
+      ]
+    },
+    {
+      "email": "m.oezdemir@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Meltem",
+      "lastName": "Özdemir",
+      "phone": "+494012010014",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "j.kowalski@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Jakub",
+      "lastName": "Kowalski",
+      "phone": "+494012010015",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "greta.hansen@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Greta",
+      "lastName": "Hansen",
+      "phone": "+494012010016",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "p.dasilva@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Paulo",
+      "lastName": "da Silva",
+      "phone": "+494012010017",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "k.novak@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Katarína",
+      "lastName": "Novák",
+      "phone": "+494012010018",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "r.steinberg@mail.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Rita",
+      "lastName": "Steinberg",
+      "phone": "+494012010019",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": "wholesale",
+      "addresses": [
+        {
+          "label": "Zuhause",
+          "street": "Sierichstraße 44",
+          "postalCode": "22301",
+          "city": "Hamburg",
+          "country": "DE"
+        }
+      ]
+    },
+    {
+      "email": "einkauf@teestube-eppendorf.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Ingrid",
+      "lastName": "Falk",
+      "phone": "+494012010020",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234520",
+      "tier": null
+    },
+    {
+      "email": "bestellung@foodtruck-elbpark.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Mehmet",
+      "lastName": "Yildiz",
+      "phone": "+494012010021",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234521",
+      "tier": null
+    },
+    {
+      "email": "l.jansen@mail.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Lars",
+      "lastName": "Jansen",
+      "phone": "+494012010022",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "s.moreau@mail.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Sophie",
+      "lastName": "Moreau",
+      "phone": "+494012010023",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "einkauf@konditorei-uhlenhorst.example",
+      "role": "user",
+      "status": "invited",
+      "firstName": "Bettina",
+      "lastName": "Schroeder",
+      "phone": "+494012010024",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234524",
+      "tier": "wholesale"
+    },
+    {
+      "email": "office@brauerei-veddel.example",
+      "role": "user",
+      "status": "invited",
+      "firstName": "Arne",
+      "lastName": "Duwe",
+      "phone": "+494012010025",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234525",
+      "tier": "wholesale"
+    },
+    {
+      "email": "t.iverson@mail.example",
+      "role": "user",
+      "status": "invited",
+      "firstName": "Thea",
+      "lastName": "Iverson",
+      "phone": "+494012010026",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "einkauf@kiosk-barmbek.example",
+      "role": "user",
+      "status": "disabled",
+      "firstName": "Dieter",
+      "lastName": "Möller",
+      "phone": "+494012010027",
+      "customerType": "company",
+      "companyRegistrationId": "DE811234527",
+      "tier": "wholesale"
+    },
+    {
+      "email": "f.abiodun@mail.example",
+      "role": "user",
+      "status": "disabled",
+      "firstName": "Femi",
+      "lastName": "Abiodun",
+      "phone": "+494012010028",
+      "customerType": "person",
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000d001",
+      "email": "deleted-00000000-0000-4000-8000-00000000d001@deleted.invalid",
+      "role": "user",
+      "status": "anonymized",
+      "firstName": null,
+      "lastName": null,
+      "phone": null,
+      "customerType": null,
+      "companyRegistrationId": null,
+      "tier": null
+    }
+  ],
+  "inquiry": {
+    "email": "einkauf@cafe-am-hafen.example",
+    "phone": "+490401234599"
+  }
+}

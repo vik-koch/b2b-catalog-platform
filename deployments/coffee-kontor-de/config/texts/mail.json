@@ -1,0 +1,253 @@
+{
+  "common": {
+    "footerNote": "Diese Nachricht wurde automatisch von unserem Onlineshop verschickt. Bitte antworten Sie nicht an diese Adresse.",
+    "linkExpiry": "Dieser Link lässt sich einmal verwenden und läuft sieben Tage nach dem Versand ab."
+  },
+  "orders": {
+    "account": "Konto",
+    "guest": "Gast",
+    "items": "Bestellt",
+    "paymentMethods": {
+      "cash": "Barzahlung",
+      "transfer": "Überweisung",
+      "card": "Karte, nach Absprache mit dem Kunden"
+    }
+  },
+  "inquiry": {
+    "subject": "Anfrage",
+    "preheader": "Über das Kontaktformular ist eine Anfrage eingegangen.",
+    "heading": "Neue Anfrage",
+    "preferredContact": "Bevorzugter Kontaktweg",
+    "message": "Nachricht"
+  },
+  "registrationReceived": {
+    "subject": "Ihr Kontoantrag ist bei uns",
+    "preheader": "Ihr Antrag liegt bei unserem Team.",
+    "heading": "Vielen Dank für Ihren Antrag",
+    "body": "Wir haben Ihren Antrag erhalten und an unser Team weitergegeben.",
+    "nextSteps": "Jemand aus dem Team prüft ihn und richtet Ihr Konto ein. Sobald es bereit ist, erhalten Sie eine zweite E-Mail mit Ihrem Passwort. Bis dahin können Sie sich noch nicht anmelden."
+  },
+  "accountApproved": {
+    "subject": "Ihr Konto ist bereit",
+    "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
+    "heading": "Ihr Konto ist bereit",
+    "body": "Ihr Antrag wurde angenommen und Ihr Kundenkonto ist eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+    "action": "Passwort wählen"
+  },
+  "accountCreated": {
+    "subject": "Für Sie wurde ein Konto eingerichtet",
+    "preheader": "Wählen Sie ein Passwort, um mit dem Bestellen zu beginnen.",
+    "heading": "Für Sie wurde ein Konto eingerichtet",
+    "body": "Wir haben Ihnen in unserem Onlineshop ein Kundenkonto eingerichtet. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+    "action": "Passwort wählen"
+  },
+  "passwordReset": {
+    "subject": "Passwort zurücksetzen",
+    "preheader": "Wählen Sie ein neues Passwort für Ihr Konto.",
+    "heading": "Passwort zurücksetzen",
+    "body": "Jemand hat darum gebeten, das Passwort Ihres Kundenkontos zurückzusetzen. Wählen Sie ein neues, und Sie können sich sofort wieder anmelden.",
+    "expiry": "Dieser Link lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
+    "ignore": "Wenn Sie das nicht waren, können Sie diese Nachricht ignorieren – Ihr Passwort bleibt, wie es ist, und ohne Ihr Postfach kann niemand diesen Link verwenden.",
+    "action": "Neues Passwort wählen"
+  },
+  "signInCode": {
+    "message": "{code} ist Ihr Anmeldecode für Coffee Kontor.",
+    "subject": "Ihr Anmeldecode",
+    "preheader": "Geben Sie diesen Code ein, um die Anmeldung abzuschließen.",
+    "heading": "Ihr Anmeldecode",
+    "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
+  },
+  "signInCall": {
+    "subject": "Anmeldung abschließen",
+    "preheader": "Öffnen Sie den Link, statt anzurufen.",
+    "heading": "Anmeldung abschließen",
+    "body": "Diese Nachricht ersetzt den Anruf beim Shop. Öffnen Sie den Link, und die Anmeldeseite, die Sie offen gelassen haben, geht von selbst weiter.",
+    "action": "Anmeldung abschließen",
+    "ignore": "Wenn Sie nicht versucht haben, sich anzumelden, ändern Sie Ihr Passwort: Jemand anderes kennt es."
+  },
+  "accountDeleted": {
+    "subject": "Ihr Konto wurde gelöscht",
+    "preheader": "Ihr Kundenkonto und Ihre persönlichen Angaben wurden entfernt.",
+    "heading": "Ihr Konto wurde gelöscht",
+    "body": "Ihr Kundenkonto ist geschlossen, und Ihre persönlichen Angaben wurden aus unseren Unterlagen entfernt. Diese E-Mail-Adresse gehört bei uns zu keinem Konto mehr.",
+    "orders": "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben. Wenn Sie sich später neu registrieren, ist das ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
+  },
+  "newRegistration": {
+    "subject": "Neuer Kontoantrag",
+    "preheader": "Jemand hat ein Kundenkonto beantragt.",
+    "heading": "Neuer Kontoantrag",
+    "body": "Jemand hat ein Kundenkonto beantragt. Prüfen Sie den Antrag, und wenn er echt ist, nehmen Sie ihn an und weisen Sie dem Kunden eine Kundengruppe zu.",
+    "customerTypeLabel": "Beantragt als",
+    "action": "Kontenliste öffnen"
+  },
+  "orderReceived": {
+    "subject": "Ihre Bestellanfrage ist bei uns",
+    "preheader": "Ihre Bestellanfrage ist bei uns eingegangen.",
+    "heading": "Vielen Dank – Ihre Bestellung ist bei uns",
+    "body": "Ihre Bestellanfrage {reference} ist bei uns eingegangen. Noch wird nichts berechnet und nichts verschickt.",
+    "nextSteps": "Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze. Über den Link unten können Sie Ihre Bestellung jederzeit öffnen.",
+    "action": "Bestellung öffnen"
+  },
+  "newOrder": {
+    "subject": "Neue Bestellanfrage",
+    "preheader": "Ein Kunde hat eine Bestellanfrage geschickt.",
+    "heading": "Neue Bestellanfrage",
+    "body": "Ein Kunde hat eine Bestellanfrage geschickt. Öffnen Sie sie, prüfen Sie Positionen und Preis und bestätigen Sie sie dann mit dem Kunden.",
+    "action": "Bestellung öffnen"
+  },
+  "orderCancelled": {
+    "subject": "Bestellung vom Kunden storniert",
+    "preheader": "Ein Kunde hat seine Bestellung storniert.",
+    "heading": "Bestellung vom Kunden storniert",
+    "body": "Ein Kunde hat eine Bestellung storniert, die noch auf eine Antwort wartete. Von Ihnen wird nichts mehr erwartet – aber falls schon etwas dafür zurückgelegt wurde, kann es zurück ins Regal.",
+    "reasonLabel": "Angegebener Grund",
+    "reasonNone": "Keiner angegeben",
+    "paidNote": "Zu dieser Bestellung ist eine Zahlung verbucht. Eine Erstattung klären Sie direkt mit dem Kunden – hier wird kein Geld bewegt.",
+    "itemsHeading": "Bestellt war",
+    "action": "Bestellung öffnen"
+  },
+  "accountClosed": {
+    "subject": "Ein Kunde hat sein Konto geschlossen",
+    "preheader": "Ein Kunde hat sein Konto geschlossen.",
+    "heading": "Konto geschlossen",
+    "body": "Ein Kunde hat sein Konto geschlossen. Seine Angaben sind gelöscht; seine früheren Bestellungen bleiben für die Buchhaltung erhalten, ohne alles, was ihn erkennbar macht.",
+    "nameLabel": "War",
+    "ordersLabel": "Erhaltene Bestellungen",
+    "openOrdersNote": "Davon noch nicht abgeschlossen: {count}. Sie müssen sie weiterhin abwickeln, und sie lassen sich keinem Kunden mehr zuordnen – prüfen Sie sie also zuerst.",
+    "action": "Bestellliste öffnen"
+  },
+  "orderStatusChanged": {
+    "subject": "Ihre Bestellung",
+    "preheader": "Es gibt Neuigkeiten zu Ihrer Bestellung.",
+    "changedIntro": "Wir haben diese Bestellung seit unserer letzten Nachricht geändert – was wir geändert haben, steht unten, und Inhalt und Gesamtbetrag sind die, die jetzt gelten.",
+    "correctedIntro": "Wir haben unseren Stand dieser Bestellung korrigiert: Sie war weiter vorangeschritten, als sie sollte. Wo sie jetzt steht, sehen Sie unten.",
+    "attachedNote": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an dieser Nachricht.",
+    "action": "Bestellung öffnen",
+    "statuses": {
+      "changed": {
+        "heading": "Wir haben Ihre Bestellung geändert",
+        "body": "Der Stand Ihrer Bestellung ist unverändert – Inhalt und Gesamtbetrag haben sich geändert. Es gelten die unten aufgeführten."
+      },
+      "reopened": {
+        "heading": "Ihre Bestellung liegt wieder bei uns",
+        "body": "Wir haben Ihre Bestellung wieder in unsere Bearbeitung genommen und melden uns in Kürze dazu. Was wir Ihnen vorher dazu gesagt haben, gilt nicht mehr."
+      },
+      "approved": {
+        "heading": "Ihre Bestellung ist bestätigt",
+        "body": "Wir haben Ihre Bestellung bestätigt. Sobald sie bereit ist, sagen wir Ihnen Bescheid."
+      },
+      "readyDelivery": {
+        "heading": "Ihre Bestellung ist unterwegs",
+        "body": "Ihre Bestellung hat uns verlassen und wird an die Adresse unten geliefert."
+      },
+      "readyPickup": {
+        "heading": "Ihre Bestellung ist abholbereit",
+        "body": "Ihre Bestellung ist gepackt und wartet am Abholort unten. Bitte bringen Sie Ihre Bestellnummer mit."
+      },
+      "completed": {
+        "heading": "Ihre Bestellung ist abgeschlossen",
+        "body": "Ihre Bestellung ist erledigt. Vielen Dank – wir freuen uns auf die nächste."
+      },
+      "declined": {
+        "heading": "Wir können diese Bestellung nicht ausführen",
+        "body": "Es tut uns leid: Wir können diese Bestellung nicht ausführen. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
+      },
+      "cancelled": {
+        "heading": "Ihre Bestellung wurde storniert",
+        "body": "Diese Bestellung wurde storniert und wird nicht ausgeführt. Den Grund finden Sie unten, und Sie können uns gern dazu anrufen."
+      }
+    }
+  },
+  "orderDocument": {
+    "subject": "Ein Dokument zu Ihrer Bestellung",
+    "preheader": "Zu Ihrer Bestellung gibt es ein Dokument.",
+    "action": "Bestellung öffnen",
+    "kinds": {
+      "paymentInstructions": {
+        "heading": "So bezahlen Sie Ihre Bestellung",
+        "body": "Unsere Zahlungsinformationen zu dieser Bestellung hängen an. An der Bestellung selbst hat sich nichts geändert."
+      },
+      "orderSummary": {
+        "heading": "Eine Kopie Ihrer Bestellung",
+        "body": "Wir haben eine Kopie Ihrer Bestellung beigelegt, die Sie über den Link unten öffnen können. An der Bestellung selbst hat sich nichts geändert."
+      }
+    }
+  },
+  "syncRun": {
+    "startedLabel": "Gestartet",
+    "labelLabel": "Export",
+    "sourceLabel": "Quelle",
+    "changesLabel": "Änderungen",
+    "errorLabel": "Was schiefging",
+    "reasonLabel": "Warum er wartet",
+    "reasons": {
+      "policy": "Seine Auswirkung ist größer, als eine automatische Aktualisierung sein darf",
+      "requested": "Die Quelle hat um Prüfung gebeten"
+    },
+    "openRun": "Lauf öffnen",
+    "reviewRun": "Aktualisierung prüfen",
+    "areas": {
+      "catalog": {
+        "failed": {
+          "subject": "Katalogaktualisierung fehlgeschlagen",
+          "preheader": "Eine automatische Katalogaktualisierung ist nicht durchgegangen.",
+          "heading": "Eine automatische Katalogaktualisierung ist fehlgeschlagen",
+          "body": "Ihr Katalog ist unverändert, und der Shop zeigt, was er vorher gezeigt hat. Solange das nicht behoben ist, veralten Preise und Bestände nach und nach – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
+        },
+        "recovered": {
+          "subject": "Katalogaktualisierungen funktionieren wieder",
+          "preheader": "Die automatische Katalogaktualisierung ist durchgegangen.",
+          "heading": "Katalogaktualisierungen funktionieren wieder",
+          "body": "Die Anbindung an Ihr System liefert wieder, und Ihr Katalog ist aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
+        },
+        "waiting": {
+          "subject": "Eine Katalogaktualisierung wartet auf Sie",
+          "preheader": "Eine automatische Katalogaktualisierung braucht Ihre Entscheidung.",
+          "heading": "Eine Katalogaktualisierung wartet auf Sie",
+          "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, was sie ändern würde, und übernehmen oder verwerfen Sie sie – im Shop ändert sich nichts, bis Sie das tun."
+        },
+        "created": {
+          "subject": "Neue Produkte aus Ihrem System",
+          "preheader": "Eine automatische Katalogaktualisierung hat neue Produkte gebracht.",
+          "heading": "Neue Produkte eingetroffen",
+          "body": "Sie sind in Ihrem Katalog, aber nicht im Shop: Ein neues Produkt bleibt unsichtbar, bis Sie ihm Beschreibung und Bilder gegeben und es veröffentlicht haben.",
+          "action": "Neue Produkte öffnen"
+        }
+      },
+      "customers": {
+        "failed": {
+          "subject": "Kundenaktualisierung fehlgeschlagen",
+          "preheader": "Eine automatische Kundenaktualisierung ist nicht durchgegangen.",
+          "heading": "Eine automatische Kundenaktualisierung ist fehlgeschlagen",
+          "body": "Ihre Kundenkonten sind unverändert, und wer sich anmelden konnte, kann es weiterhin. Solange das nicht behoben ist, erreichen neue Kunden und geänderte Kundengruppen den Shop nicht, und Sie müssen sie womöglich von Hand eintragen – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
+        },
+        "recovered": {
+          "subject": "Kundenaktualisierungen funktionieren wieder",
+          "preheader": "Die automatische Kundenaktualisierung ist durchgegangen.",
+          "heading": "Kundenaktualisierungen funktionieren wieder",
+          "body": "Die Anbindung an Ihr System liefert wieder, und Ihre Kundenkonten sind aktuell. In der Zwischenzeit ist nichts verloren gegangen: Eine Aktualisierung bringt den aktuellen Stand, keine Liste von Änderungen."
+        },
+        "waiting": {
+          "subject": "Eine Kundenaktualisierung wartet auf Sie",
+          "preheader": "Eine automatische Kundenaktualisierung braucht Ihre Entscheidung.",
+          "heading": "Eine Kundenaktualisierung wartet auf Sie",
+          "body": "Sie wurde noch nicht übernommen. Sehen Sie sich an, welche Konten sie einladen, ändern oder abschalten würde, und übernehmen oder verwerfen Sie sie – niemandes Zugang ändert sich, bis Sie das tun."
+        }
+      },
+      "orders": {
+        "failed": {
+          "subject": "Bestellaktualisierungen fehlgeschlagen",
+          "preheader": "Eine automatische Bestellaktualisierung ist nicht durchgegangen.",
+          "heading": "Eine automatische Bestellaktualisierung ist fehlgeschlagen",
+          "body": "Ihre Bestellungen sind unverändert – Kunden warten also auf Nachricht zum Stand ihrer Bestellung, und niemand hier ist beauftragt, ihnen von Hand zu antworten. Solange das nicht behoben ist, bleiben Bestellungen aus dem Shop unbeantwortet – geben Sie diese Nachricht an die Person weiter, die die Anbindung an Ihr System betreut."
+        },
+        "recovered": {
+          "subject": "Bestellaktualisierungen funktionieren wieder",
+          "preheader": "Die automatische Bestellaktualisierung ist durchgegangen.",
+          "heading": "Bestellaktualisierungen funktionieren wieder",
+          "body": "Die Anbindung an Ihr System beantwortet wieder Bestellungen. Was sie während der Unterbrechung bearbeitet hat, kommt mit der nächsten Aktualisierung: Eine Bestellung bringt ihren aktuellen Stand, keine Liste von Schritten."
+        }
+      }
+    }
+  }
+}

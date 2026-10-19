@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "slug": "about",
+      "title": "Über uns"
+    },
+    {
+      "slug": "terms",
+      "title": "Allgemeine Geschäftsbedingungen"
+    },
+    {
+      "slug": "conditions",
+      "title": "Zahlung & Lieferung"
+    },
+    {
+      "slug": "privacy",
+      "title": "Datenschutzerklärung"
+    },
+    {
+      "slug": "imprint",
+      "title": "Impressum"
+    },
+    {
+      "slug": "withdrawal",
+      "title": "Widerrufsrecht"
+    },
+    {
+      "slug": "contact",
+      "title": "Kontakt"
+    },
+    {
+      "slug": "consent-contact",
+      "title": "Einwilligung: Kontaktformular",
+      "consentLabel": "Ich [willige ein], dass die hier eingegebenen Angaben verarbeitet werden, um meine Anfrage zu beantworten."
+    },
+    {
+      "slug": "consent-account",
+      "title": "Einwilligung: Kundenkonto",
+      "consentLabel": "Ich [willige ein], dass meine Angaben verarbeitet werden, um meinen Antrag zu prüfen und mein Kundenkonto zu führen."
+    }
+  ]
+}

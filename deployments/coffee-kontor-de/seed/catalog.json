@@ -1,0 +1,1667 @@
+{
+  "categories": [
+    {
+      "sourceId": "coffee-beans",
+      "slug": "kaffeebohnen",
+      "name": "Kaffeebohnen",
+      "parentKey": null,
+      "mark": "bean"
+    },
+    {
+      "sourceId": "espresso",
+      "slug": "espresso",
+      "name": "Espressoröstungen",
+      "parentKey": "coffee-beans",
+      "mark": "coffee"
+    },
+    {
+      "sourceId": "filter",
+      "slug": "filter",
+      "name": "Filterröstungen",
+      "parentKey": "coffee-beans",
+      "mark": "funnel"
+    },
+    {
+      "sourceId": "decaf",
+      "slug": "entkoffeiniert",
+      "name": "Entkoffeiniert",
+      "parentKey": "coffee-beans",
+      "mark": "bean-off"
+    },
+    {
+      "sourceId": "single-origin",
+      "slug": "single-origin",
+      "name": "Single Origin",
+      "parentKey": "coffee-beans",
+      "mark": "map-pin"
+    },
+    {
+      "sourceId": "tea",
+      "slug": "tee",
+      "name": "Tee",
+      "parentKey": null,
+      "mark": "leaf"
+    },
+    {
+      "sourceId": "equipment",
+      "slug": "ausstattung",
+      "name": "Ausstattung",
+      "parentKey": null,
+      "mark": "settings"
+    },
+    {
+      "sourceId": "grinders",
+      "slug": "muehlen",
+      "name": "Mühlen",
+      "parentKey": "equipment",
+      "mark": "cog"
+    },
+    {
+      "sourceId": "machines",
+      "slug": "espressomaschinen",
+      "name": "Espressomaschinen",
+      "parentKey": "equipment",
+      "mark": null
+    },
+    {
+      "sourceId": "accessories",
+      "slug": "zubehoer",
+      "name": "Zubehör",
+      "parentKey": null,
+      "mark": "wrench"
+    },
+    {
+      "sourceId": "syrups",
+      "slug": "sirupe",
+      "name": "Sirupe & Aromen",
+      "parentKey": null,
+      "mark": "droplet"
+    },
+    {
+      "sourceId": "chocolate",
+      "slug": "schokolade",
+      "name": "Schokolade & Kakao",
+      "parentKey": null,
+      "mark": "cookie"
+    },
+    {
+      "sourceId": "cups",
+      "slug": "tassen-glaeser",
+      "name": "Tassen & Gläser",
+      "parentKey": null,
+      "mark": "cup-soda"
+    },
+    {
+      "sourceId": "cleaning",
+      "slug": "reinigung",
+      "name": "Reinigung & Pflege",
+      "parentKey": null,
+      "mark": "brush-cleaning"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "Herkunft",
+      "slug": "herkunft",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Röstgrad",
+      "slug": "roestgrad",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Aufbereitung",
+      "slug": "aufbereitung",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Sorte",
+      "slug": "sorte",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Nettogewicht",
+      "slug": "nettogewicht",
+      "type": "number",
+      "unit": "g"
+    },
+    {
+      "name": "Volumen",
+      "slug": "volumen",
+      "type": "number",
+      "unit": "ml"
+    },
+    {
+      "name": "Farbe",
+      "slug": "farbe",
+      "type": "text",
+      "unit": null
+    }
+  ],
+  "catalogFilters": ["herkunft"],
+  "products": [
+    {
+      "sourceId": "ESP-001",
+      "slug": "hafen-espresso",
+      "name": "Hafen Espresso",
+      "categoryKey": "espresso",
+      "priceMinor": 1690,
+      "descriptionHtml": "<p>Hafen Espresso ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Zartbitterschokolade und Haselnuss</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Brasilien / Indien, Mischung"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Zartbitterschokolade und Haselnuss"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12024938/pexels-photo-12024938.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024938/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12003038/pexels-photo-12003038.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12003038/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4302269/pexels-photo-4302269.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4302269/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 121,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-002",
+      "slug": "kontor-classic",
+      "name": "Kontor Classic",
+      "categoryKey": "espresso",
+      "priceMinor": 1730,
+      "descriptionHtml": "<p>Kontor Classic ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Karamell und geröstete Mandel</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Mittelamerika, Mischung"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Karamell und geröstete Mandel"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12039675/pexels-photo-12039675.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12039675/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6728979/pexels-photo-6728979.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6728979/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/942800/pexels-photo-942800.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942800/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 122,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-003",
+      "slug": "notturno-ristretto",
+      "name": "Notturno Ristretto",
+      "categoryKey": "espresso",
+      "priceMinor": 1770,
+      "descriptionHtml": "<p>Notturno Ristretto ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Kakao und getrocknete Feige</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Indonesien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Kakao und getrocknete Feige"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12024976/pexels-photo-12024976.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024976/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12007828/pexels-photo-12007828.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12007828/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/10433523/pexels-photo-10433523.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/10433523/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 1,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 123,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-004",
+      "slug": "crema-d-oro",
+      "name": "Crema d'Oro",
+      "categoryKey": "espresso",
+      "priceMinor": 1810,
+      "descriptionHtml": "<p>Crema d'Oro ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>brauner Zucker und Orangenschale</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Kolumbien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "brauner Zucker und Orangenschale"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/942805/pexels-photo-942805.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942805/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/1420711/pexels-photo-1420711.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/1420711/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 124,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-005",
+      "slug": "faehrmann",
+      "name": "Fährmann",
+      "categoryKey": "espresso",
+      "priceMinor": 1850,
+      "descriptionHtml": "<p>Fährmann ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Erdnuss und Kakao</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Brasilien / Peru"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Erdnuss und Kakao"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 24,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 125,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-006",
+      "slug": "elbe-dark",
+      "name": "Elbe Dark",
+      "categoryKey": "espresso",
+      "priceMinor": 1890,
+      "descriptionHtml": "<p>Elbe Dark ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Zartbitterschokolade und Walnuss</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Brasilien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Zartbitterschokolade und Walnuss"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/12003038/pexels-photo-12003038.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12003038/",
+          "crop": {
+            "x": 0.55,
+            "y": 0.25,
+            "size": 0.5
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/12024938/pexels-photo-12024938.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024938/",
+          "crop": {
+            "x": 0.07,
+            "y": 0.25,
+            "size": 0.6
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/4302269/pexels-photo-4302269.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4302269/",
+          "crop": {
+            "x": 0.45,
+            "y": 0.0,
+            "size": 0.9
+          }
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400",
+        "boxCount": 2
+      },
+      "stockPieces": 126,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-007",
+      "slug": "roestwerk-nr-7",
+      "name": "Röstwerk Nr. 7",
+      "categoryKey": "espresso",
+      "priceMinor": 1930,
+      "descriptionHtml": "<p>Röstwerk Nr. 7 ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Lebkuchengewürz und Kakao</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Guatemala"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Lebkuchengewürz und Kakao"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/16012139/pexels-photo-16012139.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/16012139/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "minPieceQty": 6
+      },
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-009",
+      "slug": "nordic-pull",
+      "name": "Nordic Pull",
+      "categoryKey": "espresso",
+      "priceMinor": 2010,
+      "descriptionHtml": "<p>Nordic Pull ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Schwarze Johannisbeere und Melasse</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Kenia / Brasilien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Schwarze Johannisbeere und Melasse"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/13427971/pexels-photo-13427971.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/13427971/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.0,
+            "size": 1.0
+          }
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-014",
+      "slug": "barista-reserve",
+      "name": "Barista Reserve",
+      "categoryKey": "espresso",
+      "priceMinor": 2210,
+      "descriptionHtml": "<p>Barista Reserve ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Steinobst und Praline</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Äthiopien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mitteldunkel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gemischt"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Steinobst und Praline"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/16480801/pexels-photo-16480801.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/16480801/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/36719062/pexels-photo-36719062.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/36719062/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "minPieceQty": 6
+      },
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-001",
+      "slug": "yirgacheffe-filter",
+      "name": "Yirgacheffe Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2290,
+      "descriptionHtml": "<p>Yirgacheffe Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Jasmin, Bergamotte und Steinobst</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Äthiopien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Hell"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Jasmin und Bergamotte"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7937408/pexels-photo-7937408.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7937408/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12039675/pexels-photo-12039675.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12039675/",
+          "crop": {
+            "x": 0.3,
+            "y": 0.05,
+            "size": 0.9
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/942808/pexels-photo-942808.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942808/"
+        }
+      ],
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-002",
+      "slug": "huila-filter",
+      "name": "Huila Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2190,
+      "descriptionHtml": "<p>Huila Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>rote Beeren und Panela</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Kolumbien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Hell bis mittel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "rote Beeren und Panela"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/4109740/pexels-photo-4109740.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4109740/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12024976/pexels-photo-12024976.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12024976/",
+          "crop": {
+            "x": 0.11,
+            "y": 0.15,
+            "size": 0.62
+          }
+        }
+      ],
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-003",
+      "slug": "kenya-ab-filter",
+      "name": "Kenya AB Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2490,
+      "descriptionHtml": "<p>Kenya AB Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Schwarze Johannisbeere und eine saftige Säure</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Kenia"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Hell"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Schwarze Johannisbeere"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6014623/pexels-photo-6014623.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6014623/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4109752/pexels-photo-4109752.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4109752/"
+        }
+      ],
+      "stockPieces": 149,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "DEC-001",
+      "slug": "ohne-decaf",
+      "name": "Ohne Decaf",
+      "categoryKey": "decaf",
+      "priceMinor": 1990,
+      "descriptionHtml": "<p>Ohne Decaf ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Vollmilchschokolade und geröstete Nuss</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Kolumbien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mittel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Zuckerrohr-EA"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Vollmilchschokolade"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7658171/pexels-photo-7658171.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7658171/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7658348/pexels-photo-7658348.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7658348/"
+        }
+      ],
+      "stockPieces": 150,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "SO-001",
+      "slug": "gesha-limitiert",
+      "name": "Gesha, limitierte Partie",
+      "categoryKey": "single-origin",
+      "priceMinor": 3890,
+      "descriptionHtml": "<p>Gesha, limitierte Partie ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Jasmin, Pfirsich und Bergamotte</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Panama"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Hell"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Jasmin und Pfirsich"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/22679460/pexels-photo-22679460.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/22679460/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4815899/pexels-photo-4815899.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4815899/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6728979/pexels-photo-6728979.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6728979/",
+          "crop": {
+            "x": 0.4,
+            "y": 0.1,
+            "size": 0.8
+          }
+        }
+      ],
+      "stockPieces": 152,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "SO-002",
+      "slug": "sidamo-natural",
+      "name": "Sidamo Natural",
+      "categoryKey": "single-origin",
+      "priceMinor": 2590,
+      "descriptionHtml": "<p>Sidamo Natural ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Blaubeere und Zartbitterschokolade</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Äthiopien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Hell bis mittel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Natural"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Blaubeere"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7175976/pexels-photo-7175976.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7175976/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/942800/pexels-photo-942800.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942800/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.0,
+            "size": 0.9
+          }
+        }
+      ],
+      "taxRate": 7
+    },
+    {
+      "sourceId": "SO-003",
+      "slug": "antigua-single",
+      "name": "Antigua Single Origin",
+      "categoryKey": "single-origin",
+      "priceMinor": 2390,
+      "descriptionHtml": "<p>Antigua Single Origin ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Kakao, Orange und Karamell</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Guatemala"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mittel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Gewaschen"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Kakao und Orange"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9420149/pexels-photo-9420149.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9420149/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12007828/pexels-photo-12007828.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12007828/",
+          "crop": {
+            "x": 0.5,
+            "y": 0.1,
+            "size": 0.85
+          }
+        }
+      ],
+      "stockPieces": 154,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "TEA-001",
+      "slug": "ostfriesische-mischung",
+      "name": "Ostfriesische Mischung",
+      "categoryKey": "tea",
+      "priceMinor": 1290,
+      "descriptionHtml": "<p>Eine kräftige Assam-Broken-Mischung, <strong>malzig und stark</strong> – die klassische Grundlage für eine herzhafte Tasse.</p>",
+      "attributes": [
+        {
+          "key": "Sorte",
+          "value": "Schwarztee"
+        },
+        {
+          "key": "Herkunft",
+          "value": "Assam"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "500"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6448535/pexels-photo-6448535.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6448535/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8329983/pexels-photo-8329983.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8329983/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.35,
+            "size": 1.0
+          }
+        }
+      ],
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "TEA-002",
+      "slug": "sencha-gruentee",
+      "name": "Sencha Grüntee",
+      "categoryKey": "tea",
+      "priceMinor": 1490,
+      "descriptionHtml": "<p>Grasiger, frischer japanischer Sencha mit sanfter Süße.</p>",
+      "attributes": [
+        {
+          "key": "Sorte",
+          "value": "Grüntee"
+        },
+        {
+          "key": "Herkunft",
+          "value": "Japan"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "250"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8329972/pexels-photo-8329972.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8329972/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4390014/pexels-photo-4390014.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4390014/"
+        }
+      ],
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "TEA-003",
+      "slug": "pfefferminztee",
+      "name": "Pfefferminztee",
+      "categoryKey": "tea",
+      "priceMinor": 990,
+      "descriptionHtml": "<p>Reine Pfefferminzblätter, koffeinfrei und frisch.</p>",
+      "attributes": [
+        {
+          "key": "Sorte",
+          "value": "Kräutertee"
+        },
+        {
+          "key": "Herkunft",
+          "value": "Deutschland"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "ca. 250"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/33988115/pexels-photo-33988115.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/33988115/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6694176/pexels-photo-6694176.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6694176/"
+        }
+      ],
+      "stockPieces": 157,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "GRD-001",
+      "slug": "kontor-grind-one",
+      "name": "Kontor Grind One",
+      "categoryKey": "grinders",
+      "priceMinor": 34900,
+      "descriptionHtml": "<p>Eine Ladenmühle mit Scheibenmahlwerk für den vollen Tresen. Stufenlos einstellbar, leiser Motor.</p>",
+      "attributes": [
+        {
+          "key": "Mahlwerk",
+          "value": "64 mm, Scheiben"
+        },
+        {
+          "key": "Einstellung",
+          "value": "Stufenlos"
+        },
+        {
+          "key": "Bohnenbehälter",
+          "value": "1,2 kg"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/5825362/pexels-photo-5825362.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5825362/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/4509577/pexels-photo-4509577.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4509577/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/5825362/pexels-photo-5825362.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5825362/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.15,
+            "size": 0.5
+          }
+        }
+      ],
+      "stockPieces": 158
+    },
+    {
+      "sourceId": "GRD-002",
+      "slug": "kontor-handmuehle",
+      "name": "Kontor Handmühle",
+      "categoryKey": "grinders",
+      "priceMinor": 8900,
+      "descriptionHtml": "<p>Eine präzise Handmühle für Filterkaffee unterwegs.</p>",
+      "attributes": [
+        {
+          "key": "Mahlwerk",
+          "value": "38 mm, Kegel"
+        },
+        {
+          "key": "Gehäuse",
+          "value": "Eloxiertes Aluminium"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/29527477/pexels-photo-29527477.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/29527477/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/29527481/pexels-photo-29527481.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/29527481/"
+        }
+      ],
+      "stockPieces": 159
+    },
+    {
+      "sourceId": "MCH-001",
+      "slug": "hafen-dualboiler",
+      "name": "Hafen Dualboiler",
+      "categoryKey": "machines",
+      "priceMinor": 189000,
+      "descriptionHtml": "<p>Eine Espressomaschine mit zwei Boilern für gleichzeitiges Brühen und Aufschäumen, PID-gesteuert.</p>",
+      "attributes": [
+        {
+          "key": "Boiler",
+          "value": "Zwei"
+        },
+        {
+          "key": "Steuerung",
+          "value": "PID"
+        },
+        {
+          "key": "Siebträger",
+          "value": "58 mm"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6032792/pexels-photo-6032792.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6032792/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6032787/pexels-photo-6032787.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6032787/",
+          "crop": {
+            "x": 0.48,
+            "y": 0.2,
+            "size": 0.75
+          }
+        },
+        {
+          "url": "https://images.pexels.com/photos/6032797/pexels-photo-6032797.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6032797/",
+          "crop": {
+            "x": 0.38,
+            "y": 0.42,
+            "size": 0.6
+          }
+        }
+      ],
+      "stockPieces": 160
+    },
+    {
+      "sourceId": "ACC-001",
+      "slug": "tamper-58",
+      "name": "Präzisions-Tamper 58 mm",
+      "categoryKey": "accessories",
+      "priceMinor": 4500,
+      "descriptionHtml": "<p>Ein beschwerter 58&nbsp;mm-Tamper aus Edelstahl mit Griff aus Walnuss.</p>",
+      "attributes": [
+        {
+          "key": "Durchmesser",
+          "value": "58 mm"
+        },
+        {
+          "key": "Material",
+          "value": "Edelstahl / Walnuss"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/18272583/pexels-photo-18272583.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/18272583/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8936986/pexels-photo-8936986.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8936986/"
+        }
+      ],
+      "stockPieces": 161
+    },
+    {
+      "sourceId": "ACC-002",
+      "slug": "milchkaennchen-05",
+      "name": "Milchkännchen 0,5 l",
+      "categoryKey": "accessories",
+      "priceMinor": 2900,
+      "descriptionHtml": "<p>Ein Aufschäumkännchen aus Edelstahl, 0,5&nbsp;Liter, mit spitzem Ausguss für Latte Art.</p>",
+      "attributes": [
+        {
+          "key": "Fassungsvermögen",
+          "value": "0,5 l"
+        },
+        {
+          "key": "Material",
+          "value": "Edelstahl"
+        }
+      ],
+      "pictures": [],
+      "stockPieces": 4
+    },
+    {
+      "sourceId": "SYR-001",
+      "slug": "creme-caramel-sirup",
+      "name": "Crème-Caramel-Sirup 1 l",
+      "categoryKey": "syrups",
+      "priceMinor": 1190,
+      "descriptionHtml": "<p>Ein Karamellsirup aus gebranntem Zucker für Latte und Eiskaffee, in der 1&nbsp;Liter-Glasflasche.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "1000"
+        },
+        {
+          "key": "Geschmack",
+          "value": "Karamell"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9105961/pexels-photo-9105961.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9105961/",
+          "crop": {
+            "x": 0.45,
+            "y": 0.0,
+            "size": 1.0
+          }
+        }
+      ],
+      "stockPieces": 140,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "CHO-001",
+      "slug": "trinkschokolade",
+      "name": "Trinkschokolade 1 kg",
+      "categoryKey": "chocolate",
+      "priceMinor": 1890,
+      "descriptionHtml": "<p>Eine Trinkschokolade mit <strong>32&nbsp;% Kakao</strong>, die sich ohne Klümpchen in aufgeschäumter Milch löst.</p>",
+      "attributes": [
+        {
+          "key": "Kakaoanteil",
+          "value": "32 %"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/13428094/pexels-photo-13428094.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/13428094/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/5078591/pexels-photo-5078591.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5078591/",
+          "crop": {
+            "x": 0.35,
+            "y": 0.1,
+            "size": 0.7
+          }
+        }
+      ],
+      "stockPieces": 90,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "CLN-001",
+      "slug": "mahlwerkpinsel",
+      "name": "Reinigungspinsel fürs Mahlwerk",
+      "categoryKey": "cleaning",
+      "priceMinor": 690,
+      "descriptionHtml": "<p>Ein weicher Pinsel mit Naturborsten für Mahlwerk und Auswurf einer Mühle.</p>",
+      "attributes": [
+        {
+          "key": "Borsten",
+          "value": "Natur"
+        },
+        {
+          "key": "Griff",
+          "value": "Buche"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/4827571/pexels-photo-4827571.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/4827571/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/18272581/pexels-photo-18272581.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/18272581/"
+        }
+      ],
+      "stockPieces": 35
+    },
+    {
+      "sourceId": "CUP-001",
+      "slug": "steinzeug-tassenset",
+      "name": "Steinzeug-Tassenset (6)",
+      "categoryKey": "cups",
+      "priceMinor": 5400,
+      "descriptionHtml": "<p>Sechs handgemachte Steinzeugtassen à 200&nbsp;ml für Flat White und Cortado, in der Glasur Ihrer Wahl.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "200"
+        },
+        {
+          "key": "Stückzahl",
+          "value": "6 Tassen"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7214897/pexels-photo-7214897.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7214897/",
+          "crop": {
+            "x": 0.29,
+            "y": 0.0,
+            "size": 0.95
+          }
+        }
+      ],
+      "lineNoteEnabled": true,
+      "lineNotePrompt": "Welche Glasuren, und wie viele von jeder?",
+      "variants": [
+        {
+          "name": "Terrakotta",
+          "colour": "#b5623f",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/7214897/pexels-photo-7214897.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/7214897/",
+              "crop": {
+                "x": 0.2,
+                "y": 0.35,
+                "size": 0.45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Senfgelb",
+          "colour": "#d9a62e",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/7214897/pexels-photo-7214897.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/7214897/",
+              "crop": {
+                "x": 0.58,
+                "y": 0.35,
+                "size": 0.45
+              }
+            }
+          ]
+        },
+        {
+          "name": "Zweifarbig Sand und Ton",
+          "colour": "#d8c3a0",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/11889246/pexels-photo-11889246.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/11889246/"
+            },
+            {
+              "url": "https://images.pexels.com/photos/11889246/pexels-photo-11889246.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/11889246/",
+              "crop": {
+                "x": 0.2,
+                "y": 0.3,
+                "size": 0.6
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rost",
+          "colour": "#8a3b24",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/28486217/pexels-photo-28486217.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/28486217/"
+            }
+          ],
+          "unavailable": true
+        }
+      ],
+      "stockPieces": 163
+    },
+    {
+      "sourceId": "CUP-002",
+      "slug": "latte-glaeser",
+      "name": "Latte-Gläser (6)",
+      "categoryKey": "cups",
+      "priceMinor": 4200,
+      "descriptionHtml": "<p>Sechs doppelwandige Latte-Gläser à 300&nbsp;ml.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "300"
+        },
+        {
+          "key": "Stückzahl",
+          "value": "6 Gläser"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/5490117/pexels-photo-5490117.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5490117/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/35758580/pexels-photo-35758580.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/35758580/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/12975714/pexels-photo-12975714.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/12975714/"
+        }
+      ]
+    },
+    {
+      "sourceId": "CUP-003",
+      "slug": "to-go-becher-300",
+      "name": "To-go-Becher 300 ml (50)",
+      "categoryKey": "cups",
+      "priceMinor": 1350,
+      "descriptionHtml": "<p>Fünfzig doppelwandige To-go-Becher à 300&nbsp;ml, unbedruckt.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "300"
+        },
+        {
+          "key": "Farbe",
+          "value": "Weiß"
+        },
+        {
+          "key": "Stückzahl",
+          "value": "50 Becher"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9878735/pexels-photo-9878735.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9878735/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8100998/pexels-photo-8100998.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8100998/"
+        }
+      ],
+      "stockPieces": 240,
+      "featured": true
+    },
+    {
+      "sourceId": "CUP-004",
+      "slug": "to-go-deckel-flach",
+      "name": "To-go-Deckel, flach (50)",
+      "categoryKey": "cups",
+      "priceMinor": 490,
+      "descriptionHtml": "<p>Fünfzig flache Trinkdeckel für den 300&nbsp;ml-To-go-Becher.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "300"
+        },
+        {
+          "key": "Stückzahl",
+          "value": "50 Deckel"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9878735/pexels-photo-9878735.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9878735/",
+          "crop": {
+            "x": 0.38,
+            "y": 0.15,
+            "size": 0.3
+          }
+        }
+      ],
+      "stockPieces": 166
+    },
+    {
+      "sourceId": "CUP-005",
+      "slug": "to-go-deckel-gewoelbt",
+      "name": "To-go-Deckel, gewölbt (50)",
+      "categoryKey": "cups",
+      "priceMinor": 540,
+      "descriptionHtml": "<p>Fünfzig gewölbte Deckel für den 300&nbsp;ml-To-go-Becher, für Getränke mit Haube.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "300"
+        },
+        {
+          "key": "Stückzahl",
+          "value": "50 Deckel"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7319334/pexels-photo-7319334.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7319334/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.05,
+            "size": 0.5
+          }
+        }
+      ],
+      "stockPieces": 167
+    },
+    {
+      "sourceId": "CUP-006",
+      "slug": "to-go-becher-deckel-400",
+      "name": "To-go-Becher mit Deckel 400 ml",
+      "categoryKey": "cups",
+      "priceMinor": 38,
+      "descriptionHtml": "<p>Ein doppelwandiger To-go-Becher, 400&nbsp;ml, in Schwarz mit weißem Trinkdeckel, zusammen als ein Set verkauft.</p>",
+      "attributes": [
+        {
+          "key": "Volumen",
+          "value": "400"
+        },
+        {
+          "key": "Farbe (Becher)",
+          "value": "Schwarz"
+        },
+        {
+          "key": "Farbe (Deckel)",
+          "value": "Weiß"
+        },
+        {
+          "key": "Material (Becher)",
+          "value": "Papier, PE-beschichtet"
+        },
+        {
+          "key": "Material (Deckel)",
+          "value": "Polystyrol"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9462453/pexels-photo-9462453.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9462453/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/9462450/pexels-photo-9462450.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9462450/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.3,
+            "size": 0.8
+          }
+        }
+      ],
+      "parts": ["Becher", "Deckel"],
+      "packaging": {
+        "piecesPerPack": 50,
+        "packsPerBox": 2,
+        "minPieceQty": 50,
+        "boxVolume": "0.096",
+        "boxWeight": "5.800",
+        "boxCount": 3
+      },
+      "stockPieces": 60,
+      "featured": true
+    },
+    {
+      "sourceId": "FIL-090",
+      "slug": "guji-natural-filter",
+      "name": "Guji Natural Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2390,
+      "descriptionHtml": "<p>Guji Natural Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Blaubeere und Zartbitterschokolade</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Äthiopien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Hell"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Natural"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Blaubeere"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/942803/pexels-photo-942803.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/942803/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.0,
+            "size": 0.6
+          }
+        }
+      ],
+      "state": "unpublished",
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-091",
+      "slug": "sumatra-filter",
+      "name": "Sumatra Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2090,
+      "descriptionHtml": "<p>Sumatra Filter ist eine Spezialitäten-Partie für den Großhandel, in Hamburg auf Bestellung geröstet.</p><p>In der Tasse: <strong>Zedernholz und dunkler Kakao</strong>. Geliefert in 1&nbsp;kg-Beuteln als ganze Bohne, mit Röstdatum auf jedem Beutel, und <em>im Dauerauftrag erhältlich</em>.</p>",
+      "attributes": [
+        {
+          "key": "Herkunft",
+          "value": "Indonesien"
+        },
+        {
+          "key": "Röstgrad",
+          "value": "Mittel"
+        },
+        {
+          "key": "Aufbereitung",
+          "value": "Nass geschält"
+        },
+        {
+          "key": "Geschmacksnoten",
+          "value": "Zedernholz und Kakao"
+        },
+        {
+          "key": "Nettogewicht",
+          "value": "1000"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7658174/pexels-photo-7658174.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7658174/",
+          "crop": {
+            "x": 0.0,
+            "y": 0.45,
+            "size": 1.0
+          }
+        }
+      ],
+      "state": "deleted",
+      "stockPieces": 170,
+      "taxRate": 7
+    }
+  ],
+  "pairings": [
+    ["takeaway-cup-300", "takeaway-lid-flat"],
+    ["takeaway-cup-300", "takeaway-lid-domed"]
+  ]
+}

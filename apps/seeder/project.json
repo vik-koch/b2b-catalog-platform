@@ -31,10 +31,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
-        "command": "node dist/apps/seeder/main.cjs",
-        "env": {
-          "SEED_PATH": "seed"
-        }
+        "command": "node dist/apps/seeder/main.cjs"
       }
     }
   }

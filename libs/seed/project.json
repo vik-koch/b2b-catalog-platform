@@ -4,5 +4,23 @@
   "sourceRoot": "libs/seed/src",
   "projectType": "library",
   "tags": ["scope:shared", "platform:node"],
-  "targets": {}
+  "targets": {
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/libs/seed"],
+      "options": {
+        "passWithNoTests": true,
+        "tsConfig": "libs/seed/tsconfig.spec.json"
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p libs/seed/tsconfig.lib.json --noEmit",
+          "tsc -p libs/seed/tsconfig.spec.json --noEmit"
+        ]
+      }
+    }
+  }
 }

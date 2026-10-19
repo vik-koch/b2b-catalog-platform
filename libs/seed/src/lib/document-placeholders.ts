@@ -16,9 +16,28 @@ import { DOCUMENT_URL_PREFIX } from '@b2b-catalog-platform/shared';
 
 const DOCUMENT_SUBDIR = 'documents';
 
-/** Escapes the characters a PDF string literal cannot carry raw. */
+/** What WinAnsi puts at 0x80–0x9F, where Latin-1 has control codes; the
+ * unassigned slots hold the control code itself. */
+const WIN_ANSI_HIGH =
+  '€\u0081‚ƒ„…†‡ˆ‰Š‹Œ\u008DŽ\u008F\u0090‘’“”•–—˜™š›œ\u009DžŸ';
+
+/** A character as its one WinAnsi byte (written as the Latin-1 character of
+ * that code), or `?` for one WinAnsi lacks. */
+function winAnsi(char: string): string {
+  const code = char.charCodeAt(0);
+  if (char.length === 1 && (code < 0x80 || (code >= 0xa0 && code <= 0xff))) {
+    return char;
+  }
+  const high = WIN_ANSI_HIGH.indexOf(char);
+  return high < 0 ? '?' : String.fromCharCode(0x80 + high);
+}
+
+/** Escapes the characters a PDF string literal cannot carry raw, and encodes
+ * the rest for the font. */
 function pdfText(value: string): string {
-  return value.replace(/([\\()])/g, '\\$1');
+  return Array.from(value, winAnsi)
+    .join('')
+    .replace(/([\\()])/g, '\\$1');
 }
 
 /**
@@ -26,9 +45,9 @@ function pdfText(value: string): string {
  * The cross-reference table is written from the real byte offsets, so the file
  * is well-formed rather than merely tolerated by a viewer.
  *
- * The text is Latin-1 — which is all Helvetica's built-in encoding covers, and
- * what keeps a character's length in the string equal to its length in the
- * file, so the offsets below stay right.
+ * The font is told to use WinAnsi: Helvetica's own encoding has no umlauts or
+ * accents. One byte per character also keeps a character's length in the
+ * string equal to its length in the file, so the offsets below stay right.
  */
 export function placeholderPdf(title: string, lines: string[]): Buffer {
   const content =
@@ -46,7 +65,8 @@ export function placeholderPdf(title: string, lines: string[]): Buffer {
     '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] ' +
       '/Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>',
     `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
-    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica ' +
+      '/Encoding /WinAnsiEncoding >>',
   ];
 
   let pdf = '%PDF-1.4\n';

@@ -1,0 +1,1574 @@
+{
+  "actions": {
+    "save": "Speichern",
+    "preview": "Vorschau",
+    "resumeEditing": "Zurück zur Bearbeitung",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "restore": "Wiederherstellen",
+    "reorder": "Zum Umsortieren ziehen"
+  },
+  "discard": {
+    "heading": "Änderungen verwerfen?",
+    "confirm": "Änderungen verwerfen",
+    "cancel": "Weiter bearbeiten"
+  },
+  "upload": {
+    "progress": "Wird hochgeladen…",
+    "error": "Dieses Bild konnte nicht hochgeladen werden. Verwenden Sie PNG, JPEG, WebP oder GIF unter 5 MB.",
+    "pasteHint": "oder eine kopierte Datei mit {keys} einfügen",
+    "tileHint": "Ziehen Sie ein Bild auf die Kachel oder fügen Sie ein kopiertes mit {keys} ein."
+  },
+  "grid": {
+    "clearFilters": "Filter zurücksetzen",
+    "resizeColumn": "Ziehen, um die Breite zu ändern. Doppelklick passt die Spalten an ihren Inhalt an.",
+    "resizeColumnOfAria": "Breite von {column} ändern",
+    "resetWidths": "Spaltenbreiten zurücksetzen",
+    "filters": "Filter",
+    "sort": "Sortierung",
+    "sortDefault": "Standardreihenfolge",
+    "sortAscending": "{column}, aufsteigend",
+    "sortDescending": "{column}, absteigend"
+  },
+  "countSuffix": "({count})",
+  "actorGone": "ein gelöschtes Konto",
+  "catalogErrors": {
+    "product-not-found": "Dieses Produkt gibt es nicht mehr. Laden Sie die Seite neu, um den aktuellen Katalog zu sehen.",
+    "category-not-found": "Diese Kategorie gibt es nicht mehr. Laden Sie die Seite neu, um die aktuellen Kategorien zu sehen.",
+    "reassign-target-not-found": "Die Kategorie, in die Sie die Produkte verschieben wollten, gibt es nicht mehr.",
+    "category-has-subcategories": "Diese Kategorie hat noch Unterkategorien. Löschen oder verschieben Sie diese zuerst.",
+    "category-has-products": "Diese Kategorie enthält noch Produkte. Wählen Sie eine Kategorie, in die sie verschoben werden.",
+    "category-reassign-to-self": "Die Produkte können nicht in die Kategorie verschoben werden, die gerade gelöscht wird.",
+    "category-cycle": "Eine Kategorie kann nicht in eine ihrer eigenen Unterkategorien verschoben werden.",
+    "slug-taken": "Diese Webadresse wird bereits verwendet. Bitte wählen Sie eine andere.",
+    "source-id-taken": "Dieser Abgleichschlüssel wird bereits von einem anderen Produkt oder einer anderen Kategorie verwendet.",
+    "tier-not-found": "Eine der Preislisten dieses Produkts gibt es nicht mehr. Laden Sie die Seite neu und legen Sie die Preise erneut fest.",
+    "paired-product-not-found": "Eines der Produkte, mit denen dieses zusammen verkauft wird, gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut.",
+    "document-not-found": "Eines der Dokumente dieses Produkts gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Dokumente erneut.",
+    "pairing-self": "Ein Produkt kann nicht mit sich selbst zusammen verkauft werden.",
+    "slug-or-source-id-taken": "Gerade hat jemand anderes eine kollidierende Webadresse oder einen kollidierenden Abgleichschlüssel gespeichert. Bitte versuchen Sie es noch einmal.",
+    "product-has-no-price": "Dieses Produkt hat keinen Preis in der Preisliste, die der Shop zeigt, und kann daher nicht veröffentlicht werden. Geben Sie ihm zuerst einen Preis.",
+    "product-published": "Dieses Produkt ist im Shop sichtbar. Ziehen Sie es zuerst zurück und löschen Sie es dann.",
+    "product-deleted": "Dieses Produkt ist gelöscht. Stellen Sie es zuerst wieder her und veröffentlichen Sie es dann.",
+    "product-not-deleted": "Nur ein gelöschtes Produkt lässt sich endgültig löschen. Löschen Sie es zuerst.",
+    "product-ordered": "Dieses Produkt steht in einer Bestellung und kann daher nicht endgültig gelöscht werden. Es bleibt stattdessen gelöscht."
+  },
+  "fields": {
+    "name": {
+      "required": "Ein Name ist erforderlich."
+    },
+    "firstName": {
+      "required": "Ein Vorname ist erforderlich."
+    },
+    "lastName": {
+      "required": "Ein Nachname ist erforderlich."
+    },
+    "email": {
+      "required": "Eine E-Mail-Adresse ist erforderlich.",
+      "invalid": "Diese E-Mail-Adresse ist ungültig."
+    },
+    "phone": {
+      "required": "Eine Telefonnummer ist erforderlich.",
+      "incomplete": "Diese Telefonnummer ist unvollständig."
+    },
+    "companyName": {
+      "required": "Ein Firmenname ist erforderlich."
+    },
+    "companyId": {
+      "required": "Eine Unternehmenskennung ist erforderlich.",
+      "format": "Diese Unternehmenskennung passt zu keinem der erwarteten Formate, z. B. {examples}."
+    }
+  },
+  "imageFramer": {
+    "heading": "Bild zuschneiden",
+    "hint": "Ziehen Sie das Bild, um es zu verschieben. Herauszoomen ergibt einen breiteren weißen Rand, Hineinzoomen schneidet zu.",
+    "stageAria": "Bildposition: Pfeiltasten verschieben, Plus und Minus zoomen",
+    "zoom": "Zoom",
+    "centre": "Einpassen und zentrieren",
+    "fill": "Füllen und zentrieren",
+    "asIs": "Unverändert hochladen",
+    "apply": "Zuschnitt übernehmen"
+  },
+  "panel": {
+    "catalog": "Katalog",
+    "registries": "Filter und Preise",
+    "pages": "Inhaltsseiten",
+    "version": "Version {version}",
+    "versionUnknown": "Version unbekannt",
+    "deployedAt": "bereitgestellt am {date}",
+    "accounts": "Konten",
+    "orders": "Bestellungen",
+    "workRegistrations": "{count} zur Freigabe",
+    "workOrders": "{count} zu beantworten",
+    "workUnpaid": "{count} abgeschlossen, unbezahlt",
+    "workProducts": "{count} zu veröffentlichen",
+    "workUnpricedProducts": "{count} ohne Preis",
+    "workDocuments": "{count} bald ablaufend",
+    "workDocumentsExpired": "{count} abgelaufen",
+    "workSyncRuns": "{count} zu prüfen",
+    "operations": "Betrieb",
+    "maintenanceOn": "Wartungsmodus an",
+    "fullyOwned": "Shop extern verwaltet",
+    "catalogOwned": "Katalog extern verwaltet",
+    "customersOwned": "Kunden extern verwaltet",
+    "ordersOwned": "Bestellungen extern verwaltet"
+  },
+  "editMode": {
+    "enable": "Bearbeitungsmodus",
+    "disable": "Bearbeitung an",
+    "editProduct": "Produkt bearbeiten",
+    "showInList": "In der Produktliste zeigen",
+    "addProduct": "Produkt hinzufügen",
+    "deleteProduct": "Produkt löschen",
+    "purgeProduct": "Endgültig löschen",
+    "editCategory": "Kategorie bearbeiten",
+    "editCategories": "Kategorien bearbeiten",
+    "editFilters": "Filter bearbeiten",
+    "hiddenHeading": "Nicht im Shop",
+    "hiddenHint": "Diese Produkte gehören zu dieser Kategorie, aber Kunden sehen sie nicht.",
+    "unpricedHint": "Geben Sie diesem Produkt einen Preis, bevor Sie es veröffentlichen.",
+    "unpricedTitle": "Dieses Produkt hat keinen Preis",
+    "publishProduct": "Veröffentlichen",
+    "unpublishProduct": "Zurückziehen",
+    "unpublishStranded": "Es ist das letzte erhältliche Produkt, mit dem diese zusammen verkauft werden – sie bleiben ohne Gegenstück im Verkauf: {names}.",
+    "revealError": "Dieses Produkt konnte nicht veröffentlicht werden. Bitte versuchen Sie es noch einmal.",
+    "unpublishConfirm": {
+      "heading": "Zurückziehen",
+      "message": "„{name}“ aus dem Shop nehmen? Kunden sehen es dann nicht mehr; Sie können es jederzeit wieder veröffentlichen.",
+      "confirm": "Zurückziehen"
+    },
+    "purgeConfirm": {
+      "heading": "Endgültig löschen",
+      "message": "„{name}“ endgültig löschen? Preise, Merkmale, Zuordnungen und Dokumentverknüpfungen werden mit entfernt. Das lässt sich nicht rückgängig machen.",
+      "confirm": "Endgültig löschen"
+    }
+  },
+  "pages": {
+    "edit": "Seite bearbeiten",
+    "newTitle": "Seiteninhalt hinzufügen",
+    "editTitle": "Seite bearbeiten",
+    "emptyNotice": "Diese Seite hat noch keinen Inhalt.",
+    "pageTitle": "Seitentitel",
+    "previewNotice": "Vorschau – so sieht die Seite nach dem Speichern aus.",
+    "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Seite verwerfen?",
+    "titleRequired": "Ein Seitentitel ist erforderlich.",
+    "saveError": "Beim Speichern dieser Seite ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+    "consentLabel": "Text am Kästchen",
+    "consentLabelHint": "Der Satz neben dem Kästchen im Formular. Setzen Sie die Wörter, die diesen Text öffnen, einmal in eckige Klammern: Ich [willige ein], dass … Wird zusammen mit dem Text als eine Version gespeichert.",
+    "consentLabelRequired": "Der Text am Kästchen ist erforderlich.",
+    "consentLabelLink": "Setzen Sie die Wörter, die diesen Text öffnen, genau einmal in eckige Klammern.",
+    "consentPreview": "Im Formular",
+    "history": {
+      "heading": "Versionen",
+      "version": "Version {version}",
+      "current": "aktuell",
+      "consentLabel": "Text am Kästchen:"
+    },
+    "toolbar": {
+      "labelAria": "Formatierung",
+      "bold": "Fett",
+      "italic": "Kursiv",
+      "underline": "Unterstrichen",
+      "strikethrough": "Durchgestrichen",
+      "heading2": "Überschrift",
+      "heading3": "Zwischenüberschrift",
+      "bulletList": "Aufzählung",
+      "orderedList": "Nummerierte Liste",
+      "blockquote": "Zitat",
+      "link": "Link einfügen",
+      "unlink": "Link entfernen",
+      "removeFormatting": "Formatierung entfernen",
+      "horizontalRule": "Trennlinie",
+      "image": "Bild einfügen"
+    },
+    "linkPanel": {
+      "headingAria": "Link",
+      "urlLabel": "Linkadresse",
+      "placeholder": "https://example.com",
+      "hint": "Eine Webadresse, eine E-Mail-Adresse, eine Telefonnummer oder ein Pfad auf dieser Website wie /catalog.",
+      "apply": "Übernehmen"
+    },
+    "imagePanel": {
+      "headingAria": "Bild",
+      "altLabel": "Alternativtext",
+      "altPlaceholder": "Beschreiben Sie das Bild",
+      "altHint": "Beschreibt das Bild für Screenreader und Suchmaschinen. Nur leer lassen, wenn das Bild rein dekorativ ist.",
+      "linkLabel": "Link (optional)",
+      "linkPlaceholder": "https://example.com",
+      "alignLabel": "Ausrichtung",
+      "alignNone": "Im Text",
+      "alignLeft": "Links",
+      "alignCenter": "Mittig",
+      "alignRight": "Rechts",
+      "widthLabel": "Größe",
+      "remove": "Bild entfernen"
+    }
+  },
+  "products": {
+    "deleted": "Gelöscht",
+    "unpublished": "Nicht veröffentlicht",
+    "unpriced": "Kein Preis",
+    "count": "Produkte: {count}",
+    "unpublishedCount": "{count} unveröffentlicht",
+    "list": {
+      "page": {
+        "title": "Produkte"
+      },
+      "empty": "Noch keine Produkte.",
+      "noResults": "Kein Produkt passt zu diesen Filtern.",
+      "updated": "Geändert",
+      "sourceId": "Abgleichschlüssel",
+      "searchAria": "Produkte suchen",
+      "searchPlaceholder": "Nach Name oder Abgleichschlüssel suchen",
+      "clearSearch": "Suche leeren",
+      "filterState": "Nach Zustand filtern",
+      "state": "Zustand",
+      "filterCategory": "Nach Kategorie filtern",
+      "stateAll": "Alle Zustände",
+      "stateLive": "Im Shop",
+      "deletedMatches": "Passende gelöschte Produkte: {count}.",
+      "showDeleted": "Gelöschte Produkte zeigen",
+      "allCategories": "Alle Kategorien",
+      "categoryDirect": "{name}, ohne Unterkategorien",
+      "stock": "Bestand",
+      "stockAll": "Jeder Bestand",
+      "filterStock": "Nach Bestand filtern",
+      "stockAria": "Auf Lager: {count} Stk. – {state}",
+      "stockUntracked": "—",
+      "filterAttribute": "Merkmal",
+      "clearAttributeAria": "Merkmalsfilter entfernen",
+      "filterTier": "Preisliste",
+      "clearTierAria": "Preislistenfilter entfernen",
+      "filterDocument": "Dokument",
+      "clearDocumentAria": "Dokumentfilter entfernen",
+      "tierPricedYes": "In dieser Liste bepreist",
+      "tierPricedNo": "In dieser Liste ohne Preis",
+      "noPrice": "—",
+      "missingGroupAria": "Fehlt",
+      "hasGroupAria": "Hat",
+      "missing": {
+        "incomplete": "Unvollständig",
+        "price": "Kein Preis",
+        "picture": "Kein Bild",
+        "description": "Keine Beschreibung",
+        "attributes": "Keine Merkmale",
+        "packaging": "Keine Verpackung",
+        "boxFacts": "Kein Kartonvolumen oder -gewicht"
+      },
+      "has": {
+        "featured": "Hervorgehoben",
+        "set": "Als Set verkauft",
+        "variants": "Varianten",
+        "pairings": "Zusammen verkauft",
+        "documents": "Dokumente",
+        "note": "Positionsanmerkung"
+      },
+      "gapsLabel": "Ohne {gaps}",
+      "gap": {
+        "price": "Preis",
+        "picture": "Bild",
+        "description": "Beschreibung",
+        "attributes": "Merkmale"
+      }
+    },
+    "editor": {
+      "newTitle": "Produkt hinzufügen",
+      "editTitle": "Produkt bearbeiten",
+      "name": "Name",
+      "price": "Preis",
+      "category": "Kategorie",
+      "categoryPlaceholder": "Kategorie wählen…",
+      "slug": "URL-Kürzel",
+      "slugHint": "Wird in der Webadresse des Produkts verwendet. Lassen Sie es automatisch ausfüllen oder legen Sie es selbst fest – eine spätere Änderung ändert die URL.",
+      "sourceId": "Abgleichschlüssel (optional)",
+      "sourceIdHint": "Der Schlüssel aus Altbestand oder Import. Für ein hier angelegtes Produkt leer lassen; passend setzen, wenn ein künftiger Import es treffen soll.",
+      "previewNotice": "Vorschau – so sieht das Produkt nach dem Speichern aus.",
+      "discardConfirm": "Ihre ungespeicherten Änderungen an diesem Produkt verwerfen?",
+      "nameRequired": "Ein Produktname ist erforderlich.",
+      "categoryRequired": "Eine Kategorie ist erforderlich.",
+      "priceInvalid": "Dieser Preis ist ungültig.",
+      "saveError": "Beim Speichern dieses Produkts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "saveAndPublish": "Speichern und veröffentlichen",
+      "cancelToPage": "Verwerfen und Seite ansehen",
+      "publishError": "Die Sichtbarkeit dieses Produkts konnte nicht geändert werden. Bitte versuchen Sie es noch einmal.",
+      "attributes": {
+        "heading": "Merkmale",
+        "key": "Name",
+        "value": "Wert",
+        "addAria": "Merkmal hinzufügen",
+        "addKeys": "Merkmale hinzufügen",
+        "addKeysHint": "Merkmalsnamen, die der Katalog schon verwendet. Jeder hinzugefügte ergibt eine leere Zeile – wählen Sie den Namen hier, statt ihn neu zu tippen, dann bleiben die Produkte vergleichbar. Eine Zeile ohne Wert wird nicht gespeichert.",
+        "addKeysEmpty": "Noch kein Produkt hat ein Merkmal.",
+        "addKeysApply": "Merkmale hinzufügen ({count})",
+        "inTable": "schon vorhanden",
+        "filterable": "Der Shop filtert nach diesem Merkmal.",
+        "notNumeric": "Dieser Wert lässt sich nicht als Zahl lesen und fehlt daher im Filter dieses Merkmals. Auf der Produktseite erscheint er trotzdem.",
+        "strayPart": "„{part}“ ist keiner der Bestandteile dieses Produkts, daher wird diese Zeile nicht als „{key}“ gefiltert. Prüfen Sie die Schreibweise anhand der Bestandteile oben."
+      },
+      "images": {
+        "heading": "Bilder",
+        "add": "Bilder hinzufügen",
+        "variantAria": "Variante auf diesem Bild",
+        "noVariant": "Keine Variante",
+        "reframe": "Neu zuschneiden"
+      },
+      "variants": {
+        "hint": "Für ein sortiertes Produkt, dessen Farben oder Motive keine eigenen Produkte sind. Benennen Sie jede Variante und wählen Sie unter jedem Bild, welche es zeigt. Ein Bild des ganzen Sortiments zeigt keine. Markieren Sie eine Variante als derzeit nicht verfügbar, um ihre Bilder auszublenden, bis sie wieder da ist; löschen Sie sie nur, wenn sie nie wieder angeboten wird.",
+        "nameAria": "Name der Variante",
+        "add": "Variante hinzufügen",
+        "addPlaceholder": "Sand",
+        "addButton": "Hinzufügen",
+        "removeAria": "„{name}“ entfernen",
+        "unavailable": "Derzeit nicht verfügbar",
+        "picturesHeading": "Bilder",
+        "pictures": "Bilder damit: {count}",
+        "limit": "Ein Produkt kann bis zu {count} Varianten haben.",
+        "duplicate": "Jede Variante braucht einen eigenen Namen.",
+        "exists": "Eine Variante mit diesem Namen gibt es schon.",
+        "allWithheld": "Jedes Bild zeigt eine nicht verfügbare Variante, daher zeigt der Shop dieses Produkt ohne Bild."
+      },
+      "parts": {
+        "heading": "Als Set verkauft",
+        "hint": "Wenn ein Stück aus mehreren Dingen besteht, die zusammen verkauft werden, etwa eine Tasse und ihr Deckel, benennen Sie jeden Bestandteil. Ein Merkmal wie „Farbe (Tasse)“ filtert dann als „Farbe“.",
+        "add": "Bestandteil hinzufügen",
+        "addPlaceholder": "Tasse, oder Tasse + Deckel",
+        "addButton": "Hinzufügen",
+        "removeAria": "„{name}“ entfernen",
+        "limit": "Ein Set kann bis zu {count} Bestandteile haben.",
+        "tooFew": "Ein Set braucht mindestens zwei Bestandteile.",
+        "rejected": "Jeder Bestandteil muss neu sein, höchstens {max} Zeichen lang und ohne +, ( oder )."
+      },
+      "switchedOn": "(an)",
+      "featured": {
+        "heading": "Hervorgehoben",
+        "hint": "Die Startseite zeigt fünf Produkte: zuerst die hervorgehobenen, der Rest der Reihe per Zufall, alle in zufälliger Reihenfolge. Ein ausverkauftes Produkt erscheint nie.",
+        "enable": "Dieses Produkt hervorheben"
+      },
+      "lineNote": {
+        "heading": "Positionsanmerkung",
+        "hint": "Lässt Kunden an der Warenkorbposition in Worten sagen, welche Variante sie möchten.",
+        "enable": "Bei diesem Produkt nach einer Anmerkung fragen",
+        "prompt": "Wonach gefragt wird",
+        "promptHint": "Leer lassen, um die shopweite Formulierung zu verwenden.",
+        "promptPlaceholder": "Welche Farbe?"
+      },
+      "documents": {
+        "hint": "Zertifikate, Erklärungen und Datenblätter, die bei diesem Produkt erscheinen. Dieselben Dokumente lassen sich vom Dokument aus auf viele Produkte zugleich setzen.",
+        "add": "Dokument hinzufügen",
+        "addPlaceholder": "Dokumente nach Titel suchen…",
+        "removeAria": "„{name}“ entfernen",
+        "expires": "Läuft ab am {date}",
+        "noExpiry": "Ohne Ablaufdatum",
+        "suggestionsAria": "Dokumentvorschläge",
+        "noSuggestions": "Kein Dokument passt.",
+        "suggestionCountAria": "Dokumentvorschläge: {count}"
+      },
+      "pairings": {
+        "hint": "Produkte, mit denen dieses zusammen verkauft wird. Das gilt in beide Richtungen: Das gewählte Produkt wird auch diesem zugeordnet, und wer es hier entfernt, entfernt es auch dort.",
+        "add": "Produkt hinzufügen",
+        "addPlaceholder": "Produkte nach Name suchen…",
+        "removeAria": "„{name}“ entfernen",
+        "limit": "Einem Produkt lassen sich bis zu {count} Produkte zuordnen.",
+        "suggestionsAria": "Produktvorschläge",
+        "noSuggestions": "Kein Produkt passt.",
+        "suggestionCountAria": "Produktvorschläge: {count}"
+      },
+      "stock": {
+        "heading": "Bestand",
+        "hint": "Leer lassen, um den Bestand dieses Produkts nicht zu führen – dann erscheint kein Hinweis und nichts wird eingeschränkt.",
+        "pieces": "Stück auf Lager",
+        "threshold": "„Nur noch wenige“ unter",
+        "preview": "Kunden sehen derzeit:",
+        "untracked": "Nichts – der Bestand dieses Produkts wird nicht geführt."
+      },
+      "taxRate": {
+        "label": "MwSt.-Satz",
+        "notInEffect": "Derzeit wird keine MwSt. berechnet, daher wird dieser Satz gespeichert, aber nicht angewendet.",
+        "invalid": "Der MwSt.-Satz muss ein Prozentwert von 0 bis 100 mit höchstens zwei Nachkommastellen sein."
+      },
+      "packaging": {
+        "hint": "Lassen Sie eine Einheit leer, wenn das Produkt nicht so verkauft wird.",
+        "minPieceQty": "Mindeststückzahl",
+        "minPieceQtyHint": "Die kleinste Bestellung. Stückbestellungen steigen dann um eine Packung, oder um ein Stück, wenn dieser Wert unter einer Packung liegt.",
+        "boxCount": "Versandte Kartons",
+        "pricePerPack": "{price} pro Packung",
+        "pricePerBox": "{price} pro Karton",
+        "notSoldPerPack": "Nicht packungsweise verkauft",
+        "notSoldPerBox": "Nicht kartonweise verkauft",
+        "minMustFitPacks": "Das Minimum muss unter einer Packung liegen oder eine ganze Zahl von Packungen sein – dazwischen gibt es keine passende Mengenstufe.",
+        "invalid": "Verpackungsangaben müssen ganze Zahlen ab 1 sein."
+      },
+      "tierPrices": {
+        "heading": "Preise je Kundengruppe",
+        "hint": "Lassen Sie einen Preis leer, um dieser Liste den Shoppreis oben zu berechnen.",
+        "usesBase": "–",
+        "invalid": "Der Preis für „{tier}“ ist ungültig."
+      },
+      "priceWithList": "Preis ({list})",
+      "priceCleared": "Ohne Preis in dieser Liste kann das Produkt nicht im Shop stehen. Beim Speichern wird es zurückgezogen.",
+      "saveAndUnpublish": "Speichern und zurückziehen",
+      "packagingUnavailable": "—"
+    }
+  },
+  "categories": {
+    "list": {
+      "page": {
+        "title": "Kategorien"
+      },
+      "add": "Kategorie hinzufügen",
+      "addChild": "Unterkategorie hinzufügen",
+      "seeProducts": "Produkte der Kategorie ansehen",
+      "editProducts": "Produkte der Kategorie bearbeiten",
+      "noProducts": "Noch keine Produkte",
+      "directProducts": "Produkte ohne Unterkategorien: {count}",
+      "notShown": "Nicht im Shop sichtbar",
+      "editFilters": "Filter der Kategorie bearbeiten",
+      "catalogFilters": "Katalogfilter",
+      "empty": "Noch keine Kategorien.",
+      "reorderHint": "Ziehen Sie eine Kategorie an ihrem Griff, um sie zu verschieben; legen Sie sie weiter rechts ab, um sie zur Unterkategorie zu machen. Die Linie zeigt, wo sie landet. Änderungen werden sofort gespeichert.",
+      "undo": "Letzte Verschiebung rückgängig machen",
+      "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "deleteTitle": "Kategorie löschen",
+      "deleteConfirm": "„{name}“ löschen?",
+      "deleteReassignIntro": "Produkte noch in „{name}“: {count}. Wählen Sie eine Kategorie, in die sie verschoben werden, und löschen Sie dann.",
+      "deleteReassignDeleted": "Davon gelöschte Produkte: {count}. Sie werden mit verschoben.",
+      "reassignLabel": "Produkte verschieben nach",
+      "reassignPlaceholder": "Kategorie wählen…",
+      "deleteBlockedChildren": "„{name}“ hat Unterkategorien. Löschen oder verschieben Sie diese zuerst.",
+      "deleteError": "Diese Kategorie konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal."
+    },
+    "editor": {
+      "newTitle": "Kategorie hinzufügen",
+      "editTitle": "Kategorie bearbeiten",
+      "name": "Name",
+      "shortName": "Kurzname (optional)",
+      "shortNameHint": "Eine kürzere Bezeichnung, wo die übergeordnete Kategorie schon zu sehen ist. Leer lassen, um immer den vollen Namen zu verwenden.",
+      "parent": "Übergeordnete Kategorie",
+      "noParent": "– Oberste Ebene –",
+      "slug": "URL-Kürzel",
+      "slugHint": "Wird in der Webadresse der Kategorie verwendet. Lassen Sie es automatisch ausfüllen oder legen Sie es selbst fest – eine spätere Änderung ändert die URL.",
+      "sourceId": "Abgleichschlüssel (optional)",
+      "sourceIdHint": "Der Schlüssel aus Altbestand oder Import. Für eine hier angelegte Kategorie leer lassen; passend setzen, wenn ein künftiger Import sie treffen soll.",
+      "mark": "Symbol",
+      "markHint": "Ein quadratisches Bild, das das rechte Ende des Kategorie-Chips randlos füllt. Planen Sie den gewünschten Abstand im Bild ein; ein transparenter Hintergrund lässt den Chip durchscheinen.",
+      "discardConfirm": "Ihre ungespeicherten Änderungen an dieser Kategorie verwerfen?",
+      "nameRequired": "Ein Kategoriename ist erforderlich.",
+      "saveError": "Diese Kategorie konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal."
+    },
+    "filters": {
+      "page": {
+        "title": "Filter",
+        "intro": "Welche Merkmale diese Kategorie als Filter anbietet, und in welcher Reihenfolge. Unterkategorien folgen dieser Liste, solange sie keine eigene bekommen. Ein Merkmal, das kein Produkt hier hat, zeigt ohnehin keinen Filter – schalten Sie eines ab, wenn es vorhanden, aber zum Filtern nicht nützlich ist."
+      },
+      "heading": "Filter in {category}",
+      "sources": {
+        "own": "Diese Kategorie hat eine eigene Filterliste.",
+        "inherited": "Geerbt von {category}. Speichern gibt dieser Kategorie eine eigene Liste.",
+        "default": "Es ist keine Filterliste festgelegt, daher wird jedes Merkmal in der Reihenfolge der Merkmalsliste angeboten."
+      },
+      "products": "Produkte hier: {count}",
+      "notPresent": "Kein Produkt hier hat es",
+      "isNew": "Nach dem Speichern dieser Liste hinzugekommen, daher noch nicht angeboten.",
+      "show": "Als Filter anbieten",
+      "reorder": "Umsortieren",
+      "save": "Filter speichern",
+      "saveError": "Diese Filter konnten nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "reset": "Geerbte Liste verwenden",
+      "resetDone": "Diese Kategorie folgt wieder der geerbten Liste.",
+      "empty": "Hier wird kein Merkmal angeboten, daher zeigt diese Kategorie keinen Filterbereich.",
+      "noDefinitions": "Noch ist kein Merkmal filterbar. Fügen Sie zuerst eines zur Merkmalsliste hinzu.",
+      "catalogHeading": "Filter über den ganzen Katalog",
+      "catalogIntro": "Welche Merkmale die Katalogseite als Filter über alle Produkte zugleich anbietet, und in welcher Reihenfolge – etwa eine Marke, die sich durch mehrere Kategorien zieht. Hier wird nichts angeboten, bevor es angehakt ist, und Kategorien behalten ihre eigenen Filterlisten.",
+      "catalogEmpty": "Es wird kein Merkmal angeboten, daher zeigt die Katalogseite keinen Filterbereich.",
+      "errors": {
+        "category-not-found": "Diese Kategorie gibt es nicht mehr.",
+        "attribute-not-found": "Eines dieser Merkmale gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen."
+      },
+      "resetConfirm": {
+        "heading": "Geerbte Liste verwenden",
+        "message": "Die eigene Filterliste dieser Kategorie verwerfen? Sie folgt dann wieder der übergeordneten, und Unterkategorien, die dieser folgen, ändern sich mit.",
+        "confirm": "Geerbte Liste verwenden"
+      }
+    }
+  },
+  "sync": {
+    "description": "Laden Sie den Katalogexport hoch, um Produkte gesammelt zu aktualisieren. Geschrieben wird erst, wenn Sie die Änderungen geprüft und übernommen haben.",
+    "modeLabel": "Was ist das für eine Datei?",
+    "advanced": "Erweiterte Optionen",
+    "file": "Katalogdatei (CSV)",
+    "fileHint": "Spalten: sourceId (Pflicht), name, categorySourceId, categoryName, price, stock, taxRate. Preise sind ganze Zahlen in Cent; der Bestand ist eine ganze Stückzahl und darf negativ sein; taxRate ist ein Prozentwert wie 7 oder 5,5, und eine leere Zelle bedeutet den Regelsatz. Die Preisliste einer Kundengruppe ist eine eigene Spalte, geschrieben als „price:“ plus der Abgleichschlüssel der Gruppe – siehe Kundengruppen.",
+    "dropHint": "CSV-Datei hier ablegen",
+    "browse": "oder eine Datei wählen",
+    "changeFile": "Andere Datei ablegen oder zum Wechseln klicken",
+    "preview": "Änderungen anzeigen",
+    "previewing": "Datei wird gelesen…",
+    "previewError": "Diese Datei konnte nicht gelesen werden.",
+    "formatErrors": {
+      "no-file": "Es wurde keine Datei gesendet. Bitte wählen Sie eine Datei und versuchen Sie es noch einmal.",
+      "file-too-large": "Diese Datei ist zu groß zum Hochladen. Teilen Sie den Export in kleinere Dateien auf.",
+      "file-empty": "Diese Datei ist leer.",
+      "no-header-row": "Diese Datei hat keine Kopfzeile, daher lassen sich ihre Spalten nicht lesen.",
+      "malformed-quotes": "Um Zeile {row} wird ein Anführungszeichen geöffnet und nie geschlossen, daher lässt sich der Rest der Datei nicht lesen. Prüfen Sie, ob jedes \" sein schließendes Gegenstück hat und ein Anführungszeichen innerhalb eines Werts verdoppelt ist.",
+      "duplicate-column": "Die Spalte „{column}“ kommt mehr als einmal vor, daher ist unklar, welche gilt.",
+      "unknown-columns": "Diese Spalten sind unbekannt: {columns}. Erwartet wird eine von: {expected}.",
+      "missing-required-column": "Die Datei braucht eine Spalte „{column}“.",
+      "too-many-rows": "Diese Datei hat {rows} Zeilen; die Grenze liegt bei {limit}. Teilen Sie sie in kleinere Dateien auf.",
+      "options-invalid": "Die mit dieser Datei gesendeten Optionen waren ungültig. Laden Sie die Seite neu und versuchen Sie es noch einmal.",
+      "catalog-externally-owned": "Der Katalog wird von einem externen System verwaltet, daher sind Uploads abgeschaltet. Um eine Datei hochzuladen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+      "customers-externally-owned": "Kundenkonten werden von einem angebundenen System aktuell gehalten, daher ist der Import aus einer Datei hier abgeschaltet. Holen Sie die Konten in den Einstellungen zurück, um von Hand zu importieren."
+    },
+    "summaryTitle": "Was dieser Lauf ändern würde",
+    "productsTitle": "Produkte",
+    "categoriesTitle": "Neue Kategorien",
+    "categoriesHint": "Diese werden ohne übergeordnete Kategorie angelegt. Ordnen Sie sie danach unter Kategorien in den Baum ein.",
+    "renamedCategoriesTitle": "Umbenannte Kategorien",
+    "renamedCategoriesHint": "Die Datei gibt diesen Kategorien einen neuen Namen. Ihr Platz im Baum und ihre Webadresse bleiben, wie sie sind.",
+    "emptiedTitle": "Leer gewordene Kategorien",
+    "emptiedHint": "Darin sind keine Produkte mehr. Der Abgleich löscht nie eine Kategorie – entfernen Sie sie selbst, wenn sie nicht mehr gebraucht werden.",
+    "keptTitle": "Behalten (hier angelegt, nicht in der Datei)",
+    "keptHint": "Diese Produkte wurden in der Verwaltung angelegt, sind daher nicht im Export und werden durch einen Abgleich nie ausgeblendet.",
+    "errorsTitle": "Übersprungene Zeilen",
+    "errorRow": "Zeile {row}",
+    "rowErrors": {
+      "missing-source-id": "Diese Zeile hat keine sourceId, daher gibt es kein Produkt, dem sie zugeordnet werden kann.",
+      "duplicate-source-id": "Diese sourceId kommt weiter oben in der Datei schon vor; nur die erste Zeile dafür wird verwendet.",
+      "category-id-without-name": "Die Kategorie „{category}“ hat eine ID, aber keinen Namen, und kann daher weder angelegt noch umbenannt werden.",
+      "category-name-without-id": "Die Kategorie „{category}“ hat einen Namen, aber keine ID, daher ist unklar, welche Kategorie gemeint ist.",
+      "price-not-an-integer": "Der Preis „{price}“ in Spalte „{column}“ ist keine ganze Zahl in Cent.",
+      "price-is-zero": "Der Preis in Spalte „{column}“ ist null. Ein Produkt ohne Preis wird ohne diese Spalte gesendet, nicht mit einer Null darin.",
+      "stock-not-an-integer": "Der Bestand „{stock}“ ist keine ganze Stückzahl.",
+      "tax-rate-invalid": "Der Steuersatz „{taxRate}“ ist kein Prozentwert von 0 bis 100.",
+      "unknown-price-list": "Es gibt keine Preisliste „{key}“ – dieser Katalog hat {known}.",
+      "category-name-conflict": "Die Kategorie „{key}“ heißt in dieser Datei sowohl „{first}“ als auch „{second}“.",
+      "unknown-category": "Die Kategorie „{name}“ ({key}) ist nicht im Katalog, und dieser Lauf legt keine Kategorien an.",
+      "cannot-create-product": "Dieses Produkt ist neu, und ein neues Produkt braucht einen Namen, einen Preis und eine Kategorie."
+    },
+    "customers": {
+      "accountsTitle": "Konten",
+      "uploadTitle": "Kundenimport",
+      "uploadDescription": "Importieren Sie Kundenangaben aus einer Datei – ihre Preisliste, ihre Firmenangaben und ob sie sich anmelden dürfen. Geschrieben und gemailt wird erst, wenn Sie die Änderungen geprüft und übernommen haben. Neue Konten werden ohne Passwort angelegt: Jede Person erhält einen Link, um ihr eigenes festzulegen.",
+      "file": "Kundendatei (CSV)",
+      "fileHint": "Spalten: {columns}. sourceId ist Pflicht und der Schlüssel, über den der Kunde zugeordnet wird. access ist „enabled“ oder „disabled“; sendPasswordLink ist „yes“ oder „no“. Eine leere Zelle lässt das Feld, wie es ist – sie leert es nie.",
+      "mode": {
+        "full": "Kundenliste",
+        "fullHint": "Die Datei enthält vollständige Kundendatensätze. Preislisten und Firmenangaben werden aktualisiert, und Kunden, die der Shop noch nicht hat, werden eingeladen – jeder per E-Mail.",
+        "tiers": "Preislisten-Aktualisierung",
+        "tiersHint": "Die Datei sagt nur, welche Preisliste jedem Kunden berechnet wird. Niemand wird eingeladen, niemand bekommt eine E-Mail, und niemandes Zugang ändert sich.",
+        "custom": "Benutzerdefiniert"
+      },
+      "option": {
+        "email": "E-Mail-Adressen aktualisieren",
+        "tier": "Preislisten aktualisieren",
+        "company": "Firmenangaben aktualisieren",
+        "createMissing": "Kunden einladen, die noch kein Konto haben",
+        "updateExisting": "Kunden aktualisieren, die schon ein Konto haben",
+        "claimByEmail": "Konten über die E-Mail-Adresse übernehmen – wo der Schlüssel unbekannt ist, sich aber jemand mit dieser Adresse hier registriert hat, dessen Konto übernehmen, statt die Zeile zu überspringen"
+      },
+      "count": {
+        "create": "Eingeladen",
+        "update": "Aktualisiert",
+        "softDelete": "Abgeschaltet",
+        "restore": "Wieder eingeschaltet",
+        "claimed": "Übernommen",
+        "claimedById": "Über ID übernommen",
+        "mailed": "Links verschickt",
+        "unchanged": "Unverändert",
+        "errors": "Übersprungen"
+      },
+      "field": {
+        "email": "E-Mail",
+        "tier": "Preisliste",
+        "customerType": "Kundenart",
+        "companyName": "Firma",
+        "companyId": "Unternehmenskennung"
+      },
+      "mailedRow": "schickt einen Link zum Festlegen des Passworts",
+      "rowErrors": {
+        "missing-source-id": "Diese Zeile hat keine sourceId, daher gibt es kein Konto, dem sie zugeordnet werden kann.",
+        "duplicate-source-id": "Diese sourceId kommt weiter oben in diesem Lauf schon vor; nur die erste Zeile dafür wird verwendet.",
+        "duplicate-email": "Zwei Zeilen in diesem Lauf beanspruchen die Adresse {email}; nur die erste wird verwendet.",
+        "email-taken": "Ein anderes Konto verwendet {email} bereits. Konten werden über ihre sourceId zugeordnet, daher bräuchte diese Zeile eine andere Adresse.",
+        "account-unclaimed": "Jemand hat sich hier mit {email} registriert und hat noch keinen Quellschlüssel – fast sicher dieser Kunde. Schalten Sie „Konten über die E-Mail-Adresse übernehmen“ ein, um das Konto zu übernehmen, oder geben Sie ihm seinen Schlüssel im Kontoeditor.",
+        "account-unknown": "Diese Zeile nennt das Konto {accountId}, und hier hat kein Konto diese ID. Das Quellsystem verweist auf etwas, das es hier nicht gibt – nichts anderes in der Zeile wird verwendet, um zu erraten, was gemeint war.",
+        "account-already-keyed": "Konto {accountId} hat bereits einen eigenen Quellschlüssel und ist im Quellsystem also schon jemand. Ein Konto kann nicht auf zwei Schlüssel hören.",
+        "account-unclaimed-by-id": "Diese Zeile nennt das Konto {accountId} ({email}), das noch keinen Quellschlüssel hat. Schalten Sie „Konten über die ID übernehmen“ ein, um es zu übernehmen, oder geben Sie ihm seinen Schlüssel im Kontoeditor.",
+        "unknown-tier": "Es gibt keine Preisliste „{key}“ – dieser Shop hat {known}.",
+        "cannot-create-account": "Dieser Kunde hat hier noch kein Konto, und ein neues braucht eine E-Mail-Adresse, an die der Link zum Festlegen des Passworts geht.",
+        "account-withdrawn": "Dieser Kunde hat sein Konto gelöscht. Von hier aus wird es nicht neu angelegt – er müsste sich selbst registrieren.",
+        "staff-account": "Diese Zeile verweist auf ein Mitarbeiterkonto. Mitarbeitende sind nie Kunden, und ihre Konten verwaltet weiterhin der Shop.",
+        "cannot-send-link": "Ein Link zum Festlegen des Passworts wurde angefordert, aber dieses Konto kann sich nicht anmelden – schalten Sie es im selben Lauf oder vorher ein.",
+        "company-details-incomplete": "Ein Unternehmen braucht einen Namen und eine Unternehmenskennung; diese Zeile hat nur eines davon.",
+        "invalid-value": "Die Spalte „{column}“ dieser Zeile enthält „{value}“, und das kann diese Spalte nicht aufnehmen. Die Zeile wird übersprungen, der Rest der Datei nicht."
+      },
+      "claimWarning": "Im Shop registrierte Konten, die dieser Lauf über ihre E-Mail-Adresse übernimmt: {count}. Ab dann bezeichnet der Quellschlüssel diese Person, und der nächste Lauf kann ihre Preisliste ändern oder sie abschalten. Prüfen Sie zuerst die Zeilen unten.",
+      "claimByIdWarning": "Konten, die dieser Lauf über die vom Quellsystem genannte ID übernimmt: {count}. Diese ID stammt aus diesem Shop, es ist also eine bewusste Wahl und keine Vermutung – aber nur so richtig wie die Zuordnung auf der anderen Seite. Ab dann bezeichnet der Quellschlüssel diese Person.",
+      "disableWarning": "Kunden, die ihren Zugang verlieren: {count}. Sie bleiben in der Kontenliste und lassen sich wieder einschalten."
+    },
+    "orders": {
+      "ordersTitle": "Bestellungen",
+      "count": {
+        "update": "Beantwortet",
+        "unchanged": "Unverändert",
+        "mailed": "Kunden benachrichtigt",
+        "errors": "Übersprungen"
+      },
+      "kind": {
+        "adjustment": "Geändert",
+        "transition": "Weitergeschoben",
+        "payment": "Zahlung"
+      },
+      "field": {
+        "status": "Status",
+        "lines": "Bestellpositionen",
+        "payment": "Zahlungen"
+      },
+      "notifiedRow": "Kunde wurde angeschrieben",
+      "rowErrors": {
+        "order-not-found": "Hier gibt es keine Bestellung mit der Nummer {reference}.",
+        "duplicate-reference": "Bestellung {reference} kommt weiter oben in dieser Aktualisierung schon vor; nur die erste Anweisung dafür wird verwendet.",
+        "order-changed": "Bestellung {reference} ist weitergegangen, seit Ihr System sie gelesen hat – sie steht jetzt bei Fassung {current}. Lesen Sie sie erneut und schicken Sie die Antwort zu dieser Fassung.",
+        "order-called-off": "Der Kunde hat Bestellung {reference} storniert, was er jederzeit tun darf, bevor sie beantwortet ist. Sie geht nur weiter, wenn Ihr System sagt, dass es die Stornierung zurücknimmt.",
+        "restore-not-announced": "Wer die Stornierung von Bestellung {reference} durch den Kunden zurücknimmt, muss ihn anschreiben und seine Bestellseite aktualisieren.",
+        "personal-data-removed": "Bei Bestellung {reference} wurden die persönlichen Angaben entfernt, daher lässt sie sich weder weiterschieben noch ändern.",
+        "transition-not-allowed": "Bestellung {reference} kann von ihrem jetzigen Stand nicht dorthin.",
+        "reason-required": "Wer eine Bestellung ablehnt, muss den Grund nennen, damit der Kunde ihn erfährt.",
+        "unknown-product": "Kein Produkt hier hat den Schlüssel {productSourceId}, daher kann es nicht auf Bestellung {reference} gesetzt werden.",
+        "duplicate-product": "Das Produkt {productSourceId} steht zweimal auf Bestellung {reference}.",
+        "payment-not-recordable": "Auf Bestellung {reference} ist nichts offen, daher lässt sich keine Zahlung dazu verbuchen."
+      }
+    },
+    "truncated": "Nur die ersten Einträge sind aufgeführt; die Zahlen oben gelten für die ganze Datei.",
+    "nothingToApply": "Dieser Lauf würde nichts ändern.",
+    "deleteWarning": "Produkte, die im Shop ausgeblendet werden: {count}. Sie bleiben im Katalog und lassen sich wiederherstellen.",
+    "deleteConfirmLabel": "Geben Sie zur Bestätigung {word} ein",
+    "deleteConfirmWord": "AUSBLENDEN",
+    "apply": "Diese Änderungen übernehmen",
+    "applying": "Wird übernommen…",
+    "applyErrors": {
+      "run-not-found": "Diesen Lauf gibt es nicht mehr. Laden Sie die Datei erneut hoch.",
+      "run-already-applied": "Diese Änderungen wurden bereits übernommen.",
+      "run-failed": "Dieser Lauf ist früher fehlgeschlagen und kann nicht übernommen werden. Laden Sie die Datei erneut hoch.",
+      "run-rows-pruned": "Diese Vorschau ist abgelaufen. Laden Sie die Datei erneut hoch, um die aktuellen Änderungen zu sehen.",
+      "run-superseded": "Ein neuerer Lauf hat diesen ersetzt. Öffnen Sie stattdessen den neuesten.",
+      "run-discarded": "Dieser Lauf wurde verworfen und kann nicht übernommen werden.",
+      "run-no-change": "Dieser Lauf hat nichts geändert, daher gibt es nichts zu übernehmen.",
+      "catalog-externally-owned": "Der Katalog wurde nach dem Hochladen dieser Datei an ein externes System übergeben, daher lässt sie sich nicht mehr übernehmen. Holen Sie den Katalog zurück, um sie zu übernehmen, oder verwerfen Sie sie.",
+      "customers-externally-owned": "Die Kundenkonten wurden nach dem Hochladen dieser Datei an ein angebundenes System übergeben, daher lässt sie sich nicht mehr übernehmen. Holen Sie die Konten in den Einstellungen zurück oder lassen Sie das angebundene System die Änderung schicken."
+    },
+    "applied": "Übernommen.",
+    "discard": "Verwerfen",
+    "historyEmpty": "Es ist noch kein Abgleich gelaufen.",
+    "historyCount": "Läufe: {count}",
+    "mode": {
+      "full": "Vollständiger Katalogexport",
+      "fullHint": "Die Datei führt jedes Produkt auf. Namen, Preise und Kategorien werden aktualisiert, neue Produkte hinzugefügt, und Produkte, die in der Datei fehlen, lassen sich ausblenden.",
+      "prices": "Preisaktualisierung",
+      "pricesHint": "Die Datei enthält nur Preise – die Grundliste, die Liste einer Kundengruppe oder beides. Nichts wird hinzugefügt, umbenannt, umkategorisiert oder ausgeblendet.",
+      "stock": "Bestandsaktualisierung",
+      "stockHint": "Die Datei enthält nur Bestandsmengen. Nichts wird hinzugefügt, umbenannt, umkategorisiert oder ausgeblendet.",
+      "custom": "Benutzerdefiniert"
+    },
+    "option": {
+      "name": "Produktnamen aktualisieren",
+      "category": "Produktkategorien aktualisieren",
+      "stock": "Bestandsmengen aktualisieren",
+      "taxRate": "MwSt.-Sätze aktualisieren",
+      "createMissing": "Produkte hinzufügen, die noch nicht im Katalog sind",
+      "updateExisting": "Produkte aktualisieren, die schon im Katalog sind",
+      "restoreReturning": "Ausgeblendete Produkte wiederherstellen, die wieder in der Datei auftauchen",
+      "createCategories": "Kategorien anlegen, die die Datei nennt, der Katalog aber nicht hat",
+      "authoritative": "Diese Datei ist der vollständige Katalog",
+      "softDelete": "Produkte ausblenden, die in der Datei fehlen",
+      "softDeleteHint": "Nur bei einem vollständigen Katalogexport möglich. Produkte, die hier in der Verwaltung angelegt wurden, werden so nie ausgeblendet."
+    },
+    "count": {
+      "create": "Hinzugefügt",
+      "update": "Aktualisiert",
+      "softDelete": "Ausgeblendet",
+      "restore": "Wiederhergestellt",
+      "unchanged": "Unverändert",
+      "categories": "Neue Kategorien",
+      "renamedCategories": "Umbenannte Kategorien",
+      "kept": "Behalten",
+      "errors": "Übersprungene Zeilen"
+    },
+    "status": {
+      "previewed": "Wartet",
+      "applied": "Übernommen",
+      "failed": "Fehlgeschlagen",
+      "superseded": "Ersetzt",
+      "discarded": "Verworfen",
+      "no-change": "Keine Änderung"
+    },
+    "col": {
+      "date": "Datum",
+      "file": "Datei",
+      "actor": "Von",
+      "status": "Status",
+      "changes": "Änderungen"
+    },
+    "statusAll": "Alle Läufe",
+    "filterStatus": "Nach Status filtern",
+    "stagedReason": {
+      "policy": "Wartet auf Prüfung: Dieser Lauf ändert mehr, als ohne Prüfung übernommen werden darf.",
+      "requested": "Wartet auf Prüfung: Das sendende System konnte nicht vollständig für das Gelesene einstehen."
+    },
+    "uploadTitle": "Manueller Abgleich",
+    "newRun": "Manueller Abgleich",
+    "backToRuns": "Alle Läufe",
+    "areas": {
+      "catalog": {
+        "title": "Katalogabgleich",
+        "runsDescription": "Jeder Katalog-Lauf, ob von Hand hochgeladen oder von einem angebundenen System geschickt. Ein Lauf, der auf Prüfung wartet, ändert nichts, bis er übernommen wird."
+      },
+      "customers": {
+        "title": "Kundenabgleich",
+        "runsDescription": "Jeder Kunden-Lauf, ob von Hand hochgeladen oder von einem angebundenen System geschickt. Ein Lauf, der auf Prüfung wartet, ändert nichts, bis er übernommen wird."
+      },
+      "orders": {
+        "title": "Bestellabgleich",
+        "runsDescription": "Jede Bestellaktualisierung, die Ihr angebundenes System zurückgeschickt hat. Sie werden beim Eintreffen übernommen – hier gibt es nichts zu prüfen, und dies ist das Protokoll dessen, was beantwortet wurde."
+      }
+    },
+    "sourceUpload": "Hochgeladen",
+    "runTitle": "Abgleichslauf",
+    "runLoadError": "Dieser Lauf konnte nicht geladen werden.",
+    "planUnavailable": "Die Änderungen dieses Laufs sind nicht mehr gespeichert.",
+    "failureTitle": "Was das sendende System gemeldet hat",
+    "noticeTitle": "Hinweis des sendenden Systems",
+    "startedLabel": "Gestartet",
+    "finishedLabel": "Beendet",
+    "discardRun": "Diesen Lauf verwerfen",
+    "summaryTitleApplied": "Was dieser Lauf geändert hat",
+    "nothingChanged": "Dieser Lauf hat nichts geändert.",
+    "field": {
+      "name": "Namen",
+      "category": "Kategorien",
+      "stock": "Bestände",
+      "taxRate": "MwSt.-Sätze",
+      "priceList": "Preise ({key})"
+    },
+    "moreFields": "+{count}",
+    "taxRateDefault": "Regelsatz",
+    "discardConfirm": {
+      "heading": "Diesen Lauf verwerfen?",
+      "message": "Nichts wird übernommen, und der Lauf bleibt als verworfen im Protokoll. Ein späterer Lauf kann dieselben Änderungen noch bringen.",
+      "confirm": "Diesen Lauf verwerfen"
+    }
+  },
+  "tiers": {
+    "page": {
+      "title": "Kundengruppen",
+      "intro": "Eine Kundengruppe ist eine Preisliste. Eine davon zeigt der Shop allen – Gästen, Mitarbeitenden und Kunden ohne Kundengruppe; die anderen enthalten nur die Produkte, die sie anders bepreisen. Kunden werden einer Kundengruppe zugeordnet, wenn ihr Konto freigegeben wird."
+    },
+    "add": "Kundengruppe hinzufügen",
+    "label": "Name",
+    "labelPlaceholder": "Großhandel",
+    "key": "Abgleichschlüssel",
+    "keyPlaceholder": "grosshandel",
+    "keyHint": "Die Katalogdatei spricht diese Liste als Spalte „price:grosshandel“ an. Ein Wort – Buchstaben, Ziffern, Bindestriche und Unterstriche.",
+    "accounts": "Kunden: {count}",
+    "seeAccounts": "Konten mit dieser Preisliste zeigen",
+    "seePrices": "Produkte zeigen, die diese Kundengruppe bepreist",
+    "defaultHint": "Gästen, Mitarbeitenden und Kunden ohne Kundengruppe wird diese Liste berechnet.",
+    "defaultName": "Standard ({list})",
+    "empty": "Noch keine Preislisten.",
+    "saveError": "Diese Kundengruppe konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+    "labelRequired": "Ein Name ist erforderlich.",
+    "keyInvalid": "Verwenden Sie Buchstaben, Ziffern, Bindestriche und Unterstriche in einem Wort, z. B. „grosshandel“.",
+    "deleteBlocked": "„{name}“ wird noch verwendet: {reason}",
+    "deleteError": "Diese Kundengruppe konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+    "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+    "errors": {
+      "tier-not-found": "Diese Kundengruppe gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
+      "tier-key-taken": "Eine andere Kundengruppe verwendet diesen Abgleichschlüssel bereits.",
+      "tier-has-accounts": "Dieser Kundengruppe sind noch Kundenkonten zugeordnet. Verschieben Sie diese zuerst in eine andere.",
+      "tier-has-prices": "Diese Kundengruppe bepreist noch Produkte. Entfernen Sie diese Preise zuerst.",
+      "tier-is-default": "Das ist die Liste, die der Shop zeigt, daher lässt sie sich nicht löschen. Zeigen Sie zuerst eine andere Liste im Shop."
+    },
+    "defaultBadge": "Im Shop gezeigt",
+    "setDefault": "Diese Liste im Shop zeigen",
+    "setDefaultWarning": "Produkte ohne Preis in dieser Liste: {count}. Sie werden aus dem Shop genommen, bis jemand sie bepreist.",
+    "setDefaultNone": "Jedes Produkt im Shop hat einen Preis in dieser Liste.",
+    "setDefaultDone": "Aus dem Shop genommene Produkte: {count}.",
+    "setDefaultError": "Die Preisliste des Shops konnte nicht geändert werden. Bitte versuchen Sie es noch einmal.",
+    "seeUnpriced": "Produkte zeigen, die diese Liste nicht bepreist",
+    "unpriced": "{count} ohne Preis",
+    "setDefaultConfirm": {
+      "heading": "Preisliste des Shops ändern",
+      "message": "„{name}“ allen zeigen, die keiner Kundengruppe angehören?",
+      "confirm": "Diese Liste im Shop zeigen"
+    },
+    "deleteConfirm": {
+      "heading": "Kundengruppe löschen",
+      "message": "„{name}“ löschen? Der Katalogabgleich erkennt dann ihre Spalte „price:{key}“ nicht mehr.",
+      "confirm": "Löschen"
+    }
+  },
+  "apiTokens": {
+    "page": {
+      "title": "Maschinen-Tokens",
+      "intro": "Ein Maschinen-Token lässt einen automatisierten Client – einen geplanten Import, eine Integration – ohne Anmeldung auf die API zugreifen. Es ist kein Konto: Es hat kein Passwort, kein Postfach und keine Rolle, nur die Dinge, die es tun darf."
+    },
+    "add": "Neues Token",
+    "create": "Token erstellen",
+    "name": "Name",
+    "namePlaceholder": "Nächtlicher Katalogimport",
+    "nameRequired": "Ein Name ist erforderlich.",
+    "scope": "Darf",
+    "scopeHint": "Ein Token kann nur, was es hier darf. Um das zu ändern, widerrufen Sie es und stellen Sie ein neues aus.",
+    "scopeRequired": "Wählen Sie mindestens eine Sache, die dieses Token tun darf.",
+    "scopeKind": {
+      "read": "Lesen",
+      "submit": "Senden"
+    },
+    "scopeArea": {
+      "catalog": "Katalog",
+      "customers": "Kundenkonten",
+      "orders": "Bestellungen"
+    },
+    "scopes": {
+      "catalog-sync": "Katalogimporte senden",
+      "customer-sync": "Kundenaktualisierungen senden",
+      "customer-read": "Kundenkonten lesen",
+      "order-read": "Bestellungen lesen",
+      "order-sync": "Bestellaktualisierungen senden"
+    },
+    "createdHeading": "„{name}“ erstellt",
+    "createdOnce": "Kopieren Sie den Wert jetzt – er wird nur dieses eine Mal angezeigt und lässt sich nicht wieder abrufen. Wenn Sie ihn verlieren, widerrufen Sie dieses Token und stellen Sie ein neues aus.",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "active": "Aktiv",
+    "revoked": "Widerrufen",
+    "created": "Erstellt am {date} von {actor}",
+    "lastUsed": "Zuletzt verwendet am {date}",
+    "neverUsed": "Nie verwendet",
+    "empty": "Noch keine Maschinen-Tokens.",
+    "createError": "Dieses Token konnte nicht erstellt werden. Bitte versuchen Sie es noch einmal.",
+    "revokeAria": "Widerrufen",
+    "revokeError": "Dieses Token konnte nicht widerrufen werden. Bitte versuchen Sie es noch einmal.",
+    "revokeConfirm": {
+      "heading": "Token widerrufen",
+      "message": "„{name}“ widerrufen?",
+      "confirm": "Widerrufen",
+      "warning": "Was dieses Token verwendet, funktioniert ab der nächsten Anfrage nicht mehr. Der Widerruf lässt sich nicht rückgängig machen – stellen Sie ein neues Token aus und richten Sie den Client neu ein."
+    }
+  },
+  "attributes": {
+    "list": {
+      "page": {
+        "title": "Filterbare Merkmale",
+        "intro": "Eine Definition macht ein Produktmerkmal im Shop filterbar. Ihr Name muss genau dem Merkmalsnamen an den Produkten entsprechen – nichts wird neu eingegeben, und eine heute angelegte Definition gilt auch für Produkte, die vor langer Zeit erfasst wurden. Die Zahlen umfassen sichtbare und unveröffentlichte Produkte; gelöschte bleiben außen vor."
+      },
+      "add": "Merkmal hinzufügen",
+      "name": "Name",
+      "namePlaceholder": "Farbe",
+      "nameHint": "Genau so geschrieben wie in der Merkmalstabelle des Produkts. Die Einheit gehört hierher, nicht in die Werte: Geben Sie „30“ ein, nicht „30 cm“.",
+      "type": "Typ",
+      "types": {
+        "text": "Text",
+        "number": "Zahl"
+      },
+      "unit": "Einheit",
+      "unitPlaceholder": "cm",
+      "slug": "URL-Schlüssel",
+      "slugPlaceholder": "aus dem Namen",
+      "slugInvalid": "Verwenden Sie Kleinbuchstaben, Ziffern und Bindestriche, z. B. „farbe“.",
+      "values": "Werte: {count}",
+      "unparsed": "Werte, die sich nicht als Zahl lesen lassen: {count}. Sie bleiben auf der Produktseite und fehlen in diesem Filter.",
+      "noMatch": "Kein Produkt hat ein Merkmal mit diesem Namen. Prüfen Sie die Schreibweise anhand der Merkmalstabelle eines Produkts.",
+      "showProducts": "Produkte mit diesem Merkmal zeigen",
+      "showUsage": "Verwendete Werte zeigen",
+      "empty": "Noch keine filterbaren Merkmale – Produkte zeigen ihre Merkmale, aber nach keinem lässt sich filtern.",
+      "saveError": "Dieses Merkmal konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "nameRequired": "Ein Name ist erforderlich.",
+      "deleteError": "Dieses Merkmal konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+      "reorderError": "Diese Verschiebung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "errors": {
+        "attribute-not-found": "Dieses Merkmal gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
+        "attribute-name-taken": "Eine andere Definition verwendet diesen Namen bereits.",
+        "attribute-slug-taken": "Eine andere Definition verwendet diesen URL-Schlüssel bereits."
+      },
+      "deleteConfirm": {
+        "heading": "Merkmal löschen",
+        "message": "„{name}“ löschen? Der Shop bietet es dann nicht mehr als Filter an. Kein Produktmerkmal wird verändert.",
+        "confirm": "Löschen"
+      }
+    },
+    "inventory": {
+      "page": {
+        "title": "Verwendete Merkmale",
+        "intro": "Jeder Merkmalsname und -wert, den die Produkte tragen, ob der Shop danach filtert oder nicht. Merkmalstext wird exakt verglichen, daher steht ein Tippfehler hier neben der richtigen Schreibweise – benennen Sie ihn um, und jedes Produkt damit folgt. Die Zahlen umfassen sichtbare und unveröffentlichte Produkte; eine Umbenennung schreibt auch gelöschte um."
+      },
+      "toDefinitions": "Filterbare Merkmale",
+      "toDefinitionAria": "Filterbar – Definition zeigen",
+      "notFilterable": "Nicht filterbar",
+      "values": "Werte: {count}",
+      "notNumeric": "keine Zahl",
+      "emptyValue": "(kein Wert)",
+      "showProducts": "Produkte zeigen",
+      "renameKeyAria": "Dieses Merkmal umbenennen",
+      "renameValueAria": "Diesen Wert umbenennen",
+      "newTextAria": "Neuer Text",
+      "renameTitle": "Im ganzen Katalog umbenennen",
+      "renameConfirm": "„{from}“ bei jedem Produkt, das es trägt, in „{to}“ umbenennen?",
+      "mergeConfirm": "„{to}“ wird bereits verwendet. Das Umbenennen von „{from}“ führt beide zusammen – jedes Produkt mit „{from}“ trägt dann stattdessen „{to}“. Fortfahren?",
+      "renameDeleted": "Auch gelöschte Produkte werden umgeschrieben ({count}), damit sie nach einer Wiederherstellung den neuen Text tragen.",
+      "renameError": "Diese Umbenennung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "empty": "Noch kein Produkt hat ein Merkmal."
+    }
+  },
+  "documents": {
+    "list": {
+      "page": {
+        "title": "Dokumente"
+      },
+      "count": "Dokumente: {count}",
+      "add": "Dokument hinzufügen",
+      "searchAria": "Dokument suchen",
+      "searchPlaceholder": "Nach Titel, Dateiname oder Link suchen",
+      "clearSearch": "Suche leeren",
+      "titleColumn": "Titel",
+      "fileColumn": "Datei und Link",
+      "link": "Link",
+      "issuedColumn": "Ausgestellt",
+      "expiresColumn": "Läuft ab",
+      "statusColumn": "Status",
+      "updatedColumn": "Geändert",
+      "noExpiry": "Ohne Ablaufdatum",
+      "statusAll": "Alle Status",
+      "statusDue": "Braucht Aufmerksamkeit",
+      "statusExpiring": "Läuft bald ab",
+      "statusExpired": "Abgelaufen",
+      "statusValid": "Gültig",
+      "filterStatus": "Nach Status filtern",
+      "productsColumn": "Produkte",
+      "seeProducts": "Produkte mit diesem Dokument zeigen",
+      "noProducts": "Noch kein Produkt zeigt dieses Dokument",
+      "empty": "Noch keine Dokumente.",
+      "noResults": "Kein Dokument passt zu dieser Suche.",
+      "loadError": "Die Dokumente konnten nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "deleteError": "Dieses Dokument konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+      "deleteConfirm": {
+        "heading": "Dokument löschen",
+        "message": "„{name}“ löschen? Die Datei wird aus dem Shop entfernt.",
+        "confirm": "Löschen"
+      }
+    },
+    "editor": {
+      "newTitle": "Neues Dokument",
+      "editTitle": "Dokument bearbeiten",
+      "title": "Titel",
+      "titlePlaceholder": "Analysezertifikat",
+      "titleHint": "So heißt dieses Dokument überall, wo es aufgeführt wird.",
+      "datePlaceholder": "Datum wählen…",
+      "file": "Datei",
+      "dropHint": "Datei hier ablegen",
+      "choose": "oder eine Datei wählen",
+      "replace": "Datei ersetzen",
+      "open": "Öffnen",
+      "removeFile": "Datei entfernen",
+      "fileHint": "PDF oder ein Bild, bis 20 MB. Die Datei wird genau so gespeichert, wie sie hochgeladen wurde.",
+      "uploadError": "Diese Datei konnte nicht hochgeladen werden. Verwenden Sie PDF, PNG, JPEG, WebP oder GIF unter 20 MB.",
+      "link": "Link",
+      "linkPlaceholder": "https://",
+      "linkHint": "Wo sich das Dokument online prüfen lässt, etwa sein Eintrag in einem öffentlichen Register. Ein Dokument braucht eine Datei, einen Link oder beides.",
+      "openLink": "Link öffnen",
+      "linkInvalid": "Der Link muss eine vollständige Webadresse sein, die mit https:// oder http:// beginnt.",
+      "issuedAt": "Ausstellungsdatum",
+      "expiresAt": "Ablaufdatum",
+      "datesHint": "Beide Daten sind optional. Ein Dokument ohne Ablaufdatum ist immer aktuell.",
+      "products": {
+        "heading": "Gezeigt bei",
+        "hint": "Haken Sie die Produkte an, zu denen dieses Dokument gehört. Halten Sie beim Klicken die Umschalttaste gedrückt, um alles zwischen zwei Zeilen anzuhaken.",
+        "searchAria": "Produkt suchen",
+        "searchPlaceholder": "Produkte nach Name suchen…",
+        "categoryAria": "Kategorie",
+        "allCategories": "Alle Kategorien",
+        "showAll": "Katalog",
+        "showLinked": "Verknüpft ({count})",
+        "more": "Gezeigt werden die ersten {count} von {total}. Grenzen Sie die Suche ein oder wählen Sie eine Kategorie, um die übrigen zu erreichen.",
+        "empty": "Kein Produkt passt zu dieser Suche.",
+        "noneLinked": "Dieses Dokument ist noch bei keinem Produkt.",
+        "loadError": "Die Produkte konnten nicht geladen werden. Bitte versuchen Sie es noch einmal."
+      },
+      "titleRequired": "Ein Titel ist erforderlich.",
+      "fileOrLinkRequired": "Fügen Sie eine Datei, einen Link oder beides hinzu.",
+      "expiryBeforeIssue": "Das Ablaufdatum darf nicht vor dem Ausstellungsdatum liegen.",
+      "saveError": "Dieses Dokument konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "discardConfirm": "Ihre ungespeicherten Änderungen an diesem Dokument verwerfen?",
+      "notFound": "Dieses Dokument gibt es nicht mehr.",
+      "errors": {
+        "document-not-found": "Dieses Dokument gibt es nicht mehr. Laden Sie die Liste neu, um die aktuellen Dokumente zu sehen.",
+        "document-product-not-found": "Eines der Produkte mit diesem Dokument gibt es nicht mehr. Laden Sie die Seite neu und wählen Sie die Produkte erneut."
+      }
+    }
+  },
+  "orders": {
+    "notFound": "Es gibt keine Bestellung mit dieser Nummer.",
+    "loadError": "Die Bestellung konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+    "tier": "Preisliste",
+    "tierDefault": "Standard",
+    "account": "Konto",
+    "guest": "Gast",
+    "items": "Bestellt",
+    "note": "Anmerkung des Kunden",
+    "pickupPoint": "Abholort",
+    "termsVersion": "Version {version}, Stand vom {date}",
+    "statuses": {
+      "requested": "Angefragt",
+      "approved": "Bestätigt",
+      "readyDelivery": "Zur Lieferung übergeben",
+      "readyPickup": "Abholbereit",
+      "completed": "Abgeschlossen",
+      "declined": "Abgelehnt",
+      "cancelled": "Storniert"
+    },
+    "paymentMethods": {
+      "cash": "Barzahlung",
+      "transfer": "Überweisung",
+      "card": "Karte, nach Absprache mit dem Kunden"
+    },
+    "paymentStates": {
+      "notDue": "Nichts fällig",
+      "awaiting": "Zahlung ausstehend",
+      "paid": "Bezahlt",
+      "cashOnHandover": "Bar bei Übergabe"
+    },
+    "list": {
+      "page": {
+        "title": "Bestellungen"
+      },
+      "count": "Bestellungen: {count}",
+      "searchAria": "Bestellungen suchen",
+      "searchPlaceholder": "Nummer, Name, E-Mail…",
+      "clearSearch": "Suche leeren",
+      "empty": "Noch keine Bestellungen.",
+      "noResults": "Keine Bestellung passt zu diesen Filtern.",
+      "loadError": "Die Bestellliste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "placed": "Gesendet",
+      "customer": "Kunde",
+      "items": "Inhalt",
+      "filterStatus": "Nach Status filtern",
+      "statusAll": "Alle Status",
+      "filterPayment": "Nach Zahlung filtern",
+      "paymentAll": "Alle Zahlungen",
+      "paymentUnpaid": "Nicht bezahlt",
+      "actionsAria": "Aktionen",
+      "itemCount": "Positionen: {count}"
+    },
+    "detail": {
+      "placed": "Gesendet am {date}",
+      "back": "Zurück zu den Bestellungen",
+      "guestView": "Ansicht des Kunden öffnen",
+      "billingSame": "Rechnung an dieselbe Adresse.",
+      "whenAny": "So bald wie möglich",
+      "notifyHint": "Der Kunde erhält die Bestellung in ihrem jetzigen Stand, zusammen mit allem, was der Shop seit der letzten Nachricht vermerkt hat.",
+      "pieceLine": "{count} × {price}",
+      "revisions": {
+        "heading": "Verlauf",
+        "subheading": "Fassungen",
+        "written": "Fassung {number} · {date} · {who}",
+        "authorCustomer": "der Kunde",
+        "authorUnknown": "Verfasser nicht erfasst",
+        "submitted": "Vom Kunden aufgegeben",
+        "moved": "Vom Shop weitergeschoben",
+        "changed": "Vom Shop geändert",
+        "customerView": "Was der Kunde sieht",
+        "changes": "Unterschiede",
+        "noChanges": "An der Bestellung selbst hat sich nichts geändert.",
+        "loadError": "Die früheren Fassungen konnten nicht geladen werden.",
+        "versionLabel": "Fassung {number}",
+        "versionInline": "Fassung {number}",
+        "writtenBy": "{date} · {who}",
+        "customerOn": "Der Kunde sieht Fassung {seen}",
+        "notified": "Gemailt am {date}",
+        "openControls": "Diese Bestellung beantworten",
+        "openRevision": "Diese Fassung lesen",
+        "openOrder": "Diese Bestellung öffnen"
+      },
+      "actions": {
+        "open": "Bestellung öffnen",
+        "answer": "Bestellung beantworten",
+        "approve": "Bestätigen",
+        "adjust": "Anpassen",
+        "reopen": "Wieder öffnen",
+        "backToRequested": "Zurück zu unbeantwortet",
+        "backToApproved": "Zurück zu bestätigt",
+        "backToReady": "Zurück zu bereit",
+        "ready": "Zur Lieferung übergeben",
+        "readyPickup": "Abholbereit",
+        "complete": "Als abgeschlossen markieren",
+        "decline": "Ablehnen",
+        "cancel": "Bestellung stornieren",
+        "showCustomer": "Auf der Seite des Kunden zeigen",
+        "showCustomerHint": "Lassen Sie das an, außer der Schritt war ein Fehler, den Sie gleich zurücknehmen – seine Seite soll zeigen, wo die Bestellung wirklich steht.",
+        "notify": "Den Kunden darüber per E-Mail informieren",
+        "markPaid": "Auch die Zahlung als erhalten verbuchen",
+        "markPaidHint": "Für Geld, das bei Übergabe der Ware gezahlt wird. Sie können das später zurücknehmen.",
+        "reasonLabel": "Warum – das wird dem Kunden zitiert",
+        "confirm": {
+          "heading": "{action}?",
+          "message": "Damit wird festgehalten, wo die Bestellung jetzt steht.",
+          "confirm": "{action}",
+          "cancel": "So lassen",
+          "warning": "Zu dieser Bestellung ist eine Zahlung verbucht. Wird sie hier beendet, wird nichts erstattet – klären Sie das direkt mit dem Kunden."
+        },
+        "notifyAttachment": "Die Zahlungsinformationen dieser Bestellung werden mitgeschickt.",
+        "notifyNoDocument": "Diese Bestellung wird per Überweisung bezahlt und hat noch keine Zahlungsinformationen – laden Sie sie zuerst hoch, wenn der Kunde sie mit dieser Nachricht bekommen soll.",
+        "error": "Das hat nicht geklappt. Vielleicht wurde die Bestellung schon beantwortet – laden Sie die Seite neu."
+      },
+      "tellCustomer": {
+        "heading": "Kunde",
+        "on": "Er sieht {current}.",
+        "behind": "Er sieht {seen}; diese Bestellung steht bei {current}.",
+        "emailedNever": "Zu dieser Bestellung ist noch keine E-Mail verschickt worden.",
+        "emailedOn": "Zuletzt gemailt zu {notified}.",
+        "update": "Seine Ansicht aktualisieren",
+        "updateConfirm": {
+          "heading": "Zeigen, wo die Bestellung steht?",
+          "message": "Seine Seite springt auf die Fassung, bei der diese Bestellung steht. Alles, was der Shop seit seinem letzten Blick geändert hat, ist darin.",
+          "confirm": "Seine Seite aktualisieren",
+          "cancel": "Jetzt nicht"
+        },
+        "updateNotify": "Ihn auch per E-Mail informieren",
+        "email": "Ihn per E-Mail informieren",
+        "emailAgain": "Erneut mailen",
+        "emailConfirm": {
+          "heading": "Dem Kunden mailen?",
+          "message": "Er erhält die Bestellung genau so, wie seine eigene Seite sie zeigt. An der Bestellung ändert sich nichts.",
+          "confirm": "Senden",
+          "cancel": "Jetzt nicht"
+        },
+        "error": "Das hat nicht geklappt. Laden Sie die Seite neu, um zu sehen, wo die Bestellung steht."
+      },
+      "paymentState": {
+        "paid": "Bezahlt am {date}",
+        "record": "Als bezahlt verbuchen",
+        "recordConfirm": {
+          "heading": "Diese Bestellung als bezahlt verbuchen?",
+          "message": "Tun Sie das erst, wenn das Geld tatsächlich eingegangen ist.",
+          "confirm": "Als bezahlt verbuchen",
+          "cancel": "Noch nicht"
+        },
+        "clear": "Zahlung zurücknehmen",
+        "clearConfirm": {
+          "heading": "Die verbuchte Zahlung zurücknehmen?",
+          "message": "Nur verwenden, wenn die Zahlung versehentlich verbucht wurde. Eine Erstattung gehört in Ihre eigene Buchhaltung.",
+          "confirm": "Zahlung zurücknehmen",
+          "cancel": "Noch nicht"
+        },
+        "error": "Das hat nicht geklappt. Vielleicht wurde die Zahlung schon verbucht – laden Sie die Seite neu."
+      },
+      "personalData": {
+        "heading": "Persönliche Angaben",
+        "kept": "An der Bestellung, bis ihre Aufbewahrungsfrist endet.",
+        "removed": "Entfernt am {date}",
+        "remove": "Auf Wunsch entfernen",
+        "confirm": {
+          "heading": "Die persönlichen Angaben aus dieser Bestellung entfernen?",
+          "message": "Name, Kontaktdaten, Adressen und Anmerkungen des Gasts werden aus jeder Fassung von Bestellung {reference} entfernt, zusammen mit allen dafür hochgeladenen Dokumenten. Die Bestellung, ihre Positionen und ihr Gesamtbetrag bleiben.",
+          "confirm": "Angaben entfernen",
+          "cancel": "Angaben behalten",
+          "warning": "Das lässt sich nicht rückgängig machen. Die übrigen Bestellungen des Gasts behalten ihre Angaben; finden Sie sie über die E-Mail-Adresse in der Bestellliste."
+        },
+        "error": "Das hat nicht geklappt. Vielleicht wurde die Bestellung wieder geöffnet – laden Sie die Seite neu."
+      },
+      "documents": {
+        "heading": "Dokumente",
+        "summary": "Bestellübersicht",
+        "paymentInstructions": "Zahlungsinformationen",
+        "generated": "Vom Shopsystem erstellt",
+        "supplied": "Hochgeladen am {date}",
+        "outdated": "Zu Fassung {number} hochgeladen; diese Bestellung steht bei {current}.",
+        "open": "Öffnen",
+        "upload": "Hochladen",
+        "replace": "Ersetzen",
+        "notify": "Dem Kunden mailen",
+        "notifyHint": "Wird als eigene Nachricht verschickt. Zahlungsinformationen gehen mit; eine Übersicht wird verlinkt.",
+        "notifyBehind": "Dem Kunden wurde die Fassung, zu der das gehört, noch nicht gezeigt.",
+        "notifySent": "Gesendet",
+        "notifyConfirm": {
+          "heading": "Dieses Dokument dem Kunden mailen?",
+          "message": "Er erhält eine kurze Nachricht dazu. An der Bestellung ändert sich nichts, und Sie können es später erneut senden.",
+          "confirm": "Senden",
+          "cancel": "Jetzt nicht"
+        },
+        "paymentHint": "Nur Sie können diese liefern – die eigenen Zahlungsinformationen des Shops zu dieser Bestellung.",
+        "summaryHint": "Das Shopsystem erstellt eine aus der Bestellung. Laden Sie eine Datei hoch, um stattdessen diese zu verwenden.",
+        "removeConfirm": {
+          "heading": "Dieses Dokument entfernen?",
+          "message": "Der Kunde sieht die hochgeladene Datei dann nicht mehr. Die Bestellübersicht ist wieder die vom Shopsystem erstellte.",
+          "confirm": "Entfernen",
+          "cancel": "Behalten"
+        },
+        "error": "Das hat nicht geklappt. Vielleicht ist die Datei zu groß oder hat einen nicht unterstützten Typ."
+      }
+    },
+    "adjust": {
+      "page": {
+        "title": "{reference} anpassen",
+        "intro": "Halten Sie fest, was Sie mit dem Kunden vereinbart haben. Dabei entsteht eine neue Fassung der Bestellung; Nummer, Link des Kunden und Stand der Bestellung bleiben, wie sie sind."
+      },
+      "save": "Anpassung speichern",
+      "cancel": "Zurück zur Bestellung",
+      "warnPaid": "Diese Bestellung ist bereits als bezahlt verbucht. Eine Änderung des Betrags bewegt kein Geld – bringen Sie das in Ihrer eigenen Buchhaltung in Ordnung.",
+      "warnReady": "Diese Bestellung ist bereits gepackt. Eine Änderung hält jetzt fest, was der Shop getan hat – sie stellt die Ware nicht zurück ins Regal.",
+      "warnEnded": "Diese Bestellung ist beendet. Eine Änderung hält fest, was der Shop getan hat – sie legt die Bestellung nicht zurück in die Bearbeitung, und der Kunde erfährt nichts, außer Sie veranlassen es.",
+      "notify": "Den Kunden über diese Änderung anschreiben",
+      "notifyHint": "Lassen Sie das aus, wenn der nächste Schritt es ihm ohnehin mitteilt – eine Bestätigung der Bestellung schickt die Änderungen mit.",
+      "lines": {
+        "unitsAria": "Menge",
+        "priceAria": "Preis",
+        "removeAria": "Position entfernen",
+        "moveUpAria": "Nach oben",
+        "moveDownAria": "Nach unten",
+        "addLabel": "Produkt hinzufügen",
+        "addPlaceholder": "Nach Name suchen",
+        "noMatches": "Nichts passt dazu.",
+        "empty": "Eine Bestellung braucht mindestens eine Position.",
+        "offList": "Abweichend"
+      },
+      "partyKindPerson": "Eine Person",
+      "partyKindCompany": "Ein Unternehmen",
+      "reprice": "Nach dieser Liste neu bepreisen",
+      "detailsHeading": "Lieferung, Rechnung und Kontakt",
+      "billingAddress": "Rechnungsadresse",
+      "customerHeading": "Was der Kunde angefragt hat",
+      "wished": "Wunschtermin: {date}",
+      "customerNone": "Nichts angegeben",
+      "noteHint": "Der Kunde bekommt das per E-Mail, schreiben Sie es also für ihn.",
+      "noteRequired": "Sagen Sie, was sich geändert hat – der Kunde erfährt es.",
+      "changes": {
+        "heading": "Wird geändert",
+        "none": "Noch hat sich nichts geändert.",
+        "pricingPending": "Positionen und Gesamtbetrag lassen sich erst berechnen, wenn das Formular stimmt."
+      },
+      "priceNotice": {
+        "moved": "Positionspreise, die von der gespeicherten Fassung abweichen: {count}. Speichern Sie das nur, wenn es so vereinbart war.",
+        "offList": "Positionen mit anderem Preis als {tier}: {count}. Das ist erlaubt – prüfen Sie, ob es Absicht ist."
+      },
+      "confirm": {
+        "heading": "Diese Änderung speichern?",
+        "message": "Eine neue Fassung der Bestellung wird gespeichert. Der Stand der Bestellung ändert sich nicht, und der Kunde wird nur angeschrieben, wenn Sie das oben gewählt haben.",
+        "confirm": "Änderung speichern",
+        "cancel": "Weiter bearbeiten"
+      },
+      "errors": {
+        "order-changed": "Jemand anderes hat diese Bestellung angepasst, während Sie daran gearbeitet haben. Laden Sie die Seite neu und beginnen Sie von vorn.",
+        "no-change": "Nichts hier weicht von der Bestellung in ihrem jetzigen Stand ab. Eine Notiz allein ist keine Änderung – tragen Sie das Vereinbarte zuerst in die Positionen oder Angaben ein.",
+        "unknown-product": "Eine der Positionen nennt ein Produkt, das es nicht mehr gibt.",
+        "unknown-tier": "Diese Preisliste gibt es nicht mehr.",
+        "invalid-company-id": "Diese Unternehmenskennung hat kein Format, das dieser Shop akzeptiert.",
+        "unsupported-country": "Dieser Shop liefert nicht in dieses Land.",
+        "invalid-postal-code": "Diese Postleitzahl hat nicht die richtige Form für ihr Land.",
+        "unknown-pickup-location": "Diesen Abholort gibt es nicht mehr.",
+        "billing-details-required": "Eine Überweisung wird einem Unternehmen in Rechnung gestellt, und dafür braucht es seine Unternehmenskennung.",
+        "cash-not-available": "Ein Unternehmen zahlt per Überweisung, nie bar oder mit Karte.",
+        "billing-address-required": "Dieser Shop stellt Rechnungen an eine eigene Adresse aus, daher braucht die Bestellung eine.",
+        "order-not-found": "Es gibt keine Bestellung mit dieser Nummer.",
+        "unknown": "Das hat nicht geklappt. Bitte versuchen Sie es noch einmal."
+      }
+    },
+    "changes": {
+      "line": "Position",
+      "added": "Hinzugefügt",
+      "removed": "Entfernt",
+      "shipment": "Geschätztes Gewicht und Volumen"
+    }
+  },
+  "users": {
+    "list": {
+      "customersPage": {
+        "title": "Kunden"
+      },
+      "staffPage": {
+        "title": "Mitarbeitende"
+      },
+      "count": "Konten: {count}",
+      "searchAria": "Konten suchen",
+      "searchPlaceholder": "Nach Name, E-Mail usw. suchen…",
+      "clearSearch": "Suche leeren",
+      "empty": "Noch keine Konten.",
+      "noResults": "Kein Konto passt zu diesen Filtern.",
+      "loadError": "Die Kontenliste konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "registered": "Registriert",
+      "filterRole": "Nach Rolle filtern",
+      "filterTier": "Nach Kundengruppe filtern",
+      "filterCompanyIdFormat": "Nach Art der Unternehmenskennung filtern",
+      "filterStatus": "Nach Status filtern",
+      "roleAll": "Alle Rollen",
+      "roleAdmin": "Admin",
+      "roleManager": "Manager",
+      "roleUser": "Kunde",
+      "tierAll": "Alle Kundengruppen",
+      "companyIdFormatAll": "Alle Unternehmenskennungen",
+      "companyIdFormatNone": "Keine Unternehmenskennung",
+      "statusAll": "Alle Status",
+      "status": "Status",
+      "statusPending": "Offen",
+      "statusInvited": "Eingeladen",
+      "statusActive": "Aktiv",
+      "statusDisabled": "Deaktiviert",
+      "statusAnonymized": "Geschlossen",
+      "actionsAria": "Aktionen",
+      "approve": "Prüfen und freigeben",
+      "edit": "Konto bearbeiten",
+      "declineAria": "Ablehnen",
+      "deactivateAria": "Konto deaktivieren",
+      "reactivateAria": "Konto reaktivieren",
+      "saveError": "Diese Änderung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "addCustomer": "Kunden hinzufügen",
+      "addStaff": "Mitarbeiterkonto hinzufügen",
+      "errors": {
+        "account-not-found": "Dieses Konto gibt es nicht mehr. Laden Sie die Seite neu, um die aktuelle Liste zu sehen.",
+        "account-not-pending": "Über diesen Antrag wurde bereits entschieden.",
+        "account-closed": "Dieses Konto ist geschlossen und lässt sich nicht mehr bearbeiten.",
+        "email-taken": "Zu dieser E-Mail-Adresse gibt es bereits ein Konto.",
+        "account-not-approved": "Nur ein freigegebenes Konto lässt sich deaktivieren. Geben Sie diesen Antrag stattdessen frei oder lehnen Sie ihn ab.",
+        "account-not-disabled": "Dieses Konto ist nicht deaktiviert, es gibt also nichts wieder einzuschalten.",
+        "account-cannot-sign-in": "Dieses Konto kann sich nicht anmelden, es gibt also nichts zu senden. Schalten Sie es zuerst wieder ein oder entscheiden Sie über den Antrag.",
+        "self-deactivate": "Sie können Ihr eigenes Konto nicht deaktivieren.",
+        "self-demote": "Sie können Ihrem eigenen Konto die Admin-Rolle nicht entziehen.",
+        "last-admin": "Das ist das einzige Admin-Konto. Erst wenn es ein weiteres gibt, lässt sich dieses ändern.",
+        "account-not-purgeable": "Ablehnen lässt sich nur ein Antrag, über den noch niemand entschieden hat. Deaktivieren Sie dieses Konto stattdessen.",
+        "self-delete": "Ihr eigenes Konto können Sie hier nicht löschen. Löschen Sie es stattdessen auf Ihrer Kontoseite.",
+        "account-pending": "Über diesen Antrag ist noch nicht entschieden. Lehnen Sie ihn stattdessen ab, dann wird er ganz entfernt.",
+        "source-id-taken": "Ein anderes Konto trägt diesen Quellschlüssel bereits. Jeder Schlüssel bezeichnet genau ein Konto.",
+        "role-change-admin-only": "Nur ein Admin kann die Rolle eines Kontos ändern.",
+        "staff-create-admin-only": "Nur ein Admin kann ein Mitarbeiterkonto anlegen.",
+        "source-id-change-admin-only": "Nur ein Admin kann den Quellschlüssel eines Kontos ändern.",
+        "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen."
+      },
+      "deactivateConfirm": {
+        "heading": "Konto deaktivieren",
+        "message": "{name} deaktivieren? Die Person wird sofort abgemeldet und kann sich nicht wieder anmelden, und jeder ihr geschickte Passwort-Link wird ungültig. Das Passwort selbst bleibt erhalten, sodass das Konto nach dem Wiedereinschalten ist wie vorher. Nichts wird gelöscht, und es geht keine E-Mail hinaus.",
+        "confirm": "Konto deaktivieren"
+      },
+      "reactivateConfirm": {
+        "heading": "Konto reaktivieren",
+        "message": "{name} wieder einschalten? Angaben, Kundengruppe und Passwort sind unverändert, die Person kann sich also wie zuvor anmelden – und es geht keine E-Mail hinaus. Ein Konto, für das nie ein Passwort gewählt wurde, wartet danach wieder darauf; schicken Sie einen Link von der Kontoseite.",
+        "confirm": "Konto reaktivieren"
+      },
+      "declineConfirm": {
+        "heading": "Antrag ablehnen",
+        "message": "{name} ablehnen? Antrag und Angaben werden endgültig entfernt.",
+        "confirm": "Ablehnen"
+      }
+    },
+    "editor": {
+      "newCustomerTitle": "Neuer Kunde",
+      "newStaffTitle": "Neues Mitarbeiterkonto",
+      "editTitle": "Konto bearbeiten",
+      "approveTitle": "Antrag freigeben",
+      "emailFixed": "Die E-Mail-Adresse ist der Anmeldename und lässt sich hier nicht ändern.",
+      "customerType": "Kundenart",
+      "tier": "Kundengruppe",
+      "tierChoose": "Kundengruppe wählen…",
+      "role": "Rolle",
+      "sourceId": "Quellschlüssel",
+      "sourceIdHint": "Der Schlüssel, unter dem das angebundene System diesen Kunden kennt. Solange er leer ist, erreicht keine automatische Aktualisierung dieses Konto.",
+      "inviteHint": "Beim Anlegen des Kontos wird eine E-Mail mit einem Link zum Wählen eines Passworts verschickt.",
+      "resend": "Passwort-Link senden",
+      "resendSent": "Der Link wurde verschickt.",
+      "status": "Status",
+      "create": "Anlegen und einladen",
+      "approve": "Freigeben und einladen",
+      "notFound": "Dieses Konto wurde nicht gefunden.",
+      "closed": "Dieses Konto ist geschlossen. Seine Angaben bleiben als Nachweis erhalten und lassen sich nicht mehr bearbeiten.",
+      "saveError": "Dieses Konto konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "discardConfirm": "Die Änderungen an diesem Konto verwerfen?",
+      "validation": {
+        "tierRequired": "Eine Kundengruppe ist erforderlich."
+      }
+    },
+    "detail": {
+      "detailsHeading": "Angaben",
+      "accountHeading": "Konto",
+      "approved": "Freigegeben",
+      "approvedNever": "Noch nicht freigegeben",
+      "sourceIdEmpty": "Keiner – keine automatische Aktualisierung erreicht dieses Konto.",
+      "consentsHeading": "Einwilligungen",
+      "consentsEmpty": "Für dieses Konto ist keine Einwilligung erfasst.",
+      "delete": "Konto löschen",
+      "deleteConsentWithdrawn": "Die Person hat ihre Einwilligung widerrufen",
+      "deleteConsentWithdrawnHint": "Wird als Grund erfasst. Lassen Sie es leer, wenn die Person einfach um die Löschung gebeten hat.",
+      "deleteError": "Das Konto konnte nicht gelöscht werden. Bitte versuchen Sie es noch einmal.",
+      "signInHeading": "Anmeldung",
+      "signInPhone": "Mobilnummer",
+      "signInPhoneConfirmed": "Bestätigt am {date}",
+      "signInPhoneUnconfirmed": "Noch nicht bestätigt. Das geschieht bei der nächsten Anmeldung.",
+      "signInPhoneMissing": "Keine, die ein Code erreicht. Die Person kann sich erst anmelden, wenn das Team eine in den Kontoangaben einträgt.",
+      "signInCode": "Code nach dem Passwort",
+      "signInCodeAlways": "Bei jeder Anmeldung",
+      "signInCodeAlwaysRemembered": "Bei jeder Anmeldung, außer in einem Browser, den die Person sich merken ließ (bis zu {days} Tage lang)",
+      "signInCodeOnce": "Einmal, um die Nummer zu bestätigen",
+      "signInCodeExempt": "Nicht abgefragt: befreit von {admin} am {date}",
+      "exempt": "Vom Code befreien",
+      "unexempt": "Code wieder abfragen",
+      "exemptError": "Die Änderung konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+      "back": "Zurück zur Liste",
+      "notFound": "Dieses Konto wurde nicht gefunden.",
+      "loadError": "Dieses Konto konnte nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+      "deleteConfirm": {
+        "heading": "Konto auf Wunsch löschen",
+        "message": "{name} auf Wunsch löschen? Persönliche Angaben und gespeicherte Adressen werden entfernt, frühere Bestellungen bleiben ohne diese Angaben erhalten, und die Person kann sich nicht mehr anmelden. Sie erhält dieselbe Bestätigung wie bei einer Löschung durch sie selbst. Das lässt sich nicht rückgängig machen.",
+        "confirm": "Konto löschen",
+        "warning": "Noch offene Bestellungen bleiben bei Ihnen zur Erledigung, ohne Name, Telefon und Adresse des Kunden."
+      },
+      "exemptConfirm": {
+        "heading": "Vom Anmeldecode befreien",
+        "message": "{name} nur mit dem Passwort anmelden lassen? Die Befreiung wird mit Ihrem Namen erfasst und auf dieser Seite gezeigt.",
+        "confirm": "Vom Code befreien"
+      },
+      "unexemptConfirm": {
+        "heading": "Anmeldecode wieder abfragen",
+        "message": "{name} ab der nächsten Anmeldung wieder nach dem Code fragen?",
+        "confirm": "Code wieder abfragen"
+      }
+    }
+  },
+  "consents": {
+    "page": {
+      "title": "Einwilligungen",
+      "intro": "Finden Sie die Einwilligungen einer Person, um ihre eigene Anfrage oder eine Prüfung zu beantworten. Eine Suche nach E-Mail-Adresse findet auch die Einträge des Kontos, das sie jetzt verwendet."
+    },
+    "panelLookup": "Einwilligungen einer Person finden",
+    "panelText": "Text: {purpose}",
+    "byEmail": "E-Mail-Adresse",
+    "byPhone": "Telefonnummer",
+    "search": "Suchen",
+    "empty": "Für {query} ist keine Einwilligung erfasst.",
+    "loadError": "Die Einträge konnten nicht geladen werden. Bitte versuchen Sie es noch einmal.",
+    "purposes": {
+      "contact": "Kontaktformular",
+      "account": "Kundenkonto"
+    },
+    "version": "Version {version}",
+    "account": "Konto",
+    "accountGone": "Antrag abgelehnt und entfernt",
+    "withdrawn": "Widerrufen",
+    "withdrawnAt": "Widerrufen am {date}",
+    "withdrawnReasons": {
+      "account-deleted": "bei der Löschung des Kontos",
+      "registration-declined": "bei der Ablehnung des Antrags",
+      "entered": "eingetragen von {admin}"
+    },
+    "endsWithAccount": "Widerruf durch Löschen des Kontos",
+    "withdraw": "Widerruf eintragen",
+    "withdrawNote": "Wie er Sie erreicht hat",
+    "withdrawErrors": {
+      "consent-not-found": "Diesen Eintrag gibt es nicht mehr.",
+      "consent-already-withdrawn": "Diese Einwilligung wurde bereits widerrufen.",
+      "consent-ends-with-account": "Eine Einwilligung zum Konto wird durch Löschen des Kontos widerrufen."
+    },
+    "withdrawError": "Der Widerruf konnte nicht gespeichert werden. Bitte versuchen Sie es noch einmal.",
+    "withdrawConfirm": {
+      "heading": "Widerruf eintragen",
+      "message": "Die Einwilligung von {holder} vom {date} endet jetzt und lässt sich nicht wieder erteilen. Ihr Eintrag bleibt für die Aufbewahrungsfrist erhalten.",
+      "confirm": "Widerruf eintragen",
+      "warning": "Die Anfrage selbst ist eine E-Mail im Postfach des Shops, die hiervon unberührt bleibt. Löschen Sie sie dort ebenfalls."
+    }
+  },
+  "maintenance": {
+    "description": "Solange er an ist, ist der öffentliche Shop für Besucher und Suchmaschinen ausgeblendet. Sie bleiben angemeldet und können ihn zur Vorschau ansehen.",
+    "statusOn": "Der Shop ist für Besucher ausgeblendet.",
+    "statusOff": "Der Shop ist live und für alle sichtbar.",
+    "enableAria": "Wartungsmodus einschalten",
+    "disableAria": "Wartungsmodus ausschalten",
+    "error": "Beim Ändern des Wartungsmodus ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+  },
+  "ownership": {
+    "intro": "Übergeben Sie einen Datenbereich des Shops an ein externes System oder holen Sie ihn zurück. Solange ein externes System einen Bereich verwaltet, schreibt nur es ihn: Der eigene Zugang des Shops ist abgeschaltet, und was es füllt, ist hier schreibgeschützt. Solange niemand ihn verwaltet, ist der Shop zuständig, und automatische Aktualisierungen werden abgewiesen.",
+    "areaText": {
+      "catalog": {
+        "name": "Katalog",
+        "description": "Produktnamen, Kategorien, Preise und Bestand. Beschreibungen, Fotos, Merkmale, Dokumente, Zuordnungen und welche Produkte der Shop zeigt, bleiben in jedem Fall bei Ihnen.",
+        "ownedEffect": "Datei-Uploads sind aus, und die obigen Felder sind im Katalogeditor schreibgeschützt.",
+        "ownEffect": "Datei-Uploads funktionieren, und automatische Aktualisierungen werden abgewiesen.",
+        "handTitle": "Katalog übergeben",
+        "handConfirm": "Den Katalog an ein externes System übergeben?",
+        "handWarning": "Datei-Uploads funktionieren dann nicht mehr, und Namen, Kategorien, Preise und Bestand werden im Katalogeditor schreibgeschützt. Eine bereits hochgeladene, wartende Datei lässt sich nicht mehr übernehmen.",
+        "takeTitle": "Katalog zurückholen",
+        "takeConfirm": "Den Katalog vom externen System zurückholen?",
+        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Übergeben Sie den Katalog wieder, wenn Sie fertig sind."
+      },
+      "customers": {
+        "name": "Kundenkonten",
+        "description": "Wer sich anmelden darf, wie die Person heißt, für welches Unternehmen sie kauft und welche Preisliste für sie gilt. Ihre Bestellungen sind ein eigener Bereich.",
+        "ownedEffect": "Konten werden in jenem System freigegeben, bearbeitet, abgeschaltet und wieder eingeschaltet. Die Listen hier zeigen weiterhin alles.",
+        "ownEffect": "Konten werden hier freigegeben und bearbeitet, und automatische Aktualisierungen werden abgewiesen.",
+        "handTitle": "Kundenkonten übergeben",
+        "handConfirm": "Die Kundenkonten an ein externes System übergeben?",
+        "handWarning": "Anträge freigeben, Konten bearbeiten, Preislisten ändern, Konten ab- und wieder einschalten und Passwort-Links senden funktionieren dann hier nicht mehr und geschehen stattdessen in jenem System. Anträge kommen weiterhin an und werden gezählt, sodass Sie sehen, wer wartet – entschieden wird aber dort. Niemand wird abgemeldet, und nichts wird gelöscht.",
+        "takeTitle": "Kundenkonten zurückholen",
+        "takeConfirm": "Die Kundenkonten vom externen System zurückholen?",
+        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Was es noch nicht geschickt hatte – eine Freigabe, eine Preisliste –, müssen Sie hier selbst festlegen."
+      },
+      "orders": {
+        "name": "Bestellabwicklung",
+        "description": "Bestellungen beantworten, ihren Inhalt ändern, Zahlungen verbuchen und die Dokumente, die das Team dazulegt. Eine Bestellung aufgeben und eine unbeantwortete stornieren gehören dem Kunden und bleiben in jedem Fall möglich.",
+        "ownedEffect": "Bestellungen werden in jenem System beantwortet, geändert und als bezahlt verbucht. Die Listen und die Bestellungen selbst zeigen weiterhin alles.",
+        "ownEffect": "Bestellungen werden hier beantwortet, und automatische Aktualisierungen werden abgewiesen.",
+        "handTitle": "Bestellabwicklung übergeben",
+        "handConfirm": "Die Bestellabwicklung an ein externes System übergeben?",
+        "handWarning": "Eine Bestellung annehmen, ablehnen und weiterschieben, ihren Inhalt ändern, eine Zahlung verbuchen, den Kunden informieren und ein Dokument dazulegen funktionieren dann hier nicht mehr und geschehen stattdessen in jenem System. Bestellungen kommen weiterhin an und werden gezählt, und ein Kunde kann eine unbeantwortete Bestellung weiterhin stornieren.",
+        "takeTitle": "Bestellabwicklung zurückholen",
+        "takeConfirm": "Die Bestellabwicklung vom externen System zurückholen?",
+        "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Was es noch nicht geschickt hatte – einen Status, eine Korrektur, eine Zahlung –, müssen Sie hier selbst erfassen."
+      }
+    },
+    "statusOwned": "Von einem externen System verwaltet",
+    "statusOwn": "Im Shop verwaltet",
+    "hand": "Übergeben",
+    "take": "Zurückholen",
+    "all": {
+      "heading": "Der ganze Shop",
+      "description": "Alle Bereiche auf einmal. Unten lassen sich Bereiche auch einzeln übergeben.",
+      "statusMixed": "Teilweise von einem externen System verwaltet",
+      "statusMixedEffect": "Von einem externen System verwaltete Bereiche: {count} von {total}.",
+      "hand": "Alles übergeben",
+      "take": "Alles zurückholen",
+      "handTitle": "Den ganzen Shop übergeben",
+      "handConfirm": "Alle Bereiche an ein externes System übergeben?",
+      "handWarning": "Das bewirkt für jeden Bereich, was eine einzelne Übergabe bewirken würde: Der eigene Zugang des Shops zu jedem ist abgeschaltet, und jenes System schreibt sie als Einziges. Bereiche, die es schon verwaltet, bleiben, wie sie sind.",
+      "takeTitle": "Den ganzen Shop zurückholen",
+      "takeConfirm": "Alle Bereiche vom externen System zurückholen?",
+      "takeWarning": "Die Aktualisierungen des externen Systems werden ab seinem nächsten Versuch in allen Bereichen abgewiesen, und was es in dieser Zeit schickt, wird nicht gespeichert. Übergeben Sie die Bereiche wieder, wenn Sie fertig sind.",
+      "areasToggle": "Bereiche einzeln"
+    },
+    "error": "Bei dieser Änderung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+    "fieldLocked": "Der Katalog wird von einem externen System verwaltet, daher wird das dort festgelegt statt hier. Um es im Shop zu bearbeiten, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+    "fieldLockedShort": "Vom externen System festgelegt, das den Katalog verwaltet.",
+    "categoryHasProducts": "Diese Kategorie enthält noch Produkte. Solange der Katalog von einem externen System verwaltet wird, lassen sich Produkte hier nicht zwischen Kategorien verschieben – leeren Sie sie zuerst in jenem System oder holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+    "categoryHasDeletedProducts": "Gelöschte Produkte, die diese Kategorie noch enthält: {count}. Solange der Katalog von einem externen System verwaltet wird, lassen sie sich hier nicht zwischen Kategorien verschieben. Ein endgültig gelöschtes Produkt hält sie nicht mehr; eines, das je bestellt wurde, immer. Sie können sie weiterhin umbenennen, ihre Adresse ändern und ans Ende der Liste schieben.",
+    "productPurge": "Das externe System schickt dieses Produkt noch, daher würde es nach einer endgültigen Löschung nur als neues zurückkommen. Es bleibt gelöscht.",
+    "productRestoreTitle": "Vom externen System entfernt",
+    "productRestore": "Das externe System hat dieses Produkt entfernt, weil es es nicht mehr schickt. Es kommt von selbst zurück, wenn jenes System es wieder schickt. Um es hier wiederherzustellen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+    "productCreate": "Der Katalog wird von einem externen System verwaltet, daher werden neue Produkte dort hinzugefügt. Um eines im Shop hinzuzufügen, holen Sie den Katalog unter Datenhoheit in der Verwaltung zurück.",
+    "tierKeyLocked": "Der Katalog wird von einem externen System verwaltet, daher wird der Schlüssel dieser Preisliste dort festgelegt. Den Namen können Sie in jedem Fall ändern, und Sie können weiterhin eine Preisliste hinzufügen oder eine unbenutzte entfernen.",
+    "accountLocked": "Kundenkonten werden von einem externen System verwaltet, daher wird dieses Konto dort bearbeitet statt hier. Um es im Shop zu bearbeiten, holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+    "accountCreate": "Kundenkonten werden von einem externen System verwaltet, daher werden neue Kunden dort hinzugefügt. Um einen im Shop hinzuzufügen, holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+    "runStranded": "Diese Datei wurde hochgeladen, bevor der Bereich an ein externes System übergeben wurde, und lässt sich daher nicht mehr übernehmen. Verwerfen Sie sie oder holen Sie den Bereich unter Datenhoheit in der Verwaltung zurück.",
+    "accountDecline": "Kundenkonten werden von einem externen System verwaltet, daher wird dort über Anträge entschieden. Lehnen Sie diesen in jenem System ab oder holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+    "accountActive": "Kundenkonten werden von einem externen System verwaltet, daher geschieht das Ab- und Wiedereinschalten dort. Ändern Sie es in jenem System oder holen Sie die Kundenkonten unter Datenhoheit in der Verwaltung zurück.",
+    "orderLocked": "Bestellungen werden von einem externen System verwaltet, daher wird diese dort beantwortet statt hier. Kunden können weiterhin bestellen und unbeantwortete Bestellungen stornieren. Um Bestellungen im Shop zu bearbeiten, holen Sie die Bestellabwicklung unter Datenhoheit in der Verwaltung zurück."
+  },
+  "operations": {
+    "page": {
+      "title": "Wartung und Datenhoheit"
+    },
+    "backToPanel": "Zurück zur Verwaltung",
+    "maintenanceHeading": "Wartungsmodus",
+    "ownershipHeading": "Datenhoheit",
+    "loadError": "Das konnte nicht geladen werden. Bitte laden Sie die Seite neu.",
+    "historyTitle": "Letzte Änderungen",
+    "historyEmpty": "Noch wurde nichts geändert.",
+    "historyOwnershipOn": "{area} an ein externes System übergeben",
+    "historyOwnershipOff": "{area} zurückgeholt",
+    "historyMaintenanceOn": "Wartungsmodus eingeschaltet",
+    "historyMaintenanceOff": "Wartungsmodus ausgeschaltet",
+    "historyBy": "{date} von {actor}",
+    "historyMore": "Gezeigt werden nur die {count} letzten Änderungen."
+  }
+}

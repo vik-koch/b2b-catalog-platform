@@ -67,6 +67,10 @@ jobs:
       # would find the gap.
       - run: node tools/migrate-config.mjs --check
 
+      # The suites load only the test fixture; a committed deployment that
+      # would not boot or seed has to fail here instead of on its stack.
+      - run: node tools/check-deployments.mjs
+
       # A text key named …Aria tells its translator nobody sees it: an
       # accessible name, a screen-reader-only hint or an announcement.
       - run: node tools/check-aria-text.mjs
@@ -290,6 +294,9 @@ jobs:
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           # Dev shows demo content, so seed after deploy (prod never does).
           SEED: '1'
+          # Dev is the German Coffee Kontor, not the test fixture.
+          CONFIG_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/config
+          SEED_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/seed
           # Guards the dev Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}

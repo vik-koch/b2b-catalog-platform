@@ -1,0 +1,64 @@
+{
+  "documents": [
+    {
+      "title": "Analysezertifikat",
+      "file": {
+        "fileName": "analysezertifikat.pdf",
+        "body": [
+          "Platzhalterdokument für den Demo-Shop.",
+          "Eine echte Installation lädt das Zertifikat hoch, das ihr Labor ausgestellt hat."
+        ]
+      },
+      "issuedDaysAgo": 60,
+      "expiresInDays": 300,
+      "categorySlugs": ["espresso"]
+    },
+    {
+      "title": "Bio-Zertifizierung",
+      "file": {
+        "fileName": "bio-zertifizierung.pdf",
+        "body": [
+          "Platzhalterdokument für den Demo-Shop.",
+          "Zertifizierungen werden erneuert, indem man die Datei dieses Dokuments ersetzt."
+        ]
+      },
+      "link": "https://example.org/register/organic/DE-0000-0001",
+      "issuedDaysAgo": 400,
+      "expiresInDays": 20,
+      "categorySlugs": ["filter", "single-origin"]
+    },
+    {
+      "title": "Einfuhrerklärung",
+      "file": {
+        "fileName": "einfuhrerklaerung.pdf",
+        "body": [
+          "Platzhalterdokument für den Demo-Shop.",
+          "Dieses ist abgelaufen: Der Shop zeigt es niemandem, bis es ersetzt wird."
+        ]
+      },
+      "issuedDaysAgo": 400,
+      "expiresInDays": -15,
+      "categorySlugs": ["espresso"]
+    },
+    {
+      "title": "Produktdatenblatt",
+      "file": {
+        "fileName": "produktdatenblatt.pdf",
+        "body": [
+          "Platzhalterdokument für den Demo-Shop.",
+          "Ein Datenblatt hat kein Ablaufdatum und ist daher immer aktuell."
+        ]
+      },
+      "issuedDaysAgo": null,
+      "expiresInDays": null,
+      "productSlugs": ["to-go-becher-300", "to-go-deckel-flach"]
+    },
+    {
+      "title": "Konformitätserklärung",
+      "link": "https://example.org/register/conformity/0000-0002",
+      "issuedDaysAgo": 120,
+      "expiresInDays": 900,
+      "productSlugs": ["to-go-becher-300", "to-go-deckel-flach"]
+    }
+  ]
+}
