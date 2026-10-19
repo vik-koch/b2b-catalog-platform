@@ -1,0 +1,42 @@
+{
+  "pages": [
+    {
+      "slug": "about",
+      "title": "About us"
+    },
+    {
+      "slug": "terms",
+      "title": "Terms of sale"
+    },
+    {
+      "slug": "conditions",
+      "title": "Payment & delivery"
+    },
+    {
+      "slug": "privacy",
+      "title": "Privacy policy"
+    },
+    {
+      "slug": "imprint",
+      "title": "Imprint"
+    },
+    {
+      "slug": "withdrawal",
+      "title": "Right of withdrawal"
+    },
+    {
+      "slug": "contact",
+      "title": "Contact"
+    },
+    {
+      "slug": "consent-contact",
+      "title": "Consent: contact form",
+      "consentLabel": "I [consent] to the processing of the details I enter here to answer my inquiry."
+    },
+    {
+      "slug": "consent-account",
+      "title": "Consent: customer account",
+      "consentLabel": "I [consent] to the processing of my details to assess my registration and run my customer account."
+    }
+  ]
+}

@@ -1,0 +1,1899 @@
+{
+  "categories": [
+    {
+      "sourceId": "coffee-beans",
+      "slug": "coffee-beans",
+      "name": "Coffee Beans",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "espresso",
+      "slug": "espresso",
+      "name": "Espresso Roasts",
+      "parentKey": "coffee-beans",
+      "hasMark": true
+    },
+    {
+      "sourceId": "filter",
+      "slug": "filter",
+      "name": "Filter Roasts",
+      "parentKey": "coffee-beans",
+      "hasMark": true
+    },
+    {
+      "sourceId": "decaf",
+      "slug": "decaf",
+      "name": "Decaf",
+      "parentKey": "coffee-beans",
+      "hasMark": false
+    },
+    {
+      "sourceId": "single-origin",
+      "slug": "single-origin",
+      "name": "Single Origin",
+      "parentKey": "coffee-beans",
+      "hasMark": true
+    },
+    {
+      "sourceId": "tea",
+      "slug": "tea",
+      "name": "Tea",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "equipment",
+      "slug": "equipment",
+      "name": "Equipment",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "grinders",
+      "slug": "grinders",
+      "name": "Grinders",
+      "parentKey": "equipment",
+      "hasMark": true
+    },
+    {
+      "sourceId": "machines",
+      "slug": "machines",
+      "name": "Espresso Machines",
+      "parentKey": "equipment",
+      "hasMark": true
+    },
+    {
+      "sourceId": "accessories",
+      "slug": "accessories",
+      "name": "Accessories",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "cold-brew",
+      "slug": "cold-brew",
+      "name": "Cold Brew & RTD",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "syrups",
+      "slug": "syrups",
+      "name": "Syrups & Flavours",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "chocolate",
+      "slug": "chocolate",
+      "name": "Chocolate & Cocoa",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "milk",
+      "slug": "milk",
+      "name": "Milk & Alternatives",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "cups",
+      "slug": "cups",
+      "name": "Cups & Glassware",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "cleaning",
+      "slug": "cleaning",
+      "name": "Cleaning & Care",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "filters",
+      "slug": "filters",
+      "name": "Filters & Papers",
+      "parentKey": null,
+      "hasMark": true
+    },
+    {
+      "sourceId": "gifts",
+      "slug": "gifts",
+      "name": "Gift Sets",
+      "parentKey": null,
+      "hasMark": true
+    }
+  ],
+  "attributes": [
+    {
+      "name": "Origin",
+      "slug": "origin",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Roast level",
+      "slug": "roast-level",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Process",
+      "slug": "process",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Type",
+      "slug": "type",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Net weight",
+      "slug": "net-weight",
+      "type": "number",
+      "unit": "g"
+    },
+    {
+      "name": "Volume",
+      "slug": "volume",
+      "type": "number",
+      "unit": "ml"
+    },
+    {
+      "name": "Colour",
+      "slug": "colour",
+      "type": "text",
+      "unit": null
+    }
+  ],
+  "catalogFilters": ["origin"],
+  "products": [
+    {
+      "sourceId": "ESP-001",
+      "slug": "hafen-espresso",
+      "name": "Hafen Espresso",
+      "categoryKey": "espresso",
+      "priceMinor": 1690,
+      "descriptionHtml": "<p>Hafen Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dark chocolate and hazelnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Brazil / India blend"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "dark chocolate and hazelnut"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 121,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-002",
+      "slug": "kontor-classic",
+      "name": "Kontor Classic",
+      "categoryKey": "espresso",
+      "priceMinor": 1730,
+      "descriptionHtml": "<p>Kontor Classic is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>caramel and toasted almond</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Central America blend"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "caramel and toasted almond"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 122,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-003",
+      "slug": "notturno-ristretto",
+      "name": "Notturno Ristretto",
+      "categoryKey": "espresso",
+      "priceMinor": 1770,
+      "descriptionHtml": "<p>Notturno Ristretto is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa and dried fig</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Indonesia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "cocoa and dried fig"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 1,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 123,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-004",
+      "slug": "crema-d-oro",
+      "name": "Crema d'Oro",
+      "categoryKey": "espresso",
+      "priceMinor": 1810,
+      "descriptionHtml": "<p>Crema d'Oro is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>brown sugar and orange peel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Colombia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "brown sugar and orange peel"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 124,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-005",
+      "slug": "speicher-blend",
+      "name": "Speicher Blend",
+      "categoryKey": "espresso",
+      "priceMinor": 1850,
+      "descriptionHtml": "<p>Speicher Blend is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>red apple and praline</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Ethiopia / Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "red apple and praline"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 24,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 125,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-006",
+      "slug": "elbe-dark",
+      "name": "Elbe Dark",
+      "categoryKey": "espresso",
+      "priceMinor": 1890,
+      "descriptionHtml": "<p>Elbe Dark is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dark chocolate and walnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "dark chocolate and walnut"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400",
+        "boxCount": 2
+      },
+      "stockPieces": 126,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-007",
+      "slug": "roastery-no-7",
+      "name": "Roastery No. 7",
+      "categoryKey": "espresso",
+      "priceMinor": 1930,
+      "descriptionHtml": "<p>Roastery No. 7 is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>baking spice and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Guatemala"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "baking spice and cocoa"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "minPieceQty": 6
+      },
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-008",
+      "slug": "morgengruss",
+      "name": "Morgengruss",
+      "categoryKey": "espresso",
+      "priceMinor": 1970,
+      "descriptionHtml": "<p>Morgengruss is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>milk chocolate and almond</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Honduras"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "milk chocolate and almond"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 128,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-009",
+      "slug": "nordic-pull",
+      "name": "Nordic Pull",
+      "categoryKey": "espresso",
+      "priceMinor": 2010,
+      "descriptionHtml": "<p>Nordic Pull is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blackcurrant and molasses</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Kenya / Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "blackcurrant and molasses"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-010",
+      "slug": "alster-reserve",
+      "name": "Alster Reserve",
+      "categoryKey": "espresso",
+      "priceMinor": 2050,
+      "descriptionHtml": "<p>Alster Reserve is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>toffee and hazelnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Peru"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "toffee and hazelnut"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 24,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 130,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-011",
+      "slug": "kaicaf-bar",
+      "name": "Kaicafé Bar",
+      "categoryKey": "espresso",
+      "priceMinor": 2090,
+      "descriptionHtml": "<p>Kaicafé Bar is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dark cocoa and cane sugar</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Vietnam / Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "dark cocoa and cane sugar"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 1,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-012",
+      "slug": "espresso-dolce",
+      "name": "Espresso Dolce",
+      "categoryKey": "espresso",
+      "priceMinor": 2130,
+      "descriptionHtml": "<p>Espresso Dolce is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>caramel and milk chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Colombia / Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "caramel and milk chocolate"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400",
+        "boxCount": 2
+      },
+      "stockPieces": 132,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-013",
+      "slug": "torrefatto-scuro",
+      "name": "Torrefatto Scuro",
+      "categoryKey": "espresso",
+      "priceMinor": 2170,
+      "descriptionHtml": "<p>Torrefatto Scuro is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>clove and dark chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "India"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "clove and dark chocolate"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 133,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-014",
+      "slug": "barista-reserve",
+      "name": "Barista Reserve",
+      "categoryKey": "espresso",
+      "priceMinor": 2210,
+      "descriptionHtml": "<p>Barista Reserve is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>stone fruit and praline</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Ethiopia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "stone fruit and praline"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "minPieceQty": 6
+      },
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-015",
+      "slug": "doppio-intenso",
+      "name": "Doppio Intenso",
+      "categoryKey": "espresso",
+      "priceMinor": 2250,
+      "descriptionHtml": "<p>Doppio Intenso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>molasses and roasted nut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Uganda"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "molasses and roasted nut"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 24,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 135,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-016",
+      "slug": "levante-blend",
+      "name": "Levante Blend",
+      "categoryKey": "espresso",
+      "priceMinor": 2290,
+      "descriptionHtml": "<p>Levante Blend is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>dried fruit and spice</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Yemen / Ethiopia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "dried fruit and spice"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 136,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-017",
+      "slug": "f-hrmann",
+      "name": "Fährmann",
+      "categoryKey": "espresso",
+      "priceMinor": 2330,
+      "descriptionHtml": "<p>Fährmann is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>peanut and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Brazil / Peru"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "peanut and cocoa"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 137,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-018",
+      "slug": "signature-ristretto",
+      "name": "Signature Ristretto",
+      "categoryKey": "espresso",
+      "priceMinor": 2370,
+      "descriptionHtml": "<p>Signature Ristretto is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa and cherry</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Guatemala / Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "cocoa and cherry"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400",
+        "boxCount": 2
+      },
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-019",
+      "slug": "contadora",
+      "name": "ContADORA",
+      "categoryKey": "espresso",
+      "priceMinor": 2410,
+      "descriptionHtml": "<p>ContADORA is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>red fruit and caramel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Panama"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "red fruit and caramel"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 1,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 139,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-020",
+      "slug": "nero-assoluto",
+      "name": "Nero Assoluto",
+      "categoryKey": "espresso",
+      "priceMinor": 2450,
+      "descriptionHtml": "<p>Nero Assoluto is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>bitter chocolate and pepper</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "India / Uganda"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "bitter chocolate and pepper"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 24,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 140,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-021",
+      "slug": "warehouse-espresso",
+      "name": "Warehouse Espresso",
+      "categoryKey": "espresso",
+      "priceMinor": 2490,
+      "descriptionHtml": "<p>Warehouse Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>chocolate and brown sugar</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Blend"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "chocolate and brown sugar"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "minPieceQty": 6
+      },
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-022",
+      "slug": "fortezza",
+      "name": "Fortezza",
+      "categoryKey": "espresso",
+      "priceMinor": 2530,
+      "descriptionHtml": "<p>Fortezza is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>roasted almond and cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "roasted almond and cocoa"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-023",
+      "slug": "miscela-verde",
+      "name": "Miscela Verde",
+      "categoryKey": "espresso",
+      "priceMinor": 2570,
+      "descriptionHtml": "<p>Miscela Verde is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>orange and toffee</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Colombia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "orange and toffee"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 143,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-024",
+      "slug": "kontor-reserve",
+      "name": "Kontor Reserve",
+      "categoryKey": "espresso",
+      "priceMinor": 2610,
+      "descriptionHtml": "<p>Kontor Reserve is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>floral and caramel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Ethiopia / Colombia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "floral and caramel"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400",
+        "boxCount": 2
+      },
+      "stockPieces": 144,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-025",
+      "slug": "aroma-nero",
+      "name": "Aroma Nero",
+      "categoryKey": "espresso",
+      "priceMinor": 2650,
+      "descriptionHtml": "<p>Aroma Nero is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>chocolate and hazelnut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Honduras / Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "chocolate and hazelnut"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 24,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 145,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "ESP-026",
+      "slug": "ultimo-espresso",
+      "name": "Ultimo Espresso",
+      "categoryKey": "espresso",
+      "priceMinor": 2690,
+      "descriptionHtml": "<p>Ultimo Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa, nut and a syrupy body</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Blend"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Mixed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "cocoa, nut and a syrupy body"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 1,
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "minPieceQty": 6,
+        "boxVolume": "0.072",
+        "boxWeight": "6.400"
+      },
+      "stockPieces": 146,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-001",
+      "slug": "yirgacheffe-filter",
+      "name": "Yirgacheffe Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2290,
+      "descriptionHtml": "<p>Yirgacheffe Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>jasmine, bergamot and stone fruit</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Ethiopia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Light"
+        },
+        {
+          "key": "Process",
+          "value": "Washed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "jasmine and bergamot"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-002",
+      "slug": "huila-filter",
+      "name": "Huila Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2190,
+      "descriptionHtml": "<p>Huila Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>red berries and panela</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Colombia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Light-medium"
+        },
+        {
+          "key": "Process",
+          "value": "Washed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "red berries and panela"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-003",
+      "slug": "kenya-ab-filter",
+      "name": "Kenya AB Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2490,
+      "descriptionHtml": "<p>Kenya AB Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blackcurrant and a juicy acidity</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Kenya"
+        },
+        {
+          "key": "Roast level",
+          "value": "Light"
+        },
+        {
+          "key": "Process",
+          "value": "Washed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "blackcurrant"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 149,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "DEC-001",
+      "slug": "ohne-decaf",
+      "name": "Ohne Decaf",
+      "categoryKey": "decaf",
+      "priceMinor": 1990,
+      "descriptionHtml": "<p>Ohne Decaf is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>milk chocolate and roasted nut</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Colombia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium"
+        },
+        {
+          "key": "Process",
+          "value": "Sugarcane EA"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "milk chocolate"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "stockPieces": 150,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "DEC-002",
+      "slug": "nacht-decaf",
+      "name": "Nacht Decaf Espresso",
+      "categoryKey": "decaf",
+      "priceMinor": 2090,
+      "descriptionHtml": "<p>Nacht Decaf Espresso is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa and caramel, fully decaffeinated</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Brazil"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium-dark"
+        },
+        {
+          "key": "Process",
+          "value": "Swiss Water"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "cocoa and caramel"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 151,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "SO-001",
+      "slug": "gesha-limited",
+      "name": "Gesha Limited Lot",
+      "categoryKey": "single-origin",
+      "priceMinor": 3890,
+      "descriptionHtml": "<p>Gesha Limited Lot is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>jasmine, peach and bergamot</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Panama"
+        },
+        {
+          "key": "Roast level",
+          "value": "Light"
+        },
+        {
+          "key": "Process",
+          "value": "Washed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "jasmine and peach"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 3,
+      "stockPieces": 152,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "SO-002",
+      "slug": "sidamo-natural",
+      "name": "Sidamo Natural",
+      "categoryKey": "single-origin",
+      "priceMinor": 2590,
+      "descriptionHtml": "<p>Sidamo Natural is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blueberry and dark chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Ethiopia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Light-medium"
+        },
+        {
+          "key": "Process",
+          "value": "Natural"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "blueberry"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 2,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "SO-003",
+      "slug": "antigua-single",
+      "name": "Antigua Single Origin",
+      "categoryKey": "single-origin",
+      "priceMinor": 2390,
+      "descriptionHtml": "<p>Antigua Single Origin is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cocoa, orange and caramel</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Guatemala"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium"
+        },
+        {
+          "key": "Process",
+          "value": "Washed"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "cocoa and orange"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 154,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "TEA-001",
+      "slug": "ostfriesen-broken",
+      "name": "Ostfriesen Broken",
+      "categoryKey": "tea",
+      "priceMinor": 1290,
+      "descriptionHtml": "<p>A robust Assam broken-leaf blend, <strong>malty and strong</strong> — the classic base for a hearty cup.</p>",
+      "attributes": [
+        {
+          "key": "Type",
+          "value": "Black tea"
+        },
+        {
+          "key": "Origin",
+          "value": "Assam"
+        },
+        {
+          "key": "Net weight",
+          "value": "500"
+        }
+      ],
+      "imageCount": 0,
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "TEA-002",
+      "slug": "sencha-green",
+      "name": "Sencha Green",
+      "categoryKey": "tea",
+      "priceMinor": 1490,
+      "descriptionHtml": "<p>Grassy, fresh Japanese sencha with a gentle sweetness.</p>",
+      "attributes": [
+        {
+          "key": "Type",
+          "value": "Green tea"
+        },
+        {
+          "key": "Origin",
+          "value": "Japan"
+        },
+        {
+          "key": "Net weight",
+          "value": "250"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 0,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "TEA-003",
+      "slug": "pfefferminz",
+      "name": "Pfefferminz Herbal",
+      "categoryKey": "tea",
+      "priceMinor": 990,
+      "descriptionHtml": "<p>Pure peppermint leaf, caffeine-free and bright.</p>",
+      "attributes": [
+        {
+          "key": "Type",
+          "value": "Herbal"
+        },
+        {
+          "key": "Origin",
+          "value": "Germany"
+        },
+        {
+          "key": "Net weight",
+          "value": "ca. 250"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 157,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "GRD-001",
+      "slug": "kontor-grind-one",
+      "name": "Kontor Grind One",
+      "categoryKey": "grinders",
+      "priceMinor": 34900,
+      "descriptionHtml": "<p>A flat-burr shop grinder for a busy counter. Stepless adjustment, quiet motor.</p>",
+      "attributes": [
+        {
+          "key": "Burr",
+          "value": "64 mm flat"
+        },
+        {
+          "key": "Adjustment",
+          "value": "Stepless"
+        },
+        {
+          "key": "Hopper",
+          "value": "1.2 kg"
+        }
+      ],
+      "imageCount": 3,
+      "stockPieces": 158
+    },
+    {
+      "sourceId": "GRD-002",
+      "slug": "kontor-hand-grinder",
+      "name": "Kontor Hand Grinder",
+      "categoryKey": "grinders",
+      "priceMinor": 8900,
+      "descriptionHtml": "<p>A precise hand grinder for filter brewing on the go.</p>",
+      "attributes": [
+        {
+          "key": "Burr",
+          "value": "38 mm conical"
+        },
+        {
+          "key": "Body",
+          "value": "Anodised aluminium"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 159
+    },
+    {
+      "sourceId": "MCH-001",
+      "slug": "hafen-dual-boiler",
+      "name": "Hafen Dual Boiler",
+      "categoryKey": "machines",
+      "priceMinor": 189000,
+      "descriptionHtml": "<p>A dual-boiler espresso machine for simultaneous brewing and steaming, PID controlled.</p>",
+      "attributes": [
+        {
+          "key": "Boilers",
+          "value": "Dual"
+        },
+        {
+          "key": "Control",
+          "value": "PID"
+        },
+        {
+          "key": "Portafilter",
+          "value": "58 mm"
+        }
+      ],
+      "imageCount": 0,
+      "stockPieces": 160
+    },
+    {
+      "sourceId": "ACC-001",
+      "slug": "tamper-58",
+      "name": "Precision Tamper 58 mm",
+      "categoryKey": "accessories",
+      "priceMinor": 4500,
+      "descriptionHtml": "<p>A weighted 58&nbsp;mm stainless tamper with a walnut handle.</p>",
+      "attributes": [
+        {
+          "key": "Diameter",
+          "value": "58 mm"
+        },
+        {
+          "key": "Material",
+          "value": "Stainless / walnut"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 161
+    },
+    {
+      "sourceId": "ACC-002",
+      "slug": "milk-pitcher-05",
+      "name": "Milk Pitcher 0.5 L",
+      "categoryKey": "accessories",
+      "priceMinor": 2900,
+      "descriptionHtml": "<p>A 0.5&nbsp;litre stainless steaming pitcher with a sharp spout for latte art.</p>",
+      "attributes": [
+        {
+          "key": "Capacity",
+          "value": "0.5 L"
+        },
+        {
+          "key": "Material",
+          "value": "Stainless steel"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 4
+    },
+    {
+      "sourceId": "CUP-001",
+      "slug": "cappuccino-cup-set",
+      "name": "Cappuccino Cup Set (6)",
+      "categoryKey": "cups",
+      "priceMinor": 5400,
+      "descriptionHtml": "<p>A set of six 190&nbsp;ml porcelain cappuccino cups and saucers.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "190"
+        },
+        {
+          "key": "Pieces",
+          "value": "6 cups + saucers"
+        }
+      ],
+      "imageCount": 1,
+      "lineNoteEnabled": true,
+      "lineNotePrompt": "Which glazes, and how many of each?",
+      "variants": [
+        {
+          "name": "Sand",
+          "glaze": "#d8c3a0",
+          "pictures": 2
+        },
+        {
+          "name": "Slate",
+          "glaze": "#5b6670",
+          "pictures": 1
+        },
+        {
+          "name": "Speckled off-white",
+          "glaze": "#efe9df",
+          "pictures": 1
+        },
+        {
+          "name": "Terracotta",
+          "glaze": "#b5623f",
+          "pictures": 1,
+          "unavailable": true
+        }
+      ],
+      "stockPieces": 163
+    },
+    {
+      "sourceId": "CUP-002",
+      "slug": "latte-glass-set",
+      "name": "Latte Glass Set (6)",
+      "categoryKey": "cups",
+      "priceMinor": 4200,
+      "descriptionHtml": "<p>Six double-walled 300&nbsp;ml latte glasses.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "300"
+        },
+        {
+          "key": "Pieces",
+          "value": "6 glasses"
+        }
+      ],
+      "imageCount": 2
+    },
+    {
+      "sourceId": "CUP-003",
+      "slug": "takeaway-cup-300",
+      "name": "Takeaway Cup 300 ml (50)",
+      "categoryKey": "cups",
+      "priceMinor": 1350,
+      "descriptionHtml": "<p>Fifty double-walled 300&nbsp;ml takeaway cups, unprinted.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "300"
+        },
+        {
+          "key": "Colour",
+          "value": "White"
+        },
+        {
+          "key": "Pieces",
+          "value": "50 cups"
+        }
+      ],
+      "imageCount": 0,
+      "stockPieces": 240,
+      "featured": true
+    },
+    {
+      "sourceId": "CUP-004",
+      "slug": "takeaway-lid-flat",
+      "name": "Takeaway Lid, Flat (50)",
+      "categoryKey": "cups",
+      "priceMinor": 490,
+      "descriptionHtml": "<p>Fifty flat sip lids for the 300&nbsp;ml takeaway cup.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "300"
+        },
+        {
+          "key": "Pieces",
+          "value": "50 lids"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 166
+    },
+    {
+      "sourceId": "CUP-005",
+      "slug": "takeaway-lid-domed",
+      "name": "Takeaway Lid, Domed (50)",
+      "categoryKey": "cups",
+      "priceMinor": 540,
+      "descriptionHtml": "<p>Fifty domed lids for the 300&nbsp;ml takeaway cup, for topped drinks.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "300"
+        },
+        {
+          "key": "Pieces",
+          "value": "50 lids"
+        }
+      ],
+      "imageCount": 2,
+      "stockPieces": 167
+    },
+    {
+      "sourceId": "CUP-006",
+      "slug": "takeaway-cup-lid-set-400",
+      "name": "Takeaway Cup with Lid 400 ml",
+      "categoryKey": "cups",
+      "priceMinor": 38,
+      "descriptionHtml": "<p>A 400&nbsp;ml double-walled takeaway cup in black with a white sip lid, sold together as one set.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "400"
+        },
+        {
+          "key": "Colour (cup)",
+          "value": "Black"
+        },
+        {
+          "key": "Colour (lid)",
+          "value": "White"
+        },
+        {
+          "key": "Material (cup)",
+          "value": "Paper, PE-lined"
+        },
+        {
+          "key": "Material (lid)",
+          "value": "Polystyrene"
+        }
+      ],
+      "imageCount": 2,
+      "parts": ["cup", "lid"],
+      "packaging": {
+        "piecesPerPack": 50,
+        "packsPerBox": 2,
+        "minPieceQty": 50,
+        "boxVolume": "0.096",
+        "boxWeight": "5.800",
+        "boxCount": 3
+      },
+      "stockPieces": 60,
+      "featured": true
+    },
+    {
+      "sourceId": "FIL-090",
+      "slug": "guji-natural-filter",
+      "name": "Guji Natural Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2390,
+      "descriptionHtml": "<p>Guji Natural Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>blueberry and dark chocolate</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Ethiopia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Light"
+        },
+        {
+          "key": "Process",
+          "value": "Natural"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "blueberry"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 2,
+      "state": "unpublished",
+      "stockPieces": 4,
+      "taxRate": 7
+    },
+    {
+      "sourceId": "FIL-091",
+      "slug": "sumatra-filter",
+      "name": "Sumatra Filter",
+      "categoryKey": "filter",
+      "priceMinor": 2090,
+      "descriptionHtml": "<p>Sumatra Filter is a wholesale specialty lot roasted to order in Hamburg.</p><p>Expect <strong>cedar and dark cocoa</strong> in the cup. Supplied in 1&nbsp;kg bags, whole bean, with a roast date on every bag, and <em>available on standing order</em>.</p>",
+      "attributes": [
+        {
+          "key": "Origin",
+          "value": "Indonesia"
+        },
+        {
+          "key": "Roast level",
+          "value": "Medium"
+        },
+        {
+          "key": "Process",
+          "value": "Wet-hulled"
+        },
+        {
+          "key": "Tasting notes",
+          "value": "cedar and cocoa"
+        },
+        {
+          "key": "Net weight",
+          "value": "1000"
+        }
+      ],
+      "imageCount": 0,
+      "state": "deleted",
+      "stockPieces": 170,
+      "taxRate": 7
+    }
+  ],
+  "pairings": [
+    ["takeaway-cup-300", "takeaway-lid-flat"],
+    ["takeaway-cup-300", "takeaway-lid-domed"]
+  ]
+}
