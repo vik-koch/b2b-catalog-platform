@@ -1076,6 +1076,9 @@ export const adminTextSchema = z
                 'staff-account': z.string(),
                 'cannot-send-link': z.string(),
                 'company-details-incomplete': z.string(),
+                /** `{type}` — a kind of customer the shop does not sell to
+                 * (FR-AUTH-13). */
+                'customer-type-not-accepted': z.string(),
                 /** `{column}` and `{value}` — a cell an uploaded file's column
                  * cannot hold (FR-ADM-12). */
                 'invalid-value': z.string(),

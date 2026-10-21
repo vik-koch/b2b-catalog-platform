@@ -28,6 +28,8 @@ import {
   loadSyncPolicy,
   CUSTOMER_SYNC_POLICY,
   loadCustomerSyncPolicy,
+  ACCEPTED_CUSTOMER_TYPES,
+  loadAcceptedCustomerTypes,
 } from '../config/deployment-config';
 import { AccountInvitations } from '../users/account-invitations';
 
@@ -80,6 +82,10 @@ import { AccountInvitations } from '../users/account-invitations';
     },
     { provide: SYNC_POLICY, useFactory: loadSyncPolicy },
     { provide: CUSTOMER_SYNC_POLICY, useFactory: loadCustomerSyncPolicy },
+    {
+      provide: ACCEPTED_CUSTOMER_TYPES,
+      useFactory: loadAcceptedCustomerTypes,
+    },
   ],
 })
 export class SyncModule {}

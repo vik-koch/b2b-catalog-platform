@@ -598,6 +598,7 @@
         "staff-account": "Diese Zeile verweist auf ein Mitarbeiterkonto. Mitarbeitende sind nie Kunden, und ihre Konten verwaltet weiterhin der Shop.",
         "cannot-send-link": "Ein Link zum Festlegen des Passworts wurde angefordert, aber dieses Konto kann sich nicht anmelden – schalten Sie es im selben Lauf oder vorher ein.",
         "company-details-incomplete": "Ein Unternehmen braucht einen Namen und eine Unternehmenskennung; diese Zeile hat nur eines davon.",
+        "customer-type-not-accepted": "Diese Zeile macht den Kunden zu einer Kundenart, an die dieser Shop nicht verkauft. Prüfen Sie die Kundenart, die das Quellsystem für ihn sendet.",
         "invalid-value": "Die Spalte „{column}“ dieser Zeile enthält „{value}“, und das kann diese Spalte nicht aufnehmen. Die Zeile wird übersprungen, der Rest der Datei nicht."
       },
       "claimWarning": "Im Shop registrierte Konten, die dieser Lauf über ihre E-Mail-Adresse übernimmt: {count}. Ab dann bezeichnet der Quellschlüssel diese Person, und der nächste Lauf kann ihre Preisliste ändern oder sie abschalten. Prüfen Sie zuerst die Zeilen unten.",

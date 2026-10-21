@@ -598,6 +598,7 @@
         "staff-account": "This row points at a staff account. Staff are never customers, and their accounts stay the shop’s to manage.",
         "cannot-send-link": "A set-a-password link was asked for, but this account cannot sign in — switch it on in the same run, or first.",
         "company-details-incomplete": "A company needs both a name and a company ID; this row has one without the other.",
+        "customer-type-not-accepted": "This row makes the customer a kind this shop does not sell to. Check the customer type the source system sends for it.",
         "invalid-value": "The “{column}” column of this row says “{value}”, which is not something that column can hold. The row is skipped; the rest of the file is not."
       },
       "claimWarning": "Accounts registered on the shop that this run will claim, matched on their email address: {count}. From then on the source key names that person, and the next run can change their price list or switch them off. Check the rows below first.",

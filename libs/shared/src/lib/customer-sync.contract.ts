@@ -342,6 +342,8 @@ export const CUSTOMER_SYNC_ROW_ERROR_CODES = [
   'cannot-send-link',
   /** A company needs both a name and a registration id, and this one has one. */
   'company-details-incomplete',
+  /** `{type}` — a kind of customer the shop does not sell to (FR-AUTH-13). */
+  'customer-type-not-accepted',
   /**
    * `{column}` and `{value}` — a cell a file's column cannot hold: a word that
    * is not `enabled` or `disabled`, an address that is not one, a yes/no column

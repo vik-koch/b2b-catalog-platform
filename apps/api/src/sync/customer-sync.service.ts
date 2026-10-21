@@ -16,6 +16,7 @@ import {
   CustomerSyncRowError,
   CustomerSyncSubmission,
   CustomerSyncSubmitResponse,
+  CustomerType,
   SyncCommitResponse,
   SyncFailureReport,
   SyncRun,
@@ -25,7 +26,10 @@ import {
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { customerTiers, passwordTokens, syncRuns, users } from '../db/schema';
-import { CUSTOMER_SYNC_POLICY } from '../config/deployment-config';
+import {
+  ACCEPTED_CUSTOMER_TYPES,
+  CUSTOMER_SYNC_POLICY,
+} from '../config/deployment-config';
 import { SettingsService } from '../settings/settings.service';
 import {
   customersExternallyOwned,
@@ -106,6 +110,8 @@ export class CustomerSyncService {
   constructor(
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     @Inject(CUSTOMER_SYNC_POLICY) private readonly policy: CustomerSyncPolicy,
+    @Inject(ACCEPTED_CUSTOMER_TYPES)
+    private readonly customerTypes: readonly CustomerType[],
     private readonly settings: SettingsService,
     private readonly log: SyncRunLog,
     private readonly invitations: AccountInvitations,
@@ -597,6 +603,7 @@ export class CustomerSyncService {
         hasPassword: row.passwordSetAt !== null,
       })),
       tiers: tierRows,
+      customerTypes: this.customerTypes,
     };
   }
 }

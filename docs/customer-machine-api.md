@@ -306,23 +306,24 @@ and the client that does is the one that read them.
 One bad row never fails the run. It is skipped, listed in `plan.rowErrors`, and
 counted in `summary.errors`; everything else still applies.
 
-| Code                         | `params`             | Meaning                                                            |
-| ---------------------------- | -------------------- | ------------------------------------------------------------------ |
-| `missing-source-id`          | —                    | no key                                                             |
-| `duplicate-source-id`        | —                    | the same key twice in one run                                      |
-| `duplicate-email`            | `email`              | two rows of this run claim one address                             |
-| `email-taken`                | `email`              | another keyed account already has it                               |
-| `account-unclaimed`          | `email`              | an unkeyed account has it — turn on `claimByEmail`                 |
-| `account-unknown`            | `accountId`          | `accountId` names no account here                                  |
-| `account-already-keyed`      | `accountId`          | that account already carries a source key                          |
-| `account-unclaimed-by-id`    | `accountId`, `email` | claimable by id, but `claimById` was off                           |
-| `unknown-tier`               | `key`, `known`       | no price list is keyed that (`known` lists the real ones)          |
-| `cannot-create-account`      | —                    | unknown key asking for access, no address (or `createMissing` off) |
-| `account-withdrawn`          | —                    | the person closed it; permanent                                    |
-| `staff-account`              | (`email`)            | the key or address names an admin/manager                          |
-| `cannot-send-link`           | —                    | a link asked for an account that cannot sign in                    |
-| `company-details-incomplete` | —                    | a company with only one of name/registration id                    |
-| `invalid-value`              | `column`, `value`    | **CSV upload only** — a headless body is schema-refused            |
+| Code                         | `params`             | Meaning                                                                                            |
+| ---------------------------- | -------------------- | -------------------------------------------------------------------------------------------------- |
+| `missing-source-id`          | —                    | no key                                                                                             |
+| `duplicate-source-id`        | —                    | the same key twice in one run                                                                      |
+| `duplicate-email`            | `email`              | two rows of this run claim one address                                                             |
+| `email-taken`                | `email`              | another keyed account already has it                                                               |
+| `account-unclaimed`          | `email`              | an unkeyed account has it — turn on `claimByEmail`                                                 |
+| `account-unknown`            | `accountId`          | `accountId` names no account here                                                                  |
+| `account-already-keyed`      | `accountId`          | that account already carries a source key                                                          |
+| `account-unclaimed-by-id`    | `accountId`, `email` | claimable by id, but `claimById` was off                                                           |
+| `unknown-tier`               | `key`, `known`       | no price list is keyed that (`known` lists the real ones)                                          |
+| `cannot-create-account`      | —                    | unknown key asking for access, no address (or `createMissing` off)                                 |
+| `account-withdrawn`          | —                    | the person closed it; permanent                                                                    |
+| `staff-account`              | (`email`)            | the key or address names an admin/manager                                                          |
+| `cannot-send-link`           | —                    | a link asked for an account that cannot sign in                                                    |
+| `company-details-incomplete` | —                    | a company with only one of name/registration id                                                    |
+| `customer-type-not-accepted` | `type`               | a kind the shop does not sell to (`customerTypes`, FR-AUTH-13); a stated `null` counts as `person` |
+| `invalid-value`              | `column`, `value`    | **CSV upload only** — a headless body is schema-refused                                            |
 
 Note the asymmetry deliberately: a malformed _field_ in a headless submission
 refuses the **whole request** (400), because a converter should be fixed, not
