@@ -1,0 +1,249 @@
+{
+  "currency": "EUR",
+  "taxBasis": "added",
+  "defaultTaxRate": 23,
+  "pickupPoints": {
+    "enniscorthy": {
+      "name": "Enniscorthy Trade Counter",
+      "address": "Unit 7, Slaneyside Business Park, Enniscorthy, Y21 W8K4"
+    },
+    "dublin": {
+      "name": "Dublin Collection Point",
+      "address": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5"
+    }
+  },
+  "orders": [
+    {
+      "reference": "SL-260811-4207",
+      "placedOn": "2026-08-11",
+      "email": "purchasing@brennan-biologics.example",
+      "status": "ready",
+      "paymentMethod": "bank-transfer",
+      "paymentState": "awaiting",
+      "contactName": "Siobhán Brennan",
+      "contactEmail": "purchasing@brennan-biologics.example",
+      "contactPhone": "+353214560101",
+      "partyName": "Brennan Biologics Ltd",
+      "partyRegistrationId": "IE6388047V",
+      "billing": {
+        "street": "Unit 4, Lee Valley Business Park",
+        "postalCode": "T12 K7P2",
+        "city": "Cork",
+        "country": "IE"
+      },
+      "delivery": {
+        "street": "Unit 9, Lee Valley Business Park",
+        "street2": "Rear loading door",
+        "postalCode": "T12 K7P9",
+        "city": "Cork",
+        "country": "IE",
+        "zoneKey": "rest",
+        "freeFromMinor": 30000
+      },
+      "customerNote": "Goods in closes at 3 pm — please deliver before then.",
+      "lines": [
+        {
+          "sourceId": "TIP-200",
+          "unit": "box",
+          "pieces": 960
+        },
+        {
+          "sourceId": "CON-015",
+          "unit": "pack",
+          "pieces": 500
+        },
+        {
+          "sourceId": "GLV-M",
+          "unit": "pack",
+          "pieces": 10
+        }
+      ]
+    },
+    {
+      "reference": "SL-260817-1183",
+      "placedOn": "2026-08-17",
+      "email": "procurement@ardcairn-pharma.example",
+      "status": "requested",
+      "paymentMethod": "bank-transfer",
+      "contactName": "Declan Nolan",
+      "contactEmail": "procurement@ardcairn-pharma.example",
+      "contactPhone": "+353599130102",
+      "partyName": "Ardcairn Pharma Services Ltd",
+      "partyRegistrationId": "612845",
+      "billing": {
+        "street": "Ardcairn House, Tullow Road",
+        "postalCode": "R93 E6W1",
+        "city": "Carlow",
+        "country": "IE"
+      },
+      "pickupKey": "enniscorthy",
+      "preferredDate": "2026-08-21",
+      "lines": [
+        {
+          "sourceId": "CON-016",
+          "unit": "pack",
+          "pieces": 300,
+          "note": "100 green, 100 blue and 100 orange, please."
+        },
+        {
+          "sourceId": "PET-090",
+          "unit": "pack",
+          "pieces": 200
+        }
+      ]
+    },
+    {
+      "reference": "SL-260820-6640",
+      "placedOn": "2026-08-20",
+      "email": "stores@barrowside-university.example",
+      "status": "completed",
+      "paymentMethod": "card-later",
+      "paymentState": "paid",
+      "contactName": "Eoin Byrne",
+      "contactEmail": "stores@barrowside-university.example",
+      "contactPhone": "+353599170106",
+      "partyName": "Barrowside University",
+      "partyRegistrationId": "IE8042117C",
+      "billing": {
+        "street": "School of Biochemistry, Kilkenny Road",
+        "postalCode": "R93 X2F4",
+        "city": "Carlow",
+        "country": "IE"
+      },
+      "delivery": {
+        "street": "School of Biochemistry, Kilkenny Road",
+        "postalCode": "R93 X2F4",
+        "city": "Carlow",
+        "country": "IE",
+        "zoneKey": "south-east",
+        "freeFromMinor": 15000
+      },
+      "lines": [
+        {
+          "sourceId": "PIP-001",
+          "unit": "piece",
+          "pieces": 2
+        },
+        {
+          "sourceId": "TIP-200",
+          "unit": "pack",
+          "pieces": 192
+        }
+      ]
+    },
+    {
+      "reference": "SL-260823-9014",
+      "placedOn": "2026-08-23",
+      "email": null,
+      "status": "cancelled",
+      "paymentMethod": "bank-transfer",
+      "statusReason": "Rang the same afternoon — their usual supplier came through after all.",
+      "contactName": "Ciarán Hurley",
+      "contactEmail": "c.hurley@inchydoney-seafoods.example",
+      "contactPhone": "+353233390201",
+      "partyName": "Inchydoney Seafoods Ltd",
+      "partyRegistrationId": "IE5927716T",
+      "billing": {
+        "street": "The Pier",
+        "postalCode": "P85 YH20",
+        "city": "Clonakilty",
+        "country": "IE"
+      },
+      "delivery": {
+        "street": "The Pier",
+        "postalCode": "P85 YH20",
+        "city": "Clonakilty",
+        "country": "IE",
+        "zoneKey": "rest",
+        "freeFromMinor": 30000
+      },
+      "customerNote": "Needed for Monday's swab round if at all possible.",
+      "lines": [
+        {
+          "sourceId": "PET-090",
+          "unit": "box",
+          "pieces": 500
+        }
+      ]
+    },
+    {
+      "reference": "SL-260901-5528",
+      "placedOn": "2026-09-01",
+      "email": null,
+      "status": "approved",
+      "paymentMethod": "cash",
+      "contactName": "Maeve Lynch",
+      "contactEmail": "m.lynch@liffey-testing.example",
+      "contactPhone": "+35314520204",
+      "partyName": "Liffeyside Testing Services Ltd",
+      "partyRegistrationId": "IE6104389L",
+      "billing": {
+        "street": "41 Bluebell Avenue",
+        "postalCode": "D12 T9C4",
+        "city": "Dublin 12",
+        "country": "IE"
+      },
+      "pickupKey": "dublin",
+      "customerNote": "Collecting on Thursday morning on the way to a site visit.",
+      "lines": [
+        {
+          "sourceId": "FLA-500",
+          "unit": "piece",
+          "pieces": 6
+        },
+        {
+          "sourceId": "CYL-100",
+          "unit": "piece",
+          "pieces": 6
+        }
+      ],
+      "adjustment": {
+        "note": "Only four of the class A flasks in stock — agreed on the phone to take those and the cylinders as ordered.",
+        "on": "2026-09-02",
+        "lines": [
+          {
+            "sourceId": "FLA-500",
+            "unit": "piece",
+            "pieces": 4
+          },
+          {
+            "sourceId": "CYL-100",
+            "unit": "piece",
+            "pieces": 6
+          }
+        ]
+      }
+    },
+    {
+      "reference": "SL-260826-3352",
+      "placedOn": "2026-08-26",
+      "email": "aoife@kinsella-microbiology.example",
+      "status": "requested",
+      "paymentMethod": "bank-transfer",
+      "contactName": "Aoife Kinsella",
+      "contactEmail": "aoife@kinsella-microbiology.example",
+      "contactPhone": "+353871170112",
+      "partyName": "Moyne Water Services Ltd",
+      "partyRegistrationId": "645120",
+      "billing": {
+        "street": "Moyne Treatment Works, Ballycarney",
+        "postalCode": "Y21 C4R7",
+        "city": "Enniscorthy",
+        "country": "IE"
+      },
+      "pickupKey": "enniscorthy",
+      "lines": [
+        {
+          "sourceId": "CON-050",
+          "unit": "box",
+          "pieces": 500
+        },
+        {
+          "sourceId": "SLD-001",
+          "unit": "pack",
+          "pieces": 100
+        }
+      ]
+    }
+  ]
+}

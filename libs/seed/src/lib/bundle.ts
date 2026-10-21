@@ -133,9 +133,23 @@ const product = z.strictObject({
   state: z.enum(['unpublished', 'deleted']).optional(),
 });
 
+/**
+ * How the seed draws what has no photo. Absent: the Coffee Kontor's own
+ * drawings — a bean, glazed cups, warm discs under the marks. Present: the
+ * product's category icon (`icon` where it has none) on the bundle's hue, a
+ * variant's in its colour, and the mark discs in the same hue.
+ */
+const drawn = z.strictObject({
+  hue: z.number().min(0).max(360),
+  icon: z.string().regex(/^[a-z0-9-]+$/, 'an icon file name, without .svg'),
+  /** The mark disc's share of the chip's square. Absent: three quarters. */
+  markSize: z.number().gt(0).max(1).optional(),
+});
+
 const catalog = z.strictObject({
   /** Parents before their children; the order is the sort order. */
   categories: z.array(category),
+  drawn: drawn.optional(),
   attributes: z.array(attributeDefinition),
   /** The catalogue index's filter panel, by attribute slug, in order. */
   catalogFilters: z.array(z.string()),
@@ -159,6 +173,9 @@ const tier = z.strictObject({
   /** What the tier takes off the default price, by category key. A category
    * without an entry is priced from the default list. */
   discounts: z.record(z.string(), z.number().min(0).max(1)),
+  /** What a discounted price is rounded down to, in minor units. Absent:
+   * whole ten cents; a catalogue priced in cents per piece wants 1. */
+  roundToMinor: z.number().int().positive().optional(),
 });
 
 const account = z.strictObject({
@@ -281,6 +298,7 @@ const pages = z.strictObject({
 });
 
 export type ProductSeed = z.infer<typeof product>;
+export type DrawnSeed = z.infer<typeof drawn>;
 export type PictureSeed = z.infer<typeof picture>;
 export type OrderSeed = z.infer<typeof order>;
 export type OrderLineSeed = z.infer<typeof orderLine>;
@@ -327,9 +345,12 @@ export function loadSeedBundle(dir: string): SeedBundle {
       ).replace(/\n$/, ''),
     })),
     marks: Object.fromEntries(
-      catalogSeed.categories
-        .flatMap((category) => (category.mark ? [category.mark] : []))
-        .map((name) => [name, iconOf(join(dir, 'marks', `${name}.svg`))]),
+      [
+        ...catalogSeed.categories.flatMap((category) =>
+          category.mark ? [category.mark] : [],
+        ),
+        ...(catalogSeed.drawn ? [catalogSeed.drawn.icon] : []),
+      ].map((name) => [name, iconOf(join(dir, 'marks', `${name}.svg`))]),
     ),
   };
 }

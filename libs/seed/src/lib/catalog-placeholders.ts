@@ -6,7 +6,8 @@ import { CatalogImage, MEDIA_URL_PREFIX } from '@b2b-catalog-platform/shared';
 
 /**
  * Demo placeholder images. Real product photography comes from the client;
- * until then the seed renders a simple coffee-bean motif on a warm gradient,
+ * until then the seed renders a simple coffee-bean motif on a warm gradient —
+ * or, for a bundle that names its own (`catalog.drawn`), its icons on its hue —
  * deterministically per seed string, so a re-seed produces byte-identical files
  * (same content hash → no duplicates). SVG is authored here but rasterised to
  * WebP with sharp, because the media store only accepts raster formats.
@@ -69,16 +70,55 @@ export async function storeImage(
   return `${MEDIA_URL_PREFIX}/${filename}`;
 }
 
+/**
+ * A bundle's own way of drawing (`catalog.drawn`): its hue, and the icon a
+ * picture shows — the drawing inside a 24-unit stroked icon's `<svg>`.
+ */
+export interface DrawnArt {
+  hue: number;
+  icon: string;
+}
+
+/** `icon` stroked in `ink`, `size` units square, centred on `cx`/`cy`. */
+function iconAt(
+  icon: string,
+  cx: number,
+  cy: number,
+  size: number,
+  ink: string,
+  width = 2,
+): string {
+  return `<g transform="translate(${cx - size / 2} ${cy - size / 2}) scale(${size / 24})" fill="none" stroke="${ink}" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round">${icon.replaceAll('currentColor', ink)}</g>`;
+}
+
+/** The icon, faint, on a gradient around the bundle's hue. */
+function drawnSvg(art: DrawnArt, seed: string, px: number): string {
+  const hue = art.hue - 12 + (hash(seed) % 24);
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="hsl(${hue}, 45%, 62%)"/>
+      <stop offset="1" stop-color="hsl(${hue}, 50%, 36%)"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="100" fill="url(#g)"/>
+  ${iconAt(art.icon, 50, 50, 44, 'rgba(255,255,255,0.35)', 1.5)}
+</svg>`;
+}
+
 /** A full + thumb pair for one product image. */
 export async function generateProductImage(
   mediaRoot: string,
   seed: string,
+  art?: DrawnArt,
 ): Promise<CatalogImage> {
   // Same seed for both — the thumb is a smaller copy of the full image, not a
   // different motif (hue and tilt derive from the seed).
+  const draw = (px: number) =>
+    art ? drawnSvg(art, seed, px) : placeholderSvg(seed, px);
   const [full, thumb] = await Promise.all([
-    store(mediaRoot, placeholderSvg(seed, FULL_PX)),
-    store(mediaRoot, placeholderSvg(seed, THUMB_PX)),
+    store(mediaRoot, draw(FULL_PX)),
+    store(mediaRoot, draw(THUMB_PX)),
   ]);
   return { full, thumb };
 }
@@ -123,18 +163,51 @@ function glazeSvg(glazes: readonly string[], seed: string, px: number): string {
 </svg>`;
 }
 
+/** The bundle's counterpart to the cups: a swatch in each colour carrying
+ * the icon, laid out as the cups are. */
+function swatchSvg(
+  art: DrawnArt,
+  colours: readonly string[],
+  px: number,
+): string {
+  const ink = `hsl(${art.hue}, 40%, 24%)`;
+  const swatch = (colour: string, x: number, y: number, r: number) =>
+    `<circle cx="${x}" cy="${y}" r="${r}" fill="${colour}" stroke="rgba(0,0,0,0.12)" stroke-width="0.8"/>${iconAt(art.icon, x, y, r, ink, 1.8)}`;
+  const rows = Math.ceil(colours.length / 2);
+  const swatches =
+    colours.length === 1
+      ? swatch(colours[0], 50, 48, 30)
+      : colours
+          .map((colour, i) => {
+            const row = Math.floor(i / 2);
+            const inRow = Math.min(2, colours.length - row * 2);
+            const x = inRow === 1 ? 50 : i % 2 === 0 ? 30 : 70;
+            const y = rows === 1 ? 48 : 50 - ((rows - 1) * 26) / 2 + row * 26;
+            return swatch(colour, x, y, 11);
+          })
+          .join('');
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100">
+  <rect width="100" height="100" fill="hsl(${art.hue}, 30%, 94%)"/>
+  ${swatches}
+</svg>`;
+}
+
 /**
  * A picture of glazed cups as a full + thumb pair: one glaze is a variant's
  * picture (FR-CAT-11), several side by side the picture of the whole range.
+ * With the bundle's own art, swatches in the variants' colours instead.
  */
 export async function generateGlazeImage(
   mediaRoot: string,
   seed: string,
   glazes: readonly string[],
+  art?: DrawnArt,
 ): Promise<CatalogImage> {
+  const draw = (px: number) =>
+    art ? swatchSvg(art, glazes, px) : glazeSvg(glazes, seed, px);
   const [full, thumb] = await Promise.all([
-    store(mediaRoot, glazeSvg(glazes, seed, FULL_PX)),
-    store(mediaRoot, glazeSvg(glazes, seed, THUMB_PX)),
+    store(mediaRoot, draw(FULL_PX)),
+    store(mediaRoot, draw(THUMB_PX)),
   ]);
   return { full, thumb };
 }
@@ -143,19 +216,29 @@ export async function generateGlazeImage(
  * Category marks (FR-CAT-07): the bundle's icon on a tinted disc, with nothing
  * behind it — the mark sits on whatever surface draws the category, so the file
  * has to carry no background of its own. The chip draws the file edge to edge,
- * so the margin is in the file: the disc takes three quarters of the square,
- * centred, and the icon half of the disc. The tint varies by category, the
- * icon is what tells them apart.
+ * so the margin is in the file: the disc takes three quarters of the square
+ * (or the bundle's `markSize`), centred, and the icon half of the disc. The
+ * tint varies by category, the icon is what tells them apart.
  */
 const MARK_FULL_PX = 1000;
 const MARK_THUMB_PX = 300;
 
-/** `icon` is a 24-unit stroked icon's drawing, as the bundle's marks are. */
-function markSvg(sourceId: string, icon: string, px: number): string {
-  const hue = 16 + (hash(sourceId) % 30);
+/** `icon` is a 24-unit stroked icon's drawing, as the bundle's marks are.
+ * `baseHue` is the bundle's own; absent, the warm browns. */
+function markSvg(
+  sourceId: string,
+  icon: string,
+  px: number,
+  baseHue?: number,
+  size = 0.75,
+): string {
+  const hue =
+    baseHue === undefined
+      ? 16 + (hash(sourceId) % 30)
+      : baseHue - 15 + (hash(sourceId) % 30);
   const ink = `hsl(${hue}, 42%, 30%)`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 100 100">
-  <g transform="translate(12.5 12.5) scale(0.75)">
+  <g transform="translate(${50 - size * 50} ${50 - size * 50}) scale(${size})">
     <circle cx="50" cy="50" r="50" fill="hsl(${hue}, 40%, 80%)"/>
     <g transform="translate(25 25) scale(${50 / 24})" fill="none" stroke="${ink}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.replaceAll('currentColor', ink)}</g>
   </g>
@@ -169,10 +252,12 @@ export async function generateCategoryMark(
   mediaRoot: string,
   sourceId: string,
   icon: string,
+  baseHue?: number,
+  size?: number,
 ): Promise<CatalogImage> {
   const [full, thumb] = await Promise.all([
-    store(mediaRoot, markSvg(sourceId, icon, MARK_FULL_PX)),
-    store(mediaRoot, markSvg(sourceId, icon, MARK_THUMB_PX)),
+    store(mediaRoot, markSvg(sourceId, icon, MARK_FULL_PX, baseHue, size)),
+    store(mediaRoot, markSvg(sourceId, icon, MARK_THUMB_PX, baseHue, size)),
   ]);
   return { full, thumb };
 }
