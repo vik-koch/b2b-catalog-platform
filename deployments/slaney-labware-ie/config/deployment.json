@@ -1,0 +1,194 @@
+{
+  "locale": "en-IE",
+  "branding": {
+    "name": "Slaney Labware",
+    "tagline": "Laboratory consumables",
+    "startYear": 2014,
+    "logo": {
+      "width": 221,
+      "height": 40
+    },
+    "theme": {
+      "primary": "#1f5f9e",
+      "primaryDeep": "#17497a",
+      "secondary": "#4a86c5",
+      "accent": "#0e7c86",
+      "surface": "#f8fafc",
+      "ink": "#0f172a",
+      "muted": "#475569",
+      "subtle": "#64748b",
+      "border": "#e2e8f0",
+      "borderStrong": "#cbd5e1",
+      "neutrals": {
+        "50": "#f8fafc",
+        "100": "#f1f5f9",
+        "125": "#ebf0f5",
+        "200": "#e2e8f0",
+        "300": "#cbd5e1",
+        "400": "#94a3b8",
+        "500": "#64748b",
+        "600": "#475569",
+        "700": "#334155",
+        "800": "#1e293b",
+        "900": "#0f172a",
+        "950": "#020617"
+      }
+    },
+    "font": {
+      "family": "'IBM Plex Sans', system-ui, sans-serif",
+      "stylesheet": "fonts/fonts.css",
+      "emphasisWeight": 600,
+      "pdf": {
+        "regular": "fonts/IBMPlexSans-Regular.ttf",
+        "bold": "fonts/IBMPlexSans-Bold.ttf"
+      }
+    }
+  },
+  "pages": {
+    "published": [
+      "about",
+      "contact",
+      "conditions",
+      "terms",
+      "privacy",
+      "imprint"
+    ],
+    "headerNav": ["conditions", "contact"],
+    "footerNav": ["about", "terms", "privacy", "imprint", "licenses"]
+  },
+  "consent": {
+    "contact": false,
+    "account": false
+  },
+  "seller": {
+    "name": "Slaney Labware Ltd",
+    "registration": ["Company number 000000", "VAT IE0000000X"]
+  },
+  "tax": {
+    "basis": "added",
+    "rate": 23,
+    "statedAtPrices": true
+  },
+  "cookieConsentEnabled": true,
+  "billingAddressEnabled": true,
+  "catalog": {
+    "currency": {
+      "code": "EUR"
+    },
+    "boxUnits": {
+      "volume": "m³",
+      "weight": "kg"
+    },
+    "lowStockThresholdPieces": 10,
+    "pairingsEnforced": false,
+    "sortControlsEnabled": true
+  },
+  "search": {},
+  "locations": [
+    {
+      "name": "Enniscorthy Warehouse & Trade Counter",
+      "description": "Unit 7, Slaneyside Business Park, Enniscorthy, Co. Wexford, Y21 W8K4",
+      "map": {
+        "url": "https://www.openstreetmap.org/export/embed.html?bbox=-6.5725%2C52.4955%2C-6.5595%2C52.5015&layer=mapnik&marker=52.4985%2C-6.5660",
+        "consentRequired": true
+      }
+    },
+    {
+      "name": "Dublin Collection Point",
+      "description": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5",
+      "map": {
+        "url": "https://www.openstreetmap.org/export/embed.html?bbox=-6.3705%2C53.2990%2C-6.3575%2C53.3050&layer=mapnik&marker=53.3020%2C-6.3640",
+        "consentRequired": true
+      }
+    }
+  ],
+  "mapProvider": "OpenStreetMap",
+  "pickup": {
+    "locations": [
+      {
+        "key": "enniscorthy",
+        "name": "Enniscorthy Trade Counter",
+        "address": "Unit 7, Slaneyside Business Park, Enniscorthy, Y21 W8K4",
+        "description": "Weekdays 8:30–17:00, at the trade counter beside goods in.",
+        "mapUrl": "https://www.openstreetmap.org/?mlat=52.4985&mlon=-6.5660#map=17/52.4985/-6.5660"
+      },
+      {
+        "key": "dublin",
+        "name": "Dublin Collection Point",
+        "address": "Unit 22, Belgard Trade Park, Dublin 24, D24 R6X5",
+        "description": "Tuesdays and Thursdays 9:00–13:00; orders placed by noon the day before.",
+        "mapUrl": "https://www.openstreetmap.org/?mlat=53.3020&mlon=-6.3640#map=17/53.3020/-6.3640"
+      }
+    ]
+  },
+  "contact": {
+    "phone": "+353 53 923 4000",
+    "email": "sales@slaney-labware.example"
+  },
+  "phoneInput": {
+    "countryCode": "+353"
+  },
+  "orderReference": {
+    "prefix": "SL",
+    "timezone": "Europe/Dublin"
+  },
+  "delivery": {
+    "zones": [
+      {
+        "key": "south-east",
+        "title": "South-east",
+        "description": "Delivered by our own van, usually the next working day.",
+        "freeFromMinor": 15000,
+        "match": {
+          "postalPrefixes": [
+            "Y21",
+            "Y25",
+            "Y34",
+            "Y35",
+            "R93",
+            "R95",
+            "X91",
+            "R21"
+          ]
+        }
+      },
+      {
+        "key": "rest",
+        "title": "Rest of Ireland",
+        "description": "By courier, one to two working days.",
+        "freeFromMinor": 30000,
+        "match": {
+          "all": true
+        }
+      }
+    ]
+  },
+  "address": {
+    "countries": [
+      {
+        "code": "IE",
+        "label": "Ireland",
+        "postalCode": {
+          "pattern": "^(?:[AC-FHKNPRTV-Y][0-9]{2}|D6W)[0-9AC-FHKNPRTV-Y]{4}$",
+          "example": "Y21 F4E2"
+        }
+      }
+    ]
+  },
+  "companyIdInput": {
+    "formats": [
+      {
+        "key": "vat",
+        "label": "VAT number",
+        "pattern": "^IE(?:[0-9]{7}[A-W][A-IW]?|[0-9][A-Z+*][0-9]{5}[A-W])$",
+        "example": "IE1234567T"
+      },
+      {
+        "key": "cro",
+        "label": "Company number",
+        "pattern": "^[0-9]{5,6}$",
+        "example": "123456"
+      }
+    ]
+  }
+}

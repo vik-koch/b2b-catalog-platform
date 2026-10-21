@@ -7,12 +7,14 @@ deployed with `CONFIG_DIR` and `SEED_DIR` (see
 [seed/](../seed/) are not one of them: they are the test fixture, in English,
 and the suites assert its wording.
 
-| Directory          | Stack | Shop                                |
-| ------------------ | ----- | ----------------------------------- |
-| `coffee-kontor-de` | dev   | the Coffee Kontor, wholly in German |
+| Directory           | Stack             | Shop                                                   |
+| ------------------- | ----------------- | ------------------------------------------------------ |
+| `coffee-kontor-de`  | dev               | the Coffee Kontor, wholly in German                    |
+| `slaney-labware-ie` | none yet (→ prod) | Slaney Labware, an Irish laboratory supplier, B2B only |
 
-A deployment starts as a copy of the fixture and is then translated, so its
-files carry the same keys. A change that adds, renames or moves a key in the
+A deployment's config starts as a copy of the fixture's and is then
+translated or reworded for its trade, so its files carry the same keys. Its seed
+bundle is either a translated copy of the fixture's or a shop of its own. A change that adds, renames or moves a key in the
 fixture makes the same change here, wording translated — by hand, or with
 [`tools/migrate-config.mjs`](../config/README.md#when-a-release-moves-config-keys-or-files)
 once the change has its map. CI runs

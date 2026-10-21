@@ -1,0 +1,1574 @@
+{
+  "actions": {
+    "save": "Save",
+    "preview": "Preview",
+    "resumeEditing": "Back to editing",
+    "edit": "Edit",
+    "delete": "Delete",
+    "restore": "Restore",
+    "reorder": "Drag to reorder"
+  },
+  "discard": {
+    "heading": "Discard changes?",
+    "confirm": "Discard changes",
+    "cancel": "Keep editing"
+  },
+  "upload": {
+    "progress": "Uploading…",
+    "error": "That image could not be uploaded. Use a PNG, JPEG, WebP or GIF under 5 MB.",
+    "pasteHint": "or paste a copied file with {keys}",
+    "tileHint": "Drop a picture on the tile, or paste a copied one with {keys}."
+  },
+  "grid": {
+    "clearFilters": "Clear filters",
+    "resizeColumn": "Drag to resize. Double-click to fit the columns to their content.",
+    "resizeColumnOfAria": "Resize {column}",
+    "resetWidths": "Reset column widths",
+    "filters": "Filters",
+    "sort": "Sort",
+    "sortDefault": "Default order",
+    "sortAscending": "{column}, ascending",
+    "sortDescending": "{column}, descending"
+  },
+  "countSuffix": "({count})",
+  "actorGone": "a deleted account",
+  "catalogErrors": {
+    "product-not-found": "This product no longer exists. Reload the page to see the current catalogue.",
+    "category-not-found": "That category no longer exists. Reload the page to see the current categories.",
+    "reassign-target-not-found": "The category you picked to move the products into no longer exists.",
+    "category-has-subcategories": "This category still has subcategories. Delete or move those first.",
+    "category-has-products": "This category still has products. Pick a category to move them into.",
+    "category-reassign-to-self": "The products cannot be moved into the category being deleted.",
+    "category-cycle": "A category cannot be moved inside one of its own subcategories.",
+    "slug-taken": "That web address is already used by something else. Please pick another.",
+    "source-id-taken": "That catalogue ID is already used by another product or category.",
+    "tier-not-found": "One of the price lists on this product no longer exists. Reload the page and set its prices again.",
+    "paired-product-not-found": "One of the products this one is sold with no longer exists. Reload the page and pick the products again.",
+    "document-not-found": "One of the documents on this product no longer exists. Reload the page and pick the documents again.",
+    "pairing-self": "A product cannot be sold together with itself.",
+    "slug-or-source-id-taken": "Somebody else saved a conflicting web address or catalogue ID just now. Please try again.",
+    "product-has-no-price": "This product has no price in the price list the storefront shows, so it cannot be published. Give it a price first.",
+    "product-published": "This product is on the storefront. Unpublish it first, then delete it.",
+    "product-deleted": "This product is deleted. Restore it first, then publish it.",
+    "product-not-deleted": "Only a deleted product can be deleted permanently. Delete it first.",
+    "product-ordered": "This product is on an order, so it cannot be deleted permanently. It stays deleted instead."
+  },
+  "fields": {
+    "name": {
+      "required": "A name is required."
+    },
+    "firstName": {
+      "required": "A first name is required."
+    },
+    "lastName": {
+      "required": "A last name is required."
+    },
+    "email": {
+      "required": "An email address is required.",
+      "invalid": "This email address is not valid."
+    },
+    "phone": {
+      "required": "A phone number is required.",
+      "incomplete": "This phone number is incomplete."
+    },
+    "companyName": {
+      "required": "A company name is required."
+    },
+    "companyId": {
+      "required": "A company ID is required.",
+      "format": "This company ID matches none of the expected formats, e.g. {examples}."
+    }
+  },
+  "imageFramer": {
+    "heading": "Frame the picture",
+    "hint": "Drag the picture to move it. Zoom out for a wider white border, or in to crop.",
+    "stageAria": "Picture position: arrow keys move it, plus and minus zoom",
+    "zoom": "Zoom",
+    "centre": "Fit and centre",
+    "fill": "Fill and centre",
+    "asIs": "Upload as is",
+    "apply": "Apply frame"
+  },
+  "panel": {
+    "catalog": "Catalog",
+    "registries": "Filters and pricing",
+    "pages": "Content pages",
+    "version": "Version {version}",
+    "versionUnknown": "Version unknown",
+    "deployedAt": "deployed {date}",
+    "accounts": "Accounts",
+    "orders": "Orders",
+    "workRegistrations": "{count} awaiting approval",
+    "workOrders": "{count} awaiting your answer",
+    "workUnpaid": "{count} finished, not paid",
+    "workProducts": "{count} awaiting publication",
+    "workUnpricedProducts": "{count} without a price",
+    "workDocuments": "{count} expiring soon",
+    "workDocumentsExpired": "{count} expired",
+    "workSyncRuns": "{count} awaiting review",
+    "operations": "Operations",
+    "maintenanceOn": "Maintenance on",
+    "fullyOwned": "Shop externally owned",
+    "catalogOwned": "Catalog externally owned",
+    "customersOwned": "Customers externally owned",
+    "ordersOwned": "Orders externally owned"
+  },
+  "editMode": {
+    "enable": "Edit mode",
+    "disable": "Editing on",
+    "editProduct": "Edit product",
+    "showInList": "Show in product list",
+    "addProduct": "Add product",
+    "deleteProduct": "Delete product",
+    "purgeProduct": "Delete permanently",
+    "editCategory": "Edit category",
+    "editCategories": "Edit categories",
+    "editFilters": "Edit filters",
+    "hiddenHeading": "Not on the storefront",
+    "hiddenHint": "These products are in this category but customers cannot see them.",
+    "unpricedHint": "Give this product a price before publishing it.",
+    "unpricedTitle": "This product has no price",
+    "publishProduct": "Publish",
+    "unpublishProduct": "Unpublish",
+    "unpublishStranded": "It is the last product on sale that these are paired with, so they will be on sale with no counterpart: {names}.",
+    "revealError": "Could not publish this product. Please try again.",
+    "unpublishConfirm": {
+      "heading": "Unpublish",
+      "message": "Take “{name}” off the storefront? Customers will no longer see it; you can publish it again at any time.",
+      "confirm": "Unpublish"
+    },
+    "purgeConfirm": {
+      "heading": "Delete permanently",
+      "message": "Delete “{name}” permanently? Its prices, attributes, pairings and document links are removed with it. This cannot be undone.",
+      "confirm": "Delete permanently"
+    }
+  },
+  "pages": {
+    "edit": "Edit page",
+    "newTitle": "Add page content",
+    "editTitle": "Edit page",
+    "emptyNotice": "This page has no content yet.",
+    "pageTitle": "Page title",
+    "previewNotice": "Preview — this is how the page will look once saved.",
+    "discardConfirm": "Discard your unsaved changes to this page?",
+    "titleRequired": "A page title is required.",
+    "saveError": "Something went wrong saving this page. Please try again.",
+    "consentLabel": "Box wording",
+    "consentLabelHint": "The sentence beside the box on the form. Put the words that open this text in square brackets, once: I [consent] to … Saved together with the text as one version.",
+    "consentLabelRequired": "The box wording is required.",
+    "consentLabelLink": "Put the words that open this text in square brackets, exactly once.",
+    "consentPreview": "On the form",
+    "history": {
+      "heading": "Versions",
+      "version": "Version {version}",
+      "current": "current",
+      "consentLabel": "Box wording:"
+    },
+    "toolbar": {
+      "labelAria": "Formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "underline": "Underline",
+      "strikethrough": "Strikethrough",
+      "heading2": "Heading",
+      "heading3": "Subheading",
+      "bulletList": "Bullet list",
+      "orderedList": "Numbered list",
+      "blockquote": "Quote",
+      "link": "Add link",
+      "unlink": "Remove link",
+      "removeFormatting": "Clear formatting",
+      "horizontalRule": "Divider",
+      "image": "Add image"
+    },
+    "linkPanel": {
+      "headingAria": "Link",
+      "urlLabel": "Link address",
+      "placeholder": "https://example.com",
+      "hint": "A web address, an email, a phone number, or a path on this site such as /catalog.",
+      "apply": "Apply"
+    },
+    "imagePanel": {
+      "headingAria": "Image",
+      "altLabel": "Alt text",
+      "altPlaceholder": "Describe the image",
+      "altHint": "Describes the image for screen readers and search engines. Leave empty only if the image is purely decorative.",
+      "linkLabel": "Link (optional)",
+      "linkPlaceholder": "https://example.com",
+      "alignLabel": "Alignment",
+      "alignNone": "Inline",
+      "alignLeft": "Left",
+      "alignCenter": "Center",
+      "alignRight": "Right",
+      "widthLabel": "Size",
+      "remove": "Remove image"
+    }
+  },
+  "products": {
+    "deleted": "Deleted",
+    "unpublished": "Not published",
+    "unpriced": "No price",
+    "count": "Products: {count}",
+    "unpublishedCount": "{count} unpublished",
+    "list": {
+      "page": {
+        "title": "Products"
+      },
+      "empty": "No products yet.",
+      "noResults": "No products match these filters.",
+      "updated": "Updated",
+      "sourceId": "Sync key",
+      "searchAria": "Search products",
+      "searchPlaceholder": "Search by name or sync key",
+      "clearSearch": "Clear the search",
+      "filterState": "Filter by state",
+      "state": "State",
+      "filterCategory": "Filter by category",
+      "stateAll": "All states",
+      "stateLive": "Live",
+      "deletedMatches": "Deleted products matching: {count}.",
+      "showDeleted": "Show deleted products",
+      "allCategories": "All categories",
+      "categoryDirect": "{name}, without subcategories",
+      "stock": "Stock",
+      "stockAll": "Any stock",
+      "filterStock": "Filter by stock",
+      "stockAria": "In stock: {count} pcs — {state}",
+      "stockUntracked": "—",
+      "filterAttribute": "Attribute",
+      "clearAttributeAria": "Clear the attribute filter",
+      "filterTier": "Price list",
+      "clearTierAria": "Clear the price list filter",
+      "filterDocument": "Document",
+      "clearDocumentAria": "Clear the document filter",
+      "tierPricedYes": "Priced in this list",
+      "tierPricedNo": "Not priced in this list",
+      "noPrice": "—",
+      "missingGroupAria": "Missing",
+      "hasGroupAria": "Has",
+      "missing": {
+        "incomplete": "Incomplete",
+        "price": "No price",
+        "picture": "No picture",
+        "description": "No description",
+        "attributes": "No attributes",
+        "packaging": "No packaging",
+        "boxFacts": "No box volume or weight"
+      },
+      "has": {
+        "featured": "Featured",
+        "set": "Sold as a set",
+        "variants": "Variants",
+        "pairings": "Sold together",
+        "documents": "Documents",
+        "note": "Line note"
+      },
+      "gapsLabel": "No {gaps}",
+      "gap": {
+        "price": "price",
+        "picture": "picture",
+        "description": "description",
+        "attributes": "attributes"
+      }
+    },
+    "editor": {
+      "newTitle": "Add product",
+      "editTitle": "Edit product",
+      "name": "Name",
+      "price": "Price",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category…",
+      "slug": "URL slug",
+      "slugHint": "Used in the product's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+      "sourceId": "Article number (optional)",
+      "sourceIdHint": "The legacy/import key. Leave empty for a product created here; set it to match a future import.",
+      "previewNotice": "Preview — this is how the product will look once saved.",
+      "discardConfirm": "Discard your unsaved changes to this product?",
+      "nameRequired": "A product name is required.",
+      "categoryRequired": "A category is required.",
+      "priceInvalid": "This price is not valid.",
+      "saveError": "Something went wrong saving this product. Please try again.",
+      "saveAndPublish": "Save and publish",
+      "cancelToPage": "Discard and view page",
+      "publishError": "Could not change whether this product is published. Please try again.",
+      "attributes": {
+        "heading": "Characteristics",
+        "key": "Name",
+        "value": "Value",
+        "addAria": "Add characteristic",
+        "addKeys": "Add attributes",
+        "addKeysHint": "Attribute names the catalog already uses. Adding one appends an empty row — pick the name from here rather than retyping it, and the products stay comparable. A row you leave without a value is not saved.",
+        "addKeysEmpty": "No product carries an attribute yet.",
+        "addKeysApply": "Add attributes ({count})",
+        "inTable": "already here",
+        "filterable": "The shop filters by this attribute.",
+        "notNumeric": "This value cannot be read as a number, so it is left out of this attribute's filter. It still shows on the product page.",
+        "strayPart": "“{part}” is not one of this product's parts, so this row is not filtered as “{key}”. Check the spelling against the parts above."
+      },
+      "images": {
+        "heading": "Images",
+        "add": "Add images",
+        "variantAria": "Variant this picture shows",
+        "noVariant": "No variant",
+        "reframe": "Frame again"
+      },
+      "variants": {
+        "hint": "For an assorted article whose colours or designs are not separate articles. Name each variant, then choose under each picture which one it shows. A picture of the whole range shows none. Mark a variant currently unavailable to hide its pictures until it is back; delete it only if it will never be offered again.",
+        "nameAria": "Variant name",
+        "add": "Add a variant",
+        "addPlaceholder": "Sand",
+        "addButton": "Add",
+        "removeAria": "Remove “{name}”",
+        "unavailable": "Currently unavailable",
+        "picturesHeading": "Pictures",
+        "pictures": "Pictures showing it: {count}",
+        "limit": "A product can name up to {count} variants.",
+        "duplicate": "Each variant needs a name of its own.",
+        "exists": "A variant with this name already exists.",
+        "allWithheld": "Every picture shows an unavailable variant, so the shop shows this product without a picture."
+      },
+      "parts": {
+        "heading": "Sold as a set",
+        "hint": "Where one piece is several things sold together, such as a vial and its cap, name each part. An attribute written as “Colour (cap)” then filters as “Colour”.",
+        "add": "Add a part",
+        "addPlaceholder": "vial, or vial + cap",
+        "addButton": "Add",
+        "removeAria": "Remove “{name}”",
+        "limit": "A set can have up to {count} parts.",
+        "tooFew": "A set needs at least two parts.",
+        "rejected": "Each part must be new, at most {max} characters, and without +, ( or )."
+      },
+      "switchedOn": "(on)",
+      "featured": {
+        "heading": "Featured",
+        "hint": "The main page shows five products: featured ones first, the rest of the row drawn at random, all in a random order. A product out of stock is never shown.",
+        "enable": "Feature this product"
+      },
+      "lineNote": {
+        "heading": "Line note",
+        "hint": "Lets a customer say on the cart line, in words, which variant they want.",
+        "enable": "Ask for a note on this product",
+        "prompt": "What to ask for",
+        "promptHint": "Leave empty to use the shop-wide wording.",
+        "promptPlaceholder": "Which colour?"
+      },
+      "documents": {
+        "hint": "Certificates, declarations and data sheets shown on this product. The same documents can be put on many products at once from the document itself.",
+        "add": "Add a document",
+        "addPlaceholder": "Search documents by title…",
+        "removeAria": "Remove “{name}”",
+        "expires": "Expires {date}",
+        "noExpiry": "No expiry",
+        "suggestionsAria": "Document suggestions",
+        "noSuggestions": "No documents match.",
+        "suggestionCountAria": "Document suggestions: {count}"
+      },
+      "pairings": {
+        "hint": "Products this one is sold with. It works both ways: the product you pick is paired with this one too, and removing it here removes it there.",
+        "add": "Add a product",
+        "addPlaceholder": "Search products by name…",
+        "removeAria": "Remove “{name}”",
+        "limit": "Up to {count} products can be paired with one product.",
+        "suggestionsAria": "Product suggestions",
+        "noSuggestions": "No products match.",
+        "suggestionCountAria": "Product suggestions: {count}"
+      },
+      "stock": {
+        "heading": "Stock",
+        "hint": "Leave empty to not track this product's stock — no badge is shown and nothing is restricted.",
+        "pieces": "Pieces on hand",
+        "threshold": "“Few left” below",
+        "preview": "Customers currently see:",
+        "untracked": "Nothing — this product's stock is not tracked."
+      },
+      "taxRate": {
+        "label": "VAT rate",
+        "notInEffect": "No VAT is charged at the moment, so this rate is kept but not applied.",
+        "invalid": "The VAT rate must be a percent from 0 to 100, with at most two decimals."
+      },
+      "packaging": {
+        "hint": "Leave a unit empty if the product is not sold that way.",
+        "minPieceQty": "Minimum pieces",
+        "minPieceQtyHint": "The smallest order. Piece orders then move by one pack, or one piece if this is under a pack.",
+        "boxCount": "Boxes shipped",
+        "pricePerPack": "{price} per pack",
+        "pricePerBox": "{price} per box",
+        "notSoldPerPack": "Not sold per pack",
+        "notSoldPerBox": "Not sold per box",
+        "minMustFitPacks": "The minimum must be under one pack or a whole number of packs — in between, there is no quantity step that fits it.",
+        "invalid": "Packaging numbers must be whole numbers of 1 or more."
+      },
+      "tierPrices": {
+        "heading": "Tier prices",
+        "hint": "Leave a price empty to charge that list the storefront price above.",
+        "usesBase": "n/a",
+        "invalid": "The price for “{tier}” is not valid."
+      },
+      "priceWithList": "Price ({list})",
+      "priceCleared": "With no price in this list the product cannot be on the storefront. Saving will take it off.",
+      "saveAndUnpublish": "Save and unpublish",
+      "packagingUnavailable": "—"
+    }
+  },
+  "categories": {
+    "list": {
+      "page": {
+        "title": "Categories"
+      },
+      "add": "Add category",
+      "addChild": "Add subcategory",
+      "seeProducts": "See category products",
+      "editProducts": "Edit category products",
+      "noProducts": "No products yet",
+      "directProducts": "Products without subcategories: {count}",
+      "notShown": "Not shown in the shop",
+      "editFilters": "Edit category filters",
+      "catalogFilters": "Catalogue filters",
+      "empty": "No categories yet.",
+      "reorderHint": "Drag a category by its handle to move it; drop it further right to make it a subcategory. The line shows where it will land. Changes are saved right away.",
+      "undo": "Undo last move",
+      "reorderError": "This move could not be saved. Please try again.",
+      "deleteTitle": "Delete category",
+      "deleteConfirm": "Delete “{name}”?",
+      "deleteReassignIntro": "Products still in “{name}”: {count}. Choose a category to move them to, then delete.",
+      "deleteReassignDeleted": "Deleted products among them: {count}. They move too.",
+      "reassignLabel": "Move products to",
+      "reassignPlaceholder": "Select a category…",
+      "deleteBlockedChildren": "“{name}” has subcategories. Delete or move those first.",
+      "deleteError": "This category could not be deleted. Please try again."
+    },
+    "editor": {
+      "newTitle": "Add category",
+      "editTitle": "Edit category",
+      "name": "Name",
+      "shortName": "Short name (optional)",
+      "shortNameHint": "A shorter label used where the parent category is already shown. Leave empty to always use the full name.",
+      "parent": "Parent category",
+      "noParent": "— Top level —",
+      "slug": "URL slug",
+      "slugHint": "Used in the category's web address. Leave it to fill in automatically, or set it yourself — changing it later changes the URL.",
+      "sourceId": "Category number (optional)",
+      "sourceIdHint": "The legacy/import key. Leave empty for a category created here; set it to match a future import.",
+      "mark": "Mark",
+      "markHint": "A square picture filling the right end of the category's chip, edge to edge. Leave the margin you want inside the picture; a transparent background shows the chip through.",
+      "discardConfirm": "Discard your unsaved changes to this category?",
+      "nameRequired": "A category name is required.",
+      "saveError": "This category could not be saved. Please try again."
+    },
+    "filters": {
+      "page": {
+        "title": "Filters",
+        "intro": "Which attributes this category offers as a filter, and in what order. Subcategories follow this list unless they are given one of their own. An attribute no product here carries never shows a filter anyway — turn one off when it is present but not worth filtering by."
+      },
+      "heading": "Filters in {category}",
+      "sources": {
+        "own": "This category has its own filter list.",
+        "inherited": "Inherited from {category}. Saving here gives this category a list of its own.",
+        "default": "No filter list has been set, so every attribute is offered in the order of the attribute list."
+      },
+      "products": "Products here: {count}",
+      "notPresent": "No product here carries it",
+      "isNew": "Added after this list was saved, so it is not offered yet.",
+      "show": "Offer as a filter",
+      "reorder": "Reorder",
+      "save": "Save filters",
+      "saveError": "These filters could not be saved. Please try again.",
+      "reset": "Use the inherited list",
+      "resetDone": "This category follows the inherited list again.",
+      "empty": "No attribute is offered here, so this category shows no filter panel.",
+      "noDefinitions": "No attribute is filterable yet. Add one to the attribute list first.",
+      "catalogHeading": "Filters across the catalogue",
+      "catalogIntro": "Which attributes the catalogue page offers as a filter over every product at once, and in what order — a brand, say, that runs through several categories. Nothing is offered here until it is ticked, and categories keep their own filter lists.",
+      "catalogEmpty": "No attribute is offered, so the catalogue page shows no filter panel.",
+      "errors": {
+        "category-not-found": "This category no longer exists.",
+        "attribute-not-found": "One of these attributes no longer exists. Reload the page to see the current list."
+      },
+      "resetConfirm": {
+        "heading": "Use the inherited list",
+        "message": "Drop this category's own filter list? It will follow its parent again, and subcategories that follow this one change with it.",
+        "confirm": "Use the inherited list"
+      }
+    }
+  },
+  "sync": {
+    "description": "Upload the catalog export to update products in bulk. Nothing is written until you review the changes and apply them.",
+    "modeLabel": "What is this file?",
+    "advanced": "Advanced options",
+    "file": "Catalog file (CSV)",
+    "fileHint": "Columns: sourceId (required), name, categorySourceId, categoryName, price, stock, taxRate. Prices are whole numbers in cents; stock is a whole number of pieces and may be negative; taxRate is a percent such as 7 or 5,5, and an empty cell means the standard rate. A customer tier's price list is its own column, written “price:” plus the tier's sync key — see Customer tiers.",
+    "dropHint": "Drop the CSV file here",
+    "browse": "or choose a file",
+    "changeFile": "Drop another file, or click to change",
+    "preview": "Preview changes",
+    "previewing": "Reading the file…",
+    "previewError": "That file could not be read.",
+    "formatErrors": {
+      "no-file": "No file was sent. Please choose a file and try again.",
+      "file-too-large": "That file is too large to upload. Split the export into smaller files.",
+      "file-empty": "That file is empty.",
+      "no-header-row": "That file has no header row, so its columns cannot be read.",
+      "malformed-quotes": "A quotation mark is opened and never closed around line {row}, so the rest of the file cannot be read. Check that every “ has its closing mark, and that a quotation mark inside a value is doubled.",
+      "duplicate-column": "The column “{column}” appears more than once, so it is unclear which one counts.",
+      "unknown-columns": "These columns are not recognised: {columns}. Expected any of: {expected}.",
+      "missing-required-column": "The file needs a “{column}” column.",
+      "too-many-rows": "That file has {rows} rows; the limit is {limit}. Split it into smaller files.",
+      "options-invalid": "The options sent with this file were not valid. Reload the page and try again.",
+      "catalog-externally-owned": "The catalog is managed by an external system, so uploads are turned off. To upload a file, take the catalog back under Data ownership in the admin panel.",
+      "customers-externally-owned": "Customer accounts are kept up to date by a connected system, so importing them from a file here is switched off. Take the accounts back in Settings to import one by hand."
+    },
+    "summaryTitle": "What this run would change",
+    "productsTitle": "Products",
+    "categoriesTitle": "New categories",
+    "categoriesHint": "These are created without a parent. Place them in the tree under Categories afterwards.",
+    "renamedCategoriesTitle": "Renamed categories",
+    "renamedCategoriesHint": "The file gives these categories a new name. Their place in the tree and their web address stay as they are.",
+    "emptiedTitle": "Categories left empty",
+    "emptiedHint": "No products remain in these. The sync never deletes a category — remove them yourself if they are no longer needed.",
+    "keptTitle": "Kept (added here, not in the file)",
+    "keptHint": "These products were created in the admin panel, so they are not in the export and are never hidden by a sync.",
+    "errorsTitle": "Skipped rows",
+    "errorRow": "Row {row}",
+    "rowErrors": {
+      "missing-source-id": "This row has no sourceId, so there is no product to match it to.",
+      "duplicate-source-id": "This sourceId appears earlier in the file; only the first row for it is used.",
+      "category-id-without-name": "The category “{category}” has an ID but no name, so it cannot be created or renamed.",
+      "category-name-without-id": "The category “{category}” has a name but no ID, so it is unclear which category it means.",
+      "price-not-an-integer": "The price “{price}” in column “{column}” is not a whole number of cents.",
+      "price-is-zero": "The price in column “{column}” is zero. A product without a price is sent without that column, not with a zero in it.",
+      "stock-not-an-integer": "The stock “{stock}” is not a whole number of pieces.",
+      "tax-rate-invalid": "The tax rate “{taxRate}” is not a percent from 0 to 100.",
+      "unknown-price-list": "There is no price list “{key}” — this catalog has {known}.",
+      "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",
+      "unknown-category": "The category “{name}” ({key}) is not in the catalog, and this run does not create categories.",
+      "cannot-create-product": "This product is new, and a new product needs a name, a price and a category."
+    },
+    "customers": {
+      "accountsTitle": "Accounts",
+      "uploadTitle": "Customer import",
+      "uploadDescription": "Import customer details from a file — their price list, their company details, and whether they may sign in. Nothing is written, and nobody is emailed, until you review the changes and apply them. New accounts are created without a password: each person is sent a link to set their own.",
+      "file": "Customer file (CSV)",
+      "fileHint": "Columns: {columns}. sourceId is required and is the key the customer is matched by. access is “enabled” or “disabled”; sendPasswordLink is “yes” or “no”. An empty cell leaves the field as it is — it never clears it.",
+      "mode": {
+        "full": "Customer list",
+        "fullHint": "The file carries whole customer records. Price lists and company details are updated, and customers the shop doesn’t have yet are invited — each of them by email.",
+        "tiers": "Price list update",
+        "tiersHint": "The file only says which price list each customer is charged. Nobody is invited, nobody is emailed, and nobody’s access changes.",
+        "custom": "Custom"
+      },
+      "option": {
+        "email": "Update email addresses",
+        "tier": "Update price lists",
+        "company": "Update company details",
+        "createMissing": "Invite customers who don’t have an account yet",
+        "updateExisting": "Update customers who already have an account",
+        "claimByEmail": "Claim accounts by email address — where the key is unknown but somebody registered here with that address, adopt their account instead of skipping the row"
+      },
+      "count": {
+        "create": "Invited",
+        "update": "Updated",
+        "softDelete": "Switched off",
+        "restore": "Switched back on",
+        "claimed": "Claimed",
+        "claimedById": "Claimed by ID",
+        "mailed": "Links sent",
+        "unchanged": "Unchanged",
+        "errors": "Skipped"
+      },
+      "field": {
+        "email": "email",
+        "tier": "price list",
+        "customerType": "customer type",
+        "companyName": "company",
+        "companyId": "company ID"
+      },
+      "mailedRow": "sends a set-a-password link",
+      "rowErrors": {
+        "missing-source-id": "This row has no sourceId, so there is no account to match it to.",
+        "duplicate-source-id": "This sourceId appears earlier in the run; only the first row for it is used.",
+        "duplicate-email": "Two rows in this run claim the address {email}; only the first is used.",
+        "email-taken": "Another account already uses {email}. Accounts are matched by their sourceId, so this row would need a different address.",
+        "account-unclaimed": "Somebody registered here with {email} and carries no source key yet — almost certainly this customer. Turn on “claim accounts by email address” to adopt that account, or give it its key in the account editor.",
+        "account-unknown": "This row names account {accountId}, and no account here has that ID. The source system is pointing at something that is not here — nothing else in the row is used to guess what it meant.",
+        "account-already-keyed": "Account {accountId} already carries a source key of its own, so it is already somebody in the source system. One account cannot answer to two keys.",
+        "account-unclaimed-by-id": "This row names account {accountId} ({email}), which carries no source key yet. Turn on “claim accounts by ID” to adopt it, or give it its key in the account editor.",
+        "unknown-tier": "There is no price list “{key}” — this shop has {known}.",
+        "cannot-create-account": "This customer has no account here yet, and a new one needs an email address to send the set-a-password link to.",
+        "account-withdrawn": "This customer deleted their account. It is not created again from here — they would have to register themselves.",
+        "staff-account": "This row points at a staff account. Staff are never customers, and their accounts stay the shop’s to manage.",
+        "cannot-send-link": "A set-a-password link was asked for, but this account cannot sign in — switch it on in the same run, or first.",
+        "company-details-incomplete": "A company needs both a name and a company ID; this row has one without the other.",
+        "invalid-value": "The “{column}” column of this row says “{value}”, which is not something that column can hold. The row is skipped; the rest of the file is not."
+      },
+      "claimWarning": "Accounts registered on the shop that this run will claim, matched on their email address: {count}. From then on the source key names that person, and the next run can change their price list or switch them off. Check the rows below first.",
+      "claimByIdWarning": "Accounts this run will claim by the ID the source system named: {count}. That ID came from this shop, so it is a deliberate choice rather than a guess — but it is only as right as the mapping on the other side. From then on the source key names that person.",
+      "disableWarning": "Customers who will lose access: {count}. They stay in the account list and can be switched back on."
+    },
+    "orders": {
+      "ordersTitle": "Orders",
+      "count": {
+        "update": "Answered",
+        "unchanged": "Unchanged",
+        "mailed": "Customers told",
+        "errors": "Skipped"
+      },
+      "kind": {
+        "adjustment": "Changed",
+        "transition": "Moved",
+        "payment": "Payment"
+      },
+      "field": {
+        "status": "statuses",
+        "lines": "order lines",
+        "payment": "payments"
+      },
+      "notifiedRow": "customer was written to",
+      "rowErrors": {
+        "order-not-found": "No order here is numbered {reference}.",
+        "duplicate-reference": "Order {reference} appears earlier in this update; only the first instruction for it is used.",
+        "order-changed": "Order {reference} has moved on since your system read it — it now stands at version {current}. Read it again and send the answer against that version.",
+        "order-called-off": "The customer called order {reference} off, which they may do at any time before it is answered. It moves on only if your system says it takes the cancellation back.",
+        "restore-not-announced": "Taking back the customer's cancellation of order {reference} has to write to them and update their order page.",
+        "personal-data-removed": "Order {reference} has had its personal details removed, so it can no longer be moved or changed.",
+        "transition-not-allowed": "Order {reference} cannot go there from where it stands.",
+        "reason-required": "Declining an order has to say why, so the customer can be told.",
+        "unknown-product": "No product here carries the key {productSourceId}, so it cannot be put on order {reference}.",
+        "duplicate-product": "The product {productSourceId} is on order {reference} twice.",
+        "payment-not-recordable": "Nothing is owed on order {reference}, so no payment can be recorded against it."
+      }
+    },
+    "truncated": "Only the first entries are listed; the counts above cover the whole file.",
+    "nothingToApply": "This run would change nothing.",
+    "deleteWarning": "Products to be hidden from the storefront: {count}. They stay in the catalog and can be restored.",
+    "deleteConfirmLabel": "Type {word} to confirm",
+    "deleteConfirmWord": "HIDE",
+    "apply": "Apply these changes",
+    "applying": "Applying…",
+    "applyErrors": {
+      "run-not-found": "This run no longer exists. Upload the file again.",
+      "run-already-applied": "These changes have already been applied.",
+      "run-failed": "This run failed earlier and cannot be applied. Upload the file again.",
+      "run-rows-pruned": "This preview has expired. Upload the file again to see the current changes.",
+      "run-superseded": "A newer run has replaced this one. Open the latest run instead.",
+      "run-discarded": "This run was discarded and cannot be applied.",
+      "run-no-change": "This run changed nothing, so there is nothing to apply.",
+      "catalog-externally-owned": "The catalog was handed to an external system after this file was uploaded, so it can no longer be applied. Take the catalog back to apply it, or discard it.",
+      "customers-externally-owned": "Customer accounts were handed over to a connected system after this file was uploaded, so it can no longer be applied. Take the accounts back in Settings, or let the connected system send the change."
+    },
+    "applied": "Applied.",
+    "discard": "Discard",
+    "historyEmpty": "No sync has run yet.",
+    "historyCount": "Runs: {count}",
+    "mode": {
+      "full": "Complete catalog export",
+      "fullHint": "The file lists every product. Names, prices and categories are updated, new products are added, and products missing from the file can be hidden.",
+      "prices": "Price update",
+      "pricesHint": "The file only carries prices — the base list, a tier's list, or both. Nothing is added, renamed, recategorised or hidden.",
+      "stock": "Stock update",
+      "stockHint": "The file only carries stock quantities. Nothing is added, renamed, recategorised or hidden.",
+      "custom": "Custom"
+    },
+    "option": {
+      "name": "Update product names",
+      "category": "Update product categories",
+      "stock": "Update stock quantities",
+      "taxRate": "Update VAT rates",
+      "createMissing": "Add products that aren't in the catalog yet",
+      "updateExisting": "Update products that are already in the catalog",
+      "restoreReturning": "Restore hidden products that reappear in the file",
+      "createCategories": "Create categories the file names but the catalog doesn't have",
+      "authoritative": "This file is the complete catalog",
+      "softDelete": "Hide products that are missing from the file",
+      "softDeleteHint": "Only possible for a complete catalog export. Products created here in the admin panel are never hidden this way."
+    },
+    "count": {
+      "create": "Added",
+      "update": "Updated",
+      "softDelete": "Hidden",
+      "restore": "Restored",
+      "unchanged": "Unchanged",
+      "categories": "New categories",
+      "renamedCategories": "Renamed categories",
+      "kept": "Kept",
+      "errors": "Skipped rows"
+    },
+    "status": {
+      "previewed": "Waiting",
+      "applied": "Applied",
+      "failed": "Failed",
+      "superseded": "Replaced",
+      "discarded": "Discarded",
+      "no-change": "No change"
+    },
+    "col": {
+      "date": "Date",
+      "file": "File",
+      "actor": "By",
+      "status": "Status",
+      "changes": "Changes"
+    },
+    "statusAll": "All runs",
+    "filterStatus": "Filter by status",
+    "stagedReason": {
+      "policy": "Waiting for review: this run changes more than may be applied on its own.",
+      "requested": "Waiting for review: the system that sent it could not fully vouch for what it read."
+    },
+    "uploadTitle": "Manual sync",
+    "newRun": "Manual sync",
+    "backToRuns": "All runs",
+    "areas": {
+      "catalog": {
+        "title": "Catalog sync",
+        "runsDescription": "Every catalog run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied."
+      },
+      "customers": {
+        "title": "Customer sync",
+        "runsDescription": "Every customer run, uploaded by hand or sent by a connected system. A run waiting for review changes nothing until it is applied."
+      },
+      "orders": {
+        "title": "Order sync",
+        "runsDescription": "Every order update your connected system has sent back. These are applied as they arrive — there is nothing here to review, and this is the record of what was answered."
+      }
+    },
+    "sourceUpload": "Uploaded",
+    "runTitle": "Sync run",
+    "runLoadError": "This run could not be loaded.",
+    "planUnavailable": "The changes this run carried are no longer stored.",
+    "failureTitle": "What the sending system reported",
+    "noticeTitle": "Note from the sending system",
+    "startedLabel": "Started",
+    "finishedLabel": "Finished",
+    "discardRun": "Discard this run",
+    "summaryTitleApplied": "What this run changed",
+    "nothingChanged": "This run changed nothing.",
+    "field": {
+      "name": "names",
+      "category": "categories",
+      "stock": "stock levels",
+      "taxRate": "VAT rates",
+      "priceList": "prices ({key})"
+    },
+    "moreFields": "+{count}",
+    "taxRateDefault": "standard rate",
+    "discardConfirm": {
+      "heading": "Discard this run?",
+      "message": "Nothing will be applied and the run stays in the log as discarded. A later run can still bring the same changes.",
+      "confirm": "Discard this run"
+    }
+  },
+  "tiers": {
+    "page": {
+      "title": "Customer tiers",
+      "intro": "A tier is a price list. One of them is what the storefront shows everybody — guests, staff and customers who are not on a tier; the others carry only the products they price differently. Customers are put on a tier when their account is approved."
+    },
+    "add": "Add tier",
+    "label": "Name",
+    "labelPlaceholder": "Wholesale",
+    "key": "Sync key",
+    "keyPlaceholder": "wholesale",
+    "keyHint": "The catalog file addresses this list as a “price:wholesale” column. One word — letters, digits, hyphens and underscores.",
+    "accounts": "Customers: {count}",
+    "seeAccounts": "Show the accounts on this price list",
+    "seePrices": "Show the products this tier prices",
+    "defaultHint": "Guests, staff and customers without a tier are charged this list.",
+    "defaultName": "Default ({list})",
+    "empty": "No price lists yet.",
+    "saveError": "This tier could not be saved. Please try again.",
+    "labelRequired": "A name is required.",
+    "keyInvalid": "Use letters, digits, hyphens and underscores, in one word, e.g. “wholesale”.",
+    "deleteBlocked": "“{name}” is still in use: {reason}",
+    "deleteError": "This tier could not be deleted. Please try again.",
+    "reorderError": "This move could not be saved. Please try again.",
+    "errors": {
+      "tier-not-found": "This tier no longer exists. Reload the page to see the current list.",
+      "tier-key-taken": "Another tier already uses that sync key.",
+      "tier-has-accounts": "This tier still has customer accounts on it. Move them to another tier first.",
+      "tier-has-prices": "This tier still prices some products. Clear those prices first.",
+      "tier-is-default": "This is the list the storefront shows, so it cannot be deleted. Show another list on the storefront first."
+    },
+    "defaultBadge": "Shown on the storefront",
+    "setDefault": "Show this list on the storefront",
+    "setDefaultWarning": "Products without a price in this list: {count}. They will be taken off the storefront until somebody prices them.",
+    "setDefaultNone": "Every product on the storefront has a price in this list.",
+    "setDefaultDone": "Products taken off the storefront: {count}.",
+    "setDefaultError": "The storefront's price list could not be changed. Please try again.",
+    "seeUnpriced": "Show the products this list does not price",
+    "unpriced": "{count} not priced",
+    "setDefaultConfirm": {
+      "heading": "Change the storefront's price list",
+      "message": "Show “{name}” to everybody who is not on a tier?",
+      "confirm": "Show this list on the storefront"
+    },
+    "deleteConfirm": {
+      "heading": "Delete tier",
+      "message": "Delete “{name}”? The catalog sync will stop recognising its “price:{key}” column.",
+      "confirm": "Delete"
+    }
+  },
+  "apiTokens": {
+    "page": {
+      "title": "Machine tokens",
+      "intro": "A machine token lets an automated client — a scheduled import, an integration — reach the API without signing in. It is not an account: it has no password, no mailbox and no role, only the things it is allowed to do."
+    },
+    "add": "New token",
+    "create": "Create token",
+    "name": "Name",
+    "namePlaceholder": "Nightly catalog import",
+    "nameRequired": "A name is required.",
+    "scope": "Allowed to",
+    "scopeHint": "A token can only do what it is allowed to here. To change that, revoke it and issue another.",
+    "scopeRequired": "Choose at least one thing this token may do.",
+    "scopeKind": {
+      "read": "Read",
+      "submit": "Submit"
+    },
+    "scopeArea": {
+      "catalog": "Catalog",
+      "customers": "Customer accounts",
+      "orders": "Orders"
+    },
+    "scopes": {
+      "catalog-sync": "Submit catalog imports",
+      "customer-sync": "Submit customer updates",
+      "customer-read": "Read customer accounts",
+      "order-read": "Read orders",
+      "order-sync": "Submit order updates"
+    },
+    "createdHeading": "“{name}” created",
+    "createdOnce": "Copy the value now — it is shown this once and cannot be looked up again. If you lose it, revoke this token and issue another.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "active": "Active",
+    "revoked": "Revoked",
+    "created": "Created {date} by {actor}",
+    "lastUsed": "Last used {date}",
+    "neverUsed": "Never used",
+    "empty": "No machine tokens yet.",
+    "createError": "This token could not be created. Please try again.",
+    "revokeAria": "Revoke",
+    "revokeError": "This token could not be revoked. Please try again.",
+    "revokeConfirm": {
+      "heading": "Revoke token",
+      "message": "Revoke “{name}”?",
+      "confirm": "Revoke",
+      "warning": "Whatever uses this token stops working on its next request. Revoking cannot be undone — issue a new token and reconfigure the client."
+    }
+  },
+  "attributes": {
+    "list": {
+      "page": {
+        "title": "Filterable attributes",
+        "intro": "A definition makes one product attribute filterable in the shop. Its name has to match the attribute's name on the products exactly — nothing is re-entered, and a definition added today applies to products entered long ago. The counts cover live and unpublished products; deleted ones are left out."
+      },
+      "add": "Add attribute",
+      "name": "Name",
+      "namePlaceholder": "Colour",
+      "nameHint": "Spelled exactly as in the product's attribute table. The unit belongs here, not in the values: enter “30”, not “30 cm”.",
+      "type": "Type",
+      "types": {
+        "text": "Text",
+        "number": "Number"
+      },
+      "unit": "Unit",
+      "unitPlaceholder": "cm",
+      "slug": "URL key",
+      "slugPlaceholder": "from the name",
+      "slugInvalid": "Use lowercase letters, digits and hyphens, e.g. “colour”.",
+      "values": "Values: {count}",
+      "unparsed": "Values that cannot be read as a number: {count}. They stay on the product page and are left out of this filter.",
+      "noMatch": "No product carries an attribute with this name. Check the spelling against a product's attribute table.",
+      "showProducts": "Show the products carrying this attribute",
+      "showUsage": "Show the values in use",
+      "empty": "No filterable attributes yet — products show their attributes but nothing can be filtered by them.",
+      "saveError": "This attribute could not be saved. Please try again.",
+      "nameRequired": "A name is required.",
+      "deleteError": "This attribute could not be deleted. Please try again.",
+      "reorderError": "This move could not be saved. Please try again.",
+      "errors": {
+        "attribute-not-found": "This attribute no longer exists. Reload the page to see the current list.",
+        "attribute-name-taken": "Another definition already uses that name.",
+        "attribute-slug-taken": "Another definition already uses that URL key."
+      },
+      "deleteConfirm": {
+        "heading": "Delete attribute",
+        "message": "Delete “{name}”? The shop stops offering it as a filter. No product attribute is changed.",
+        "confirm": "Delete"
+      }
+    },
+    "inventory": {
+      "page": {
+        "title": "Attributes in use",
+        "intro": "Every attribute key and value the products carry, whether or not the shop filters by it. Attribute text is matched exactly, so a misspelling sits next to the correct spelling here — rename it and every product carrying it follows. Counts cover live and unpublished products; a rename also rewrites deleted ones."
+      },
+      "toDefinitions": "Filterable attributes",
+      "toDefinitionAria": "Filterable — show its definition",
+      "notFilterable": "Not filterable",
+      "values": "Values: {count}",
+      "notNumeric": "not a number",
+      "emptyValue": "(no value)",
+      "showProducts": "Show the products",
+      "renameKeyAria": "Rename this attribute",
+      "renameValueAria": "Rename this value",
+      "newTextAria": "New text",
+      "renameTitle": "Rename across the catalog",
+      "renameConfirm": "Rename “{from}” to “{to}” on every product carrying it?",
+      "mergeConfirm": "“{to}” is already in use. Renaming “{from}” merges the two — every product carrying “{from}” will carry “{to}” instead. Continue?",
+      "renameDeleted": "It also rewrites deleted products ({count}), so they carry the new text if restored.",
+      "renameError": "This rename could not be saved. Please try again.",
+      "empty": "No product carries an attribute yet."
+    }
+  },
+  "documents": {
+    "list": {
+      "page": {
+        "title": "Documents"
+      },
+      "count": "Documents: {count}",
+      "add": "Add document",
+      "searchAria": "Find a document",
+      "searchPlaceholder": "Search by title, file name or link",
+      "clearSearch": "Clear the search",
+      "titleColumn": "Title",
+      "fileColumn": "File and link",
+      "link": "Link",
+      "issuedColumn": "Issued",
+      "expiresColumn": "Expires",
+      "statusColumn": "Status",
+      "updatedColumn": "Updated",
+      "noExpiry": "No expiry",
+      "statusAll": "All statuses",
+      "statusDue": "Needs attention",
+      "statusExpiring": "Expiring",
+      "statusExpired": "Expired",
+      "statusValid": "Valid",
+      "filterStatus": "Filter by status",
+      "productsColumn": "Products",
+      "seeProducts": "Show the products this document is on",
+      "noProducts": "No product shows this document yet",
+      "empty": "No documents yet.",
+      "noResults": "No document matches this search.",
+      "loadError": "The documents could not be loaded. Please try again.",
+      "deleteError": "This document could not be deleted. Please try again.",
+      "deleteConfirm": {
+        "heading": "Delete document",
+        "message": "Delete “{name}”? The file is removed from the shop.",
+        "confirm": "Delete"
+      }
+    },
+    "editor": {
+      "newTitle": "New document",
+      "editTitle": "Edit document",
+      "title": "Title",
+      "titlePlaceholder": "Certificate of analysis",
+      "titleHint": "What this document is called wherever it is listed.",
+      "datePlaceholder": "Select a date…",
+      "file": "File",
+      "dropHint": "Drop the file here",
+      "choose": "or choose a file",
+      "replace": "Replace file",
+      "open": "Open",
+      "removeFile": "Remove the file",
+      "fileHint": "PDF or an image, up to 20 MB. The file is stored exactly as uploaded.",
+      "uploadError": "That file could not be uploaded. Use a PDF, PNG, JPEG, WebP or GIF under 20 MB.",
+      "link": "Link",
+      "linkPlaceholder": "https://",
+      "linkHint": "Where the document can be checked online, such as its entry in a public register. A document needs a file, a link, or both.",
+      "openLink": "Open the link",
+      "linkInvalid": "The link must be a full web address starting with https:// or http://.",
+      "issuedAt": "Issue date",
+      "expiresAt": "Expiry date",
+      "datesHint": "Both dates are optional. A document with no expiry date is always current.",
+      "products": {
+        "heading": "Shown on",
+        "hint": "Tick the products this document belongs to. Hold Shift while clicking to tick everything between two rows.",
+        "searchAria": "Find a product",
+        "searchPlaceholder": "Search products by name…",
+        "categoryAria": "Category",
+        "allCategories": "All categories",
+        "showAll": "Catalogue",
+        "showLinked": "Linked ({count})",
+        "more": "Showing the first {count} of {total}. Narrow the search or pick a category to reach the rest.",
+        "empty": "No product matches this search.",
+        "noneLinked": "This document is not on any product yet.",
+        "loadError": "The products could not be loaded. Please try again."
+      },
+      "titleRequired": "A title is required.",
+      "fileOrLinkRequired": "Add a file, a link, or both.",
+      "expiryBeforeIssue": "The expiry date cannot be earlier than the issue date.",
+      "saveError": "This document could not be saved. Please try again.",
+      "discardConfirm": "Discard your unsaved changes to this document?",
+      "notFound": "This document no longer exists.",
+      "errors": {
+        "document-not-found": "This document no longer exists. Reload the list to see the current documents.",
+        "document-product-not-found": "One of the products this document is on no longer exists. Reload the page and pick the products again."
+      }
+    }
+  },
+  "orders": {
+    "notFound": "There is no order with that reference.",
+    "loadError": "The order could not be loaded. Please try again.",
+    "tier": "Price list",
+    "tierDefault": "Default",
+    "account": "Account",
+    "guest": "Guest",
+    "items": "Ordered",
+    "note": "Customer note",
+    "pickupPoint": "Collection point",
+    "termsVersion": "Version {version}, updated on {date}",
+    "statuses": {
+      "requested": "Requested",
+      "approved": "Confirmed",
+      "readyDelivery": "Handed over for delivery",
+      "readyPickup": "Ready for pickup",
+      "completed": "Complete",
+      "declined": "Declined",
+      "cancelled": "Cancelled"
+    },
+    "paymentMethods": {
+      "cash": "Cash",
+      "transfer": "Bank transfer",
+      "card": "Card, arranged with the customer"
+    },
+    "paymentStates": {
+      "notDue": "Nothing due",
+      "awaiting": "Awaiting payment",
+      "paid": "Paid",
+      "cashOnHandover": "Cash on handover"
+    },
+    "list": {
+      "page": {
+        "title": "Orders"
+      },
+      "count": "Orders: {count}",
+      "searchAria": "Search orders",
+      "searchPlaceholder": "Reference, name, email...",
+      "clearSearch": "Clear search",
+      "empty": "No orders yet.",
+      "noResults": "No orders match these filters.",
+      "loadError": "The order list could not be loaded. Please try again.",
+      "placed": "Sent",
+      "customer": "Customer",
+      "items": "Contents",
+      "filterStatus": "Filter by status",
+      "statusAll": "All statuses",
+      "filterPayment": "Filter by payment",
+      "paymentAll": "All payments",
+      "paymentUnpaid": "Not paid",
+      "actionsAria": "Actions",
+      "itemCount": "Lines: {count}"
+    },
+    "detail": {
+      "placed": "Sent {date}",
+      "back": "Back to orders",
+      "guestView": "Open what they see",
+      "billingSame": "Invoiced to the same address.",
+      "whenAny": "As soon as possible",
+      "notifyHint": "They are sent the order as it now stands, together with anything the shop has noted since the last message.",
+      "pieceLine": "{count} × {price}",
+      "revisions": {
+        "heading": "History",
+        "subheading": "Versions",
+        "written": "Version {number} · {date} · {who}",
+        "authorCustomer": "the customer",
+        "authorUnknown": "author not recorded",
+        "submitted": "Placed by the customer",
+        "moved": "Moved by the shop",
+        "changed": "Changed by the shop",
+        "customerView": "What the customer sees",
+        "changes": "Differences",
+        "noChanges": "Nothing about the order itself changed.",
+        "loadError": "The earlier versions could not be loaded.",
+        "versionLabel": "Version {number}",
+        "versionInline": "version {number}",
+        "writtenBy": "{date} · {who}",
+        "customerOn": "The customer is on version {seen}",
+        "notified": "Emailed {date}",
+        "openControls": "Answer this order",
+        "openRevision": "Read this version",
+        "openOrder": "Open this order"
+      },
+      "actions": {
+        "open": "Open the order",
+        "answer": "Answer the order",
+        "approve": "Confirm",
+        "adjust": "Adjust",
+        "reopen": "Reopen",
+        "backToRequested": "Back to unanswered",
+        "backToApproved": "Back to confirmed",
+        "backToReady": "Back to ready",
+        "ready": "Hand over for delivery",
+        "readyPickup": "Ready for pickup",
+        "complete": "Mark as complete",
+        "decline": "Decline",
+        "cancel": "Cancel the order",
+        "showCustomer": "Show this on the customer's page",
+        "showCustomerHint": "Leave this on unless the step was a mistake you are about to take back — their page should say where the order really is.",
+        "notify": "Email the customer about this",
+        "markPaid": "Also record the payment as received",
+        "markPaidHint": "For money handed over with the goods. You can take this back afterwards.",
+        "reasonLabel": "Why — this is quoted to the customer",
+        "confirm": {
+          "heading": "{action}?",
+          "message": "This records where the order now stands.",
+          "confirm": "{action}",
+          "cancel": "Leave it as it is",
+          "warning": "A payment is recorded against this order. Ending it here does not refund anything — arrange that with the customer directly."
+        },
+        "notifyAttachment": "The payment instructions on this order are sent with it.",
+        "notifyNoDocument": "This order is paid by transfer and has no payment instructions on it yet — upload them first if the customer should get them with this message.",
+        "error": "That did not work. The order may already have been answered — reload the page."
+      },
+      "tellCustomer": {
+        "heading": "Customer",
+        "on": "They are looking at {current}.",
+        "behind": "They are looking at {seen}; this order is on {current}.",
+        "emailedNever": "No email has gone out about this order.",
+        "emailedOn": "Last emailed about {notified}.",
+        "update": "Update what they see",
+        "updateConfirm": {
+          "heading": "Show them where the order is?",
+          "message": "Their page moves to the version this order is on. Anything the shop changed since they last looked is on it.",
+          "confirm": "Update their page",
+          "cancel": "Not now"
+        },
+        "updateNotify": "Email them about it as well",
+        "email": "Email them about it",
+        "emailAgain": "Email them again",
+        "emailConfirm": {
+          "heading": "Email the customer?",
+          "message": "They are sent the order exactly as their own page shows it. Nothing about the order changes.",
+          "confirm": "Send it",
+          "cancel": "Not now"
+        },
+        "error": "That did not work. Reload the page to see where the order stands."
+      },
+      "paymentState": {
+        "paid": "Paid {date}",
+        "record": "Record as paid",
+        "recordConfirm": {
+          "heading": "Record this order as paid?",
+          "message": "Only do this once the money has actually arrived.",
+          "confirm": "Record as paid",
+          "cancel": "Not yet"
+        },
+        "clear": "Clear the payment",
+        "clearConfirm": {
+          "heading": "Clear the recorded payment?",
+          "message": "Use this only where the payment was recorded by mistake. A refund belongs in your own books.",
+          "confirm": "Clear the payment",
+          "cancel": "Not yet"
+        },
+        "error": "That did not work. The payment may already have been recorded — reload the page."
+      },
+      "personalData": {
+        "heading": "Personal details",
+        "kept": "On the order until its retention period ends.",
+        "removed": "Removed on {date}",
+        "remove": "Remove on request",
+        "confirm": {
+          "heading": "Remove the personal details from this order?",
+          "message": "The guest's name, contact details, addresses and notes are removed from every version of order {reference}, together with any documents uploaded for it. The order, its lines and its total stay.",
+          "confirm": "Remove the details",
+          "cancel": "Keep the details",
+          "warning": "This cannot be undone. The guest's other orders keep their details; find them by email address in the order list."
+        },
+        "error": "That did not work. The order may have been reopened — reload the page."
+      },
+      "documents": {
+        "heading": "Documents",
+        "summary": "Order summary",
+        "paymentInstructions": "Payment instructions",
+        "generated": "Drawn by the shop system",
+        "supplied": "Uploaded {date}",
+        "outdated": "Uploaded against version {number}; this order is on {current}.",
+        "open": "Open",
+        "upload": "Upload",
+        "replace": "Replace",
+        "notify": "Email it to the customer",
+        "notifyHint": "Sent as a message of its own. Payment instructions travel with it; a summary is linked.",
+        "notifyBehind": "The customer has not been shown the version this belongs to yet.",
+        "notifySent": "Sent",
+        "notifyConfirm": {
+          "heading": "Email this document to the customer?",
+          "message": "They are sent a short message about it. Nothing about the order changes, and you can send it again later.",
+          "confirm": "Send it",
+          "cancel": "Not now"
+        },
+        "paymentHint": "Only you can supply these — the shop's own payment details for this order.",
+        "summaryHint": "The shop system draws one from the order. Upload a file to use that instead.",
+        "removeConfirm": {
+          "heading": "Remove this document?",
+          "message": "The customer stops seeing the uploaded file. The order summary goes back to the one the shop system draws.",
+          "confirm": "Remove it",
+          "cancel": "Keep it"
+        },
+        "error": "That did not work. The file may be too large or of an unsupported type."
+      }
+    },
+    "adjust": {
+      "page": {
+        "title": "Adjust {reference}",
+        "intro": "Record what you agreed with the customer. This writes a new version of the order; the reference, their link and where the order stands all stay as they are."
+      },
+      "save": "Save the adjustment",
+      "cancel": "Back to the order",
+      "warnPaid": "This order is already recorded as paid. Changing what it costs does not move any money — put that right in your own books.",
+      "warnReady": "This order is already packed. Changing it now records what the shop did — it does not put the goods back on the shelf.",
+      "warnEnded": "This order is over. Changing it records what the shop did — it does not put the order back in the queue, and nothing tells the customer unless you ask it to.",
+      "notify": "Write to the customer about this change",
+      "notifyHint": "Leave this off if the next step will tell them anyway — confirming the order sends them the changes with it.",
+      "lines": {
+        "unitsAria": "Quantity",
+        "priceAria": "Price",
+        "removeAria": "Remove the line",
+        "moveUpAria": "Move up",
+        "moveDownAria": "Move down",
+        "addLabel": "Add a product",
+        "addPlaceholder": "Search by name",
+        "noMatches": "Nothing matches that.",
+        "empty": "An order needs at least one line.",
+        "offList": "Off list"
+      },
+      "partyKindPerson": "A person",
+      "partyKindCompany": "A company",
+      "reprice": "Reprice from this list",
+      "detailsHeading": "Delivery, invoice and contact",
+      "billingAddress": "Invoice address",
+      "customerHeading": "What the customer asked for",
+      "wished": "Wished date: {date}",
+      "customerNone": "Nothing stated",
+      "noteHint": "The customer is emailed this, so write it for them.",
+      "noteRequired": "Say what changed — the customer is told this.",
+      "changes": {
+        "heading": "About to change",
+        "none": "Nothing has changed yet.",
+        "pricingPending": "The lines and the total cannot be worked out until the form is right."
+      },
+      "priceNotice": {
+        "moved": "Line prices that differ from the version on file: {count}. Save this only if that is what was agreed.",
+        "offList": "Lines priced away from {tier}: {count}. That is allowed — check it is deliberate."
+      },
+      "confirm": {
+        "heading": "Save this change?",
+        "message": "A new version of the order is recorded. Where the order stands does not change, and the customer is written to only if you asked for it above.",
+        "confirm": "Save the change",
+        "cancel": "Keep editing"
+      },
+      "errors": {
+        "order-changed": "Somebody else adjusted this order while you were working on it. Reload the page and start again.",
+        "no-change": "Nothing here differs from the order as it stands. A note on its own is not a change — put what you agreed into the lines or the details first.",
+        "unknown-product": "One of the lines names a product that no longer exists.",
+        "unknown-tier": "That price list no longer exists.",
+        "invalid-company-id": "That registration number is not in a format this shop accepts.",
+        "unsupported-country": "This shop does not deliver to that country.",
+        "invalid-postal-code": "That postcode is not the right shape for its country.",
+        "unknown-pickup-location": "That collection point no longer exists.",
+        "billing-details-required": "A bank transfer is invoiced to a company, which needs its registration number.",
+        "cash-not-available": "A company is invoiced by bank transfer, never paid in cash or by card.",
+        "billing-address-required": "This shop invoices an address of its own, so the order needs one.",
+        "order-not-found": "There is no order with that reference.",
+        "unknown": "That did not work. Please try again."
+      }
+    },
+    "changes": {
+      "line": "Line",
+      "added": "Added",
+      "removed": "Removed",
+      "shipment": "Estimated weight and volume"
+    }
+  },
+  "users": {
+    "list": {
+      "customersPage": {
+        "title": "Customers"
+      },
+      "staffPage": {
+        "title": "Staff"
+      },
+      "count": "Accounts: {count}",
+      "searchAria": "Search accounts",
+      "searchPlaceholder": "Search by name, email, etc...",
+      "clearSearch": "Clear search",
+      "empty": "No accounts yet.",
+      "noResults": "No accounts match these filters.",
+      "loadError": "The account list could not be loaded. Please try again.",
+      "registered": "Registered",
+      "filterRole": "Filter by role",
+      "filterTier": "Filter by tier",
+      "filterCompanyIdFormat": "Filter by kind of registration number",
+      "filterStatus": "Filter by status",
+      "roleAll": "All roles",
+      "roleAdmin": "Admin",
+      "roleManager": "Manager",
+      "roleUser": "Customer",
+      "tierAll": "All tiers",
+      "companyIdFormatAll": "All company IDs",
+      "companyIdFormatNone": "No company ID",
+      "statusAll": "All statuses",
+      "status": "Status",
+      "statusPending": "Pending",
+      "statusInvited": "Invited",
+      "statusActive": "Active",
+      "statusDisabled": "Deactivated",
+      "statusAnonymized": "Closed",
+      "actionsAria": "Actions",
+      "approve": "Review and approve",
+      "edit": "Edit account",
+      "declineAria": "Decline",
+      "deactivateAria": "Deactivate account",
+      "reactivateAria": "Reactivate account",
+      "saveError": "That change could not be saved. Please try again.",
+      "addCustomer": "Add customer",
+      "addStaff": "Add staff account",
+      "errors": {
+        "account-not-found": "This account no longer exists. Reload the page to see the current list.",
+        "account-not-pending": "This registration has already been decided on.",
+        "account-closed": "This account is closed and can no longer be edited.",
+        "email-taken": "That email address already has an account.",
+        "account-not-approved": "Only an approved account can be deactivated. Approve or decline this registration instead.",
+        "account-not-disabled": "This account is not deactivated, so there is nothing to switch back on.",
+        "account-cannot-sign-in": "This account cannot sign in, so there is nothing to send. Switch it back on first, or decide on the registration.",
+        "self-deactivate": "You cannot deactivate your own account.",
+        "self-demote": "You cannot take the admin role from your own account.",
+        "last-admin": "This is the only admin account. Another admin must exist before this one can be changed.",
+        "account-not-purgeable": "Only a registration nobody has decided on can be declined. Deactivate this account instead.",
+        "self-delete": "You cannot delete your own account here. Delete it from your account page instead.",
+        "account-pending": "This registration has not been decided on yet. Decline it instead, which removes it entirely.",
+        "source-id-taken": "Another account already carries that source key. Each key names exactly one account.",
+        "role-change-admin-only": "Only an admin can change the role of an account.",
+        "staff-create-admin-only": "Only an admin can create a staff account.",
+        "source-id-change-admin-only": "Only an admin can change the source key of an account.",
+        "not-exemptable": "This deployment lets no account of this role skip the sign-in code."
+      },
+      "deactivateConfirm": {
+        "heading": "Deactivate account",
+        "message": "Deactivate {name}? They are signed out immediately and cannot sign in again, and any password link they were sent is cancelled. Their password itself is kept, so switching the account back on returns it as it was. Nothing is deleted, and they are not emailed.",
+        "confirm": "Deactivate account"
+      },
+      "reactivateConfirm": {
+        "heading": "Reactivate account",
+        "message": "Switch {name} back on? Their details, price tier and password are unchanged, so they can sign in as before — and they are not emailed. An account that never chose a password comes back awaiting one; send them a link from the account page.",
+        "confirm": "Reactivate account"
+      },
+      "declineConfirm": {
+        "heading": "Decline registration",
+        "message": "Decline {name}? Their registration and details are removed for good.",
+        "confirm": "Decline"
+      }
+    },
+    "editor": {
+      "newCustomerTitle": "New customer",
+      "newStaffTitle": "New staff account",
+      "editTitle": "Edit account",
+      "approveTitle": "Approve registration",
+      "emailFixed": "The email address is the sign-in name and cannot be changed here.",
+      "customerType": "Customer type",
+      "tier": "Tier",
+      "tierChoose": "Select a tier…",
+      "role": "Role",
+      "sourceId": "Source key",
+      "sourceIdHint": "The key the connected system knows this customer by. While it is empty no automated update can reach this account at all.",
+      "inviteHint": "An email with a link to choose a password is sent when the account is created.",
+      "resend": "Send a password link",
+      "resendSent": "The link has been sent.",
+      "status": "Status",
+      "create": "Create and invite",
+      "approve": "Approve and invite",
+      "notFound": "This account could not be found.",
+      "closed": "This account is closed. Its details are kept as a record and can no longer be edited.",
+      "saveError": "This account could not be saved. Please try again.",
+      "discardConfirm": "Discard the changes to this account?",
+      "validation": {
+        "tierRequired": "A tier is required."
+      }
+    },
+    "detail": {
+      "detailsHeading": "Details",
+      "accountHeading": "Account",
+      "approved": "Approved",
+      "approvedNever": "Not approved yet",
+      "sourceIdEmpty": "None — no automated update can reach this account.",
+      "consentsHeading": "Consents",
+      "consentsEmpty": "No consent recorded for this account.",
+      "delete": "Delete account",
+      "deleteConsentWithdrawn": "They withdrew their consent",
+      "deleteConsentWithdrawnHint": "Recorded as the reason. Leave it clear when they simply asked for the deletion.",
+      "deleteError": "The account could not be deleted. Please try again.",
+      "signInHeading": "Sign-in",
+      "signInPhone": "Mobile number",
+      "signInPhoneConfirmed": "Confirmed on {date}",
+      "signInPhoneUnconfirmed": "Not confirmed yet. It is confirmed at the next sign-in.",
+      "signInPhoneMissing": "None that a code can reach. They cannot sign in until staff enter one in the account's details.",
+      "signInCode": "Code after the password",
+      "signInCodeAlways": "At every sign-in",
+      "signInCodeAlwaysRemembered": "At every sign-in, except on a browser they chose to remember (for up to {days} days)",
+      "signInCodeOnce": "Once, to confirm the number",
+      "signInCodeExempt": "Not asked: exempted by {admin} on {date}",
+      "exempt": "Exempt from the code",
+      "unexempt": "Ask for the code again",
+      "exemptError": "The change could not be saved. Please try again.",
+      "back": "Back to the list",
+      "notFound": "This account could not be found.",
+      "loadError": "This account could not be loaded. Please try again.",
+      "deleteConfirm": {
+        "heading": "Delete account on request",
+        "message": "Delete {name} on their request? Their personal details and saved addresses are removed, their past orders are kept with their details removed from them, and they can no longer sign in. They are sent the same confirmation as when they delete it themselves. This cannot be undone.",
+        "confirm": "Delete account",
+        "warning": "Orders still open stay yours to finish, without the customer's name, phone or address."
+      },
+      "exemptConfirm": {
+        "heading": "Exempt from the sign-in code",
+        "message": "Let {name} sign in with the password alone? The exemption is recorded with your name and shown on this page.",
+        "confirm": "Exempt from the code"
+      },
+      "unexemptConfirm": {
+        "heading": "Ask for the sign-in code again",
+        "message": "Ask {name} for the code again from their next sign-in?",
+        "confirm": "Ask for the code again"
+      }
+    }
+  },
+  "consents": {
+    "page": {
+      "title": "Consents",
+      "intro": "Find the consents a person gave, to answer their own request or an inspection. A search by email address also finds the records of the account that uses it now."
+    },
+    "panelLookup": "Find a person's consents",
+    "panelText": "Text: {purpose}",
+    "byEmail": "Email address",
+    "byPhone": "Phone number",
+    "search": "Search",
+    "empty": "No consent recorded for {query}.",
+    "loadError": "The records could not be loaded. Please try again.",
+    "purposes": {
+      "contact": "Contact form",
+      "account": "Customer account"
+    },
+    "version": "Version {version}",
+    "account": "Account",
+    "accountGone": "Registration declined and removed",
+    "withdrawn": "Withdrawn",
+    "withdrawnAt": "Withdrawn {date}",
+    "withdrawnReasons": {
+      "account-deleted": "when the account was deleted",
+      "registration-declined": "when the registration was declined",
+      "entered": "entered by {admin}"
+    },
+    "endsWithAccount": "Withdrawn by deleting the account",
+    "withdraw": "Enter a withdrawal",
+    "withdrawNote": "How it reached you",
+    "withdrawErrors": {
+      "consent-not-found": "This record no longer exists.",
+      "consent-already-withdrawn": "This consent was already withdrawn.",
+      "consent-ends-with-account": "An account consent is withdrawn by deleting the account."
+    },
+    "withdrawError": "The withdrawal could not be saved. Please try again.",
+    "withdrawConfirm": {
+      "heading": "Enter a withdrawal",
+      "message": "The consent given by {holder} on {date} ends now and cannot be given back. Its record is kept for the retention period.",
+      "confirm": "Enter a withdrawal",
+      "warning": "The inquiry itself is a mail in the shop's inbox, which this does not touch. Delete it there as well."
+    }
+  },
+  "maintenance": {
+    "description": "While on, the public shop is hidden from visitors and search engines. You stay signed in and can browse it to preview.",
+    "statusOn": "The shop is hidden from visitors.",
+    "statusOff": "The shop is live and visible to everyone.",
+    "enableAria": "Turn on maintenance",
+    "disableAria": "Turn off maintenance",
+    "error": "Something went wrong changing maintenance mode. Please try again."
+  },
+  "ownership": {
+    "intro": "Hand an area of the shop's data to an external system, or take it back. While an external system owns an area, it is the only thing that writes it: the shop's own way in is turned off, and what it fills is read-only here. While nobody owns it, the shop is in charge and automated updates are refused.",
+    "areaText": {
+      "catalog": {
+        "name": "Catalog",
+        "description": "Product names, categories, prices and stock. Descriptions, photos, attributes, documents, what is paired with what, and which products the shop shows stay yours either way.",
+        "ownedEffect": "File uploads are off, and the fields above are read-only in the catalog editor.",
+        "ownEffect": "File uploads work, and automated updates are refused.",
+        "handTitle": "Hand the catalog over",
+        "handConfirm": "Hand the catalog to an external system?",
+        "handWarning": "File uploads stop working, and names, categories, prices and stock become read-only in the catalog editor. Any file already uploaded and waiting can no longer be applied.",
+        "takeTitle": "Take the catalog back",
+        "takeConfirm": "Take the catalog back from the external system?",
+        "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Hand the catalog back when you are done."
+      },
+      "customers": {
+        "name": "Customer accounts",
+        "description": "Who may sign in, what they are called, the company they buy for and which price list they are on. Their orders are an area of their own.",
+        "ownedEffect": "Accounts are approved, edited, switched off and switched back on in that system. The lists here still show everything.",
+        "ownEffect": "Accounts are approved and edited here, and automated updates are refused.",
+        "handTitle": "Hand customer accounts over",
+        "handConfirm": "Hand customer accounts to an external system?",
+        "handWarning": "Approving a registration, editing an account, changing a price list, switching an account off or back on and sending a password link all stop working here and are done in that system instead. Registrations still arrive and are still counted, so you can see who is waiting — but the decision is made over there. Nobody is signed out, and nothing is deleted.",
+        "takeTitle": "Take customer accounts back",
+        "takeConfirm": "Take customer accounts back from the external system?",
+        "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Anything it had not yet sent — an approval, a price list — you will have to set here yourself."
+      },
+      "orders": {
+        "name": "Order processing",
+        "description": "Answering orders, changing what they say, recording payments and the documents staff put on them. Placing an order and calling off an unanswered one are the customer's own and stay open either way.",
+        "ownedEffect": "Orders are answered, changed and paid off in that system. The lists and the orders themselves still show everything.",
+        "ownEffect": "Orders are answered here, and automated updates are refused.",
+        "handTitle": "Hand order processing over",
+        "handConfirm": "Hand order processing to an external system?",
+        "handWarning": "Accepting, refusing and moving an order, changing what it says, recording a payment, telling the customer and putting a document on an order all stop working here and are done in that system instead. Orders still arrive and are still counted, and a customer can still call off an order nobody has answered.",
+        "takeTitle": "Take order processing back",
+        "takeConfirm": "Take order processing back from the external system?",
+        "takeWarning": "The external system's updates will be refused from its next attempt, and whatever it sends while it is refused is not kept. Anything it had not yet sent — a status, a correction, a payment — you will have to record here yourself."
+      }
+    },
+    "statusOwned": "Managed by an external system",
+    "statusOwn": "Managed in the shop",
+    "hand": "Hand over",
+    "take": "Take back",
+    "all": {
+      "heading": "The whole shop",
+      "description": "Every area at once. Areas can also be handed over one at a time below.",
+      "statusMixed": "Partly managed by an external system",
+      "statusMixedEffect": "Areas managed by an external system: {count} of {total}.",
+      "hand": "Hand everything over",
+      "take": "Take everything back",
+      "handTitle": "Hand the whole shop over",
+      "handConfirm": "Hand every area to an external system?",
+      "handWarning": "This does to every area what handing it over one at a time would: the shop's own way into each of them is turned off, and that system becomes the only thing that writes them. Areas it already owns are left as they are.",
+      "takeTitle": "Take the whole shop back",
+      "takeConfirm": "Take every area back from the external system?",
+      "takeWarning": "The external system's updates will be refused across every area from its next attempt, and whatever it sends while it is refused is not kept. Hand the areas back when you are done.",
+      "areasToggle": "Areas one by one"
+    },
+    "error": "Something went wrong changing this. Please try again.",
+    "fieldLocked": "The catalog is managed by an external system, so this is set there rather than here. To edit it in the shop, take the catalog back under Data ownership in the admin panel.",
+    "fieldLockedShort": "Set by the external system that manages the catalog.",
+    "categoryHasProducts": "This category still has products in it. While the catalog is managed by an external system, products cannot be moved between categories here — empty it in that system first, or take the catalog back under Data ownership in the admin panel.",
+    "categoryHasDeletedProducts": "Deleted products this category still holds: {count}. While the catalog is managed by an external system, they cannot be moved between categories here. A product deleted permanently no longer holds it; one that was ever ordered always will. You can still rename it, change its address and move it to the end of the list.",
+    "productPurge": "The external system still sends this product, so deleting it permanently would only bring it back as a new one. It stays deleted.",
+    "productRestoreTitle": "Removed by the external system",
+    "productRestore": "The external system removed this product because it no longer sends it. It comes back by itself when that system sends it again. To restore it here, take the catalog back under Data ownership in the admin panel.",
+    "productCreate": "The catalog is managed by an external system, so new products are added there. To add one in the shop, take the catalog back under Data ownership in the admin panel.",
+    "tierKeyLocked": "The catalog is managed by an external system, so this price list's key is set there. The name is yours to change either way, and you can still add a price list or remove an unused one.",
+    "accountLocked": "Customer accounts are managed by an external system, so this account is edited there rather than here. To edit it in the shop, take customer accounts back under Data ownership in the admin panel.",
+    "accountCreate": "Customer accounts are managed by an external system, so new customers are added there. To add one in the shop, take customer accounts back under Data ownership in the admin panel.",
+    "runStranded": "This file was uploaded before the area was handed to an external system, so it can no longer be applied. Discard it, or take the area back under Data ownership in the admin panel.",
+    "accountDecline": "Customer accounts are managed by an external system, so registrations are decided there. Decline this one in that system, or take customer accounts back under Data ownership in the admin panel.",
+    "accountActive": "Customer accounts are managed by an external system, so switching one off or back on is done there. Change it in that system, or take customer accounts back under Data ownership in the admin panel.",
+    "orderLocked": "Orders are managed by an external system, so this one is answered there rather than here. Customers can still place orders and call off ones nobody has answered. To work orders in the shop, take order processing back under Data ownership in the admin panel."
+  },
+  "operations": {
+    "page": {
+      "title": "Maintenance and ownership"
+    },
+    "backToPanel": "Back to the panel",
+    "maintenanceHeading": "Maintenance mode",
+    "ownershipHeading": "Data ownership",
+    "loadError": "This could not be loaded. Please reload the page.",
+    "historyTitle": "Recent changes",
+    "historyEmpty": "Nothing has been changed yet.",
+    "historyOwnershipOn": "{area} handed to an external system",
+    "historyOwnershipOff": "{area} taken back",
+    "historyMaintenanceOn": "Maintenance mode turned on",
+    "historyMaintenanceOff": "Maintenance mode turned off",
+    "historyBy": "{date} by {actor}",
+    "historyMore": "Only the {count} most recent changes are shown."
+  }
+}

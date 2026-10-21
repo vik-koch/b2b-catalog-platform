@@ -1,0 +1,15 @@
+{
+  "orderSummary": {
+    "title": "Order {reference}",
+    "placedLabel": "Placed",
+    "whenAny": "No date given",
+    "itemsLabel": "Item",
+    "quantityLabel": "Quantity",
+    "lineTotalLabel": "Total",
+    "returnNotice": "Unopened goods can be returned within 14 days of delivery. Write to us naming the order reference; the terms of sale set out the details.",
+    "footer": "This document states the order as it stands. It is not an invoice."
+  },
+  "terms": {
+    "fileName": "terms-of-sale-{date}.pdf"
+  }
+}
