@@ -253,6 +253,68 @@ describe('RegisterPage', () => {
   });
 
   // The registration number is only asked of a company, and only sent by one.
+  describe('a shop that sells to one kind of customer (FR-AUTH-13)', () => {
+    it('asks a companies-only shop’s registrant for the company straight away', async () => {
+      const { el, register, sync, submit, fillPerson } = await render('ok', {
+        ...askingConfig,
+        customerTypes: ['company'],
+      });
+
+      expect(el.querySelector('input[value="person"]')).toBeNull();
+      expect(el.textContent).not.toContain(text.customerType);
+      expect(el.querySelector('#companyRegistrationId')).not.toBeNull();
+
+      await fillPerson();
+      setInput(el, '#companyName', 'Kontor GmbH');
+      setInput(el, '#companyRegistrationId', 'DE123456789');
+      await sync();
+      submit();
+      await sync();
+
+      expect(register).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customerType: 'company',
+          companyName: 'Kontor GmbH',
+          companyRegistrationId: 'DE123456789',
+        }),
+      );
+    });
+
+    it('does not let a companies-only registrant leave the company out', async () => {
+      const { el, register, sync, submit, fillPerson } = await render('ok', {
+        ...askingConfig,
+        customerTypes: ['company'],
+      });
+
+      await fillPerson();
+      submit();
+      await sync();
+
+      expect(register).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(
+        defaultCommonText.fields.companyName.required,
+      );
+    });
+
+    it('asks a persons-only shop’s registrant about no company at all', async () => {
+      const { el, register, sync, submit, fillPerson } = await render('ok', {
+        ...askingConfig,
+        customerTypes: ['person'],
+      });
+
+      expect(el.querySelector('input[value="company"]')).toBeNull();
+      expect(el.querySelector('#companyName')).toBeNull();
+
+      await fillPerson();
+      submit();
+      await sync();
+
+      expect(register).toHaveBeenCalledWith(
+        expect.objectContaining({ customerType: 'person' }),
+      );
+    });
+  });
+
   it('shows the registration number field only for a company', async () => {
     const { el, sync, chooseCompany } = await render();
 

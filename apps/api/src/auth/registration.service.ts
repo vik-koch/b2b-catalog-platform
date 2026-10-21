@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   CommonText,
+  CustomerType,
   formatPhone,
   PhoneConfig,
   RegisterRequest,
@@ -13,6 +14,7 @@ import {
 import { AddressesService } from '../addresses/addresses.service';
 import { ConsentService } from '../consents/consent.service';
 import {
+  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   CompanyIdRule,
   PHONE_INPUT,
@@ -52,6 +54,8 @@ export class RegistrationService {
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
     private readonly consents: ConsentService,
     @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
+    @Inject(ACCEPTED_CUSTOMER_TYPES)
+    private readonly customerTypes: readonly CustomerType[],
   ) {}
 
   async register(request: RegisterRequest): Promise<void> {
@@ -61,6 +65,15 @@ export class RegistrationService {
     if (request.website) {
       this.logger.warn('Rejected registration: honeypot field populated');
       return;
+    }
+
+    // Which kinds of customer the shop sells to is deployment config
+    // (FR-AUTH-13). The form offers only those; this is the rule.
+    if (!this.customerTypes.includes(request.customerType)) {
+      throw new BadRequestException({
+        code: 'customer-type-not-accepted',
+        message: 'This shop does not sell to that kind of customer',
+      });
     }
 
     // The shared contract settles the envelope; the *format* of a registration

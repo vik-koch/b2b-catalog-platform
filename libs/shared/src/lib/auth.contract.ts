@@ -18,6 +18,7 @@ import {
 import { commonAuthErrors, phoneFormatErrors } from './api-error';
 import { consentErrors } from './page-constants';
 import { consentVersionField } from './page.contract';
+import { CUSTOMER_TYPES } from './user-constants';
 
 export type UserRole = (typeof USER_ROLES)[number];
 export const userRoleSchema = z.enum(USER_ROLES);
@@ -200,9 +201,6 @@ export const forgotPasswordSchema = z
   .strict();
 export type ForgotPasswordRequest = z.infer<typeof forgotPasswordSchema>;
 
-/** What kind of customer is registering. Kept in sync with the `customer_type` pg enum. */
-export const CUSTOMER_TYPES = ['person', 'company'] as const;
-export type CustomerType = (typeof CUSTOMER_TYPES)[number];
 export const customerTypeSchema = z.enum(CUSTOMER_TYPES);
 
 /**
@@ -358,6 +356,9 @@ export const authContract = {
     // account, a bad format reveals nothing about anyone.
     .errors({
       'company-id-format': { status: 400 },
+      // A kind of customer the shop does not sell to (FR-AUTH-13). The form
+      // offers none, so only a request built past it gets here.
+      'customer-type-not-accepted': { status: 400 },
       ...phoneFormatErrors,
       ...consentErrors,
     })
