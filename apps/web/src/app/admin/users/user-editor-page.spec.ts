@@ -88,6 +88,7 @@ async function render(
     role?: 'admin' | 'manager';
     tiers?: CustomerTier[];
     ownedAreas?: OwnershipArea[];
+    config?: typeof defaultDeploymentConfig;
   } = {},
 ) {
   const isNew = options.account === undefined;
@@ -130,7 +131,10 @@ async function render(
       { provide: COMMON_TEXT, useValue: defaultCommonText },
       { provide: APP_TEXT, useValue: defaultAppText },
       { provide: COMMON_TEXT, useValue: defaultCommonText },
-      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: options.config ?? defaultDeploymentConfig,
+      },
       {
         provide: AuthService,
         useValue: { user: () => ({ role: options.role ?? 'admin' }) },
@@ -370,10 +374,81 @@ describe('UserEditorPage', () => {
       expect.objectContaining({
         email: 'new@example.com',
         role: 'user',
+        customerType: 'person',
         firstName: 'Neu',
         lastName: 'Kunde',
       }),
     );
+  });
+
+  describe('a shop that sells to companies only (FR-AUTH-13)', () => {
+    const companiesOnly = {
+      ...defaultDeploymentConfig,
+      customerTypes: ['company' as const],
+    };
+
+    it('creates a customer as a company, with nothing to choose', async () => {
+      const { el, service, type, press, field } = await render({
+        kind: 'customer',
+        config: companiesOnly,
+      });
+
+      expect(el.querySelector('input[value="person"]')).toBeNull();
+      expect(el.textContent).not.toContain(text.customerType);
+
+      await type('email', 'buyer@example.com');
+      await type('firstName', 'Neu');
+      await type('lastName', 'Kunde');
+      expect(field('companyName')).not.toBeNull();
+      await type('companyName', 'Kunde GmbH');
+      await type('companyRegistrationId', 'DE123456789');
+      await press(text.create);
+
+      expect(service.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          customerType: 'company',
+          companyName: 'Kunde GmbH',
+          companyRegistrationId: 'DE123456789',
+        }),
+      );
+    });
+
+    it('says why a person from before the rule now asks for a company, and saves it as one', async () => {
+      const { el, service, type, press } = await render({
+        account: user({ customerType: 'person' }),
+        config: companiesOnly,
+      });
+
+      expect(el.textContent).toContain(text.typeNotAccepted);
+
+      await press(defaultAdminText.actions.save);
+      expect(service.update).not.toHaveBeenCalled();
+
+      await type('companyName', 'Doe Consulting Ltd');
+      await type('companyRegistrationId', 'DE123456789');
+      await press(defaultAdminText.actions.save);
+
+      expect(service.update).toHaveBeenCalledWith(
+        'u1',
+        expect.objectContaining({
+          customerType: 'company',
+          companyName: 'Doe Consulting Ltd',
+        }),
+      );
+    });
+
+    it('says nothing on a company account', async () => {
+      const { el } = await render({
+        account: user({
+          customerType: 'company',
+          companyName: 'Doe GmbH',
+          companyRegistrationId: 'DE123456789',
+        }),
+        config: companiesOnly,
+      });
+
+      expect(el.textContent).not.toContain(text.typeNotAccepted);
+    });
   });
 
   it('creates a staff account with the chosen role and no tier', async () => {

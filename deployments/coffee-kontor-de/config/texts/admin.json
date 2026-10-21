@@ -1338,7 +1338,8 @@
         "role-change-admin-only": "Nur ein Admin kann die Rolle eines Kontos ändern.",
         "staff-create-admin-only": "Nur ein Admin kann ein Mitarbeiterkonto anlegen.",
         "source-id-change-admin-only": "Nur ein Admin kann den Quellschlüssel eines Kontos ändern.",
-        "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen."
+        "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen.",
+        "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht."
       },
       "deactivateConfirm": {
         "heading": "Konto deaktivieren",
@@ -1363,6 +1364,7 @@
       "approveTitle": "Antrag freigeben",
       "emailFixed": "Die E-Mail-Adresse ist der Anmeldename und lässt sich hier nicht ändern.",
       "customerType": "Kundenart",
+      "typeNotAccepted": "Dieses Konto wurde als eine Kundenart gespeichert, an die dieser Shop nicht mehr verkauft. Füllen Sie die unten verlangten Angaben aus, um es als eine Kundenart zu speichern, an die er verkauft.",
       "tier": "Kundengruppe",
       "tierChoose": "Kundengruppe wählen…",
       "role": "Rolle",

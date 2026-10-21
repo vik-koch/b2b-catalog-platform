@@ -1338,7 +1338,8 @@
         "role-change-admin-only": "Only an admin can change the role of an account.",
         "staff-create-admin-only": "Only an admin can create a staff account.",
         "source-id-change-admin-only": "Only an admin can change the source key of an account.",
-        "not-exemptable": "This deployment lets no account of this role skip the sign-in code."
+        "not-exemptable": "This deployment lets no account of this role skip the sign-in code.",
+        "customer-type-not-accepted": "This shop does not sell to that kind of customer."
       },
       "deactivateConfirm": {
         "heading": "Deactivate account",
@@ -1363,6 +1364,7 @@
       "approveTitle": "Approve registration",
       "emailFixed": "The email address is the sign-in name and cannot be changed here.",
       "customerType": "Customer type",
+      "typeNotAccepted": "This account was saved as a kind of customer this shop no longer sells to. Fill in what is asked below to save it as one it does.",
       "tier": "Tier",
       "tierChoose": "Select a tier…",
       "role": "Role",

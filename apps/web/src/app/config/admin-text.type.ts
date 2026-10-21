@@ -2136,6 +2136,8 @@ export const adminTextSchema = z
                 'source-id-change-admin-only': z.string(),
                 /** No account of this role may skip the sign-in code (FR-AUTH-12). */
                 'not-exemptable': z.string(),
+                /** A kind of customer the shop does not sell to (FR-AUTH-13). */
+                'customer-type-not-accepted': z.string(),
               })
               .strict(),
           })
@@ -2156,6 +2158,9 @@ export const adminTextSchema = z
             /** Why the address is shown but not editable. */
             emailFixed: z.string(),
             customerType: z.string(),
+            /** Above the form of an account stored as a kind of customer the
+             * shop no longer sells to (FR-AUTH-13). */
+            typeNotAccepted: z.string(),
             tier: z.string(),
             tierChoose: z.string(),
             role: z.string(),
