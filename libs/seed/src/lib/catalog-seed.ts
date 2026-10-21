@@ -11,6 +11,7 @@ import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { ProductSeed, SeedBundle } from './bundle';
 import { CatalogPhotos, PictureMode } from './catalog-photos';
 import {
+  DrawnArt,
   generateCategoryMark,
   generateGlazeImage,
   generateProductImage,
@@ -37,6 +38,8 @@ export async function seedCatalog(
           mediaRoot,
           category.sourceId,
           marks[category.mark],
+          catalog.drawn?.hue,
+          catalog.drawn?.markSize,
         )
       : null;
     const parentId = category.parentKey
@@ -74,6 +77,7 @@ export async function seedCatalog(
       mediaRoot,
       photos,
       product,
+      drawnArt(catalog, marks, product.categoryKey),
     );
 
     const packaging = product.packaging ?? {};
@@ -170,15 +174,39 @@ export async function seedCatalog(
 }
 
 /**
+ * What a product's drawn pictures show, where the bundle draws its own: the
+ * icon of its category, or of the nearest parent that has one, else the
+ * bundle's. Undefined for a bundle that keeps the bean and the cups.
+ */
+function drawnArt(
+  catalog: SeedBundle['catalog'],
+  marks: SeedBundle['marks'],
+  categoryKey: string,
+): DrawnArt | undefined {
+  if (!catalog.drawn) return undefined;
+  let key: string | null = categoryKey;
+  while (key) {
+    const category = catalog.categories.find((c) => c.sourceId === key);
+    if (category?.mark) {
+      return { hue: catalog.drawn.hue, icon: marks[category.mark] };
+    }
+    key = category?.parentKey ?? null;
+  }
+  return { hue: catalog.drawn.hue, icon: marks[catalog.drawn.icon] };
+}
+
+/**
  * A product's gallery: its own pictures first, then each variant's (FR-CAT-11).
  * A picture without a photo is drawn: as glazed cups for a product with
  * variants — the range side by side, then one colour per variant's picture,
- * so each label names what the picture shows — and as the bean otherwise.
+ * so each label names what the picture shows — and as the bean otherwise. A
+ * bundle with its own art draws swatches and its icons instead.
  */
 async function productPictures(
   mediaRoot: string,
   photos: CatalogPhotos,
   product: ProductSeed,
+  art: DrawnArt | undefined,
 ): Promise<{
   images: { full: string; thumb: string; variantId?: string }[];
   variants: { id: string; name: string; unavailable: boolean }[];
@@ -191,8 +219,8 @@ async function productPictures(
     images.push(
       (await photos.store(picture)) ??
         (seeds.length === 0
-          ? await generateProductImage(mediaRoot, seed)
-          : await generateGlazeImage(mediaRoot, seed, colours)),
+          ? await generateProductImage(mediaRoot, seed, art)
+          : await generateGlazeImage(mediaRoot, seed, colours, art)),
     );
   }
 
@@ -209,6 +237,7 @@ async function productPictures(
           mediaRoot,
           `${product.slug}-${variant.name}-${i + 1}`,
           [colours[index]],
+          art,
         ));
       images.push({ ...image, variantId: variants[index].id });
     }

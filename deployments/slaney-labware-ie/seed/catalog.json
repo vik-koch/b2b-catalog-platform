@@ -1,0 +1,1543 @@
+{
+  "categories": [
+    {
+      "sourceId": "pipette-tips",
+      "slug": "pipette-tips",
+      "name": "Pipette Tips",
+      "parentKey": null,
+      "mark": "droplet"
+    },
+    {
+      "sourceId": "pipettes",
+      "slug": "pipettes",
+      "name": "Pipettes",
+      "parentKey": null,
+      "mark": "pipette"
+    },
+    {
+      "sourceId": "tubes",
+      "slug": "tubes",
+      "name": "Tubes",
+      "parentKey": null,
+      "mark": "test-tubes"
+    },
+    {
+      "sourceId": "microtubes",
+      "slug": "microtubes",
+      "name": "Microtubes",
+      "parentKey": "tubes",
+      "mark": "test-tube-diagonal"
+    },
+    {
+      "sourceId": "centrifuge-tubes",
+      "slug": "centrifuge-tubes",
+      "name": "Centrifuge Tubes",
+      "parentKey": "tubes",
+      "mark": "test-tube"
+    },
+    {
+      "sourceId": "cryogenic",
+      "slug": "cryogenic",
+      "name": "Cryogenic Storage",
+      "parentKey": "tubes",
+      "mark": "snowflake"
+    },
+    {
+      "sourceId": "petri-dishes",
+      "slug": "petri-dishes",
+      "name": "Petri Dishes",
+      "parentKey": null,
+      "mark": "circle-dot"
+    },
+    {
+      "sourceId": "glassware",
+      "slug": "glassware",
+      "name": "Glassware",
+      "parentKey": null,
+      "mark": "flask-conical"
+    },
+    {
+      "sourceId": "beakers",
+      "slug": "beakers",
+      "name": "Beakers",
+      "parentKey": "glassware",
+      "mark": "beaker"
+    },
+    {
+      "sourceId": "flasks",
+      "slug": "flasks",
+      "name": "Flasks",
+      "parentKey": "glassware",
+      "mark": "flask-round"
+    },
+    {
+      "sourceId": "cylinders",
+      "slug": "cylinders",
+      "name": "Measuring Cylinders",
+      "parentKey": "glassware",
+      "mark": "ruler"
+    },
+    {
+      "sourceId": "vials-bottles",
+      "slug": "vials-bottles",
+      "name": "Vials and Bottles",
+      "parentKey": null,
+      "mark": "milk"
+    },
+    {
+      "sourceId": "racks-storage",
+      "slug": "racks-storage",
+      "name": "Racks and Storage",
+      "parentKey": null,
+      "mark": "grid-3x3"
+    },
+    {
+      "sourceId": "gloves-ppe",
+      "slug": "gloves-ppe",
+      "name": "Gloves and PPE",
+      "parentKey": null,
+      "mark": "hand"
+    },
+    {
+      "sourceId": "slides-microscopy",
+      "slug": "slides-microscopy",
+      "name": "Slides and Microscopy",
+      "parentKey": null,
+      "mark": "microscope"
+    },
+    {
+      "sourceId": "bench-supplies",
+      "slug": "bench-supplies",
+      "name": "Bench Supplies",
+      "parentKey": null,
+      "mark": null
+    }
+  ],
+  "drawn": {
+    "hue": 210,
+    "icon": "flask-conical",
+    "markSize": 0.6
+  },
+  "attributes": [
+    {
+      "name": "Volume",
+      "slug": "volume",
+      "type": "number",
+      "unit": "ml"
+    },
+    {
+      "name": "Tip volume",
+      "slug": "tip-volume",
+      "type": "number",
+      "unit": "µl"
+    },
+    {
+      "name": "Diameter",
+      "slug": "diameter",
+      "type": "number",
+      "unit": "mm"
+    },
+    {
+      "name": "Places",
+      "slug": "places",
+      "type": "number",
+      "unit": null
+    },
+    {
+      "name": "Material",
+      "slug": "material",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Sterile",
+      "slug": "sterile",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Size",
+      "slug": "size",
+      "type": "text",
+      "unit": null
+    },
+    {
+      "name": "Colour",
+      "slug": "colour",
+      "type": "text",
+      "unit": null
+    }
+  ],
+  "catalogFilters": ["material", "sterile"],
+  "products": [
+    {
+      "sourceId": "TIP-010",
+      "slug": "pipette-tips-10-racked",
+      "name": "Pipette Tips 10 µl, Racked, Sterile",
+      "categoryKey": "pipette-tips",
+      "priceMinor": 4,
+      "descriptionHtml": "<p>Clear polypropylene tips for 0.1–10&nbsp;µl pipettes, 96 to a hinged rack, sterilised by irradiation and certified free of RNase, DNase and pyrogens.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "10"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        },
+        {
+          "key": "Compatible with",
+          "value": "Most universal-fit pipettes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6129898/pexels-photo-6129898.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6129898/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 96,
+        "packsPerBox": 10,
+        "minPieceQty": 96,
+        "boxVolume": "0.018",
+        "boxWeight": "2.400"
+      },
+      "stockPieces": 14400
+    },
+    {
+      "sourceId": "TIP-200",
+      "slug": "pipette-tips-200-racked",
+      "name": "Pipette Tips 200 µl, Racked, Sterile",
+      "categoryKey": "pipette-tips",
+      "priceMinor": 5,
+      "descriptionHtml": "<p>Yellow-graduated tips for 20–200&nbsp;µl pipettes, 96 to a hinged rack, sterile. The tip most labs go through fastest.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "200"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        },
+        {
+          "key": "Compatible with",
+          "value": "Most universal-fit pipettes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9574333/pexels-photo-9574333.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9574333/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6129898/pexels-photo-6129898.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6129898/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.1,
+            "size": 0.7
+          }
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 96,
+        "packsPerBox": 10,
+        "minPieceQty": 96,
+        "boxVolume": "0.018",
+        "boxWeight": "2.400"
+      },
+      "stockPieces": 28800,
+      "featured": true
+    },
+    {
+      "sourceId": "TIP-1000",
+      "slug": "pipette-tips-1000-racked",
+      "name": "Pipette Tips 1000 µl, Racked",
+      "categoryKey": "pipette-tips",
+      "priceMinor": 6,
+      "descriptionHtml": "<p>Blue-graduated tips for 100–1000&nbsp;µl pipettes, 96 to a rack. Non-sterile, for routine work.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "1000"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "No"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9574333/pexels-photo-9574333.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9574333/",
+          "crop": {
+            "x": 0.3,
+            "y": 0.2,
+            "size": 0.75
+          }
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 96,
+        "packsPerBox": 10,
+        "minPieceQty": 96,
+        "boxVolume": "0.018",
+        "boxWeight": "2.400"
+      },
+      "stockPieces": 672
+    },
+    {
+      "sourceId": "TIP-201",
+      "slug": "pipette-tips-200-bulk",
+      "name": "Pipette Tips 200 µl, Bulk Bag",
+      "categoryKey": "pipette-tips",
+      "priceMinor": 1,
+      "descriptionHtml": "<p>The same 200&nbsp;µl tip loose in a resealable bag of 1,000, for labs that refill their own racks.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "200"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "No"
+        }
+      ],
+      "pictures": [{}],
+      "packaging": {
+        "piecesPerPack": 1000,
+        "minPieceQty": 1000,
+        "packsPerBox": 10,
+        "boxVolume": "0.060",
+        "boxWeight": "10.500"
+      },
+      "stockPieces": 40000
+    },
+    {
+      "sourceId": "TIP-090",
+      "slug": "filter-tips-20-racked",
+      "name": "Filter Tips 20 µl, Racked, Sterile",
+      "categoryKey": "pipette-tips",
+      "priceMinor": 9,
+      "descriptionHtml": "<p>Aerosol-barrier tips for 2–20&nbsp;µl pipettes. Awaiting the supplier's certificate before going on sale.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "20"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        }
+      ],
+      "pictures": [{}],
+      "packaging": {
+        "piecesPerPack": 96,
+        "packsPerBox": 10,
+        "minPieceQty": 96,
+        "boxVolume": "0.018",
+        "boxWeight": "2.400"
+      },
+      "state": "unpublished"
+    },
+    {
+      "sourceId": "PIP-001",
+      "slug": "single-channel-pipette-20-200",
+      "name": "Single-Channel Pipette 20–200 µl",
+      "categoryKey": "pipettes",
+      "priceMinor": 18900,
+      "descriptionHtml": "<p>Adjustable-volume air-displacement pipette with a four-digit counter, a soft-release ejector and a fully autoclavable lower part. Supplied with a calibration certificate.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "200"
+        },
+        {
+          "key": "Compatible with",
+          "value": "Universal-fit tips"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8442542/pexels-photo-8442542.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8442542/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8940513/pexels-photo-8940513.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940513/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 1,
+        "packsPerBox": 5,
+        "boxVolume": "0.012",
+        "boxWeight": "2.100"
+      }
+    },
+    {
+      "sourceId": "PIP-008",
+      "slug": "eight-channel-pipette-30-300",
+      "name": "8-Channel Pipette 30–300 µl",
+      "categoryKey": "pipettes",
+      "priceMinor": 74900,
+      "descriptionHtml": "<p>Eight channels on a rotating manifold for filling 96-well plates in twelve moves. Individually replaceable channels, calibrated in the factory.</p>",
+      "attributes": [
+        {
+          "key": "Tip volume",
+          "value": "300"
+        },
+        {
+          "key": "Compatible with",
+          "value": "Universal-fit tips"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8940509/pexels-photo-8940509.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940509/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8940473/pexels-photo-8940473.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940473/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8940471/pexels-photo-8940471.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940471/"
+        }
+      ],
+      "stockPieces": 6,
+      "packaging": {
+        "piecesPerPack": 1,
+        "packsPerBox": 2,
+        "boxVolume": "0.014",
+        "boxWeight": "2.600"
+      }
+    },
+    {
+      "sourceId": "PIP-010",
+      "slug": "pipette-stand-6",
+      "name": "Pipette Stand, 6 Places",
+      "categoryKey": "pipettes",
+      "priceMinor": 6400,
+      "descriptionHtml": "<p>A weighted acrylic carousel that keeps six pipettes upright and their tip cones clear of the bench.</p>",
+      "attributes": [
+        {
+          "key": "Places",
+          "value": "6"
+        },
+        {
+          "key": "Material",
+          "value": "Acrylic"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8940470/pexels-photo-8940470.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940470/"
+        }
+      ],
+      "stockPieces": 18,
+      "packaging": {
+        "piecesPerPack": 1,
+        "packsPerBox": 4,
+        "boxVolume": "0.030",
+        "boxWeight": "6.000"
+      }
+    },
+    {
+      "sourceId": "MCT-020",
+      "slug": "microtubes-2-graduated",
+      "name": "Microtubes 2.0 ml, Graduated",
+      "categoryKey": "microtubes",
+      "priceMinor": 3,
+      "descriptionHtml": "<p>Snap-cap microcentrifuge tubes with printed graduations and a frosted writing area, rated to 20,000&nbsp;×&nbsp;g.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "2"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "No"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7722963/pexels-photo-7722963.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722963/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 500,
+        "packsPerBox": 10,
+        "minPieceQty": 500,
+        "boxVolume": "0.040",
+        "boxWeight": "6.100"
+      },
+      "stockPieces": 60000
+    },
+    {
+      "sourceId": "CON-015",
+      "slug": "centrifuge-tubes-15-racked",
+      "name": "Centrifuge Tubes 15 ml, Racked, Sterile",
+      "categoryKey": "centrifuge-tubes",
+      "priceMinor": 22,
+      "descriptionHtml": "<p>Conical-bottom tubes with leak-proof screw caps, 50 to a reusable foam rack, sterile and free of DNase and RNase.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "15"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7722526/pexels-photo-7722526.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722526/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722531/pexels-photo-7722531.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722531/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722536/pexels-photo-7722536.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722536/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 50,
+        "packsPerBox": 10,
+        "minPieceQty": 100,
+        "boxVolume": "0.062",
+        "boxWeight": "4.800"
+      },
+      "stockPieces": 6000,
+      "featured": true
+    },
+    {
+      "sourceId": "CON-050",
+      "slug": "centrifuge-tubes-50-racked",
+      "name": "Centrifuge Tubes 50 ml, Racked, Sterile",
+      "categoryKey": "centrifuge-tubes",
+      "priceMinor": 29,
+      "descriptionHtml": "<p>Self-standing 50&nbsp;ml conical tubes, 25 to a rack. A full box ships as two cartons.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "50"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7722538/pexels-photo-7722538.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722538/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722525/pexels-photo-7722525.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722525/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 25,
+        "packsPerBox": 20,
+        "minPieceQty": 25,
+        "boxVolume": "0.120",
+        "boxWeight": "7.600",
+        "boxCount": 2
+      },
+      "stockPieces": 5000
+    },
+    {
+      "sourceId": "CON-016",
+      "slug": "sample-tubes-10-assorted-caps",
+      "name": "Sample Tubes 10 ml, Assorted Caps",
+      "categoryKey": "centrifuge-tubes",
+      "priceMinor": 18,
+      "descriptionHtml": "<p>Round-bottom screw-cap tubes for colour-coding samples by project or by shift. Packed by cap colour; tell us the mix you need.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "10"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Sterile",
+          "value": "No"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9268926/pexels-photo-9268926.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9268926/"
+        }
+      ],
+      "lineNoteEnabled": true,
+      "lineNotePrompt": "Which cap colours, and how many of each?",
+      "variants": [
+        {
+          "name": "Green",
+          "colour": "#3aa357",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/9259980/pexels-photo-9259980.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/9259980/"
+            }
+          ]
+        },
+        {
+          "name": "Blue",
+          "colour": "#2f6fb8",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/3908182/pexels-photo-3908182.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/3908182/"
+            }
+          ]
+        },
+        {
+          "name": "Orange",
+          "colour": "#e9823a",
+          "pictures": [
+            {
+              "url": "https://images.pexels.com/photos/6622571/pexels-photo-6622571.jpeg?auto=compress&cs=tinysrgb&w=2000",
+              "source": "https://www.pexels.com/photo/6622571/"
+            }
+          ]
+        },
+        {
+          "name": "Natural (uncoloured, translucent)",
+          "colour": "#e6e2d8",
+          "pictures": [{}]
+        },
+        {
+          "name": "Purple",
+          "colour": "#7b4fa8",
+          "pictures": [{}],
+          "unavailable": true
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 100,
+        "packsPerBox": 10,
+        "minPieceQty": 100,
+        "boxVolume": "0.050",
+        "boxWeight": "5.200"
+      },
+      "stockPieces": 8200
+    },
+    {
+      "sourceId": "CRY-002",
+      "slug": "cryovial-2-with-cap",
+      "name": "Cryovial 2 ml with Screw Cap",
+      "categoryKey": "cryogenic",
+      "priceMinor": 21,
+      "descriptionHtml": "<p>Self-standing cryovial with an external-thread cap and silicone washer, for storage down to −196&nbsp;°C in the vapour phase. Vial and cap come together as one set.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "2"
+        },
+        {
+          "key": "Material (vial)",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Material (cap)",
+          "value": "HDPE"
+        },
+        {
+          "key": "Colour (cap)",
+          "value": "White"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7723197/pexels-photo-7723197.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7723197/"
+        }
+      ],
+      "parts": ["vial", "cap"],
+      "packaging": {
+        "piecesPerPack": 100,
+        "packsPerBox": 10,
+        "minPieceQty": 100,
+        "boxVolume": "0.030",
+        "boxWeight": "3.900"
+      },
+      "stockPieces": 600
+    },
+    {
+      "sourceId": "CRY-081",
+      "slug": "cryo-storage-box-81",
+      "name": "Cryo Storage Box, 81 Places",
+      "categoryKey": "cryogenic",
+      "priceMinor": 290,
+      "descriptionHtml": "<p>A 9&nbsp;×&nbsp;9 polycarbonate freezer box with a numbered grid lid, for 1–2&nbsp;ml cryovials.</p>",
+      "attributes": [
+        {
+          "key": "Places",
+          "value": "81"
+        },
+        {
+          "key": "Material",
+          "value": "Polycarbonate"
+        }
+      ],
+      "pictures": [],
+      "packaging": {
+        "piecesPerPack": 5,
+        "packsPerBox": 8,
+        "boxVolume": "0.050",
+        "boxWeight": "4.400"
+      },
+      "stockPieces": 140
+    },
+    {
+      "sourceId": "PET-090",
+      "slug": "petri-dishes-90-sterile",
+      "name": "Petri Dishes 90 mm, Sterile",
+      "categoryKey": "petri-dishes",
+      "priceMinor": 14,
+      "descriptionHtml": "<p>Triple-vented polystyrene dishes, stackable, in sleeves of 20. Sterile, for routine microbiology.</p>",
+      "attributes": [
+        {
+          "key": "Diameter",
+          "value": "90"
+        },
+        {
+          "key": "Material",
+          "value": "Polystyrene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8940515/pexels-photo-8940515.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940515/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/10187655/pexels-photo-10187655.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/10187655/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8940354/pexels-photo-8940354.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940354/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 20,
+        "packsPerBox": 25,
+        "minPieceQty": 100,
+        "boxVolume": "0.075",
+        "boxWeight": "8.200"
+      },
+      "stockPieces": 12000
+    },
+    {
+      "sourceId": "PET-055",
+      "slug": "petri-dishes-55-sterile",
+      "name": "Petri Dishes 55 mm, Sterile",
+      "categoryKey": "petri-dishes",
+      "priceMinor": 11,
+      "descriptionHtml": "<p>The smaller dish for contact plates and replica plating, in sleeves of 20.</p>",
+      "attributes": [
+        {
+          "key": "Diameter",
+          "value": "55"
+        },
+        {
+          "key": "Material",
+          "value": "Polystyrene"
+        },
+        {
+          "key": "Sterile",
+          "value": "Yes"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8940354/pexels-photo-8940354.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940354/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.2,
+            "size": 0.6
+          }
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 20,
+        "packsPerBox": 25,
+        "minPieceQty": 100,
+        "boxVolume": "0.040",
+        "boxWeight": "4.300"
+      },
+      "stockPieces": 0
+    },
+    {
+      "sourceId": "PET-G90",
+      "slug": "glass-petri-dish-100",
+      "name": "Glass Petri Dish 100 mm, Reusable",
+      "categoryKey": "petri-dishes",
+      "priceMinor": 640,
+      "descriptionHtml": "<p>Borosilicate glass dish and lid, autoclavable and hot-air sterilisable, for labs cutting down on single-use plastic.</p>",
+      "attributes": [
+        {
+          "key": "Diameter",
+          "value": "100"
+        },
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        },
+        {
+          "key": "Sterile",
+          "value": "No"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9259942/pexels-photo-9259942.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9259942/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "packsPerBox": 6,
+        "boxVolume": "0.040",
+        "boxWeight": "21.000"
+      },
+      "stockPieces": 230
+    },
+    {
+      "sourceId": "VIA-002",
+      "slug": "screw-thread-vials-2",
+      "name": "Screw-Thread Vials 2 ml, Clear Glass",
+      "categoryKey": "vials-bottles",
+      "priceMinor": 32,
+      "descriptionHtml": "<p>Autosampler vials with a 9&nbsp;mm thread and a writing patch. Caps are sold separately, so you choose the septum.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "approx. 1.8"
+        },
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9259964/pexels-photo-9259964.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9259964/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/6129873/pexels-photo-6129873.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6129873/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 100,
+        "packsPerBox": 10,
+        "minPieceQty": 100,
+        "boxVolume": "0.020",
+        "boxWeight": "4.500"
+      },
+      "stockPieces": 9000
+    },
+    {
+      "sourceId": "VIA-C09",
+      "slug": "screw-caps-9-ptfe-silicone",
+      "name": "Screw Caps 9 mm, PTFE/Silicone Septum",
+      "categoryKey": "vials-bottles",
+      "priceMinor": 19,
+      "descriptionHtml": "<p>Blue polypropylene caps with a PTFE/silicone septum for repeated injections.</p>",
+      "attributes": [
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Colour",
+          "value": "Blue"
+        }
+      ],
+      "pictures": [{}],
+      "packaging": {
+        "piecesPerPack": 100,
+        "packsPerBox": 10,
+        "minPieceQty": 100,
+        "boxVolume": "0.010",
+        "boxWeight": "1.200"
+      },
+      "stockPieces": 7000
+    },
+    {
+      "sourceId": "VIA-C10",
+      "slug": "screw-caps-9-pre-slit",
+      "name": "Screw Caps 9 mm, Pre-Slit Septum",
+      "categoryKey": "vials-bottles",
+      "priceMinor": 23,
+      "descriptionHtml": "<p>The same cap with a pre-slit septum, which keeps needles from coring and avoids a vacuum in the vial.</p>",
+      "attributes": [
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        },
+        {
+          "key": "Colour",
+          "value": "Blue"
+        }
+      ],
+      "pictures": [{}],
+      "packaging": {
+        "piecesPerPack": 100,
+        "packsPerBox": 10,
+        "minPieceQty": 100,
+        "boxVolume": "0.010",
+        "boxWeight": "1.200"
+      },
+      "stockPieces": 3000
+    },
+    {
+      "sourceId": "BOT-250",
+      "slug": "amber-glass-bottle-250",
+      "name": "Amber Glass Bottles 250 ml",
+      "categoryKey": "vials-bottles",
+      "priceMinor": 310,
+      "descriptionHtml": "<p>Narrow-neck amber bottles that keep light-sensitive reagents in the dark, with polypropylene screw caps.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "250"
+        },
+        {
+          "key": "Material",
+          "value": "Soda-lime glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9628834/pexels-photo-9628834.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9628834/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8450475/pexels-photo-8450475.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8450475/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 12,
+        "packsPerBox": 4,
+        "boxVolume": "0.060",
+        "boxWeight": "19.200"
+      },
+      "stockPieces": 300
+    },
+    {
+      "sourceId": "BEA-250",
+      "slug": "beaker-250-low-form",
+      "name": "Beaker 250 ml, Low Form",
+      "categoryKey": "beakers",
+      "priceMinor": 420,
+      "descriptionHtml": "<p>Borosilicate 3.3 beaker with a spout, white graduations and a marking area.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "250"
+        },
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7722966/pexels-photo-7722966.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722966/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 12,
+        "packsPerBox": 4,
+        "boxVolume": "0.045",
+        "boxWeight": "8.600"
+      },
+      "stockPieces": 480
+    },
+    {
+      "sourceId": "FLA-250",
+      "slug": "erlenmeyer-flask-250",
+      "name": "Erlenmeyer Flask 250 ml",
+      "categoryKey": "flasks",
+      "priceMinor": 560,
+      "descriptionHtml": "<p>Narrow-neck conical flask in borosilicate 3.3 with a beaded rim. Packed in tens, sold singly.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "250"
+        },
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7722539/pexels-photo-7722539.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722539/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722528/pexels-photo-7722528.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722528/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722915/pexels-photo-7722915.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722915/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "minPieceQty": 1,
+        "packsPerBox": 4,
+        "boxVolume": "0.055",
+        "boxWeight": "6.800"
+      },
+      "stockPieces": 260
+    },
+    {
+      "sourceId": "FLA-500",
+      "slug": "volumetric-flask-500-class-a",
+      "name": "Volumetric Flask 500 ml, Class A",
+      "categoryKey": "flasks",
+      "priceMinor": 2480,
+      "descriptionHtml": "<p>Class&nbsp;A volumetric flask with an NS&nbsp;14/23 stopper, individually certified for accuracy.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "500"
+        },
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/9629687/pexels-photo-9629687.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/9629687/"
+        }
+      ],
+      "stockPieces": 4,
+      "packaging": {
+        "piecesPerPack": 1,
+        "packsPerBox": 6,
+        "boxVolume": "0.030",
+        "boxWeight": "3.900"
+      }
+    },
+    {
+      "sourceId": "CYL-100",
+      "slug": "measuring-cylinder-100",
+      "name": "Measuring Cylinder 100 ml",
+      "categoryKey": "cylinders",
+      "priceMinor": 990,
+      "descriptionHtml": "<p>Tall-form cylinder with a hexagonal base and a spout, graduated every 1&nbsp;ml.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "100"
+        },
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7723625/pexels-photo-7723625.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7723625/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722556/pexels-photo-7722556.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722556/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8325758/pexels-photo-8325758.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8325758/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 4,
+        "boxVolume": "0.040",
+        "boxWeight": "7.200"
+      },
+      "stockPieces": 150
+    },
+    {
+      "sourceId": "RCK-015",
+      "slug": "tube-rack-15-50-places",
+      "name": "Tube Rack for 15 ml Tubes, 50 Places",
+      "categoryKey": "racks-storage",
+      "priceMinor": 850,
+      "descriptionHtml": "<p>Two-tier polypropylene rack holding fifty 15&nbsp;ml centrifuge tubes upright, autoclavable.</p>",
+      "attributes": [
+        {
+          "key": "Places",
+          "value": "50"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7722535/pexels-photo-7722535.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722535/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722534/pexels-photo-7722534.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722534/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7722544/pexels-photo-7722544.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7722544/"
+        }
+      ],
+      "stockPieces": 75,
+      "packaging": {
+        "piecesPerPack": 5,
+        "packsPerBox": 4,
+        "boxVolume": "0.090",
+        "boxWeight": "4.000"
+      }
+    },
+    {
+      "sourceId": "RCK-090",
+      "slug": "test-tube-rack-90-places",
+      "name": "Test Tube Rack, 90 Places",
+      "categoryKey": "racks-storage",
+      "priceMinor": 1190,
+      "descriptionHtml": "<p>Interlocking rack for tubes up to 16&nbsp;mm across, in bright colours that tell one bench's samples from another's.</p>",
+      "attributes": [
+        {
+          "key": "Places",
+          "value": "90"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/5827290/pexels-photo-5827290.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/5827290/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8442032/pexels-photo-8442032.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8442032/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 4,
+        "packsPerBox": 5,
+        "boxVolume": "0.080",
+        "boxWeight": "6.500"
+      },
+      "stockPieces": 96
+    },
+    {
+      "sourceId": "RCK-091",
+      "slug": "tube-rack-15-old-model",
+      "name": "Tube Rack for 15 ml Tubes, Old Model",
+      "categoryKey": "racks-storage",
+      "priceMinor": 790,
+      "descriptionHtml": "<p>Replaced by the two-tier rack.</p>",
+      "attributes": [
+        {
+          "key": "Places",
+          "value": "40"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        }
+      ],
+      "pictures": [{}],
+      "state": "deleted",
+      "packaging": {
+        "piecesPerPack": 5,
+        "packsPerBox": 4,
+        "boxVolume": "0.080",
+        "boxWeight": "3.800"
+      }
+    },
+    {
+      "sourceId": "GLV-M",
+      "slug": "nitrile-gloves-m",
+      "name": "Nitrile Gloves, Size M, Box of 100",
+      "categoryKey": "gloves-ppe",
+      "priceMinor": 790,
+      "descriptionHtml": "<p>Powder-free, textured fingertips, 240&nbsp;mm cuff. A box of 100 gloves, ten boxes to a carton.</p>",
+      "attributes": [
+        {
+          "key": "Size",
+          "value": "M"
+        },
+        {
+          "key": "Material",
+          "value": "Nitrile"
+        },
+        {
+          "key": "Colour",
+          "value": "Blue"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7856715/pexels-photo-7856715.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7856715/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7856723/pexels-photo-7856723.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7856723/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "packsPerBox": 5,
+        "boxVolume": "0.110",
+        "boxWeight": "32.000"
+      },
+      "stockPieces": 420
+    },
+    {
+      "sourceId": "GLV-L",
+      "slug": "nitrile-gloves-l",
+      "name": "Nitrile Gloves, Size L, Box of 100",
+      "categoryKey": "gloves-ppe",
+      "priceMinor": 790,
+      "descriptionHtml": "<p>The same glove in size L. A box of 100 gloves, ten boxes to a carton.</p>",
+      "attributes": [
+        {
+          "key": "Size",
+          "value": "L"
+        },
+        {
+          "key": "Material",
+          "value": "Nitrile"
+        },
+        {
+          "key": "Colour",
+          "value": "Blue"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/7856723/pexels-photo-7856723.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7856723/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7856715/pexels-photo-7856715.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7856715/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "packsPerBox": 5,
+        "boxVolume": "0.110",
+        "boxWeight": "32.000"
+      },
+      "stockPieces": 8
+    },
+    {
+      "sourceId": "PPE-010",
+      "slug": "safety-goggles-indirect-vent",
+      "name": "Safety Goggles, Indirect Vent",
+      "categoryKey": "gloves-ppe",
+      "priceMinor": 620,
+      "descriptionHtml": "<p>Splash goggles with an anti-fog polycarbonate lens and indirect ventilation; fit over most prescription glasses.</p>",
+      "attributes": [
+        {
+          "key": "Material",
+          "value": "Polycarbonate"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8352127/pexels-photo-8352127.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8352127/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/7789650/pexels-photo-7789650.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/7789650/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "packsPerBox": 10,
+        "boxVolume": "0.070",
+        "boxWeight": "9.500"
+      },
+      "stockPieces": 210
+    },
+    {
+      "sourceId": "PPE-020",
+      "slug": "disposable-lab-coats-l",
+      "name": "Disposable Lab Coats, Size L",
+      "categoryKey": "gloves-ppe",
+      "priceMinor": 240,
+      "descriptionHtml": "<p>Lightweight polypropylene coats with knitted cuffs and press-stud fastening, for visitors and short tasks.</p>",
+      "attributes": [
+        {
+          "key": "Size",
+          "value": "L"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8442646/pexels-photo-8442646.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8442646/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "minPieceQty": 10,
+        "packsPerBox": 10,
+        "boxVolume": "0.060",
+        "boxWeight": "5.500"
+      },
+      "stockPieces": 400
+    },
+    {
+      "sourceId": "SLD-001",
+      "slug": "microscope-slides-frosted",
+      "name": "Microscope Slides, Frosted End",
+      "categoryKey": "slides-microscopy",
+      "priceMinor": 9,
+      "descriptionHtml": "<p>76&nbsp;×&nbsp;26&nbsp;mm soda-lime slides with ground edges and a frosted end to write on. Boxes of 50.</p>",
+      "attributes": [
+        {
+          "key": "Material",
+          "value": "Soda-lime glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/6129891/pexels-photo-6129891.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/6129891/"
+        },
+        {
+          "url": "https://images.pexels.com/photos/8442269/pexels-photo-8442269.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8442269/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 50,
+        "packsPerBox": 20,
+        "minPieceQty": 50,
+        "boxVolume": "0.012",
+        "boxWeight": "9.400"
+      },
+      "stockPieces": 20000
+    },
+    {
+      "sourceId": "SLD-002",
+      "slug": "cover-glasses-22",
+      "name": "Cover Glasses 22 × 22 mm",
+      "categoryKey": "slides-microscopy",
+      "priceMinor": 2,
+      "descriptionHtml": "<p>Thickness no.&nbsp;1.5 cover glasses for high-resolution objectives, 100 to a pack.</p>",
+      "attributes": [
+        {
+          "key": "Material",
+          "value": "Borosilicate glass"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8442271/pexels-photo-8442271.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8442271/",
+          "crop": {
+            "x": 0.2,
+            "y": 0.15,
+            "size": 0.7
+          }
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 100,
+        "minPieceQty": 100,
+        "packsPerBox": 20,
+        "boxVolume": "0.004",
+        "boxWeight": "2.000"
+      },
+      "stockPieces": 15000
+    },
+    {
+      "sourceId": "BEN-001",
+      "slug": "wash-bottle-500",
+      "name": "Wash Bottle 500 ml",
+      "categoryKey": "bench-supplies",
+      "priceMinor": 340,
+      "descriptionHtml": "<p>Wide-neck LDPE squeeze bottle with an angled delivery tube.</p>",
+      "attributes": [
+        {
+          "key": "Volume",
+          "value": "500"
+        },
+        {
+          "key": "Material",
+          "value": "LDPE"
+        }
+      ],
+      "pictures": [],
+      "packaging": {
+        "piecesPerPack": 6,
+        "packsPerBox": 8,
+        "boxVolume": "0.065",
+        "boxWeight": "5.500"
+      },
+      "stockPieces": 180
+    },
+    {
+      "sourceId": "BEN-002",
+      "slug": "plastic-funnel-100",
+      "name": "Plastic Funnel 100 mm",
+      "categoryKey": "bench-supplies",
+      "priceMinor": 160,
+      "descriptionHtml": "<p>Polypropylene funnel with a ribbed stem that lets air escape while you pour.</p>",
+      "attributes": [
+        {
+          "key": "Diameter",
+          "value": "100"
+        },
+        {
+          "key": "Material",
+          "value": "Polypropylene"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8940478/pexels-photo-8940478.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940478/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 10,
+        "packsPerBox": 10,
+        "boxVolume": "0.050",
+        "boxWeight": "4.800"
+      },
+      "stockPieces": 320
+    },
+    {
+      "sourceId": "BEN-003",
+      "slug": "laboratory-safety-handbook",
+      "name": "Laboratory Safety Handbook (Print)",
+      "categoryKey": "bench-supplies",
+      "priceMinor": 2900,
+      "taxRate": 0,
+      "descriptionHtml": "<p>A spiral-bound reference for the bench: chemical storage, spill response, waste streams and the questions an inspector asks. Printed books are zero-rated for VAT.</p>",
+      "attributes": [],
+      "pictures": [{}],
+      "stockPieces": 40,
+      "packaging": {
+        "piecesPerPack": 5,
+        "packsPerBox": 4,
+        "boxVolume": "0.020",
+        "boxWeight": "9.000"
+      }
+    },
+    {
+      "sourceId": "BEN-004",
+      "slug": "magnetic-stirrer-hot-plate",
+      "name": "Magnetic Stirrer with Hot Plate",
+      "categoryKey": "bench-supplies",
+      "priceMinor": 38900,
+      "descriptionHtml": "<p>Ceramic-topped hot plate to 340&nbsp;°C with stirring from 100 to 1,500&nbsp;rpm, for up to 10&nbsp;litres. Supplied with a PTFE stirring bar.</p>",
+      "attributes": [
+        {
+          "key": "Material",
+          "value": "Ceramic, aluminium"
+        }
+      ],
+      "pictures": [
+        {
+          "url": "https://images.pexels.com/photos/8940465/pexels-photo-8940465.jpeg?auto=compress&cs=tinysrgb&w=2000",
+          "source": "https://www.pexels.com/photo/8940465/"
+        }
+      ],
+      "packaging": {
+        "piecesPerPack": 1,
+        "packsPerBox": 2,
+        "boxVolume": "0.050",
+        "boxWeight": "9.800"
+      }
+    }
+  ],
+  "pairings": [
+    ["single-channel-pipette-20-200", "pipette-tips-200-racked"],
+    ["screw-thread-vials-2", "screw-caps-9-ptfe-silicone"],
+    ["screw-thread-vials-2", "screw-caps-9-pre-slit"]
+  ]
+}

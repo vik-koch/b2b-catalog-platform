@@ -14,6 +14,23 @@ import { pagesConfigSchema } from './pages-config';
 import { signInStepConfigSchema } from './sign-in-step-config';
 import { taxConfigSchema } from './tax-config';
 
+/** The steps of the grey ramp a deployment may replace (`theme.neutrals`):
+ * Tailwind's, plus the one between 100 and 200 the category chip uses. */
+export const NEUTRAL_STEPS = [
+  '50',
+  '100',
+  '125',
+  '200',
+  '300',
+  '400',
+  '500',
+  '600',
+  '700',
+  '800',
+  '900',
+  '950',
+] as const;
+
 /**
  * A map embed — restricted to an iframe URL by design.
  */
@@ -264,6 +281,16 @@ export const deploymentConfigSchema = z
             border: z.string().optional(),
             /** Control edges: inputs, secondary buttons. */
             borderStrong: z.string().optional(),
+            /**
+             * The grey ramp behind the tokens above: interaction backgrounds,
+             * placeholders and disabled states, which the app draws in
+             * Tailwind's `stone-*` shades directly. Stone is warm; a cool
+             * palette replaces it here, step by step. A step left out keeps
+             * stone's own.
+             */
+            neutrals: z
+              .partialRecord(z.enum(NEUTRAL_STEPS), z.string())
+              .optional(),
           })
           .strict(),
       })

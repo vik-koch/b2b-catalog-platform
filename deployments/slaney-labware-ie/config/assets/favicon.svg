@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- The logo's flask, white on the accent; swapped per deployment together
+       with logo.svg. -->
+  <rect width="32" height="32" rx="7" fill="#0e7c86"/>
+  <g transform="translate(5.2 3.6) scale(0.6)">
+    <defs><clipPath id="flask"><path d="M16 14.5L6.2 30.6Q4.6 34.5 8.8 34.5H28.2Q32.4 34.5 30.8 30.6L21 14.5Z"/></clipPath></defs>
+    <path d="M0 24.2Q4.6 21.4 9.2 24.2T18.4 24.2T27.6 24.2T36.8 24.2V40H0Z" fill="#ffffff" clip-path="url(#flask)"/>
+    <path d="M13.5 4.5H24.5 M16 4.5V14.5L6.2 30.6Q4.6 34.5 8.8 34.5H28.2Q32.4 34.5 30.8 30.6L21 14.5V4.5" fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

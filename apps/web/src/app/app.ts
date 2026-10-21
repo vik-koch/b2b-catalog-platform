@@ -112,6 +112,7 @@ import { SearchOverlay } from './layout/search-overlay';
     '[style.--color-subtle]': 'branding.theme.subtle || null',
     '[style.--color-border]': 'branding.theme.border || null',
     '[style.--color-border-strong]': 'branding.theme.borderStrong || null',
+    '[style]': 'neutralRamp',
     // Not a colour, but the same seam: one custom property a deployment may
     // override without a rebuild (see styles.css).
     '[style.--font-weight-emphasis]': 'branding.font?.emphasisWeight || null',
@@ -119,6 +120,13 @@ import { SearchOverlay } from './layout/search-overlay';
 })
 export class App {
   protected branding = inject(DEPLOYMENT_CONFIG).branding;
+  /** The deployment's own greys, as the `--color-stone-*` they replace. */
+  protected readonly neutralRamp = Object.fromEntries(
+    Object.entries(this.branding.theme.neutrals ?? {}).map(([step, colour]) => [
+      `--color-stone-${step}`,
+      colour,
+    ]),
+  );
   /** Which sold-together panel is open — what the deferred block waits on. */
   protected readonly pairings = inject(PairingsService);
   private readonly router = inject(Router);

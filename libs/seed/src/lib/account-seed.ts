@@ -81,7 +81,8 @@ async function upsertTier(client: Client, tier: TierSeed): Promise<string> {
 
 /**
  * The tier's price for a product, or null where the tier does not price it.
- * Rounded down to whole ten cents, which is how a real price list reads.
+ * Rounded down to the tier's step, which is how a real price list reads, but
+ * never to nothing: a price of zero is no price at all.
  */
 function tierPriceMinor(
   tier: TierSeed,
@@ -90,7 +91,8 @@ function tierPriceMinor(
 ): number | null {
   const discount = tier.discounts[categoryKey];
   if (discount === undefined) return null;
-  return Math.floor((priceMinor * (1 - discount)) / 10) * 10;
+  const step = tier.roundToMinor ?? 10;
+  return Math.max(1, Math.floor((priceMinor * (1 - discount)) / step) * step);
 }
 
 /**

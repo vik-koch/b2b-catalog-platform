@@ -1,0 +1,68 @@
+{
+  "documents": [
+    {
+      "title": "Certificate of analysis",
+      "file": {
+        "fileName": "certificate-of-analysis.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "A real deployment uploads the certificate issued for each production lot."
+        ]
+      },
+      "issuedDaysAgo": 45,
+      "expiresInDays": 320,
+      "categorySlugs": ["pipette-tips"]
+    },
+    {
+      "title": "ISO 9001 certificate (manufacturer)",
+      "file": {
+        "fileName": "iso-9001-certificate.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "Certificates are renewed by replacing the file on this document."
+        ]
+      },
+      "link": "https://example.org/register/iso9001/IE-0000-0001",
+      "issuedDaysAgo": 1070,
+      "expiresInDays": 25,
+      "categorySlugs": ["centrifuge-tubes", "microtubes"]
+    },
+    {
+      "title": "RNase/DNase-free certificate",
+      "file": {
+        "fileName": "rnase-dnase-free-certificate.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "This one has lapsed: the shop shows it to nobody until it is replaced."
+        ]
+      },
+      "issuedDaysAgo": 400,
+      "expiresInDays": -12,
+      "categorySlugs": ["pipette-tips"]
+    },
+    {
+      "title": "Technical data sheet",
+      "file": {
+        "fileName": "technical-data-sheet.pdf",
+        "body": [
+          "Placeholder document for the demo shop.",
+          "A data sheet has no expiry date, so it is always current."
+        ]
+      },
+      "issuedDaysAgo": null,
+      "expiresInDays": null,
+      "productSlugs": [
+        "centrifuge-tubes-15-racked",
+        "centrifuge-tubes-50-racked",
+        "cryovial-2-with-cap"
+      ]
+    },
+    {
+      "title": "EU declaration of conformity",
+      "link": "https://example.org/register/conformity/0000-0002",
+      "issuedDaysAgo": 200,
+      "expiresInDays": 900,
+      "productSlugs": ["magnetic-stirrer-hot-plate"]
+    }
+  ]
+}

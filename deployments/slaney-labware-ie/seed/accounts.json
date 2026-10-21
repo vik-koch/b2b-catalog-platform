@@ -1,0 +1,341 @@
+{
+  "password": "demo-slaney-2014",
+  "tiers": [
+    {
+      "key": "default",
+      "label": "List price",
+      "sortOrder": -1,
+      "discounts": {}
+    },
+    {
+      "key": "academic",
+      "roundToMinor": 1,
+      "label": "Academic",
+      "sortOrder": 0,
+      "discounts": {
+        "pipette-tips": 0.15,
+        "microtubes": 0.15,
+        "centrifuge-tubes": 0.15,
+        "cryogenic": 0.12,
+        "petri-dishes": 0.15,
+        "vials-bottles": 0.1,
+        "beakers": 0.1,
+        "flasks": 0.1,
+        "cylinders": 0.1,
+        "racks-storage": 0.1,
+        "gloves-ppe": 0.12,
+        "slides-microscopy": 0.12,
+        "bench-supplies": 0.08,
+        "pipettes": 0.1
+      }
+    },
+    {
+      "key": "healthcare",
+      "roundToMinor": 1,
+      "label": "Healthcare",
+      "sortOrder": 1,
+      "discounts": {
+        "pipette-tips": 0.12,
+        "microtubes": 0.12,
+        "centrifuge-tubes": 0.12,
+        "cryogenic": 0.1,
+        "petri-dishes": 0.12,
+        "gloves-ppe": 0.15,
+        "slides-microscopy": 0.1
+      }
+    },
+    {
+      "key": "contract",
+      "roundToMinor": 1,
+      "label": "Contract",
+      "sortOrder": 2,
+      "discounts": {
+        "pipette-tips": 0.2,
+        "microtubes": 0.18,
+        "centrifuge-tubes": 0.18,
+        "petri-dishes": 0.18,
+        "gloves-ppe": 0.1
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "email": "orders@slaney-labware.example",
+      "role": "manager",
+      "status": "active",
+      "firstName": "Niamh",
+      "lastName": "Doyle",
+      "phone": null,
+      "customerType": null,
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "sales@slaney-labware.example",
+      "role": "manager",
+      "status": "active",
+      "firstName": "Cathal",
+      "lastName": "Furlong",
+      "phone": null,
+      "customerType": null,
+      "companyRegistrationId": null,
+      "tier": null
+    },
+    {
+      "email": "purchasing@brennan-biologics.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Siobhán",
+      "lastName": "Brennan",
+      "phone": "+353214560101",
+      "customerType": "company",
+      "companyRegistrationId": "IE6388047V",
+      "tier": "contract",
+      "addresses": [
+        {
+          "label": "Main lab",
+          "street": "Unit 4, Lee Valley Business Park",
+          "postalCode": "T12 K7P2",
+          "city": "Cork",
+          "country": "IE"
+        },
+        {
+          "label": "Goods in",
+          "street": "Unit 9, Lee Valley Business Park",
+          "street2": "Rear loading door",
+          "postalCode": "T12 K7P9",
+          "city": "Cork",
+          "country": "IE"
+        }
+      ]
+    },
+    {
+      "email": "procurement@ardcairn-pharma.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Declan",
+      "lastName": "Nolan",
+      "phone": "+353599130102",
+      "customerType": "company",
+      "companyRegistrationId": "612845",
+      "tier": "contract",
+      "addresses": [
+        {
+          "street": "Ardcairn House, Tullow Road",
+          "postalCode": "R93 E6W1",
+          "city": "Carlow",
+          "country": "IE"
+        }
+      ]
+    },
+    {
+      "email": "lab@glenmore-foodtesting.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Orla",
+      "lastName": "Kehoe",
+      "phone": "+353567720103",
+      "customerType": "company",
+      "companyRegistrationId": "IE3311874K",
+      "tier": "contract"
+    },
+    {
+      "email": "stores@halloran-environmental.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Pádraig",
+      "lastName": "Halloran",
+      "phone": "+353518840104",
+      "customerType": "company",
+      "companyRegistrationId": "IE9152306H",
+      "tier": "contract"
+    },
+    {
+      "email": "buyer@fenlow-analytical.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Gráinne",
+      "lastName": "Fitzpatrick",
+      "phone": "+35314500105",
+      "customerType": "company",
+      "companyRegistrationId": "IE4470918S",
+      "tier": "contract"
+    },
+    {
+      "email": "stores@barrowside-university.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Eoin",
+      "lastName": "Byrne",
+      "phone": "+353599170106",
+      "customerType": "company",
+      "companyRegistrationId": "IE8042117C",
+      "tier": "academic",
+      "addresses": [
+        {
+          "label": "School of Biochemistry",
+          "street": "School of Biochemistry, Kilkenny Road",
+          "postalCode": "R93 X2F4",
+          "city": "Carlow",
+          "country": "IE"
+        }
+      ]
+    },
+    {
+      "email": "science@ferrycarrig-college.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Clodagh",
+      "lastName": "Murphy",
+      "phone": "+353539120107",
+      "customerType": "company",
+      "companyRegistrationId": "IE5509362M",
+      "tier": "academic"
+    },
+    {
+      "email": "lab@kilmore-vetlab.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Ronan",
+      "lastName": "Walsh",
+      "phone": "+353539130108",
+      "customerType": "company",
+      "companyRegistrationId": "IE2267341A",
+      "tier": "healthcare"
+    },
+    {
+      "email": "office@duncannon-dentallab.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Aisling",
+      "lastName": "Power",
+      "phone": "+353519140109",
+      "customerType": "company",
+      "companyRegistrationId": "IE7783095D",
+      "tier": "healthcare"
+    },
+    {
+      "email": "qc@corrigan-brewing.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Tadhg",
+      "lastName": "Corrigan",
+      "phone": "+353539150110",
+      "customerType": "company",
+      "companyRegistrationId": "IE1928374E",
+      "tier": null
+    },
+    {
+      "email": "lab@moyne-water.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Fiona",
+      "lastName": "Moyne",
+      "phone": "+353539160111",
+      "customerType": "company",
+      "companyRegistrationId": "645120",
+      "tier": null
+    },
+    {
+      "email": "aoife@kinsella-microbiology.example",
+      "role": "user",
+      "status": "active",
+      "firstName": "Aoife",
+      "lastName": "Kinsella",
+      "phone": "+353871170112",
+      "customerType": "company",
+      "companyRegistrationId": "IE3054812WA",
+      "tier": "contract",
+      "addresses": [
+        {
+          "street": "14 Slaney Place",
+          "postalCode": "Y21 P6V3",
+          "city": "Enniscorthy",
+          "country": "IE"
+        }
+      ]
+    },
+    {
+      "email": "orders@rathnure-cheese.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Liam",
+      "lastName": "Rossiter",
+      "phone": "+353539180120",
+      "customerType": "company",
+      "companyRegistrationId": "IE6612098B",
+      "tier": null
+    },
+    {
+      "email": "lab@hookhead-aquaculture.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Sinéad",
+      "lastName": "Cullen",
+      "phone": "+353519190121",
+      "customerType": "company",
+      "companyRegistrationId": "IE8835127F",
+      "tier": null
+    },
+    {
+      "email": "admin@bunclody-schools.example",
+      "role": "user",
+      "status": "pending",
+      "firstName": "Martin",
+      "lastName": "Kavanagh",
+      "phone": "+353539200122",
+      "customerType": "company",
+      "companyRegistrationId": "701934",
+      "tier": null
+    },
+    {
+      "email": "stores@blackstairs-labs.example",
+      "role": "user",
+      "status": "invited",
+      "firstName": "Áine",
+      "lastName": "Sinnott",
+      "phone": "+353599210124",
+      "customerType": "company",
+      "companyRegistrationId": "IE2390451G",
+      "tier": "contract"
+    },
+    {
+      "email": "science@new-ross-academy.example",
+      "role": "user",
+      "status": "invited",
+      "firstName": "Colm",
+      "lastName": "Doran",
+      "phone": "+353519220125",
+      "customerType": "company",
+      "companyRegistrationId": "IE7051836N",
+      "tier": "academic"
+    },
+    {
+      "email": "orders@oulart-agri.example",
+      "role": "user",
+      "status": "disabled",
+      "firstName": "Brendan",
+      "lastName": "Codd",
+      "phone": "+353539230127",
+      "customerType": "company",
+      "companyRegistrationId": "IE4128809P",
+      "tier": "contract"
+    },
+    {
+      "id": "00000000-0000-4000-8000-00000000d001",
+      "email": "deleted-00000000-0000-4000-8000-00000000d001@deleted.invalid",
+      "role": "user",
+      "status": "anonymized",
+      "firstName": null,
+      "lastName": null,
+      "phone": null,
+      "customerType": null,
+      "companyRegistrationId": null,
+      "tier": null
+    }
+  ],
+  "inquiry": {
+    "email": "lab@curracloe-labs.example",
+    "phone": "+353539240199"
+  }
+}
