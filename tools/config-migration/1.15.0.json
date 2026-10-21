@@ -1,0 +1,18 @@
+{
+  "from": "v1.14.1",
+  "keys": {
+    "deployment.json:customerTypes": {
+      "new": ["person", "company"]
+    },
+    "texts/admin.json:sync.customers.rowErrors.customer-type-not-accepted": {
+      "new": "This row makes the customer a kind this shop does not sell to. Check the customer type the source system sends for it."
+    },
+    "texts/admin.json:users.list.errors.customer-type-not-accepted": {
+      "new": "This shop does not sell to that kind of customer."
+    },
+    "texts/admin.json:users.editor.typeNotAccepted": {
+      "new": "This account was saved as a kind of customer this shop no longer sells to. Fill in what is asked below to save it as one it does."
+    }
+  },
+  "drop": []
+}
