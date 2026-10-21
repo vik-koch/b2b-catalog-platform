@@ -190,5 +190,6 @@
         "example": "123456"
       }
     ]
-  }
+  },
+  "customerTypes": ["company"]
 }

@@ -4,6 +4,7 @@ import {
   CONSENT_PURPOSES,
   ConsentPurpose,
   CustomerSyncPolicy,
+  CustomerType,
   DEFAULT_CUSTOMER_SYNC_POLICY,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   DEFAULT_SESSION_IDLE_DAYS,
@@ -185,6 +186,18 @@ export const COMPANY_ID_FORMATS = 'COMPANY_ID_FORMATS';
 
 export function loadCompanyIdFormats(): readonly CompanyIdFormat[] {
   return loadApiDeploymentConfig().companyIdInput?.formats ?? [];
+}
+
+/**
+ * The kinds of customer this shop sells to (FR-AUTH-13), for every place an
+ * account or an order is written: registration, the staff editor, the
+ * customer exchange and the order's party. Injected, so a spec can run a
+ * companies-only shop without a config file.
+ */
+export const ACCEPTED_CUSTOMER_TYPES = 'ACCEPTED_CUSTOMER_TYPES';
+
+export function loadAcceptedCustomerTypes(): readonly CustomerType[] {
+  return loadApiDeploymentConfig().customerTypes;
 }
 
 /**
