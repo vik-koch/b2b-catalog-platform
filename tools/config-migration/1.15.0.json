@@ -12,6 +12,12 @@
     },
     "texts/admin.json:users.editor.typeNotAccepted": {
       "new": "This account was saved as a kind of customer this shop no longer sells to. Fill in what is asked below to save it as one it does."
+    },
+    "texts/app.json:checkout.errors.customerTypeNotAccepted": {
+      "new": "We cannot invoice this order to that kind of customer. Please check who it is invoiced to."
+    },
+    "texts/admin.json:orders.adjust.errors.customer-type-not-accepted": {
+      "new": "This shop does not sell to that kind of customer, so the order cannot be invoiced to this party."
     }
   },
   "drop": []

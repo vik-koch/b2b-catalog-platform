@@ -1267,6 +1267,7 @@
         "billing-details-required": "Eine Überweisung wird einem Unternehmen in Rechnung gestellt, und dafür braucht es seine Unternehmenskennung.",
         "cash-not-available": "Ein Unternehmen zahlt per Überweisung, nie bar oder mit Karte.",
         "billing-address-required": "Dieser Shop stellt Rechnungen an eine eigene Adresse aus, daher braucht die Bestellung eine.",
+        "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht, daher kann die Bestellung nicht auf diese Partei ausgestellt werden.",
         "order-not-found": "Es gibt keine Bestellung mit dieser Nummer.",
         "unknown": "Das hat nicht geklappt. Bitte versuchen Sie es noch einmal."
       }

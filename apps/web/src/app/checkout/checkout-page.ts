@@ -283,6 +283,7 @@ import { COMMON_TEXT } from '../config/common-text';
                 @if (!guest()) {
                   <app-party-choice
                     [party]="draft().party"
+                    [ownAllowed]="ownPartyAllowed()"
                     [accountName]="accountName()"
                     [lastOther]="otherParty()"
                     [personNameControl]="partyForm.controls.personName"
@@ -703,8 +704,24 @@ export class CheckoutPage {
 
   /** Which kind "somebody else" was last, so leaving that option and coming
    * back does not quietly reset the switch. */
-  private readonly lastOtherParty = signal<Party>('person');
+  private readonly lastOtherParty = signal<Party>(this.config.customerTypes[0]);
   protected readonly otherParty = this.lastOtherParty.asReadonly();
+
+  /**
+   * Whether the account's own party is a kind of customer the shop sells to
+   * (FR-AUTH-13), read the way the server reads it: a company where the record
+   * carries a registration number and was not declared a person. True until
+   * the profile answers, so the row is not taken away from everybody first.
+   */
+  protected readonly ownPartyAllowed = computed(() => {
+    const profile = this.profile.value();
+    if (!profile) return true;
+    const kind =
+      profile.customerType !== 'person' && profile.companyRegistrationId
+        ? 'company'
+        : 'person';
+    return this.config.customerTypes.includes(kind);
+  });
 
   /**
    * Whether this account is missing the one contact detail an order cannot be
@@ -873,11 +890,19 @@ export class CheckoutPage {
     // their fields are required, and it is not known on the first frame. A
     // guest cannot invoice an account they do not have; a customer's private
     // party owes a name a guest's does not.
+    // Nor can anybody invoice a kind of customer the shop does not sell to
+    // (FR-AUTH-13): a draft from before the rule, or an account of such a
+    // kind, starts on the kind it does.
     effect(() => {
       if (!this.auth.resolved()) return;
       const party = untracked(() => this.draft().party);
-      if (this.guest() && party === 'account') {
-        untracked(() => this.chooseParty('person'));
+      const accepted = this.config.customerTypes;
+      const refused =
+        party === 'account'
+          ? this.guest() || !this.ownPartyAllowed()
+          : !accepted.includes(party);
+      if (refused) {
+        untracked(() => this.chooseParty(this.lastOtherParty()));
         return;
       }
       untracked(() => this.forms.applyPartyValidators(party));

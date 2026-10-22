@@ -694,6 +694,9 @@ export const appTextSchema = z
             billingDetailsRequired: z.string(),
             /** Cash was sent for an order invoiced to a company. */
             cashNotAvailable: z.string(),
+            /** The party is a kind of customer the shop does not sell to
+             * (FR-AUTH-13). */
+            customerTypeNotAccepted: z.string(),
             partyRequired: z.string(),
             rejected: z.string(),
             /** Staff do not buy. Shown before the button is ever pressed as

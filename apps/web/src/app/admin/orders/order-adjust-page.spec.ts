@@ -240,6 +240,22 @@ describe('AdminOrderAdjustPage (FR-ORD-03)', () => {
     expect(el.textContent).toContain(text.changes.none);
   });
 
+  // FR-AUTH-13: an order invoiced to a kind the shop no longer sells to cannot
+  // be saved as one, so the form opens on the kind it can.
+  it('offers only the kind of party the shop sells to', async () => {
+    const { el } = await settled(
+      {},
+      {
+        ...defaultDeploymentConfig,
+        customerTypes: ['person'],
+      },
+    );
+
+    expect(el.querySelector('input[name="adjust-party-kind"]')).toBeNull();
+    expect(el.querySelector('#adjust-party-person')).not.toBeNull();
+    expect(el.querySelector('#adjust-party-id')).toBeNull();
+  });
+
   it('shows what the customer wrote, without offering to change it', async () => {
     const { el } = await settled();
 

@@ -161,6 +161,8 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
           return errors.billingDetailsRequired;
         case 'cash-not-available':
           return errors.cashNotAvailable;
+        case 'customer-type-not-accepted':
+          return errors.customerTypeNotAccepted;
         case 'billing-address-required':
           return errors.incomplete;
         case 'party-required':

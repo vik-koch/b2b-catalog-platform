@@ -2018,6 +2018,9 @@ export const adminTextSchema = z
                 'billing-details-required': z.string(),
                 'cash-not-available': z.string(),
                 'billing-address-required': z.string(),
+                /** The party is a kind of customer the shop does not sell to
+                 * (FR-AUTH-13). */
+                'customer-type-not-accepted': z.string(),
                 'order-not-found': z.string(),
                 /** Anything else: a network that dropped, a server that fell over. */
                 unknown: z.string(),
