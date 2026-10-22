@@ -3,7 +3,9 @@ import { Logger, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConsentModule } from '../consents/consent.module';
 import {
+  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
+  loadAcceptedCustomerTypes,
   loadCompanyIdRule,
   loadPhoneInput,
   loadPhoneRule,
@@ -128,6 +130,10 @@ function signInStepSecret(): string {
     // The deployment's company-number format, compiled once at boot: a bad
     // pattern fails the startup rather than every registration.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
+    {
+      provide: ACCEPTED_CUSTOMER_TYPES,
+      useFactory: loadAcceptedCustomerTypes,
+    },
     // The grouping the staff notification puts back on a stored number.
     { provide: PHONE_INPUT, useFactory: loadPhoneInput },
     // Every door that writes an account's number reads it by this rule.

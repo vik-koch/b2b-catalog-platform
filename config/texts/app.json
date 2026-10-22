@@ -261,6 +261,7 @@
       "unknownPickupLocation": "That collection point is no longer available. Please choose another.",
       "billingDetailsRequired": "Bank transfer needs a company to invoice. Please choose another party or another way to pay.",
       "cashNotAvailable": "We cannot take cash for an order invoiced to a company. Please pay by bank transfer.",
+      "customerTypeNotAccepted": "We cannot invoice this order to that kind of customer. Please check who it is invoiced to.",
       "partyRequired": "Please tell us who we should invoice.",
       "rejected": "We could not accept this order. Please try again.",
       "cartChanged": "Prices or quantities in your cart changed while you were filling this in — please check your order and send it again.",

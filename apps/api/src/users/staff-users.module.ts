@@ -3,8 +3,10 @@ import { AccountModule } from '../account/account.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
+  ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
+  loadAcceptedCustomerTypes,
   loadAlternateLayout,
   loadCompanyIdFormats,
 } from '../config/deployment-config';
@@ -39,6 +41,10 @@ import { StaffUsersService } from './staff-users.service';
     // The shapes the list's "which kind of number" filter can name.
     { provide: COMPANY_ID_FORMATS, useFactory: loadCompanyIdFormats },
     { provide: ALTERNATE_LAYOUT, useFactory: loadAlternateLayout },
+    {
+      provide: ACCEPTED_CUSTOMER_TYPES,
+      useFactory: loadAcceptedCustomerTypes,
+    },
   ],
   exports: [StaffUsersService],
 })

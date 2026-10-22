@@ -1076,6 +1076,9 @@ export const adminTextSchema = z
                 'staff-account': z.string(),
                 'cannot-send-link': z.string(),
                 'company-details-incomplete': z.string(),
+                /** `{type}` — a kind of customer the shop does not sell to
+                 * (FR-AUTH-13). */
+                'customer-type-not-accepted': z.string(),
                 /** `{column}` and `{value}` — a cell an uploaded file's column
                  * cannot hold (FR-ADM-12). */
                 'invalid-value': z.string(),
@@ -2015,6 +2018,9 @@ export const adminTextSchema = z
                 'billing-details-required': z.string(),
                 'cash-not-available': z.string(),
                 'billing-address-required': z.string(),
+                /** The party is a kind of customer the shop does not sell to
+                 * (FR-AUTH-13). */
+                'customer-type-not-accepted': z.string(),
                 'order-not-found': z.string(),
                 /** Anything else: a network that dropped, a server that fell over. */
                 unknown: z.string(),
@@ -2136,6 +2142,8 @@ export const adminTextSchema = z
                 'source-id-change-admin-only': z.string(),
                 /** No account of this role may skip the sign-in code (FR-AUTH-12). */
                 'not-exemptable': z.string(),
+                /** A kind of customer the shop does not sell to (FR-AUTH-13). */
+                'customer-type-not-accepted': z.string(),
               })
               .strict(),
           })
@@ -2156,6 +2164,9 @@ export const adminTextSchema = z
             /** Why the address is shown but not editable. */
             emailFixed: z.string(),
             customerType: z.string(),
+            /** Above the form of an account stored as a kind of customer the
+             * shop no longer sells to (FR-AUTH-13). */
+            typeNotAccepted: z.string(),
             tier: z.string(),
             tierChoose: z.string(),
             role: z.string(),

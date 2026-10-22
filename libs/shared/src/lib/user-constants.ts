@@ -29,6 +29,14 @@ export const USER_STATUSES = [
 ] as const;
 
 /**
+ * What kind of customer an account is. Kept in sync with the `customer_type`
+ * pg enum. Here rather than beside the registration schema because the
+ * deployment config names the kinds a shop accepts (`customerTypes`).
+ */
+export const CUSTOMER_TYPES = ['person', 'company'] as const;
+export type CustomerType = (typeof CUSTOMER_TYPES)[number];
+
+/**
  * Which side of the account list a request wants: `customer` accounts (`user`
  * role) or `staff` (admin and manager). The split is a real permission boundary,
  * not just a view — a manager may only ever see customers, enforced server-side

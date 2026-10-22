@@ -598,6 +598,7 @@
         "staff-account": "Diese Zeile verweist auf ein Mitarbeiterkonto. Mitarbeitende sind nie Kunden, und ihre Konten verwaltet weiterhin der Shop.",
         "cannot-send-link": "Ein Link zum Festlegen des Passworts wurde angefordert, aber dieses Konto kann sich nicht anmelden – schalten Sie es im selben Lauf oder vorher ein.",
         "company-details-incomplete": "Ein Unternehmen braucht einen Namen und eine Unternehmenskennung; diese Zeile hat nur eines davon.",
+        "customer-type-not-accepted": "Diese Zeile macht den Kunden zu einer Kundenart, an die dieser Shop nicht verkauft. Prüfen Sie die Kundenart, die das Quellsystem für ihn sendet.",
         "invalid-value": "Die Spalte „{column}“ dieser Zeile enthält „{value}“, und das kann diese Spalte nicht aufnehmen. Die Zeile wird übersprungen, der Rest der Datei nicht."
       },
       "claimWarning": "Im Shop registrierte Konten, die dieser Lauf über ihre E-Mail-Adresse übernimmt: {count}. Ab dann bezeichnet der Quellschlüssel diese Person, und der nächste Lauf kann ihre Preisliste ändern oder sie abschalten. Prüfen Sie zuerst die Zeilen unten.",
@@ -1266,6 +1267,7 @@
         "billing-details-required": "Eine Überweisung wird einem Unternehmen in Rechnung gestellt, und dafür braucht es seine Unternehmenskennung.",
         "cash-not-available": "Ein Unternehmen zahlt per Überweisung, nie bar oder mit Karte.",
         "billing-address-required": "Dieser Shop stellt Rechnungen an eine eigene Adresse aus, daher braucht die Bestellung eine.",
+        "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht, daher kann die Bestellung nicht auf diese Partei ausgestellt werden.",
         "order-not-found": "Es gibt keine Bestellung mit dieser Nummer.",
         "unknown": "Das hat nicht geklappt. Bitte versuchen Sie es noch einmal."
       }
@@ -1338,7 +1340,8 @@
         "role-change-admin-only": "Nur ein Admin kann die Rolle eines Kontos ändern.",
         "staff-create-admin-only": "Nur ein Admin kann ein Mitarbeiterkonto anlegen.",
         "source-id-change-admin-only": "Nur ein Admin kann den Quellschlüssel eines Kontos ändern.",
-        "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen."
+        "not-exemptable": "In dieser Installation darf kein Konto dieser Rolle den Anmeldecode überspringen.",
+        "customer-type-not-accepted": "An diese Kundenart verkauft dieser Shop nicht."
       },
       "deactivateConfirm": {
         "heading": "Konto deaktivieren",
@@ -1363,6 +1366,7 @@
       "approveTitle": "Antrag freigeben",
       "emailFixed": "Die E-Mail-Adresse ist der Anmeldename und lässt sich hier nicht ändern.",
       "customerType": "Kundenart",
+      "typeNotAccepted": "Dieses Konto wurde als eine Kundenart gespeichert, an die dieser Shop nicht mehr verkauft. Füllen Sie die unten verlangten Angaben aus, um es als eine Kundenart zu speichern, an die er verkauft.",
       "tier": "Kundengruppe",
       "tierChoose": "Kundengruppe wählen…",
       "role": "Rolle",

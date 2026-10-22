@@ -81,14 +81,18 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           novalidate
           class="space-y-6"
         >
-          <fieldset>
-            <legend appFieldLabel>{{ text.register.customerType }}</legend>
-            <app-segmented
-              [options]="customerTypes"
-              size="md"
-              formControlName="customerType"
-            />
-          </fieldset>
+          <!-- Only where the shop sells to more than one kind of customer
+               (FR-AUTH-13): with one, there is nothing to choose. -->
+          @if (customerTypes.length > 1) {
+            <fieldset>
+              <legend appFieldLabel>{{ text.register.customerType }}</legend>
+              <app-segmented
+                [options]="customerTypes"
+                size="md"
+                formControlName="customerType"
+              />
+            </fieldset>
+          }
 
           <div class="grid gap-6 sm:grid-cols-2">
             <div>
@@ -217,10 +221,16 @@ export class RegisterPage {
   protected readonly fields = inject(COMMON_TEXT).fields;
   private readonly companySuggest = inject(APP_TEXT).companySuggest;
   private readonly partyChoice = inject(APP_TEXT).partyChoice;
-  protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
-    { value: 'person', label: this.partyChoice.person },
-    { value: 'company', label: this.partyChoice.company },
-  ];
+  /**
+   * The kinds of customer the shop sells to (FR-AUTH-13), in the order the
+   * deployment lists them: the first is where the form starts.
+   */
+  protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =
+    this.config.customerTypes.map((value) => ({
+      value,
+      label: this.partyChoice[value],
+    }));
+  private readonly firstType = this.config.customerTypes[0];
   protected readonly home = inject(APP_TEXT).errors.notFoundBack;
   protected readonly actionText = inject(COMMON_TEXT).actions;
   private readonly phoneInput = this.config.phoneInput;
@@ -252,13 +262,13 @@ export class RegisterPage {
 
   protected readonly status = signal<Status>('idle');
   protected readonly consent = useConsent('account');
-  protected readonly customerType = signal<CustomerType>('person');
+  protected readonly customerType = signal<CustomerType>(this.firstType);
   protected readonly isCompany = computed(
     () => this.customerType() === 'company',
   );
 
   protected readonly form = this.fb.nonNullable.group({
-    customerType: ['person' as CustomerType],
+    customerType: [this.firstType],
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     // The contract's own rule, so client and server agree on what a valid
@@ -274,7 +284,7 @@ export class RegisterPage {
   constructor() {
     usePageSeo({ name: () => this.text.register.heading });
 
-    this.applyValidators('person');
+    this.applyValidators(this.firstType);
     this.form.controls.customerType.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((type) => {

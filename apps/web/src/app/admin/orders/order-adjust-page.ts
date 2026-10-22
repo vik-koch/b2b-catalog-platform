@@ -110,6 +110,7 @@ const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'billing-details-required': 'details',
   'cash-not-available': 'details',
   'billing-address-required': 'details',
+  'customer-type-not-accepted': 'details',
   'unsupported-country': 'details',
   'invalid-postal-code': 'details',
   'unknown-pickup-location': 'details',
@@ -423,13 +424,17 @@ const PREVIEW_DEBOUNCE_MS = 250;
                            about the answer beside the question it answers.
                            Staff type this as often as the customer does, and
                            are held to the same rules. -->
-                      <app-segmented
-                        name="adjust-party-kind"
-                        class="mb-4"
-                        [options]="partyKinds"
-                        [value]="partyKind()"
-                        (chosen)="setPartyKind($event)"
-                      />
+                      <!-- Only where the shop sells to more than one kind
+                           of customer (FR-AUTH-13). -->
+                      @if (partyKinds.length > 1) {
+                        <app-segmented
+                          name="adjust-party-kind"
+                          class="mb-4"
+                          [options]="partyKinds"
+                          [value]="partyKind()"
+                          (chosen)="setPartyKind($event)"
+                        />
+                      }
 
                       @if (partyKind() === 'person') {
                         <div>
@@ -780,10 +785,15 @@ export class AdminOrderAdjustPage {
   private readonly partyErrors = new FieldErrors(this.party);
   private readonly contactErrors = new FieldErrors(this.contact);
 
-  protected readonly partyKinds: SegmentOption<'person' | 'company'>[] = [
-    { value: 'person', label: this.text.partyKindPerson },
-    { value: 'company', label: this.text.partyKindCompany },
-  ];
+  /** The kinds the shop sells to (FR-AUTH-13), in the deployment's order. */
+  protected readonly partyKinds: SegmentOption<'person' | 'company'>[] =
+    this.config.customerTypes.map((value) => ({
+      value,
+      label:
+        value === 'person'
+          ? this.text.partyKindPerson
+          : this.text.partyKindCompany,
+    }));
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,
@@ -1558,7 +1568,14 @@ export class AdminOrderAdjustPage {
     // person. The order records no third thing, so the switch is read back
     // from what it recorded rather than stored beside it.
     const company = order.party.registrationId !== null;
-    this.setPartyKind(company ? 'company' : 'person');
+    const kind = company ? 'company' : 'person';
+    // An order invoiced to a kind the shop no longer sells to cannot be saved
+    // as one, so it opens on the kind it can, with that half empty.
+    this.setPartyKind(
+      this.config.customerTypes.includes(kind)
+        ? kind
+        : this.config.customerTypes[0],
+    );
     this.party.setValue(
       {
         personName: company ? '' : order.party.name,

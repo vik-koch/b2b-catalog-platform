@@ -4,6 +4,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { CompanyFields } from '../parties/company-fields';
 import { ChoiceBranch } from '../ui/choice-branch';
 import { Input } from '../ui/input';
@@ -50,9 +51,11 @@ import { WarningNote } from '../ui/warning-note';
     <fieldset>
       <legend class="mb-2 font-medium">{{ text.heading }}</legend>
 
-      @if (guest()) {
-        <!-- No account, so no first option and no list: a guest is invoicing
-             somebody, and which kind is the only question left. -->
+      @if (guest() || !ownAllowed()) {
+        <!-- No account to offer, so no first option and no list: a guest is
+             invoicing somebody, and so is an account of a kind the shop no
+             longer sells to (FR-AUTH-13). Which kind is the only question
+             left. -->
         <ng-container [ngTemplateOutlet]="otherParty" />
       } @else {
         <div class="space-y-2" role="radiogroup">
@@ -87,12 +90,14 @@ import { WarningNote } from '../ui/warning-note';
 
       <ng-template #otherParty>
         <div class="space-y-4">
-          <app-segmented
-            name="party-kind"
-            [options]="kinds"
-            [value]="party()"
-            (chosen)="partyChange.emit($event)"
-          />
+          @if (kinds.length > 1) {
+            <app-segmented
+              name="party-kind"
+              [options]="kinds"
+              [value]="party()"
+              (chosen)="partyChange.emit($event)"
+            />
+          }
 
           @if (party() === 'person') {
             <div>
@@ -148,10 +153,12 @@ export class PartyChoice {
   private readonly partyChoice = inject(APP_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
-  protected readonly kinds: readonly SegmentOption<Party>[] = [
-    { value: 'person', label: this.partyChoice.person },
-    { value: 'company', label: this.partyChoice.company },
-  ];
+  protected readonly kinds: readonly SegmentOption<Party>[] = inject(
+    DEPLOYMENT_CONFIG,
+  ).customerTypes.map((value) => ({
+    value,
+    label: this.partyChoice[value],
+  }));
   protected readonly companyText = {
     ...inject(APP_TEXT).companySuggest,
     idLabel: this.fields.companyId.label,
@@ -168,6 +175,12 @@ export class PartyChoice {
   /** A visitor with no account: there is nobody to offer as the first option,
    * and no agreed prices to say this order is not getting. */
   readonly guest = input(false);
+  /**
+   * Whether the account's own party may be invoiced: not where it is a kind
+   * of customer the shop no longer sells to (FR-AUTH-13), which leaves only
+   * "somebody else".
+   */
+  readonly ownAllowed = input(true);
   /**
    * What the account is registered as — its company, or its holder's name
    * where it registered as a person. Resolved by the page, which holds the

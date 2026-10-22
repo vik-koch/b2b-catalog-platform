@@ -244,15 +244,21 @@ export const USER_ERROR_CODES = [
   'account-pending',
   /** The deployment lets no account of this role skip the code (FR-AUTH-12). */
   'not-exemptable',
+  /** A kind of customer the shop does not sell to (FR-AUTH-13). */
+  'customer-type-not-accepted',
 ] as const;
 export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
 
 /**
- * The status each refusal travels with. `account-not-found` is the only 404;
- * every other one is a conflict — the account exists, and what was asked of it
- * is what cannot be done.
+ * The status each refusal travels with. `account-not-found` is the only 404
+ * and `customer-type-not-accepted` the only 400 — the request names a kind of
+ * customer the shop does not take; every other one is a conflict — the
+ * account exists, and what was asked of it is what cannot be done.
  */
 const notFound = { 'account-not-found': { status: 404 } } as const;
+const typeRefused = {
+  'customer-type-not-accepted': { status: 400 },
+} as const;
 
 /**
  * Every write to a *customer* account carries this, and none of the reads do:
@@ -348,6 +354,7 @@ export const usersContract = {
     .errors({
       'email-taken': conflicts['email-taken'],
       'source-id-taken': conflicts['source-id-taken'],
+      ...typeRefused,
       ...phoneFormatErrors,
       ...owned,
     })
@@ -392,6 +399,7 @@ export const usersContract = {
       'email-taken': conflicts['email-taken'],
       'source-id-taken': conflicts['source-id-taken'],
       'account-closed': conflicts['account-closed'],
+      ...typeRefused,
       ...phoneFormatErrors,
       ...owned,
     })

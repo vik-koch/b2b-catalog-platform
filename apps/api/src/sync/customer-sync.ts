@@ -34,6 +34,9 @@ export interface CustomerSyncState {
   accounts: ExistingAccount[];
   /** The deployment's price lists, by the key a row names one with. */
   tiers: ExistingCustomerTier[];
+  /** The kinds of customer the shop sells to (FR-AUTH-13): a row that would
+   * make an account any other kind is refused. */
+  customerTypes: readonly CustomerType[];
 }
 
 export interface ExistingCustomerTier {
@@ -302,6 +305,16 @@ export function planCustomerSync(
       ? resolveCompany(row, existing)
       : null;
     if (company === 'incomplete') return fail('company-details-incomplete');
+    // Only a type the row states is held to the list: one it says nothing
+    // about stays what it was, and an account from before the list is
+    // corrected in the editor, not refused every run. "Not a company" is a
+    // person by another name, so a stated null is held to the list as one.
+    if (row.customerType !== undefined) {
+      const type = row.customerType ?? 'person';
+      if (!state.customerTypes.includes(type)) {
+        return fail('customer-type-not-accepted', { type });
+      }
+    }
 
     if (!existing) {
       // An unknown key that asks for nothing is not a customer this shop has

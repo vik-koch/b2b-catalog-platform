@@ -70,16 +70,18 @@ numbers vary in length, so the config sets no phone mask.
 
 ### Orders
 
-| Case                                                                         | Where            |
-| ---------------------------------------------------------------------------- | ---------------- |
-| Ready, by bank transfer, the money not in yet, outside the van's zone        | `SL-260811-4207` |
-| A company collecting, with a preferred date and a line naming its variants   | `SL-260817-1183` |
-| Completed and paid, card arranged with the shop, delivered in the south-east | `SL-260820-6640` |
-| A guest's order, cancelled with a reason                                     | `SL-260823-9014` |
-| Accepted with changes: a second version and its note                         | `SL-260901-5528` |
-| Invoiced to a company that is not the buyer's, priced provisionally          | `SL-260826-3352` |
+| Case                                                                       | Where            |
+| -------------------------------------------------------------------------- | ---------------- |
+| Ready, by bank transfer, the money not in yet, outside the van's zone      | `SL-260811-4207` |
+| A company collecting, with a preferred date and a line naming its variants | `SL-260817-1183` |
+| Completed and paid by transfer, delivered in the south-east                | `SL-260820-6640` |
+| A guest's order, cancelled with a reason                                   | `SL-260823-9014` |
+| Accepted with changes: a second version and its note; the transfer now due | `SL-260901-5528` |
+| Invoiced to a company that is not the buyer's, priced provisionally        | `SL-260826-3352` |
 
-Every party is a business, guests included.
+Every party is a business, guests included, so every order is paid by bank
+transfer: a company is invoiced, never paid in cash or by card (FR-CART-04,
+FR-AUTH-13). The fixture bundle keeps the cash and card cases.
 
 ### Documents
 

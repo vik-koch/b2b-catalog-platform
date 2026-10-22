@@ -261,6 +261,7 @@
       "unknownPickupLocation": "Dieser Abholort ist nicht mehr verfügbar. Bitte wählen Sie einen anderen.",
       "billingDetailsRequired": "Für eine Überweisung brauchen wir ein Unternehmen als Rechnungsempfänger. Bitte wählen Sie einen anderen Empfänger oder eine andere Zahlungsart.",
       "cashNotAvailable": "Bei einem Unternehmen als Rechnungsempfänger können wir keine Barzahlung annehmen. Bitte bezahlen Sie per Überweisung.",
+      "customerTypeNotAccepted": "Diese Bestellung kann nur auf eine Art von Kunde ausgestellt werden, an die wir verkaufen. Bitte prüfen Sie, wer die Rechnung erhält.",
       "partyRequired": "Bitte sagen Sie uns, an wen die Rechnung gehen soll.",
       "rejected": "Wir konnten diese Bestellung nicht annehmen. Bitte versuchen Sie es noch einmal.",
       "cartChanged": "Preise oder Mengen in Ihrem Warenkorb haben sich geändert, während Sie das Formular ausgefüllt haben – bitte prüfen Sie Ihre Bestellung und senden Sie sie erneut ab.",

@@ -30,6 +30,7 @@ const account = (over: Partial<ExistingAccount> = {}): ExistingAccount => ({
 const state = (over: Partial<CustomerSyncState> = {}): CustomerSyncState => ({
   accounts: [account()],
   tiers: [wholesale, trade],
+  customerTypes: ['person', 'company'],
   ...over,
 });
 
@@ -687,6 +688,71 @@ describe('planCustomerSync', () => {
       );
 
       expect(plan.rowErrors[0].code).toBe('company-details-incomplete');
+    });
+
+    describe('in a shop that sells to companies only (FR-AUTH-13)', () => {
+      const companiesOnly = () => state({ customerTypes: ['company'] });
+
+      it('refuses a row that makes the customer a person', () => {
+        const { plan, actions } = planCustomerSync(
+          [row({ customerType: 'person' })],
+          options(),
+          companiesOnly(),
+        );
+
+        expect(plan.rowErrors[0]).toMatchObject({
+          code: 'customer-type-not-accepted',
+          params: { type: 'person' },
+        });
+        expect(actions.updateAccounts).toEqual([]);
+      });
+
+      it('refuses "not a company" the same way', () => {
+        const { plan } = planCustomerSync(
+          [row({ customerType: null })],
+          options(),
+          companiesOnly(),
+        );
+
+        expect(plan.rowErrors[0]).toMatchObject({
+          code: 'customer-type-not-accepted',
+          params: { type: 'person' },
+        });
+      });
+
+      it('creates a company', () => {
+        const { plan, actions } = planCustomerSync(
+          [
+            row({
+              sourceId: 'C-9',
+              email: 'buyer@hopper.example',
+              access: 'enabled',
+              customerType: 'company',
+              companyName: 'Hopper GmbH',
+              companyRegistrationId: 'DE123',
+            }),
+          ],
+          options(),
+          companiesOnly(),
+        );
+
+        expect(plan.rowErrors).toEqual([]);
+        expect(actions.createAccounts[0].customerType).toBe('company');
+      });
+
+      it('leaves a person from before the rule alone while the row says nothing about the type', () => {
+        const { plan, actions } = planCustomerSync(
+          [row({ tierKey: 'trade' })],
+          options(),
+          state({
+            customerTypes: ['company'],
+            accounts: [account({ customerType: 'person' })],
+          }),
+        );
+
+        expect(plan.rowErrors).toEqual([]);
+        expect(actions.updateAccounts[0]).toMatchObject({ tierId: 'tier-t' });
+      });
     });
 
     it('accepts the half that changed where the account holds the rest', () => {

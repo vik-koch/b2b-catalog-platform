@@ -4,6 +4,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { APP_TEXT } from '../config/app-text';
 import { COMMON_TEXT } from '../config/common-text';
+import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { FieldErrors } from '../core/form-errors';
 import { CompanyFields } from '../parties/company-fields';
 import { EmailField } from '../ui/email-field';
@@ -43,12 +44,16 @@ import { PartyChoice as Party } from './checkout-draft.service';
     <fieldset class="space-y-4">
       <legend class="mb-2 font-medium">{{ text.heading }}</legend>
 
-      <app-segmented
-        name="party-kind"
-        [options]="kinds"
-        [value]="party()"
-        (chosen)="partyChange.emit($event)"
-      />
+      <!-- Only where the shop sells to more than one kind of customer
+           (FR-AUTH-13): with one, there is nothing to choose. -->
+      @if (kinds.length > 1) {
+        <app-segmented
+          name="party-kind"
+          [options]="kinds"
+          [value]="party()"
+          (chosen)="partyChange.emit($event)"
+        />
+      }
 
       <!-- The company first, then who at it we ring: the order is invoiced to
            the one and confirmed with the other, and that is the order they are
@@ -122,10 +127,12 @@ export class GuestDetails {
   private readonly partyChoice = inject(APP_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
-  protected readonly kinds: readonly SegmentOption<Party>[] = [
-    { value: 'person', label: this.partyChoice.person },
-    { value: 'company', label: this.partyChoice.company },
-  ];
+  protected readonly kinds: readonly SegmentOption<Party>[] = inject(
+    DEPLOYMENT_CONFIG,
+  ).customerTypes.map((value) => ({
+    value,
+    label: this.partyChoice[value],
+  }));
 
   /** The same messages the sign-up form shows for the same fields. */
   protected readonly emailText = {

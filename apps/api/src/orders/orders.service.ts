@@ -46,6 +46,7 @@ import {
   effectiveTaxRate,
   TaxBasis,
   TaxConfig,
+  CustomerType,
 } from '@b2b-catalog-platform/shared';
 import {
   BadRequestException,
@@ -75,6 +76,7 @@ import { AddressesService } from '../addresses/addresses.service';
 import { publiclyVisible } from '../catalog/product-view';
 import {
   BILLING_ADDRESS_ENABLED,
+  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   CompanyIdRule,
   DELIVERY_CONFIG,
@@ -344,6 +346,8 @@ export class OrdersService {
     private readonly reference: OrderReferenceConfig,
     @Inject(ORDER_CURRENCY) private readonly currency: string,
     @Inject(COMPANY_ID_RULE) private readonly companyIdRule: CompanyIdRule,
+    @Inject(ACCEPTED_CUSTOMER_TYPES)
+    private readonly customerTypes: readonly CustomerType[],
     @Inject(BILLING_ADDRESS_ENABLED)
     private readonly billingAddressEnabled: boolean,
     @Inject(PAIRINGS_ENFORCED)
@@ -719,6 +723,17 @@ export class OrdersService {
    * break on the way past.
    */
   private assertParty(party: OrderingParty, method: PaymentMethod): void {
+    // A party with a registration number is a company and one without is a
+    // person, the same reading the payment rules below make. First, because a
+    // kind the shop does not sell to is refused whatever it pays with.
+    const kind: CustomerType = party.registrationId ? 'company' : 'person';
+    if (!this.customerTypes.includes(kind)) {
+      throw new BadRequestException({
+        code: 'customer-type-not-accepted',
+        message: 'This shop does not sell to that kind of customer',
+      });
+    }
+
     if (
       party.registrationId !== null &&
       !this.companyIdRule(party.registrationId)

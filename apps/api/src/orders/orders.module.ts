@@ -4,6 +4,8 @@ import { ApiTokensModule } from '../api-tokens/api-tokens.module';
 import { AuditLogger } from '../audit/audit.logger';
 import { AuthModule } from '../auth/auth.module';
 import {
+  ACCEPTED_CUSTOMER_TYPES,
+  loadAcceptedCustomerTypes,
   ALTERNATE_LAYOUT,
   loadAlternateLayout,
   BILLING_ADDRESS_ENABLED,
@@ -94,6 +96,10 @@ import { OrdersService } from './orders.service';
     // The party's registration number is held to the deployment's own formats,
     // the same ones registration applies.
     { provide: COMPANY_ID_RULE, useFactory: loadCompanyIdRule },
+    {
+      provide: ACCEPTED_CUSTOMER_TYPES,
+      useFactory: loadAcceptedCustomerTypes,
+    },
     { provide: DELIVERY_CONFIG, useFactory: loadDeliveryConfig },
     // Whether an order carries an invoice address of its own.
     {

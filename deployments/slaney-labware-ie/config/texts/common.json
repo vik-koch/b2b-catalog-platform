@@ -136,8 +136,8 @@
       "required": "Please enter your company name."
     },
     "companyId": {
-      "label": "Company ID",
-      "required": "Please enter your company ID.",
+      "label": "VAT or company number",
+      "required": "Please enter your VAT or company number.",
       "format": "Please enter it in one of the expected formats, e.g. {examples}."
     }
   }

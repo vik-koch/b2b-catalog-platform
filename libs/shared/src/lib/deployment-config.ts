@@ -13,6 +13,7 @@ import {
 import { pagesConfigSchema } from './pages-config';
 import { signInStepConfigSchema } from './sign-in-step-config';
 import { taxConfigSchema } from './tax-config';
+import { CUSTOMER_TYPES } from './user-constants';
 
 /** The steps of the grey ramp a deployment may replace (`theme.neutrals`):
  * Tailwind's, plus the one between 100 and 200 the category chip uses. */
@@ -463,6 +464,21 @@ export const deploymentConfigSchema = z
      * rule.
      */
     companyIdInput: companyIdInputSchema.optional(),
+    /**
+     * Which kinds of customer the shop sells to (FR-AUTH-13), listed rather
+     * than defaulted so every deployment says it. A kind left out is offered
+     * nowhere — not at registration, not in the staff editor, not as the party
+     * an order is invoiced to — and the API refuses it wherever an account or
+     * an order is written, the customer exchange included. A shop that sells
+     * to companies only still takes a sole trader: one with a registration
+     * number is a company here.
+     */
+    customerTypes: z
+      .array(z.enum(CUSTOMER_TYPES))
+      .min(1)
+      .refine((types) => new Set(types).size === types.length, {
+        message: 'a customer type is listed twice',
+      }),
     /**
      * Delivery zones and their free-delivery thresholds (FR-CART-07). Advisory:
      * a threshold is quoted, never enforced, and no zone prices a delivery.

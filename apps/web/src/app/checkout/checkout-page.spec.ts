@@ -426,6 +426,54 @@ describe('CheckoutPage', () => {
     });
   });
 
+  describe('a shop that sells to one kind of customer (FR-AUTH-13)', () => {
+    const companiesOnly = {
+      ...defaultDeploymentConfig,
+      customerTypes: ['company' as const],
+    };
+
+    it('asks a guest for the company straight away, and invoices it', async () => {
+      const page = await render({ guest: true, config: companiesOnly });
+
+      expect(page.radio('party-kind', 'person')).toBeNull();
+      expect(page.radio('party-kind', 'company')).toBeNull();
+      expect(page.drafts.draft().party).toBe('company');
+      expect(page.el.querySelector('#party-companyName')).not.toBeNull();
+      expect(page.el.querySelector('#party-companyId')).not.toBeNull();
+      expect(page.drafts.draft().paymentMethod).toBe('bank-transfer');
+    });
+
+    it('still offers a company account its own party', async () => {
+      const page = await render({ config: companiesOnly });
+
+      expect(page.radio('party', 'account')).not.toBeNull();
+      expect(page.drafts.draft().party).toBe('account');
+    });
+
+    it('asks an account registered as a person which company to invoice', async () => {
+      const page = await render({ person: true, config: companiesOnly });
+
+      expect(page.radio('party', 'account')).toBeNull();
+      expect(page.drafts.draft().party).toBe('company');
+      expect(page.el.querySelector('#party-companyId')).not.toBeNull();
+      expect(page.el.querySelector('#party-personName')).toBeNull();
+    });
+
+    it('asks a persons-only shop’s customer for a name alone when invoicing somebody else', async () => {
+      const page = await render({
+        person: true,
+        config: { ...defaultDeploymentConfig, customerTypes: ['person'] },
+      });
+
+      page.pick('party', 'other');
+      await page.settle();
+
+      expect(page.radio('party-kind', 'company')).toBeNull();
+      expect(page.drafts.draft().party).toBe('person');
+      expect(page.el.querySelector('#party-personName')).not.toBeNull();
+    });
+  });
+
   describe('the party being invoiced', () => {
     it('names the account by its company', async () => {
       const page = await render();

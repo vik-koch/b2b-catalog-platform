@@ -44,6 +44,7 @@ import { SelectField } from '../../ui/select-field';
 import { StatusBadge } from '../../ui/status-badge';
 import { userStatusTone } from './user-status';
 import { Segmented, SegmentOption } from '../../ui/segmented';
+import { WarningNote } from '../../ui/warning-note';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -76,6 +77,7 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
     SelectField,
     StatusBadge,
     Segmented,
+    WarningNote,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
@@ -168,14 +170,21 @@ import { Segmented, SegmentOption } from '../../ui/segmented';
             }
 
             @if (isCustomer()) {
-              <fieldset>
-                <legend appFieldLabel>{{ text.customerType }}</legend>
-                <app-segmented
-                  [options]="customerTypes"
-                  size="md"
-                  formControlName="customerType"
-                />
-              </fieldset>
+              @if (typeLeftBehind()) {
+                <app-warning-note>{{ text.typeNotAccepted }}</app-warning-note>
+              }
+              <!-- Only where the shop sells to more than one kind of customer
+                   (FR-AUTH-13): with one, there is nothing to choose. -->
+              @if (customerTypes.length > 1) {
+                <fieldset>
+                  <legend appFieldLabel>{{ text.customerType }}</legend>
+                  <app-segmented
+                    [options]="customerTypes"
+                    size="md"
+                    formControlName="customerType"
+                  />
+                </fieldset>
+              }
             }
 
             <div class="grid gap-6 sm:grid-cols-2">
@@ -417,10 +426,28 @@ export class UserEditorPage implements UnsavedChangesAware {
   private readonly kinds = inject(COMMON_TEXT).partyKind;
   /** Shared vocabulary — the same words the list uses for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
-  protected readonly customerTypes: readonly SegmentOption<CustomerType>[] = [
-    { value: 'person', label: this.kinds.person },
-    { value: 'company', label: this.kinds.company },
-  ];
+  /**
+   * The kinds of customer the shop sells to (FR-AUTH-13), in the order the
+   * deployment lists them: the first is where a new customer starts.
+   */
+  protected readonly customerTypes: readonly SegmentOption<CustomerType>[] =
+    this.config.customerTypes.map((value) => ({
+      value,
+      label: this.kinds[value],
+    }));
+  private readonly firstType = this.config.customerTypes[0];
+  /**
+   * An account stored as a kind the shop no longer sells to. The API refuses
+   * to save it as one, so the form starts it on a kind it can be saved as and
+   * says why the fields it now asks for are there.
+   */
+  protected readonly typeLeftBehind = computed(() => {
+    const account = this.account();
+    return (
+      account?.role === 'user' &&
+      !this.config.customerTypes.includes(account.customerType ?? 'person')
+    );
+  });
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly actionText = inject(COMMON_TEXT).actions;
@@ -528,7 +555,7 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, emailFormat()]],
-    customerType: ['person' as CustomerType],
+    customerType: [this.firstType],
     firstName: ['', Validators.required],
     lastName: ['', Validators.required],
     phone: ['', phoneValidators(this.phoneInput, false)],
@@ -582,7 +609,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.form.controls.customerType.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe((type) => this.applyCompanyValidators(type));
-    this.applyCompanyValidators('person');
+    this.applyCompanyValidators(this.firstType);
 
     effect(() => {
       if (this.locked()) {
@@ -625,7 +652,10 @@ export class UserEditorPage implements UnsavedChangesAware {
   /** Fill the form from a stored account, undoing the canonical forms the
    * masked fields are entered in. */
   private seed(user: StaffUser): void {
-    const type: CustomerType = user.customerType ?? 'person';
+    const stored: CustomerType = user.customerType ?? 'person';
+    const type = this.config.customerTypes.includes(stored)
+      ? stored
+      : this.firstType;
     this.form.patchValue(
       {
         email: user.email,
@@ -737,6 +767,7 @@ export class UserEditorPage implements UnsavedChangesAware {
       tierId: this.isCustomer() ? this.tierId() : null,
       firstName: value.firstName.trim(),
       lastName: value.lastName.trim(),
+      ...(this.isCustomer() ? { customerType: value.customerType } : {}),
       ...this.contactFields(),
       ...(this.showsSourceId()
         ? { sourceId: value.sourceId.trim() || null }

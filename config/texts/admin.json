@@ -598,6 +598,7 @@
         "staff-account": "This row points at a staff account. Staff are never customers, and their accounts stay the shop’s to manage.",
         "cannot-send-link": "A set-a-password link was asked for, but this account cannot sign in — switch it on in the same run, or first.",
         "company-details-incomplete": "A company needs both a name and a company ID; this row has one without the other.",
+        "customer-type-not-accepted": "This row makes the customer a kind this shop does not sell to. Check the customer type the source system sends for it.",
         "invalid-value": "The “{column}” column of this row says “{value}”, which is not something that column can hold. The row is skipped; the rest of the file is not."
       },
       "claimWarning": "Accounts registered on the shop that this run will claim, matched on their email address: {count}. From then on the source key names that person, and the next run can change their price list or switch them off. Check the rows below first.",
@@ -1266,6 +1267,7 @@
         "billing-details-required": "A bank transfer is invoiced to a company, which needs its registration number.",
         "cash-not-available": "A company is invoiced by bank transfer, never paid in cash or by card.",
         "billing-address-required": "This shop invoices an address of its own, so the order needs one.",
+        "customer-type-not-accepted": "This shop does not sell to that kind of customer, so the order cannot be invoiced to this party.",
         "order-not-found": "There is no order with that reference.",
         "unknown": "That did not work. Please try again."
       }
@@ -1338,7 +1340,8 @@
         "role-change-admin-only": "Only an admin can change the role of an account.",
         "staff-create-admin-only": "Only an admin can create a staff account.",
         "source-id-change-admin-only": "Only an admin can change the source key of an account.",
-        "not-exemptable": "This deployment lets no account of this role skip the sign-in code."
+        "not-exemptable": "This deployment lets no account of this role skip the sign-in code.",
+        "customer-type-not-accepted": "This shop does not sell to that kind of customer."
       },
       "deactivateConfirm": {
         "heading": "Deactivate account",
@@ -1363,6 +1366,7 @@
       "approveTitle": "Approve registration",
       "emailFixed": "The email address is the sign-in name and cannot be changed here.",
       "customerType": "Customer type",
+      "typeNotAccepted": "This account was saved as a kind of customer this shop no longer sells to. Fill in what is asked below to save it as one it does.",
       "tier": "Tier",
       "tierChoose": "Select a tier…",
       "role": "Role",

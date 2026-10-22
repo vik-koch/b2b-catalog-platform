@@ -38,6 +38,7 @@ export type AdjustmentRefusal =
   | 'billing-details-required'
   | 'cash-not-available'
   | 'billing-address-required'
+  | 'customer-type-not-accepted'
   | 'order-not-found';
 
 export type AdjustmentResult =

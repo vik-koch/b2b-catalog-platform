@@ -2,6 +2,7 @@ import type { MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
+  CustomerType,
   deliveryConfigSchema,
   OrderSubmission,
 } from '@b2b-catalog-platform/shared';
@@ -194,6 +195,7 @@ function service(
   db: NodePgDatabase<typeof schema>,
   billingAddressEnabled = true,
   pairingsEnforced = false,
+  customerTypes: readonly CustomerType[] = ['person', 'company'],
 ) {
   const addresses = { assertValid: vi.fn() } as unknown as AddressesService;
   // The mails are sent from a placed order and never allowed to fail it; what
@@ -209,6 +211,7 @@ function service(
     { prefix: 'CK', timezone: 'UTC' },
     'EUR',
     (value: string) => /^DE[0-9]{9}$/.test(value),
+    customerTypes,
     billingAddressEnabled,
     pairingsEnforced,
     notifications,
@@ -562,6 +565,71 @@ describe('OrdersService.submit', () => {
         null,
       ),
     ).rejects.toMatchObject({ response: { code: 'invalid-company-id' } });
+  });
+
+  describe('a party of a kind the shop does not sell to (FR-AUTH-13)', () => {
+    it('refuses a person where the shop sells to companies only', async () => {
+      const { db, orderRows } = testDb();
+
+      await expect(
+        service(db, true, false, ['company']).submit(
+          submission(asGuest),
+          null,
+          null,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+      expect(orderRows()).toEqual([]);
+    });
+
+    it('refuses an account whose own party is a person there', async () => {
+      const { db } = testDb(0, {
+        customerType: 'person',
+        companyRegistrationId: null,
+      });
+
+      await expect(
+        service(db, true, false, ['company']).submit(
+          submission({ paymentMethod: 'cash' }),
+          'user-1',
+          null,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+    });
+
+    it('takes the same account once it invoices a company', async () => {
+      const { db, revisionRows } = testDb(0, {
+        customerType: 'person',
+        companyRegistrationId: null,
+      });
+
+      await service(db, true, false, ['company']).submit(
+        submission({
+          party: { name: 'Nordwerk AG', registrationId: 'DE987654321' },
+        }),
+        'user-1',
+        null,
+      );
+
+      expect(revisionRows()[0]).toMatchObject({ partyName: 'Nordwerk AG' });
+    });
+
+    it('refuses a company where the shop sells to persons only', async () => {
+      const { db } = testDb();
+
+      await expect(
+        service(db, true, false, ['person']).submit(
+          submission(),
+          'user-1',
+          null,
+        ),
+      ).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+    });
   });
 
   it('has nobody to invoice where a guest names no party', async () => {

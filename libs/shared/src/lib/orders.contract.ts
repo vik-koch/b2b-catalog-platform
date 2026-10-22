@@ -559,6 +559,10 @@ const orderDetailErrors = {
    * none. Only reachable by a browser out of step with the config the form was
    * drawn from. */
   'billing-address-required': { status: 400 },
+  /** The party is a kind of customer the shop does not sell to (FR-AUTH-13):
+   * a person where it sells to companies only, or the other way round. No
+   * form offers one; this is what makes it a rule. */
+  'customer-type-not-accepted': { status: 400 },
 } as const;
 
 /** Every refusal the checkout can be given. All 400s but one. */

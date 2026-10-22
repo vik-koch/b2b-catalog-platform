@@ -36,6 +36,7 @@ export type SubmitOrderResult =
         | 'billing-details-required'
         | 'cash-not-available'
         | 'billing-address-required'
+        | 'customer-type-not-accepted'
         | 'party-required'
         | 'staff-cannot-order'
         | 'pairing-unsatisfied'

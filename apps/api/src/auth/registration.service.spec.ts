@@ -1,9 +1,10 @@
 import { Test } from '@nestjs/testing';
-import { RegisterRequest } from '@b2b-catalog-platform/shared';
+import { CustomerType, RegisterRequest } from '@b2b-catalog-platform/shared';
 import { AddressesService } from '../addresses/addresses.service';
 import { ConsentService } from '../consents/consent.service';
 import { normalizePhone } from '@b2b-catalog-platform/shared';
 import {
+  ACCEPTED_CUSTOMER_TYPES,
   COMPANY_ID_RULE,
   PHONE_INPUT,
   PHONE_RULE,
@@ -36,6 +37,8 @@ describe('RegistrationService', () => {
   const send = vi.fn<(mail: unknown, to: { to: string }) => Promise<void>>();
   let mail: MailDispatcher;
   let service: RegistrationService;
+  /** Held by reference, so a test can narrow the shop before it registers. */
+  const customerTypes: CustomerType[] = [];
 
   // The demo deployment's rule: a German VAT number (see config/deployment.json).
   const companyIdMatches = (value: string) => /^DE\d{9}$/.test(value);
@@ -62,6 +65,7 @@ describe('RegistrationService', () => {
     consents.record.mockReset().mockResolvedValue(undefined);
     send.mockReset().mockResolvedValue(undefined);
     unusableHash.mockReset().mockResolvedValue('$argon2id$generated');
+    customerTypes.splice(0, customerTypes.length, 'person', 'company');
 
     const moduleRef = await Test.createTestingModule({
       providers: [
@@ -71,6 +75,7 @@ describe('RegistrationService', () => {
         { provide: MAIL_TEXT, useValue: demoMailText },
         { provide: COMMON_TEXT, useValue: demoCommonText },
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
+        { provide: ACCEPTED_CUSTOMER_TYPES, useValue: customerTypes },
         { provide: AddressesService, useValue: { seed } },
         { provide: PHONE_INPUT, useValue: demoPhoneInput },
         {
@@ -111,6 +116,29 @@ describe('RegistrationService', () => {
       'jane@example.com',
       process.env['MAIL_STAFF_TO'],
     ]);
+  });
+
+  describe('in a shop that sells to companies only (FR-AUTH-13)', () => {
+    beforeEach(() => customerTypes.splice(0, customerTypes.length, 'company'));
+
+    it('refuses a person before anything is written or mailed', async () => {
+      await expect(service.register(person)).rejects.toMatchObject({
+        response: { code: 'customer-type-not-accepted' },
+      });
+      await settle();
+
+      expect(findByEmail).not.toHaveBeenCalled();
+      expect(createPending).not.toHaveBeenCalled();
+      expect(send).not.toHaveBeenCalled();
+    });
+
+    it('takes a company', async () => {
+      await service.register(company);
+
+      expect(createPending).toHaveBeenCalledWith(
+        expect.objectContaining({ customerType: 'company' }),
+      );
+    });
   });
 
   /**

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Inject,
   Injectable,
@@ -23,6 +24,7 @@ import {
   CompanyIdFormat,
   companyIdFormatOf,
   CreateUserRequest,
+  CustomerType,
   StaffUser,
   UpdateUserRequest,
   UserKind,
@@ -31,6 +33,7 @@ import {
   KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
 import {
+  ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,
   COMPANY_ID_FORMATS,
   PHONE_RULE,
@@ -141,6 +144,8 @@ export class StaffUsersService {
     @Inject(ALTERNATE_LAYOUT)
     private readonly alternateLayout: KeyboardLayout | null,
     @Inject(PHONE_RULE) private readonly phoneRule: PhoneRule,
+    @Inject(ACCEPTED_CUSTOMER_TYPES)
+    private readonly customerTypes: readonly CustomerType[],
   ) {}
 
   async list(filters: ListUsersFilters): Promise<StaffUser[]> {
@@ -271,6 +276,20 @@ export class StaffUsersService {
   }
 
   /**
+   * Whether the shop sells to this kind of customer (FR-AUTH-13). A customer
+   * without a type has no company either — the contract pairs the two — so it
+   * is held to the list as the person it is.
+   */
+  private assertCustomerType(type: CustomerType | null | undefined): void {
+    if (!this.customerTypes.includes(type ?? 'person')) {
+      throw new BadRequestException({
+        code: 'customer-type-not-accepted',
+        message: 'This shop does not sell to that kind of customer',
+      });
+    }
+  }
+
+  /**
    * Create an account outright — a colleague, or a customer who arranged
    * everything by phone. It starts `invited` with an unusable password hash,
    * exactly like an approved registration: staff never choose someone else's
@@ -281,6 +300,8 @@ export class StaffUsersService {
     createdBy: string,
     unusablePasswordHash: string,
   ): Promise<StaffUser> {
+    if (input.role === 'user') this.assertCustomerType(input.customerType);
+
     const email = input.email.trim().toLowerCase();
     if (await this.findByEmail(email)) {
       throw new ConflictException({
@@ -365,6 +386,9 @@ export class StaffUsersService {
 
     const role = input.role ?? current.role;
     if (input.role) this.assertRoleChangeAllowed(current, role, actorId);
+    // Held on every save, not only on a change: an account from before the
+    // shop narrowed its customers is put right the next time staff touch it.
+    if (role === 'user') this.assertCustomerType(input.customerType);
     const phone = storedPhone(this.phoneRule, input.phone, current.phone);
 
     // The source key is a customer's (FR-ADM-14), so promoting somebody out of

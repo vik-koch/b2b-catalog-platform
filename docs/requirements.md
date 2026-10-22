@@ -145,6 +145,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-AUTH-10](#fr-auth-10) — Registered address as first address
 - [FR-AUTH-11](#fr-auth-11) — Declining a registration
 - [FR-AUTH-12](#fr-auth-12) — A second sign-in step
+- [FR-AUTH-13](#fr-auth-13) — Which customers the shop sells to
 
 **[Cart & Checkout (FR-CART)](#fr-cart)**
 
@@ -732,6 +733,10 @@ The number is set by staff, and the holder cannot change it: it is how the accou
 An admin can exempt an account from the step where the deployment allows it for that account's role. The exemption is shown on the account and recorded with who set it and when.
 
 A session renews while it is used and ends after a stretch without use that the deployment sets, so a customer who keeps coming back rarely repeats the step. Where the deployment allows it, the person can also choose, during the step, to have the browser remembered for a period the deployment sets. That browser then skips the step, but never the password. Signing out does not forget it. A changed number, or a deactivated or deleted account, forgets every remembered browser.
+
+#### <a id="fr-auth-13"></a>FR-AUTH-13 — Which customers the shop sells to
+
+A deployment names the kinds of customer it sells to: private persons, companies, or both. A kind it leaves out is offered nowhere. Registration ([FR-AUTH-01](#fr-auth-01)) asks no "registering as" question where only one kind remains, and a companies-only shop asks for the company from the start. The staff editor offers the same kinds, and an account stored as a kind the shop no longer sells to can be saved again only as one it does, with the form saying why. The customer exchange ([FR-ADM-11](#fr-adm-11), [FR-ADM-12](#fr-adm-12)) refuses a row that would make an account a kind the shop does not take, and leaves an account alone where the row says nothing about its kind. Every order is invoiced to a party of a kind the shop sells to ([FR-CART-09](#fr-cart-09)); as a company is invoiced by bank transfer and a private person settles in cash or by card ([FR-CART-04](#fr-cart-04)), the payment methods follow from the list. A sole trader with a registration number counts as a company. The rule holds wherever an account or an order is written, not only in the forms that offer the accepted kinds.
 
 ---
 
