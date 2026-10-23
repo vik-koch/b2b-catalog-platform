@@ -18,7 +18,7 @@
 # (see infra/README.md):
 # repo variables DEPLOY_HOST, PROD_APP_DOMAIN, ACME_EMAIL + secrets
 # DEPLOY_SSH_PRIVATE_KEY, PROD_POSTGRES_PASSWORD, INBOX_PASSWORD, JWT_SECRET,
-# ADMIN_EMAIL, ADMIN_PASSWORD.
+# ADMIN_EMAIL, ADMIN_PASSWORD, ERP_SIM_TOKEN.
 name: Deploy prod
 
 on:
@@ -87,6 +87,10 @@ jobs:
           SEED_FORCE: ${{ inputs.reset && '1' || '' }}
           CONFIG_DIR: ${{ github.workspace }}/deployments/slaney-labware-ie/config
           SEED_DIR: ${{ github.workspace }}/deployments/slaney-labware-ie/seed
+          # The simulated back office's machine token. The seed stores its hash
+          # (the bundle's settings.json names it); the value never leaves the
+          # stack's .env.
+          ERP_SIM_TOKEN: ${{ secrets.ERP_SIM_TOKEN }}
           # Guards the prod Mailpit reviewer inbox. Hashed below — the
           # plaintext is a masked secret and is never written to a log.
           INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
@@ -112,6 +116,7 @@ jobs:
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
           : "${POSTGRES_PASSWORD:?secret PROD_POSTGRES_PASSWORD is not set}"
           : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
+          : "${ERP_SIM_TOKEN:?secret ERP_SIM_TOKEN is not set}"
           : "${JWT_SECRET:?secret JWT_SECRET is not set}"
           : "${ADMIN_EMAIL:?secret ADMIN_EMAIL is not set}"
           : "${ADMIN_PASSWORD:?secret ADMIN_PASSWORD is not set}"
@@ -120,6 +125,10 @@ jobs:
           # crash-looping container behind an opaque smoke-check timeout.
           [ ${#JWT_SECRET} -ge 32 ] || { echo "JWT_SECRET must be >= 32 chars" >&2; exit 1; }
           [ ${#ADMIN_PASSWORD} -ge 8 ] || { echo "ADMIN_PASSWORD must be >= 8 chars" >&2; exit 1; }
+          # The shape the seed accepts — checked here, because the seed only
+          # finds out once the shop is already closed for the reset.
+          [[ $ERP_SIM_TOKEN =~ ^[A-Za-z0-9_-]{8}\.[A-Za-z0-9_-]{32,}$ ]] ||
+            { echo "ERP_SIM_TOKEN must be <8 base64url chars>.<32+ base64url chars>" >&2; exit 1; }
           version="${GITHUB_REF_NAME#v}"
           image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
 
@@ -159,6 +168,7 @@ jobs:
           # Portfolio stack, not a real shop — keep it out of search results.
           # Only a real client prod (private repo) sets this true.
           SEO_INDEXABLE=false
+          ERP_SIM_TOKEN=$ERP_SIM_TOKEN
           EOF
           printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
 

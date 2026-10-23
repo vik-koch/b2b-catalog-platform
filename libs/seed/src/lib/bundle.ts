@@ -1,8 +1,10 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as z from 'zod';
 import {
+  API_TOKEN_SCOPES,
   CUSTOMER_TYPES,
+  OWNERSHIP_AREAS,
   ORDER_STATUSES,
   PAGE_SLUGS,
   PAYMENT_METHODS,
@@ -26,6 +28,7 @@ import {
  *   pages.json       page titles and consent wording
  *   pages/<slug>.html  each page's body
  *   marks/<name>.svg   the icons category marks are drawn with
+ *   settings.json    optional: what an external system owns, and its token
  */
 
 const attribute = z.strictObject({ key: z.string(), value: z.string() });
@@ -297,6 +300,22 @@ const pages = z.strictObject({
   ),
 });
 
+/**
+ * The runtime settings a shop driven from outside starts with: which areas the
+ * external system owns (FR-ADM-10), and the machine token it signs in with.
+ * The bundle names the token and what it may do; the value itself is a secret
+ * the seed is handed (SEED_MACHINE_TOKEN), since a bundle is public.
+ */
+const settings = z.strictObject({
+  externallyOwned: z.array(z.enum(OWNERSHIP_AREAS)),
+  machineToken: z
+    .strictObject({
+      name: z.string().min(1),
+      scopes: z.array(z.enum(API_TOKEN_SCOPES)).min(1),
+    })
+    .optional(),
+});
+
 export type ProductSeed = z.infer<typeof product>;
 export type DrawnSeed = z.infer<typeof drawn>;
 export type PictureSeed = z.infer<typeof picture>;
@@ -308,6 +327,7 @@ export type TierSeed = z.infer<typeof tier>;
 export type PageSeed = z.infer<typeof pages>['pages'][number] & {
   bodyHtml: string;
 };
+export type SettingsSeed = z.infer<typeof settings>;
 
 export interface SeedBundle {
   catalog: z.infer<typeof catalog>;
@@ -317,6 +337,8 @@ export interface SeedBundle {
   pages: PageSeed[];
   /** The icons the categories name, by name: what is inside each `<svg>`. */
   marks: Record<string, string>;
+  /** Absent for a shop whose staff own everything, as a new shop's do. */
+  settings?: SettingsSeed;
 }
 
 /** Read and validate the bundle in `dir`. Throws naming the file that fails. */
@@ -352,6 +374,9 @@ export function loadSeedBundle(dir: string): SeedBundle {
         ...(catalogSeed.drawn ? [catalogSeed.drawn.icon] : []),
       ].map((name) => [name, iconOf(join(dir, 'marks', `${name}.svg`))]),
     ),
+    ...(existsSync(join(dir, 'settings.json'))
+      ? { settings: read(settings, 'settings.json') }
+      : {}),
   };
 }
 

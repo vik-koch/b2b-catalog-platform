@@ -8,6 +8,7 @@ import { seedConsents } from './consent-seed';
 import { seedCatalog } from './catalog-seed';
 import { seedDocuments } from './document-seed';
 import { seedOrders } from './order-seed';
+import { seedSettings } from './settings-seed';
 
 /**
  * Idempotent: safe to run against a stack that was seeded before (e2e reruns,
@@ -64,13 +65,16 @@ export interface SeedOptions {
    * not exist. */
   consent: ConsentConfig;
   pictures: PictureMode;
+  /** The value of the token the bundle's settings name, if any. A secret,
+   * so it is handed in rather than kept in the bundle. */
+  machineToken?: string;
 }
 
 export async function seedDatabase(
   client: Client,
   bundle: SeedBundle,
   mediaRoot: string,
-  { consent, pictures }: SeedOptions,
+  { consent, pictures, machineToken }: SeedOptions,
 ): Promise<void> {
   await seedPages(client, bundle.pages);
   await seedCatalog(client, bundle, mediaRoot, pictures);
@@ -84,6 +88,9 @@ export async function seedDatabase(
   await seedOrders(client, bundle);
   // After the accounts and the pages: a record names both.
   await seedConsents(client, bundle.accounts, consent);
+  if (bundle.settings) {
+    await seedSettings(client, bundle.settings, machineToken);
+  }
 }
 
 /** Connect, seed, disconnect — the one-shot's whole job. */

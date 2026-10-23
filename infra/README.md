@@ -108,19 +108,20 @@ Whatever the provider, the VM needs:
    and a prod session, and an id is not a secret by design. A real client prod
    (private repo) always has its own.
 
-   | Secret                   | Content                                                                                                                                                        |
-   | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token                                                                               |
-   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com                                                                         |
-   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)                                                                      |
-   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)                                                                            |
-   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                                                                                         |
-   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**                                                                       |
-   | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                                                |
-   | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                                                     |
-   | `JWT_SECRET`             | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48` |
-   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`)                                                                  |
-   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                                        |
+   | Secret                   | Content                                                                                                                                                                                                                                  |
+   | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token                                                                                                                                                         |
+   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com                                                                                                                                                   |
+   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)                                                                                                                                                |
+   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)                                                                                                                                                      |
+   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                                                                                                                                                                   |
+   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**                                                                                                                                                 |
+   | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                                                                                                                          |
+   | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                                                                                                                               |
+   | `JWT_SECRET`             | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48`                                                                           |
+   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`)                                                                                                                                            |
+   | `ERP_SIM_TOKEN`          | The prod demo's simulated back office's machine token: seeded as its hash, used by the simulator. Generate one: `printf '%s.%s\n' "$(openssl rand -base64 6 \| tr '+/' '-_')" "$(openssl rand -base64 32 \| tr '+/' '-_' \| tr -d '=')"` |
+   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                                                                                                                  |
 
    Values landing in a stack's `.env` must contain **no `$`** — Compose reads
    that file for interpolation and would treat `$` as a variable reference.

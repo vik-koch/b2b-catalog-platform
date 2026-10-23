@@ -278,6 +278,10 @@ services:
       # asks for, so it reads the same config the api does.
       CONFIG_PATH: /config
       SEED_PATH: /seed
+      # The value of the machine token a bundle's settings.json names: the
+      # simulated back office's (ERP_SIM_TOKEN), a secret the bundle cannot
+      # hold. Unset for a stack nothing feeds.
+      SEED_MACHINE_TOKEN: ${ERP_SIM_TOKEN:-}
       NPM_CONFIG_UPDATE_NOTIFIER: 'false'
     volumes:
       # nocopy: seed.sh empties the volume first, and Docker fills an empty

@@ -1,0 +1,13 @@
+{
+  "externallyOwned": ["catalog", "customers", "orders"],
+  "machineToken": {
+    "name": "Simulated back office",
+    "scopes": [
+      "catalog-sync",
+      "customer-read",
+      "customer-sync",
+      "order-read",
+      "order-sync"
+    ]
+  }
+}

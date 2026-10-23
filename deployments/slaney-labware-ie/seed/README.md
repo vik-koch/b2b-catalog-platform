@@ -100,3 +100,11 @@ information. The right of withdrawal and both consent pages are seeded — the
 slug set is fixed — but not published: a business buyer has no statutory right
 of withdrawal, and the shop relies on contract and legitimate interest rather
 than consent. Their bodies say so, for an admin who opens them.
+
+### Settings
+
+`settings.json` hands all three areas — catalog, customers and orders — to the
+simulated back office, and names its token with every capability the three
+exchanges need. On the demo stack the token's value is the `ERP_SIM_TOKEN`
+secret. The pending registrations and the open orders above are what the
+simulated back office answers first after a reset.
