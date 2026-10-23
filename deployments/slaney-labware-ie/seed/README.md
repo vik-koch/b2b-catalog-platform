@@ -58,6 +58,7 @@ Keep each case below when editing the bundle, or move it to another record.
 | A sole trader: a business with a VAT number and no company number, on a tier          | `aoife@kinsella-microbiology`                                                                |
 | Registration numbers in both configured formats                                       | VAT numbers on most; company numbers on `ardcairn-pharma`, `moyne-water`, `bunclody-schools` |
 | Awaiting a decision: no tier, no approver, no password                                | the three `pending` accounts                                                                 |
+| Known to the source system: a key, `CUS-1001` upward                                  | every customer but the `pending` and the `anonymized` ones                                   |
 | Approved and invited, no password chosen yet                                          | the two `invited` accounts                                                                   |
 | Switched off, name kept                                                               | `oulart-agri` (`disabled`)                                                                   |
 | Deleted by its owner: the tombstone the app leaves, address derived from its fixed id | the `anonymized` account                                                                     |
@@ -100,3 +101,36 @@ information. The right of withdrawal and both consent pages are seeded — the
 slug set is fixed — but not published: a business buyer has no statutory right
 of withdrawal, and the shop relies on contract and legitimate interest rather
 than consent. Their bodies say so, for an admin who opens them.
+
+### Settings
+
+`settings.json` hands all three areas — catalog, customers and orders — to the
+simulated back office, and names its token with every capability the three
+exchanges need. On the demo stack the token's value is the `ERP_SIM_TOKEN`
+secret. The pending registrations and the open orders above are what the
+simulated back office answers first after a reset.
+
+### Simulation
+
+`simulation.json` describes the simulated back office (ADR 0068). Each night at
+the shop's midnight it sells a share of ten products' stock, and reorders any
+product that falls below 30 % of its quantity here; the delivery arrives two
+nights later and restores it, so a fast seller can run dry for a night or two.
+A product seeded at zero is never reordered: `PET-055` stays out of stock until
+the next reset. Every seventh night one article from the pool in the file
+arrives — unpublished, with a price and a stock but no picture or description —
+for the shop to complete and publish; after four the pool is used up. The
+`seed` makes the history reproducible: the same seed and the same nights give
+the same stock.
+
+In working hours — every hour from 08:00 to 16:00, Monday to Friday, on the
+shop's clock — it answers what is waiting. Each pending registration is claimed
+by its id: it gets the next `CUS-` key after the highest the shop holds, is
+approved, and is put on one of the price lists in the file, drawn from the
+account's id. Each open order that has stood for an hour moves one step —
+accepted, ready, handed over — with the customer told each time, and handing
+over records the payment. A first working hour after a reset answers the three
+pending registrations and moves all four open orders; three hours later every
+one of them is handed over and paid, and from then on the back office answers
+whatever visitors register and order. Its page at `/erp/` (behind the reviewer
+inbox's login) runs the same cycle on request, out of hours too.

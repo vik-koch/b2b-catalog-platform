@@ -541,7 +541,7 @@
       "unknown-price-list": "There is no price list “{key}” — this catalog has {known}.",
       "category-name-conflict": "The category “{key}” is called both “{first}” and “{second}” in this file.",
       "unknown-category": "The category “{name}” ({key}) is not in the catalog, and this run does not create categories.",
-      "cannot-create-product": "This product is new, and a new product needs a name, a price and a category."
+      "cannot-create-product": "This product is new, and a new product needs a name and a category."
     },
     "customers": {
       "accountsTitle": "Accounts",

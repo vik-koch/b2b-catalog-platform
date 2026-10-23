@@ -30,6 +30,25 @@ services:
       - traefik.http.middlewares.${STACK_NAME:?}-inbox-auth.basicauth.users=${INBOX_BASICAUTH:?}
       - traefik.http.services.${STACK_NAME:?}-inbox.loadbalancer.server.port=8025
 
+  # The simulated back office's page (ADR 0068), for the same reviewers: under
+  # /erp on the stack's domain, behind the inbox's own login. Only a stack
+  # with a simulation runs the service at all (infra/reset.sh); elsewhere this
+  # merges into a service that never starts. Traefik forwards /erp unstripped,
+  # so the page owns the prefix (SIM_PAGE_PATH).
+  erp-sim:
+    networks:
+      - internal
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+      - traefik.http.routers.${STACK_NAME:?}-erp.rule=Host(`${APP_DOMAIN:?}`) && PathPrefix(`/erp`)
+      - traefik.http.routers.${STACK_NAME:?}-erp.entrypoints=websecure
+      - traefik.http.routers.${STACK_NAME:?}-erp.tls.certresolver=letsencrypt
+      - traefik.http.routers.${STACK_NAME:?}-erp.service=${STACK_NAME:?}-erp
+      - traefik.http.routers.${STACK_NAME:?}-erp.middlewares=${STACK_NAME:?}-inbox-auth
+      - traefik.http.services.${STACK_NAME:?}-erp.loadbalancer.server.port=8080
+
   # The api sends synchronously on inquiry submit; make sure the sink is up so an
   # early submission can't race a not-yet-started Mailpit. (Merged into the base
   # api service's depends_on.)

@@ -1,0 +1,56 @@
+{
+  "seed": "slaney-labware",
+  "catalog": {
+    "sold": {
+      "products": 10,
+      "percent": [10, 15]
+    },
+    "reorderBelow": 30,
+    "deliveryNights": 2,
+    "newProducts": {
+      "everyNights": 7,
+      "pool": [
+        {
+          "sourceId": "BEA-600",
+          "name": "Beaker 600 ml, Low Form",
+          "categoryKey": "beakers",
+          "priceMinor": 590,
+          "stockPieces": 240
+        },
+        {
+          "sourceId": "FLA-100",
+          "name": "Erlenmeyer Flask 100 ml",
+          "categoryKey": "flasks",
+          "priceMinor": 430,
+          "stockPieces": 300
+        },
+        {
+          "sourceId": "GLV-S",
+          "name": "Nitrile Gloves, Size S, Box of 100",
+          "categoryKey": "gloves-ppe",
+          "priceMinor": 790,
+          "stockPieces": 300
+        },
+        {
+          "sourceId": "CRY-050",
+          "name": "Cryovial 5 ml with Screw Cap",
+          "categoryKey": "cryogenic",
+          "priceMinor": 26,
+          "stockPieces": 1200
+        }
+      ]
+    }
+  },
+  "workingHours": {
+    "days": [1, 2, 3, 4, 5],
+    "from": 8,
+    "to": 16
+  },
+  "accounts": {
+    "keyPrefix": "CUS-",
+    "tiers": ["academic", "healthcare", "contract", null]
+  },
+  "orders": {
+    "stepAfterHours": 1
+  }
+}

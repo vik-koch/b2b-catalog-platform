@@ -20,6 +20,12 @@ const env = z
     // `placeholder` draws every picture instead of downloading the bundle's
     // photos — what the e2e suites seed, so no test run needs the network.
     SEED_PICTURES: z.enum(['download', 'placeholder']).default('download'),
+    // The value of the machine token the bundle's settings.json names. A
+    // secret, so never in the bundle; empty is the same as unset.
+    SEED_MACHINE_TOKEN: z
+      .string()
+      .optional()
+      .transform((value) => value || undefined),
   })
   .parse(process.env);
 
@@ -29,6 +35,7 @@ async function main() {
   await runSeed(env.DATABASE_URL, bundle, env.MEDIA_ROOT, {
     consent,
     pictures: env.SEED_PICTURES,
+    machineToken: env.SEED_MACHINE_TOKEN,
   });
   console.log(`Seeded from ${env.SEED_PATH}`);
 }

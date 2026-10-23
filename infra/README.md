@@ -108,19 +108,20 @@ Whatever the provider, the VM needs:
    and a prod session, and an id is not a secret by design. A real client prod
    (private repo) always has its own.
 
-   | Secret                   | Content                                                                                                                                                        |
-   | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token                                                                               |
-   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com                                                                         |
-   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)                                                                      |
-   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)                                                                            |
-   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                                                                                         |
-   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**                                                                       |
-   | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                                                |
-   | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                                                     |
-   | `JWT_SECRET`             | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48` |
-   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`)                                                                  |
-   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                                        |
+   | Secret                   | Content                                                                                                                                                                                                                                  |
+   | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token                                                                                                                                                         |
+   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com                                                                                                                                                   |
+   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)                                                                                                                                                |
+   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)                                                                                                                                                      |
+   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                                                                                                                                                                   |
+   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**                                                                                                                                                 |
+   | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                                                                                                                          |
+   | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                                                                                                                               |
+   | `JWT_SECRET`             | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48`                                                                           |
+   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox and the simulated back office's page (username `reviewer`)                                                                                                       |
+   | `ERP_SIM_TOKEN`          | The prod demo's simulated back office's machine token: seeded as its hash, used by the simulator. Generate one: `printf '%s.%s\n' "$(openssl rand -base64 6 \| tr '+/' '-_')" "$(openssl rand -base64 32 \| tr '+/' '-_' \| tr -d '=')"` |
+   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                                                                                                                  |
 
    Values landing in a stack's `.env` must contain **no `$`** — Compose reads
    that file for interpolation and would treat `$` as a variable reference.
@@ -181,10 +182,15 @@ repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
 ### Seeding a demo stack
 
 [seed.sh](seed.sh) resets a stack to a seed bundle, after `deploy.sh` has
-brought it up: it drops the database schema and the uploaded files, migrates
-afresh, loads the bundle and creates the bootstrap admin. The stack then holds
-the bundle and nothing else — what visitors left behind, and products an older
-bundle had, are gone.
+brought it up: the database schema and the uploaded files are dropped, the
+schema migrated afresh, the bundle loaded and the bootstrap admin created. The
+stack then holds the bundle and nothing else — what visitors left behind, and
+products an older bundle had, are gone.
+
+The reset itself is [reset.sh](reset.sh). `seed.sh` puts it in the stack's
+directory on the VM, beside the seeder and the bundle, decides whether a reset
+is due and runs it there. Two resets never overlap: the second is refused while
+the first runs.
 
 ```sh
 npx nx build seeder
@@ -194,11 +200,30 @@ SSH_OPTS="-i /path/to/deploy-private-key" \
 ```
 
 **Only when something changed.** A reset records a hash of what it loaded —
-the bundle, the seeder build and the stack's `deployment.json` — on the schema,
+the bundle, the seeder build, the stack's `deployment.json` and its
+`ERP_SIM_TOKEN` if it has one — on the schema,
 and a run that would load the same again leaves the stack and its data alone.
 So dev keeps what was done on it until a merge changes its bundle, and prod
 until a release does. `SEED_FORCE=1` resets regardless; on prod that is the
 _Reset to seed_ box when running _Deploy prod_ by hand.
+
+**A simulated back office.** A bundle with a `simulation.json` describes one
+(ADR 0068): `reset.sh` starts the `erp-sim` service once the reset is through
+and stops it before the next. It needs the built simulator (`npx nx build
+erp-sim`, which `seed.sh` copies to `erp-sim/app`) and `ERP_SIM_TOKEN` in the
+stack's env; without the token the shop runs without it and the reset says so.
+The build is not part of the hash: it keeps no state, so a deploy that resets
+nothing restarts it on the new build (`reset.sh --simulation`), its nights
+still counted from the last reset (`erp-sim/epoch`). The token is part of the
+hash, though: the seed stores it, so a new `ERP_SIM_TOKEN` resets the stack.
+Its log is the container's (`docker compose logs erp-sim`), and the last lines
+of it are on its page at `/erp/`, behind the reviewer inbox's login, with a
+button that runs the hourly cycle out of hours — registrations answered, every
+open order one step on, without the hour an order normally waits. There is
+deliberately no reset button there: a reset needs the host, and the page is
+one login away from anybody holding the reviewer password. It runs on from one
+reset to the next — there is no reset on a timer: a release that changes what
+the stack loads starts it again, and so does _Reset to seed_.
 
 **Closed, not dark.** For the minute a reset takes, the shop shows its
 maintenance page (FR-ADM-04). The api caches the flag, so the script writes it
@@ -335,6 +360,12 @@ the sink — no real email leaves. Those deploy workflows pass the
 inbox** at `https://<stack-domain>/inbox/`, behind HTTP basic-auth
 (username `reviewer`, password = the `INBOX_PASSWORD` secret; the workflow hashes
 it into an SHA1 htpasswd entry at deploy time, never logging the plaintext).
+
+The same login guards the **simulated back office's page** at
+`https://<stack-domain>/erp/` on a stack that runs one (below): what it did
+lately, the shop's clock, and a button that runs its hourly cycle now. The
+overlay routes it; on a stack without a simulation the route has nothing behind
+it.
 
 A real **client prod** (private repo) gets no overlay — it ships no Mailpit and
 sets `MAIL_*` to a real SMTP provider (see

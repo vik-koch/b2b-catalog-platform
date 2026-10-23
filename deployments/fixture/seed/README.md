@@ -23,6 +23,8 @@ documents.json    certificates and data sheets, and what they are shown on
 pages.json        each static page's title (and a consent page's box wording)
 pages/<slug>.html each static page's body, as the rich-text editor stores it
 marks/<name>.svg  the icons the category marks are drawn with
+settings.json     optional: the areas an external system owns, and its token
+simulation.json   optional: a simulated back office that drives those areas
 ```
 
 Money is in minor units (`1690` = 16.90). Products, categories and orders are
@@ -31,10 +33,18 @@ parents first, and their order in the file is their sort order. Order dates are
 absolute: a reference carries the day it was placed, so a relative date would
 mint a new order on every re-seed.
 
-Upserted on every run: pages (as a new version when the text differs), the
-catalog, tiers and prices, documents. Created only when missing: accounts,
-addresses, orders and consents — they are people and events, so a visitor's
-changes on a demo survive the next deploy.
+A bundle is loaded into an empty database: a stack is reset before it is
+seeded ([infra/README.md](../../../infra/README.md#seeding-a-demo-stack)), so
+nothing a visitor did survives a reset, and nothing an older bundle had either.
+
+`settings.json` is for a shop an external system feeds — whose accounts may
+then carry the source system's own `sourceId` as well. It lists the areas that
+system owns (`catalog`, `customers`, `orders`) and names its machine token and
+what the token may do. The token's value is a secret, so it is never in the
+bundle: the seed is handed it as `SEED_MACHINE_TOKEN` and stores its hash, as
+the platform does for a token it issues. Without a value the areas are owned and
+no token is seeded. This bundle has no `settings.json`: its staff own
+everything.
 
 ## Category marks
 

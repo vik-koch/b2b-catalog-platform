@@ -82,6 +82,7 @@
       "tier": null
     },
     {
+      "sourceId": "CUS-1001",
       "email": "purchasing@brennan-biologics.example",
       "role": "user",
       "status": "active",
@@ -110,6 +111,7 @@
       ]
     },
     {
+      "sourceId": "CUS-1002",
       "email": "procurement@ardcairn-pharma.example",
       "role": "user",
       "status": "active",
@@ -129,6 +131,7 @@
       ]
     },
     {
+      "sourceId": "CUS-1003",
       "email": "lab@glenmore-foodtesting.example",
       "role": "user",
       "status": "active",
@@ -140,6 +143,7 @@
       "tier": "contract"
     },
     {
+      "sourceId": "CUS-1004",
       "email": "stores@halloran-environmental.example",
       "role": "user",
       "status": "active",
@@ -151,6 +155,7 @@
       "tier": "contract"
     },
     {
+      "sourceId": "CUS-1005",
       "email": "buyer@fenlow-analytical.example",
       "role": "user",
       "status": "active",
@@ -162,6 +167,7 @@
       "tier": "contract"
     },
     {
+      "sourceId": "CUS-1006",
       "email": "stores@barrowside-university.example",
       "role": "user",
       "status": "active",
@@ -182,6 +188,7 @@
       ]
     },
     {
+      "sourceId": "CUS-1007",
       "email": "science@ferrycarrig-college.example",
       "role": "user",
       "status": "active",
@@ -193,6 +200,7 @@
       "tier": "academic"
     },
     {
+      "sourceId": "CUS-1008",
       "email": "lab@kilmore-vetlab.example",
       "role": "user",
       "status": "active",
@@ -204,6 +212,7 @@
       "tier": "healthcare"
     },
     {
+      "sourceId": "CUS-1009",
       "email": "office@duncannon-dentallab.example",
       "role": "user",
       "status": "active",
@@ -215,6 +224,7 @@
       "tier": "healthcare"
     },
     {
+      "sourceId": "CUS-1010",
       "email": "qc@corrigan-brewing.example",
       "role": "user",
       "status": "active",
@@ -226,6 +236,7 @@
       "tier": null
     },
     {
+      "sourceId": "CUS-1011",
       "email": "lab@moyne-water.example",
       "role": "user",
       "status": "active",
@@ -237,6 +248,7 @@
       "tier": null
     },
     {
+      "sourceId": "CUS-1012",
       "email": "aoife@kinsella-microbiology.example",
       "role": "user",
       "status": "active",
@@ -289,6 +301,7 @@
       "tier": null
     },
     {
+      "sourceId": "CUS-1013",
       "email": "stores@blackstairs-labs.example",
       "role": "user",
       "status": "invited",
@@ -300,6 +313,7 @@
       "tier": "contract"
     },
     {
+      "sourceId": "CUS-1014",
       "email": "science@new-ross-academy.example",
       "role": "user",
       "status": "invited",
@@ -311,6 +325,7 @@
       "tier": "academic"
     },
     {
+      "sourceId": "CUS-1015",
       "email": "orders@oulart-agri.example",
       "role": "user",
       "status": "disabled",

@@ -278,6 +278,10 @@ services:
       # asks for, so it reads the same config the api does.
       CONFIG_PATH: /config
       SEED_PATH: /seed
+      # The value of the machine token a bundle's settings.json names: the
+      # simulated back office's (ERP_SIM_TOKEN), a secret the bundle cannot
+      # hold. Unset for a stack nothing feeds.
+      SEED_MACHINE_TOKEN: ${ERP_SIM_TOKEN:-}
       NPM_CONFIG_UPDATE_NOTIFIER: 'false'
     volumes:
       # nocopy: seed.sh empties the volume first, and Docker fills an empty
@@ -295,6 +299,34 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - internal
+
+  # The simulated back office of a demo shop (ADR 0068): owns the shop's
+  # catalog and drives it through the machine API, on the stack's own network.
+  # In the 'simulation' profile, which no stack enables: infra/reset.sh starts
+  # it after resetting a stack whose seed bundle has a simulation.json, stops
+  # it before the next reset, and restarts it on every deploy between. A stock
+  # Node image, like the seed: the built simulator (dist/apps/erp-sim, one
+  # bundled file) is in erp-sim/app beside this file, where seed.sh put it.
+  erp-sim:
+    image: node:24-alpine
+    profiles: ['simulation']
+    restart: unless-stopped
+    user: node
+    command: ['node', '/sim/app/main.cjs']
+    environment:
+      API_URL: http://api:3000/api
+      ERP_SIM_TOKEN: ${ERP_SIM_TOKEN:-}
+      SEED_PATH: /seed
+      CONFIG_PATH: /config
+      # Written by reset.sh when it starts the simulator: the moment of the
+      # reset, which every night is counted from.
+      SIM_EPOCH_FILE: /sim/epoch
+    volumes:
+      - ./erp-sim:/sim:ro
+      - ./seed:/seed:ro
+      - ${CONFIG_DIR:-./config}:/config:ro
     networks:
       - internal
 
