@@ -280,7 +280,15 @@ services:
       SEED_PATH: /seed
       NPM_CONFIG_UPDATE_NOTIFIER: 'false'
     volumes:
-      - mediadata:/media
+      # nocopy: seed.sh empties the volume first, and Docker fills an empty
+      # volume from the image's own directory on mount — node:alpine ships a
+      # root-owned /media (cdrom, floppy, usb), which would leave the seeder
+      # and the api unable to write.
+      - type: volume
+        source: mediadata
+        target: /media
+        volume:
+          nocopy: true
       - ${CONFIG_DIR:-./config}:/config:ro
       - ./seeder:/seeder:ro
       - ./seed:/seed:ro
@@ -358,6 +366,12 @@ services:
       - ./backups/last:/backup/db:ro
       - mediadata:/backup/media:ro
       - ./backups/archive:/archive
+    # After the api, for the reason the media service waits for it: a new,
+    # empty volume takes its owner from whichever container mounts it first,
+    # and this one would leave it root-owned — the api could then store no
+    # upload, and the seed no picture.
+    depends_on:
+      - api
 
 networks:
   internal:

@@ -91,7 +91,10 @@ CREATE SCHEMA public;
 DROP SCHEMA IF EXISTS drizzle CASCADE;
 COMMENT ON SCHEMA public IS '$mark';
 SQL
-compose "run --rm --no-deps --entrypoint sh seed -c 'find /media -mindepth 1 -delete'"
+# As root, and handed back to the node user the api and the seeder run as, so a
+# volume that came out root-owned — first mounted by a root container, or
+# filled from an image's own /media — is repaired on the next reset.
+compose "run --rm --no-deps --user root --entrypoint sh seed -c 'find /media -mindepth 1 -delete && chown node:node /media'"
 
 echo "==> Migrating and seeding"
 compose "run --rm --no-deps migrate"
