@@ -108,3 +108,16 @@ simulated back office, and names its token with every capability the three
 exchanges need. On the demo stack the token's value is the `ERP_SIM_TOKEN`
 secret. The pending registrations and the open orders above are what the
 simulated back office answers first after a reset.
+
+### Simulation
+
+`simulation.json` describes the simulated back office (ADR 0068). Each night at
+the shop's midnight it sells a share of ten products' stock, and reorders any
+product that falls below 30 % of its quantity here; the delivery arrives two
+nights later and restores it, so a fast seller can run dry for a night or two.
+A product seeded at zero is never reordered: `PET-055` stays out of stock until
+the next reset. Every seventh night one article from the pool in the file
+arrives — unpublished, with a price and a stock but no picture or description —
+for the shop to complete and publish; after four the pool is used up. The
+`seed` makes the history reproducible: the same seed and the same nights give
+the same stock.

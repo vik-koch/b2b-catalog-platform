@@ -24,6 +24,7 @@ pages.json        each static page's title (and a consent page's box wording)
 pages/<slug>.html each static page's body, as the rich-text editor stores it
 marks/<name>.svg  the icons the category marks are drawn with
 settings.json     optional: the areas an external system owns, and its token
+simulation.json   optional: a simulated back office that drives those areas
 ```
 
 Money is in minor units (`1690` = 16.90). Products, categories and orders are

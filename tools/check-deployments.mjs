@@ -53,6 +53,11 @@ for (const [file, [entry, name]] of Object.entries(SCHEMAS)) {
   schemas[file] = (await loadTypeScript(entry))[name];
 }
 const { loadSeedBundle } = await loadTypeScript('libs/seed/src/index.ts');
+// A bundle may describe its simulated back office; the simulator reads it
+// strictly at boot, which on the stack is after the shop has been reset.
+const { simulationSchema } = await loadTypeScript(
+  'apps/erp-sim/src/simulation.ts',
+);
 
 function jsonFiles(dir) {
   return readdirSync(dir, { recursive: true })
@@ -86,12 +91,22 @@ function configProblems(dir) {
 
 function seedProblems(dir) {
   if (!existsSync(dir)) return [`${dir}: missing`];
+  const problems = [];
   try {
     loadSeedBundle(dir);
-    return [];
   } catch (error) {
-    return [`${dir}: ${error.message}`];
+    problems.push(`${dir}: ${error.message}`);
   }
+  const simulation = join(dir, 'simulation.json');
+  if (existsSync(simulation)) {
+    const result = simulationSchema.safeParse(
+      JSON.parse(readFileSync(simulation, 'utf8')),
+    );
+    for (const issue of result.success ? [] : result.error.issues) {
+      problems.push(`${simulation}:${issue.path.join('.')}: ${issue.message}`);
+    }
+  }
+  return problems;
 }
 
 let failed = false;

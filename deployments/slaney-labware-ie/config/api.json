@@ -11,7 +11,7 @@
     "autoApply": {
       "maxCreates": 100,
       "maxSoftDeletes": 0,
-      "maxChangedShare": 0.5,
+      "maxChangedShare": 1,
       "maxCategoriesCreated": 5,
       "maxCategoriesEmptied": 0
     },

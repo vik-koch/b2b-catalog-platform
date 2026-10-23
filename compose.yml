@@ -302,6 +302,34 @@ services:
     networks:
       - internal
 
+  # The simulated back office of a demo shop (ADR 0068): owns the shop's
+  # catalog and drives it through the machine API, on the stack's own network.
+  # In the 'simulation' profile, which no stack enables: infra/reset.sh starts
+  # it after resetting a stack whose seed bundle has a simulation.json, and
+  # stops it before the next reset. A stock Node image, like the seed: reset.sh
+  # finds the built simulator (dist/apps/erp-sim, one bundled file) beside this
+  # file, where seed.sh put it.
+  erp-sim:
+    image: node:24-alpine
+    profiles: ['simulation']
+    restart: unless-stopped
+    user: node
+    command: ['node', '/sim/main.cjs']
+    environment:
+      API_URL: http://api:3000/api
+      ERP_SIM_TOKEN: ${ERP_SIM_TOKEN:-}
+      SEED_PATH: /seed
+      CONFIG_PATH: /config
+      # Written by reset.sh when it starts the simulator: the moment of the
+      # reset, which every night is counted from.
+      SIM_EPOCH_FILE: /sim/epoch
+    volumes:
+      - ./erp-sim:/sim:ro
+      - ./seed:/seed:ro
+      - ${CONFIG_DIR:-./config}:/config:ro
+    networks:
+      - internal
+
   # Scheduled logical backups (NFR-OPS-04).
   # In the 'backup' profile: long-lived stacks opt in via COMPOSE_PROFILES=backup
   # in their .env; the ephemeral demo omits it, so this never starts there.

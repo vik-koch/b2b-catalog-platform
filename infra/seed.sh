@@ -8,11 +8,13 @@
 #
 # The app env file is the one deploy.sh was given. Needs the built seeder
 # (`npx nx build seeder` -> dist/apps/seeder), built from the same commit as the
-# images the stack runs. SSH as for deploy.sh (SSH_OPTS).
+# images the stack runs, and for a bundle with a simulation.json the built
+# simulator too (`npx nx build erp-sim`), which reset.sh starts after the reset
+# (ADR 0068). SSH as for deploy.sh (SSH_OPTS).
 #
 # The reset itself is infra/reset.sh, which this script puts in the stack's
-# directory with the seeder and the bundle and runs there, so a deploy and the
-# stack's own timer run the very same steps. This script decides whether to.
+# directory with the seeder and the bundle and runs there; this script only
+# decides whether to.
 #
 # Only when something changed: a reset records what it loaded — the bundle,
 # the seeder build and the stack's deployment.json, as one hash — and a run
@@ -26,9 +28,16 @@ force=${SEED_FORCE:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 seeder_dir=$repo_root/dist/apps/seeder
+sim_dir=$repo_root/dist/apps/erp-sim
 seed_dir=${SEED_DIR:?SEED_DIR must name the seed bundle to load}
 [ -f "$seeder_dir/main.cjs" ] || { echo "seed.sh needs the built seeder: npx nx build seeder" >&2; exit 1; }
 [ -f "$seed_dir/catalog.json" ] || { echo "SEED_DIR $seed_dir holds no seed bundle" >&2; exit 1; }
+# The simulated back office travels with a bundle that describes one.
+simulated=
+if [ -f "$seed_dir/simulation.json" ]; then
+  [ -f "$sim_dir/main.cjs" ] || { echo "$seed_dir has a simulation.json; seed.sh needs the built simulator: npx nx build erp-sim" >&2; exit 1; }
+  simulated=1
+fi
 
 stack=$(sed -n 's/^STACK_NAME=//p' "$app_env")
 : "${stack:?STACK_NAME missing in $app_env}"
@@ -44,6 +53,7 @@ loaded=$(
   {
     (cd "$seed_dir" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum)
     sha256sum <"$seeder_dir/main.cjs"
+    [ -z "$simulated" ] || sha256sum <"$sim_dir/main.cjs"
     run "cat $dir/config/deployment.json" | sha256sum
   } | sha256sum | cut -c1-16
 )
@@ -72,6 +82,11 @@ for sub in seeder seed; do
 done
 tar -C "$seeder_dir" -cf - . | run "tar -C $dir/seeder -xf -"
 tar -C "$seed_dir" -cf - . | run "tar -C $dir/seed -xf -"
+run "rm -rf $dir/erp-sim"
+if [ -n "$simulated" ]; then
+  run "mkdir -p $dir/erp-sim"
+  tar -C "$sim_dir" -cf - . | run "tar -C $dir/erp-sim -xf -"
+fi
 printf '%s\n' "$loaded" | run "cat > $dir/seed.hash"
 
 run "$dir/reset.sh"

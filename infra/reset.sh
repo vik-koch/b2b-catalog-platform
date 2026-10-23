@@ -6,8 +6,8 @@
 #
 # Runs on the VM, in the stack's own directory (/srv/b2b/<stack>), where
 # infra/seed.sh puts it beside the seeder, the bundle and seed.hash. seed.sh
-# runs it after a deploy that changes what the stack would load; a stack with a
-# reset schedule also runs it from the deploy user's crontab, changed or not.
+# runs it after a deploy that changes what the stack would load, or when asked
+# to (SEED_FORCE); it can also be run there by hand.
 #
 # Usage:
 #   ./reset.sh            reset the stack
@@ -17,6 +17,11 @@
 # dark: the api is restarted with the flag on, keeps answering from it while
 # the schema goes, and is restarted again on the new database. The web never
 # restarts.
+#
+# A bundle with a simulation.json gets its simulated back office (ADR 0068)
+# started once the reset is through, counting its nights from this reset; it
+# is stopped before any reset, so it never writes into a half-dropped
+# database.
 #
 # The guard: a database is reset only if a reset made it — a mark this script
 # leaves on the schema — or if it holds nothing a shop would miss: no product,
@@ -63,7 +68,8 @@ if [ "${1:-}" = --status ]; then
 fi
 [ $# -eq 0 ] || { echo "usage: reset.sh [--status]" >&2; exit 2; }
 
-# One reset at a time: a deploy's and the timer's could otherwise meet.
+# One reset at a time: two deploys, or a deploy and a hand, could otherwise
+# meet.
 exec 9>reset.lock
 flock -n 9 || { echo "REFUSED: another reset of '$stack' is running" >&2; exit 1; }
 
@@ -81,6 +87,10 @@ if [ "$state" = refused ]; then
   exit 1
 fi
 echo "    $state, loading $loaded"
+
+# Whatever this stack's bundle was, its back office stops first — removed, so
+# a bundle that no longer has one does not keep an old one running.
+docker compose --profile simulation rm --stop --force erp-sim
 
 # Waits until the api answers its maintenance endpoint with the given state.
 # The endpoint is exempt from the gate, so it answers either way.
@@ -144,14 +154,27 @@ await_maintenance false
 # A seeded page, so a seed that wrote nothing fails here rather than in front
 # of a visitor.
 echo "==> Smoke check https://$domain/api/pages/about"
+seeded=
 for _ in $(seq 1 36); do
   if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "https://$domain/api/pages/about" 2>/dev/null)" = 200 ]; then
-    echo "OK: '$stack' holds the seed bundle ($loaded)"
-    exit 0
+    seeded=1
+    break
   fi
   sleep 5
 done
+if [ -z "$seeded" ]; then
+  echo "FAILED: https://$domain/api/pages/about did not answer after the seed" >&2
+  docker compose ps --format 'table {{.Name}}\t{{.Status}}' >&2 || true
+  exit 1
+fi
 
-echo "FAILED: https://$domain/api/pages/about did not answer after the seed" >&2
-docker compose ps --format 'table {{.Name}}\t{{.Status}}' >&2 || true
-exit 1
+if [ -f seed/simulation.json ] && [ -f erp-sim/main.cjs ]; then
+  if [ -n "$(env_value ERP_SIM_TOKEN)" ]; then
+    echo "==> Starting the simulated back office"
+    date -u +%Y-%m-%dT%H:%M:%SZ >erp-sim/epoch
+    docker compose --profile simulation up -d --no-deps erp-sim
+  else
+    echo "WARNING: the bundle has a simulation.json, but .env has no ERP_SIM_TOKEN — the shop runs without its back office" >&2
+  fi
+fi
+echo "OK: '$stack' holds the seed bundle ($loaded)"
