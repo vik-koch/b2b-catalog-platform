@@ -293,7 +293,7 @@ jobs:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           # Dev is the German Coffee Kontor, not the test fixture, reset to
-          # its seed bundle after every deploy (seed.sh below).
+          # its seed bundle by the deploy that changes it (seed.sh below).
           CONFIG_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/config
           SEED_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/seed
           # Guards the dev Mailpit reviewer inbox. Hashed below — the

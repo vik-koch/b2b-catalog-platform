@@ -83,6 +83,13 @@ builds the schema afresh, the bundle is loaded and the bootstrap admin created
 again. Locally `nx run seeder:seed` does the same, and the web-e2e stack starts
 each run from empty volumes.
 
+A stack is reset only when what it would load changed: the reset records a hash
+of the bundle, the seeder build and the stack's `deployment.json` on the schema,
+and `SEED_FORCE=1` overrides it. Meanwhile the shop is closed through
+maintenance mode rather than stopped: the api is restarted with the flag on,
+answers from its cache while the schema goes, and is restarted on the new
+database.
+
 Why: no stack needed a seed on top of other data, and the upsert kept what a
 bundle no longer had — products dropped from it, another deployment's orders
 after a stack changed shops. A new schema rather than emptied tables, because
