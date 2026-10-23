@@ -59,7 +59,7 @@ Whatever the provider, the VM needs:
     (libvips allocates outside the V8 heap) and a large catalog sync. Swap
     turns a spike into slowness rather than an OOM kill.
 
-  With neither, prefer 4 GB. The demo/dev box (Oracle Always Free, 24 GB) is
+  With neither, prefer 4 GB. The demo/dev box (Hetzner CX23, ARM, 4 GB) is
   not memory-constrained and needs none of this.
 
 - **amd64 or arm64** — CI publishes multi-arch images
