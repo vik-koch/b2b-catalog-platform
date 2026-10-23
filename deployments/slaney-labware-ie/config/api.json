@@ -19,7 +19,7 @@
       "maxInvites": 25,
       "maxDisables": 0,
       "maxClaims": 0,
-      "maxIdClaims": 0
+      "maxIdClaims": 10
     }
   }
 }

@@ -1,16 +1,22 @@
 import { readFileSync } from 'node:fs';
 import * as z from 'zod';
+import { Account, claimsFor } from './accounts';
 import { localDate, nightsBetween } from './clock';
-import { Platform } from './platform';
+import { Order, stepsFor } from './orders';
+import { Area, Outcome, Platform } from './platform';
+import { workingHour } from './schedule';
 import { load } from './simulation';
 import { stockOnNight } from './stock';
 
 /**
  * The simulated back office of a demo shop (ADR 0068): it owns the shop's
- * catalog and drives it through the machine API on the shop's own clock, the
- * way a real source system would. Started by infra/reset.sh after a reset,
- * with the moment of that reset as its epoch; everything it sends follows from
- * the seed bundle, simulation.json and the nights since then.
+ * catalog, customers and orders and drives them through the machine API on
+ * the shop's own clock, the way a real source system would. Nightly, the
+ * stock; hourly in working hours, the registrations and the orders waiting
+ * for it. Started by infra/reset.sh after a reset, with the moment of that
+ * reset as its epoch. What it sends follows from the seed bundle,
+ * simulation.json, the nights since then and what the shop's books say now —
+ * it keeps nothing of its own.
  */
 const env = z
   .object({
@@ -30,19 +36,31 @@ const env = z
  * admin moved the badge: the one a new article's price is sent for. */
 const DEFAULT_PRICE_LIST = 'default';
 
-/** How often the clock is looked at. A cycle is due at most once a night. */
+/** How often the clock is looked at. A cycle is due at most once a night, or
+ * once a working hour. */
 const TICK_MS = 30_000;
 /** How long a cycle that failed waits before it is tried again. */
 const RETRY_MS = 10 * 60_000;
+
+/** How each area is named when a run for it is skipped. */
+const NOT_OWNED: Record<Area, string> = {
+  catalog: 'the catalog is',
+  customers: 'the customers are',
+  orders: 'order processing is',
+};
 
 const log = (message: string) =>
   console.log(`${new Date().toISOString()} ${message}`);
 
 async function main() {
-  const { simulation, tracked, newProducts, timeZone } = load(
-    env.SEED_PATH,
-    env.CONFIG_PATH,
-  );
+  const {
+    simulation,
+    tracked,
+    newProducts,
+    workingHours,
+    accountRules,
+    timeZone,
+  } = load(env.SEED_PATH, env.CONFIG_PATH);
   const epoch = new Date(readFileSync(env.SIM_EPOCH_FILE, 'utf8').trim());
   if (Number.isNaN(epoch.getTime())) {
     throw new Error(`${env.SIM_EPOCH_FILE} holds no instant`);
@@ -61,12 +79,47 @@ async function main() {
     log(`WARNING: ${String(error)}`);
   }
 
-  // The last night whose stock was sent, or deliberately not sent.
-  let catalogNight = 0;
-  let retryAt = 0;
-  let reportedNight = 0;
+  // Failures already reported, by area and cycle: the shop hears that a feed
+  // broke once, not on every retry.
+  const reported = new Set<string>();
 
-  const catalog = async (night: number) => {
+  /**
+   * Logs what a run came to and says whether the cycle is done with it: a run
+   * the platform took, or an area the shop has taken back by hand, is done —
+   * the next cycle tries again either way. Only a failure is retried, and
+   * reported.
+   */
+  const settle = async (
+    area: Area,
+    cycle: string,
+    label: string,
+    outcome: Outcome,
+    counts: (summary: Record<string, unknown>) => string,
+  ): Promise<boolean> => {
+    switch (outcome.kind) {
+      case 'run': {
+        const staged = outcome.stagedReason ? ` (${outcome.stagedReason})` : '';
+        const errors = Number(outcome.summary['errors'] ?? 0);
+        log(
+          `${label}: ${outcome.status}${staged}, ${counts(outcome.summary)}` +
+            (errors ? `, ${errors} rows refused: ${outcome.rowErrors}` : ''),
+        );
+        return true;
+      }
+      case 'not-owned':
+        log(`${label}: ${NOT_OWNED[area]} not ERP-owned right now, skipped`);
+        return true;
+      case 'failed':
+        log(`${label}: FAILED ${outcome.detail}; trying again in 10 minutes`);
+        if (!reported.has(`${area} ${cycle}`)) {
+          reported.add(`${area} ${cycle}`);
+          await platform.reportFailure(area, outcome.detail, label);
+        }
+        return false;
+    }
+  };
+
+  const catalog = async (night: number): Promise<boolean> => {
     const stock = stockOnNight(
       tracked,
       newProducts,
@@ -108,34 +161,106 @@ async function main() {
       },
       label,
     });
-
-    switch (outcome.kind) {
-      case 'run': {
-        const staged = outcome.stagedReason ? ` (${outcome.stagedReason})` : '';
-        const errors = Number(outcome.summary['errors'] ?? 0);
-        log(
-          `${label}: ${outcome.status}${staged}, ${String(outcome.summary['update'] ?? 0)} products updated, ${String(outcome.summary['create'] ?? 0)} created` +
-            (errors ? `, ${errors} rows refused: ${outcome.rowErrors}` : ''),
-        );
-        catalogNight = night;
-        return;
-      }
-      case 'not-owned':
-        // The shop took the catalog back by hand. Not a failure: the next
-        // night tries again, and sends that night's stock if it is ours again.
-        log(`${label}: the catalog is not ERP-owned right now, skipped`);
-        catalogNight = night;
-        return;
-      case 'failed':
-        log(`${label}: FAILED ${outcome.detail}; trying again in 10 minutes`);
-        retryAt = Date.now() + RETRY_MS;
-        // Once a night: the shop hears the feed broke, not every retry.
-        if (reportedNight !== night) {
-          reportedNight = night;
-          await platform.reportFailure('catalog', outcome.detail, label);
-        }
-    }
+    return settle(
+      'catalog',
+      `night ${night}`,
+      label,
+      outcome,
+      (summary) =>
+        `${String(summary['update'] ?? 0)} products updated, ${String(summary['create'] ?? 0)} created`,
+    );
   };
+
+  /** Every registration waiting on the storefront, answered. */
+  const accounts = async (hour: string): Promise<boolean> => {
+    const label = `Registrations, ${hour}:00`;
+    let book: Account[];
+    try {
+      book = await platform.readAll<Account>(
+        'customers/accounts',
+        'accounts',
+        200,
+      );
+    } catch (error) {
+      return settle(
+        'customers',
+        hour,
+        label,
+        {
+          kind: 'failed',
+          detail: String(error),
+        },
+        () => '',
+      );
+    }
+    const rows = claimsFor(book, accountRules);
+    if (rows.length === 0) return true;
+    const outcome = await platform.submit('customers', {
+      rows,
+      // A claim only writes onto an account that is already here, and what it
+      // sets beyond the key and the approval is the price list.
+      options: {
+        fields: ['tier'],
+        createMissing: false,
+        updateExisting: true,
+        claimByEmail: false,
+        claimById: true,
+      },
+      label,
+    });
+    return settle(
+      'customers',
+      hour,
+      label,
+      outcome,
+      (summary) =>
+        `${String(summary['claimedById'] ?? 0)} claimed and approved, ${String(summary['mailed'] ?? 0)} mailed`,
+    );
+  };
+
+  /** Every open order that has waited long enough, one step on. */
+  const orders = async (hour: string): Promise<boolean> => {
+    const label = `Orders, ${hour}:00`;
+    let book: Order[];
+    try {
+      book = await platform.readAll<Order>('orders', 'orders', 50);
+    } catch (error) {
+      return settle(
+        'orders',
+        hour,
+        label,
+        {
+          kind: 'failed',
+          detail: String(error),
+        },
+        () => '',
+      );
+    }
+    const instructions = stepsFor(
+      book,
+      new Date(),
+      simulation.orders.stepAfterHours,
+    );
+    if (instructions.length === 0) return true;
+    const outcome = await platform.submit('orders', {
+      orders: instructions,
+      label,
+    });
+    return settle(
+      'orders',
+      hour,
+      label,
+      outcome,
+      (summary) =>
+        `${String(summary['update'] ?? 0)} orders moved, ${String(summary['mailed'] ?? 0)} customers told`,
+    );
+  };
+
+  // The last night whose stock was dealt with, and the last working hour.
+  let catalogNight = 0;
+  let catalogRetryAt = 0;
+  let workedHour: string | null = null;
+  let hourRetryAt = 0;
 
   let busy = false;
   const tick = async () => {
@@ -145,7 +270,20 @@ async function main() {
       // Also on the first tick: a night missed while the container was down
       // is sent as soon as it is back, and sending one twice changes nothing.
       const night = nightsBetween(epoch, new Date(), timeZone);
-      if (night > catalogNight && Date.now() >= retryAt) await catalog(night);
+      if (night > catalogNight && Date.now() >= catalogRetryAt) {
+        if (await catalog(night)) catalogNight = night;
+        else catalogRetryAt = Date.now() + RETRY_MS;
+      }
+
+      // The two halves of the hour are independent: one failing does not
+      // keep the other from its work, and a retry repeats both harmlessly.
+      const hour = workingHour(new Date(), timeZone, workingHours);
+      if (hour && hour !== workedHour && Date.now() >= hourRetryAt) {
+        const accountsDone = await accounts(hour);
+        const ordersDone = await orders(hour);
+        if (accountsDone && ordersDone) workedHour = hour;
+        else hourRetryAt = Date.now() + RETRY_MS;
+      }
     } catch (error) {
       log(`ERROR ${String(error)}`);
     } finally {

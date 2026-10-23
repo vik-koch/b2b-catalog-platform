@@ -37,3 +37,15 @@ describe('the new-product pool', () => {
     });
   });
 });
+
+describe('the hourly cycle settings', () => {
+  it('reads the working hours and the price lists new customers are put on', () => {
+    const { workingHours, accountRules } = load(
+      `${slaney}/seed`,
+      `${slaney}/config`,
+    );
+    expect(workingHours.days).toEqual([1, 2, 3, 4, 5]);
+    expect(accountRules.keyPrefix).toBe('CUS-');
+    expect(accountRules.tiers).toContain(null);
+  });
+});

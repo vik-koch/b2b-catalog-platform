@@ -21,9 +21,11 @@ running the migrate one-shot are host operations.
 
 A small public app, `apps/erp-sim`, runs on a demo stack whose seed bundle has a
 `simulation.json`. It uses nothing but the documented machine API, over the
-stack's own network, with a token the seed stores from a secret. It keeps no
-state: what it sends follows from the bundle, `simulation.json` and the nights
-since the last reset. It runs continuously; the stack is reset only by
+stack's own network, with a token the seed stores from a secret. Nightly it
+moves the stock; hourly in working hours it answers the registrations and the
+orders waiting for it. It keeps no state: what it sends follows from the bundle,
+`simulation.json`, the nights since the last reset and what the shop's books say
+when it reads them. It runs continuously; the stack is reset only by
 `infra/reset.sh` — when a deploy changes what the stack loads, or when someone
 asks for it — which stops the simulator before the reset and starts it after.
 
@@ -55,6 +57,15 @@ asks for it — which stops the simulator before the reset and starts it after.
   timer, and the simulator doing it would need the socket, which is root on the
   VM — with a trigger page planned for reviewers, a public route one step from
   it. Releases reset the shop often enough, and _Reset to seed_ does it by hand.
+- **It answers; it never invents.** Registrations and orders arrive from the
+  storefront, so the back office creates neither: each working hour it reads
+  both books and answers what is waiting — a registration is claimed by the id
+  the read reported, keyed after the highest key the shop holds and approved;
+  an open order moves one step. Reading the books each time is what keeps it
+  stateless: a step taken is visible on the order, so a repeated cycle does not
+  take it twice. Claims go by id, the form the customer exchange recommends,
+  and the English shop lets ten of those apply unattended while address claims
+  still wait for a person.
 - **Narrow writes.** The nightly catalog run writes stock and nothing else for
   the products the shop already has (`fields: ["stock"]`, no prices, nothing
   restored), so it cannot clobber what the shop edits while it holds the
@@ -76,3 +87,6 @@ asks for it — which stops the simulator before the reset and starts it after.
   reset records, so changing it resets the shop.
 - (−) What visitors leave behind stays until the next reset; the platform's own
   retention sweep is what clears the personal details from their orders.
+- (−) After the first working hours of a reset, registrations and orders move
+  only when visitors register or order — the seeded ones are answered by then.
+  Outside working hours, and at weekends, nothing but the stock moves.

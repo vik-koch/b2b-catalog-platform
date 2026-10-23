@@ -184,6 +184,10 @@ const tier = z.strictObject({
 const account = z.strictObject({
   /** A fixed id, for a row whose address is derived from it. */
   id: z.uuid().optional(),
+  /** The source system's key, for a shop whose customers an external system
+   * owns (settings.json). Absent: an account nothing outside knows, as every
+   * storefront registration is until it is claimed. */
+  sourceId: z.string().min(1).optional(),
   email: z.string(),
   role: z.enum(USER_ROLES),
   status: z.enum(USER_STATUSES),

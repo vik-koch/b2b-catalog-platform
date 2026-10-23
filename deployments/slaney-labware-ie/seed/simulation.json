@@ -1,7 +1,10 @@
 {
   "seed": "slaney-labware",
   "catalog": {
-    "sold": { "products": 10, "percent": [10, 15] },
+    "sold": {
+      "products": 10,
+      "percent": [10, 15]
+    },
     "reorderBelow": 30,
     "deliveryNights": 2,
     "newProducts": {
@@ -37,5 +40,17 @@
         }
       ]
     }
+  },
+  "workingHours": {
+    "days": [1, 2, 3, 4, 5],
+    "from": 8,
+    "to": 16
+  },
+  "accounts": {
+    "keyPrefix": "CUS-",
+    "tiers": ["academic", "healthcare", "contract", null]
+  },
+  "orders": {
+    "stepAfterHours": 1
   }
 }

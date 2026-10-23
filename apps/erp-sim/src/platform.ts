@@ -24,6 +24,11 @@ export type Outcome =
  * while the shop holds the area itself. */
 const AREAS = {
   catalog: { path: 'sync', notOwned: 'catalog-not-externally-owned' },
+  customers: {
+    path: 'sync/customers',
+    notOwned: 'customers-not-externally-owned',
+  },
+  orders: { path: 'sync/orders', notOwned: 'orders-not-externally-owned' },
 } as const;
 export type Area = keyof typeof AREAS;
 
@@ -43,6 +48,30 @@ export class Platform {
       throw new Error(`token refused: ${response.status} ${response.text}`);
     }
     return JSON.parse(response.text);
+  }
+
+  /**
+   * A whole book from one of the reads — `customers/accounts` or `orders` —
+   * following the cursor to its end. The reads are not gated on ownership, so
+   * the back office always sees what the shop holds.
+   */
+  async readAll<T>(path: string, key: string, limit: number): Promise<T[]> {
+    const items: T[] = [];
+    let cursor: string | null = null;
+    do {
+      const query = new URLSearchParams({ limit: String(limit) });
+      if (cursor) query.set('cursor', cursor);
+      const response = await this.#send('GET', `/machine/${path}?${query}`);
+      if (response.status !== 200) {
+        throw new Error(
+          `reading ${path}: ${response.status} ${response.text.slice(0, 200)}`,
+        );
+      }
+      const page = JSON.parse(response.text) as Record<string, unknown>;
+      items.push(...(page[key] as T[]));
+      cursor = (page['nextCursor'] as string | null) ?? null;
+    } while (cursor);
+    return items;
   }
 
   /** Submits one run to an area's sync route. */

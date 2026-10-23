@@ -1,6 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as z from 'zod';
+import { AccountRules } from './accounts';
+import { WorkingHours } from './schedule';
 import { Introduced, TrackedProduct } from './stock';
 
 /**
@@ -41,6 +43,25 @@ export const simulationSchema = z.strictObject({
       ),
     }),
   }),
+  /** When the hourly cycle — accounts, then orders — runs, on the shop's clock. */
+  workingHours: z
+    .strictObject({
+      days: z.array(z.number().int().min(1).max(7)).min(1),
+      from: z.number().int().min(0).max(23),
+      to: z.number().int().min(0).max(23),
+    })
+    .refine(({ from, to }) => from <= to, {
+      message: 'from is an hour no later than to',
+    }),
+  accounts: z.strictObject({
+    keyPrefix: z.string().min(1),
+    /** Price list keys of the bundle; null is the base list. */
+    tiers: z.array(z.string().min(1).nullable()).min(1),
+  }),
+  orders: z.strictObject({
+    /** How long an order stands where it is before the next step. */
+    stepAfterHours: z.number().positive(),
+  }),
 });
 
 export type Simulation = z.infer<typeof simulationSchema>;
@@ -64,6 +85,11 @@ const catalogFile = z.object({
   ),
 });
 
+/** The part of the bundle's accounts it needs: which price lists exist. */
+const accountsFile = z.object({
+  tiers: z.array(z.object({ key: z.string() })),
+});
+
 /** The part of the deployment config it needs: the shop's time zone. */
 const deploymentFile = z.object({
   orderReference: z.object({ timezone: z.string() }).optional(),
@@ -75,6 +101,8 @@ export interface Loaded {
   readonly tracked: readonly TrackedProduct[];
   /** The pool, each with its night and its category as the shop has it. */
   readonly newProducts: readonly NewProduct[];
+  readonly workingHours: WorkingHours;
+  readonly accountRules: AccountRules;
   readonly timeZone: string;
 }
 
@@ -92,6 +120,16 @@ export function load(seedPath: string, configPath: string): Loaded {
   const config = deploymentFile.parse(
     readJson(join(configPath, 'deployment.json')),
   );
+  const { tiers } = accountsFile.parse(
+    readJson(join(seedPath, 'accounts.json')),
+  );
+  for (const key of simulation.accounts.tiers) {
+    if (key !== null && !tiers.some((tier) => tier.key === key)) {
+      throw new Error(
+        `simulation.json: the price list "${key}" is not one of the bundle's`,
+      );
+    }
+  }
 
   // A pool article names its category the way the bundle's products do. The
   // run has to send the category's own name with its key, or it would rename
@@ -128,6 +166,8 @@ export function load(seedPath: string, configPath: string): Loaded {
       stockPieces === undefined ? [] : [{ sourceId, stockPieces }],
     ),
     newProducts,
+    workingHours: simulation.workingHours,
+    accountRules: simulation.accounts,
     // Where the deployment states none, its order dates are UTC too.
     timeZone: config.orderReference?.timezone ?? 'UTC',
   };

@@ -58,6 +58,7 @@ Keep each case below when editing the bundle, or move it to another record.
 | A sole trader: a business with a VAT number and no company number, on a tier          | `aoife@kinsella-microbiology`                                                                |
 | Registration numbers in both configured formats                                       | VAT numbers on most; company numbers on `ardcairn-pharma`, `moyne-water`, `bunclody-schools` |
 | Awaiting a decision: no tier, no approver, no password                                | the three `pending` accounts                                                                 |
+| Known to the source system: a key, `CUS-1001` upward                                  | every customer but the `pending` and the `anonymized` ones                                   |
 | Approved and invited, no password chosen yet                                          | the two `invited` accounts                                                                   |
 | Switched off, name kept                                                               | `oulart-agri` (`disabled`)                                                                   |
 | Deleted by its owner: the tombstone the app leaves, address derived from its fixed id | the `anonymized` account                                                                     |
@@ -121,3 +122,14 @@ arrives — unpublished, with a price and a stock but no picture or description 
 for the shop to complete and publish; after four the pool is used up. The
 `seed` makes the history reproducible: the same seed and the same nights give
 the same stock.
+
+In working hours — every hour from 08:00 to 16:00, Monday to Friday, on the
+shop's clock — it answers what is waiting. Each pending registration is claimed
+by its id: it gets the next `CUS-` key after the highest the shop holds, is
+approved, and is put on one of the price lists in the file, drawn from the
+account's id. Each open order that has stood for an hour moves one step —
+accepted, ready, handed over — with the customer told each time, and handing
+over records the payment. A first working hour after a reset answers the three
+pending registrations and moves all four open orders; three hours later every
+one of them is handed over and paid, and from then on the back office answers
+whatever visitors register and order.

@@ -37,7 +37,8 @@ A bundle is loaded into an empty database: a stack is reset before it is
 seeded ([infra/README.md](../../../infra/README.md#seeding-a-demo-stack)), so
 nothing a visitor did survives a reset, and nothing an older bundle had either.
 
-`settings.json` is for a shop an external system feeds. It lists the areas that
+`settings.json` is for a shop an external system feeds — whose accounts may
+then carry the source system's own `sourceId` as well. It lists the areas that
 system owns (`catalog`, `customers`, `orders`) and names its machine token and
 what the token may do. The token's value is a secret, so it is never in the
 bundle: the seed is handed it as `SEED_MACHINE_TOKEN` and stores its hash, as
