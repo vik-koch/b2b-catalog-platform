@@ -6,7 +6,8 @@ content: what it writes comes from a bundle — the test fixture's is
 describes the format and what each case in it is there to show.
 
 Consumers: the seeder one-shot (`apps/seeder`, run by the `seed` compose
-service and by `nx run seeder:seed`), the `api-e2e` global setup (through the
+service from `infra/seed.sh` and by `nx run seeder:seed`, each after emptying
+the database), the `api-e2e` global setup (through the
 built seeder) and the `web-e2e` one (calling `seedDatabase` directly), and the
 specs that assert against seeded content (`loadSeedBundle`).
 

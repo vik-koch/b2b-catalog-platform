@@ -79,7 +79,7 @@ jobs:
 
       - run: npx nx run-many -t lint typecheck test build format-check
 
-      # The dev deploy seeds, and the seeder runs from this build (deploy.sh):
+      # The dev deploy seeds, and the seeder runs from this build (seed.sh):
       # it is not an image, so nothing else carries it to the VM.
       - if: github.event_name == 'push'
         uses: actions/upload-artifact@v7
@@ -292,9 +292,8 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          # Dev shows demo content, so seed after deploy.
-          SEED: '1'
-          # Dev is the German Coffee Kontor, not the test fixture.
+          # Dev is the German Coffee Kontor, not the test fixture, reset to
+          # its seed bundle after every deploy (seed.sh below).
           CONFIG_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/config
           SEED_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/seed
           # Guards the dev Mailpit reviewer inbox. Hashed below — the
@@ -369,6 +368,7 @@ jobs:
 
           infra/deploy.sh "$DEPLOY_HOST" "$RUNNER_TEMP/dev.env" \
             "$RUNNER_TEMP/traefik.env" compose.mailpit.yml
+          infra/seed.sh "$DEPLOY_HOST" "$RUNNER_TEMP/dev.env"
 
   # GHCR keeps every push forever, so main builds pile up. Retain the tags that
   # something can still deploy — releases, latest, main, and a window of recent

@@ -5,20 +5,25 @@ import { Client } from 'pg';
 import { requireEnv } from '../support/env';
 
 const EMAIL = 'e2e-bootstrap-admin@example.com';
+const SEEDED_EMAIL = 'e2e-bootstrap-admin-seeded@example.com';
 const PASSWORD = 'bootstrap-password-1';
 
 const workspaceRoot = fileURLToPath(new URL('../../../..', import.meta.url));
 
 /** Runs the one-shot a deployment runs, and returns what it logged. */
-function bootstrapAdmin(password: string): string {
+function bootstrapAdmin(
+  password: string,
+  { email = EMAIL, forceChange = 'true' } = {},
+): string {
   return execFileSync('node', ['dist/apps/api/main.js'], {
     cwd: workspaceRoot,
     encoding: 'utf8',
     env: {
       ...process.env,
       RUN_MODE: 'bootstrap-admin',
-      ADMIN_EMAIL: EMAIL,
+      ADMIN_EMAIL: email,
       ADMIN_PASSWORD: password,
+      ADMIN_FORCE_PASSWORD_CHANGE: forceChange,
     },
   });
 }
@@ -29,11 +34,15 @@ describe('bootstrap-admin one-shot (create-if-missing)', () => {
   beforeAll(async () => {
     client = new Client({ connectionString: requireEnv('DATABASE_URL') });
     await client.connect();
-    await client.query('DELETE FROM users WHERE email = $1', [EMAIL]);
+    await client.query('DELETE FROM users WHERE email = ANY($1)', [
+      [EMAIL, SEEDED_EMAIL],
+    ]);
   });
 
   afterAll(async () => {
-    await client.query('DELETE FROM users WHERE email = $1', [EMAIL]);
+    await client.query('DELETE FROM users WHERE email = ANY($1)', [
+      [EMAIL, SEEDED_EMAIL],
+    ]);
     await client.end();
   });
 
@@ -78,5 +87,19 @@ describe('bootstrap-admin one-shot (create-if-missing)', () => {
       // arrives flagged and the app insists on a change before anything else.
       mustChangePassword: true,
     });
+  });
+
+  // A stack reset to a seed bundle recreates its admin on every reset, so a
+  // forced change would be asked for again each time (infra/seed.sh).
+  it('leaves the change unforced where the deploy turns it off', async () => {
+    expect(
+      bootstrapAdmin(PASSWORD, { email: SEEDED_EMAIL, forceChange: 'false' }),
+    ).toContain(`created ${SEEDED_EMAIL}`);
+
+    const { rows } = await client.query(
+      'SELECT "mustChangePassword" FROM users WHERE email = $1',
+      [SEEDED_EMAIL],
+    );
+    expect(rows[0].mustChangePassword).toBe(false);
   });
 });

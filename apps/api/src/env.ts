@@ -25,6 +25,11 @@ const EnvSchema = z
     // boot on.
     ADMIN_EMAIL: emailField(320).optional(),
     ADMIN_PASSWORD: z.string().min(8).optional(),
+    // Whether the bootstrap admin must change that password at first sign-in.
+    // A real deployment keeps it: the pipeline chose the password, not the
+    // admin. A stack reset to a seed bundle (infra/seed.sh) turns it off, since
+    // the account is recreated on every reset and would ask again each time.
+    ADMIN_FORCE_PASSWORD_CHANGE: z.enum(['true', 'false']).default('true'),
     // SMTP mail transport. Declared optional but required in server
     // mode by the refinement below — the one-shots never send
     // mail. Dev/demo point these at Mailpit; prod at a real provider.

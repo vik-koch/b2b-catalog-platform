@@ -2,7 +2,7 @@
 
 The demo content of the fictional Hamburg coffee roastery: catalog, accounts,
 orders, documents and static pages. It is what the e2e suites seed and assert
-against and what `nx run seeder:seed` writes into a local database by default;
+against and what `nx run seeder:seed` resets a local database to by default;
 the demo stacks seed the other bundles in [deployments/](../../README.md)
 (`SEED_DIR`, see [infra/README.md](../../../infra/README.md)). It belongs with
 the fixture's [config/](../config/): the orders it holds snapshot that config's

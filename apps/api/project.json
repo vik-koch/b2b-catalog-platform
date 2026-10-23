@@ -123,12 +123,7 @@
       "continuous": true,
       "options": {
         "parallel": false,
-        "commands": [
-          "nx run api:db-migrate",
-          "nx run seeder:seed",
-          "nx run api:db-bootstrap-admin",
-          "nx run api:serve"
-        ]
+        "commands": ["nx run seeder:seed", "nx run api:serve"]
       }
     },
     "typecheck": {

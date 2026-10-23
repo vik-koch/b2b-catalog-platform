@@ -70,7 +70,7 @@ jobs:
           echo "ip=$(terraform output -raw ipv4_address)" >> "$GITHUB_OUTPUT"
           echo "fqdn=$(terraform output -raw demo_fqdn)" >> "$GITHUB_OUTPUT"
 
-      # The seeder is not an image: deploy.sh copies this build to the VM.
+      # The seeder is not an image: seed.sh copies this build to the VM.
       - uses: actions/setup-node@v7
         with:
           node-version: 24
@@ -114,8 +114,7 @@ jobs:
           # is generated per run below, like the DB password.
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          # Throwaway demo needs demo content, so seed after deploy.
-          SEED: '1'
+          # The shop to deploy, and seed after deploy (seed.sh below).
           DEPLOYMENT: ${{ inputs.deployment }}
         run: |
           : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
@@ -175,6 +174,7 @@ jobs:
 
           infra/deploy.sh "${{ steps.tf.outputs.ip }}" \
             "$RUNNER_TEMP/demo.env" "$RUNNER_TEMP/traefik.env" compose.mailpit.yml
+          infra/seed.sh "${{ steps.tf.outputs.ip }}" "$RUNNER_TEMP/demo.env"
 
           echo "## Demo is up: https://$FQDN ($DEPLOYMENT)" >> "$GITHUB_STEP_SUMMARY"
           echo "Reviewer inbox: https://$FQDN/inbox/ — user \`reviewer\`, password: the \`INBOX_PASSWORD\` secret." >> "$GITHUB_STEP_SUMMARY"

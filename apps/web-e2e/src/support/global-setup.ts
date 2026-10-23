@@ -17,6 +17,19 @@ export default async function globalSetup() {
     'docker network inspect traefik >/dev/null 2>&1 || docker network create traefik',
     { cwd: workspaceRoot, stdio: 'inherit' },
   );
+  // Every run starts from an empty stack, as a demo stack does after a reset:
+  // the database volume and the uploaded files go, so nothing an earlier run
+  // created is there to be counted. Recreating the containers also hands the
+  // proxy the api's new address.
+  execSync('docker compose --env-file .env.localtest down -v', {
+    cwd: workspaceRoot,
+    stdio: 'inherit',
+    env: { ...process.env, ...env },
+  });
+  execSync(`rm -rf "${env['MEDIA_ROOT']}"`, {
+    cwd: workspaceRoot,
+    stdio: 'inherit',
+  });
   // The stack's api bind-mounts MEDIA_ROOT (compose.override.yml) and writes
   // uploads there as its unprivileged uid-1000 `node` user. Create it
   // world-writable BEFORE `up`, or Docker auto-creates the bind path owned by
@@ -77,7 +90,7 @@ export default async function globalSetup() {
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
-  // 3. Seed the data the specs assert against (idempotent).
+  // 3. Seed the data the specs assert against, into the empty database.
   const client = localtestDbClient();
   await client.connect();
   try {
@@ -100,15 +113,6 @@ export default async function globalSetup() {
       fixtureSeed,
       resolve(workspaceRoot, env['MEDIA_ROOT']),
       { consent, pictures: 'placeholder' },
-    );
-    // bootstrap-admin flags its account as still using the password the deploy
-    // gave it, so the app forces a change on first sign-in. Clear it here: the
-    // login/session specs are about other things and would all have to dismiss
-    // the modal. The forced flow gets its own throwaway account and its own
-    // spec (change-password.spec.ts), so nothing here has to stay flagged.
-    await client.query(
-      'UPDATE users SET "mustChangePassword" = false WHERE email = $1',
-      [env['ADMIN_EMAIL'].trim().toLowerCase()],
     );
   } finally {
     await client.end();
