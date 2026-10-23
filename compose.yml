@@ -239,6 +239,9 @@ services:
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
       ADMIN_EMAIL: ${ADMIN_EMAIL:?}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?}
+      # Off only for a stack reset to a seed bundle (infra/seed.sh passes it
+      # per run, and the local smoke-test stack sets it).
+      ADMIN_FORCE_PASSWORD_CHANGE: ${ADMIN_FORCE_PASSWORD_CHANGE:-true}
     depends_on:
       postgres:
         condition: service_healthy
@@ -248,11 +251,11 @@ services:
       - internal
 
   # One-shot seeder — writes a seed bundle's demo content, then exits. In the
-  # 'tools' profile so `up` never starts it. A stock Node image rather than the
-  # API's, so no image that serves a shop carries the seed or its content:
-  # deploy.sh puts the built seeder (dist/apps/seeder) and the bundle beside
-  # this file, and its dependencies are installed on every run from the
-  # lockfile the build pruned.
+  # 'tools' profile so `up` never starts it: infra/seed.sh runs it, after
+  # resetting the database. A stock Node image rather than the API's, so no
+  # image that serves a shop carries the seed or its content: seed.sh puts the
+  # built seeder (dist/apps/seeder) and the bundle beside this file, and its
+  # dependencies are installed on every run from the lockfile the build pruned.
   seed:
     image: node:24-alpine
     profiles: ['tools']
@@ -268,7 +271,7 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:?}:${POSTGRES_PASSWORD:?}@postgres:5432/${POSTGRES_DB:?}
       # The seed stores its pictures and documents where the api stores
-      # uploads. The api (which runs first in a SEED=1 deploy) has already
+      # uploads. The api (which deploy.sh starts before any seed) has already
       # created /media node-owned.
       MEDIA_ROOT: /media
       # The seed writes consent records only for the purposes this deployment

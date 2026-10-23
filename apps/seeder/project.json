@@ -27,11 +27,26 @@
         "commands": ["tsc -p apps/seeder/tsconfig.app.json --noEmit"]
       }
     },
-    "seed": {
+    "load": {
       "executor": "nx:run-commands",
       "dependsOn": ["build"],
       "options": {
         "command": "node dist/apps/seeder/main.cjs"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "parallel": false,
+        "commands": [
+          "node tools/db-reset.mjs",
+          "nx run api:db-migrate",
+          "nx run seeder:load",
+          "nx run api:db-bootstrap-admin"
+        ],
+        "env": {
+          "ADMIN_FORCE_PASSWORD_CHANGE": "false"
+        }
       }
     }
   }

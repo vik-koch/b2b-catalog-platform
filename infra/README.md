@@ -157,20 +157,56 @@ by `Host` header and one shared observability stack collects both their logs.
 
 - **dev** — auto-deployed on every merge to `main` (`ci.yml` → `deploy-dev`),
   from the sha-pinned images that push just built. It runs the German shop
-  (`deployments/coffee-kontor-de`) and is seeded with its content.
+  (`deployments/coffee-kontor-de`) and is reset to its seed bundle after every
+  deploy (see [Seeding a demo stack](#seeding-a-demo-stack)).
 - **public prod** — deployed on pushing a `v*.*.*` release tag (`release.yml` →
   [deploy-prod.yml](../.github/workflows/deploy-prod.yml)), from the promoted
   **version-tagged** image (byte-identical to the sha dev ran). It runs the
-  English shop (`deployments/slaney-labware-ie`) and is seeded with its content
-  on every deploy. It is a portfolio demonstration, so it keeps the Mailpit
+  English shop (`deployments/slaney-labware-ie`) and is reset to its seed
+  bundle on every deploy. It is a portfolio demonstration, so it keeps the Mailpit
   reviewer inbox (below) and stays out of search results
   (`SEO_INDEXABLE=false`) — like dev and the demo.
 
   **Redeploying a release** needs no tag: run _Deploy prod_ by hand (Actions →
   Deploy prod → Run workflow) with _Use workflow from_ set to the release's tag.
   Images, config, seed bundle and seeder all come from that tag, so it ships
-  exactly what the release shipped — after resetting the prod database by hand,
-  this seeds it again. Any ref other than a `v*` tag is refused.
+  exactly what the release shipped, and resets the shop to its seed bundle on
+  the way. Any ref other than a `v*` tag is refused.
+
+### Seeding a demo stack
+
+[seed.sh](seed.sh) resets a stack to a seed bundle, after `deploy.sh` has
+brought it up: it stops the app, drops the database schema and the uploaded
+files, migrates afresh, loads the bundle, creates the bootstrap admin and starts
+the app again. The stack then holds the bundle and nothing else — what visitors
+left behind, and products an older bundle had, are gone. The shop is down for
+the minute or so that takes.
+
+```sh
+npx nx build seeder
+SSH_OPTS="-i /path/to/deploy-private-key" \
+  SEED_DIR=deployments/slaney-labware-ie/seed \
+  infra/seed.sh <host> <app-env-file>
+```
+
+It is a script of its own so a real shop's deploy cannot reach it: `deploy.sh`
+never touches the data. And it refuses a database a reset did not make — every
+reset marks the schema it creates — unless that database holds no product,
+category or order and no account but the bootstrap admin. A stack that holds
+data some other way, such as one seeded before this script existed, is emptied
+by hand once; the next deploy migrates it afresh and the reset after it goes
+through:
+
+```sh
+ssh deploy@<host> 'cd /srv/b2b/<stack> && docker compose exec -T postgres \
+  psql -U <POSTGRES_USER> -d <POSTGRES_DB> \
+  -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public; DROP SCHEMA IF EXISTS drizzle CASCADE;"'
+```
+
+The bootstrap admin is recreated on every reset with the deploy's
+`ADMIN_PASSWORD`, and is not asked to change it (`ADMIN_FORCE_PASSWORD_CHANGE`
+is off for the reset): a password changed in the app lasts until the next
+deploy.
 
 A real **client prod** is a separate, client-owned VM deployed from the private
 repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
@@ -496,10 +532,15 @@ and only if — that account does not exist yet. So:
 
 - every environment, seeded or not, comes up with a usable admin,
   with no manual step;
+- on a real deployment the admin must change that password at first sign-in,
+  since the pipeline chose it; a demo stack's reset turns that off
+  (`ADMIN_FORCE_PASSWORD_CHANGE=false`), because it recreates the admin each
+  time;
 - a redeploy **never** clobbers an admin whose password was rotated in-app, so
   the deploy-time `ADMIN_PASSWORD` is a first-boot value only. Changing the
   secret later has no effect on a stack that already ran the one-shot — reset
-  such an account in the database, not by redeploying;
+  such an account in the database, not by redeploying. A demo stack is the
+  exception: its reset recreates the admin from the secret on every deploy;
 - the plaintext lives in the stack's `.env` on the VM and in the short-lived
   one-shot's environment. `ADMIN_PASSWORD_HASH` is the documented hardening if
   that is unacceptable for a given deployment (ADR 0019).
@@ -556,29 +597,24 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
      infra/deploy.sh <host> <app-env-file> infra/traefik/.env
    ```
 
-   For a non-prod stack, append `compose.mailpit.yml` to add the Mailpit sink +
-   reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file), and set
-   `SEED=1` to load demo content (a real shop leaves it unset — see below). Seeding
-   runs the seeder from your build, so build it first. `CONFIG_DIR` names the
-   deployment's config, always; `SEED_DIR` the seed bundle that belongs with it
-   (one of [deployments/](../deployments/README.md)):
+   `CONFIG_DIR` names the deployment's config, always — one of
+   [deployments/](../deployments/README.md), or your own. For a non-prod
+   stack, append `compose.mailpit.yml` to add the Mailpit sink + reviewer
+   inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file):
 
    ```sh
-   npx nx build seeder
-   SSH_OPTS="-i /path/to/deploy-private-key" SEED=1 \
+   SSH_OPTS="-i /path/to/deploy-private-key" \
      CONFIG_DIR=deployments/slaney-labware-ie/config \
-     SEED_DIR=deployments/slaney-labware-ie/seed \
      infra/deploy.sh <host> <app-env-file> infra/traefik/.env compose.mailpit.yml
    ```
 
    It SSHes as `deploy`, copies the [shared Traefik stack](traefik/) and the
    app stack (root [compose.yml](../compose.yml) + the given env file, derived
    from [.env.stack.example](../.env.stack.example)) into `/srv/b2b/`, brings
-   both up, copies the seeder and the bundle and runs the one-shot `seed`
-   service **only when `SEED` is set** (idempotent upsert — off by default so
-   a real shop is never seeded by accident), and
-   smoke-checks `https://$APP_DOMAIN` (incl. a seeded API page when seeded). Stacks land
-   in `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
+   both up and smoke-checks `https://$APP_DOMAIN`. It never touches the data;
+   a demo stack gets its content from [seed.sh](seed.sh) afterwards (see
+   [Seeding a demo stack](#seeding-a-demo-stack)). Stacks land in
+   `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
 
    Images are pulled from GHCR. To deploy before CI has published any (or to
    test unmerged builds), preload local images under the tags your env file

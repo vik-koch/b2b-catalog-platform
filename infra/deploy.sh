@@ -23,13 +23,9 @@
 # Loki/Alloy/Grafana stack once per VM (idempotent, like Traefik). Unset -> the
 # stack is left untouched, so the ephemeral demo simply omits it.
 #
-# Seeding: opt-in and OFF by default. Set SEED=1 to upsert seed data after the
-# stack is up (the demo stacks do — they show demo content). A real shop leaves
-# it unset, so its catalog is never overwritten by an accidental seed: the seed
-# one-shot is also parked in the 'tools' compose profile, so nothing but this
-# explicit, opted-in step ever runs it. It needs the built seeder (`npx nx build
-# seeder` -> dist/apps/seeder) and SEED_DIR, the seed bundle that belongs with
-# CONFIG_DIR (e.g. deployments/<name>/seed).
+# Seeding is not this script's job: it never touches the data. A demo stack is
+# reset to its seed bundle afterwards by infra/seed.sh, which a real shop's
+# deploy never calls.
 #
 # Config: CONFIG_DIR names the deployment's config directory, required — e.g.
 # deployments/<name>/config, or the private repo's own. There is no default
@@ -46,18 +42,10 @@ app_env=${2:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-
 traefik_env=${3:?usage: deploy.sh <host> <app-env-file> <traefik-env-file> [overlay-compose-file]}
 overlay=${4:-}
 obs_env=${OBSERVABILITY_ENV:-}
-seed=${SEED:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
-seeder_dir=$repo_root/dist/apps/seeder
 config_dir=${CONFIG_DIR:?CONFIG_DIR must name the deployment config directory}
 [ -f "$config_dir/deployment.json" ] || { echo "CONFIG_DIR $config_dir holds no deployment config" >&2; exit 1; }
-seed_dir=${SEED_DIR:-}
-if [ -n "$seed" ]; then
-  [ -f "$seeder_dir/main.cjs" ] || { echo "SEED=1 needs the built seeder: npx nx build seeder" >&2; exit 1; }
-  : "${seed_dir:?SEED=1 needs SEED_DIR, the seed bundle to load}"
-  [ -f "$seed_dir/catalog.json" ] || { echo "SEED_DIR $seed_dir holds no seed bundle" >&2; exit 1; }
-fi
 
 # STACK_NAME doubles as the stack's directory (= compose project) on the VM so
 # several stacks (dev / prod / demo) can coexist; APP_DOMAIN is smoke-checked.
@@ -190,26 +178,10 @@ run "cd /srv/b2b/$stack && docker compose up -d --no-build --force-recreate --no
 echo "==> Removing unused images"
 run "docker image prune -af --filter until=168h" || echo "WARNING: image prune failed" >&2
 
-# Idempotent upsert of seed data — opt-in only (SEED=1). Runs to completion (or
-# fails the deploy); the 'tools' profile keeps it out of the `up` above, which
-# has already run the `migrate` one-shot — so the schema exists by the time this
-# runs. A real shop never sets SEED, so its data is left untouched.
-if [ -n "$seed" ]; then
-  echo "==> Seeding database from $seed_dir"
-  # Replaced wholesale, like the config, so nothing lingers from an earlier
-  # bundle. Only the one-shot mounts these, and it is not running.
-  for dir in seeder seed; do
-    run "rm -rf /srv/b2b/$stack/$dir && mkdir -p /srv/b2b/$stack/$dir"
-  done
-  tar -C "$seeder_dir" -cf - . | run "tar -C /srv/b2b/$stack/seeder -xf -"
-  tar -C "$seed_dir" -cf - . | run "tar -C /srv/b2b/$stack/seed -xf -"
-  run "cd /srv/b2b/$stack && docker compose run --rm seed"
-fi
-
 # First hit also triggers the Let's Encrypt issuance, so allow a generous
 # window: DNS propagation + cert order can take a minute or two on a fresh VM.
-# When seeded, require a seeded API page too, so a routing or seed failure fails
-# loudly; unseeded (a real shop) only asserts the app is reachable.
+# Only that the app is reachable: what it serves is the data's business, and
+# seed.sh checks a seeded page itself.
 #
 # Maintenance mode (FR-ADM-04) is the reason this asks for status codes rather
 # than using `curl -f`: while the gate is on, the storefront and every public
@@ -238,8 +210,7 @@ for _ in $(seq 1 36); do
     *) sleep 5; continue ;;
   esac
 
-  if up_or_gated "https://$domain/" &&
-    { [ -z "$seed" ] || up_or_gated "https://$domain/api/pages/about"; }; then
+  if up_or_gated "https://$domain/"; then
     if [ "$gated" = 1 ]; then
       echo "NOTE: maintenance mode is on — public routes answered 503 as expected"
     fi

@@ -73,3 +73,23 @@ same commit as the images it seeds for. A published seed image was considered
 and rejected: another multi-arch build per release, for a tool only demo stacks
 run. The install on each run costs a few seconds and needs the registry
 reachable from the stack, which a demo stack has.
+
+## Amendment — 2026-10-23: seeding resets a stack
+
+A seed no longer adds to what a database holds. Seeding a demo stack is a reset,
+done by a script of its own, `infra/seed.sh`, after `deploy.sh` has brought the
+stack up: the schema and the uploaded files are dropped, the `migrate` one-shot
+builds the schema afresh, the bundle is loaded and the bootstrap admin created
+again. Locally `nx run seeder:seed` does the same, and the web-e2e stack starts
+each run from empty volumes.
+
+Why: no stack needed a seed on top of other data, and the upsert kept what a
+bundle no longer had — products dropped from it, another deployment's orders
+after a stack changed shops. A new schema rather than emptied tables, because
+the migrations write rows of their own.
+
+`deploy.sh` lost its `SEED` switch, so the deploy a real shop runs has no way to
+reset anything. `seed.sh` refuses a database a reset did not make (it marks the
+schema it creates) unless the database holds nothing a shop would miss. The
+recreated admin keeps the deploy's password (`ADMIN_FORCE_PASSWORD_CHANGE=false`),
+since a forced change would come back with every reset.

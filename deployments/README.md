@@ -25,6 +25,8 @@ once the change has its map. CI runs
 `node tools/check-deployments.mjs`, which loads every deployment the way the
 apps and the seeder do and fails on the first one that would not boot or seed.
 
-The seed never deletes, so moving a stack from one deployment to another needs
-an empty database first; otherwise the old orders and accounts stay beside the
-new catalog.
+Seeding a stack resets it: the database and the uploaded files are dropped and
+the bundle is loaded into an empty one, so a stack holds its bundle and nothing
+else, and moving it to another deployment needs nothing by hand
+([infra/README.md](../infra/README.md#seeding-a-demo-stack)). Locally,
+`nx run seeder:seed` does the same to the database `.env` names.

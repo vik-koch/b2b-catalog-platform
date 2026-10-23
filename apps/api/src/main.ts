@@ -115,6 +115,7 @@ async function main() {
       env.DATABASE_URL,
       ADMIN_EMAIL,
       passwordHash,
+      env.ADMIN_FORCE_PASSWORD_CHANGE === 'true',
     );
     Logger.log(
       created
