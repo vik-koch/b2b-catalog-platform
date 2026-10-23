@@ -15,6 +15,12 @@ process.env['MAIL_ADMIN_TO'] ??= 'admin@example.test';
 // and the mails link back to it.
 process.env['APP_ORIGIN'] ??= 'https://shop.example';
 process.env['JWT_SECRET'] ??= 'test-only-jwt-secret-at-least-32-chars-long';
+// The specs assert the test fixture's wording, so they read the fixture whatever
+// the workspace .env points the API at — assigned, never `??=`, or a demo
+// deployment named there fails them with no hint why.
+process.env['CONFIG_PATH'] = 'deployments/fixture/config';
+process.env['PASSWORD_BLOCKLIST_FILE'] =
+  'deployments/fixture/config/password-blocklist.txt';
 // The rate limits are pinned rather than inherited: the workspace .env lifts
 // them for the e2e suite, and the throttling spec asserts that the ceiling
 // actually stops the eleventh request.
