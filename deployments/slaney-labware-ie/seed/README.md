@@ -132,4 +132,5 @@ accepted, ready, handed over — with the customer told each time, and handing
 over records the payment. A first working hour after a reset answers the three
 pending registrations and moves all four open orders; three hours later every
 one of them is handed over and paid, and from then on the back office answers
-whatever visitors register and order.
+whatever visitors register and order. Its page at `/erp/` (behind the reviewer
+inbox's login) runs the same cycle on request, out of hours too.

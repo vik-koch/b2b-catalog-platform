@@ -28,6 +28,8 @@ orders waiting for it. It keeps no state: what it sends follows from the bundle,
 when it reads them. It runs continuously; the stack is reset only by
 `infra/reset.sh` — when a deploy changes what the stack loads, or when someone
 asks for it — which stops the simulator before the reset and starts it after.
+Reviewers see it at `/erp/` on the shop's domain, behind the reviewer inbox's
+login, where they can also run the hourly cycle out of hours.
 
 ## Rationale
 
@@ -66,6 +68,13 @@ asks for it — which stops the simulator before the reset and starts it after.
   take it twice. Claims go by id, the form the customer exchange recommends,
   and the English shop lets ten of those apply unattended while address claims
   still wait for a person.
+- **A page, not a console.** Out of hours nothing moves, so a reviewer who
+  places an order on a Saturday would see nothing happen. The page runs the
+  hourly cycle on request — orders without their usual hour's wait — and shows
+  what the back office did. It sits behind the login reviewers already have for
+  the inbox, so no second credential is handed out, and it refuses a press that
+  does not come from the page itself, since a browser keeps sending basic-auth
+  credentials to whatever asks. It offers no reset: that needs the host.
 - **Narrow writes.** The nightly catalog run writes stock and nothing else for
   the products the shop already has (`fields: ["stock"]`, no prices, nothing
   restored), so it cannot clobber what the shop edits while it holds the

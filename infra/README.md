@@ -119,7 +119,7 @@ Whatever the provider, the VM needs:
    | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                                                                                                                          |
    | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                                                                                                                               |
    | `JWT_SECRET`             | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48`                                                                           |
-   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox (username `reviewer`)                                                                                                                                            |
+   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox and the simulated back office's page (username `reviewer`)                                                                                                       |
    | `ERP_SIM_TOKEN`          | The prod demo's simulated back office's machine token: seeded as its hash, used by the simulator. Generate one: `printf '%s.%s\n' "$(openssl rand -base64 6 \| tr '+/' '-_')" "$(openssl rand -base64 32 \| tr '+/' '-_' \| tr -d '=')"` |
    | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                                                                                                                  |
 
@@ -211,7 +211,12 @@ _Reset to seed_ box when running _Deploy prod_ by hand.
 and stops it before the next. It needs the built simulator (`npx nx build
 erp-sim`, which `seed.sh` copies beside the seeder) and `ERP_SIM_TOKEN` in the
 stack's env; without the token the shop runs without it and the reset says so.
-Its log is the container's (`docker compose logs erp-sim`). It runs on from one
+Its log is the container's (`docker compose logs erp-sim`), and the last lines
+of it are on its page at `/erp/`, behind the reviewer inbox's login, with a
+button that runs the hourly cycle out of hours — registrations answered, every
+open order one step on, without the hour an order normally waits. There is
+deliberately no reset button there: a reset needs the host, and the page is
+one login away from anybody holding the reviewer password. It runs on from one
 reset to the next — there is no reset on a timer: a release that changes what
 the stack loads starts it again, and so does _Reset to seed_.
 
@@ -350,6 +355,12 @@ the sink — no real email leaves. Those deploy workflows pass the
 inbox** at `https://<stack-domain>/inbox/`, behind HTTP basic-auth
 (username `reviewer`, password = the `INBOX_PASSWORD` secret; the workflow hashes
 it into an SHA1 htpasswd entry at deploy time, never logging the plaintext).
+
+The same login guards the **simulated back office's page** at
+`https://<stack-domain>/erp/` on a stack that runs one (below): what it did
+lately, the shop's clock, and a button that runs its hourly cycle now. The
+overlay routes it; on a stack without a simulation the route has nothing behind
+it.
 
 A real **client prod** (private repo) gets no overlay — it ships no Mailpit and
 sets `MAIL_*` to a real SMTP provider (see

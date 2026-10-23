@@ -3,8 +3,9 @@ import * as z from 'zod';
 import { Account, claimsFor } from './accounts';
 import { localDate, nightsBetween } from './clock';
 import { Order, stepsFor } from './orders';
+import { servePage } from './page';
 import { Area, Outcome, Platform } from './platform';
-import { workingHour } from './schedule';
+import { WorkingHours, workingHour } from './schedule';
 import { load } from './simulation';
 import { stockOnNight } from './stock';
 
@@ -29,6 +30,10 @@ const env = z
     CONFIG_PATH: z.string().min(1),
     // Written by reset.sh: the moment the shop was reset, as an ISO instant.
     SIM_EPOCH_FILE: z.string().min(1),
+    // The reviewer's page: where it listens on the stack's network, and the
+    // path Traefik puts it under on the shop's domain (compose.mailpit.yml).
+    SIM_PAGE_PORT: z.coerce.number().int().positive().default(8080),
+    SIM_PAGE_PATH: z.string().startsWith('/').default('/erp'),
   })
   .parse(process.env);
 
@@ -49,8 +54,23 @@ const NOT_OWNED: Record<Area, string> = {
   orders: 'order processing is',
 };
 
-const log = (message: string) =>
-  console.log(`${new Date().toISOString()} ${message}`);
+/** The last lines of the log, for the reviewer's page. */
+const recent: string[] = [];
+const RECENT_LINES = 40;
+
+const log = (message: string) => {
+  const line = `${new Date().toISOString()} ${message}`;
+  console.log(line);
+  recent.push(line);
+  if (recent.length > RECENT_LINES) recent.shift();
+};
+
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const hourOf = (hour: number) => `${String(hour).padStart(2, '0')}:00`;
+
+/** The working hours as the page states them. */
+const describeHours = ({ days, from, to }: WorkingHours) =>
+  `every hour from ${hourOf(from)} to ${hourOf(to)}, ${days.map((day) => WEEKDAYS[day - 1]).join(', ')}`;
 
 async function main() {
   const {
@@ -172,8 +192,8 @@ async function main() {
   };
 
   /** Every registration waiting on the storefront, answered. */
-  const accounts = async (hour: string): Promise<boolean> => {
-    const label = `Registrations, ${hour}:00`;
+  const accounts = async (cycle: string): Promise<boolean> => {
+    const label = `Registrations, ${cycle}`;
     let book: Account[];
     try {
       book = await platform.readAll<Account>(
@@ -184,7 +204,7 @@ async function main() {
     } catch (error) {
       return settle(
         'customers',
-        hour,
+        cycle,
         label,
         {
           kind: 'failed',
@@ -210,7 +230,7 @@ async function main() {
     });
     return settle(
       'customers',
-      hour,
+      cycle,
       label,
       outcome,
       (summary) =>
@@ -218,16 +238,16 @@ async function main() {
     );
   };
 
-  /** Every open order that has waited long enough, one step on. */
-  const orders = async (hour: string): Promise<boolean> => {
-    const label = `Orders, ${hour}:00`;
+  /** Every open order that has waited `waitHours`, one step on. */
+  const orders = async (cycle: string, waitHours: number): Promise<boolean> => {
+    const label = `Orders, ${cycle}`;
     let book: Order[];
     try {
       book = await platform.readAll<Order>('orders', 'orders', 50);
     } catch (error) {
       return settle(
         'orders',
-        hour,
+        cycle,
         label,
         {
           kind: 'failed',
@@ -236,11 +256,7 @@ async function main() {
         () => '',
       );
     }
-    const instructions = stepsFor(
-      book,
-      new Date(),
-      simulation.orders.stepAfterHours,
-    );
+    const instructions = stepsFor(book, new Date(), waitHours);
     if (instructions.length === 0) return true;
     const outcome = await platform.submit('orders', {
       orders: instructions,
@@ -248,7 +264,7 @@ async function main() {
     });
     return settle(
       'orders',
-      hour,
+      cycle,
       label,
       outcome,
       (summary) =>
@@ -279,8 +295,11 @@ async function main() {
       // keep the other from its work, and a retry repeats both harmlessly.
       const hour = workingHour(new Date(), timeZone, workingHours);
       if (hour && hour !== workedHour && Date.now() >= hourRetryAt) {
-        const accountsDone = await accounts(hour);
-        const ordersDone = await orders(hour);
+        const accountsDone = await accounts(`${hour}:00`);
+        const ordersDone = await orders(
+          `${hour}:00`,
+          simulation.orders.stepAfterHours,
+        );
         if (accountsDone && ordersDone) workedHour = hour;
         else hourRetryAt = Date.now() + RETRY_MS;
       }
@@ -293,6 +312,51 @@ async function main() {
 
   await tick();
   setInterval(() => void tick(), TICK_MS);
+
+  const shopClock = (instant: Date) =>
+    new Intl.DateTimeFormat('en-GB', {
+      timeZone,
+      weekday: 'short',
+      day: 'numeric',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(instant);
+
+  // The same cycle on a reviewer's request, in or out of working hours, and
+  // without the hour an order normally stands: the reviewer has just placed
+  // it and wants to see it move. One cycle at a time, scheduled or not.
+  const runNow = async (): Promise<boolean> => {
+    if (busy) return false;
+    busy = true;
+    try {
+      const cycle = `run by hand at ${shopClock(new Date())}`;
+      await accounts(cycle);
+      await orders(cycle, 0);
+    } catch (error) {
+      log(`ERROR ${String(error)}`);
+    } finally {
+      busy = false;
+    }
+    return true;
+  };
+
+  servePage(env.SIM_PAGE_PORT, {
+    path: env.SIM_PAGE_PATH.replace(/\/+$/, ''),
+    view: () => ({
+      since: shopClock(epoch),
+      timeZone,
+      shopTime: shopClock(new Date()),
+      night: nightsBetween(epoch, new Date(), timeZone),
+      workingHour: workingHour(new Date(), timeZone, workingHours),
+      workingHours: describeHours(workingHours),
+      busy,
+      log: recent,
+    }),
+    runNow,
+  });
+  log(`Reviewer page on :${env.SIM_PAGE_PORT}${env.SIM_PAGE_PATH}/`);
 }
 
 main().catch((error: unknown) => {
