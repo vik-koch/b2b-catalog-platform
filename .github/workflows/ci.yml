@@ -292,7 +292,7 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          # Dev shows demo content, so seed after deploy (prod never does).
+          # Dev shows demo content, so seed after deploy.
           SEED: '1'
           # Dev is the German Coffee Kontor, not the test fixture.
           CONFIG_DIR: ${{ github.workspace }}/deployments/coffee-kontor-de/config

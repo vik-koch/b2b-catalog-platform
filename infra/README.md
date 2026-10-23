@@ -156,13 +156,21 @@ Two long-lived stacks share the one pet VM (`DEPLOY_HOST`), each with its own
 by `Host` header and one shared observability stack collects both their logs.
 
 - **dev** — auto-deployed on every merge to `main` (`ci.yml` → `deploy-dev`),
-  from the sha-pinned images that push just built. Seeded with demo content.
+  from the sha-pinned images that push just built. It runs the German shop
+  (`deployments/coffee-kontor-de`) and is seeded with its content.
 - **public prod** — deployed on pushing a `v*.*.*` release tag (`release.yml` →
-  `deploy-prod`), from the promoted **version-tagged** image (byte-identical to
-  the sha dev ran). **Never seeded** — it demonstrates the unseeded production
-  boot; content would arrive via catalog sync. It is a portfolio demonstration,
-  so it keeps the Mailpit reviewer inbox (below) and stays out of search results
+  [deploy-prod.yml](../.github/workflows/deploy-prod.yml)), from the promoted
+  **version-tagged** image (byte-identical to the sha dev ran). It runs the
+  English shop (`deployments/slaney-labware-ie`) and is seeded with its content
+  on every deploy. It is a portfolio demonstration, so it keeps the Mailpit
+  reviewer inbox (below) and stays out of search results
   (`SEO_INDEXABLE=false`) — like dev and the demo.
+
+  **Redeploying a release** needs no tag: run _Deploy prod_ by hand (Actions →
+  Deploy prod → Run workflow) with _Use workflow from_ set to the release's tag.
+  Images, config, seed bundle and seeder all come from that tag, so it ships
+  exactly what the release shipped — after resetting the prod database by hand,
+  this seeds it again. Any ref other than a `v*` tag is refused.
 
 A real **client prod** is a separate, client-owned VM deployed from the private
 repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
@@ -222,20 +230,25 @@ mode is on (FR-ADM-04): a gated storefront is a correctly deployed stack.
 `release.yml` only ever retags the tested `main` image — so the previous
 release is still there, byte for byte, and nothing has to be rebuilt.
 
-There is no rollback _button_: `release.yml` fires on a tag push and on nothing
-else, so a rollback is a deploy run by hand from a workstation with SSH access
-to the VM and the stack's secrets —
+On the public prod, a rollback is a redeploy of the earlier release: run
+_Deploy prod_ by hand from that release's tag (see above). The workflow holds
+prod's secrets either way, and it runs only from a `v*` tag; restricting the
+`prod` environment to `v*` tags (Settings → Environments → `prod` → Deployment
+branches and tags) makes GitHub enforce that too. Releases older than the
+workflow cannot be picked from it.
+
+A deployment without that workflow — a client prod deployed from the private
+repo — rolls back from a workstation with SSH access to the VM and the stack's
+secrets:
 
 ```sh
 # the prod .env, with API_IMAGE/WEB_IMAGE pinned to the release you want back
 SSH_OPTS="-i /path/to/deploy-key" infra/deploy.sh "$DEPLOY_HOST" prod.env infra/traefik/.env
 ```
 
-— which is the same script and the same file CD writes, with two lines changed.
-Deliberate for a single-VM deployment: the alternative is holding prod's secrets
-in a manually triggerable workflow, and a rollback is a decision somebody makes
-at a keyboard anyway. It is also the one hand-run path NFR-OPS-01 tolerates: it
-bans manual commands from the _routine_ deploy, and this is the incident.
+— the same script and the same file CD writes, with two lines changed. That is
+the one hand-run path NFR-OPS-01 tolerates: it bans manual commands from the
+_routine_ deploy, and this is the incident.
 
 What a rollback does **not** do is reverse the migration. There are no down
 migrations: the schema stays where the newer release put it, and the older image
@@ -481,7 +494,7 @@ runs a `bootstrap-admin` one-shot on every `up`, **before** the api starts: it
 creates the `ADMIN_EMAIL` account with an argon2id hash of `ADMIN_PASSWORD` if —
 and only if — that account does not exist yet. So:
 
-- every environment, including an unseeded prod, comes up with a usable admin,
+- every environment, seeded or not, comes up with a usable admin,
   with no manual step;
 - a redeploy **never** clobbers an admin whose password was rotated in-app, so
   the deploy-time `ADMIN_PASSWORD` is a first-boot value only. Changing the
@@ -545,7 +558,7 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
 
    For a non-prod stack, append `compose.mailpit.yml` to add the Mailpit sink +
    reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file), and set
-   `SEED=1` to load demo content (prod leaves it unset — see below). Seeding
+   `SEED=1` to load demo content (a real shop leaves it unset — see below). Seeding
    runs the seeder from your build, so build it first; `SEED_DIR` names the
    seed bundle, the committed demo's [seed/](../seed/) by default:
 
@@ -560,7 +573,7 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    from [.env.stack.example](../.env.stack.example)) into `/srv/b2b/`, brings
    both up, copies the seeder and the bundle and runs the one-shot `seed`
    service **only when `SEED` is set** (idempotent upsert — off by default so
-   prod is never seeded by accident), and
+   a real shop is never seeded by accident), and
    smoke-checks `https://$APP_DOMAIN` (incl. a seeded API page when seeded). Stacks land
    in `/srv/b2b/<STACK_NAME>/`, so one VM can host several (dev / prod / demo).
 

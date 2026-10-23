@@ -7,10 +7,10 @@ deployed with `CONFIG_DIR` and `SEED_DIR` (see
 [seed/](../seed/) are not one of them: they are the test fixture, in English,
 and the suites assert its wording.
 
-| Directory           | Stack             | Shop                                                   |
-| ------------------- | ----------------- | ------------------------------------------------------ |
-| `coffee-kontor-de`  | dev               | the Coffee Kontor, wholly in German                    |
-| `slaney-labware-ie` | none yet (→ prod) | Slaney Labware, an Irish laboratory supplier, B2B only |
+| Directory           | Stack | Shop                                                   |
+| ------------------- | ----- | ------------------------------------------------------ |
+| `coffee-kontor-de`  | dev   | the Coffee Kontor, wholly in German                    |
+| `slaney-labware-ie` | prod  | Slaney Labware, an Irish laboratory supplier, B2B only |
 
 A deployment's config starts as a copy of the fixture's and is then
 translated or reworded for its trade, so its files carry the same keys. Its seed
