@@ -23,6 +23,7 @@ survives a retitling; the Contents block below is generated from those headings 
 - [FR-NAV-05](#fr-nav-05) — Contact details in the header
 - [FR-NAV-06](#fr-nav-06) — Contact form
 - [FR-NAV-07](#fr-nav-07) — Links to the shop elsewhere
+- [FR-NAV-08](#fr-nav-08) — Site notice
 
 **[Catalog (FR-CAT)](#fr-cat)**
 
@@ -273,6 +274,10 @@ A contact form lets a user reach the company by email, with an optional callback
 #### <a id="fr-nav-07"></a>FR-NAV-07 — Links to the shop elsewhere
 
 A deployment can list the places it also exists — a social account, a messenger, a marketplace shop — shown in the footer as icons beside the enquiry button. Each entry names where it goes, the icon that stands for it and the words that stand in for the icon, which are what a screen reader announces and what a reader sees where the icon does not load. The icons are drawn in the site's own colours and to the height of the control beside them, so an added service cannot change the shape of the footer. The list is deployment configuration rather than editable content; an empty one shows nothing.
+
+#### <a id="fr-nav-08"></a>FR-NAV-08 — Site notice
+
+A deployment can show a short notice on a line of its own above the header of every page — that the shop is a demonstration, or that it is closed over the holidays — optionally followed by a link to read more. It cannot be dismissed, so it reads the same on every visit, and on a narrow screen it wraps rather than being cut off. The mails the shop sends carry the same notice above their content, since a person who registers or orders receives them. Documents — the order summary, the payment document — do not: they record a transaction, and a notice stamped into one would outlive the occasion. The notice is deployment configuration rather than editable content; a deployment that sets none shows nothing.
 
 ---
 
