@@ -128,20 +128,20 @@ The body is `strict`: an unknown field fails the whole request.
 One bad row never fails a run. It is skipped, listed in `plan.rowErrors`, and
 counted in `summary.errors`.
 
-| Code                       | `params`                 | Meaning                                    |
-| -------------------------- | ------------------------ | ------------------------------------------ |
-| `missing-source-id`        | —                        | no key                                     |
-| `duplicate-source-id`      | —                        | the same key twice in one run              |
-| `category-id-without-name` | `category`               | half the category pair                     |
-| `category-name-without-id` | `category`               | the other half                             |
-| `unknown-category`         | `name`, `key`            | and `createCategories` is off              |
-| `category-name-conflict`   | `key`, `first`, `second` | the file names one category twice          |
-| `price-not-an-integer`     | `price`, `column`        | —                                          |
-| `price-is-zero`            | `column`                 | no price, rather than a free product       |
-| `stock-not-an-integer`     | `stock`                  | —                                          |
-| `tax-rate-invalid`         | `taxRate`                | not a percent from 0 to 100, ≤ 2 decimals  |
-| `unknown-price-list`       | `key`, `known`           | no tier is keyed that (`known` lists them) |
-| `cannot-create-product`    | —                        | unknown key with `createMissing` off       |
+| Code                       | `params`                 | Meaning                                                  |
+| -------------------------- | ------------------------ | -------------------------------------------------------- |
+| `missing-source-id`        | —                        | no key                                                   |
+| `duplicate-source-id`      | —                        | the same key twice in one run                            |
+| `category-id-without-name` | `category`               | half the category pair                                   |
+| `category-name-without-id` | `category`               | the other half                                           |
+| `unknown-category`         | `name`, `key`            | and `createCategories` is off                            |
+| `category-name-conflict`   | `key`, `first`, `second` | the file names one category twice                        |
+| `price-not-an-integer`     | `price`, `column`        | —                                                        |
+| `price-is-zero`            | `column`                 | no price, rather than a free product                     |
+| `stock-not-an-integer`     | `stock`                  | —                                                        |
+| `tax-rate-invalid`         | `taxRate`                | not a percent from 0 to 100, ≤ 2 decimals                |
+| `unknown-price-list`       | `key`, `known`           | no tier is keyed that (`known` lists them)               |
+| `cannot-create-product`    | —                        | a new key, but the run writes no name or category for it |
 
 As on the customer side, a malformed _field_ in a headless submission refuses
 the whole request (400) rather than one row — a converter should be fixed, not
@@ -177,7 +177,11 @@ tolerated. Per-row forgiveness of bad cells is for an operator's CSV upload.
 
 `summary.fields` says what the run actually rewrote — for a feed on a
 twenty-minute cadence, more useful than the counts. Only rewrites are listed;
-a created product writes everything it carries by definition.
+a created product writes everything it carries by definition. Creating one
+needs a name and a category the run actually writes, so a run that may create
+products lists `name` and `category` in `fields` — the rows of products that
+already exist can still leave both out. A new key in a run with
+`createMissing` off is not an error: the row is counted as unchanged.
 
 ### 2.5 What the shop made itself
 
