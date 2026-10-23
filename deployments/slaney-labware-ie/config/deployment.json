@@ -125,6 +125,13 @@
     "phone": "+353 53 923 4000",
     "email": "sales@slaney-labware.example"
   },
+  "notice": {
+    "text": "Slaney Labware is a demonstration shop.",
+    "link": {
+      "label": "About this demo",
+      "url": "https://github.com/vik-koch/b2b-catalog-platform"
+    }
+  },
   "phoneInput": {
     "countryCode": "+353"
   },
