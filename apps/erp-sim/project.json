@@ -1,0 +1,41 @@
+{
+  "name": "erp-sim",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/erp-sim/src",
+  "projectType": "application",
+  "tags": ["scope:demo", "platform:node"],
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "cache": true,
+      "options": {
+        "main": "apps/erp-sim/src/main.ts",
+        "outputPath": "dist/apps/erp-sim",
+        "tsConfig": "apps/erp-sim/tsconfig.app.json",
+        "platform": "node",
+        "format": ["cjs"],
+        "bundle": true,
+        "thirdParty": true,
+        "generatePackageJson": false,
+        "sourcemap": false
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p apps/erp-sim/tsconfig.app.json --noEmit",
+          "tsc -p apps/erp-sim/tsconfig.spec.json --noEmit"
+        ]
+      }
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/apps/erp-sim"],
+      "options": {
+        "tsConfig": "apps/erp-sim/tsconfig.spec.json"
+      }
+    }
+  }
+}
