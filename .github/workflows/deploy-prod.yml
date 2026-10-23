@@ -6,15 +6,16 @@
 # Two ways in, one job:
 #   - release.yml calls it once the tag's images are promoted;
 #   - run by hand with "Use workflow from" set to a release tag, it redeploys
-#     that release: to reset the shop to its seed again, or to go back to an
-#     earlier release. Any other ref is refused.
+#     that release: to go back to an earlier release, or — with "Reset to
+#     seed" ticked — to reset the shop to its seed bundle although nothing in
+#     it changed. Any other ref is refused.
 # Images, config, seed bundle and seeder all come from the tag, so a redeploy
 # ships exactly what the release shipped.
 #
 # Public prod is a portfolio demonstration: the English shop
-# (deployments/slaney-labware-ie), reset to its seed on every deploy, with the
-# Mailpit sink + reviewer inbox (no real mail leaves). Needs (see
-# infra/README.md):
+# (deployments/slaney-labware-ie), reset to its seed bundle whenever that
+# changed, with the Mailpit sink + reviewer inbox (no real mail leaves). Needs
+# (see infra/README.md):
 # repo variables DEPLOY_HOST, PROD_APP_DOMAIN, ACME_EMAIL + secrets
 # DEPLOY_SSH_PRIVATE_KEY, PROD_POSTGRES_PASSWORD, INBOX_PASSWORD, JWT_SECRET,
 # ADMIN_EMAIL, ADMIN_PASSWORD.
@@ -23,6 +24,11 @@ name: Deploy prod
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      reset:
+        description: 'Reset to seed: reset the shop to its seed bundle even if nothing in it changed'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -75,8 +81,10 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-          # Prod is the English shop, reset to its own seed bundle on every
-          # deploy (seed.sh below): what visitors left behind goes with it.
+          # Prod is the English shop, reset to its own seed bundle when that
+          # changed, or when the run asks (seed.sh below): what visitors left
+          # behind goes with it. A release's call has no inputs, so no force.
+          SEED_FORCE: ${{ inputs.reset && '1' || '' }}
           CONFIG_DIR: ${{ github.workspace }}/deployments/slaney-labware-ie/config
           SEED_DIR: ${{ github.workspace }}/deployments/slaney-labware-ie/seed
           # Guards the prod Mailpit reviewer inbox. Hashed below — the

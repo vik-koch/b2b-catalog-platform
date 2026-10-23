@@ -12,6 +12,11 @@
 # (`npx nx build seeder` -> dist/apps/seeder), built from the same commit as the
 # images the stack runs. SSH as for deploy.sh (SSH_OPTS).
 #
+# Only when something changed: a reset records what it loaded — the bundle,
+# the seeder build and the stack's deployment.json, as one hash — and a run
+# that would load the same again leaves the stack alone. SEED_FORCE=1 resets
+# regardless.
+#
 # The guard: a database is reset only if a reset made it — a mark this script
 # leaves on the schema — or if it holds nothing a shop would miss: no product,
 # category or order, and no account but the bootstrap admin. A real shop's
@@ -22,6 +27,7 @@ set -euo pipefail
 
 host=${1:?usage: seed.sh <host> <app-env-file>}
 app_env=${2:?usage: seed.sh <host> <app-env-file>}
+force=${SEED_FORCE:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 seeder_dir=$repo_root/dist/apps/seeder
@@ -38,7 +44,9 @@ db_name=$(sed -n 's/^POSTGRES_DB=//p' "$app_env")
 : "${db_user:?POSTGRES_USER missing in $app_env}"
 : "${db_name:?POSTGRES_DB missing in $app_env}"
 
-# The mark a reset leaves on the schema it creates.
+# The mark a reset leaves on the schema it creates. Followed by the hash of
+# what it loaded once the seed has gone through, and by nothing until then, so
+# a seed that fails is never taken for one that is done.
 mark='b2b-catalog-platform: reset to a seed bundle'
 
 run() { ssh ${SSH_OPTS:-} "deploy@$host" "$@"; }
@@ -46,16 +54,26 @@ compose() { run "cd /srv/b2b/$stack && docker compose $*"; }
 # SQL on stdin, answers on stdout, unaligned and without headers.
 sql() { compose "exec -T postgres psql -X -q -v ON_ERROR_STOP=1 -tA -U '$db_user' -d '$db_name'"; }
 
+# What a reset would load: every file of the bundle by its path, the seeder
+# build, and the config the stack runs (the seeder reads its consent setting).
+loaded=$(
+  {
+    (cd "$seed_dir" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum)
+    sha256sum <"$seeder_dir/main.cjs"
+    run "cat /srv/b2b/$stack/config/deployment.json" | sha256sum
+  } | sha256sum | cut -c1-16
+)
+
 echo "==> Checking that '$stack' on $host is a stack a seed may reset"
-state=$(sql <<SQL
+read -r state recorded < <(sql <<SQL
 SELECT CASE
-  WHEN obj_description('public'::regnamespace, 'pg_namespace') = '$mark' THEN 'reset before'
+  WHEN obj_description('public'::regnamespace, 'pg_namespace') LIKE '$mark%' THEN 'reset-before'
   WHEN NOT EXISTS (SELECT 1 FROM products)
    AND NOT EXISTS (SELECT 1 FROM categories)
    AND NOT EXISTS (SELECT 1 FROM orders)
    AND (SELECT count(*) FROM users) <= 1 THEN 'empty'
   ELSE 'refused'
-END;
+END || ' ' || coalesce(nullif(substr(obj_description('public'::regnamespace, 'pg_namespace'), length('$mark') + 2), ''), '-');
 SQL
 )
 if [ "$state" = refused ]; then
@@ -63,7 +81,11 @@ if [ "$state" = refused ]; then
   echo "if this is one, reset its database by hand once (infra/README.md)." >&2
   exit 1
 fi
-echo "    $state"
+if [ "$state" = reset-before ] && [ "$recorded" = "$loaded" ] && [ -z "$force" ]; then
+  echo "OK: '$stack' already holds this bundle ($loaded); SEED_FORCE=1 resets it anyway"
+  exit 0
+fi
+echo "    $state, loading $loaded"
 
 # Replaced wholesale, like deploy.sh does the config, so nothing lingers from an
 # earlier bundle. Only the seed one-shot mounts these, and it is not running.
@@ -102,17 +124,19 @@ compose "run --rm seed"
 # The admin's password stays the deploy's: a reset recreates the account on
 # every run, so a forced change would be asked for again each time.
 compose "run --rm --no-deps -e ADMIN_FORCE_PASSWORD_CHANGE=false bootstrap-admin"
+sql >/dev/null <<SQL
+COMMENT ON SCHEMA public IS '$mark $loaded';
+SQL
 
 echo "==> Starting the app"
 compose "start api web"
 
 # A seeded page, so a seed that wrote nothing fails here rather than in front
-# of a visitor. The reset leaves maintenance mode off, so 200 is the only
-# answer that counts.
+# of a visitor.
 echo "==> Smoke check https://$domain/api/pages/about"
 for _ in $(seq 1 36); do
   if [ "$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "https://$domain/api/pages/about" 2>/dev/null)" = 200 ]; then
-    echo "OK: '$stack' holds the bundle from $seed_dir"
+    echo "OK: '$stack' holds the bundle from $seed_dir ($loaded)"
     exit 0
   fi
   sleep 5

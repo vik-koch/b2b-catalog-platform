@@ -157,30 +157,34 @@ by `Host` header and one shared observability stack collects both their logs.
 
 - **dev** — auto-deployed on every merge to `main` (`ci.yml` → `deploy-dev`),
   from the sha-pinned images that push just built. It runs the German shop
-  (`deployments/coffee-kontor-de`) and is reset to its seed bundle after every
-  deploy (see [Seeding a demo stack](#seeding-a-demo-stack)).
+  (`deployments/coffee-kontor-de`), reset to its seed bundle by every deploy
+  that changes it (see [Seeding a demo stack](#seeding-a-demo-stack)).
 - **public prod** — deployed on pushing a `v*.*.*` release tag (`release.yml` →
   [deploy-prod.yml](../.github/workflows/deploy-prod.yml)), from the promoted
   **version-tagged** image (byte-identical to the sha dev ran). It runs the
-  English shop (`deployments/slaney-labware-ie`) and is reset to its seed
-  bundle on every deploy. It is a portfolio demonstration, so it keeps the Mailpit
+  English shop (`deployments/slaney-labware-ie`), reset to its seed bundle by
+  every release that changes it. It is a portfolio demonstration, so it keeps the Mailpit
   reviewer inbox (below) and stays out of search results
   (`SEO_INDEXABLE=false`) — like dev and the demo.
 
   **Redeploying a release** needs no tag: run _Deploy prod_ by hand (Actions →
   Deploy prod → Run workflow) with _Use workflow from_ set to the release's tag.
   Images, config, seed bundle and seeder all come from that tag, so it ships
-  exactly what the release shipped, and resets the shop to its seed bundle on
-  the way. Any ref other than a `v*` tag is refused.
+  exactly what the release shipped. Tick _Reset to seed_ to reset the shop to
+  its bundle although nothing in it changed. Any ref other than a `v*` tag is
+  refused.
+
+A real **client prod** is a separate, client-owned VM deployed from the private
+repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
+`SEO_INDEXABLE=true` so it is the one stack search engines index.
 
 ### Seeding a demo stack
 
 [seed.sh](seed.sh) resets a stack to a seed bundle, after `deploy.sh` has
-brought it up: it stops the app, drops the database schema and the uploaded
-files, migrates afresh, loads the bundle, creates the bootstrap admin and starts
-the app again. The stack then holds the bundle and nothing else — what visitors
-left behind, and products an older bundle had, are gone. The shop is down for
-the minute or so that takes.
+brought it up: it drops the database schema and the uploaded files, migrates
+afresh, loads the bundle and creates the bootstrap admin. The stack then holds
+the bundle and nothing else — what visitors left behind, and products an older
+bundle had, are gone.
 
 ```sh
 npx nx build seeder
@@ -189,13 +193,20 @@ SSH_OPTS="-i /path/to/deploy-private-key" \
   infra/seed.sh <host> <app-env-file>
 ```
 
-It is a script of its own so a real shop's deploy cannot reach it: `deploy.sh`
-never touches the data. And it refuses a database a reset did not make — every
-reset marks the schema it creates — unless that database holds no product,
-category or order and no account but the bootstrap admin. A stack that holds
-data some other way, such as one seeded before this script existed, is emptied
-by hand once; the next deploy migrates it afresh and the reset after it goes
-through:
+**Only when something changed.** A reset records a hash of what it loaded —
+the bundle, the seeder build and the stack's `deployment.json` — on the schema,
+and a run that would load the same again leaves the stack and its data alone.
+So dev keeps what was done on it until a merge changes its bundle, and prod
+until a release does. `SEED_FORCE=1` resets regardless; on prod that is the
+_Reset to seed_ box when running _Deploy prod_ by hand.
+
+**The guard.** It is a script of its own so a real shop's deploy cannot reach
+it: `deploy.sh` never touches the data. And it refuses a database a reset did
+not make — every reset marks the schema it creates — unless that database holds
+no product, category or order and no account but the bootstrap admin. A stack
+that holds data some other way, such as one seeded before this script existed,
+is emptied by hand once; the next deploy migrates it afresh and the reset after
+it goes through:
 
 ```sh
 ssh deploy@<host> 'cd /srv/b2b/<stack> && docker compose exec -T postgres \
@@ -206,11 +217,7 @@ ssh deploy@<host> 'cd /srv/b2b/<stack> && docker compose exec -T postgres \
 The bootstrap admin is recreated on every reset with the deploy's
 `ADMIN_PASSWORD`, and is not asked to change it (`ADMIN_FORCE_PASSWORD_CHANGE`
 is off for the reset): a password changed in the app lasts until the next
-deploy.
-
-A real **client prod** is a separate, client-owned VM deployed from the private
-repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
-`SEO_INDEXABLE=true` so it is the one stack search engines index.
+reset.
 
 ## What a deploy costs, and how to undo it
 
