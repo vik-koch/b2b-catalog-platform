@@ -28,6 +28,8 @@ orders waiting for it. It keeps no state: what it sends follows from the bundle,
 when it reads them. It runs continuously; the stack is reset only by
 `infra/reset.sh` — when a deploy changes what the stack loads, or when someone
 asks for it — which stops the simulator before the reset and starts it after.
+A deploy that resets nothing restarts it on the new build, still counting from
+the last reset.
 Reviewers see it at `/erp/` on the shop's domain, behind the reviewer inbox's
 login, where they can also run the hourly cycle out of hours.
 
@@ -76,7 +78,10 @@ login, where they can also run the hourly cycle out of hours.
   does not come from the page itself, since a browser keeps sending basic-auth
   credentials to whatever asks. It offers no reset: that needs the host.
 - **Narrow writes.** The nightly catalog run writes stock and nothing else for
-  the products the shop already has (`fields: ["stock"]`, no prices, nothing
+  the products the shop already has: their rows carry no name, category or
+  price, so those stay as the shop has them, and nothing deleted is restored.
+  A new article's row is sent whole every night, so its name, category and
+  default price are the back office's, as a real feed's would be.
   restored), so it cannot clobber what the shop edits while it holds the
   catalog itself.
 - **The shop may take an area back.** A write refused because the area is not
@@ -89,11 +94,12 @@ login, where they can also run the hourly cycle out of hours.
   the smallest example of an adapter.
 - (+) Everything the simulator sends is reproducible from three files and a
   date.
+- (+) A new simulator build resets nothing: it takes over on the same night
+  count, so visitors' orders and accounts outlive a release that only changes
+  the simulator. A new token does reset the shop, since the seed stores it.
 - (−) A run that moves stock touches a large share of a small catalog, so the
   English shop's change-share ceiling is 1 — as a real feed's, which may
   rewrite every price in one run, has to be anyway.
-- (−) A new simulator build starts the history again: it is part of the hash a
-  reset records, so changing it resets the shop.
 - (−) What visitors leave behind stays until the next reset; the platform's own
   retention sweep is what clears the personal details from their orders.
 - (−) After the first working hours of a reset, registrations and orders move

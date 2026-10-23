@@ -24,6 +24,12 @@ const NEXT: Record<string, string> = {
   ready: 'completed',
 };
 
+/** Slack on the wait. A cycle starts at the same second of each hour, and the
+ * platform stamps a step a moment after its cycle started — without this, an
+ * order stepped at 08:00 would be a few milliseconds short at 09:00 and wait
+ * for 10:00. */
+const SLACK_MS = 5 * 60_000;
+
 /**
  * One step for every open order that has stood where it is for at least
  * `stepAfterHours`: accepted, then ready, then handed over — each told to the
@@ -42,7 +48,7 @@ export function stepsFor(
   now: Date,
   stepAfterHours: number,
 ): Instruction[] {
-  const ripe = now.getTime() - stepAfterHours * 3_600_000;
+  const ripe = now.getTime() - stepAfterHours * 3_600_000 + SLACK_MS;
   return orders.flatMap((order): Instruction[] => {
     const next = NEXT[order.status];
     if (next) {

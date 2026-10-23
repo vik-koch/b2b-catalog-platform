@@ -55,6 +55,16 @@ describe('stepsFor', () => {
     ).toEqual([]);
   });
 
+  it('takes the next step one cycle later, though the step was stamped after that cycle began', () => {
+    expect(
+      stepsFor(
+        [order({ statusChangedAt: '2026-10-23T11:00:00.300Z' })],
+        new Date('2026-10-23T12:00:00.000Z'),
+        1,
+      ),
+    ).toHaveLength(1);
+  });
+
   it('settles a handed-over order still owed, quietly', () => {
     expect(
       stepsFor(

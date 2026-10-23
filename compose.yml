@@ -305,16 +305,16 @@ services:
   # The simulated back office of a demo shop (ADR 0068): owns the shop's
   # catalog and drives it through the machine API, on the stack's own network.
   # In the 'simulation' profile, which no stack enables: infra/reset.sh starts
-  # it after resetting a stack whose seed bundle has a simulation.json, and
-  # stops it before the next reset. A stock Node image, like the seed: reset.sh
-  # finds the built simulator (dist/apps/erp-sim, one bundled file) beside this
-  # file, where seed.sh put it.
+  # it after resetting a stack whose seed bundle has a simulation.json, stops
+  # it before the next reset, and restarts it on every deploy between. A stock
+  # Node image, like the seed: the built simulator (dist/apps/erp-sim, one
+  # bundled file) is in erp-sim/app beside this file, where seed.sh put it.
   erp-sim:
     image: node:24-alpine
     profiles: ['simulation']
     restart: unless-stopped
     user: node
-    command: ['node', '/sim/main.cjs']
+    command: ['node', '/sim/app/main.cjs']
     environment:
       API_URL: http://api:3000/api
       ERP_SIM_TOKEN: ${ERP_SIM_TOKEN:-}

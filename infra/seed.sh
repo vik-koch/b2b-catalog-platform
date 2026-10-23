@@ -9,15 +9,17 @@
 # The app env file is the one deploy.sh was given. Needs the built seeder
 # (`npx nx build seeder` -> dist/apps/seeder), built from the same commit as the
 # images the stack runs, and for a bundle with a simulation.json the built
-# simulator too (`npx nx build erp-sim`), which reset.sh starts after the reset
-# (ADR 0068). SSH as for deploy.sh (SSH_OPTS).
+# simulator too (`npx nx build erp-sim`), which reset.sh starts after a reset
+# and this script restarts on every run without one (ADR 0068). SSH as for
+# deploy.sh (SSH_OPTS).
 #
 # The reset itself is infra/reset.sh, which this script puts in the stack's
 # directory with the seeder and the bundle and runs there; this script only
 # decides whether to.
 #
 # Only when something changed: a reset records what it loaded — the bundle,
-# the seeder build and the stack's deployment.json, as one hash — and a run
+# the seeder build, the stack's deployment.json and machine token, as one
+# hash — and a run
 # that would load the same again leaves the stack alone. SEED_FORCE=1 resets
 # regardless.
 set -euo pipefail
@@ -46,15 +48,18 @@ dir=/srv/b2b/$stack
 run() { ssh ${SSH_OPTS:-} "deploy@$host" "$@"; }
 
 # What a reset would load: every file of the bundle by its path, the seeder
-# build, the simulator build where there is one, and the config the stack runs
-# (the seeder reads its consent setting, the simulator its time zone). A new
-# simulator is a new week: it starts again from the bundle.
+# build, and the config the stack runs (the seeder reads its consent setting,
+# the simulator its time zone), and the machine token the seed stores the hash
+# of, where the stack has one — a new token is useless until a reset stores it.
+# Not the simulator build: it keeps no state, so a new one takes over on the
+# same night count without a reset.
+token=$(sed -n 's/^ERP_SIM_TOKEN=//p' "$app_env" | tail -n 1)
 loaded=$(
   {
     (cd "$seed_dir" && find . -type f -print0 | LC_ALL=C sort -z | xargs -0 sha256sum)
     sha256sum <"$seeder_dir/main.cjs"
-    [ -z "$simulated" ] || sha256sum <"$sim_dir/main.cjs"
     run "cat $dir/config/deployment.json" | sha256sum
+    [ -z "$token" ] || printf '%s' "$token" | sha256sum
   } | sha256sum | cut -c1-16
 )
 
@@ -69,8 +74,20 @@ if [ "$state" = refused ]; then
   echo "if this is one, reset its database by hand once (infra/README.md)." >&2
   exit 1
 fi
+
+# The simulator on every run, reset or not, so a deploy always runs this
+# build of it. Its epoch, beside the build, is the reset's and stays.
+if [ -n "$simulated" ]; then
+  echo "==> Copying the simulator"
+  run "rm -rf $dir/erp-sim/app && mkdir -p $dir/erp-sim/app"
+  tar -C "$sim_dir" -cf - . | run "tar -C $dir/erp-sim/app -xf -"
+else
+  run "rm -rf $dir/erp-sim"
+fi
+
 if [ "$state" = reset-before ] && [ "$recorded" = "$loaded" ] && [ -z "$force" ]; then
   echo "OK: '$stack' already holds this bundle ($loaded); SEED_FORCE=1 resets it anyway"
+  [ -z "$simulated" ] || run "$dir/reset.sh --simulation"
   exit 0
 fi
 
@@ -82,11 +99,6 @@ for sub in seeder seed; do
 done
 tar -C "$seeder_dir" -cf - . | run "tar -C $dir/seeder -xf -"
 tar -C "$seed_dir" -cf - . | run "tar -C $dir/seed -xf -"
-run "rm -rf $dir/erp-sim"
-if [ -n "$simulated" ]; then
-  run "mkdir -p $dir/erp-sim"
-  tar -C "$sim_dir" -cf - . | run "tar -C $dir/erp-sim -xf -"
-fi
 printf '%s\n' "$loaded" | run "cat > $dir/seed.hash"
 
 run "$dir/reset.sh"

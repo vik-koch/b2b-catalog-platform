@@ -10,8 +10,11 @@
 # to (SEED_FORCE); it can also be run there by hand.
 #
 # Usage:
-#   ./reset.sh            reset the stack
-#   ./reset.sh --status   print "<state> <hash the last reset recorded, or ->"
+#   ./reset.sh               reset the stack
+#   ./reset.sh --status      print "<state> <hash the last reset recorded, or ->"
+#   ./reset.sh --simulation  restart the simulated back office on the build
+#                            beside it, without a reset: its nights still
+#                            count from the last one
 #
 # The shop shows its maintenance page meanwhile (FR-ADM-04) rather than going
 # dark: the api is restarted with the flag on, keeps answering from it while
@@ -21,7 +24,8 @@
 # A bundle with a simulation.json gets its simulated back office (ADR 0068)
 # started once the reset is through, counting its nights from this reset; it
 # is stopped before any reset, so it never writes into a half-dropped
-# database.
+# database. It keeps no state, so a new build of it needs no reset: seed.sh
+# restarts it with --simulation, on the same night count.
 #
 # The guard: a database is reset only if a reset made it — a mark this script
 # leaves on the schema — or if it holds nothing a shop would miss: no product,
@@ -62,16 +66,44 @@ END || ' ' || coalesce(nullif(substr(obj_description('public'::regnamespace, 'pg
 SQL
 }
 
-if [ "${1:-}" = --status ]; then
-  status
-  exit 0
-fi
-[ $# -eq 0 ] || { echo "usage: reset.sh [--status]" >&2; exit 2; }
+usage='usage: reset.sh [--status | --simulation]'
+[ $# -le 1 ] || { echo "$usage" >&2; exit 2; }
+case "${1:-}" in
+  --status) status; exit 0 ;;
+  '' | --simulation) ;;
+  *) echo "$usage" >&2; exit 2 ;;
+esac
 
 # One reset at a time: two deploys, or a deploy and a hand, could otherwise
 # meet.
 exec 9>reset.lock
 flock -n 9 || { echo "REFUSED: another reset of '$stack' is running" >&2; exit 1; }
+
+# Starts the simulated back office, where the bundle describes one, on the
+# build in erp-sim/app. `fresh` counts its nights from now; `keep` from the
+# reset that wrote the epoch, or from now if none did.
+start_simulation() {
+  [ -f seed/simulation.json ] && [ -f erp-sim/app/main.cjs ] || return 0
+  if [ -z "$(env_value ERP_SIM_TOKEN)" ]; then
+    echo "WARNING: the bundle has a simulation.json, but .env has no ERP_SIM_TOKEN — the shop runs without its back office" >&2
+    return 0
+  fi
+  if [ "$1" = fresh ] || [ ! -f erp-sim/epoch ]; then
+    date -u +%Y-%m-%dT%H:%M:%SZ >erp-sim/epoch
+  fi
+  echo "==> Starting the simulated back office"
+  docker compose --profile simulation up -d --no-deps --force-recreate erp-sim
+}
+
+if [ "${1:-}" = --simulation ]; then
+  read -r state _ < <(status)
+  if [ "$state" != reset-before ]; then
+    echo "REFUSED: '$stack' was never reset to its bundle; its back office starts with a reset" >&2
+    exit 1
+  fi
+  start_simulation keep
+  exit 0
+fi
 
 loaded=$(cat seed.hash 2>/dev/null || true)
 if [ ! -f seeder/main.cjs ] || [ ! -f seed/catalog.json ] || [ -z "$loaded" ]; then
@@ -91,6 +123,9 @@ echo "    $state, loading $loaded"
 # Whatever this stack's bundle was, its back office stops first — removed, so
 # a bundle that no longer has one does not keep an old one running.
 docker compose --profile simulation rm --stop --force erp-sim
+# Its nights belong to the database being dropped: a reset that fails below
+# must not leave a count for --simulation to carry on.
+rm -f erp-sim/epoch
 
 # Waits until the api answers its maintenance endpoint with the given state.
 # The endpoint is exempt from the gate, so it answers either way.
@@ -168,13 +203,5 @@ if [ -z "$seeded" ]; then
   exit 1
 fi
 
-if [ -f seed/simulation.json ] && [ -f erp-sim/main.cjs ]; then
-  if [ -n "$(env_value ERP_SIM_TOKEN)" ]; then
-    echo "==> Starting the simulated back office"
-    date -u +%Y-%m-%dT%H:%M:%SZ >erp-sim/epoch
-    docker compose --profile simulation up -d --no-deps erp-sim
-  else
-    echo "WARNING: the bundle has a simulation.json, but .env has no ERP_SIM_TOKEN — the shop runs without its back office" >&2
-  fi
-fi
+start_simulation fresh
 echo "OK: '$stack' holds the seed bundle ($loaded)"

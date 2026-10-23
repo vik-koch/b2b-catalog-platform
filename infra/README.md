@@ -200,7 +200,8 @@ SSH_OPTS="-i /path/to/deploy-private-key" \
 ```
 
 **Only when something changed.** A reset records a hash of what it loaded —
-the bundle, the seeder build and the stack's `deployment.json` — on the schema,
+the bundle, the seeder build, the stack's `deployment.json` and its
+`ERP_SIM_TOKEN` if it has one — on the schema,
 and a run that would load the same again leaves the stack and its data alone.
 So dev keeps what was done on it until a merge changes its bundle, and prod
 until a release does. `SEED_FORCE=1` resets regardless; on prod that is the
@@ -209,8 +210,12 @@ _Reset to seed_ box when running _Deploy prod_ by hand.
 **A simulated back office.** A bundle with a `simulation.json` describes one
 (ADR 0068): `reset.sh` starts the `erp-sim` service once the reset is through
 and stops it before the next. It needs the built simulator (`npx nx build
-erp-sim`, which `seed.sh` copies beside the seeder) and `ERP_SIM_TOKEN` in the
+erp-sim`, which `seed.sh` copies to `erp-sim/app`) and `ERP_SIM_TOKEN` in the
 stack's env; without the token the shop runs without it and the reset says so.
+The build is not part of the hash: it keeps no state, so a deploy that resets
+nothing restarts it on the new build (`reset.sh --simulation`), its nights
+still counted from the last reset (`erp-sim/epoch`). The token is part of the
+hash, though: the seed stores it, so a new `ERP_SIM_TOKEN` resets the stack.
 Its log is the container's (`docker compose logs erp-sim`), and the last lines
 of it are on its page at `/erp/`, behind the reviewer inbox's login, with a
 button that runs the hourly cycle out of hours — registrations answered, every
