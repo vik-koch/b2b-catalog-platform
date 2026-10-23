@@ -99,7 +99,9 @@ services:
       APP_VERSION: ${APP_VERSION:-}
       APP_DEPLOYED_AT: ${APP_DEPLOYED_AT:-}
     volumes:
-      - ./config:/config:ro
+      # The stack directory's config/, where infra/deploy.sh copies it; a local
+      # stack names one under deployments/ with CONFIG_DIR instead.
+      - ${CONFIG_DIR:-./config}:/config:ro
       - mediadata:/media
     depends_on:
       postgres:
@@ -138,7 +140,7 @@ services:
       SEO_INDEXABLE: ${SEO_INDEXABLE:-false}
       # SSR reaches the API directly on the stack network, not through Traefik.
       API_URL: http://api:3000/api
-      # SSR-injected chrome config and UI text, loaded whole from the ./config
+      # SSR-injected chrome config and UI text, loaded whole from the config
       # mount below; its assets/ subdir (logo, favicon) is served by the SSR
       # server, and nothing else of it is. Literal for the reason the api's is.
       CONFIG_PATH: /config
@@ -147,7 +149,7 @@ services:
       # there is one — a form that suggests asks for less up front.
       SUGGESTION_SIDECAR_URL: ${SUGGESTION_SIDECAR_URL:-}
     volumes:
-      - ./config:/config:ro
+      - ${CONFIG_DIR:-./config}:/config:ro
     depends_on:
       - api
     networks:
@@ -276,7 +278,7 @@ services:
       NPM_CONFIG_UPDATE_NOTIFIER: 'false'
     volumes:
       - mediadata:/media
-      - ./config:/config:ro
+      - ${CONFIG_DIR:-./config}:/config:ro
       - ./seeder:/seeder:ro
       - ./seed:/seed:ro
     depends_on:

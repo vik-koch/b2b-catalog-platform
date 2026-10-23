@@ -4,4 +4,6 @@ import { workspaceRoot } from './localtest';
 
 /** The committed demo bundle the global setup seeds, for specs that assert
  * against what was seeded. */
-export const fixtureSeed = loadSeedBundle(join(workspaceRoot, 'seed'));
+export const fixtureSeed = loadSeedBundle(
+  join(workspaceRoot, 'deployments/fixture/seed'),
+);

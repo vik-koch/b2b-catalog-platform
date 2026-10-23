@@ -56,7 +56,7 @@ export function resetApiDeploymentConfig(): void {
 
 /**
  * Where a deployment's own assets live: the `assets/` directory of the
- * mounted config, which is the layout config/README.md documents and the one
+ * mounted config, which is the layout deployments/fixture/config/README.md documents and the one
  * the web server already serves from. Derived rather than given its own variable —
  * one mount, one place, and nothing to keep in step.
  */

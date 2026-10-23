@@ -10,7 +10,9 @@ import { PasswordPolicy, PasswordRejectedError } from './password-policy';
  */
 function withShopName(name: string, blocklist: string[] = []): PasswordPolicy {
   const dir = mkdtempSync(join(tmpdir(), 'policy-'));
-  const demo = JSON.parse(readFileSync('config/deployment.json', 'utf8'));
+  const demo = JSON.parse(
+    readFileSync('deployments/fixture/config/deployment.json', 'utf8'),
+  );
   writeFileSync(
     join(dir, 'deployment.json'),
     JSON.stringify({ ...demo, branding: { ...demo.branding, name } }),

@@ -8,7 +8,7 @@
  * of every message, exactly as the mailer would send them — and a reworded
  * template shows up as a reviewable diff.
  *
- * They are rendered from `config/texts/mail.json` and `config/deployment.json`
+ * They are rendered from the fixture's `texts/mail.json` and `deployment.json`
  * rather than from a fixture, which makes this the way to proof-read a
  * deployment's wording — a translation especially — without sending anything:
  *
@@ -34,7 +34,7 @@ const flag = (name, fallback) => {
   const at = process.argv.indexOf(`--${name}`);
   return at >= 0 ? process.argv[at + 1] : fallback;
 };
-const CONFIG_DIR = flag('config-dir', 'config');
+const CONFIG_DIR = flag('config-dir', 'deployments/fixture/config');
 /** A scratch render: no markdown index, no orphan check, nothing in `docs/`. */
 const OUT = flag('out', null);
 const DIR = OUT ?? 'docs/mail';
@@ -194,7 +194,7 @@ function renderIndex(previews) {
     '# Email gallery',
     '',
     "Every message the app can send, rendered from this deployment's own",
-    '`config/texts/mail.json` and `config/deployment.json`. Both parts of each',
+    "the fixture's `texts/mail.json` and `deployment.json`. Both parts of each",
     'message are committed as the mailer would send them: read the plain text to',
     'review a change without wading through table markup, and open the rendered',
     'view to see it as a recipient would.',

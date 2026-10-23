@@ -5,11 +5,10 @@ containers at `/config` (see `compose.yml`). It is the single per-deployment
 config surface: branding, text and wording are retuned here without
 rebuilding the public image.
 
-The public repo commits the **demo (Coffee Kontor) config** here, in English;
-the demo prod stack, the local smoke test and the test suites run on it. The
-dev stack runs a translated copy from [deployments/](../deployments/README.md).
-A real deployment ships its own copy instead (via `CONFIG_DIR`, see below) and
-never commits it here.
+This one is the **test fixture** (the Coffee Kontor, in English): the local
+smoke test and the test suites run on it. The demo stacks run the other
+directories in [deployments/](../../README.md). A real deployment ships its own
+copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 
 ## The files
 
@@ -331,7 +330,7 @@ limitation period for claims.
 ### A code after the password
 
 A deployment can ask the person to prove they hold the account's mobile number
-after the password ([FR-AUTH-12](../docs/requirements.md#fr-auth-12)): by a
+after the password ([FR-AUTH-12](../../../docs/requirements.md#fr-auth-12)): by a
 code sent to it, or by a call from it to a number the site shows. Which of the
 two follows from the provider, below. The key is
 optional, and absent means off. The demo leaves it out.
@@ -504,9 +503,9 @@ either.
 
 ## Deploying a real deployment's config
 
-`infra/deploy.sh` fills the VM's `/config` from `CONFIG_DIR`. It defaults to this
-repo's committed demo config; a real deployment sets `CONFIG_DIR` to its own
-directory of files (held in the private deployment repo), copied into
+`infra/deploy.sh` fills the VM's `/config` from `CONFIG_DIR`, which it requires:
+a directory under `deployments/` for the demo stacks, and for a real deployment
+its own directory of files (held in the private deployment repo), copied into
 `/srv/b2b/<stack>/config` before the stack starts.
 
 ## When a release moves config keys or files
@@ -524,7 +523,7 @@ node tools/migrate-config.mjs --release 1.14.1 --config-dir <dir> --write
 
 Run it where the deployment's config is kept — for a real deployment, in the
 change that moves it to the new release; for the ones in
-[deployments/](../deployments/README.md), in the change that moves the keys in
+[deployments/](../../README.md), in the change that moves the keys in
 this one — never on the server at boot.
 
 It needs Node and nothing else: no checkout and no `npm ci`. The script and

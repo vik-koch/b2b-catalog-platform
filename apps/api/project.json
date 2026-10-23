@@ -68,7 +68,7 @@
     "e2e-config": {
       "command": "node tools/api-e2e-config.mjs",
       "inputs": [
-        "{workspaceRoot}/config/deployment.json",
+        "{workspaceRoot}/deployments/fixture/config/deployment.json",
         "{workspaceRoot}/tools/api-e2e-config.mjs"
       ],
       "cache": false

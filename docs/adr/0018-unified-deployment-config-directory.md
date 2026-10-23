@@ -180,3 +180,12 @@ there rather than in an operator's boot.
 - (−) A handful of staff words exist twice, in the admin and the mail text.
 - (−) Each release that moves keys or files owes a map, kept complete by the
   CI check.
+
+## Amendment — 2026-10-23: the committed configs live under `deployments/`
+
+The repo root no longer holds a `config/`. Every committed config is a
+deployment like any other, `deployments/<name>/config` beside its seed bundle,
+and the one the suites assert is `deployments/fixture`. `deploy.sh` has no
+default to fall back on, so `CONFIG_DIR` names the deployment on every deploy,
+and the unit specs pin `CONFIG_PATH` to the fixture rather than read whichever
+deployment the workspace `.env` names.

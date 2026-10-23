@@ -10,22 +10,22 @@ lives in `infra/` so this public repo's Actions tab stays clean.
 
 ## How it differs from the public prod deploy
 
-|                | Public prod (this repo, `release.yml`) | Client prod (private repo, this template)           |
-| -------------- | -------------------------------------- | --------------------------------------------------- |
-| Trigger        | push a `v*.*.*` tag                    | manual `workflow_dispatch` (pick a version)         |
-| Image          | just-promoted version tag              | same public GHCR version tag                        |
-| Platform files | in-repo                                | `actions/checkout` of this repo at `v<version>`     |
-| Config         | committed demo `config/`               | the **private** repo's own `config/` (`CONFIG_DIR`) |
-| Mail           | Mailpit sink + reviewer inbox          | **real SMTP**, no Mailpit                           |
-| Auth secrets   | shared with the dev stack              | client-specific `JWT_SECRET` + `ADMIN_*`            |
-| Seeding        | never                                  | never (catalog arrives via admin bulk sync)         |
-| Indexing       | `noindex` (portfolio)                  | indexed — `SEO_INDEXABLE` defaults true             |
+|                | Public prod (this repo, `release.yml`)   | Client prod (private repo, this template)           |
+| -------------- | ---------------------------------------- | --------------------------------------------------- |
+| Trigger        | push a `v*.*.*` tag, or by hand from one | manual `workflow_dispatch` (pick a version)         |
+| Image          | just-promoted version tag                | same public GHCR version tag                        |
+| Platform files | in-repo                                  | `actions/checkout` of this repo at `v<version>`     |
+| Config         | `deployments/slaney-labware-ie/config`   | the **private** repo's own `config/` (`CONFIG_DIR`) |
+| Mail           | Mailpit sink + reviewer inbox            | **real SMTP**, no Mailpit                           |
+| Auth secrets   | shared with the dev stack                | client-specific `JWT_SECRET` + `ADMIN_*`            |
+| Seeding        | every deploy, its own bundle             | never (catalog arrives via admin bulk sync)         |
+| Indexing       | `noindex` (portfolio)                    | indexed — `SEO_INDEXABLE` defaults true             |
 
 ## What the private repo owns
 
 1. **`config/`** — a _complete_ deployment config (branding, text, wording,
    `assets/`). Loaded whole with no baked default, so a missing file fails the
-   boot. Start from this repo's [`config/`](../../config) and replace the
+   boot. Start from one of this repo's [deployments](../../deployments/README.md) and replace the
    contents.
 2. **`.github/workflows/deploy-prod.yml`** — the copied template.
 3. **Secrets & variables** (private repo → Settings → Secrets and variables → Actions):

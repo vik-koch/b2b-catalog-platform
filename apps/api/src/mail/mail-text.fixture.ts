@@ -15,19 +15,19 @@ import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
  */
 export const demoMailText: MailText = loadConfigFile(
   mailTextSchema,
-  'config/texts/mail.json',
+  'deployments/fixture/config/texts/mail.json',
 );
 
 export const demoCommonText: CommonText = loadConfigFile(
   commonTextSchema,
-  'config/texts/common.json',
+  'deployments/fixture/config/texts/common.json',
 );
 export const demoPdfText: PdfText = loadConfigFile(
   pdfTextSchema,
-  'config/texts/pdf.json',
+  'deployments/fixture/config/texts/pdf.json',
 );
 
-/** Demo branding for tests, mirroring config/deployment.json. */
+/** Demo branding for tests, mirroring the fixture's deployment.json. */
 export const demoMailBranding: MailBranding = {
   name: 'Coffee Kontor',
   primaryColor: '#6f4e37',

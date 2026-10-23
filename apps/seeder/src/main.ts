@@ -15,7 +15,7 @@ const env = z
     MEDIA_ROOT: z.string().min(1),
     // The deployment config, for which consents it asks for.
     CONFIG_PATH: z.string().min(1),
-    // The seed bundle (seed/README.md).
+    // The seed bundle (deployments/fixture/seed/README.md).
     SEED_PATH: z.string().min(1),
     // `placeholder` draws every picture instead of downloading the bundle's
     // photos — what the e2e suites seed, so no test run needs the network.

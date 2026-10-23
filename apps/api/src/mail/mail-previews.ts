@@ -57,7 +57,7 @@ import {
 const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
 
 /**
- * Illustrative branding, not a deployment's. Reading `config/deployment.json`
+ * Illustrative branding, not a deployment's. Reading the fixture's `deployment.json`
  * here would make the committed previews change whenever the demo shop is
  * renamed, which says nothing about the mail.
  */
