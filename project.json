@@ -15,7 +15,7 @@
     },
     "mail-previews": {
       "command": "node tools/generate-mail-previews.mjs",
-      "// description": "Renders docs/mail/ from config/. Pass --config-dir/--out to proof-read another deployment's wording without touching docs/.",
+      "// description": "Renders docs/mail/ from the fixture config. Pass --config-dir/--out to proof-read another deployment's wording without touching docs/.",
       "cache": false
     },
     "order-lifecycle": {

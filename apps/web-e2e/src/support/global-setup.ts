@@ -34,7 +34,7 @@ export default async function globalSetup() {
   // local run always tests the code in front of you.
   //
   // Every run, not just when an image is missing: the failure this prevents is
-  // a *stale* image, not an absent one. config/ is bind-mounted while the
+  // a *stale* image, not an absent one. The config is bind-mounted while the
   // schema that validates it is compiled into the image, so changing a config
   // shape without rebuilding leaves a container that rejects the mounted file
   // on boot (load-whole-or-die) and answers every request with a 502. Docker
@@ -89,7 +89,10 @@ export default async function globalSetup() {
     // The consents the stack's own config asks for: the committed demo's,
     // which the localtest stack mounts.
     const { consent } = JSON.parse(
-      readFileSync(resolve(workspaceRoot, 'config/deployment.json'), 'utf8'),
+      readFileSync(
+        resolve(workspaceRoot, 'deployments/fixture/config/deployment.json'),
+        'utf8',
+      ),
     );
     // Placeholders, not the bundle's photos: no test run needs the network.
     await seedDatabase(

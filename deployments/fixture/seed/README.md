@@ -2,16 +2,15 @@
 
 The demo content of the fictional Hamburg coffee roastery: catalog, accounts,
 orders, documents and static pages. It is what the e2e suites seed and assert
-against, what `nx run seeder:seed` writes into a local database, and what a demo
-stack is seeded with unless its deploy names another bundle (`SEED_DIR`, see
-[infra/README.md](../infra/README.md)) — the dev stack seeds the German copy in
-[deployments/](../deployments/README.md). It belongs with the committed
-[config/](../config/): the orders it holds snapshot that config's pickup points,
-delivery zones and tax basis.
+against and what `nx run seeder:seed` writes into a local database by default;
+the demo stacks seed the other bundles in [deployments/](../../README.md)
+(`SEED_DIR`, see [infra/README.md](../../../infra/README.md)). It belongs with
+the fixture's [config/](../config/): the orders it holds snapshot that config's
+pickup points, delivery zones and tax basis.
 
-A bundle is data only. The seeder ([apps/seeder](../apps/seeder/)) reads it
+A bundle is data only. The seeder ([apps/seeder](../../../apps/seeder/)) reads it
 whole and checks it against the schema in
-[libs/seed/src/lib/bundle.ts](../libs/seed/src/lib/bundle.ts) before writing
+[libs/seed/src/lib/bundle.ts](../../../libs/seed/src/lib/bundle.ts) before writing
 anything; an unknown or misspelled key stops the seed.
 
 ## The files

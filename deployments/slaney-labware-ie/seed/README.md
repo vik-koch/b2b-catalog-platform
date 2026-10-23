@@ -4,7 +4,7 @@ The demo content of a fictional laboratory-consumables supplier in
 Enniscorthy, Ireland, selling to businesses and institutions only: catalog,
 accounts, orders, documents and static pages. The format, the seeding rules and
 the picture handling are those of the fixture bundle — see
-[seed/README.md](../../../seed/README.md). This bundle belongs with
+[the fixture's README](../../fixture/seed/README.md). This bundle belongs with
 [../config/](../config/): its orders snapshot that config's pickup points,
 delivery zones and tax basis (VAT added to net prices, 23 %).
 

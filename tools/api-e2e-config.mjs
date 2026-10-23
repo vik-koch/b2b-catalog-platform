@@ -23,7 +23,7 @@ import {
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
-const SOURCE = 'config';
+const SOURCE = 'deployments/fixture/config';
 const OUT = 'tmp/api-e2e-config';
 
 const config = JSON.parse(

@@ -15,5 +15,4 @@
 /docs/roadmap.md
 
 # Page bodies as the seed stores them: reflowing one changes the stored text
-/seed/pages
 /deployments/*/seed/pages

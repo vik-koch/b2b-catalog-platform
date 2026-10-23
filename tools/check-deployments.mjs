@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Asserts that every deployment this repo commits would boot and seed: the
- * test fixture (`config/` + `seed/`) and each `deployments/<name>/`.
+ * Asserts that every deployment this repo commits would boot and seed: each
+ * `deployments/<name>/`, the test fixture included.
  *
  * Only the fixture is loaded by the test suites, so a translated deployment
  * that misses a key a release added would otherwise first fail on its stack.
@@ -40,18 +40,13 @@ const SCHEMAS = {
   'texts/pdf.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
 };
 
-const deployments = [
-  { name: 'test fixture', config: 'config', seed: 'seed' },
-  ...(existsSync('deployments')
-    ? readdirSync('deployments', { withFileTypes: true })
-        .filter((entry) => entry.isDirectory())
-        .map(({ name }) => ({
-          name,
-          config: join('deployments', name, 'config'),
-          seed: join('deployments', name, 'seed'),
-        }))
-    : []),
-];
+const deployments = readdirSync('deployments', { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map(({ name }) => ({
+    name,
+    config: join('deployments', name, 'config'),
+    seed: join('deployments', name, 'seed'),
+  }));
 
 const schemas = {};
 for (const [file, [entry, name]] of Object.entries(SCHEMAS)) {

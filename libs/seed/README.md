@@ -1,9 +1,9 @@
 # seed
 
 The idempotent seeding routine and the schema of a seed bundle. It holds no
-content: what it writes comes from a bundle — the committed demo's is
-[seed/](../../seed/), whose README describes the format and what each case in
-it is there to show.
+content: what it writes comes from a bundle — the test fixture's is
+[deployments/fixture/seed/](../../deployments/fixture/seed/), whose README
+describes the format and what each case in it is there to show.
 
 Consumers: the seeder one-shot (`apps/seeder`, run by the `seed` compose
 service and by `nx run seeder:seed`), the `api-e2e` global setup (through the

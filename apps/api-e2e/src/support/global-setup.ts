@@ -45,7 +45,11 @@ export async function setup() {
   execSync('node dist/apps/seeder/main.cjs', {
     cwd: workspaceRoot,
     stdio: 'inherit',
-    env: { ...process.env, SEED_PATH: 'seed', SEED_PICTURES: 'placeholder' },
+    env: {
+      ...process.env,
+      SEED_PATH: 'deployments/fixture/seed',
+      SEED_PICTURES: 'placeholder',
+    },
   });
 }
 

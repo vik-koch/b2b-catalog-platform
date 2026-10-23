@@ -244,18 +244,25 @@ async function validate(files) {
   return problems;
 }
 
+// Where the demo config sat in a release: the fixture moved under
+// deployments/ after 1.14.1.
+const DEMO_DIRS = ['deployments/fixture/config', 'config'];
+
 function readDemoAt(ref) {
   const files = {};
   for (const file of SOURCE_FILES) {
-    try {
-      files[file] = JSON.parse(
-        execFileSync('git', ['show', `${ref}:config/${file}`], {
-          encoding: 'utf8',
-          stdio: ['ignore', 'pipe', 'ignore'],
-        }),
-      );
-    } catch {
-      // A file the release had not introduced yet.
+    for (const dir of DEMO_DIRS) {
+      try {
+        files[file] = JSON.parse(
+          execFileSync('git', ['show', `${ref}:${dir}/${file}`], {
+            encoding: 'utf8',
+            stdio: ['ignore', 'pipe', 'ignore'],
+          }),
+        );
+        break;
+      } catch {
+        // Not there, or a file the release had not introduced yet.
+      }
     }
   }
   return files;
@@ -282,7 +289,7 @@ const original = check
   : readDir(configDir, SOURCE_FILES);
 const { files, report } = migrate(original);
 // Run from a checkout, the release's demo config sits beside the tools.
-const demo = readDir(join(HERE, '..', 'config'), FILES);
+const demo = readDir(join(HERE, '..', 'deployments/fixture', 'config'), FILES);
 const moved = Object.entries(RENAMES).filter(
   ([from, to]) => from !== to && original[from] !== undefined,
 );

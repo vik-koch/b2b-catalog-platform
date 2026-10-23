@@ -29,7 +29,10 @@ const OVERRIDE_MINOR = 1;
 /** The deployment's own currency and locale — the same source the app formats
  * prices from, so this spec cannot drift from the page it reads. */
 const deployment = JSON.parse(
-  readFileSync(join(workspaceRoot, 'config/deployment.json'), 'utf8'),
+  readFileSync(
+    join(workspaceRoot, 'deployments/fixture/config/deployment.json'),
+    'utf8',
+  ),
 );
 const { locale } = deployment;
 const { code } = deployment.catalog.currency;

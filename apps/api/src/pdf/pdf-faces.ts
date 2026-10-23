@@ -13,7 +13,7 @@ import { Faces, winAnsi } from './pdf-sheet';
  * names none gets Helvetica, which every reader already has: it needs no
  * file, no licence and no megabyte in the image, and it covers the Latin
  * alphabets with their accents and umlauts. It cannot write anything else,
- * which is what `branding.font.pdf` is for — see config/README.md.
+ * which is what `branding.font.pdf` is for — see deployments/fixture/config/README.md.
  */
 @Injectable()
 export class PdfFaces {

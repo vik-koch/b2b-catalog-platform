@@ -11,7 +11,7 @@ export function configPath(file: string): string {
   const dir = process.env['CONFIG_PATH'];
   if (!dir) {
     throw new Error(
-      'CONFIG_PATH is not set — it must name the mounted config directory (see config/README.md)',
+      'CONFIG_PATH is not set — it must name the mounted config directory (see deployments/fixture/config/README.md)',
     );
   }
   return join(dir, file);

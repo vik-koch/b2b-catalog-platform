@@ -17,7 +17,9 @@ const pages = (published: string[]) => ({
 
 /** The committed demo file: every key the strict schema requires, so a test
  * states only what it is about. An `undefined` drops a key. */
-const demo = JSON.parse(readFileSync('config/deployment.json', 'utf8'));
+const demo = JSON.parse(
+  readFileSync('deployments/fixture/config/deployment.json', 'utf8'),
+);
 
 /** Points CONFIG_PATH at a directory holding a config written for this test. */
 function withConfig(config: Record<string, unknown>): void {
