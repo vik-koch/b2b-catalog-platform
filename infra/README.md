@@ -182,10 +182,15 @@ repo — same `deploy.sh`, its own config and real SMTP, no Mailpit, and
 ### Seeding a demo stack
 
 [seed.sh](seed.sh) resets a stack to a seed bundle, after `deploy.sh` has
-brought it up: it drops the database schema and the uploaded files, migrates
-afresh, loads the bundle and creates the bootstrap admin. The stack then holds
-the bundle and nothing else — what visitors left behind, and products an older
-bundle had, are gone.
+brought it up: the database schema and the uploaded files are dropped, the
+schema migrated afresh, the bundle loaded and the bootstrap admin created. The
+stack then holds the bundle and nothing else — what visitors left behind, and
+products an older bundle had, are gone.
+
+The reset itself is [reset.sh](reset.sh). `seed.sh` puts it in the stack's
+directory on the VM, beside the seeder and the bundle, decides whether a reset
+is due and runs it there. Two resets never overlap: the second is refused while
+the first runs.
 
 ```sh
 npx nx build seeder
@@ -200,6 +205,15 @@ and a run that would load the same again leaves the stack and its data alone.
 So dev keeps what was done on it until a merge changes its bundle, and prod
 until a release does. `SEED_FORCE=1` resets regardless; on prod that is the
 _Reset to seed_ box when running _Deploy prod_ by hand.
+
+**A simulated back office.** A bundle with a `simulation.json` describes one
+(ADR 0068): `reset.sh` starts the `erp-sim` service once the reset is through
+and stops it before the next. It needs the built simulator (`npx nx build
+erp-sim`, which `seed.sh` copies beside the seeder) and `ERP_SIM_TOKEN` in the
+stack's env; without the token the shop runs without it and the reset says so.
+Its log is the container's (`docker compose logs erp-sim`). It runs on from one
+reset to the next — there is no reset on a timer: a release that changes what
+the stack loads starts it again, and so does _Reset to seed_.
 
 **Closed, not dark.** For the minute a reset takes, the shop shows its
 maintenance page (FR-ADM-04). The api caches the flag, so the script writes it
