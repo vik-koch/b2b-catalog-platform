@@ -185,8 +185,8 @@ jobs:
             export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
           fi
 
-          # CONFIG_DIR -> this private repo's ./config (overrides the public
-          # demo config). No 4th arg -> no Mailpit overlay. deploy.sh finds
+          # CONFIG_DIR -> this private repo's ./config (deploy.sh requires
+          # one). No 4th arg -> no Mailpit overlay. deploy.sh finds
           # compose.yml + the shared stacks under the checked-out platform/ dir.
           CONFIG_DIR="$GITHUB_WORKSPACE/config" \
             platform/infra/deploy.sh "$DEPLOY_HOST" \

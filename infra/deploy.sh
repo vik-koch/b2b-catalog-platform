@@ -27,9 +27,13 @@
 # stack is up (the demo stacks do — they show demo content). A real shop leaves
 # it unset, so its catalog is never overwritten by an accidental seed: the seed
 # one-shot is also parked in the 'tools' compose profile, so nothing but this
-# explicit, opted-in step ever runs it. It needs the built seeder (`npx nx build seeder`
-# -> dist/apps/seeder) and a seed bundle: SEED_DIR, by default this repo's
-# committed demo bundle (seed/).
+# explicit, opted-in step ever runs it. It needs the built seeder (`npx nx build
+# seeder` -> dist/apps/seeder) and SEED_DIR, the seed bundle that belongs with
+# CONFIG_DIR (e.g. deployments/<name>/seed).
+#
+# Config: CONFIG_DIR names the deployment's config directory, required — e.g.
+# deployments/<name>/config, or the private repo's own. There is no default
+# deployment to fall back on.
 #
 # Images: `up --no-build` pulls images missing on the host (never builds — the
 # VM has no source tree). To rehearse before CI has published any images,
@@ -46,9 +50,12 @@ seed=${SEED:-}
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 seeder_dir=$repo_root/dist/apps/seeder
-seed_dir=${SEED_DIR:-$repo_root/seed}
+config_dir=${CONFIG_DIR:?CONFIG_DIR must name the deployment config directory}
+[ -f "$config_dir/deployment.json" ] || { echo "CONFIG_DIR $config_dir holds no deployment config" >&2; exit 1; }
+seed_dir=${SEED_DIR:-}
 if [ -n "$seed" ]; then
   [ -f "$seeder_dir/main.cjs" ] || { echo "SEED=1 needs the built seeder: npx nx build seeder" >&2; exit 1; }
+  : "${seed_dir:?SEED=1 needs SEED_DIR, the seed bundle to load}"
   [ -f "$seed_dir/catalog.json" ] || { echo "SEED_DIR $seed_dir holds no seed bundle" >&2; exit 1; }
 fi
 
@@ -122,10 +129,7 @@ fi
 # Per-deployment config/text: the web + api mount ./config read-only
 # and load their branding/text/wording WHOLE from it — there is no baked default,
 # so the dir must carry a complete config or the containers fail to boot.
-# CONFIG_DIR defaults to this repo's committed demo config (dev/demo); a real
-# deployment overrides it with its own dir (e.g. from the private repo). Replaced
-# wholesale so a removed file does not linger from a previous deploy.
-config_dir=${CONFIG_DIR:-$repo_root/config}
+# Replaced wholesale so a removed file does not linger from a previous deploy.
 echo "==> Copying deployment config from $config_dir"
 # tar over ssh rather than `scp -r`: config/ now has a subdir (assets/), and
 # OpenSSH 9's SFTP-mode scp fails to create a not-yet-existing remote subdir

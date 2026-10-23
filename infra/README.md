@@ -559,12 +559,15 @@ do them by hand (VM must meet the [requirements](#vm-requirements) above):
    For a non-prod stack, append `compose.mailpit.yml` to add the Mailpit sink +
    reviewer inbox (and set `MAIL_*`/`INBOX_BASICAUTH` in the env file), and set
    `SEED=1` to load demo content (a real shop leaves it unset — see below). Seeding
-   runs the seeder from your build, so build it first; `SEED_DIR` names the
-   seed bundle, the committed demo's [seed/](../seed/) by default:
+   runs the seeder from your build, so build it first. `CONFIG_DIR` names the
+   deployment's config, always; `SEED_DIR` the seed bundle that belongs with it
+   (one of [deployments/](../deployments/README.md)):
 
    ```sh
    npx nx build seeder
    SSH_OPTS="-i /path/to/deploy-private-key" SEED=1 \
+     CONFIG_DIR=deployments/slaney-labware-ie/config \
+     SEED_DIR=deployments/slaney-labware-ie/seed \
      infra/deploy.sh <host> <app-env-file> infra/traefik/.env compose.mailpit.yml
    ```
 
