@@ -17,6 +17,11 @@
 # that would load the same again leaves the stack alone. SEED_FORCE=1 resets
 # regardless.
 #
+# The shop shows its maintenance page meanwhile (FR-ADM-04) rather than going
+# dark: the api is restarted with the flag on, keeps answering from it while
+# the schema goes, and is restarted again on the new database. The web never
+# restarts.
+#
 # The guard: a database is reset only if a reset made it — a mark this script
 # leaves on the schema — or if it holds nothing a shop would miss: no product,
 # category or order, and no account but the bootstrap admin. A real shop's
@@ -96,10 +101,30 @@ done
 tar -C "$seeder_dir" -cf - . | run "tar -C /srv/b2b/$stack/seeder -xf -"
 tar -C "$seed_dir" -cf - . | run "tar -C /srv/b2b/$stack/seed -xf -"
 
-# From here to `start` the shop is down: nothing may write while the schema
-# goes, and nobody should browse a half-seeded catalog.
-echo "==> Stopping the app"
-compose "stop web api"
+# Waits until the api answers its maintenance endpoint with the given state.
+# The endpoint is exempt from the gate, so it answers either way.
+await_maintenance() {
+  for _ in $(seq 1 36); do
+    case "$(curl -s --max-time 10 "https://$domain/api/maintenance" 2>/dev/null)" in
+      *"\"enabled\":$1"*) return 0 ;;
+    esac
+    sleep 5
+  done
+  echo "FAILED: https://$domain/api/maintenance never answered enabled:$1" >&2
+  return 1
+}
+
+# The api caches the flag at boot and on a toggle, so writing it is not
+# enough: the restart is what closes the shop. Nothing is dropped until the
+# api says it is closed — a gate it had not picked up would open again the
+# moment the new, unflagged schema appeared.
+echo "==> Closing the shop for the reset (maintenance mode)"
+sql >/dev/null <<SQL
+INSERT INTO app_settings (id, "maintenanceMode") VALUES (1, true)
+ON CONFLICT (id) DO UPDATE SET "maintenanceMode" = true;
+SQL
+compose "restart api"
+await_maintenance true
 
 # A new schema rather than emptied tables: the migrations write rows of their
 # own (the default price list), so the clean state is the one a new stack
@@ -128,8 +153,11 @@ sql >/dev/null <<SQL
 COMMENT ON SCHEMA public IS '$mark $loaded';
 SQL
 
-echo "==> Starting the app"
-compose "start api web"
+# The new schema's settings row has maintenance off, and the restart drops
+# every other cache the old database filled.
+echo "==> Opening the shop again"
+compose "restart api"
+await_maintenance false
 
 # A seeded page, so a seed that wrote nothing fails here rather than in front
 # of a visitor.

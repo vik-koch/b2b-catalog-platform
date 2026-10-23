@@ -200,6 +200,14 @@ So dev keeps what was done on it until a merge changes its bundle, and prod
 until a release does. `SEED_FORCE=1` resets regardless; on prod that is the
 _Reset to seed_ box when running _Deploy prod_ by hand.
 
+**Closed, not dark.** For the minute a reset takes, the shop shows its
+maintenance page (FR-ADM-04). The api caches the flag, so the script writes it
+and restarts the api, waits until the api reports the shop closed, resets
+underneath it, and restarts the api on the new database, where maintenance is
+off. The web container never restarts. Staff pages and the machine API fail
+during the reset — their tables are gone — and a reset that fails halfway
+leaves the shop closed; running it again finishes it.
+
 **The guard.** It is a script of its own so a real shop's deploy cannot reach
 it: `deploy.sh` never touches the data. And it refuses a database a reset did
 not make — every reset marks the schema it creates — unless that database holds
