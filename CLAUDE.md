@@ -43,9 +43,11 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 
 ## Hosting
 
-- Demo: Oracle Cloud Always Free (Ampere A1, ARM64). CI publishes multi-arch images
-  (`linux/amd64` + `linux/arm64`, native runners per arch), so any host pulls its native
-  variant. Dev + prod = two compose stacks, one VM, hostname-routed.
+- Demo: one Hetzner VM. CI publishes multi-arch images (`linux/amd64` + `linux/arm64`,
+  native runners per arch), so any host pulls its native variant. Dev + prod = two compose
+  stacks, one VM, hostname-routed, each running one of `deployments/` with its seed: dev
+  the German shop on every merge, prod the English shop on a release tag (or by hand
+  from one, `deploy-prod.yml`).
 - Client deployment: provider/region documented only in the private repo. Billed and owned by
   the client, isolated from author's other infrastructure.
 - Walking skeleton first: hello-world Angular+NestJS+Postgres through the full pipeline

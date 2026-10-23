@@ -24,10 +24,10 @@
 # stack is left untouched, so the ephemeral demo simply omits it.
 #
 # Seeding: opt-in and OFF by default. Set SEED=1 to upsert seed data after the
-# stack is up (dev/demo do — they need demo content). Prod leaves it unset, so a
-# real catalog is never overwritten by an accidental seed: the seed one-shot is
-# also parked in the 'tools' compose profile, so nothing but this explicit,
-# opted-in step ever runs it. It needs the built seeder (`npx nx build seeder`
+# stack is up (the demo stacks do — they show demo content). A real shop leaves
+# it unset, so its catalog is never overwritten by an accidental seed: the seed
+# one-shot is also parked in the 'tools' compose profile, so nothing but this
+# explicit, opted-in step ever runs it. It needs the built seeder (`npx nx build seeder`
 # -> dist/apps/seeder) and a seed bundle: SEED_DIR, by default this repo's
 # committed demo bundle (seed/).
 #
@@ -189,7 +189,7 @@ run "docker image prune -af --filter until=168h" || echo "WARNING: image prune f
 # Idempotent upsert of seed data — opt-in only (SEED=1). Runs to completion (or
 # fails the deploy); the 'tools' profile keeps it out of the `up` above, which
 # has already run the `migrate` one-shot — so the schema exists by the time this
-# runs. Prod never sets SEED, so its data is left untouched.
+# runs. A real shop never sets SEED, so its data is left untouched.
 if [ -n "$seed" ]; then
   echo "==> Seeding database from $seed_dir"
   # Replaced wholesale, like the config, so nothing lingers from an earlier
@@ -205,7 +205,7 @@ fi
 # First hit also triggers the Let's Encrypt issuance, so allow a generous
 # window: DNS propagation + cert order can take a minute or two on a fresh VM.
 # When seeded, require a seeded API page too, so a routing or seed failure fails
-# loudly; unseeded (prod) only asserts the app is reachable — no content yet.
+# loudly; unseeded (a real shop) only asserts the app is reachable.
 #
 # Maintenance mode (FR-ADM-04) is the reason this asks for status codes rather
 # than using `curl -f`: while the gate is on, the storefront and every public

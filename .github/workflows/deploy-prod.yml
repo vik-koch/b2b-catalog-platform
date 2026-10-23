@@ -1,0 +1,176 @@
+# Deploys the public prod stack (NFR-OPS-02) from a release tag — the same
+# infra/deploy.sh dev uses, onto the same long-lived VM as a second,
+# independent stack (own STACK_NAME -> own DB volume + own domain; Traefik
+# routes both by Host).
+#
+# Two ways in, one job:
+#   - release.yml calls it once the tag's images are promoted;
+#   - run by hand with "Use workflow from" set to a release tag, it redeploys
+#     that release: to seed again after the database was reset, or to go back
+#     to an earlier release. Any other ref is refused.
+# Images, config, seed bundle and seeder all come from the tag, so a redeploy
+# ships exactly what the release shipped.
+#
+# Public prod is a portfolio demonstration: the English shop
+# (deployments/slaney-labware-ie), seeded on every deploy, with the Mailpit
+# sink + reviewer inbox (no real mail leaves). Needs (see infra/README.md):
+# repo variables DEPLOY_HOST, PROD_APP_DOMAIN, ACME_EMAIL + secrets
+# DEPLOY_SSH_PRIVATE_KEY, PROD_POSTGRES_PASSWORD, INBOX_PASSWORD, JWT_SECRET,
+# ADMIN_EMAIL, ADMIN_PASSWORD.
+name: Deploy prod
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    # A redeploy by hand never overlaps a release's deploy; queued, never
+    # cancelled halfway.
+    concurrency:
+      group: deploy-prod
+      cancel-in-progress: false
+    environment:
+      name: prod
+      url: https://${{ vars.PROD_APP_DOMAIN }}
+    steps:
+      - name: Require a release tag
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        run: |
+          echo "Prod deploys a release: run this from a v*.*.* tag, not $GITHUB_REF" >&2
+          exit 1
+
+      - uses: actions/checkout@v7
+
+      # The seeder is not an image: deploy.sh copies this build to the VM.
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: 'npm'
+
+      - run: npm ci
+
+      - run: npx nx build seeder
+
+      - name: Write SSH key
+        run: |
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}" > .deploy-key
+          chmod 600 .deploy-key
+
+      - name: Deploy
+        env:
+          SSH_OPTS: -o StrictHostKeyChecking=accept-new -o ConnectTimeout=5 -i ${{ github.workspace }}/.deploy-key
+          DEPLOY_HOST: ${{ vars.DEPLOY_HOST }}
+          APP_DOMAIN: ${{ vars.PROD_APP_DOMAIN }}
+          ACME_EMAIL: ${{ vars.ACME_EMAIL }}
+          POSTGRES_PASSWORD: ${{ secrets.PROD_POSTGRES_PASSWORD }}
+          # Session signing key + the bootstrap admin the one-shot creates if
+          # missing, shared with the dev stack — see the note in ci.yml.
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          # Prod is the English shop, seeded with its own content on every
+          # deploy (an upsert: what visitors add is left alone).
+          SEED: '1'
+          CONFIG_DIR: ${{ github.workspace }}/deployments/slaney-labware-ie/config
+          SEED_DIR: ${{ github.workspace }}/deployments/slaney-labware-ie/seed
+          # Guards the prod Mailpit reviewer inbox. Hashed below — the
+          # plaintext is a masked secret and is never written to a log.
+          INBOX_PASSWORD: ${{ secrets.INBOX_PASSWORD }}
+          # Central logs. Both set -> the shared observability stack is
+          # deployed (idempotent, already up from dev); either unset -> skipped.
+          GRAFANA_DOMAIN: ${{ vars.GRAFANA_DOMAIN }}
+          GRAFANA_ADMIN_PASSWORD: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
+          # Off-host backups (ADR 0067). All five set -> each night's archive is
+          # encrypted and uploaded too; none -> it stays on the VM. deploy.sh
+          # refuses a partial set. The key can only upload; the read-only
+          # restore key never comes near CI.
+          BACKUP_S3_ENDPOINT: ${{ vars.BACKUP_S3_ENDPOINT }}
+          BACKUP_S3_BUCKET: ${{ vars.BACKUP_S3_BUCKET }}
+          BACKUP_S3_BUCKET_LOOKUP: ${{ vars.BACKUP_S3_BUCKET_LOOKUP }}
+          BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          BACKUP_AGE_PUBLIC_KEY: ${{ vars.BACKUP_AGE_PUBLIC_KEY }}
+          # Days the paired archives stay on the VM; unset -> BACKUP_KEEP_DAYS.
+          MEDIA_BACKUP_KEEP_DAYS: ${{ vars.MEDIA_BACKUP_KEEP_DAYS }}
+        run: |
+          : "${DEPLOY_HOST:?repo variable DEPLOY_HOST is not set}"
+          : "${APP_DOMAIN:?repo variable PROD_APP_DOMAIN is not set}"
+          : "${ACME_EMAIL:?repo variable ACME_EMAIL is not set}"
+          : "${POSTGRES_PASSWORD:?secret PROD_POSTGRES_PASSWORD is not set}"
+          : "${INBOX_PASSWORD:?secret INBOX_PASSWORD is not set}"
+          : "${JWT_SECRET:?secret JWT_SECRET is not set}"
+          : "${ADMIN_EMAIL:?secret ADMIN_EMAIL is not set}"
+          : "${ADMIN_PASSWORD:?secret ADMIN_PASSWORD is not set}"
+          # Same floors the api enforces at boot (apps/api/src/env.ts) — check
+          # them here so a too-short secret fails now, loudly, instead of as a
+          # crash-looping container behind an opaque smoke-check timeout.
+          [ ${#JWT_SECRET} -ge 32 ] || { echo "JWT_SECRET must be >= 32 chars" >&2; exit 1; }
+          [ ${#ADMIN_PASSWORD} -ge 8 ] || { echo "ADMIN_PASSWORD must be >= 8 chars" >&2; exit 1; }
+          version="${GITHUB_REF_NAME#v}"
+          image_base="ghcr.io/${GITHUB_REPOSITORY,,}"
+
+          # SHA1 htpasswd entry for Traefik basic-auth. SHA1 (not bcrypt) keeps
+          # the string free of '$', which Compose would treat as interpolation.
+          inbox_hash=$(printf '%s' "$INBOX_PASSWORD" | openssl sha1 -binary | openssl base64)
+
+          # Deployed from the version tag — byte-identical to the sha image dev
+          # ran (release.yml promoted it). POSTGRES_PASSWORD must stay stable
+          # across deploys — the prod volume keeps the first it ever saw.
+          cat > "$RUNNER_TEMP/prod.env" <<EOF
+          STACK_NAME=prod
+          APP_DOMAIN=$APP_DOMAIN
+          API_IMAGE=$image_base-api:$version
+          WEB_IMAGE=$image_base-web:$version
+          # Long-lived stack: nightly backups (NFR-OPS-04, ADRs 0017, 0028, 0067).
+          COMPOSE_PROFILES=backup
+          BACKUP_S3_ENDPOINT=$BACKUP_S3_ENDPOINT
+          BACKUP_S3_BUCKET=$BACKUP_S3_BUCKET
+          BACKUP_S3_BUCKET_LOOKUP=${BACKUP_S3_BUCKET_LOOKUP:-auto}
+          BACKUP_S3_ACCESS_KEY_ID=$BACKUP_S3_ACCESS_KEY_ID
+          BACKUP_S3_SECRET_ACCESS_KEY=$BACKUP_S3_SECRET_ACCESS_KEY
+          BACKUP_AGE_PUBLIC_KEY=$BACKUP_AGE_PUBLIC_KEY
+          MEDIA_BACKUP_KEEP_DAYS=$MEDIA_BACKUP_KEEP_DAYS
+          POSTGRES_DB=b2b_catalog
+          POSTGRES_USER=b2b_catalog
+          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          JWT_SECRET=$JWT_SECRET
+          ADMIN_EMAIL=$ADMIN_EMAIL
+          ADMIN_PASSWORD=$ADMIN_PASSWORD
+          MAIL_HOST=mailpit
+          MAIL_PORT=1025
+          MAIL_FROM=Slaney Labware <no-reply@slaney-labware.example>
+          MAIL_STAFF_TO=sales@slaney-labware.example
+          MAIL_ADMIN_TO=admin@slaney-labware.example
+          INBOX_BASICAUTH=reviewer:{SHA}$inbox_hash
+          # Portfolio stack, not a real shop — keep it out of search results.
+          # Only a real client prod (private repo) sets this true.
+          SEO_INDEXABLE=false
+          EOF
+          printf 'ACME_EMAIL=%s\n' "$ACME_EMAIL" > "$RUNNER_TEMP/traefik.env"
+
+          # Opt-in observability: only when both the hostname and password are
+          # configured. Absent -> OBSERVABILITY_ENV stays unset and the stack is
+          # left untouched (see deploy.sh).
+          if [ -n "$GRAFANA_DOMAIN" ] && [ -n "$GRAFANA_ADMIN_PASSWORD" ]; then
+            cat > "$RUNNER_TEMP/observability.env" <<EOF
+          GRAFANA_DOMAIN=$GRAFANA_DOMAIN
+          GRAFANA_ADMIN_PASSWORD=$GRAFANA_ADMIN_PASSWORD
+          # Alert mail is deliberately absent here: dev and the public prod send
+          # through Mailpit, which lives in the app stack's network and is not
+          # reachable from Grafana. A deployment with real SMTP (the private
+          # repo) sets SMTP_* + MAIL_OPS_TO in this file — see
+          # infra/observability/.env.example. Unset -> Grafana runs without mail.
+          EOF
+            export OBSERVABILITY_ENV="$RUNNER_TEMP/observability.env"
+          fi
+
+          # Mailpit overlay keeps the reviewer inbox; a real client prod would
+          # omit it (real SMTP).
+          infra/deploy.sh "$DEPLOY_HOST" "$RUNNER_TEMP/prod.env" \
+            "$RUNNER_TEMP/traefik.env" compose.mailpit.yml
