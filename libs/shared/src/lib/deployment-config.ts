@@ -160,6 +160,30 @@ export const elsewhereLinkSchema = z
 export type ElsewhereLink = DeepReadonly<z.infer<typeof elsewhereLinkSchema>>;
 
 /**
+ * A line above every page and above every mail's content (FR-NAV-08): that the
+ * shop is a demonstration, or closed over the holidays. Its words are here
+ * rather than in the texts because most deployments have none, and a text file
+ * has no optional keys.
+ *
+ * `link` follows the text. Absolute, because a mail has no page to resolve a
+ * path against.
+ */
+export const siteNoticeSchema = z
+  .object({
+    text: z.string().min(1),
+    link: z
+      .object({
+        label: z.string().min(1),
+        url: z.url({ protocol: /^https?$/ }),
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();
+
+export type SiteNotice = DeepReadonly<z.infer<typeof siteNoticeSchema>>;
+
+/**
  * The deployment's public facts: `deployment.json`, read whole by the web and
  * the API alike. The web injects it into every document it serves, so
  * everything here is visible to any visitor — what only the API needs is
@@ -224,9 +248,9 @@ export const deploymentConfigSchema = z
          * out keeps the system stack, which is a real choice rather than a
          * fallback — no file to load and the shop looks native everywhere.
          *
-         * `stylesheet` names a CSS file in the assets mount (see
-         * deployments/fixture/config/README.md) that declares the @font-face rules the family needs;
-         * the server links it into every document. Self-hosted on purpose: a
+         * `stylesheet` names a CSS file in the assets mount (see the config
+         * README) that declares the @font-face rules the family needs; the
+         * server links it into every document. Self-hosted on purpose: a
          * link to a font CDN makes every visitor's browser announce itself to a
          * third party before the page has drawn.
          */
@@ -416,6 +440,8 @@ export const deploymentConfigSchema = z
      * that is only here shows nothing beside the enquiry button.
      */
     elsewhere: z.array(elsewhereLinkSchema).optional(),
+    /** The notice above every page and mail (FR-NAV-08). Absent means none. */
+    notice: siteNoticeSchema.optional(),
     /**
      * Who sells, named in every page's footer (NFR-LEGAL-02) for a
      * jurisdiction that wants the seller identifiable on the site itself.

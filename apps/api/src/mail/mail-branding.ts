@@ -1,3 +1,4 @@
+import type { SiteNotice } from '@b2b-catalog-platform/shared';
 import { loadApiDeploymentConfig } from '../config/deployment-config';
 import { env } from '../env';
 
@@ -11,6 +12,8 @@ export interface MailBranding {
   readonly siteUrl: string;
   /** The language the message is written in, which it declares. */
   readonly locale: string;
+  /** The deployment's notice (FR-NAV-08), above every message's content. */
+  readonly notice?: SiteNotice;
 }
 
 export const MAIL_BRANDING = 'MAIL_BRANDING';
@@ -32,5 +35,6 @@ export function loadMailBranding(): MailBranding {
     primaryColor: config.branding.theme.primary,
     siteUrl: origin.replace(/\/+$/, ''),
     locale: config.locale,
+    notice: config.notice,
   };
 }

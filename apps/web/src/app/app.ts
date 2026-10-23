@@ -16,10 +16,12 @@ import { BottomNav } from './layout/bottom-nav';
 import { Footer } from './layout/footer';
 import { Header } from './layout/header';
 import { SearchOverlay } from './layout/search-overlay';
+import { SiteNotice } from './layout/site-notice';
 
 @Component({
   imports: [
     RouterOutlet,
+    SiteNotice,
     Header,
     BottomNav,
     SearchOverlay,
@@ -36,6 +38,9 @@ import { SearchOverlay } from './layout/search-overlay';
          Bound rather than toggled with a second class: two background
          utilities on one element would be decided by stylesheet order. -->
     <div class="flex min-h-dvh flex-col text-ink" [class]="pageBackground()">
+      <!-- Above the header and scrolled away with the page; the header's
+           stickiness starts where the notice ends. -->
+      <app-site-notice />
       <app-header />
       <!-- The wide frame, and one of only two page widths. Anything
            multi-column — catalog grids, admin tables, dashboards — fills it;

@@ -58,3 +58,40 @@ describe('deploymentConfigSchema — pages', () => {
     expect(result.success).toBe(false);
   });
 });
+
+/**
+ * The notice's link is followed from a mail as well as from a page, and a mail
+ * has no page to resolve a path against.
+ */
+describe('deploymentConfigSchema — notice', () => {
+  const parseNotice = (notice: unknown) =>
+    deploymentConfigSchema.safeParse({ ...defaultDeploymentConfig, notice });
+
+  it('accepts a notice with an absolute link', () => {
+    const result = parseNotice({
+      text: 'A demonstration shop.',
+      link: { label: 'About this demo', url: 'https://example.com/demo' },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a link that is only a path', () => {
+    const result = parseNotice({
+      text: 'A demonstration shop.',
+      link: { label: 'About this demo', url: '/pages/about' },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues[0]?.path).toEqual(['notice', 'link', 'url']);
+  });
+
+  it('rejects a link to anything but the web', () => {
+    const result = parseNotice({
+      text: 'A demonstration shop.',
+      link: { label: 'Write to us', url: 'mailto:hello@example.com' },
+    });
+
+    expect(result.success).toBe(false);
+  });
+});

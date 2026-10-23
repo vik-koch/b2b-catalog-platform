@@ -103,6 +103,13 @@
       "icon": "marktplatz.svg"
     }
   ],
+  "notice": {
+    "text": "Coffee Kontor ist ein Demo-Shop.",
+    "link": {
+      "label": "Über diese Demo",
+      "url": "https://github.com/vik-koch/b2b-catalog-platform"
+    }
+  },
   "phoneInput": {
     "countryCode": "+49",
     "mask": "(###) ###-####"
