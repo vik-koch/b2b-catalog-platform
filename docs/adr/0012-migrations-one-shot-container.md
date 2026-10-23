@@ -52,7 +52,7 @@ containers/replicas and couples migration to serving).
   setup needs `db-migrate` (and `db-seed`) first — the `serve-fresh` target
   bundles all three.
 
-## Amendment — 2026-10-19: the seed leaves the API image
+## Amendment — 2026-10-19 (v1.15.0): the seed leaves the API image
 
 The `seed` one-shot no longer reuses the API image, and the seed no longer
 carries its content. A separately built **seeder** (`apps/seeder`: one bundled
@@ -74,7 +74,7 @@ and rejected: another multi-arch build per release, for a tool only demo stacks
 run. The install on each run costs a few seconds and needs the registry
 reachable from the stack, which a demo stack has.
 
-## Amendment — 2026-10-23: seeding resets a stack
+## Amendment — 2026-10-23 (v1.15.0): seeding resets a stack
 
 A seed no longer adds to what a database holds. Seeding a demo stack is a reset,
 done by a script of its own, `infra/seed.sh`, after `deploy.sh` has brought the

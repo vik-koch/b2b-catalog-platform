@@ -4,23 +4,21 @@ A B2B catalog and ordering platform for small wholesale/retail businesses: brows
 catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
 catalog management with file-based bulk sync.
 
-> **Status:** `v1.14.1` — `v1.14.0` was a compliance pass before going live. Consent is
-> offered per purpose rather than presumed, given against a versioned text and kept as a
-> record; an order accepts the terms of sale as they stood, and its prices state their tax
-> basis with a rate per line. Destroying personal data leaves a record, a finished order loses
-> its personal details after a period the deployment sets, and an admin can delete an account
-> or clear a guest order on the person's request. A sign-in can ask for proof of the account's
-> phone, by a code or a call, and each night's backup leaves the host encrypted, for storage
-> the host cannot erase. What the platform holds about people is written down in one place.
-> Iterations 1–16 are delivered (static pages and infrastructure, catalog + admin panel,
-> search, accounts and tiered pricing, units of sale, attribute filtering, cart and checkout,
-> stock availability and work-awaiting indicators, sold-together sets, product documents,
-> order processing, automated catalog feed, customer exchange, order exchange, storefront
-> presentation, compliance). `v1.14.1` restructures the deployment's text and configuration:
-> one key for a thing per reader, counts worded without plural forms, the settings only the API
-> reads in a file of their own, one locale for the whole deployment, and a tool that moves a
-> deployment's own files to the new layout. Online card payment stays deferred until the shop
-> is live and has handled real orders.
+> **Status:** `v1.15.0`, the second release of iteration 17. A deployment names the customers
+> it sells to — private persons, companies or both — and the rule holds wherever an account or
+> an order is written; and it can put a notice above every page and in every mail, such as that
+> the shop is a demonstration or closed over the holidays. The public demo is two shops from the
+> one image: the Coffee Kontor in German, and Slaney Labware, an Irish laboratory supplier that
+> sells to companies only. `v1.14.1`, the first, restructured the deployment's text and
+> configuration: one key for a thing per reader, counts worded without plural forms, the
+> settings only the API reads in a file of their own, one locale for the whole deployment, and a
+> tool that moves a deployment's own files to the new layout. Iterations 1–16 are delivered
+> (static pages and infrastructure, catalog + admin panel, search, accounts and tiered pricing,
+> units of sale, attribute filtering, cart and checkout, stock availability and work-awaiting
+> indicators, sold-together sets, product documents, order processing, automated catalog feed,
+> customer exchange, order exchange, storefront presentation, and a compliance pass before
+> going live). Online card payment stays deferred until the shop is live and has handled real
+> orders.
 
 ## Key features
 
@@ -31,7 +29,8 @@ Shipped:
 - **Tiered pricing** — customer tiers map to price lists; guests and untiered accounts see the
   default one
 - **Accounts & roles** — admin / manager / user; registration with staff approval, invitation
-  and reset links, self-service profile, and account deletion that anonymizes rather than erases
+  and reset links, self-service profile, and account deletion that anonymizes rather than erases;
+  a deployment sells to private persons, companies or both, and offers only those kinds
 - **Admin panel** — product and category CRUD, static-page editing, customer and staff
   administration, order views, maintenance mode, plus file-based bulk sync (upsert by
   catalogue ID, diff preview, audit-logged)
@@ -100,7 +99,8 @@ Shipped:
   current filters leave them empty; search suggestions show a picture and the viewer's price,
   can put a product in the cart, offer matching categories as their own group, and read a query
   typed on the wrong keyboard layout; a payment-and-delivery page states what checkout offers;
-  and the footer links to the shop's other presences
+  the footer links to the shop's other presences; and a deployment can put a notice above every
+  page and mail
 - **Sets and variants** — a product can be sold as a set of parts (a cup and its lid) whose
   attributes are filtered per part, and can name the variants it comes in on its pictures,
   with a variant marked unavailable rather than removed when it runs out
@@ -121,6 +121,9 @@ Shipped:
 
 Planned:
 
+- **Simulated source system** — the English demo shop's catalog, customers and orders owned by
+  a simulated back office that drives the three exchanges on a schedule, so the integration can
+  be watched working rather than read about
 - **Card payment** — online card payment offered after an order is accepted. Unscheduled: it
   needs a merchant account the shop does not have and a live order flow to be designed against,
   and a card payment arranged with the manager is already a recorded method in the meantime

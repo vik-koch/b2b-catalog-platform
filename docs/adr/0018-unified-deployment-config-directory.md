@@ -181,7 +181,7 @@ there rather than in an operator's boot.
 - (−) Each release that moves keys or files owes a map, kept complete by the
   CI check.
 
-## Amendment — 2026-10-23: the committed configs live under `deployments/`
+## Amendment — 2026-10-23 (v1.15.0): the committed configs live under `deployments/`
 
 The repo root no longer holds a `config/`. Every committed config is a
 deployment like any other, `deployments/<name>/config` beside its seed bundle,
