@@ -181,6 +181,25 @@ entirely, so `"contact": {}` shows neither:
 The line breaks only between entries. Leave `seller` out and there is no line.
 The imprint page stays the place for the full seller details.
 
+### A notice above every page
+
+`notice` in `deployment.json` puts a line above the header of every page and
+above the content of every mail: that the shop is a demonstration, or closed
+over the holidays.
+
+```json
+"notice": {
+  "text": "We are closed from 24 December to 2 January.",
+  "link": { "label": "Opening hours", "url": "https://shop.example/pages/contact" }
+}
+```
+
+The `link` is optional and follows the text. Its `url` is absolute, because a
+mail has no page to resolve a path against. The notice cannot be dismissed, and
+the order documents never carry it. It is a setting rather than a text key, so
+a deployment without one simply leaves `notice` out; changing it is a config
+change and a restart.
+
 ### Consent to processing personal data
 
 Where a jurisdiction wants consent asked as a statement of its own, the shop

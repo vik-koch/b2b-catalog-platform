@@ -212,7 +212,7 @@ function renderHtml(
   )};padding:20px 28px;font-size:18px;font-weight:700;color:#ffffff;">${escapeHtml(
     branding.name,
   )}</td></tr>
-<tr><td style="padding:28px;">
+${renderNotice(branding)}<tr><td style="padding:28px;">
 <h1 style="margin:0 0 16px;font-size:20px;line-height:1.3;color:#111827;">${escapeHtml(
     content.heading,
   )}</h1>
@@ -233,6 +233,21 @@ ${escapeHtml(footerNote)}<br>
 </html>`;
 }
 
+/** The deployment's notice (FR-NAV-08) as a band under the wordmark, if any. */
+function renderNotice(branding: MailBranding): string {
+  const notice = branding.notice;
+  if (!notice) return '';
+  const link = notice.link
+    ? ` <a href="${escapeHtml(notice.link.url)}" style="color:${escapeHtml(
+        branding.primaryColor,
+      )};font-weight:600;">${escapeHtml(notice.link.label)}</a>`
+    : '';
+  return (
+    `<tr><td style="background:#f9fafb;border-bottom:1px solid #e5e7eb;padding:10px 28px;font-size:13px;line-height:1.5;color:#374151;">` +
+    `${escapeHtml(notice.text)}${link}</td></tr>\n`
+  );
+}
+
 /**
  * The plain-text alternative, rendered from the same content object rather than
  * stripped from the HTML — so it stays readable, and so a template can never
@@ -243,7 +258,12 @@ function renderText(
   branding: MailBranding,
   footerNote: string,
 ): string {
-  const blocks: string[] = [content.heading];
+  const blocks: string[] = [];
+  if (branding.notice) {
+    const { text, link } = branding.notice;
+    blocks.push(link ? `${text}\n${link.label}: ${link.url}` : text);
+  }
+  blocks.push(content.heading);
 
   for (const paragraph of content.paragraphs ?? []) {
     blocks.push(paragraph);

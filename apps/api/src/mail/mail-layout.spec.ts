@@ -114,6 +114,48 @@ describe('renderMail', () => {
     });
   });
 
+  describe('the deployment notice', () => {
+    const notice = {
+      text: 'A demonstration shop & nothing more.',
+      link: { label: 'About this demo', url: 'https://example.com/demo' },
+    };
+    const withNotice = (overrides: Partial<typeof notice> = {}) =>
+      renderMail(
+        content,
+        { ...demoMailBranding, notice: { ...notice, ...overrides } },
+        'Footer note.',
+      );
+
+    it('carries the notice and its link above the content', () => {
+      const { html, text } = withNotice();
+
+      expect(html).toContain('A demonstration shop &amp; nothing more.');
+      expect(html).toContain('href="https://example.com/demo"');
+      expect(html.indexOf('nothing more.')).toBeLessThan(
+        html.indexOf('Heading'),
+      );
+      expect(text).toMatch(
+        /^A demonstration shop & nothing more\.\nAbout this demo: https:\/\/example\.com\/demo\n\nHeading/,
+      );
+    });
+
+    it('shows the text alone when the notice has no link', () => {
+      const { html, text } = withNotice({ link: undefined });
+
+      expect(html).not.toContain('example.com/demo');
+      expect(
+        text.startsWith('A demonstration shop & nothing more.\n\nHeading'),
+      ).toBe(true);
+    });
+
+    it('leaves a mail without one untouched', () => {
+      const { html, text } = render();
+
+      expect(html).not.toContain('#f9fafb');
+      expect(text.startsWith('Heading')).toBe(true);
+    });
+  });
+
   it('omits the optional blocks a message does not use', () => {
     const { html, text } = render({
       paragraphs: undefined,
