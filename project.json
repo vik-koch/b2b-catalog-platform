@@ -13,6 +13,11 @@
       "// description": "Rebuilds the Contents block in docs/requirements.md from the headings themselves.",
       "cache": false
     },
+    "adr-index": {
+      "command": "node tools/generate-adr-index.mjs",
+      "// description": "Rebuilds the index in docs/adr/README.md from each ADR's heading and status line.",
+      "cache": false
+    },
     "mail-previews": {
       "command": "node tools/generate-mail-previews.mjs",
       "// description": "Renders docs/mail/ from the fixture config. Pass --config-dir/--out to proof-read another deployment's wording without touching docs/.",

@@ -105,7 +105,8 @@ differences between the three exchanges are in [docs/exchange-areas.md](docs/exc
 | Workspace | Nx monorepo, TypeScript throughout | [0003](docs/adr/0003-nx-monorepo.md) |
 
 The recurring theme is right-sizing: Postgres search instead of Elasticsearch, Compose instead
-of Kubernetes, one proxy instead of an API gateway.
+of Kubernetes, one proxy instead of an API gateway. How the pieces fit together, with
+diagrams, is in [docs/architecture.md](docs/architecture.md).
 
 ## Demo and real at once
 
@@ -150,8 +151,9 @@ Out of scope on purpose, each with what the platform does instead in
   [configuration reference](deployments/fixture/config/README.md),
   [infrastructure](infra/README.md), [the deployments here](deployments/README.md),
   [demo and real at once](docs/demo-and-real.md)
-- **Decisions:** [architecture decision records](docs/adr), each with the alternatives
-  considered and what the choice costs
+- **Architecture:** [how it fits together](docs/architecture.md), and the
+  [decision records](docs/adr/README.md), each with the alternatives considered and what the
+  choice costs
 
 ## How it is built
 

@@ -37,7 +37,8 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 - Infra: Docker + Compose + Terraform + cloud-init, NOT Kubernetes/Helm. Terraform provisions
   VM/network/firewall only; cloud-init installs Docker; CI/CD deploys containers.
 - One shared Traefik reverse proxy: TLS (Let's Encrypt), host-based dev/prod routing on
-  one VM (no port juggling), rate limiting on auth endpoints. No separate API gateway.
+  one VM (no port juggling). Rate limiting lives in the API (`@nestjs/throttler`, ADR 0015),
+  not at the proxy. No separate API gateway.
 - Region-specific integrations: ports-and-adapters — interfaces public, concrete regional
   adapters private. Private repo consumes only public artifacts for deployment.
 
