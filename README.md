@@ -144,6 +144,7 @@ Out of scope on purpose, each with what the platform does instead in
 ## Documentation
 
 - **The product:** [features](docs/features.md), [limits](docs/scope-and-limitations.md),
+  [compared with shop platforms](docs/comparison.md),
   [requirements](docs/requirements.md) with
   stable IDs, the [roadmap](docs/roadmap.md) of iterations and why they came in that order
 - **How it behaves:** [the life of an order](docs/order-lifecycle.md),

@@ -48,6 +48,8 @@ because neither is needed.
 
 ## When it is the wrong choice
 
+The platforms that fit these cases, with their prices, are in [comparison.md](comparison.md).
+
 - A shop that needs to be online cheaply, with no ERP and no negotiated prices: a standard shop
   platform with a B2B plugin will do ([ADR 0001](adr/0001-build-custom-instead-of-shop-platform.md)).
 - Consumer retail with card checkout, promotions and recommendations.
