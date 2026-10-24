@@ -6,7 +6,7 @@
 
 FR-SEARCH-01…03 ask for a header search bar matching **product names only**,
 independent of word order, tolerant of minor typos, ordered by relevance. The
-catalog is several hundred short names, single-language per deployment (i18n is
+catalog is about 1,500 short names, single-language per deployment (i18n is
 out of scope), containing accents and model designations.
 
 `0002` already committed to searching inside Postgres rather than adding
@@ -64,7 +64,7 @@ structure to keep in sync on every write).
    database maintains it on every write, so the overlay/sync split (`0022`)
    cannot desynchronize it — a re-sync that changes `name` reindexes by
    construction, with no application code involved.
-5. **The indexes are insurance, not necessity.** At several hundred rows a scan
+5. **The indexes are insurance, not necessity.** At about 1,500 rows a scan
    is imperceptible; the GIN indexes cost a little write time on a catalog
    written in batches a few times a month, and mean nothing is revisited if it
    grows an order of magnitude.

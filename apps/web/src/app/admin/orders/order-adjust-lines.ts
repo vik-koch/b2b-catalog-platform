@@ -95,7 +95,7 @@ export interface AdjustLineRow {
       @for (line of lines(); track line.key; let i = $index) {
         <li class="py-2 first:pt-0">
           <!-- The name has the row to itself: a long one is the ordinary case
-               on a catalogue of several hundred, and sharing the row with the
+               on a catalogue of about 1,500, and sharing the row with the
                figures left it two words wide with the note under it wrapped
                four times. -->
           <span class="block">{{ line.name }}</span>

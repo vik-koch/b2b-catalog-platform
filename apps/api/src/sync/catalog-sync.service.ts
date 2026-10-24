@@ -382,7 +382,7 @@ export class CatalogSyncService {
   // --- Internals ---------------------------------------------------------
 
   /**
-   * The whole catalog, in two queries. A few hundred products and a few dozen
+   * The whole catalog, in two queries. About 1,500 products and a few dozen
    * categories fit in memory comfortably (the same reasoning that keeps the
    * category tree in the app rather than in recursive SQL, ADR 0022), and it
    * lets the differ stay pure.

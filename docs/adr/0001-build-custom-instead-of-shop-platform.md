@@ -4,7 +4,7 @@
 
 ## Context
 
-The platform serves a small B2B retail/wholesale business: a few hundred
+The platform serves a small B2B retail/wholesale business: about 1,500
 SKUs, manual account approval, negotiated per-customer-tier pricing that
 must stay invisible to the customer, and file-based catalog sync from a
 legacy system with diff preview and audit logging. The project is also,

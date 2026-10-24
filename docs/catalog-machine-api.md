@@ -257,7 +257,7 @@ share at all (there is nothing there to endanger); the creates ceiling judges it
 
 The share ceiling is the one with no customer counterpart: it catches an export
 that was filtered wrongly and now rewrites everything, which no absolute number
-notices in a catalog of a few hundred.
+notices in a catalog of about 1,500.
 
 **Practical consequence:** on default settings any sweep that hides a product
 waits for a person, and so does any regrouping that empties a category. If your

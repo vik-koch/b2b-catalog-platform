@@ -50,7 +50,7 @@ Ship **both surfaces over one write contract**, weighted toward in-place editing
 ## Rationale
 
 In-place editing won as the primary model because this catalog _is_ the product:
-a single admin (the shop owner) maintaining a few hundred SKUs benefits far more
+a single admin (the shop owner) maintaining about 1,500 SKUs benefits far more
 from "fix it where you see it" than from context-switching into a back-office
 that re-presents the same data. The storefront already renders every field
 correctly; edit mode reuses those exact views (the product editor's preview

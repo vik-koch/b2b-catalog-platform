@@ -103,7 +103,7 @@ two counts are disjoint: one is "look at this and publish it", the other is
 "this needs a price, here or in the export".
 
 **Rejected: a price cache.** An invalidated price cache is a bug generator, and
-at several hundred SKUs the resolution is an index lookup. The guest path now
+at about 1,500 SKUs the resolution is an index lookup. The guest path now
 runs a correlated subquery where it read a column; if a listing ever feels slow
 the answer is a covering index on `product_prices (tierId, productId, priceMinor)`.
 

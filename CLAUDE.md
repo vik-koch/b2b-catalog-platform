@@ -5,7 +5,7 @@
 `b2b-catalog-platform` — a B2B catalog/ordering platform serving two purposes:
 
 1. Real production deployment for an actual client: a small retail/wholesale business,
-   multi-decade history, several-hundred-SKU catalog, manual/negotiated pricing for repeat
+   25-year history, ~1,500-SKU catalog, manual/negotiated pricing for repeat
    customers.
 2. Public open-source portfolio piece demonstrating requirements engineering, documented
    architecture decisions, disciplined AI-assisted development, and phased backward-compatible

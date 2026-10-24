@@ -94,8 +94,8 @@ suits a wholesale catalogue anyway.
 - (+) The import contract needs no change, so 0026's stability promise holds.
 - (+) Every column is nullable or defaulted: products without packaging behave
   as before and nothing has to be backfilled.
-- (−) The price sort stops using the column index wherever a basis exceeds 1. A
-  few hundred rows, so accepted; a generated per-piece column is the way out.
+- (−) The price sort stops using the column index wherever a basis exceeds 1. About
+  1,500 rows, so accepted; a generated per-piece column is the way out.
 - (−) The per-piece price is shown at a precision the currency lacks (€1.999),
   and does not multiply out to the total.
 - (−) `minPieceQty` and `piecesPerPack` must be multiples of the basis, so staff
