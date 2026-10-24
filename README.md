@@ -12,10 +12,11 @@ shop's ERP, one area at a time.
 
 ## Live demo
 
-| Shop                                         | Language | What it shows                                                                                                   |
-| -------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------- |
-| [Slaney Labware](https://b2b.vikkoch.com)    | English  | A laboratory supplier selling to companies only; catalog, customers and orders owned by a simulated back office |
-| [Coffee Kontor](https://b2b-dev.vikkoch.com) | German   | A coffee roastery selling to businesses and private buyers; everything maintained in the admin panel            |
+<!-- prettier-ignore -->
+| Shop | Language | What it shows |
+| --- | --- | --- |
+| [Slaney Labware](https://b2b.vikkoch.com) | English | A laboratory supplier selling to companies only; catalog, customers and orders owned by a simulated back office |
+| [Coffee Kontor](https://b2b-dev.vikkoch.com) | German | A coffee roastery selling to businesses and private buyers; everything maintained in the admin panel |
 
 Both shops are fictional, and no mail leaves them. To sign in as a customer on Slaney Labware,
 use `purchasing@brennan-biologics.example` and `demo-slaney-2014`. The account is on a customer
@@ -80,55 +81,47 @@ The full list, linked to the requirements, is in [docs/features.md](docs/feature
 The platform runs on its own, as the German shop does. A shop with an ERP can hand over each
 area separately, and an admin can take it back if a feed breaks:
 
-| Area      | Always the shop's                                                                                                                          | The back office's, once handed over                                        |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------- |
-| Catalog   | pictures, descriptions, attributes, packaging, documents, pairings, publication, the category tree's shape, categories the ERP never named | product names, categories, prices, stock, tax rates                        |
-| Customers | staff accounts, a customer's password, a customer's deletion of their account                                                              | approving registrations, price groups, invitations, switching accounts off |
-| Orders    | placing an order, cancelling one nobody has answered yet                                                                                   | moving and changing orders, recording payment, filing documents            |
+<!-- prettier-ignore -->
+| Area | Always the shop's | The back office's, once handed over |
+| --- | --- | --- |
+| Catalog | pictures, descriptions, attributes, packaging, documents, pairings, publication, the category tree's shape, categories the ERP never named | product names, categories, prices, stock, tax rates |
+| Customers | staff accounts, a customer's password, a customer's deletion of their account | approving registrations, price groups, invitations, switching accounts off |
+| Orders | placing an order, cancelling one nobody has answered yet | moving and changing orders, recording payment, filing documents |
 
 What the back office fills is read-only in the admin panel while it owns the area. The
 differences between the three exchanges are in [docs/exchange-areas.md](docs/exchange-areas.md).
 
 ## Built with
 
-| Layer      | Choice                                                                   | Decision                                                                                                                                                          |
-| ---------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Storefront | Angular with server-side rendering, Tailwind CSS                         | [0002](docs/adr/0002-angular-nestjs-postgresql-stack.md), [0008](docs/adr/0008-tailwind-owned-primitives-runtime-theming.md)                                      |
-| API        | NestJS; oRPC + Zod contracts shared by both apps                         | [0002](docs/adr/0002-angular-nestjs-postgresql-stack.md), [0043](docs/adr/0043-contract-layer-and-what-the-browser-downloads.md)                                  |
-| Data       | PostgreSQL with Drizzle; search on full-text and trigram indexes         | [0030](docs/adr/0030-product-search-postgres-fts-and-trigram.md)                                                                                                  |
-| Sign-in    | App-issued session in an httpOnly cookie, Argon2 hashes                  | [0019](docs/adr/0019-session-auth-argon2-jwt-cookie.md)                                                                                                           |
-| Hosting    | Docker Compose on one VM, a shared Traefik proxy, Terraform + cloud-init | [0004](docs/adr/0004-docker-compose-on-a-vm.md), [0005](docs/adr/0005-shared-traefik-reverse-proxy.md), [0006](docs/adr/0006-ephemeral-demo-and-manual-pet-vm.md) |
-| Operations | Loki + Grafana; backups with an encrypted off-host copy                  | [0016](docs/adr/0016-central-logs-via-grafana-loki.md), [0067](docs/adr/0067-backups-leave-the-host-as-an-encrypted-pair.md)                                      |
-| Workspace  | Nx monorepo, TypeScript throughout                                       | [0003](docs/adr/0003-nx-monorepo.md)                                                                                                                              |
+<!-- prettier-ignore -->
+| Layer | Choice | Decision |
+| --- | --- | --- |
+| Storefront | Angular with server-side rendering, Tailwind CSS | [0002](docs/adr/0002-angular-nestjs-postgresql-stack.md), [0008](docs/adr/0008-tailwind-owned-primitives-runtime-theming.md) |
+| API | NestJS; oRPC + Zod contracts shared by both apps | [0002](docs/adr/0002-angular-nestjs-postgresql-stack.md), [0043](docs/adr/0043-contract-layer-and-what-the-browser-downloads.md) |
+| Data | PostgreSQL with Drizzle; search on full-text and trigram indexes | [0030](docs/adr/0030-product-search-postgres-fts-and-trigram.md) |
+| Sign-in | App-issued session in an httpOnly cookie, Argon2 hashes | [0019](docs/adr/0019-session-auth-argon2-jwt-cookie.md) |
+| Hosting | Docker Compose on one VM, a shared Traefik proxy, Terraform + cloud-init | [0004](docs/adr/0004-docker-compose-on-a-vm.md), [0005](docs/adr/0005-shared-traefik-reverse-proxy.md), [0006](docs/adr/0006-ephemeral-demo-and-manual-pet-vm.md) |
+| Operations | Loki + Grafana; backups with an encrypted off-host copy | [0016](docs/adr/0016-central-logs-via-grafana-loki.md), [0067](docs/adr/0067-backups-leave-the-host-as-an-encrypted-pair.md) |
+| Workspace | Nx monorepo, TypeScript throughout | [0003](docs/adr/0003-nx-monorepo.md) |
 
 The recurring theme is right-sizing: Postgres search instead of Elasticsearch, Compose instead
 of Kubernetes, one proxy instead of an API gateway.
 
 ## Demo and real at once
 
-The client's shop and both demo shops run the same public image. Each is a
-[deployment](deployments/README.md): a directory of configuration, texts and branding, plus
-sample content for a demo. The client's deployment and its adapters live in a private
-repository that uses only what this one publishes. That has costs:
-
-- **Every shop carries every setting.** Configuration is loaded whole, with no defaults in the
-  image, so the client's files also hold texts for features only another shop uses.
-- **Features are more general than one shop needs**, such as companies-only selling or several
-  tax bases, because the demos needed them.
-- **Every text change lands four times**, in the test fixture, both demos and the client's
-  deployment, kept in step by a CI check and a migration tool.
-- **Demo plumbing stays out of the client's stack:** the mail sink, the simulated back office
-  and the seed resets come in through an overlay the client never loads.
-- **The documents never name the client**, its region or its providers, so some reasoning is
-  more abstract than the real reason.
-
-In return, the demos exercise cases one client never would (a second language, a
-companies-only shop, an ERP-owned catalog), and the simulated back office doubles as a
-reference client for the machine API.
+The client's shop and both demo shops run the same public image, each as its own
+[deployment](deployments/README.md): configuration, texts and branding, plus sample content for
+a demo. The client's deployment and its adapters live in a private repository that uses only
+what this one publishes. The price is that every shop carries every setting and text, features
+are more general than one shop needs, and every text change lands in four deployments. In
+return, the demos exercise cases one client never would, and the simulated back office is a
+working reference client for the machine API. The details are in
+[docs/demo-and-real.md](docs/demo-and-real.md).
 
 ## Limits
 
-Out of scope on purpose:
+Out of scope on purpose, each with what the platform does instead in
+[docs/scope-and-limitations.md](docs/scope-and-limitations.md):
 
 - **Online card payment, for now.** Payment is recorded, never charged.
 - **Public article numbers.** Products are identified by their URL; the ERP's key stays
@@ -142,7 +135,8 @@ Out of scope on purpose:
 
 ## Documentation
 
-- **The product:** [features](docs/features.md), [requirements](docs/requirements.md) with
+- **The product:** [features](docs/features.md), [limits](docs/scope-and-limitations.md),
+  [requirements](docs/requirements.md) with
   stable IDs, the [roadmap](docs/roadmap.md) of iterations and why they came in that order
 - **How it behaves:** [the life of an order](docs/order-lifecycle.md),
   [the life of an account](docs/account-lifecycle.md), [every mail](docs/mail.md),

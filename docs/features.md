@@ -2,7 +2,7 @@
 
 What the platform does as of the current release, grouped by the part of the shop it belongs
 to. Each item links the requirements that define it in [`requirements.md`](requirements.md).
-What the platform deliberately does not do is listed in the [README](../README.md#limits).
+What it deliberately does not do is in [scope-and-limitations.md](scope-and-limitations.md).
 
 **Contents** — [Browsing the catalog](#browsing-the-catalog) ·
 [Prices and units](#prices-and-units) · [Accounts](#accounts) ·
