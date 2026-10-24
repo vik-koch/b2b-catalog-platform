@@ -47,6 +47,11 @@
       "command": "node tools/generate-account-lifecycle.mjs",
       "// description": "Rebuilds the generated statuses and journeys in docs/account-lifecycle.md.",
       "cache": false
+    },
+    "screenshots": {
+      "command": "node tools/take-screenshots.mjs",
+      "// description": "Takes the screenshots in docs/images/ from the live demo shops. STAFF_EMAIL/STAFF_PASSWORD and REVIEWER_PASSWORD enable the admin and back-office shots.",
+      "cache": false
     }
   }
 }

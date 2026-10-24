@@ -55,6 +55,15 @@ What it deliberately does not do is in [scope-and-limitations.md](scope-and-limi
   as a public register. A document is stored exactly as uploaded and leaves the storefront
   the day it expires. [FR-DOC-01…05](requirements.md#fr-doc)
 
+<details>
+<summary>Screenshots</summary>
+
+![A category listing with its subcategories, attribute filters with counts, and sort controls](images/storefront-category.webp)
+
+![Search suggestions with categories, pictures, prices and an add-to-cart button](images/storefront-search.webp)
+
+</details>
+
 ## Prices and units
 
 - **Price lists per customer group** — a product has a price on each price list. Customer
@@ -119,6 +128,13 @@ What it deliberately does not do is in [scope-and-limitations.md](scope-and-limi
   shop, offered according to who is invoiced: a company is invoiced, so it pays by transfer.
   [FR-CART-04](requirements.md#fr-cart-04)
 
+<details>
+<summary>Screenshot</summary>
+
+![Checkout for a signed-in customer: delivery or pickup, the invoiced party, saved addresses and the order summary](images/customer-checkout.webp)
+
+</details>
+
 ## Orders
 
 - **Order processing** — a manager accepts or declines an order, moves it forward (accepted,
@@ -140,6 +156,13 @@ What it deliberately does not do is in [scope-and-limitations.md](scope-and-limi
   message is listed in the [mail gallery](mail.md); the whole flow is in
   [the life of an order](order-lifecycle.md).
   [FR-NOTIF-01…08](requirements.md#fr-notif)
+
+<details>
+<summary>Screenshot</summary>
+
+![A customer's order: its state, payment, lines, delivery, invoiced party and documents](images/customer-order.webp)
+
+</details>
 
 ## Running the shop
 
@@ -169,6 +192,13 @@ What it deliberately does not do is in [scope-and-limitations.md](scope-and-limi
   holidays". [FR-ADM-04](requirements.md#fr-adm-04), [FR-NAV-08](requirements.md#fr-nav-08)
 - **Links elsewhere** — the shop's social accounts, messengers or marketplace shops in the
   footer. [FR-NAV-07](requirements.md#fr-nav-07)
+
+<details>
+<summary>Screenshot</summary>
+
+![The admin product list: content filters, each product with its key, category, price, stock and state](images/admin-products.webp)
+
+</details>
 
 ## Working with a back office
 
@@ -201,6 +231,15 @@ compared in [exchange-areas.md](exchange-areas.md).
   a feed breaks, recovers or waits for a decision.
   [FR-ADM-09](requirements.md#fr-adm-09), [FR-ADM-16](requirements.md#fr-adm-16),
   [FR-NOTIF-09](requirements.md#fr-notif-09), [NFR-SEC-09](requirements.md#nfr-sec-09)
+
+<details>
+<summary>Screenshots</summary>
+
+![An order owned by the back office: read-only in the admin panel, with its versions and documents](images/admin-order.webp)
+
+![The catalog run log, with a nightly stock run sent by the simulated back office](images/admin-catalog-runs.webp)
+
+</details>
 
 ## Compliance and privacy
 
@@ -236,6 +275,15 @@ compared in [exchange-areas.md](exchange-areas.md).
 - **One deployment, one language** — every text, page and mail comes from the deployment's own
   configuration, so a shop runs in any single language without a code change.
 
+<details>
+<summary>Screenshots</summary>
+
+![The main page of the German demo shop, from the same image](images/kontor-home.webp)
+
+<img src="images/mobile-home.webp" width="260" alt="The main page of the English demo shop on a phone, with the bottom tab bar">
+
+</details>
+
 ## Demo only
 
 - **Simulated back office** — on the English demo shop, a small app owns the catalog, the
@@ -244,6 +292,13 @@ compared in [exchange-areas.md](exchange-areas.md).
   registrations and moves orders forward hourly in working hours. A page behind the reviewer
   login shows what it did and runs its hourly cycle on request.
   [ADR 0068](adr/0068-simulate-the-demo-back-office-through-the-machine-api.md)
+
+<details>
+<summary>Screenshot</summary>
+
+![The simulated back office page: the shop clock, working hours, a button to run the hourly cycle, and its log](images/back-office.webp)
+
+</details>
 
 ## Planned
 

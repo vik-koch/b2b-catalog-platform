@@ -24,6 +24,13 @@ tier, so some prices differ from a guest's. Placed orders are answered by the si
 office on a regular basis. Staff access and the mail sink are available
 [on request](https://github.com/vik-koch).
 
+<p>
+  <img src="docs/images/storefront-product.webp" width="76%" alt="A product page of the English demo shop: gallery, specifications, the price per piece, pack or box, and the add-to-cart panel">
+  <img src="docs/images/mobile-product.webp" width="22%" alt="The same product page on a phone">
+</p>
+
+More screenshots are in [docs/features.md](docs/features.md).
+
 ## Why this project exists
 
 **The client** is a regional wholesaler and retailer with 25 years of trading and about 20
