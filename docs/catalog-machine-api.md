@@ -37,11 +37,12 @@ is the full account. In short:
   There is no outbound read of the catalog itself, though: the submit response
   and that one run route are the whole of what a client learns from here.
 
-| Code                           | Status | Meaning                           |
-| ------------------------------ | ------ | --------------------------------- |
-| `not-authenticated`            | 401    | missing, unknown or revoked token |
-| `insufficient-scope`           | 403    | valid token, wrong capability     |
-| `catalog-not-externally-owned` | 409    | nobody handed the catalog over    |
+<!-- prettier-ignore -->
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `not-authenticated` | 401 | missing, unknown or revoked token |
+| `insufficient-scope` | 403 | valid token, wrong capability |
+| `catalog-not-externally-owned` | 409 | nobody handed the catalog over |
 
 ---
 
@@ -87,15 +88,16 @@ product set — not the size of the field set — is what deletion needs.
 Keyed by `sourceId`, the source system's own private key. There is no public
 article number anywhere in this platform — the storefront quotes none.
 
-| Field              | Type                   | Notes                                              |
-| ------------------ | ---------------------- | -------------------------------------------------- |
-| `sourceId`         | string, req.           | the only identity the platform models              |
-| `name`             | string                 | the product name                                   |
-| `categorySourceId` | string                 | the category's own private key — see §2.5          |
-| `categoryName`     | string                 | the **leaf** name; no parent path is carried       |
-| `prices`           | `{ "<listKey>": int }` | **minor units**; only the keys present are written |
-| `stockPieces`      | int                    | pieces on hand; may be negative (a stocktake)      |
-| `taxRate`          | number or `null`       | a percent, ≤ 2 decimals; `null` = the default rate |
+<!-- prettier-ignore -->
+| Field | Type | Notes |
+| --- | --- | --- |
+| `sourceId` | string, req. | the only identity the platform models |
+| `name` | string | the product name |
+| `categorySourceId` | string | the category's own private key — see §2.5 |
+| `categoryName` | string | the **leaf** name; no parent path is carried |
+| `prices` | `{ "<listKey>": int }` | **minor units**; only the keys present are written |
+| `stockPieces` | int | pieces on hand; may be negative (a stocktake) |
+| `taxRate` | number or `null` | a percent, ≤ 2 decimals; `null` = the default rate |
 
 **Absent ≠ empty.** An omitted field is left untouched, never cleared. A run
 cannot stop tracking a product's stock by omitting the cell — only an admin
@@ -128,20 +130,21 @@ The body is `strict`: an unknown field fails the whole request.
 One bad row never fails a run. It is skipped, listed in `plan.rowErrors`, and
 counted in `summary.errors`.
 
-| Code                       | `params`                 | Meaning                                                  |
-| -------------------------- | ------------------------ | -------------------------------------------------------- |
-| `missing-source-id`        | —                        | no key                                                   |
-| `duplicate-source-id`      | —                        | the same key twice in one run                            |
-| `category-id-without-name` | `category`               | half the category pair                                   |
-| `category-name-without-id` | `category`               | the other half                                           |
-| `unknown-category`         | `name`, `key`            | and `createCategories` is off                            |
-| `category-name-conflict`   | `key`, `first`, `second` | the file names one category twice                        |
-| `price-not-an-integer`     | `price`, `column`        | —                                                        |
-| `price-is-zero`            | `column`                 | no price, rather than a free product                     |
-| `stock-not-an-integer`     | `stock`                  | —                                                        |
-| `tax-rate-invalid`         | `taxRate`                | not a percent from 0 to 100, ≤ 2 decimals                |
-| `unknown-price-list`       | `key`, `known`           | no tier is keyed that (`known` lists them)               |
-| `cannot-create-product`    | —                        | a new key, but the run writes no name or category for it |
+<!-- prettier-ignore -->
+| Code | `params` | Meaning |
+| --- | --- | --- |
+| `missing-source-id` | — | no key |
+| `duplicate-source-id` | — | the same key twice in one run |
+| `category-id-without-name` | `category` | half the category pair |
+| `category-name-without-id` | `category` | the other half |
+| `unknown-category` | `name`, `key` | and `createCategories` is off |
+| `category-name-conflict` | `key`, `first`, `second` | the file names one category twice |
+| `price-not-an-integer` | `price`, `column` | — |
+| `price-is-zero` | `column` | no price, rather than a free product |
+| `stock-not-an-integer` | `stock` | — |
+| `tax-rate-invalid` | `taxRate` | not a percent from 0 to 100, ≤ 2 decimals |
+| `unknown-price-list` | `key`, `known` | no tier is keyed that (`known` lists them) |
+| `cannot-create-product` | — | a new key, but the run writes no name or category for it |
 
 As on the customer side, a malformed _field_ in a headless submission refuses
 the whole request (400) rather than one row — a converter should be fixed, not
@@ -282,12 +285,13 @@ submission **supersedes** the one still waiting — a scheduled feed that simply
 retries will replace the run somebody was about to read and never learn that
 this is what it has been doing. What you are looking for:
 
-| `status`     | What it means for the next cycle                             |
-| ------------ | ------------------------------------------------------------ |
-| `previewed`  | still waiting for a person. Do not resend; wait.             |
-| `applied`    | someone applied it. Carry on normally.                       |
-| `discarded`  | someone said no to it. Do not resend the same thing blindly. |
-| `superseded` | **you** replaced it by submitting again while it waited.     |
+<!-- prettier-ignore -->
+| `status` | What it means for the next cycle |
+| --- | --- |
+| `previewed` | still waiting for a person. Do not resend; wait. |
+| `applied` | someone applied it. Carry on normally. |
+| `discarded` | someone said no to it. Do not resend the same thing blindly. |
+| `superseded` | **you** replaced it by submitting again while it waited. |
 
 The read is scoped to the **area** your token may write, not to the token that
 sent the run: rotate your credential and you still read your own history. It is
@@ -334,12 +338,13 @@ feed**, not per-run announcements — a feed that breaks at midnight writes one
 mail, not seventy-two. State is read off the previous _machine_ run of the
 catalog area alone, so the customer feed's health is never mixed in.
 
-| Transition                        | Mail                                             |
-| --------------------------------- | ------------------------------------------------ |
-| ok/waiting → failed               | the feed has stopped                             |
-| failed → anything else            | working again (plus a waiting mail if it staged) |
-| ok → waiting                      | a run is waiting for a decision                  |
-| applied, unattended, `create > 0` | **new products nobody has published yet**        |
+<!-- prettier-ignore -->
+| Transition | Mail |
+| --- | --- |
+| ok/waiting → failed | the feed has stopped |
+| failed → anything else | working again (plus a waiting mail if it staged) |
+| ok → waiting | a run is waiting for a decision |
+| applied, unattended, `create > 0` | **new products nobody has published yet** |
 
 The last one is the catalog's own, and is not a transition: every such run is
 its own piece of news, linking to `/admin/products?state=unpublished`. It is

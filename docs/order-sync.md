@@ -62,11 +62,12 @@ customer waiting on a decision nobody in this shop is placed to take, and a
 source polling every few minutes would file a run per cycle for somebody to
 read.
 
-| Status      | What it means                                                                   |
-| ----------- | ------------------------------------------------------------------------------- |
-| `applied`   | It wrote something, or refused something. Terminal on arrival.                  |
+<!-- prettier-ignore -->
+| Status | What it means |
+| --- | --- |
+| `applied` | It wrote something, or refused something. Terminal on arrival. |
 | `no change` | Every instruction in it said what the orders already said. Terminal on arrival. |
-| `failed`    | The source reported that it broke before it produced anything.                  |
+| `failed` | The source reported that it broke before it produced anything. |
 
 `waiting`, `discarded` and `superseded` cannot occur here at all: there is no
 moment at which an order run exists and has not happened yet. The admin panel's
@@ -161,10 +162,11 @@ Two messages, both sent on a **change of state** rather than on a run, and both
 worded about orders rather than about the catalog or the accounts
 ([FR-NOTIF-09](requirements.md#fr-notif-09)):
 
-| Message                                              | Sent when                                         | To                                                        |
-| ---------------------------------------------------- | ------------------------------------------------- | --------------------------------------------------------- |
-| [`orderSyncFailed`](mail.md#order-sync-failed)       | The first failure after the exchange was working. | The admin, and the operator where a deployment names one. |
-| [`orderSyncRecovered`](mail.md#order-sync-recovered) | The first run that goes through after a failure.  | The same readers.                                         |
+<!-- prettier-ignore -->
+| Message | Sent when | To |
+| --- | --- | --- |
+| [`orderSyncFailed`](mail.md#order-sync-failed) | The first failure after the exchange was working. | The admin, and the operator where a deployment names one. |
+| [`orderSyncRecovered`](mail.md#order-sync-recovered) | The first run that goes through after a failure. | The same readers. |
 
 There are two rather than the other areas' three or four, and both absences are
 the same fact: nothing an order run does can wait for a person, so there is no

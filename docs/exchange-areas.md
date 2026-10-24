@@ -9,42 +9,44 @@ they wrote first.
 
 This document is the map. Each area's own documents are the territory:
 
-|                   | Catalog                                          | Customers                                          | Orders                                       |
-| ----------------- | ------------------------------------------------ | -------------------------------------------------- | -------------------------------------------- |
-| What it does, why | [catalog-sync.md](catalog-sync.md)               | [customer-sync.md](customer-sync.md)               | [order-sync.md](order-sync.md)               |
-| What to send      | [catalog-machine-api.md](catalog-machine-api.md) | [customer-machine-api.md](customer-machine-api.md) | [order-machine-api.md](order-machine-api.md) |
-| Requirements      | FR-ADM-02, FR-ADM-07                             | FR-ADM-11…15, FR-ADM-17, FR-ADM-18                 | FR-ADM-08                                    |
+<!-- prettier-ignore -->
+|  | Catalog | Customers | Orders |
+| --- | --- | --- | --- |
+| What it does, why | [catalog-sync.md](catalog-sync.md) | [customer-sync.md](customer-sync.md) | [order-sync.md](order-sync.md) |
+| What to send | [catalog-machine-api.md](catalog-machine-api.md) | [customer-machine-api.md](customer-machine-api.md) | [order-machine-api.md](order-machine-api.md) |
+| Requirements | FR-ADM-02, FR-ADM-07 | FR-ADM-11…15, FR-ADM-17, FR-ADM-18 | FR-ADM-08 |
 
 ---
 
 ## The whole comparison
 
-|                                                    | **Catalog**                                                                                                     | **Customers**                                                               | **Orders**                                                                                   |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| **Which way does data flow?**                      | inward only                                                                                                     | both ways                                                                   | both ways                                                                                    |
-| **Is there an outward read?**                      | **no** — nothing reads the catalog out                                                                          | `GET /machine/customers/accounts`                                           | `GET /machine/orders`, `GET /machine/orders/{reference}`                                     |
-| **Inbound route**                                  | `POST /machine/sync/runs`                                                                                       | `POST /machine/sync/customers/runs`                                         | `POST /machine/sync/orders/runs`                                                             |
-| **Scopes**                                         | `catalog-sync`                                                                                                  | `customer-sync` (write), `customer-read` (read)                             | `order-sync` (write), `order-read` (read)                                                    |
-| **Writes gated on ownership?**                     | yes                                                                                                             | yes                                                                         | yes                                                                                          |
-| **Read gated on ownership?**                       | n/a                                                                                                             | **no**                                                                      | **no**                                                                                       |
-| **Can a run be staged for a person?**              | yes                                                                                                             | yes                                                                         | **never**                                                                                    |
-| **Auto-apply policy**                              | `maxCreates` 100, `maxSoftDeletes` 0, `maxChangedShare` 0.5, `maxCategoriesCreated` 5, `maxCategoriesEmptied` 0 | `maxInvites` 25, `maxDisables` 0, `maxClaims` 0, `maxIdClaims` 0            | **none** — there is nothing to hold back                                                     |
-| **Who reviews a staged run?**                      | admins                                                                                                          | admins and managers                                                         | n/a                                                                                          |
-| **Counted as work awaiting?**                      | `stagedCatalogRuns` (admins)                                                                                    | `stagedCustomerRuns` (admins, managers)                                     | not counted — nothing waits                                                                  |
-| **Manual fallback for an operator**                | file upload (FR-ADM-02)                                                                                         | file upload (FR-ADM-12)                                                     | **none** — the panel's own buttons are the fallback, and the switch is how you get them back |
-| **Does a run create records?**                     | yes, products and categories                                                                                    | yes, accounts (invited)                                                     | **never** — an order arrives from the storefront                                             |
-| **Does a run remove records?**                     | soft-delete (hides)                                                                                             | **never** — the strongest row disables                                      | **never**                                                                                    |
-| **What identifies a record**                       | `sourceId`, the source system's own key                                                                         | `sourceId`, or a claim by email or by the platform's account id (FR-ADM-17) | `reference`, which **this** platform issued                                                  |
-| **Concurrency**                                    | last run wins; a staged run is superseded by a fresher one                                                      | same                                                                        | `basedOnRevision` per instruction — a stale one is refused                                   |
-| **What one submission carries**                    | the whole catalog                                                                                               | a set of account rows                                                       | a set of per-order instructions                                                              |
-| **Body limit / cap**                               | 10 MB, 50 000 rows                                                                                              | 10 MB, 50 000 rows                                                          | 10 MB, **2 000** instructions — the cap is what a run can answer for, one result per order   |
-| **Per-row refusals**                               | yes, never fail the run                                                                                         | yes                                                                         | yes                                                                                          |
-| **Run read-back**                                  | `GET /machine/sync/runs/{id}`                                                                                   | `…/customers/runs/{id}`                                                     | `…/orders/runs/{id}`                                                                         |
-| **Failure report**                                 | `POST /machine/sync/failures`                                                                                   | `…/customers/failures`                                                      | `…/orders/failures`                                                                          |
-| **Mail to the shop**                               | 4: failed, recovered, waiting, new products                                                                     | 3: failed, recovered, waiting                                               | **2**: failed, recovered                                                                     |
-| **Mail to a person**                               | none                                                                                                            | the set-a-password link it can never supply itself                          | the order's own thread — receipt, status, documents                                          |
-| **Does the sender choose whether a person hears?** | no                                                                                                              | no                                                                          | **yes** — `notify` and `showCustomer`, required per instruction                              |
-| **Files as bytes**                                 | product documents are the shop's own upload                                                                     | none                                                                        | **yes** — `POST /machine/orders/{reference}/documents/{kind}`                                |
+<!-- prettier-ignore -->
+|  | **Catalog** | **Customers** | **Orders** |
+| --- | --- | --- | --- |
+| **Which way does data flow?** | inward only | both ways | both ways |
+| **Is there an outward read?** | **no** — nothing reads the catalog out | `GET /machine/customers/accounts` | `GET /machine/orders`, `GET /machine/orders/{reference}` |
+| **Inbound route** | `POST /machine/sync/runs` | `POST /machine/sync/customers/runs` | `POST /machine/sync/orders/runs` |
+| **Scopes** | `catalog-sync` | `customer-sync` (write), `customer-read` (read) | `order-sync` (write), `order-read` (read) |
+| **Writes gated on ownership?** | yes | yes | yes |
+| **Read gated on ownership?** | n/a | **no** | **no** |
+| **Can a run be staged for a person?** | yes | yes | **never** |
+| **Auto-apply policy** | `maxCreates` 100, `maxSoftDeletes` 0, `maxChangedShare` 0.5, `maxCategoriesCreated` 5, `maxCategoriesEmptied` 0 | `maxInvites` 25, `maxDisables` 0, `maxClaims` 0, `maxIdClaims` 0 | **none** — there is nothing to hold back |
+| **Who reviews a staged run?** | admins | admins and managers | n/a |
+| **Counted as work awaiting?** | `stagedCatalogRuns` (admins) | `stagedCustomerRuns` (admins, managers) | not counted — nothing waits |
+| **Manual fallback for an operator** | file upload (FR-ADM-02) | file upload (FR-ADM-12) | **none** — the panel's own buttons are the fallback, and the switch is how you get them back |
+| **Does a run create records?** | yes, products and categories | yes, accounts (invited) | **never** — an order arrives from the storefront |
+| **Does a run remove records?** | soft-delete (hides) | **never** — the strongest row disables | **never** |
+| **What identifies a record** | `sourceId`, the source system's own key | `sourceId`, or a claim by email or by the platform's account id (FR-ADM-17) | `reference`, which **this** platform issued |
+| **Concurrency** | last run wins; a staged run is superseded by a fresher one | same | `basedOnRevision` per instruction — a stale one is refused |
+| **What one submission carries** | the whole catalog | a set of account rows | a set of per-order instructions |
+| **Body limit / cap** | 10 MB, 50 000 rows | 10 MB, 50 000 rows | 10 MB, **2 000** instructions — the cap is what a run can answer for, one result per order |
+| **Per-row refusals** | yes, never fail the run | yes | yes |
+| **Run read-back** | `GET /machine/sync/runs/{id}` | `…/customers/runs/{id}` | `…/orders/runs/{id}` |
+| **Failure report** | `POST /machine/sync/failures` | `…/customers/failures` | `…/orders/failures` |
+| **Mail to the shop** | 4: failed, recovered, waiting, new products | 3: failed, recovered, waiting | **2**: failed, recovered |
+| **Mail to a person** | none | the set-a-password link it can never supply itself | the order's own thread — receipt, status, documents |
+| **Does the sender choose whether a person hears?** | no | no | **yes** — `notify` and `showCustomer`, required per instruction |
+| **Files as bytes** | product documents are the shop's own upload | none | **yes** — `POST /machine/orders/{reference}/documents/{kind}` |
 
 ---
 

@@ -31,13 +31,14 @@ machine token is not accepted anywhere else.
 **Scopes.** Five exist; a token carries one or more, chosen at issue time and
 **not editable afterwards** (rotate by issuing a new token and revoking the old).
 
-| Scope           | Grants                                                       |
-| --------------- | ------------------------------------------------------------ |
-| `catalog-sync`  | the product exchange (out of scope here)                     |
-| `customer-sync` | writing customer accounts                                    |
-| `customer-read` | reading the customer book                                    |
-| `order-read`    | reading the order book ([its own doc](order-machine-api.md)) |
-| `order-sync`    | answering orders ([its own doc](order-machine-api.md))       |
+<!-- prettier-ignore -->
+| Scope | Grants |
+| --- | --- |
+| `catalog-sync` | the product exchange (out of scope here) |
+| `customer-sync` | writing customer accounts |
+| `customer-read` | reading the customer book |
+| `order-read` | reading the order book ([its own doc](order-machine-api.md)) |
+| `order-sync` | answering orders ([its own doc](order-machine-api.md)) |
 
 Reading and writing are deliberately separate powers. An adapter being brought
 up can hold `customer-read` for weeks before anybody grants it `customer-sync`.
@@ -73,12 +74,13 @@ the message is not a contract and is not localized for you.
 { "code": "customers-not-externally-owned", "status": 409, "message": "…" }
 ```
 
-| Code                             | Status | Meaning                                   |
-| -------------------------------- | ------ | ----------------------------------------- |
-| `not-authenticated`              | 401    | missing, unknown or revoked token         |
-| `insufficient-scope`             | 403    | valid token, wrong capability             |
-| `customers-not-externally-owned` | 409    | nobody handed the area over (writes only) |
-| `invalid-cursor`                 | 400    | a cursor this endpoint did not issue      |
+<!-- prettier-ignore -->
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `not-authenticated` | 401 | missing, unknown or revoked token |
+| `insufficient-scope` | 403 | valid token, wrong capability |
+| `customers-not-externally-owned` | 409 | nobody handed the area over (writes only) |
+| `invalid-cursor` | 400 | a cursor this endpoint did not issue |
 
 A schema violation in the body is refused wholesale (400) before anything is
 diffed — see §3.4 on why that differs from a per-row error.
@@ -95,11 +97,12 @@ Scope: `customer-read`. Not gated on ownership.
 
 ### Query
 
-| Param    | Meaning                                                              |
-| -------- | -------------------------------------------------------------------- |
-| `since`  | ISO 8601; accounts whose `updatedAt` is **at or after** this instant |
-| `cursor` | `nextCursor` from the previous page, verbatim                        |
-| `limit`  | 1–200, default 200                                                   |
+<!-- prettier-ignore -->
+| Param | Meaning |
+| --- | --- |
+| `since` | ISO 8601; accounts whose `updatedAt` is **at or after** this instant |
+| `cursor` | `nextCursor` from the previous page, verbatim |
+| `limit` | 1–200, default 200 |
 
 ### Response
 
@@ -202,20 +205,21 @@ large enough to reach either is one to bring in by CSV upload instead.
 Keyed by `sourceId` — your own key, never the email address, never the
 registration id. Both of those change, and two people can share one.
 
-| Field                   | Type                       | Notes                                                      |
-| ----------------------- | -------------------------- | ---------------------------------------------------------- |
-| `sourceId`              | string, req.               | 1–255 chars; the only identity the platform models         |
-| `email`                 | string                     | lowercased; required to create; writable after             |
-| `accountId`             | uuid                       | claim target — see §3.3; read only when the key is unknown |
-| `access`                | `enabled`/`disabled`       | see §3.2.1                                                 |
-| `tierKey`               | string \| null             | price list key; **null = the base list**                   |
-| `customerType`          | `company`/`person` \| null | null = neither is known                                    |
-| `companyName`           | string \| null             | company ⇒ name **and** id, or the row is refused           |
-| `companyRegistrationId` | string \| null             | ditto                                                      |
-| `firstName`             | string                     | **create only**, ignored on an existing account            |
-| `lastName`              | string                     | create only                                                |
-| `phone`                 | string                     | create only                                                |
-| `sendPasswordLink`      | boolean (false)            | an instruction, not a state — see the warning              |
+<!-- prettier-ignore -->
+| Field | Type | Notes |
+| --- | --- | --- |
+| `sourceId` | string, req. | 1–255 chars; the only identity the platform models |
+| `email` | string | lowercased; required to create; writable after |
+| `accountId` | uuid | claim target — see §3.3; read only when the key is unknown |
+| `access` | `enabled`/`disabled` | see §3.2.1 |
+| `tierKey` | string \| null | price list key; **null = the base list** |
+| `customerType` | `company`/`person` \| null | null = neither is known |
+| `companyName` | string \| null | company ⇒ name **and** id, or the row is refused |
+| `companyRegistrationId` | string \| null | ditto |
+| `firstName` | string | **create only**, ignored on an existing account |
+| `lastName` | string | create only |
+| `phone` | string | create only |
+| `sendPasswordLink` | boolean (false) | an instruction, not a state — see the warning |
 
 **Absent ≠ empty.** A field you omit is left alone. Only `tierKey`,
 `customerType`, `companyName` and `companyRegistrationId` are _nullable_, and
@@ -237,15 +241,16 @@ undo a customer's own correction before they finished reading the confirmation.
 Two values, not five, because what you know is whether this person is one of
 yours. What that comes to depends on where the account stands:
 
-| `access`   | account state               | effect                                                                         |
-| ---------- | --------------------------- | ------------------------------------------------------------------------------ |
-| `enabled`  | does not exist              | create it `invited` + **mail the set-a-password link**                         |
-| `enabled`  | `pending` (registered here) | approve it → `invited` + **mail the link**                                     |
-| `enabled`  | `disabled`                  | reactivate → `active` if they have a password, else `invited` (+ **mail**)     |
-| `enabled`  | `invited` / `active`        | nothing                                                                        |
-| `disabled` | anything but `disabled`     | switch off: **all sessions end**, outstanding set-a-password links are expired |
-| `disabled` | `disabled`                  | nothing                                                                        |
-| omitted    | —                           | access untouched                                                               |
+<!-- prettier-ignore -->
+| `access` | account state | effect |
+| --- | --- | --- |
+| `enabled` | does not exist | create it `invited` + **mail the set-a-password link** |
+| `enabled` | `pending` (registered here) | approve it → `invited` + **mail the link** |
+| `enabled` | `disabled` | reactivate → `active` if they have a password, else `invited` (+ **mail**) |
+| `enabled` | `invited` / `active` | nothing |
+| `disabled` | anything but `disabled` | switch off: **all sessions end**, outstanding set-a-password links are expired |
+| `disabled` | `disabled` | nothing |
+| omitted | — | access untouched |
 
 There is no fifth state for a declined registration. Declining one here removes
 it with its details, so a run never meets it, and while customers are yours the
@@ -306,24 +311,25 @@ and the client that does is the one that read them.
 One bad row never fails the run. It is skipped, listed in `plan.rowErrors`, and
 counted in `summary.errors`; everything else still applies.
 
-| Code                         | `params`             | Meaning                                                                                            |
-| ---------------------------- | -------------------- | -------------------------------------------------------------------------------------------------- |
-| `missing-source-id`          | —                    | no key                                                                                             |
-| `duplicate-source-id`        | —                    | the same key twice in one run                                                                      |
-| `duplicate-email`            | `email`              | two rows of this run claim one address                                                             |
-| `email-taken`                | `email`              | another keyed account already has it                                                               |
-| `account-unclaimed`          | `email`              | an unkeyed account has it — turn on `claimByEmail`                                                 |
-| `account-unknown`            | `accountId`          | `accountId` names no account here                                                                  |
-| `account-already-keyed`      | `accountId`          | that account already carries a source key                                                          |
-| `account-unclaimed-by-id`    | `accountId`, `email` | claimable by id, but `claimById` was off                                                           |
-| `unknown-tier`               | `key`, `known`       | no price list is keyed that (`known` lists the real ones)                                          |
-| `cannot-create-account`      | —                    | unknown key asking for access, no address (or `createMissing` off)                                 |
-| `account-withdrawn`          | —                    | the person closed it; permanent                                                                    |
-| `staff-account`              | (`email`)            | the key or address names an admin/manager                                                          |
-| `cannot-send-link`           | —                    | a link asked for an account that cannot sign in                                                    |
-| `company-details-incomplete` | —                    | a company with only one of name/registration id                                                    |
-| `customer-type-not-accepted` | `type`               | a kind the shop does not sell to (`customerTypes`, FR-AUTH-13); a stated `null` counts as `person` |
-| `invalid-value`              | `column`, `value`    | **CSV upload only** — a headless body is schema-refused                                            |
+<!-- prettier-ignore -->
+| Code | `params` | Meaning |
+| --- | --- | --- |
+| `missing-source-id` | — | no key |
+| `duplicate-source-id` | — | the same key twice in one run |
+| `duplicate-email` | `email` | two rows of this run claim one address |
+| `email-taken` | `email` | another keyed account already has it |
+| `account-unclaimed` | `email` | an unkeyed account has it — turn on `claimByEmail` |
+| `account-unknown` | `accountId` | `accountId` names no account here |
+| `account-already-keyed` | `accountId` | that account already carries a source key |
+| `account-unclaimed-by-id` | `accountId`, `email` | claimable by id, but `claimById` was off |
+| `unknown-tier` | `key`, `known` | no price list is keyed that (`known` lists the real ones) |
+| `cannot-create-account` | — | unknown key asking for access, no address (or `createMissing` off) |
+| `account-withdrawn` | — | the person closed it; permanent |
+| `staff-account` | (`email`) | the key or address names an admin/manager |
+| `cannot-send-link` | — | a link asked for an account that cannot sign in |
+| `company-details-incomplete` | — | a company with only one of name/registration id |
+| `customer-type-not-accepted` | `type` | a kind the shop does not sell to (`customerTypes`, FR-AUTH-13); a stated `null` counts as `person` |
+| `invalid-value` | `column`, `value` | **CSV upload only** — a headless body is schema-refused |
 
 Note the asymmetry deliberately: a malformed _field_ in a headless submission
 refuses the **whole request** (400), because a converter should be fixed, not
@@ -365,14 +371,15 @@ whatever else the row did.
 
 ### 3.6 Run status — did it actually happen?
 
-| `status`     | Did it write? | What the adapter should do                      |
-| ------------ | ------------- | ----------------------------------------------- |
-| `applied`    | yes           | nothing                                         |
-| `no-change`  | nothing to do | nothing (terminal on arrival)                   |
-| `previewed`  | **no**        | it is waiting for a person; read `stagedReason` |
-| `failed`     | no            | your own report, or the write broke             |
-| `superseded` | no            | a later run replaced it while it waited         |
-| `discarded`  | no            | a person said no to it                          |
+<!-- prettier-ignore -->
+| `status` | Did it write? | What the adapter should do |
+| --- | --- | --- |
+| `applied` | yes | nothing |
+| `no-change` | nothing to do | nothing (terminal on arrival) |
+| `previewed` | **no** | it is waiting for a person; read `stagedReason` |
+| `failed` | no | your own report, or the write broke |
+| `superseded` | no | a later run replaced it while it waited |
+| `discarded` | no | a person said no to it |
 
 **`previewed` is the one to handle.** The run is staged and nothing was written;
 a manager or admin must apply it in the panel. There is **no machine commit
@@ -417,12 +424,13 @@ submission **supersedes** the one still waiting — a scheduled feed that simply
 retries will replace the run somebody was about to read and never learn that
 this is what it has been doing. What you are looking for:
 
-| `status`     | What it means for the next cycle                             |
-| ------------ | ------------------------------------------------------------ |
-| `previewed`  | still waiting for a person. Do not resend; wait.             |
-| `applied`    | someone applied it. Carry on normally.                       |
-| `discarded`  | someone said no to it. Do not resend the same thing blindly. |
-| `superseded` | **you** replaced it by submitting again while it waited.     |
+<!-- prettier-ignore -->
+| `status` | What it means for the next cycle |
+| --- | --- |
+| `previewed` | still waiting for a person. Do not resend; wait. |
+| `applied` | someone applied it. Carry on normally. |
+| `discarded` | someone said no to it. Do not resend the same thing blindly. |
+| `superseded` | **you** replaced it by submitting again while it waited. |
 
 The read is scoped to the **area** your token may write, not to the token that
 sent the run: rotate your credential and you still read your own history. It is
@@ -458,12 +466,13 @@ Two audiences, and they never overlap.
 Sent **after** the write commits, never before (a link that has gone out cannot
 be rolled back). A failure to send is logged and never fails the run.
 
-| Trigger                                                                                                                                          | Mail |
-| ------------------------------------------------------------------------------------------------------------------------------------------------ | ---- |
-| The run creates the account (`invite`)                                                                                                           | yes  |
-| The run leaves an account able to sign in, `invited`, with no password chosen — approving a registration, reactivating someone who never set one | yes  |
-| `sendPasswordLink: true` on an account that can sign in after this run                                                                           | yes  |
-| Anything else — an ordinary edit, a tier change, a no-op row                                                                                     | no   |
+<!-- prettier-ignore -->
+| Trigger | Mail |
+| --- | --- |
+| The run creates the account (`invite`) | yes |
+| The run leaves an account able to sign in, `invited`, with no password chosen — approving a registration, reactivating someone who never set one | yes |
+| `sendPasswordLink: true` on an account that can sign in after this run | yes |
+| Anything else — an ordinary edit, a tier change, a no-op row | no |
 
 The first two are consequences of a _move_, so they do not repeat: the next run,
 which moves nothing, mails nothing. The third is an instruction and repeats
@@ -486,12 +495,13 @@ State is read off the previous _machine_ run **of this area** (`applied`,
 failed). The catalog feed and the customer feed are independent; neither
 announces the other's recovery.
 
-| Transition             | Mail                                                    |
-| ---------------------- | ------------------------------------------------------- |
-| ok/waiting → failed    | "the exchange has stopped"                              |
+<!-- prettier-ignore -->
+| Transition | Mail |
+| --- | --- |
+| ok/waiting → failed | "the exchange has stopped" |
 | failed → anything else | "working again" (plus a waiting mail if it also staged) |
-| ok → waiting           | "a run is waiting for a decision"                       |
-| repeat of same state   | nothing                                                 |
+| ok → waiting | "a run is waiting for a decision" |
+| repeat of same state | nothing |
 
 The catalog's fourth mail — "new products nobody has published" — has no
 customer counterpart: a customer run that invited people has already mailed
