@@ -65,9 +65,11 @@ Whatever the provider, the VM needs:
 
 - **amd64 or arm64** — CI publishes multi-arch images
   (`linux/amd64` + `linux/arm64`), the VM pulls its native variant.
-- **Ubuntu LTS (24.04)** — cloud-init.yml is only tested on Ubuntu and leans on
-  Ubuntu/Debian specifics (`netfilter-persistent`, image default users). Other
-  distros would need adjustments.
+- **Ubuntu** — the long-lived demo VM runs 26.04 and the Terraform demo 24.04.
+  cloud-init.yml is only tested on Ubuntu and leans on Ubuntu/Debian specifics
+  (`netfilter-persistent`, image default users); other distros would need
+  adjustments. Since 25.10 Ubuntu's default coreutils are the Rust rewrite, so
+  commands run on the VM avoid GNU-only flags.
 
 ## One-time setup
 

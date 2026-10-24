@@ -159,6 +159,7 @@ Out of scope on purpose, each with what the platform does instead in
   [configuration reference](deployments/fixture/config/README.md),
   [infrastructure](infra/README.md), [the deployments here](deployments/README.md),
   [demo and real at once](docs/demo-and-real.md)
+- **Working on the code:** [running it locally, checks and generated files](docs/development.md)
 - **Architecture:** [how it fits together](docs/architecture.md), and the
   [decision records](docs/adr/README.md), each with the alternatives considered and what the
   choice costs

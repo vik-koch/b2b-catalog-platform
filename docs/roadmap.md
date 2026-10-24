@@ -397,18 +397,6 @@ Notes:
   **on** to populate catalog and content behind a 503'd storefront via [FR-ADM-01](requirements.md#fr-adm-01)-03, then flips
   it **off** to launch. The brief window before it is first switched on is harmless: prod DNS
   is not public and dev stays `noindex` until launch.
-
-## Explicitly out of scope for now
-
-- UI localization / i18n, plural rules included — each deployment is single-locale and words a
-  count so the number needs no agreement; revisit only if a deployment ever needs a second language
-- Automated delivery/courier API integration
-- Live/automatic sync from the legacy source system — in scope: the catalog direction as
-  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the customer direction as iteration 13 ([FR-ADM-11](requirements.md#fr-adm-11)) and the order
-  direction as iteration 14 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
-  any direction in which the platform writes catalog content back into the source system: the
-  ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
-  offers no such message in any case
 - Iterations 13 and 14 were swapped (2026-09-15). Order exchange had held row 13 since the
   iteration-11 planning round; customer exchange did not exist as a requirement at all, because
   the source system's stock site-exchange setting carries a catalog and orders and nothing else,
@@ -1015,3 +1003,15 @@ Notes:
   login that shows what it did and runs its cycle on request. It keeps no state, so it needs no
   reset of its own; the shop is reset when a release changes what it loads. It is demo tooling,
   not new scope, so the release that carries it is a patch.
+
+## Explicitly out of scope for now
+
+- UI localization / i18n, plural rules included — each deployment is single-locale and words a
+  count so the number needs no agreement; revisit only if a deployment ever needs a second language
+- Automated delivery/courier API integration
+- Live/automatic sync from the legacy source system — in scope: the catalog direction as
+  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the customer direction as iteration 13 ([FR-ADM-11](requirements.md#fr-adm-11)) and the order
+  direction as iteration 14 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
+  any direction in which the platform writes catalog content back into the source system: the
+  ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
+  offers no such message in any case
