@@ -146,9 +146,10 @@ Out of scope on purpose, each with what the platform does instead in
   [orders](docs/order-sync.md)) and its wire-level reference
   ([catalog](docs/catalog-machine-api.md), [customers](docs/customer-machine-api.md),
   [orders](docs/order-machine-api.md))
-- **Running it:** [infrastructure](infra/README.md), [deployments](deployments/README.md),
-  [configuration](deployments/fixture/config/README.md),
-  [deploying from a private repository](infra/private-deploy/README.md)
+- **Running a shop:** [deploying a shop](docs/deploying-a-shop.md),
+  [configuration reference](deployments/fixture/config/README.md),
+  [infrastructure](infra/README.md), [the deployments here](deployments/README.md),
+  [demo and real at once](docs/demo-and-real.md)
 - **Decisions:** [architecture decision records](docs/adr), each with the alternatives
   considered and what the choice costs
 
