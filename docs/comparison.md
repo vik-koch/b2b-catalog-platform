@@ -26,7 +26,7 @@ The client's needs (see the [README](../README.md#why-this-project-exists)) map 
 platforms like this:
 
 <!-- prettier-ignore -->
-| Requirement | Off the shelf | Custom on every platform |
+| Requirement | Off the shelf | Custom work on every platform |
 | --- | --- | --- |
 | Staff approve each registration and assign a hidden price group | WooCommerce + B2BKing, Shopware Evolve, OroCommerce, Adobe Commerce; Shopify through company profiles and catalogs | — |
 | Prices per piece, pack or box, with minimum quantities | Quantity rules and volume pricing on most; selling one product in three units with exact per-unit prices is an extension or custom work | partly |

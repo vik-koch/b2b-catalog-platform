@@ -47,9 +47,10 @@ ERP. What it needed is not a typical online shop:
 - cheap to run, for a company without an IT department
 
 **Why custom-built.** Shop platforms handle the storefront well, but this B2B core is where
-they are weakest: approval, hidden tier pricing and an audited catalog import would have
-needed paid B2B editions, plugins, or custom code anyway. Built to fit, the whole stack runs
-on one small VM with no licence fees.
+they are weakest: approval and hidden price groups need paid B2B editions or plugins, and an
+order a manager answers and an ERP exchange handed over area by area are custom work on any of
+them ([comparison](docs/comparison.md)). Built to fit, the whole stack runs on one small VM
+with no licence fees.
 [ADR 0001](docs/adr/0001-build-custom-instead-of-shop-platform.md) has the concession: without
 the portfolio goal, a standard platform with a B2B plugin would be the sane default.
 
@@ -121,7 +122,7 @@ The client's shop and both demo shops run the same public image, each as its own
 [deployment](deployments/README.md): configuration, texts and branding, plus sample content for
 a demo. The client's deployment and its adapters live in a private repository that uses only
 what this one publishes. The price is that every shop carries every setting and text, features
-are more general than one shop needs, and every text change lands in four deployments. In
+are more general than one shop needs, and every new text or setting lands in four deployments. In
 return, the demos exercise cases one client never would, and the simulated back office is a
 working reference client for the machine API. The details are in
 [docs/demo-and-real.md](docs/demo-and-real.md).
@@ -173,7 +174,7 @@ Out of scope on purpose, each with what the platform does instead in
   deploys the German shop, a release tag the English one.
 - **Versions say what a release asks of an operator**
   ([ADR 0044](docs/adr/0044-versioning-by-what-a-release-changes.md)): a major needs work
-  outside the image, a minor adds a requirement, a patch fixes or completes the last minor.
+  outside the image, a minor adds features, a patch fixes or completes the last minor.
 - **Written by AI, decided and reviewed by me.** Every line of code, test and document was
   written by Anthropic's Claude models in Claude Code, across several model generations. I
   wrote the requirements, made the design decisions and reviewed every change before
