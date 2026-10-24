@@ -1,165 +1,186 @@
 # b2b-catalog-platform
 
-A B2B catalog and ordering platform for small wholesale/retail businesses: browsable product
-catalog, tiered customer pricing, order-request checkout with manager review, and admin-driven
-catalog management with file-based bulk sync.
+A catalog and ordering platform for small wholesale businesses with repeat business customers.
+Customers browse at the prices agreed for them and send order requests that a manager answers.
+The catalog, the customers and the orders are maintained in the admin panel or handed to the
+shop's ERP, one area at a time.
 
-> **Status:** `v1.15.0`, the second release of iteration 17. A deployment names the customers
-> it sells to — private persons, companies or both — and the rule holds wherever an account or
-> an order is written; and it can put a notice above every page and in every mail, such as that
-> the shop is a demonstration or closed over the holidays. The public demo is two shops from the
-> one image: the Coffee Kontor in German, and Slaney Labware, an Irish laboratory supplier that
-> sells to companies only. `v1.14.1`, the first, restructured the deployment's text and
-> configuration: one key for a thing per reader, counts worded without plural forms, the
-> settings only the API reads in a file of their own, one locale for the whole deployment, and a
-> tool that moves a deployment's own files to the new layout. Iterations 1–16 are delivered
-> (static pages and infrastructure, catalog + admin panel, search, accounts and tiered pricing,
-> units of sale, attribute filtering, cart and checkout, stock availability and work-awaiting
-> indicators, sold-together sets, product documents, order processing, automated catalog feed,
-> customer exchange, order exchange, storefront presentation, and a compliance pass before
-> going live). Online card payment stays deferred until the shop is live and has handled real
-> orders.
+> **Status:** built for a real client, whose shop is not live yet: the platform is ready and
+> the client is reviewing its catalog. What each release changed is in the
+> [release notes](https://github.com/vik-koch/b2b-catalog-platform/releases), the order of
+> delivery in the [roadmap](docs/roadmap.md).
 
-## Key features
+## Live demo
 
-Shipped:
+<!-- prettier-ignore -->
+| Shop | Language | What it shows |
+| --- | --- | --- |
+| [Slaney Labware](https://b2b.vikkoch.com) | English | A laboratory supplier selling to companies only; catalog, customers and orders owned by a simulated back office |
+| [Coffee Kontor](https://b2b-dev.vikkoch.com) | German | A coffee roastery selling to businesses and private buyers; everything maintained in the admin panel |
 
-- **Catalog** — category tree, paginated product listings as cards or rows, rich product pages,
-  tokenized/ranked search with typo tolerance (Postgres FTS + trigram)
-- **Tiered pricing** — customer tiers map to price lists; guests and untiered accounts see the
-  default one
-- **Accounts & roles** — admin / manager / user; registration with staff approval, invitation
-  and reset links, self-service profile, and account deletion that anonymizes rather than erases;
-  a deployment sells to private persons, companies or both, and offers only those kinds
-- **Admin panel** — product and category CRUD, static-page editing, customer and staff
-  administration, order views, maintenance mode, plus file-based bulk sync (upsert by
-  catalogue ID, diff preview, audit-logged)
-- **Units of sale** — buy by piece, pack or box, with exact per-unit prices, minimum order
-  quantities, and a publication gate so a newly synced product is reviewed before it goes public
-- **Attribute filtering** — an admin declares which product attributes are filterable and each
-  category which of them its listing offers; category listings and search results offer them as
-  counted facets, shareable in the URL, with an inventory that renames a key or a value across
-  the whole catalog
-- **Ordering** — a browser-held cart that persists between visits and reports what changed while
-  it waited, a one-form checkout submitting an order request for manager review, guest or
-  signed-in, with a saved address book, the invoiced party, delivery zones or pickup points,
-  and confirmation mail to customer and staff
-- **Stock availability** — an optional piece count from the sync or the admin form, shown to
-  customers only as in stock / few left / out of stock, ordering what is gone to the end of
-  every listing and refused by the cart and by checkout
-- **Work awaiting attention** — a marker on the account control whenever a queue has something
-  in it, and a line beside the section that resolves it; counted from current state, never
-  acknowledged away
-- **Sold-together sets** — an admin pairs a product with what it is sold with, mutually and
-  from either side; the pairing is marked wherever the product can be bought and opens its
-  counterparts to be added without leaving the page, and the cart says which lines are short
-  and by how much — advisory, or refused at checkout where a deployment says so
-- **Product documents** — certificates, declarations and data sheets uploaded once and shown
-  on any number of products, linked from either side; a document is stored exactly as it was
-  uploaded, leaves the storefront the day its expiry passes, and is counted as work for the
-  admin from thirty days before that
-- **Order processing** — a manager answers an order, moves it forward or a step back, and
-  changes it by agreement — lines, prices, the price list it is read from, where it goes, who
-  it is invoiced to; every move and every change writes a version, so the order is its own
-  history and any version reads back whole while the reference and the link stay put. Payment
-  is a fact of its own beside the state, so cash on delivery is not an exception, and an order
-  handed over that nobody has recorded as paid is counted as work
-- **Order documents** — payment instructions and an order summary, generated by the platform
-  or replaced by a file the operator supplies, readable by whoever may read the order and
-  attached to the mail that says the order was accepted
-- **Automated catalog feed** — the same import a person drives by hand, driven by a machine
-  instead: a scoped token that is a row rather than an account, a commit policy that decides by
-  a run's **effect** whether it applies itself or waits for somebody, a log of every run and
-  what it did, and mail to the admin when the feed breaks, recovers or needs a decision. One
-  switch says an external system owns the catalog, which makes the fields it fills read-only
-  here and turns the manual upload off — and back on again when the feed breaks, without a
-  deploy
-- **Customer exchange** — the same machine client doing everything a manager can do to a
-  customer account: inviting one into being, approving or refusing a registration, setting its
-  price group, switching it off and on again — plus a read back out, so an account somebody
-  registered on the website is not invisible to the system that has to invoice it. One line
-  holds throughout: the exchange never issues a credential and never erases an account, so a
-  password is still chosen by the person and a deletion is still theirs, reported outward as a
-  withdrawal. An account registered here can be **claimed** by address, once and only with
-  somebody agreeing to it, which is the one thing no key can do on its own. An operator who
-  has no feed yet can upload the same rows from a file instead
-- **Order exchange** — the same machine client working the shop's orders: reading them out
-  whole as the version they stand at, and answering them with what the back office did — the
-  move, the agreed change and the money recorded together, as **one** version of the order,
-  because that is one event to the customer and not three. An instruction that repeats what
-  the order already says writes nothing, which is what a polling source needs; one that
-  answers a version the order has moved past is refused rather than applied to facts that
-  changed underneath it. The shop's real invoice arrives as bytes rather than being redrawn
-  from data. Two things no setting takes from the customer: placing an order, and calling off
-  one nobody has answered yet — which the exchange reads as a fact rather than resolving as a
-  conflict
-- **Storefront presentation** — a category is one chip wherever it appears, with an optional
-  square mark beside its name; the main page opens on a featured row; the catalogue index is a
-  listing of everything, with a filter panel of its own and subcategories greyed where the
-  current filters leave them empty; search suggestions show a picture and the viewer's price,
-  can put a product in the cart, offer matching categories as their own group, and read a query
-  typed on the wrong keyboard layout; a payment-and-delivery page states what checkout offers;
-  the footer links to the shop's other presences; and a deployment can put a notice above every
-  page and mail
-- **Sets and variants** — a product can be sold as a set of parts (a cup and its lid) whose
-  attributes are filtered per part, and can name the variants it comes in on its pictures,
-  with a variant marked unavailable rather than removed when it runs out
-- **Catalog upkeep** — the admin product list narrows by what a product lacks or carries, with
-  each row naming its gaps; a product leaves the catalog in steps (unpublished, deleted, deleted
-  permanently) and deleted ones are kept out of every count; admin counts read a category's
-  whole subtree as the storefront does; and a document can be a link to where it is held
-  elsewhere, such as a public register
-- **Compliance** — configurable legal pages that keep every version and date the ones a
-  reader may hold the shop to; consent per purpose, switched on per deployment and recorded
-  against the text it was given under, with withdrawals and an admin lookup by account, email
-  or phone; terms of sale an order accepts by version, sent with the receipt where a
-  jurisdiction wants them kept; a stated tax basis with per-product rates; a record of every
-  destruction of personal data; finished orders that lose their personal details after a set
-  period; a seller line in the footer; cookie consent; an optional second sign-in step through
-  the account's phone; encrypted off-host backups; and an inventory of the personal data the
-  platform holds
+Both shops are fictional, and no mail leaves them. To sign in as a customer on Slaney Labware,
+use `purchasing@brennan-biologics.example` and `demo-slaney-2014`. The account is on a customer
+tier, so some prices differ from a guest's. Placed orders are answered by the simulated back
+office on a regular basis. Staff access and the mail sink are available
+[on request](https://github.com/vik-koch).
 
-Planned:
+<p>
+  <img src="docs/images/storefront-product.webp" width="76%" alt="A product page of the English demo shop: gallery, specifications, the price per piece, pack or box, and the add-to-cart panel">
+  <img src="docs/images/mobile-product.webp" width="22%" alt="The same product page on a phone">
+</p>
 
-- **Simulated source system** — the English demo shop's catalog, customers and orders owned by
-  a simulated back office that drives the three exchanges on a schedule, so the integration can
-  be watched working rather than read about
-- **Card payment** — online card payment offered after an order is accepted. Unscheduled: it
-  needs a merchant account the shop does not have and a live order flow to be designed against,
-  and a card payment arranged with the manager is already a recorded method in the meantime
+More screenshots are in [docs/features.md](docs/features.md).
+
+## Why this project exists
+
+**The client** is a regional wholesaler and retailer with 25 years of trading and about 20
+staff, supplying businesses, institutions and retail buyers with high-turnover everyday
+consumables. Its catalog of about 1,500 products is a few uniform kinds that vary in size and
+format. Repeat customers buy at negotiated prices, and the catalog is kept in the company's
+ERP. What it needed is not a typical online shop:
+
+- registration approved by staff, with a price group the customer never sees
+- an order request that a manager answers, since prices, quantities and delivery are often
+  agreed by phone
+- sale by the piece, pack or box, with minimum quantities
+- the catalog fed from the ERP, with descriptions, pictures and documents added in the shop
+- cheap to run, for a company without an IT department
+
+**Why custom-built.** Shop platforms handle the storefront well, but this B2B core is where
+they are weakest: approval and hidden price groups need paid B2B editions or plugins, and an
+order a manager answers and an ERP exchange handed over area by area are custom work on any of
+them ([comparison](docs/comparison.md)). Built to fit, the whole stack runs on one small VM
+with no licence fees.
+[ADR 0001](docs/adr/0001-build-custom-instead-of-shop-platform.md) has the concession: without
+the portfolio goal, a standard platform with a B2B plugin would be the sane default.
+
+**The platform is half of the solution.** The other half connects it to the client's ERP: an
+adapter for the ERP's exchange protocol, an extension inside the ERP, and a business process
+the client did not have before — handling online orders in the back office, which I designed
+and introduced along with the software. That half is private. This repository holds the
+platform's side: the documented machine API the adapter talks to, and a simulated back office
+standing in for the ERP on the demo.
+
+**Why it is public.** To show the process along with the result: requirements before code,
+decisions recorded with their alternatives, small backward-compatible releases, and
+AI-assisted development (see [How it is built](#how-it-is-built)).
+
+## What it does
+
+The full list, linked to the requirements, is in [docs/features.md](docs/features.md).
+
+- **Buyers:** a category tree, attribute filters, search that tolerates typos; their own prices
+  per piece, pack or box; stock as in stock / few left / out of stock; a cart kept between
+  visits; one-form checkout as a guest or signed in; every order with its history, documents
+  and mail.
+- **Staff:** registrations to approve and price groups to assign; orders to accept, change by
+  agreement and move forward, with every change kept as a version and payment recorded apart;
+  a marker whenever something waits for them.
+- **Admins:** in-place catalog editing with a publication gate, product documents with expiry
+  dates, static pages, maintenance mode, file imports with a preview.
+- **A back office:** catalog, customer and order exchanges over a machine API, each handed over
+  separately, applying themselves only within set limits, logged, with mail when a feed breaks.
+- **Operators:** one image for every shop, configured per deployment in its own language;
+  Compose on one VM, CI/CD, logs, alerts, encrypted off-host backups; consent records,
+  versioned legal pages and a personal-data inventory.
+
+## Working with a back office
+
+The platform runs on its own, as the German shop does. A shop with an ERP can hand over each
+area separately, and an admin can take it back if a feed breaks:
+
+<!-- prettier-ignore -->
+| Area | Always the shop's | The back office's, once handed over |
+| --- | --- | --- |
+| Catalog | pictures, descriptions, attributes, packaging, documents, pairings, publication, the category tree's shape, categories the ERP never named | product names, categories, prices, stock, tax rates |
+| Customers | staff accounts, a customer's password, a customer's deletion of their account | approving registrations, price groups, invitations, switching accounts off |
+| Orders | placing an order, cancelling one nobody has answered yet | moving and changing orders, recording payment, filing documents |
+
+What the back office fills is read-only in the admin panel while it owns the area. The
+differences between the three exchanges are in [docs/exchange-areas.md](docs/exchange-areas.md).
+
+## Built with
+
+<!-- prettier-ignore -->
+| Layer | Choice | Decision |
+| --- | --- | --- |
+| Storefront | Angular with server-side rendering, Tailwind CSS | [0002](docs/adr/0002-angular-nestjs-postgresql-stack.md), [0008](docs/adr/0008-tailwind-owned-primitives-runtime-theming.md) |
+| API | NestJS; oRPC + Zod contracts shared by both apps | [0002](docs/adr/0002-angular-nestjs-postgresql-stack.md), [0043](docs/adr/0043-contract-layer-and-what-the-browser-downloads.md) |
+| Data | PostgreSQL with Drizzle; search on full-text and trigram indexes | [0030](docs/adr/0030-product-search-postgres-fts-and-trigram.md) |
+| Sign-in | App-issued session in an httpOnly cookie, Argon2 hashes | [0019](docs/adr/0019-session-auth-argon2-jwt-cookie.md) |
+| Hosting | Docker Compose on one VM, a shared Traefik proxy, Terraform + cloud-init | [0004](docs/adr/0004-docker-compose-on-a-vm.md), [0005](docs/adr/0005-shared-traefik-reverse-proxy.md), [0006](docs/adr/0006-ephemeral-demo-and-manual-pet-vm.md) |
+| Operations | Loki + Grafana; backups with an encrypted off-host copy | [0016](docs/adr/0016-central-logs-via-grafana-loki.md), [0067](docs/adr/0067-backups-leave-the-host-as-an-encrypted-pair.md) |
+| Workspace | Nx monorepo, TypeScript throughout | [0003](docs/adr/0003-nx-monorepo.md) |
+
+The recurring theme is right-sizing: Postgres search instead of Elasticsearch, Compose instead
+of Kubernetes, one proxy instead of an API gateway. How the pieces fit together, with
+diagrams, is in [docs/architecture.md](docs/architecture.md).
+
+## Demo and real at once
+
+The client's shop and both demo shops run the same public image, each as its own
+[deployment](deployments/README.md): configuration, texts and branding, plus sample content for
+a demo. The client's deployment and its adapters live in a private repository that uses only
+what this one publishes. The price is that every shop carries every setting and text, features
+are more general than one shop needs, and every new text or setting lands in four deployments. In
+return, the demos exercise cases one client never would, and the simulated back office is a
+working reference client for the machine API. The details are in
+[docs/demo-and-real.md](docs/demo-and-real.md).
+
+## Limits
+
+Out of scope on purpose, each with what the platform does instead in
+[docs/scope-and-limitations.md](docs/scope-and-limitations.md):
+
+- **Online card payment, for now.** Payment is recorded, never charged.
+- **Public article numbers.** Products are identified by their URL; the ERP's key stays
+  private.
+- **Several categories per product**, and variants with their own price or stock: variants are
+  named on pictures.
+- **More than one language or currency** per deployment.
+- **Tax and shipping calculation.** The shop states its tax basis and delivery rules; a manager
+  confirms every order.
+- **Company hierarchies and approval chains** inside a customer, reviews, recommendations.
 
 ## Documentation
 
-- [`docs/requirements.md`](docs/requirements.md) — requirements to the project
-- [`docs/roadmap.md`](docs/roadmap.md) — iteration plan mapping requirements to delivery order
-- [`docs/adr/`](docs/adr) — architecture decision records, one per decision, in the order they
-  were taken; each states the alternatives weighed and what the choice costs
-- [`docs/order-lifecycle.md`](docs/order-lifecycle.md),
-  [`docs/account-lifecycle.md`](docs/account-lifecycle.md),
-  [`docs/catalog-sync.md`](docs/catalog-sync.md),
-  [`docs/customer-sync.md`](docs/customer-sync.md) and
-  [`docs/order-sync.md`](docs/order-sync.md) — what an order, an account and each of the three
-  automated exchanges actually do, step by step; the tables and journeys are generated from the
-  rules and the end-to-end tests, so they cannot describe anything unchecked
-- [`docs/exchange-areas.md`](docs/exchange-areas.md) — the three exchanges compared in one table:
-  which reads outward, which can be staged, how far ownership reaches into each, and what only
-  one of them does
-- [`docs/catalog-machine-api.md`](docs/catalog-machine-api.md),
-  [`docs/customer-machine-api.md`](docs/customer-machine-api.md) and
-  [`docs/order-machine-api.md`](docs/order-machine-api.md) — the wire-level reference for the
-  system on the other end of an exchange: routes, credentials, row fields, refusal codes, and what
-  each of them causes
-- [`docs/mail.md`](docs/mail.md) — every message the platform sends, rendered from the deployment's
-  own wording
-- [`docs/personal-data.md`](docs/personal-data.md) — every kind of personal data the platform
-  holds, where its copies live, how long each lasts and who receives it; what a shop writes its
-  privacy policy from
+- **The product:** [features](docs/features.md), [limits](docs/scope-and-limitations.md),
+  [compared with shop platforms](docs/comparison.md),
+  [requirements](docs/requirements.md) with
+  stable IDs, the [roadmap](docs/roadmap.md) of iterations and why they came in that order
+- **How it behaves:** [the life of an order](docs/order-lifecycle.md),
+  [the life of an account](docs/account-lifecycle.md), [every mail](docs/mail.md),
+  [the personal data it holds](docs/personal-data.md)
+- **Integrating a back office:** [the three exchanges compared](docs/exchange-areas.md); what
+  each does ([catalog](docs/catalog-sync.md), [customers](docs/customer-sync.md),
+  [orders](docs/order-sync.md)) and its wire-level reference
+  ([catalog](docs/catalog-machine-api.md), [customers](docs/customer-machine-api.md),
+  [orders](docs/order-machine-api.md))
+- **Running a shop:** [deploying a shop](docs/deploying-a-shop.md),
+  [configuration reference](deployments/fixture/config/README.md),
+  [infrastructure](infra/README.md), [the deployments here](deployments/README.md),
+  [demo and real at once](docs/demo-and-real.md)
+- **Working on the code:** [running it locally, checks and generated files](docs/development.md)
+- **Architecture:** [how it fits together](docs/architecture.md), and the
+  [decision records](docs/adr/README.md), each with the alternatives considered and what the
+  choice costs
 
-## Workflow
+## How it is built
 
-Trunk-based development on `main` with short-lived `feat/*` / `fix/*` branches and strict semver,
-where the version says how far a release reaches (ADR 0044): a **major** changes something outside
-the deploy unit — a port's contract, or a migration a person has to run; a **minor** carries new
-scope, a requirement the platform did not have before; a **patch** carries none, fixing and
-finishing what the last minor shipped.
-Issues carry requirement IDs; iterations are tracked as GitHub Milestones and releases as GitHub Releases per tag.
+- **Requirements first.** Every behaviour is a requirement with a stable ID, an iteration
+  delivers a set of them, and a decision that shapes the code gets an ADR. Iterations are
+  GitHub Milestones; releases have release notes.
+- **Trunk-based.** Short-lived branches into `main` behind a pull request and green CI. A merge
+  deploys the German shop, a release tag the English one.
+- **Versions say what a release asks of an operator**
+  ([ADR 0044](docs/adr/0044-versioning-by-what-a-release-changes.md)): a major needs work
+  outside the image, a minor adds features, a patch fixes or completes the last minor.
+- **Written by AI, decided and reviewed by me.** Every line of code, test and document was
+  written by Anthropic's Claude models in Claude Code, across several model generations. I
+  wrote the requirements, made the design decisions and reviewed every change before
+  committing it, so the commits carry my name as the one who accepted them, not the one who
+  typed them.
+
+## License
+
+[MIT](LICENSE.md)

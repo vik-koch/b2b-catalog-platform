@@ -12,6 +12,9 @@
  * The file list repeats `SCHEMAS` in migrate-config.mjs, which has to stand
  * alone for operators. A JSON file no entry names fails here, so a new config
  * file cannot be left out of both.
+ *
+ * `--config-dir <dir>` checks one config directory instead, with no seed
+ * bundle: a real deployment's, kept outside this repo.
  */
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -40,13 +43,17 @@ const SCHEMAS = {
   'texts/pdf.json': ['apps/api/src/pdf/pdf-text.ts', 'pdfTextSchema'],
 };
 
-const deployments = readdirSync('deployments', { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .map(({ name }) => ({
-    name,
-    config: join('deployments', name, 'config'),
-    seed: join('deployments', name, 'seed'),
-  }));
+const at = process.argv.indexOf('--config-dir');
+const configDir = at >= 0 ? process.argv[at + 1] : undefined;
+const deployments = configDir
+  ? [{ name: configDir, config: configDir, seed: undefined }]
+  : readdirSync('deployments', { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map(({ name }) => ({
+        name,
+        config: join('deployments', name, 'config'),
+        seed: join('deployments', name, 'seed'),
+      }));
 
 const schemas = {};
 for (const [file, [entry, name]] of Object.entries(SCHEMAS)) {
@@ -111,7 +118,10 @@ function seedProblems(dir) {
 
 let failed = false;
 for (const { name, config, seed } of deployments) {
-  const problems = [...configProblems(config), ...seedProblems(seed)];
+  const problems = [
+    ...configProblems(config),
+    ...(seed ? seedProblems(seed) : []),
+  ];
   if (problems.length === 0) {
     console.log(`check-deployments: ${name} ok`);
     continue;

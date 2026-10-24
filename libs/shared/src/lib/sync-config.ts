@@ -40,7 +40,7 @@ export const syncPolicySchema = z
     /**
      * The share of the live catalog one run may touch, 0–1. Catches the export
      * that was filtered wrongly and now rewrites everything, which no absolute
-     * ceiling notices in a catalog of a few hundred.
+     * ceiling notices in a catalog of about 1,500.
      */
     maxChangedShare: z.number().min(0).max(1),
     /**

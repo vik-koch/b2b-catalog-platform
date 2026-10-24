@@ -179,7 +179,7 @@ export type ProductDocument = z.infer<typeof productDocumentSchema>;
 
 /**
  * One document with the products it is linked to. The list deliberately does
- * not carry them — a few dozen documents naming a few hundred products between
+ * not carry them — a few dozen documents naming hundreds of products between
  * them is a payload nobody on that screen reads.
  */
 export const documentDetailSchema = productDocumentSchema

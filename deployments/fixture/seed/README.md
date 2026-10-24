@@ -87,29 +87,30 @@ it to another record.
 
 ### Catalog
 
-| Case                                                                                              | Where                                                                                                         |
-| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| A listing that pages (page size 24)                                                               | the whole catalogue: 33 products on the storefront                                                            |
-| Several pictures: tile slider, detail gallery                                                     | three on `ESP-001`…`003`, `ESP-006`, `FIL-001`, `SO-001`, `GRD-001`, `MCH-001`, `CUP-002`; two on most others |
-| No picture at all                                                                                 | `ESP-005`, `ACC-002` (`pictures: []`)                                                                         |
-| A category without a mark, the name-only chip                                                     | `machines` (`mark: null`)                                                                                     |
-| Packs and boxes, the usual case                                                                   | espresso: six bags to a pack, four packs to a box                                                             |
-| A minimum above the pack size                                                                     | `ESP-005` (`minPieceQty: 24`)                                                                                 |
-| Shipped as two boxes                                                                              | `ESP-006` (`boxCount: 2`)                                                                                     |
-| Packs but no box                                                                                  | `ESP-007`, `ESP-014`                                                                                          |
-| Sold by the single bag, pack opened                                                               | `ESP-003` (`minPieceQty: 1`)                                                                                  |
-| Stock not tracked, no badge                                                                       | `SO-002`, `CUP-002` (no `stockPieces`)                                                                        |
-| Out of stock                                                                                      | `ESP-009`, `FIL-001`, `TEA-002` (`stockPieces: 0`)                                                            |
-| Few left, under every threshold                                                                   | `ESP-007`, `ESP-014`, `FIL-002`, `TEA-001`, `ACC-002` (`stockPieces: 4`)                                      |
-| Reduced tax rate beside the default one                                                           | coffee, tea, syrup and chocolate at 7 %, the rest at the config's 19 %                                        |
-| An attribute nobody declared, plain text                                                          | "Tasting notes"                                                                                               |
-| A number attribute stored unit-free; one value that does not parse                                | "Net weight", and `TEA-003`'s "ca. 250"                                                                       |
-| An assorted article: line note, variants on pictures, a long variant name, an unavailable variant | `CUP-001`                                                                                                     |
-| Sold together (pairing): one cup, two lids                                                        | `CUP-003` with `CUP-004` and `CUP-005`                                                                        |
-| Sold as a set of parts, with an attribute per part; three boxes per hundred sets; few left        | `CUP-006`                                                                                                     |
-| The featured row: two featured among the random fill                                              | `CUP-003`, `CUP-006`                                                                                          |
-| Unpublished, and deleted                                                                          | `FIL-090`, `FIL-091`                                                                                          |
-| The catalogue index's filter panel                                                                | `catalogFilters`: origin                                                                                      |
+<!-- prettier-ignore -->
+| Case | Where |
+| --- | --- |
+| A listing that pages (page size 24) | the whole catalogue: 33 products on the storefront |
+| Several pictures: tile slider, detail gallery | three on `ESP-001`…`003`, `ESP-006`, `FIL-001`, `SO-001`, `GRD-001`, `MCH-001`, `CUP-002`; two on most others |
+| No picture at all | `ESP-005`, `ACC-002` (`pictures: []`) |
+| A category without a mark, the name-only chip | `machines` (`mark: null`) |
+| Packs and boxes, the usual case | espresso: six bags to a pack, four packs to a box |
+| A minimum above the pack size | `ESP-005` (`minPieceQty: 24`) |
+| Shipped as two boxes | `ESP-006` (`boxCount: 2`) |
+| Packs but no box | `ESP-007`, `ESP-014` |
+| Sold by the single bag, pack opened | `ESP-003` (`minPieceQty: 1`) |
+| Stock not tracked, no badge | `SO-002`, `CUP-002` (no `stockPieces`) |
+| Out of stock | `ESP-009`, `FIL-001`, `TEA-002` (`stockPieces: 0`) |
+| Few left, under every threshold | `ESP-007`, `ESP-014`, `FIL-002`, `TEA-001`, `ACC-002` (`stockPieces: 4`) |
+| Reduced tax rate beside the default one | coffee, tea, syrup and chocolate at 7 %, the rest at the config's 19 % |
+| An attribute nobody declared, plain text | "Tasting notes" |
+| A number attribute stored unit-free; one value that does not parse | "Net weight", and `TEA-003`'s "ca. 250" |
+| An assorted article: line note, variants on pictures, a long variant name, an unavailable variant | `CUP-001` |
+| Sold together (pairing): one cup, two lids | `CUP-003` with `CUP-004` and `CUP-005` |
+| Sold as a set of parts, with an attribute per part; three boxes per hundred sets; few left | `CUP-006` |
+| The featured row: two featured among the random fill | `CUP-003`, `CUP-006` |
+| Unpublished, and deleted | `FIL-090`, `FIL-091` |
+| The catalogue index's filter panel | `catalogFilters`: origin |
 
 The photos are studio shots on white or light grey where the library has one,
 and café scenes where it does not (the shop grinder, the tamper, the brush).
@@ -118,32 +119,34 @@ detail — which is also how a product shows several pictures of itself.
 
 ### Accounts
 
-| Case                                                                                  | Where                                                  |
-| ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Staff: two managers, the approver of every approved customer                          | `office1@`, `office2@coffee-kontor.example`            |
-| Companies on the wholesale tier, the bulk of the book                                 | the first ten customers                                |
-| Tier ≠ customer type: companies at the base price, a person on wholesale              | `atelier-stpauli`, `buero-harvestehude`; `r.steinberg` |
-| A tier that prices only some categories, the rest falling back to the base list       | `wholesale`'s `discounts`                              |
-| Awaiting a decision: no tier, no approver, no password                                | the four `pending` accounts                            |
-| Approved and invited, no password chosen yet                                          | the three `invited` accounts                           |
-| Switched off, name kept                                                               | the two `disabled` accounts                            |
-| Deleted by its owner: the tombstone the app leaves, address derived from its fixed id | the `anonymized` account                               |
-| An address book with a choice, and an unlabelled entry                                | `cafe-nordlicht` (two), `hafenkantine` (one, no label) |
-| A contact-form consent with no account behind it                                      | `inquiry`                                              |
+<!-- prettier-ignore -->
+| Case | Where |
+| --- | --- |
+| Staff: two managers, the approver of every approved customer | `office1@`, `office2@coffee-kontor.example` |
+| Companies on the wholesale tier, the bulk of the book | the first ten customers |
+| Tier ≠ customer type: companies at the base price, a person on wholesale | `atelier-stpauli`, `buero-harvestehude`; `r.steinberg` |
+| A tier that prices only some categories, the rest falling back to the base list | `wholesale`'s `discounts` |
+| Awaiting a decision: no tier, no approver, no password | the four `pending` accounts |
+| Approved and invited, no password chosen yet | the three `invited` accounts |
+| Switched off, name kept | the two `disabled` accounts |
+| Deleted by its owner: the tombstone the app leaves, address derived from its fixed id | the `anonymized` account |
+| An address book with a choice, and an unlabelled entry | `cafe-nordlicht` (two), `hafenkantine` (one, no label) |
+| A contact-form consent with no account behind it | `inquiry` |
 
 Phones are stored as the app stores them: country code and bare national
 digits, ten of them, as the demo's phone mask asks for.
 
 ### Orders
 
-| Case                                                                       | Where            |
-| -------------------------------------------------------------------------- | ---------------- |
-| Ready, by bank transfer, the money not in yet                              | `CK-260811-4207` |
+<!-- prettier-ignore -->
+| Case | Where |
+| --- | --- |
+| Ready, by bank transfer, the money not in yet | `CK-260811-4207` |
 | A company collecting, with a preferred date and a line naming its variants | `CK-260817-1183` |
-| Completed and paid, card arranged with the shop                            | `CK-260820-6640` |
-| A guest's order, cancelled with a reason, for a second delivery zone       | `CK-260823-9014` |
-| Accepted with changes: a second version and its note                       | `CK-260901-5528` |
-| Invoiced to a company that is not the buyer's, priced provisionally        | `CK-260826-3352` |
+| Completed and paid, card arranged with the shop | `CK-260820-6640` |
+| A guest's order, cancelled with a reason, for a second delivery zone | `CK-260823-9014` |
+| Accepted with changes: a second version and its note | `CK-260901-5528` |
+| Invoiced to a company that is not the buyer's, priced provisionally | `CK-260826-3352` |
 
 Totals, line prices and shipment estimates are not written here: the seed
 derives them from the catalog as seeded and the buyer's tier, as checkout would
@@ -151,13 +154,14 @@ have.
 
 ### Documents
 
-| Case                                                               | Where                     |
-| ------------------------------------------------------------------ | ------------------------- |
-| Current, shown on a whole category                                 | Certificate of analysis   |
-| A file and the register entry to check it against, about to expire | Organic certification     |
-| Lapsed: work for the admin, shown to no customer                   | Import declaration        |
-| No expiry date                                                     | Product data sheet        |
-| A link only, no file                                               | Declaration of conformity |
+<!-- prettier-ignore -->
+| Case | Where |
+| --- | --- |
+| Current, shown on a whole category | Certificate of analysis |
+| A file and the register entry to check it against, about to expire | Organic certification |
+| Lapsed: work for the admin, shown to no customer | Import declaration |
+| No expiry date | Product data sheet |
+| A link only, no file | Declaration of conformity |
 
 Expiry is counted from the day of the seed run, so a long-running demo still
 shows a current certificate.

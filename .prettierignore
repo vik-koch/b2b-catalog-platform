@@ -11,8 +11,5 @@
 # Rendered exactly as the mailer sends them (tools/generate-mail-previews.mjs)
 /docs/mail
 
-# ID-keyed table: prettier pads every cell to the widest row.
-/docs/roadmap.md
-
 # Page bodies as the seed stores them: reflowing one changes the stored text
 /deployments/*/seed/pages

@@ -16,7 +16,7 @@ import {
 /**
  * CSV → `CatalogSyncRow[]`. One of the two encodings of the import contract;
  * the JSON encoding needs no parser at all. Pure and synchronous — a
- * complete catalog is a few hundred rows, so streaming buys nothing.
+ * complete catalog is about 1,500 rows, so streaming buys nothing.
  *
  * What a file has to be to be read at all lives in `csv-file.ts` and is the
  * same for every area; what a column *means* is here. Anything structurally

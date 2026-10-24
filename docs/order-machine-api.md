@@ -33,9 +33,10 @@ account. In short:
 **Two scopes, deliberately separate.** An adapter being brought up holds
 `order-read` for weeks before anybody grants it `order-sync`.
 
-| Scope        | Grants                                                            |
-| ------------ | ----------------------------------------------------------------- |
-| `order-read` | reading the order book (§2)                                       |
+<!-- prettier-ignore -->
+| Scope | Grants |
+| --- | --- |
+| `order-read` | reading the order book (§2) |
 | `order-sync` | writing orders back (§3) **and** filing the shop's documents (§4) |
 
 Filing an invoice is not a third capability: a credential trusted to say an
@@ -61,13 +62,14 @@ an owned area keeps acquiring orders, and keeps losing them to cancellations —
 neither is a conflict for you to resolve, and both are facts to read (§2, and
 `order-called-off` in §3.4).
 
-| Code                          | Status | Meaning                                   |
-| ----------------------------- | ------ | ----------------------------------------- |
-| `not-authenticated`           | 401    | missing, unknown or revoked token         |
-| `insufficient-scope`          | 403    | valid token, wrong capability             |
-| `orders-not-externally-owned` | 409    | nobody handed the area over (writes only) |
-| `invalid-cursor`              | 400    | a cursor this endpoint did not issue      |
-| `order-not-found`             | 404    | no order of that reference                |
+<!-- prettier-ignore -->
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `not-authenticated` | 401 | missing, unknown or revoked token |
+| `insufficient-scope` | 403 | valid token, wrong capability |
+| `orders-not-externally-owned` | 409 | nobody handed the area over (writes only) |
+| `invalid-cursor` | 400 | a cursor this endpoint did not issue |
+| `order-not-found` | 404 | no order of that reference |
 
 ---
 
@@ -77,11 +79,12 @@ Scope: `order-read`. Not gated on ownership.
 
 ### Query
 
-| Param    | Meaning                                                            |
-| -------- | ------------------------------------------------------------------ |
-| `since`  | ISO 8601; orders whose `updatedAt` is **at or after** this instant |
-| `cursor` | `nextCursor` from the previous page, verbatim                      |
-| `limit`  | 1–50, default 50                                                   |
+<!-- prettier-ignore -->
+| Param | Meaning |
+| --- | --- |
+| `since` | ISO 8601; orders whose `updatedAt` is **at or after** this instant |
+| `cursor` | `nextCursor` from the previous page, verbatim |
+| `limit` | 1–50, default 50 |
 
 Ordering is `updatedAt ASC, id ASC` — the order's **last change**, not
 when it was placed. A puller walking creation order would have to re-read the
@@ -187,15 +190,16 @@ the source. Every string is present unless marked nullable; `country` is ISO
 3166-1 alpha-2, uppercase, and which codes a deployment accepts is its own
 configuration.
 
-| Field                               | Shape                                                                                                                                                                                                                                                                |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `contact`                           | `{ name ≤ 200, email ≤ 255 (lowercased), phone ≤ 50 }` — who to ring about this order, not necessarily the account holder                                                                                                                                            |
-| `party`                             | `{ name ≤ 255, registrationId: string \| null }` — who it is invoiced to; `null` for a natural person, and the format for a company is deployment-configured                                                                                                         |
-| `deliveryAddress`, `billingAddress` | `{ street, street2: string \| null, postalCode, city, region: string \| null, country }` — a **place** and nothing else: no company name, no phone                                                                                                                   |
-| `pickup`                            | `{ key, name, address }`, all three plain strings — `address` is **one display line**, not a structured address object; `key` is the deployment's stable location key and is what you map to a warehouse, while `name`/`address` are frozen as they read at the time |
-| `fulfilmentMethod`                  | `delivery` \| `pickup`                                                                                                                                                                                                                                               |
-| `paymentMethod`                     | `cash` \| `bank-transfer` \| `card-later` — none of them implies a transaction; the platform takes no payment                                                                                                                                                        |
-| `preferredDate`                     | `YYYY-MM-DD` or null — a calendar date, never a timestamp, and a wish rather than a promise                                                                                                                                                                          |
+<!-- prettier-ignore -->
+| Field | Shape |
+| --- | --- |
+| `contact` | `{ name ≤ 200, email ≤ 255 (lowercased), phone ≤ 50 }` — who to ring about this order, not necessarily the account holder |
+| `party` | `{ name ≤ 255, registrationId: string \| null }` — who it is invoiced to; `null` for a natural person, and the format for a company is deployment-configured |
+| `deliveryAddress`, `billingAddress` | `{ street, street2: string \| null, postalCode, city, region: string \| null, country }` — a **place** and nothing else: no company name, no phone |
+| `pickup` | `{ key, name, address }`, all three plain strings — `address` is **one display line**, not a structured address object; `key` is the deployment's stable location key and is what you map to a warehouse, while `name`/`address` are frozen as they read at the time |
+| `fulfilmentMethod` | `delivery` \| `pickup` |
+| `paymentMethod` | `cash` \| `bank-transfer` \| `card-later` — none of them implies a transaction; the platform takes no payment |
+| `preferredDate` | `YYYY-MM-DD` or null — a calendar date, never a timestamp, and a wish rather than a promise |
 
 `deliveryAddress` is set exactly when `fulfilmentMethod` is `delivery`, and
 `pickup` exactly when it is `pickup`. `billingAddress` is null where the
@@ -407,14 +411,15 @@ cleared before the order ends, or corrected in the shop's own books.
 **The status vocabulary is the platform's coarse one** and your own steps are
 mapped onto it on your side. What a move is allowed to be here:
 
-| From        | May go to                                                 |
-| ----------- | --------------------------------------------------------- |
+<!-- prettier-ignore -->
+| From | May go to |
+| --- | --- |
 | `requested` | `approved`, `ready`, `completed`, `declined`, `cancelled` |
-| `approved`  | `ready`, `completed`, `requested`, `cancelled`            |
-| `ready`     | `completed`, `approved`, `requested`, `cancelled`         |
-| `completed` | `ready`, `approved`, `requested`                          |
-| `declined`  | `requested`, `approved`, `ready`, `completed`             |
-| `cancelled` | `requested`, `approved`, `ready`, `completed`             |
+| `approved` | `ready`, `completed`, `requested`, `cancelled` |
+| `ready` | `completed`, `approved`, `requested`, `cancelled` |
+| `completed` | `ready`, `approved`, `requested` |
+| `declined` | `requested`, `approved`, `ready`, `completed` |
+| `cancelled` | `requested`, `approved`, `ready`, `completed` |
 
 **You may name any other state on the chain in one instruction, and an ended
 order reopens to any of them.** An order
@@ -510,12 +515,13 @@ The shared counters read, for this area: `update` = orders this run answered,
 
 `kind` is why the version exists:
 
-| `kind`       | What happened                                          | Versions written |
-| ------------ | ------------------------------------------------------ | ---------------- |
-| `adjustment` | the order's content moved (with or without its status) | 1                |
-| `transition` | only its status moved                                  | 1                |
-| `payment`    | neither did, and the money was recorded                | **0**            |
-| `unchanged`  | it already said what you told it (FR-ADM-16)           | 0                |
+<!-- prettier-ignore -->
+| `kind` | What happened | Versions written |
+| --- | --- | --- |
+| `adjustment` | the order's content moved (with or without its status) | 1 |
+| `transition` | only its status moved | 1 |
+| `payment` | neither did, and the money was recorded | **0** |
+| `unchanged` | it already said what you told it (FR-ADM-16) | 0 |
 
 **`unchanged` is the one a polling source produces most.** It is reported, not
 refused: re-sending is the normal behaviour of a system that cannot remember
@@ -533,19 +539,20 @@ Refusals are per instruction, in `plan.rowErrors`, and never fail the batch.
 `reference`, plus the value a refusal is about where it has one: `current` (the
 version the order actually stands at) or `productSourceId`.
 
-| `code`                   | `params` beyond `reference` | Meaning                                                                                                                  |
-| ------------------------ | --------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `order-not-found`        | —                           | no order is quoted that                                                                                                  |
-| `duplicate-reference`    | —                           | the same order twice in one batch; nothing can say which is later                                                        |
-| `order-changed`          | `current`                   | the order moved since you read it — re-read it (§2.1) and decide again                                                   |
-| `order-called-off`       | —                           | the **customer** cancelled it; stop. A cancellation the shop or you made is not this — see `cancelledBy` (§2)            |
-| `restore-not-announced`  | —                           | `restoreCustomerCancellation` was sent without both `notify` and `showCustomer` `true`                                   |
-| `personal-data-removed`  | —                           | the order's personal details were removed (NFR-LEGAL-14): nothing moves or changes it again; a payment is still recorded |
-| `transition-not-allowed` | `status`                    | the order cannot go there from where it is                                                                               |
-| `reason-required`        | —                           | `declined`/`cancelled` was sent without `statusReason`                                                                   |
-| `unknown-product`        | `productSourceId`           | no product here carries that key                                                                                         |
-| `duplicate-product`      | `productSourceId`           | one instruction names a product twice                                                                                    |
-| `payment-not-recordable` | —                           | nothing is owed on an order that ended in a refusal (`declined`, `cancelled`); a `completed` order can still be settled  |
+<!-- prettier-ignore -->
+| `code` | `params` beyond `reference` | Meaning |
+| --- | --- | --- |
+| `order-not-found` | — | no order is quoted that |
+| `duplicate-reference` | — | the same order twice in one batch; nothing can say which is later |
+| `order-changed` | `current` | the order moved since you read it — re-read it (§2.1) and decide again |
+| `order-called-off` | — | the **customer** cancelled it; stop. A cancellation the shop or you made is not this — see `cancelledBy` (§2) |
+| `restore-not-announced` | — | `restoreCustomerCancellation` was sent without both `notify` and `showCustomer` `true` |
+| `personal-data-removed` | — | the order's personal details were removed (NFR-LEGAL-14): nothing moves or changes it again; a payment is still recorded |
+| `transition-not-allowed` | `status` | the order cannot go there from where it is |
+| `reason-required` | — | `declined`/`cancelled` was sent without `statusReason` |
+| `unknown-product` | `productSourceId` | no product here carries that key |
+| `duplicate-product` | `productSourceId` | one instruction names a product twice |
+| `payment-not-recordable` | — | nothing is owed on an order that ended in a refusal (`declined`, `cancelled`); a `completed` order can still be settled |
 
 A schema violation in the body is refused wholesale (400) before anything is
 written — one malformed instruction is a bug in the sender, not a row somebody
@@ -641,10 +648,11 @@ and files no run**: nothing about the order changed.
 
 `multipart/form-data`, not JSON:
 
-| Part     | Value                                                      |
-| -------- | ---------------------------------------------------------- |
-| `file`   | the document itself — PDF, PNG, JPEG, WebP or GIF, ≤ 20 MB |
-| `notify` | `"true"` or `"false"` — required, as on a write-back       |
+<!-- prettier-ignore -->
+| Part | Value |
+| --- | --- |
+| `file` | the document itself — PDF, PNG, JPEG, WebP or GIF, ≤ 20 MB |
+| `notify` | `"true"` or `"false"` — required, as on a write-back |
 
 `{kind}` is `payment-instructions` or `order-summary`. A supplied
 `order-summary` replaces the one the platform draws; removing it restores the
@@ -666,12 +674,13 @@ Where your back office cannot print the invoice until after it has accepted the
 order, use the upload's own `notify: true` to send it as a second message. The
 acceptance mail is never held for a file that may never come.
 
-| Code                    | Status | Meaning                                                  |
-| ----------------------- | ------ | -------------------------------------------------------- |
-| `customer-behind`       | 409    | asked to announce a file the customer's page cannot open |
-| `document-not-supplied` | 409    | asked to announce a kind that was never filed            |
-| —                       | 400    | no `file` part, or an unknown `{kind}`                   |
-| —                       | 415    | the bytes are not one of the accepted types              |
+<!-- prettier-ignore -->
+| Code | Status | Meaning |
+| --- | --- | --- |
+| `customer-behind` | 409 | asked to announce a file the customer's page cannot open |
+| `document-not-supplied` | 409 | asked to announce a kind that was never filed |
+| — | 400 | no `file` part, or an unknown `{kind}` |
+| — | 415 | the bytes are not one of the accepted types |
 
 ### 4.2 Taking one back off — `DELETE /api/machine/orders/{reference}/documents/{kind}`
 
@@ -695,10 +704,11 @@ attachment while the order owes money.
 **To the shop**, about the exchange itself (FR-NOTIF-09), on a **change of
 state** and not on a run:
 
-| Message                                              | Sent when                                        |
-| ---------------------------------------------------- | ------------------------------------------------ |
-| [`orderSyncFailed`](mail.md#order-sync-failed)       | the first failure after the exchange was working |
-| [`orderSyncRecovered`](mail.md#order-sync-recovered) | the first run that goes through after a failure  |
+<!-- prettier-ignore -->
+| Message | Sent when |
+| --- | --- |
+| [`orderSyncFailed`](mail.md#order-sync-failed) | the first failure after the exchange was working |
+| [`orderSyncRecovered`](mail.md#order-sync-recovered) | the first run that goes through after a failure |
 
 Two rather than the other areas' three or four: nothing here waits for a
 person, so there is no "a run is waiting for you", and nothing it brings lands

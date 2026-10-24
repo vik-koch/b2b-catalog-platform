@@ -39,14 +39,15 @@ Whatever the provider, the VM needs:
   stacks (the dev+prod box). Measured resident memory, after driving 200
   server-rendered page loads through the stack:
 
-  |                                        | idle  | under load |
-  | -------------------------------------- | ----- | ---------- |
-  | web (Angular SSR)                      | 46 MB | **271 MB** |
-  | api (NestJS)                           | 48 MB | 60 MB      |
-  | postgres                               | 30 MB | 33 MB      |
-  | media (nginx)                          | 13 MB | 13 MB      |
-  | traefik (one per VM)                   |       | 12 MB      |
-  | observability (Loki + Alloy + Grafana) |       | 202 MB     |
+  <!-- prettier-ignore -->
+  |  | idle | under load |
+  | --- | --- | --- |
+  | web (Angular SSR) | 46 MB | **271 MB** |
+  | api (NestJS) | 48 MB | 60 MB |
+  | postgres | 30 MB | 33 MB |
+  | media (nginx) | 13 MB | 13 MB |
+  | traefik (one per VM) |  | 12 MB |
+  | observability (Loki + Alloy + Grafana) |  | 202 MB |
 
   A client production VM — one stack, no Mailpit, plus Traefik and
   observability — measures ~590 MB, so with Ubuntu and dockerd it sits near
@@ -64,9 +65,11 @@ Whatever the provider, the VM needs:
 
 - **amd64 or arm64** — CI publishes multi-arch images
   (`linux/amd64` + `linux/arm64`), the VM pulls its native variant.
-- **Ubuntu LTS (24.04)** — cloud-init.yml is only tested on Ubuntu and leans on
-  Ubuntu/Debian specifics (`netfilter-persistent`, image default users). Other
-  distros would need adjustments.
+- **Ubuntu** — the long-lived demo VM runs 26.04 and the Terraform demo 24.04.
+  cloud-init.yml is only tested on Ubuntu and leans on Ubuntu/Debian specifics
+  (`netfilter-persistent`, image default users); other distros would need
+  adjustments. Since 25.10 Ubuntu's default coreutils are the Rust rewrite, so
+  commands run on the VM avoid GNU-only flags.
 
 ## One-time setup
 
@@ -108,20 +111,21 @@ Whatever the provider, the VM needs:
    and a prod session, and an id is not a secret by design. A real client prod
    (private repo) always has its own.
 
-   | Secret                   | Content                                                                                                                                                                                                                                  |
-   | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `HCLOUD_TOKEN`           | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token                                                                                                                                                         |
-   | `CLOUDFLARE_API_TOKEN`   | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com                                                                                                                                                   |
-   | `TF_API_TOKEN`           | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI)                                                                                                                                                |
-   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it)                                                                                                                                                      |
-   | `DEV_POSTGRES_PASSWORD`  | The dev stack's database password. Must stay **stable across deploys**                                                                                                                                                                   |
-   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys**                                                                                                                                                 |
-   | `ADMIN_EMAIL`            | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo)                                                                                                                                                          |
-   | `ADMIN_PASSWORD`         | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login                                                                                                                                               |
-   | `JWT_SECRET`             | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48`                                                                           |
-   | `INBOX_PASSWORD`         | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox and the simulated back office's page (username `reviewer`)                                                                                                       |
-   | `ERP_SIM_TOKEN`          | The prod demo's simulated back office's machine token: seeded as its hash, used by the simulator. Generate one: `printf '%s.%s\n' "$(openssl rand -base64 6 \| tr '+/' '-_')" "$(openssl rand -base64 32 \| tr '+/' '-_' \| tr -d '=')"` |
-   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it                                                                                                                                                  |
+   <!-- prettier-ignore -->
+   | Secret | Content |
+   | --- | --- |
+   | `HCLOUD_TOKEN` | Hetzner Cloud console → project → Security → API tokens → **Read & Write** token |
+   | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → template "Edit zone DNS", scoped to vikkoch.com |
+   | `TF_API_TOKEN` | app.terraform.io → User Settings → Tokens (exported as `TF_TOKEN_app_terraform_io` in CI) |
+   | `DEPLOY_SSH_PRIVATE_KEY` | Private half of the deploy key from step 1 (dev CD, prod CD and demo-up all use it) |
+   | `DEV_POSTGRES_PASSWORD` | The dev stack's database password. Must stay **stable across deploys** |
+   | `PROD_POSTGRES_PASSWORD` | The prod stack's database password (its own volume). Must stay **stable across deploys** |
+   | `ADMIN_EMAIL` | Login of the bootstrap admin created on every deploy if missing (dev/prod/demo) |
+   | `ADMIN_PASSWORD` | Its first-boot password, ≥ 8 chars, no `$` (see below). Rotate it in-app after first login |
+   | `JWT_SECRET` | Signs the session JWT. **Per environment** (see above); demo generates its own. ≥ 32 chars, **stable across deploys**. Generate one: `openssl rand -base64 48` |
+   | `INBOX_PASSWORD` | Basic-auth password for the dev/demo/public-prod Mailpit reviewer inbox and the simulated back office's page (username `reviewer`) |
+   | `ERP_SIM_TOKEN` | The prod demo's simulated back office's machine token: seeded as its hash, used by the simulator. Generate one: `printf '%s.%s\n' "$(openssl rand -base64 6 \| tr '+/' '-_')" "$(openssl rand -base64 32 \| tr '+/' '-_' \| tr -d '=')"` |
+   | `GRAFANA_ADMIN_PASSWORD` | Grafana `admin` password on the dev/prod observability stack. Optional — unset skips it |
 
    Values landing in a stack's `.env` must contain **no `$`** — Compose reads
    that file for interpolation and would treat `$` as a variable reference.
@@ -132,13 +136,14 @@ Whatever the provider, the VM needs:
 
    Plus Actions **variables** (same page, Variables tab — not secret):
 
-   | Variable          | Content                                                                                                                                                               |
-   | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-   | `ACME_EMAIL`      | Let's Encrypt account email Traefik registers with                                                                                                                    |
-   | `DEPLOY_HOST`     | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD                                                                                              |
-   | `DEV_APP_DOMAIN`  | Hostname of the dev stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b-dev.…                                                                                        |
-   | `PROD_APP_DOMAIN` | Hostname of the public-prod stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b.…                                                                                    |
-   | `GRAFANA_DOMAIN`  | Ops hostname for Grafana (A record → `DEPLOY_HOST`, DNS-only). Set this + the `GRAFANA_ADMIN_PASSWORD` secret to turn on central logs (ADR 0016); leave unset to skip |
+   <!-- prettier-ignore -->
+   | Variable | Content |
+   | --- | --- |
+   | `ACME_EMAIL` | Let's Encrypt account email Traefik registers with |
+   | `DEPLOY_HOST` | Public IP (or DNS name) of the long-lived dev/prod VM, SSH target for CD |
+   | `DEV_APP_DOMAIN` | Hostname of the dev stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b-dev.… |
+   | `PROD_APP_DOMAIN` | Hostname of the public-prod stack (A record → `DEPLOY_HOST`, DNS-only), e.g. b2b.… |
+   | `GRAFANA_DOMAIN` | Ops hostname for Grafana (A record → `DEPLOY_HOST`, DNS-only). Set this + the `GRAFANA_ADMIN_PASSWORD` secret to turn on central logs (ADR 0016); leave unset to skip |
 
    Alert mail is **not** configured through CI. Dev and the public prod send
    application mail via Mailpit, which sits in the app stack's network where
@@ -379,10 +384,11 @@ Two, both provisioned from files in
 only exists in it is one VM rebuild from gone. Each has a **Stack** variable so
 one Grafana can serve dev and prod without summing them.
 
-| dashboard              | fed by                           | answers                                                                                  |
-| ---------------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
-| B2B — traffic & errors | Traefik access logs, no app code | requests by status, 5xx, latency p95, most-viewed products and pages                     |
-| B2B — search usage     | the api's `[Search]` log lines   | which searches come back empty, what is searched most, search volume and matcher latency |
+<!-- prettier-ignore -->
+| dashboard | fed by | answers |
+| --- | --- | --- |
+| B2B — traffic & errors | Traefik access logs, no app code | requests by status, 5xx, latency p95, most-viewed products and pages |
+| B2B — search usage | the api's `[Search]` log lines | which searches come back empty, what is searched most, search volume and matcher latency |
 
 Traefik's access log keeps the request path, and three routes carry their whole
 credential in it — the order link a confirmation mail sends a guest, and the
@@ -414,11 +420,12 @@ answered from **logs** — this VM runs no metrics store, deliberately: a
 CPU/memory dashboard on a box using ~10% of its RAM would show flat lines, while
 the disk quietly fills.
 
-| alert                       | fires when                                             | why it is the one that matters                                                                 |
-| --------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| Disk above 80%              | a `disk-usage` sidecar reports >80% for 10m            | uploads only grow, backups keep two retention policies, Loki holds 14 days                     |
-| Backup job reporting errors | `db-backup`/`media-backup` log an error within an hour | a backup nobody checks is not a backup                                                         |
-| Elevated server errors      | >20 prod responses ≥500 in 10 minutes, twice in a row  | a page that cannot load its data answers 503, so an outage is visible rather than a silent 200 |
+<!-- prettier-ignore -->
+| alert | fires when | why it is the one that matters |
+| --- | --- | --- |
+| Disk above 80% | a `disk-usage` sidecar reports >80% for 10m | uploads only grow, backups keep two retention policies, Loki holds 14 days |
+| Backup job reporting errors | `db-backup`/`media-backup` log an error within an hour | a backup nobody checks is not a backup |
+| Elevated server errors | >20 prod responses ≥500 in 10 minutes, twice in a row | a page that cannot load its data answers 503, so an outage is visible rather than a silent 200 |
 
 A maintenance 503 does not count: both gates send `Retry-After`, which Traefik
 keeps in its access log, and the alert skips responses carrying it.

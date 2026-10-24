@@ -35,13 +35,14 @@ An account is in exactly one of these: `pending` · `invited` · `active` · `di
 They are not a chain. An account moves between them by decisions, and each one
 is somebody's:
 
-| Status       | What it means                                                     | How it is reached                                            |
-| ------------ | ----------------------------------------------------------------- | ------------------------------------------------------------ |
-| `pending`    | A registration nobody has decided on. It cannot sign in.          | Somebody registers (FR-AUTH-01).                             |
-| `invited`    | A real account with no password of its own yet.                   | Staff approve a registration, or create an account outright. |
-| `active`     | An account holding a password its owner chose.                    | The account holder redeems a link and chooses one.           |
-| `disabled`   | Switched off. Nothing signs in, and every session in flight ends. | Staff switch it off (FR-AUTH-04).                            |
-| `anonymized` | A tombstone: the row survives, the person in it does not.         | The account holder deletes their own account (FR-AUTH-06).   |
+<!-- prettier-ignore -->
+| Status | What it means | How it is reached |
+| --- | --- | --- |
+| `pending` | A registration nobody has decided on. It cannot sign in. | Somebody registers (FR-AUTH-01). |
+| `invited` | A real account with no password of its own yet. | Staff approve a registration, or create an account outright. |
+| `active` | An account holding a password its owner chose. | The account holder redeems a link and chooses one. |
+| `disabled` | Switched off. Nothing signs in, and every session in flight ends. | Staff switch it off (FR-AUTH-04). |
+| `anonymized` | A tombstone: the row survives, the person in it does not. | The account holder deletes their own account (FR-AUTH-06). |
 
 Two of those are ends, and they are not the same end. A **declined**
 registration is deleted outright — nothing was ever an account, so there is no

@@ -5,7 +5,7 @@
 `b2b-catalog-platform` — a B2B catalog/ordering platform serving two purposes:
 
 1. Real production deployment for an actual client: a small retail/wholesale business,
-   multi-decade history, several-hundred-SKU catalog, manual/negotiated pricing for repeat
+   25-year history, ~1,500-SKU catalog, manual/negotiated pricing for repeat
    customers.
 2. Public open-source portfolio piece demonstrating requirements engineering, documented
    architecture decisions, disciplined AI-assisted development, and phased backward-compatible
@@ -37,7 +37,8 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
 - Infra: Docker + Compose + Terraform + cloud-init, NOT Kubernetes/Helm. Terraform provisions
   VM/network/firewall only; cloud-init installs Docker; CI/CD deploys containers.
 - One shared Traefik reverse proxy: TLS (Let's Encrypt), host-based dev/prod routing on
-  one VM (no port juggling), rate limiting on auth endpoints. No separate API gateway.
+  one VM (no port juggling). Rate limiting lives in the API (`@nestjs/throttler`, ADR 0015),
+  not at the proxy. No separate API gateway.
 - Region-specific integrations: ports-and-adapters — interfaces public, concrete regional
   adapters private. Private repo consumes only public artifacts for deployment.
 
@@ -88,3 +89,6 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   Config keys are version-neutral. API contracts (esp. the sync import shape) stay stable;
   internals may change freely.
 - Deploys: merge to `main` → auto-deploy `dev` environment. Semver tag is used for deploy to `prod`.
+- Hand-written Markdown tables are compact (no column padding) under a `<!-- prettier-ignore -->`
+  line, so a new row diffs one line instead of re-padding the table. Generated tables are left
+  as their generator writes them.

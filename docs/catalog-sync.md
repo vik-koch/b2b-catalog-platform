@@ -27,14 +27,15 @@ catalog), FR-WORK-02 (what waits for a person). Decisions:
 A submission is diffed against the catalog, and what happens next is decided by
 the diff rather than by the caller:
 
-| Status       | What it means                                                                                          |
-| ------------ | ------------------------------------------------------------------------------------------------------ |
-| `applied`    | Its effect was within the policy the deployment declares, so it wrote itself.                          |
-| `waiting`    | It was held back for a person — its effect was outside that policy, or the source asked to be doubted. |
-| `no change`  | The source and the catalog already agreed. Terminal on arrival: nothing to apply, nothing to decide.   |
-| `failed`     | The source reported that it broke, or the submission could not be read.                                |
-| `superseded` | It was waiting and a newer run took its place.                                                         |
-| `discarded`  | It was waiting and an admin said no.                                                                   |
+<!-- prettier-ignore -->
+| Status | What it means |
+| --- | --- |
+| `applied` | Its effect was within the policy the deployment declares, so it wrote itself. |
+| `waiting` | It was held back for a person — its effect was outside that policy, or the source asked to be doubted. |
+| `no change` | The source and the catalog already agreed. Terminal on arrival: nothing to apply, nothing to decide. |
+| `failed` | The source reported that it broke, or the submission could not be read. |
+| `superseded` | It was waiting and a newer run took its place. |
+| `discarded` | It was waiting and an admin said no. |
 
 Only a `waiting` run is work: it is counted on the admin panel's sync row and
 clears when somebody applies or discards it. Nothing is acknowledged — the
@@ -46,12 +47,13 @@ Four messages, and three of them are sent on a **change of state** rather than
 on a run. A feed on a twenty-minute cadence that stops working at midnight
 would otherwise write the same mail seventy times before anybody opened one.
 
-| Message                                   | Sent when                                                              | To                                                        |
-| ----------------------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
-| [`syncFailed`](mail.md#sync-failed)       | The first failure after the feed was working.                          | The admin, and the operator where a deployment names one. |
-| [`syncRecovered`](mail.md#sync-recovered) | The first run that goes through after a failure.                       | The same readers.                                         |
-| [`syncWaiting`](mail.md#sync-waiting)     | Something starts waiting for a person and nothing already was.         | The admin.                                                |
-| [`syncCreated`](mail.md#sync-created)     | A run applies **itself** and brings products nobody has published yet. | The admin.                                                |
+<!-- prettier-ignore -->
+| Message | Sent when | To |
+| --- | --- | --- |
+| [`syncFailed`](mail.md#sync-failed) | The first failure after the feed was working. | The admin, and the operator where a deployment names one. |
+| [`syncRecovered`](mail.md#sync-recovered) | The first run that goes through after a failure. | The same readers. |
+| [`syncWaiting`](mail.md#sync-waiting) | Something starts waiting for a person and nothing already was. | The admin. |
+| [`syncCreated`](mail.md#sync-created) | A run applies **itself** and brings products nobody has published yet. | The admin. |
 
 The panel is the channel that depends on none of this: the staged count and the
 last-sync line are read off the runs themselves, so a message that never
@@ -101,11 +103,12 @@ did not, and never leaves a catalog the log has no record of.
 
 What that leaves is three ways a feed can stop, and all three are visible:
 
-| What happened                                          | What the catalog shows | What the log shows                                         |
-| ------------------------------------------------------ | ---------------------- | ---------------------------------------------------------- |
-| The run was rejected (bad rows, an unknown price list) | Its previous state     | Nothing was ever a run — the caller is told, in its answer |
-| The run was applied and the write failed               | Its previous state     | A `failed` run carrying the message                        |
-| The feed broke before it could submit anything         | Its previous state     | A `failed` run the adapter reported for itself             |
+<!-- prettier-ignore -->
+| What happened | What the catalog shows | What the log shows |
+| --- | --- | --- |
+| The run was rejected (bad rows, an unknown price list) | Its previous state | Nothing was ever a run — the caller is told, in its answer |
+| The run was applied and the write failed | Its previous state | A `failed` run carrying the message |
+| The feed broke before it could submit anything | Its previous state | A `failed` run the adapter reported for itself |
 
 The third row is the one that has to be deliberate. A source system that cannot
 read its own export, or cannot reach the platform at all, produces no

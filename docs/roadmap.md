@@ -4,8 +4,9 @@ Iteration plan mapping requirements (see [`requirements.md`](requirements.md)) t
 as priorities shift; the requirements doc stays stable. Live per-iteration tracking: GitHub
 Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 
-| # / tag           | Milestone | Delivers | Amends |
-| :---------------: | --------- | -------- | ------ |
+<!-- prettier-ignore -->
+| # / tag | Milestone | Delivers | Amends |
+| :---: | --- | --- | --- |
 | 1<br>`v0.1.0` | Static pages, compliance scaffolding, base infra (walking skeleton, CI/CD, IaC, dev+prod) | [FR-NAV-01](requirements.md#fr-nav-01)/[02](requirements.md#fr-nav-02)/[03](requirements.md#fr-nav-03)/[04](requirements.md#fr-nav-04)/[05](requirements.md#fr-nav-05)/[06](requirements.md#fr-nav-06),<br>[NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[03](requirements.md#nfr-legal-03)/[05](requirements.md#nfr-legal-05),<br>[NFR-SEC-01](requirements.md#nfr-sec-01),<br>[NFR-SEO-03](requirements.md#nfr-seo-03),<br>[NFR-OPS-01](requirements.md#nfr-ops-01)/[02](requirements.md#nfr-ops-02)/[03](requirements.md#nfr-ops-03)/[04](requirements.md#nfr-ops-04) | — |
 | 2<br>`v1.0.0` | Catalog display + admin login, management & sync; client starts content entry | [FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03)/[04](requirements.md#fr-cat-04)/[05](requirements.md#fr-cat-05),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[04](requirements.md#fr-adm-04),<br>[FR-AUTH-07](requirements.md#fr-auth-07)/[08](requirements.md#fr-auth-08),<br>[NFR-SEC-02](requirements.md#nfr-sec-02)/[03](requirements.md#nfr-sec-03)/[05](requirements.md#nfr-sec-05),<br>[NFR-SEO-01](requirements.md#nfr-seo-01)/[02](requirements.md#nfr-seo-02),<br>[NFR-LEGAL-06](requirements.md#nfr-legal-06) | — |
 | 3<br>`v1.1.0` | Search, listing sort & admin grid filters | [FR-SEARCH-01](requirements.md#fr-search-01)/[02](requirements.md#fr-search-02)/[03](requirements.md#fr-search-03)/[04](requirements.md#fr-search-04)/[05](requirements.md#fr-search-05),<br>[FR-ADM-05](requirements.md#fr-adm-05),<br>[NFR-SEC-07](requirements.md#nfr-sec-07),<br>[NFR-SEO-04](requirements.md#nfr-seo-04),<br>[NFR-OPS-05](requirements.md#nfr-ops-05) | — |
@@ -22,7 +23,7 @@ Milestones (one per iteration). Release notes: GitHub Releases per semver tag.
 | 14<br>`v1.12.0` | Order exchange with the source system | [FR-ADM-08](requirements.md#fr-adm-08) | [FR-ADM-09](requirements.md#fr-adm-09)/[10](requirements.md#fr-adm-10)/[17](requirements.md#fr-adm-17),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[03](requirements.md#fr-ord-03)/[05](requirements.md#fr-ord-05),<br>[FR-NOTIF-09](requirements.md#fr-notif-09),<br>[NFR-LEGAL-07](requirements.md#nfr-legal-07) |
 | 15<br>`v1.13.0` | Storefront presentation: links elsewhere, documents held elsewhere, category marks, the main page, richer search, the conditions page, subtree counts, sets, variants; the admin grid's content filter; removing a product in steps | [FR-NAV-07](requirements.md#fr-nav-07),<br>[FR-CAT-07](requirements.md#fr-cat-07)/[09](requirements.md#fr-cat-09)/[10](requirements.md#fr-cat-10)/[11](requirements.md#fr-cat-11)/[12](requirements.md#fr-cat-12)/[13](requirements.md#fr-cat-13),<br>[FR-SEARCH-06](requirements.md#fr-search-06)/[07](requirements.md#fr-search-07)/[08](requirements.md#fr-search-08),<br>[FR-ADM-19](requirements.md#fr-adm-19)/[20](requirements.md#fr-adm-20)/[21](requirements.md#fr-adm-21)/[22](requirements.md#fr-adm-22),<br>[FR-ATTR-12](requirements.md#fr-attr-12)/[13](requirements.md#fr-attr-13),<br>[FR-DOC-05](requirements.md#fr-doc-05) | [FR-NAV-03](requirements.md#fr-nav-03),<br>[FR-CAT-01](requirements.md#fr-cat-01)/[02](requirements.md#fr-cat-02)/[03](requirements.md#fr-cat-03),<br>[FR-SEARCH-02](requirements.md#fr-search-02)/[04](requirements.md#fr-search-04),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[04](requirements.md#fr-adm-04)/[05](requirements.md#fr-adm-05)/[06](requirements.md#fr-adm-06)/[10](requirements.md#fr-adm-10),<br>[FR-ATTR-02](requirements.md#fr-attr-02),<br>[FR-CART-08](requirements.md#fr-cart-08),<br>[FR-DOC-01](requirements.md#fr-doc-01)/[03](requirements.md#fr-doc-03) |
 | 16<br>`v1.14.0` | Compliance pass before going live | [NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12)/[13](requirements.md#nfr-legal-13)/[14](requirements.md#nfr-legal-14),<br>[FR-ADM-23](requirements.md#fr-adm-23),<br>[FR-AUTH-12](requirements.md#fr-auth-12) | [NFR-LEGAL-01](requirements.md#nfr-legal-01)/[02](requirements.md#nfr-legal-02)/[04](requirements.md#nfr-legal-04)/[08](requirements.md#nfr-legal-08),<br>[FR-NAV-03](requirements.md#fr-nav-03)/[06](requirements.md#fr-nav-06),<br>[FR-ADM-01](requirements.md#fr-adm-01)/[02](requirements.md#fr-adm-02)/[03](requirements.md#fr-adm-03)/[07](requirements.md#fr-adm-07)/[08](requirements.md#fr-adm-08),<br>[FR-CART-02](requirements.md#fr-cart-02),<br>[FR-UNIT-06](requirements.md#fr-unit-06),<br>[FR-AUTH-01](requirements.md#fr-auth-01)/[04](requirements.md#fr-auth-04)/[06](requirements.md#fr-auth-06)/[11](requirements.md#fr-auth-11),<br>[FR-ORD-02](requirements.md#fr-ord-02)/[05](requirements.md#fr-ord-05),<br>[FR-ACC-01](requirements.md#fr-acc-01),<br>[FR-NOTIF-06](requirements.md#fr-notif-06),<br>[NFR-SEC-01](requirements.md#nfr-sec-01),<br>[NFR-OPS-04](requirements.md#nfr-ops-04) |
-| 17<br>`v1.14.1`, `v1.15.0`<br>_open_ | Maintainability and demo value: text structure, a UI library, two demo shops from one image, a simulated source system, capability docs | [FR-NAV-08](requirements.md#fr-nav-08),<br>[FR-AUTH-13](requirements.md#fr-auth-13) | — |
+| 17<br>`v1.14.1`, `v1.15.0`,<br>`v1.15.1`<br>_open_ | Maintainability and demo value: text structure, a UI library, two demo shops from one image, a simulated source system, capability docs | [FR-NAV-08](requirements.md#fr-nav-08),<br>[FR-AUTH-13](requirements.md#fr-auth-13) | — |
 | later<br>_unscheduled_ | Online card payment — held until the shop is live and a merchant account exists | — | [FR-CART-04](requirements.md#fr-cart-04)/[06](requirements.md#fr-cart-06) |
 
 Notes:
@@ -396,18 +397,6 @@ Notes:
   **on** to populate catalog and content behind a 503'd storefront via [FR-ADM-01](requirements.md#fr-adm-01)-03, then flips
   it **off** to launch. The brief window before it is first switched on is harmless: prod DNS
   is not public and dev stays `noindex` until launch.
-
-## Explicitly out of scope for now
-
-- UI localization / i18n, plural rules included — each deployment is single-locale and words a
-  count so the number needs no agreement; revisit only if a deployment ever needs a second language
-- Automated delivery/courier API integration
-- Live/automatic sync from the legacy source system — in scope: the catalog direction as
-  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the customer direction as iteration 13 ([FR-ADM-11](requirements.md#fr-adm-11)) and the order
-  direction as iteration 14 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
-  any direction in which the platform writes catalog content back into the source system: the
-  ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
-  offers no such message in any case
 - Iterations 13 and 14 were swapped (2026-09-15). Order exchange had held row 13 since the
   iteration-11 planning round; customer exchange did not exist as a requirement at all, because
   the source system's stock site-exchange setting carries a catalog and orders and nothing else,
@@ -432,7 +421,7 @@ Notes:
   `/machine/sync/runs` shipped in v1.10.0 and an adapter is being written against it, and
   renaming it would be a major under ADR 0044 for the sake of a tidier URL. What did not
   survive the build is the other half of that sentence — that the area would travel in the
-  *body* of one shared endpoint. The customer exchange took **its own** paths
+  _body_ of one shared endpoint. The customer exchange took **its own** paths
   (`/machine/sync/customers/...`) and its own token scope instead: a machine route names one
   capability and has to check it before reading the body, and a credential that may write
   customers must not reach the catalog by changing a field in a payload. Nothing moved; a
@@ -445,7 +434,7 @@ Notes:
   catalog's fourth message — products that arrived unpublished — has deliberately **no customer
   counterpart**: an invited account has already been sent its own set-a-password link
   ([FR-ADM-13](requirements.md#fr-adm-13)), so there is no queue on anybody's desk to announce. Who reads them did
-  *not* split with the wording: FR-NOTIF-09 names the admin, and a manager's readership of
+  _not_ split with the wording: FR-NOTIF-09 names the admin, and a manager's readership of
   customer runs ([FR-ADM-09](requirements.md#fr-adm-09)) is the panel, which is the channel that works when SMTP does
   not.
 - The customer exchange is stated as a **capability rather than a field list**: the adapter can
@@ -531,7 +520,7 @@ Notes:
   ([FR-ADM-18](requirements.md#fr-adm-18)): until now it was write-only, so the flow where the
   source system creates a counterparty for a new registrant and hands the key back could not
   physically happen, while [FR-ADM-15](requirements.md#fr-adm-15) and [NFR-LEGAL-07](requirements.md#nfr-legal-07)
-  already described account details as travelling outward. The  read is its own token capability
+  already described account details as travelling outward. The read is its own token capability
   and answers whether or not anybody owns customers — the case it exists for is precisely the
   one before the hand-over.
 
@@ -546,7 +535,7 @@ Notes:
 
 - **The order exchange is two capabilities, gated differently** (iteration 14, planned
   2026-09-17). Reading orders outward is not gated on ownership and writing them back is, which
-  looks inconsistent and is not: the read exists for the stretch *before* a hand-over — a system
+  looks inconsistent and is not: the read exists for the stretch _before_ a hand-over — a system
   cannot be given work it has never been allowed to see — while a write is the work itself, and
   two writers is the one thing [FR-ADM-10](requirements.md#fr-adm-10) exists to prevent. The customer read settled the
   same question the same way a release earlier ([FR-ADM-18](requirements.md#fr-adm-18)). Three rules the iteration
@@ -555,7 +544,7 @@ Notes:
   **states whether the customer hears about it**, since a polling source re-sends and the
   platform must not infer news from a repeat, and the platform's four states stay coarse with
   the source system's own vocabulary mapped onto them **outside** the platform. The one genuinely
-  new rule is about what a write-back may *not* do: a customer can still call off an unanswered
+  new rule is about what a write-back may _not_ do: a customer can still call off an unanswered
   order however orders are owned, so forward-only write-back has to meet a cancellation and be
   refused by it rather than silently undoing it.
 - **An order write-back is one version, applied as it arrives** (2026-09-18, ADR 0062). The rule
@@ -653,7 +642,7 @@ Notes:
   for now, which is honest about what it is until the featured row
   ([FR-CAT-09](requirements.md#fr-cat-09)) gives it something of its own to put above.
 - The **category description stops being dead weight**
-  ([FR-CAT-08](requirements.md#fr-cat-08)). *Withdrawn 2026-09-30, before it was built.* On a
+  ([FR-CAT-08](requirements.md#fr-cat-08)). _Withdrawn 2026-09-30, before it was built._ On a
   second look there is no place on a category page where a paragraph helps a buyer, and a
   search engine writes its own summary of a listing. The column, the admin field and the
   contract field are dropped rather than kept dormant, as the category picture was.
@@ -695,8 +684,8 @@ Notes:
   alphabet is a different problem, and it is left out. The query is expanded, not the index:
   each word is also read on the other layout, so a word typed on each layout still matches, and
   nothing changes in the schema. Whole words typed on the wrong layout were mostly caught by typo
-  tolerance already. What this adds is prefixes while typing (`zirga` → *Yirgacheffe*) and letters
-  a layout keeps on punctuation keys (`F'hrmann` → *Fährmann*).
+  tolerance already. What this adds is prefixes while typing (`zirga` → _Yirgacheffe_) and letters
+  a layout keeps on punctuation keys (`F'hrmann` → _Fährmann_).
 - The **main page gets a featured row** ([FR-CAT-09](requirements.md#fr-cat-09)): five
   products, the admin-marked ones first and the rest of the places filled at random, rather than
   computed from what sells. Three sources were weighed: manual, most recently published, most
@@ -829,7 +818,7 @@ Notes:
   expiry states and the work counts do not change. On the product page a link-only
   document opens the link, and one with both opens its file and names the link's site
   beside it. The migration only relaxes the file columns and adds the link, so it applies
-  unattended. Whether a product *must* carry such a document is not modelled: that is a
+  unattended. Whether a product _must_ carry such a document is not modelled: that is a
   rule about some goods in some markets, not about documents.
 - **Iteration 16 is a compliance pass before going live**
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09)/[10](requirements.md#nfr-legal-10)/[11](requirements.md#nfr-legal-11)/[12](requirements.md#nfr-legal-12),
@@ -902,20 +891,20 @@ Notes:
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09), [FR-AUTH-11](requirements.md#fr-auth-11) corrected)
   (2026-10-06). A request about a person's data reaches the shop by letter, email or phone as often as
   through the account, so the records are found by account, email address or phone number.
-  Searching by address also finds the account that uses it now, since a record keeps the 
+  Searching by address also finds the account that uses it now, since a record keeps the
   address it was given with. Answering such a request, or an inspection, is the operator's,
   so the records are an admin's alone, as the consent texts already were. Nothing changes a
   record, and the database refuses to. A record therefore names its account by id without
   a reference that a removed account would have to clear. Declining a registration withdraws
-  the consent which FR-AUTH-11 had described as switching it off. 
+  the consent which FR-AUTH-11 had described as switching it off.
 - **An admin can delete an account on request**
   ([FR-ADM-23](requirements.md#fr-adm-23)) (2026-10-06).
   Withdrawing the account consent means deleting the account, and the person
   may ask for that without being able to sign in. So an admin can delete an account
-  on their request, through the same anonymization as the holder's own, and a withdrawal 
-  is entered by hand only for an inquiry's consent. The earlier draft named clearing an 
+  on their request, through the same anonymization as the holder's own, and a withdrawal
+  is entered by hand only for an inquiry's consent. The earlier draft named clearing an
   account withdrawn by an owning system as a destruction. No such clearing exists: an
-  owning system can only switch an account off. 
+  owning system can only switch an account off.
 - **Consent is switched on, not published**
   ([NFR-LEGAL-09](requirements.md#nfr-legal-09)) (2026-10-06). A purpose used to be asked
   when its text was in the list of published pages, which an operator reading the config
@@ -1006,3 +995,23 @@ Notes:
   text key, because most deployments set none and a text file has no optional keys. It is
   configuration rather than an admin setting for now; a shop that wants to post its own notices
   would move it to the database, as maintenance mode is.
+- **The English demo shop's back office is simulated** (v1.15.1, 2026-10-23,
+  [ADR 0068](adr/0068-simulate-the-demo-back-office-through-the-machine-api.md)). Without
+  something on the other end, the three exchanges were only documentation. A small app owns the
+  shop's catalog, customers and orders and drives them through the machine API alone: stock
+  nightly, registrations and orders hourly in working hours, with a page behind the reviewer
+  login that shows what it did and runs its cycle on request. It keeps no state, so it needs no
+  reset of its own; the shop is reset when a release changes what it loads. It is demo tooling,
+  not new scope, so the release that carries it is a patch.
+
+## Explicitly out of scope for now
+
+- UI localization / i18n, plural rules included — each deployment is single-locale and words a
+  count so the number needs no agreement; revisit only if a deployment ever needs a second language
+- Automated delivery/courier API integration
+- Live/automatic sync from the legacy source system — in scope: the catalog direction as
+  iteration 12 ([FR-ADM-07](requirements.md#fr-adm-07)), the customer direction as iteration 13 ([FR-ADM-11](requirements.md#fr-adm-11)) and the order
+  direction as iteration 14 ([FR-ADM-08](requirements.md#fr-adm-08)). What stays out is
+  any direction in which the platform writes catalog content back into the source system: the
+  ownership split runs the other way (see the iteration-12 notes), and the exchange protocol
+  offers no such message in any case

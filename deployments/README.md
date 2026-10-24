@@ -5,11 +5,12 @@ Each directory here is one deployment of the public image: a complete
 [seed bundle](fixture/seed/README.md), deployed with `CONFIG_DIR` and
 `SEED_DIR` (see [infra/README.md](../infra/README.md)).
 
-| Directory           | Stack | Shop                                                        |
-| ------------------- | ----- | ----------------------------------------------------------- |
-| `fixture`           | —     | the test fixture: the Coffee Kontor in English, B2B and B2C |
-| `coffee-kontor-de`  | dev   | the Coffee Kontor, wholly in German                         |
-| `slaney-labware-ie` | prod  | Slaney Labware, an Irish laboratory supplier, B2B only      |
+<!-- prettier-ignore -->
+| Directory | Stack | Shop |
+| --- | --- | --- |
+| `fixture` | — | the test fixture: the Coffee Kontor in English, B2B and B2C |
+| `coffee-kontor-de` | dev | the Coffee Kontor, wholly in German |
+| `slaney-labware-ie` | prod | Slaney Labware, an Irish laboratory supplier, B2B only |
 
 The fixture is what the suites run on and assert the wording of: the unit specs
 read it whatever `CONFIG_PATH` the workspace `.env` names, and the e2e suites

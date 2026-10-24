@@ -5,7 +5,7 @@
 ## Context
 
 The whole system is a handful of containers (web, api, postgres, proxy)
-serving a few-hundred-SKU shop; NFR-OPS-01/-02 require CI/CD deployments
+serving a shop of about 1,500 SKUs; NFR-OPS-01/-02 require CI/CD deployments
 and separate dev/prod environments (why the separation exists at all is
 discussed in 0005), not high availability. Alternatives:
 a self-hosted PaaS layer (Coolify, CapRover, Dokploy), Docker Swarm, or

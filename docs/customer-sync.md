@@ -54,14 +54,15 @@ A submission is diffed against the accounts, and what happens next is decided
 by the diff rather than by the caller — the same five outcomes a catalog run
 has, for the same reasons:
 
-| Status       | What it means                                                                                          |
-| ------------ | ------------------------------------------------------------------------------------------------------ |
-| `applied`    | Its effect was within the policy the deployment declares, so it wrote itself.                          |
-| `waiting`    | It was held back for a person — its effect was outside that policy, or the source asked to be doubted. |
-| `no change`  | The source and the accounts already agreed. Terminal on arrival.                                       |
-| `failed`     | The source reported that it broke, or the submission could not be read.                                |
-| `superseded` | It was waiting and a newer run took its place.                                                         |
-| `discarded`  | It was waiting and somebody said no.                                                                   |
+<!-- prettier-ignore -->
+| Status | What it means |
+| --- | --- |
+| `applied` | Its effect was within the policy the deployment declares, so it wrote itself. |
+| `waiting` | It was held back for a person — its effect was outside that policy, or the source asked to be doubted. |
+| `no change` | The source and the accounts already agreed. Terminal on arrival. |
+| `failed` | The source reported that it broke, or the submission could not be read. |
+| `superseded` | It was waiting and a newer run took its place. |
+| `discarded` | It was waiting and somebody said no. |
 
 Two things differ from the catalog, and both follow from what is being written.
 
@@ -83,11 +84,12 @@ Three messages, all sent on a **change of state** rather than on a run, and all
 worded about accounts rather than about the catalog
 ([FR-NOTIF-09](requirements.md#fr-notif-09)):
 
-| Message                                                    | Sent when                                                      | To                                                        |
-| ---------------------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------- |
-| [`customerSyncFailed`](mail.md#customer-sync-failed)       | The first failure after the exchange was working.              | The admin, and the operator where a deployment names one. |
-| [`customerSyncRecovered`](mail.md#customer-sync-recovered) | The first run that goes through after a failure.               | The same readers.                                         |
-| [`customerSyncWaiting`](mail.md#customer-sync-waiting)     | Something starts waiting for a person and nothing already was. | The admin.                                                |
+<!-- prettier-ignore -->
+| Message | Sent when | To |
+| --- | --- | --- |
+| [`customerSyncFailed`](mail.md#customer-sync-failed) | The first failure after the exchange was working. | The admin, and the operator where a deployment names one. |
+| [`customerSyncRecovered`](mail.md#customer-sync-recovered) | The first run that goes through after a failure. | The same readers. |
+| [`customerSyncWaiting`](mail.md#customer-sync-waiting) | Something starts waiting for a person and nothing already was. | The admin. |
 
 Each area's state is read against **its own** last run, so a broken catalog
 feed and a working customer exchange are two independent facts: neither
