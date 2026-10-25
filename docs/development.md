@@ -42,6 +42,12 @@ and a phone viewport.
 `npx nx test web -c coverage` adds a coverage report under `coverage/web/` (open
 `index.html`). It is a map of thin spots, not a gate: CI does not run it.
 
+`npx nx run web-e2e:audit` screenshots every page listed in `apps/web-e2e/src/audit/routes.ts`,
+signed out, as a customer, as an admin and in edit mode, on both viewports, and compares each with
+the baseline in `tmp/baselines/visual/`. Take the baseline before a change that moves markup
+(`--update-snapshots`), then run it again after: a refactor should change no picture. CI does not
+run it either.
+
 CI runs a few more checks, each a plain Node script:
 
 <!-- prettier-ignore -->
