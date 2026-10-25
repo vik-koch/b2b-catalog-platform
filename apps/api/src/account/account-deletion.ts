@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { PasswordTokenService } from '../auth/password-token.service';
 import { PasswordService } from '../auth/password.service';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import {
   accountClosedMail,
@@ -12,7 +12,7 @@ import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
 import {
   AccountDeletionReason,
-  CommonText,
+  SharedText,
 } from '@b2b-catalog-platform/shared';
 import { LastAdminError, UserRow, UsersService } from '../users/users.service';
 import { env } from '../env';
@@ -46,7 +46,7 @@ export class AccountDeletion {
     private readonly mail: MailDispatcher,
     private readonly orderDocuments: OrderDocumentFiles,
     @Inject(MAIL_TEXT) private readonly text: MailText,
-    @Inject(COMMON_TEXT) private readonly common: CommonText,
+    @Inject(SHARED_TEXT) private readonly common: SharedText,
   ) {}
 
   async delete(userId: string, password: string): Promise<DeleteAccountResult> {

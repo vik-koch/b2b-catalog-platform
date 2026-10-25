@@ -1,4 +1,4 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -7,9 +7,9 @@ import {
   Address,
   OrderSummary,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -22,8 +22,8 @@ import { OrdersService } from '../orders/orders.service';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { AccountService } from './account.service';
 
-const text = defaultAppText.auth;
-const accountText = defaultAppText.account;
+const text = defaultStorefrontText.auth;
+const accountText = defaultStorefrontText.account;
 
 const customer: AccountProfile = {
   email: 'alex@example.com',
@@ -93,8 +93,8 @@ async function render(
     imports: [AccountPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AuthService,
@@ -141,7 +141,7 @@ async function render(
 }
 
 /** An icon-only button, found by the accessible name it carries instead of
- * text — `template` is the app-text line with `{label}` still in it. */
+ * text — `template` is the storefront-text line with `{label}` still in it. */
 function buttonByLabel(el: HTMLElement, template: string): HTMLButtonElement {
   const prefix = template.split('{label}')[0];
   const button = [...el.querySelectorAll('button')].find((b) =>
@@ -161,7 +161,7 @@ describe('AccountPage', () => {
     expect(el.textContent).toContain('Fischer Alex');
     expect(el.textContent).toContain(customer.email);
     expect(el.textContent).toContain(customer.phone);
-    expect(el.textContent).toContain(defaultCommonText.partyKind.company);
+    expect(el.textContent).toContain(defaultSharedText.partyKind.company);
     expect(el.textContent).toContain(customer.companyRegistrationId);
   });
 
@@ -178,14 +178,14 @@ describe('AccountPage', () => {
     });
 
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.companyName.label,
+      defaultSharedText.fields.companyName.label,
     );
-    expect(el.textContent).not.toContain(defaultCommonText.fields.phone.label);
+    expect(el.textContent).not.toContain(defaultSharedText.fields.phone.label);
     expect(el.textContent).not.toContain(accountText.customerType);
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.companyId.label,
+      defaultSharedText.fields.companyId.label,
     );
-    expect(el.textContent).toContain(defaultCommonText.fields.email.label);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.label);
   });
 
   describe('the address book (FR-CART-04)', () => {
@@ -315,14 +315,14 @@ describe('AccountPage', () => {
     it('says there are none yet, and where to start', async () => {
       const { el } = await render(customer, [], true, []);
 
-      expect(el.textContent).toContain(defaultAppText.orders.empty);
+      expect(el.textContent).toContain(defaultStorefrontText.orders.empty);
       expect(el.querySelector('a[href="/catalog"]')).not.toBeNull();
     });
 
     it('reports orders it could not load without hiding the rest', async () => {
       const { el } = await render(customer, [], true, 'reject');
 
-      expect(el.textContent).toContain(defaultAppText.orders.error);
+      expect(el.textContent).toContain(defaultStorefrontText.orders.error);
       expect(el.textContent).toContain('Fischer Alex');
     });
 
@@ -381,8 +381,8 @@ describe('AccountPage', () => {
       imports: [AccountPage],
       providers: [
         provideRouter([]),
-        { provide: APP_TEXT, useValue: defaultAppText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: AuthService,

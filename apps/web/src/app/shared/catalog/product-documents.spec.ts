@@ -1,12 +1,12 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { PublicDocument } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { ProductDocuments } from './product-documents';
 
-const text = defaultAppText.catalog.documents;
+const text = defaultStorefrontText.catalog.documents;
 
 function file(
   overrides: Partial<NonNullable<PublicDocument['file']>> = {},
@@ -33,8 +33,8 @@ async function render(documents: PublicDocument[]) {
   TestBed.configureTestingModule({
     imports: [ProductDocuments],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
 

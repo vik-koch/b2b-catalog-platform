@@ -5,13 +5,12 @@ import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import {
-  customerBlockLabels,
+  injectCustomerBlockLabels,
   orderBlocks,
 } from '../../shared/orders/order-blocks';
 import {
@@ -216,12 +215,12 @@ export class AdminOrderRevisionPage {
   private readonly ownership = inject(SettingsService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
-  private readonly appText = inject(APP_TEXT);
+  private readonly customerLabels = injectCustomerBlockLabels();
 
   protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
-  private readonly commonText = inject(COMMON_TEXT);
-  protected readonly names = this.commonText.order;
+  private readonly sharedText = inject(SHARED_TEXT);
+  protected readonly names = this.sharedText.order;
   protected readonly text = this.detailText.revisions;
   protected readonly documentsText = this.detailText.documents;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
@@ -267,7 +266,7 @@ export class AdminOrderRevisionPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.commonText, this.currency),
+      quantity: customerQuantity(line, this.sharedText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Always, for staff: the rate is what a line reconciles against the
       // shop's own invoice by, shared with its neighbours or not.
@@ -278,15 +277,11 @@ export class AdminOrderRevisionPage {
   protected readonly blocks = computed<ReviewBlock[]>(() => {
     const order = this.revision();
     if (!order) return [];
-    return orderBlocks(
-      order,
-      customerBlockLabels(this.commonText, this.appText.checkout.review),
-      {
-        address: this.config.address,
-        phoneInput: this.config.phoneInput,
-        locale: this.config.locale,
-      },
-    );
+    return orderBlocks(order, this.customerLabels, {
+      address: this.config.address,
+      phoneInput: this.config.phoneInput,
+      locale: this.config.locale,
+    });
   });
 
   protected statusLabel(): string {

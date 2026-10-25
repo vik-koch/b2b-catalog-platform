@@ -6,7 +6,7 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -133,7 +133,7 @@ export class ProductRowActions {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly product = input.required<ProductRowState>();
   /** So an editor opened from a row returns to this list, filters and all. */

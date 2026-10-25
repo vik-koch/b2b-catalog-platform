@@ -7,13 +7,13 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '../../shared/ui/button';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
 import { TextButton } from '../../shared/ui/link';
 import { DeliveryZoneList } from './delivery-zone-list';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * Where this deployment delivers, and what an order has to reach for delivery
@@ -76,8 +76,8 @@ export class DeliveryConditionsDialog {
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
-  protected readonly text = inject(APP_TEXT).checkout.fulfilment;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Only where the deployment publishes the page — an unpublished slug is a
    * 404, and the dialog would be linking checkout into one. */
   protected readonly conditionsPath = (

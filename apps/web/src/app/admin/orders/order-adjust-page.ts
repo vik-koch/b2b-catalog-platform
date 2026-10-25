@@ -40,8 +40,7 @@ import {
   parsePriceInput,
 } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
 import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -325,7 +324,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
                     <section>
                       <h2 class="mb-2 font-medium">
-                        {{ commonText.fulfilment.label }}
+                        {{ sharedText.fulfilment.label }}
                       </h2>
                       <!-- How it arrives and where it is collected from are one
                            question with two halves, so they stand on one line
@@ -339,7 +338,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             for="adjust-fulfilment"
                             class="sr-only"
                           >
-                            {{ commonText.fulfilment.label }}
+                            {{ sharedText.fulfilment.label }}
                           </label>
                           <app-select-field>
                             <select
@@ -355,14 +354,14 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                 value="delivery"
                                 [selected]="fulfilmentMethod() === 'delivery'"
                               >
-                                {{ commonText.fulfilment.delivery }}
+                                {{ sharedText.fulfilment.delivery }}
                               </option>
                               @if (locations.length) {
                                 <option
                                   value="pickup"
                                   [selected]="fulfilmentMethod() === 'pickup'"
                                 >
-                                  {{ commonText.fulfilment.pickup }}
+                                  {{ sharedText.fulfilment.pickup }}
                                 </option>
                               }
                             </select>
@@ -717,15 +716,14 @@ export class AdminOrderAdjustPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust;
   protected readonly detailText = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly changeText = inject(ADMIN_TEXT).orders.changes;
-  protected readonly commonText = inject(COMMON_TEXT);
-  protected readonly names = this.commonText.order;
+  protected readonly sharedText = inject(SHARED_TEXT);
+  protected readonly names = this.sharedText.order;
   protected readonly fields = staffFields(
-    this.commonText.fields,
+    this.sharedText.fields,
     inject(ADMIN_TEXT).fields,
   );
   private readonly payments = this.ordersText.paymentMethods;
@@ -845,7 +843,6 @@ export class AdminOrderAdjustPage {
   }
 
   protected readonly companyText = {
-    ...inject(APP_TEXT).companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     idFormat: this.fields.companyId.format,
@@ -1152,7 +1149,7 @@ export class AdminOrderAdjustPage {
         pieces: line.pieces,
         priceText: line.priceText,
         quantityLabel: answer
-          ? customerQuantity(answer, this.commonText, this.currency)
+          ? customerQuantity(answer, this.sharedText, this.currency)
           : '',
         note: line.note,
         totalLabel: answer
@@ -1233,14 +1230,14 @@ export class AdminOrderAdjustPage {
             order,
             proposed,
             { ...this.changeText, total: this.names.total },
-            this.commonText,
+            this.sharedText,
             config,
           )
         : []),
       ...orderBlockChanges(
         order,
         proposed,
-        staffBlockLabels(this.commonText, this.ordersText, this.detailText),
+        staffBlockLabels(this.sharedText, this.ordersText, this.detailText),
         config,
       ),
     ];

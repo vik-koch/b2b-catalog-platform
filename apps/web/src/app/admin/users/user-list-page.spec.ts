@@ -1,4 +1,4 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
@@ -9,7 +9,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -100,7 +100,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -379,7 +379,7 @@ describe('UserListPage', () => {
       });
 
       expect(el.textContent).toContain(
-        defaultCommonText.fields.companyId.label,
+        defaultSharedText.fields.companyId.label,
       );
       expect(el.textContent).not.toContain(text.companyIdFormatAll);
     });

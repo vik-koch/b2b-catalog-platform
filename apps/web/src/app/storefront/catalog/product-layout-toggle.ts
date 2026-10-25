@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import {
   SEGMENTED_GROUP_NEUTRAL,
@@ -62,7 +62,7 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
 })
 export class ProductLayoutToggle {
   private readonly layout = inject(ProductLayoutService);
-  protected readonly text = inject(APP_TEXT).catalog.layout;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.layout;
   protected readonly chosen = this.layout.layout;
   protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
 

@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
 import { ScrollToTop } from './scroll-to-top';
 
 async function render() {
   TestBed.configureTestingModule({
     imports: [ScrollToTop],
-    providers: [{ provide: APP_TEXT, useValue: defaultAppText }],
+    providers: [{ provide: STOREFRONT_TEXT, useValue: defaultStorefrontText }],
   });
   const fixture = TestBed.createComponent(ScrollToTop);
   await fixture.whenStable();

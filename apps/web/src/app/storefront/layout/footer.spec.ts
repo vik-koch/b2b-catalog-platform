@@ -1,9 +1,9 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
@@ -22,8 +22,8 @@ async function renderWith(deployment: DeploymentConfig) {
     imports: [Footer],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: deployment },
     ],
   });
@@ -43,12 +43,14 @@ describe('Footer', () => {
 
   it('shows the "Cookie settings" control when consent is enabled', async () => {
     const el = await render(true);
-    expect(buttonLabels(el)).toContain(defaultAppText.consent.settings);
+    expect(buttonLabels(el)).toContain(defaultStorefrontText.consent.settings);
   });
 
   it('hides the "Cookie settings" control when consent is disabled', async () => {
     const el = await render(false);
-    expect(buttonLabels(el)).not.toContain(defaultAppText.consent.settings);
+    expect(buttonLabels(el)).not.toContain(
+      defaultStorefrontText.consent.settings,
+    );
   });
 
   it('renders the copyright as a range ending in the current year', async () => {
@@ -61,8 +63,8 @@ describe('Footer', () => {
 
   it('always renders the legal nav links', async () => {
     const el = await render(false);
-    expect(el.textContent).toContain(defaultCommonText.nav['privacy']);
-    expect(el.textContent).toContain(defaultCommonText.nav['imprint']);
+    expect(el.textContent).toContain(defaultSharedText.nav['privacy']);
+    expect(el.textContent).toContain(defaultSharedText.nav['imprint']);
   });
 
   // The attribution page is a code route, not a published page, so the only
@@ -70,7 +72,7 @@ describe('Footer', () => {
   // deployment with no obligation to show it drops it there.
   it('links the license notice when the deployment lists it', async () => {
     const el = await render(false);
-    expect(el.textContent).toContain(defaultCommonText.nav['licenses']);
+    expect(el.textContent).toContain(defaultSharedText.nav['licenses']);
   });
 
   // FR-NAV-07. The mark is a mask, so the link's words are what identifies it;
@@ -213,6 +215,6 @@ describe('Footer', () => {
       },
     });
 
-    expect(el.textContent).not.toContain(defaultCommonText.nav['licenses']);
+    expect(el.textContent).not.toContain(defaultSharedText.nav['licenses']);
   });
 });

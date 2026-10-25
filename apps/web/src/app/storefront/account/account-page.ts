@@ -11,8 +11,8 @@ import {
 } from '../../shared/addresses/address-format';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 import { SignedInAs } from '../../shared/auth/signed-in-as';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPhone } from '../../shared/core/contact-fields';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -389,13 +389,13 @@ export class AccountPage {
   private readonly confirm = inject(ConfirmService);
   private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
 
-  protected readonly text = inject(APP_TEXT).auth;
-  protected readonly accountText = inject(APP_TEXT).account;
-  private readonly commonText = inject(COMMON_TEXT);
-  protected readonly deleteText = inject(APP_TEXT).account.delete;
-  protected readonly addressText = inject(APP_TEXT).account.addresses;
-  protected readonly orderText = inject(APP_TEXT).orders;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly accountText = inject(STOREFRONT_TEXT).account;
+  private readonly sharedText = inject(SHARED_TEXT);
+  protected readonly deleteText = inject(STOREFRONT_TEXT).account.delete;
+  protected readonly addressText = inject(STOREFRONT_TEXT).account.addresses;
+  protected readonly orderText = inject(STOREFRONT_TEXT).orders;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly work = inject(WorkService);
 
@@ -509,8 +509,8 @@ export class AccountPage {
     if (!profile) return [];
 
     const t = this.accountText;
-    const fields = this.commonText.fields;
-    const kinds = this.commonText.partyKind;
+    const fields = this.sharedText.fields;
+    const kinds = this.sharedText.partyKind;
     const name = formatPersonName(profile.firstName, profile.lastName);
     const type =
       profile.customerType === 'company'

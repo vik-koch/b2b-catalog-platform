@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthUser } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { adminUser } from '../../shared/auth/auth-user.fixture';
 import {
   AuthService,
@@ -13,7 +13,7 @@ import {
 } from '../../shared/auth/auth.service';
 import { ForcePasswordChange } from './force-password-change';
 
-const text = defaultAppText.auth.changePassword;
+const text = defaultStorefrontText.auth.changePassword;
 
 /**
  * jsdom parses <dialog> but implements none of its behaviour — no showModal, no
@@ -54,8 +54,8 @@ async function render(
     imports: [ForcePasswordChange],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: AuthService, useValue: { user, changePassword, logout } },
     ],
   });
@@ -153,7 +153,7 @@ describe('ForcePasswordChange', () => {
       ...el.querySelectorAll<HTMLButtonElement>('button[type="button"]'),
     ];
     const logoutButton = buttons.find((b) =>
-      b.textContent?.includes(defaultAppText.auth.logout),
+      b.textContent?.includes(defaultStorefrontText.auth.logout),
     );
     logoutButton?.click();
     await sync();

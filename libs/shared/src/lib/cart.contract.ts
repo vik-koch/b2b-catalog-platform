@@ -139,7 +139,7 @@ export const cartPreviewLineSchema = z
      * that is gone, which is also why a note already written is reported
      * dropped rather than silently kept. */
     lineNoteEnabled: z.boolean(),
-    /** The product's own wording for the note; null falls back to app-text. */
+    /** The product's own wording for the note; null falls back to storefront-text. */
     lineNotePrompt: z.string().nullable(),
     /** Exact, or null where the line cannot be priced. */
     lineTotalMinor: z.number().int().nonnegative().nullable(),

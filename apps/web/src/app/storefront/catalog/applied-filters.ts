@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Facet, formatAttributeValue } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { FacetSelection, selectedValues } from './facet-selection';
 
@@ -58,7 +58,7 @@ interface AppliedFilter {
 })
 export class AppliedFilters {
   private readonly selection = inject(FacetSelection);
-  protected readonly text = inject(APP_TEXT).catalog.filters;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
 
   /** The facets as the API returned them; what is ticked is read off them. */
   readonly facets = input.required<readonly Facet[]>();

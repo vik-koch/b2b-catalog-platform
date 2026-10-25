@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { NotFoundView } from './not-found-view';
 
@@ -10,7 +10,7 @@ import { NotFoundView } from './not-found-view';
   template: `<app-not-found-view />`,
 })
 export class NotFoundPage {
-  private readonly text = inject(APP_TEXT).errors;
+  private readonly text = inject(STOREFRONT_TEXT).errors;
 
   constructor() {
     usePageSeo({ name: () => this.text.notFoundTitle });

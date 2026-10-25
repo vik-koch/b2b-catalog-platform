@@ -8,8 +8,8 @@ import { Input } from './input';
 
 /**
  * The two things that can be wrong with a phone number. Passed in rather than
- * read from app-text, because the same field appears on both sides of the
- * app-text/admin-text split (see the register form and the staff editor).
+ * read from storefront-text, because the same field appears on both sides of the
+ * storefront-text/admin-text split (see the register form and the staff editor).
  */
 export interface PhoneFieldText {
   readonly incomplete: string;

@@ -1,8 +1,8 @@
 import {
-  type CommonText,
+  type SharedText,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
-import { AppText } from './app-text.type';
+import { StorefrontText } from './storefront-text.type';
 
 /**
  * Per-deployment values the browser needs before it can render any chrome.
@@ -14,8 +14,8 @@ import { AppText } from './app-text.type';
  */
 export interface ShellState {
   deploymentConfig: DeploymentConfig;
-  appText: AppText;
-  commonText: CommonText;
+  storefrontText: StorefrontText;
+  sharedText: SharedText;
   /** Whether a suggestion provider is configured — an environment variable
    * rather than a config file, so it travels here (see
    * suggestions-enabled.ts). */

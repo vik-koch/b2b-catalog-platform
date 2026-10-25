@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
@@ -8,8 +8,8 @@ import {
   AddressComponents,
   AddressInput,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AccountService } from '../account/account.service';
@@ -17,8 +17,8 @@ import { AddressEditorPage } from './address-editor-page';
 import { AddressSuggestField } from '../../shared/addresses/address-suggest-field';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 
-const text = defaultAppText.account.addresses;
-const fieldText = defaultAppText.address;
+const text = defaultStorefrontText.account.addresses;
+const fieldText = defaultStorefrontText.address;
 
 /** Two shapes, the short one first — the order a picker offers them in. */
 const shortFormat = {
@@ -82,8 +82,8 @@ async function render(options: Options = {}) {
     imports: [AddressEditorPage],
     providers: [
       provideRouter([{ path: 'account', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.twoCompanyIdFormats

@@ -69,42 +69,60 @@ export default [
   },
   // The app's three parts: the storefront and the admin each import shared
   // code and never each other, shared code imports neither, and only the root
-  // (app.ts, app.config*, app.routes*) composes both. A later block replaces
-  // an earlier `no-restricted-imports` rather than adding to it, so each one
-  // repeats the server-package pattern above.
+  // (app.ts, app.config*, app.routes*) composes both. Their wording follows
+  // the same line: each side reads its own text and the shared text, and only
+  // shared code, showing one side's view to the other, reads both; a spec may,
+  // to set the scene. A later block replaces an earlier
+  // `no-restricted-imports` rather than adding to it, so each one repeats the
+  // server-package pattern above.
   ...[
-    { part: 'storefront', forbidden: ['admin'] },
-    { part: 'admin', forbidden: ['storefront'] },
+    { part: 'storefront', forbidden: ['admin'], text: 'admin-text' },
+    { part: 'admin', forbidden: ['storefront'], text: 'storefront-text' },
     { part: 'shared', forbidden: ['storefront', 'admin'] },
-  ].map(({ part, forbidden }) => ({
-    files: [`src/app/${part}/**/*.ts`],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            { group: ['@nestjs/*'] },
-            {
-              regex: `(^|/)(${forbidden.join('|')})(/|$)`,
-              message: `${part} code imports shared code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
-            },
-          ],
-        },
-      ],
-      // The rule above sees static imports only; a lazy `import()` is the
-      // usual way across.
-      'no-restricted-syntax': [
-        'error',
-        {
-          selector: `ImportExpression[source.value=/(^|\\/)(${forbidden.join('|')})(\\/|$)/]`,
-          message: `${part} code imports shared code, not ${forbidden.join(' or ')} code, lazily or not (see eslint.config.mjs).`,
-        },
-      ],
-    },
-  })),
+  ].flatMap(({ part, forbidden, text }) =>
+    [false, true].map((spec) => ({
+      files: [`src/app/${part}/**/*.${spec ? 'spec.ts' : 'ts'}`],
+      ignores: spec ? [] : ['**/*.spec.ts'],
+      rules: rulesFor(part, forbidden, spec ? undefined : text),
+    })),
+  ),
   {
     files: ['**/*.html'],
     // Override or add rules here
     rules: {},
   },
 ];
+
+function rulesFor(part, forbidden, text) {
+  return {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          { group: ['@nestjs/*'] },
+          {
+            regex: `(^|/)(${forbidden.join('|')})(/|$)`,
+            message: `${part} code imports shared code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
+          },
+          ...(text
+            ? [
+                {
+                  regex: `(^|/)config/${text}(\\.\\w+)?$`,
+                  message: `${part} code reads its own text and the shared text, not ${text} (see eslint.config.mjs).`,
+                },
+              ]
+            : []),
+        ],
+      },
+    ],
+    // The rule above sees static imports only; a lazy `import()` is the usual
+    // way across.
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: `ImportExpression[source.value=/(^|\\/)(${forbidden.join('|')})(\\/|$)/]`,
+        message: `${part} code imports shared code, not ${forbidden.join(' or ')} code, lazily or not (see eslint.config.mjs).`,
+      },
+    ],
+  };
+}

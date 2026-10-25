@@ -1,8 +1,8 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   ContactLocation,
@@ -31,8 +31,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ContactPage],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config(locations) },
       { provide: PageService, useValue: { getPage } },
       {
@@ -62,7 +62,7 @@ describe('ContactPage', () => {
     ]);
 
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultCommonText.nav['contact'],
+      defaultSharedText.nav['contact'],
     );
     expect(el.textContent).toContain('HQ');
     expect(el.textContent).toContain('Main St 1');
@@ -100,14 +100,18 @@ describe('ContactPage', () => {
     // in a 200 — LoadErrorView says the site is broken and answers 503.
     const el = await render(locations, () => Promise.reject(new Error('down')));
 
-    expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.errors.cannotLoadTitle,
+    );
     expect(el.querySelector('iframe')).toBeNull();
   });
 
   it('shows the load error when the page has no body yet', async () => {
     const el = await render(locations, async () => null);
 
-    expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.errors.cannotLoadTitle,
+    );
     expect(el.querySelector('iframe')).toBeNull();
   });
 });

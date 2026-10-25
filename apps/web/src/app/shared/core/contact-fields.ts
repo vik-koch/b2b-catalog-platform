@@ -26,7 +26,7 @@ import { completeMask } from './masked-input';
  * here so a form has one door to knock on.
  *
  * Shape only — the wording, the markup and the deployment config itself stay
- * with each page (public app-text on one side, admin-text on the other).
+ * with each page (public storefront-text on one side, admin-text on the other).
  */
 export {
   canonicalPhone,

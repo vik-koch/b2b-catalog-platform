@@ -1,18 +1,18 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { Page, DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { InquiryPage } from './inquiry-page';
 import { InquiryService } from './inquiry.service';
 import { PageService } from '../../shared/pages/page.service';
 
-const text = defaultAppText.inquiry;
-const consentText = defaultAppText.consentBox;
+const text = defaultStorefrontText.inquiry;
+const consentText = defaultStorefrontText.consentBox;
 
 /** The demo asks for no consent; these specs drive the form that does. */
 const testConfig: DeploymentConfig = {
@@ -65,8 +65,8 @@ async function render(
     imports: [InquiryPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: options.config ?? testConfig },
       { provide: InquiryService, useValue: { submit } },
       { provide: PageService, useValue: { getPage } },
@@ -94,7 +94,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.name.required);
+    expect(el.textContent).toContain(defaultSharedText.fields.name.required);
   });
 
   it('requires email when "by email" is chosen (the default)', async () => {
@@ -105,9 +105,9 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.required);
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.phone.required,
+      defaultSharedText.fields.phone.required,
     );
   });
 
@@ -121,9 +121,9 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.phone.required);
+    expect(el.textContent).toContain(defaultSharedText.fields.phone.required);
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.email.required,
+      defaultSharedText.fields.email.required,
     );
   });
 
@@ -151,7 +151,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.invalid);
   });
 
   it('submits a valid inquiry and shows the success message', async () => {
@@ -189,7 +189,7 @@ describe('InquiryPage', () => {
     await sync();
 
     expect(submit).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.phone.incomplete);
+    expect(el.textContent).toContain(defaultSharedText.fields.phone.incomplete);
   });
 
   it('masks the phone and submits it with the configured country code', async () => {
@@ -293,7 +293,9 @@ describe('InquiryPage', () => {
       const { el } = await render();
 
       const notice = el.querySelector('app-privacy-notice');
-      expect(notice?.textContent).toContain(defaultAppText.privacyNotice.text);
+      expect(notice?.textContent).toContain(
+        defaultStorefrontText.privacyNotice.text,
+      );
       expect(notice?.querySelector('a')?.getAttribute('href')).toBe('/privacy');
       expect(notice?.closest('label')).toBeNull();
     });
@@ -309,7 +311,9 @@ describe('InquiryPage', () => {
       expect(getPage).not.toHaveBeenCalled();
       expect(el.querySelector('input[type="checkbox"]')).toBeNull();
       // The privacy notice is owed whatever the processing rests on.
-      expect(el.textContent).toContain(defaultAppText.privacyNotice.link);
+      expect(el.textContent).toContain(
+        defaultStorefrontText.privacyNotice.link,
+      );
 
       fill(el);
       submitForm(el);

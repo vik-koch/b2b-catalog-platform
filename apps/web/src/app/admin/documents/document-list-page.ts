@@ -16,7 +16,7 @@ import {
   ProductDocument,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -290,10 +290,10 @@ export class DocumentListPage {
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).documents.list;
-  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  private readonly sizes = inject(SHARED_TEXT).fileSize;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;

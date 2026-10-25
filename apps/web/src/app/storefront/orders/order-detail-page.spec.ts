@@ -1,19 +1,19 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OrderDetail } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { OrderDetailPage } from './order-detail-page';
 import { OrdersService } from './orders.service';
 
-const text = defaultAppText.orders;
-const names = defaultCommonText.order;
-const review = defaultAppText.checkout.review;
+const text = defaultStorefrontText.orders;
+const names = defaultSharedText.order;
+const review = defaultStorefrontText.checkout.review;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -112,8 +112,8 @@ async function render(
     imports: [OrderDetailPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: OrdersService, useValue: { getMine, ...api } },
     ],
@@ -132,7 +132,7 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
 
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(names.statuses.requested);
-    expect(el.textContent).toContain(defaultCommonText.fulfilment.label);
+    expect(el.textContent).toContain(defaultSharedText.fulfilment.label);
     expect(el.textContent).toContain(names.invoicedTo);
     // The party carries its registration number, and the invoice went to the
     // same place as the goods.
@@ -164,9 +164,9 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
     });
     const text = el.textContent ?? '';
 
-    expect(text).toContain(defaultCommonText.tax.mixed.added);
-    expect(text).toContain(defaultCommonText.tax.line.replace('{rate}', '7'));
-    expect(text).toContain(defaultCommonText.tax.line.replace('{rate}', '19'));
+    expect(text).toContain(defaultSharedText.tax.mixed.added);
+    expect(text).toContain(defaultSharedText.tax.line.replace('{rate}', '7'));
+    expect(text).toContain(defaultSharedText.tax.line.replace('{rate}', '19'));
   });
 
   it('links a line only while its product can still be opened', async () => {
@@ -185,7 +185,7 @@ describe('OrderDetailPage (FR-ACC-01)', () => {
       pickup: { key: 'harbour', name: 'Harbour store', address: 'Quay 3' },
     });
 
-    expect(el.textContent).toContain(defaultCommonText.fulfilment.pickup);
+    expect(el.textContent).toContain(defaultSharedText.fulfilment.pickup);
     expect(el.textContent).toContain('Harbour store');
     expect(el.textContent).toContain(names.preferredPickup);
     // Not "invoiced to the same address": there was no delivery address to

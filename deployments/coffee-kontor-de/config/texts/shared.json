@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Startseite",
+    "catalog": "Katalog",
     "about": "Über uns",
     "terms": "AGB",
     "conditions": "Zahlung & Lieferung",
@@ -140,5 +141,10 @@
       "required": "Bitte geben Sie Ihre Unternehmenskennung ein.",
       "format": "Bitte geben Sie sie in einem der erwarteten Formate ein, z. B. {examples}."
     }
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "status": "Seite {page} von {total}"
   }
 }

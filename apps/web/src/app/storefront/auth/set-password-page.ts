@@ -6,7 +6,7 @@ import {
   PASSWORD_MIN_LENGTH,
   PasswordTokenPurpose,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { generatePassword, passwordsMatch } from '../../shared/core/password';
@@ -21,7 +21,7 @@ import { landingFor } from '../../shared/auth/auth.guard';
 import { TextButton } from '../../shared/ui/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 type Status =
   | 'checking'
@@ -226,9 +226,9 @@ export class SetPasswordPage implements OnInit {
   private readonly service = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly auth = inject(APP_TEXT).auth;
+  protected readonly auth = inject(STOREFRONT_TEXT).auth;
   protected readonly text = this.auth.setPassword;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly step = this.auth.signInStep;
   /** Why the code after the password did not go out. */
   protected readonly codeFailure = signal('');

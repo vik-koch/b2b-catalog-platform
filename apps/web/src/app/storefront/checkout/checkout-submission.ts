@@ -7,7 +7,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { CartService } from '../../shared/cart/cart.service';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { canonicalPhone } from '../../shared/core/contact-fields';
 import { SubmitOrderResult } from '../orders/orders.service';
@@ -42,7 +42,7 @@ export interface SubmissionDeps {
 export function createCheckoutSubmission(deps: SubmissionDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
-  const text = inject(APP_TEXT).checkout;
+  const text = inject(STOREFRONT_TEXT).checkout;
 
   /**
    * Who to talk to about this order: the guest's own answers, or the account's

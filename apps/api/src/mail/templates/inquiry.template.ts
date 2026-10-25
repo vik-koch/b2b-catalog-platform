@@ -1,4 +1,4 @@
-import { CommonText, InquiryRequest } from '@b2b-catalog-platform/shared';
+import { SharedText, InquiryRequest } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 
@@ -13,7 +13,7 @@ import { MailText } from '../mail-text';
 export function inquiryMail(
   submission: InquiryRequest,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
 ): MailContent {
   const t = text.inquiry;
   const fields = common.fields;

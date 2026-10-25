@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -7,8 +7,8 @@ import { UserRole } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../shared/auth/auth.service';
 import { WorkService } from '../../shared/work/work.service';
 import { workStub } from '../../shared/work/work.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { BottomNav } from './bottom-nav';
@@ -28,8 +28,8 @@ async function render(url = '/catalog', role: UserRole | null = null) {
     imports: [BottomNav],
     providers: [
       provideRouter([{ path: '**', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: authStub(role) },
       { provide: WorkService, useValue: workStub() },

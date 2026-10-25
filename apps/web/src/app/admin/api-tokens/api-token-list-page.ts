@@ -7,7 +7,6 @@ import {
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -24,7 +23,7 @@ import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -183,7 +182,7 @@ const SCOPE_ROWS: readonly {
       }
 
       @if (tokens.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (tokens.hasValue()) {
         <div class="divide-y divide-border border-y border-border">
           @for (token of tokens.value(); track token.id) {
@@ -372,8 +371,7 @@ export class ApiTokenListPage {
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).apiTokens;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   /** Widened for the same reason `defaultScopes` widens: the template asks

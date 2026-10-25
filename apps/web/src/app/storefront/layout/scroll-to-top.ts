@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
 
@@ -39,7 +39,7 @@ import { HeaderCollapse } from '../../shared/layout/header-collapse';
   `,
 })
 export class ScrollToTop {
-  protected readonly label = inject(APP_TEXT).a11y.scrollToTop;
+  protected readonly label = inject(STOREFRONT_TEXT).a11y.scrollToTop;
   protected readonly collapsed = inject(HeaderCollapse).collapsed;
 
   protected toTop(): void {

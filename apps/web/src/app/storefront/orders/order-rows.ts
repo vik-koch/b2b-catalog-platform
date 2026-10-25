@@ -6,8 +6,8 @@ import {
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../shared/catalog/price';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import {
@@ -75,8 +75,8 @@ import {
 export class OrderRows {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
-  private readonly text = inject(APP_TEXT).orders;
-  private readonly statusNames = inject(COMMON_TEXT).order;
+  private readonly text = inject(STOREFRONT_TEXT).orders;
+  private readonly statusNames = inject(SHARED_TEXT).order;
 
   readonly orders = input.required<readonly OrderSummary[]>();
 

@@ -1,4 +1,4 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -6,16 +6,16 @@ import {
   OrderSummary,
   Pagination,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { OrderListPage } from './order-list-page';
 import { OrdersService } from './orders.service';
 
-const text = defaultAppText.orders;
-const names = defaultCommonText.order;
+const text = defaultStorefrontText.orders;
+const names = defaultSharedText.order;
 
 const placed: OrderSummary = {
   reference: 'DEMO-260826-4831',
@@ -52,8 +52,8 @@ async function render(
     imports: [OrderListPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: OrdersService, useValue: { listMine } },
     ],
@@ -141,15 +141,15 @@ describe('OrderListPage (FR-ACC-01)', () => {
 
   it('pages only when there is more than one page', async () => {
     const one = await render({ items: [placed], pagination: page() });
-    expect(one.el.textContent).not.toContain(defaultAppText.catalog.nextPage);
+    expect(one.el.textContent).not.toContain(defaultSharedText.pagination.next);
 
     const two = await render({
       items: [placed],
       pagination: page({ total: 25, totalPages: 2 }),
     });
-    expect(two.el.textContent).toContain(defaultAppText.catalog.nextPage);
+    expect(two.el.textContent).toContain(defaultSharedText.pagination.next);
     expect(two.el.textContent).toContain(
-      defaultAppText.catalog.pageStatus
+      defaultSharedText.pagination.status
         .replace('{page}', '1')
         .replace('{total}', '2'),
     );

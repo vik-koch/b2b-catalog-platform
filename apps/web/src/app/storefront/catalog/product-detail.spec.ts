@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
 import { provideRouter } from '@angular/router';
@@ -12,8 +12,8 @@ import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { ProductDetail } from './product-detail';
 import { CatalogService } from './catalog.service';
 import { productDetail } from '../../shared/catalog/product.fixture';
@@ -58,8 +58,8 @@ async function render(
     imports: [ProductDetail],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: CatalogService, useValue: { getProduct: async () => result } },
       // An admin session where the test names an admin read, a guest's
@@ -121,7 +121,7 @@ describe('ProductDetail', () => {
       .map((n) => n.textContent?.trim())
       .filter((text) => text);
     expect(crumbs).toEqual([
-      defaultAppText.catalog.catalogRoot,
+      defaultStorefrontText.catalog.catalogRoot,
       'Coffee',
       'Beans',
       'Roasts',
@@ -151,7 +151,7 @@ describe('ProductDetail', () => {
       }),
     );
 
-    expect(root.textContent).toContain(defaultCommonText.product.documents);
+    expect(root.textContent).toContain(defaultSharedText.product.documents);
     expect(
       root.querySelector('a[href="/documents/aaaaaaaaaaaa.pdf"]')?.textContent,
     ).toContain('Certificate of analysis');
@@ -160,7 +160,7 @@ describe('ProductDetail', () => {
   it('heads no document section when there is nothing current to show', async () => {
     const root = el(await render({ ...product, documents: [] }));
 
-    expect(root.textContent).not.toContain(defaultCommonText.product.documents);
+    expect(root.textContent).not.toContain(defaultSharedText.product.documents);
   });
 
   it('renders the attributes as a specifications table', async () => {
@@ -235,14 +235,16 @@ describe('ProductDetail', () => {
       ),
     ).toEqual(['Net weight', 'Count per package']);
     expect(root.textContent).toContain(
-      defaultAppText.catalog.allSpecifications,
+      defaultStorefrontText.catalog.allSpecifications,
     );
   });
 
   it('shows a not-found message when the product does not exist', async () => {
     const root = el(await render(null));
 
-    expect(root.textContent).toContain(defaultAppText.catalog.productNotFound);
+    expect(root.textContent).toContain(
+      defaultStorefrontText.catalog.productNotFound,
+    );
   });
 
   describe('a product the public cannot see (FR-ADM-06)', () => {
@@ -261,7 +263,7 @@ describe('ProductDetail', () => {
       expect(getProductPage).toHaveBeenCalled();
       expect(el(fixture).textContent).toContain('Hafen Espresso');
       expect(el(fixture).textContent).not.toContain(
-        defaultAppText.catalog.productNotFound,
+        defaultStorefrontText.catalog.productNotFound,
       );
       expect(TestBed.inject(Meta).getTag('name="robots"')?.content).toBe(
         'noindex',
@@ -302,7 +304,7 @@ describe('ProductDetail', () => {
       });
 
       expect(el(fixture).textContent).toContain(
-        defaultAppText.catalog.productNotFound,
+        defaultStorefrontText.catalog.productNotFound,
       );
     });
 

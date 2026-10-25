@@ -29,7 +29,7 @@ const suggestText = z
  * session lives in AdminText, which is fetched rather than injected — see
  * admin-text.type.ts.
  */
-export const appTextSchema = z
+export const storefrontTextSchema = z
   .object({
     // What describes the shop comes first: the landing page, the map notices
     // and the footer.
@@ -110,8 +110,6 @@ export const appTextSchema = z
     /** Storefront catalog chrome (FR-CAT). */
     catalog: z
       .object({
-        /** Main navbar action label (icon button). */
-        navLabel: z.string(),
         emptyCategories: z.string(),
         loadError: z.string(),
         /** Category grid (FR-CAT-03/04). */
@@ -119,10 +117,6 @@ export const appTextSchema = z
         showMore: z.string(),
         showLess: z.string(),
         emptyProducts: z.string(),
-        prevPage: z.string(),
-        nextPage: z.string(),
-        /** `{page}` and `{total}` substituted at render. */
-        pageStatus: z.string(),
         /** How many products the listing is showing, above the grid. Counts,
          * so it may carry both forms; `{count}` substituted at render. */
         productCount: z.string(),
@@ -904,8 +898,8 @@ export const appTextSchema = z
       .strict(),
     /**
      * Login form, the navbar account link and the signed-in block on its
-     * destination page. One vocabulary for all roles — the only thing that
-     * differs per role is where the link goes (`adminPanel` vs `account`).
+     * destination page. One vocabulary for all roles; staff land in the admin
+     * panel, whose own wording is in the admin text.
      */
     auth: z
       .object({
@@ -922,13 +916,9 @@ export const appTextSchema = z
         /** `{name}` — the account holder's first name, or their address when
          * the account carries no name (staff, the bootstrap admin). */
         greeting: z.string(),
-        /** Heading of the change-password section, on /account and /admin
-         * alike — the session's own password, not an account-page topic. */
+        /** Heading of the change-password section on /account. The admin panel
+         * has its own (`panel.securityHeading` in the admin text). */
         securityHeading: z.string(),
-        adminPanel: z.string(),
-        /** The same landing for a manager, whose panel holds only the accounts
-         * they approve — no catalog, pricing or site controls. */
-        staffArea: z.string(),
         account: z.string(),
         /** The password field, wherever an account's password is asked for. */
         password: z.string(),
@@ -1404,4 +1394,4 @@ export const appTextSchema = z
   .strict()
   .superRefine(refuseCountForms);
 
-export type AppText = DeepReadonly<z.infer<typeof appTextSchema>>;
+export type StorefrontText = DeepReadonly<z.infer<typeof storefrontTextSchema>>;

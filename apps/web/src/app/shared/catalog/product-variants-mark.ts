@@ -13,8 +13,8 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { injectNarrowScreen } from '../core/narrow-screen';
 import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
@@ -107,9 +107,9 @@ import { ProductVariantGallery } from './product-variant-gallery';
   `,
 })
 export class ProductVariantsMark {
-  protected readonly text = inject(APP_TEXT).catalog.variants;
-  protected readonly product = inject(COMMON_TEXT).product;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.variants;
+  protected readonly product = inject(SHARED_TEXT).product;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly variants = input.required<readonly ProductVariant[]>();
   readonly images = input.required<readonly ProductImage[]>();

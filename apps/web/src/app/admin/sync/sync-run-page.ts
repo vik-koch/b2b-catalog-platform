@@ -31,7 +31,7 @@ import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
@@ -211,7 +211,7 @@ export class SyncRunPage {
   protected readonly text = inject(ADMIN_TEXT).sync;
   private readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   constructor() {

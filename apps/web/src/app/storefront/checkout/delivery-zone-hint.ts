@@ -6,7 +6,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { CartService } from '../../shared/cart/cart.service';
 import { formatPriceMinor } from '../../shared/catalog/price';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { WarningNote } from '../../shared/ui/warning-note';
 
@@ -55,7 +55,7 @@ export class DeliveryZoneHint {
   private readonly zones = this.config.delivery?.zones ?? [];
   private readonly cart = inject(CartService);
 
-  protected readonly text = inject(APP_TEXT).checkout.zone;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.zone;
 
   readonly postalCode = input<string>('');
 

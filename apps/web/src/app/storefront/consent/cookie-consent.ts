@@ -1,7 +1,7 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Button } from '../../shared/ui/button';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConsentService } from './consent.service';
@@ -49,8 +49,8 @@ import { Link } from '../../shared/ui/link';
 })
 export class CookieConsent {
   protected readonly consent = inject(ConsentService);
-  protected readonly text = inject(APP_TEXT).consent;
-  protected readonly a11y = inject(APP_TEXT).a11y;
+  protected readonly text = inject(STOREFRONT_TEXT).consent;
+  protected readonly a11y = inject(STOREFRONT_TEXT).a11y;
   protected readonly message = fillText(this.text.message, {
     provider: inject(DEPLOYMENT_CONFIG).mapProvider,
   });

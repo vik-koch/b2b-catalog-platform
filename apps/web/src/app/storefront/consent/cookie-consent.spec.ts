@@ -1,9 +1,9 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
@@ -20,8 +20,8 @@ async function render(enabled: boolean) {
     imports: [CookieConsent],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config(enabled) },
     ],
   });
@@ -43,8 +43,8 @@ describe('CookieConsent', () => {
     expect(banner).not.toBeNull();
     expect(banner?.textContent).toContain(defaultDeploymentConfig.mapProvider);
     expect(banner?.textContent).not.toContain('{provider}');
-    expect(banner?.textContent).toContain(defaultAppText.consent.accept);
-    expect(banner?.textContent).toContain(defaultAppText.consent.reject);
+    expect(banner?.textContent).toContain(defaultStorefrontText.consent.accept);
+    expect(banner?.textContent).toContain(defaultStorefrontText.consent.reject);
   });
 
   it('never shows the banner when consent is disabled', async () => {
@@ -57,7 +57,7 @@ describe('CookieConsent', () => {
     const el = fixture.nativeElement as HTMLElement;
 
     const reject = Array.from(el.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes(defaultAppText.consent.reject),
+      b.textContent?.includes(defaultStorefrontText.consent.reject),
     );
     reject?.click();
     await fixture.whenStable();

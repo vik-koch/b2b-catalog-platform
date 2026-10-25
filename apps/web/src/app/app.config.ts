@@ -21,8 +21,8 @@ import { provideHydration } from './shared/core/hydration';
 import { StaticPageReuseStrategy } from './shared/core/route-reuse';
 import { ScrollRestoration } from './shared/core/scroll-restoration';
 import { CartRepricing } from './storefront/cart/cart-repricing';
-import { provideAppText } from './shared/config/app-text';
-import { provideCommonText } from './shared/config/common-text';
+import { provideStorefrontText } from './shared/config/storefront-text';
+import { provideSharedText } from './shared/config/shared-text';
 import { provideDeploymentConfig } from './shared/config/deployment-config';
 import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
 
@@ -56,8 +56,8 @@ export const appConfig: ApplicationConfig = {
     // every document (shell-state.ts); the server providers
     // (app.config.server.ts) are merged last and override these on SSR.
     provideDeploymentConfig(),
-    provideAppText(),
-    provideCommonText(),
+    provideStorefrontText(),
+    provideSharedText(),
     provideSuggestionsEnabled(),
     provideEditModeCatalog(),
     // Nothing injects it, and it has to run wherever the visitor happens to

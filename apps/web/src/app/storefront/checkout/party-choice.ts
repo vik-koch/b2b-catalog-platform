@@ -2,8 +2,8 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { NgTemplateOutlet } from '@angular/common';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { ChoiceBranch } from '../../shared/ui/choice-branch';
@@ -147,10 +147,10 @@ export class PartyChoice {
   /** Sign-up's wording, whole: the same pair of fields asking the same thing
    * of the same kind of party, and a second copy of it would be two ways of
    * saying which numbers are accepted. */
-  private readonly fields = inject(COMMON_TEXT).fields;
+  private readonly fields = inject(SHARED_TEXT).fields;
 
-  protected readonly text = inject(APP_TEXT).checkout.party;
-  private readonly partyChoice = inject(APP_TEXT).partyChoice;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.party;
+  private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(
@@ -160,7 +160,6 @@ export class PartyChoice {
     label: this.partyChoice[value],
   }));
   protected readonly companyText = {
-    ...inject(APP_TEXT).companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     // No hint here, unlike registration: which numbers are accepted is

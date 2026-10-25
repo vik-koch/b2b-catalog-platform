@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductDetail } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { NARROW_SCREEN_QUERIES } from '../core/narrow-screen';
@@ -41,8 +41,8 @@ function onNarrowScreen(): void {
       : realMatchMedia.call(window, query)) as typeof window.matchMedia;
 }
 
-const text = defaultAppText.cart;
-const unitText = defaultAppText.catalog.units;
+const text = defaultStorefrontText.cart;
+const unitText = defaultStorefrontText.catalog.units;
 /** One sentence, whatever was corrected and whichever unit it was typed in. */
 const corrected = text.issues.quantityCorrected;
 
@@ -94,8 +94,8 @@ async function render(
     imports: [ProductBuyControls],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -309,14 +309,14 @@ describe('ProductBuyControls', () => {
     const view = await render(packaged, true, false, 'row');
 
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 100 ${defaultCommonText.units.piece}`,
+      `${unitText.minQuantity}: 100 ${defaultSharedText.units.piece}`,
     );
 
     await view.chooseUnit(unitText.select.pack);
 
     // The same minimum, in the words the stepper stops in.
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 10 ${defaultCommonText.units.pack}`,
+      `${unitText.minQuantity}: 10 ${defaultSharedText.units.pack}`,
     );
   });
 
@@ -707,7 +707,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     const field = view.noteField() as HTMLTextAreaElement;
     field.value = 'Slate only';
     field.dispatchEvent(new Event('input'));
-    await view.click(defaultCommonText.actions.done);
+    await view.click(defaultSharedText.actions.done);
 
     expect(view.el.querySelector('dialog')).toBe(null);
     await view.click(text.add);
@@ -721,7 +721,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     const view = await render(noted);
     await view.click(text.noteAdd);
     await view.typeNote('Sand only');
-    await view.click(defaultCommonText.actions.done);
+    await view.click(defaultSharedText.actions.done);
     await view.click(text.add);
 
     // Typed and left, which is the sequence pressing Cancel really makes: the
@@ -729,7 +729,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
     await view.click(text.noteEdit);
     await view.typeNote('Slate after all');
     expect(view.cart.lines()[0].note).toBe('Slate after all');
-    await view.click(defaultCommonText.actions.cancel);
+    await view.click(defaultSharedText.actions.cancel);
 
     expect(view.cart.lines()[0].note).toBe('Sand only');
   });
@@ -776,12 +776,12 @@ describe('ProductBuyControls, a product that takes a note', () => {
       expect(view.quantityInput().disabled).toBe(true);
       expect(
         view.el.querySelector<HTMLButtonElement>(
-          `[aria-label="${defaultAppText.cart.increaseAria}"]`,
+          `[aria-label="${defaultStorefrontText.cart.increaseAria}"]`,
         )?.disabled,
       ).toBe(true);
       expect(
         view.el.querySelector<HTMLButtonElement>(
-          `[aria-label="${defaultAppText.cart.decreaseAria}"]`,
+          `[aria-label="${defaultStorefrontText.cart.decreaseAria}"]`,
         )?.disabled,
       ).toBe(true);
     });
@@ -791,7 +791,7 @@ describe('ProductBuyControls, a product that takes a note', () => {
 
       // Priced, as the requirement says: what is refused is the buying, not
       // the telling.
-      expect(view.text()).not.toContain(defaultAppText.cart.noPrice);
+      expect(view.text()).not.toContain(defaultStorefrontText.cart.noPrice);
 
       const add = [...view.el.querySelectorAll('button')].find((button) =>
         (button.textContent ?? '').includes(text.add),

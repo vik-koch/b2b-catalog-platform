@@ -1,5 +1,5 @@
 import { Component, computed, HostListener, inject } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
@@ -63,7 +63,7 @@ const LEAVE_MS = 150;
 })
 export class SearchOverlay {
   protected readonly search = inject(MobileSearch);
-  protected readonly text = inject(APP_TEXT).search;
+  protected readonly text = inject(STOREFRONT_TEXT).search;
 
   /** In the document while open, and for as long as it takes to leave. */
   private readonly exit = withExitAnimation(this.search.open, LEAVE_MS);

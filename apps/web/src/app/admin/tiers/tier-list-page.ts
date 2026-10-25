@@ -9,7 +9,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
@@ -26,7 +25,7 @@ import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -95,7 +94,7 @@ type EditTarget = { id: string } | { id: null } | null;
       }
 
       @if (tiers.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (tiers.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone, and two lists in one panel
@@ -374,8 +373,7 @@ export class TierListPage {
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   protected readonly tiers = resource({ loader: () => this.service.list() });
   protected readonly showSkeleton = delayedLoading(this.tiers.isLoading);

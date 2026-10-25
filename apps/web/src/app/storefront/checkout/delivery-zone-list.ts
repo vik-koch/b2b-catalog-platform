@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
@@ -60,7 +60,7 @@ export class DeliveryZoneList {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  protected readonly text = inject(APP_TEXT).checkout.fulfilment;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
   protected readonly zones = this.config.delivery?.zones ?? [];
 
   /** A glyph per card, and levels side by side. */

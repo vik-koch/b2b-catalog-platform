@@ -1,12 +1,12 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { computed, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthUser, UserRole, WorkCounts } from '@b2b-catalog-platform/shared';
 import { AuthService } from '../../shared/auth/auth.service';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { AccountLink } from './account-link';
 import {
   adminUser as admin,
@@ -15,7 +15,7 @@ import {
 import { WorkService } from '../../shared/work/work.service';
 import { workStub } from '../../shared/work/work.fixture';
 
-const text = defaultAppText.auth;
+const text = defaultStorefrontText.auth;
 
 /**
  * `undefined` is the third state the component has to tell apart: the session
@@ -38,8 +38,8 @@ async function render(
     imports: [AccountLink],
     providers: [
       provideRouter([{ path: 'admin', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: AuthService, useValue: { user, resolved, hintedRole } },
       { provide: WorkService, useValue: work },
     ],

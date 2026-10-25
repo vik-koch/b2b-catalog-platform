@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CategoryIndex } from '../catalog/category-index';
 import { FeaturedRow } from './featured-row';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { usePageSeo } from '../../shared/core/page-seo';
 
@@ -53,7 +53,7 @@ const BAND =
   `,
 })
 export class Home {
-  protected readonly text = inject(APP_TEXT);
+  protected readonly text = inject(STOREFRONT_TEXT);
   protected readonly tagline = inject(DEPLOYMENT_CONFIG).branding.tagline;
   /** The room under the row is the band's, so the edge sits clear of the
    * cards and the categories start below it. */

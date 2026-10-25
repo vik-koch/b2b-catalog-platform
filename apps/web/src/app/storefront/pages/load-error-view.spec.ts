@@ -1,9 +1,9 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { RESPONSE_INIT } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { LoadErrorView } from './load-error-view';
 
 /**
@@ -16,8 +16,8 @@ function render(responseInit?: ResponseInit) {
   TestBed.configureTestingModule({
     imports: [LoadErrorView],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       ...(responseInit
         ? [{ provide: RESPONSE_INIT, useValue: responseInit }]
         : []),
@@ -41,7 +41,7 @@ describe('LoadErrorView', () => {
     const fixture = render();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      defaultAppText.errors.cannotLoadBody,
+      defaultStorefrontText.errors.cannotLoadBody,
     );
   });
 

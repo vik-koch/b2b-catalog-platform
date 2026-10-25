@@ -1,7 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import type { ElsewhereLink } from '@b2b-catalog-platform/shared';
 import { ConsentService } from '../consent/consent.service';
@@ -196,8 +196,8 @@ export class Footer {
 
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
-  protected readonly text = inject(APP_TEXT);
-  protected readonly nav = inject(COMMON_TEXT).nav;
+  protected readonly text = inject(STOREFRONT_TEXT);
+  protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly consent = inject(ConsentService);
   protected readonly branding = this.config.branding;
   /** Which pages the legal nav links, and in what order. */

@@ -12,8 +12,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { filter } from 'rxjs';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
@@ -118,9 +118,9 @@ import { WarningNote } from '../../shared/ui/warning-note';
   `,
 })
 export class ProductPairingsDialog {
-  protected readonly text = inject(APP_TEXT).catalog.pairings;
-  protected readonly pairingsName = inject(COMMON_TEXT).product.pairings;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.pairings;
+  protected readonly pairingsName = inject(SHARED_TEXT).product.pairings;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairings = inject(PairingsService);
   private readonly catalog = inject(CatalogService);

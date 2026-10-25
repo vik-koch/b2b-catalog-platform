@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { CartService } from '../../shared/cart/cart.service';
 import { formatPriceMinor } from '../../shared/catalog/price';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
 import { Icon } from '../../shared/ui/icons/icon';
@@ -111,7 +111,7 @@ export class CartLink {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  protected readonly text = inject(APP_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_TEXT).cart;
 
   /** False on the server, where there is no cart to read and any figure
    * announced would be one the visitor's own browser is about to replace. */

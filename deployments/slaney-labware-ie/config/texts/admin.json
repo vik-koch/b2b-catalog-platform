@@ -111,7 +111,11 @@
     "fullyOwned": "Shop externally owned",
     "catalogOwned": "Catalog externally owned",
     "customersOwned": "Customers externally owned",
-    "ordersOwned": "Orders externally owned"
+    "ordersOwned": "Orders externally owned",
+    "adminPanel": "Admin panel",
+    "staffArea": "Staff area",
+    "securityHeading": "Password and security",
+    "changePassword": "Change password"
   },
   "editMode": {
     "enable": "Edit mode",
@@ -269,7 +273,8 @@
         "picture": "picture",
         "description": "description",
         "attributes": "attributes"
-      }
+      },
+      "bestMatch": "Best match"
     },
     "editor": {
       "newTitle": "Add product",
@@ -1574,5 +1579,6 @@
     "historyMaintenanceOff": "Maintenance mode turned off",
     "historyBy": "{date} by {actor}",
     "historyMore": "Only the {count} most recent changes are shown."
-  }
+  },
+  "loadError": "Something went wrong loading the catalogue — please try again later."
 }

@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminOrderDetail,
@@ -47,7 +47,7 @@ async function render(
     imports: [OrderDocumentsPanel],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: ConfirmService, useValue: { ask: vi.fn(async () => true) } },
       {
@@ -118,13 +118,13 @@ describe('OrderDocumentsPanel', () => {
     expect(rowLabels(el)).toContain(text.summary);
     expect(el.textContent).toContain('PDF');
     // A supplied file can be taken back; a generated one cannot.
-    expect(el.textContent).toContain(defaultCommonText.actions.remove);
+    expect(el.textContent).toContain(defaultSharedText.actions.remove);
   });
 
   it('has nothing to remove where nothing was supplied', async () => {
     const { el } = await render(order());
 
-    expect(el.textContent).not.toContain(defaultCommonText.actions.remove);
+    expect(el.textContent).not.toContain(defaultSharedText.actions.remove);
   });
 
   /**

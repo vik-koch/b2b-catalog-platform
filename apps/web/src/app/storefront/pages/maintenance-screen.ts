@@ -1,5 +1,5 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 
 /**
@@ -19,7 +19,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
   `,
 })
 export class MaintenanceScreen {
-  protected readonly text = inject(APP_TEXT).maintenance;
+  protected readonly text = inject(STOREFRONT_TEXT).maintenance;
 
   constructor() {
     usePageSeo({ name: () => this.text.title });

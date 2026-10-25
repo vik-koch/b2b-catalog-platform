@@ -10,7 +10,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -26,7 +25,7 @@ import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -80,7 +79,7 @@ type RenameTarget =
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (keys.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (keys.hasValue()) {
         @if (keys.value().length === 0) {
           <p class="text-sm text-muted">{{ text.empty }}</p>
@@ -214,7 +213,7 @@ type RenameTarget =
                     <div class="border-t border-border bg-stone-100 ml-6 pl-2">
                       @if (values.error()) {
                         <p class="py-3 text-sm text-muted" role="alert">
-                          {{ catalogText.loadError }}
+                          {{ adminText.loadError }}
                         </p>
                       } @else if (values.hasValue()) {
                         <ul class="divide-y divide-border">
@@ -440,8 +439,7 @@ export class AttributeInventoryPage {
   protected readonly text = inject(ADMIN_TEXT).attributes.inventory;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   protected readonly keys = resource({ loader: () => this.service.listKeys() });
   protected readonly showSkeleton = delayedLoading(this.keys.isLoading);

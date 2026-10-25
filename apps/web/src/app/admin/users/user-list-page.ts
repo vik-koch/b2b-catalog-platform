@@ -16,7 +16,7 @@ import {
   userStatusSchema,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPhone } from '../../shared/core/contact-fields';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -268,8 +268,8 @@ export class UserListPage {
   private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);
   protected readonly text = inject(ADMIN_TEXT).users.list;
-  protected readonly fields = inject(COMMON_TEXT).fields;
-  private readonly kinds = inject(COMMON_TEXT).partyKind;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  private readonly kinds = inject(SHARED_TEXT).partyKind;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
 
@@ -549,7 +549,7 @@ export class UserListPage {
   private readonly router = inject(Router);
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   /** So an editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 

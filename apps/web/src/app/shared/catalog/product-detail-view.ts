@@ -19,8 +19,8 @@ import {
   ProductDetail,
 } from '@b2b-catalog-platform/shared';
 import { EDIT_ACTIONS_INSET } from '../edit-mode/edit-actions';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { disclosureState } from '../ui/disclosure-state';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
@@ -445,8 +445,8 @@ const NARROW = '(max-width: 39.999rem)';
   `,
 })
 export class ProductDetailView {
-  protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;
   protected readonly imageColumnClass = `min-w-0 ${IMAGE_CAP}`;
   /** Nothing but the container it opens: the track caps the panel at 20rem in
@@ -472,7 +472,7 @@ export class ProductDetailView {
   protected readonly descriptionId = 'description';
   protected readonly specsId = 'specifications';
   protected readonly documentsId = 'documents';
-  protected readonly documentText = inject(APP_TEXT).catalog.documents;
+  protected readonly documentText = inject(STOREFRONT_TEXT).catalog.documents;
   /** The description is trusted rich text (server-sanitized, same as pages). */
   protected readonly safeDescription = trustedRichText();
 

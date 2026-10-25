@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
@@ -35,7 +35,7 @@ function render(
     imports: [ProductPackagingEditor],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
     ],
   });

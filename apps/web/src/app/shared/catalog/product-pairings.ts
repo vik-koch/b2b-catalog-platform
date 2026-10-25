@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { IconButton } from '../ui/icon-button';
 import { Icon } from '../ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
@@ -67,8 +67,8 @@ import { PairingsService } from './pairings.service';
   `,
 })
 export class ProductPairings {
-  protected readonly text = inject(APP_TEXT).catalog.pairings;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.pairings;
+  protected readonly product = inject(SHARED_TEXT).product;
   private readonly pairings = inject(PairingsService);
 
   readonly slug = input.required<string>();

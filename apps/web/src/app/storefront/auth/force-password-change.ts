@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -96,7 +96,7 @@ export class ForcePasswordChange {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly authText = inject(APP_TEXT).auth;
+  protected readonly authText = inject(STOREFRONT_TEXT).auth;
   protected readonly text = this.authText.changePassword;
 
   private readonly dialog = viewChild<ElementRef<HTMLDialogElement>>('dialog');

@@ -8,7 +8,7 @@ import {
   SEARCH_SORTS,
   SearchSort,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Input } from '../../shared/ui/input';
 import {
@@ -140,7 +140,7 @@ export class ProductSortSelect {
     inject(DEPLOYMENT_CONFIG).catalog.sortControlsEnabled;
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
   /** Overridden by the copy inside the filter panel, so the two instances
    * cannot label each other's field. */
   readonly fieldId = input(SORT_FIELD_ID);

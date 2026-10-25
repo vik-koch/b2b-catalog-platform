@@ -9,8 +9,7 @@ import {
 import { AuthService } from '../shared/auth/auth.service';
 import { SignedInAs } from '../shared/auth/signed-in-as';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
-import { APP_TEXT } from '../shared/config/app-text';
-import { COMMON_TEXT } from '../shared/config/common-text';
+import { SHARED_TEXT } from '../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
 import { AdminIcon } from '../shared/ui/icons/admin-icon';
@@ -40,7 +39,7 @@ import { SyncService } from './sync/sync.service';
          and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
       <h1 class="mb-4 text-3xl font-medium tracking-tight">
-        {{ isAdmin() ? text.adminPanel : text.staffArea }}
+        {{ isAdmin() ? panelText.adminPanel : panelText.staffArea }}
       </h1>
       <app-signed-in-as />
 
@@ -236,11 +235,11 @@ import { SyncService } from './sync/sync.service';
           <section class="order-8 md:order-0">
             <h2 id="admin-security-heading" [class]="headingClass">
               <app-admin-icon name="lock" class="size-4" />
-              {{ text.securityHeading }}
+              {{ panelText.securityHeading }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-security-heading">
               <app-panel-row
-                [label]="text.changePassword.heading"
+                [label]="panelText.changePassword"
                 link="/change-password"
               />
             </ul>
@@ -442,7 +441,6 @@ export class AdminPanelPage {
   protected readonly isAdmin = computed(
     () => this.auth.user()?.role === 'admin',
   );
-  protected readonly text = inject(APP_TEXT).auth;
   protected readonly panelText = inject(ADMIN_TEXT).panel;
   protected readonly productText = inject(ADMIN_TEXT).products.list;
   protected readonly categoryText = inject(ADMIN_TEXT).categories.list;
@@ -455,7 +453,7 @@ export class AdminPanelPage {
   protected readonly userText = inject(ADMIN_TEXT).users.list;
   protected readonly consentText = inject(ADMIN_TEXT).consents;
   protected readonly orderText = inject(ADMIN_TEXT).orders.list;
-  protected readonly navText = inject(COMMON_TEXT).nav;
+  protected readonly navText = inject(SHARED_TEXT).nav;
   protected readonly syncText = inject(ADMIN_TEXT).sync;
   protected readonly areas = OWNERSHIP_AREAS;
   // Only what this deployment publishes: an unpublished page has no route to
@@ -638,7 +636,8 @@ export class AdminPanelPage {
     // Admin screens are client-rendered, so this is for the browser tab
     // rather than for crawlers — but it is the same one-line contract.
     usePageSeo({
-      name: () => (this.isAdmin() ? this.text.adminPanel : this.text.staffArea),
+      name: () =>
+        this.isAdmin() ? this.panelText.adminPanel : this.panelText.staffArea,
     });
   }
 }

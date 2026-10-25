@@ -7,7 +7,7 @@ import { AdminText } from './admin-text.type';
  * `/admin-text.json` route in server.ts for why). Everything here exists to
  * hide that from the ~20 admin components that just want to read wording:
  * a route guard awaits the fetch, and `ADMIN_TEXT` then resolves synchronously
- * exactly as `APP_TEXT` does.
+ * exactly as `STOREFRONT_TEXT` does.
  *
  * Cached in a module-level variable rather than a service because the guard
  * runs outside any component's injector and the value never changes for the

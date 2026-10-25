@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../shared/config/common-text';
-import { defaultCommonText } from '../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../shared/config/shared-text';
+import { defaultSharedText } from '../shared/config/shared-text.fixture';
 import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
@@ -31,7 +31,7 @@ describe('unsavedChangesGuard', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         {
           provide: ConfirmService,
           useValue: {

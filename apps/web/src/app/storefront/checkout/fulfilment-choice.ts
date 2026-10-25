@@ -1,7 +1,7 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ChoiceCard } from '../../shared/ui/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
@@ -82,8 +82,8 @@ import { Link } from '../../shared/ui/link';
 export class FulfilmentChoice {
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
-  protected readonly text = inject(APP_TEXT).checkout.fulfilment;
-  protected readonly names = inject(COMMON_TEXT).fulfilment;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
+  protected readonly names = inject(SHARED_TEXT).fulfilment;
   protected readonly hasPickup =
     (this.config.pickup?.locations.length ?? 0) > 0;
   protected readonly hasZones = (this.config.delivery?.zones.length ?? 0) > 0;

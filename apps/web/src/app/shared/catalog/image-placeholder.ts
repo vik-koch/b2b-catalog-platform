@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 
 /**
  * Fallback tile for a product (or product image) that has no photo yet. A view
@@ -52,7 +52,7 @@ import { APP_TEXT } from '../config/app-text';
   `,
 })
 export class ImagePlaceholder {
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
 
   /** Product name — the placeholder's accessible label, matching a real image's alt. */
   label = input<string>('');

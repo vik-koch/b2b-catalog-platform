@@ -17,8 +17,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { formatPriceMinor } from '../../shared/catalog/price';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -31,7 +31,7 @@ import {
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import {
-  customerBlockLabels,
+  injectCustomerBlockLabels,
   orderBlocks,
 } from '../../shared/orders/order-blocks';
 import { OrderDocumentsList } from './order-documents-list';
@@ -211,11 +211,12 @@ export class OrderDetailPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  private readonly appText = inject(APP_TEXT);
-  private readonly commonText = inject(COMMON_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
-  protected readonly names = this.commonText.order;
-  private readonly orderText = this.appText.orders;
+  private readonly storefrontText = inject(STOREFRONT_TEXT);
+  private readonly customerLabels = injectCustomerBlockLabels();
+  private readonly sharedText = inject(SHARED_TEXT);
+  protected readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly names = this.sharedText.order;
+  private readonly orderText = this.storefrontText.orders;
   protected readonly text = this.orderText.detail;
 
   /** Bound from the route's `:reference` segment. */
@@ -256,7 +257,7 @@ export class OrderDetailPage {
       name: line.name,
       note: line.note,
       href: line.linked ? `/product/${line.slug}` : null,
-      quantity: customerQuantity(line, this.commonText, this.currency),
+      quantity: customerQuantity(line, this.sharedText, this.currency),
       total: formatPriceMinor(line.lineTotalMinor, this.currency),
       // Only once the lines differ: a rate the total names would otherwise
       // be said on every line for nothing.
@@ -272,15 +273,11 @@ export class OrderDetailPage {
     const detail = this.detail();
     if (!detail) return [];
 
-    return orderBlocks(
-      detail,
-      customerBlockLabels(this.commonText, this.appText.checkout.review),
-      {
-        address: this.config.address,
-        phoneInput: this.config.phoneInput,
-        locale: this.config.locale,
-      },
-    );
+    return orderBlocks(detail, this.customerLabels, {
+      address: this.config.address,
+      phoneInput: this.config.phoneInput,
+      locale: this.config.locale,
+    });
   });
 
   protected placed(detail: OrderDetail): string {

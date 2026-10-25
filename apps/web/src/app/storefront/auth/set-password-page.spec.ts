@@ -1,20 +1,20 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthUser, Page } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { PageService } from '../../shared/pages/page.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { adminUser } from '../../shared/auth/auth-user.fixture';
 import { SetPasswordPage } from './set-password-page';
 
-const text = defaultAppText.auth.setPassword;
-const rejected = defaultAppText.auth.passwordRejected;
+const text = defaultStorefrontText.auth.setPassword;
+const rejected = defaultStorefrontText.auth.passwordRejected;
 
 const consentPage: Page = {
   version: 2,
@@ -63,8 +63,8 @@ async function render(
     imports: [SetPasswordPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       // The demo asks for no consent; these specs drive the form that does.
       {
         provide: DEPLOYMENT_CONFIG,
@@ -167,7 +167,7 @@ describe('SetPasswordPage', () => {
 
     expect(setPassword).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultAppText.auth.validation.confirmPasswordMismatch,
+      defaultStorefrontText.auth.validation.confirmPasswordMismatch,
     );
   });
 
@@ -230,7 +230,9 @@ describe('SetPasswordPage', () => {
       await sync();
 
       expect(setPassword).not.toHaveBeenCalled();
-      expect(el.textContent).toContain(defaultAppText.consentBox.required);
+      expect(el.textContent).toContain(
+        defaultStorefrontText.consentBox.required,
+      );
 
       el.querySelector<HTMLInputElement>('input[type="checkbox"]')?.click();
       submit();
@@ -253,7 +255,9 @@ describe('SetPasswordPage', () => {
       submit();
       await sync();
 
-      expect(el.textContent).toContain(defaultAppText.consentBox.changed);
+      expect(el.textContent).toContain(
+        defaultStorefrontText.consentBox.changed,
+      );
       expect(el.textContent).not.toContain(text.error);
     });
   });

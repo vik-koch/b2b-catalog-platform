@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Meta } from '@angular/platform-browser';
 import { Facet, ProductListItem } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { CatalogService } from './catalog.service';
@@ -52,8 +52,8 @@ async function render(
     imports: [SearchResults],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       // From the committed demo config, not a literal: a hand-built one
       // silently drops whatever the schema grew since, and a missing flag
       // reads as "off".
@@ -118,7 +118,7 @@ describe('SearchResults', () => {
   it('prompts rather than reporting a miss when there is no query at all', async () => {
     const el = await render('', page([]));
 
-    expect(el.textContent).toContain(defaultAppText.search.emptyQuery);
+    expect(el.textContent).toContain(defaultStorefrontText.search.emptyQuery);
   });
 
   it('keeps itself out of the index (NFR-SEO-04)', async () => {
@@ -133,7 +133,7 @@ describe('SearchResults', () => {
     const el = await render('espresso', page([item('a', 'A')], 3));
 
     const next = [...el.querySelectorAll('a')].find((a) =>
-      a.textContent?.includes(defaultAppText.catalog.nextPage),
+      a.textContent?.includes(defaultSharedText.pagination.next),
     );
     expect(next?.getAttribute('href')).toContain('q=espresso');
     expect(next?.getAttribute('href')).toContain('page=2');
@@ -167,7 +167,7 @@ describe('SearchResults', () => {
       });
 
       const next = [...el.querySelectorAll('a')].find((a) =>
-        a.textContent?.includes(defaultAppText.catalog.nextPage),
+        a.textContent?.includes(defaultSharedText.pagination.next),
       );
       expect(next?.getAttribute('href')).toContain('sort=price');
     });
@@ -176,7 +176,7 @@ describe('SearchResults', () => {
       const el = await render('espresso', page([item('a', 'A')], 3));
 
       const next = [...el.querySelectorAll('a')].find((a) =>
-        a.textContent?.includes(defaultAppText.catalog.nextPage),
+        a.textContent?.includes(defaultSharedText.pagination.next),
       );
       expect(next?.getAttribute('href')).not.toContain('sort=');
     });
@@ -213,7 +213,9 @@ describe('SearchResults', () => {
       });
 
       expect(sent).toEqual(['grind:fine']);
-      expect(el.textContent).toContain(defaultAppText.catalog.filters.title);
+      expect(el.textContent).toContain(
+        defaultStorefrontText.catalog.filters.title,
+      );
     });
 
     it('carries the selection through the pagination links', async () => {
@@ -222,7 +224,7 @@ describe('SearchResults', () => {
       });
 
       const next = [...el.querySelectorAll('a')].find((a) =>
-        a.textContent?.includes(defaultAppText.catalog.nextPage),
+        a.textContent?.includes(defaultSharedText.pagination.next),
       );
       expect(next?.getAttribute('href')).toContain('attr=grind:fine');
     });
@@ -231,9 +233,11 @@ describe('SearchResults', () => {
       const el = await render('espresso', filtered([]), { attr: 'grind:fine' });
 
       expect(el.textContent).toContain(
-        defaultAppText.catalog.filters.noMatches,
+        defaultStorefrontText.catalog.filters.noMatches,
       );
-      expect(el.textContent).not.toContain(defaultAppText.search.noResultsHint);
+      expect(el.textContent).not.toContain(
+        defaultStorefrontText.search.noResultsHint,
+      );
       expect(el.querySelector('input[type="checkbox"]')).not.toBeNull();
     });
   });

@@ -1,7 +1,7 @@
 import { Component, effect, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Address, fillText } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -13,7 +13,7 @@ import {
   AddressesService,
   SaveAddressResult,
 } from '../../shared/addresses/addresses.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -69,9 +69,9 @@ export class AddressEditorPage {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(APP_TEXT).account.addresses;
-  private readonly fieldText = inject(APP_TEXT).address;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).account.addresses;
+  private readonly fieldText = inject(STOREFRONT_TEXT).address;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly addressId = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.addressId === null;

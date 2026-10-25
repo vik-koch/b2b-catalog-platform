@@ -6,8 +6,6 @@ import {
   resource,
   effect,
   DestroyRef,
-  PLATFORM_ID,
-  signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
@@ -15,15 +13,14 @@ import {
   ProductPage,
 } from '@b2b-catalog-platform/shared';
 import { Meta } from '@angular/platform-browser';
-import { adminText, loadAdminText } from '../../shared/config/admin-text';
+import { hiddenProductText } from '../../shared/edit-mode/hidden-product-text';
 import { StatusBadge } from '../../shared/ui/status-badge';
-import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../shared/auth/auth.service';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { EDIT_MODE_CATALOG } from '../../shared/edit-mode/edit-mode-catalog';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
@@ -37,7 +34,7 @@ import {
   PRODUCT_PAGE_SECTION_CELL,
   ProductDetailView,
 } from '../../shared/catalog/product-detail-view';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The product page route (FR-CAT-05): loads a product by slug and renders it
@@ -169,8 +166,8 @@ export class ProductDetail {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
-  protected readonly text = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly columns = PRODUCT_PAGE_COLUMNS;
   protected readonly sectionCell = PRODUCT_PAGE_SECTION_CELL;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -193,13 +190,10 @@ export class ProductDetail {
     },
   });
 
-  /** The badge wording, fetched like every admin word: null until it has
-   * arrived, or for good where fetching it failed. */
-  protected readonly statusText = computed(() => adminText()?.products ?? null);
-  private readonly textFailed = signal(false);
-  private readonly statusSettled = computed(
-    () => this.statusText() !== null || this.textFailed(),
+  private readonly hiddenText = hiddenProductText(
+    () => this.product.hasValue() && !!this.product.value()?.hidden,
   );
+  protected readonly statusText = this.hiddenText.status;
 
   /** The product and its edit affordances appear together, once the product
    * and the visitor's role are both known — see editAwareContent. */
@@ -209,7 +203,7 @@ export class ProductDetail {
     ready: computed(
       () =>
         this.product.hasValue() &&
-        (!this.product.value()?.hidden || this.statusSettled()),
+        (!this.product.value()?.hidden || this.hiddenText.settled()),
     ),
     section: 'editMode',
   });
@@ -247,12 +241,12 @@ export class ProductDetail {
     hidden: ProductPage['hidden'] | null,
   ): Promise<void> {
     const text = this.editText();
-    const all = adminText();
-    if (!text || !all) return;
+    const noPrice = this.hiddenText.noPrice();
+    if (!text || noPrice === null) return;
     if (hidden?.unpriced) {
       await this.confirm.tell({
         heading: text.unpricedTitle,
-        message: all.catalogErrors['product-has-no-price'],
+        message: noPrice,
         closeLabel: this.actionText.close,
       });
       return;
@@ -278,16 +272,6 @@ export class ProductDetail {
   );
 
   constructor() {
-    // Fetched only once a hidden page is in hand, which only an admin has; in
-    // the browser only, where the file is served — the server's render keeps
-    // the placeholder, and the browser's first frame matches it.
-    if (isPlatformBrowser(inject(PLATFORM_ID))) {
-      effect(() => {
-        if (this.product.hasValue() && this.product.value()?.hidden) {
-          loadAdminText().catch(() => this.textFailed.set(true));
-        }
-      });
-    }
     usePageSeo({
       name: () => this.loaded()?.name,
       description: () => plainTextExcerpt(this.loaded()?.descriptionHtml),

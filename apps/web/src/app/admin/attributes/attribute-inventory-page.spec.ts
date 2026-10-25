@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Location } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
@@ -8,9 +8,9 @@ import {
   AttributeKeyUsage,
   AttributeValueUsage,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
@@ -77,10 +77,10 @@ async function render(
         [{ path: '**', component: AttributeInventoryPage }],
         withComponentInputBinding(),
       ),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AttributesService, useValue: service },
       { provide: ConfirmService, useValue: confirm },

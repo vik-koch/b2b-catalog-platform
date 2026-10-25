@@ -22,7 +22,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -245,7 +245,7 @@ export class AdminOrderListPage {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
   protected readonly text = inject(ADMIN_TEXT).orders.list;
-  protected readonly names = inject(COMMON_TEXT).order;
+  protected readonly names = inject(SHARED_TEXT).order;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly statuses = this.ordersText.statuses;
 

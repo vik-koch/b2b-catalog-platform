@@ -1,20 +1,20 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
   AccountProfile,
   UpdateAccountProfileRequest,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
 import { AccountEditPage } from './account-edit-page';
 import { AccountService } from './account.service';
 
-const text = defaultAppText.account.edit;
+const text = defaultStorefrontText.account.edit;
 const config = defaultDeploymentConfig;
 
 const stored: AccountProfile = {
@@ -49,8 +49,8 @@ async function render(
     providers: [
       // A real /account route, so the redirect after a save has somewhere to go.
       provideRouter([{ path: 'account', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AuthService, useValue: { refresh } },
       {
@@ -145,7 +145,7 @@ describe('AccountEditPage', () => {
 
     expect(updateProfile).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultCommonText.fields.firstName.required,
+      defaultSharedText.fields.firstName.required,
     );
   });
 

@@ -11,7 +11,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { fillText, LinkedDocument } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { HighlightedLine } from '../../shared/core/highlighted-line';
@@ -188,7 +188,7 @@ export class ProductDocumentsEditor implements OnInit {
   private readonly service = inject(DocumentsService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.documents;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
 
   readonly value = input.required<readonly LinkedDocument[]>();

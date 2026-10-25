@@ -1,7 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { ProductImage, ProductVariant } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 
 /** Where a variant's first picture is in the gallery, or -1 where it has none
  * on show — none uploaded yet, or withheld while it is unavailable. */
@@ -65,8 +65,8 @@ export function firstPictureOf(
   `,
 })
 export class ProductVariantList {
-  protected readonly text = inject(APP_TEXT).catalog.variants;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.variants;
+  protected readonly product = inject(SHARED_TEXT).product;
 
   readonly variants = input.required<readonly ProductVariant[]>();
   /** The pictures on show, in gallery order. */

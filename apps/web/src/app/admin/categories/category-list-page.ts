@@ -21,7 +21,6 @@ import {
   CategoryOrderEntry,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -179,7 +178,7 @@ const EDGE_SLACK = 24;
       }
 
       @if (categories.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (categories.hasValue()) {
         @if (rows().length === 0) {
           <p class="text-muted">{{ text.empty }}</p>
@@ -387,7 +386,6 @@ export class CategoryListPage {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
-  protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
 
   protected productsLabel(count: number): string {

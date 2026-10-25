@@ -6,7 +6,7 @@ import {
 } from '../mail/templates/order-items';
 import {
   addressLines,
-  CommonText,
+  SharedText,
   fillText,
   formatMoneyMinor,
   MoneyFormat,
@@ -22,7 +22,7 @@ import {
   ORDER_REFERENCE_CONFIG,
 } from '../config/deployment-config';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { PdfFaces } from '../pdf/pdf-faces';
 import { PDF_TEXT, PdfText } from '../pdf/pdf-text';
 import { Sheet } from '../pdf/pdf-sheet';
@@ -45,7 +45,7 @@ import { shopDay } from './shop-day';
 export class OrderPdf {
   constructor(
     @Inject(PDF_TEXT) private readonly text: PdfText,
-    @Inject(COMMON_TEXT) private readonly common: CommonText,
+    @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ADDRESS_CONFIG) private readonly address: AddressConfig | undefined,

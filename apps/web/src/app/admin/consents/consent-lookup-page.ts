@@ -35,7 +35,7 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { adminDayFormat } from '../grid/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 type SearchBy = 'email' | 'phone';
 
@@ -125,7 +125,7 @@ export class ConsentLookupPage {
   protected readonly text = inject(ADMIN_TEXT).consents;
   private readonly adminText = inject(ADMIN_TEXT);
   private readonly fields = inject(ADMIN_TEXT).fields;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,

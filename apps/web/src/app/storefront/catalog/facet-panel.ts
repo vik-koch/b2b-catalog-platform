@@ -6,7 +6,7 @@ import {
   ListingSort,
   PRODUCT_SORTS,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../../shared/ui/checkbox';
@@ -320,7 +320,7 @@ export class FacetPanel {
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly selection = inject(FacetSelection);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
   protected readonly text = this.catalogText.filters;
   protected readonly VALUES_COLLAPSED = VALUES_COLLAPSED;
   /** A listing renders exactly one panel, so a constant id keeps the server's

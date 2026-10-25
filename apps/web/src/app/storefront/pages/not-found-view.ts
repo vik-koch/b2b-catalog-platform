@@ -1,6 +1,6 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
 
 /**
@@ -28,7 +28,7 @@ import { Button } from '../../shared/ui/button';
   `,
 })
 export class NotFoundView {
-  protected readonly text = inject(APP_TEXT).errors;
+  protected readonly text = inject(STOREFRONT_TEXT).errors;
 
   readonly heading = input<string | null>(null);
   readonly body = input<string | null>(null);

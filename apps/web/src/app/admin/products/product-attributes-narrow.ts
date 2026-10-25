@@ -34,7 +34,7 @@ import {
   attributeRowKey,
   attributeRowStatus,
 } from './attribute-hints';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
@@ -219,7 +219,7 @@ import { COMMON_TEXT } from '../../shared/config/common-text';
 export class ProductAttributesNarrow {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly dash = '—';
 
   readonly value = input.required<ProductAttribute[]>();

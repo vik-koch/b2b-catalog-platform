@@ -1,6 +1,6 @@
 import {
   AdminOrderDetail,
-  CommonText,
+  SharedText,
   MoneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { MailContent } from '../mail-layout';
@@ -27,7 +27,7 @@ export function orderCancelledMail(
   order: AdminOrderDetail,
   currency: MoneyFormat,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
 ): MailContent {
   const t = text.orderCancelled;
   const names = common.order;

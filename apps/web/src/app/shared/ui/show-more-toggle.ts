@@ -9,7 +9,7 @@ import { Button } from './button';
  * hidden and how it comes back differs at every call site, and the only thing
  * they ever shared was the button, spelled out four times.
  *
- * The labels come in rather than from APP_TEXT: nothing in `ui/` knows the
+ * The labels come in rather than from STOREFRONT_TEXT: nothing in `ui/` knows the
  * deployment's words. The host centres itself and nothing more, so the call
  * site keeps the margin and the width it is shown at.
  */

@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { fillText, MapEmbed } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
@@ -58,7 +58,7 @@ export class MapFrame {
     this.portraitOnPhone() ? 'aspect-[3/4] sm:aspect-video' : 'aspect-video',
   );
 
-  protected readonly text = inject(APP_TEXT).map;
+  protected readonly text = inject(STOREFRONT_TEXT).map;
   protected readonly notice = fillText(this.text.consentNotice, {
     provider: inject(DEPLOYMENT_CONFIG).mapProvider,
   });

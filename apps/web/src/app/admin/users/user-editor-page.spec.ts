@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -14,8 +14,8 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -128,9 +128,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -533,7 +533,7 @@ describe('UserEditorPage', () => {
       expect(button(defaultAdminText.actions.save)).toBeUndefined();
       expect(button(text.resend)).toBeUndefined();
       // The way back stays, as it does on the catalog's locked route.
-      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
+      expect(button(defaultSharedText.actions.cancel)).toBeDefined();
     });
 
     it('offers no approval either', async () => {
@@ -555,7 +555,7 @@ describe('UserEditorPage', () => {
         defaultAdminText.ownership.accountCreate,
       );
       expect(field('firstName')).toBeNull();
-      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
+      expect(button(defaultSharedText.actions.cancel)).toBeDefined();
     });
 
     it('leaves a staff account editable', async () => {

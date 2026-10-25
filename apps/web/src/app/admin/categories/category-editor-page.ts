@@ -25,7 +25,7 @@ import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { categoryDescendantIds } from './category-tree';
 import { ImagePicker } from '../media/image-picker';
 import { CategoryPicker } from './category-picker';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * Edit a category (FR-ADM-01) on its own screen at
@@ -203,7 +203,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   protected readonly text = inject(ADMIN_TEXT).categories.editor;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly ownership = inject(SettingsService);
 
   /**

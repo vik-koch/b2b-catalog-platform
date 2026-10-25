@@ -2,6 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { FormControl, Validators } from '@angular/forms';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { companyIdFormat } from '../core/contact-fields';
 import { CompanyFields } from './company-fields';
 import { PartiesService } from './parties.service';
@@ -11,9 +13,6 @@ const formats = defaultDeploymentConfig.companyIdInput?.formats ?? [];
 const examples = formats.map((format) => format.example).join(', ');
 
 const text = {
-  suggestionsAria: 'Company suggestions',
-  noSuggestions: 'No matching companies.',
-  suggestionCountAria: 'Company suggestions: {count}',
   idLabel: 'Company ID',
   nameLabel: 'Company name',
   hint: 'e.g. {examples}',
@@ -27,6 +26,7 @@ async function render(options: { required?: boolean } = {}) {
     imports: [CompanyFields],
     providers: [
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: PartiesService, useValue: { suggest: vi.fn(async () => []) } },
     ],
   });

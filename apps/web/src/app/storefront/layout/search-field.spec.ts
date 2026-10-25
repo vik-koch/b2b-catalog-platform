@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Location } from '@angular/common';
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -9,8 +9,8 @@ import { ProductListItem, SearchCategory } from '@b2b-catalog-platform/shared';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
 import { CatalogService } from '../catalog/catalog.service';
 import { productListItem } from '../../shared/catalog/product.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { SearchField } from './search-field';
@@ -74,8 +74,8 @@ async function renderAt(url?: string) {
     imports: [SearchField],
     providers: [
       provideRouter([{ path: '**', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: CatalogService, useValue: catalogStub },
       { provide: CartService, useValue: cartStub },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
@@ -169,8 +169,8 @@ describe('SearchField', () => {
       imports: [SearchField],
       providers: [
         provideRouter([{ path: '**', children: [] }]),
-        { provide: APP_TEXT, useValue: defaultAppText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: CatalogService, useValue: catalogStub },
         { provide: CartService, useValue: cartStub },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
@@ -404,7 +404,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     addButtons(el)[0].click();
     await fixture.whenStable();
 
-    expect(el.textContent).toContain(defaultAppText.cart.full);
+    expect(el.textContent).toContain(defaultStorefrontText.cart.full);
   });
 
   it('reaches the add button from the keyboard with the right arrow', async () => {
@@ -443,7 +443,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     await typeQuery(fixture, el, 'espresso');
 
     const showAll = Array.from(el.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes(defaultAppText.search.showAllResults),
+      b.textContent?.includes(defaultStorefrontText.search.showAllResults),
     );
     showAll?.click();
 
@@ -715,7 +715,9 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     await typeQuery(fixture, el, 'zzzz');
 
     expect(options(el)).toHaveLength(0);
-    expect(el.textContent).toContain(defaultAppText.search.noSuggestions);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.search.noSuggestions,
+    );
     expect(
       (el.querySelector('input') as HTMLInputElement).getAttribute(
         'aria-expanded',
@@ -754,7 +756,9 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     await typePending(el, 'espresso');
     fixture.detectChanges();
 
-    expect(el.textContent).not.toContain(defaultAppText.search.noSuggestions);
+    expect(el.textContent).not.toContain(
+      defaultStorefrontText.search.noSuggestions,
+    );
     expect(
       (el.querySelector('input') as HTMLInputElement).getAttribute(
         'aria-expanded',
@@ -769,7 +773,9 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
 
     suggestions = [];
     await typeQuery(fixture, el, 'zzz');
-    expect(el.textContent).toContain(defaultAppText.search.noSuggestions);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.search.noSuggestions,
+    );
 
     holdNext = true;
     await typePending(el, 'zzz espresso');

@@ -9,7 +9,7 @@ import {
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
@@ -292,9 +292,9 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documents.editor;
-  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
   protected readonly issuedId = 'document-issued-at';
   protected readonly expiresId = 'document-expires-at';

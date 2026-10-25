@@ -7,7 +7,7 @@ import { Input } from './input';
  * Missing, and malformed. Two messages rather than one because they are two
  * different mistakes: nothing typed, versus something typed that is not an
  * address. Passed in for the same reason as PhoneFieldText — the staff editor
- * words them from admin-text, everything else from app-text.
+ * words them from admin-text, everything else from storefront-text.
  */
 export interface EmailFieldText {
   readonly required: string;

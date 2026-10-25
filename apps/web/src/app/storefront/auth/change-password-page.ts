@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { ChangePasswordForm } from './change-password-form';
 
@@ -19,7 +19,7 @@ import { ChangePasswordForm } from './change-password-form';
   `,
 })
 export class ChangePasswordPage {
-  protected readonly text = inject(APP_TEXT).auth.changePassword;
+  protected readonly text = inject(STOREFRONT_TEXT).auth.changePassword;
 
   constructor() {
     usePageSeo({ name: () => this.text.heading });

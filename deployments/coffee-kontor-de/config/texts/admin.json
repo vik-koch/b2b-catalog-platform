@@ -111,7 +111,11 @@
     "fullyOwned": "Shop extern verwaltet",
     "catalogOwned": "Katalog extern verwaltet",
     "customersOwned": "Kunden extern verwaltet",
-    "ordersOwned": "Bestellungen extern verwaltet"
+    "ordersOwned": "Bestellungen extern verwaltet",
+    "adminPanel": "Verwaltung",
+    "staffArea": "Mitarbeiterbereich",
+    "securityHeading": "Passwort und Sicherheit",
+    "changePassword": "Passwort ändern"
   },
   "editMode": {
     "enable": "Bearbeitungsmodus",
@@ -269,7 +273,8 @@
         "picture": "Bild",
         "description": "Beschreibung",
         "attributes": "Merkmale"
-      }
+      },
+      "bestMatch": "Beste Treffer"
     },
     "editor": {
       "newTitle": "Produkt hinzufügen",
@@ -1574,5 +1579,6 @@
     "historyMaintenanceOff": "Wartungsmodus ausgeschaltet",
     "historyBy": "{date} von {actor}",
     "historyMore": "Gezeigt werden nur die {count} letzten Änderungen."
-  }
+  },
+  "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
 }

@@ -20,7 +20,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
@@ -123,7 +123,7 @@ export class CategoryDeleteDialog {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly dialog =
     viewChild.required<ElementRef<HTMLDialogElement>>('dialog');

@@ -2,10 +2,10 @@ import { Component, inject, input, output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { SuggestListText } from '../core/suggest-list';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { PartySuggestField } from './party-suggest-field';
 
-export interface CompanyFieldsText extends SuggestListText {
+export interface CompanyFieldsText {
   readonly idLabel: string;
   readonly nameLabel: string;
   /** `{examples}` is substituted with every shape the deployment accepts. */
@@ -47,7 +47,7 @@ export interface CompanyFieldsText extends SuggestListText {
           [inputId]="idInputId()"
           [control]="idControl()"
           [label]="text().idLabel"
-          [text]="suggestText()"
+          [text]="suggestText"
           [required]="required()"
           [optionalLabel]="text().optional"
           [invalid]="idInvalid()"
@@ -59,7 +59,7 @@ export interface CompanyFieldsText extends SuggestListText {
           autocomplete="organization"
           [control]="nameControl()"
           [label]="text().nameLabel"
-          [text]="suggestText()"
+          [text]="suggestText"
           [required]="required()"
           [optionalLabel]="text().optional"
           [invalid]="nameInvalid()"
@@ -111,11 +111,8 @@ export class CompanyFields {
     // hardcoded "or" here would be one English word inside a localized string.
     .join(', ');
 
-  /** Only the type-ahead half of the wording reaches the fields themselves. */
-  protected suggestText(): SuggestListText {
-    const { suggestionsAria, noSuggestions, suggestionCountAria } = this.text();
-    return { suggestionsAria, noSuggestions, suggestionCountAria };
-  }
+  /** The type-ahead's wording, the same wherever the pair is asked for. */
+  protected readonly suggestText = inject(STOREFRONT_TEXT).companySuggest;
 
   protected hint(): string | undefined {
     return this.text().hint?.replace('{examples}', this.examples);

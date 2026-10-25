@@ -1,17 +1,17 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
 import { productListItem } from '../../shared/catalog/product.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { FeaturedRow } from './featured-row';
 import { FeaturedRowService } from './featured-row.service';
 
-const text = defaultAppText.home.featured;
+const text = defaultStorefrontText.home.featured;
 
 async function render(row: () => Promise<ProductListItem[] | undefined>) {
   TestBed.resetTestingModule();
@@ -19,8 +19,8 @@ async function render(row: () => Promise<ProductListItem[] | undefined>) {
     imports: [FeaturedRow],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: FeaturedRowService, useValue: { row } },
     ],

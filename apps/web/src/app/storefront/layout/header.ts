@@ -9,8 +9,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
 import { AccountLink } from './account-link';
@@ -174,8 +174,8 @@ export class Header {
     return `${sticky} ${brandRow}sm:-translate-y-10`;
   });
 
-  protected readonly text = inject(APP_TEXT);
-  protected readonly nav = inject(COMMON_TEXT).nav;
+  protected readonly text = inject(STOREFRONT_TEXT);
+  protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly branding = this.config.branding;
   protected readonly logo = this.branding.logo;
   /** The mark is painted through a mask (see `.logo-mark`), so it has no

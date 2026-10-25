@@ -4,11 +4,11 @@ import {
   AddressComponents,
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared';
-import { defaultAppText } from '../config/app-text.fixture';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { AddressSuggestField } from './address-suggest-field';
 import { AddressesService } from './addresses.service';
 
-const text = defaultAppText.address;
+const text = defaultStorefrontText.address;
 
 /** What the stubbed provider answers with; set per test. */
 let answers: AddressSuggestion[] = [];

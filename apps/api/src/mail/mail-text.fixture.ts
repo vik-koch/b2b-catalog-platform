@@ -1,6 +1,6 @@
 import {
-  CommonText,
-  commonTextSchema,
+  SharedText,
+  sharedTextSchema,
   PhoneConfig,
 } from '@b2b-catalog-platform/shared';
 import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
@@ -18,9 +18,9 @@ export const demoMailText: MailText = loadConfigFile(
   'deployments/fixture/config/texts/mail.json',
 );
 
-export const demoCommonText: CommonText = loadConfigFile(
-  commonTextSchema,
-  'deployments/fixture/config/texts/common.json',
+export const demoSharedText: SharedText = loadConfigFile(
+  sharedTextSchema,
+  'deployments/fixture/config/texts/shared.json',
 );
 export const demoPdfText: PdfText = loadConfigFile(
   pdfTextSchema,

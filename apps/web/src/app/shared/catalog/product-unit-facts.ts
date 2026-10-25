@@ -3,8 +3,8 @@ import {
   ProductPackagingInfo,
   ProductUnit,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { useProductUnits } from './product-units-view';
 
 /**
@@ -54,8 +54,8 @@ export class ProductUnitFacts {
   readonly unit = input<ProductUnit>('piece');
 
   private readonly units = useProductUnits();
-  private readonly text = inject(APP_TEXT).catalog.units;
-  private readonly packing = inject(COMMON_TEXT).packaging;
+  private readonly text = inject(STOREFRONT_TEXT).catalog.units;
+  private readonly packing = inject(SHARED_TEXT).packaging;
 
   protected shows(fact: 'minimum' | 'packaging'): boolean {
     return this.show() === 'both' || this.show() === fact;

@@ -7,7 +7,7 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
@@ -69,7 +69,7 @@ export { formatWait };
 export class SignInStepPanel {
   private readonly auth = inject(AuthService);
 
-  protected readonly text = inject(APP_TEXT).auth.signInStep;
+  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
 
   /** The session has started. */
   readonly done = output<void>();

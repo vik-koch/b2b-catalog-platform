@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ProductImage } from '@b2b-catalog-platform/shared';
 import { swipeStep, touchX } from './swipe';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { FRAME, FRAME_HOVER, FRAME_SELECTED } from '../ui/frame';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
 import { ImagePlaceholder } from './image-placeholder';
@@ -137,7 +137,7 @@ const THUMBS_BESIDE = 6;
   `,
 })
 export class ProductGallery {
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
 
   /** Framed like a photo in a listing: the same hairline, at the radius the
    * page's largest image is given. */

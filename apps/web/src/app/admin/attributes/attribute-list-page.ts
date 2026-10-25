@@ -22,7 +22,6 @@ import {
   slugSchema,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -40,7 +39,7 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { WarningNote } from '../../shared/ui/warning-note';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -110,7 +109,7 @@ type EditTarget = { id: string } | { id: null } | null;
       }
 
       @if (definitions.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (definitions.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone. -->
@@ -378,8 +377,7 @@ export class AttributeListPage {
   protected readonly text = inject(ADMIN_TEXT).attributes.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly types = ATTRIBUTE_TYPES;
 
   protected readonly definitions = resource({

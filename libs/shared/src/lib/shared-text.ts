@@ -29,6 +29,7 @@ export const paymentStateLabels = z
 const NAV_ROUTES = [
   ...PAGE_SLUGS,
   'home',
+  'catalog',
   'inquiry',
   'licenses',
   'more',
@@ -47,7 +48,7 @@ const field = <T extends z.ZodRawShape>(checks: T) =>
  * nothing written only for staff belongs here; that wording is in the admin
  * text, and in the mail text where staff mail needs it.
  */
-export const commonTextSchema = z
+export const sharedTextSchema = z
   .object({
     /**
      * Names of the shop's pages and routes, keyed by route segment. Every page
@@ -74,6 +75,11 @@ export const commonTextSchema = z
       .strict(),
     /** Beside a field that may be left empty. */
     optional: z.string(),
+    /** Under a list that runs to more than one page. `status` fills in
+     * `{page}` and `{total}`. */
+    pagination: z
+      .object({ previous: z.string(), next: z.string(), status: z.string() })
+      .strict(),
     /** Short unit names, as a quantity is stated beside goods. */
     units: z
       .object({ piece: z.string(), pack: z.string(), box: z.string() })
@@ -177,4 +183,4 @@ export const commonTextSchema = z
   .strict()
   .superRefine(refuseCountForms);
 
-export type CommonText = DeepReadonly<z.infer<typeof commonTextSchema>>;
+export type SharedText = DeepReadonly<z.infer<typeof sharedTextSchema>>;

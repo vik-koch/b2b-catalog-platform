@@ -34,15 +34,15 @@ const adminText = JSON.parse(
     };
   };
 };
-const commonText = JSON.parse(
+const sharedText = JSON.parse(
   readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/common.json'),
+    join(workspaceRoot, 'deployments/fixture/config/texts/shared.json'),
     'utf8',
   ),
 ) as { order: { total: string; changeNote: string } };
 const detail = adminText.orders.detail;
 const adjust = adminText.orders.adjust;
-const names = commonText.order;
+const names = sharedText.order;
 
 const env = localtestEnv();
 const ADMIN_EMAIL = env['ADMIN_EMAIL'];

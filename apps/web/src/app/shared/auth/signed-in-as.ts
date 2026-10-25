@@ -1,6 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { Button } from '../ui/button';
 import { AuthService } from './auth.service';
 
@@ -39,7 +39,7 @@ export class SignedInAs {
   private readonly router = inject(Router);
 
   protected readonly auth = inject(AuthService);
-  protected readonly text = inject(APP_TEXT).auth;
+  protected readonly text = inject(STOREFRONT_TEXT).auth;
 
   /**
    * By first name where there is one, by address otherwise — staff accounts are

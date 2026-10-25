@@ -1,5 +1,5 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 
 /**
  * Shown when a page's data could not be loaded — the API is down, or answered
@@ -25,7 +25,7 @@ import { APP_TEXT } from '../../shared/config/app-text';
   `,
 })
 export class LoadErrorView {
-  protected readonly text = inject(APP_TEXT).errors;
+  protected readonly text = inject(STOREFRONT_TEXT).errors;
 
   /** Set to render a full page-level error; omit for an inline one. */
   readonly heading = input<string | null>(null);

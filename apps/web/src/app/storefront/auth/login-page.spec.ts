@@ -1,13 +1,13 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthUser } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { AuthService, LoginResult } from '../../shared/auth/auth.service';
 import { LoginPage } from './login-page';
 import {
@@ -15,7 +15,7 @@ import {
   plainUser,
 } from '../../shared/auth/auth-user.fixture';
 
-const text = defaultAppText.auth;
+const text = defaultStorefrontText.auth;
 
 function setInput(root: HTMLElement, selector: string, value: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
@@ -39,8 +39,8 @@ async function render(result: LoginResult = 'ok', signedIn: AuthUser = admin) {
     imports: [LoginPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: AuthService,
@@ -86,7 +86,7 @@ describe('LoginPage', () => {
     await sync();
 
     expect(login).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.required);
     expect(el.textContent).toContain(text.validation.passwordRequired);
   });
 
@@ -99,7 +99,7 @@ describe('LoginPage', () => {
     await sync();
 
     expect(login).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.invalid);
   });
 
   it('signs an admin in and lands them in the panel', async () => {

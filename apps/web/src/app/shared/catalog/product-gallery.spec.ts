@@ -1,10 +1,10 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { ProductGallery } from './product-gallery';
 
 const img = (n: number): CatalogImage => ({
@@ -16,8 +16,8 @@ function render(images: CatalogImage[]): ComponentFixture<ProductGallery> {
   TestBed.configureTestingModule({
     imports: [ProductGallery],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
   const fixture = TestBed.createComponent(ProductGallery);

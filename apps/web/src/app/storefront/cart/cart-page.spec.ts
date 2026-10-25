@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CartPreview, fillText } from '@b2b-catalog-platform/shared';
 import { packagedPackaging } from '../../shared/catalog/product.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { ConfirmService } from '../../shared/ui/confirm.service';
@@ -13,7 +13,7 @@ import { CartPage } from './cart-page';
 import { CartPreviewService } from './cart-preview.service';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
 
-const text = defaultAppText.cart;
+const text = defaultStorefrontText.cart;
 
 function addition(overrides: Partial<CartAddition> = {}): CartAddition {
   return {
@@ -120,8 +120,8 @@ async function render(
     imports: [CartPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: {
@@ -181,18 +181,18 @@ async function render(
     quantities: () =>
       [
         ...el.querySelectorAll(
-          `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
+          `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
         ),
       ].map((input) => (input as HTMLInputElement).value),
     rowLabels: () => [...el.querySelectorAll('dt')].map((d) => d.textContent),
     /** The first row's quantity field. */
     quantityInput: () =>
       el.querySelector(
-        `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
+        `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
       ) as HTMLInputElement,
     async type(value: string) {
       const input = el.querySelector(
-        `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
+        `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
       ) as HTMLInputElement;
       input.value = value;
       input.dispatchEvent(new Event('input'));
@@ -201,7 +201,7 @@ async function render(
     async blurQuantity() {
       (
         el.querySelector(
-          `input[aria-label="${defaultAppText.cart.quantityAria}"]`,
+          `input[aria-label="${defaultStorefrontText.cart.quantityAria}"]`,
         ) as HTMLInputElement
       ).dispatchEvent(new Event('blur'));
       await rerender();
@@ -280,7 +280,7 @@ describe('CartPage', () => {
     });
     expect(view.photos()).toEqual(['/media/thumb.webp']);
 
-    await view.chooseUnit(defaultAppText.catalog.units.select.box);
+    await view.chooseUnit(defaultStorefrontText.catalog.units.select.box);
 
     // The unit really did change, and the row kept everything it had.
     expect(view.cart.lines()[0].unit).toBe('box');
@@ -490,7 +490,7 @@ describe('CartPage', () => {
     const link = paired.el.querySelector('app-product-pairings');
     const field = paired.el.querySelector('textarea');
     if (!link || !field) throw new Error('expected both the link and the note');
-    expect(link.textContent).toContain(defaultCommonText.product.pairings);
+    expect(link.textContent).toContain(defaultSharedText.product.pairings);
     // Above the note, because it is something the shop says about the product
     // and the note is something the customer writes about the line.
     expect(
@@ -513,12 +513,12 @@ describe('CartPage', () => {
     expect(view.el.textContent).toContain(
       text.pairing.shortAction
         .replace('{count}', '20')
-        .replace('{unit}', defaultCommonText.units.piece),
+        .replace('{unit}', defaultSharedText.units.piece),
     );
     expect(view.el.textContent).toContain(text.pairing.shortReason);
     // The shortfall speaks instead of the marker's own word, not over it.
     expect(view.el.textContent).not.toContain(
-      defaultCommonText.product.pairings,
+      defaultSharedText.product.pairings,
     );
     // Last in its column, so it sits on the row's bottom edge: nudged down to
     // read level with the controls across from it.
@@ -545,7 +545,7 @@ describe('CartPage', () => {
     expect(view.el.textContent).toContain(
       text.pairing.shortAction
         .replace('{count}', '20')
-        .replace('{unit}', defaultCommonText.units.piece),
+        .replace('{unit}', defaultSharedText.units.piece),
     );
   });
 
@@ -768,19 +768,19 @@ describe('CartPage', () => {
     const collapsed = (text: string) => text.replace(/\s+/g, ' ');
 
     expect(view.text()).toContain(
-      collapsed(defaultCommonText.tax.mixed.included),
+      collapsed(defaultSharedText.tax.mixed.included),
     );
     expect(view.text()).toContain(
-      collapsed(defaultCommonText.tax.line.replace('{rate}', '7')),
+      collapsed(defaultSharedText.tax.line.replace('{rate}', '7')),
     );
     expect(view.text()).toContain(
-      collapsed(defaultCommonText.tax.line.replace('{rate}', '19')),
+      collapsed(defaultSharedText.tax.line.replace('{rate}', '19')),
     );
   });
 
   it('states no line rate while every line shares one', async () => {
     const view = await render({ lines: [addition()] });
-    const rate = defaultCommonText.tax.line
+    const rate = defaultSharedText.tax.line
       .replace('{rate}', '19')
       .replace(/\s+/g, ' ');
 
@@ -794,7 +794,7 @@ describe('CartPage', () => {
     // The demo quotes 19 % included.
     // The text reads with its spaces collapsed, the non-breaking one too.
     expect(view.text()).toContain(
-      defaultCommonText.tax.included
+      defaultSharedText.tax.included
         .replace('{rate}', '19')
         .replace(/\s+/g, ' '),
     );
@@ -931,7 +931,7 @@ describe('CartPage', () => {
     expect(view.rows()).toHaveLength(10);
     expect(view.text()).toContain('Page 1 of 2');
 
-    await view.click(defaultAppText.catalog.nextPage);
+    await view.click(defaultSharedText.pagination.next);
 
     expect(view.rows()).toHaveLength(2);
     expect(view.text()).toContain('Page 2 of 2');
@@ -946,7 +946,7 @@ describe('CartPage', () => {
       answer: preview(slugs.map((slug) => ({ slug }))),
     });
 
-    await view.click(defaultAppText.catalog.nextPage);
+    await view.click(defaultSharedText.pagination.next);
     expect(view.rows()).toHaveLength(1);
 
     view.cart.remove('line-10');

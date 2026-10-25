@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { CustomerType, PartySuggestion } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
@@ -217,10 +217,9 @@ export class RegisterPage {
   private readonly auth = inject(AuthService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
-  protected readonly text = inject(APP_TEXT).auth;
-  protected readonly fields = inject(COMMON_TEXT).fields;
-  private readonly companySuggest = inject(APP_TEXT).companySuggest;
-  private readonly partyChoice = inject(APP_TEXT).partyChoice;
+  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
   /**
    * The kinds of customer the shop sells to (FR-AUTH-13), in the order the
    * deployment lists them: the first is where the form starts.
@@ -231,8 +230,8 @@ export class RegisterPage {
       label: this.partyChoice[value],
     }));
   private readonly firstType = this.config.customerTypes[0];
-  protected readonly home = inject(APP_TEXT).errors.notFoundBack;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
@@ -248,7 +247,6 @@ export class RegisterPage {
     incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...this.companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     hint: this.text.register.companyIdHint,

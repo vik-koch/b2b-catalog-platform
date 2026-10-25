@@ -1,6 +1,7 @@
 {
   "nav": {
     "home": "Home",
+    "catalog": "Catalogue",
     "about": "About us",
     "terms": "Terms of sale",
     "conditions": "Payment & delivery",
@@ -140,5 +141,10 @@
       "required": "Please enter your company ID.",
       "format": "Please enter it in one of the expected formats, e.g. {examples}."
     }
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "status": "Page {page} of {total}"
   }
 }

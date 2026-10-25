@@ -10,8 +10,8 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
-import { preloadAppText } from './app/shared/config/app-text.server';
-import { preloadCommonText } from './app/shared/config/common-text.server';
+import { preloadStorefrontText } from './app/shared/config/storefront-text.server';
+import { preloadSharedText } from './app/shared/config/shared-text.server';
 import {
   getAdminText,
   preloadAdminText,
@@ -293,8 +293,8 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   // build/prerender, which import this module without a runtime environment.
   getAssetsMiddleware();
   preloadDeploymentConfig();
-  preloadAppText();
-  preloadCommonText();
+  preloadStorefrontText();
+  preloadSharedText();
   preloadAdminText();
 
   const port = requireEnv('WEB_PORT');

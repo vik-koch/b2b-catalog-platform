@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, formatPartList } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { Icon } from '../ui/icons/icon';
 
 /**
@@ -45,7 +45,7 @@ export class ProductSetBadge {
   readonly parts = input.required<readonly string[]>();
   readonly variant = input<'short' | 'full'>('short');
 
-  protected readonly text = inject(APP_TEXT).catalog.set;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog.set;
 
   protected readonly full = computed(() =>
     fillText(this.text.full, { parts: formatPartList(this.parts()) }),

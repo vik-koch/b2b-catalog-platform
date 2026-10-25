@@ -1,13 +1,13 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { Facet, FacetValue } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { FacetPanel } from './facet-panel';
 
 const value = (v: string, count = 3, selected = false): FacetValue => ({
@@ -39,8 +39,8 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
     imports: [Host],
     providers: [
       provideRouter([{ path: '**', component: Host }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       // The panel reads the sort-control flag to decide whether anything
       // stands above the facets, so the token has to be there.
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
@@ -76,7 +76,7 @@ async function render(facets: Facet[], startUrl = '/catalog/espresso') {
   return { router, host, boxes, click, buttonWith, fixture };
 }
 
-const text = defaultAppText.catalog.filters;
+const text = defaultStorefrontText.catalog.filters;
 
 describe('FacetPanel', () => {
   it('writes a ticked value to the URL and returns to the first page', async () => {
@@ -191,7 +191,7 @@ describe('FacetPanel', () => {
     expect(collapsed.boxes()).toHaveLength(12);
     expect(rest(collapsed.host).querySelectorAll('input')).toHaveLength(4);
     expect(folded(collapsed.host)).toBe(true);
-    collapsed.buttonWith(defaultAppText.catalog.showMore)?.click();
+    collapsed.buttonWith(defaultStorefrontText.catalog.showMore)?.click();
     collapsed.fixture.detectChanges();
     expect(folded(collapsed.host)).toBe(false);
 

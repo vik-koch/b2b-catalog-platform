@@ -34,7 +34,8 @@ import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { EditModeService } from '../../shared/edit-mode/edit-mode.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { HiddenProductsSection } from '../../shared/edit-mode/hidden-products-section';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -460,7 +461,7 @@ interface Listing {
                 @if (data.pagination.totalPages > 1) {
                   <nav
                     class="mt-8 flex items-center justify-center gap-4 text-sm"
-                    [attr.aria-label]="text.pageStatus"
+                    [attr.aria-label]="pagination.status"
                   >
                     @if (data.pagination.page > 1) {
                       <a
@@ -473,11 +474,11 @@ interface Listing {
                         appButton
                         variant="ghost"
                         size="sm"
-                        >{{ text.prevPage }}</a
+                        >{{ pagination.previous }}</a
                       >
                     } @else {
                       <span class="px-3 py-1.5 text-stone-300">{{
-                        text.prevPage
+                        pagination.previous
                       }}</span>
                     }
                     <span class="text-subtle">{{
@@ -494,11 +495,11 @@ interface Listing {
                         appButton
                         variant="ghost"
                         size="sm"
-                        >{{ text.nextPage }}</a
+                        >{{ pagination.next }}</a
                       >
                     } @else {
                       <span class="px-3 py-1.5 text-stone-300">{{
-                        text.nextPage
+                        pagination.next
                       }}</span>
                     }
                   </nav>
@@ -592,7 +593,8 @@ export class CategoryGrid {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
+  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -813,7 +815,7 @@ export class CategoryGrid {
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {
-    return this.text.pageStatus
+    return this.pagination.status
       .replace('{page}', String(p.page))
       .replace('{total}', String(p.totalPages));
   }

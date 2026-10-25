@@ -52,13 +52,13 @@ const SCHEMAS = {
     'deploymentConfigSchema',
   ],
   'api.json': ['apps/api/src/config/api-config.ts', 'apiConfigSchema'],
-  'texts/common.json': [
-    'libs/shared/src/lib/common-text.ts',
-    'commonTextSchema',
+  'texts/shared.json': [
+    'libs/shared/src/lib/shared-text.ts',
+    'sharedTextSchema',
   ],
-  'texts/app.json': [
-    'apps/web/src/app/shared/config/app-text.type.ts',
-    'appTextSchema',
+  'texts/storefront.json': [
+    'apps/web/src/app/shared/config/storefront-text.type.ts',
+    'storefrontTextSchema',
   ],
   'texts/admin.json': [
     'apps/web/src/app/shared/config/admin-text.type.ts',

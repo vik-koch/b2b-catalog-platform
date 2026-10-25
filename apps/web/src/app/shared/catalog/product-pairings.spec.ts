@@ -1,10 +1,10 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { PairingsService } from './pairings.service';
@@ -12,7 +12,7 @@ import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
 import { productDetail } from './product.fixture';
 
-const text = defaultAppText.catalog.pairings;
+const text = defaultStorefrontText.catalog.pairings;
 
 async function render(
   variant: 'marker' | 'link',
@@ -23,8 +23,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductPairings],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
 
@@ -59,7 +59,7 @@ describe('the sold-together marker (FR-SET-05)', () => {
     const { el } = await render('link');
 
     expect(el.querySelector('button')?.textContent).toContain(
-      defaultCommonText.product.pairings,
+      defaultSharedText.product.pairings,
     );
   });
 
@@ -73,7 +73,7 @@ describe('the sold-together marker (FR-SET-05)', () => {
 
     expect(el.querySelector('button')?.textContent?.trim()).toBe('Add 20 pc');
     expect(el.textContent).toContain('of what this is sold with.');
-    expect(el.textContent).not.toContain(defaultCommonText.product.pairings);
+    expect(el.textContent).not.toContain(defaultSharedText.product.pairings);
   });
 
   it('opens the one panel, naming the product it was pressed on', async () => {
@@ -101,8 +101,8 @@ async function renderControls(pairedCount: number, offerPairings = true) {
     imports: [ProductBuyControls],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });

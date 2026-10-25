@@ -2,7 +2,7 @@ import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { PageEditor } from './page-editor';
@@ -63,7 +63,7 @@ export class PageEditorPage implements UnsavedChangesAware {
    */
   protected readonly blankPage: Page = {
     version: 0,
-    title: inject(COMMON_TEXT).nav[this.slug] ?? '',
+    title: inject(SHARED_TEXT).nav[this.slug] ?? '',
     bodyHtml: '',
     consentLabel: null,
     updatedAt: '',

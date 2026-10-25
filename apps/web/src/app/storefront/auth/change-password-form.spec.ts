@@ -1,18 +1,18 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { PASSWORD_MIN_LENGTH } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import {
   AuthService,
   ChangePasswordResult,
 } from '../../shared/auth/auth.service';
 import { ChangePasswordForm } from './change-password-form';
 
-const text = defaultAppText.auth.changePassword;
-const validation = defaultAppText.auth.validation;
-const rejected = defaultAppText.auth.passwordRejected;
+const text = defaultStorefrontText.auth.changePassword;
+const validation = defaultStorefrontText.auth.validation;
+const rejected = defaultStorefrontText.auth.passwordRejected;
 
 const tooShort = 'x'.repeat(PASSWORD_MIN_LENGTH - 1);
 const longEnough = 'x'.repeat(PASSWORD_MIN_LENGTH);
@@ -43,8 +43,8 @@ async function render(result: ChangePasswordResult = { result: 'ok' }) {
   TestBed.configureTestingModule({
     imports: [ChangePasswordForm],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: AuthService, useValue: { changePassword } },
     ],
   });

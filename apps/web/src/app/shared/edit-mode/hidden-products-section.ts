@@ -23,7 +23,7 @@ import { AdminIcon } from '../ui/icons/admin-icon';
 import { StatusBadge } from '../ui/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category
@@ -148,7 +148,7 @@ export class HiddenProductsSection {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   readonly categorySlug = input.required<string>();
   /** Bump to force a re-fetch (e.g. after a delete elsewhere on the page). */

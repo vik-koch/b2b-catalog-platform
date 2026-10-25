@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { injectNarrowScreen } from '../core/narrow-screen';
 import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
@@ -20,7 +20,7 @@ import { Icon } from '../ui/icons/icon';
 import { IconButton } from '../ui/icon-button';
 import { Input } from '../ui/input';
 import { Popover } from '../ui/popover';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 
 /**
  * The line note's button and its field (FR-CART-08) — a bubble on a pointer, a
@@ -132,8 +132,8 @@ import { COMMON_TEXT } from '../config/common-text';
   `,
 })
 export class ProductNoteEditor {
-  protected readonly text = inject(APP_TEXT).cart;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).cart;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly noteMax = CART_NOTE_MAX;
 
   /** The note as it stands. This is a view of it, never the copy of record. */

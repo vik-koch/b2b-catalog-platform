@@ -1,10 +1,10 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { Page, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { PageService } from '../../shared/pages/page.service';
@@ -12,7 +12,7 @@ import { PartiesService } from '../../shared/parties/parties.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { RegisterPage } from './register-page';
 
-const text = defaultAppText.auth.register;
+const text = defaultStorefrontText.auth.register;
 
 /** What the stubbed provider answers with; set per test. */
 let parties: PartySuggestion[] = [];
@@ -77,8 +77,8 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: PartiesService, useValue: { suggest } },
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: AuthService, useValue: { register } },
       { provide: PageService, useValue: { getPage } },
@@ -159,14 +159,14 @@ describe('RegisterPage', () => {
 
     expect(register).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultCommonText.fields.firstName.required,
+      defaultSharedText.fields.firstName.required,
     );
     expect(el.textContent).toContain(
-      defaultCommonText.fields.lastName.required,
+      defaultSharedText.fields.lastName.required,
     );
-    expect(el.textContent).toContain(defaultCommonText.fields.email.required);
-    expect(el.textContent).toContain(defaultCommonText.fields.phone.required);
-    expect(el.textContent).toContain(defaultAppText.consentBox.required);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.required);
+    expect(el.textContent).toContain(defaultSharedText.fields.phone.required);
+    expect(el.textContent).toContain(defaultStorefrontText.consentBox.required);
   });
 
   it('rejects an address the server would reject too', async () => {
@@ -178,7 +178,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(register).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.invalid);
   });
 
   // Half an address is unfinished, not wrong: judging it on the first letter
@@ -190,7 +190,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.email.invalid,
+      defaultSharedText.fields.email.invalid,
     );
   });
 
@@ -201,7 +201,7 @@ describe('RegisterPage', () => {
     blur(el, '#email');
     await sync();
 
-    expect(el.textContent).toContain(defaultCommonText.fields.email.invalid);
+    expect(el.textContent).toContain(defaultSharedText.fields.email.invalid);
   });
 
   // Reward the correction: the message goes on the keystroke that fixes it.
@@ -216,7 +216,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.email.invalid,
+      defaultSharedText.fields.email.invalid,
     );
   });
 
@@ -228,7 +228,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(el.textContent).not.toContain(
-      defaultCommonText.fields.firstName.required,
+      defaultSharedText.fields.firstName.required,
     );
   });
 
@@ -292,7 +292,7 @@ describe('RegisterPage', () => {
 
       expect(register).not.toHaveBeenCalled();
       expect(el.textContent).toContain(
-        defaultCommonText.fields.companyName.required,
+        defaultSharedText.fields.companyName.required,
       );
     });
 
@@ -344,7 +344,7 @@ describe('RegisterPage', () => {
 
     expect(register).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultCommonText.fields.companyName.required,
+      defaultSharedText.fields.companyName.required,
     );
   });
 
@@ -456,7 +456,7 @@ describe('RegisterPage', () => {
     await sync();
 
     expect(register).not.toHaveBeenCalled();
-    expect(el.textContent).toContain(defaultCommonText.fields.phone.incomplete);
+    expect(el.textContent).toContain(defaultSharedText.fields.phone.incomplete);
   });
 
   it('passes the honeypot along when a bot fills it', async () => {
@@ -495,7 +495,7 @@ describe('RegisterPage', () => {
     await sync();
     await sync();
 
-    expect(el.textContent).toContain(defaultAppText.consentBox.changed);
+    expect(el.textContent).toContain(defaultStorefrontText.consentBox.changed);
     expect(el.textContent).not.toContain(text.error);
 
     register.mockResolvedValue('ok');

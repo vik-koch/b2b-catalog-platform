@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AddressComponents, fillText } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { FieldErrors } from '../core/form-errors';
 import { FieldLabel } from '../ui/field-label';
@@ -19,7 +19,7 @@ import { SelectField } from '../ui/select-field';
 import { AddressForm } from './address-form';
 import { AddressSuggestField } from './address-suggest-field';
 import { TextButton } from '../ui/link';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */
@@ -261,8 +261,8 @@ let nextId = 0;
 export class AddressFields {
   private readonly instance = nextId++;
 
-  protected readonly text = inject(APP_TEXT).address;
-  protected readonly optional = inject(COMMON_TEXT).optional;
+  protected readonly text = inject(STOREFRONT_TEXT).address;
+  protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly countries =
     inject(DEPLOYMENT_CONFIG).address?.countries ?? [];
 

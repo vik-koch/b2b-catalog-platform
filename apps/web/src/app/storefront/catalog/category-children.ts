@@ -4,7 +4,7 @@ import {
   categoryDisplayName,
   CategoryNode,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Collapsible } from '../../shared/ui/collapsible';
 import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
 
@@ -64,7 +64,7 @@ const SHOWN = 4;
 export class CategoryChildren {
   readonly parent = input.required<CategoryNode>();
 
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly open = signal(false);
   /** The parent's own slug, so several cells' toggles point at their own row. */
   protected readonly restId = computed(() => `children-${this.parent().slug}`);

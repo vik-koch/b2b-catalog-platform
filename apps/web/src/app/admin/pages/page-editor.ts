@@ -25,7 +25,7 @@ import { Input } from '../../shared/ui/input';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { PageService } from '../../shared/pages/page.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -173,7 +173,7 @@ export class PageEditor {
   private readonly pageService = inject(PageService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).pages;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */

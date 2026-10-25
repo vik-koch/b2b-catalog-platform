@@ -1,18 +1,18 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { ProductDetail } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { ProductBuyBlock } from './product-buy-block';
 import { packagedPackaging, productDetail } from './product.fixture';
 
-const text = defaultAppText.cart;
-const unitText = defaultAppText.catalog.units;
+const text = defaultStorefrontText.cart;
+const unitText = defaultStorefrontText.catalog.units;
 
 /**
  * Ten to a pack, four packs to a box (so forty pieces), and a hundred-piece
@@ -45,8 +45,8 @@ async function renderKeepingCart(item: ProductDetail, canAdd = true) {
     imports: [ProductBuyBlock],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -120,10 +120,10 @@ describe('ProductBuyBlock', () => {
     const view = await render(packaged);
 
     expect(view.text()).toContain(
-      `${unitText.minQuantity}: 100 ${defaultCommonText.units.piece}`,
+      `${unitText.minQuantity}: 100 ${defaultSharedText.units.piece}`,
     );
     expect(view.text()).toContain(
-      `${defaultCommonText.packaging.heading}: 4 pk × 10 pcs`,
+      `${defaultSharedText.packaging.heading}: 4 pk × 10 pcs`,
     );
   });
 
@@ -215,7 +215,7 @@ describe('ProductBuyBlock', () => {
     const field = el.querySelector('textarea');
     if (!link || !facts || !field) throw new Error('expected all three');
 
-    expect(link.textContent).toContain(defaultCommonText.product.pairings);
+    expect(link.textContent).toContain(defaultSharedText.product.pairings);
     expect(
       facts.compareDocumentPosition(link) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();

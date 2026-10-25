@@ -1,8 +1,8 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { emailFormat } from '../../shared/core/contact-fields';
 import { FieldErrors } from '../../shared/core/form-errors';
@@ -117,8 +117,8 @@ export class LoginPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(APP_TEXT).auth;
-  protected readonly fields = inject(COMMON_TEXT).fields;
+  protected readonly text = inject(STOREFRONT_TEXT).auth;
+  protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,

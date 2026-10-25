@@ -14,7 +14,7 @@ import {
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { HighlightedLine } from '../../shared/core/highlighted-line';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
@@ -200,7 +200,7 @@ export class ProductPairingsEditor implements OnInit {
   private readonly service = inject(AdminCatalogService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.pairings;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.pairings;
 

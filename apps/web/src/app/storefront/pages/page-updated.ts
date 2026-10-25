@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, isDatedPage } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 
 /**
@@ -23,7 +23,7 @@ export class PageUpdated {
   /** ISO 8601, when the current version was saved. */
   readonly updatedAt = input.required<string>();
 
-  private readonly text = inject(APP_TEXT).pageUpdated;
+  private readonly text = inject(STOREFRONT_TEXT).pageUpdated;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly format = new Intl.DateTimeFormat(this.config.locale, {
     dateStyle: 'long',

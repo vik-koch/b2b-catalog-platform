@@ -2,7 +2,7 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor, moneyFormat } from '@b2b-catalog-platform/shared';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { injectNarrowScreen } from '../../shared/core/narrow-screen';
 import { FieldLabel } from '../../shared/ui/field-label';
@@ -176,8 +176,8 @@ export function parseCount(text: string): number | null {
 export class ProductPackagingEditor {
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly text = inject(ADMIN_TEXT).products.editor.packaging;
-  protected readonly packing = inject(COMMON_TEXT).packaging;
-  private readonly unitNames = inject(COMMON_TEXT).units;
+  protected readonly packing = inject(SHARED_TEXT).packaging;
+  private readonly unitNames = inject(SHARED_TEXT).units;
   private readonly unavailable =
     inject(ADMIN_TEXT).products.editor.packagingUnavailable;
   /** Below `md` a three-column table of typed cells has no room; the glyph

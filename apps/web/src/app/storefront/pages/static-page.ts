@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { PageSlug } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
@@ -70,8 +70,8 @@ import { PageUpdated } from './page-updated';
 export class StaticPage {
   private pageService = inject(PageService);
 
-  protected readonly text = inject(APP_TEXT).errors;
-  private readonly navText = inject(COMMON_TEXT).nav;
+  protected readonly text = inject(STOREFRONT_TEXT).errors;
+  private readonly navText = inject(SHARED_TEXT).nav;
   protected readonly editorFrom = injectEditorReturnParams();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * page body — see trustedRichText. */

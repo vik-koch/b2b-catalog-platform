@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { ProductListItem } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { CatalogService } from './catalog.service';
@@ -13,7 +13,7 @@ import { PairingsService } from '../../shared/catalog/pairings.service';
 import { ProductPairingsDialog } from './product-pairings-dialog';
 import { productListItem } from '../../shared/catalog/product.fixture';
 
-const text = defaultAppText.catalog.pairings;
+const text = defaultStorefrontText.catalog.pairings;
 
 /** jsdom's <dialog> has neither; the panel opens itself once it has content. */
 beforeAll(() => {
@@ -39,8 +39,8 @@ async function render(
     imports: [ProductPairingsDialog],
     providers: [
       provideRouter([{ path: 'product/:slug', component: Page }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: CatalogService,
@@ -211,7 +211,7 @@ describe('the sold-together panel (FR-SET-05)', () => {
     await settle();
 
     const close = [...el.querySelectorAll('button')].find((button) =>
-      button.textContent?.includes(defaultCommonText.actions.close),
+      button.textContent?.includes(defaultSharedText.actions.close),
     );
     close?.click();
     await settle();

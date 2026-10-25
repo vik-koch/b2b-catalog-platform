@@ -1,18 +1,18 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { OrderDetail } from '@b2b-catalog-platform/shared';
 import { signal } from '@angular/core';
 import { AuthService } from '../../shared/auth/auth.service';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { OrderTokenPage } from './order-token-page';
 import { OrdersService } from './orders.service';
 
-const text = defaultAppText.orders.public;
+const text = defaultStorefrontText.orders.public;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -99,8 +99,8 @@ async function render(
     imports: [OrderTokenPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: OrdersService, useValue: { getByToken } },
       {
@@ -124,10 +124,10 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     expect(getByToken).toHaveBeenCalledWith('tok-123');
     expect(el.textContent).toContain(placed.reference);
     expect(el.textContent).toContain(
-      defaultCommonText.order.statuses.requested,
+      defaultSharedText.order.statuses.requested,
     );
     expect(el.textContent).toContain('2 pk (12 pcs)');
-    expect(el.textContent).toContain(defaultCommonText.order.invoicedTo);
+    expect(el.textContent).toContain(defaultSharedText.order.invoicedTo);
   });
 
   // Approval takes days, so the account is offered here rather than between a
@@ -135,7 +135,9 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
   it('offers an account once the order is already sent', async () => {
     const { el } = await render(placed);
 
-    expect(el.textContent).toContain(defaultAppText.auth.registerInvite.text);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.auth.registerInvite.text,
+    );
     expect(el.querySelector('a[href="/register"]')).not.toBeNull();
   });
 
@@ -145,7 +147,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render(placed, 'user');
 
     expect(el.textContent).not.toContain(
-      defaultAppText.auth.registerInvite.text,
+      defaultStorefrontText.auth.registerInvite.text,
     );
     expect(el.querySelector('a[href="/register"]')).toBeNull();
     // Still their order, still readable: the token is the credential here, and
@@ -177,7 +179,7 @@ describe('OrderTokenPage (FR-NOTIF-06)', () => {
     const { el } = await render('reject');
 
     expect(el.querySelector('[role="alert"]')?.textContent).toContain(
-      defaultAppText.orders.error,
+      defaultStorefrontText.orders.error,
     );
   });
 });

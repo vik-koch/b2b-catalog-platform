@@ -1,10 +1,10 @@
 import { Component, inject, input, output } from '@angular/core';
 import { ORDER_NOTE_MAX } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { AutoGrow } from '../../shared/ui/auto-grow';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * Anything the customer wants to say in words, copied onto the order for the
@@ -41,8 +41,8 @@ import { COMMON_TEXT } from '../../shared/config/common-text';
   `,
 })
 export class OrderNote {
-  protected readonly text = inject(APP_TEXT).checkout.note;
-  protected readonly optional = inject(COMMON_TEXT).optional;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.note;
+  protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly id = 'order-note';
   protected readonly maxLength = ORDER_NOTE_MAX;
 

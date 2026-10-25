@@ -1,16 +1,16 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { AuthUser } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { AuthService } from './auth.service';
 import { SignedInAs } from './signed-in-as';
 import { adminUser as admin, plainUser as customer } from './auth-user.fixture';
 
-const text = defaultAppText.auth;
+const text = defaultStorefrontText.auth;
 
 async function render(initial: AuthUser | null) {
   const user: WritableSignal<AuthUser | null> = signal(initial);
@@ -22,8 +22,8 @@ async function render(initial: AuthUser | null) {
     imports: [SignedInAs],
     providers: [
       provideRouter([{ path: '', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: AuthService, useValue: { user, logout } },
     ],
   });

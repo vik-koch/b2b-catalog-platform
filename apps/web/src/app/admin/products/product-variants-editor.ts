@@ -23,7 +23,7 @@ import {
   variantNameKey,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import {
@@ -235,7 +235,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();

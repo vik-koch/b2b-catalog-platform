@@ -1,8 +1,8 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { DeploymentConfig, MapEmbed } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
@@ -34,8 +34,8 @@ async function render(map: MapEmbed, consent: ConsentState = {}) {
   TestBed.configureTestingModule({
     imports: [MapFrame],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
     ],
   });
@@ -77,7 +77,7 @@ describe('MapFrame', () => {
       { enabled: true, decision: 'rejected' },
     );
     const load = [...el.querySelectorAll('button')].find(
-      (button) => button.textContent?.trim() === defaultAppText.map.load,
+      (button) => button.textContent?.trim() === defaultStorefrontText.map.load,
     );
     load?.click();
     TestBed.tick();

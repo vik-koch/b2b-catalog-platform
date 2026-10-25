@@ -1,6 +1,6 @@
 import { env } from '../env';
 import { MailText } from '../mail/mail-text';
-import { demoCommonText, demoMailText } from '../mail/mail-text.fixture';
+import { demoSharedText, demoMailText } from '../mail/mail-text.fixture';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { LastAdminError, UserRow } from '../users/users.service';
 import { AccountDeletion } from './account-deletion';
@@ -74,7 +74,7 @@ function build(options: {
     dispatcher,
     orderDocuments as never,
     demoMailText as MailText,
-    demoCommonText,
+    demoSharedText,
   );
 
   return {

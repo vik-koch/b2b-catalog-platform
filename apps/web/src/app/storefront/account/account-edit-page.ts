@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   canonicalPhone,
@@ -160,10 +160,10 @@ export class AccountEditPage {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
-  protected readonly text = inject(APP_TEXT).account.edit;
-  protected readonly accountText = inject(APP_TEXT).account;
-  protected readonly fields = inject(COMMON_TEXT).fields;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).account.edit;
+  protected readonly accountText = inject(STOREFRONT_TEXT).account;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly phoneText = {
     required: this.fields.phone.required,

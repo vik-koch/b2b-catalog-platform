@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -12,10 +12,10 @@ import {
   SEARCH_SORTS,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { ProductSortSelect, sortParam } from './product-sort-select';
 
 /** A host page the control can navigate within, so the URL is observable. */
@@ -40,8 +40,8 @@ async function render(
     imports: [Host],
     providers: [
       provideRouter([{ path: '**', component: Host }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: {
@@ -106,7 +106,7 @@ describe('ProductSortSelect', () => {
       ...catalogSortSchema.options,
     ]);
     expect(select.options[0].textContent?.trim()).toBe(
-      defaultAppText.catalog.sort.category,
+      defaultStorefrontText.catalog.sort.category,
     );
   });
 
@@ -114,7 +114,9 @@ describe('ProductSortSelect', () => {
     const { select } = await render(SEARCH_SORTS);
 
     expect([...select.options].map((o) => o.textContent?.trim())).toEqual(
-      searchSortSchema.options.map((o) => defaultAppText.catalog.sort[o]),
+      searchSortSchema.options.map(
+        (o) => defaultStorefrontText.catalog.sort[o],
+      ),
     );
   });
 

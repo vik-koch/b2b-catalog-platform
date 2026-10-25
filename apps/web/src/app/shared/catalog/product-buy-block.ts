@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { CART_NOTE_MAX, ProductDetail } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { AutoGrow } from '../ui/auto-grow';
 import { FieldLabel } from '../ui/field-label';
 import { Input } from '../ui/input';
@@ -140,7 +140,7 @@ import { useTaxStatement } from './tax-statement';
   `,
 })
 export class ProductBuyBlock {
-  protected readonly text = inject(APP_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_TEXT).cart;
   protected readonly noteMax = CART_NOTE_MAX;
   private readonly tax = useTaxStatement();
 

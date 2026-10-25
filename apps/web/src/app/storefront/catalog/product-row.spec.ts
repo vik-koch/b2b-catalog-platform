@@ -1,10 +1,10 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { ApplicationRef, Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { LISTING_NARROW } from '../../shared/catalog/listing-narrow';
@@ -14,7 +14,7 @@ import {
   productListItem,
 } from '../../shared/catalog/product.fixture';
 
-const text = defaultAppText.cart;
+const text = defaultStorefrontText.cart;
 
 const item = productListItem({
   slug: 'filter-roast',
@@ -55,8 +55,8 @@ async function render(available = true, given = item) {
     imports: [Host],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
   });
@@ -166,7 +166,7 @@ describe('ProductRow', () => {
         { name: 'Terracotta', unavailable: true },
       ],
     });
-    const variantsText = defaultAppText.catalog.variants;
+    const variantsText = defaultStorefrontText.catalog.variants;
 
     it('labels no picture and offers the mark instead', async () => {
       const el = await render(true, cups);
@@ -175,7 +175,7 @@ describe('ProductRow', () => {
       const mark = el.querySelector<HTMLButtonElement>(
         'app-product-variants-mark button',
       );
-      expect(mark?.textContent).toContain(defaultCommonText.product.variants);
+      expect(mark?.textContent).toContain(defaultSharedText.product.variants);
       expect(mark?.getAttribute('aria-expanded')).toBe('false');
     });
 

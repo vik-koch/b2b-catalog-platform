@@ -20,8 +20,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../shared/catalog/price.pipe';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
@@ -124,7 +123,7 @@ function knownValues<T extends string>(
     </app-admin-list-header>
 
     @if (products.error()) {
-      <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+      <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="products"
@@ -133,7 +132,7 @@ function knownValues<T extends string>(
         [trackBy]="bySlug"
         [muted]="isDeleted"
         [sort]="headerSort()"
-        [defaultSortLabel]="catalogText.sort.relevance"
+        [defaultSortLabel]="text.bestMatch"
         [chips]="chips()"
         [toggles]="toggles()"
         [busy]="products.isLoading()"
@@ -386,7 +385,7 @@ export class ProductListPage {
   protected readonly text = inject(ADMIN_TEXT).products.list;
   protected readonly editText = inject(ADMIN_TEXT).editMode;
   protected readonly productStates = inject(ADMIN_TEXT).products;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly settings = inject(SettingsService);
   private readonly purgeText: PurgeText = {
     ...this.editText,
@@ -399,11 +398,10 @@ export class ProductListPage {
   private readonly confirm = inject(ConfirmService);
   private readonly productCreate = inject(ProductCreateService);
   protected readonly productText = inject(ADMIN_TEXT).products.editor;
-  protected readonly catalogText = inject(APP_TEXT).catalog;
   /** The storefront's three words for a stock state, reused rather than
    * restated: the grid and the badge a customer sees name one fact. */
   protected readonly availabilityText =
-    inject(COMMON_TEXT).product.availability;
+    inject(SHARED_TEXT).product.availability;
   protected readonly editorFrom = injectEditorReturnParams();
 
   /** Bound from the `page` query param (a string); coerced and floored to 1. */
@@ -842,7 +840,7 @@ export class ProductListPage {
 
   /** The editor's own word for a piece, not a second spelling of it: a
    * deployment that says "ea" or "St." says it once. */
-  protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
+  protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
 
   /** What the badge says when it is read rather than seen: the figure and the
    * state it resolves to. The unit is in the wording of `stockAria`, so the

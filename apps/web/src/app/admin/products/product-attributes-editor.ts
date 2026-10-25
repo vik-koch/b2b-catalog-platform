@@ -51,7 +51,7 @@ import {
   parseClipboardGrid,
   selectionToTsv,
 } from './attribute-grid';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.
@@ -282,7 +282,7 @@ import { COMMON_TEXT } from '../../shared/config/common-text';
 export class ProductAttributesEditor {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:
    * the action glyphs are already finger-sized a breakpoint earlier, and four
    * of them plus two cells do not fit the table between the two. */

@@ -1,13 +1,13 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { signal } from '@angular/core';
 import { afterAll, beforeAll, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Page as PageContent } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { loadAdminText } from '../../shared/config/admin-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
@@ -38,8 +38,8 @@ async function render(
     imports: [StaticPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       {
         provide: EditModeService,
@@ -151,7 +151,7 @@ describe('StaticPage — before it has been written', () => {
     expect(el.querySelector('app-load-error-view')).toBeNull();
     // Headed by its navigation label, so the page is named before it exists.
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultCommonText.nav['about'],
+      defaultSharedText.nav['about'],
     );
     expect(el.textContent).toContain(defaultAdminText.pages.emptyNotice);
     expect(editLink(el)?.getAttribute('href')).toContain(
@@ -173,8 +173,8 @@ describe('StaticPage — when the API cannot be reached', () => {
       imports: [StaticPage],
       providers: [
         provideRouter([]),
-        { provide: APP_TEXT, useValue: defaultAppText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: EditModeService,
@@ -222,7 +222,7 @@ describe('StaticPage — the date a legal text changed', () => {
     const privacy = await render(false, about, true, 'privacy');
     const updated = privacy.querySelector('app-page-updated');
     expect(updated?.textContent?.trim()).toBe(
-      defaultAppText.pageUpdated.label.replace(
+      defaultStorefrontText.pageUpdated.label.replace(
         '{date}',
         new Intl.DateTimeFormat(defaultDeploymentConfig.locale, {
           dateStyle: 'long',

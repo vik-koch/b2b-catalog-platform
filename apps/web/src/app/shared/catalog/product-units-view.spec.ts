@@ -1,8 +1,8 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { useProductUnits } from './product-units-view';
@@ -26,8 +26,8 @@ const plainSpaces = (text: string) => text.replace(/[\u00a0\u202f]/g, ' ');
 function units() {
   TestBed.configureTestingModule({
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
     ],
   });

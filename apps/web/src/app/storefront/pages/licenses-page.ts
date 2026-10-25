@@ -6,8 +6,8 @@ import {
   inject,
   resource,
 } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -80,8 +80,8 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
 export class LicensesPage {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  protected readonly text = inject(APP_TEXT).licenses;
-  protected readonly heading = inject(COMMON_TEXT).nav['licenses'];
+  protected readonly text = inject(STOREFRONT_TEXT).licenses;
+  protected readonly heading = inject(SHARED_TEXT).nav['licenses'];
 
   // `undefined` is the server's answer — nothing was fetched, so the list stays
   // out of the rendered HTML entirely rather than briefly claiming to be empty.

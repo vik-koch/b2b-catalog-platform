@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { consentLabelParts } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { Link } from '../../shared/ui/link';
 import { ConsentRequest } from './consent';
@@ -94,7 +94,7 @@ export class ConsentField {
   readonly alone = input(true);
 
   protected readonly id = `consent-${nextId++}`;
-  protected readonly text = inject(APP_TEXT).consentBox;
+  protected readonly text = inject(STOREFRONT_TEXT).consentBox;
   protected readonly parts = computed(() => {
     const label = this.consent().label();
     return label ? consentLabelParts(label) : null;

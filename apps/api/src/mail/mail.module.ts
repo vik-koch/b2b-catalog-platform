@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
-import { COMMON_TEXT, loadCommonText } from '../config/common-text';
+import { SHARED_TEXT, loadSharedText } from '../config/shared-text';
 import { PDF_TEXT, pdfTextSchema } from '../pdf/pdf-text';
 import { loadMailBranding, MAIL_BRANDING } from './mail-branding';
 import { MAIL_TEXT, mailTextSchema } from './mail-text';
@@ -31,7 +31,7 @@ import { SmtpMailer } from './smtp-mailer';
       provide: MAIL_TEXT,
       useFactory: () => loadConfig(mailTextSchema, 'texts/mail.json'),
     },
-    { provide: COMMON_TEXT, useFactory: loadCommonText },
+    { provide: SHARED_TEXT, useFactory: loadSharedText },
     {
       provide: PDF_TEXT,
       useFactory: () => loadConfig(pdfTextSchema, 'texts/pdf.json'),
@@ -51,7 +51,7 @@ import { SmtpMailer } from './smtp-mailer';
   exports: [
     MAILER,
     MAIL_TEXT,
-    COMMON_TEXT,
+    SHARED_TEXT,
     PDF_TEXT,
     MAIL_BRANDING,
     MailService,

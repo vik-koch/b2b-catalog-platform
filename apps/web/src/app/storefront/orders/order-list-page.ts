@@ -5,7 +5,8 @@ import {
   MY_ORDER_FILTERS,
   MyOrderFilter,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
@@ -75,7 +76,7 @@ import { OrdersService } from './orders.service';
         @if (data.pagination.totalPages > 1) {
           <nav
             class="mt-8 flex items-center justify-center gap-4 text-sm"
-            [attr.aria-label]="catalogText.pageStatus"
+            [attr.aria-label]="pagination.status"
           >
             @if (data.pagination.page > 1) {
               <a
@@ -84,11 +85,11 @@ import { OrdersService } from './orders.service';
                 appButton
                 variant="ghost"
                 size="sm"
-                >{{ catalogText.prevPage }}</a
+                >{{ pagination.previous }}</a
               >
             } @else {
               <span class="px-3 py-1.5 text-stone-300">{{
-                catalogText.prevPage
+                pagination.previous
               }}</span>
             }
             <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
@@ -99,11 +100,11 @@ import { OrdersService } from './orders.service';
                 appButton
                 variant="ghost"
                 size="sm"
-                >{{ catalogText.nextPage }}</a
+                >{{ pagination.next }}</a
               >
             } @else {
               <span class="px-3 py-1.5 text-stone-300">{{
-                catalogText.nextPage
+                pagination.next
               }}</span>
             }
           </nav>
@@ -125,8 +126,8 @@ import { OrdersService } from './orders.service';
 })
 export class OrderListPage {
   private readonly api = inject(OrdersService);
-  protected readonly text = inject(APP_TEXT).orders;
-  protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).orders;
+  protected readonly pagination = inject(SHARED_TEXT).pagination;
 
   /** Bound from the `state` query param. Absent — which arrives as
    * `undefined`, never as the input's default — is the whole history, and so
@@ -173,7 +174,7 @@ export class OrderListPage {
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {
-    return fillText(this.catalogText.pageStatus, {
+    return fillText(this.pagination.status, {
       page: p.page,
       total: p.totalPages,
     });

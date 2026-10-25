@@ -1,5 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
 import { Radio } from '../../shared/ui/radio';
@@ -92,7 +92,7 @@ import { TextButton } from '../../shared/ui/link';
   `,
 })
 export class PickupChoice {
-  protected readonly text = inject(APP_TEXT).checkout.fulfilment;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.fulfilment;
   protected readonly locations =
     inject(DEPLOYMENT_CONFIG).pickup?.locations ?? [];
 

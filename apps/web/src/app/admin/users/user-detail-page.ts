@@ -16,7 +16,7 @@ import {
   StaffUser,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { AuthService } from '../../shared/auth/auth.service';
 import { formatPhone } from '../../shared/core/contact-fields';
@@ -264,10 +264,10 @@ export class UserDetailPage {
   /** The same words the list and the editor use for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly editorText = inject(ADMIN_TEXT).users.editor;
-  private readonly commonText = inject(COMMON_TEXT);
+  private readonly sharedText = inject(SHARED_TEXT);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
@@ -520,8 +520,8 @@ export class UserDetailPage {
     const person = this.user();
     if (!person) return [];
     const editor = this.editorText;
-    const fields = this.commonText.fields;
-    const kinds = this.commonText.partyKind;
+    const fields = this.sharedText.fields;
+    const kinds = this.sharedText.partyKind;
     const type =
       person.customerType === 'company'
         ? kinds.company

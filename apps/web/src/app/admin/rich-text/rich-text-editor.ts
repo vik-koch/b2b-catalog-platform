@@ -33,7 +33,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -303,7 +303,7 @@ interface ToolbarAction {
 export class RichTextEditor {
   protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly link = this.text.linkPanel;
   /** Which shape the two panels take — see the template. */
   protected readonly narrow = injectNarrowScreen('sm');

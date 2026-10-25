@@ -2,7 +2,7 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { AuthService } from '../../shared/auth/auth.service';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -10,7 +10,7 @@ import { Button } from '../../shared/ui/button';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { AccountService } from './account.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 
@@ -118,11 +118,11 @@ export class AccountDeletePage {
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
 
-  protected readonly text = inject(APP_TEXT).account.delete;
-  protected readonly password = inject(APP_TEXT).auth.password;
-  protected readonly validation = inject(APP_TEXT).auth.validation;
-  protected readonly home = inject(APP_TEXT).errors.notFoundBack;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).account.delete;
+  protected readonly password = inject(STOREFRONT_TEXT).auth.password;
+  protected readonly validation = inject(STOREFRONT_TEXT).auth.validation;
+  protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly status = signal<Status>('idle');
   protected readonly deleted = signal(false);
 

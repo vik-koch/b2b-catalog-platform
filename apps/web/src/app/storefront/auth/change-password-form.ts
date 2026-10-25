@@ -5,7 +5,7 @@ import {
   PASSWORD_MIN_LENGTH,
   PasswordRejectionCode,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { zodValidator } from '../../shared/core/zod-validator';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { passwordsMatch } from '../../shared/core/password';
@@ -121,7 +121,7 @@ export class ChangePasswordForm {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
 
-  private readonly authText = inject(APP_TEXT).auth;
+  private readonly authText = inject(STOREFRONT_TEXT).auth;
   protected readonly text = this.authText.changePassword;
   protected readonly validation = this.authText.validation;
   /** One line per policy rule, so the code the API sends is the whole lookup. */

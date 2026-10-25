@@ -1,4 +1,4 @@
-import { CommonText, OrderDetail } from '@b2b-catalog-platform/shared';
+import { SharedText, OrderDetail } from '@b2b-catalog-platform/shared';
 import { CurrencyConfig, formatPriceMinor } from '../../shared/catalog/price';
 import {
   orderBlocks,
@@ -54,7 +54,7 @@ export function orderChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  common: CommonText,
+  common: SharedText,
   blockLabels: OrderBlockLabels,
   config: OrderChangeConfig,
 ): OrderChange[] {
@@ -78,7 +78,7 @@ export function orderLineChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  common: CommonText,
+  common: SharedText,
   config: OrderChangeConfig,
 ): OrderChange[] {
   const { currency } = config;

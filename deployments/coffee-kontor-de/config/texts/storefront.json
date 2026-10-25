@@ -33,16 +33,12 @@
     "scrollToTop": "Nach oben"
   },
   "catalog": {
-    "navLabel": "Katalog",
     "emptyCategories": "Unser Katalog wird gerade eingerichtet – bitte schauen Sie bald wieder vorbei.",
     "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
     "catalogRoot": "Katalog",
     "showMore": "Mehr anzeigen",
     "showLess": "Weniger anzeigen",
     "emptyProducts": "In dieser Kategorie gibt es noch keine Produkte.",
-    "prevPage": "Zurück",
-    "nextPage": "Weiter",
-    "pageStatus": "Seite {page} von {total}",
     "productCount": "Produkte: {count}",
     "set": {
       "short": "Set",
@@ -357,8 +353,6 @@
     "workMarkerAria": "Wartet auf Sie: {count}",
     "greeting": "Hallo, {name}",
     "securityHeading": "Passwort und Sicherheit",
-    "adminPanel": "Verwaltung",
-    "staffArea": "Mitarbeiterbereich",
     "account": "Mein Konto",
     "password": "Passwort",
     "registerInvite": {

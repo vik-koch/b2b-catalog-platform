@@ -14,7 +14,7 @@ import {
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   documentFileLabel,
@@ -207,8 +207,8 @@ export class OrderDocumentsPanel {
   protected readonly adminText = inject(ADMIN_TEXT);
   // The two size words, which the document list already owns: a file's size
   // reads the same wherever it is written.
-  private readonly sizes = inject(COMMON_TEXT).fileSize;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  private readonly sizes = inject(SHARED_TEXT).fileSize;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
 
   readonly order = input.required<AdminOrderDetail>();

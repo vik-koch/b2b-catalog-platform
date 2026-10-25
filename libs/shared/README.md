@@ -8,7 +8,7 @@ rules the storefront and the API must agree on.
 - **`*-constants.ts`, `*-format.ts` and the other plain modules** — limits, enums and pure
   helpers with no imports, so a component that needs a limit does not pull Zod into the
   browser.
-- **`*-config.ts`, `common-text.ts`** — the schemas a deployment's `deployment.json` and shared
+- **`*-config.ts`, `shared-text.ts`** — the schemas a deployment's `deployment.json` and shared
   texts are loaded with.
 - **`node/`** (`@b2b-catalog-platform/shared/node`) — what only runs on a server: loading the
   config directory, sanitizing rich text.

@@ -26,7 +26,7 @@ import { AddressesService } from '../../shared/addresses/addresses.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CartService } from '../../shared/cart/cart.service';
 import { OrderSummary } from '../../shared/cart/order-summary';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -58,7 +58,7 @@ import { Link } from '../../shared/ui/link';
 import { PrivacyNotice } from '../pages/privacy-notice';
 import { TermsNotice } from '../pages/terms-notice';
 import { WarningNote } from '../../shared/ui/warning-note';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -532,10 +532,10 @@ export class CheckoutPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
-  protected readonly text = inject(APP_TEXT).checkout;
-  protected readonly invite = inject(APP_TEXT).auth.registerInvite;
-  protected readonly cartText = inject(APP_TEXT).cart;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout;
+  protected readonly invite = inject(STOREFRONT_TEXT).auth.registerInvite;
+  protected readonly cartText = inject(STOREFRONT_TEXT).cart;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly addressText = this.text.addresses;
 
   /**

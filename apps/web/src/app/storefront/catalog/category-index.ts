@@ -2,7 +2,7 @@ import { Component, computed, inject, resource } from '@angular/core';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { LoadErrorView } from '../pages/load-error-view';
 import { CatalogService } from './catalog.service';
 import { CategoryChildren } from './category-children';
@@ -82,7 +82,7 @@ export const CATEGORY_GRID =
 })
 export class CategoryIndex {
   private readonly catalog = inject(CatalogService);
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly gridClass = CATEGORY_GRID;
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);

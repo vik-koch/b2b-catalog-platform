@@ -1,10 +1,10 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryNode } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { CatalogService } from './catalog.service';
 import { CategoryIndex } from './category-index';
 
@@ -48,8 +48,8 @@ async function render(getCategoryTree: () => Promise<CategoryNode[]>) {
     imports: [CategoryIndex],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: CatalogService, useValue: { getCategoryTree } },
     ],
   });
@@ -106,24 +106,26 @@ describe('CategoryIndex', () => {
     const row = () => link(f, 'capsules')?.closest('app-collapsible');
     expect(row()?.className).toContain('grid-rows-[0fr]');
 
-    toggle(f, defaultAppText.catalog.showMore)?.click();
+    toggle(f, defaultStorefrontText.catalog.showMore)?.click();
     await f.whenStable();
     f.detectChanges();
 
     expect(row()?.className).toContain('grid-rows-[1fr]');
-    expect(toggle(f, defaultAppText.catalog.showLess)).toBeTruthy();
+    expect(toggle(f, defaultStorefrontText.catalog.showLess)).toBeTruthy();
   });
 
   it('offers no toggle where every subcategory is already named', async () => {
     const f = await render(async () => [tree[1]]);
 
-    expect(toggle(f, defaultAppText.catalog.showMore)).toBeUndefined();
+    expect(toggle(f, defaultStorefrontText.catalog.showMore)).toBeUndefined();
   });
 
   it('says so when there are no categories', async () => {
     const f = await render(async () => []);
 
-    expect(el(f).textContent).toContain(defaultAppText.catalog.emptyCategories);
+    expect(el(f).textContent).toContain(
+      defaultStorefrontText.catalog.emptyCategories,
+    );
   });
 
   it('says so when the catalogue fails to load', async () => {
@@ -131,6 +133,8 @@ describe('CategoryIndex', () => {
       throw new Error('boom');
     });
 
-    expect(el(f).textContent).toContain(defaultAppText.catalog.loadError);
+    expect(el(f).textContent).toContain(
+      defaultStorefrontText.catalog.loadError,
+    );
   });
 });

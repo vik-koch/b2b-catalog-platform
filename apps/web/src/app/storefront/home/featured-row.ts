@@ -17,7 +17,7 @@ import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { anyStatus } from '../../shared/catalog/product-status-line';
 import { ProductTile } from '../../shared/catalog/product-tile';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { FeaturedRowService } from './featured-row.service';
@@ -147,7 +147,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
 export class FeaturedRow {
   private readonly featured = inject(FeaturedRowService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
-  protected readonly text = inject(APP_TEXT).home.featured;
+  protected readonly text = inject(STOREFRONT_TEXT).home.featured;
   protected readonly editorFrom = injectEditorReturnParams();
   protected readonly anyStatus = anyStatus;
   protected readonly trackId = 'featured-track';

@@ -1,17 +1,19 @@
 import { InjectionToken, Provider } from '@angular/core';
-import { AppText } from './app-text.type';
+import { StorefrontText } from './storefront-text.type';
 import { readShellState } from './shell-state';
 
-export const APP_TEXT = new InjectionToken<AppText>('APP_TEXT');
+export const STOREFRONT_TEXT = new InjectionToken<StorefrontText>(
+  'STOREFRONT_TEXT',
+);
 
 /**
  * Browser provider: reads the text the server injected into the document (see
  * shell-state.ts). No baked fallback — a missing payload is a bug, surfaced
  * loudly rather than rendered as empty chrome.
  */
-export function provideAppText(): Provider {
+export function provideStorefrontText(): Provider {
   return {
-    provide: APP_TEXT,
-    useFactory: () => readShellState('appText'),
+    provide: STOREFRONT_TEXT,
+    useFactory: () => readShellState('storefrontText'),
   };
 }

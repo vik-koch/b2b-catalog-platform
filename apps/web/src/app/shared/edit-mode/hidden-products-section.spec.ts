@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { HiddenProduct, DeploymentConfig } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { ADMIN_TEXT } from '../config/admin-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { defaultAdminText } from '../config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { ConfirmService } from '../ui/confirm.service';
@@ -39,10 +39,10 @@ function provide(admin: Partial<EditModeCatalog>) {
     providers: [
       // The tile's edit link is a router link back to the admin editor.
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: EDIT_MODE_CATALOG, useValue: async () => admin },
       { provide: ConfirmService, useValue: { tell } },

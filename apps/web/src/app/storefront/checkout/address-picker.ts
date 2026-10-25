@@ -1,7 +1,7 @@
 import { Component, inject, input, output } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { Address, AddressComponents } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
 import { FieldErrors } from '../../shared/core/form-errors';
@@ -127,7 +127,7 @@ export class AddressPicker {
   private readonly instance = nextId++;
   private readonly addressConfig = inject(DEPLOYMENT_CONFIG).address;
 
-  protected readonly text = inject(APP_TEXT).checkout.addresses;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.addresses;
   /** Where a provider can fill an address in, checkout asks for the street
    * alone. The account's editor stays whole: that is where a book is curated,
    * not where an order is being placed. */

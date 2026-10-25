@@ -21,7 +21,7 @@ import {
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { CartAddResult, CartService } from '../cart/cart.service';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Button, BUTTON_SIZES } from '../ui/button';
 import { Icon } from '../ui/icons/icon';
@@ -445,7 +445,7 @@ export class ProductBuyControls {
   private readonly units = useProductUnits();
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
-  protected readonly text = inject(APP_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_TEXT).cart;
   protected readonly noticeMs = NOTICE_MS;
 
   readonly item = input.required<BuyableProduct>();

@@ -1,8 +1,8 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { emailFormat } from '../../shared/core/contact-fields';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -89,9 +89,9 @@ export class ForgotPasswordPage {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
 
-  protected readonly text = inject(APP_TEXT).auth.forgotPassword;
-  protected readonly fields = inject(COMMON_TEXT).fields;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly text = inject(STOREFRONT_TEXT).auth.forgotPassword;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,

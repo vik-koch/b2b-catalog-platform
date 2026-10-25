@@ -11,7 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { CallStep } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import type { CallResult, SendResult } from '../../shared/auth/auth.service';
@@ -120,9 +120,9 @@ function pieces(line: string, values: Record<string, string>) {
 })
 export class CallWait {
   private readonly document = inject(DOCUMENT);
-  protected readonly text = inject(APP_TEXT).auth.signInStep;
+  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
   protected readonly valueClass = 'whitespace-nowrap font-medium text-ink';
-  private readonly closed = inject(APP_TEXT).auth.closed;
+  private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
 
   /** The check to wait on. Each new value starts the wait over. */
   readonly step = input.required<CallStep>();

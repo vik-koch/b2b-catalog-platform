@@ -1,6 +1,6 @@
 import { Provider } from '@angular/core';
-import { APP_TEXT } from './app-text';
-import { AppText, appTextSchema } from './app-text.type';
+import { STOREFRONT_TEXT } from './storefront-text';
+import { StorefrontText, storefrontTextSchema } from './storefront-text.type';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 
 /**
@@ -11,11 +11,14 @@ import { loadConfig } from '@b2b-catalog-platform/shared/node';
  * Constructed lazily because the production build imports this module
  * without any runtime environment.
  */
-let cachedAppText: AppText | undefined;
+let cachedStorefrontText: StorefrontText | undefined;
 
 /** The validated catalog. Also the source for the injected shell state. */
-export function getAppText(): AppText {
-  return (cachedAppText ??= loadConfig(appTextSchema, 'texts/app.json'));
+export function getStorefrontText(): StorefrontText {
+  return (cachedStorefrontText ??= loadConfig(
+    storefrontTextSchema,
+    'texts/storefront.json',
+  ));
 }
 
 /**
@@ -24,8 +27,8 @@ export function getAppText(): AppText {
  * surfacing on the first SSR render. Safe to call before any render:
  * it only populates the cache the provider factory reuses.
  */
-export function preloadAppText(): void {
-  getAppText();
+export function preloadStorefrontText(): void {
+  getStorefrontText();
 }
 
 /**
@@ -34,6 +37,6 @@ export function preloadAppText(): void {
  * which reads the document, and there is none on the server. Delivery to the
  * browser is separate, and the same for every route (see shell-state.server.ts).
  */
-export function provideServerAppText(): Provider {
-  return { provide: APP_TEXT, useFactory: getAppText };
+export function provideServerStorefrontText(): Provider {
+  return { provide: STOREFRONT_TEXT, useFactory: getStorefrontText };
 }

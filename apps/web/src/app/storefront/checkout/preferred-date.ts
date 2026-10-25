@@ -4,8 +4,8 @@ import {
   FulfilmentMethod,
   localToday,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DateField } from '../../shared/ui/date-field';
 import { FieldLabel } from '../../shared/ui/field-label';
 
@@ -67,9 +67,9 @@ import { FieldLabel } from '../../shared/ui/field-label';
   `,
 })
 export class PreferredDate {
-  protected readonly text = inject(APP_TEXT).checkout.timing;
-  protected readonly names = inject(COMMON_TEXT).order;
-  protected readonly optional = inject(COMMON_TEXT).optional;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.timing;
+  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly optional = inject(SHARED_TEXT).optional;
   protected readonly id = 'preferred-date';
 
   /** Only what the label is called: a delivery is brought, a pickup collected. */

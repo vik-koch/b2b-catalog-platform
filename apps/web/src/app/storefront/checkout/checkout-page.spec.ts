@@ -1,4 +1,4 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
@@ -9,9 +9,9 @@ import {
   OrderSubmission,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
@@ -34,9 +34,9 @@ import { PageService } from '../../shared/pages/page.service';
  * date here would be a working weekday now and a past Saturday later. */
 const wishedDate = firstOrderDate(localToday());
 
-const text = defaultAppText.checkout;
-const names = defaultCommonText.order;
-const fulfilment = defaultCommonText.fulfilment;
+const text = defaultStorefrontText.checkout;
+const names = defaultSharedText.order;
+const fulfilment = defaultSharedText.fulfilment;
 
 function addition(): CartAddition {
   return {
@@ -127,8 +127,8 @@ async function render(options: Options = {}) {
     imports: [CheckoutPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -588,7 +588,9 @@ describe('CheckoutPage', () => {
       ).not.toBeNull();
       expect(postcodeShown(page.el)).toBe(false);
       // The way out is on screen from the start, not after a provider fails.
-      expect(page.text()).toContain(defaultAppText.address.enterManually);
+      expect(page.text()).toContain(
+        defaultStorefrontText.address.enterManually,
+      );
     });
 
     it('reads back the parts the street line does not say', async () => {
@@ -649,7 +651,9 @@ describe('CheckoutPage', () => {
       await page.settle();
 
       expect(postcodeShown(page.el)).toBe(true);
-      expect(page.text()).not.toContain(defaultAppText.address.enterManually);
+      expect(page.text()).not.toContain(
+        defaultStorefrontText.address.enterManually,
+      );
     });
 
     it('asks for a billing address only once it differs from delivery', async () => {
@@ -976,7 +980,7 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).not.toContain(text.review.title);
-      expect(page.text()).toContain(defaultCommonText.fields.email.invalid);
+      expect(page.text()).toContain(defaultSharedText.fields.email.invalid);
     });
 
     it('asks a company for its own name and a person to ring', async () => {
@@ -1107,8 +1111,10 @@ describe('CheckoutPage', () => {
       await page.review();
 
       const link = page.el.querySelector('a[href="/terms"]');
-      expect(link?.textContent?.trim()).toBe(defaultAppText.termsNotice.link);
-      expect(page.text()).toContain(defaultAppText.termsNotice.text);
+      expect(link?.textContent?.trim()).toBe(
+        defaultStorefrontText.termsNotice.link,
+      );
+      expect(page.text()).toContain(defaultStorefrontText.termsNotice.text);
       expect(page.el.querySelector('input[type="checkbox"]')).toBeNull();
     });
 
@@ -1120,7 +1126,7 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).toContain(text.review.title);
-      expect(page.text()).not.toContain(defaultAppText.termsNotice.text);
+      expect(page.text()).not.toContain(defaultStorefrontText.termsNotice.text);
     });
 
     it('says nothing of terms a deployment does not publish', async () => {
@@ -1141,7 +1147,7 @@ describe('CheckoutPage', () => {
       await page.review();
 
       expect(page.text()).toContain(text.review.title);
-      expect(page.text()).not.toContain(defaultAppText.termsNotice.text);
+      expect(page.text()).not.toContain(defaultStorefrontText.termsNotice.text);
     });
   });
 

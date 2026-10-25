@@ -8,8 +8,8 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../shared/auth/auth.service';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
 import { Icon } from '../../shared/ui/icons/icon';
@@ -227,8 +227,8 @@ export class BottomNav {
       `${this.panel} ${this.exit.leaving() ? 'animate-menu-sink' : 'animate-menu-rise'}`,
   );
 
-  protected readonly text = inject(APP_TEXT);
-  protected readonly nav = inject(COMMON_TEXT).nav;
+  protected readonly text = inject(STOREFRONT_TEXT);
+  protected readonly nav = inject(SHARED_TEXT).nav;
   protected readonly orders = this.text.orders;
   protected readonly search = this.text.search;
   protected readonly a11y = this.text.a11y;

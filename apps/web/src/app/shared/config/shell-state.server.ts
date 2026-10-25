@@ -1,6 +1,6 @@
 import { SHELL_STATE_ELEMENT_ID, ShellState } from './shell-state';
-import { getAppText } from './app-text.server';
-import { getCommonText } from './common-text.server';
+import { getStorefrontText } from './storefront-text.server';
+import { getSharedText } from './shared-text.server';
 import { getDeploymentConfig } from './deployment-config.server';
 import { getSuggestionsEnabled } from './suggestions-enabled.server';
 
@@ -22,8 +22,8 @@ function getShellStateScript(): string {
   if (!cachedScript) {
     const state: ShellState = {
       deploymentConfig: getDeploymentConfig(),
-      appText: getAppText(),
-      commonText: getCommonText(),
+      storefrontText: getStorefrontText(),
+      sharedText: getSharedText(),
       suggestionsEnabled: getSuggestionsEnabled(),
     };
     const json = JSON.stringify(state).replace(/</g, '\\u003c');

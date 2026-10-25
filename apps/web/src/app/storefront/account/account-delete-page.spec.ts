@@ -1,16 +1,16 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AuthService } from '../../shared/auth/auth.service';
 import { AccountDeletePage } from './account-delete-page';
 import { AccountService, DeleteAccountResult } from './account.service';
 
-const text = defaultAppText.account.delete;
+const text = defaultStorefrontText.account.delete;
 
 async function render(outcome: DeleteAccountResult | 'throw') {
   const deleteAccount = vi.fn(async () => {
@@ -23,8 +23,8 @@ async function render(outcome: DeleteAccountResult | 'throw') {
     imports: [AccountDeletePage],
     providers: [
       provideRouter([{ path: '', children: [] }]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { logout } },
       { provide: AccountService, useValue: { deleteAccount } },
@@ -74,7 +74,7 @@ describe('AccountDeletePage', () => {
 
     expect(deleteAccount).not.toHaveBeenCalled();
     expect(el.textContent).toContain(
-      defaultAppText.auth.validation.currentPasswordRequired,
+      defaultStorefrontText.auth.validation.currentPasswordRequired,
     );
   });
 

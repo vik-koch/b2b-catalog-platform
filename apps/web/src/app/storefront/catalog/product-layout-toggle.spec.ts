@@ -1,21 +1,21 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { ProductLayoutService } from './product-layout';
 import { ProductLayoutToggle } from './product-layout-toggle';
 import { LISTING_NARROW } from '../../shared/catalog/listing-narrow';
 
-const text = defaultAppText.catalog.layout;
+const text = defaultStorefrontText.catalog.layout;
 
 async function render() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [ProductLayoutToggle],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
   const fixture = TestBed.createComponent(ProductLayoutToggle);

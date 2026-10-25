@@ -30,7 +30,7 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { Switch } from '../../shared/ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -297,7 +297,7 @@ export class OperationsPage {
   });
 
   protected readonly allText = inject(ADMIN_TEXT).ownership.all;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;
   protected readonly frame = DISCLOSURE_FRAME;

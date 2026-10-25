@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { AuthService } from '../../shared/auth/auth.service';
 import { landingFor } from '../../shared/auth/auth.guard';
 import { currentUrl } from '../../shared/core/current-url';
@@ -147,7 +147,7 @@ export class AccountLink {
    * server renders one document for everybody (see WorkService). */
   protected readonly waiting = this.work.waiting;
 
-  protected readonly text = inject(APP_TEXT).auth;
+  protected readonly text = inject(STOREFRONT_TEXT).auth;
 
   /** `text-stable` reserves the active weight's width from `data-label`, so it
    * has to be given the label that will need the most of it. */

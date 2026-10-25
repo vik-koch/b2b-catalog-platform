@@ -1,6 +1,6 @@
 import { Component, computed, inject, resource } from '@angular/core';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
@@ -104,12 +104,12 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
   `,
 })
 export class ContactPage {
-  private readonly appText = inject(APP_TEXT);
-  private readonly nav = inject(COMMON_TEXT).nav;
+  private readonly storefrontText = inject(STOREFRONT_TEXT);
+  private readonly nav = inject(SHARED_TEXT).nav;
   private readonly pageService = inject(PageService);
 
   protected readonly heading = this.nav['contact'];
-  protected readonly errorText = this.appText.errors;
+  protected readonly errorText = this.storefrontText.errors;
   protected readonly locations = inject(DEPLOYMENT_CONFIG).locations;
   protected readonly editorFrom = injectEditorReturnParams();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized

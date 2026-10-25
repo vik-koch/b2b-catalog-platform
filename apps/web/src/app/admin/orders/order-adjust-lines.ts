@@ -12,7 +12,7 @@ import {
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currencySymbol } from '../../shared/catalog/price';
 import { HighlightedLine } from '../../shared/core/highlighted-line';
@@ -290,8 +290,8 @@ export class OrderAdjustLines {
   private readonly catalog = inject(AdminCatalogService);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
   protected readonly products = inject(ADMIN_TEXT).products;
-  protected readonly pieceUnit = inject(COMMON_TEXT).units.piece;
-  private readonly availability = inject(COMMON_TEXT).product.availability;
+  protected readonly pieceUnit = inject(SHARED_TEXT).units.piece;
+  private readonly availability = inject(SHARED_TEXT).product.availability;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly panel = SUGGEST_PANEL;

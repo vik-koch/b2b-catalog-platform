@@ -1,0 +1,49 @@
+{
+  "from": "v1.15.1",
+  "files": {
+    "deployment.json": "deployment.json",
+    "api.json": "api.json",
+    "texts/common.json": "texts/shared.json",
+    "texts/app.json": "texts/storefront.json",
+    "texts/admin.json": "texts/admin.json",
+    "texts/mail.json": "texts/mail.json",
+    "texts/pdf.json": "texts/pdf.json"
+  },
+  "keys": {
+    "texts/shared.json:pagination.previous": {
+      "from": ["texts/app.json:catalog.prevPage"]
+    },
+    "texts/shared.json:pagination.next": {
+      "from": ["texts/app.json:catalog.nextPage"]
+    },
+    "texts/shared.json:pagination.status": {
+      "from": ["texts/app.json:catalog.pageStatus"]
+    },
+    "texts/shared.json:nav.catalog": {
+      "from": ["texts/app.json:catalog.navLabel"]
+    },
+    "texts/admin.json:panel.adminPanel": {
+      "from": ["texts/app.json:auth.adminPanel"]
+    },
+    "texts/admin.json:panel.staffArea": {
+      "from": ["texts/app.json:auth.staffArea"]
+    },
+    "texts/admin.json:panel.securityHeading": {
+      "from": ["texts/app.json:auth.securityHeading"],
+      "copy": true
+    },
+    "texts/admin.json:panel.changePassword": {
+      "from": ["texts/app.json:auth.changePassword.heading"],
+      "copy": true
+    },
+    "texts/admin.json:loadError": {
+      "from": ["texts/app.json:catalog.loadError"],
+      "copy": true
+    },
+    "texts/admin.json:products.list.bestMatch": {
+      "from": ["texts/app.json:catalog.sort.relevance"],
+      "copy": true
+    }
+  },
+  "drop": []
+}

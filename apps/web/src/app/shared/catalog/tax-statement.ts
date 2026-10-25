@@ -5,8 +5,8 @@ import {
   sharedTaxRate,
   TaxBasis,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 
 /**
@@ -18,8 +18,8 @@ export function useTaxStatement() {
   const config = inject(DEPLOYMENT_CONFIG);
   const tax = config.tax;
   const locale = config.locale;
-  const text = inject(APP_TEXT).tax;
-  const statements = inject(COMMON_TEXT).tax;
+  const text = inject(STOREFRONT_TEXT).tax;
+  const statements = inject(SHARED_TEXT).tax;
 
   const rateText = (rate: number) => formatTaxRate(rate, locale);
   const statement = (basis: TaxBasis, rate: number | null): string => {

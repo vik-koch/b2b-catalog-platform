@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 
 /**
  * An order read back: its lines, then one block per question it answers. Used
@@ -81,7 +81,7 @@ import { COMMON_TEXT } from '../config/common-text';
   `,
 })
 export class OrderReadBack {
-  protected readonly itemsDefault = inject(COMMON_TEXT).order.items;
+  protected readonly itemsDefault = inject(SHARED_TEXT).order.items;
 
   /** The lines' heading, where the page has its own wording for it — the
    * admin's text is a separate catalogue from the shop's. */

@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { FulfilmentMethod, PaymentMethod } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ChoiceCard } from '../../shared/ui/choice-card';
 
 /**
@@ -61,8 +61,8 @@ import { ChoiceCard } from '../../shared/ui/choice-card';
   `,
 })
 export class PaymentChoice {
-  protected readonly text = inject(APP_TEXT).checkout.payment;
-  protected readonly names = inject(COMMON_TEXT).order.paymentMethods;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.payment;
+  protected readonly names = inject(SHARED_TEXT).order.paymentMethods;
 
   readonly method = input.required<PaymentMethod>();
   /** Only what cash is called: it is handed over on the doorstep or at the

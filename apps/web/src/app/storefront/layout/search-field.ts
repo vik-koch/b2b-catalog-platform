@@ -34,7 +34,7 @@ import { CatalogService } from '../catalog/catalog.service';
 import { CategoryChip } from '../catalog/category-chip';
 import { ImagePlaceholder } from '../../shared/catalog/image-placeholder';
 import { useProductUnits } from '../../shared/catalog/product-units-view';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../../shared/core/current-url';
 import { debounced } from '../../shared/core/debounced';
@@ -470,8 +470,8 @@ export class SearchField {
     return '';
   });
 
-  protected readonly text = inject(APP_TEXT).search;
-  protected readonly cartText = inject(APP_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_TEXT).search;
+  protected readonly cartText = inject(STOREFRONT_TEXT).cart;
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly listId = `search-suggestions-${nextId++}`;
 

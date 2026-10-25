@@ -19,15 +19,15 @@ const deployment = JSON.parse(
   delivery: { zones: { title: string }[] };
   pickup: { locations: { name: string; address: string }[] };
 };
-const appText = JSON.parse(
+const storefrontText = JSON.parse(
   readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/app.json'),
+    join(workspaceRoot, 'deployments/fixture/config/texts/storefront.json'),
     'utf8',
   ),
 ) as { checkout: { fulfilment: { noDelivery: string } } };
-const commonText = JSON.parse(
+const sharedText = JSON.parse(
   readFileSync(
-    join(workspaceRoot, 'deployments/fixture/config/texts/common.json'),
+    join(workspaceRoot, 'deployments/fixture/config/texts/shared.json'),
     'utf8',
   ),
 ) as { order: { paymentMethods: { cash: string; transfer: string } } };
@@ -79,9 +79,11 @@ test('states the configured conditions under the conditions body', async ({
     await expect(main).toContainText(point.address);
   }
   // The demo's last zone does not deliver, and says so.
-  await expect(main).toContainText(appText.checkout.fulfilment.noDelivery);
-  await expect(main).toContainText(commonText.order.paymentMethods.cash);
-  await expect(main).toContainText(commonText.order.paymentMethods.transfer);
+  await expect(main).toContainText(
+    storefrontText.checkout.fulfilment.noDelivery,
+  );
+  await expect(main).toContainText(sharedText.order.paymentMethods.cash);
+  await expect(main).toContainText(sharedText.order.paymentMethods.transfer);
 });
 
 // Unknown routes and unknown catalog slugs share one 404 screen, and each of

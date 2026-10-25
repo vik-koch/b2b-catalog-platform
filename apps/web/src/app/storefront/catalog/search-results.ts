@@ -10,7 +10,8 @@ import {
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -192,7 +193,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
               @if (data.pagination.totalPages > 1) {
                 <nav
                   class="mt-8 flex items-center justify-center gap-4 text-sm"
-                  [attr.aria-label]="catalogText.pageStatus"
+                  [attr.aria-label]="pagination.status"
                 >
                   @if (data.pagination.page > 1) {
                     <a
@@ -206,11 +207,11 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                       appButton
                       variant="ghost"
                       size="sm"
-                      >{{ catalogText.prevPage }}</a
+                      >{{ pagination.previous }}</a
                     >
                   } @else {
                     <span class="px-3 py-1.5 text-stone-300">{{
-                      catalogText.prevPage
+                      pagination.previous
                     }}</span>
                   }
                   <span class="text-subtle">{{
@@ -228,11 +229,11 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                       appButton
                       variant="ghost"
                       size="sm"
-                      >{{ catalogText.nextPage }}</a
+                      >{{ pagination.next }}</a
                     >
                   } @else {
                     <span class="px-3 py-1.5 text-stone-300">{{
-                      catalogText.nextPage
+                      pagination.next
                     }}</span>
                   }
                 </nav>
@@ -308,8 +309,9 @@ export class SearchResults {
 
   private readonly catalog = inject(CatalogService);
 
-  protected readonly text = inject(APP_TEXT).search;
-  protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly text = inject(STOREFRONT_TEXT).search;
+  protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
+  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);
@@ -409,7 +411,7 @@ export class SearchResults {
   }
 
   protected pageStatus(p: { page: number; totalPages: number }): string {
-    return this.catalogText.pageStatus
+    return this.pagination.status
       .replace('{page}', String(p.page))
       .replace('{total}', String(p.totalPages));
   }

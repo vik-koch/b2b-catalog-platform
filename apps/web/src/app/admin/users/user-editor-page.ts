@@ -11,8 +11,7 @@ import {
   UserRole,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -420,10 +419,10 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   protected readonly text = inject(ADMIN_TEXT).users.editor;
   protected readonly fields = staffFields(
-    inject(COMMON_TEXT).fields,
+    inject(SHARED_TEXT).fields,
     inject(ADMIN_TEXT).fields,
   );
-  private readonly kinds = inject(COMMON_TEXT).partyKind;
+  private readonly kinds = inject(SHARED_TEXT).partyKind;
   /** Shared vocabulary — the same words the list uses for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   /**
@@ -450,7 +449,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   });
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default
@@ -484,7 +483,6 @@ export class UserEditorPage implements UnsavedChangesAware {
     incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...inject(APP_TEXT).companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     idFormat: this.fields.companyId.format,

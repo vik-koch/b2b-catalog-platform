@@ -1,9 +1,9 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { TaxConfig } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { defaultAppText } from '../config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { useTaxStatement } from './tax-statement';
@@ -11,8 +11,8 @@ import { useTaxStatement } from './tax-statement';
 function statement(tax: TaxConfig) {
   TestBed.configureTestingModule({
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: { ...defaultDeploymentConfig, tax },
@@ -22,7 +22,7 @@ function statement(tax: TaxConfig) {
   return TestBed.runInInjectionContext(() => useTaxStatement());
 }
 
-const text = defaultAppText.tax;
+const text = defaultStorefrontText.tax;
 
 describe('useTaxStatement', () => {
   it('names the default rate under a total and beside a price', () => {
@@ -34,7 +34,7 @@ describe('useTaxStatement', () => {
 
     // The demo writes numbers the German way.
     expect(tax.total([])).toBe(
-      defaultCommonText.tax.included.replace('{rate}', '5,5'),
+      defaultSharedText.tax.included.replace('{rate}', '5,5'),
     );
     // Beside a price the demo adds that delivery comes on top; under a
     // total it does not, since a pickup order has none.
@@ -52,7 +52,7 @@ describe('useTaxStatement', () => {
     });
 
     expect(tax.atPrice(7)).toContain(
-      defaultCommonText.tax.included.replace('{rate}', '7'),
+      defaultSharedText.tax.included.replace('{rate}', '7'),
     );
   });
 
@@ -60,13 +60,13 @@ describe('useTaxStatement', () => {
     TestBed.configureTestingModule({
       providers: [
         {
-          provide: APP_TEXT,
+          provide: STOREFRONT_TEXT,
           useValue: {
-            ...defaultAppText,
-            tax: { ...defaultAppText.tax, atPrice: undefined },
+            ...defaultStorefrontText,
+            tax: { ...defaultStorefrontText.tax, atPrice: undefined },
           },
         },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         {
           provide: DEPLOYMENT_CONFIG,
           useValue: {
@@ -79,7 +79,7 @@ describe('useTaxStatement', () => {
     const tax = TestBed.runInInjectionContext(() => useTaxStatement());
 
     expect(tax.atPrice(7)).toBe(
-      defaultCommonText.tax.included.replace('{rate}', '7'),
+      defaultSharedText.tax.included.replace('{rate}', '7'),
     );
   });
 
@@ -87,7 +87,7 @@ describe('useTaxStatement', () => {
     const tax = statement({ basis: 'added', rate: 19, statedAtPrices: false });
 
     expect(tax.total([])).toBe(
-      defaultCommonText.tax.added.replace('{rate}', '19'),
+      defaultSharedText.tax.added.replace('{rate}', '19'),
     );
     expect(tax.atPrice(7)).toBeNull();
     expect(tax.listing()).toBeNull();
@@ -96,7 +96,7 @@ describe('useTaxStatement', () => {
   it('says no tax is charged under a total, and nothing at a price', () => {
     const tax = statement({ basis: 'none' });
 
-    expect(tax.total([])).toBe(defaultCommonText.tax.none);
+    expect(tax.total([])).toBe(defaultSharedText.tax.none);
     expect(tax.atPrice(7)).toBeNull();
     expect(tax.listing()).toBeNull();
   });
@@ -109,19 +109,19 @@ describe('useTaxStatement', () => {
     });
 
     expect(tax.total([7, 7])).toBe(
-      defaultCommonText.tax.included.replace('{rate}', '7'),
+      defaultSharedText.tax.included.replace('{rate}', '7'),
     );
     expect(tax.perLine([7, 7])).toBe(false);
 
-    expect(tax.total([7, 19])).toBe(defaultCommonText.tax.mixed.included);
+    expect(tax.total([7, 19])).toBe(defaultSharedText.tax.mixed.included);
     expect(tax.perLine([7, 19])).toBe(true);
-    expect(tax.line(7)).toBe(defaultCommonText.tax.line.replace('{rate}', '7'));
+    expect(tax.line(7)).toBe(defaultSharedText.tax.line.replace('{rate}', '7'));
   });
 
   it('states an order on the basis it was submitted under, not today’s', () => {
     const tax = statement({ basis: 'none' });
 
-    expect(tax.total([7, 19], 'added')).toBe(defaultCommonText.tax.mixed.added);
+    expect(tax.total([7, 19], 'added')).toBe(defaultSharedText.tax.mixed.added);
     expect(tax.perLine([7, 19], 'added')).toBe(true);
     expect(tax.perLine([null, null], 'none')).toBe(false);
   });

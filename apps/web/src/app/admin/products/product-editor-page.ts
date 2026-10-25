@@ -44,7 +44,7 @@ import { SettingsService } from '../settings/settings.service';
 import { ProductAvailabilityBadge } from '../../shared/catalog/product-availability-badge';
 import { ProductDetailView } from '../../shared/catalog/product-detail-view';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -665,7 +665,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** The badge wording, shared with the storefront's hidden-products overlay. */
   protected readonly editText = inject(ADMIN_TEXT).editMode;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   private readonly ownership = inject(SettingsService);
 
@@ -687,8 +687,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   );
   /** The piece abbreviation, printed inside both stock fields — the same one
    * the packaging rows use, so the two blocks measure in one word. */
-  protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly unitFieldInputCompact = UNIT_FIELD_INPUT_COMPACT;
 

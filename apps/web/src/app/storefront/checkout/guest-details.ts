@@ -2,8 +2,8 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { CompanyFields } from '../../shared/parties/company-fields';
@@ -120,11 +120,10 @@ import { PartyChoice as Party } from './checkout-draft.service';
   `,
 })
 export class GuestDetails {
-  protected readonly authText = inject(APP_TEXT).auth;
-  protected readonly fields = inject(COMMON_TEXT).fields;
-  private readonly companySuggest = inject(APP_TEXT).companySuggest;
-  protected readonly text = inject(APP_TEXT).checkout.contact;
-  private readonly partyChoice = inject(APP_TEXT).partyChoice;
+  protected readonly authText = inject(STOREFRONT_TEXT).auth;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  protected readonly text = inject(STOREFRONT_TEXT).checkout.contact;
+  private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(
@@ -144,7 +143,6 @@ export class GuestDetails {
     incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...this.companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     idFormat: this.fields.companyId.format,

@@ -1,4 +1,4 @@
-import type { CommonText } from '@b2b-catalog-platform/shared';
+import type { SharedText } from '@b2b-catalog-platform/shared';
 import type { AdminText } from '../../shared/config/admin-text.type';
 import {
   OrderBlockLabels,
@@ -8,7 +8,7 @@ import {
 /** The labels staff read an order under: the shared names, their own payment
  * methods and note. */
 export function staffBlockLabels(
-  names: CommonText,
+  names: SharedText,
   orders: AdminText['orders'],
   detail: AdminText['orders']['detail'],
 ): OrderBlockLabels {

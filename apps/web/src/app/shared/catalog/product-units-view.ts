@@ -11,8 +11,8 @@ import {
   unitQuantity,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { formatPriceMinor } from './price';
 import { formatStoredDecimal, formatUnitQuantity } from './quantity';
@@ -49,8 +49,8 @@ export interface UnitOption {
  * Unit words are abbreviations that follow a number, so nothing here inflects.
  */
 export function useProductUnits() {
-  const text = inject(APP_TEXT).catalog.units;
-  const common = inject(COMMON_TEXT);
+  const text = inject(STOREFRONT_TEXT).catalog.units;
+  const common = inject(SHARED_TEXT);
   const units = common.units;
   const packing = common.packaging;
   const deployment = inject(DEPLOYMENT_CONFIG);

@@ -10,8 +10,8 @@ import { addressLines } from '../../shared/addresses/address-format';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { formatUnitQuantity } from '../../shared/catalog/quantity';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { ReadBackLine, ReviewBlock } from '../../shared/orders/order-read-back';
@@ -52,8 +52,8 @@ export interface ReadBackDeps {
 export function createCheckoutReadBack(deps: ReadBackDeps) {
   const cart = inject(CartService);
   const config = inject(DEPLOYMENT_CONFIG);
-  const text = inject(APP_TEXT).checkout;
-  const common = inject(COMMON_TEXT);
+  const text = inject(STOREFRONT_TEXT).checkout;
+  const common = inject(SHARED_TEXT);
   const names = common.order;
   const locations = config.pickup?.locations ?? [];
 

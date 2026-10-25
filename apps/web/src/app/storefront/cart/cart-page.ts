@@ -17,8 +17,8 @@ import {
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ProductPairings } from '../../shared/catalog/product-pairings';
 import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { debounced } from '../../shared/core/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -404,7 +404,7 @@ interface CartRow {
             @if (totalPages() > 1) {
               <nav
                 class="mt-8 flex items-center justify-center gap-4 text-sm"
-                [attr.aria-label]="catalogText.pageStatus"
+                [attr.aria-label]="pagination.status"
               >
                 <button
                   type="button"
@@ -414,7 +414,7 @@ interface CartRow {
                   [disabled]="page() === 1"
                   (click)="turnPage(-1)"
                 >
-                  {{ catalogText.prevPage }}
+                  {{ pagination.previous }}
                 </button>
                 <span class="text-subtle">{{ pageStatus() }}</span>
                 <button
@@ -425,7 +425,7 @@ interface CartRow {
                   [disabled]="page() === totalPages()"
                   (click)="turnPage(1)"
                 >
-                  {{ catalogText.nextPage }}
+                  {{ pagination.next }}
                 </button>
               </nav>
             }
@@ -510,19 +510,19 @@ export class CartPage {
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   private readonly boxUnits = this.catalogConfig.boxUnits;
 
-  protected readonly text = inject(APP_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_TEXT).cart;
   protected readonly changeText = this.text.changes;
   /** What moved while the cart waited (FR-CART-10) — the cart's own answer,
    * reported once per visit and put away from here. */
   protected readonly changes = this.cart.changes;
   /** Only the pager's three words: the cart turns pages the way the listing
    * does, so it says it the way the listing does. */
-  protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */
-  private readonly pieceUnit = inject(COMMON_TEXT).units.piece;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  private readonly pieceUnit = inject(SHARED_TEXT).units.piece;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Whether an unsatisfied pairing refuses checkout here (FR-SET-04). */
   private readonly pairingsEnforced = this.catalogConfig.pairingsEnforced;
 
@@ -726,7 +726,7 @@ export class CartPage {
   });
 
   protected readonly pageStatus = computed(() =>
-    fillText(this.catalogText.pageStatus, {
+    fillText(this.pagination.status, {
       page: this.page(),
       total: this.totalPages(),
     }),

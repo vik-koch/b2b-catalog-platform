@@ -27,8 +27,7 @@ import {
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -600,13 +599,12 @@ export class AdminOrderDetailPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly changeText = inject(ADMIN_TEXT).orders.changes;
-  protected readonly names = inject(COMMON_TEXT).order;
-  protected readonly pageNames = inject(COMMON_TEXT).nav;
-  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly pageNames = inject(SHARED_TEXT).nav;
+  private readonly sharedText = inject(SHARED_TEXT);
   protected readonly revisionText = this.text.revisions;
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
@@ -701,7 +699,7 @@ export class AdminOrderDetailPage {
     if (!order) return [];
     return orderBlocks(
       order,
-      staffBlockLabels(this.commonText, this.ordersText, this.text),
+      staffBlockLabels(this.sharedText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -870,8 +868,8 @@ export class AdminOrderDetailPage {
       before,
       versions[index],
       { ...this.changeText, total: this.names.total },
-      this.commonText,
-      staffBlockLabels(this.commonText, this.ordersText, this.text),
+      this.sharedText,
+      staffBlockLabels(this.sharedText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,

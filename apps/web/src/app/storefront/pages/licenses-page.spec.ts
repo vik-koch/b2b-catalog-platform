@@ -1,8 +1,8 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { LicensesPage } from './licenses-page';
@@ -32,8 +32,8 @@ async function render() {
   TestBed.configureTestingModule({
     imports: [LicensesPage],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       // Only reached through usePageSeo, which composes the document title.
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
     ],
@@ -67,7 +67,9 @@ describe('LicensesPage', () => {
 
     const element = await render();
 
-    expect(element.textContent).toContain(defaultAppText.licenses.unavailable);
+    expect(element.textContent).toContain(
+      defaultStorefrontText.licenses.unavailable,
+    );
     expect(element.querySelector('details')).toBeNull();
   });
 
@@ -78,7 +80,7 @@ describe('LicensesPage', () => {
     const element = await render();
 
     expect(element.querySelector('h1')?.textContent).toContain(
-      defaultCommonText.nav['licenses'],
+      defaultSharedText.nav['licenses'],
     );
     expect(element.querySelector('details')).toBeNull();
   });

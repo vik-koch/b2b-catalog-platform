@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { FieldErrors } from '../../shared/core/form-errors';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
@@ -161,8 +161,8 @@ function around(line: string, placeholder: string): [string, string] {
 export class CodeEntry {
   private readonly fb = inject(FormBuilder);
 
-  protected readonly text = inject(APP_TEXT).auth.signInStep;
-  private readonly closed = inject(APP_TEXT).auth.closed;
+  protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
+  private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
   protected readonly length = SIGN_IN_CODE_LENGTH;
   protected readonly inputId = 'signInCode';
 

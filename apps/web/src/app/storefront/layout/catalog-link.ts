@@ -1,6 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { currentUrl } from '../../shared/core/current-url';
 import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '../../shared/ui/icons/icon';
@@ -29,9 +29,7 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
     >
       <app-icon name="store" class="size-6" />
       <span [class]="cls().labelRow">
-        <span [class]="cls().label" [attr.data-label]="text.navLabel">{{
-          text.navLabel
-        }}</span>
+        <span [class]="cls().label" [attr.data-label]="label">{{ label }}</span>
       </span>
     </a>
   `,
@@ -42,7 +40,7 @@ export class CatalogLink {
   protected readonly cls = computed(() => navActionClasses(this.variant()));
 
   private readonly url = currentUrl();
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly label = inject(SHARED_TEXT).nav.catalog;
   protected readonly active = computed(() => {
     const path = this.url().split(/[?#]/)[0];
     return CATALOG_ROUTES.some(

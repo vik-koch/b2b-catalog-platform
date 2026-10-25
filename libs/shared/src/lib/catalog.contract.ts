@@ -159,7 +159,7 @@ export const productListItemSchema = z
      * listing sells as readily as the product page does, so it has to know:
      * the buying controls ask for the note before the first add. */
     lineNoteEnabled: z.boolean(),
-    /** The product's own wording for the note; null falls back to app-text. */
+    /** The product's own wording for the note; null falls back to storefront-text. */
     lineNotePrompt: z.string().nullable(),
     /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
     availability: availabilitySchema,
@@ -287,7 +287,7 @@ export const productDetailSchema = z
     attributes: z.array(productDetailAttributeSchema),
     /** Whether the buying block offers a free-text note (FR-CART-08). */
     lineNoteEnabled: z.boolean(),
-    /** The product's own wording for the note; null falls back to app-text. */
+    /** The product's own wording for the note; null falls back to storefront-text. */
     lineNotePrompt: z.string().nullable(),
     /** Whether it can be had at all (FR-STOCK-03); null where untracked. */
     availability: availabilitySchema,

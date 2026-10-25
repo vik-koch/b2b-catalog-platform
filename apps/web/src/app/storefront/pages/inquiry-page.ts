@@ -3,8 +3,8 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { InquiryRequest } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   canonicalPhone,
@@ -161,16 +161,16 @@ export class InquiryPage {
   private readonly fb = inject(FormBuilder);
   private readonly inquiry = inject(InquiryService);
 
-  protected readonly text = inject(APP_TEXT).inquiry;
-  protected readonly fields = inject(COMMON_TEXT).fields;
+  protected readonly text = inject(STOREFRONT_TEXT).inquiry;
+  protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly contactChannels: readonly SegmentOption<PreferredContact>[] =
     [
       { value: 'email', label: this.text.preferredEmail },
       { value: 'phone', label: this.text.preferredPhone },
     ];
-  protected readonly errors = inject(APP_TEXT).errors;
-  protected readonly heading = inject(COMMON_TEXT).nav['inquiry'];
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly errors = inject(STOREFRONT_TEXT).errors;
+  protected readonly heading = inject(SHARED_TEXT).nav['inquiry'];
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly emailText = {
     required: this.fields.email.required,

@@ -8,7 +8,7 @@ import {
 import { formatPriceMinor } from '../catalog/price';
 import { formatStoredDecimal } from '../catalog/quantity';
 import { useTaxStatement } from '../catalog/tax-statement';
-import { APP_TEXT } from '../config/app-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Skeleton } from '../ui/skeleton';
 import { WarningNote } from '../ui/warning-note';
@@ -85,7 +85,7 @@ export class OrderSummary {
   private readonly boxUnits = inject(DEPLOYMENT_CONFIG).catalog.boxUnits;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
 
-  protected readonly text = inject(APP_TEXT).cart;
+  protected readonly text = inject(STOREFRONT_TEXT).cart;
   private readonly tax = useTaxStatement();
 
   readonly lineCount = input.required<number>();

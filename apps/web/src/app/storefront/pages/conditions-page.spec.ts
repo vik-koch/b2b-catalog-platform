@@ -1,10 +1,10 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { AppText } from '../../shared/config/app-text.type';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { StorefrontText } from '../../shared/config/storefront-text.type';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
@@ -22,18 +22,21 @@ async function render(
   overrides: Partial<DeploymentConfig> = {},
   getPage: () => Promise<typeof conditionsBody | null> = async () =>
     conditionsBody,
-  conditionsText: Partial<AppText['conditions']> = {},
+  conditionsText: Partial<StorefrontText['conditions']> = {},
 ) {
   TestBed.configureTestingModule({
     imports: [ConditionsPage],
     providers: [
       provideRouter([]),
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
-        provide: APP_TEXT,
+        provide: STOREFRONT_TEXT,
         useValue: {
-          ...defaultAppText,
-          conditions: { ...defaultAppText.conditions, ...conditionsText },
+          ...defaultStorefrontText,
+          conditions: {
+            ...defaultStorefrontText.conditions,
+            ...conditionsText,
+          },
         },
       },
       {
@@ -57,9 +60,9 @@ async function render(
   return fixture.nativeElement as HTMLElement;
 }
 
-const fulfilment = defaultAppText.checkout.fulfilment;
-const payment = defaultAppText.checkout.payment;
-const paymentNames = defaultCommonText.order.paymentMethods;
+const fulfilment = defaultStorefrontText.checkout.fulfilment;
+const payment = defaultStorefrontText.checkout.payment;
+const paymentNames = defaultSharedText.order.paymentMethods;
 
 describe('ConditionsPage', () => {
   it('renders the body, then the zones, pickup points and payment methods', async () => {
@@ -87,30 +90,36 @@ describe('ConditionsPage', () => {
 
     const headings = [...el.querySelectorAll('h2')].map((h) => h.textContent);
     expect(headings.join()).not.toContain(fulfilment.conditionsHeading);
-    expect(headings.join()).not.toContain(defaultCommonText.fulfilment.pickup);
+    expect(headings.join()).not.toContain(defaultSharedText.fulfilment.pickup);
     // Payment is the platform's rule, so it is there whatever is configured.
-    expect(headings.join()).toContain(defaultAppText.conditions.paymentHeading);
+    expect(headings.join()).toContain(
+      defaultStorefrontText.conditions.paymentHeading,
+    );
   });
 
   it('falls back to the nav label while the page has no stored title', async () => {
     const el = await render({}, async () => ({ ...conditionsBody, title: '' }));
 
     expect(el.querySelector('h1')?.textContent).toContain(
-      defaultCommonText.nav['conditions'],
+      defaultSharedText.nav['conditions'],
     );
   });
 
   it('shows the load error instead of a half page when the body fails', async () => {
     const el = await render({}, () => Promise.reject(new Error('down')));
 
-    expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.errors.cannotLoadTitle,
+    );
     expect(el.textContent).not.toContain(paymentNames.cash);
   });
 
   it('shows the load error when the page has no body yet', async () => {
     const el = await render({}, async () => null);
 
-    expect(el.textContent).toContain(defaultAppText.errors.cannotLoadTitle);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.errors.cannotLoadTitle,
+    );
     expect(el.textContent).not.toContain(paymentNames.cash);
   });
 
@@ -120,14 +129,14 @@ describe('ConditionsPage', () => {
     });
 
     expect(el.textContent).toContain(
-      defaultAppText.conditions.taxAdded.replace('{rate}', '7'),
+      defaultStorefrontText.conditions.taxAdded.replace('{rate}', '7'),
     );
   });
 
   it('says no tax is charged under `none`', async () => {
     const el = await render({ tax: { basis: 'none' } });
 
-    expect(el.textContent).toContain(defaultAppText.conditions.taxNone);
+    expect(el.textContent).toContain(defaultStorefrontText.conditions.taxNone);
   });
 
   it('puts the goods paragraphs before the tax sentence, bold kept', async () => {
@@ -138,7 +147,7 @@ describe('ConditionsPage', () => {
     const section = [...el.querySelectorAll('section')].find((s) =>
       s
         .querySelector('h2')
-        ?.textContent?.includes(defaultAppText.conditions.goodsHeading),
+        ?.textContent?.includes(defaultStorefrontText.conditions.goodsHeading),
     );
     const paragraphs = [...(section?.querySelectorAll('p') ?? [])].map((p) =>
       p.textContent?.trim(),
@@ -156,8 +165,10 @@ describe('ConditionsPage', () => {
       goodsParagraphs: [],
     });
 
-    expect(el.textContent).toContain(defaultAppText.conditions.goodsHeading);
-    expect(el.textContent).toContain(defaultAppText.conditions.taxNone);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.conditions.goodsHeading,
+    );
+    expect(el.textContent).toContain(defaultStorefrontText.conditions.taxNone);
   });
 
   it('links the withdrawal page under the returns where it is published', async () => {
@@ -165,9 +176,11 @@ describe('ConditionsPage', () => {
       pages: { ...defaultDeploymentConfig.pages, published: ['withdrawal'] },
     });
 
-    expect(el.textContent).toContain(defaultAppText.conditions.returnsHeading);
+    expect(el.textContent).toContain(
+      defaultStorefrontText.conditions.returnsHeading,
+    );
     expect(el.querySelector('a[href="/withdrawal"]')?.textContent?.trim()).toBe(
-      defaultAppText.conditions.returnsWithdrawalLink,
+      defaultStorefrontText.conditions.returnsWithdrawalLink,
     );
   });
 
@@ -179,7 +192,7 @@ describe('ConditionsPage', () => {
     );
 
     expect(el.textContent).not.toContain(
-      defaultAppText.conditions.returnsHeading,
+      defaultStorefrontText.conditions.returnsHeading,
     );
   });
 });

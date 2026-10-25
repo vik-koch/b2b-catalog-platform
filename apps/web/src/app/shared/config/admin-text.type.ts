@@ -11,11 +11,11 @@ import { confirmText } from './text-shapes';
 /**
  * UI text for the admin surfaces only — the editors, the management screens and
  * the storefront edit-mode affordances. Same single-locale, complete-or-die
- * contract as AppText, in its own file for one reason: it is delivered only to
+ * contract as StorefrontText, in its own file for one reason: it is delivered only to
  * signed-in admins (see admin-text.ts)
  *
  * The audience is the split, not the feature: text a logged-out visitor can
- * reach — the login form, the public maintenance screen — belongs in AppText
+ * reach — the login form, the public maintenance screen — belongs in StorefrontText
  * even when it is adjacent to an admin feature.
  */
 /** The heading and standfirst of one area's sync log. */
@@ -117,6 +117,8 @@ export const adminTextSchema = z
     countSuffix: z.string(),
     /** Who did something, once their account has been deleted. */
     actorGone: z.string(),
+    /** In place of a screen whose data did not arrive. */
+    loadError: z.string(),
     /**
      * Every refusal a catalog write can answer with, keyed by the API's own
      * `code`. Shared rather than per-screen because it genuinely is: the
@@ -187,6 +189,15 @@ export const adminTextSchema = z
      */
     panel: z
       .object({
+        /** The panel's title for an admin. */
+        adminPanel: z.string(),
+        /** The same landing for a manager, whose panel holds only the accounts
+         * they approve — no catalog, pricing or site controls. */
+        staffArea: z.string(),
+        /** The heading over the staff member's own password, and the link to
+         * change it. */
+        securityHeading: z.string(),
+        changePassword: z.string(),
         /** Section headings. Each names a topic, never the one row under it:
          * a heading that repeats its own row says nothing twice. */
         catalog: z.string(),
@@ -376,6 +387,9 @@ export const adminTextSchema = z
             /** Shown instead of `empty` when filters are what emptied the
              * list. */
             noResults: z.string(),
+            /** The order a search lists its results in until a heading is
+             * chosen. */
+            bestMatch: z.string(),
             updated: z.string(),
             sourceId: z.string(),
             searchAria: z.string(),

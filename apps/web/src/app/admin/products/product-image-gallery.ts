@@ -22,7 +22,7 @@ import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
-import { COMMON_TEXT } from '../../shared/config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
@@ -181,7 +181,7 @@ export class ProductImageGallery {
   private readonly framer = inject(ImageFramerService);
   protected readonly text = inject(ADMIN_TEXT).products.editor.images;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly accept = ACCEPTED_IMAGE_MIME_TYPES.join(',');
   protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),

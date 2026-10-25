@@ -5,9 +5,9 @@ import {
   formatTaxRate,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { AppText } from '../../shared/config/app-text.type';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { StorefrontText } from '../../shared/config/storefront-text.type';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
@@ -102,7 +102,7 @@ import { PageService } from '../../shared/pages/page.service';
         @if (pickupLocations.length) {
           <section>
             <h2 class="text-2xl font-normal tracking-tight">
-              {{ commonText.fulfilment.pickup }}
+              {{ sharedText.fulfilment.pickup }}
             </h2>
             <p class="mt-1 mb-4 text-muted">
               {{ fulfilmentText.pickupDescription }}
@@ -225,10 +225,10 @@ import { PageService } from '../../shared/pages/page.service';
   `,
 })
 export class ConditionsPage {
-  private readonly appText = inject(APP_TEXT);
-  protected readonly commonText = inject(COMMON_TEXT);
-  private readonly nav = this.commonText.nav;
-  protected readonly paymentNames = this.commonText.order.paymentMethods;
+  private readonly storefrontText = inject(STOREFRONT_TEXT);
+  protected readonly sharedText = inject(SHARED_TEXT);
+  private readonly nav = this.sharedText.nav;
+  protected readonly paymentNames = this.sharedText.order.paymentMethods;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 
@@ -237,10 +237,10 @@ export class ConditionsPage {
   protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
 
   protected readonly navLabel = this.nav.conditions;
-  protected readonly errorText = this.appText.errors;
-  protected readonly pageText = this.appText.conditions;
-  protected readonly fulfilmentText = this.appText.checkout.fulfilment;
-  protected readonly paymentText = this.appText.checkout.payment;
+  protected readonly errorText = this.storefrontText.errors;
+  protected readonly pageText = this.storefrontText.conditions;
+  protected readonly fulfilmentText = this.storefrontText.checkout.fulfilment;
+  protected readonly paymentText = this.storefrontText.checkout.payment;
 
   /** The basis in a sentence, naming the default rate where tax is charged. */
   protected readonly taxSentence = taxSentence(this.config, this.pageText);
@@ -289,7 +289,7 @@ export class ConditionsPage {
 
 function taxSentence(
   config: DeploymentConfig,
-  text: AppText['conditions'],
+  text: StorefrontText['conditions'],
 ): string {
   const { tax } = config;
   if (tax.basis === 'none') return text.taxNone;

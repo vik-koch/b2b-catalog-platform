@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { loadAdminText } from '../../shared/config/admin-text';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
@@ -31,7 +31,7 @@ describe('ProductCreateService', () => {
         provideOwnership(...owned),
         { provide: Router, useValue: { navigate } },
         { provide: ConfirmService, useValue: { tell } },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
       ],
     });
     return { navigate, tell, service: TestBed.inject(ProductCreateService) };

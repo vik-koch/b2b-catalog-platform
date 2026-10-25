@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { APP_TEXT } from '../../shared/config/app-text';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Link } from '../../shared/ui/link';
 
@@ -24,7 +24,7 @@ import { Link } from '../../shared/ui/link';
   `,
 })
 export class PrivacyNotice {
-  protected readonly text = inject(APP_TEXT).privacyNotice;
+  protected readonly text = inject(STOREFRONT_TEXT).privacyNotice;
   protected readonly published =
     inject(DEPLOYMENT_CONFIG).pages.published.includes('privacy');
 }

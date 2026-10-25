@@ -1,10 +1,13 @@
+import { inject } from '@angular/core';
 import {
-  CommonText,
+  SharedText,
   OrderAddress,
   OrderDetail,
 } from '@b2b-catalog-platform/shared';
 import { formatPhone } from '../core/contact-fields';
 import { addressLines } from '../addresses/address-format';
+import { SHARED_TEXT } from '../config/shared-text';
+import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { ReviewBlock } from './order-read-back';
 
 /**
@@ -38,7 +41,7 @@ export interface OrderBlockLabels {
  * the payment methods, the note, and the screen's two sentences.
  */
 export function orderBlockLabels(
-  names: CommonText,
+  names: SharedText,
   view: Pick<
     OrderBlockLabels,
     'billingSame' | 'whenAny' | 'note' | 'cash' | 'transfer' | 'card'
@@ -65,7 +68,7 @@ export function orderBlockLabels(
 
 /** The labels a customer reads an order under. */
 export function customerBlockLabels(
-  names: CommonText,
+  names: SharedText,
   review: Pick<OrderBlockLabels, 'billingSame' | 'whenAny'>,
 ): OrderBlockLabels {
   return orderBlockLabels(names, {
@@ -74,6 +77,14 @@ export function customerBlockLabels(
     note: names.order.note,
     ...names.order.paymentMethods,
   });
+}
+
+/** The same labels, read from the deployment; called where a field is set up. */
+export function injectCustomerBlockLabels(): OrderBlockLabels {
+  return customerBlockLabels(
+    inject(SHARED_TEXT),
+    inject(STOREFRONT_TEXT).checkout.review,
+  );
 }
 
 /** What turning the order's own fields into lines needs from the deployment. */

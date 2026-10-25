@@ -1,12 +1,12 @@
-import { COMMON_TEXT } from '../../shared/config/common-text';
-import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
 import { ComponentFixture } from '@angular/core/testing';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { APP_TEXT } from '../../shared/config/app-text';
-import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { CategoryGrid } from './category-grid';
 import { CatalogService } from './catalog.service';
 import { productListItem } from '../../shared/catalog/product.fixture';
@@ -66,8 +66,8 @@ async function render(
     imports: [CategoryGrid],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       {
         provide: CatalogService,
@@ -225,8 +225,8 @@ describe('CategoryGrid', () => {
         (b.textContent ?? '').includes(label),
       );
 
-    expect(toggle(defaultAppText.catalog.showMore)).toBeTruthy();
-    toggle(defaultAppText.catalog.showMore)?.click();
+    expect(toggle(defaultStorefrontText.catalog.showMore)).toBeTruthy();
+    toggle(defaultStorefrontText.catalog.showMore)?.click();
     await f.whenStable();
     f.detectChanges();
 
@@ -234,13 +234,14 @@ describe('CategoryGrid', () => {
     // both states are a length, so the movement between them runs.
     expect(list()?.className).not.toContain('max-h-75');
     expect(list()?.className).toContain('var(--subs-full');
-    expect(toggle(defaultAppText.catalog.showLess)).toBeTruthy();
+    expect(toggle(defaultStorefrontText.catalog.showLess)).toBeTruthy();
 
     // The toggle is hidden wherever the clip is lifted — a button offering to
     // show what is already shown.
     expect(
-      toggle(defaultAppText.catalog.showLess)?.closest('app-show-more-toggle')
-        ?.className,
+      toggle(defaultStorefrontText.catalog.showLess)?.closest(
+        'app-show-more-toggle',
+      )?.className,
     ).toContain('sm:hidden');
   });
 
@@ -277,7 +278,9 @@ describe('CategoryGrid', () => {
       }),
     );
 
-    expect(el(f).textContent).toContain(defaultAppText.catalog.emptyProducts);
+    expect(el(f).textContent).toContain(
+      defaultStorefrontText.catalog.emptyProducts,
+    );
   });
 
   describe('sorting (FR-SEARCH-04)', () => {
@@ -351,7 +354,7 @@ describe('CategoryGrid', () => {
       );
 
       const next = [...el(f).querySelectorAll('a')].find((a) =>
-        a.textContent?.includes(defaultAppText.catalog.nextPage),
+        a.textContent?.includes(defaultSharedText.pagination.next),
       );
       expect(next?.getAttribute('href')).toContain('page=3');
       expect(next?.getAttribute('href')).toContain('sort=price_desc');
@@ -386,7 +389,9 @@ describe('CategoryGrid', () => {
       });
 
       expect(sent).toEqual(['grind:fine']);
-      expect(el(f).textContent).toContain(defaultAppText.catalog.filters.title);
+      expect(el(f).textContent).toContain(
+        defaultStorefrontText.catalog.filters.title,
+      );
       expect(el(f).textContent).toContain('Grind');
     });
 
@@ -400,7 +405,7 @@ describe('CategoryGrid', () => {
       );
 
       const next = [...el(f).querySelectorAll('a')].find((a) =>
-        a.textContent?.includes(defaultAppText.catalog.nextPage),
+        a.textContent?.includes(defaultSharedText.pagination.next),
       );
       expect(next?.getAttribute('href')).toContain('attr=grind:fine');
     });
@@ -524,8 +529,8 @@ describe('CategoryGrid', () => {
       );
 
       const text = el(f).textContent ?? '';
-      expect(text).toContain(defaultAppText.catalog.filters.noMatches);
-      expect(text).not.toContain(defaultAppText.catalog.emptyProducts);
+      expect(text).toContain(defaultStorefrontText.catalog.filters.noMatches);
+      expect(text).not.toContain(defaultStorefrontText.catalog.emptyProducts);
       expect(el(f).querySelector('input[type="checkbox"]')).not.toBeNull();
     });
   });
@@ -534,7 +539,7 @@ describe('CategoryGrid', () => {
     const f = await render(null);
 
     expect(el(f).textContent).toContain(
-      defaultAppText.catalog.categoryNotFound,
+      defaultStorefrontText.catalog.categoryNotFound,
     );
   });
 });
@@ -600,8 +605,8 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
       imports: [CategoryGrid],
       providers: [
         provideRouter([]),
-        { provide: APP_TEXT, useValue: defaultAppText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
         {
           provide: CatalogService,
@@ -656,16 +661,16 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
   it('heads the page as the catalogue, under a trail of one', async () => {
     const root = el(await renderCatalog(catalog()));
     const nav = root.querySelector(
-      `nav[aria-label="${defaultAppText.catalog.catalogRoot}"]`,
+      `nav[aria-label="${defaultStorefrontText.catalog.catalogRoot}"]`,
     );
 
     expect(root.querySelector('h1')?.textContent).toContain(
-      defaultAppText.catalog.catalogRoot,
+      defaultStorefrontText.catalog.catalogRoot,
     );
     // Where a category's breadcrumb stands, so nothing moves on the way down —
     // the current page, not a link to itself.
     expect(nav?.querySelector('[aria-current="page"]')?.textContent).toContain(
-      defaultAppText.catalog.catalogRoot,
+      defaultStorefrontText.catalog.catalogRoot,
     );
     expect(nav?.querySelector('a')).toBeNull();
     expect(
@@ -697,7 +702,9 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
     expect(root.querySelector('#subcategories')?.className).not.toContain(
       'overflow-hidden',
     );
-    expect(root.textContent).not.toContain(defaultAppText.catalog.showMore);
+    expect(root.textContent).not.toContain(
+      defaultStorefrontText.catalog.showMore,
+    );
   });
 
   it('pages within the catalogue', async () => {
@@ -724,6 +731,8 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
       ),
     );
 
-    expect(root.textContent).toContain(defaultAppText.catalog.emptyCategories);
+    expect(root.textContent).toContain(
+      defaultStorefrontText.catalog.emptyCategories,
+    );
   });
 });
