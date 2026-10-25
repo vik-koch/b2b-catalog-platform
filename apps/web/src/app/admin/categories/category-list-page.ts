@@ -44,6 +44,8 @@ import {
   moveCategoryEntries,
   resolveDropTarget,
 } from './category-tree';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,
@@ -93,6 +95,8 @@ const EDGE_SLACK = 24;
     CdkDragHandle,
     Skeleton,
     UnpublishedCount,
+    PageTitle,
+    ErrorText,
   ],
   styles: `
     /* Both of these are the CDK's clone of the row, so they carry its exact
@@ -122,7 +126,7 @@ const EDGE_SLACK = 24;
   `,
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <div class="flex flex-wrap justify-end gap-2">
         <a
           appButton
@@ -172,7 +176,7 @@ const EDGE_SLACK = 24;
       </div>
 
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-danger" role="alert">
+        <p appErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }

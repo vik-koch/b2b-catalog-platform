@@ -31,6 +31,8 @@ import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Add or edit a document (FR-DOC-01/02/05) at `/admin/documents/new` and
@@ -60,9 +62,11 @@ import { DocumentsService } from './documents.service';
     FileTarget,
     Input,
     Skeleton,
+    PageTitle,
+    ErrorText,
   ],
   template: `
-    <h1 class="mb-4 text-3xl font-medium tracking-tight">
+    <h1 appPageTitle class="mb-4">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
@@ -262,7 +266,7 @@ import { DocumentsService } from './documents.service';
       </div>
 
       @if (error()) {
-        <p class="mt-4 text-sm text-danger" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">

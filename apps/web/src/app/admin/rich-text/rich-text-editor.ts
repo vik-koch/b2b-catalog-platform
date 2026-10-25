@@ -34,6 +34,7 @@ import { Input } from '../../shared/ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -60,6 +61,7 @@ interface ToolbarAction {
     FieldLabel,
     Input,
     NgTemplateOutlet,
+    ErrorText,
   ],
   template: `
     <!-- The box carries no overflow clipping: a clipping ancestor would be
@@ -133,7 +135,7 @@ interface ToolbarAction {
       </p>
     }
     @if (uploadError()) {
-      <p class="mt-2 text-sm text-danger" role="alert">
+      <p appErrorText class="mt-2" role="alert">
         {{ adminText.upload.error }}
       </p>
     }

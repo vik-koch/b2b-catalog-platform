@@ -28,6 +28,8 @@ import {
 } from './customer-sync-presets';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncService } from './sync.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick
@@ -58,10 +60,12 @@ import { SyncService } from './sync.service';
     Link,
     RouterLink,
     SyncCustomerPlanView,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">
+      <h1 appPageTitle>
         {{ text.customers.uploadTitle }}
       </h1>
       <a
@@ -187,7 +191,7 @@ import { SyncService } from './sync.service';
           </div>
 
           @if (previewError(); as message) {
-            <p class="mt-3 text-sm text-danger" role="alert">{{ message }}</p>
+            <p appErrorText class="mt-3" role="alert">{{ message }}</p>
           }
         </section>
 

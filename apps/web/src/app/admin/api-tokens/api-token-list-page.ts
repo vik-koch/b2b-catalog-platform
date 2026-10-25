@@ -23,6 +23,8 @@ import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -113,10 +115,12 @@ const SCOPE_ROWS: readonly {
     RecordRow,
     RecordFields,
     RecordFormActions,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -226,7 +230,7 @@ const SCOPE_ROWS: readonly {
                 </ng-container>
               </app-record-row>
               @if (rowError() === token.id) {
-                <p class="mt-2 text-sm text-danger" role="alert">
+                <p appErrorText class="mt-2" role="alert">
                   {{ text.revokeError }}
                 </p>
               }
@@ -349,7 +353,7 @@ const SCOPE_ROWS: readonly {
                   </button>
                 </div>
                 @if (formError()) {
-                  <p class="text-sm text-danger sm:col-span-full" role="alert">
+                  <p appErrorText class="sm:col-span-full" role="alert">
                     {{ formError() }}
                   </p>
                 }

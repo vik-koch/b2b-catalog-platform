@@ -22,6 +22,7 @@ import { adminMomentFormat } from './grid/admin-date';
 import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';
+import { PageTitle } from '../shared/ui/page-title';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -32,13 +33,13 @@ import { SyncService } from './sync/sync.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote],
+  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote, PageTitle],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
          and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ isAdmin() ? panelText.adminPanel : panelText.staffArea }}
       </h1>
       <app-signed-in-as />

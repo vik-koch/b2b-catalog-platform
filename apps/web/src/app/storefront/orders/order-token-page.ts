@@ -36,6 +36,8 @@ import {
   orderStatusTone,
 } from '../../shared/orders/order-status';
 import { OrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * An order opened by the link its confirmation mail carries (FR-NOTIF-06).
@@ -59,6 +61,8 @@ import { OrdersService } from './orders.service';
     OrderReadBack,
     OrderSummary,
     StatusBadge,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (detail(); as order) {
@@ -77,7 +81,7 @@ import { OrdersService } from './orders.service';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ order.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone(order)">
@@ -175,7 +179,7 @@ import { OrdersService } from './orders.service';
         [backLabel]="text.home"
       />
     } @else if (order.error()) {
-      <p class="text-sm text-danger" role="alert">{{ orderText.error }}</p>
+      <p appErrorText role="alert">{{ orderText.error }}</p>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }

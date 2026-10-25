@@ -20,6 +20,7 @@ import { CodeInput } from '../../shared/ui/code-input';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { TextButton } from '../../shared/ui/link';
 import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */
 export function formatWait(seconds: number): string {
@@ -51,6 +52,7 @@ function around(line: string, placeholder: string): [string, string] {
     CodeInput,
     FieldLabel,
     TextButton,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -106,7 +108,7 @@ function around(line: string, placeholder: string): [string, string] {
           (completed)="submit()"
         />
         @if (errors.show(form.controls.code)) {
-          <p class="mt-1 text-sm text-danger">
+          <p appErrorText class="mt-1">
             {{
               form.controls.code.hasError('required')
                 ? text.codeRequired

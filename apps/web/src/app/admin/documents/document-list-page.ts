@@ -44,6 +44,7 @@ import {
   documentFileSize,
   documentLinkHost,
 } from '../../shared/core/document-file';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document
@@ -81,6 +82,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     Skeleton,
     StatusBadge,
     UnpublishedCount,
+    ErrorText,
   ],
   template: `
     <app-admin-list-header
@@ -104,7 +106,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     </app-admin-list-header>
 
     @if (pageError()) {
-      <p class="mb-4 text-sm text-danger" role="alert">{{ pageError() }}</p>
+      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (documents.error()) {

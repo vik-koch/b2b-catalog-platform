@@ -24,6 +24,8 @@ import { Link } from '../../shared/ui/link';
 import { SyncPlanView } from './sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file
@@ -54,10 +56,12 @@ import { SyncService } from './sync.service';
     FileTarget,
     SyncPlanView,
     Link,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">
+      <h1 appPageTitle>
         {{ text.uploadTitle }}
       </h1>
       <a
@@ -196,7 +200,7 @@ import { SyncService } from './sync.service';
           </div>
 
           @if (previewError(); as message) {
-            <p class="mt-3 text-sm text-danger" role="alert">{{ message }}</p>
+            <p appErrorText class="mt-3" role="alert">{{ message }}</p>
           }
         </section>
 

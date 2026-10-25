@@ -12,6 +12,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 import { WarningNote } from '../../shared/ui/warning-note';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Who the order is invoiced to (FR-CART-09) — a field of the order, not a
@@ -45,6 +46,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
     Input,
     ReactiveFormsModule,
     Segmented,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -116,7 +118,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                 [attr.aria-invalid]="personNameInvalid() || null"
               />
               @if (personNameInvalid()) {
-                <p class="mt-1 text-sm text-danger">{{ text.nameRequired }}</p>
+                <p appErrorText class="mt-1">{{ text.nameRequired }}</p>
               }
             </div>
           } @else {

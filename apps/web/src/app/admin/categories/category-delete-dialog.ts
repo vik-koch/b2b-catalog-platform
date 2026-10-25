@@ -21,6 +21,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
@@ -44,6 +45,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     FieldLabel,
     DialogActions,
     DialogPanel,
+    ErrorText,
   ],
   template: `
     <dialog
@@ -85,7 +87,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       }
 
       @if (error()) {
-        <p class="mt-4 text-sm text-danger" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div appDialogActions>

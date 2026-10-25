@@ -61,6 +61,8 @@ import { PrivacyNotice } from '../pages/privacy-notice';
 import { TermsNotice } from '../pages/terms-notice';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -100,10 +102,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     Link,
     PrivacyNotice,
     TermsNotice,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
       <!-- The cart's and the account's own empty panel, read the other way
            round: the same shape of screen says "there is nothing here" and
            "that is done". Opening the order comes first — it is what somebody
@@ -131,7 +135,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
       <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
         <a appButton routerLink="/catalog">
           {{ cartText.emptyAction }}
@@ -167,7 +171,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                  form field wraps for no reason, and the questions below want
                  the shorter measure. -->
             <div class="mb-8">
-              <h1 class="mb-2 text-3xl font-medium tracking-tight">
+              <h1 appPageTitle class="mb-2">
                 {{ heading() }}
               </h1>
               <p class="text-muted">
@@ -443,7 +447,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             <!-- Where the ADR says a refusal belongs: beside the button, not
                  only at the field it came from. -->
             @if (error(); as message) {
-              <p class="mt-3 text-sm text-danger" role="alert">
+              <p appErrorText class="mt-3" role="alert">
                 {{ message }}
               </p>
             }

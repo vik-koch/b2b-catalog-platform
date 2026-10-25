@@ -20,6 +20,7 @@ import { AddressForm } from './address-form';
 import { AddressSuggestField } from './address-suggest-field';
 import { TextButton } from '../ui/link';
 import { SHARED_TEXT } from '../config/shared-text';
+import { ErrorText } from '../ui/error-text';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */
@@ -55,6 +56,7 @@ let nextId = 0;
     Input,
     SelectField,
     TextButton,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -97,7 +99,7 @@ let nextId = 0;
             (picked)="suggested($event)"
           />
           @if (isInvalid('street')) {
-            <p class="mt-1 text-sm text-danger">{{ text.required }}</p>
+            <p appErrorText class="mt-1">{{ text.required }}</p>
           }
           <!-- What the provider filled in, read back. Not an aside: it is most
                of the address, and the customer is the only one who can say it
@@ -176,7 +178,7 @@ let nextId = 0;
               />
             }
             @if (isInvalid('postalCode')) {
-              <p class="mt-1 text-sm text-danger">
+              <p appErrorText class="mt-1">
                 {{ postalCodeError() }}
               </p>
             }
@@ -199,7 +201,7 @@ let nextId = 0;
               [attr.aria-invalid]="isInvalid('city') || null"
             />
             @if (isInvalid('city')) {
-              <p class="mt-1 text-sm text-danger">{{ text.required }}</p>
+              <p appErrorText class="mt-1">{{ text.required }}</p>
             }
           </div>
         </div>

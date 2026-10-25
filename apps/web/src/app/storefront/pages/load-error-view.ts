@@ -1,5 +1,6 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * Shown when a page's data could not be loaded — the API is down, or answered
@@ -15,9 +16,10 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
  */
 @Component({
   selector: 'app-load-error-view',
+  imports: [PageTitle],
   template: `
     @if (heading()) {
-      <h1 class="text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 appPageTitle>{{ heading() }}</h1>
       <p class="mt-4 text-muted">{{ message() ?? text.cannotLoadBody }}</p>
     } @else {
       <p class="text-muted">{{ message() ?? text.cannotLoadBody }}</p>

@@ -28,6 +28,8 @@ import { Input } from '../../shared/ui/input';
 import { PhoneField } from '../../shared/ui/phone-field';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AccountService } from './account.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -51,10 +53,12 @@ type Status = 'idle' | 'submitting' | 'error';
     Input,
     PhoneField,
     Skeleton,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-2 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-2">
         {{ text.heading }}
       </h1>
       <p class="mb-4 text-muted">{{ text.intro }}</p>
@@ -82,7 +86,7 @@ type Status = 'idle' | 'submitting' | 'error';
               [attr.aria-invalid]="isInvalid('firstName') || null"
             />
             @if (isInvalid('firstName')) {
-              <p class="mt-1 text-sm text-danger">
+              <p appErrorText class="mt-1">
                 {{ fields.firstName.required }}
               </p>
             }
@@ -104,7 +108,7 @@ type Status = 'idle' | 'submitting' | 'error';
               [attr.aria-invalid]="isInvalid('lastName') || null"
             />
             @if (isInvalid('lastName')) {
-              <p class="mt-1 text-sm text-danger">
+              <p appErrorText class="mt-1">
                 {{ fields.lastName.required }}
               </p>
             }
@@ -141,11 +145,11 @@ type Status = 'idle' | 'submitting' | 'error';
           </div>
 
           @if (failure(); as line) {
-            <p class="text-sm text-danger" role="alert">{{ line }}</p>
+            <p appErrorText role="alert">{{ line }}</p>
           }
         </form>
       } @else if (profile.error()) {
-        <p class="text-sm text-danger" role="alert">
+        <p appErrorText role="alert">
           {{ accountText.error }}
         </p>
       } @else if (showSkeleton()) {

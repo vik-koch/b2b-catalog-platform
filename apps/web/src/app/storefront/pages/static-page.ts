@@ -11,10 +11,11 @@ import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { LoadErrorView } from './load-error-view';
 import { PageUpdated } from './page-updated';
+import { PageTitle } from '../../shared/ui/page-title';
 
 @Component({
   selector: 'app-static-page',
-  imports: [RichTextLinks, EditActions, LoadErrorView, PageUpdated],
+  imports: [RichTextLinks, EditActions, LoadErrorView, PageUpdated, PageTitle],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets the load error rather
@@ -32,7 +33,7 @@ import { PageUpdated } from './page-updated';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {

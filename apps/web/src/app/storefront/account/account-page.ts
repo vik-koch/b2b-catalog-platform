@@ -29,6 +29,8 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { WorkNote } from '../../shared/work/work-note';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -76,13 +78,15 @@ interface DetailRow {
     RouterLink,
     Icon,
     WorkNote,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <!-- Narrower than the shell allows, as the admin panel is: this is a
          column of short cards, and at the full width of a desktop each one
          was a heading and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ text.account }}
       </h1>
       <app-signed-in-as />
@@ -158,7 +162,7 @@ interface DetailRow {
                 }
               }
             } @else {
-              <p class="text-sm text-danger" role="alert">
+              <p appErrorText role="alert">
                 {{ orderText.error }}
               </p>
             }
@@ -223,7 +227,7 @@ interface DetailRow {
                   {{ accountText.edit.action }}
                 </a>
               } @else {
-                <p class="text-sm text-danger" role="alert">
+                <p appErrorText role="alert">
                   {{ accountText.error }}
                 </p>
               }
@@ -311,7 +315,7 @@ interface DetailRow {
                   {{ addressText.add }}
                 </a>
               } @else {
-                <p class="text-sm text-danger" role="alert">
+                <p appErrorText role="alert">
                   {{ addressText.error }}
                 </p>
               }

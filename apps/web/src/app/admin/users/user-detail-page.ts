@@ -39,6 +39,8 @@ import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {
@@ -73,6 +75,8 @@ interface DetailRow {
     LockedNote,
     Skeleton,
     StatusBadge,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <!-- The account page's own width: a column of short cards, which at the
@@ -82,7 +86,7 @@ interface DetailRow {
         <p class="text-muted" role="alert">{{ text.loadError }}</p>
       } @else if (user(); as person) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 class="text-3xl font-medium tracking-tight">{{ name() }}</h1>
+          <h1 appPageTitle>{{ name() }}</h1>
           <span appStatusBadge [tone]="statusTone(person.status)">{{
             statusLabel(person.status)
           }}</span>
@@ -163,7 +167,7 @@ interface DetailRow {
                   </button>
                 }
                 @if (exemptError(); as error) {
-                  <p class="mt-3 text-sm text-danger" role="alert">
+                  <p appErrorText class="mt-3" role="alert">
                     {{ error }}
                   </p>
                 }
@@ -240,7 +244,7 @@ interface DetailRow {
           }
         </div>
         @if (deleteError(); as error) {
-          <p class="mt-3 text-sm text-danger" role="alert">{{ error }}</p>
+          <p appErrorText class="mt-3" role="alert">{{ error }}</p>
         }
       } @else if (notFound()) {
         <p class="text-muted" role="alert">{{ text.notFound }}</p>

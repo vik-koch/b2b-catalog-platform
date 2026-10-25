@@ -27,6 +27,7 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -47,7 +48,15 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-product-parts-editor',
-  imports: [AdminIcon, Button, DisclosureToggle, FieldLabel, IconButton, Input],
+  imports: [
+    AdminIcon,
+    Button,
+    DisclosureToggle,
+    FieldLabel,
+    IconButton,
+    Input,
+    ErrorText,
+  ],
   host: { class: 'block' },
   template: `
     <div
@@ -90,7 +99,7 @@ let nextId = 0;
             </ul>
           }
           @if (tooFew()) {
-            <p class="mt-2 text-xs text-danger">{{ text.tooFew }}</p>
+            <p appErrorText class="mt-2">{{ text.tooFew }}</p>
           }
 
           @if (value().length >= max) {
@@ -122,7 +131,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p class="mt-1 text-xs text-danger">{{ rejectedLabel() }}</p>
+                <p appErrorText class="mt-1">{{ rejectedLabel() }}</p>
               }
             </div>
           }

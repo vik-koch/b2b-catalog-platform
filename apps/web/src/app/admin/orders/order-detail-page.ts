@@ -67,6 +67,8 @@ import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
@@ -115,6 +117,8 @@ const MARK_PAID = 'markPaid';
     OrderSummary,
     StatusBadge,
     LockedNote,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (detail(); as order) {
@@ -127,7 +131,7 @@ const MARK_PAID = 'markPaid';
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ order.reference }}
               </h1>
             </div>
@@ -540,7 +544,7 @@ const MARK_PAID = 'markPaid';
             </section>
 
             @if (failed(); as message) {
-              <p class="mt-3 max-w-xl text-danger" role="alert">
+              <p appErrorText class="mt-3 max-w-xl" role="alert">
                 {{ message }}
               </p>
             }

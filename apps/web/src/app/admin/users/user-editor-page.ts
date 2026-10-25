@@ -46,6 +46,8 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { userStatusTone } from './user-status';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { WarningNote } from '../../shared/ui/warning-note';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -79,12 +81,14 @@ import { WarningNote } from '../../shared/ui/warning-note';
     StatusBadge,
     Segmented,
     WarningNote,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
          title over a narrow form is a third layout where two will do. -->
     <div class="max-w-xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ title() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ title() }}</h1>
 
       @if (loading()) {
         @if (showSkeleton()) {
@@ -206,7 +210,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   [disabled]="locked()"
                 />
                 @if (isInvalid('firstName')) {
-                  <p class="mt-1 text-sm text-danger">
+                  <p appErrorText class="mt-1">
                     {{ fields.firstName.required }}
                   </p>
                 }
@@ -229,7 +233,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   [disabled]="locked()"
                 />
                 @if (isInvalid('lastName')) {
-                  <p class="mt-1 text-sm text-danger">
+                  <p appErrorText class="mt-1">
                     {{ fields.lastName.required }}
                   </p>
                 }
@@ -291,7 +295,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   </select>
                 </app-select-field>
                 @if (isInvalid('tierId')) {
-                  <p class="mt-1 text-sm text-danger">
+                  <p appErrorText class="mt-1">
                     {{ text.validation.tierRequired }}
                   </p>
                 }
@@ -341,7 +345,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
             }
 
             @if (error()) {
-              <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+              <p appErrorText role="alert">{{ error() }}</p>
             }
             @if (resent()) {
               <p class="text-sm text-green-700" role="status">

@@ -52,6 +52,7 @@ import {
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Every order request, for staff (FR-AUTH-03). An order is answered on its own
@@ -79,6 +80,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     StatusBadge,
     RecordRow,
     OrderRowActions,
+    ErrorText,
   ],
   template: `
     <app-admin-list-header
@@ -92,7 +94,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     />
 
     @if (pageError(); as message) {
-      <p class="mb-4 text-sm text-danger" role="alert">{{ message }}</p>
+      <p appErrorText class="mb-4" role="alert">{{ message }}</p>
     }
 
     @if (orders.error()) {

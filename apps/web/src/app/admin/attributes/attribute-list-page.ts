@@ -39,6 +39,8 @@ import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -77,10 +79,12 @@ type EditTarget = { id: string } | { id: null } | null;
     FieldLabel,
     SelectField,
     Skeleton,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -102,7 +106,7 @@ type EditTarget = { id: string } | { id: null } | null;
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-danger" role="alert">
+        <p appErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
@@ -235,7 +239,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </app-warning-note>
                   }
                   @if (rowError()?.id === definition.id) {
-                    <p class="mt-2 text-sm text-danger" role="alert">
+                    <p appErrorText class="mt-2" role="alert">
                       {{ rowError()?.message }}
                     </p>
                   }
@@ -361,7 +365,7 @@ type EditTarget = { id: string } | { id: null } | null;
             </button>
           </div>
           @if (formError()) {
-            <p class="text-sm text-danger sm:col-span-2" role="alert">
+            <p appErrorText class="sm:col-span-2" role="alert">
               {{ formError() }}
             </p>
           }

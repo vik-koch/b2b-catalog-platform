@@ -26,6 +26,8 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -61,10 +63,12 @@ type RenameTarget =
     HintBadge,
     Input,
     Skeleton,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
       </a>
@@ -381,7 +385,7 @@ type RenameTarget =
       }
 
       @if (renameError()) {
-        <p class="mt-4 text-sm text-danger" role="alert">
+        <p appErrorText class="mt-4" role="alert">
           {{ renameError() }}
         </p>
       }

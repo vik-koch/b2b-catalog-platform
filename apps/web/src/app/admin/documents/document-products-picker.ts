@@ -26,6 +26,7 @@ import { SegmentOption, Segmented } from '../../shared/ui/segmented';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;
@@ -57,7 +58,15 @@ type View = 'all' | 'linked';
  */
 @Component({
   selector: 'app-document-products-picker',
-  imports: [Checkbox, FieldLabel, Input, SelectField, Segmented, StatusBadge],
+  imports: [
+    Checkbox,
+    FieldLabel,
+    Input,
+    SelectField,
+    Segmented,
+    StatusBadge,
+    ErrorText,
+  ],
   host: { class: 'block' },
   template: `
     <div class="flex flex-nowrap items-end justify-between gap-3">
@@ -105,7 +114,7 @@ type View = 'all' | 'linked';
     </div>
 
     @if (products.error()) {
-      <p class="mt-3 text-sm text-danger" role="alert">{{ text.loadError }}</p>
+      <p appErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
     }
 
     <!-- A fixed-height scroller: the list is up to fifty rows, and a form that

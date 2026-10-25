@@ -26,6 +26,8 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { Link } from '../../shared/ui/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -58,11 +60,13 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     PhoneField,
     Segmented,
     Link,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ text.register.successHeading }}
         </h1>
         <p class="text-muted">{{ text.register.success }}</p>
@@ -70,7 +74,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           {{ home }}
         </a>
       } @else {
-        <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-2">
           {{ text.register.heading }}
         </h1>
         <p class="mb-4 text-muted">{{ text.register.intro }}</p>
@@ -111,7 +115,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
                 [attr.aria-invalid]="isInvalid('firstName') || null"
               />
               @if (isInvalid('firstName')) {
-                <p class="mt-1 text-sm text-danger">
+                <p appErrorText class="mt-1">
                   {{ fields.firstName.required }}
                 </p>
               }
@@ -133,7 +137,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
                 [attr.aria-invalid]="isInvalid('lastName') || null"
               />
               @if (isInvalid('lastName')) {
-                <p class="mt-1 text-sm text-danger">
+                <p appErrorText class="mt-1">
                   {{ fields.lastName.required }}
                 </p>
               }
@@ -186,7 +190,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           />
 
           @if (status() === 'error') {
-            <p class="text-sm text-danger" role="alert">
+            <p appErrorText role="alert">
               {{ text.register.error }}
             </p>
           }

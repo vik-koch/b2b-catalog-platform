@@ -12,6 +12,7 @@ import { PageService } from '../../shared/pages/page.service';
 import { LoadErrorView } from './load-error-view';
 import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * Contact page — a code route that renders an editable body.
@@ -31,6 +32,7 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
     EditActions,
     EmphasisedText,
     LoadErrorView,
+    PageTitle,
   ],
   template: `
     <!-- Nothing renders before the body arrives, heading included. The office
@@ -51,7 +53,7 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
     } @else if (ready()) {
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading }}</h1>
+        <h1 appPageTitle class="mb-4">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
           <app-edit-actions
             variant="inline"

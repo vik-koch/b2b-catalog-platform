@@ -18,6 +18,7 @@ import { Button } from '../../shared/ui/button';
 import { Input } from '../../shared/ui/input';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,
@@ -32,7 +33,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
  */
 @Component({
   selector: 'app-sync-customer-plan-view',
-  imports: [Button, Input, Link, RouterLink, StatusBadge],
+  imports: [Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
     <section class="rounded-md border border-border p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">{{ title() }}</h2>
@@ -178,7 +179,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         }
 
         @if (error(); as message) {
-          <p class="mt-3 text-sm text-danger" role="alert">{{ message }}</p>
+          <p appErrorText class="mt-3" role="alert">{{ message }}</p>
         }
       }
     </section>

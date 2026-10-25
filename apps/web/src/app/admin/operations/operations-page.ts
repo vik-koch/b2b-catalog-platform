@@ -33,6 +33,8 @@ import { Switch } from '../../shared/ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -58,13 +60,15 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     Skeleton,
     StatusBadge,
     Switch,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <!-- Wrapping, unlike the token list's heading row: this title is several
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
     <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
@@ -112,7 +116,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             </p>
 
             @if (maintenanceFailed()) {
-              <p class="mt-3 text-sm text-danger">
+              <p appErrorText class="mt-3">
                 {{ maintenanceText.error }}
               </p>
             }
@@ -222,7 +226,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           </section>
 
           @if (ownershipFailed()) {
-            <p class="text-sm text-danger">{{ ownershipText.error }}</p>
+            <p appErrorText>{{ ownershipText.error }}</p>
           }
         </section>
         <!-- Behind a lid, and not fetched until it is opened: the switches
@@ -278,7 +282,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           }
         </section>
       } @else if (settings.error()) {
-        <p class="text-sm text-danger">{{ text.loadError }}</p>
+        <p appErrorText>{{ text.loadError }}</p>
       }
     </div>
   `,

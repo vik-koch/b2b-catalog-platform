@@ -26,6 +26,8 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -34,7 +36,16 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
  */
 @Component({
   selector: 'app-page-editor',
-  imports: [Button, RichTextEditor, AdminIcon, FieldLabel, Input, Checkbox],
+  imports: [
+    Button,
+    RichTextEditor,
+    AdminIcon,
+    FieldLabel,
+    Input,
+    Checkbox,
+    PageTitle,
+    ErrorText,
+  ],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
@@ -46,7 +57,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       >
         {{ text.previewNotice }}
       </p>
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ title() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ title() }}</h1>
       <!-- The published width, so the preview shows the line breaks the
            visitor will get — the same measure the editing surface uses. -->
       <div
@@ -71,7 +82,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         </div>
       }
     } @else {
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
       <!-- The published measure, which is what the preview above uses: text
@@ -123,7 +134,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     }
 
     @if (error()) {
-      <p class="mt-4 max-w-3xl text-sm text-danger" role="alert">
+      <p appErrorText class="mt-4 max-w-3xl" role="alert">
         {{ error() }}
       </p>
     }

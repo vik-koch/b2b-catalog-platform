@@ -21,6 +21,7 @@ import { Icon } from '../../shared/ui/icons/icon';
 import { TextButton } from '../../shared/ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from '../../shared/pages/page.service';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -51,6 +52,7 @@ import { PageService } from '../../shared/pages/page.service';
     RouterLink,
     TextButton,
     LoadErrorView,
+    PageTitle,
   ],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
@@ -63,7 +65,7 @@ import { PageService } from '../../shared/pages/page.service';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {

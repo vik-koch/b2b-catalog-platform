@@ -34,6 +34,8 @@ import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -81,6 +83,8 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     Skeleton,
     Link,
     UnpublishedCount,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
@@ -89,7 +93,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
            later reads as the page changing its mind. A bar of the same height
            holds the row instead. -->
       @if (loaded(); as panel) {
-        <h1 class="text-3xl font-medium tracking-tight">
+        <h1 appPageTitle>
           {{ headingFor(panel) }}
         </h1>
       } @else {
@@ -241,7 +245,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               </p>
             }
             @if (error()) {
-              <p class="mt-4 text-sm text-danger" role="alert">
+              <p appErrorText class="mt-4" role="alert">
                 {{ error() }}
               </p>
             }

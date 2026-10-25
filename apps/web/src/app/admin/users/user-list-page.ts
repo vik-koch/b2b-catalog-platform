@@ -42,6 +42,7 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
@@ -115,6 +116,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     Skeleton,
     StatusBadge,
     UserRowActions,
+    ErrorText,
   ],
   template: `
     <app-admin-list-header
@@ -135,7 +137,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
     @if (pageError()) {
-      <p class="mb-4 text-sm text-danger" role="alert">{{ pageError() }}</p>
+      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (users.error()) {

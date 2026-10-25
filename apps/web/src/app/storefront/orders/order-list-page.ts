@@ -16,6 +16,8 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { Icon } from '../../shared/ui/icons/icon';
 import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The account's own order requests (FR-ACC-01), newest first — the whole
@@ -23,9 +25,18 @@ import { OrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-order-list-page',
-  imports: [RouterLink, Button, EmptyState, OrderRows, Skeleton, Icon],
+  imports: [
+    RouterLink,
+    Button,
+    EmptyState,
+    OrderRows,
+    Skeleton,
+    Icon,
+    PageTitle,
+    ErrorText,
+  ],
   template: `
-    <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ text.heading }}</h1>
+    <h1 appPageTitle class="mb-2">{{ text.heading }}</h1>
     <p class="mb-4 text-muted">{{ text.intro }}</p>
 
     <!-- What the history is narrowed to, said as the one chip that narrowed
@@ -115,7 +126,7 @@ import { OrdersService } from './orders.service';
         </a>
       }
     } @else if (orders.error()) {
-      <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
+      <p appErrorText role="alert">{{ text.error }}</p>
       <a appButton variant="secondary" routerLink="/account" class="mt-5">
         {{ text.back }}
       </a>

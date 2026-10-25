@@ -48,6 +48,8 @@ import {
 } from '../../shared/orders/order-status';
 import { customerQuantity } from '../../shared/orders/order-view';
 import { OrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * One of the account's own orders (FR-ACC-01), read back exactly as it was
@@ -69,6 +71,8 @@ import { OrdersService } from './orders.service';
     OrderReadBack,
     OrderSummary,
     StatusBadge,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (detail(); as detail) {
@@ -87,7 +91,7 @@ import { OrdersService } from './orders.service';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ detail.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone(detail)">
@@ -166,7 +170,7 @@ import { OrdersService } from './orders.service';
               </button>
             }
             @if (cancelFailed()) {
-              <p class="mt-3 text-sm text-danger" role="alert">
+              <p appErrorText class="mt-3" role="alert">
                 {{ text.cancel.error }}
               </p>
             }
@@ -191,7 +195,7 @@ import { OrdersService } from './orders.service';
         [backLabel]="text.backToList"
       />
     } @else if (order.error()) {
-      <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
+      <p appErrorText role="alert">{{ text.error }}</p>
       <a
         appButton
         variant="secondary"

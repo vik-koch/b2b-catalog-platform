@@ -14,6 +14,8 @@ import {
   SaveAddressResult,
 } from '../../shared/addresses/addresses.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -28,10 +30,10 @@ type Status = 'idle' | 'submitting' | 'error';
  */
 @Component({
   selector: 'app-address-editor-page',
-  imports: [RouterLink, AddressFields, Button, Skeleton],
+  imports: [RouterLink, AddressFields, Button, Skeleton, PageTitle, ErrorText],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-2 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-2">
         {{ isNew ? text.newHeading : text.editHeading }}
       </h1>
       <p class="mb-4 text-muted">{{ text.intro }}</p>
@@ -53,11 +55,11 @@ type Status = 'idle' | 'submitting' | 'error';
           </div>
 
           @if (error()) {
-            <p class="text-sm text-danger" role="alert">{{ error() }}</p>
+            <p appErrorText role="alert">{{ error() }}</p>
           }
         </form>
       } @else if (notFound()) {
-        <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
+        <p appErrorText role="alert">{{ text.error }}</p>
       } @else if (showSkeleton()) {
         <app-skeleton [lines]="6" />
       }

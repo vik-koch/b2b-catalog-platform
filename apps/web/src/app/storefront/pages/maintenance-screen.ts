@@ -1,6 +1,7 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * The public notice shown while maintenance mode is on (FR-ADM-04). Reached by
@@ -10,10 +11,10 @@ import { usePageSeo } from '../../shared/core/page-seo';
  */
 @Component({
   selector: 'app-maintenance-screen',
-  imports: [],
+  imports: [PageTitle],
   template: `
     <section class="py-12 text-center sm:py-20">
-      <h1 class="mt-3 text-3xl font-medium tracking-tight">{{ text.title }}</h1>
+      <h1 appPageTitle class="mt-3">{{ text.title }}</h1>
       <p class="mx-auto mt-4 max-w-xl text-muted">{{ text.body }}</p>
     </section>
   `,

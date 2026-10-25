@@ -91,6 +91,8 @@ import {
   UNIT_FIELD_INPUT_COMPACT,
   UnitField,
 } from '../../shared/ui/unit-field';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -127,10 +129,12 @@ import {
     UnitField,
     LockedFieldMarker,
     StatusBadge,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <h1 class="text-3xl font-medium tracking-tight">
+      <h1 appPageTitle>
         {{ isNew ? text.newTitle : text.editTitle }}
       </h1>
       <!-- Where the product stands, beside its name — the same badges the
@@ -552,7 +556,7 @@ import {
     }
 
     @if (error()) {
-      <p class="mt-4 text-sm text-danger" role="alert">{{ error() }}</p>
+      <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
     }
 
     @if (!loading() && !notFound()) {

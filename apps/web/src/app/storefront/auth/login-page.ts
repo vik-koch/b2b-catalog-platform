@@ -15,6 +15,8 @@ import { landingFor } from '../../shared/auth/auth.guard';
 import { AuthService, LoginResult } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
 import { TextButton } from '../../shared/ui/link';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The one login form, for every role (FR-AUTH-07). Where it lands afterwards
@@ -33,13 +35,15 @@ import { TextButton } from '../../shared/ui/link';
     Input,
     SignInStepPanel,
     TextButton,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <app-auth-card>
       @if (status() === 'step') {
         <app-sign-in-step (done)="land()" />
       } @else {
-        <h1 class="mb-8 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-8">
           {{ text.login }}
         </h1>
 
@@ -75,14 +79,14 @@ import { TextButton } from '../../shared/ui/link';
               [attr.aria-invalid]="isInvalid('password') || null"
             />
             @if (isInvalid('password')) {
-              <p class="mt-1 text-sm text-danger">
+              <p appErrorText class="mt-1">
                 {{ text.validation.passwordRequired }}
               </p>
             }
           </div>
 
           @if (failure(); as message) {
-            <p class="text-sm text-danger" role="alert">{{ message }}</p>
+            <p appErrorText role="alert">{{ message }}</p>
           }
 
           <div class="flex flex-wrap items-center gap-4">

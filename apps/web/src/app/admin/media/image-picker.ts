@@ -10,6 +10,7 @@ import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,
@@ -20,7 +21,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [AdminIcon, FileTarget],
+  imports: [AdminIcon, FileTarget, ErrorText],
   template: `
     @if (value(); as image) {
       <div
@@ -69,7 +70,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     }
 
     @if (error()) {
-      <p class="mt-2 text-sm text-danger" role="alert">{{ error() }}</p>
+      <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
     }
   `,
 })

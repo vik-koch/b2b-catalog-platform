@@ -2,6 +2,7 @@ import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * The one 404 screen: the "404" eyebrow, a heading, an explanation and a way
@@ -13,11 +14,11 @@ import { Button } from '../../shared/ui/button';
  */
 @Component({
   selector: 'app-not-found-view',
-  imports: [RouterLink, Button],
+  imports: [RouterLink, Button, PageTitle],
   template: `
     <section class="py-12 text-center sm:py-20">
       <p class="text-sm font-medium tracking-widest text-accent">404</p>
-      <h1 class="mt-3 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mt-3">
         {{ heading() ?? text.notFoundTitle }}
       </h1>
       <p class="mt-4 text-muted">{{ body() ?? text.notFoundBody }}</p>

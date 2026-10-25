@@ -31,6 +31,7 @@ import {
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** One line of the list: a document that exists, or a kind that could. */
 interface DocumentRow {
@@ -67,7 +68,7 @@ interface DocumentRow {
  */
 @Component({
   selector: 'app-order-documents-panel',
-  imports: [Button, IconButton, AdminIcon],
+  imports: [Button, IconButton, AdminIcon, ErrorText],
   host: { class: 'block' },
   template: `
     <input
@@ -198,7 +199,7 @@ interface DocumentRow {
     </ul>
 
     @if (failed()) {
-      <p class="mt-2 text-sm text-danger" role="alert">{{ text.error }}</p>
+      <p appErrorText class="mt-2" role="alert">{{ text.error }}</p>
     }
   `,
 })

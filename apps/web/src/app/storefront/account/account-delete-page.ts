@@ -11,6 +11,8 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 
@@ -27,17 +29,25 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
  */
 @Component({
   selector: 'app-account-delete-page',
-  imports: [ReactiveFormsModule, RouterLink, Button, FieldLabel, Input],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    FieldLabel,
+    Input,
+    PageTitle,
+    ErrorText,
+  ],
   template: `
     <div class="max-w-xl">
       @if (deleted()) {
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ text.doneHeading }}
         </h1>
         <p class="text-muted">{{ text.done }}</p>
         <a appButton routerLink="/" class="mt-8">{{ home }}</a>
       } @else {
-        <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-2">
           {{ text.heading }}
         </h1>
         <p class="mb-4 text-muted">{{ text.intro }}</p>
@@ -52,7 +62,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
              a refusal: the orders are the shop's to fill either way, and what
              changes is that they stop carrying the customer's details. -->
         @if (openOrders(); as open) {
-          <p class="mb-8 text-sm text-danger" role="status">
+          <p appErrorText class="mb-8" role="status">
             {{ openOrdersWarning(open) }}
           </p>
         }
@@ -79,7 +89,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
               [attr.aria-invalid]="isInvalid() || null"
             />
             @if (isInvalid()) {
-              <p class="mt-1 text-sm text-danger">
+              <p appErrorText class="mt-1">
                 {{ validation.currentPasswordRequired }}
               </p>
             } @else {
@@ -106,7 +116,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
           </div>
 
           @if (message(); as failure) {
-            <p class="text-sm text-danger" role="alert">{{ failure }}</p>
+            <p appErrorText role="alert">{{ failure }}</p>
           }
         </form>
       }

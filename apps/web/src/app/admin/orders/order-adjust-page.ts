@@ -77,6 +77,8 @@ import { customerQuantity } from '../../shared/orders/order-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {
@@ -167,6 +169,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
     Skeleton,
     WarningNote,
     LockedNote,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <!-- An order answered by an external system has nothing to propose, so
@@ -176,7 +180,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
          route. -->
     @if (locked()) {
       <div class="max-w-xl">
-        <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
+        <h1 appPageTitle>{{ title() }}</h1>
         <app-locked-note class="mt-4">{{
           ownershipText.orderLocked
         }}</app-locked-note>
@@ -195,7 +199,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
           class="grid gap-10 @min-[63.75rem]/adjust:grid-cols-[1fr_20rem] @min-[63.75rem]/adjust:justify-between"
         >
           <div class="max-w-xl">
-            <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
+            <h1 appPageTitle>{{ title() }}</h1>
             @if (text.page.intro; as intro) {
               <p class="mt-2 text-muted">{{ intro }}</p>
             }
@@ -245,7 +249,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                          than beside the save button: the figures on these lines
                          are the ones that could not be worked out. -->
                     @if (refusalOn() === 'lines') {
-                      <p class="text-sm text-danger" role="alert">
+                      <p appErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -319,7 +323,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     class="space-y-8 border-t border-border p-4"
                   >
                     @if (refusalOn() === 'details') {
-                      <p class="text-sm text-danger" role="alert">
+                      <p appErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -457,7 +461,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [attr.aria-invalid]="invalid('personName') || null"
                           />
                           @if (invalid('personName')) {
-                            <p class="mt-1 text-sm text-danger">
+                            <p appErrorText class="mt-1">
                               {{ fields.name.required }}
                             </p>
                           }
@@ -542,7 +546,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [attr.aria-invalid]="invalidContact('name') || null"
                           />
                           @if (invalidContact('name')) {
-                            <p class="mt-1 text-sm text-danger">
+                            <p appErrorText class="mt-1">
                               {{ fields.name.required }}
                             </p>
                           }
@@ -579,7 +583,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             </div>
 
             @if (formFailure(); as message) {
-              <p class="mt-6 text-sm text-danger" role="alert">
+              <p appErrorText class="mt-6" role="alert">
                 {{ message }}
               </p>
             }
@@ -638,7 +642,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               ></textarea>
               <p class="mt-1 text-xs text-subtle">{{ text.noteHint }}</p>
               @if (noteMissing()) {
-                <p class="mt-1 text-sm text-danger" role="alert">
+                <p appErrorText class="mt-1" role="alert">
                   {{ text.noteRequired }}
                 </p>
               } @else if (noteFailure(); as message) {
@@ -646,7 +650,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                      either fold to say it. It reads here, on the last thing
                      written before saving and beside the button that was
                      pressed. -->
-                <p class="mt-1 text-sm text-danger" role="alert">
+                <p appErrorText class="mt-1" role="alert">
                   {{ message }}
                 </p>
               }

@@ -25,6 +25,7 @@ import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
@@ -53,6 +54,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     FileTarget,
     Input,
     SelectField,
+    ErrorText,
   ],
   template: `
     <fieldset class="max-w-xl">
@@ -173,7 +175,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       </p>
 
       @if (error()) {
-        <p class="mt-2 text-sm text-danger" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
       }
     </fieldset>
   `,

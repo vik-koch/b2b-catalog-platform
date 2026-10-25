@@ -22,6 +22,8 @@ import { TextButton } from '../../shared/ui/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type Status =
   | 'checking'
@@ -58,6 +60,8 @@ type Status =
     Input,
     SignInStepPanel,
     TextButton,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <app-auth-card>
@@ -66,7 +70,7 @@ type Status =
           <app-sign-in-step (done)="land()" />
         }
         @case ('code-failed') {
-          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+          <h1 appPageTitle class="mb-4">
             {{ step.codeHeading }}
           </h1>
           <p class="text-muted" role="alert">{{ codeFailure() }}</p>
@@ -78,7 +82,7 @@ type Status =
           <p class="text-muted">{{ text.checking }}</p>
         }
         @case ('expired') {
-          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+          <h1 appPageTitle class="mb-4">
             {{ text.expiredHeading }}
           </h1>
           <p class="text-muted">{{ text.expired }}</p>
@@ -95,19 +99,19 @@ type Status =
           </div>
         }
         @case ('closed') {
-          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+          <h1 appPageTitle class="mb-4">
             {{ text.closedHeading }}
           </h1>
           <p class="text-muted">{{ text.closed }}</p>
         }
         @case ('done') {
-          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+          <h1 appPageTitle class="mb-4">
             {{ text.successHeading }}
           </h1>
           <p class="text-muted">{{ text.success }}</p>
         }
         @default {
-          <h1 class="mb-2 text-3xl font-medium tracking-tight">
+          <h1 appPageTitle class="mb-2">
             {{ purpose() === 'set' ? text.setHeading : text.resetHeading }}
           </h1>
           <p class="mb-4 text-muted">
@@ -150,7 +154,7 @@ type Status =
                    form: it is the same sentence before and after the refusal,
                    and only its colour changes. -->
               @if (isInvalid('newPassword')) {
-                <p id="newPassword-hint" class="mt-1 text-sm text-danger">
+                <p id="newPassword-hint" appErrorText class="mt-1">
                   {{
                     form.controls.newPassword.hasError('required')
                       ? validation.newPasswordRequired
@@ -190,7 +194,7 @@ type Status =
                 [attr.aria-invalid]="showMismatch() || null"
               />
               @if (showMismatch()) {
-                <p class="mt-1 text-sm text-danger">
+                <p appErrorText class="mt-1">
                   {{ validation.confirmPasswordMismatch }}
                 </p>
               }
@@ -205,7 +209,7 @@ type Status =
             />
 
             @if (rejection(); as message) {
-              <p class="text-sm text-danger" role="alert">{{ message }}</p>
+              <p appErrorText role="alert">{{ message }}</p>
             }
 
             <button

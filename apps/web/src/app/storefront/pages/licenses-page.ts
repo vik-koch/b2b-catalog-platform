@@ -12,6 +12,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { LicenseNotice, parseLicenseNotices } from './license-notice';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * Open-source attribution for the JavaScript this site sends to the browser.
@@ -37,14 +38,14 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
  */
 @Component({
   selector: 'app-licenses-page',
-  imports: [Skeleton],
+  imports: [Skeleton, PageTitle],
   template: `
     <!-- A reading measure, like the static pages this page is read alongside:
          it is prose and a list of names, and a package name three words long
          stranded at the far edge of a wide screen is a line nobody follows
          back. -->
     <div class="max-w-3xl">
-      <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ heading }}</h1>
+      <h1 appPageTitle class="mb-2">{{ heading }}</h1>
       <p class="mb-4 text-muted">{{ text.intro }}</p>
 
       @if (notices(); as list) {

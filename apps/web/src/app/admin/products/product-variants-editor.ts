@@ -36,6 +36,7 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -68,6 +69,7 @@ let nextId = 0;
     FieldLabel,
     IconButton,
     Input,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -185,7 +187,7 @@ let nextId = 0;
             </div>
           }
           @if (hasClash()) {
-            <p class="mt-2 text-xs text-danger">{{ text.duplicate }}</p>
+            <p appErrorText class="mt-2">{{ text.duplicate }}</p>
           }
           @if (allWithheld()) {
             <p class="mt-2 text-xs text-amber-800">{{ text.allWithheld }}</p>
@@ -221,7 +223,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p class="mt-1 text-xs text-danger">{{ text.exists }}</p>
+                <p appErrorText class="mt-1">{{ text.exists }}</p>
               }
             </div>
           }

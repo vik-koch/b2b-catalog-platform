@@ -7,6 +7,7 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { Link } from '../../shared/ui/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';
+import { ErrorText } from '../../shared/ui/error-text';
 
 let nextId = 0;
 
@@ -23,7 +24,14 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-consent-field',
-  imports: [ReactiveFormsModule, RouterLink, Checkbox, Link, PrivacyNotice],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Checkbox,
+    Link,
+    PrivacyNotice,
+    ErrorText,
+  ],
   host: { class: 'block empty:hidden' },
   template: `
     @if (consent().state() === 'ready') {
@@ -68,11 +76,11 @@ let nextId = 0;
         </p>
       </div>
       @if (consent().notice() === 'changed') {
-        <p class="mt-1 text-sm text-danger" role="alert">
+        <p appErrorText class="mt-1" role="alert">
           {{ text.changed }}
         </p>
       } @else if (invalid()) {
-        <p class="mt-1 text-sm text-danger">{{ text.required }}</p>
+        <p appErrorText class="mt-1">{{ text.required }}</p>
       }
     } @else if (alone() && consent().state() !== 'loading') {
       <p class="text-sm"><app-privacy-notice /></p>
@@ -81,7 +89,7 @@ let nextId = 0;
       consent().state() === 'unavailable' ||
       consent().notice() === 'unavailable'
     ) {
-      <p class="mt-1 text-sm text-danger" role="alert">
+      <p appErrorText class="mt-1" role="alert">
         {{ text.unavailable }}
       </p>
     }

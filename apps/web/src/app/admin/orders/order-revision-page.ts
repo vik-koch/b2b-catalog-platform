@@ -33,6 +33,7 @@ import { AdminOrdersService } from './orders.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * One version of an order, read back (FR-ORD-03, ADR 0051).
@@ -58,6 +59,7 @@ import { revisionKindLabel } from './revision-labels';
     OrderSummary,
     OrderDocumentsPanel,
     StatusBadge,
+    PageTitle,
   ],
   template: `
     @if (revision(); as order) {
@@ -67,7 +69,7 @@ import { revisionKindLabel } from './revision-labels';
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ order.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone()">

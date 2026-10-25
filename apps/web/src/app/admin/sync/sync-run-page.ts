@@ -32,6 +32,7 @@ import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
@@ -57,6 +58,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
     SyncCustomerPlanView,
     SyncOrderPlanView,
     SyncPlanView,
+    PageTitle,
   ],
   template: `
     @if (run.error()) {
@@ -74,7 +76,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
         <!-- Title left, way back right: the same shape as every list heading,
              and the counterpart of the button that opened this page. -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
-          <h1 class="text-3xl font-medium tracking-tight">
+          <h1 appPageTitle>
             {{ text.runTitle }}
           </h1>
           <span appStatusBadge [tone]="tone(data.run)">

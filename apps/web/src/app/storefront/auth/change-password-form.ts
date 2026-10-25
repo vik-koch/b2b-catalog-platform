@@ -16,6 +16,7 @@ import {
   AuthService,
   ChangePasswordResult,
 } from '../../shared/auth/auth.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Cross-field check: the confirmation has to match. It lives on the group
@@ -27,7 +28,7 @@ import {
  */
 @Component({
   selector: 'app-change-password-form',
-  imports: [ReactiveFormsModule, Button, FieldLabel, Input],
+  imports: [ReactiveFormsModule, Button, FieldLabel, Input, ErrorText],
   template: `
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-6">
       <div>
@@ -45,7 +46,7 @@ import {
           [attr.aria-invalid]="isInvalid('currentPassword') || null"
         />
         @if (isInvalid('currentPassword')) {
-          <p class="mt-1 text-sm text-danger">
+          <p appErrorText class="mt-1">
             {{ validation.currentPasswordRequired }}
           </p>
         }
@@ -69,7 +70,7 @@ import {
         <!-- One line, not two: the rule and the refusal are the same sentence,
              so it changes colour rather than being printed twice. -->
         @if (isInvalid('newPassword')) {
-          <p [id]="id('new-hint')" class="mt-1 text-sm text-danger">
+          <p [id]="id('new-hint')" appErrorText class="mt-1">
             {{
               form.controls.newPassword.hasError('required')
                 ? validation.newPasswordRequired
@@ -98,14 +99,14 @@ import {
           [attr.aria-invalid]="showMismatch() || null"
         />
         @if (showMismatch()) {
-          <p class="mt-1 text-sm text-danger">
+          <p appErrorText class="mt-1">
             {{ validation.confirmPasswordMismatch }}
           </p>
         }
       </div>
 
       @if (failure(); as message) {
-        <p class="text-sm text-danger" role="alert">{{ message }}</p>
+        <p appErrorText role="alert">{{ message }}</p>
       }
       @if (status() === 'ok') {
         <p class="text-sm text-green-700" role="status">{{ text.success }}</p>

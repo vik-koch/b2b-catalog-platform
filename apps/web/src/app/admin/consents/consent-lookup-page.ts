@@ -38,6 +38,8 @@ import { adminDayFormat } from '../grid/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type SearchBy = 'email' | 'phone';
 
@@ -56,10 +58,12 @@ type SearchBy = 'email' | 'phone';
     Segmented,
     Skeleton,
     ConsentRecordList,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="max-w-3xl">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       @if (text.page.intro; as intro) {
         <p class="mt-2 text-muted">{{ intro }}</p>
       }
@@ -97,7 +101,7 @@ type SearchBy = 'email' | 'phone';
           <p class="text-muted" role="alert">{{ text.loadError }}</p>
         } @else if (results.hasValue() && query(); as asked) {
           @if (withdrawError(); as message) {
-            <p class="mb-4 text-sm text-danger" role="alert">{{ message }}</p>
+            <p appErrorText class="mb-4" role="alert">{{ message }}</p>
           }
           @if (results.value().length > 0) {
             <app-consent-record-list

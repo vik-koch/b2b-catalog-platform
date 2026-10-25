@@ -24,6 +24,7 @@ import { StatusBadge } from '../ui/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';
+import { ErrorText } from '../ui/error-text';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category
@@ -41,7 +42,7 @@ import { SHARED_TEXT } from '../config/shared-text';
  */
 @Component({
   selector: 'app-hidden-products-section',
-  imports: [PricePipe, Button, AdminIcon, StatusBadge, RouterLink],
+  imports: [PricePipe, Button, AdminIcon, StatusBadge, RouterLink, ErrorText],
   template: `
     @if (hidden.value(); as items) {
       @if (items.length) {
@@ -133,7 +134,7 @@ import { SHARED_TEXT } from '../config/shared-text';
             }
           </ul>
           @if (error()) {
-            <p class="mt-4 text-sm text-danger" role="alert">{{ error() }}</p>
+            <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
           }
         </section>
       }
