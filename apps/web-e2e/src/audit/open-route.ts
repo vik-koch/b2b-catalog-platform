@@ -1,11 +1,41 @@
 import type { Page } from '@playwright/test';
 import type { AuditRoute } from './routes';
 
+/*
+ * The seed dates its records relative to when it ran, so dates move from day
+ * to day and times from run to run, and their width moves what stands beside
+ * them. Every text node is given one fixed date and time instead, as it is
+ * parsed and whenever a render writes it again.
+ */
+const FIXED_DATES = `(() => {
+  const fix = (node) => {
+    const next = node.nodeValue
+      .replace(/\\b\\d{2}\\.\\d{2}\\.\\d{4}\\b/g, '01.01.2000')
+      .replace(/\\b\\d{1,2}:\\d{2}(:\\d{2})?\\b/g, (_, seconds) =>
+        seconds ? '00:00:00' : '00:00');
+    if (next !== node.nodeValue) node.nodeValue = next;
+  };
+  const sweep = (root) => {
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) fix(node);
+  };
+  new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === 'characterData') fix(record.target);
+      for (const node of record.addedNodes) {
+        if (node.nodeType === Node.TEXT_NODE) fix(node);
+        else sweep(node);
+      }
+    }
+  }).observe(document, { subtree: true, childList: true, characterData: true });
+})();`;
+
 /**
  * Opens an audited page and brings it to the settled state both the
  * screenshot and the accessibility check look at.
  */
 export async function openRoute(page: Page, route: AuditRoute): Promise<void> {
+  await page.addInitScript(FIXED_DATES);
   await route.before?.(page);
   await page.goto(
     typeof route.path === 'string' ? route.path : await route.path(),
