@@ -39,6 +39,16 @@ Both end-to-end suites bring up and empty their own Compose stacks, so they neve
 database you develop against, and they can run at the same time. The web suite runs a desktop
 and a phone viewport.
 
+`npx nx test web -c coverage` adds a coverage report under `coverage/web/` (open
+`index.html`). It is a map of thin spots, not a gate: CI does not run it.
+
+`npx nx run web-e2e:audit` opens every page listed in `apps/web-e2e/src/audit/routes.ts`, signed
+out, as a customer, as an admin and in edit mode, on both viewports. It compares a screenshot of
+each with `tmp/baselines/visual/` and its axe findings against WCAG 2.1 AA with
+`tmp/baselines/a11y/`. Take the baseline before a change that moves markup (`--update-snapshots`),
+then run it again after: a refactor should change no picture, and a finding fixed or added shows
+as a difference. CI does not run it either.
+
 CI runs a few more checks, each a plain Node script:
 
 <!-- prettier-ignore -->
@@ -47,7 +57,7 @@ CI runs a few more checks, each a plain Node script:
 | `tools/check-licenses.mjs` | Every production dependency has an allowed licence |
 | `tools/check-deployments.mjs` | Every committed deployment boots and seeds; `--config-dir <dir>` checks one config directory |
 | `tools/check-aria-text.mjs` | A text meant only for screen readers is never shown on screen |
-| `tools/check-initial-bundle.mjs` | The browser's first download stays within its budget and carries no Zod (after `nx build web --statsJson`) |
+| `tools/check-initial-bundle.mjs` | The browser's first download stays within its budget and carries no Zod (after `nx build web --statsJson`); `--report` shows what the first load and each lazy page weigh, `--save`/`--baseline <file>` keep and compare a report |
 | `tools/migrate-config.mjs --check` | The last release's config, migrated with this release's map, still loads |
 
 ## Generated files

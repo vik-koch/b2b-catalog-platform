@@ -19,6 +19,8 @@ const baseURL = process.env['BASE_URL'] || 'http://localhost:8080';
 export default defineConfig({
   ...nxE2EPreset(import.meta.dirname, { testDir: './src' }),
   globalSetup: './src/support/global-setup.ts',
+  // The audit has its own config (playwright.audit.config.mts) and runs by hand.
+  testIgnore: ['**/audit/**'],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     baseURL,

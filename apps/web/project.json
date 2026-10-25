@@ -70,9 +70,18 @@
     },
     "test": {
       "executor": "@angular/build:unit-test",
+      "outputs": ["{workspaceRoot}/coverage/web"],
       "options": {
         "watch": false,
         "setupFiles": ["apps/web/src/test-setup.ts"]
+      },
+      "configurations": {
+        "coverage": {
+          "coverage": true,
+          "coverageInclude": ["apps/web/src/app/**/*.ts"],
+          "coverageExclude": ["**/*.generated.ts", "**/*.fixture.ts"],
+          "coverageReporters": ["text-summary", "html", "json-summary"]
+        }
       }
     },
     "serve-static": {
