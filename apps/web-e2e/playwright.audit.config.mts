@@ -10,8 +10,8 @@ const root = join(import.meta.dirname, '../..');
  * Run by hand around a change that moves markup (`nx run web-e2e:audit`, with
  * `-- --update-snapshots` to take the baseline first); CI does not run it.
  *
- * The screenshots are a working baseline, not documentation, so they stay out
- * of the repo in `tmp/baselines/visual/`.
+ * The baselines are working material, not documentation, so they stay out of
+ * the repo in `tmp/baselines/`.
  */
 export default defineConfig({
   ...base,
@@ -28,10 +28,8 @@ export default defineConfig({
     ],
     ['list'],
   ],
-  snapshotPathTemplate: join(
-    root,
-    'tmp/baselines/visual/{projectName}/{arg}{ext}',
-  ),
+  // Each check names its own folder: tmp/baselines/<check>/<project>/<page>.
+  snapshotPathTemplate: join(root, 'tmp/baselines/{arg}{ext}'),
   // One page at a time: a parallel run on one machine renders fonts and
   // images under different load, which shows up as pixel noise.
   workers: 1,

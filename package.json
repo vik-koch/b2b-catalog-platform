@@ -15,6 +15,7 @@
     "@angular/cli": "~22.2.2",
     "@angular/compiler-cli": "~22.2.1",
     "@angular/language-service": "~22.2.1",
+    "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
     "@nestjs/testing": "^12.1.2",
     "@nx/angular": "23.3.0",
