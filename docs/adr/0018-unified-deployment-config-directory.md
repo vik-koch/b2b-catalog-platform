@@ -189,3 +189,13 @@ and the one the suites assert is `deployments/fixture`. `deploy.sh` has no
 default to fall back on, so `CONFIG_DIR` names the deployment on every deploy,
 and the unit specs pin `CONFIG_PATH` to the fixture rather than read whichever
 deployment the workspace `.env` names.
+
+## Amendment — 2026-10-25 (v1.15.2): the text files are named by their reader
+
+`texts/common.json` is now `texts/shared.json`, and `texts/app.json` is
+`texts/storefront.json`, so each name says whose wording it holds
+([ADR 0069](0069-split-web-texts-and-contracts-by-audience.md)):
+`storefront.json` the customers', `admin.json` the staff's, `shared.json`
+everyone's and the API's. The rules above hold under the new names. The
+pagination words and the catalogue's nav label moved to `shared.json` and the
+panel's titles to `admin.json`; the release's map does both.

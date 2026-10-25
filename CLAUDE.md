@@ -93,6 +93,10 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   Config keys are version-neutral. API contracts (esp. the sync import shape) stay stable;
   internals may change freely.
 - Deploys: merge to `main` → auto-deploy `dev` environment. Semver tag is used for deploy to `prod`.
+- Code comments are short and say why, not what: a trap, an ordering constraint, an
+  invariant the code cannot show. No history (what it was, which iteration, phase or ADR
+  changed it) and no restating of the code; a colon or a full stop reads better than an
+  em dash.
 - Hand-written Markdown tables are compact (no column padding) under a `<!-- prettier-ignore -->`
   line, so a new row diffs one line instead of re-padding the table. Generated tables are left
   as their generator writes them.

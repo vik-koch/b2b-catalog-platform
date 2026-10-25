@@ -85,5 +85,6 @@ The index below is generated from each record's heading and status line
 | 0066 | [Confirm a sign-in through the phone](0066-confirm-a-sign-in-through-the-phone.md) | 2026-10-07 | accepted |
 | 0067 | [Send each night's backup off the host as an encrypted pair, to storage the host cannot erase](0067-backups-leave-the-host-as-an-encrypted-pair.md) | 2026-10-09 | accepted |
 | 0068 | [Simulate the demo shop's back office as a client of the machine API](0068-simulate-the-demo-back-office-through-the-machine-api.md) | 2026-10-23 | accepted |
+| 0069 | [Split the web app, its texts and the contracts by audience](0069-split-web-texts-and-contracts-by-audience.md) | 2026-10-25 | accepted |
 
 <!-- /generated:adr-index -->

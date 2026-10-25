@@ -10,7 +10,7 @@ One entry point per audience of a route
 | Import | Folder | What it holds |
 | --- | --- | --- |
 | `@b2b-catalog-platform/shared` | `src/lib/` | public and signed-in routes, and what every side reads, by domain: `core`, `config`, `catalog`, `orders`, `accounts`, `site` |
-| `@b2b-catalog-platform/shared/storefront` | `src/storefront/` | what only the storefront calls: the customer's own account |
+| `@b2b-catalog-platform/shared/storefront` | `src/storefront/` | what only the storefront uses: the customer's own account, and checkout's delivery-zone and date rules |
 | `@b2b-catalog-platform/shared/admin` | `src/admin/` | staff routes; a staff half extends the public shapes |
 | `@b2b-catalog-platform/shared/sync` | `src/sync/` | the machine API and the exchange it feeds |
 | `@b2b-catalog-platform/shared/node` | `src/node/` | what only runs on a server: loading the config directory, sanitizing rich text, server-only settings |
@@ -24,7 +24,7 @@ parts may import.
 - **`*-constants.ts`, `*-format.ts` and the other plain modules** — limits, enums and pure
   helpers with no imports, so a component that needs a limit does not pull Zod into the
   browser.
-- **`config/`** — the schemas a deployment's `deployment.json` and shared texts are loaded with.
+- **`src/lib/config/`** — the schemas a deployment's `deployment.json` and shared texts are loaded with.
 
 The browser never receives the schemas themselves: each side of the web app gets the route
 metadata generated into its own `contract-routes.generated.ts`. Regenerate them with
