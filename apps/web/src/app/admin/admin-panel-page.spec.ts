@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { COMMON_TEXT } from '../shared/config/common-text';
+import { defaultCommonText } from '../shared/config/common-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -9,21 +9,21 @@ import {
   SyncArea,
   WorkCounts,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../config/app-text';
-import { ADMIN_TEXT } from '../config/admin-text';
-import { defaultAppText } from '../config/app-text.fixture';
-import { defaultAdminText } from '../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
+import { APP_TEXT } from '../shared/config/app-text';
+import { ADMIN_TEXT } from '../shared/config/admin-text';
+import { defaultAppText } from '../shared/config/app-text.fixture';
+import { defaultAdminText } from '../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../shared/config/deployment-config.fixture';
 import { AppSettings } from '@b2b-catalog-platform/shared';
 import { AdminPanelPage } from './admin-panel-page';
 import { SettingsService } from './settings/settings.service';
 import { BuildInfoService } from './build-info.service';
 import { SyncService } from './sync/sync.service';
-import { AuthService } from '../auth/auth.service';
-import { adminUser, managerUser } from '../auth/auth-user.fixture';
-import { WorkService } from '../work/work.service';
-import { workStub } from '../work/work.fixture';
+import { AuthService } from '../shared/auth/auth.service';
+import { adminUser, managerUser } from '../shared/auth/auth-user.fixture';
+import { WorkService } from '../shared/work/work.service';
+import { workStub } from '../shared/work/work.fixture';
 
 // The committed demo config — its de-DE locale is what formats the deploy date.
 const config = defaultDeploymentConfig;

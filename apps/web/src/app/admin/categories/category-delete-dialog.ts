@@ -10,17 +10,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SettingsService } from '../settings/settings.service';
-import { Button } from '../../ui/button';
-import { DialogActions } from '../../ui/dialog-actions';
-import { DialogPanel } from '../../ui/dialog-panel';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { FieldLabel } from '../../ui/field-label';
+import { Button } from '../../shared/ui/button';
+import { DialogActions } from '../../shared/ui/dialog-actions';
+import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { FieldLabel } from '../../shared/ui/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every

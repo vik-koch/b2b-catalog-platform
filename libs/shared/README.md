@@ -14,7 +14,7 @@ rules the storefront and the API must agree on.
   config directory, sanitizing rich text.
 
 The browser never receives the schemas themselves: it gets the route metadata generated into
-`apps/web/src/app/core/contract-routes.generated.ts`. Regenerate it with
+`apps/web/src/app/shared/core/contract-routes.generated.ts`. Regenerate it with
 `node tools/generate-contract-routes.mjs` after changing a route's method, path or input and
 output structure ([ADR 0043](../../docs/adr/0043-contract-layer-and-what-the-browser-downloads.md)).
 

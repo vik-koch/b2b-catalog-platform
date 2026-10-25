@@ -13,11 +13,11 @@ import {
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
-import { DialogActions } from '../../ui/dialog-actions';
-import { DialogPanel } from '../../ui/dialog-panel';
-import { TextButton } from '../../ui/link';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
+import { DialogActions } from '../../shared/ui/dialog-actions';
+import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { TextButton } from '../../shared/ui/link';
 import {
   clampFrame,
   filled,
@@ -28,7 +28,7 @@ import {
   ZOOM_MAX,
   ZOOM_MIN,
 } from './image-frame';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** Arrow keys move by this share of the square, Shift by five times it. */
 const KEY_STEP = 0.01;

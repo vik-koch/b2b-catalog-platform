@@ -1,17 +1,17 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { disclosureState } from '../../ui/disclosure-state';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { disclosureState } from '../../shared/ui/disclosure-state';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Input } from '../../ui/input';
-import { SelectField } from '../../ui/select-field';
+} from '../../shared/ui/disclosure-toggle';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Input } from '../../shared/ui/input';
+import { SelectField } from '../../shared/ui/select-field';
 import { GridClearFilters } from './grid-clear-filters';
 import { GridToggles } from './grid-toggles';
 import {

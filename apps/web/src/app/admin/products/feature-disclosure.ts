@@ -1,11 +1,11 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { ADMIN_TEXT } from '../../config/admin-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
+} from '../../shared/ui/disclosure-toggle';
+import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
 
 /** `aria-controls` must name one panel, and a page holds several. */
 let nextId = 0;

@@ -5,7 +5,7 @@ import {
   inject,
   input,
 } from '@angular/core';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { adminDayFormat } from './admin-date';
 
 /**

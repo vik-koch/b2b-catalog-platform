@@ -8,22 +8,25 @@ import {
   fillText,
   StoredDocumentFile,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { DateField } from '../../ui/date-field';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { injectEditorReturn } from '../editor-return';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { DateField } from '../../shared/ui/date-field';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { documentFileLabel, documentFileSize } from '../../core/document-file';
-import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../ui/file-target';
+import {
+  documentFileLabel,
+  documentFileSize,
+} from '../../shared/core/document-file';
+import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 

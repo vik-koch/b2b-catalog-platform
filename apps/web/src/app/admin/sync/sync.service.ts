@@ -14,9 +14,9 @@ import {
   SyncRun,
   SyncRunStatus,
 } from '@b2b-catalog-platform/shared';
-import { syncContract } from '../../core/contract-routes.generated';
+import { syncContract } from '../../shared/core/contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../../core/orpc-client';
+import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /**
  * A preview the server refused — a malformed file, a file too large, or refused

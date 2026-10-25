@@ -5,9 +5,9 @@ import {
   OwnershipArea,
   SettingChange,
 } from '@b2b-catalog-platform/shared';
-import { settingsContract } from '../../core/contract-routes.generated';
-import { createOrpcClient } from '../../core/orpc-client';
-import { MaintenanceService } from '../maintenance/maintenance.service';
+import { settingsContract } from '../../shared/core/contract-routes.generated';
+import { createOrpcClient } from '../../shared/core/orpc-client';
+import { MaintenanceService } from '../../shared/maintenance/maintenance.service';
 
 /** The fail-closed answer: assume everything is owned rather than nothing. */
 const ALL_AREAS: readonly OwnershipArea[] = OWNERSHIP_AREAS;

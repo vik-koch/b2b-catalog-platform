@@ -13,22 +13,22 @@ import {
   PairedProduct,
   PRODUCT_PAIRINGS_MAX,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { HighlightedLine } from '../../core/highlighted-line';
-import { AlternateLayout } from '../../core/alternate-layout';
-import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { AlternateLayout } from '../../shared/core/alternate-layout';
+import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+} from '../../shared/ui/disclosure-toggle';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../ui/input';
-import { StatusBadge } from '../../ui/status-badge';
+import { Input } from '../../shared/ui/input';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */

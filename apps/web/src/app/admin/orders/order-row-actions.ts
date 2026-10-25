@@ -4,9 +4,9 @@ import {
   allowedTransitions,
   TransitionTarget,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { IconButton } from '../../ui/icon-button';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { IconButton } from '../../shared/ui/icon-button';
 import { StaffOrderSummary } from './orders.service';
 
 /**

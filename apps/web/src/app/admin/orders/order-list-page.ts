@@ -20,20 +20,20 @@ import {
   TransitionTarget,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { stableValue } from '../../core/stable-value';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { formatPriceMinor } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { stableValue } from '../../shared/core/stable-value';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import {
   orderStatusLabel,
   orderStatusTone,
   staffPaymentBadge,
-} from '../../orders/order-status';
+} from '../../shared/orders/order-status';
 import { AdminListHeader } from '../list-header';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
@@ -42,8 +42,11 @@ import { GridPagination } from '../grid/grid-pagination';
 import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
-import { injectEditorReturnParams } from '../editor-return';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';

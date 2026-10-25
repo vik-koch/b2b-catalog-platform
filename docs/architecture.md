@@ -127,6 +127,13 @@ the schemas, which keeps the validation library out of the first page load
 ([ADR 0043](adr/0043-contract-layer-and-what-the-browser-downloads.md)). Refusals travel as a
 code in the contract, never as a message to match on.
 
+**The web app has three parts.** `storefront/` is what buyers use, `admin/` what staff use, and
+`shared/` what both render or call: the UI primitives, configuration, the session, and the
+product views the admin preview shows. The storefront and the admin each import shared code and
+never each other; only the root files (`app.ts`, `app.config.ts`, `app.routes.ts`) compose both.
+Edit mode, the admin's controls on storefront pages, reaches admin code through an injection
+token the root provides. A lint rule enforces the direction.
+
 **The database** is PostgreSQL with Drizzle. A few modelling rules carry most of the domain:
 
 - A role (admin, manager, customer) grants permissions; a customer's tier picks the price

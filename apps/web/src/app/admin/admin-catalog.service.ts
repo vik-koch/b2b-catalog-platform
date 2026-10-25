@@ -14,10 +14,11 @@ import {
   ProductPage,
   ReorderCategoriesRequest,
 } from '@b2b-catalog-platform/shared';
-import { adminCatalogContract } from '../core/contract-routes.generated';
+import { adminCatalogContract } from '../shared/core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../core/orpc-client';
-import { WorkService } from '../work/work.service';
+import { createOrpcClient } from '../shared/core/orpc-client';
+import { WorkService } from '../shared/work/work.service';
+import type { EditModeCatalog } from '../shared/edit-mode/edit-mode-catalog';
 
 /**
  * The refusals the editor can render. Every route also declares the two auth
@@ -41,7 +42,7 @@ function renderableCategory(code: string): code is CategorySaveErrorCode {
  * unexpected.
  */
 @Injectable({ providedIn: 'root' })
-export class AdminCatalogService {
+export class AdminCatalogService implements EditModeCatalog {
   private client = createOrpcClient(adminCatalogContract);
   private readonly work = inject(WorkService);
 

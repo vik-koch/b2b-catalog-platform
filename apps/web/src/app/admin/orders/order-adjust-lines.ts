@@ -11,22 +11,22 @@ import {
   AdminProductListItem,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { currencySymbol } from '../../catalog/price';
-import { HighlightedLine } from '../../core/highlighted-line';
-import { AlternateLayout } from '../../core/alternate-layout';
-import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { currencySymbol } from '../../shared/catalog/price';
+import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { AlternateLayout } from '../../shared/core/alternate-layout';
+import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { PriceField } from '../../ui/price-field';
-import { StatusBadge } from '../../ui/status-badge';
-import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { PriceField } from '../../shared/ui/price-field';
+import { StatusBadge } from '../../shared/ui/status-badge';
+import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;

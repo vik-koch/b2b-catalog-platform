@@ -6,13 +6,13 @@ import {
   ConsentRecord,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { formatPhone } from '../../core/contact-fields';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
-import { StatusBadge } from '../../ui/status-badge';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { formatPhone } from '../../shared/core/contact-fields';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { adminMomentFormat } from '../grid/admin-date';
 import { RecordRow } from '../records/record-row';
 

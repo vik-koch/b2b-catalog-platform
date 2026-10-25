@@ -1,7 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
 import { AdminCategory } from '@b2b-catalog-platform/shared';
-import { Input } from '../../ui/input';
-import { SelectField } from '../../ui/select-field';
+import { Input } from '../../shared/ui/input';
+import { SelectField } from '../../shared/ui/select-field';
 import { flattenCategoryTree } from './category-tree';
 
 /**

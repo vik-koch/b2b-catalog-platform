@@ -9,24 +9,24 @@ import {
   signal,
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { usePageSeo } from '../../core/page-seo';
-import { useRowAnchor } from '../../core/row-anchor';
-import { delayedLoading } from '../../core/delayed-loading';
-import { Button } from '../../ui/button';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Icon } from '../../ui/icons/icon';
-import { Link } from '../../ui/link';
-import { Input } from '../../ui/input';
-import { HintBadge } from '../../ui/hint-badge';
-import { Skeleton } from '../../ui/skeleton';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { useRowAnchor } from '../../shared/core/row-anchor';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { Button } from '../../shared/ui/button';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { Link } from '../../shared/ui/link';
+import { Input } from '../../shared/ui/input';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =

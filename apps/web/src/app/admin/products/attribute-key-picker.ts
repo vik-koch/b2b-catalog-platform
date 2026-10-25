@@ -10,15 +10,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { DialogActions } from '../../ui/dialog-actions';
-import { DialogPanel } from '../../ui/dialog-panel';
-import { HintBadge } from '../../ui/hint-badge';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { DialogActions } from '../../shared/ui/dialog-actions';
+import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { AttributeHint } from './attribute-hints';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * "Add attributes" — the names the catalog already uses, in a dialog opened

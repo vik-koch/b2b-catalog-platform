@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { adminText } from '../config/admin-text';
-import { Icon } from '../ui/icons/icon';
-import { EditModeService } from './edit-mode.service';
+import { adminText } from '../shared/config/admin-text';
+import { Icon } from '../shared/ui/icons/icon';
+import { EditModeService } from '../shared/edit-mode/edit-mode.service';
 
 /**
  * A floating, admin-only toggle for storefront edit mode (FR-ADM-01). Renders

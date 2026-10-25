@@ -8,25 +8,25 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
 import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { usePageSeo } from '../../core/page-seo';
-import { delayedLoading } from '../../core/delayed-loading';
-import { Button } from '../../ui/button';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
-import { Input } from '../../ui/input';
-import { FieldLabel } from '../../ui/field-label';
-import { Skeleton } from '../../ui/skeleton';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { Button } from '../../shared/ui/button';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
+import { Input } from '../../shared/ui/input';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;

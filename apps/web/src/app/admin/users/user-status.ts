@@ -1,5 +1,5 @@
 import { UserStatus } from '@b2b-catalog-platform/shared';
-import { StatusTone } from '../../ui/status-badge';
+import { StatusTone } from '../../shared/ui/status-badge';
 
 /**
  * The badge tone per account state, shared by the list and the editor — the two

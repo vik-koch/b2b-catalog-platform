@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText, Pagination } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { Button } from '../../ui/button';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { Button } from '../../shared/ui/button';
 
 /**
  * Paging for an admin grid — the same nav the three lists each kept their own

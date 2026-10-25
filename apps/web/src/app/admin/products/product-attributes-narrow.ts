@@ -19,14 +19,14 @@ import {
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
-import { FieldLabel } from '../../ui/field-label';
-import { HintBadge } from '../../ui/hint-badge';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Icon } from '../../ui/icons/icon';
-import { Input } from '../../ui/input';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { Input } from '../../shared/ui/input';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import {
@@ -34,7 +34,7 @@ import {
   attributeRowKey,
   attributeRowStatus,
 } from './attribute-hints';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).

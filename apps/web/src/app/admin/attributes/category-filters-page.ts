@@ -19,22 +19,22 @@ import {
   CategoryFilter,
   CategoryFilters,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { usePageSeo } from '../../core/page-seo';
-import { delayedLoading } from '../../core/delayed-loading';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
-import { Skeleton } from '../../ui/skeleton';
-import { ConfirmService } from '../../ui/confirm.service';
-import { injectEditorReturn } from '../editor-return';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';

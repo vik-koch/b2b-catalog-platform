@@ -6,9 +6,9 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../catalog/tax-statement';
+import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
-import { Link } from '../../ui/link';
+import { Link } from '../../shared/ui/link';
 import {
   AdminOrderDetail,
   AdminOrderLine,
@@ -24,35 +24,41 @@ import {
   TransitionTarget,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { OrderSummary } from '../../cart/order-summary';
-import { formatPriceMinor } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { orderBlocks } from '../../orders/order-blocks';
+import { OrderSummary } from '../../shared/cart/order-summary';
+import { formatPriceMinor } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { orderBlocks } from '../../shared/orders/order-blocks';
 import { staffBlockLabels } from './staff-block-labels';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
-} from '../../orders/order-read-back';
-import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
-import { orderDateTimeFormat } from '../../orders/order-view';
-import { Button } from '../../ui/button';
-import { ConfirmCheck } from '../../ui/confirm-dialog';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
-import { AuthService } from '../../auth/auth.service';
+} from '../../shared/orders/order-read-back';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+} from '../../shared/orders/order-status';
+import { orderDateTimeFormat } from '../../shared/orders/order-view';
+import { Button } from '../../shared/ui/button';
+import { ConfirmCheck } from '../../shared/ui/confirm-dialog';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+} from '../../shared/ui/disclosure-toggle';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';

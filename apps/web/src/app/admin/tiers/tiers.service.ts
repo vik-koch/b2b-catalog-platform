@@ -6,9 +6,9 @@ import {
   TierErrorCode,
   TierInput,
 } from '@b2b-catalog-platform/shared';
-import { tiersContract } from '../../core/contract-routes.generated';
+import { tiersContract } from '../../shared/core/contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../../core/orpc-client';
+import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /**
  * A save or delete the server refused. The refusal travels as the API's own

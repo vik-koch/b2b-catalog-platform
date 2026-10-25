@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BuildInfo } from '@b2b-catalog-platform/shared';
-import { settingsContract } from '../core/contract-routes.generated';
-import { createOrpcClient } from '../core/orpc-client';
+import { settingsContract } from '../shared/core/contract-routes.generated';
+import { createOrpcClient } from '../shared/core/orpc-client';
 
 /**
  * What is deployed, for the admin panel's footer line. Memoized for the app's

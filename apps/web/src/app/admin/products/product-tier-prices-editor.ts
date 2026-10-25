@@ -1,11 +1,11 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { CustomerTier, moneyFormat } from '@b2b-catalog-platform/shared';
-import { currencySymbol, parsePriceInput } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { FieldLabel } from '../../ui/field-label';
-import { PriceField } from '../../ui/price-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
+import { currencySymbol, parsePriceInput } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { PriceField } from '../../shared/ui/price-field';
+import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */

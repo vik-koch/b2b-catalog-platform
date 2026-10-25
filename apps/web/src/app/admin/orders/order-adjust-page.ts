@@ -9,7 +9,7 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { useTaxStatement } from '../../catalog/tax-statement';
+import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
@@ -24,52 +24,55 @@ import {
   ProductUnit,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { AddressFields } from '../../addresses/address-fields';
-import { AddressForm } from '../../addresses/address-form';
-import { CompanyFields } from '../../parties/company-fields';
+import { AddressFields } from '../../shared/addresses/address-fields';
+import { AddressForm } from '../../shared/addresses/address-form';
+import { CompanyFields } from '../../shared/parties/company-fields';
 import {
   canonicalPhone,
   companyIdFormat,
   emailFormat,
   phoneValidators,
   typedPhone,
-} from '../../core/contact-fields';
+} from '../../shared/core/contact-fields';
 import {
   formatPriceMinor,
   formatPriceInput,
   parsePriceInput,
-} from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { COMMON_TEXT } from '../../config/common-text';
+} from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 import { staffBlockLabels } from './staff-block-labels';
 import { staffFields } from '../staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { debounced } from '../../core/debounced';
-import { FieldErrors } from '../../core/form-errors';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { debounced } from '../../shared/core/debounced';
+import { FieldErrors } from '../../shared/core/form-errors';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { EmailField } from '../../ui/email-field';
-import { FieldLabel } from '../../ui/field-label';
-import { Input } from '../../ui/input';
-import { PhoneField } from '../../ui/phone-field';
-import { SegmentOption, Segmented } from '../../ui/segmented';
-import { SelectField } from '../../ui/select-field';
-import { Skeleton } from '../../ui/skeleton';
-import { WarningNote } from '../../ui/warning-note';
+} from '../../shared/ui/disclosure-toggle';
+import { EmailField } from '../../shared/ui/email-field';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Input } from '../../shared/ui/input';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { SegmentOption, Segmented } from '../../shared/ui/segmented';
+import { SelectField } from '../../shared/ui/select-field';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { WarningNote } from '../../shared/ui/warning-note';
 import { TiersService } from '../tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
 import { orderBlockChanges, orderLineChanges } from './order-changes';
-import { customerQuantity } from '../../orders/order-view';
+import { customerQuantity } from '../../shared/orders/order-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';

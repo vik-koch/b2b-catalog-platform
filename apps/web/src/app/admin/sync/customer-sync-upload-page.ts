@@ -9,17 +9,17 @@ import {
   SyncRun,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminText } from '../../config/admin-text.type';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { ChoiceCard } from '../../ui/choice-card';
-import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../ui/file-target';
-import { FieldLabel } from '../../ui/field-label';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminText } from '../../shared/config/admin-text.type';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { ChoiceCard } from '../../shared/ui/choice-card';
+import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
 import { SettingsService } from '../settings/settings.service';
 import {
   CUSTOMER_SYNC_PRESETS,

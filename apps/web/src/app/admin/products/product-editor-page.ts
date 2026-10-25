@@ -36,35 +36,35 @@ import {
   decimalSeparator,
   formatPriceInput,
   parsePriceInput,
-} from '../../catalog/price';
+} from '../../shared/catalog/price';
 import { LockedNote } from '../ownership/locked-note';
-import { StatusBadge } from '../../ui/status-badge';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
-import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
-import { ProductDetailView } from '../../catalog/product-detail-view';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
+import { ProductAvailabilityBadge } from '../../shared/catalog/product-availability-badge';
+import { ProductDetailView } from '../../shared/catalog/product-detail-view';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { ConfirmService } from '../../ui/confirm.service';
-import { FieldLabel } from '../../ui/field-label';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../ui/input';
-import { NumericField } from '../../ui/numeric-field';
-import { PercentField } from '../../ui/percent-field';
-import { PriceField } from '../../ui/price-field';
-import { Skeleton } from '../../ui/skeleton';
+import { Input } from '../../shared/ui/input';
+import { NumericField } from '../../shared/ui/numeric-field';
+import { PercentField } from '../../shared/ui/percent-field';
+import { PriceField } from '../../shared/ui/price-field';
+import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
-import { injectEditorReturn } from '../editor-return';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
@@ -88,7 +88,7 @@ import {
   UNIT_FIELD_INPUT,
   UNIT_FIELD_INPUT_COMPACT,
   UnitField,
-} from '../../ui/unit-field';
+} from '../../shared/ui/unit-field';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`

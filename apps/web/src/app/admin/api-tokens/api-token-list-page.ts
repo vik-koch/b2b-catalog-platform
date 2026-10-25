@@ -6,25 +6,25 @@ import {
   ApiTokenScope,
   CreatedApiToken,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Checkbox } from '../../ui/checkbox';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge } from '../../ui/status-badge';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is

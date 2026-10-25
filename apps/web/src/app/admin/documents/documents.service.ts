@@ -10,8 +10,8 @@ import {
   UploadDocumentResponse,
 } from '@b2b-catalog-platform/shared';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { documentsContract } from '../../core/contract-routes.generated';
-import { createOrpcClient } from '../../core/orpc-client';
+import { documentsContract } from '../../shared/core/contract-routes.generated';
+import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /**
  * A save or delete the server refused. The refusal travels as the API's own

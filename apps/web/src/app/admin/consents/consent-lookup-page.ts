@@ -15,27 +15,27 @@ import {
   fillText,
   FindConsentsQuery,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   canonicalPhone,
   emailFormat,
   formatPhone,
   phoneValidators,
   typedPhone,
-} from '../../core/contact-fields';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { EmailField } from '../../ui/email-field';
-import { PhoneField } from '../../ui/phone-field';
-import { Segmented, SegmentOption } from '../../ui/segmented';
-import { ConfirmService } from '../../ui/confirm.service';
-import { Skeleton } from '../../ui/skeleton';
+} from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { EmailField } from '../../shared/ui/email-field';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { Skeleton } from '../../shared/ui/skeleton';
 import { adminDayFormat } from '../grid/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 type SearchBy = 'email' | 'phone';
 

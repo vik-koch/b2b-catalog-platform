@@ -15,15 +15,15 @@ import {
   OrderSyncPlan,
   SyncRun,
 } from '@b2b-catalog-platform/shared';
-import { AuthService } from '../../auth/auth.service';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { AuthService } from '../../shared/auth/auth.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { adminDayFormat } from '../grid/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncOrderPlanView } from './sync-order-plan-view';
@@ -31,7 +31,7 @@ import { SyncPlanView } from './sync-plan-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;

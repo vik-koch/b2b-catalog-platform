@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { NarrowBreakpoint } from '../core/narrow-screen';
+import { NarrowBreakpoint } from '../shared/core/narrow-screen';
 import { GridClearFilters } from './grid/grid-clear-filters';
 import { GridSearchField } from './grid/grid-search-field';
 

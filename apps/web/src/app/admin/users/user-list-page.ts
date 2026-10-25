@@ -15,17 +15,17 @@ import {
   userRoleSchema,
   userStatusSchema,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { formatPhone } from '../../core/contact-fields';
-import { usePageSeo } from '../../core/page-seo';
-import { delayedLoading } from '../../core/delayed-loading';
-import { stableValue } from '../../core/stable-value';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { formatPhone } from '../../shared/core/contact-fields';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { stableValue } from '../../shared/core/stable-value';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
@@ -36,8 +36,8 @@ import { AdminListHeader } from '../list-header';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
-import { injectEditorReturnParams } from '../editor-return';
-import { StatusBadge } from '../../ui/status-badge';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 

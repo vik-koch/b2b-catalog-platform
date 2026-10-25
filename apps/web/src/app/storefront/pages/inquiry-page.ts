@@ -1,0 +1,270 @@
+import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import { InquiryRequest } from '@b2b-catalog-platform/shared';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import {
+  canonicalPhone,
+  emailFormat,
+  phoneValidators,
+} from '../../shared/core/contact-fields';
+import { FieldErrors } from '../../shared/core/form-errors';
+import { Button } from '../../shared/ui/button';
+import { EmailField } from '../../shared/ui/email-field';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Input } from '../../shared/ui/input';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { InquiryService } from './inquiry.service';
+import { ConsentField } from './consent-field';
+import { useConsent } from './consent';
+
+type PreferredContact = InquiryRequest['preferredContact'];
+type Status = 'idle' | 'submitting' | 'success' | 'error';
+
+/**
+ * Inquiry form (FR-NAV-06) — a code page, not a CMS Page. The visitor picks a
+ * preferred contact channel and that channel's field becomes required.
+ * The phone field's country code and mask come from deployment config.
+ */
+@Component({
+  selector: 'app-inquiry-page',
+  imports: [
+    ConsentField,
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    EmailField,
+    FieldLabel,
+    Input,
+    PhoneField,
+    Segmented,
+  ],
+  template: `
+    <div class="max-w-xl">
+      <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ heading }}</h1>
+
+      @if (status() === 'success') {
+        <p class="text-muted">{{ text.success }}</p>
+        <a appButton variant="secondary" routerLink="/" class="mt-8">
+          {{ errors.notFoundBack }}
+        </a>
+      } @else {
+        <p class="mb-4 text-muted">{{ text.intro }}</p>
+
+        <form
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+          class="space-y-6"
+        >
+          <div>
+            <label for="name" appFieldLabel>
+              {{ fields.name.label }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="name"
+              type="text"
+              formControlName="name"
+              aria-required="true"
+              appInput
+              class="w-full"
+              [attr.aria-invalid]="isInvalid('name') || null"
+            />
+            @if (isInvalid('name')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ fields.name.required }}
+              </p>
+            }
+          </div>
+
+          <fieldset>
+            <legend appFieldLabel>
+              {{ text.preferredContact }}
+            </legend>
+            <app-segmented
+              [options]="contactChannels"
+              size="md"
+              formControlName="preferredContact"
+            />
+          </fieldset>
+
+          <!-- Whichever channel was picked is the required one; the other stays
+               offered, because a visitor who gives both is being helpful. -->
+          <app-email-field
+            [control]="form.controls.email"
+            [label]="fields.email.label"
+            [text]="emailText"
+            [required]="preferred() === 'email'"
+            [invalid]="isInvalid('email')"
+          />
+
+          <app-phone-field
+            [control]="form.controls.phone"
+            [label]="fields.phone.label"
+            [text]="phoneText"
+            [required]="preferred() === 'phone'"
+            [invalid]="isInvalid('phone')"
+          />
+
+          <div>
+            <label for="message" appFieldLabel>
+              {{ text.message }}
+            </label>
+            <textarea
+              id="message"
+              rows="5"
+              formControlName="message"
+              appInput
+              class="w-full"
+            ></textarea>
+          </div>
+
+          <!-- Honeypot: hidden from humans. -->
+          <div class="absolute left-[-9999px]" aria-hidden="true">
+            <label for="website">Leave this field empty</label>
+            <input
+              id="website"
+              type="text"
+              formControlName="website"
+              tabindex="-1"
+              autocomplete="off"
+            />
+          </div>
+
+          <app-consent-field
+            [consent]="consent"
+            [invalid]="isInvalid('consent')"
+          />
+
+          @if (status() === 'error') {
+            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+          }
+
+          <button
+            appButton
+            type="submit"
+            [disabled]="status() === 'submitting'"
+          >
+            {{ status() === 'submitting' ? actionText.sending : text.submit }}
+          </button>
+        </form>
+      }
+    </div>
+  `,
+})
+export class InquiryPage {
+  private readonly fb = inject(FormBuilder);
+  private readonly inquiry = inject(InquiryService);
+
+  protected readonly text = inject(APP_TEXT).inquiry;
+  protected readonly fields = inject(COMMON_TEXT).fields;
+  protected readonly contactChannels: readonly SegmentOption<PreferredContact>[] =
+    [
+      { value: 'email', label: this.text.preferredEmail },
+      { value: 'phone', label: this.text.preferredPhone },
+    ];
+  protected readonly errors = inject(APP_TEXT).errors;
+  protected readonly heading = inject(COMMON_TEXT).nav['inquiry'];
+  protected readonly actionText = inject(COMMON_TEXT).actions;
+  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly emailText = {
+    required: this.fields.email.required,
+    invalid: this.fields.email.invalid,
+  };
+  protected readonly phoneText = {
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
+  };
+  protected readonly status = signal<Status>('idle');
+  protected readonly consent = useConsent('contact');
+  protected readonly preferred = signal<PreferredContact>('email');
+
+  protected readonly form = this.fb.nonNullable.group({
+    name: ['', Validators.required],
+    email: [''],
+    phone: [''],
+    preferredContact: ['email' as PreferredContact],
+    message: [''],
+    // Honeypot.
+    website: [''],
+    consent: this.consent.control,
+  });
+
+  constructor() {
+    this.applyPreferredValidators(this.preferred());
+    this.form.controls.preferredContact.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((preferred) => {
+        this.preferred.set(preferred);
+        this.applyPreferredValidators(preferred);
+      });
+  }
+
+  /**
+   * Error visibility, not validity: revealed on blur, hidden again while the
+   * field is being retyped, and everything shown once submit is attempted.
+   */
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
+  protected isInvalid(control: keyof typeof this.form.controls): boolean {
+    return this.fieldErrors.show(this.form.controls[control]);
+  }
+
+  protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
+    if (this.form.invalid || !this.consent.sendable()) {
+      return;
+    }
+
+    this.status.set('submitting');
+    const result = await this.inquiry.submit(this.toRequest());
+    if (result === 'ok') {
+      this.status.set('success');
+      return;
+    }
+    // A consent refusal is explained beside the box, not as a failure.
+    this.status.set(this.consent.refused(result) ? 'idle' : 'error');
+  }
+
+  // The chosen channel is required; the other field stays optional. Email keeps
+  // the shared format check either way; a masked phone must also be complete.
+  // `emailFormat` is built from the pattern the API validates with, so client
+  // and server agree on what a valid address is.
+  private applyPreferredValidators(preferred: PreferredContact): void {
+    const { email, phone } = this.form.controls;
+    const format = emailFormat();
+
+    // Completeness applies either way: the chosen channel must be filled in,
+    // but a number typed into the *other* field is still going to be dialled,
+    // so half of one is no more use there than here.
+    phone.setValidators(
+      phoneValidators(this.phoneInput, preferred === 'phone'),
+    );
+    email.setValidators(
+      preferred === 'email' ? [Validators.required, format] : [format],
+    );
+
+    email.updateValueAndValidity({ emitEvent: false });
+    phone.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private toRequest(): InquiryRequest {
+    const value = this.form.getRawValue();
+
+    return {
+      name: value.name,
+      email: value.email || undefined,
+      phone: canonicalPhone(value.phone, this.phoneInput) || undefined,
+      preferredContact: value.preferredContact,
+      message: value.message || undefined,
+      // Honeypot.
+      website: value.website || undefined,
+      consentVersion: this.consent.version(),
+    };
+  }
+}

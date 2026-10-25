@@ -18,9 +18,9 @@ import {
   TransitionTarget,
   orderDocumentPath,
 } from '@b2b-catalog-platform/shared';
-import { ordersContract } from '../../core/contract-routes.generated';
+import { ordersContract } from '../../shared/core/contract-routes.generated';
 import { safe } from '@orpc/client';
-import { createOrpcClient } from '../../core/orpc-client';
+import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /**
  * Why an adjustment was refused (FR-ORD-03). The codes the contract lists, so

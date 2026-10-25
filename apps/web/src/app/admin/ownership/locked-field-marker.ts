@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Popover } from '../../ui/popover';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Popover } from '../../shared/ui/popover';
 
 /**
  * The mark beside a field an external system owns (FR-ADM-10) — a lock the

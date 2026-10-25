@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -14,16 +14,16 @@ import {
   fillText,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 
 const text = defaultAdminText.products.editor;

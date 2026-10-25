@@ -4,19 +4,19 @@ import { Title } from '@angular/platform-browser';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { EditModeToggle } from './admin/edit-mode-toggle';
-import { ForcePasswordChange } from './auth/force-password-change';
-import { CartFigures } from './cart/cart-figures';
-import { LastListingService } from './catalog/last-listing.service';
-import { PairingsService } from './catalog/pairings.service';
-import { ProductPairingsDialog } from './catalog/product-pairings-dialog';
-import { DEPLOYMENT_CONFIG } from './config/deployment-config';
-import { CookieConsent } from './consent/cookie-consent';
-import { shopTitle } from './core/page-seo';
-import { BottomNav } from './layout/bottom-nav';
-import { Footer } from './layout/footer';
-import { Header } from './layout/header';
-import { SearchOverlay } from './layout/search-overlay';
-import { SiteNotice } from './layout/site-notice';
+import { ForcePasswordChange } from './storefront/auth/force-password-change';
+import { CartFigures } from './storefront/cart/cart-figures';
+import { LastListingService } from './storefront/catalog/last-listing.service';
+import { PairingsService } from './shared/catalog/pairings.service';
+import { ProductPairingsDialog } from './storefront/catalog/product-pairings-dialog';
+import { DEPLOYMENT_CONFIG } from './shared/config/deployment-config';
+import { CookieConsent } from './storefront/consent/cookie-consent';
+import { shopTitle } from './shared/core/page-seo';
+import { BottomNav } from './storefront/layout/bottom-nav';
+import { Footer } from './storefront/layout/footer';
+import { Header } from './storefront/layout/header';
+import { SearchOverlay } from './storefront/layout/search-overlay';
+import { SiteNotice } from './storefront/layout/site-notice';
 
 @Component({
   imports: [

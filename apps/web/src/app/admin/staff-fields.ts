@@ -1,5 +1,5 @@
 import type { CommonText } from '@b2b-catalog-platform/shared';
-import type { AdminText } from '../config/admin-text.type';
+import type { AdminText } from '../shared/config/admin-text.type';
 
 type Fields = CommonText['fields'];
 

@@ -25,7 +25,7 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-const OUTPUT = 'apps/web/src/app/core/contract-routes.generated.ts';
+const OUTPUT = 'apps/web/src/app/shared/core/contract-routes.generated.ts';
 
 /** Every contract the web app builds a client for. */
 const CONTRACTS = [

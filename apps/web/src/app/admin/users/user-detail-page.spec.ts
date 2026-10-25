@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -9,15 +9,15 @@ import {
   StaffUser,
   type DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { AuthService } from '../../auth/auth.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { AuthService } from '../../shared/auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
-import { ConfirmService } from '../../ui/confirm.service';
-import { ConfirmAnswer } from '../../ui/confirm-dialog';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmAnswer } from '../../shared/ui/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 

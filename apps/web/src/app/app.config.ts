@@ -14,16 +14,17 @@ import {
   withInMemoryScrolling,
   withViewTransitions,
 } from '@angular/router';
+import { provideEditModeCatalog } from './admin/edit-mode-catalog';
 import { appRoutes } from './app.routes';
-import { BenignErrorFilter } from './core/benign-errors';
-import { provideHydration } from './core/hydration';
-import { StaticPageReuseStrategy } from './core/route-reuse';
-import { ScrollRestoration } from './core/scroll-restoration';
-import { CartRepricing } from './cart/cart-repricing';
-import { provideAppText } from './config/app-text';
-import { provideCommonText } from './config/common-text';
-import { provideDeploymentConfig } from './config/deployment-config';
-import { provideSuggestionsEnabled } from './config/suggestions-enabled';
+import { BenignErrorFilter } from './shared/core/benign-errors';
+import { provideHydration } from './shared/core/hydration';
+import { StaticPageReuseStrategy } from './shared/core/route-reuse';
+import { ScrollRestoration } from './shared/core/scroll-restoration';
+import { CartRepricing } from './storefront/cart/cart-repricing';
+import { provideAppText } from './shared/config/app-text';
+import { provideCommonText } from './shared/config/common-text';
+import { provideDeploymentConfig } from './shared/config/deployment-config';
+import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -58,6 +59,7 @@ export const appConfig: ApplicationConfig = {
     provideAppText(),
     provideCommonText(),
     provideSuggestionsEnabled(),
+    provideEditModeCatalog(),
     // Nothing injects it, and it has to run wherever the visitor happens to
     // be: a cart priced for somebody else is corrected as the session changes,
     // not when the cart page is next opened.

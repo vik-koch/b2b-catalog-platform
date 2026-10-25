@@ -57,11 +57,11 @@ const SCHEMAS = {
     'commonTextSchema',
   ],
   'texts/app.json': [
-    'apps/web/src/app/config/app-text.type.ts',
+    'apps/web/src/app/shared/config/app-text.type.ts',
     'appTextSchema',
   ],
   'texts/admin.json': [
-    'apps/web/src/app/config/admin-text.type.ts',
+    'apps/web/src/app/shared/config/admin-text.type.ts',
     'adminTextSchema',
   ],
   'texts/mail.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],

@@ -15,21 +15,24 @@ import {
   normalizePhone,
   StaffUser,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { AuthService } from '../../auth/auth.service';
-import { formatPhone } from '../../core/contact-fields';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { AuthService } from '../../shared/auth/auth.service';
+import { formatPhone } from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
-import { Button } from '../../ui/button';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge } from '../../ui/status-badge';
-import { injectEditorReturnParams } from '../editor-return';
+import { Button } from '../../shared/ui/button';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge } from '../../shared/ui/status-badge';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';

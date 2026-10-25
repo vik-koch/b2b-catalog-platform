@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../config/common-text';
-import { defaultCommonText } from '../config/common-text.fixture';
+import { COMMON_TEXT } from '../shared/config/common-text';
+import { defaultCommonText } from '../shared/config/common-text.fixture';
 import { EnvironmentInjector, runInInjectionContext } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ADMIN_TEXT } from '../config/admin-text';
-import { defaultAdminText } from '../config/admin-text.fixture';
-import { ConfirmService } from '../ui/confirm.service';
+import { ADMIN_TEXT } from '../shared/config/admin-text';
+import { defaultAdminText } from '../shared/config/admin-text.fixture';
+import { ConfirmService } from '../shared/ui/confirm.service';
 import {
   unsavedChangesGuard,
   UnsavedChangesAware,

@@ -13,16 +13,16 @@ import {
   ProductImageInput,
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { FieldLabel } from '../../ui/field-label';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Input } from '../../ui/input';
-import { SelectField } from '../../ui/select-field';
-import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../ui/file-target';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Input } from '../../shared/ui/input';
+import { SelectField } from '../../shared/ui/select-field';
+import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the

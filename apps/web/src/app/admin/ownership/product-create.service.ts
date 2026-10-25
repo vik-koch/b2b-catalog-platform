@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { adminText } from '../../config/admin-text';
-import { ConfirmService } from '../../ui/confirm.service';
+import { adminText } from '../../shared/config/admin-text';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * The gesture behind the admin product list's "add a product" button.

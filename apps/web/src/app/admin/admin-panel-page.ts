@@ -6,19 +6,19 @@ import {
   fillText,
   OWNERSHIP_AREAS,
 } from '@b2b-catalog-platform/shared';
-import { AuthService } from '../auth/auth.service';
-import { SignedInAs } from '../auth/signed-in-as';
-import { ADMIN_TEXT } from '../config/admin-text';
-import { APP_TEXT } from '../config/app-text';
-import { COMMON_TEXT } from '../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { usePageSeo } from '../core/page-seo';
-import { AdminIcon } from '../ui/icons/admin-icon';
-import { StatusBadge } from '../ui/status-badge';
-import { WorkNote } from '../work/work-note';
-import { WorkService } from '../work/work.service';
+import { AuthService } from '../shared/auth/auth.service';
+import { SignedInAs } from '../shared/auth/signed-in-as';
+import { ADMIN_TEXT } from '../shared/config/admin-text';
+import { APP_TEXT } from '../shared/config/app-text';
+import { COMMON_TEXT } from '../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
+import { usePageSeo } from '../shared/core/page-seo';
+import { AdminIcon } from '../shared/ui/icons/admin-icon';
+import { StatusBadge } from '../shared/ui/status-badge';
+import { WorkNote } from '../shared/work/work-note';
+import { WorkService } from '../shared/work/work.service';
 import { BuildInfoService } from './build-info.service';
-import { injectEditorReturnParams } from './editor-return';
+import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
 import { adminMomentFormat } from './grid/admin-date';
 import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';

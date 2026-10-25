@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
-import { loadAdminText } from '../../config/admin-text';
-import { ConfirmService } from '../../ui/confirm.service';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { loadAdminText } from '../../shared/config/admin-text';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { ProductCreateService } from './product-create.service';
 

@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
 import { Location } from '@angular/common';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
@@ -8,13 +8,13 @@ import {
   AttributeKeyUsage,
   AttributeValueUsage,
 } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { ConfirmService } from '../../ui/confirm.service';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { AttributeInventoryPage } from './attribute-inventory-page';
 import { AttributesService } from './attributes.service';
 

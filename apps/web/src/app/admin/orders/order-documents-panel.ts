@@ -13,14 +13,20 @@ import {
   orderDocumentPath,
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { documentFileLabel, documentFileSize } from '../../core/document-file';
-import { Button } from '../../ui/button';
-import { IconButton } from '../../ui/icon-button';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import {
+  documentFileLabel,
+  documentFileSize,
+} from '../../shared/core/document-file';
+import { Button } from '../../shared/ui/button';
+import { IconButton } from '../../shared/ui/icon-button';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
 

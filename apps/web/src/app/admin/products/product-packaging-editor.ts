@@ -1,13 +1,13 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor, moneyFormat } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { injectNarrowScreen } from '../../core/narrow-screen';
-import { FieldLabel } from '../../ui/field-label';
-import { NumericField } from '../../ui/numeric-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
+import { formatPriceMinor } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { NumericField } from '../../shared/ui/numeric-field';
+import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 
 /**
  * How a product is packaged.

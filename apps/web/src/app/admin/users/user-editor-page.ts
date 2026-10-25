@@ -10,41 +10,41 @@ import {
   UserKind,
   UserRole,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { COMMON_TEXT } from '../../config/common-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 import { staffFields } from '../staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { AuthService } from '../../auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { AuthService } from '../../shared/auth/auth.service';
 import {
   canonicalPhone,
   companyIdValidators,
   emailFormat,
   phoneValidators,
   typedPhone,
-} from '../../core/contact-fields';
-import { delayedLoading } from '../../core/delayed-loading';
-import { FieldErrors } from '../../core/form-errors';
-import { usePageSeo } from '../../core/page-seo';
+} from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { FieldErrors } from '../../shared/core/form-errors';
+import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { LockedNote } from '../ownership/locked-note';
-import { Button } from '../../ui/button';
-import { CompanyFields } from '../../parties/company-fields';
-import { EmailField } from '../../ui/email-field';
-import { FieldLabel } from '../../ui/field-label';
-import { PhoneField } from '../../ui/phone-field';
-import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { injectEditorReturn } from '../editor-return';
+import { Button } from '../../shared/ui/button';
+import { CompanyFields } from '../../shared/parties/company-fields';
+import { EmailField } from '../../shared/ui/email-field';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
-import { SelectField } from '../../ui/select-field';
-import { StatusBadge } from '../../ui/status-badge';
+import { SelectField } from '../../shared/ui/select-field';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { userStatusTone } from './user-status';
-import { Segmented, SegmentOption } from '../../ui/segmented';
-import { WarningNote } from '../../ui/warning-note';
+import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { WarningNote } from '../../shared/ui/warning-note';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,

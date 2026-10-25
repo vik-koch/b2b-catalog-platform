@@ -8,10 +8,10 @@ import {
   UpdateUserRequest,
   UserErrorCode,
 } from '@b2b-catalog-platform/shared';
-import { usersContract } from '../../core/contract-routes.generated';
+import { usersContract } from '../../shared/core/contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../core/orpc-client';
-import { WorkService } from '../../work/work.service';
+import { createOrpcClient } from '../../shared/core/orpc-client';
+import { WorkService } from '../../shared/work/work.service';
 
 /**
  * The refusals a screen renders. The account codes, plus the two a manager is

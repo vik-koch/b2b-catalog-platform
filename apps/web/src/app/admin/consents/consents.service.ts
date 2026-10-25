@@ -6,8 +6,8 @@ import {
   ConsentWithdrawalErrorCode,
   FindConsentsQuery,
 } from '@b2b-catalog-platform/shared';
-import { consentsContract } from '../../core/contract-routes.generated';
-import { createOrpcClient } from '../../core/orpc-client';
+import { consentsContract } from '../../shared/core/contract-routes.generated';
+import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /** An entered withdrawal: the record as it now reads, or why it was refused. */
 export type WithdrawResult =

@@ -68,7 +68,7 @@ the generator in the same change:
 <!-- prettier-ignore -->
 | File | Regenerate after | Command |
 | --- | --- | --- |
-| `apps/web/src/app/core/contract-routes.generated.ts` | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
+| `apps/web/src/app/shared/core/contract-routes.generated.ts` | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
 | The contents of `docs/requirements.md` | adding or retitling a requirement | `node tools/generate-requirements-index.mjs` |
 | The index in `docs/adr/README.md` | adding an ADR or changing its status | `node tools/generate-adr-index.mjs` |
 | `docs/mail.md`, `docs/mail/` | changing a mail template or its wording | `node tools/generate-mail-previews.mjs` |

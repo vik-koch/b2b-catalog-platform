@@ -1,0 +1,239 @@
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { signal } from '@angular/core';
+import { afterAll, beforeAll, vi } from 'vitest';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { Page as PageContent } from '@b2b-catalog-platform/shared';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { loadAdminText } from '../../shared/config/admin-text';
+import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { EditModeService } from '../../shared/edit-mode/edit-mode.service';
+import { StaticPage } from './static-page';
+import { PageService } from '../../shared/pages/page.service';
+
+const about: PageContent = {
+  version: 1,
+  title: 'About us',
+  bodyHtml: '<p>Original copy.</p>',
+  consentLabel: null,
+  updatedAt: '2026-07-25T10:00:00.000Z',
+};
+
+/** The pencil is an edit-mode affordance; who may enable edit mode (admin only)
+ * is EditModeService's concern, so the component test just drives `enabled`. */
+/** `null` models a page the deployment publishes but nobody has written yet.
+ * `settled` is what the component waits on before telling a visitor the page
+ * cannot be served; false models the gap before /auth/me answers. */
+async function render(
+  editModeEnabled: boolean,
+  page: PageContent | null = about,
+  settled = true,
+  slug = 'about',
+) {
+  TestBed.configureTestingModule({
+    imports: [StaticPage],
+    providers: [
+      provideRouter([]),
+      { provide: APP_TEXT, useValue: defaultAppText },
+      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      {
+        provide: EditModeService,
+        useValue: {
+          enabled: signal(editModeEnabled),
+          settled: signal(settled),
+          registerEditable: () => () => undefined,
+        },
+      },
+      { provide: PageService, useValue: { getPage: async () => page } },
+    ],
+  });
+  const fixture = TestBed.createComponent(StaticPage);
+  fixture.componentRef.setInput('slug', slug);
+  await fixture.whenStable();
+  return fixture.nativeElement as HTMLElement;
+}
+
+const editLink = (el: HTMLElement) =>
+  el.querySelector<HTMLAnchorElement>(
+    `a[aria-label="${defaultAdminText.pages.edit}"]`,
+  );
+
+describe('StaticPage', () => {
+  // The pencil's wording comes from the fetched admin text, not the token —
+  // this is a public route, so the component reads it as a signal.
+  // The stub is global; leaving it installed would hand every later spec in
+  // this worker an admin-text response for any fetch it makes.
+  afterAll(() => vi.unstubAllGlobals());
+
+  beforeAll(async () => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(defaultAdminText),
+      }),
+    );
+    await loadAdminText();
+  });
+
+  it('renders the page title and body', async () => {
+    const el = await render(false);
+
+    expect(el.querySelector('h1')?.textContent).toContain('About us');
+    expect(el.querySelector('.prose')?.innerHTML).toContain('Original copy.');
+  });
+
+  it('offers no edit link when edit mode is off', async () => {
+    expect(editLink(await render(false))).toBeNull();
+  });
+
+  // Editing lives on its own admin route, so the affordance is a link into it
+  // rather than an inline toggle.
+  // The `from` param is how the editor knows to come back to this page rather
+  // than to the admin panel when it closes.
+  it('links to the page editor when edit mode is on, carrying a return path', async () => {
+    const href = editLink(await render(true))?.getAttribute('href') ?? '';
+    const url = new URL(href, 'http://test');
+
+    expect(url.pathname).toBe('/admin/pages/about/edit');
+    expect(url.searchParams.get('from')).not.toBeNull();
+  });
+});
+
+/**
+ * Nothing seeds the pages table outside the demo, so on a real deployment every
+ * published page starts with no row. That is a state the admin resolves by
+ * writing the page, and to a visitor it is indistinguishable from a page that
+ * failed to load — either way the content is not being served, and neither is
+ * something a crawler should index.
+ */
+describe('StaticPage — before it has been written', () => {
+  // The stub is global; leaving it installed would hand every later spec in
+  // this worker an admin-text response for any fetch it makes.
+  afterAll(() => vi.unstubAllGlobals());
+
+  beforeAll(async () => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(defaultAdminText),
+      }),
+    );
+    await loadAdminText();
+  });
+
+  // 503 rather than 404: the route exists because the deployment publishes the
+  // slug, so the URL is real and only its content is missing. An unpublished
+  // slug never matches this route at all, which is where the 404s come from.
+  it('shows the load-error view to a visitor', async () => {
+    const el = await render(false, null);
+
+    expect(el.querySelector('app-load-error-view')).not.toBeNull();
+    expect(el.querySelector('.prose')).toBeNull();
+  });
+
+  // The session arrives after the body does, so for a moment the component
+  // knows the page is unwritten but not yet who is asking. Answering "cannot
+  // load" there flashes an error at the one visitor who can fix it.
+  it('says nothing until it knows whether the visitor may write the page', async () => {
+    const el = await render(false, null, false);
+
+    expect(el.querySelector('app-load-error-view')).toBeNull();
+  });
+
+  it('shows an admin the page shell and a link to write it', async () => {
+    const el = await render(true, null);
+
+    expect(el.querySelector('app-load-error-view')).toBeNull();
+    // Headed by its navigation label, so the page is named before it exists.
+    expect(el.querySelector('h1')?.textContent).toContain(
+      defaultCommonText.nav['about'],
+    );
+    expect(el.textContent).toContain(defaultAdminText.pages.emptyNotice);
+    expect(editLink(el)?.getAttribute('href')).toContain(
+      '/admin/pages/about/edit',
+    );
+  });
+});
+
+/**
+ * A failing page load must not render an apology inside a 200 — LoadErrorView
+ * owns the 503, and the component has to reach it. `value()` throws on an
+ * errored resource, so the error branch has to be checked before anything reads
+ * the value; an unguarded read killed the SSR render instead of setting a
+ * status.
+ */
+describe('StaticPage — when the API cannot be reached', () => {
+  it('renders the load-error view rather than the page or a 404', async () => {
+    TestBed.configureTestingModule({
+      imports: [StaticPage],
+      providers: [
+        provideRouter([]),
+        { provide: APP_TEXT, useValue: defaultAppText },
+        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+        {
+          provide: EditModeService,
+          useValue: {
+            enabled: signal(false),
+            settled: signal(true),
+            registerEditable: () => () => undefined,
+          },
+        },
+        {
+          provide: PageService,
+          useValue: {
+            getPage: async () => {
+              throw new Error('API unreachable');
+            },
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(StaticPage);
+    fixture.componentRef.setInput('slug', 'about');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('app-load-error-view')).not.toBeNull();
+    expect(el.querySelector('.prose')).toBeNull();
+  });
+});
+
+describe('StaticPage — the date a legal text changed', () => {
+  afterAll(() => vi.unstubAllGlobals());
+  beforeAll(() => {
+    vi.stubGlobal('fetch', () =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(defaultAdminText),
+      }),
+    );
+  });
+
+  // A reader may hold the shop to a legal text, so it says when it changed;
+  // a page describing the shop does not.
+  it('says when a legal page last changed, and nothing on the others', async () => {
+    const privacy = await render(false, about, true, 'privacy');
+    const updated = privacy.querySelector('app-page-updated');
+    expect(updated?.textContent?.trim()).toBe(
+      defaultAppText.pageUpdated.label.replace(
+        '{date}',
+        new Intl.DateTimeFormat(defaultDeploymentConfig.locale, {
+          dateStyle: 'long',
+        }).format(new Date(about.updatedAt)),
+      ),
+    );
+
+    TestBed.resetTestingModule();
+    const aboutPage = await render(false);
+    expect(
+      aboutPage.querySelector('app-page-updated')?.textContent?.trim(),
+    ).toBe('');
+  });
+});

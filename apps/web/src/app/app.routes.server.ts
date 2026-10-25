@@ -1,74 +1,10 @@
-import { RenderMode, ServerRoute } from '@angular/ssr';
+import { ServerRoute } from '@angular/ssr';
+import { adminServerRoutes } from './admin/admin.routes.server';
+import { storefrontServerRoutes } from './storefront/storefront.routes.server';
 
+// The storefront list ends in its server-rendered catch-all, so the admin
+// routes go ahead of it.
 export const serverRoutes: ServerRoute[] = [
-  // Session-scoped routes are client-rendered. Nothing about them is
-  // crawler-visible, nobody cold-loads /admin or /account, and the server can't
-  // resolve a session anyway (see AuthService) — so server-rendering them only
-  // ever produced the signed-out placeholder. Client rendering lets the guards
-  // settle the session *before* the page is activated, which is why these
-  // routes need no gate component and no hydration dance.
-  { path: 'login', renderMode: RenderMode.Client },
-  { path: 'register', renderMode: RenderMode.Client },
-  { path: 'forgot-password', renderMode: RenderMode.Client },
-  { path: 'set-password', renderMode: RenderMode.Client },
-  { path: 'admin', renderMode: RenderMode.Client },
-  { path: 'admin/products', renderMode: RenderMode.Client },
-  { path: 'admin/categories', renderMode: RenderMode.Client },
-  { path: 'admin/sync', renderMode: RenderMode.Client },
-  { path: 'admin/sync/new', renderMode: RenderMode.Client },
-  { path: 'admin/sync/catalog', renderMode: RenderMode.Client },
-  { path: 'admin/sync/catalog/new', renderMode: RenderMode.Client },
-  { path: 'admin/sync/customers', renderMode: RenderMode.Client },
-  { path: 'admin/sync/customers/new', renderMode: RenderMode.Client },
-  { path: 'admin/sync/orders', renderMode: RenderMode.Client },
-  { path: 'admin/sync/runs/:id', renderMode: RenderMode.Client },
-  { path: 'admin/attributes', renderMode: RenderMode.Client },
-  { path: 'admin/attributes/inventory', renderMode: RenderMode.Client },
-  { path: 'admin/tiers', renderMode: RenderMode.Client },
-  { path: 'admin/api-tokens', renderMode: RenderMode.Client },
-  { path: 'admin/operations', renderMode: RenderMode.Client },
-  { path: 'admin/documents', renderMode: RenderMode.Client },
-  { path: 'admin/documents/new', renderMode: RenderMode.Client },
-  { path: 'admin/documents/:id/edit', renderMode: RenderMode.Client },
-  { path: 'admin/users', renderMode: RenderMode.Client },
-  { path: 'admin/users/staff', renderMode: RenderMode.Client },
-  { path: 'admin/users/new', renderMode: RenderMode.Client },
-  { path: 'admin/users/staff/new', renderMode: RenderMode.Client },
-  { path: 'admin/users/:id', renderMode: RenderMode.Client },
-  { path: 'admin/users/:id/edit', renderMode: RenderMode.Client },
-  { path: 'admin/consents', renderMode: RenderMode.Client },
-  { path: 'admin/orders', renderMode: RenderMode.Client },
-  { path: 'admin/orders/:reference', renderMode: RenderMode.Client },
-  {
-    path: 'admin/orders/:reference/revisions/:number',
-    renderMode: RenderMode.Client,
-  },
-  {
-    path: 'admin/orders/:reference/adjust',
-    renderMode: RenderMode.Client,
-  },
-  { path: 'admin/categories/new', renderMode: RenderMode.Client },
-  { path: 'admin/categories/:slug/edit', renderMode: RenderMode.Client },
-  { path: 'admin/categories/:slug/filters', renderMode: RenderMode.Client },
-  { path: 'admin/catalog/filters', renderMode: RenderMode.Client },
-  { path: 'admin/products/new', renderMode: RenderMode.Client },
-  { path: 'admin/products/:slug/edit', renderMode: RenderMode.Client },
-  { path: 'admin/pages/:slug/edit', renderMode: RenderMode.Client },
-  { path: 'account', renderMode: RenderMode.Client },
-  { path: 'account/edit', renderMode: RenderMode.Client },
-  { path: 'account/orders', renderMode: RenderMode.Client },
-  { path: 'account/orders/:reference', renderMode: RenderMode.Client },
-  { path: 'account/addresses/new', renderMode: RenderMode.Client },
-  { path: 'account/addresses/:id/edit', renderMode: RenderMode.Client },
-  { path: 'account/delete', renderMode: RenderMode.Client },
-  { path: 'change-password', renderMode: RenderMode.Client },
-  // Not session-scoped, but browser-state-scoped: the cart is in localStorage,
-  // which the server cannot read, so an SSR pass could only emit an empty one.
-  { path: 'cart', renderMode: RenderMode.Client },
-  // The form that orders it, for the same reason.
-  { path: 'checkout', renderMode: RenderMode.Client },
-  // Everything else is content, and server-rendered. The per-deployment config
-  // and UI text reach the browser the same way in both modes: injected into the
-  // document by the Node process.
-  { path: '**', renderMode: RenderMode.Server },
+  ...adminServerRoutes,
+  ...storefrontServerRoutes,
 ];

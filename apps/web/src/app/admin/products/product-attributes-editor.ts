@@ -26,14 +26,14 @@ import {
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { injectNarrowScreen } from '../../core/narrow-screen';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Icon } from '../../ui/icons/icon';
-import { HintBadge } from '../../ui/hint-badge';
-import { FieldLabel } from '../../ui/field-label';
-import { TextButton } from '../../ui/link';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { TextButton } from '../../shared/ui/link';
 import {
   AttributeHint,
   attributeHints,
@@ -51,7 +51,7 @@ import {
   parseClipboardGrid,
   selectionToTsv,
 } from './attribute-grid';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.

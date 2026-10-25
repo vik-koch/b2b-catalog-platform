@@ -1,12 +1,12 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { ConfirmService } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { IconButton } from '../../ui/icon-button';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { IconButton } from '../../shared/ui/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {

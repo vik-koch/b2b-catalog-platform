@@ -13,11 +13,11 @@ import {
   CustomerSyncRowError,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
-import { Input } from '../../ui/input';
-import { Link } from '../../ui/link';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
+import { Input } from '../../shared/ui/input';
+import { Link } from '../../shared/ui/link';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 
 /**
  * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,

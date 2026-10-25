@@ -14,23 +14,23 @@ import {
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge } from '../../ui/status-badge';
-import { Switch } from '../../ui/switch';
+} from '../../shared/ui/disclosure-toggle';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge } from '../../shared/ui/status-badge';
+import { Switch } from '../../shared/ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * The two runtime switches, and the trail of changes to both.

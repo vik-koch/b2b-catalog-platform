@@ -6,9 +6,9 @@ import {
   OrderWriteResult,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Link } from '../../ui/link';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Link } from '../../shared/ui/link';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 
 /**
  * What an order run did (FR-ADM-08): the counts, the orders it answered, and

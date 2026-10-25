@@ -4,12 +4,12 @@ import {
   CatalogImage,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../ui/file-target';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,

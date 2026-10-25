@@ -1,26 +1,35 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { useTaxStatement } from '../../catalog/tax-statement';
+import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
-import { OrderSummary } from '../../cart/order-summary';
-import { formatPriceMinor } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { customerBlockLabels, orderBlocks } from '../../orders/order-blocks';
+import { OrderSummary } from '../../shared/cart/order-summary';
+import { formatPriceMinor } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import {
+  customerBlockLabels,
+  orderBlocks,
+} from '../../shared/orders/order-blocks';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
-} from '../../orders/order-read-back';
-import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
-import { customerQuantity, orderDateTimeFormat } from '../../orders/order-view';
-import { Button } from '../../ui/button';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+} from '../../shared/orders/order-read-back';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+} from '../../shared/orders/order-status';
+import {
+  customerQuantity,
+  orderDateTimeFormat,
+} from '../../shared/orders/order-view';
+import { Button } from '../../shared/ui/button';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminOrdersService } from './orders.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderDocumentsPanel } from './order-documents-panel';

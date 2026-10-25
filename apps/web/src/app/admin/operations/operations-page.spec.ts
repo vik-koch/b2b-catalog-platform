@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -9,10 +9,10 @@ import {
   SettingChange,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 import { OperationsPage } from './operations-page';
 

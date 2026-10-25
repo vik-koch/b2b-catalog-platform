@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { SelectField } from '../../ui/select-field';
+import { SelectField } from '../../shared/ui/select-field';
 import { filterParams, GridFilter } from './grid-column';
 import { injectGridNav } from './grid-query';
 

@@ -1,13 +1,13 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { defaultCommonText } from '../../shared/config/common-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAppText } from '../../shared/config/app-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { PageEditor } from './page-editor';
-import { PageService } from '../../pages/page.service';
+import { PageService } from '../../shared/pages/page.service';
 
 const text = defaultAdminText.pages;
 

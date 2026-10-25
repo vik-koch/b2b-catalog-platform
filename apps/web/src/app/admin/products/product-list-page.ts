@@ -18,24 +18,27 @@ import {
   ProductAvailability,
 } from '@b2b-catalog-platform/shared';
 import { NgTemplateOutlet } from '@angular/common';
-import { PricePipe } from '../../catalog/price.pipe';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { APP_TEXT } from '../../config/app-text';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { stableValue } from '../../core/stable-value';
-import { Button } from '../../ui/button';
-import { Link } from '../../ui/link';
-import { confirmRequest, ConfirmService } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { PricePipe } from '../../shared/catalog/price.pipe';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { COMMON_TEXT } from '../../shared/config/common-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { stableValue } from '../../shared/core/stable-value';
+import { Button } from '../../shared/ui/button';
+import { Link } from '../../shared/ui/link';
+import {
+  confirmRequest,
+  ConfirmService,
+} from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { ProductCreateService } from '../ownership/product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
-import { injectEditorReturnParams } from '../editor-return';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridChip, GridColumn, GridToggleGroup } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';

@@ -21,26 +21,26 @@ import {
   ATTRIBUTE_TYPES,
   slugSchema,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { usePageSeo } from '../../core/page-seo';
-import { useRowAnchor } from '../../core/row-anchor';
-import { delayedLoading } from '../../core/delayed-loading';
-import { Button } from '../../ui/button';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
-import { Input } from '../../ui/input';
-import { FieldLabel } from '../../ui/field-label';
-import { SelectField } from '../../ui/select-field';
-import { Skeleton } from '../../ui/skeleton';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { APP_TEXT } from '../../shared/config/app-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { useRowAnchor } from '../../shared/core/row-anchor';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { Button } from '../../shared/ui/button';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
+import { Input } from '../../shared/ui/input';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { SelectField } from '../../shared/ui/select-field';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
-import { WarningNote } from '../../ui/warning-note';
-import { COMMON_TEXT } from '../../config/common-text';
+import { WarningNote } from '../../shared/ui/warning-note';
+import { COMMON_TEXT } from '../../shared/config/common-text';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
