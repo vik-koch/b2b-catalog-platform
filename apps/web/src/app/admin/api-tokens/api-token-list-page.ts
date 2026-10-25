@@ -226,7 +226,7 @@ const SCOPE_ROWS: readonly {
                 </ng-container>
               </app-record-row>
               @if (rowError() === token.id) {
-                <p class="mt-2 text-sm text-red-700" role="alert">
+                <p class="mt-2 text-sm text-danger" role="alert">
                   {{ text.revokeError }}
                 </p>
               }
@@ -349,7 +349,7 @@ const SCOPE_ROWS: readonly {
                   </button>
                 </div>
                 @if (formError()) {
-                  <p class="text-sm text-red-700 sm:col-span-full" role="alert">
+                  <p class="text-sm text-danger sm:col-span-full" role="alert">
                     {{ formError() }}
                   </p>
                 }

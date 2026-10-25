@@ -122,7 +122,7 @@ export class CodeInput implements OnInit {
     if (active) {
       return 'border-secondary outline outline-1 -outline-offset-1 outline-secondary';
     }
-    if (this.invalid()) return 'border-red-600';
+    if (this.invalid()) return 'border-danger';
     return 'border-border-strong group-hover:border-accent';
   }
 

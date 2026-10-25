@@ -78,7 +78,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </div>
 
           @if (status() === 'error') {
-            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+            <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
           }
         </form>
       }

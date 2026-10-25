@@ -172,7 +172,7 @@ const EDGE_SLACK = 24;
       </div>
 
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-red-700" role="alert">
+        <p class="mb-4 text-sm text-danger" role="alert">
           {{ text.reorderError }}
         </p>
       }

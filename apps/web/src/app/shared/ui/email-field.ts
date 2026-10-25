@@ -49,7 +49,7 @@ export interface EmailFieldText {
       [attr.aria-invalid]="invalid() || null"
     />
     @if (invalid()) {
-      <p class="mt-1 text-sm text-red-600">
+      <p class="mt-1 text-sm text-danger">
         {{ control().hasError('required') ? text().required : text().invalid }}
       </p>
     }

@@ -135,7 +135,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
     @if (pageError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">{{ pageError() }}</p>
+      <p class="mb-4 text-sm text-danger" role="alert">{{ pageError() }}</p>
     }
 
     @if (users.error()) {

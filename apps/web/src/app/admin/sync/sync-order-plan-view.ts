@@ -33,7 +33,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         @for (tile of tiles(); track tile.label) {
           <div>
             <dt class="text-subtle">{{ text.orders.count[tile.label] }}</dt>
-            <dd class="text-lg font-medium" [class.text-red-700]="tile.danger">
+            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
               {{ tile.value }}
             </dd>
           </div>
@@ -45,7 +45,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       }
 
       @if (plan().rowErrors.length > 0) {
-        <h3 class="mt-6 mb-2 text-sm font-medium text-red-700">
+        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
           {{ text.errorsTitle }}
         </h3>
         <ul class="space-y-1 text-sm text-stone-700">

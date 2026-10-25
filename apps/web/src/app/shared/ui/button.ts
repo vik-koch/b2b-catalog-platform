@@ -70,7 +70,7 @@ const variants = {
   // interactive-hover color throughout.
   secondary:
     'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
-  danger: 'bg-red-700 text-white hover:bg-red-800 active:bg-red-900',
+  danger: 'bg-danger text-white hover:bg-red-800 active:bg-red-900',
   /**
    * The way *into* a destructive flow — a link that only opens the page
    * explaining what would be lost. Outlined like secondary so it stays a
@@ -78,7 +78,7 @@ const variants = {
    * solid variant above is left to the click that cannot be taken back.
    */
   dangerOutline:
-    'border border-red-300 text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white active:border-red-900 active:bg-red-900 active:text-white',
+    'border border-red-300 text-danger hover:border-danger hover:bg-danger hover:text-white active:border-red-900 active:bg-red-900 active:text-white',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.

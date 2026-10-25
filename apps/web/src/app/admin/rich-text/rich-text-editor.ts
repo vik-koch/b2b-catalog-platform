@@ -133,7 +133,7 @@ interface ToolbarAction {
       </p>
     }
     @if (uploadError()) {
-      <p class="mt-2 text-sm text-red-700" role="alert">
+      <p class="mt-2 text-sm text-danger" role="alert">
         {{ adminText.upload.error }}
       </p>
     }

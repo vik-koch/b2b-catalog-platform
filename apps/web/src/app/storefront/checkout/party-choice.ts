@@ -116,7 +116,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                 [attr.aria-invalid]="personNameInvalid() || null"
               />
               @if (personNameInvalid()) {
-                <p class="mt-1 text-sm text-red-600">{{ text.nameRequired }}</p>
+                <p class="mt-1 text-sm text-danger">{{ text.nameRequired }}</p>
               }
             </div>
           } @else {

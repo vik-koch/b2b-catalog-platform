@@ -41,7 +41,7 @@ import { OrdersService } from './orders.service';
           <span>{{ filterLabel() }}</span>
           <a
             routerLink="/account/orders"
-            class="flex items-center justify-center rounded-full p-0.5 text-stone-400 hover:text-red-700"
+            class="flex items-center justify-center rounded-full p-0.5 text-stone-400 hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
             <app-icon name="close" class="size-3.5" />
@@ -115,7 +115,7 @@ import { OrdersService } from './orders.service';
         </a>
       }
     } @else if (orders.error()) {
-      <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
       <a appButton variant="secondary" routerLink="/account" class="mt-5">
         {{ text.back }}
       </a>

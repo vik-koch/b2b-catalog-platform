@@ -112,7 +112,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             </p>
 
             @if (maintenanceFailed()) {
-              <p class="mt-3 text-sm text-red-600">
+              <p class="mt-3 text-sm text-danger">
                 {{ maintenanceText.error }}
               </p>
             }
@@ -222,7 +222,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           </section>
 
           @if (ownershipFailed()) {
-            <p class="text-sm text-red-600">{{ ownershipText.error }}</p>
+            <p class="text-sm text-danger">{{ ownershipText.error }}</p>
           }
         </section>
         <!-- Behind a lid, and not fetched until it is opened: the switches
@@ -278,7 +278,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           }
         </section>
       } @else if (settings.error()) {
-        <p class="text-sm text-red-600">{{ text.loadError }}</p>
+        <p class="text-sm text-danger">{{ text.loadError }}</p>
       }
     </div>
   `,

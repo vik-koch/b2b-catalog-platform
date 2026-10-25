@@ -262,7 +262,7 @@ import { DocumentsService } from './documents.service';
       </div>
 
       @if (error()) {
-        <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+        <p class="mt-4 text-sm text-danger" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">

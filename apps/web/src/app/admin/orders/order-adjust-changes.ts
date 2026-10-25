@@ -46,7 +46,7 @@ export interface OrderChange {
                  sentence, and the colours are the only thing carrying the
                  direction, so neither side is left to them alone. -->
             @if (change.before) {
-              <span class="text-red-700 line-through">{{ change.before }}</span>
+              <span class="text-danger line-through">{{ change.before }}</span>
             }
             @if (change.before && change.after) {
               <span class="px-1 text-subtle" aria-hidden="true">→</span>

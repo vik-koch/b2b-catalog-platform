@@ -90,7 +90,7 @@ let nextId = 0;
             </ul>
           }
           @if (tooFew()) {
-            <p class="mt-2 text-xs text-red-700">{{ text.tooFew }}</p>
+            <p class="mt-2 text-xs text-danger">{{ text.tooFew }}</p>
           }
 
           @if (value().length >= max) {
@@ -122,7 +122,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p class="mt-1 text-xs text-red-700">{{ rejectedLabel() }}</p>
+                <p class="mt-1 text-xs text-danger">{{ rejectedLabel() }}</p>
               }
             </div>
           }

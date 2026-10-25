@@ -106,7 +106,7 @@ function around(line: string, placeholder: string): [string, string] {
           (completed)="submit()"
         />
         @if (errors.show(form.controls.code)) {
-          <p class="mt-1 text-sm text-red-600">
+          <p class="mt-1 text-sm text-danger">
             {{
               form.controls.code.hasError('required')
                 ? text.codeRequired
@@ -119,7 +119,7 @@ function around(line: string, placeholder: string): [string, string] {
       <p
         [id]="inputId + '-message'"
         class="text-sm"
-        [class.text-red-600]="!notice()"
+        [class.text-danger]="!notice()"
         [class.text-muted]="notice()"
         [attr.role]="notice() ? 'status' : 'alert'"
         [hidden]="!message()"

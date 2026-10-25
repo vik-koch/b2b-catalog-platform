@@ -150,7 +150,7 @@ type Status =
                    form: it is the same sentence before and after the refusal,
                    and only its colour changes. -->
               @if (isInvalid('newPassword')) {
-                <p id="newPassword-hint" class="mt-1 text-sm text-red-600">
+                <p id="newPassword-hint" class="mt-1 text-sm text-danger">
                   {{
                     form.controls.newPassword.hasError('required')
                       ? validation.newPasswordRequired
@@ -190,7 +190,7 @@ type Status =
                 [attr.aria-invalid]="showMismatch() || null"
               />
               @if (showMismatch()) {
-                <p class="mt-1 text-sm text-red-600">
+                <p class="mt-1 text-sm text-danger">
                   {{ validation.confirmPasswordMismatch }}
                 </p>
               }
@@ -205,7 +205,7 @@ type Status =
             />
 
             @if (rejection(); as message) {
-              <p class="text-sm text-red-600" role="alert">{{ message }}</p>
+              <p class="text-sm text-danger" role="alert">{{ message }}</p>
             }
 
             <button

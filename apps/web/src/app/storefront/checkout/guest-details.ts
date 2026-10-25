@@ -92,7 +92,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
             [attr.aria-invalid]="errors().show(nameControl()) || null"
           />
           @if (errors().show(nameControl())) {
-            <p class="mt-1 text-sm text-red-600">{{ text.nameRequired }}</p>
+            <p class="mt-1 text-sm text-danger">{{ text.nameRequired }}</p>
           }
         </div>
 

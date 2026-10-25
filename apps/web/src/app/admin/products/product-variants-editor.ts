@@ -185,7 +185,7 @@ let nextId = 0;
             </div>
           }
           @if (hasClash()) {
-            <p class="mt-2 text-xs text-red-700">{{ text.duplicate }}</p>
+            <p class="mt-2 text-xs text-danger">{{ text.duplicate }}</p>
           }
           @if (allWithheld()) {
             <p class="mt-2 text-xs text-amber-800">{{ text.allWithheld }}</p>
@@ -221,7 +221,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p class="mt-1 text-xs text-red-700">{{ text.exists }}</p>
+                <p class="mt-1 text-xs text-danger">{{ text.exists }}</p>
               }
             </div>
           }

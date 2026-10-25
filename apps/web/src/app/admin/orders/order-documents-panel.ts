@@ -198,7 +198,7 @@ interface DocumentRow {
     </ul>
 
     @if (failed()) {
-      <p class="mt-2 text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <p class="mt-2 text-sm text-danger" role="alert">{{ text.error }}</p>
     }
   `,
 })

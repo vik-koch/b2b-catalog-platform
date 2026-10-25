@@ -92,7 +92,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     />
 
     @if (pageError(); as message) {
-      <p class="mb-4 text-sm text-red-600" role="alert">{{ message }}</p>
+      <p class="mb-4 text-sm text-danger" role="alert">{{ message }}</p>
     }
 
     @if (orders.error()) {

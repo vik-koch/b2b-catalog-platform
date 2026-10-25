@@ -241,7 +241,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               </p>
             }
             @if (error()) {
-              <p class="mt-4 text-sm text-red-700" role="alert">
+              <p class="mt-4 text-sm text-danger" role="alert">
                 {{ error() }}
               </p>
             }

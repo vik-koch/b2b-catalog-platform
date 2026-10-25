@@ -25,7 +25,7 @@ import { computed, Directive, ElementRef, inject, input } from '@angular/core';
  * wins over it: that rule lives outside the layers (styles.css).
  */
 const base =
-  'block rounded-md border border-border-strong bg-white transition-colors [&:not([aria-invalid]):enabled:hover]:border-accent [&[aria-invalid]]:border-red-600 disabled:cursor-not-allowed disabled:bg-stone-100';
+  'block rounded-md border border-border-strong bg-white transition-colors [&:not([aria-invalid]):enabled:hover]:border-accent [&[aria-invalid]]:border-danger disabled:cursor-not-allowed disabled:bg-stone-100';
 
 const sizes = {
   md: 'px-3 py-2',

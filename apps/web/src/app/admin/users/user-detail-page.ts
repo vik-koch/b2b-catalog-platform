@@ -163,7 +163,7 @@ interface DetailRow {
                   </button>
                 }
                 @if (exemptError(); as error) {
-                  <p class="mt-3 text-sm text-red-700" role="alert">
+                  <p class="mt-3 text-sm text-danger" role="alert">
                     {{ error }}
                   </p>
                 }
@@ -240,7 +240,7 @@ interface DetailRow {
           }
         </div>
         @if (deleteError(); as error) {
-          <p class="mt-3 text-sm text-red-700" role="alert">{{ error }}</p>
+          <p class="mt-3 text-sm text-danger" role="alert">{{ error }}</p>
         }
       } @else if (notFound()) {
         <p class="text-muted" role="alert">{{ text.notFound }}</p>

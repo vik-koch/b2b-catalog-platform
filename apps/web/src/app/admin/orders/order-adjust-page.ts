@@ -245,7 +245,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                          than beside the save button: the figures on these lines
                          are the ones that could not be worked out. -->
                     @if (refusalOn() === 'lines') {
-                      <p class="text-sm text-red-600" role="alert">
+                      <p class="text-sm text-danger" role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -319,7 +319,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     class="space-y-8 border-t border-border p-4"
                   >
                     @if (refusalOn() === 'details') {
-                      <p class="text-sm text-red-600" role="alert">
+                      <p class="text-sm text-danger" role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -457,7 +457,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [attr.aria-invalid]="invalid('personName') || null"
                           />
                           @if (invalid('personName')) {
-                            <p class="mt-1 text-sm text-red-600">
+                            <p class="mt-1 text-sm text-danger">
                               {{ fields.name.required }}
                             </p>
                           }
@@ -542,7 +542,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [attr.aria-invalid]="invalidContact('name') || null"
                           />
                           @if (invalidContact('name')) {
-                            <p class="mt-1 text-sm text-red-600">
+                            <p class="mt-1 text-sm text-danger">
                               {{ fields.name.required }}
                             </p>
                           }
@@ -579,7 +579,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             </div>
 
             @if (formFailure(); as message) {
-              <p class="mt-6 text-sm text-red-600" role="alert">
+              <p class="mt-6 text-sm text-danger" role="alert">
                 {{ message }}
               </p>
             }
@@ -638,7 +638,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               ></textarea>
               <p class="mt-1 text-xs text-subtle">{{ text.noteHint }}</p>
               @if (noteMissing()) {
-                <p class="mt-1 text-sm text-red-600" role="alert">
+                <p class="mt-1 text-sm text-danger" role="alert">
                   {{ text.noteRequired }}
                 </p>
               } @else if (noteFailure(); as message) {
@@ -646,7 +646,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                      either fold to say it. It reads here, on the last thing
                      written before saving and beside the button that was
                      pressed. -->
-                <p class="mt-1 text-sm text-red-600" role="alert">
+                <p class="mt-1 text-sm text-danger" role="alert">
                   {{ message }}
                 </p>
               }

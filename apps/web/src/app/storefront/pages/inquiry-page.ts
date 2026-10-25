@@ -76,7 +76,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               [attr.aria-invalid]="isInvalid('name') || null"
             />
             @if (isInvalid('name')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p class="mt-1 text-sm text-danger">
                 {{ fields.name.required }}
               </p>
             }
@@ -142,7 +142,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           />
 
           @if (status() === 'error') {
-            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+            <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
           }
 
           <button

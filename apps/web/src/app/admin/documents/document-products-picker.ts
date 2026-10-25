@@ -105,7 +105,7 @@ type View = 'all' | 'linked';
     </div>
 
     @if (products.error()) {
-      <p class="mt-3 text-sm text-red-700" role="alert">{{ text.loadError }}</p>
+      <p class="mt-3 text-sm text-danger" role="alert">{{ text.loadError }}</p>
     }
 
     <!-- A fixed-height scroller: the list is up to fifty rows, and a form that

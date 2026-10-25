@@ -175,7 +175,7 @@ import { OrdersService } from './orders.service';
         [backLabel]="text.home"
       />
     } @else if (order.error()) {
-      <p class="text-sm text-red-600" role="alert">{{ orderText.error }}</p>
+      <p class="text-sm text-danger" role="alert">{{ orderText.error }}</p>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }

@@ -123,7 +123,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     }
 
     @if (error()) {
-      <p class="mt-4 max-w-3xl text-sm text-red-700" role="alert">
+      <p class="mt-4 max-w-3xl text-sm text-danger" role="alert">
         {{ error() }}
       </p>
     }

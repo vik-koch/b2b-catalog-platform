@@ -242,7 +242,7 @@ interface CartRow {
                  first tick moves the whole list down as it is ticked. -->
               <button
                 type="button"
-                class="group flex cursor-pointer items-center gap-1.5 text-red-700 disabled:cursor-not-allowed disabled:text-stone-400"
+                class="group flex cursor-pointer items-center gap-1.5 text-danger disabled:cursor-not-allowed disabled:text-stone-400"
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >

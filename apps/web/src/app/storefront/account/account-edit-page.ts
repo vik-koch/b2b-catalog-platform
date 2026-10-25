@@ -82,7 +82,7 @@ type Status = 'idle' | 'submitting' | 'error';
               [attr.aria-invalid]="isInvalid('firstName') || null"
             />
             @if (isInvalid('firstName')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p class="mt-1 text-sm text-danger">
                 {{ fields.firstName.required }}
               </p>
             }
@@ -104,7 +104,7 @@ type Status = 'idle' | 'submitting' | 'error';
               [attr.aria-invalid]="isInvalid('lastName') || null"
             />
             @if (isInvalid('lastName')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p class="mt-1 text-sm text-danger">
                 {{ fields.lastName.required }}
               </p>
             }
@@ -141,11 +141,11 @@ type Status = 'idle' | 'submitting' | 'error';
           </div>
 
           @if (failure(); as line) {
-            <p class="text-sm text-red-600" role="alert">{{ line }}</p>
+            <p class="text-sm text-danger" role="alert">{{ line }}</p>
           }
         </form>
       } @else if (profile.error()) {
-        <p class="text-sm text-red-600" role="alert">
+        <p class="text-sm text-danger" role="alert">
           {{ accountText.error }}
         </p>
       } @else if (showSkeleton()) {

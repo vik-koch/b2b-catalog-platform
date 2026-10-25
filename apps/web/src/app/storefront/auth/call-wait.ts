@@ -91,7 +91,7 @@ function pieces(line: string, values: Record<string, string>) {
 
       <p
         class="text-sm tabular-nums"
-        [class.text-red-600]="failed()"
+        [class.text-danger]="failed()"
         [class.text-muted]="!failed()"
         [attr.role]="failed() ? 'alert' : 'status'"
       >

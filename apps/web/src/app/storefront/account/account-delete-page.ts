@@ -52,7 +52,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
              a refusal: the orders are the shop's to fill either way, and what
              changes is that they stop carrying the customer's details. -->
         @if (openOrders(); as open) {
-          <p class="mb-8 text-sm text-red-700" role="status">
+          <p class="mb-8 text-sm text-danger" role="status">
             {{ openOrdersWarning(open) }}
           </p>
         }
@@ -79,7 +79,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
               [attr.aria-invalid]="isInvalid() || null"
             />
             @if (isInvalid()) {
-              <p class="mt-1 text-sm text-red-600">
+              <p class="mt-1 text-sm text-danger">
                 {{ validation.currentPasswordRequired }}
               </p>
             } @else {
@@ -106,7 +106,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
           </div>
 
           @if (message(); as failure) {
-            <p class="text-sm text-red-600" role="alert">{{ failure }}</p>
+            <p class="text-sm text-danger" role="alert">{{ failure }}</p>
           }
         </form>
       }

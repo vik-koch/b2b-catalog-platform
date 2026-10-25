@@ -53,11 +53,11 @@ type Status = 'idle' | 'submitting' | 'error';
           </div>
 
           @if (error()) {
-            <p class="text-sm text-red-600" role="alert">{{ error() }}</p>
+            <p class="text-sm text-danger" role="alert">{{ error() }}</p>
           }
         </form>
       } @else if (notFound()) {
-        <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+        <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
       } @else if (showSkeleton()) {
         <app-skeleton [lines]="6" />
       }

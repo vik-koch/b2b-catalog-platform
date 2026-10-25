@@ -196,7 +196,7 @@ import { SyncService } from './sync.service';
           </div>
 
           @if (previewError(); as message) {
-            <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
+            <p class="mt-3 text-sm text-danger" role="alert">{{ message }}</p>
           }
         </section>
 

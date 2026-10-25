@@ -73,7 +73,7 @@ export interface CompanyFieldsText {
            person. -->
       <div class="empty:hidden mt-1">
         @for (message of messages(); track message) {
-          <p class="text-sm text-red-600">{{ message }}</p>
+          <p class="text-sm text-danger">{{ message }}</p>
         } @empty {
           @if (hint()) {
             <p class="text-sm text-muted">{{ hint() }}</p>

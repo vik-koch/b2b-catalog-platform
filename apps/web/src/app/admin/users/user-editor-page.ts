@@ -206,7 +206,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   [disabled]="locked()"
                 />
                 @if (isInvalid('firstName')) {
-                  <p class="mt-1 text-sm text-red-600">
+                  <p class="mt-1 text-sm text-danger">
                     {{ fields.firstName.required }}
                   </p>
                 }
@@ -229,7 +229,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   [disabled]="locked()"
                 />
                 @if (isInvalid('lastName')) {
-                  <p class="mt-1 text-sm text-red-600">
+                  <p class="mt-1 text-sm text-danger">
                     {{ fields.lastName.required }}
                   </p>
                 }
@@ -291,7 +291,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   </select>
                 </app-select-field>
                 @if (isInvalid('tierId')) {
-                  <p class="mt-1 text-sm text-red-600">
+                  <p class="mt-1 text-sm text-danger">
                     {{ text.validation.tierRequired }}
                   </p>
                 }
@@ -341,7 +341,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
             }
 
             @if (error()) {
-              <p class="text-sm text-red-700" role="alert">{{ error() }}</p>
+              <p class="text-sm text-danger" role="alert">{{ error() }}</p>
             }
             @if (resent()) {
               <p class="text-sm text-green-700" role="status">

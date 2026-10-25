@@ -443,7 +443,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             <!-- Where the ADR says a refusal belongs: beside the button, not
                  only at the field it came from. -->
             @if (error(); as message) {
-              <p class="mt-3 text-sm text-red-600" role="alert">
+              <p class="mt-3 text-sm text-danger" role="alert">
                 {{ message }}
               </p>
             }

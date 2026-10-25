@@ -97,7 +97,7 @@ let nextId = 0;
             (picked)="suggested($event)"
           />
           @if (isInvalid('street')) {
-            <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+            <p class="mt-1 text-sm text-danger">{{ text.required }}</p>
           }
           <!-- What the provider filled in, read back. Not an aside: it is most
                of the address, and the customer is the only one who can say it
@@ -176,7 +176,7 @@ let nextId = 0;
               />
             }
             @if (isInvalid('postalCode')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p class="mt-1 text-sm text-danger">
                 {{ postalCodeError() }}
               </p>
             }
@@ -199,7 +199,7 @@ let nextId = 0;
               [attr.aria-invalid]="isInvalid('city') || null"
             />
             @if (isInvalid('city')) {
-              <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+              <p class="mt-1 text-sm text-danger">{{ text.required }}</p>
             }
           </div>
         </div>

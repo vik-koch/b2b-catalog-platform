@@ -540,7 +540,7 @@ const MARK_PAID = 'markPaid';
             </section>
 
             @if (failed(); as message) {
-              <p class="mt-3 max-w-xl text-red-600" role="alert">
+              <p class="mt-3 max-w-xl text-danger" role="alert">
                 {{ message }}
               </p>
             }

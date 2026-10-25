@@ -75,14 +75,14 @@ import { TextButton } from '../../shared/ui/link';
               [attr.aria-invalid]="isInvalid('password') || null"
             />
             @if (isInvalid('password')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p class="mt-1 text-sm text-danger">
                 {{ text.validation.passwordRequired }}
               </p>
             }
           </div>
 
           @if (failure(); as message) {
-            <p class="text-sm text-red-600" role="alert">{{ message }}</p>
+            <p class="text-sm text-danger" role="alert">{{ message }}</p>
           }
 
           <div class="flex flex-wrap items-center gap-4">

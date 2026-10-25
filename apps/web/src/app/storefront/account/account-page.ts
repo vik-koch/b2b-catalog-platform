@@ -158,7 +158,7 @@ interface DetailRow {
                 }
               }
             } @else {
-              <p class="text-sm text-red-600" role="alert">
+              <p class="text-sm text-danger" role="alert">
                 {{ orderText.error }}
               </p>
             }
@@ -223,7 +223,7 @@ interface DetailRow {
                   {{ accountText.edit.action }}
                 </a>
               } @else {
-                <p class="text-sm text-red-600" role="alert">
+                <p class="text-sm text-danger" role="alert">
                   {{ accountText.error }}
                 </p>
               }
@@ -311,7 +311,7 @@ interface DetailRow {
                   {{ addressText.add }}
                 </a>
               } @else {
-                <p class="text-sm text-red-600" role="alert">
+                <p class="text-sm text-danger" role="alert">
                   {{ addressText.error }}
                 </p>
               }

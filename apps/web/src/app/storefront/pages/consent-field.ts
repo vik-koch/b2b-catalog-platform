@@ -68,11 +68,11 @@ let nextId = 0;
         </p>
       </div>
       @if (consent().notice() === 'changed') {
-        <p class="mt-1 text-sm text-red-600" role="alert">
+        <p class="mt-1 text-sm text-danger" role="alert">
           {{ text.changed }}
         </p>
       } @else if (invalid()) {
-        <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+        <p class="mt-1 text-sm text-danger">{{ text.required }}</p>
       }
     } @else if (alone() && consent().state() !== 'loading') {
       <p class="text-sm"><app-privacy-notice /></p>
@@ -81,7 +81,7 @@ let nextId = 0;
       consent().state() === 'unavailable' ||
       consent().notice() === 'unavailable'
     ) {
-      <p class="mt-1 text-sm text-red-600" role="alert">
+      <p class="mt-1 text-sm text-danger" role="alert">
         {{ text.unavailable }}
       </p>
     }

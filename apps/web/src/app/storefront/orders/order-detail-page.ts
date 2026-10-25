@@ -166,7 +166,7 @@ import { OrdersService } from './orders.service';
               </button>
             }
             @if (cancelFailed()) {
-              <p class="mt-3 text-sm text-red-600" role="alert">
+              <p class="mt-3 text-sm text-danger" role="alert">
                 {{ text.cancel.error }}
               </p>
             }
@@ -191,7 +191,7 @@ import { OrdersService } from './orders.service';
         [backLabel]="text.backToList"
       />
     } @else if (order.error()) {
-      <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <p class="text-sm text-danger" role="alert">{{ text.error }}</p>
       <a
         appButton
         variant="secondary"

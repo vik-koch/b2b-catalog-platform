@@ -97,7 +97,7 @@ type SearchBy = 'email' | 'phone';
           <p class="text-muted" role="alert">{{ text.loadError }}</p>
         } @else if (results.hasValue() && query(); as asked) {
           @if (withdrawError(); as message) {
-            <p class="mb-4 text-sm text-red-700" role="alert">{{ message }}</p>
+            <p class="mb-4 text-sm text-danger" role="alert">{{ message }}</p>
           }
           @if (results.value().length > 0) {
             <app-consent-record-list

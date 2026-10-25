@@ -104,7 +104,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     </app-admin-list-header>
 
     @if (pageError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">{{ pageError() }}</p>
+      <p class="mb-4 text-sm text-danger" role="alert">{{ pageError() }}</p>
     }
 
     @if (documents.error()) {

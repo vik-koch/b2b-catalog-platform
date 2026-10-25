@@ -381,7 +381,7 @@ type RenameTarget =
       }
 
       @if (renameError()) {
-        <p class="mt-4 text-sm text-red-700" role="alert">
+        <p class="mt-4 text-sm text-danger" role="alert">
           {{ renameError() }}
         </p>
       }

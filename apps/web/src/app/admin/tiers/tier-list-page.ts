@@ -91,7 +91,7 @@ type EditTarget = { id: string } | { id: null } | null;
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-red-700" role="alert">
+        <p class="mb-4 text-sm text-danger" role="alert">
           {{ text.reorderError }}
         </p>
       }
@@ -243,7 +243,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </ng-container>
                   </app-record-row>
                   @if (rowError()?.id === tier.id) {
-                    <p class="mt-2 text-sm text-red-700" role="alert">
+                    <p class="mt-2 text-sm text-danger" role="alert">
                       {{ rowError()?.message }}
                     </p>
                   }
@@ -359,7 +359,7 @@ type EditTarget = { id: string } | { id: null } | null;
             </button>
           </div>
           @if (formError()) {
-            <p class="text-sm text-red-700 sm:col-span-2" role="alert">
+            <p class="text-sm text-danger sm:col-span-2" role="alert">
               {{ formError() }}
             </p>
           }

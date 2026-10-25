@@ -54,7 +54,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
     <p
       [id]="id + '-hint'"
       class="mt-1 text-sm"
-      [class]="invalid() ? 'text-red-600' : 'text-muted'"
+      [class]="invalid() ? 'text-danger' : 'text-muted'"
     >
       {{
         invalid()

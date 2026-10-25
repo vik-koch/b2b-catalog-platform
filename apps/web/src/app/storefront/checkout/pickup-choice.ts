@@ -84,7 +84,7 @@ import { TextButton } from '../../shared/ui/link';
       </div>
 
       @if (invalid()) {
-        <p id="pickup-error" class="mt-2 text-sm text-red-600">
+        <p id="pickup-error" class="mt-2 text-sm text-danger">
           {{ text.pickupRequired }}
         </p>
       }
