@@ -153,7 +153,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                         [title]="text.show"
                         (change)="toggle(filter)"
                       />
-                      <span class="font-medium text-stone-700">
+                      <span class="font-medium text-ink">
                         {{ filter.name }}
                       </span>
                       <ng-container recordMeta>
@@ -240,7 +240,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
             </div>
 
             @if (wasReset()) {
-              <p class="mt-4 text-sm text-stone-700" role="status">
+              <p class="mt-4 text-sm text-ink" role="status">
                 {{ text.resetDone }}
               </p>
             }

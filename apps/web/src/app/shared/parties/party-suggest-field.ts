@@ -93,7 +93,7 @@ let nextId = 0;
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >
-                <span class="block truncate font-medium text-stone-800">
+                <span class="block truncate font-medium text-ink">
                   <app-highlighted-line
                     [line]="item.name"
                     [query]="list.query()"

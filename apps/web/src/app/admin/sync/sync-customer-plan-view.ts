@@ -57,7 +57,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
           {{ text.errorsTitle }}
         </h3>
-        <ul class="space-y-1 text-sm text-stone-700">
+        <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
               <span class="text-subtle">{{ rowLabel(error.row) }}</span>
@@ -95,7 +95,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                   {{ fieldLabel(change.field) }}:
                   <span class="line-through">{{ display(change.from) }}</span>
                   →
-                  <span class="text-stone-700">{{ display(change.to) }}</span>
+                  <span class="text-ink">{{ display(change.to) }}</span>
                 </span>
               }
               @if (account.mailed) {

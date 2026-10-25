@@ -197,10 +197,12 @@
    * The two quieter text levels below `ink`, kept apart because the app really
    * does use both: `muted` is secondary body copy (descriptions, help text),
    * `subtle` is meta text (eyebrows, table headers, counts, timestamps).
-   * stone-600 / stone-500 — 7.0:1 and 4.8:1 on surface.
+   * `muted` is stone-600, 7.0:1 on surface. `subtle` is a quarter step from
+   * stone-500 toward it: stone-500 itself is 4.4:1 on the stone-100 of the
+   * footer and the header's top bar, this is 4.9:1 there.
    */
   --color-muted: #57534e;
-  --color-subtle: #78716c;
+  --color-subtle: #706a65;
   /*
    * Lines. `border` is structural — card edges, dividers, table rules;
    * `border-strong` is the heavier edge that makes a control look operable

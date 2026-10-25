@@ -178,7 +178,7 @@ export const FACET_SIBLING_ALONE =
               <ul [class]="facetList()">
                 @for (facet of facets(); track facet.slug) {
                   <li>
-                    <h3 class="text-sm font-medium text-stone-800">
+                    <h3 class="text-sm font-medium text-ink">
                       {{ facet.name }}
                     </h3>
                     <ul class="mt-2 space-y-1.5">

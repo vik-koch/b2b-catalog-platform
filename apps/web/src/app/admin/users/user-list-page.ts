@@ -166,7 +166,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                  it. Two jobs, two links — most of what a manager does with a
                  list is look somebody up. -->
             <a
-              class="block truncate font-medium text-stone-700 hover:text-accent"
+              class="block truncate font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/users', user.id]"
               [queryParams]="editorFrom()"
             >
@@ -222,7 +222,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                that says so — the same rule the table follows cell by cell. -->
           <app-record-row>
             <a
-              class="truncate font-medium text-stone-700"
+              class="truncate font-medium text-ink"
               [class.opacity-50]="isClosed(user)"
               [routerLink]="['/admin/users', user.id]"
               [queryParams]="editorFrom()"

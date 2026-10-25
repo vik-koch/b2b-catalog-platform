@@ -68,7 +68,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
           {{ text.errorsTitle }}
         </h3>
-        <ul class="space-y-1 text-sm text-stone-700">
+        <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
               <span class="text-subtle">{{ rowLabel(error.row) }}</span>
@@ -145,7 +145,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                     display(change.field, change.from)
                   }}</span>
                   →
-                  <span class="text-stone-700">{{
+                  <span class="text-ink">{{
                     display(change.field, change.to)
                   }}</span>
                 </span>

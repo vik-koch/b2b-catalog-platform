@@ -181,7 +181,7 @@ function knownValues<T extends string>(
               <a
                 [routerLink]="pageOf(item)"
                 [queryParams]="editorFrom()"
-                class="align-middle font-medium text-stone-700 hover:text-accent [word-spacing:normal]"
+                class="align-middle font-medium text-ink hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
               >&ngsp;<span
                 class="inline-block max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
@@ -208,7 +208,7 @@ function knownValues<T extends string>(
               }
             </div>
           </td>
-          <td class="text-stone-700">
+          <td class="text-ink">
             @if (item.priceMinor === null) {
               <span [title]="productStates.unpriced">{{ text.noPrice }}</span>
             } @else {
@@ -286,7 +286,7 @@ function knownValues<T extends string>(
             <a
               [routerLink]="pageOf(item)"
               [queryParams]="editorFrom()"
-              class="font-medium wrap-break-word line-clamp-2 text-stone-700"
+              class="font-medium wrap-break-word line-clamp-2 text-ink"
               [class.opacity-50]="isDeleted(item)"
             >
               {{ item.name }}
@@ -308,7 +308,7 @@ function knownValues<T extends string>(
               [ngTemplateOutletContext]="{ $implicit: item, card: true }"
             />
             <ng-container recordMeta>
-              <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
+              <span class="text-ink" [class.opacity-50]="isDeleted(item)">
                 @if (item.priceMinor === null) {
                   {{ productStates.unpriced }}
                 } @else {

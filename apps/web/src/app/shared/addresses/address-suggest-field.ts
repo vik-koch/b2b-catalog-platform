@@ -85,7 +85,7 @@ export type AddressSuggestFieldText = SuggestListText;
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >
-                <span class="block truncate text-stone-800">
+                <span class="block truncate text-ink">
                   <app-highlighted-line
                     [line]="item.label"
                     [query]="list.query()"

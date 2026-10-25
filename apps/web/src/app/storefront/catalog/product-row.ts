@@ -123,7 +123,7 @@ export interface RowProduct extends BuyableProduct {
                  were two drawings of one thing. -->
             <a [routerLink]="link()" class="group block">
               <h2
-                class="text-sm text-stone-700 group-hover:text-accent"
+                class="text-sm text-ink group-hover:text-accent"
                 [title]="item().name"
               >
                 {{ item().name }}

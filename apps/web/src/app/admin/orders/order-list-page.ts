@@ -127,7 +127,7 @@ import { ErrorText } from '../../shared/ui/error-text';
           <!-- Who to call, and underneath the account it came from — or
                that it came from nobody, which is what a guest order is. -->
           <td class="truncate" [title]="order.customerEmail ?? ''">
-            <span class="block truncate text-stone-700">
+            <span class="block truncate text-ink">
               {{ order.contactName }}
             </span>
             <span class="block truncate text-xs text-subtle">

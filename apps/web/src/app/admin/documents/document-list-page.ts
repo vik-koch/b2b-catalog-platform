@@ -128,7 +128,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                are the same thing. -->
           <td class="truncate">
             <a
-              class="block truncate wrap-break-word font-medium text-stone-700 hover:text-accent"
+              class="block truncate wrap-break-word font-medium text-ink hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"
@@ -185,7 +185,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         <ng-template appGridCard [of]="data" let-document>
           <app-record-row>
             <a
-              class="wrap-break-word font-medium text-stone-700 hover:text-accent"
+              class="wrap-break-word font-medium text-ink hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"

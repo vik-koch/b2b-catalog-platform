@@ -141,7 +141,7 @@ export class CategoryChip {
   protected readonly linkClass = computed(
     () =>
       `${CHIP_BASE} ${CHIP_SIZES[this.size()].link} ${
-        this.muted() ? 'text-stone-400' : 'text-stone-800'
+        this.muted() ? 'text-stone-400' : 'text-ink'
       }`,
   );
   protected readonly markClass = computed(

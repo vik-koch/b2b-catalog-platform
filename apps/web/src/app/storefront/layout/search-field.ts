@@ -151,7 +151,7 @@ let nextId = 0;
             (keydown)="keydown($event)"
             (focus)="mobileSearch.setFocused(true)"
             (blur)="blurred()"
-            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-stone-800 placeholder:text-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-ink placeholder:text-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           @if (value()) {
             <!-- flex on the button itself, not just on its row: the icon is an
@@ -340,7 +340,7 @@ let nextId = 0;
                            answered that query, and marking them against later
                            keystrokes would flicker a highlight the list has
                            not caught up with. -->
-                          <span class="line-clamp-2 text-sm text-stone-800">
+                          <span class="line-clamp-2 text-sm text-ink">
                             <app-highlighted-line
                               [line]="item.name"
                               [query]="query()"

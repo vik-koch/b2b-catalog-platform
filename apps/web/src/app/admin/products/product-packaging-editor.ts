@@ -83,7 +83,7 @@ export function parseCount(text: string): number | null {
         <div class="max-w-xl space-y-4 rounded-md border border-border p-4">
           @for (row of rows(); track row.key) {
             <label class="block">
-              <span class="mb-1 block text-sm font-medium text-stone-700">
+              <span class="mb-1 block text-sm font-medium text-ink">
                 {{ row.label }}
               </span>
               @if (row.hint) {

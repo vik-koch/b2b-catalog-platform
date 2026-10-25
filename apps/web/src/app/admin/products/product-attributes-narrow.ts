@@ -143,7 +143,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 <app-admin-icon name="grip-vertical" />
               </span>
               <span
-                class="font-medium wrap-break-word text-stone-700"
+                class="font-medium wrap-break-word text-ink"
                 [class.text-muted]="row.key.trim() === ''"
               >
                 {{ row.key.trim() || text.key }}

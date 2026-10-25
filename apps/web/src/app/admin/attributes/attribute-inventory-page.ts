@@ -116,7 +116,7 @@ type RenameTarget =
                         <button
                           recordControl
                           type="button"
-                          class="flex cursor-pointer items-center gap-2 self-stretch text-left font-medium text-stone-700 hover:text-accent"
+                          class="flex cursor-pointer items-center gap-2 self-stretch text-left font-medium text-ink hover:text-accent"
                           [attr.aria-expanded]="expanded() === entry.key"
                           (click)="toggle(entry.key)"
                         >
@@ -244,7 +244,7 @@ type RenameTarget =
                                        of a different height, and the two lists
                                        stop lining up. -->
                                   <span
-                                    class="text-stone-700"
+                                    class="text-ink"
                                     [class.text-muted]="value.value === ''"
                                   >
                                     {{ value.value || text.emptyValue }}

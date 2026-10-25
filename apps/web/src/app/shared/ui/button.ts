@@ -84,7 +84,7 @@ const variants = {
    * noisy as outlined buttons: pagination, table row actions.
    */
   ghost:
-    'text-stone-700 hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
+    'text-ink hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
 } as const;
 
 /**

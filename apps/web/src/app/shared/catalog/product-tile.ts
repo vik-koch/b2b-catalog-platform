@@ -88,7 +88,7 @@ export const PRODUCT_GRID =
              promised a click that only lands on these two lines. -->
         <a [routerLink]="['/product', item().slug]" class="block">
           <h2
-            class="line-clamp-2 text-sm text-stone-700 transition-colors hover:text-accent"
+            class="line-clamp-2 text-sm text-ink transition-colors hover:text-accent"
             [title]="item().name"
           >
             {{ item().name }}

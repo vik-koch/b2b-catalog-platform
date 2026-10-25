@@ -240,7 +240,7 @@ const EDGE_SLACK = 24;
                            leaves it out, because nothing beneath it is live
                            (FR-ADM-19); the words in its meta say so too. -->
                       <a
-                        class="wrap-break-word font-medium text-stone-700 hover:text-accent"
+                        class="wrap-break-word font-medium text-ink hover:text-accent"
                         [class.opacity-50]="!node.category.liveProductCount"
                         [routerLink]="['/catalog', node.category.slug]"
                         [title]="text.seeProducts"

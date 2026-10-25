@@ -264,19 +264,13 @@ interface Listing {
                     />
                   </li>
                   <li class="inline">
-                    <span
-                      aria-current="page"
-                      class="font-medium text-stone-700"
-                    >
+                    <span aria-current="page" class="font-medium text-ink">
                       {{ displayName(category) }}
                     </span>
                   </li>
                 } @else {
                   <li class="inline">
-                    <span
-                      aria-current="page"
-                      class="font-medium text-stone-700"
-                    >
+                    <span aria-current="page" class="font-medium text-ink">
                       {{ text.catalogRoot }}
                     </span>
                   </li>

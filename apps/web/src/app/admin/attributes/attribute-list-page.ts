@@ -156,7 +156,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     >
                       <app-admin-icon name="grip-vertical" />
                     </span>
-                    <span class="font-medium text-stone-700">
+                    <span class="font-medium text-ink">
                       {{ definition.name }}
                     </span>
                     <!-- The URL key beside the name it belongs to: the two are

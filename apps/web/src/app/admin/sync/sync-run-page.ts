@@ -121,7 +121,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              sentence the log's badge only had a word for. -->
           @if (stagedReason(data.run); as reason) {
             <p
-              class="mb-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-stone-700"
+              class="mb-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-ink"
             >
               {{ reason }}
             </p>
@@ -139,7 +139,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               <h2 class="mb-1 text-sm font-medium text-sky-800">
                 {{ text.noticeTitle }}
               </h2>
-              <p class="wrap-break-word font-mono text-sm text-stone-700">
+              <p class="wrap-break-word font-mono text-sm text-ink">
                 {{ note }}
               </p>
             </section>
@@ -154,7 +154,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               <h2 class="mb-1 text-sm font-medium text-red-800">
                 {{ text.failureTitle }}
               </h2>
-              <p class="wrap-break-word font-mono text-sm text-stone-700">
+              <p class="wrap-break-word font-mono text-sm text-ink">
                 {{ failure }}
               </p>
             </section>

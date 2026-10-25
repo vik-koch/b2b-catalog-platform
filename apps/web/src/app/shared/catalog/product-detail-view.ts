@@ -200,7 +200,7 @@ const NARROW = '(max-width: 39.999rem)';
           />
         </li>
         <li class="hidden sm:inline">
-          <span aria-current="page" class="font-medium text-stone-700">
+          <span aria-current="page" class="font-medium text-ink">
             {{ item().name }}
           </span>
         </li>
@@ -255,7 +255,7 @@ const NARROW = '(max-width: 39.999rem)';
                     >
                       {{ attr.key }}
                     </th>
-                    <td class="py-2 text-right text-stone-700">
+                    <td class="py-2 text-right text-ink">
                       <ng-container
                         [ngTemplateOutlet]="attributeValue"
                         [ngTemplateOutletContext]="{ $implicit: attr }"
@@ -394,7 +394,7 @@ const NARROW = '(max-width: 39.999rem)';
                   >
                     {{ attr.key }}
                   </th>
-                  <td class="py-2 text-right text-stone-700">
+                  <td class="py-2 text-right text-ink">
                     <ng-container
                       [ngTemplateOutlet]="attributeValue"
                       [ngTemplateOutletContext]="{ $implicit: attr }"
@@ -412,7 +412,7 @@ const NARROW = '(max-width: 39.999rem)';
                   >
                     {{ row.label }}
                   </th>
-                  <td class="py-2 text-right text-stone-700">
+                  <td class="py-2 text-right text-ink">
                     {{ row.value }}
                   </td>
                 </tr>

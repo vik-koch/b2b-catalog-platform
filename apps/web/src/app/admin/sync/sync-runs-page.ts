@@ -107,7 +107,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                it, and it is the way into the run itself. -->
           <td class="truncate">
             <a
-              class="font-medium text-stone-700 hover:text-accent"
+              class="font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/sync/runs', run.id]"
             >
               <app-grid-timestamp [value]="run.startedAt" />
@@ -138,7 +138,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
         <ng-template appGridCard [of]="data.runs" let-run>
           <app-record-row>
             <a
-              class="font-medium text-stone-700 hover:text-accent"
+              class="font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/sync/runs', run.id]"
             >
               <app-grid-timestamp [value]="run.startedAt" />

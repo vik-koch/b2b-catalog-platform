@@ -138,9 +138,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     >
                       <app-admin-icon name="grip-vertical" />
                     </span>
-                    <span class="font-medium text-stone-700">{{
-                      tier.label
-                    }}</span>
+                    <span class="font-medium text-ink">{{ tier.label }}</span>
                     <!-- The sync key beside the label it belongs to, not across
                          the row: it is this tier's identifier, and read as a
                          pair with the name it identifies. -->

@@ -110,7 +110,7 @@ import { Hint } from '../../shared/ui/hint';
             class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm wrap-break-word"
           >
             <dt class="text-subtle">{{ fields.email.label }}</dt>
-            <dd class="font-medium text-stone-700">{{ user.email }}</dd>
+            <dd class="font-medium text-ink">{{ user.email }}</dd>
             <dt class="text-subtle">{{ listText.registered }}</dt>
             <dd class="text-subtle">{{ registered() }}</dd>
             <dt class="text-subtle">{{ text.status }}</dt>
