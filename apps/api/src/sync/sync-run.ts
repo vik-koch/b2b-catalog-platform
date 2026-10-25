@@ -1,5 +1,5 @@
 import { NotFoundException } from '@nestjs/common';
-import { SyncRunStatus } from '@b2b-catalog-platform/shared';
+import { SyncRunStatus } from '@b2b-catalog-platform/shared/sync';
 
 /** The person behind a run — an upload, or the decision on a staged one. */
 export interface Actor {

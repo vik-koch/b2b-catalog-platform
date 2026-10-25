@@ -2,7 +2,7 @@ import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PDFDocument } from 'pdf-lib';
 import * as schema from '../db/schema';
 import {
-  demoCommonText,
+  demoSharedText,
   demoMailBranding,
   demoPdfText,
 } from '../mail/mail-text.fixture';
@@ -31,7 +31,7 @@ const terms = (attached: boolean, rows: unknown[] = [version]) =>
     dbReturning(rows),
     attached,
     demoPdfText,
-    demoCommonText,
+    demoSharedText,
     demoMailBranding,
     { prefix: 'CK', timezone: 'Europe/Berlin' },
     new PdfFaces(undefined),

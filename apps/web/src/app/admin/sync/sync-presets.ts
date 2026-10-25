@@ -1,7 +1,7 @@
 import {
   CATALOG_SYNC_ALL_FIELDS,
   CatalogSyncOptions,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 
 /**
  * Named intents over the raw run options. The flag space is larger than anyone

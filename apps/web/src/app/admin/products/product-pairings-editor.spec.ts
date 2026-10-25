@@ -1,14 +1,14 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminProductListItem,
   PairedProduct,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { ProductPairingsEditor } from './product-pairings-editor';
 
@@ -46,7 +46,7 @@ async function render(value: PairedProduct[] = [], ownSlug = 'cup') {
     imports: [ProductPairingsEditor],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AdminCatalogService, useValue: { listProducts } },
     ],

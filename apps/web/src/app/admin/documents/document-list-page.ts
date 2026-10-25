@@ -13,22 +13,22 @@ import {
   DocumentExpiryState,
   fillText,
   isoToday,
-  ProductDocument,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { ProductDocument } from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
-import { delayedLoading } from '../../core/delayed-loading';
-import { AlternateLayout } from '../../core/alternate-layout';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
-import { IconButton } from '../../ui/icon-button';
-import { Link } from '../../ui/link';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { AlternateLayout } from '../../shared/core/alternate-layout';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { IconButton } from '../../shared/ui/icon-button';
+import { Link } from '../../shared/ui/link';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
@@ -37,13 +37,13 @@ import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
-import { injectEditorReturnParams } from '../editor-return';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { DocumentsService } from './documents.service';
 import {
   documentFileLabel,
   documentFileSize,
   documentLinkHost,
-} from '../../core/document-file';
+} from '../../shared/core/document-file';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document
@@ -290,10 +290,10 @@ export class DocumentListPage {
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).documents.list;
-  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  private readonly sizes = inject(SHARED_TEXT).fileSize;
   private readonly productsText = inject(ADMIN_TEXT).products;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly editorFrom = injectEditorReturnParams();
 
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;

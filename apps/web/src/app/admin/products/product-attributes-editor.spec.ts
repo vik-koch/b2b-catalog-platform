@@ -1,15 +1,14 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { fillText, ProductAttribute } from '@b2b-catalog-platform/shared';
 import {
   AttributeDefinition,
-  fillText,
   AttributeKeyUsage,
-  ProductAttribute,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { ProductAttributesEditor } from './product-attributes-editor';
 
 /**
@@ -30,7 +29,7 @@ function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
   const fixture = TestBed.createComponent(ProductAttributesEditor);

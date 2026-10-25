@@ -7,7 +7,7 @@ import {
   CustomerSyncRow,
   CustomerSyncRowError,
   customerSyncRowSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import {
   canonicalColumns,
   cellReader,

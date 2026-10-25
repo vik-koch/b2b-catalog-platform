@@ -1,26 +1,26 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SettingsService } from '../settings/settings.service';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   CATALOG_SYNC_ALL_FIELDS,
   SyncFormatErrorBody,
   CatalogSyncOptions,
   CatalogSyncPreviewResponse,
   SyncRun,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminText } from '../../config/admin-text.type';
-import { APP_TEXT } from '../../config/app-text';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { ChoiceCard } from '../../ui/choice-card';
-import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../ui/file-target';
-import { FieldLabel } from '../../ui/field-label';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
+} from '@b2b-catalog-platform/shared/sync';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminText } from '../../shared/config/admin-text.type';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { ChoiceCard } from '../../shared/ui/choice-card';
+import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
 import { SyncPlanView } from './sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
@@ -217,7 +217,7 @@ import { SyncService } from './sync.service';
           <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
             <a appLink routerLink="/catalog" class="ml-2">{{
-              catalogText.navLabel
+              navText.catalog
             }}</a>
           </p>
         }
@@ -234,7 +234,7 @@ export class SyncUploadPage {
   protected readonly catalogOwned = computed(
     () => this.ownership.ownedAreas()?.includes('catalog') ?? false,
   );
-  protected readonly catalogText = inject(APP_TEXT).catalog;
+  protected readonly navText = inject(SHARED_TEXT).nav;
 
   constructor() {
     // Admin screens are client-rendered, so this is for the browser tab

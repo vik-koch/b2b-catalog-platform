@@ -1,23 +1,23 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   CATALOG_SYNC_CSV_COLUMNS,
   SyncArea,
   SyncRun,
   SyncRunStatus,
   syncRunStatusSchema,
-} from '@b2b-catalog-platform/shared';
-import { AuthService } from '../../auth/auth.service';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { stableValue } from '../../core/stable-value';
-import { Button } from '../../ui/button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+} from '@b2b-catalog-platform/shared/sync';
+import { AuthService } from '../../shared/auth/auth.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { stableValue } from '../../shared/core/stable-value';
+import { Button } from '../../shared/ui/button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';

@@ -5,12 +5,14 @@ import {
   UnsupportedMediaTypeException,
 } from '@nestjs/common';
 import {
-  AdminOrderDetail,
-  AdminOrderDocument,
   ORDER_DOCUMENT_FILE_NAME_MAX_LENGTH,
   ORDER_DOCUMENT_KINDS,
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  AdminOrderDocument,
+} from '@b2b-catalog-platform/shared/admin';
 import { AuditActor, AuditLogger } from '../audit/audit.logger';
 import {
   documentExtension,

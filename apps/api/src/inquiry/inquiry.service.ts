@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
-  CommonText,
+  SharedText,
   formatPhone,
   InquiryRequest,
   PhoneConfig,
@@ -10,7 +10,7 @@ import { ConsentService } from '../consents/consent.service';
 import { env } from '../env';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { inquiryMail } from '../mail/templates/inquiry.template';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class InquiryService {
   constructor(
     private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
-    @Inject(COMMON_TEXT) private readonly common: CommonText,
+    @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(PHONE_INPUT) private readonly phoneInput: PhoneConfig | undefined,
     private readonly consents: ConsentService,
   ) {}

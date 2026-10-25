@@ -13,7 +13,7 @@ import {
   catalogSyncOptionsSchema,
   catalogSyncRowErrorSchema,
   catalogSyncRowSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { syncRuns } from '../db/schema';
 
 type RunRow = typeof syncRuns.$inferSelect;

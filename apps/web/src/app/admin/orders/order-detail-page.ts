@@ -6,12 +6,10 @@ import {
   resource,
   signal,
 } from '@angular/core';
-import { useTaxStatement } from '../../catalog/tax-statement';
+import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
-import { Link } from '../../ui/link';
+import { Link } from '../../shared/ui/link';
 import {
-  AdminOrderDetail,
-  AdminOrderLine,
   allowedTransitions,
   fillText,
   isOrderFinished,
@@ -21,38 +19,47 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   transitionHasReason,
-  TransitionTarget,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { OrderSummary } from '../../cart/order-summary';
-import { formatPriceMinor } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { orderBlocks } from '../../orders/order-blocks';
+import {
+  AdminOrderDetail,
+  AdminOrderLine,
+  TransitionTarget,
+} from '@b2b-catalog-platform/shared/admin';
+import { OrderSummary } from '../../shared/cart/order-summary';
+import { formatPriceMinor } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { orderBlocks } from '../../shared/orders/order-blocks';
 import { staffBlockLabels } from './staff-block-labels';
 import {
   OrderReadBack,
   ReadBackLine,
   ReviewBlock,
-} from '../../orders/order-read-back';
-import { orderStatusLabel, orderStatusTone } from '../../orders/order-status';
-import { orderDateTimeFormat } from '../../orders/order-view';
-import { Button } from '../../ui/button';
-import { ConfirmCheck } from '../../ui/confirm-dialog';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
-import { AuthService } from '../../auth/auth.service';
+} from '../../shared/orders/order-read-back';
+import {
+  orderStatusLabel,
+  orderStatusTone,
+} from '../../shared/orders/order-status';
+import { orderDateTimeFormat } from '../../shared/orders/order-view';
+import { Button } from '../../shared/ui/button';
+import { ConfirmCheck } from '../../shared/ui/confirm-dialog';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
+import { AuthService } from '../../shared/auth/auth.service';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge, StatusTone } from '../../ui/status-badge';
+} from '../../shared/ui/disclosure-toggle';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
@@ -594,13 +601,12 @@ export class AdminOrderDetailPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly currency = moneyFormat(this.config);
 
-  private readonly appText = inject(APP_TEXT);
   protected readonly text = inject(ADMIN_TEXT).orders.detail;
   protected readonly ordersText = inject(ADMIN_TEXT).orders;
   private readonly changeText = inject(ADMIN_TEXT).orders.changes;
-  protected readonly names = inject(COMMON_TEXT).order;
-  protected readonly pageNames = inject(COMMON_TEXT).nav;
-  private readonly commonText = inject(COMMON_TEXT);
+  protected readonly names = inject(SHARED_TEXT).order;
+  protected readonly pageNames = inject(SHARED_TEXT).nav;
+  private readonly sharedText = inject(SHARED_TEXT);
   protected readonly revisionText = this.text.revisions;
   protected readonly documentsText = this.text.documents;
   protected readonly tellText = this.text.tellCustomer;
@@ -695,7 +701,7 @@ export class AdminOrderDetailPage {
     if (!order) return [];
     return orderBlocks(
       order,
-      staffBlockLabels(this.commonText, this.ordersText, this.text),
+      staffBlockLabels(this.sharedText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,
@@ -864,8 +870,8 @@ export class AdminOrderDetailPage {
       before,
       versions[index],
       { ...this.changeText, total: this.names.total },
-      this.commonText,
-      staffBlockLabels(this.commonText, this.ordersText, this.text),
+      this.sharedText,
+      staffBlockLabels(this.sharedText, this.ordersText, this.text),
       {
         address: this.config.address,
         phoneInput: this.config.phoneInput,

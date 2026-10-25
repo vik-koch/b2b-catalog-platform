@@ -10,26 +10,29 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { requireEnv } from './env';
-import { preloadAppText } from './app/config/app-text.server';
-import { preloadCommonText } from './app/config/common-text.server';
-import { getAdminText, preloadAdminText } from './app/config/admin-text.server';
-import { preloadDeploymentConfig } from './app/config/deployment-config.server';
-import { injectCartShell } from './app/cart/cart-shell.server';
-import { injectSessionShell } from './app/auth/session-shell.server';
-import { sessionCookieIn } from './app/auth/session-cookie';
-import { injectShellState } from './app/config/shell-state.server';
-import { injectFontHead } from './app/config/font.server';
+import { preloadStorefrontText } from './app/shared/config/storefront-text.server';
+import { preloadSharedText } from './app/shared/config/shared-text.server';
+import {
+  getAdminText,
+  preloadAdminText,
+} from './app/shared/config/admin-text.server';
+import { preloadDeploymentConfig } from './app/shared/config/deployment-config.server';
+import { injectCartShell } from './app/storefront/cart/cart-shell.server';
+import { injectSessionShell } from './app/storefront/auth/session-shell.server';
+import { sessionCookieIn } from './app/shared/auth/session-cookie';
+import { injectShellState } from './app/shared/config/shell-state.server';
+import { injectFontHead } from './app/shared/config/font.server';
 import {
   isStaffPreview,
   isGatedPath,
   isMaintenanceOn,
-} from './app/config/maintenance.server';
+} from './app/shared/config/maintenance.server';
 import {
   injectCanonicalLink,
   injectNoindexMeta,
   renderRobots,
   renderSitemap,
-} from './app/config/seo.server';
+} from './app/shared/config/seo.server';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -290,8 +293,8 @@ if (isMainModule(import.meta.url) || process.env['pm_id']) {
   // build/prerender, which import this module without a runtime environment.
   getAssetsMiddleware();
   preloadDeploymentConfig();
-  preloadAppText();
-  preloadCommonText();
+  preloadStorefrontText();
+  preloadSharedText();
   preloadAdminText();
 
   const port = requireEnv('WEB_PORT');

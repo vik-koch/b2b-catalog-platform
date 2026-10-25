@@ -1,9 +1,9 @@
 import { inject, Injectable } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { adminText } from '../../config/admin-text';
-import { ConfirmService } from '../../ui/confirm.service';
+import { adminText } from '../../shared/config/admin-text';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { SettingsService } from '../settings/settings.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The gesture behind the admin product list's "add a product" button.
@@ -18,7 +18,7 @@ import { COMMON_TEXT } from '../../config/common-text';
  */
 @Injectable({ providedIn: 'root' })
 export class ProductCreateService {
-  private readonly actionText = inject(COMMON_TEXT).actions;
+  private readonly actionText = inject(SHARED_TEXT).actions;
   private readonly ownership = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);

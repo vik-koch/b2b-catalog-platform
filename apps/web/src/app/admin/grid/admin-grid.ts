@@ -15,11 +15,14 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { injectNarrowScreen, NarrowBreakpoint } from '../../core/narrow-screen';
-import { IconButton } from '../../ui/icon-button';
-import { TextButton } from '../../ui/link';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import {
+  injectNarrowScreen,
+  NarrowBreakpoint,
+} from '../../shared/core/narrow-screen';
+import { IconButton } from '../../shared/ui/icon-button';
+import { TextButton } from '../../shared/ui/link';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import {
   columnMinWidth,
   flexibleColumns,

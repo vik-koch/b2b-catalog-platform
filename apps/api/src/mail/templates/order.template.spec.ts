@@ -1,6 +1,6 @@
 import { MoneyFormat } from '@b2b-catalog-platform/shared';
 import { demoAdminOrder as order } from '../../orders/order.fixture';
-import { demoCommonText, demoMailText } from '../mail-text.fixture';
+import { demoSharedText, demoMailText } from '../mail-text.fixture';
 import { newOrderMail } from './new-order.template';
 import { orderReceivedMail } from './order-received.template';
 import { orderStatusChangedMail } from './order-status.template';
@@ -15,7 +15,7 @@ describe('orderReceivedMail', () => {
     'tok-123',
     currency,
     demoMailText,
-    demoCommonText,
+    demoSharedText,
     'UTC',
   );
 
@@ -40,7 +40,7 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       'UTC',
     );
 
@@ -61,7 +61,7 @@ describe('orderReceivedMail', () => {
     });
     expect(mail.items?.[1].quantity).toBe('3 pcs');
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.total,
+      label: demoSharedText.order.total,
       value: expect.stringContaining('126,00'),
     });
     // The price list and the account behind the order are staff's to know.
@@ -73,7 +73,7 @@ describe('orderReceivedMail', () => {
   // NFR-LEGAL-11: the basis the order was submitted under, after the total.
   it('names the rate its lines share after the total, and no line rate', () => {
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.total,
+      label: demoSharedText.order.total,
       value: expect.stringMatching(/126,00.* · incl\. 19\u00a0% VAT$/),
     });
     expect(mail.items?.[1].quantity).toBe('3 pcs');
@@ -88,12 +88,12 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       'UTC',
     );
 
     expect(mixed.rows).toContainEqual({
-      label: demoCommonText.order.total,
+      label: demoSharedText.order.total,
       value: expect.stringContaining(
         '· incl. VAT at the rate each item states',
       ),
@@ -111,12 +111,12 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       'UTC',
     );
 
     expect(untaxed.rows).toContainEqual({
-      label: demoCommonText.order.total,
+      label: demoSharedText.order.total,
       value: expect.stringContaining('· no VAT charged'),
     });
   });
@@ -127,12 +127,12 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       'Europe/Berlin',
     );
 
     expect(late.rows).toContainEqual({
-      label: demoCommonText.nav['terms'],
+      label: demoSharedText.nav['terms'],
       value: 'As updated on 1. September 2026',
     });
   });
@@ -143,20 +143,20 @@ describe('orderReceivedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       'UTC',
     );
 
     expect(none.rows?.map((row) => row.label)).not.toContain(
-      demoCommonText.nav['terms'],
+      demoSharedText.nav['terms'],
     );
   });
 });
 
 describe('newOrderMail', () => {
   const t = demoMailText.newOrder;
-  const names = demoCommonText.order;
-  const mail = newOrderMail(order, currency, demoMailText, demoCommonText);
+  const names = demoSharedText.order;
+  const mail = newOrderMail(order, currency, demoMailText, demoSharedText);
 
   // What a manager decides on before opening anything, read on a phone.
   it('carries who it is for, who to ring and what it comes to', () => {
@@ -192,7 +192,7 @@ describe('newOrderMail', () => {
       { ...order, customerEmail: null },
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(guest.rows).toContainEqual({
@@ -211,12 +211,12 @@ describe('newOrderMail', () => {
       },
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(pickup.rows).toContainEqual({
-      label: demoCommonText.fulfilment.label,
-      value: `${demoCommonText.fulfilment.pickup} · Harbour store`,
+      label: demoSharedText.fulfilment.label,
+      value: `${demoSharedText.fulfilment.pickup} · Harbour store`,
     });
   });
 });
@@ -238,12 +238,12 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(mail.heading).toBe(t.statuses.readyDelivery.heading);
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.deliveryAddress,
+      label: demoSharedText.order.deliveryAddress,
       value: 'Hafenstraße 12, 20359 Hamburg',
     });
   });
@@ -262,12 +262,12 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(mail.heading).toBe(t.statuses.readyPickup.heading);
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.pickupPoint,
+      label: demoSharedText.order.pickupPoint,
       value: 'Harbour store · Quay 3',
     });
   });
@@ -282,7 +282,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(JSON.stringify(mail.rows)).not.toContain('Hafenstraße');
@@ -298,11 +298,11 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.reason,
+      label: demoSharedText.order.reason,
       value: 'Out of stock',
     });
   });
@@ -318,7 +318,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       ['One box instead of two, as agreed.'],
     );
 
@@ -326,7 +326,7 @@ describe('orderStatusChangedMail', () => {
     expect(mail.paragraphs).toContain(t.changedIntro);
     expect(mail.paragraphs).not.toContain(t.statuses.approved.body);
     expect(mail.rows).toContainEqual({
-      label: demoCommonText.order.changeNote,
+      label: demoSharedText.order.changeNote,
       value: 'One box instead of two, as agreed.',
     });
   });
@@ -342,7 +342,7 @@ describe('orderStatusChangedMail', () => {
       null,
       currency,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(mail.heading).toBe(t.statuses.approved.heading);

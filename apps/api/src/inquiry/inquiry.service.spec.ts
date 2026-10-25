@@ -4,9 +4,9 @@ import { MAILER, Mailer } from '../mail/mailer';
 import { PHONE_INPUT } from '../config/deployment-config';
 import { MAIL_BRANDING } from '../mail/mail-branding';
 import { MAIL_TEXT } from '../mail/mail-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import {
-  demoCommonText,
+  demoSharedText,
   demoMailBranding,
   demoMailText,
   demoPhoneInput,
@@ -48,7 +48,7 @@ describe('InquiryService', () => {
         MailDispatcher,
         { provide: MAILER, useValue: { send } satisfies Mailer },
         { provide: MAIL_TEXT, useValue: demoMailText },
-        { provide: COMMON_TEXT, useValue: demoCommonText },
+        { provide: SHARED_TEXT, useValue: demoSharedText },
         { provide: MAIL_BRANDING, useValue: demoMailBranding },
         { provide: PHONE_INPUT, useValue: demoPhoneInput },
         { provide: ConsentService, useValue: consents },

@@ -1,10 +1,10 @@
+import { ProductTierPrice } from '@b2b-catalog-platform/shared/admin';
 import {
   OWNED_CATEGORY_FIELDS,
   OWNED_PRODUCT_FIELDS,
   OwnedCategoryField,
   OwnedProductField,
-  ProductTierPrice,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 
 /**
  * Which owned fields a save would move (FR-ADM-10).

@@ -67,9 +67,95 @@ export default [
       ],
     },
   },
+  // The app's three parts: the storefront and the admin each import shared
+  // code and never each other, shared code imports neither, and only the root
+  // (app.ts, app.config*, app.routes*) composes both. Their wording follows
+  // the same line: each side reads its own text and the shared text, and only
+  // shared code, showing one side's view to the other, reads both; a spec may,
+  // to set the scene. A later block replaces an earlier
+  // `no-restricted-imports` rather than adding to it, so each one repeats the
+  // server-package pattern above.
+  ...[
+    {
+      part: 'storefront',
+      forbidden: ['admin'],
+      text: 'admin-text',
+      entries: ['admin', 'sync', 'node'],
+    },
+    {
+      part: 'admin',
+      forbidden: ['storefront'],
+      text: 'storefront-text',
+      entries: ['storefront', 'node'],
+    },
+    {
+      part: 'shared',
+      forbidden: ['storefront', 'admin'],
+      entries: ['storefront', 'admin', 'sync', 'node'],
+    },
+  ].flatMap(({ part, forbidden, text, entries }) => {
+    const dir = `src/app/${part}/**`;
+    const serverSide = [`${dir}/*.server.ts`, `${dir}/*.fixture.ts`];
+    // What only runs on the server or in a test may load the deployment's
+    // files through the library's `node` entry.
+    const offServer = entries.filter((entry) => entry !== 'node');
+    return [
+      {
+        files: [`${dir}/*.ts`],
+        ignores: [`${dir}/*.spec.ts`, ...serverSide],
+        rules: rulesFor(part, forbidden, entries, text),
+      },
+      {
+        files: serverSide,
+        rules: rulesFor(part, forbidden, offServer, text),
+      },
+      {
+        files: [`${dir}/*.spec.ts`],
+        rules: rulesFor(part, forbidden, offServer),
+      },
+    ];
+  }),
   {
     files: ['**/*.html'],
     // Override or add rules here
     rules: {},
   },
 ];
+
+function rulesFor(part, forbidden, entries, text) {
+  return {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: [
+          { group: ['@nestjs/*'] },
+          {
+            regex: `^\\.{1,2}/(.*/)?(${forbidden.join('|')})(/|$)`,
+            message: `${part} code imports shared code, not ${forbidden.join(' or ')} code (see eslint.config.mjs).`,
+          },
+          {
+            regex: `^@b2b-catalog-platform/shared/(${entries.join('|')})$`,
+            message: `${part} code imports the shared library's root entry${part === 'shared' ? ' only' : ` and its own, not ${entries.join(' or ')}`} (see eslint.config.mjs).`,
+          },
+          ...(text
+            ? [
+                {
+                  regex: `(^|/)config/${text}(\\.\\w+)?$`,
+                  message: `${part} code reads its own text and the shared text, not ${text} (see eslint.config.mjs).`,
+                },
+              ]
+            : []),
+        ],
+      },
+    ],
+    // The rule above sees static imports only; a lazy `import()` is the usual
+    // way across.
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: `ImportExpression[source.value=/^\\.{1,2}\\/(.*\\/)?(${forbidden.join('|')})(\\/|$)/]`,
+        message: `${part} code imports shared code, not ${forbidden.join(' or ')} code, lazily or not (see eslint.config.mjs).`,
+      },
+    ],
+  };
+}

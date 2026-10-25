@@ -3,12 +3,8 @@ import {
   CompanyIdFormat,
   CONSENT_PURPOSES,
   ConsentPurpose,
-  CustomerSyncPolicy,
   CustomerType,
-  DEFAULT_CUSTOMER_SYNC_POLICY,
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
-  DEFAULT_SESSION_IDLE_DAYS,
-  DEFAULT_SYNC_POLICY,
   DeliveryConfig,
   deploymentConfigSchema,
   KeyboardLayout,
@@ -17,11 +13,19 @@ import {
   normalizePhone,
   OrderReferenceConfig,
   PhoneConfig,
-  RetentionConfig,
   SignInStepConfig,
-  SyncPolicy,
   TaxConfig,
 } from '@b2b-catalog-platform/shared';
+import {
+  CustomerSyncPolicy,
+  DEFAULT_CUSTOMER_SYNC_POLICY,
+  DEFAULT_SYNC_POLICY,
+  SyncPolicy,
+} from '@b2b-catalog-platform/shared/sync';
+import {
+  DEFAULT_SESSION_IDLE_DAYS,
+  RetentionConfig,
+} from '@b2b-catalog-platform/shared/node';
 import { join } from 'node:path';
 import { configPath, loadConfig } from '@b2b-catalog-platform/shared/node';
 import { loadApiConfig } from './api-config';

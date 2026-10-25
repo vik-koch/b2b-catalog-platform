@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 
 /**
  * Why something on this screen cannot be changed here — an area handed to an

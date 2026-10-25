@@ -14,28 +14,28 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
   ProductImageInput,
   ProductVariantInput,
   variantNameKey,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+} from '../../shared/ui/disclosure-toggle';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../ui/input';
+import { Input } from '../../shared/ui/input';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -235,7 +235,7 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.variants;
 
   readonly value = input.required<readonly ProductVariantInput[]>();

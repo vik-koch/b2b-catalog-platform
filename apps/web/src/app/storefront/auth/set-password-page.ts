@@ -1,0 +1,381 @@
+import { Component, inject, input, OnInit, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import {
+  newPasswordSchema,
+  PASSWORD_MIN_LENGTH,
+  PasswordTokenPurpose,
+} from '@b2b-catalog-platform/shared';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { FieldErrors } from '../../shared/core/form-errors';
+import { generatePassword, passwordsMatch } from '../../shared/core/password';
+import { zodValidator } from '../../shared/core/zod-validator';
+import { AuthCard } from './auth-card';
+import { Button } from '../../shared/ui/button';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Input } from '../../shared/ui/input';
+import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
+import { formatWait, SignInStepPanel } from './sign-in-step';
+import { landingFor } from '../../shared/auth/auth.guard';
+import { TextButton } from '../../shared/ui/link';
+import { ConsentField } from '../pages/consent-field';
+import { useConsent } from '../pages/consent';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+
+type Status =
+  | 'checking'
+  | 'ready'
+  | 'expired'
+  | 'closed'
+  | 'submitting'
+  | 'done'
+  // The password is saved and a code is owed (FR-AUTH-12)…
+  | 'step'
+  // …or it is saved, but the code could not go out.
+  | 'code-failed';
+
+/**
+ * Where an invitation or a reset mail lands (FR-AUTH-01/02). The link in the
+ * URL is the whole credential, so this page asks for nothing else — no
+ * address, no old password — and the account is signed in the moment the new
+ * password is saved.
+ *
+ * The link is checked *before* the form renders, so an expired one gets an
+ * honest explanation instead of a form that was always going to fail. What the
+ * page calls itself follows the account's state, not the URL: an account that
+ * has never had a password is choosing one, not resetting it.
+ */
+@Component({
+  selector: 'app-set-password-page',
+  imports: [
+    AuthCard,
+    ConsentField,
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    FieldLabel,
+    Input,
+    SignInStepPanel,
+    TextButton,
+  ],
+  template: `
+    <app-auth-card>
+      @switch (status()) {
+        @case ('step') {
+          <app-sign-in-step (done)="land()" />
+        }
+        @case ('code-failed') {
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+            {{ step.codeHeading }}
+          </h1>
+          <p class="text-muted" role="alert">{{ codeFailure() }}</p>
+          <a appButton routerLink="/login" class="mt-8">
+            {{ step.restartAction }}
+          </a>
+        }
+        @case ('checking') {
+          <p class="text-muted">{{ text.checking }}</p>
+        }
+        @case ('expired') {
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+            {{ text.expiredHeading }}
+          </h1>
+          <p class="text-muted">{{ text.expired }}</p>
+          <!-- The copy has always told them to ask for a new link; now there
+               is one to click. Primary, because it is the way out of here —
+               signing in is what they could not do in the first place. -->
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a appButton routerLink="/forgot-password">
+              {{ auth.forgotPassword.submit }}
+            </a>
+            <a appButton variant="secondary" routerLink="/login">
+              {{ auth.login }}
+            </a>
+          </div>
+        }
+        @case ('closed') {
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+            {{ text.closedHeading }}
+          </h1>
+          <p class="text-muted">{{ text.closed }}</p>
+        }
+        @case ('done') {
+          <h1 class="mb-4 text-3xl font-medium tracking-tight">
+            {{ text.successHeading }}
+          </h1>
+          <p class="text-muted">{{ text.success }}</p>
+        }
+        @default {
+          <h1 class="mb-2 text-3xl font-medium tracking-tight">
+            {{ purpose() === 'set' ? text.setHeading : text.resetHeading }}
+          </h1>
+          <p class="mb-4 text-muted">
+            {{ purpose() === 'set' ? text.setIntro : text.resetIntro }}
+            <span class="mt-1 block">{{ text.forAccount }} {{ email() }}</span>
+          </p>
+
+          <form
+            [formGroup]="form"
+            (ngSubmit)="submit()"
+            novalidate
+            class="space-y-6"
+          >
+            <div>
+              <div class="flex items-baseline justify-between">
+                <label for="newPassword" appFieldLabel>
+                  {{ auth.password }}
+                </label>
+                <button
+                  type="button"
+                  appTextButton
+                  class="text-sm"
+                  (click)="revealed.set(!revealed())"
+                >
+                  {{ revealed() ? text.hide : text.show }}
+                </button>
+              </div>
+              <input
+                id="newPassword"
+                [type]="revealed() ? 'text' : 'password'"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                aria-required="true"
+                appInput
+                class="w-full"
+                aria-describedby="newPassword-hint"
+                [attr.aria-invalid]="isInvalid('newPassword') || null"
+              />
+              <!-- The length rule is stated up front, as on the change-password
+                   form: it is the same sentence before and after the refusal,
+                   and only its colour changes. -->
+              @if (isInvalid('newPassword')) {
+                <p id="newPassword-hint" class="mt-1 text-sm text-red-600">
+                  {{
+                    form.controls.newPassword.hasError('required')
+                      ? validation.newPasswordRequired
+                      : tooShort
+                  }}
+                </p>
+              } @else {
+                <p id="newPassword-hint" class="mt-1 text-sm text-muted">
+                  {{ tooShort }}
+                </p>
+              }
+              <button
+                type="button"
+                appTextButton
+                class="mt-2 text-sm"
+                (click)="suggest()"
+              >
+                {{ text.generate }}
+              </button>
+              @if (suggested()) {
+                <p class="mt-1 text-sm text-muted">{{ text.generated }}</p>
+              }
+            </div>
+
+            <div>
+              <label for="confirmPassword" appFieldLabel>
+                {{ text.confirmPassword }}
+              </label>
+              <input
+                id="confirmPassword"
+                [type]="revealed() ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                autocomplete="new-password"
+                aria-required="true"
+                appInput
+                class="w-full"
+                [attr.aria-invalid]="showMismatch() || null"
+              />
+              @if (showMismatch()) {
+                <p class="mt-1 text-sm text-red-600">
+                  {{ validation.confirmPasswordMismatch }}
+                </p>
+              }
+            </div>
+
+            <!-- The notice only beside the box: a reset owes no consent,
+                 and the account's details were collected long before. -->
+            <app-consent-field
+              [consent]="consent"
+              [invalid]="isInvalid('consent')"
+              [alone]="false"
+            />
+
+            @if (rejection(); as message) {
+              <p class="text-sm text-red-600" role="alert">{{ message }}</p>
+            }
+
+            <button
+              appButton
+              type="submit"
+              [disabled]="status() === 'submitting'"
+            >
+              {{ status() === 'submitting' ? actionText.saving : text.submit }}
+            </button>
+          </form>
+        }
+      }
+    </app-auth-card>
+  `,
+})
+export class SetPasswordPage implements OnInit {
+  private readonly fb = inject(FormBuilder);
+  private readonly service = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected readonly auth = inject(STOREFRONT_TEXT).auth;
+  protected readonly text = this.auth.setPassword;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
+  protected readonly step = this.auth.signInStep;
+  /** Why the code after the password did not go out. */
+  protected readonly codeFailure = signal('');
+  protected readonly validation = this.auth.validation;
+  /** One line per policy rule, so the code the API sends is the whole lookup. */
+  private readonly rejected = this.auth.passwordRejected;
+  protected readonly tooShort =
+    this.auth.validation.newPasswordTooShort.replace(
+      '{min}',
+      String(PASSWORD_MIN_LENGTH),
+    );
+
+  /** The link itself, from the query string. */
+  readonly token = input<string>('');
+
+  protected readonly status = signal<Status>('checking');
+  protected readonly purpose = signal<PasswordTokenPurpose>('set');
+  protected readonly email = signal('');
+  /** The account consent is still owed, and asked on this form. */
+  private readonly consentRequired = signal(false);
+  protected readonly consent = useConsent('account', this.consentRequired);
+  protected readonly revealed = signal(false);
+  protected readonly suggested = signal(false);
+  /** The refusal to show under the field, once there is one. */
+  protected readonly rejection = signal<string | null>(null);
+
+  protected readonly form = this.fb.nonNullable.group(
+    {
+      newPassword: [
+        '',
+        [Validators.required, zodValidator(newPasswordSchema, 'tooShort')],
+      ],
+      confirmPassword: ['', Validators.required],
+      consent: this.consent.control,
+    },
+    { validators: passwordsMatch },
+  );
+
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
+  constructor() {
+    usePageSeo({
+      name: () =>
+        this.purpose() === 'set'
+          ? this.text.setHeading
+          : this.text.resetHeading,
+    });
+  }
+
+  async ngOnInit(): Promise<void> {
+    const account = await this.service.checkPasswordToken(this.token());
+    if (!account || account === 'closed') {
+      this.status.set(account ?? 'expired');
+      return;
+    }
+    this.purpose.set(account.purpose);
+    this.email.set(account.email);
+    this.consentRequired.set(account.consentRequired);
+    this.status.set('ready');
+  }
+
+  protected isInvalid(control: keyof typeof this.form.controls): boolean {
+    return this.fieldErrors.show(this.form.controls[control]);
+  }
+
+  protected showMismatch(): boolean {
+    return this.fieldErrors.showGroupError(
+      'mismatch',
+      this.form.controls.confirmPassword,
+    );
+  }
+
+  /**
+   * Fill both fields with a strong password and reveal it: a password nobody
+   * can see is a password nobody can save, and the point of suggesting one is
+   * that the visitor copies it into their manager.
+   */
+  protected suggest(): void {
+    const password = generatePassword();
+    this.form.patchValue({ newPassword: password, confirmPassword: password });
+    this.revealed.set(true);
+    this.suggested.set(true);
+  }
+
+  protected async submit(): Promise<void> {
+    // The refusal stays until the next answer replaces it, so the form does
+    // not jump while the request is out.
+    this.fieldErrors.markSubmitted();
+    if (this.form.invalid || !this.consent.sendable()) return;
+
+    this.status.set('submitting');
+    const outcome = await this.service.setPassword({
+      token: this.token(),
+      password: this.form.controls.newPassword.value,
+      consentVersion: this.consent.version(),
+    });
+    const { result } = outcome;
+
+    if (result === 'ok') {
+      this.status.set('done');
+      await this.land();
+      return;
+    }
+    if (result === 'step') {
+      this.status.set('step');
+      return;
+    }
+    if (outcome.result === 'code') {
+      this.codeFailure.set(this.codeFailureLine(outcome.failure));
+      this.status.set('code-failed');
+      return;
+    }
+    if (result === 'expired' || result === 'closed') {
+      this.status.set(result);
+      return;
+    }
+    this.status.set('ready');
+    // A consent refusal is explained beside the box.
+    if (outcome.result === 'consent') {
+      this.rejection.set(null);
+      this.consent.refused(outcome.code);
+      return;
+    }
+    this.rejection.set(
+      outcome.result === 'rejected'
+        ? this.rejected[outcome.code]
+        : this.text.error,
+    );
+  }
+
+  /** Straight to where this role belongs — the account is signed in. */
+  protected async land(): Promise<void> {
+    const user = this.service.user();
+    await this.router.navigateByUrl(user ? landingFor(user.role) : '/');
+  }
+
+  private codeFailureLine(failure: CodeSendFailure): string {
+    switch (failure) {
+      case 'unreachable':
+        return this.step.unreachableAccount;
+      case 'unavailable':
+        return this.step.unavailable;
+      case 'limit':
+        return this.step.limit.replace(
+          '{time}',
+          formatWait(this.service.retryAfter() ?? 0),
+        );
+    }
+  }
+}

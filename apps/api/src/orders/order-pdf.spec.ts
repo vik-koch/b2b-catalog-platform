@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { PDFDocument } from 'pdf-lib';
 import { AddressConfig } from '@b2b-catalog-platform/shared';
 import {
-  demoCommonText,
+  demoSharedText,
   demoMailBranding,
   demoPdfText,
 } from '../mail/mail-text.fixture';
@@ -37,7 +37,7 @@ const reference = { prefix: 'CK', timezone: 'UTC' };
 const render = (order = demoAdminOrder) =>
   new OrderPdf(
     demoPdfText,
-    demoCommonText,
+    demoSharedText,
     demoMailBranding,
     { code: 'EUR', locale: 'de-DE' },
     address,
@@ -93,7 +93,7 @@ describe('OrderPdf', () => {
   it.skipIf(!hasSystemFont)('embeds a named face as a subset', async () => {
     const named = new OrderPdf(
       demoPdfText,
-      demoCommonText,
+      demoSharedText,
       demoMailBranding,
       { code: 'EUR', locale: 'de-DE' },
       address,

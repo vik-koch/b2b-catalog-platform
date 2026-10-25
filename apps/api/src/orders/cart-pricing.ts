@@ -5,7 +5,6 @@ import {
   CartLineIssue,
   CartPreview,
   CartPreviewLine,
-  pairingShortfalls,
   ProductAvailability,
   correctPieces,
   exactLineTotal,
@@ -16,6 +15,7 @@ import {
   effectiveTaxRate,
   TaxConfig,
 } from '@b2b-catalog-platform/shared';
+import { pairingShortfalls } from '@b2b-catalog-platform/shared/node';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
 import { livePriceMinor } from '../catalog/product-price';

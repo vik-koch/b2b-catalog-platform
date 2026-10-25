@@ -1,9 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { IconButton } from '../../ui/icon-button';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { IconButton } from '../../shared/ui/icon-button';
 
 /**
  * One way back to the whole list, wherever a grid puts it: beside the search

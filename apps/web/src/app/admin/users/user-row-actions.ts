@@ -1,9 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
-import { StaffUser } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { IconButton } from '../../ui/icon-button';
+import { StaffUser } from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { IconButton } from '../../shared/ui/icon-button';
 
 /**
  * What can be done to one account from the list, drawn once for both shapes it

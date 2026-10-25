@@ -1,5 +1,5 @@
 import {
-  CommonText,
+  SharedText,
   fillText,
   formatMoneyMinor,
   formatTaxRate,
@@ -18,7 +18,7 @@ import { MailItem } from '../mail-layout';
 export function orderMailItem(
   line: OrderDetail['lines'][number],
   currency: MoneyFormat,
-  common: CommonText,
+  common: SharedText,
   /** Whether the order's lines differ in rate, so each states its own. */
   perLineTax = false,
 ): MailItem {
@@ -65,7 +65,7 @@ export function orderLinesDifferInTax(order: OrderDetail): boolean {
 export function orderTaxStatement(
   order: OrderDetail,
   locale: string | undefined,
-  common: CommonText,
+  common: SharedText,
 ): string {
   const tax = common.tax;
   if (order.taxBasis === 'none') return tax.none;
@@ -79,7 +79,7 @@ export function orderTaxStatement(
 export function orderLineTax(
   line: OrderDetail['lines'][number],
   locale: string | undefined,
-  common: CommonText,
+  common: SharedText,
 ): string | null {
   return line.taxRate === null
     ? null
@@ -92,7 +92,7 @@ export function orderLineTax(
 export function orderMailTotal(
   order: OrderDetail,
   currency: MoneyFormat,
-  common: CommonText,
+  common: SharedText,
 ): string {
   const total = formatMoneyMinor(order.totalMinor, currency);
   return `${total} · ${orderTaxStatement(order, currency.locale, common)}`;

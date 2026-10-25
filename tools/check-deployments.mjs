@@ -23,20 +23,20 @@ import { loadTypeScript } from './lib/generated-docs.mjs';
 /** The config files, and the schema each is loaded with at boot. */
 const SCHEMAS = {
   'deployment.json': [
-    'libs/shared/src/lib/deployment-config.ts',
+    'libs/shared/src/lib/config/deployment-config.ts',
     'deploymentConfigSchema',
   ],
   'api.json': ['apps/api/src/config/api-config.ts', 'apiConfigSchema'],
-  'texts/common.json': [
-    'libs/shared/src/lib/common-text.ts',
-    'commonTextSchema',
+  'texts/shared.json': [
+    'libs/shared/src/lib/config/shared-text.ts',
+    'sharedTextSchema',
   ],
-  'texts/app.json': [
-    'apps/web/src/app/config/app-text.type.ts',
-    'appTextSchema',
+  'texts/storefront.json': [
+    'apps/web/src/app/shared/config/storefront-text.type.ts',
+    'storefrontTextSchema',
   ],
   'texts/admin.json': [
-    'apps/web/src/app/config/admin-text.type.ts',
+    'apps/web/src/app/shared/config/admin-text.type.ts',
     'adminTextSchema',
   ],
   'texts/mail.json': ['apps/api/src/mail/mail-text.ts', 'mailTextSchema'],

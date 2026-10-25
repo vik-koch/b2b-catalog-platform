@@ -6,9 +6,6 @@ import {
   CONSENT_PURPOSES,
   CONSENT_WITHDRAWAL_NOTE_MAX,
   CONSENT_WITHDRAWAL_REASONS,
-  DESTRUCTION_CATEGORIES,
-  DESTRUCTION_REASONS,
-  DESTRUCTION_SUBJECTS,
   FULFILMENT_METHODS,
   ORDER_ADJUSTMENT_NOTE_MAX,
   ORDER_WRITE_ACTOR_MAX,
@@ -16,13 +13,15 @@ import {
   ORDER_REVISION_KINDS,
   ORDER_STATUS_REASON_MAX,
   ORDER_STATUSES,
-  OWNERSHIP_AREAS,
   PAYMENT_METHODS,
   PAYMENT_STATES,
   PRODUCT_AVAILABILITIES,
   PRODUCT_UNITS,
   TAX_BASES,
-  SETTING_CHANGE_KINDS,
+} from '@b2b-catalog-platform/shared';
+import { SETTING_CHANGE_KINDS } from '@b2b-catalog-platform/shared/admin';
+import {
+  OWNERSHIP_AREAS,
   SYNC_AREAS,
   type CustomerSyncOptions,
   type CustomerSyncPlan,
@@ -34,7 +33,12 @@ import {
   type CatalogSyncRow,
   type CatalogSyncRowError,
   type SyncSummary,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
+import {
+  DESTRUCTION_CATEGORIES,
+  DESTRUCTION_REASONS,
+  DESTRUCTION_SUBJECTS,
+} from '@b2b-catalog-platform/shared/node';
 import {
   AnyPgColumn,
   boolean,

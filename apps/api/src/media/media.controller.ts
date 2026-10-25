@@ -10,16 +10,18 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  AcceptedImageMime,
   DOCUMENT_FILE_NAME_MAX_LENGTH,
   DOCUMENT_MAX_UPLOAD_BYTES,
   MEDIA_CATALOG_FULL_WIDTH,
   MEDIA_CATALOG_THUMB_WIDTH,
   MEDIA_MAX_UPLOAD_BYTES,
+} from '@b2b-catalog-platform/shared';
+import {
+  AcceptedImageMime,
   UploadCatalogImageResponse,
   UploadDocumentResponse,
   UploadMediaResponse,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { Auth } from '../auth/auth.decorator';
 import { MEDIA_STORE, MediaStore } from './media-store';
 import {

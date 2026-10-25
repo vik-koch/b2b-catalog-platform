@@ -1,13 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { desc, eq, sql } from 'drizzle-orm';
+import { AuthUser, Page, PageSlug } from '@b2b-catalog-platform/shared';
 import {
-  AuthUser,
-  Page,
-  PageSlug,
   PageVersion,
   UpdatePageRequest,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { sanitizeRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

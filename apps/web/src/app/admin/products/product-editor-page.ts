@@ -1,15 +1,10 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  AdminCategory,
-  AttributeDefinition,
-  AttributeKeyUsage,
-  CustomerTier,
   effectiveTaxRate,
   fillText,
   formatTaxRate,
   parseTaxRate,
-  hasDistinctVariants,
   isValidPartList,
   minimumFitsPacks,
   piecesPerUnit,
@@ -18,53 +13,60 @@ import {
   DEFAULT_LOW_STOCK_THRESHOLD_PIECES,
   ProductAvailability,
   productAvailability,
-  LinkedDocument,
-  PairedProduct,
   ProductDetail,
-  ProductImageInput,
-  ProductInput,
-  ProductVariantInput,
   lowStockThreshold,
-  shownPictures,
-  slugify,
   splitAttributeKey,
   totalMinor,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
 import {
+  AdminCategory,
+  AttributeDefinition,
+  AttributeKeyUsage,
+  CustomerTier,
+  hasDistinctVariants,
+  LinkedDocument,
+  PairedProduct,
+  ProductImageInput,
+  ProductInput,
+  ProductVariantInput,
+  shownPictures,
+  slugify,
+} from '@b2b-catalog-platform/shared/admin';
+import {
   currencySymbol,
   decimalSeparator,
   formatPriceInput,
   parsePriceInput,
-} from '../../catalog/price';
+} from '../../shared/catalog/price';
 import { LockedNote } from '../ownership/locked-note';
-import { StatusBadge } from '../../ui/status-badge';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
-import { ProductAvailabilityBadge } from '../../catalog/product-availability-badge';
-import { ProductDetailView } from '../../catalog/product-detail-view';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
+import { ProductAvailabilityBadge } from '../../shared/catalog/product-availability-badge';
+import { ProductDetailView } from '../../shared/catalog/product-detail-view';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { ConfirmService } from '../../ui/confirm.service';
-import { FieldLabel } from '../../ui/field-label';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../ui/input';
-import { NumericField } from '../../ui/numeric-field';
-import { PercentField } from '../../ui/percent-field';
-import { PriceField } from '../../ui/price-field';
-import { Skeleton } from '../../ui/skeleton';
+import { Input } from '../../shared/ui/input';
+import { NumericField } from '../../shared/ui/numeric-field';
+import { PercentField } from '../../shared/ui/percent-field';
+import { PriceField } from '../../shared/ui/price-field';
+import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { CategoryPicker } from '../categories/category-picker';
 import { categoryAncestors } from '../categories/category-tree';
-import { injectEditorReturn } from '../editor-return';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { TiersService } from '../tiers/tiers.service';
 import { ProductAttributesEditor } from './product-attributes-editor';
@@ -88,7 +90,7 @@ import {
   UNIT_FIELD_INPUT,
   UNIT_FIELD_INPUT_COMPACT,
   UnitField,
-} from '../../ui/unit-field';
+} from '../../shared/ui/unit-field';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -665,7 +667,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
   /** The badge wording, shared with the storefront's hidden-products overlay. */
   protected readonly editText = inject(ADMIN_TEXT).editMode;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly productStates = inject(ADMIN_TEXT).products;
   private readonly ownership = inject(SettingsService);
 
@@ -687,8 +689,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
   );
   /** The piece abbreviation, printed inside both stock fields — the same one
    * the packaging rows use, so the two blocks measure in one word. */
-  protected readonly pieceSuffix = inject(COMMON_TEXT).units.piece;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly pieceSuffix = inject(SHARED_TEXT).units.piece;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly unitFieldInputCompact = UNIT_FIELD_INPUT_COMPACT;
 

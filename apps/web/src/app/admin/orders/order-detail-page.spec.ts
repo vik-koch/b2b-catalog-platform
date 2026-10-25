@@ -1,27 +1,27 @@
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
   AdminOrderDetail,
   OrderRevision,
-  OwnershipArea,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
+} from '@b2b-catalog-platform/shared/admin';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { defaultCommonText } from '../../config/common-text.fixture';
-import { APP_TEXT } from '../../config/app-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { AuthService } from '../../auth/auth.service';
-import { ConfirmService } from '../../ui/confirm.service';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { AuthService } from '../../shared/auth/auth.service';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { AdminOrderDetailPage } from './order-detail-page';
 import { AdminOrdersService } from './orders.service';
 
 const text = defaultAdminText.orders.detail;
-const names = defaultCommonText.order;
+const names = defaultSharedText.order;
 
 const address = {
   street: 'Hafenstraße 12',
@@ -170,10 +170,10 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       provideOwnership(...owned),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: AuthService, useValue: { user: signal({ role }) } },
       {
@@ -234,11 +234,11 @@ describe('AdminOrderDetailPage (FR-AUTH-03)', () => {
       termsVersion: 3,
       termsDate: '2026-09-01T10:00:00.000Z',
     });
-    expect(accepted.el.textContent).toContain(defaultCommonText.nav['terms']);
+    expect(accepted.el.textContent).toContain(defaultSharedText.nav['terms']);
     expect(accepted.el.textContent).toMatch(/Version 3, updated on .*2026/);
 
     const none = await render(placed);
-    expect(none.el.textContent).not.toContain(defaultCommonText.nav['terms']);
+    expect(none.el.textContent).not.toContain(defaultSharedText.nav['terms']);
   });
 
   it('reads the order back in the admin’s own words', async () => {
@@ -697,7 +697,7 @@ describe('AdminOrderDetailPage while orders are externally owned', () => {
     const { el } = await render(placed);
 
     expect(allButtons(el)).not.toContain(text.documents.upload);
-    expect(allButtons(el)).not.toContain(defaultCommonText.actions.remove);
+    expect(allButtons(el)).not.toContain(defaultSharedText.actions.remove);
   });
 });
 

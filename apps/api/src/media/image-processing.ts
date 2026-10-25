@@ -1,8 +1,6 @@
 import sharp from 'sharp';
-import {
-  AcceptedImageMime,
-  MEDIA_MAX_IMAGE_WIDTH,
-} from '@b2b-catalog-platform/shared';
+import { MEDIA_MAX_IMAGE_WIDTH } from '@b2b-catalog-platform/shared';
+import { AcceptedImageMime } from '@b2b-catalog-platform/shared/admin';
 
 /** The single stored format for page images; also the returned extension. */
 export const STORED_IMAGE_EXT = 'webp';

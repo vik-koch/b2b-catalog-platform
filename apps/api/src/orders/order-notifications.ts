@@ -1,19 +1,21 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
-  CommonText,
-  AdminOrderDetail,
+  SharedText,
   MoneyFormat,
   OrderDocumentKind,
-  OrderNotice,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  OrderNotice,
+} from '@b2b-catalog-platform/shared/admin';
 import {
   MONEY_FORMAT,
   ORDER_REFERENCE_CONFIG,
 } from '../config/deployment-config';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { newOrderMail } from '../mail/templates/new-order.template';
 import { orderCancelledMail } from '../mail/templates/order-cancelled.template';
 import { orderReceivedMail } from '../mail/templates/order-received.template';
@@ -42,7 +44,7 @@ export class OrderNotifications {
   constructor(
     private readonly mail: MailDispatcher,
     @Inject(MAIL_TEXT) private readonly text: MailText,
-    @Inject(COMMON_TEXT) private readonly common: CommonText,
+    @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(MONEY_FORMAT) private readonly currency: MoneyFormat,
     @Inject(ORDER_REFERENCE_CONFIG)
     private readonly reference: OrderReferenceConfig,

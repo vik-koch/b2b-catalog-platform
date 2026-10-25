@@ -1,4 +1,4 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
+import { DeepReadonly } from '@b2b-catalog-platform/shared';
 import {
   paymentMethodLabels,
   refuseCountForms,
@@ -7,7 +7,7 @@ import * as z from 'zod';
 
 /**
  * Server-side wording for every email the app sends — the API's analog of the
- * frontend AppText, and server-only: unlike the web tokens it is never
+ * frontend StorefrontText, and server-only: unlike the web tokens it is never
  * delivered to a browser. Single-locale like the rest of the app (i18n is out
  * of scope): each deployment ships its one language here.
  *

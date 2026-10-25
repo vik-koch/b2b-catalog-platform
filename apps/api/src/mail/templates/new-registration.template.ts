@@ -1,5 +1,5 @@
 import {
-  CommonText,
+  SharedText,
   CustomerType,
   formatPersonName,
 } from '@b2b-catalog-platform/shared';
@@ -30,7 +30,7 @@ export interface RegistrationSummary {
 export function newRegistrationMail(
   registration: RegistrationSummary,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
 ): MailContent {
   const t = text.newRegistration;
   const fields = common.fields;

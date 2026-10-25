@@ -3,27 +3,32 @@ import { ActivatedRoute } from '@angular/router';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
   DOCUMENT_LINK_MAX_LENGTH,
+  fillText,
+} from '@b2b-catalog-platform/shared';
+import {
   DocumentInput,
   DocumentProduct,
-  fillText,
   StoredDocumentFile,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { DateField } from '../../ui/date-field';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { injectEditorReturn } from '../editor-return';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { DateField } from '../../shared/ui/date-field';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { documentFileLabel, documentFileSize } from '../../core/document-file';
-import { DROP_ZONE, dropZoneState } from '../../ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../ui/file-target';
+import {
+  documentFileLabel,
+  documentFileSize,
+} from '../../shared/core/document-file';
+import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
+import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 
@@ -289,9 +294,9 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documents.editor;
-  private readonly sizes = inject(COMMON_TEXT).fileSize;
+  private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
   protected readonly issuedId = 'document-issued-at';
   protected readonly expiresId = 'document-expires-at';

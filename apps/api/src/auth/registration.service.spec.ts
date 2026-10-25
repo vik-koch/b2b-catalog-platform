@@ -10,9 +10,9 @@ import {
   PHONE_RULE,
 } from '../config/deployment-config';
 import { MAIL_TEXT } from '../mail/mail-text';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import {
-  demoCommonText,
+  demoSharedText,
   demoMailText,
   demoPhoneInput,
 } from '../mail/mail-text.fixture';
@@ -73,7 +73,7 @@ describe('RegistrationService', () => {
         { provide: UsersService, useValue: { findByEmail, createPending } },
         { provide: MailDispatcher, useValue: dispatcherOver(send) },
         { provide: MAIL_TEXT, useValue: demoMailText },
-        { provide: COMMON_TEXT, useValue: demoCommonText },
+        { provide: SHARED_TEXT, useValue: demoSharedText },
         { provide: COMPANY_ID_RULE, useValue: companyIdMatches },
         { provide: ACCEPTED_CUSTOMER_TYPES, useValue: customerTypes },
         { provide: AddressesService, useValue: { seed } },
@@ -154,7 +154,7 @@ describe('RegistrationService', () => {
       { rows?: { label: string; value: string }[] },
     ];
     expect(staffMail.rows).toContainEqual({
-      label: demoCommonText.fields.phone.label,
+      label: demoSharedText.fields.phone.label,
       value: '+49 (401) 234-5678',
     });
   });

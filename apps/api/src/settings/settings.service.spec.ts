@@ -1,4 +1,4 @@
-import { OwnershipArea } from '@b2b-catalog-platform/shared';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema';
 import { env } from '../env';

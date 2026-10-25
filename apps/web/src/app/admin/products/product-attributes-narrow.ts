@@ -19,14 +19,14 @@ import {
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
-import { FieldLabel } from '../../ui/field-label';
-import { HintBadge } from '../../ui/hint-badge';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Icon } from '../../ui/icons/icon';
-import { Input } from '../../ui/input';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { Input } from '../../shared/ui/input';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import {
@@ -34,7 +34,7 @@ import {
   attributeRowKey,
   attributeRowStatus,
 } from './attribute-hints';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
@@ -219,7 +219,7 @@ import { COMMON_TEXT } from '../../config/common-text';
 export class ProductAttributesNarrow {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly dash = '—';
 
   readonly value = input.required<ProductAttribute[]>();

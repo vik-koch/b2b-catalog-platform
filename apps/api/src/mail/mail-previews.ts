@@ -2,13 +2,13 @@ import {
   MoneyFormat,
   OrderDetail,
   OrderPickup,
-  SyncRun,
 } from '@b2b-catalog-platform/shared';
+import { SyncRun } from '@b2b-catalog-platform/shared/sync';
 import type { MailBranding } from './mail-branding';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
-import { demoCommonText, demoMailText } from './mail-text.fixture';
+import { demoSharedText, demoMailText } from './mail-text.fixture';
 import type { MailText } from './mail-text';
-import type { CommonText } from '@b2b-catalog-platform/shared';
+import type { SharedText } from '@b2b-catalog-platform/shared';
 import { demoAdminOrder } from '../orders/order.fixture';
 import { accountDeletedMail } from './templates/account-deleted.template';
 import { inquiryMail } from './templates/inquiry.template';
@@ -279,7 +279,7 @@ const ORDERS_APPLIED_RUN: SyncRun = {
  */
 export function buildMailPreviews(
   text: MailText,
-  common: CommonText,
+  common: SharedText,
 ): readonly MailPreview[] {
   return [
     {
@@ -696,7 +696,7 @@ export function buildMailPreviews(
 }
 
 /** The demo set, which is what the specs assert against. */
-export const mailPreviews = buildMailPreviews(demoMailText, demoCommonText);
+export const mailPreviews = buildMailPreviews(demoMailText, demoSharedText);
 
 /**
  * Which preview shows the message an order journey names. Derived rather than
@@ -717,7 +717,7 @@ export interface RenderedMailPreview extends MailPreview {
 /** The previews as a recipient would receive them, both parts. */
 export function renderMailPreviews(
   text: MailText = demoMailText,
-  common: CommonText = demoCommonText,
+  common: SharedText = demoSharedText,
   branding: MailBranding = demoMailBranding,
 ): readonly RenderedMailPreview[] {
   return buildMailPreviews(text, common).map((preview) => ({

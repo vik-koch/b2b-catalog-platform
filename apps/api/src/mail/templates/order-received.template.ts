@@ -1,5 +1,5 @@
 import {
-  CommonText,
+  SharedText,
   fillText,
   MoneyFormat,
   OrderDetail,
@@ -33,7 +33,7 @@ export function orderReceivedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
   /** The shop's timezone, which the terms' date is read in. */
   timeZone: string,
 ): MailContent {

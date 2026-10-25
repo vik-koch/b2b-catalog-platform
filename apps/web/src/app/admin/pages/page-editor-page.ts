@@ -1,15 +1,15 @@
 import { Component, inject, resource, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Page, PageSlug } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { usePageSeo } from '../../core/page-seo';
-import { delayedLoading } from '../../core/delayed-loading';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../shared/core/delayed-loading';
 import { PageEditor } from './page-editor';
 import { PageHistory } from './page-history';
-import { PageService } from '../../pages/page.service';
+import { PageService } from '../../shared/pages/page.service';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { injectEditorReturn } from '../editor-return';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 
 /**
  * Edit a static page (FR-ADM-03) on its own screen at
@@ -63,7 +63,7 @@ export class PageEditorPage implements UnsavedChangesAware {
    */
   protected readonly blankPage: Page = {
     version: 0,
-    title: inject(COMMON_TEXT).nav[this.slug] ?? '',
+    title: inject(SHARED_TEXT).nav[this.slug] ?? '',
     bodyHtml: '',
     consentLabel: null,
     updatedAt: '',

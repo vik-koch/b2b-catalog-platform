@@ -1,19 +1,19 @@
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
   CustomerTier,
-  OwnershipArea,
   StaffUser,
   UserKind,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { defaultCommonText } from '../../config/common-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { AuthService } from '../../auth/auth.service';
-import { ConfirmService } from '../../ui/confirm.service';
+} from '@b2b-catalog-platform/shared/admin';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { AuthService } from '../../shared/auth/auth.service';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
 import { UserListPage } from './user-list-page';
@@ -100,7 +100,7 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -379,7 +379,7 @@ describe('UserListPage', () => {
       });
 
       expect(el.textContent).toContain(
-        defaultCommonText.fields.companyId.label,
+        defaultSharedText.fields.companyId.label,
       );
       expect(el.textContent).not.toContain(text.companyIdFormatAll);
     });

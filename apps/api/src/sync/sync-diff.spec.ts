@@ -2,7 +2,7 @@ import {
   CATALOG_SYNC_ALL_FIELDS,
   CatalogSyncOptions,
   CatalogSyncRow,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import {
   ExistingCategory,
   ExistingProduct,

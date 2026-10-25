@@ -1,0 +1,256 @@
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  resource,
+  signal,
+  untracked,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import {
+  canonicalPhone,
+  formatPhone,
+  phoneValidators,
+  typedPhone,
+} from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { FieldErrors } from '../../shared/core/form-errors';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { AuthService } from '../../shared/auth/auth.service';
+import { Button } from '../../shared/ui/button';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Input } from '../../shared/ui/input';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { AccountService } from './account.service';
+
+type Status = 'idle' | 'submitting' | 'error';
+
+/**
+ * Correcting your own name and phone number. A route rather than an inline form
+ * on the account page, the same way the admin editors are routes: an edit is a
+ * place you can be, and be sent back to.
+ *
+ * What it does *not* offer is the point: the account type and registration
+ * number are the evidence staff approved the account and its tier on, and the
+ * address is the sign-in name. The intro says who to ask instead of leaving
+ * them apparently uneditable for no reason.
+ */
+@Component({
+  selector: 'app-account-edit-page',
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Button,
+    FieldLabel,
+    Input,
+    PhoneField,
+    Skeleton,
+  ],
+  template: `
+    <div class="max-w-xl">
+      <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        {{ text.heading }}
+      </h1>
+      <p class="mb-4 text-muted">{{ text.intro }}</p>
+
+      @if (profile.hasValue()) {
+        <form
+          class="space-y-6"
+          novalidate
+          (ngSubmit)="submit()"
+          [formGroup]="form"
+        >
+          <div>
+            <label for="firstName" appFieldLabel>
+              {{ fields.firstName.label }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              autocomplete="given-name"
+              aria-required="true"
+              appInput
+              class="w-full"
+              [attr.aria-invalid]="isInvalid('firstName') || null"
+            />
+            @if (isInvalid('firstName')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ fields.firstName.required }}
+              </p>
+            }
+          </div>
+
+          <div>
+            <label for="lastName" appFieldLabel>
+              {{ fields.lastName.label }}
+              <span class="text-accent" aria-hidden="true">*</span>
+            </label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              autocomplete="family-name"
+              aria-required="true"
+              appInput
+              class="w-full"
+              [attr.aria-invalid]="isInvalid('lastName') || null"
+            />
+            @if (isInvalid('lastName')) {
+              <p class="mt-1 text-sm text-red-600">
+                {{ fields.lastName.required }}
+              </p>
+            }
+          </div>
+
+          <!-- Optional, as on the staff editor: a staff account often has no
+               number, and one that is gone is not a reason to refuse the save. -->
+          <!-- Where the number receives sign-in codes it is how the account
+               signs in, so staff change it (FR-AUTH-12): shown, not offered. -->
+          @if (locked()) {
+            <div>
+              <p appFieldLabel>{{ fields.phone.label }}</p>
+              <p>{{ lockedPhone() }}</p>
+              <p class="mt-1 text-sm text-muted">{{ text.phoneLocked }}</p>
+            </div>
+          } @else {
+            <app-phone-field
+              [control]="form.controls.phone"
+              [label]="fields.phone.label"
+              [text]="phoneText"
+              [invalid]="isInvalid('phone')"
+            />
+          }
+
+          <div class="flex flex-wrap items-center gap-3">
+            <button appButton type="submit" [disabled]="submitting()">
+              {{ submitting() ? actionText.saving : text.submit }}
+            </button>
+            <!-- A link, because it goes somewhere — styled as a button so it
+                 reads as the other half of the pair rather than as prose. -->
+            <a appButton variant="secondary" routerLink="/account">
+              {{ actionText.cancel }}
+            </a>
+          </div>
+
+          @if (failure(); as line) {
+            <p class="text-sm text-red-600" role="alert">{{ line }}</p>
+          }
+        </form>
+      } @else if (profile.error()) {
+        <p class="text-sm text-red-600" role="alert">
+          {{ accountText.error }}
+        </p>
+      } @else if (showSkeleton()) {
+        <app-skeleton [lines]="4" />
+      }
+    </div>
+  `,
+})
+export class AccountEditPage {
+  private readonly fb = inject(FormBuilder);
+  private readonly account = inject(AccountService);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
+
+  protected readonly text = inject(STOREFRONT_TEXT).account.edit;
+  protected readonly accountText = inject(STOREFRONT_TEXT).account;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
+  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneText = {
+    required: this.fields.phone.required,
+    incomplete: this.fields.phone.incomplete,
+  };
+  protected readonly status = signal<Status>('idle');
+
+  protected readonly profile = resource({
+    loader: () => this.account.getProfile(),
+  });
+  protected readonly showSkeleton = delayedLoading(this.profile.isLoading);
+
+  protected readonly form = this.fb.nonNullable.group({
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+    phone: ['', phoneValidators(this.phoneInput, false)],
+  });
+
+  protected readonly fieldErrors = new FieldErrors(this.form);
+
+  constructor() {
+    // Seeded from the record rather than from the session: the greeting knows a
+    // first name, the form has to know everything it may write back.
+    effect(() => {
+      const profile = this.profile.value();
+      if (!profile) return;
+      // Only the profile is a dependency. Writing the form fires its change
+      // handlers, and any signal they read would otherwise re-run this on the
+      // next save and put the stored values back over what was typed.
+      untracked(() => {
+        this.form.reset({
+          firstName: profile.firstName ?? '',
+          lastName: profile.lastName ?? '',
+          phone: typedPhone(profile.phone, this.phoneInput),
+        });
+      });
+    });
+
+    usePageSeo({ name: () => this.text.heading });
+  }
+
+  /** The number receives sign-in codes, so staff change it (FR-AUTH-12). */
+  protected readonly locked = computed(
+    () => this.profile.value()?.phoneLocked ?? false,
+  );
+  protected readonly lockedPhone = computed(() =>
+    formatPhone(this.profile.value()?.phone ?? null, this.phoneInput),
+  );
+
+  protected failure(): string | null {
+    return this.status() === 'error' ? this.text.error : null;
+  }
+
+  protected submitting(): boolean {
+    return this.status() === 'submitting';
+  }
+
+  protected isInvalid(control: keyof typeof this.form.controls): boolean {
+    return this.fieldErrors.show(this.form.controls[control]);
+  }
+
+  protected async submit(): Promise<void> {
+    this.fieldErrors.markSubmitted();
+    if (this.form.invalid) return;
+
+    this.status.set('submitting');
+    const value = this.form.getRawValue();
+    try {
+      const saved = await this.account.updateProfile({
+        firstName: value.firstName.trim(),
+        lastName: value.lastName.trim(),
+        // A locked number goes back as it is. Otherwise an empty field clears
+        // it; the API separates "no phone" from "unchanged" by null rather
+        // than by an empty string.
+        phone: this.locked()
+          ? (this.profile.value()?.phone ?? null)
+          : canonicalPhone(value.phone, this.phoneInput) || null,
+      });
+      // The greeting is built from the session, not from this response, so a
+      // changed first name only reaches the header once /auth/me is re-asked.
+      await this.auth.refresh();
+      this.profile.set(saved);
+      // Back to the record, with no "saved" notice: the page it lands on shows
+      // the new values, which says it better than a message about them would.
+      await this.router.navigateByUrl('/account');
+    } catch {
+      this.status.set('error');
+    }
+  }
+}

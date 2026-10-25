@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -7,18 +7,15 @@ import {
   Router,
   provideRouter,
 } from '@angular/router';
-import {
-  CustomerTier,
-  OwnershipArea,
-  StaffUser,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { APP_TEXT } from '../../config/app-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { AuthService } from '../../auth/auth.service';
+import { CustomerTier, StaffUser } from '@b2b-catalog-platform/shared/admin';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { AuthService } from '../../shared/auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
@@ -128,9 +125,9 @@ async function render(
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       {
         provide: DEPLOYMENT_CONFIG,
         useValue: options.config ?? defaultDeploymentConfig,
@@ -533,7 +530,7 @@ describe('UserEditorPage', () => {
       expect(button(defaultAdminText.actions.save)).toBeUndefined();
       expect(button(text.resend)).toBeUndefined();
       // The way back stays, as it does on the catalog's locked route.
-      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
+      expect(button(defaultSharedText.actions.cancel)).toBeDefined();
     });
 
     it('offers no approval either', async () => {
@@ -555,7 +552,7 @@ describe('UserEditorPage', () => {
         defaultAdminText.ownership.accountCreate,
       );
       expect(field('firstName')).toBeNull();
-      expect(button(defaultCommonText.actions.cancel)).toBeDefined();
+      expect(button(defaultSharedText.actions.cancel)).toBeDefined();
     });
 
     it('leaves a staff account editable', async () => {

@@ -1,9 +1,9 @@
 import {
-  CommonText,
+  SharedText,
   MoneyFormat,
   OrderDetail,
-  OrderNotice,
 } from '@b2b-catalog-platform/shared';
+import { OrderNotice } from '@b2b-catalog-platform/shared/admin';
 import { MailContent } from '../mail-layout';
 import { MailText } from '../mail-text';
 import {
@@ -48,7 +48,7 @@ function wordingKey(
  */
 function destination(
   order: OrderDetail,
-  names: CommonText['order'],
+  names: SharedText['order'],
 ): { label: string; value: string }[] {
   if (order.pickup) {
     return [
@@ -101,7 +101,7 @@ export function orderStatusChangedMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
   /** What the shop said about every change made since this customer was last
    * written to, oldest first. Empty where nothing about the order changed. */
   changes: readonly string[] = [],

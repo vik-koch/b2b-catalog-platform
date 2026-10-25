@@ -15,17 +15,17 @@ import {
   Page,
   PageSlug,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { FieldLabel } from '../../ui/field-label';
-import { Input } from '../../ui/input';
-import { Checkbox } from '../../ui/checkbox';
-import { PageService } from '../../pages/page.service';
-import { trustedRichText } from '../../core/trusted-rich-text';
-import { COMMON_TEXT } from '../../config/common-text';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Input } from '../../shared/ui/input';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { PageEditingService } from './page-editing.service';
+import { trustedRichText } from '../../shared/core/trusted-rich-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -170,10 +170,10 @@ import { COMMON_TEXT } from '../../config/common-text';
   `,
 })
 export class PageEditor {
-  private readonly pageService = inject(PageService);
+  private readonly pageService = inject(PageEditingService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).pages;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly confirmDiscard = injectConfirmDiscard();
   /** Bypasses Angular's redundant innerHTML sanitizer for the server-sanitized
    * preview body — see trustedRichText. */

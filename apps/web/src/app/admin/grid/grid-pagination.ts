@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { fillText, Pagination } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { Button } from '../../ui/button';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { Button } from '../../shared/ui/button';
 
 /**
  * Paging for an admin grid — the same nav the three lists each kept their own
@@ -21,7 +21,7 @@ import { Button } from '../../ui/button';
     @if (pagination().totalPages > 1) {
       <nav
         class="mt-8 flex items-center justify-center gap-4 text-sm"
-        [attr.aria-label]="text.pageStatus"
+        [attr.aria-label]="pageText.status"
       >
         @if (pagination().page > 1) {
           <a
@@ -31,10 +31,12 @@ import { Button } from '../../ui/button';
             appButton
             variant="ghost"
             size="sm"
-            >{{ text.prevPage }}</a
+            >{{ pageText.previous }}</a
           >
         } @else {
-          <span class="px-3 py-1.5 text-stone-300">{{ text.prevPage }}</span>
+          <span class="px-3 py-1.5 text-stone-300">{{
+            pageText.previous
+          }}</span>
         }
         <span class="text-subtle">{{ status() }}</span>
         @if (pagination().page < pagination().totalPages) {
@@ -45,22 +47,22 @@ import { Button } from '../../ui/button';
             appButton
             variant="ghost"
             size="sm"
-            >{{ text.nextPage }}</a
+            >{{ pageText.next }}</a
           >
         } @else {
-          <span class="px-3 py-1.5 text-stone-300">{{ text.nextPage }}</span>
+          <span class="px-3 py-1.5 text-stone-300">{{ pageText.next }}</span>
         }
       </nav>
     }
   `,
 })
 export class GridPagination {
-  protected readonly text = inject(APP_TEXT).catalog;
+  protected readonly pageText = inject(SHARED_TEXT).pagination;
 
   readonly pagination = input.required<Pagination>();
 
   protected readonly status = computed(() =>
-    fillText(this.text.pageStatus, {
+    fillText(this.pageText.status, {
       page: this.pagination().page,
       total: this.pagination().totalPages,
     }),

@@ -1,9 +1,9 @@
 import {
-  AdminOrderDetail,
-  CommonText,
+  SharedText,
   fillText,
   OrderReferenceConfig,
 } from '@b2b-catalog-platform/shared';
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/admin';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -16,7 +16,7 @@ import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { pageVersions } from '../db/schema';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
-import { COMMON_TEXT } from '../config/common-text';
+import { SHARED_TEXT } from '../config/shared-text';
 import { PDF_TEXT, PdfText } from '../pdf/pdf-text';
 import { MailAttachment } from '../mail/mailer';
 import { PdfFaces } from '../pdf/pdf-faces';
@@ -38,7 +38,7 @@ export class TermsPdf {
     @Inject(DRIZZLE) private readonly db: NodePgDatabase<typeof schema>,
     @Inject(TERMS_ATTACHED) private readonly attached: boolean,
     @Inject(PDF_TEXT) private readonly text: PdfText,
-    @Inject(COMMON_TEXT) private readonly common: CommonText,
+    @Inject(SHARED_TEXT) private readonly common: SharedText,
     @Inject(MAIL_BRANDING) private readonly branding: MailBranding,
     @Inject(ORDER_REFERENCE_CONFIG)
     private readonly reference: OrderReferenceConfig,

@@ -1,8 +1,8 @@
 import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, desc, eq } from 'drizzle-orm';
+import { Pagination } from '@b2b-catalog-platform/shared';
 import {
-  Pagination,
   SYNC_RUNS_PAGE_SIZE,
   SyncArea,
   SyncCommitResponse,
@@ -11,7 +11,7 @@ import {
   OrderSyncPlan,
   SyncRun,
   SyncRunStatus,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { syncRuns } from '../db/schema';

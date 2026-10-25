@@ -1,5 +1,5 @@
 import { Provider, signal } from '@angular/core';
-import { OwnershipArea } from '@b2b-catalog-platform/shared';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { SettingsService } from './settings.service';
 
 /**

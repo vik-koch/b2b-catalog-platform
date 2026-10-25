@@ -1,0 +1,526 @@
+import { oc } from '@orpc/contract';
+import * as z from 'zod';
+import {
+  ACCOUNT_DELETION_REASONS,
+  USER_KINDS,
+  USER_STATUSES,
+} from '../lib/accounts/user-constants';
+import {
+  companyNameSchema,
+  companyRegistrationIdSchema,
+  emailField,
+  storedEmailField,
+} from '../lib/config/contact-config';
+import {
+  COMMON_AUTH_ERROR_CODES,
+  commonAuthErrors,
+  phoneFormatErrors,
+} from '../lib/core/api-error';
+import {
+  customerTypeSchema,
+  userRoleSchema,
+} from '../lib/accounts/auth.contract';
+import { ownershipErrors } from '../sync/ownership-constants';
+import { consentRecordListSchema } from './consents.contract';
+
+/**
+ * Account management (FR-AUTH-01/03/04), staff side.
+ *
+ * The permission split lives in the API's guards, not here, but it is the point
+ * of the surface: **admin and manager** decide who is a customer and what they
+ * pay (approve, tier); **admin only** decides who is staff (role). A manager
+ * who could grant a role could promote themselves.
+ */
+
+export type UserStatus = (typeof USER_STATUSES)[number];
+export const userStatusSchema = z.enum(USER_STATUSES);
+
+/**
+ * An account as staff see it. Carries what the approval decision needs — who
+ * registered, how to reach them, what they say they are — and never the
+ * password hash or anything derived from it.
+ */
+export const staffUserSchema = z
+  .object({
+    id: z.uuid(),
+    email: storedEmailField,
+    /**
+     * The source system's own key for this customer (FR-ADM-14), or null for
+     * everyone who registered here and was never claimed by a run — which is
+     * everyone, on a deployment that exchanges nothing.
+     *
+     * Staff-facing and never serialized to the storefront, exactly as a
+     * product's is. It is here because an account whose key is null is an
+     * account the exchange cannot see at all, and a screen that does not show
+     * the field cannot tell anybody that is why.
+     */
+    sourceId: z.string().nullable(),
+    role: userRoleSchema,
+    status: userStatusSchema,
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    phone: z.string().nullable(),
+    customerType: customerTypeSchema.nullable(),
+    /** The invoiced party, as the account was approved on it. */
+    companyName: z.string().nullable(),
+    companyRegistrationId: z.string().nullable(),
+    /** Null means the base price list, which is a normal, permanent state. */
+    tierId: z.uuid().nullable(),
+    createdAt: z.iso.datetime(),
+    approvedAt: z.iso.datetime().nullable(),
+    approvedBy: z.uuid().nullable(),
+    /** When the holder last entered a code sent to `phone` (FR-AUTH-12). */
+    phoneConfirmedAt: z.iso.datetime().nullable(),
+    /**
+     * Exempt from the code after the password, set by an admin, and who that
+     * was. The address is read beside the id because a staff screen names a
+     * person, and it is kept when that admin's account is later deleted.
+     */
+    signInStepExemptAt: z.iso.datetime().nullable(),
+    signInStepExemptBy: z.string().nullable(),
+  })
+  .strict();
+export type StaffUser = z.infer<typeof staffUserSchema>;
+
+/**
+ * Approval (FR-AUTH-03). The tier is **required and explicit**: ADR 0031
+ * refuses a default tier, so there is nothing to fall back to — `null` is a
+ * deliberate choice of the base price list, not an omission.
+ */
+export const approveUserSchema = z
+  .object({ tierId: z.uuid().nullable() })
+  .strict();
+export type ApproveUserRequest = z.infer<typeof approveUserSchema>;
+
+/**
+ * Editing an account (FR-AUTH-04). One request for the whole editable set,
+ * because it is one screen: a manager correcting a mistyped digit and re-tiering
+ * the same customer is a single decision, and two endpoints would make it two
+ * requests with a half-applied state in between.
+ *
+ * **`email` is absent by design** — it is the login and the identity the audit
+ * trail points at, so changing it is an account-recovery flow (with a
+ * confirmation to the new address), not a field edit.
+ *
+ * `role` is optional because it is the one field a *manager* may not touch: the
+ * API rejects it from anyone but an admin rather than silently ignoring it, so
+ * a refused change is never mistaken for a saved one.
+ */
+export const updateUserSchema = z
+  .object({
+    firstName: z.string().trim().min(1).max(200),
+    lastName: z.string().trim().min(1).max(200),
+    /** Null clears it; staff accounts often have none. */
+    phone: z.string().trim().max(50).nullable(),
+    customerType: customerTypeSchema.nullable(),
+    companyName: companyNameSchema.nullable(),
+    companyRegistrationId: companyRegistrationIdSchema.nullable(),
+    /** Null is the base price list — a real choice, not an omission. */
+    tierId: z.uuid().nullable(),
+    role: userRoleSchema.optional(),
+    /**
+     * The source key (FR-ADM-14). Optional for the reason `role` is: it is a
+     * field a *manager* may not touch, and the API refuses it from one rather
+     * than dropping it, so a refused change is never mistaken for a saved one.
+     *
+     * The manual way to give a self-registered account its key, and the escape
+     * hatch behind the run-level claim (FR-ADM-17): it needs an admin, and it
+     * needs the area handed back first, since every write to a customer account
+     * is refused while an external system owns them.
+     */
+    sourceId: z.string().trim().min(1).max(255).nullable().optional(),
+  })
+  .strict()
+  // The same pairing the registration form enforces: a name and a number
+  // belong to a company and only to a company.
+  .refine(
+    (data) =>
+      (data.customerType === 'company') === Boolean(data.companyRegistrationId),
+    {
+      message:
+        'A company ID is required for a company, and only for a company.',
+      path: ['companyRegistrationId'],
+    },
+  )
+  .refine(
+    (data) => (data.customerType === 'company') === Boolean(data.companyName),
+    {
+      message:
+        'A company name is required for a company, and only for a company.',
+      path: ['companyName'],
+    },
+  );
+export type UpdateUserRequest = z.infer<typeof updateUserSchema>;
+
+/**
+ * An account staff create themselves — a colleague, or a customer who
+ * negotiated by phone and never used the form. No password is set here and
+ * none is mailed: the account is `invited` and chooses its own, exactly like an
+ * approved registration.
+ */
+export const createUserSchema = z
+  .object({
+    email: emailField(320),
+    role: userRoleSchema,
+    tierId: z.uuid().nullable(),
+    firstName: z.string().trim().min(1).max(200),
+    lastName: z.string().trim().min(1).max(200),
+    phone: z.string().trim().max(50).optional(),
+    customerType: customerTypeSchema.optional(),
+    companyName: companyNameSchema.optional(),
+    companyRegistrationId: companyRegistrationIdSchema.optional(),
+    sourceId: z.string().trim().min(1).max(255).nullable().optional(),
+  })
+  .strict();
+export type CreateUserRequest = z.infer<typeof createUserSchema>;
+
+/**
+ * Switching an account off, and back on again (FR-AUTH-04). A lifecycle
+ * transition rather than a field, which is why it is not part of `updateUser`:
+ * it ends every session in flight, and the two directions are separate
+ * decisions with separate audit lines.
+ *
+ * The request names the *direction*, not a target status, because switching
+ * back on lands where the account can actually be used: `active` where it has a
+ * password of its own — the one it had, which switching off leaves alone — and
+ * `invited` where it never chose one. The response says where it ended up.
+ */
+export const setUserActiveSchema = z.object({ active: z.boolean() }).strict();
+export type SetUserActiveRequest = z.infer<typeof setUserActiveSchema>;
+
+export const accountDeletionReasonSchema = z.enum(ACCOUNT_DELETION_REASONS);
+export type AccountDeletionReason = z.infer<typeof accountDeletionReasonSchema>;
+export const deleteAccountOnRequestSchema = z
+  .object({ reason: accountDeletionReasonSchema })
+  .strict();
+
+export type UserKind = (typeof USER_KINDS)[number];
+export const userKindSchema = z.enum(USER_KINDS);
+
+/** Filters for the account list — the admin-grid pattern (FR-ADM-05). */
+export const listUsersQuerySchema = z.object({
+  kind: userKindSchema.optional(),
+  status: userStatusSchema.optional(),
+  /** Narrows within `staff` (admin vs manager); customers are all one role. */
+  role: userRoleSchema.optional(),
+  /** `null` is not expressible in a query string; `default` means the base list. */
+  tierId: z.union([z.uuid(), z.literal('default')]).optional(),
+  /**
+   * A `companyIdInput.formats` key: the accounts whose registration number is
+   * in that shape. Which keys exist is deployment config, so this is a plain
+   * string — an unknown one matches nothing, which is the honest answer for a
+   * format this deployment does not have. `COMPANY_ID_NONE` is the one value
+   * that is not a key: accounts carrying no number at all.
+   */
+  companyIdFormat: z.string().trim().max(64).optional(),
+  /** Matches email, first or last name, or the registration number. */
+  q: z.string().trim().max(200).optional(),
+});
+export type ListUsersQuery = z.infer<typeof listUsersQuerySchema>;
+
+/**
+ * Why a staff account action was refused. Each one is a sentence the account
+ * list or the editor puts on screen, so the set is closed and every code has a
+ * matching line in the admin text.
+ */
+export const USER_ERROR_CODES = [
+  /** Unknown — or staff seen by a manager, which is the same answer here. */
+  'account-not-found',
+  'account-not-pending',
+  'account-closed',
+  'email-taken',
+  /** Another account already carries that source key (FR-ADM-14). */
+  'source-id-taken',
+  /** Only an `active` or `invited` account can be switched off. */
+  'account-not-approved',
+  'account-not-disabled',
+  /** Nothing to send a link to: the account cannot sign in at all. */
+  'account-cannot-sign-in',
+  'self-deactivate',
+  'self-demote',
+  'last-admin',
+  /** Approved accounts are anonymized, never deleted. */
+  'account-not-purgeable',
+  /** Deleting your own account is FR-AUTH-06, with your password. */
+  'self-delete',
+  /** A registration nobody has decided on is declined, not deleted. */
+  'account-pending',
+  /** The deployment lets no account of this role skip the code (FR-AUTH-12). */
+  'not-exemptable',
+  /** A kind of customer the shop does not sell to (FR-AUTH-13). */
+  'customer-type-not-accepted',
+] as const;
+export type UserErrorCode = (typeof USER_ERROR_CODES)[number];
+
+/**
+ * The status each refusal travels with. `account-not-found` is the only 404
+ * and `customer-type-not-accepted` the only 400 — the request names a kind of
+ * customer the shop does not take; every other one is a conflict — the
+ * account exists, and what was asked of it is what cannot be done.
+ */
+const notFound = { 'account-not-found': { status: 404 } } as const;
+const typeRefused = {
+  'customer-type-not-accepted': { status: 400 },
+} as const;
+
+/**
+ * Every write to a *customer* account carries this, and none of the reads do:
+ * while an external system owns customer accounts the platform's own side is
+ * closed as a whole (FR-ADM-10), while the screens that show them stay open.
+ * Staff administration is never refused by it — an admin has to be able to
+ * appoint another admin whatever the exchange holds.
+ */
+const owned = {
+  'customers-externally-owned': ownershipErrors['customers-externally-owned'],
+} as const;
+const conflicts = {
+  'account-not-pending': { status: 409 },
+  'account-closed': { status: 409 },
+  'email-taken': { status: 409 },
+  'source-id-taken': { status: 409 },
+  'account-not-approved': { status: 409 },
+  'account-not-disabled': { status: 409 },
+  'account-cannot-sign-in': { status: 409 },
+  'self-deactivate': { status: 409 },
+  'self-demote': { status: 409 },
+  'last-admin': { status: 409 },
+  'account-not-purgeable': { status: 409 },
+  'self-delete': { status: 409 },
+  'account-pending': { status: 409 },
+  'not-exemptable': { status: 409 },
+} as const;
+
+/**
+ * The two things a manager may not do, both about who decides who is staff.
+ * Their own 403 codes rather than the shared `insufficient-role`, because these
+ * two do reach a screen: the editor shows them next to the field that was
+ * refused, where a redirect to "not for you" would lose the whole edit.
+ */
+export const USER_FORBIDDEN_CODES = [
+  ...COMMON_AUTH_ERROR_CODES,
+  'role-change-admin-only',
+  'staff-create-admin-only',
+  /** The source key is an admin's, for the reason the ownership switch is. */
+  'source-id-change-admin-only',
+] as const;
+export type UserForbiddenCode = (typeof USER_FORBIDDEN_CODES)[number];
+
+/** Staff-only, and the two manager limits reach a screen rather than a redirect. */
+const staff = oc.errors({
+  ...commonAuthErrors,
+  'role-change-admin-only': { status: 403 },
+  'staff-create-admin-only': { status: 403 },
+  'source-id-change-admin-only': { status: 403 },
+});
+
+export const usersContract = {
+  listUsers: staff
+    .route({
+      method: 'GET',
+      path: '/admin/users',
+      inputStructure: 'detailed',
+      summary: 'List accounts, filtered (admin, manager)',
+    })
+    .input(z.object({ query: listUsersQuerySchema }))
+    .output(z.object({ users: z.array(staffUserSchema) }).strict()),
+
+  approveUser: staff
+    .route({
+      method: 'POST',
+      path: '/admin/users/{id}/approve',
+      inputStructure: 'detailed',
+      summary: 'Approve a registration, assign a tier, send the invitation',
+    })
+    .errors({
+      ...notFound,
+      // Only a pending registration can be approved.
+      'account-not-pending': conflicts['account-not-pending'],
+      ...owned,
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: approveUserSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  createUser: staff
+    .route({
+      method: 'POST',
+      path: '/admin/users',
+      successStatus: 201,
+      inputStructure: 'detailed',
+      summary: 'Create an account and invite it (admin, manager)',
+    })
+    // Email already has an account.
+    .errors({
+      'email-taken': conflicts['email-taken'],
+      'source-id-taken': conflicts['source-id-taken'],
+      ...typeRefused,
+      ...phoneFormatErrors,
+      ...owned,
+    })
+    .input(z.object({ body: createUserSchema }))
+    .output(staffUserSchema),
+
+  getUser: staff
+    .route({
+      method: 'GET',
+      path: '/admin/users/{id}',
+      inputStructure: 'detailed',
+      // The editor is a route, so a reload of it has no list to read from.
+      summary: 'One account (admin, manager)',
+    })
+    .errors(notFound)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(staffUserSchema),
+
+  listUserConsents: staff
+    .route({
+      method: 'GET',
+      path: '/admin/users/{id}/consents',
+      inputStructure: 'detailed',
+      summary: "An account's consent records (admin)",
+    })
+    .errors(notFound)
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(consentRecordListSchema),
+
+  updateUser: staff
+    .route({
+      method: 'PATCH',
+      path: '/admin/users/{id}',
+      inputStructure: 'detailed',
+      summary: 'Edit an account; role is admin only (admin, manager)',
+    })
+    .errors({
+      ...notFound,
+      // Would leave the deployment with no admin, or demote yourself.
+      'self-demote': conflicts['self-demote'],
+      'last-admin': conflicts['last-admin'],
+      'email-taken': conflicts['email-taken'],
+      'source-id-taken': conflicts['source-id-taken'],
+      'account-closed': conflicts['account-closed'],
+      ...typeRefused,
+      ...phoneFormatErrors,
+      ...owned,
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: updateUserSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  setUserActive: staff
+    .route({
+      method: 'PATCH',
+      path: '/admin/users/{id}/active',
+      inputStructure: 'detailed',
+      summary: 'Deactivate or reactivate an account (admin, manager)',
+    })
+    .errors({
+      ...notFound,
+      // Your own account, the last admin, a registration nobody has decided
+      // on yet, or an anonymized one — which has nothing left to switch on.
+      'account-not-approved': conflicts['account-not-approved'],
+      'account-not-disabled': conflicts['account-not-disabled'],
+      'self-deactivate': conflicts['self-deactivate'],
+      'last-admin': conflicts['last-admin'],
+      ...owned,
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: setUserActiveSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  sendPasswordLink: staff
+    .route({
+      method: 'POST',
+      path: '/admin/users/{id}/password-link',
+      inputStructure: 'detailed',
+      // Links expire and mail gets lost, and somebody locked out rings the
+      // shop as readily as they use the form; this is the way back without
+      // touching the account itself. Which link goes — the invitation or the
+      // reset — is the account's own status, not a choice made here.
+      summary: 'Send the account a way back in (admin, manager)',
+    })
+    .errors({
+      ...notFound,
+      // Nothing to send to: a pending, disabled or anonymized account.
+      'account-cannot-sign-in': conflicts['account-cannot-sign-in'],
+      ...owned,
+    })
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ message: z.string() })),
+
+  deleteUser: staff
+    .route({
+      method: 'DELETE',
+      path: '/admin/users/{id}',
+      inputStructure: 'detailed',
+      summary: 'Decline and purge a pending registration (admin, manager)',
+    })
+    .errors({
+      ...notFound,
+      // Only an unapproved registration can be deleted outright; an account
+      // that has ever been usable is anonymized instead, never removed.
+      'account-not-purgeable': conflicts['account-not-purgeable'],
+      ...owned,
+    })
+    .input(z.object({ params: z.object({ id: z.uuid() }) }))
+    .output(z.object({ message: z.string() })),
+
+  deleteAccountOnRequest: staff
+    .route({
+      method: 'POST',
+      path: '/admin/users/{id}/deletion',
+      inputStructure: 'detailed',
+      // The holder's own deletion (FR-AUTH-06), done for them when the request
+      // reaches the shop another way. Never refused by ownership: the person's
+      // right outranks the switch.
+      summary: "Delete an account on the person's request (admin)",
+    })
+    .errors({
+      ...notFound,
+      'account-closed': conflicts['account-closed'],
+      'account-pending': conflicts['account-pending'],
+      'self-delete': conflicts['self-delete'],
+      'last-admin': conflicts['last-admin'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: deleteAccountOnRequestSchema,
+      }),
+    )
+    .output(staffUserSchema),
+
+  setSignInStepExemption: staff
+    .route({
+      method: 'PUT',
+      path: '/admin/users/{id}/sign-in-step-exemption',
+      inputStructure: 'detailed',
+      // Never refused by ownership: it is about how a person signs in, which
+      // no external system holds.
+      summary:
+        'Exempt an account from the code after the password, or undo it (admin)',
+    })
+    .errors({
+      ...notFound,
+      'account-closed': conflicts['account-closed'],
+      'not-exemptable': conflicts['not-exemptable'],
+    })
+    .input(
+      z.object({
+        params: z.object({ id: z.uuid() }),
+        body: z.object({ exempt: z.boolean() }).strict(),
+      }),
+    )
+    .output(staffUserSchema),
+};

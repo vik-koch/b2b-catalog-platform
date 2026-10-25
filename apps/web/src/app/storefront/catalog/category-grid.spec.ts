@@ -1,0 +1,738 @@
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { provideRouter } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
+import { ComponentFixture } from '@angular/core/testing';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { CategoryGrid } from './category-grid';
+import { CatalogService } from './catalog.service';
+import { productListItem } from '../../shared/catalog/product.fixture';
+
+type Products = NonNullable<
+  Awaited<ReturnType<CatalogService['getCategoryProducts']>>
+>;
+
+const image = (n: number) => ({
+  full: `https://img.example/full/${n}.jpg`,
+  thumb: `https://img.example/thumb/${n}.jpg`,
+  variant: null,
+});
+
+function response(overrides: Partial<Products> = {}): Products {
+  return {
+    category: {
+      slug: 'coffee-beans',
+      name: 'Coffee Beans',
+      shortName: null,
+      ancestors: [],
+      subcategories: [],
+    },
+    items: [
+      productListItem({
+        slug: 'hafen-espresso',
+        name: 'Hafen Espresso',
+        priceMinor: 1890,
+        images: [image(1)],
+      }),
+    ],
+    pagination: { page: 1, pageSize: 24, total: 1, totalPages: 1 },
+    facets: [],
+    ...overrides,
+  };
+}
+
+interface SortOptions {
+  /** The raw `sort` query parameter, as the router would bind it. */
+  sort?: string;
+  /** Records what the component actually asked the API to sort by. */
+  spy?: (sort: string) => void;
+  /** The raw `attr` query parameter, as the router would bind it. */
+  attr?: string | string[];
+  /** Records the selection the component actually sent on. */
+  attrSpy?: (attr: string[]) => void;
+}
+
+async function render(
+  result: Products | null,
+  { sort, spy, attr, attrSpy }: SortOptions = {},
+): Promise<ComponentFixture<CategoryGrid>> {
+  // From the committed demo config, not a literal: a hand-built one silently
+  // drops whatever the schema grew since, and a missing flag reads as "off".
+  const config = defaultDeploymentConfig;
+  TestBed.configureTestingModule({
+    imports: [CategoryGrid],
+    providers: [
+      provideRouter([]),
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: DEPLOYMENT_CONFIG, useValue: config },
+      {
+        provide: CatalogService,
+        useValue: {
+          getCategoryProducts: async (
+            _slug: string,
+            _page: number,
+            s: string,
+            a: string[],
+          ) => {
+            spy?.(s);
+            attrSpy?.(a);
+            return result;
+          },
+        },
+      },
+    ],
+  });
+  const fixture = TestBed.createComponent(CategoryGrid);
+  fixture.componentRef.setInput('slug', 'coffee-beans');
+  if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
+  if (attr !== undefined) fixture.componentRef.setInput('attr', attr);
+  await fixture.whenStable();
+  fixture.detectChanges();
+  return fixture;
+}
+
+const el = (f: ComponentFixture<CategoryGrid>) =>
+  f.nativeElement as HTMLElement;
+
+describe('CategoryGrid', () => {
+  it('renders the heading and a product tile with formatted price', async () => {
+    const f = await render(response());
+    const root = el(f);
+
+    expect(root.querySelector('h1')?.textContent).toContain('Coffee Beans');
+    expect(
+      root.querySelector('a[href="/product/hafen-espresso"]'),
+    ).not.toBeNull();
+    expect(root.textContent?.replace(/\u00A0/g, ' ')).toContain('18,90 €');
+  });
+
+  it('renders a breadcrumb of ancestors', async () => {
+    const f = await render(
+      response({
+        category: {
+          slug: 'espresso',
+          name: 'Espresso Roasts',
+          shortName: null,
+          ancestors: [
+            { slug: 'coffee-beans', name: 'Coffee Beans', shortName: null },
+          ],
+          subcategories: [],
+        },
+      }),
+    );
+    const nav = el(f).querySelector('nav');
+
+    expect(nav?.querySelector('a[href="/catalog"]')).not.toBeNull();
+    expect(
+      nav?.querySelector('a[href="/catalog/coffee-beans"]'),
+    ).not.toBeNull();
+  });
+
+  it('shows short names in the breadcrumb, chips and headings', async () => {
+    const f = await render(
+      response({
+        category: {
+          slug: 'espresso',
+          name: 'Espresso Roasts',
+          shortName: 'Espresso',
+          ancestors: [
+            { slug: 'coffee-beans', name: 'Coffee Beans', shortName: 'Beans' },
+          ],
+          subcategories: [
+            {
+              slug: 'dark',
+              name: 'Espresso Roasts Dark',
+              shortName: 'Dark',
+              mark: null,
+              count: 1,
+              attr: [],
+            },
+            {
+              slug: 'light',
+              name: 'Espresso Roasts Light',
+              shortName: null,
+              mark: null,
+              count: 1,
+              attr: [],
+            },
+          ],
+        },
+      }),
+    );
+    const root = el(f);
+
+    const nav = root.querySelector('nav');
+    expect(nav?.textContent).toContain('Beans');
+    expect(nav?.textContent).toContain('Espresso');
+    expect(nav?.textContent).not.toContain('Coffee Beans');
+    // The heading keeps the full name — it stands on its own.
+    expect(root.querySelector('h1')?.textContent?.trim()).toBe(
+      'Espresso Roasts',
+    );
+    expect(
+      root.querySelector('a[href="/catalog/dark"]')?.textContent?.trim(),
+    ).toBe('Dark');
+    // No short name set → the chip falls back to the full name.
+    expect(
+      root.querySelector('a[href="/catalog/light"]')?.textContent?.trim(),
+    ).toBe('Espresso Roasts Light');
+  });
+
+  it('clips the subcategory rows on a phone only, and unclips them on show-more', async () => {
+    const subcategories = ['a', 'b', 'c', 'd', 'e', 'f'].map((s) => ({
+      slug: s,
+      name: s.toUpperCase(),
+      shortName: null,
+      mark: null,
+      count: 1,
+      attr: [] as string[],
+    }));
+    const f = await render(
+      response({
+        category: {
+          slug: 'coffee-beans',
+          name: 'Coffee Beans',
+          shortName: null,
+          ancestors: [],
+          subcategories,
+        },
+      }),
+    );
+
+    const chipCount = () =>
+      subcategories.filter((s) =>
+        el(f).querySelector(`a[href="/catalog/${s.slug}"]`),
+      ).length;
+    const list = () =>
+      el(f).querySelector('a[href="/catalog/a"]')?.closest('ul');
+
+    // Every chip is rendered at all times — how many are visible is the
+    // browser's answer, given by clipping the list to four rows.
+    expect(chipCount()).toBe(6);
+    expect(list()?.className).toContain('max-h-75');
+    // ...and only on a phone: from the viewport's `sm` the clip is lifted in
+    // CSS, so the same HTML shows every chip on a wider screen.
+    expect(list()?.className).toContain('sm:max-h-none');
+
+    // By its words: the listing header above the chips carries buttons of its
+    // own (the layout toggle), so position says nothing.
+    const toggle = (label: string) =>
+      [...el(f).querySelectorAll('button')].find((b) =>
+        (b.textContent ?? '').includes(label),
+      );
+
+    expect(toggle(defaultStorefrontText.catalog.showMore)).toBeTruthy();
+    toggle(defaultStorefrontText.catalog.showMore)?.click();
+    await f.whenStable();
+    f.detectChanges();
+
+    // Open, the cap becomes the list's own measured height rather than `none`:
+    // both states are a length, so the movement between them runs.
+    expect(list()?.className).not.toContain('max-h-75');
+    expect(list()?.className).toContain('var(--subs-full');
+    expect(toggle(defaultStorefrontText.catalog.showLess)).toBeTruthy();
+
+    // The toggle is hidden wherever the clip is lifted — a button offering to
+    // show what is already shown.
+    expect(
+      toggle(defaultStorefrontText.catalog.showLess)?.closest(
+        'app-show-more-toggle',
+      )?.className,
+    ).toContain('sm:hidden');
+  });
+
+  it('counts every product the filters leave, not the page on screen', async () => {
+    const f = await render(
+      response({
+        pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+      }),
+    );
+
+    expect(el(f).textContent).toContain('Products: 60');
+  });
+
+  it('shows pagination with prev/next links when there is more than one page', async () => {
+    const f = await render(
+      response({
+        pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+      }),
+    );
+    const root = el(f);
+
+    const prev = root.querySelector('a[href="/catalog/coffee-beans?page=1"]');
+    const next = root.querySelector('a[href="/catalog/coffee-beans?page=3"]');
+    expect(prev).not.toBeNull();
+    expect(next).not.toBeNull();
+    expect(root.textContent).toContain('Page 2 of 3');
+  });
+
+  it('shows an empty message when the category has no products', async () => {
+    const f = await render(
+      response({
+        items: [],
+        pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+      }),
+    );
+
+    expect(el(f).textContent).toContain(
+      defaultStorefrontText.catalog.emptyProducts,
+    );
+  });
+
+  describe('sorting (FR-SEARCH-04)', () => {
+    it('asks the API for the sort in the URL', async () => {
+      const asked: string[] = [];
+      const f = await render(response(), {
+        sort: 'price',
+        spy: (s) => asked.push(s),
+      });
+
+      expect(asked).toEqual(['price']);
+      expect(el(f).querySelector('select')?.value).toBe('price');
+    });
+
+    it('asks for grouping by default, and on a leaf shows it as the name order', async () => {
+      const asked: string[] = [];
+      const f = await render(response(), { spy: (s) => asked.push(s) });
+
+      expect(asked).toEqual(['category']);
+      const select = el(f).querySelector('select');
+      expect(select?.value).toBe('name');
+      const options = [...(select?.options ?? [])].map((o) => o.value);
+      expect(options).not.toContain('relevance');
+      expect(options).not.toContain('category');
+    });
+
+    it('offers grouping where there are subcategories', async () => {
+      const f = await render(
+        response({
+          category: {
+            ...response().category,
+            subcategories: [
+              {
+                slug: 'espresso',
+                name: 'Espresso',
+                shortName: null,
+                mark: null,
+                count: 1,
+                attr: [],
+              },
+            ],
+          },
+        }),
+      );
+
+      const select = el(f).querySelector('select');
+      expect(select?.value).toBe('category');
+      expect([...(select?.options ?? [])].map((o) => o.value)).toContain(
+        'category',
+      );
+    });
+
+    it('falls back to the default rather than forwarding an unknown key', async () => {
+      const asked: string[] = [];
+      await render(response(), {
+        // The category endpoint would reject relevance, so the page must not
+        // pass it on just because it is a valid search sort.
+        sort: 'relevance',
+        spy: (s) => asked.push(s),
+      });
+
+      expect(asked).toEqual(['category']);
+    });
+
+    it('carries a non-default sort into the pagination links', async () => {
+      const f = await render(
+        response({
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+        { sort: 'price_desc' },
+      );
+
+      const next = [...el(f).querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultSharedText.pagination.next),
+      );
+      expect(next?.getAttribute('href')).toContain('page=3');
+      expect(next?.getAttribute('href')).toContain('sort=price_desc');
+    });
+
+    it('offers no sort control on an empty category', async () => {
+      const f = await render(
+        response({
+          items: [],
+          pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+        }),
+      );
+
+      expect(el(f).querySelector('select')).toBeNull();
+    });
+  });
+
+  describe('attribute filters (FR-ATTR-04…07)', () => {
+    const facet = {
+      slug: 'grind',
+      name: 'Grind',
+      type: 'text' as const,
+      unit: null,
+      values: [{ value: 'fine', count: 1, selected: true }],
+    };
+
+    it('sends the selection on, normalized, and renders the panel', async () => {
+      let sent: string[] = [];
+      const f = await render(response({ facets: [facet] }), {
+        attr: ['grind:fine', 'grind:fine', 'broken'],
+        attrSpy: (a) => (sent = a),
+      });
+
+      expect(sent).toEqual(['grind:fine']);
+      expect(el(f).textContent).toContain(
+        defaultStorefrontText.catalog.filters.title,
+      );
+      expect(el(f).textContent).toContain('Grind');
+    });
+
+    it('carries the selection through the pagination links', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      const next = [...el(f).querySelectorAll('a')].find((a) =>
+        a.textContent?.includes(defaultSharedText.pagination.next),
+      );
+      expect(next?.getAttribute('href')).toContain('attr=grind:fine');
+    });
+
+    it('carries the selection down into a subcategory and up the breadcrumb', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          category: {
+            slug: 'espresso',
+            name: 'Espresso Roasts',
+            shortName: null,
+            ancestors: [
+              {
+                slug: 'coffee-beans',
+                name: 'Coffee Beans',
+                shortName: null,
+              },
+            ],
+            subcategories: [
+              {
+                slug: 'single-origin',
+                name: 'Single Origin',
+                shortName: null,
+                mark: null,
+                count: 1,
+                attr: ['grind:fine'],
+              },
+            ],
+          },
+        }),
+        { attr: 'grind:fine', sort: 'price_desc' },
+      );
+
+      const href = (name: string) =>
+        [...el(f).querySelectorAll('a')]
+          .find((a) => a.textContent?.trim() === name)
+          ?.getAttribute('href');
+      expect(href('Single Origin')).toContain('attr=grind:fine');
+      expect(href('Coffee Beans')).toContain('attr=grind:fine');
+      // The sort is the same kind of stated preference and travels with it.
+      expect(href('Single Origin')).toContain('sort=price_desc');
+      expect(href('Coffee Beans')).toContain('sort=price_desc');
+    });
+
+    it('carries into a subcategory only what its own panel offers', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          category: {
+            ...response().category,
+            subcategories: [
+              {
+                slug: 'tea',
+                name: 'Tea',
+                shortName: null,
+                mark: null,
+                count: 4,
+                attr: [],
+              },
+            ],
+          },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      expect(
+        el(f).querySelector('#subcategories a')?.getAttribute('href'),
+      ).toBe('/catalog/tea');
+    });
+
+    it('greys a subcategory the filters leave empty, and leads in unfiltered', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          category: {
+            ...response().category,
+            subcategories: [
+              {
+                slug: 'decaf',
+                name: 'Decaf',
+                shortName: null,
+                mark: null,
+                count: 0,
+                attr: ['grind:fine'],
+              },
+              {
+                slug: 'dark',
+                name: 'Dark',
+                shortName: null,
+                mark: null,
+                count: 2,
+                attr: ['grind:fine'],
+              },
+            ],
+          },
+        }),
+        { attr: 'grind:fine', sort: 'price' },
+      );
+
+      const chip = (slug: string) =>
+        el(f).querySelector<HTMLAnchorElement>(
+          `#subcategories a[href^="/catalog/${slug}"]`,
+        );
+      expect(chip('decaf')?.getAttribute('href')).toBe(
+        '/catalog/decaf?sort=price',
+      );
+      expect(chip('decaf')?.className).toContain('text-stone-400');
+      expect(chip('dark')?.getAttribute('href')).toContain('attr=grind:fine');
+      expect(chip('dark')?.className).not.toContain('text-stone-400');
+    });
+
+    it('keeps the panel on screen when the selection matches nothing', async () => {
+      const f = await render(
+        response({
+          facets: [facet],
+          items: [],
+          pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+        }),
+        { attr: 'grind:fine' },
+      );
+
+      const text = el(f).textContent ?? '';
+      expect(text).toContain(defaultStorefrontText.catalog.filters.noMatches);
+      expect(text).not.toContain(defaultStorefrontText.catalog.emptyProducts);
+      expect(el(f).querySelector('input[type="checkbox"]')).not.toBeNull();
+    });
+  });
+
+  it('shows a not-found message when the category does not exist', async () => {
+    const f = await render(null);
+
+    expect(el(f).textContent).toContain(
+      defaultStorefrontText.catalog.categoryNotFound,
+    );
+  });
+});
+
+describe('CategoryGrid layout', () => {
+  beforeEach(() => {
+    document.cookie = 'product_layout=;path=/;max-age=0';
+  });
+
+  // Cards and lines are different markup, not one set of elements styled two
+  // ways, so the choice has to reach the listing itself — and the category
+  // listing and the search results have to answer it the same way.
+  it('draws lines instead of cards once the visitor asks for them', async () => {
+    const cards = await render(response());
+    expect(el(cards).querySelector('app-product-tile')).not.toBeNull();
+    expect(el(cards).querySelector('app-product-row')).toBeNull();
+
+    // As the service writes it, and as the next page load would find it.
+    document.cookie = 'product_layout=list;path=/';
+    TestBed.resetTestingModule();
+    const lines = await render(response());
+
+    expect(el(lines).querySelector('app-product-row')).not.toBeNull();
+    expect(el(lines).querySelector('app-product-tile')).toBeNull();
+  });
+});
+
+describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
+  type Catalog = Awaited<ReturnType<CatalogService['getCatalogProducts']>>;
+
+  function catalog(overrides: Partial<Catalog> = {}): Catalog {
+    const { category: _category, ...listing } = response();
+    return {
+      ...listing,
+      categories: [
+        {
+          slug: 'coffee-beans',
+          name: 'Coffee Beans',
+          shortName: null,
+          mark: null,
+          count: 1,
+          attr: [],
+        },
+        {
+          slug: 'tea',
+          name: 'Tea',
+          shortName: null,
+          mark: null,
+          count: 1,
+          attr: [],
+        },
+      ],
+      ...overrides,
+    };
+  }
+
+  /** No slug bound, as the `/catalog` route leaves it. */
+  async function renderCatalog(
+    result: Catalog,
+    { sort, spy }: Pick<SortOptions, 'sort' | 'spy'> = {},
+  ): Promise<ComponentFixture<CategoryGrid>> {
+    TestBed.configureTestingModule({
+      imports: [CategoryGrid],
+      providers: [
+        provideRouter([]),
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
+        { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+        {
+          provide: CatalogService,
+          useValue: {
+            getCatalogProducts: async (_page: number, s: string) => {
+              spy?.(s);
+              return result;
+            },
+            getCategoryProducts: async () => {
+              throw new Error('the index is no category');
+            },
+          },
+        },
+      ],
+    });
+    const fixture = TestBed.createComponent(CategoryGrid);
+    if (sort !== undefined) fixture.componentRef.setInput('sort', sort);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    return fixture;
+  }
+
+  it('groups by category unless asked otherwise, and offers that order', async () => {
+    const asked: string[] = [];
+    const root = el(
+      await renderCatalog(catalog(), { spy: (s) => asked.push(s) }),
+    );
+
+    expect(asked).toEqual(['category']);
+    const select = root.querySelector('select');
+    expect(select?.value).toBe('category');
+    expect([...(select?.options ?? [])].map((o) => o.value)).toContain(
+      'category',
+    );
+  });
+
+  it('writes a name sort into the URL, since it is not the default here', async () => {
+    const root = el(
+      await renderCatalog(
+        catalog({
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+        { sort: 'name' },
+      ),
+    );
+
+    expect(
+      root.querySelector('a[href="/catalog?page=3&sort=name"]'),
+    ).not.toBeNull();
+  });
+
+  it('heads the page as the catalogue, under a trail of one', async () => {
+    const root = el(await renderCatalog(catalog()));
+    const nav = root.querySelector(
+      `nav[aria-label="${defaultStorefrontText.catalog.catalogRoot}"]`,
+    );
+
+    expect(root.querySelector('h1')?.textContent).toContain(
+      defaultStorefrontText.catalog.catalogRoot,
+    );
+    // Where a category's breadcrumb stands, so nothing moves on the way down —
+    // the current page, not a link to itself.
+    expect(nav?.querySelector('[aria-current="page"]')?.textContent).toContain(
+      defaultStorefrontText.catalog.catalogRoot,
+    );
+    expect(nav?.querySelector('a')).toBeNull();
+    expect(
+      root.querySelector('a[href="/product/hafen-espresso"]'),
+    ).not.toBeNull();
+  });
+
+  it('offers the top-level categories where a category offers its subcategories', async () => {
+    const root = el(await renderCatalog(catalog()));
+    const chips = root.querySelectorAll('#subcategories a');
+
+    expect([...chips].map((a) => a.getAttribute('href'))).toEqual([
+      '/catalog/coffee-beans',
+      '/catalog/tea',
+    ]);
+  });
+
+  it('shows the whole top level on a phone too, with nothing to open', async () => {
+    const categories = 'abcdefgh'.split('').map((s) => ({
+      slug: s,
+      name: s.toUpperCase(),
+      shortName: null,
+      mark: null,
+      count: 1,
+      attr: [] as string[],
+    }));
+    const root = el(await renderCatalog(catalog({ categories })));
+
+    expect(root.querySelector('#subcategories')?.className).not.toContain(
+      'overflow-hidden',
+    );
+    expect(root.textContent).not.toContain(
+      defaultStorefrontText.catalog.showMore,
+    );
+  });
+
+  it('pages within the catalogue', async () => {
+    const root = el(
+      await renderCatalog(
+        catalog({
+          pagination: { page: 2, pageSize: 24, total: 60, totalPages: 3 },
+        }),
+      ),
+    );
+
+    expect(root.querySelector('a[href="/catalog?page=1"]')).not.toBeNull();
+    expect(root.querySelector('a[href="/catalog?page=3"]')).not.toBeNull();
+  });
+
+  it('says the catalogue is being set up when there is nothing in it', async () => {
+    const root = el(
+      await renderCatalog(
+        catalog({
+          categories: [],
+          items: [],
+          pagination: { page: 1, pageSize: 24, total: 0, totalPages: 0 },
+        }),
+      ),
+    );
+
+    expect(root.textContent).toContain(
+      defaultStorefrontText.catalog.emptyCategories,
+    );
+  });
+});

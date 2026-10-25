@@ -7,12 +7,12 @@ import {
 import { and, eq, inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
-  AdminOrderDocument,
   generatedSummaryFileName,
   OrderDetail,
   OrderDocument,
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
+import { AdminOrderDocument } from '@b2b-catalog-platform/shared/admin';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { orderDocuments, orderRevisions, orders } from '../db/schema';

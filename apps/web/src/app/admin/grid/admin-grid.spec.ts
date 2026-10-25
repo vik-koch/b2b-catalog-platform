@@ -1,11 +1,11 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { NARROW_SCREEN_QUERIES } from '../../core/narrow-screen';
-import { defaultAdminText } from '../../config/admin-text.fixture';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { NARROW_SCREEN_QUERIES } from '../../shared/core/narrow-screen';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { AdminGrid } from './admin-grid';
 import { GridColumn } from './grid-column';
 import { GridWidths, GRID_WIDTHS_KEY } from './grid-widths';
@@ -124,7 +124,7 @@ function render(stored?: GridWidths) {
     providers: [
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
   const fixture = TestBed.createComponent(Host);

@@ -10,15 +10,15 @@ import {
   viewChild,
 } from '@angular/core';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { DialogActions } from '../../ui/dialog-actions';
-import { DialogPanel } from '../../ui/dialog-panel';
-import { HintBadge } from '../../ui/hint-badge';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { DialogActions } from '../../shared/ui/dialog-actions';
+import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { AttributeHint } from './attribute-hints';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * "Add attributes" — the names the catalog already uses, in a dialog opened
@@ -121,7 +121,7 @@ export class AttributeKeyPicker {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   private readonly productsText = inject(ADMIN_TEXT).products;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   /** Every name the catalog knows, declared or freetext, alphabetically. */
   readonly hints = input.required<readonly AttributeHint[]>();

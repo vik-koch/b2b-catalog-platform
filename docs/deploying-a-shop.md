@@ -32,7 +32,7 @@ sample content; a real shop starts empty and is filled in the admin panel or by 
    for a German one that also sells to private buyers. Then rewrite what is about one shop:
    `branding`, `seller`, `contact`, `locations` and their map embeds, `mapProvider`, `pickup`
    and `delivery` in `deployment.json`, the shop-specific texts at the top of
-   `texts/app.json`, and the assets ([what describes your shop](../deployments/fixture/config/README.md#what-describes-your-shop)).
+   `texts/storefront.json`, and the assets ([what describes your shop](../deployments/fixture/config/README.md#what-describes-your-shop)).
    For another language, translate the five text files.
 3. **Make the decisions below.**
 4. **Check it.** In a checkout of the release you will deploy, after `npm ci`, run

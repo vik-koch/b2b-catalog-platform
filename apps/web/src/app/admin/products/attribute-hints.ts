@@ -1,12 +1,14 @@
 import {
-  AttributeDefinition,
-  AttributeKeyUsage,
   AttributeType,
   parseAttributeNumber,
   ProductAttribute,
   splitAttributeKey,
   strayPart,
 } from '@b2b-catalog-platform/shared';
+import {
+  AttributeDefinition,
+  AttributeKeyUsage,
+} from '@b2b-catalog-platform/shared/admin';
 
 /**
  * What the catalog already knows about one attribute name, as the product

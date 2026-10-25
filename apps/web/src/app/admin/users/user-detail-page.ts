@@ -8,28 +8,33 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-  ConsentRecord,
-  CustomerTier,
   fillText,
   formatPersonName,
   normalizePhone,
-  StaffUser,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { AuthService } from '../../auth/auth.service';
-import { formatPhone } from '../../core/contact-fields';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
+import {
+  ConsentRecord,
+  CustomerTier,
+  StaffUser,
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { AuthService } from '../../shared/auth/auth.service';
+import { formatPhone } from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
-import { Button } from '../../ui/button';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge } from '../../ui/status-badge';
-import { injectEditorReturnParams } from '../editor-return';
+import { Button } from '../../shared/ui/button';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge } from '../../shared/ui/status-badge';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
@@ -261,10 +266,10 @@ export class UserDetailPage {
   /** The same words the list and the editor use for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   protected readonly editorText = inject(ADMIN_TEXT).users.editor;
-  private readonly commonText = inject(COMMON_TEXT);
+  private readonly sharedText = inject(SHARED_TEXT);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   private readonly phoneInput = this.config.phoneInput;
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {
@@ -517,8 +522,8 @@ export class UserDetailPage {
     const person = this.user();
     if (!person) return [];
     const editor = this.editorText;
-    const fields = this.commonText.fields;
-    const kinds = this.commonText.partyKind;
+    const fields = this.sharedText.fields;
+    const kinds = this.sharedText.partyKind;
     const type =
       person.customerType === 'company'
         ? kinds.company

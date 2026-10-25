@@ -19,21 +19,23 @@ import {
   viewChild,
 } from '@angular/core';
 import {
-  AttributeDefinition,
-  AttributeKeyUsage,
   PRODUCT_ATTRIBUTES_MAX,
   fillText,
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { injectNarrowScreen } from '../../core/narrow-screen';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Icon } from '../../ui/icons/icon';
-import { HintBadge } from '../../ui/hint-badge';
-import { FieldLabel } from '../../ui/field-label';
-import { TextButton } from '../../ui/link';
+import {
+  AttributeDefinition,
+  AttributeKeyUsage,
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { HintBadge } from '../../shared/ui/hint-badge';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { TextButton } from '../../shared/ui/link';
 import {
   AttributeHint,
   attributeHints,
@@ -51,7 +53,7 @@ import {
   parseClipboardGrid,
   selectionToTsv,
 } from './attribute-grid';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.
@@ -282,7 +284,7 @@ import { COMMON_TEXT } from '../../config/common-text';
 export class ProductAttributesEditor {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   /** Below `md` the spreadsheet is unusable — see the narrow view. Not `sm`:
    * the action glyphs are already finger-sized a breakpoint earlier, and four
    * of them plus two cells do not fit the table between the two. */

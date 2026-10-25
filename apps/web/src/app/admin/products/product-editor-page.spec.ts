@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   ActivatedRoute,
@@ -7,23 +7,22 @@ import {
   ParamMap,
   Router,
 } from '@angular/router';
+import { fillText, DeploymentConfig } from '@b2b-catalog-platform/shared';
 import {
   AdminCategory,
   AdminProduct,
   CustomerTier,
-  fillText,
-  DeploymentConfig,
-} from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
+} from '@b2b-catalog-platform/shared/admin';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 
 const text = defaultAdminText.products.editor;
@@ -166,10 +165,10 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductEditorPage],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       options.catalogOwned ? provideOwnership('catalog') : provideOwnership(),
       { provide: DEPLOYMENT_CONFIG, useValue: config },
       { provide: Router, useValue: { navigate: h.navigate } },
@@ -815,7 +814,7 @@ describe('ProductEditorPage', () => {
 
       // The note's box beside it, opened while the note is still off.
       buttonByText(el, text.lineNote.heading).click();
-      buttonByText(el, defaultCommonText.product.variants).click();
+      buttonByText(el, defaultSharedText.product.variants).click();
       fixture.detectChanges();
       setInput(
         box(el).querySelector(
@@ -1307,7 +1306,7 @@ describe('ProductEditorPage', () => {
         b.textContent?.trim(),
       );
       expect(labels).not.toContain(defaultAdminText.actions.save);
-      expect(labels).toContain(defaultCommonText.actions.cancel);
+      expect(labels).toContain(defaultSharedText.actions.cancel);
     });
 
     it('still offers the form when nothing is owned', async () => {

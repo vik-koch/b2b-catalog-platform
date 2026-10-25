@@ -1,11 +1,7 @@
 import { Controller, ForbiddenException } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import {
-  AuthUser,
-  SyncArea,
-  UserRole,
-  syncContract,
-} from '@b2b-catalog-platform/shared';
+import { AuthUser, UserRole } from '@b2b-catalog-platform/shared';
+import { SyncArea, syncContract } from '@b2b-catalog-platform/shared/sync';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { refusals } from '../orpc/refusals';

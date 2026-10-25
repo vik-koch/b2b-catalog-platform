@@ -4,7 +4,6 @@ import * as z from 'zod';
 import {
   API_TOKEN_SCOPES,
   CUSTOMER_TYPES,
-  OWNERSHIP_AREAS,
   ORDER_STATUSES,
   PAGE_SLUGS,
   PAYMENT_METHODS,
@@ -14,6 +13,7 @@ import {
   USER_ROLES,
   USER_STATUSES,
 } from '@b2b-catalog-platform/shared';
+import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
 
 /**
  * A seed bundle: one demo shop's content as files, so the seed carries no

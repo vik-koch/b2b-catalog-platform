@@ -1,4 +1,4 @@
-import type { AdminIconName } from '../../ui/icons/admin-icon';
+import type { AdminIconName } from '../../shared/ui/icons/admin-icon';
 import { GridFilterOption } from './grid-filter-select';
 
 /** How a column is ordered: the key each direction writes to `sort`. */

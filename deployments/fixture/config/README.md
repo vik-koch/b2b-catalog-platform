@@ -13,15 +13,15 @@ copy instead (via `CONFIG_DIR`, see below) and never commits it here.
 ## The files
 
 ```
-deployment.json      the deployment's public facts      web + api, sent to every visitor
-api.json             what only the API reads            api
-texts/common.json    shared names                       web (every page) + api
-texts/app.json       the storefront's wording           web (every page)
-texts/admin.json     the admin's wording                web (fetched by admins)
-texts/mail.json      every email                        api
-texts/pdf.json       the documents the API draws        api
-assets/              logo, favicon, fonts               served by the web
-password-blocklist.txt                                  api, optional
+deployment.json        the deployment's public facts      web + api, sent to every visitor
+api.json               what only the API reads            api
+texts/shared.json      shared names                       web (every page) + api
+texts/storefront.json  the customers' wording             web (every page)
+texts/admin.json       the staff's wording                web (fetched by admins)
+texts/mail.json        every email                        api
+texts/pdf.json         the documents the API draws        api
+assets/                logo, favicon, fonts               served by the web
+password-blocklist.txt                                    api, optional
 ```
 
 - `deployment.json` → `DeploymentConfig` (the locale, branding, contact, seller line, locations,
@@ -37,15 +37,16 @@ password-blocklist.txt                                  api, optional
   for: whether the receipt attaches the terms, how long records are kept, how
   long a session lasts, and what an unattended sync run may do. A new setting
   goes here unless the browser needs it.
-- `texts/common.json` → `CommonText`, the shop's **shared names** — what the
+- `texts/shared.json` → `SharedText`, the shop's **shared names** — what the
   storefront, the admin, mail and the order summary would otherwise each repeat
   (page names, units, the tax statements, the controls every screen has) — and
   what customers read in more than one place, such as a field's check or an
   order's status. Never wording only staff read. **Browser-delivered** via
   shell state and **also loaded by the API**.
-- `texts/app.json` → `AppText`, the **public** UI-text catalog (storefront
-  chrome, the login form, error messages).
-  **Browser-delivered** via shell state.
+- `texts/storefront.json` → `StorefrontText`, the **customers'** wording
+  (storefront chrome, the login form, error messages). Staff read it too where
+  they are shown what a customer sees: the product preview, an address form,
+  the customer's version of an order. **Browser-delivered** via shell state.
 - `texts/admin.json` → `AdminText`, the wording of the **admin** surfaces
   (editors, management screens, catalog sync, storefront edit mode).
   **Browser-delivered on demand**: fetched from `/admin-text.json` once an admin
@@ -60,10 +61,10 @@ password-blocklist.txt                                  api, optional
 The mails and the PDFs take the branding (shop name, header colour), the
 typeface and the money formatting from `deployment.json`.
 
-A name that reads the same to customers and staff is in `texts/common.json`
+A name that reads the same to customers and staff is in `texts/shared.json`
 once; where staff word a thing differently (order statuses, the messages under
 a field), theirs is in `texts/admin.json`, and in `texts/mail.json` where a
-staff mail needs it. `texts/common.json` reaches every visitor, so nothing only
+staff mail needs it. `texts/shared.json` reaches every visitor, so nothing only
 staff read goes there. Controls that read the same on every screen — Cancel,
 Close, Remove, "Saving…" — are its `actions`; a control that names what it does
 ("Delete selection") keeps its own key, and staff-only verbs (Save, Edit,
@@ -93,9 +94,9 @@ demo list is deliberately short; replace it, do not extend it in this repo.
 
 Each file must be **complete** (no partial overrides), and an unknown key stops
 the boot as surely as a missing one. The authoritative shape of each is its Zod
-schema: `libs/shared/src/lib/deployment-config.ts` (read by both apps),
-`apps/api/src/config/api-config.ts`, `libs/shared/src/lib/common-text.ts`,
-`apps/web/src/app/config/app-text.type.ts`, `.../admin-text.type.ts`,
+schema: `libs/shared/src/lib/config/deployment-config.ts` (read by both apps),
+`apps/api/src/config/api-config.ts`, `libs/shared/src/lib/config/shared-text.ts`,
+`apps/web/src/app/shared/config/storefront-text.type.ts`, `.../admin-text.type.ts`,
 `apps/api/src/mail/mail-text.ts` and `apps/api/src/pdf/pdf-text.ts`. The
 committed demo files are the worked example to copy from.
 
@@ -107,7 +108,7 @@ parts that are about one shop, and a new deployment rewrites all of them:
 - `deployment.json`: `branding` (the name, the tagline, the logo's size, the
   colours, the first year of the copyright), `seller`, `contact`, `locations`
   and `mapProvider`, `pickup`, `delivery`, `elsewhere`.
-- `texts/app.json`: `home`, `map`, `consent` and `footer`, first in the file.
+- `texts/storefront.json`: `home`, `map`, `consent` and `footer`, first in the file.
 - `assets/`: the logo and the favicon (below).
 - The static pages — about, conditions, terms, privacy, imprint, withdrawal and
   the contact page's text — are written in the admin, not here. The privacy
@@ -234,13 +235,13 @@ sending it without the consent. So write the text before switching it on.
 
 Whether or not a box is asked, the contact form, registration and checkout
 carry a line pointing at the privacy page, worded by `privacyNotice` in
-`texts/app.json`. It shows only where `privacy` is published.
+`texts/storefront.json`. It shows only where `privacy` is published.
 
 ### Terms of sale
 
 Publishing `terms` gives the shop a page of terms that every order accepts.
 Checkout says so beside the submit button, worded by `termsNotice` in
-`texts/app.json`. Each order records the version of the terms current when it
+`texts/storefront.json`. Each order records the version of the terms current when it
 was sent. Staff see that version on the order, and the customer's receipt and
 the order summary name its date. A deployment that does not publish `terms`
 records nothing and says nothing, and neither does one that publishes it before
@@ -305,8 +306,8 @@ its own rate; staff screens state every line's rate regardless. An order keeps
 the basis it was submitted under, so changing `basis` later restates nothing
 the shop has already quoted.
 
-The statements are `tax` in `texts/common.json`, one wording for the storefront,
-the mails and the order summary; `tax` in `texts/app.json` holds only what the
+The statements are `tax` in `texts/shared.json`, one wording for the storefront,
+the mails and the order summary; `tax` in `texts/storefront.json` holds only what the
 storefront adds beside a price and under a listing, and `conditions.tax*` the
 conditions page. `{rate}` is the rate written as the deployment writes numbers;
 the `mixed` forms are the totals that name no rate.

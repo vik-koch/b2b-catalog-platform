@@ -1,4 +1,5 @@
-import { CustomerType, StaffUser } from '@b2b-catalog-platform/shared';
+import { CustomerType } from '@b2b-catalog-platform/shared';
+import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { UsersService } from './users.service';
 import { StaffUsersService } from './staff-users.service';
 

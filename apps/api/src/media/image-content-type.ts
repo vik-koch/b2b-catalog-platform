@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { AcceptedImageMime } from '@b2b-catalog-platform/shared';
+import { AcceptedImageMime } from '@b2b-catalog-platform/shared/admin';
 
 // sharp reports the decoded format; map only the ones we allow to their MIME.
 // Anything else (svg, tiff, avif, a non-image sharp cannot open) is rejected.

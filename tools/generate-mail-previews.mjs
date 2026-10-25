@@ -61,8 +61,8 @@ const rendered = (slug) =>
 const { mailTextSchema } = await loadTypeScript(
   'apps/api/src/mail/mail-text.ts',
 );
-const { commonTextSchema } = await loadTypeScript(
-  'libs/shared/src/lib/common-text.ts',
+const { sharedTextSchema } = await loadTypeScript(
+  'libs/shared/src/lib/config/shared-text.ts',
 );
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
   'apps/api/src/mail/mail-previews.ts',
@@ -88,7 +88,7 @@ const parseConfig = (schema, file) => {
   return parsed.data;
 };
 const mailText = parseConfig(mailTextSchema, 'texts/mail.json');
-const commonText = parseConfig(commonTextSchema, 'texts/common.json');
+const sharedText = parseConfig(sharedTextSchema, 'texts/shared.json');
 const deployment = JSON.parse(
   readFileSync(`${CONFIG_DIR}/deployment.json`, 'utf8'),
 );
@@ -107,7 +107,7 @@ const escape = (value) =>
     (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch],
   );
 
-const previews = renderMailPreviews(mailText, commonText, branding);
+const previews = renderMailPreviews(mailText, sharedText, branding);
 const files = {};
 for (const preview of previews) {
   files[`${DIR}/${preview.slug}.html`] = preview.rendered.html;

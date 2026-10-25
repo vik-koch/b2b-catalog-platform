@@ -1,13 +1,13 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { and, asc, eq, gte, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { UserStatus } from '@b2b-catalog-platform/shared/admin';
 import {
   CustomerAccountRecord,
   CustomerAccountState,
   CustomerAccountsPage,
   ListCustomerAccountsQuery,
-  UserStatus,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
 import { encodeMachineCursor, parseMachineCursor } from './machine-cursor';
 import * as schema from '../db/schema';

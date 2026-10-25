@@ -8,20 +8,22 @@ import {
   signal,
 } from '@angular/core';
 import {
-  AdminProductListItem,
   ADMIN_CATALOG_PAGE_SIZE,
-  DocumentProduct,
   fillText,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { debounced } from '../../core/debounced';
-import { AlternateLayout } from '../../core/alternate-layout';
-import { Checkbox } from '../../ui/checkbox';
-import { FieldLabel } from '../../ui/field-label';
-import { Input } from '../../ui/input';
-import { SelectField } from '../../ui/select-field';
-import { SegmentOption, Segmented } from '../../ui/segmented';
-import { StatusBadge } from '../../ui/status-badge';
+import {
+  AdminProductListItem,
+  DocumentProduct,
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { debounced } from '../../shared/core/debounced';
+import { AlternateLayout } from '../../shared/core/alternate-layout';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { Input } from '../../shared/ui/input';
+import { SelectField } from '../../shared/ui/select-field';
+import { SegmentOption, Segmented } from '../../shared/ui/segmented';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 

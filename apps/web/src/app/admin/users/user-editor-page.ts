@@ -3,48 +3,49 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CustomerTier,
   CustomerType,
   PartySuggestion,
-  StaffUser,
-  UserKind,
   UserRole,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { COMMON_TEXT } from '../../config/common-text';
+import {
+  CustomerTier,
+  StaffUser,
+  UserKind,
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffFields } from '../staff-fields';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { AuthService } from '../../auth/auth.service';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { AuthService } from '../../shared/auth/auth.service';
 import {
   canonicalPhone,
   companyIdValidators,
   emailFormat,
   phoneValidators,
   typedPhone,
-} from '../../core/contact-fields';
-import { delayedLoading } from '../../core/delayed-loading';
-import { FieldErrors } from '../../core/form-errors';
-import { usePageSeo } from '../../core/page-seo';
+} from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { FieldErrors } from '../../shared/core/form-errors';
+import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { LockedNote } from '../ownership/locked-note';
-import { Button } from '../../ui/button';
-import { CompanyFields } from '../../parties/company-fields';
-import { EmailField } from '../../ui/email-field';
-import { FieldLabel } from '../../ui/field-label';
-import { PhoneField } from '../../ui/phone-field';
-import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { injectEditorReturn } from '../editor-return';
+import { Button } from '../../shared/ui/button';
+import { CompanyFields } from '../../shared/parties/company-fields';
+import { EmailField } from '../../shared/ui/email-field';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
-import { SelectField } from '../../ui/select-field';
-import { StatusBadge } from '../../ui/status-badge';
+import { SelectField } from '../../shared/ui/select-field';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { userStatusTone } from './user-status';
-import { Segmented, SegmentOption } from '../../ui/segmented';
-import { WarningNote } from '../../ui/warning-note';
+import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { WarningNote } from '../../shared/ui/warning-note';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -420,10 +421,10 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   protected readonly text = inject(ADMIN_TEXT).users.editor;
   protected readonly fields = staffFields(
-    inject(COMMON_TEXT).fields,
+    inject(SHARED_TEXT).fields,
     inject(ADMIN_TEXT).fields,
   );
-  private readonly kinds = inject(COMMON_TEXT).partyKind;
+  private readonly kinds = inject(SHARED_TEXT).partyKind;
   /** Shared vocabulary — the same words the list uses for the same things. */
   protected readonly listText = inject(ADMIN_TEXT).users.list;
   /**
@@ -450,7 +451,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   });
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly ownership = inject(SettingsService);
   /**
    * What an account with no tier of its own is charged, named: "Default
@@ -484,7 +485,6 @@ export class UserEditorPage implements UnsavedChangesAware {
     incomplete: this.fields.phone.incomplete,
   };
   protected readonly companyText = {
-    ...inject(APP_TEXT).companySuggest,
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     idFormat: this.fields.companyId.format,

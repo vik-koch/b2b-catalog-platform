@@ -10,22 +10,24 @@ import { Router, RouterLink } from '@angular/router';
 import {
   COMPANY_ID_NONE,
   formatPersonName,
+  userRoleSchema,
+} from '@b2b-catalog-platform/shared';
+import {
   StaffUser,
   UserKind,
-  userRoleSchema,
   userStatusSchema,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { formatPhone } from '../../core/contact-fields';
-import { usePageSeo } from '../../core/page-seo';
-import { delayedLoading } from '../../core/delayed-loading';
-import { stableValue } from '../../core/stable-value';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Skeleton } from '../../ui/skeleton';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { formatPhone } from '../../shared/core/contact-fields';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { stableValue } from '../../shared/core/stable-value';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
 import { GridFilterOption } from '../grid/grid-filter-select';
@@ -36,8 +38,8 @@ import { AdminListHeader } from '../list-header';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
-import { injectEditorReturnParams } from '../editor-return';
-import { StatusBadge } from '../../ui/status-badge';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 
@@ -268,8 +270,8 @@ export class UserListPage {
   private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);
   protected readonly text = inject(ADMIN_TEXT).users.list;
-  protected readonly fields = inject(COMMON_TEXT).fields;
-  private readonly kinds = inject(COMMON_TEXT).partyKind;
+  protected readonly fields = inject(SHARED_TEXT).fields;
+  private readonly kinds = inject(SHARED_TEXT).partyKind;
   protected readonly defaultSort = DEFAULT_USER_SORT;
   protected readonly dash = '—';
 
@@ -549,7 +551,7 @@ export class UserListPage {
   private readonly router = inject(Router);
   protected readonly adminText = inject(ADMIN_TEXT);
   private readonly ownershipText = inject(ADMIN_TEXT).ownership;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   /** So an editor opened from here returns to this list, filters and all. */
   protected readonly editorFrom = injectEditorReturnParams();
 

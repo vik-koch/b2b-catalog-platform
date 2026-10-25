@@ -1,0 +1,626 @@
+{
+  "home": {
+    "eyebrow": "Hamburg · Speicherstadt",
+    "intro": "Stöbern Sie unten nach Kategorien oder öffnen Sie den ganzen Katalog.",
+    "categoriesHeading": "Nach Kategorie stöbern",
+    "featured": {
+      "heading": "Aus unserem Sortiment",
+      "previousAria": "Vorherige Produkte",
+      "nextAria": "Weitere Produkte"
+    }
+  },
+  "map": {
+    "consentNotice": "Diese Karte wird von {provider} geladen, der dabei Ihre IP-Adresse erhält. Sie bleibt ausgeblendet, bis Sie es erlauben.",
+    "load": "Karte anzeigen"
+  },
+  "consent": {
+    "message": "Diese Website setzt nur die Cookies, die sie zum Funktionieren braucht. Die Karte auf unserer Kontaktseite wird von {provider} geladen, der dabei Ihre IP-Adresse erhält – deshalb fragen wir vorher. Mehr dazu in unserer",
+    "policyLink": "Datenschutzerklärung",
+    "policyLinkAfter": ".",
+    "accept": "Akzeptieren",
+    "reject": "Ablehnen",
+    "settings": "Cookie-Einstellungen"
+  },
+  "footer": {
+    "copyright": "© {name} {years}"
+  },
+  "a11y": {
+    "homeLink": "{name} – Startseite",
+    "utilityNav": "Service",
+    "primaryNav": "Hauptnavigation",
+    "legalNav": "Rechtliches",
+    "consentBanner": "Cookie-Einwilligung",
+    "scrollToTop": "Nach oben"
+  },
+  "catalog": {
+    "emptyCategories": "Unser Katalog wird gerade eingerichtet – bitte schauen Sie bald wieder vorbei.",
+    "loadError": "Beim Laden des Katalogs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
+    "catalogRoot": "Katalog",
+    "showMore": "Mehr anzeigen",
+    "showLess": "Weniger anzeigen",
+    "emptyProducts": "In dieser Kategorie gibt es noch keine Produkte.",
+    "productCount": "Produkte: {count}",
+    "set": {
+      "short": "Set",
+      "full": "Wird als Set verkauft: {parts}"
+    },
+    "variants": {
+      "unavailable": "derzeit nicht verfügbar",
+      "note": "Varianten haben keinen eigenen Bestand; welche verfügbar sind, bestätigen wir Ihnen nach Eingang der Bestellung.",
+      "markLabel": "Varianten anzeigen ({count})"
+    },
+    "layout": {
+      "labelAria": "Ansicht",
+      "grid": "Als Kacheln anzeigen",
+      "list": "Als Liste anzeigen"
+    },
+    "sort": {
+      "label": "Sortieren nach",
+      "relevance": "Beste Treffer",
+      "category": "Nach Kategorie",
+      "name": "Name (A–Z)",
+      "name_desc": "Name (Z–A)",
+      "price": "Preis (aufsteigend)",
+      "price_desc": "Preis (absteigend)",
+      "fields": {
+        "relevance": "Beste Treffer",
+        "category": "Kategorie",
+        "name": "Name",
+        "price": "Preis"
+      }
+    },
+    "filters": {
+      "title": "Filter",
+      "selected": "({count})",
+      "clearAll": "Alle Filter zurücksetzen",
+      "appliedAria": "Aktive Filter",
+      "removeAria": "Filter {label} entfernen",
+      "noMatches": "Kein Produkt passt zu den gewählten Filtern."
+    },
+    "specifications": "Merkmale",
+    "mainSpecifications": "Wichtigste Merkmale",
+    "allSpecifications": "Alle Merkmale",
+    "productNotFound": "Dieses Produkt wurde nicht gefunden. Vielleicht wurde es entfernt.",
+    "categoryNotFound": "Diese Kategorie wurde nicht gefunden. Vielleicht wurde sie entfernt.",
+    "backToCatalog": "Zurück zum Katalog",
+    "viewImageAria": "Bild {n} anzeigen",
+    "imagePlaceholder": "Kein Bild vorhanden",
+    "pairings": {
+      "marker": "Wird zusammen mit anderen Produkten verkauft ({count})",
+      "intro": "Diese Produkte werden zusammen mit diesem verkauft. Legen Sie in den Warenkorb, was Sie brauchen, ohne die Seite zu verlassen.",
+      "loadError": "Beim Laden ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
+    },
+    "documents": {
+      "hintAria": "Öffnet in einem neuen Tab",
+      "linkAria": "Bei {host} nachsehen"
+    },
+    "units": {
+      "perUnit": "pro {unit}",
+      "packagingFormula": "{packs} {packUnit} × {pieces} {pieceUnit} = {total} {pieceUnit}",
+      "packagingPerPack": "{pieces} {pieceUnit} pro {packUnit}",
+      "minQuantity": "Mindestbestellmenge",
+      "boxCountSuffix": "(für {count})",
+      "select": {
+        "piece": "Stück",
+        "pack": "Packung",
+        "box": "Karton"
+      }
+    }
+  },
+  "cart": {
+    "navLabel": "Warenkorb",
+    "title": "Ihr Warenkorb",
+    "summaryAria": "Warenkorb: {total}, Positionen: {count}",
+    "empty": "Ihr Warenkorb ist leer.",
+    "emptyAction": "Zum Katalog",
+    "loadError": "Beim Berechnen Ihres Warenkorbs ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal.",
+    "storageFailed": "Dieser Browser speichert Ihren Warenkorb nicht – er ist weg, sobald Sie diese Seite schließen.",
+    "unitAria": "Einheit",
+    "quantityAria": "Menge",
+    "unitNotSold": "Dieses Produkt wird in dieser Einheit nicht verkauft.",
+    "decreaseAria": "Menge verringern",
+    "increaseAria": "Menge erhöhen",
+    "noteLabel": "Anmerkung",
+    "notePrompt": "Gibt es zu dieser Position etwas, das wir wissen sollten?",
+    "noteAdd": "Anmerkung zu dieser Position hinzufügen",
+    "noteEdit": "Anmerkung zu dieser Position bearbeiten",
+    "add": "In den Warenkorb",
+    "addedFor": "Hinzugefügt für {total}",
+    "full": "Ihr Warenkorb ist voll – bitte schicken Sie diese Bestellung ab, bevor Sie weitere Produkte hinzufügen.",
+    "lineNoteAria": "Anmerkung",
+    "removeAria": "{name} entfernen",
+    "removeQuestion": "Aus dem Warenkorb nehmen?",
+    "removeYes": "Entfernen",
+    "removeNo": "Behalten",
+    "selectLineAria": "{name} auswählen",
+    "selectAll": "Alle auswählen",
+    "clearSelection": "Auswahl aufheben",
+    "deleteSelected": "Auswahl löschen",
+    "deleteSelectedConfirm": {
+      "heading": "Ausgewählte Positionen löschen",
+      "message": "Die Auswahl aus Ihrem Warenkorb entfernen? Ausgewählte Positionen: {count}. Das lässt sich nicht rückgängig machen.",
+      "confirm": "Auswahl löschen"
+    },
+    "subtotal": "Zwischensumme",
+    "noPrice": "Auf Anfrage",
+    "totalIncomplete": "Einige Positionen konnten nicht berechnet werden – die Zwischensumme umfasst die übrigen.",
+    "checkout": "Zur Kasse",
+    "continueShopping": "Weiter einkaufen",
+    "summaryTitle": "Ihre Bestellung",
+    "summaryLines": "Positionen",
+    "shipmentCartons": "Kartons",
+    "shipmentVolume": "Volumen",
+    "shipmentWeight": "Gewicht",
+    "shipmentApproximate": "Ungefähr – die tatsächliche Sendung bestätigen wir mit Ihrer Bestellung.",
+    "shipmentUncovered": "Positionen ohne Schätzung: {count}",
+    "changes": {
+      "heading": "Was sich geändert hat, während Ihr Warenkorb wartete",
+      "dismissAria": "Diese Übersicht schließen",
+      "unavailable": "{name} ist nicht mehr erhältlich.",
+      "quantity": "{name}: Die Menge wurde auf die nächste lieferbare angepasst.",
+      "price": "{name}: Der Preis hat sich von {from} auf {to} geändert.",
+      "unpriced": "{name}: Für diese Position können wir gerade keinen Preis nennen – wir bestätigen ihn mit Ihnen.",
+      "outOfStock": "{name} ist ausverkauft und kann gerade nicht bestellt werden.",
+      "backInStock": "{name} ist wieder vorrätig."
+    },
+    "issues": {
+      "unavailable": "Nicht mehr erhältlich – bitte entfernen Sie diese Position.",
+      "unitUnavailable": "Dieses Produkt wird nicht mehr so verpackt, daher wird die Menge jetzt in Stück angezeigt.",
+      "quantityCorrected": "Die Menge wurde auf die nächste lieferbare angepasst.",
+      "noteNotAllowed": "Dieses Produkt nimmt keine Anmerkung mehr an, daher wurde Ihre entfernt.",
+      "priceUnavailable": "Für diese Position können wir gerade keinen Preis nennen – wir bestätigen ihn mit Ihnen.",
+      "outOfStock": "Ausverkauft – bitte entfernen Sie diese Position, um zu bestellen."
+    },
+    "pairing": {
+      "shortAction": "{count} {unit} hinzufügen",
+      "shortReason": "von dem, womit es zusammen verkauft wird.",
+      "summary": "Produkte im Warenkorb, denen fehlt, womit sie zusammen verkauft werden: {count}.",
+      "summaryEnforced": "Produkte im Warenkorb, die nicht ohne das bestellt werden können, womit sie zusammen verkauft werden: {count}."
+    }
+  },
+  "checkout": {
+    "title": "Kasse",
+    "intro": "Schicken Sie uns Ihre Bestellung, und wir stimmen die Einzelheiten mit Ihnen ab.",
+    "emptyCart": "In Ihrem Warenkorb ist nichts zu bestellen.",
+    "signInPrompt": "Schon Kunde? Melden Sie sich an, dann gelten Ihre vereinbarten Preise für diese Bestellung.",
+    "signInAction": "Anmelden",
+    "phoneMissing": "Für eine Bestellanfrage brauchen wir eine Telefonnummer, und zu diesem Konto ist keine hinterlegt – unser Team meldet sich telefonisch. Bitte ergänzen Sie eine in Ihrem Konto und kommen Sie dann hierher zurück; der Warenkorb bleibt erhalten.",
+    "phoneMissingAction": "Telefonnummer ergänzen",
+    "contact": {
+      "heading": "Wer bestellt?",
+      "name": "Ihr Name",
+      "contactName": "Nach wem sollen wir fragen?",
+      "nameRequired": "Bitte sagen Sie uns, nach wem wir fragen sollen.",
+      "note": "Die Rechnung geht an die Person, die Sie hier nennen; E-Mail und Telefon nutzen wir nur, um die Bestellung zu bestätigen."
+    },
+    "party": {
+      "heading": "An wen geht die Rechnung?",
+      "own": "An mich",
+      "other": "An jemand anderen",
+      "personName": "Name des Rechnungsempfängers",
+      "nameRequired": "Bitte nennen Sie den Namen für die Rechnung.",
+      "otherNotice": "Den Preis bestätigen wir mit Ihnen – Ihre vereinbarten Preise gelten nur für Ihr eigenes Konto."
+    },
+    "addresses": {
+      "deliveryHeading": "Wohin sollen wir liefern?",
+      "billingHeading": "Wohin soll die Rechnung gehen?",
+      "billingOnlyHeading": "Wohin soll die Rechnung gehen?",
+      "sameAsDelivery": "Die Rechnung auch an diese Adresse schicken",
+      "addNew": "Andere Adresse verwenden",
+      "loadError": "Ihre gespeicherten Adressen konnten nicht geladen werden – bitte geben Sie unten eine ein.",
+      "saveToBook": "Diese Adresse für das nächste Mal speichern"
+    },
+    "zone": {
+      "resolved": "Liefergebiet: {zone}",
+      "shortOf": "Noch {amount} bis zur kostenlosen Lieferung in diesem Gebiet.",
+      "qualifies": "Diese Bestellung wird in diesem Gebiet kostenlos geliefert.",
+      "noDelivery": "In dieses Gebiet liefern wir nicht. Geben Sie eine Adresse in einem unserer Liefergebiete an – etwa das Depot einer Spedition – oder schicken Sie die Bestellung so ab, und wir finden mit Ihnen einen Weg.",
+      "unknown": "Die Lieferung an diese Adresse bestätigen wir mit Ihnen."
+    },
+    "timing": {
+      "placeholder": "Datum wählen…",
+      "deliveryHint": "Nur Ihr Wunsch: Den tatsächlichen Liefertermin bestätigt unser Team.",
+      "pickupHint": "Nur Ihr Wunsch: Den tatsächlichen Abholtermin bestätigt unser Team.",
+      "unavailable": "An diesem Tag geht es leider nicht. Bitte wählen Sie einen Werktag ab dem nächsten."
+    },
+    "payment": {
+      "heading": "Wie möchten Sie bezahlen?",
+      "cashDeliveryDescription": "Sie bezahlen, wenn Sie Ihre Bestellung erhalten.",
+      "cashPickupDescription": "Sie bezahlen, wenn Sie Ihre Bestellung abholen.",
+      "transferDescription": "Sobald wir Ihre Bestellung bestätigen, schicken wir Ihnen eine Rechnung mit unserer Bankverbindung.",
+      "transferCompanyOnly": "Nur für Bestellungen mit einem Unternehmen als Rechnungsempfänger.",
+      "cashPersonOnly": "Nur für Bestellungen mit einer Privatperson als Rechnungsempfänger."
+    },
+    "note": {
+      "label": "Gibt es etwas, das wir wissen sollten?",
+      "placeholder": "Hinweise zur Lieferung, eine Referenz für Ihre Rechnung oder anderes."
+    },
+    "review": {
+      "title": "Bestellung prüfen",
+      "intro": "Noch ist nichts abgeschickt. Lesen Sie alles durch und senden Sie es ab, wenn es stimmt.",
+      "billingSame": "Rechnung an dieselbe Adresse.",
+      "whenAny": "So bald wie möglich",
+      "back": "Etwas ändern",
+      "backToCart": "Zurück zum Warenkorb",
+      "send": "Prüfen und absenden"
+    },
+    "submit": "Zahlungspflichtig bestellen",
+    "successHeading": "Vielen Dank – Ihre Bestellung ist bei uns",
+    "success": "Ihre Bestellanfrage hat die Nummer {reference}. Einzelheiten, Lieferung und Preis bestätigen wir Ihnen in Kürze.",
+    "successView": "Bestellung ansehen",
+    "successAction": "Zurück zum Katalog",
+    "errors": {
+      "incomplete": "Einige Angaben fehlen oder müssen korrigiert werden – sie sind im Formular markiert.",
+      "invalidCompanyId": "Diese Unternehmenskennung hat kein Format, auf das wir eine Rechnung ausstellen können. Bitte prüfen Sie sie.",
+      "unsupportedCountry": "In dieses Land liefern wir nicht. Bitte wählen Sie eine andere Adresse.",
+      "invalidPostalCode": "Diese Postleitzahl passt nicht zum gewählten Land. Bitte prüfen Sie sie.",
+      "unknownPickupLocation": "Dieser Abholort ist nicht mehr verfügbar. Bitte wählen Sie einen anderen.",
+      "billingDetailsRequired": "Für eine Überweisung brauchen wir ein Unternehmen als Rechnungsempfänger. Bitte wählen Sie einen anderen Empfänger oder eine andere Zahlungsart.",
+      "cashNotAvailable": "Bei einem Unternehmen als Rechnungsempfänger können wir keine Barzahlung annehmen. Bitte bezahlen Sie per Überweisung.",
+      "customerTypeNotAccepted": "Diese Bestellung kann nur auf eine Art von Kunde ausgestellt werden, an die wir verkaufen. Bitte prüfen Sie, wer die Rechnung erhält.",
+      "partyRequired": "Bitte sagen Sie uns, an wen die Rechnung gehen soll.",
+      "rejected": "Wir konnten diese Bestellung nicht annehmen. Bitte versuchen Sie es noch einmal.",
+      "cartChanged": "Preise oder Mengen in Ihrem Warenkorb haben sich geändert, während Sie das Formular ausgefüllt haben – bitte prüfen Sie Ihre Bestellung und senden Sie sie erneut ab.",
+      "pairingUnsatisfied": "Einigen Produkten in Ihrem Warenkorb fehlt, womit sie zusammen verkauft werden.",
+      "generic": "Beim Absenden Ihrer Bestellung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "staffAccount": "Mit einem Mitarbeiterkonto lassen sich keine Bestellanfragen senden – eine Bestellung braucht ein Kundenkonto, denn daran hängen die vereinbarten Preise und die Lieferadresse. Melden Sie sich als Kunde an, um die Kasse auszuprobieren."
+    },
+    "fulfilment": {
+      "heading": "Wie möchten Sie Ihre Bestellung erhalten?",
+      "pickupDescription": "Holen Sie Ihre Bestellung kostenlos selbst ab.",
+      "conditionsLink": "Lieferbedingungen",
+      "conditionsHeading": "Wohin wir liefern",
+      "conditionsNote": "Nur zur Orientierung – Lieferung und Kosten bestätigen wir mit jeder Bestellung.",
+      "conditionsMore": "Alle Bedingungen lesen",
+      "freeFrom": "Kostenlose Lieferung ab {amount}",
+      "noFreeDelivery": "Lieferkosten nach Angebot",
+      "noDelivery": "In dieses Gebiet liefern wir nicht.",
+      "pickupHeading": "Wo möchten Sie Ihre Bestellung abholen?",
+      "pickupRequired": "Bitte wählen Sie, wo Sie Ihre Bestellung abholen möchten.",
+      "mapLink": "Auf der Karte zeigen"
+    }
+  },
+  "orders": {
+    "heading": "Meine Bestellungen",
+    "intro": "Alle Bestellanfragen, die Sie uns geschickt haben, mit ihrem Inhalt.",
+    "action": "Alle meine Bestellungen",
+    "awaitingPayment": "Zu bezahlen: {count}",
+    "awaitingPickup": "Abholbereit: {count}",
+    "filterToPay": "Zu bezahlen",
+    "filterToCollect": "Abholbereit",
+    "filterRemoveAria": "Alle Bestellungen anzeigen ({label})",
+    "filterEmpty": "Gerade wartet nichts auf Sie.",
+    "empty": "Sie haben uns noch keine Bestellung geschickt.",
+    "emptyAction": "Zum Katalog",
+    "itemCount": "Positionen: {count}",
+    "error": "Ihre Bestellungen konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+    "back": "Zurück zu meinem Konto",
+    "detail": {
+      "placed": "Gesendet am {date}",
+      "notFound": "Diese Bestellung finden wir in Ihrem Konto nicht.",
+      "backToList": "Zurück zu meinen Bestellungen",
+      "error": "Diese Bestellung konnte gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+      "cancel": {
+        "action": "Diese Bestellung stornieren",
+        "reasonLabel": "Bitte sagen Sie uns, warum",
+        "error": "Wir konnten diese Bestellung nicht stornieren. Vielleicht ist sie schon weiter – bitte laden Sie die Seite neu oder rufen Sie uns an."
+      },
+      "cancelConfirm": {
+        "heading": "Diese Bestellung stornieren?",
+        "message": "Wir arbeiten dann nicht weiter an Bestellung {reference}. Sie können uns jederzeit eine neue schicken.",
+        "confirm": "Bestellung stornieren",
+        "cancel": "Bestellung behalten",
+        "warning": "Für diese Bestellung haben wir bereits eine Zahlung verbucht. Eine Stornierung hier überweist das Geld nicht zurück – bitte klären Sie die Erstattung direkt mit uns."
+      },
+      "documents": {
+        "heading": "Dokumente",
+        "summary": "Ihre Bestellung als PDF",
+        "paymentInstructions": "So bezahlen Sie"
+      }
+    },
+    "public": {
+      "heading": "Ihre Bestellung",
+      "intro": "Das ist die Bestellanfrage, die Sie uns geschickt haben. Nichts wird berechnet und nichts verschickt, bevor wir sie mit Ihnen bestätigt haben.",
+      "notFound": "Dieser Link öffnet keine Bestellung. Vielleicht ist er falsch eingegeben, oder die Bestellung wurde entfernt.",
+      "home": "Zurück zum Shop"
+    }
+  },
+  "search": {
+    "placeholder": "Produkte suchen",
+    "submit": "Suchen",
+    "openSearch": "Suche öffnen",
+    "closeSearchAria": "Suche schließen",
+    "clearAria": "Suche leeren",
+    "searchNavAria": "Produktsuche",
+    "suggestionsAria": "Produktvorschläge",
+    "suggestionCountAria": "Vorschläge verfügbar: {count}. Mit den Pfeiltasten gehen Sie sie durch.",
+    "noSuggestions": "Nichts gefunden",
+    "categoriesLabel": "Passende Kategorien",
+    "showAllResults": "Alle Ergebnisse anzeigen",
+    "addSuggestionAria": "{name} in den Warenkorb legen",
+    "suggestionInCartAria": "{name} liegt in Ihrem Warenkorb",
+    "resultsTitle": "Ergebnisse für „{query}“",
+    "resultCount": "Gefundene Produkte: {count}",
+    "noResults": "Keine Treffer für „{query}“.",
+    "noResultsHint": "Prüfen Sie die Schreibweise oder versuchen Sie es mit weniger Wörtern.",
+    "emptyQuery": "Geben Sie einen Produktnamen ein, um den Katalog zu durchsuchen.",
+    "loadError": "Bei der Suche ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
+  },
+  "auth": {
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "accountNav": "Konto",
+    "workMarkerAria": "Wartet auf Sie: {count}",
+    "greeting": "Hallo, {name}",
+    "securityHeading": "Passwort und Sicherheit",
+    "account": "Mein Konto",
+    "password": "Passwort",
+    "registerInvite": {
+      "text": "Bestellen Sie öfter bei uns? Beantragen Sie ein Kundenkonto, dann merken wir uns Ihre Preise und Adressen für das nächste Mal.",
+      "action": "Konto beantragen"
+    },
+    "submit": "Anmelden",
+    "submitting": "Anmeldung läuft…",
+    "invalid": "E-Mail-Adresse oder Passwort ist falsch.",
+    "closed": "Der Shop ist wegen Wartungsarbeiten geschlossen, daher können sich Kundenkonten gerade nicht anmelden. Bitte versuchen Sie es später noch einmal.",
+    "error": "Bei der Anmeldung ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+    "forgotPassword": {
+      "link": "Passwort vergessen?",
+      "heading": "Passwort zurücksetzen",
+      "intro": "Geben Sie die E-Mail-Adresse ein, mit der Sie sich anmelden, und wir schicken Ihnen einen Link, mit dem Sie ein neues Passwort wählen.",
+      "submit": "Link senden",
+      "successHeading": "Sehen Sie in Ihr Postfach",
+      "success": "Falls es zu dieser Adresse ein Konto gibt, ist ein Link für ein neues Passwort unterwegs. Er lässt sich einmal verwenden und läuft eine Stunde nach dem Versand ab.",
+      "error": "Beim Senden Ihres Links ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "backToLogin": "Zurück zur Anmeldung"
+    },
+    "register": {
+      "noAccount": "Neu hier? Beantragen Sie ein Kundenkonto.",
+      "signUp": "Konto beantragen",
+      "heading": "Konto beantragen",
+      "intro": "Erzählen Sie uns von sich, und wir richten Ihr Kundenkonto ein. Jeder Antrag wird von unserem Team geprüft, das geht also nicht sofort – Ihr Passwort erhalten Sie per E-Mail, sobald Ihr Konto bereit ist.",
+      "customerType": "Ich beantrage das Konto als",
+      "submit": "Konto beantragen",
+      "successHeading": "Vielen Dank",
+      "success": "Wenn wir zu dieser Adresse ein Konto einrichten können, erhalten Sie in Kürze eine E-Mail. Unser Team prüft jeden Antrag, daher kann es etwas dauern, bis Ihr Passwort ankommt.",
+      "error": "Beim Senden Ihres Antrags ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "haveAccount": "Sie haben schon ein Konto?",
+      "companyIdHint": "Eine der Nummern, auf die wir eine Rechnung ausstellen können, z. B. {examples}."
+    },
+    "setPassword": {
+      "checking": "Ihr Link wird geprüft…",
+      "setHeading": "Passwort wählen",
+      "setIntro": "Ihr Konto ist bereit. Wählen Sie ein Passwort, und Sie können sofort bestellen.",
+      "resetHeading": "Neues Passwort wählen",
+      "resetIntro": "Wählen Sie ein neues Passwort für Ihr Konto. Überall, wo Sie noch angemeldet sind, werden Sie abgemeldet.",
+      "forAccount": "Für",
+      "confirmPassword": "Passwort wiederholen",
+      "show": "Anzeigen",
+      "hide": "Verbergen",
+      "generate": "Sicheres Passwort vorschlagen",
+      "generated": "Wir haben ein sicheres Passwort eingetragen. Speichern Sie es in Ihrem Passwort-Manager, bevor Sie fortfahren.",
+      "submit": "Passwort speichern und fortfahren",
+      "successHeading": "Alles erledigt",
+      "success": "Ihr Passwort ist gespeichert, und Sie sind angemeldet.",
+      "expiredHeading": "Dieser Link funktioniert nicht mehr",
+      "expired": "Links lassen sich nur einmal verwenden und laufen nach einiger Zeit ab. Fordern Sie unten einen neuen an oder nutzen Sie „Passwort vergessen?“ auf der Anmeldeseite.",
+      "closedHeading": "Noch nicht geöffnet",
+      "closed": "Kundenkonten öffnen zusammen mit dem Shop, an dem gerade gearbeitet wird. Kommen Sie zu diesem Link zurück, sobald wir wieder da sind – ist er bis dahin abgelaufen, fordern Sie einen neuen an.",
+      "error": "Beim Speichern Ihres Passworts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+    },
+    "signInStep": {
+      "codeHeading": "Code eingeben",
+      "codeIntro": "Wir haben einen {length}-stelligen Code an {sentTo} geschickt.",
+      "confirmNote": "Mit der Eingabe bestätigen Sie {phone} als Nummer für Ihre Anmeldecodes.",
+      "code": "Code",
+      "codeRequired": "Geben Sie den Code aus der Nachricht ein.",
+      "codeFormat": "Der Code hat {length} Stellen.",
+      "submit": "Weiter",
+      "resend": "Neuen Code senden",
+      "resendIn": "Neuer Code in {time}",
+      "resent": "Wir haben einen neuen Code geschickt.",
+      "wrong": "Dieser Code stimmt nicht. Verbleibende Versuche: {count}.",
+      "expired": "Dieser Code ist nicht mehr gültig. Fordern Sie einen neuen an.",
+      "restart": "Ihre Anmeldung hat zu lange gedauert. Bitte melden Sie sich erneut an.",
+      "restartAction": "Erneut anmelden",
+      "limit": "Wir können noch keinen weiteren Code senden. Bitte versuchen Sie es in {time} noch einmal.",
+      "remember": "Diesen Browser {days} Tage lang merken",
+      "rememberHint": "Hier wird dann nur nach Ihrem Passwort gefragt, nicht nach der Bestätigung per Telefon. An einem gemeinsam genutzten Computer lassen Sie das Kästchen leer.",
+      "unreachableAccount": "Mit Ihrer Mobilnummer konnten wir Sie nicht anmelden. Bitte kontaktieren Sie uns, damit wir sie aktualisieren.",
+      "unavailable": "Die Anmeldung per Telefon ist gerade nicht möglich. Bitte versuchen Sie es später noch einmal.",
+      "error": "Etwas ist schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "callHeading": "Zum Anmelden anrufen",
+      "callIntro": "Rufen Sie {callTo} von {phone} aus an. Der Anruf ist kostenlos und endet von selbst – Sie müssen nichts sagen.",
+      "callByMail": "Öffnen Sie den Link, den wir an {sentTo} geschickt haben. Er ersetzt einen Anruf von {phone}.",
+      "callConfirmNote": "Damit bestätigen Sie auch {phone} als Nummer für Ihre Anmeldung.",
+      "callDial": "{callTo} anrufen",
+      "callWaiting": "Wir warten auf Ihren Anruf. Diese Seite geht von selbst weiter. Verbleibende Zeit: {time}.",
+      "callExpired": "Die Zeit für den Anruf ist abgelaufen. Fordern Sie eine neue Nummer an.",
+      "callNew": "Neue Nummer anfordern",
+      "callNewIn": "Neue Nummer in {time}",
+      "callRenewed": "Hier ist eine neue Nummer zum Anrufen.",
+      "callLimit": "Wir können Ihnen noch keine weitere Nummer geben. Bitte versuchen Sie es in {time} noch einmal."
+    },
+    "changePassword": {
+      "heading": "Passwort ändern",
+      "intro": "Wählen Sie ein neues Passwort für die Anmeldung. Mit der Änderung werden Sie überall sonst abgemeldet.",
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmPassword": "Neues Passwort bestätigen",
+      "submit": "Passwort ändern",
+      "submitting": "Wird geändert…",
+      "success": "Ihr Passwort wurde geändert. Auf anderen Geräten, auf denen Sie angemeldet waren, wurden Sie abgemeldet.",
+      "wrongCurrent": "Das ist nicht Ihr aktuelles Passwort.",
+      "error": "Beim Ändern Ihres Passworts ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "forcedHeading": "Eigenes Passwort wählen",
+      "forcedIntro": "Dieses Konto nutzt noch das Passwort, mit dem es eingerichtet wurde. Bitte wählen Sie ein eigenes, bevor Sie fortfahren.",
+      "forcedContinue": "Weiter"
+    },
+    "validation": {
+      "passwordRequired": "Bitte geben Sie Ihr Passwort ein.",
+      "currentPasswordRequired": "Bitte geben Sie Ihr aktuelles Passwort ein.",
+      "newPasswordRequired": "Bitte geben Sie ein neues Passwort ein.",
+      "newPasswordTooShort": "Bitte verwenden Sie mindestens {min} Zeichen.",
+      "confirmPasswordMismatch": "Die beiden Passwörter stimmen nicht überein."
+    },
+    "passwordRejected": {
+      "password-common": "Das ist eines der am häufigsten verwendeten Passwörter. Bitte wählen Sie etwas weniger Vorhersehbares.",
+      "password-predictable": "Dieses Muster ist zu einfach. Bitte wählen Sie etwas weniger Vorhersehbares.",
+      "password-contains-email": "Bitte wählen Sie ein Passwort, das Ihre E-Mail-Adresse nicht enthält.",
+      "password-contains-shop-name": "Bitte wählen Sie ein Passwort, das den Namen dieses Shops nicht enthält.",
+      "password-unchanged": "Bitte wählen Sie ein anderes Passwort als Ihr aktuelles."
+    }
+  },
+  "account": {
+    "detailsHeading": "Meine Angaben",
+    "customerType": "Kontoart",
+    "memberSince": "Kunde seit",
+    "changeHint": "Um Ihre E-Mail-Adresse oder die Angaben zu ändern, mit denen Ihr Konto eingerichtet wurde, melden Sie sich bei uns – wir aktualisieren sie für Sie.",
+    "error": "Ihre Angaben konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+    "edit": {
+      "action": "Angaben bearbeiten",
+      "heading": "Meine Angaben bearbeiten",
+      "intro": "Ändern Sie, wie wir Sie ansprechen und wie wir Sie erreichen. Alles andere ändern wir für Sie, wenn Sie sich bei uns melden.",
+      "submit": "Änderungen speichern",
+      "error": "Beim Speichern Ihrer Angaben ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "phoneLocked": "An diese Nummer schicken wir Ihre Anmeldecodes. Um sie zu ändern, melden Sie sich bei uns."
+    },
+    "addresses": {
+      "heading": "Meine Adressen",
+      "empty": "Noch keine gespeicherten Adressen. Fügen Sie eine hinzu, dann wird sie Ihnen an der Kasse angeboten.",
+      "add": "Adresse hinzufügen",
+      "editAria": "{label} bearbeiten",
+      "removeAria": "{label} entfernen",
+      "removeConfirm": {
+        "heading": "Adresse entfernen",
+        "message": "„{label}“ aus Ihren gespeicherten Adressen entfernen? Bereits aufgegebene Bestellungen behalten die Adresse, an die sie gingen.",
+        "confirm": "Entfernen"
+      },
+      "error": "Ihre Adressen konnten gerade nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+      "newHeading": "Adresse hinzufügen",
+      "editHeading": "Adresse bearbeiten",
+      "intro": "Gespeicherte Adressen werden Ihnen an der Kasse angeboten, so tippen Sie jede nur einmal.",
+      "submit": "Adresse speichern",
+      "saveError": "Beim Speichern dieser Adresse ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "limitReached": "Sie haben die Höchstzahl gespeicherter Adressen erreicht. Entfernen Sie eine, um eine weitere hinzuzufügen.",
+      "unsupportedCountry": "In dieses Land liefern wir nicht. Bitte wählen Sie ein anderes."
+    },
+    "delete": {
+      "action": "Mein Konto löschen",
+      "heading": "Mein Konto löschen",
+      "intro": "Damit wird Ihr Konto geschlossen, und Ihre persönlichen Angaben werden aus unseren Unterlagen entfernt. Das lässt sich nicht rückgängig machen.",
+      "consequences": [
+        "Sie werden abgemeldet und können sich nicht wieder anmelden.",
+        "Ihr Name, Ihre Telefonnummer und Ihre übrigen Angaben werden entfernt.",
+        "Frühere Bestellungen bleiben für unsere Buchhaltung erhalten, ohne Ihre Angaben.",
+        "Sie können sich später neu registrieren, aber das ist dann ein neues Konto – Ihre früheren Bestellungen erscheinen darin nicht."
+      ],
+      "openOrders": "Offene Bestellungen, an denen wir noch arbeiten: {count}. Das Löschen Ihres Kontos storniert sie nicht – wir liefern wie vereinbart –, aber wir haben dann Ihren Namen und Ihre Telefonnummer nicht mehr dazu. Rufen Sie uns bitte an, wenn Sie lieber warten möchten, bis sie abgeschlossen sind.",
+      "passwordHint": "Bestätigen Sie mit Ihrem Passwort, dass Sie es sind.",
+      "submit": "Mein Konto löschen",
+      "cancel": "Mein Konto behalten",
+      "wrongPassword": "Das ist nicht Ihr Passwort.",
+      "lastAdmin": "Das ist das einzige Administratorkonto. Erst wenn es ein weiteres gibt, lässt es sich löschen.",
+      "error": "Beim Löschen Ihres Kontos ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal.",
+      "doneHeading": "Ihr Konto wurde gelöscht",
+      "done": "Ihr Konto ist geschlossen, und Ihre persönlichen Angaben wurden entfernt. Eine Bestätigung haben wir an Ihre E-Mail-Adresse geschickt."
+    }
+  },
+  "pageUpdated": {
+    "label": "Zuletzt aktualisiert am {date}"
+  },
+  "privacyNotice": {
+    "text": "Mehr darüber, wie wir mit Ihren Angaben umgehen, lesen Sie in",
+    "link": "unserer Datenschutzerklärung",
+    "after": "."
+  },
+  "termsNotice": {
+    "text": "Mit Ihrer Bestellung akzeptieren Sie",
+    "link": "unsere AGB",
+    "after": "."
+  },
+  "consentBox": {
+    "required": "Bitte setzen Sie das Häkchen, um fortzufahren.",
+    "changed": "Der Einwilligungstext wurde gerade aktualisiert. Bitte lesen Sie ihn und setzen Sie das Häkchen erneut.",
+    "unavailable": "Dieses Formular lässt sich gerade nicht senden. Bitte versuchen Sie es später noch einmal oder erreichen Sie uns auf anderem Weg."
+  },
+  "companySuggest": {
+    "suggestionsAria": "Firmenvorschläge",
+    "noSuggestions": "Keine passenden Firmen. Tippen Sie sie einfach selbst ein.",
+    "suggestionCountAria": "Firmenvorschläge: {count}"
+  },
+  "address": {
+    "label": "Name für diese Adresse",
+    "labelHint": "Nur wenn Sie mehrere haben – „Laden“, „Lager“, „Zuhause“. Leer gelassen, erscheint sie unter ihrer Straße.",
+    "enterManually": "Adresse von Hand eingeben",
+    "addressLine": "Adresse",
+    "street": "Straße und Hausnummer",
+    "street2": "Adresszusatz",
+    "postalCode": "Postleitzahl",
+    "city": "Ort",
+    "region": "Region",
+    "country": "Land",
+    "required": "Bitte füllen Sie dieses Feld aus.",
+    "postalCodeFormat": "Eine Postleitzahl sieht hier so aus: {example}.",
+    "suggest": {
+      "suggestionsAria": "Adressvorschläge",
+      "noSuggestions": "Keine passenden Adressen. Tippen Sie sie einfach selbst ein.",
+      "suggestionCountAria": "Adressvorschläge: {count}"
+    }
+  },
+  "partyChoice": {
+    "person": "Privatperson",
+    "company": "Unternehmen"
+  },
+  "inquiry": {
+    "intro": "Schreiben Sie uns eine Nachricht, und wir melden uns auf dem Weg, den Sie bevorzugen.",
+    "preferredContact": "Wie sollen wir Sie erreichen?",
+    "preferredEmail": "Per E-Mail",
+    "preferredPhone": "Per Telefon",
+    "message": "Nachricht",
+    "submit": "Nachricht senden",
+    "success": "Danke – Ihre Nachricht ist bei uns, wir melden uns bald.",
+    "error": "Beim Senden Ihrer Nachricht ist etwas schiefgegangen. Bitte versuchen Sie es noch einmal."
+  },
+  "conditions": {
+    "paymentHeading": "Zahlung",
+    "cashDescription": "Bezahlt wird bei Übergabe der Bestellung – an Ihrer Tür oder an unserem Tresen.",
+    "goodsHeading": "Ware & Preise",
+    "goodsParagraphs": [
+      "Die Produktbilder zeigen die Ware so genau, wie wir können; Farben können am Bildschirm etwas anders wirken.",
+      "Manche Ware wird <b>sortiert</b> verkauft: Sie erhalten eines der gezeigten Motive. Ein Motiv, das Sie in Ihrer Bestellung nennen, ist ein Wunsch, den wir zu erfüllen versuchen, kein Versprechen."
+    ],
+    "taxIncluded": "Alle Preise enthalten {rate} % MwSt. Ware mit ermäßigtem Steuersatz nennt ihn auf ihrer Produktseite.",
+    "taxAdded": "Alle Preise sind Nettopreise. Die MwSt. von {rate} % kommt auf der Rechnung hinzu; Ware mit ermäßigtem Steuersatz nennt ihn auf ihrer Produktseite.",
+    "taxNone": "Wir berechnen keine MwSt.: Die Preise sind das, was Sie bezahlen.",
+    "returnsHeading": "Rücksendungen",
+    "returnsParagraphs": [
+      "Bitte prüfen Sie die Ware bei der Übergabe und sagen Sie uns sofort Bescheid, wenn etwas fehlt oder beschädigt ist.",
+      "Wenn Sie Ware zurückgeben möchten, melden Sie sich zuerst bei uns: Wir sagen Ihnen, wohin Sie sie schicken oder bringen. Bitte senden Sie sie vollständig und, wo möglich, in der Originalverpackung zurück."
+    ],
+    "returnsWithdrawalLink": "Ihr Widerrufsrecht"
+  },
+  "tax": {
+    "atPrice": "{statement}, zzgl. Lieferung",
+    "listing": {
+      "included": "Alle Preise inkl. MwSt., zzgl. Lieferung.",
+      "added": "Alle Preise netto, zzgl. MwSt. und Lieferung."
+    }
+  },
+  "licenses": {
+    "intro": "Diese Website ist mit Open-Source-Software gebaut. Die Pakete unten sind Teil des Codes, den Ihr Browser herunterlädt, und werden unter den angegebenen Lizenzen verwendet.",
+    "unavailable": "Die Lizenzliste wird nur für Produktions-Builds erzeugt und ist hier nicht verfügbar.",
+    "unknownLicense": "Lizenz nicht angegeben"
+  },
+  "errors": {
+    "notFoundTitle": "Seite nicht gefunden",
+    "notFoundBody": "Die gesuchte Seite gibt es nicht.",
+    "notFoundBack": "Zurück zur Startseite",
+    "cannotLoadTitle": "Seite kann nicht geladen werden",
+    "cannotLoadBody": "Beim Laden dieser Seite ist etwas schiefgegangen – bitte versuchen Sie es später noch einmal."
+  },
+  "maintenance": {
+    "title": "Wir sind gleich wieder da",
+    "body": "Unser Shop wird gerade eingerichtet und ist noch nicht verfügbar. Bitte schauen Sie bald wieder vorbei."
+  }
+}

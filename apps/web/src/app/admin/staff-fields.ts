@@ -1,7 +1,7 @@
-import type { CommonText } from '@b2b-catalog-platform/shared';
-import type { AdminText } from '../config/admin-text.type';
+import type { SharedText } from '@b2b-catalog-platform/shared';
+import type { AdminText } from '../shared/config/admin-text.type';
 
-type Fields = CommonText['fields'];
+type Fields = SharedText['fields'];
 
 /** Each field's shared label with the check staff are told, as one object —
  * the shape a form reads, with the admin's wording in place of the customer's. */

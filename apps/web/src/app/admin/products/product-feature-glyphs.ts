@@ -1,7 +1,7 @@
 import { Component, inject, input } from '@angular/core';
-import { ProductFeature } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { AdminIcon, AdminIconName } from '../../ui/icons/admin-icon';
+import { ProductFeature } from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
 
 /**
  * One glyph per thing a product can carry (FR-ADM-20), shared by the grid row,

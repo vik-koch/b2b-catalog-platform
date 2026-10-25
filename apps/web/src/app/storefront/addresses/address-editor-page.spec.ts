@@ -1,0 +1,402 @@
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { ActivatedRoute, provideRouter, Router } from '@angular/router';
+import {
+  Address,
+  AddressComponents,
+  AddressInput,
+} from '@b2b-catalog-platform/shared';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { AccountService } from '../account/account.service';
+import { AddressEditorPage } from './address-editor-page';
+import { AddressSuggestField } from '../../shared/addresses/address-suggest-field';
+import { AddressesService } from '../../shared/addresses/addresses.service';
+
+const text = defaultStorefrontText.account.addresses;
+const fieldText = defaultStorefrontText.address;
+
+/** Two shapes, the short one first — the order a picker offers them in. */
+const shortFormat = {
+  key: 'short',
+  label: 'Short number',
+  pattern: '^[0-9]{5}$',
+  mask: '#####',
+  example: '12345',
+};
+const longFormat = {
+  key: 'long',
+  label: 'Tax number',
+  pattern: '^[0-9]{10}$',
+  mask: '##########',
+  example: '1234567890',
+};
+
+const stored: Address = {
+  id: 'addr-1',
+  label: 'Shop',
+  street: 'Hafenstraße 12',
+  street2: null,
+  postalCode: '20359',
+  city: 'Hamburg',
+  region: null,
+  country: 'DE',
+  createdAt: '2026-03-01T10:00:00.000Z',
+  updatedAt: '2026-03-01T10:00:00.000Z',
+};
+
+interface Options {
+  /** The `:id` route param; null is the "add" route. */
+  id?: string | null;
+  /** Widen the deployment past the one country the demo ships to. */
+  manyCountries?: boolean;
+  /** A jurisdiction that accepts two shapes of registration number. */
+  twoCompanyIdFormats?: boolean;
+  create?: Awaited<ReturnType<AddressesService['create']>>;
+  /** The row the book answers with, for a test about how it is shown. */
+  address?: Address;
+  companyRegistrationId?: string | null;
+}
+
+async function render(options: Options = {}) {
+  const id = options.id ?? null;
+  const h = {
+    list: vi.fn(async () => [options.address ?? stored]),
+    create: vi.fn(
+      async (_input: AddressInput) =>
+        options.create ?? { ok: true as const, address: stored },
+    ),
+    update: vi.fn(async (_id: string, _input: AddressInput) => ({
+      ok: true as const,
+      address: stored,
+    })),
+    remove: vi.fn(async () => undefined),
+    suggest: vi.fn(async () => []),
+  };
+
+  TestBed.configureTestingModule({
+    imports: [AddressEditorPage],
+    providers: [
+      provideRouter([{ path: 'account', children: [] }]),
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      {
+        provide: DEPLOYMENT_CONFIG,
+        useValue: options.twoCompanyIdFormats
+          ? {
+              ...defaultDeploymentConfig,
+              companyIdInput: { formats: [shortFormat, longFormat] },
+            }
+          : options.manyCountries
+            ? {
+                ...defaultDeploymentConfig,
+                address: {
+                  ...defaultDeploymentConfig.address,
+                  countries: [
+                    ...(defaultDeploymentConfig.address?.countries ?? []),
+                    { code: 'AT', label: 'Austria' },
+                  ],
+                },
+              }
+            : defaultDeploymentConfig,
+      },
+      { provide: AddressesService, useValue: h },
+      {
+        provide: AccountService,
+        useValue: {
+          getProfile: vi.fn(async () => ({
+            email: 'alex@example.com',
+            role: 'user',
+            firstName: 'Alex',
+            lastName: 'Fischer',
+            phone: '+494012345678',
+            customerType: 'company',
+            companyName: 'Kontor GmbH',
+            companyRegistrationId:
+              options.companyRegistrationId === undefined
+                ? 'DE123456789'
+                : options.companyRegistrationId,
+            createdAt: '2026-02-01T10:00:00.000Z',
+          })),
+        },
+      },
+      {
+        provide: ActivatedRoute,
+        useValue: { snapshot: { paramMap: new Map([['id', id]]) } },
+      },
+    ],
+  });
+
+  const fixture = TestBed.createComponent(AddressEditorPage);
+  // Twice: the first pass resolves the resources and runs the seeding effects,
+  // the second renders the form they filled.
+  await fixture.whenStable();
+  fixture.detectChanges();
+  await fixture.whenStable();
+  fixture.detectChanges();
+  const el = fixture.nativeElement as HTMLElement;
+
+  return {
+    fixture,
+    el,
+    h,
+    router: TestBed.inject(Router),
+    // By the tail of the id: the fields are shared with checkout, which draws
+    // two address forms on one page, so each one prefixes its ids with its own
+    // instance number.
+    field: (name: string) =>
+      el.querySelector<HTMLInputElement | HTMLSelectElement>(
+        `[id$="-${name}"]`,
+      ),
+    type: (name: string, value: string) => {
+      // The street field is bound by control rather than by name (the suggest
+      // field takes the control itself), so it is found by what it
+      // autocompletes instead.
+      const input =
+        name === 'street'
+          ? el.querySelector<HTMLInputElement>(
+              'input[autocomplete="street-address"]',
+            )
+          : el.querySelector<HTMLInputElement>(`[id$="-${name}"]`);
+      if (!input) throw new Error(`no field ${name}`);
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+    },
+    submit: async () => {
+      el.querySelector('form')?.dispatchEvent(new Event('submit'));
+      await fixture.whenStable();
+      fixture.detectChanges();
+    },
+  };
+}
+
+describe('AddressEditorPage', () => {
+  describe('adding', () => {
+    // Whichever of the deployment's shapes the account is registered under, the
+    // field shows the number itself — there is no shape to get wrong any more.
+    // One configured country is not a question worth asking; the code still
+    // travels with the address, and the server still checks it.
+    it('asks for no country where the deployment ships to one', async () => {
+      const { field, type, submit, h } = await render();
+
+      expect(defaultDeploymentConfig.address?.countries).toHaveLength(1);
+      expect(field('country')).toBeNull();
+
+      type('label', 'Shop');
+      type('street', 'Hafenstraße 12');
+      type('postalCode', '20359');
+      type('city', 'Hamburg');
+      await submit();
+
+      expect(h.create.mock.calls[0][0].country).toBe(
+        defaultDeploymentConfig.address?.countries[0].code,
+      );
+    });
+
+    it('offers a picker as soon as there is more than one', async () => {
+      const { field } = await render({ manyCountries: true });
+
+      expect(field('country')?.value).toBe(
+        defaultDeploymentConfig.address?.countries[0].code,
+      );
+    });
+
+    // Rarely typed by hand, but a suggestion fills it and what it fills is
+    // printed on the address — so the field is always there to be corrected.
+    it('asks for the region', async () => {
+      const { field } = await render();
+
+      expect(field('region')).not.toBeNull();
+    });
+
+    /**
+     * The postal rule is deployment config, per country (the demo ships to one,
+     * whose codes are five digits). A mask caps what can be typed; the pattern
+     * is what refuses the rest, on both sides.
+     */
+    describe('the postal code', () => {
+      it('caps entry at the mask the country configured', async () => {
+        const { field, type } = await render();
+
+        type('postalCode', '2035912');
+
+        expect(field('postalCode')?.value).toBe('20359');
+      });
+
+      it('refuses a code the country would not print, naming the shape', async () => {
+        const { el, type, submit, h } = await render();
+
+        type('street', 'Hafenstraße 12');
+        type('postalCode', '2035');
+        type('city', 'Hamburg');
+        await submit();
+
+        expect(h.create).not.toHaveBeenCalled();
+        expect(el.textContent).toContain(
+          fieldText.postalCodeFormat.replace(
+            '{example}',
+            defaultDeploymentConfig.address?.countries[0].postalCode?.example ??
+              '',
+          ),
+        );
+      });
+
+      // An empty field is `required`'s answer: telling somebody who left it
+      // blank what a valid code looks like answers a question they did not ask.
+      it('says it is missing rather than misshapen when it is empty', async () => {
+        const { el, submit } = await render();
+
+        await submit();
+
+        expect(el.textContent).toContain(fieldText.required);
+        expect(el.textContent).not.toContain('20457');
+      });
+    });
+
+    it('refuses to save an incomplete address and calls nothing', async () => {
+      const { el, submit, h } = await render();
+
+      await submit();
+
+      expect(h.create).not.toHaveBeenCalled();
+      expect(el.textContent).toContain(fieldText.required);
+    });
+
+    it('sends the trimmed address, empty optional fields as null', async () => {
+      const { type, submit, h, router } = await render();
+      const navigate = vi.spyOn(router, 'navigateByUrl');
+
+      type('label', '  Shop  ');
+      type('street', 'Hafenstraße 12');
+      type('postalCode', '20359');
+      type('city', 'Hamburg');
+      await submit();
+
+      expect(h.create).toHaveBeenCalledTimes(1);
+      const body = h.create.mock.calls[0][0];
+      expect(body).toMatchObject({
+        label: 'Shop',
+        street: 'Hafenstraße 12',
+        postalCode: '20359',
+        city: 'Hamburg',
+        // Prefilled from the account, and sent unless the customer clears it.
+        street2: null,
+        region: null,
+        // The one configured country, though nothing asked for it.
+        country: defaultDeploymentConfig.address?.countries[0].code,
+      });
+      // Back to the book, which shows what was saved.
+      expect(navigate).toHaveBeenCalledWith('/account');
+    });
+
+    // Naming an address is how a customer tells two of them apart, not a step
+    // between them and their first one.
+    it('saves an address the customer never named', async () => {
+      const { type, submit, h } = await render();
+
+      type('street', 'Hafenstraße 12');
+      type('postalCode', '20359');
+      type('city', 'Hamburg');
+      await submit();
+
+      expect(h.create).toHaveBeenCalledTimes(1);
+      expect(h.create.mock.calls[0][0].label).toBeNull();
+    });
+
+    // Picking a suggestion is the one place the form writes several fields at
+    // once, and the unit is the one that must not land on the street line: that
+    // line is rewritten by the next pick, and what is inside the building
+    // would go with it.
+    it('spreads a picked suggestion across the form, unit onto line 2', async () => {
+      const { fixture, el, field } = await render();
+
+      fixture.debugElement
+        .query(By.directive(AddressSuggestField))
+        .componentInstance.picked.emit({
+          street: 'Hafenstraße 12',
+          unit: 'Büro 505',
+          postalCode: '20359',
+          city: 'Hamburg',
+          country: 'DE',
+        } satisfies AddressComponents);
+      fixture.detectChanges();
+
+      // The street input's id is the suggest field's own; found by what it
+      // autocompletes, as elsewhere in this file.
+      expect(
+        el.querySelector<HTMLInputElement>(
+          'input[autocomplete="street-address"]',
+        )?.value,
+      ).toBe('Hafenstraße 12');
+      expect(field('street2')?.value).toBe('Büro 505');
+      expect(field('postalCode')?.value).toBe('20359');
+      expect(field('city')?.value).toBe('Hamburg');
+    });
+
+    // A partial answer must not blank what the customer already typed.
+    it('leaves line 2 alone when the provider parsed no unit', async () => {
+      const { fixture, type, field } = await render();
+
+      type('street2', 'Gate 4');
+      fixture.debugElement
+        .query(By.directive(AddressSuggestField))
+        .componentInstance.picked.emit({
+          street: 'Hafenstraße 12',
+        } satisfies AddressComponents);
+      fixture.detectChanges();
+
+      expect(field('street2')?.value).toBe('Gate 4');
+    });
+
+    // The deployment's own format, applied in the browser as well as the API.
+    it('explains a full book rather than throwing', async () => {
+      const { type, submit, el } = await render({
+        create: { ok: false, code: 'address-limit-reached' },
+      });
+
+      type('label', 'Shop');
+      type('street', 'Hafenstraße 12');
+      type('postalCode', '20359');
+      type('city', 'Hamburg');
+      await submit();
+
+      expect(el.textContent).toContain(text.limitReached);
+    });
+  });
+
+  describe('editing', () => {
+    it('seeds the form from the stored row', async () => {
+      const { field } = await render({ id: 'addr-1' });
+
+      expect(field('label')?.value).toBe('Shop');
+      expect(field('postalCode')?.value).toBe('20359');
+      expect(field('city')?.value).toBe('Hamburg');
+    });
+
+    it('saves under the row it opened', async () => {
+      const { type, submit, h } = await render({ id: 'addr-1' });
+
+      type('label', 'Warehouse');
+      await submit();
+
+      expect(h.update).toHaveBeenCalledTimes(1);
+      expect(h.update.mock.calls[0][0]).toBe('addr-1');
+      expect(h.update.mock.calls[0][1]).toMatchObject({ label: 'Warehouse' });
+    });
+
+    // Wrong here is not cosmetic: the field masks the number into the shape it
+    // was told, so a number dressed in a shape it does not fit is truncated on
+    // screen — and the next save stores the truncation.
+    it('says so when the id names no address of this account', async () => {
+      const { el } = await render({ id: 'not-mine' });
+
+      expect(el.textContent).toContain(text.error);
+      expect(el.querySelector('form')).toBeNull();
+    });
+  });
+});

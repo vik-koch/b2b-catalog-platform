@@ -1,15 +1,16 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CustomerTier, fillText } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { ConfirmService } from '../../ui/confirm.service';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TierListPage } from './tier-list-page';
 import { TiersService } from './tiers.service';
@@ -82,10 +83,10 @@ async function render(
     providers: [
       // The price count links into the product grid.
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       provideOwnership(...(options.owned ? (['catalog'] as const) : [])),
       { provide: TiersService, useValue: service },

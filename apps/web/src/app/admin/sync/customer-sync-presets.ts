@@ -1,7 +1,7 @@
 import {
   CUSTOMER_SYNC_FIELDS,
   CustomerSyncOptions,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 
 /**
  * Named intents over a customer run's options (FR-ADM-12), the way the

@@ -11,31 +11,33 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   CONSENT_WITHDRAWAL_NOTE_MAX,
-  ConsentRecord,
   fillText,
-  FindConsentsQuery,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import {
+  ConsentRecord,
+  FindConsentsQuery,
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   canonicalPhone,
   emailFormat,
   formatPhone,
   phoneValidators,
   typedPhone,
-} from '../../core/contact-fields';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { EmailField } from '../../ui/email-field';
-import { PhoneField } from '../../ui/phone-field';
-import { Segmented, SegmentOption } from '../../ui/segmented';
-import { ConfirmService } from '../../ui/confirm.service';
-import { Skeleton } from '../../ui/skeleton';
+} from '../../shared/core/contact-fields';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { EmailField } from '../../shared/ui/email-field';
+import { PhoneField } from '../../shared/ui/phone-field';
+import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { Skeleton } from '../../shared/ui/skeleton';
 import { adminDayFormat } from '../grid/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 type SearchBy = 'email' | 'phone';
 
@@ -125,7 +127,7 @@ export class ConsentLookupPage {
   protected readonly text = inject(ADMIN_TEXT).consents;
   private readonly adminText = inject(ADMIN_TEXT);
   private readonly fields = inject(ADMIN_TEXT).fields;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly emailText = {
     required: this.fields.email.required,
     invalid: this.fields.email.invalid,

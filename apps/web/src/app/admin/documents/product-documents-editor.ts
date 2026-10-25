@@ -9,25 +9,26 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, LinkedDocument } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { LinkedDocument } from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
-import { HighlightedLine } from '../../core/highlighted-line';
-import { AlternateLayout } from '../../core/alternate-layout';
-import { SUGGEST_PANEL, SuggestList } from '../../core/suggest-list';
+import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { AlternateLayout } from '../../shared/core/alternate-layout';
+import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
 import {
   DISCLOSURE_FRAME,
   disclosureBorder,
   DisclosureToggle,
-} from '../../ui/disclosure-toggle';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+} from '../../shared/ui/disclosure-toggle';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from '../products/product-feature-glyphs';
-import { Input } from '../../ui/input';
-import { Link } from '../../ui/link';
+import { Input } from '../../shared/ui/input';
+import { Link } from '../../shared/ui/link';
 import { DocumentsService } from './documents.service';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
@@ -188,7 +189,7 @@ export class ProductDocumentsEditor implements OnInit {
   private readonly service = inject(DocumentsService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.documents;
-  protected readonly product = inject(COMMON_TEXT).product;
+  protected readonly product = inject(SHARED_TEXT).product;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.documents;
 
   readonly value = input.required<readonly LinkedDocument[]>();

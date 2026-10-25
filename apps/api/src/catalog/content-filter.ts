@@ -7,7 +7,7 @@ import {
   ProductFeature,
   ProductGap,
   ProductGapFilter,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import * as schema from '../db/schema';
 import {
   documentProducts,

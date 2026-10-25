@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser, ordersContract } from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared';
+import { adminOrdersContract } from '@b2b-catalog-platform/shared/admin';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { AuditLogger } from '../audit/audit.logger';
@@ -44,9 +45,9 @@ export class AdminOrdersController {
     }
   }
 
-  @Implement(ordersContract.listOrders)
+  @Implement(adminOrdersContract.listOrders)
   listOrders() {
-    return implement(ordersContract.listOrders)
+    return implement(adminOrdersContract.listOrders)
       .use(refusals)
       .handler(({ input: { query } }) =>
         this.orders.listAll(
@@ -59,9 +60,9 @@ export class AdminOrdersController {
       );
   }
 
-  @Implement(ordersContract.getOrder)
+  @Implement(adminOrdersContract.getOrder)
   getOrder() {
-    return implement(ordersContract.getOrder)
+    return implement(adminOrdersContract.getOrder)
       .use(refusals)
       .handler(({ input: { params } }) =>
         this.orders.getForStaff(params.reference),
@@ -77,9 +78,9 @@ export class AdminOrdersController {
    * order: the row is the record, and a manager who accepted an order accepted
    * it whether or not SMTP was reachable.
    */
-  @Implement(ordersContract.transitionOrder)
+  @Implement(adminOrdersContract.transitionOrder)
   transitionOrder(@CurrentUser() actor: AuthUser) {
-    return implement(ordersContract.transitionOrder)
+    return implement(adminOrdersContract.transitionOrder)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
         this.refuseIfOwned('move an order');
@@ -107,9 +108,9 @@ export class AdminOrdersController {
 
   /** Every version of one order (FR-ORD-03) — staff only, since a customer
    * reads the order as it now stands. */
-  @Implement(ordersContract.listOrderRevisions)
+  @Implement(adminOrdersContract.listOrderRevisions)
   listOrderRevisions() {
-    return implement(ordersContract.listOrderRevisions)
+    return implement(adminOrdersContract.listOrderRevisions)
       .use(refusals)
       .handler(async ({ input: { params } }) => ({
         revisions: await this.orders.getRevisions(params.reference),
@@ -117,18 +118,18 @@ export class AdminOrdersController {
   }
 
   /** One version of it, for the screen that reads a version back. */
-  @Implement(ordersContract.getOrderRevision)
+  @Implement(adminOrdersContract.getOrderRevision)
   getOrderRevision() {
-    return implement(ordersContract.getOrderRevision)
+    return implement(adminOrdersContract.getOrderRevision)
       .use(refusals)
       .handler(({ input: { params } }) =>
         this.orders.getRevision(params.reference, params.number),
       );
   }
 
-  @Implement(ordersContract.previewOrderAdjustment)
+  @Implement(adminOrdersContract.previewOrderAdjustment)
   previewOrderAdjustment() {
-    return implement(ordersContract.previewOrderAdjustment)
+    return implement(adminOrdersContract.previewOrderAdjustment)
       .use(refusals)
       .handler(({ input: { params, body } }) => {
         this.refuseIfOwned('price an adjustment');
@@ -145,9 +146,9 @@ export class AdminOrdersController {
    * service's decision, taken with the move that follows it or with the
    * `notify` flag this carries.
    */
-  @Implement(ordersContract.adjustOrder)
+  @Implement(adminOrdersContract.adjustOrder)
   adjustOrder(@CurrentUser() actor: AuthUser) {
-    return implement(ordersContract.adjustOrder)
+    return implement(adminOrdersContract.adjustOrder)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
         this.refuseIfOwned('adjust an order');
@@ -168,9 +169,9 @@ export class AdminOrdersController {
   /** Show the customer where the order got to, and tell them if asked
    * (FR-NOTIF-03) — for the change no move will ever mention, and for the
    * message somebody decided against and then thought better of. */
-  @Implement(ordersContract.notifyOrderCustomer)
+  @Implement(adminOrdersContract.notifyOrderCustomer)
   notifyOrderCustomer(@CurrentUser() actor: AuthUser) {
-    return implement(ordersContract.notifyOrderCustomer)
+    return implement(adminOrdersContract.notifyOrderCustomer)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
         this.refuseIfOwned("move the customer's view");
@@ -186,9 +187,9 @@ export class AdminOrdersController {
       });
   }
 
-  @Implement(ordersContract.setOrderPayment)
+  @Implement(adminOrdersContract.setOrderPayment)
   setOrderPayment(@CurrentUser() actor: AuthUser) {
-    return implement(ordersContract.setOrderPayment)
+    return implement(adminOrdersContract.setOrderPayment)
       .use(refusals)
       .handler(async ({ input: { params, body } }) => {
         this.refuseIfOwned('record a payment');
@@ -214,9 +215,9 @@ export class AdminOrdersController {
    * ownership switch: the person's right outranks it.
    */
   @Auth('admin')
-  @Implement(ordersContract.removeOrderPersonalData)
+  @Implement(adminOrdersContract.removeOrderPersonalData)
   removeOrderPersonalData(@CurrentUser() actor: AuthUser) {
-    return implement(ordersContract.removeOrderPersonalData)
+    return implement(adminOrdersContract.removeOrderPersonalData)
       .use(refusals)
       .handler(async ({ input: { params } }) => {
         await this.personalData.removeOnRequest(params.reference, actor);

@@ -1,5 +1,5 @@
 import {
-  CommonText,
+  SharedText,
   fillText,
   formatPersonName,
 } from '@b2b-catalog-platform/shared';
@@ -31,7 +31,7 @@ export interface ClosedAccountSummary {
 export function accountClosedMail(
   account: ClosedAccountSummary,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
 ): MailContent {
   const t = text.accountClosed;
 

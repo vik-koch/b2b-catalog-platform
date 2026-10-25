@@ -7,11 +7,11 @@ import {
   StaffUser,
   UpdateUserRequest,
   UserErrorCode,
-} from '@b2b-catalog-platform/shared';
-import { usersContract } from '../../core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/admin';
+import { usersContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { createOrpcClient } from '../../core/orpc-client';
-import { WorkService } from '../../work/work.service';
+import { createOrpcClient } from '../../shared/core/orpc-client';
+import { WorkService } from '../../shared/work/work.service';
 
 /**
  * The refusals a screen renders. The account codes, plus the two a manager is

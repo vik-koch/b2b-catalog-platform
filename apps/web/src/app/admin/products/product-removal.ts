@@ -3,7 +3,7 @@ import {
   type ConfirmService,
   type ConfirmText,
   confirmRequest,
-} from '../../ui/confirm.service';
+} from '../../shared/ui/confirm.service';
 import type { AdminCatalogService } from '../admin-catalog.service';
 
 /**

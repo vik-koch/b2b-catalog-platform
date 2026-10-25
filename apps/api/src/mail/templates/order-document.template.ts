@@ -1,5 +1,5 @@
 import {
-  CommonText,
+  SharedText,
   MoneyFormat,
   OrderDetail,
   OrderDocumentKind,
@@ -27,7 +27,7 @@ export function orderDocumentMail(
   publicToken: string | null,
   currency: MoneyFormat,
   text: MailText,
-  common: CommonText,
+  common: SharedText,
 ): MailContent {
   const t = text.orderDocument;
   const names = common.order;

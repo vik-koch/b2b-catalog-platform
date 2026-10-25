@@ -2,7 +2,7 @@ import {
   CUSTOMER_SYNC_FIELDS,
   CustomerSyncOptions,
   CustomerSyncRow,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import {
   CustomerSyncState,
   ExistingAccount,

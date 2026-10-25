@@ -2,7 +2,7 @@ import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { MailDispatcher } from '../mail/mail-dispatcher';
-import { demoCommonText, demoMailText } from '../mail/mail-text.fixture';
+import { demoSharedText, demoMailText } from '../mail/mail-text.fixture';
 import { env } from '../env';
 import { OrderNotifications } from './order-notifications';
 import { demoAdminOrder } from './order.fixture';
@@ -37,7 +37,7 @@ describe('OrderNotifications', () => {
     notifications = new OrderNotifications(
       mail,
       demoMailText,
-      demoCommonText,
+      demoSharedText,
       currency,
       {
         prefix: 'CK',

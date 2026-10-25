@@ -1,0 +1,270 @@
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { OrderDetail } from '@b2b-catalog-platform/shared';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { OrderDetailPage } from './order-detail-page';
+import { OrdersService } from './orders.service';
+
+const text = defaultStorefrontText.orders;
+const names = defaultSharedText.order;
+const review = defaultStorefrontText.checkout.review;
+
+const address = {
+  street: 'Hafenstraße 12',
+  street2: null,
+  postalCode: '20359',
+  city: 'Hamburg',
+  region: null,
+  country: 'DE' as const,
+};
+
+const placed: OrderDetail = {
+  reference: 'DEMO-260826-4831',
+  status: 'requested',
+  paymentState: 'not-due',
+  statusReason: null,
+  termsDate: null,
+  taxBasis: 'included',
+  changes: [],
+  // The generated summary: every order has one, and no order stores it.
+  documents: [
+    {
+      kind: 'order-summary' as const,
+      source: 'generated' as const,
+      fileName: 'summary.pdf',
+      contentType: 'application/pdf',
+      byteSize: null,
+      suppliedAt: null,
+    },
+  ],
+  createdAt: '2026-08-26T09:15:00.000Z',
+  totalMinor: 12990,
+  currency: 'EUR',
+  itemCount: 2,
+  contact: {
+    name: 'Alex Fischer',
+    email: 'alex@example.com',
+    phone: '+494012345678',
+  },
+  party: { name: 'Kontor GmbH', registrationId: 'DE123456789' },
+  fulfilmentMethod: 'delivery',
+  deliveryAddress: address,
+  pickup: null,
+  deliveryZone: null,
+  billingAddress: address,
+  paymentMethod: 'bank-transfer',
+  preferredDate: '2026-09-02',
+  customerNote: 'Please call before you come.',
+  lines: [
+    {
+      name: 'Espresso cups',
+      slug: 'espresso-cups',
+      linked: true,
+      image: null,
+      unit: 'pack',
+      quantity: 2,
+      pieces: 12,
+      lineTotalMinor: 9990,
+      taxRate: 19,
+      note: '100 in red',
+    },
+    {
+      name: 'Saucers (discontinued)',
+      slug: 'saucers',
+      linked: false,
+      image: null,
+      unit: 'piece',
+      quantity: 3,
+      pieces: 3,
+      lineTotalMinor: 3000,
+      taxRate: 19,
+      note: null,
+    },
+  ],
+  shipment: {
+    cartons: 1,
+    volume: '0.020',
+    weight: '4.500',
+    coveredLines: 2,
+    uncoveredLines: 0,
+    approximate: true,
+  },
+};
+
+async function render(
+  answer: OrderDetail | null | 'reject',
+  api: Partial<Record<'cancelMine', unknown>> = {},
+) {
+  const getMine = vi.fn(() =>
+    answer === 'reject'
+      ? Promise.reject(new Error('500'))
+      : Promise.resolve(answer),
+  );
+
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    imports: [OrderDetailPage],
+    providers: [
+      provideRouter([]),
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
+      { provide: OrdersService, useValue: { getMine, ...api } },
+    ],
+  });
+
+  const fixture = TestBed.createComponent(OrderDetailPage);
+  fixture.componentRef.setInput('reference', 'DEMO-260826-4831');
+  await fixture.whenStable();
+  fixture.detectChanges();
+  return { fixture, el: fixture.nativeElement as HTMLElement, getMine };
+}
+
+describe('OrderDetailPage (FR-ACC-01)', () => {
+  it('reads the order back under the headings checkout asked in', async () => {
+    const { el } = await render(placed);
+
+    expect(el.textContent).toContain(placed.reference);
+    expect(el.textContent).toContain(names.statuses.requested);
+    expect(el.textContent).toContain(defaultSharedText.fulfilment.label);
+    expect(el.textContent).toContain(names.invoicedTo);
+    // The party carries its registration number, and the invoice went to the
+    // same place as the goods.
+    expect(el.textContent).toContain('Kontor GmbH · DE123456789');
+    expect(el.textContent).toContain(review.billingSame);
+    expect(el.textContent).toContain(names.paymentMethods.transfer);
+    // The contact block is this page's own: weeks later it says who to ring.
+    expect(el.textContent).toContain(names.contact);
+    expect(el.textContent).toContain('alex@example.com');
+    expect(el.textContent).toContain(placed.customerNote);
+  });
+
+  // The unit is a lens on a piece count (FR-UNIT-01), and both figures were
+  // frozen with the order.
+  it('states a non-piece line in its own unit and in pieces', async () => {
+    const { el } = await render(placed);
+
+    expect(el.textContent).toContain('2 pk (12 pcs)');
+    expect(el.textContent).toContain('100 in red');
+  });
+
+  // NFR-LEGAL-11: the basis the order was submitted under, whatever the
+  // deployment quotes today, and each line's rate once they differ.
+  it('states the order’s own basis, and each line’s rate once they differ', async () => {
+    const { el } = await render({
+      ...placed,
+      taxBasis: 'added',
+      lines: [placed.lines[0], { ...placed.lines[1], taxRate: 7 }],
+    });
+    const text = el.textContent ?? '';
+
+    expect(text).toContain(defaultSharedText.tax.mixed.added);
+    expect(text).toContain(defaultSharedText.tax.line.replace('{rate}', '7'));
+    expect(text).toContain(defaultSharedText.tax.line.replace('{rate}', '19'));
+  });
+
+  it('links a line only while its product can still be opened', async () => {
+    const { el } = await render(placed);
+
+    expect(el.querySelector('a[href="/product/espresso-cups"]')).not.toBeNull();
+    expect(el.querySelector('a[href="/product/saucers"]')).toBeNull();
+    expect(el.textContent).toContain('Saucers (discontinued)');
+  });
+
+  it('reads a pickup order back as a collection, with no delivery address', async () => {
+    const { el } = await render({
+      ...placed,
+      fulfilmentMethod: 'pickup',
+      deliveryAddress: null,
+      pickup: { key: 'harbour', name: 'Harbour store', address: 'Quay 3' },
+    });
+
+    expect(el.textContent).toContain(defaultSharedText.fulfilment.pickup);
+    expect(el.textContent).toContain('Harbour store');
+    expect(el.textContent).toContain(names.preferredPickup);
+    // Not "invoiced to the same address": there was no delivery address to
+    // repeat, so the billing one is written out.
+    expect(el.textContent).not.toContain(review.billingSame);
+    expect(el.textContent).toContain('20359 Hamburg');
+  });
+
+  it('says when no date was asked for', async () => {
+    const { el } = await render({ ...placed, preferredDate: null });
+
+    expect(el.textContent).toContain(review.whenAny);
+  });
+
+  // Somebody else's reference and one that never existed look identical here,
+  // which is the API's decision and this page keeps it.
+  it('says an unknown order is not on the account', async () => {
+    const { el } = await render(null);
+
+    expect(el.textContent).toContain(text.detail.notFound);
+    expect(el.textContent).not.toContain(names.statuses.requested);
+  });
+
+  it('says so when the order cannot be read', async () => {
+    const { el } = await render('reject');
+
+    expect(el.querySelector('[role="alert"]')?.textContent).toContain(
+      text.detail.error,
+    );
+  });
+});
+
+/**
+ * The one thing a customer does to their own order (FR-ORD-02). The button is
+ * drawn from the shared transition table, so what is pinned here is that the
+ * page reads the same rule the API refuses by.
+ */
+describe('OrderDetailPage cancelling an order', () => {
+  const cancelText = text.detail.cancel;
+  const cancelButton = (el: HTMLElement) =>
+    [...el.querySelectorAll('button')].find(
+      (button) => button.textContent?.trim() === cancelText.action,
+    );
+
+  it('offers it while the shop has not answered the order', async () => {
+    expect(cancelButton((await render(placed)).el)).toBeDefined();
+  });
+
+  it('withdraws it once the shop is working on it', async () => {
+    for (const status of ['approved', 'ready', 'completed'] as const) {
+      expect(
+        cancelButton((await render({ ...placed, status })).el),
+      ).toBeUndefined();
+    }
+  });
+
+  it('sends the reason, and reloads the order after', async () => {
+    const cancelMine = vi.fn(() => Promise.resolve(true));
+    const { fixture, el, getMine } = await render(placed, { cancelMine });
+    const confirm = TestBed.inject(ConfirmService);
+    vi.spyOn(confirm, 'askWithReason').mockResolvedValue('Ordered twice');
+
+    cancelButton(el)?.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(cancelMine).toHaveBeenCalledWith(placed.reference, 'Ordered twice');
+    expect(getMine).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows the reason a declined order carries', async () => {
+    const { el } = await render({
+      ...placed,
+      status: 'declined',
+      statusReason: 'Out of stock until October',
+    });
+
+    expect(el.textContent).toContain(names.reason);
+    expect(el.textContent).toContain('Out of stock until October');
+    expect(cancelButton(el)).toBeUndefined();
+  });
+});

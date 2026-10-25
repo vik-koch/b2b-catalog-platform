@@ -1,5 +1,5 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import {
@@ -7,19 +7,20 @@ import {
   CatalogSyncPlan,
   SyncRun,
   SyncSummary,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { signal } from '@angular/core';
-import { AuthUser, SyncArea } from '@b2b-catalog-platform/shared';
-import { AuthService } from '../../auth/auth.service';
-import { adminUser, managerUser } from '../../auth/auth-user.fixture';
+import { AuthUser } from '@b2b-catalog-platform/shared';
+import { SyncArea } from '@b2b-catalog-platform/shared/sync';
+import { AuthService } from '../../shared/auth/auth.service';
+import { adminUser, managerUser } from '../../shared/auth/auth-user.fixture';
 import { provideOwnership } from '../settings/settings.fixture';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { APP_TEXT } from '../../config/app-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { ConfirmService } from '../../ui/confirm.service';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { SyncRunPage } from './sync-run-page';
 import { SyncService } from './sync.service';
 
@@ -108,10 +109,10 @@ async function render(
     imports: [SyncRunPage],
     providers: [
       provideRouter([]),
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: SyncService, useValue: service },
       { provide: ConfirmService, useValue: confirm },

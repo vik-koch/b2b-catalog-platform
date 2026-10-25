@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
 
 /**

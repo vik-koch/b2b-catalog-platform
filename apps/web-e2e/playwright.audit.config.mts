@@ -30,10 +30,10 @@ export default defineConfig({
   ],
   // Each check names its own folder: tmp/baselines/<check>/<project>/<page>.
   snapshotPathTemplate: join(root, 'tmp/baselines/{arg}{ext}'),
-  // One page at a time: a parallel run on one machine renders fonts and
-  // images under different load, which shows up as pixel noise.
-  workers: 1,
-  fullyParallel: false,
+  // Every page is read-only for the stack and opens in its own context, so
+  // the pages run side by side; the stack's one SSR process is the limit.
+  workers: 8,
+  fullyParallel: true,
   retries: 0,
   expect: {
     toHaveScreenshot: { animations: 'disabled', caret: 'hide' },

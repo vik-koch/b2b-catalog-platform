@@ -4,7 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import {
   UploadCatalogImageResponse,
   UploadMediaResponse,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 
 /**
  * Uploads editor images to the admin media endpoint. Multipart, so it does not

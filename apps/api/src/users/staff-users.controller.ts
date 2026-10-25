@@ -1,10 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import {
-  AuthUser,
-  StaffUser,
-  usersContract,
-} from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared';
+import { StaffUser, usersContract } from '@b2b-catalog-platform/shared/admin';
 
 /** What a plain `user.updated` line covers — everything but role and tier. */
 const PROFILE_FIELDS = [

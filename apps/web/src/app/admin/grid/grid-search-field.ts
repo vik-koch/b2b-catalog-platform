@@ -8,10 +8,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
-import { debounced } from '../../core/debounced';
-import { Input } from '../../ui/input';
+import { debounced } from '../../shared/core/debounced';
+import { Input } from '../../shared/ui/input';
 import { injectGridNav } from './grid-query';
-import { Icon } from '../../ui/icons/icon';
+import { Icon } from '../../shared/ui/icons/icon';
 
 /** Long enough that a fast typist produces one request per word rather than one
  * per letter, short enough that a pause feels answered immediately. The same

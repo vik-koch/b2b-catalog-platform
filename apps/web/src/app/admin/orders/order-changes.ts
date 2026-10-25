@@ -1,12 +1,12 @@
-import { CommonText, OrderDetail } from '@b2b-catalog-platform/shared';
-import { CurrencyConfig, formatPriceMinor } from '../../catalog/price';
+import { SharedText, OrderDetail } from '@b2b-catalog-platform/shared';
+import { CurrencyConfig, formatPriceMinor } from '../../shared/catalog/price';
 import {
   orderBlocks,
   OrderBlockConfig,
   OrderBlockLabels,
-} from '../../orders/order-blocks';
-import { formatStoredDecimal } from '../../catalog/quantity';
-import { customerQuantity } from '../../orders/order-view';
+} from '../../shared/orders/order-blocks';
+import { formatStoredDecimal } from '../../shared/catalog/quantity';
+import { customerQuantity } from '../../shared/orders/order-view';
 import { OrderChange } from './order-adjust-changes';
 
 /** The words a change list needs of its own. Everything else it says comes
@@ -54,7 +54,7 @@ export function orderChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  common: CommonText,
+  common: SharedText,
   blockLabels: OrderBlockLabels,
   config: OrderChangeConfig,
 ): OrderChange[] {
@@ -78,7 +78,7 @@ export function orderLineChanges(
   before: ComparedOrder,
   after: ComparedOrder,
   labels: OrderChangeLabels,
-  common: CommonText,
+  common: SharedText,
   config: OrderChangeConfig,
 ): OrderChange[] {
   const { currency } = config;

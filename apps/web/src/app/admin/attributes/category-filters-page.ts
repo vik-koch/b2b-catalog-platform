@@ -18,23 +18,22 @@ import {
   CatalogFilters,
   CategoryFilter,
   CategoryFilters,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { usePageSeo } from '../../core/page-seo';
-import { delayedLoading } from '../../core/delayed-loading';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
-import { Skeleton } from '../../ui/skeleton';
-import { ConfirmService } from '../../ui/confirm.service';
-import { injectEditorReturn } from '../editor-return';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { Button } from '../../shared/ui/button';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -110,7 +109,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
 
     <div class="max-w-3xl">
       @if (filters.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (filters.hasValue()) {
         @if (loaded(); as panel) {
           <!-- Where the list comes from is the first thing to read: an
@@ -265,8 +264,7 @@ export class CategoryFiltersPage {
   private readonly returnTo = injectEditorReturn();
   protected readonly text = inject(ADMIN_TEXT).categories.filters;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
 
   /** The category being edited, from the route — absent for the whole
    * catalogue's panel. */

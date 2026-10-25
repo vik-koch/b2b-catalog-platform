@@ -5,7 +5,7 @@
  *
  * Where an order may go, who may take it there, what a move does to the money
  * and whether it offers to write to the customer are all answered by
- * `libs/shared/src/lib/order-transitions.ts`, and both apps read that answer at
+ * `libs/shared/src/lib/orders/order-transitions.ts`, and both apps read that answer at
  * runtime. A table typed out beside it would be a third copy, and the one that
  * silently stops being true. So the tables and the diagram are rendered from
  * the same functions the API refuses transitions with.

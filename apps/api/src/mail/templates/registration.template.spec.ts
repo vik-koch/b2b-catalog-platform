@@ -1,4 +1,4 @@
-import { demoCommonText, demoMailText } from '../mail-text.fixture';
+import { demoSharedText, demoMailText } from '../mail-text.fixture';
 import { newRegistrationMail } from './new-registration.template';
 import { registrationReceivedMail } from './registration-received.template';
 
@@ -31,9 +31,9 @@ describe('newRegistrationMail', () => {
     customerType: 'person',
   } as const;
   const t = demoMailText.newRegistration;
-  const fields = demoCommonText.fields;
-  const kinds = demoCommonText.partyKind;
-  const mail = newRegistrationMail(person, demoMailText, demoCommonText);
+  const fields = demoSharedText.fields;
+  const kinds = demoSharedText.partyKind;
+  const mail = newRegistrationMail(person, demoMailText, demoSharedText);
 
   // This mail is what a manager reads before deciding whether the applicant is
   // a customer they already know, so it repeats everything submitted.
@@ -55,7 +55,7 @@ describe('newRegistrationMail', () => {
         companyRegistrationId: '123456789',
       },
       demoMailText,
-      demoCommonText,
+      demoSharedText,
     );
 
     expect(company.rows).toContainEqual({

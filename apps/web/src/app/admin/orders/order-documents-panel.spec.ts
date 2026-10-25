@@ -1,15 +1,15 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import {
   AdminOrderDetail,
   AdminOrderDocument,
-} from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAdminText } from '../../config/admin-text.fixture';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { defaultDeploymentConfig } from '../../config/deployment-config.fixture';
-import { ConfirmService } from '../../ui/confirm.service';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
+import { ConfirmService } from '../../shared/ui/confirm.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { AdminOrdersService } from './orders.service';
 
@@ -47,7 +47,7 @@ async function render(
     imports: [OrderDocumentsPanel],
     providers: [
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: ConfirmService, useValue: { ask: vi.fn(async () => true) } },
       {
@@ -118,13 +118,13 @@ describe('OrderDocumentsPanel', () => {
     expect(rowLabels(el)).toContain(text.summary);
     expect(el.textContent).toContain('PDF');
     // A supplied file can be taken back; a generated one cannot.
-    expect(el.textContent).toContain(defaultCommonText.actions.remove);
+    expect(el.textContent).toContain(defaultSharedText.actions.remove);
   });
 
   it('has nothing to remove where nothing was supplied', async () => {
     const { el } = await render(order());
 
-    expect(el.textContent).not.toContain(defaultCommonText.actions.remove);
+    expect(el.textContent).not.toContain(defaultSharedText.actions.remove);
   });
 
   /**

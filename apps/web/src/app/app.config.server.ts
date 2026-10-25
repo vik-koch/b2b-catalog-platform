@@ -7,17 +7,17 @@ import { ApplicationConfig, mergeApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { requireEnv } from '../env';
 import { appConfig } from './app.config';
-import { provideServerAppText } from './config/app-text.server';
-import { provideServerCommonText } from './config/common-text.server';
-import { provideServerAdminText } from './config/admin-text.server';
-import { provideServerDeploymentConfig } from './config/deployment-config.server';
-import { provideServerSuggestionsEnabled } from './config/suggestions-enabled.server';
+import { provideServerStorefrontText } from './shared/config/storefront-text.server';
+import { provideServerSharedText } from './shared/config/shared-text.server';
+import { provideServerAdminText } from './shared/config/admin-text.server';
+import { provideServerDeploymentConfig } from './shared/config/deployment-config.server';
+import { provideServerSuggestionsEnabled } from './shared/config/suggestions-enabled.server';
 import { serverRoutes } from './app.routes.server';
 import {
   forwardSession,
   forwardVisitorAddress,
-} from './auth/forward-session.server';
-import { keepPagePrivate } from './core/private-page.server';
+} from './shared/auth/forward-session.server';
+import { keepPagePrivate } from './shared/core/private-page.server';
 
 const serverConfig: ApplicationConfig = {
   providers: [
@@ -26,8 +26,8 @@ const serverConfig: ApplicationConfig = {
     // straight from the environment. Merged after appConfig, so they win over
     // the browser providers, which read the document.
     provideServerDeploymentConfig(),
-    provideServerAppText(),
-    provideServerCommonText(),
+    provideServerStorefrontText(),
+    provideServerSharedText(),
     provideServerAdminText(),
     provideServerSuggestionsEnabled(),
     // The render asks the API as the visitor, not as a guest. What it gets

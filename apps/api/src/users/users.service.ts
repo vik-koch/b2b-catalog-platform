@@ -2,10 +2,10 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
 import {
-  AccountDeletionReason,
   CustomerType,
   ENDED_ORDER_STATUSES,
 } from '@b2b-catalog-platform/shared';
+import { AccountDeletionReason } from '@b2b-catalog-platform/shared/admin';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { withdrawAccountConsents } from '../consents/consent-withdrawals';

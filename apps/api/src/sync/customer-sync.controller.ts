@@ -8,12 +8,12 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthUser } from '@b2b-catalog-platform/shared';
 import {
-  AuthUser,
   CustomerSyncPreviewResponse,
   SYNC_MAX_UPLOAD_BYTES,
   customerSyncOptionsSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { SyncFormatError } from './csv-file';

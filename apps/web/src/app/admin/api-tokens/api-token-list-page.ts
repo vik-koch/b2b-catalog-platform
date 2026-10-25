@@ -2,29 +2,27 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
-  ApiToken,
   ApiTokenScope,
-  CreatedApiToken,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { APP_TEXT } from '../../config/app-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { delayedLoading } from '../../core/delayed-loading';
-import { usePageSeo } from '../../core/page-seo';
-import { Button } from '../../ui/button';
-import { ConfirmService } from '../../ui/confirm.service';
-import { FieldLabel } from '../../ui/field-label';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Checkbox } from '../../ui/checkbox';
-import { Input } from '../../ui/input';
-import { Skeleton } from '../../ui/skeleton';
-import { StatusBadge } from '../../ui/status-badge';
+import { ApiToken, CreatedApiToken } from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Button } from '../../shared/ui/button';
+import { ConfirmService } from '../../shared/ui/confirm.service';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Checkbox } from '../../shared/ui/checkbox';
+import { Input } from '../../shared/ui/input';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { StatusBadge } from '../../shared/ui/status-badge';
 import { RecordFields, RecordFormActions } from '../records/record-form';
 import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
-import { COMMON_TEXT } from '../../config/common-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -183,7 +181,7 @@ const SCOPE_ROWS: readonly {
       }
 
       @if (tokens.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (tokens.hasValue()) {
         <div class="divide-y divide-border border-y border-border">
           @for (token of tokens.value(); track token.id) {
@@ -372,8 +370,7 @@ export class ApiTokenListPage {
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).apiTokens;
   protected readonly adminText = inject(ADMIN_TEXT);
-  protected readonly catalogText = inject(APP_TEXT).catalog;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly locale = inject(DEPLOYMENT_CONFIG).locale;
 
   /** Widened for the same reason `defaultScopes` widens: the template asks

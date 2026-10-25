@@ -1,8 +1,8 @@
+import { CategoryCrumb } from '@b2b-catalog-platform/shared';
 import {
   AdminCategory,
-  CategoryCrumb,
   CategoryOrderEntry,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 
 export interface CategoryTreeNode {
   category: AdminCategory;

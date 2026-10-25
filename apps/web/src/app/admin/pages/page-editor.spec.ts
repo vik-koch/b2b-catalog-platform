@@ -1,13 +1,13 @@
-import { COMMON_TEXT } from '../../config/common-text';
-import { defaultCommonText } from '../../config/common-text.fixture';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { Page as PageContent, PageSlug } from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { defaultAppText } from '../../config/app-text.fixture';
-import { defaultAdminText } from '../../config/admin-text.fixture';
+import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
+import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { PageEditor } from './page-editor';
-import { PageService } from '../../pages/page.service';
+import { PageEditingService } from './page-editing.service';
 
 const text = defaultAdminText.pages;
 
@@ -35,11 +35,11 @@ async function render(
   TestBed.configureTestingModule({
     imports: [PageEditor],
     providers: [
-      { provide: APP_TEXT, useValue: defaultAppText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
+      { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: COMMON_TEXT, useValue: defaultCommonText },
-      { provide: PageService, useValue: { updatePage } },
+      { provide: SHARED_TEXT, useValue: defaultSharedText },
+      { provide: PageEditingService, useValue: { updatePage } },
     ],
   });
   const fixture = TestBed.createComponent(PageEditor);
@@ -86,11 +86,11 @@ describe('PageEditor', () => {
     TestBed.configureTestingModule({
       imports: [PageEditor],
       providers: [
-        { provide: APP_TEXT, useValue: defaultAppText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
+        { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
-        { provide: COMMON_TEXT, useValue: defaultCommonText },
-        { provide: PageService, useValue: { updatePage: vi.fn() } },
+        { provide: SHARED_TEXT, useValue: defaultSharedText },
+        { provide: PageEditingService, useValue: { updatePage: vi.fn() } },
       ],
     });
     const fixture = TestBed.createComponent(PageEditor);
@@ -172,7 +172,7 @@ describe('PageEditor', () => {
     fixture.componentInstance.closed.subscribe(closed);
     const confirm = vi.spyOn(window, 'confirm');
 
-    buttonNamed(el, defaultCommonText.actions.cancel).click();
+    buttonNamed(el, defaultSharedText.actions.cancel).click();
     await fixture.whenStable();
 
     expect(confirm).not.toHaveBeenCalled();
@@ -188,7 +188,7 @@ describe('PageEditor', () => {
     const input = el.querySelector('input') as HTMLInputElement;
     input.value = 'Changed';
     input.dispatchEvent(new Event('input'));
-    buttonNamed(el, defaultCommonText.actions.cancel).click();
+    buttonNamed(el, defaultSharedText.actions.cancel).click();
     await fixture.whenStable();
 
     expect(closed).not.toHaveBeenCalled();

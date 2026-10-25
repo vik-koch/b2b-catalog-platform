@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { machineOrderSyncContract } from '@b2b-catalog-platform/shared';
+import { machineOrderSyncContract } from '@b2b-catalog-platform/shared/sync';
 import { CurrentMachine } from '../api-tokens/current-machine.decorator';
 import { Machine } from '../api-tokens/machine.decorator';
 import { MachineClient } from '../api-tokens/machine-client';

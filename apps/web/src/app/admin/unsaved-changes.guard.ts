@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanDeactivateFn } from '@angular/router';
-import { ADMIN_TEXT } from '../config/admin-text';
-import type { AdminText } from '../config/admin-text.type';
+import { ADMIN_TEXT } from '../shared/config/admin-text';
+import type { AdminText } from '../shared/config/admin-text.type';
 import { confirmDiscard } from './confirm-discard';
 
 export interface UnsavedChangesAware {

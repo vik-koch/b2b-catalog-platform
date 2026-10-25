@@ -16,22 +16,21 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   AdminCategory,
   CategoryOrderEntry,
-  fillText,
-} from '@b2b-catalog-platform/shared';
-import { APP_TEXT } from '../../config/app-text';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { usePageSeo } from '../../core/page-seo';
-import { Skeleton } from '../../ui/skeleton';
-import { delayedLoading } from '../../core/delayed-loading';
-import { Button } from '../../ui/button';
-import { IconButton } from '../../ui/icon-button';
-import { AdminIcon } from '../../ui/icons/admin-icon';
-import { Link } from '../../ui/link';
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { usePageSeo } from '../../shared/core/page-seo';
+import { Skeleton } from '../../shared/ui/skeleton';
+import { delayedLoading } from '../../shared/core/delayed-loading';
+import { Button } from '../../shared/ui/button';
+import { IconButton } from '../../shared/ui/icon-button';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Link } from '../../shared/ui/link';
 import { AdminCatalogService } from '../admin-catalog.service';
-import { injectEditorReturnParams } from '../editor-return';
+import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { CategoryDeleteDialog } from './category-delete-dialog';
@@ -179,7 +178,7 @@ const EDGE_SLACK = 24;
       }
 
       @if (categories.error()) {
-        <p class="text-muted" role="alert">{{ catalogText.loadError }}</p>
+        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (categories.hasValue()) {
         @if (rows().length === 0) {
           <p class="text-muted">{{ text.empty }}</p>
@@ -387,7 +386,6 @@ export class CategoryListPage {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;
   private readonly productsText = inject(ADMIN_TEXT).products;
-  protected readonly catalogText = inject(APP_TEXT).catalog;
   protected readonly editorFrom = injectEditorReturnParams();
 
   protected productsLabel(count: number): string {

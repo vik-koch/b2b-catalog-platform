@@ -7,20 +7,28 @@ import {
   signal,
 } from '@angular/core';
 import {
-  AdminOrderDetail,
-  AdminOrderDocument,
   fillText,
   orderDocumentPath,
   OrderDocumentKind,
 } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { documentFileLabel, documentFileSize } from '../../core/document-file';
-import { Button } from '../../ui/button';
-import { IconButton } from '../../ui/icon-button';
-import { ConfirmService, confirmRequest } from '../../ui/confirm.service';
-import { AdminIcon } from '../../ui/icons/admin-icon';
+import {
+  AdminOrderDetail,
+  AdminOrderDocument,
+} from '@b2b-catalog-platform/shared/admin';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import {
+  documentFileLabel,
+  documentFileSize,
+} from '../../shared/core/document-file';
+import { Button } from '../../shared/ui/button';
+import { IconButton } from '../../shared/ui/icon-button';
+import {
+  ConfirmService,
+  confirmRequest,
+} from '../../shared/ui/confirm.service';
+import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
 
@@ -201,8 +209,8 @@ export class OrderDocumentsPanel {
   protected readonly adminText = inject(ADMIN_TEXT);
   // The two size words, which the document list already owns: a file's size
   // reads the same wherever it is written.
-  private readonly sizes = inject(COMMON_TEXT).fileSize;
-  protected readonly actionText = inject(COMMON_TEXT).actions;
+  private readonly sizes = inject(SHARED_TEXT).fileSize;
+  protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly dayFormat = adminDayFormat(inject(DEPLOYMENT_CONFIG).locale);
 
   readonly order = input.required<AdminOrderDetail>();

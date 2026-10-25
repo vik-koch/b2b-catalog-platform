@@ -68,7 +68,7 @@ the generator in the same change:
 <!-- prettier-ignore -->
 | File | Regenerate after | Command |
 | --- | --- | --- |
-| `apps/web/src/app/core/contract-routes.generated.ts` | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
+| `contract-routes.generated.ts` in `apps/web/src/app/shared/core/`, `storefront/` and `admin/` | changing a route's method, path or input/output structure | `node tools/generate-contract-routes.mjs` |
 | The contents of `docs/requirements.md` | adding or retitling a requirement | `node tools/generate-requirements-index.mjs` |
 | The index in `docs/adr/README.md` | adding an ADR or changing its status | `node tools/generate-adr-index.mjs` |
 | `docs/mail.md`, `docs/mail/` | changing a mail template or its wording | `node tools/generate-mail-previews.mjs` |
@@ -98,6 +98,12 @@ it replaces a release later. A migration that cannot run unattended makes the re
   `tools/config-migration/<version>.json` for the deployments kept elsewhere.
 - **Contracts export schemas only.** Limits and helpers a component needs live in import-free
   modules, so they do not pull Zod into the browser ([libs/shared](../libs/shared/README.md)).
+- **Storefront, admin and shared.** A web file lives on the side that uses it, and moves to
+  `shared/` only once both do; the contracts and the texts split the same way. Lint fails a
+  wrong-way import ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md)).
+- **Comments say why, briefly.** A comment is there for what the code cannot show: a trap, an
+  ordering constraint, an invariant. It does not retell the code or its history; git and the
+  ADRs hold that.
 - **Tables in Markdown are written compact** under a `<!-- prettier-ignore -->` line, so adding
   a row changes one line.
 - [CLAUDE.md](../CLAUDE.md) is the project brief the AI sessions work from, and the shortest

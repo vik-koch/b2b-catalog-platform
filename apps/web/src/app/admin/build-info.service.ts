@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { BuildInfo } from '@b2b-catalog-platform/shared';
-import { settingsContract } from '../core/contract-routes.generated';
-import { createOrpcClient } from '../core/orpc-client';
+import { BuildInfo } from '@b2b-catalog-platform/shared/admin';
+import { adminSettingsContract } from './contract-routes.generated';
+import { createOrpcClient } from '../shared/core/orpc-client';
 
 /**
  * What is deployed, for the admin panel's footer line. Memoized for the app's
@@ -10,7 +10,7 @@ import { createOrpcClient } from '../core/orpc-client';
  */
 @Injectable({ providedIn: 'root' })
 export class BuildInfoService {
-  private readonly client = createOrpcClient(settingsContract);
+  private readonly client = createOrpcClient(adminSettingsContract);
   private info?: Promise<BuildInfo>;
 
   get(): Promise<BuildInfo> {

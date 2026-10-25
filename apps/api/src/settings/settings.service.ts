@@ -1,10 +1,10 @@
 import {
   AppSettings,
   BuildInfo,
-  OwnershipArea,
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { desc, eq } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';

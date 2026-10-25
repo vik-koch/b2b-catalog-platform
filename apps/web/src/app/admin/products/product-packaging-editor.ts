@@ -1,13 +1,13 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { totalMinor, moneyFormat } from '@b2b-catalog-platform/shared';
-import { formatPriceMinor } from '../../catalog/price';
-import { ADMIN_TEXT } from '../../config/admin-text';
-import { COMMON_TEXT } from '../../config/common-text';
-import { DEPLOYMENT_CONFIG } from '../../config/deployment-config';
-import { injectNarrowScreen } from '../../core/narrow-screen';
-import { FieldLabel } from '../../ui/field-label';
-import { NumericField } from '../../ui/numeric-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../ui/unit-field';
+import { formatPriceMinor } from '../../shared/catalog/price';
+import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { FieldLabel } from '../../shared/ui/field-label';
+import { NumericField } from '../../shared/ui/numeric-field';
+import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 
 /**
  * How a product is packaged.
@@ -176,8 +176,8 @@ export function parseCount(text: string): number | null {
 export class ProductPackagingEditor {
   protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   protected readonly text = inject(ADMIN_TEXT).products.editor.packaging;
-  protected readonly packing = inject(COMMON_TEXT).packaging;
-  private readonly unitNames = inject(COMMON_TEXT).units;
+  protected readonly packing = inject(SHARED_TEXT).packaging;
+  private readonly unitNames = inject(SHARED_TEXT).units;
   private readonly unavailable =
     inject(ADMIN_TEXT).products.editor.packagingUnavailable;
   /** Below `md` a three-column table of typed cells has no room; the glyph
