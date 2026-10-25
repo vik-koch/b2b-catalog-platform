@@ -1,7 +1,7 @@
 import {
   AttributeDefinition,
   AttributeKeyUsage,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import {
   attributeHints,
   attributeRowStatus,

@@ -48,12 +48,12 @@ const MAPS = join(HERE, 'config-migration');
 /** The release's files, and the schema `--check` validates each against. */
 const SCHEMAS = {
   'deployment.json': [
-    'libs/shared/src/lib/deployment-config.ts',
+    'libs/shared/src/lib/config/deployment-config.ts',
     'deploymentConfigSchema',
   ],
   'api.json': ['apps/api/src/config/api-config.ts', 'apiConfigSchema'],
   'texts/shared.json': [
-    'libs/shared/src/lib/shared-text.ts',
+    'libs/shared/src/lib/config/shared-text.ts',
     'sharedTextSchema',
   ],
   'texts/storefront.json': [

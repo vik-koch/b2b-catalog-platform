@@ -1,13 +1,13 @@
 import { inject } from '@angular/core';
 import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ProductAvailability } from '@b2b-catalog-platform/shared';
 import {
   adminProductAvailabilityFilterSchema,
   AdminProductSort,
   adminProductSortSchema,
   AdminProductState,
   adminProductStateSchema,
-  ProductAvailability,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 
 /**
  * The admin grid's URL state (FR-ADM-05). Filters, the search box and the sort

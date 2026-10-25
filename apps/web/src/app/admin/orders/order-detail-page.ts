@@ -10,8 +10,6 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
 import { Link } from '../../shared/ui/link';
 import {
-  AdminOrderDetail,
-  AdminOrderLine,
   allowedTransitions,
   fillText,
   isOrderFinished,
@@ -21,9 +19,13 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   transitionHasReason,
-  TransitionTarget,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  AdminOrderLine,
+  TransitionTarget,
+} from '@b2b-catalog-platform/shared/admin';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';

@@ -94,8 +94,8 @@ demo list is deliberately short; replace it, do not extend it in this repo.
 
 Each file must be **complete** (no partial overrides), and an unknown key stops
 the boot as surely as a missing one. The authoritative shape of each is its Zod
-schema: `libs/shared/src/lib/deployment-config.ts` (read by both apps),
-`apps/api/src/config/api-config.ts`, `libs/shared/src/lib/shared-text.ts`,
+schema: `libs/shared/src/lib/config/deployment-config.ts` (read by both apps),
+`apps/api/src/config/api-config.ts`, `libs/shared/src/lib/config/shared-text.ts`,
 `apps/web/src/app/shared/config/storefront-text.type.ts`, `.../admin-text.type.ts`,
 `apps/api/src/mail/mail-text.ts` and `apps/api/src/pdf/pdf-text.ts`. The
 committed demo files are the worked example to copy from.

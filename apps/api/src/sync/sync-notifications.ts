@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
+import { SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared/sync';
 import { MAIL_BRANDING, MailBranding } from '../mail/mail-branding';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { MAIL_TEXT, MailText } from '../mail/mail-text';

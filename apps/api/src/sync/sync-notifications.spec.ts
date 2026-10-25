@@ -1,6 +1,10 @@
 import type { Mock, MockInstance } from 'vitest';
 import { Logger } from '@nestjs/common';
-import { SyncArea, SyncRun, SyncRunStatus } from '@b2b-catalog-platform/shared';
+import {
+  SyncArea,
+  SyncRun,
+  SyncRunStatus,
+} from '@b2b-catalog-platform/shared/sync';
 import { MailDispatcher } from '../mail/mail-dispatcher';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
 import { demoMailBranding, demoMailText } from '../mail/mail-text.fixture';

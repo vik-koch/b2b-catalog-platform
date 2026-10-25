@@ -1,4 +1,4 @@
-import { AdminOrderDetail } from '@b2b-catalog-platform/shared';
+import { AdminOrderDetail } from '@b2b-catalog-platform/shared/admin';
 
 /**
  * One order request, in the shape staff read it (FR-UNIT-04). Deliberately not

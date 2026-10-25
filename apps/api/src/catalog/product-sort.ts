@@ -1,10 +1,7 @@
 import { asc, desc, sql, SQL } from 'drizzle-orm';
 import { PgColumn } from 'drizzle-orm/pg-core';
-import {
-  AdminProductSort,
-  CatalogSort,
-  SearchSort,
-} from '@b2b-catalog-platform/shared';
+import { CatalogSort, SearchSort } from '@b2b-catalog-platform/shared';
+import { AdminProductSort } from '@b2b-catalog-platform/shared/admin';
 import { products } from '../db/schema';
 import { resolvedPriceMinor } from './product-price';
 

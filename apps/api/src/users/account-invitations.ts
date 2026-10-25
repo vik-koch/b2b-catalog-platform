@@ -1,5 +1,8 @@
 import { ConflictException, Inject, Injectable, Logger } from '@nestjs/common';
-import { CreateUserRequest, StaffUser } from '@b2b-catalog-platform/shared';
+import {
+  CreateUserRequest,
+  StaffUser,
+} from '@b2b-catalog-platform/shared/admin';
 import {
   INVITE_TTL_MS,
   PasswordTokenService,

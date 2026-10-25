@@ -14,14 +14,14 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   PRODUCT_VARIANT_NAME_MAX_LENGTH,
   PRODUCT_VARIANTS_MAX,
   ProductImageInput,
   ProductVariantInput,
   variantNameKey,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { Button } from '../../shared/ui/button';

@@ -13,13 +13,15 @@ import {
   ORDER_STATUS_REASON_MAX,
   OrderStatus,
   orderStatusSchema,
+  moneyFormat,
+} from '@b2b-catalog-platform/shared';
+import {
   StaffOrderSort,
   staffOrderSortSchema,
   StaffPaymentFilter,
   staffPaymentFilterSchema,
   TransitionTarget,
-  moneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

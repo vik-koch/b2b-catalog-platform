@@ -23,15 +23,17 @@ import {
   COMPANY_ID_NONE,
   CompanyIdFormat,
   companyIdFormatOf,
-  CreateUserRequest,
   CustomerType,
-  StaffUser,
-  UpdateUserRequest,
-  UserKind,
   UserRole,
   alternateLayoutQuery,
   KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
+import {
+  CreateUserRequest,
+  StaffUser,
+  UpdateUserRequest,
+  UserKind,
+} from '@b2b-catalog-platform/shared/admin';
 import {
   ACCEPTED_CUSTOMER_TYPES,
   ALTERNATE_LAYOUT,

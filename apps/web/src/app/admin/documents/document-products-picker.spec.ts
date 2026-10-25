@@ -5,7 +5,7 @@ import {
   AdminCategory,
   AdminProductListItem,
   DocumentProduct,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

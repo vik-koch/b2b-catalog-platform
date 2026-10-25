@@ -13,17 +13,19 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  AdminOrderDetail,
-  AdminProductListItem,
   fillText,
   ORDER_ADJUSTMENT_NOTE_MAX,
-  OrderAdjustment,
-  OrderAdjustmentPreview,
   PartySuggestion,
   PaymentMethod,
   ProductUnit,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  AdminProductListItem,
+  OrderAdjustment,
+  OrderAdjustmentPreview,
+} from '@b2b-catalog-platform/shared/admin';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { CompanyFields } from '../../shared/parties/company-fields';

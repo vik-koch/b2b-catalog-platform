@@ -2,10 +2,9 @@ import { Component, computed, inject, resource, signal } from '@angular/core';
 import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
-  ApiToken,
   ApiTokenScope,
-  CreatedApiToken,
 } from '@b2b-catalog-platform/shared';
+import { ApiToken, CreatedApiToken } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';

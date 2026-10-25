@@ -15,12 +15,11 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AttributeType, ATTRIBUTE_TYPES } from '@b2b-catalog-platform/shared';
 import {
   AttributeDefinition,
-  AttributeType,
-  ATTRIBUTE_TYPES,
   slugSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { useRowAnchor } from '../../shared/core/row-anchor';

@@ -1,11 +1,11 @@
 import { Controller, Inject, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { Implement, implement } from '@orpc/nest';
+import { AuthUser } from '@b2b-catalog-platform/shared';
 import {
   AccountProfile,
   accountContract,
-  AuthUser,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront';
 import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';

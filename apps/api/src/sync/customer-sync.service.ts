@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { and, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { CustomerType } from '@b2b-catalog-platform/shared';
 import {
   CustomerSyncOptions,
   CustomerSyncPlan,
@@ -16,13 +17,12 @@ import {
   CustomerSyncRowError,
   CustomerSyncSubmission,
   CustomerSyncSubmitResponse,
-  CustomerType,
   SyncCommitResponse,
   SyncFailureReport,
   SyncRun,
   customerSyncOptionsSchema,
   decideCustomerAutoApply,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { customerTiers, passwordTokens, syncRuns, users } from '../db/schema';

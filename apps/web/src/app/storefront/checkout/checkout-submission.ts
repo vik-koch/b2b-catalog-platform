@@ -1,10 +1,10 @@
 import { inject, Signal } from '@angular/core';
 import {
-  AccountProfile,
   AddressInput,
   OrderContact,
   OrderSubmission,
 } from '@b2b-catalog-platform/shared';
+import { AccountProfile } from '@b2b-catalog-platform/shared/storefront';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { CartService } from '../../shared/cart/cart.service';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';

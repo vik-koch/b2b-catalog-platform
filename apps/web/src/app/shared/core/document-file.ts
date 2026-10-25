@@ -1,4 +1,5 @@
-import { AcceptedDocumentMime, fillText } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { AcceptedDocumentMime } from '@b2b-catalog-platform/shared';
 
 /** What a stored file is, in one word: "PDF", "PNG". Derived from the sniffed
  * type rather than worded per deployment — these are the formats' own names. */

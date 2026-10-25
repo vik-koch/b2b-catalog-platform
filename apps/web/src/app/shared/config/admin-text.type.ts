@@ -1,4 +1,4 @@
-import { DeepReadonly } from '@b2b-catalog-platform/shared/node';
+import { DeepReadonly } from '@b2b-catalog-platform/shared';
 import {
   orderStatusLabels,
   paymentMethodLabels,

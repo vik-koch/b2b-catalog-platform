@@ -13,7 +13,7 @@ import {
   SyncFailureReport,
   SyncRun,
   SyncSummary,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { syncRuns } from '../db/schema';

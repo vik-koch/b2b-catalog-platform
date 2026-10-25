@@ -2,8 +2,8 @@ import {
   MoneyFormat,
   OrderDetail,
   OrderPickup,
-  SyncRun,
 } from '@b2b-catalog-platform/shared';
+import { SyncRun } from '@b2b-catalog-platform/shared/sync';
 import type { MailBranding } from './mail-branding';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
 import { demoSharedText, demoMailText } from './mail-text.fixture';

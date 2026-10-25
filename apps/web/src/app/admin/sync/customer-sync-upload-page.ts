@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CUSTOMER_SYNC_CSV_COLUMNS,
   CUSTOMER_SYNC_FIELDS,
@@ -7,8 +8,7 @@ import {
   CustomerSyncPreviewResponse,
   SyncFormatErrorBody,
   SyncRun,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminText } from '../../shared/config/admin-text.type';
 import { usePageSeo } from '../../shared/core/page-seo';

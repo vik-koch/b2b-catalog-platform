@@ -1,11 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   OrderSyncPlan,
   OrderSyncRowError,
   OrderWriteResult,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';

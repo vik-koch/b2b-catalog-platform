@@ -13,8 +13,8 @@ import {
   SyncArea,
   SyncRun,
   SyncRunStatus,
-} from '@b2b-catalog-platform/shared';
-import { syncContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/sync';
+import { syncContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 

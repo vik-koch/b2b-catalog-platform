@@ -2,17 +2,19 @@ import { inArray } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { BadRequestException } from '@nestjs/common';
 import {
-  AdjustmentLineFlag,
-  OrderAdjustmentLine,
   ProductAvailability,
   ProductUnit,
   ShipmentLineInput,
   piecesPerUnit,
   shipmentEstimate,
-  shownPictures,
   totalMinor,
   unitQuantity,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdjustmentLineFlag,
+  OrderAdjustmentLine,
+  shownPictures,
+} from '@b2b-catalog-platform/shared/admin';
 import * as schema from '../db/schema';
 import { products } from '../db/schema';
 import { resolvedPriceMinor } from '../catalog/product-price';

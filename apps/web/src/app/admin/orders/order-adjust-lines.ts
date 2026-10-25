@@ -6,11 +6,11 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
 import {
   AdjustmentLineFlag,
   AdminProductListItem,
-  moneyFormat,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

@@ -7,7 +7,7 @@ import { RouterTestingHarness } from '@angular/router/testing';
 import {
   AttributeKeyUsage,
   AttributeValueUsage,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';

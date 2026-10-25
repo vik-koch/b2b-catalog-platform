@@ -5,8 +5,8 @@ import {
   AdminOrderDetail,
   OrderAdjustment,
   OrderAdjustmentPreview,
-  OwnershipArea,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';

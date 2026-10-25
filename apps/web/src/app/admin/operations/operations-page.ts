@@ -7,13 +7,15 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
-  OWNERSHIP_AREAS,
-  OwnershipArea,
   SETTING_CHANGES_PAGE_SIZE,
   SettingChange,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
+import {
+  OWNERSHIP_AREAS,
+  OwnershipArea,
+} from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';

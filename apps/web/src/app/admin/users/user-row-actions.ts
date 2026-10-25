@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
-import { StaffUser } from '@b2b-catalog-platform/shared';
+import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { IconButton } from '../../shared/ui/icon-button';

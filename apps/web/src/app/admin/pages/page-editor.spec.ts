@@ -7,7 +7,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { PageEditor } from './page-editor';
-import { PageService } from '../../shared/pages/page.service';
+import { PageEditingService } from './page-editing.service';
 
 const text = defaultAdminText.pages;
 
@@ -39,7 +39,7 @@ async function render(
       { provide: SHARED_TEXT, useValue: defaultSharedText },
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
-      { provide: PageService, useValue: { updatePage } },
+      { provide: PageEditingService, useValue: { updatePage } },
     ],
   });
   const fixture = TestBed.createComponent(PageEditor);
@@ -90,7 +90,7 @@ describe('PageEditor', () => {
         { provide: SHARED_TEXT, useValue: defaultSharedText },
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },
-        { provide: PageService, useValue: { updatePage: vi.fn() } },
+        { provide: PageEditingService, useValue: { updatePage: vi.fn() } },
       ],
     });
     const fixture = TestBed.createComponent(PageEditor);

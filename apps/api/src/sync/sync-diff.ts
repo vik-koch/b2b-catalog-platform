@@ -1,8 +1,10 @@
 import {
-  DEFAULT_PRICE_LIST_ALIAS,
-  MANUAL_SOURCE_ID_PREFIX,
   ProductAvailability,
   productAvailability,
+} from '@b2b-catalog-platform/shared';
+import {
+  DEFAULT_PRICE_LIST_ALIAS,
+  MANUAL_SOURCE_ID_PREFIX,
   CATALOG_SYNC_CSV_COLUMNS,
   CATALOG_SYNC_FIELDS,
   SYNC_PREVIEW_MAX_ITEMS,
@@ -13,7 +15,7 @@ import {
   CatalogSyncRowError,
   SyncSummary,
   syncPriceColumn,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 
 /**
  * The differ: rows + intent + current catalog → what would change. Pure, so the

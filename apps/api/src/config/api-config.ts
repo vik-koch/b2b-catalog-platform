@@ -1,10 +1,12 @@
 import {
   customerSyncPolicySchema,
+  syncPolicySchema,
+} from '@b2b-catalog-platform/shared/sync';
+import {
   retentionConfigSchema,
   sessionConfigSchema,
-  syncPolicySchema,
   termsConfigSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/node';
 import { loadConfig } from '@b2b-catalog-platform/shared/node';
 import * as z from 'zod';
 

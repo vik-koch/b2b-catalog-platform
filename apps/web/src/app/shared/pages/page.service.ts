@@ -1,11 +1,6 @@
 import { Injectable } from '@angular/core';
 import { isDefinedError, safe } from '@orpc/client';
-import {
-  Page,
-  PageSlug,
-  PageVersion,
-  UpdatePageRequest,
-} from '@b2b-catalog-platform/shared';
+import { Page } from '@b2b-catalog-platform/shared';
 import { pageContract } from '../core/contract-routes.generated';
 import { createOrpcClient } from '../core/orpc-client';
 
@@ -28,15 +23,5 @@ export class PageService {
     if (!error) return data;
     if (isDefinedError(error) && error.code === 'page-not-found') return null;
     throw error;
-  }
-
-  /** Returns the stored page, so callers render what the server kept. */
-  updatePage(slug: PageSlug, body: UpdatePageRequest): Promise<Page> {
-    return this.client.updatePage({ params: { slug }, body });
-  }
-
-  /** Newest first; admin only. */
-  listVersions(slug: PageSlug): Promise<PageVersion[]> {
-    return this.client.listPageVersions({ params: { slug } });
   }
 }

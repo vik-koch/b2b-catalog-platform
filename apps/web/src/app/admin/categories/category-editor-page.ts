@@ -1,10 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  AdminCategory,
-  CatalogImage,
-  slugify,
-} from '@b2b-catalog-platform/shared';
+import { CatalogImage } from '@b2b-catalog-platform/shared';
+import { AdminCategory, slugify } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';

@@ -19,13 +19,15 @@ import {
   viewChild,
 } from '@angular/core';
 import {
-  AttributeDefinition,
-  AttributeKeyUsage,
   PRODUCT_ATTRIBUTES_MAX,
   fillText,
   ProductAttribute,
   strayPart,
 } from '@b2b-catalog-platform/shared';
+import {
+  AttributeDefinition,
+  AttributeKeyUsage,
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { injectNarrowScreen } from '../../shared/core/narrow-screen';
 import { IconButton } from '../../shared/ui/icon-button';

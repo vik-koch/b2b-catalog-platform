@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
+import { TIER_ERROR_CODES } from '@b2b-catalog-platform/shared';
 import {
   CustomerTier,
   ReorderTiersRequest,
-  TIER_ERROR_CODES,
   TierErrorCode,
   TierInput,
-} from '@b2b-catalog-platform/shared';
-import { tiersContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/admin';
+import { tiersContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 

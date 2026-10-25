@@ -11,8 +11,8 @@ import {
   RenameAttributeKeyRequest,
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
-} from '@b2b-catalog-platform/shared';
-import { attributesContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/admin';
+import { attributesContract } from '../contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 

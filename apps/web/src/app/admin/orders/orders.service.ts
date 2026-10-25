@@ -2,23 +2,25 @@ import { DOCUMENT, Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import {
-  AdminOrderDetail,
-  OrderAdjustment,
-  OrderAdjustmentPreview,
-  AdminOrderDocument,
   OrderDocumentKind,
-  OrderRevision,
-  OrderRevisionEntry,
   OrderStatus,
   OrderSummary,
   Pagination,
   PaymentMethod,
+  orderDocumentPath,
+} from '@b2b-catalog-platform/shared';
+import {
+  AdminOrderDetail,
+  OrderAdjustment,
+  OrderAdjustmentPreview,
+  AdminOrderDocument,
+  OrderRevision,
+  OrderRevisionEntry,
   StaffOrderSort,
   StaffPaymentFilter,
   TransitionTarget,
-  orderDocumentPath,
-} from '@b2b-catalog-platform/shared';
-import { ordersContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/admin';
+import { adminOrdersContract } from '../contract-routes.generated';
 import { safe } from '@orpc/client';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 
@@ -63,7 +65,7 @@ export type StaffOrderSummary = OrderSummary & {
  */
 @Injectable({ providedIn: 'root' })
 export class AdminOrdersService {
-  private readonly client = createOrpcClient(ordersContract);
+  private readonly client = createOrpcClient(adminOrdersContract);
   private readonly http = inject(HttpClient);
   private readonly document = inject(DOCUMENT);
 

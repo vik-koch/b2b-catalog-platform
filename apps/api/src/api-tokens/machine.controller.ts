@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { apiTokensContract } from '@b2b-catalog-platform/shared';
+import { machineIdentityContract } from '@b2b-catalog-platform/shared/sync';
 import { MachineThrottle } from '../throttling/throttle-presets';
 import { CurrentMachine } from './current-machine.decorator';
 import { Machine } from './machine.decorator';
@@ -21,9 +21,9 @@ import { MachineClient } from './machine-client';
 @MachineThrottle()
 @Controller()
 export class MachineController {
-  @Implement(apiTokensContract.machineIdentity)
+  @Implement(machineIdentityContract.machineIdentity)
   machineIdentity(@CurrentMachine() machine: MachineClient) {
-    return implement(apiTokensContract.machineIdentity).handler(() => ({
+    return implement(machineIdentityContract.machineIdentity).handler(() => ({
       name: machine.name,
       scopes: machine.scopes,
     }));

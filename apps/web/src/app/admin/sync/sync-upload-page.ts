@@ -1,14 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SettingsService } from '../settings/settings.service';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   CATALOG_SYNC_ALL_FIELDS,
   SyncFormatErrorBody,
   CatalogSyncOptions,
   CatalogSyncPreviewResponse,
   SyncRun,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminText } from '../../shared/config/admin-text.type';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

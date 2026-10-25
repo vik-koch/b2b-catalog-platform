@@ -9,7 +9,8 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText, LinkedDocument } from '@b2b-catalog-platform/shared';
+import { fillText } from '@b2b-catalog-platform/shared';
+import { LinkedDocument } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

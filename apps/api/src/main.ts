@@ -2,7 +2,7 @@ import { ConsoleLogger, Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import { json, urlencoded } from 'express';
-import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared';
+import { SYNC_MAX_BODY_BYTES } from '@b2b-catalog-platform/shared/sync';
 import { AppModule } from './app/app.module';
 import { runMigrations } from './db/migrate';
 import { hashPassword } from './auth/password-hashing';

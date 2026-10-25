@@ -1,7 +1,8 @@
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
-import { AdminCategory, OwnershipArea } from '@b2b-catalog-platform/shared';
+import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
+import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { provideOwnership } from '../settings/settings.fixture';

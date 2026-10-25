@@ -3,19 +3,16 @@ import { defaultSharedText } from '../shared/config/shared-text.fixture';
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import {
-  AuthUser,
-  BuildInfo,
-  SyncArea,
-  WorkCounts,
-} from '@b2b-catalog-platform/shared';
+import { AuthUser, WorkCounts } from '@b2b-catalog-platform/shared';
+import { BuildInfo } from '@b2b-catalog-platform/shared/admin';
+import { SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { STOREFRONT_TEXT } from '../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { defaultStorefrontText } from '../shared/config/storefront-text.fixture';
 import { defaultAdminText } from '../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../shared/config/deployment-config.fixture';
-import { AppSettings } from '@b2b-catalog-platform/shared';
+import { AppSettings } from '@b2b-catalog-platform/shared/admin';
 import { AdminPanelPage } from './admin-panel-page';
 import { SettingsService } from './settings/settings.service';
 import { BuildInfoService } from './build-info.service';

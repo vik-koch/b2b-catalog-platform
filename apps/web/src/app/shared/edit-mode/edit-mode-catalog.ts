@@ -1,9 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import type {
-  AdminProduct,
-  HiddenProduct,
-  ProductPage,
-} from '@b2b-catalog-platform/shared';
+import type { HiddenProduct, ProductPage } from '@b2b-catalog-platform/shared';
 
 /** The admin catalog calls edit mode makes from a storefront page. */
 export interface EditModeCatalog {
@@ -13,7 +9,8 @@ export interface EditModeCatalog {
     product: { slug: string; name: string },
     text: { unpublishConfirm: { message: string }; unpublishStranded: string },
   ): Promise<string>;
-  setProductPublished(slug: string, published: boolean): Promise<AdminProduct>;
+  /** Edit mode reloads the page after it, so what comes back is not read. */
+  setProductPublished(slug: string, published: boolean): Promise<unknown>;
 }
 
 /**

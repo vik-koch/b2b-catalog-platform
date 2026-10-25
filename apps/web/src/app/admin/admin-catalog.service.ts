@@ -1,20 +1,22 @@
 import { inject, Injectable } from '@angular/core';
 import {
+  ProductAvailability,
+  HiddenProduct,
+  ProductPage,
+} from '@b2b-catalog-platform/shared';
+import {
   AdminCategory,
   AdminProduct,
   CatalogErrorCode,
   AdminProductSort,
   AdminProductState,
   CategoryInput,
-  ProductAvailability,
   ProductFeature,
   ProductGapFilter,
   ProductInput,
-  HiddenProduct,
-  ProductPage,
   ReorderCategoriesRequest,
-} from '@b2b-catalog-platform/shared';
-import { adminCatalogContract } from '../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/admin';
+import { adminCatalogContract } from './contract-routes.generated';
 import { safe, type ClientPromiseResult } from '@orpc/client';
 import { createOrpcClient } from '../shared/core/orpc-client';
 import { WorkService } from '../shared/work/work.service';

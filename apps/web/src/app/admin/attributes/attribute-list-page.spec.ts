@@ -2,7 +2,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AttributeDefinition } from '@b2b-catalog-platform/shared';
+import { AttributeDefinition } from '@b2b-catalog-platform/shared/admin';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';

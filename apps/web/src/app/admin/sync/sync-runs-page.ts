@@ -1,14 +1,14 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
-  fillText,
   CATALOG_SYNC_CSV_COLUMNS,
   SyncArea,
   SyncRun,
   SyncRunStatus,
   syncRunStatusSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';

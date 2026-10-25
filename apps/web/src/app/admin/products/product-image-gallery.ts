@@ -10,9 +10,11 @@ import { Component, inject, input, output, signal } from '@angular/core';
 import {
   ACCEPTED_IMAGE_MIME_TYPES,
   fillText,
+} from '@b2b-catalog-platform/shared';
+import {
   ProductImageInput,
   ProductVariantInput,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';

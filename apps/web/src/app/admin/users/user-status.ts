@@ -1,4 +1,4 @@
-import { UserStatus } from '@b2b-catalog-platform/shared';
+import { UserStatus } from '@b2b-catalog-platform/shared/admin';
 import { StatusTone } from '../../shared/ui/status-badge';
 
 /**

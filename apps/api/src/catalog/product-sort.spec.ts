@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { PgDialect } from 'drizzle-orm/pg-core';
 import {
-  adminProductSortSchema,
   productSortSchema,
   searchSortSchema,
 } from '@b2b-catalog-platform/shared';
+import { adminProductSortSchema } from '@b2b-catalog-platform/shared/admin';
 import {
   adminProductOrderBy,
   catalogOrderBy,

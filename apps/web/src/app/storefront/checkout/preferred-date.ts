@@ -1,9 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
+import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
 import {
   firstOrderDate,
-  FulfilmentMethod,
   localToday,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/storefront';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DateField } from '../../shared/ui/date-field';

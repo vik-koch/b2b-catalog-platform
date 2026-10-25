@@ -8,11 +8,13 @@ import {
   signal,
 } from '@angular/core';
 import {
-  AdminProductListItem,
   ADMIN_CATALOG_PAGE_SIZE,
-  DocumentProduct,
   fillText,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdminProductListItem,
+  DocumentProduct,
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { debounced } from '../../shared/core/debounced';
 import { AlternateLayout } from '../../shared/core/alternate-layout';

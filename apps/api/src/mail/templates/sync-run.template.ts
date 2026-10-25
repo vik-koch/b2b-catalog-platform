@@ -1,4 +1,4 @@
-import { SyncRun } from '@b2b-catalog-platform/shared';
+import { SyncRun } from '@b2b-catalog-platform/shared/sync';
 import { MailContent, MailRow } from '../mail-layout';
 import { MailText } from '../mail-text';
 

@@ -3,13 +3,15 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CustomerTier,
   CustomerType,
   PartySuggestion,
-  StaffUser,
-  UserKind,
   UserRole,
 } from '@b2b-catalog-platform/shared';
+import {
+  CustomerTier,
+  StaffUser,
+  UserKind,
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffFields } from '../staff-fields';

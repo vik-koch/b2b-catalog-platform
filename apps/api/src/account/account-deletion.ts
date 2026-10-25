@@ -10,10 +10,8 @@ import {
 } from '../mail/templates/account-closed.template';
 import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
-import {
-  AccountDeletionReason,
-  SharedText,
-} from '@b2b-catalog-platform/shared';
+import { SharedText } from '@b2b-catalog-platform/shared';
+import { AccountDeletionReason } from '@b2b-catalog-platform/shared/admin';
 import { LastAdminError, UserRow, UsersService } from '../users/users.service';
 import { env } from '../env';
 

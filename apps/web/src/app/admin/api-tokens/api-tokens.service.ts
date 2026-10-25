@@ -6,8 +6,8 @@ import {
   ApiTokenErrorCode,
   ApiTokenInput,
   CreatedApiToken,
-} from '@b2b-catalog-platform/shared';
-import { apiTokensContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/admin';
+import { apiTokensContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /** A revoke the server refused — the row is gone, so the list is stale. */

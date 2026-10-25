@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { AdminCategory } from '@b2b-catalog-platform/shared';
+import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SettingsService } from '../settings/settings.service';
 import { Button } from '../../shared/ui/button';

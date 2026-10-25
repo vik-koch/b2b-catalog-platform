@@ -4,11 +4,13 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import {
   Address,
-  firstOrderDate,
-  localToday,
   OrderSubmission,
   DeploymentConfig,
 } from '@b2b-catalog-platform/shared';
+import {
+  firstOrderDate,
+  localToday,
+} from '@b2b-catalog-platform/shared/storefront';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';

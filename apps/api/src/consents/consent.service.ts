@@ -12,11 +12,11 @@ import {
   AuthUser,
   CONSENT_PAGE_SLUGS,
   ConsentPurpose,
-  ConsentRecord,
   ConsentRefusalCode,
   ConsentWithdrawalReason,
   formatPersonName,
 } from '@b2b-catalog-platform/shared';
+import { ConsentRecord } from '@b2b-catalog-platform/shared/admin';
 import { CONSENT_PURPOSES_ASKED } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

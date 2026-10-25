@@ -16,10 +16,12 @@ import {
   fillText,
   formatPersonName,
   FulfilmentMethod,
-  isOrderDateAllowed,
-  localToday,
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
+import {
+  isOrderDateAllowed,
+  localToday,
+} from '@b2b-catalog-platform/shared/storefront';
 import { AccountService } from '../account/account.service';
 import { AddressForm } from '../../shared/addresses/address-form';
 import { AddressesService } from '../../shared/addresses/addresses.service';

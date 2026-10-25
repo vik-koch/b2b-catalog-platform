@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { ProductFeature } from '@b2b-catalog-platform/shared';
+import { ProductFeature } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
 

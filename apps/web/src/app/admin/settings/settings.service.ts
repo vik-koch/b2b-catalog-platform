@@ -1,11 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
+import { AppSettings, SettingChange } from '@b2b-catalog-platform/shared/admin';
 import {
-  AppSettings,
   OWNERSHIP_AREAS,
   OwnershipArea,
-  SettingChange,
-} from '@b2b-catalog-platform/shared';
-import { settingsContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/sync';
+import { adminSettingsContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 import { MaintenanceService } from '../../shared/maintenance/maintenance.service';
 
@@ -28,7 +27,7 @@ const ALL_AREAS: readonly OwnershipArea[] = OWNERSHIP_AREAS;
  */
 @Injectable({ providedIn: 'root' })
 export class SettingsService {
-  private readonly client = createOrpcClient(settingsContract);
+  private readonly client = createOrpcClient(adminSettingsContract);
   private readonly maintenance = inject(MaintenanceService);
   private readonly areas = signal<readonly OwnershipArea[] | null>(null);
   private readonly latest = signal<AppSettings | null>(null);

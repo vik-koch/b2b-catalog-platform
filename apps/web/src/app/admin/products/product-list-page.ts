@@ -9,14 +9,16 @@ import {
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import {
-  AdminProductSort,
   fillText,
   formatAttributeValue,
+  ProductAvailability,
+} from '@b2b-catalog-platform/shared';
+import {
+  AdminProductSort,
   IncompleteGap,
   PRODUCT_FEATURES,
   PRODUCT_GAP_FILTERS,
-  ProductAvailability,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { NgTemplateOutlet } from '@angular/common';
 import { PricePipe } from '../../shared/catalog/price.pipe';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';

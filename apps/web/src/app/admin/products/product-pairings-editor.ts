@@ -7,12 +7,11 @@ import {
   output,
   signal,
 } from '@angular/core';
+import { fillText, PRODUCT_PAIRINGS_MAX } from '@b2b-catalog-platform/shared';
 import {
   AdminProductListItem,
-  fillText,
   PairedProduct,
-  PRODUCT_PAIRINGS_MAX,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { HighlightedLine } from '../../shared/core/highlighted-line';

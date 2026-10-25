@@ -14,7 +14,7 @@ import {
   CatalogSyncPlan,
   OrderSyncPlan,
   SyncRun,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

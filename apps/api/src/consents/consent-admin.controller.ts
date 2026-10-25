@@ -1,6 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { AuthUser, consentsContract } from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared';
+import { consentsContract } from '@b2b-catalog-platform/shared/admin';
 import { AuditLogger } from '../audit/audit.logger';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';

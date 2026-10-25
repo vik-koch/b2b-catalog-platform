@@ -1,9 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import {
-  allowedTransitions,
-  TransitionTarget,
-} from '@b2b-catalog-platform/shared';
+import { allowedTransitions } from '@b2b-catalog-platform/shared';
+import { TransitionTarget } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { IconButton } from '../../shared/ui/icon-button';

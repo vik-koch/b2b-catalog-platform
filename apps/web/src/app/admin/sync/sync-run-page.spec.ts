@@ -7,9 +7,10 @@ import {
   CatalogSyncPlan,
   SyncRun,
   SyncSummary,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { signal } from '@angular/core';
-import { AuthUser, SyncArea } from '@b2b-catalog-platform/shared';
+import { AuthUser } from '@b2b-catalog-platform/shared';
+import { SyncArea } from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../../shared/auth/auth.service';
 import { adminUser, managerUser } from '../../shared/auth/auth-user.fixture';
 import { provideOwnership } from '../settings/settings.fixture';

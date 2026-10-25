@@ -10,11 +10,13 @@ import { Router, RouterLink } from '@angular/router';
 import {
   COMPANY_ID_NONE,
   formatPersonName,
+  userRoleSchema,
+} from '@b2b-catalog-platform/shared';
+import {
   StaffUser,
   UserKind,
-  userRoleSchema,
   userStatusSchema,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

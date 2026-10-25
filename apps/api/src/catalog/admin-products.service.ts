@@ -20,15 +20,7 @@ import {
 } from 'drizzle-orm';
 import {
   ADMIN_CATALOG_PAGE_SIZE,
-  AdminProduct,
-  AdminProductListItem,
-  AdminProductListQuery,
-  AdminProductState,
   HiddenProduct,
-  INCOMPLETE_GAPS,
-  PRODUCT_FEATURES,
-  LinkedDocument,
-  PairedProduct,
   parseAttributeNumber,
   joinAttributeKey,
   PartKey,
@@ -36,10 +28,20 @@ import {
   splitAttributeKey,
   productAvailability,
   ProductAvailability,
-  ProductInput,
-  ProductTierPrice,
   KeyboardLayout,
 } from '@b2b-catalog-platform/shared';
+import {
+  AdminProduct,
+  AdminProductListItem,
+  AdminProductListQuery,
+  AdminProductState,
+  INCOMPLETE_GAPS,
+  PRODUCT_FEATURES,
+  LinkedDocument,
+  PairedProduct,
+  ProductInput,
+  ProductTierPrice,
+} from '@b2b-catalog-platform/shared/admin';
 import { sanitizeProductRichText } from '@b2b-catalog-platform/shared/node';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

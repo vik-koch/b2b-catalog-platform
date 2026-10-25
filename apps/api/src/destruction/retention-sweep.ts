@@ -1,10 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { and, eq, inArray, isNull, lt, ne, or } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import {
-  ENDED_ORDER_STATUSES,
-  RetentionConfig,
-} from '@b2b-catalog-platform/shared';
+import { ENDED_ORDER_STATUSES } from '@b2b-catalog-platform/shared';
+import { RetentionConfig } from '@b2b-catalog-platform/shared/node';
 import { RETENTION } from '../config/deployment-config';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';

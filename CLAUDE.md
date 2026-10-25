@@ -29,8 +29,12 @@ GitHub Milestones per iteration; release notes: GitHub Releases per tag.
   A `*.contract.ts` exports **schemas only**: constants and pure helpers live in
   import-free modules (`*-constants.ts`, `email-format.ts`) so a component importing a
   limit does not pull Zod into the browser. The client is handed generated route metadata
-  (`contract-routes.generated.ts`), never the schemas — regenerate with
+  (`contract-routes.generated.ts`, one per side), never the schemas — regenerate with
   `node tools/generate-contract-routes.mjs` after changing a route.
+- Storefront / admin / shared at every level (ADR 0069): web folders, text files
+  (`storefront.json`, `admin.json`, `shared.json`) and `libs/shared` entry points (root,
+  `/storefront`, `/admin`, `/sync`, `/node`). Lint enforces the direction; only the web root
+  composes both sides.
 - Rendering: Angular SSR (one running Node process) serves all crawler-visible routes —
   catalog/product and static pages alike. Static-page HTML is cached per slug, invalidated
   on admin save. No build-time prerendering of DB-backed content.

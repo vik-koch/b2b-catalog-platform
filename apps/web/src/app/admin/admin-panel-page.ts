@@ -4,8 +4,8 @@ import {
   CONSENT_PURPOSES,
   ConsentPurpose,
   fillText,
-  OWNERSHIP_AREAS,
 } from '@b2b-catalog-platform/shared';
+import { OWNERSHIP_AREAS } from '@b2b-catalog-platform/shared/sync';
 import { AuthService } from '../shared/auth/auth.service';
 import { SignedInAs } from '../shared/auth/signed-in-as';
 import { ADMIN_TEXT } from '../shared/config/admin-text';

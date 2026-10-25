@@ -16,6 +16,7 @@ import {
   ne,
   sql,
 } from 'drizzle-orm';
+import { parseAttributeNumber } from '@b2b-catalog-platform/shared';
 import {
   AttributeDefinition,
   AttributeDefinitionInput,
@@ -25,12 +26,11 @@ import {
   SaveCategoryFiltersRequest,
   AttributeKeyUsage,
   AttributeValueUsage,
-  parseAttributeNumber,
   RenameAttributeKeyRequest,
   RenameAttributeValueRequest,
   ReorderAttributesRequest,
   slugify,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import {

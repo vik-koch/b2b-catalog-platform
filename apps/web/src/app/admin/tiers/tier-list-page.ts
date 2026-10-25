@@ -7,7 +7,10 @@ import {
 } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
-import { CustomerTier, tierKeySchema } from '@b2b-catalog-platform/shared';
+import {
+  CustomerTier,
+  tierKeySchema,
+} from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';

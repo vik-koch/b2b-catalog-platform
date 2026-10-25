@@ -1,4 +1,7 @@
-import { SYNC_MAX_ROWS, SyncFormatCode } from '@b2b-catalog-platform/shared';
+import {
+  SYNC_MAX_ROWS,
+  SyncFormatCode,
+} from '@b2b-catalog-platform/shared/sync';
 import Papa from 'papaparse';
 
 /**

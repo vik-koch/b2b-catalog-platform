@@ -7,12 +7,12 @@ import {
   signal,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { fillText } from '@b2b-catalog-platform/shared';
 import {
   CustomerAccountChange,
   CustomerSyncPlan,
   CustomerSyncRowError,
-  fillText,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '../../shared/ui/button';
 import { Input } from '../../shared/ui/input';

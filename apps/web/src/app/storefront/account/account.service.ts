@@ -3,8 +3,8 @@ import { isDefinedError, safe } from '@orpc/client';
 import {
   AccountProfile,
   UpdateAccountProfileRequest,
-} from '@b2b-catalog-platform/shared';
-import { accountContract } from '../../shared/core/contract-routes.generated';
+} from '@b2b-catalog-platform/shared/storefront';
+import { accountContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /** What the delete form has to tell apart. */

@@ -8,9 +8,9 @@ import {
   DocumentInput,
   ProductDocument,
   UploadDocumentResponse,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/admin';
 import { safe, type ClientPromiseResult } from '@orpc/client';
-import { documentsContract } from '../../shared/core/contract-routes.generated';
+import { documentsContract } from '../contract-routes.generated';
 import { createOrpcClient } from '../../shared/core/orpc-client';
 
 /**

@@ -2,13 +2,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
+import { AppSettings, SettingChange } from '@b2b-catalog-platform/shared/admin';
 import {
-  AppSettings,
   OWNERSHIP_AREAS,
   OwnershipArea,
-  SettingChange,
-  DeploymentConfig,
-} from '@b2b-catalog-platform/shared';
+} from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';

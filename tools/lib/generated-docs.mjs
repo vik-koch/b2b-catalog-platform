@@ -35,7 +35,12 @@ export async function loadTypeScript(entryPoint) {
       packages: 'external',
       alias: {
         '@b2b-catalog-platform/shared': './libs/shared/src/index.ts',
+        '@b2b-catalog-platform/shared/admin':
+          './libs/shared/src/admin/index.ts',
         '@b2b-catalog-platform/shared/node': './libs/shared/src/node/index.ts',
+        '@b2b-catalog-platform/shared/storefront':
+          './libs/shared/src/storefront/index.ts',
+        '@b2b-catalog-platform/shared/sync': './libs/shared/src/sync/index.ts',
       },
       logLevel: 'silent',
     });

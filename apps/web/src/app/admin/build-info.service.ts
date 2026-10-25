@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BuildInfo } from '@b2b-catalog-platform/shared';
-import { settingsContract } from '../shared/core/contract-routes.generated';
+import { BuildInfo } from '@b2b-catalog-platform/shared/admin';
+import { adminSettingsContract } from './contract-routes.generated';
 import { createOrpcClient } from '../shared/core/orpc-client';
 
 /**
@@ -10,7 +10,7 @@ import { createOrpcClient } from '../shared/core/orpc-client';
  */
 @Injectable({ providedIn: 'root' })
 export class BuildInfoService {
-  private readonly client = createOrpcClient(settingsContract);
+  private readonly client = createOrpcClient(adminSettingsContract);
   private info?: Promise<BuildInfo>;
 
   get(): Promise<BuildInfo> {

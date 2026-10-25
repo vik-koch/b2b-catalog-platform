@@ -3,16 +3,18 @@ import { and, asc, eq, gte, inArray, sql } from 'drizzle-orm';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   FulfilmentMethod,
-  ListMachineOrdersQuery,
-  MachineOrder,
-  MachineOrderLine,
-  MachineOrdersPage,
   OrderStatus,
   PaymentMethod,
   PaymentState,
   ProductUnit,
   TaxBasis,
 } from '@b2b-catalog-platform/shared';
+import {
+  ListMachineOrdersQuery,
+  MachineOrder,
+  MachineOrderLine,
+  MachineOrdersPage,
+} from '@b2b-catalog-platform/shared/sync';
 import { DRIZZLE } from '../db/database.module';
 import * as schema from '../db/schema';
 import { orderItems, orderRevisions, orders, users } from '../db/schema';

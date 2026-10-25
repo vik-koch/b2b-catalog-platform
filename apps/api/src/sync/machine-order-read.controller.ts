@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
-import { machineOrderReadContract } from '@b2b-catalog-platform/shared';
+import { machineOrderReadContract } from '@b2b-catalog-platform/shared/sync';
 import { Machine } from '../api-tokens/machine.decorator';
 import { refusals } from '../orpc/refusals';
 import { MachineThrottle } from '../throttling/throttle-presets';

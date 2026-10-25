@@ -23,7 +23,7 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { Checkbox } from '../../shared/ui/checkbox';
-import { PageService } from '../../shared/pages/page.service';
+import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 
@@ -170,7 +170,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   `,
 })
 export class PageEditor {
-  private readonly pageService = inject(PageService);
+  private readonly pageService = inject(PageEditingService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).pages;
   protected readonly actionText = inject(SHARED_TEXT).actions;

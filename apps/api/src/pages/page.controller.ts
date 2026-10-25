@@ -2,6 +2,7 @@ import { Controller } from '@nestjs/common';
 import { Implement, implement } from '@orpc/nest';
 import { PageService } from './page.service';
 import { AuthUser, pageContract } from '@b2b-catalog-platform/shared';
+import { adminPagesContract } from '@b2b-catalog-platform/shared/admin';
 import { Auth } from '../auth/auth.decorator';
 import { CurrentUser } from '../auth/current-user.decorator';
 
@@ -24,18 +25,18 @@ export class PageController {
 
   // Admin only. The body is sanitized in the service.
   @Auth('admin')
-  @Implement(pageContract.updatePage)
+  @Implement(adminPagesContract.updatePage)
   updatePage(@CurrentUser() user: AuthUser) {
-    return implement(pageContract.updatePage).handler(
+    return implement(adminPagesContract.updatePage).handler(
       ({ input: { params, body } }) =>
         this.pageService.updatePage(params.slug, body, user),
     );
   }
 
   @Auth('admin')
-  @Implement(pageContract.listPageVersions)
+  @Implement(adminPagesContract.listPageVersions)
   listPageVersions() {
-    return implement(pageContract.listPageVersions).handler(
+    return implement(adminPagesContract.listPageVersions).handler(
       ({ input: { params } }) => this.pageService.listVersions(params.slug),
     );
   }

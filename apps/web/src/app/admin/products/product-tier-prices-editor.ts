@@ -1,5 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { CustomerTier, moneyFormat } from '@b2b-catalog-platform/shared';
+import { moneyFormat } from '@b2b-catalog-platform/shared';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
 import { currencySymbol, parsePriceInput } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
