@@ -13,6 +13,8 @@ import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 
@@ -37,6 +39,8 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
     Input,
     PageTitle,
     ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <div class="max-w-xl">
@@ -44,13 +48,13 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
         <h1 appPageTitle class="mb-4">
           {{ text.doneHeading }}
         </h1>
-        <p class="text-muted">{{ text.done }}</p>
+        <p appPageIntro>{{ text.done }}</p>
         <a appButton routerLink="/" class="mt-8">{{ home }}</a>
       } @else {
         <h1 appPageTitle class="mb-2">
           {{ text.heading }}
         </h1>
-        <p class="mb-4 text-muted">{{ text.intro }}</p>
+        <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
         <ul class="mb-6 list-disc space-y-2 pl-5 text-sm text-muted">
           @for (line of text.consequences; track line) {
@@ -93,7 +97,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
                 {{ validation.currentPasswordRequired }}
               </p>
             } @else {
-              <p class="mt-1 text-sm text-muted">{{ text.passwordHint }}</p>
+              <p appHint class="mt-1">{{ text.passwordHint }}</p>
             }
           </div>
 

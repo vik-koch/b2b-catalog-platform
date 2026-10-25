@@ -40,6 +40,7 @@ import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type SearchBy = 'email' | 'phone';
 
@@ -60,12 +61,13 @@ type SearchBy = 'email' | 'phone';
     ConsentRecordList,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="max-w-3xl">
       <h1 appPageTitle>{{ text.page.title }}</h1>
       @if (text.page.intro; as intro) {
-        <p class="mt-2 text-muted">{{ intro }}</p>
+        <p appPageIntro class="mt-2">{{ intro }}</p>
       }
 
       <form class="mt-6 space-y-4" novalidate (submit)="search($event)">

@@ -24,6 +24,8 @@ import { useConsent } from '../pages/consent';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status =
   | 'checking'
@@ -62,6 +64,8 @@ type Status =
     TextButton,
     PageTitle,
     ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <app-auth-card>
@@ -73,7 +77,7 @@ type Status =
           <h1 appPageTitle class="mb-4">
             {{ step.codeHeading }}
           </h1>
-          <p class="text-muted" role="alert">{{ codeFailure() }}</p>
+          <p appPageIntro role="alert">{{ codeFailure() }}</p>
           <a appButton routerLink="/login" class="mt-8">
             {{ step.restartAction }}
           </a>
@@ -85,7 +89,7 @@ type Status =
           <h1 appPageTitle class="mb-4">
             {{ text.expiredHeading }}
           </h1>
-          <p class="text-muted">{{ text.expired }}</p>
+          <p appPageIntro>{{ text.expired }}</p>
           <!-- The copy has always told them to ask for a new link; now there
                is one to click. Primary, because it is the way out of here —
                signing in is what they could not do in the first place. -->
@@ -102,19 +106,19 @@ type Status =
           <h1 appPageTitle class="mb-4">
             {{ text.closedHeading }}
           </h1>
-          <p class="text-muted">{{ text.closed }}</p>
+          <p appPageIntro>{{ text.closed }}</p>
         }
         @case ('done') {
           <h1 appPageTitle class="mb-4">
             {{ text.successHeading }}
           </h1>
-          <p class="text-muted">{{ text.success }}</p>
+          <p appPageIntro>{{ text.success }}</p>
         }
         @default {
           <h1 appPageTitle class="mb-2">
             {{ purpose() === 'set' ? text.setHeading : text.resetHeading }}
           </h1>
-          <p class="mb-4 text-muted">
+          <p appPageIntro class="mb-4">
             {{ purpose() === 'set' ? text.setIntro : text.resetIntro }}
             <span class="mt-1 block">{{ text.forAccount }} {{ email() }}</span>
           </p>
@@ -162,7 +166,7 @@ type Status =
                   }}
                 </p>
               } @else {
-                <p id="newPassword-hint" class="mt-1 text-sm text-muted">
+                <p id="newPassword-hint" appHint class="mt-1">
                   {{ tooShort }}
                 </p>
               }
@@ -175,7 +179,7 @@ type Status =
                 {{ text.generate }}
               </button>
               @if (suggested()) {
-                <p class="mt-1 text-sm text-muted">{{ text.generated }}</p>
+                <p appHint class="mt-1">{{ text.generated }}</p>
               }
             </div>
 

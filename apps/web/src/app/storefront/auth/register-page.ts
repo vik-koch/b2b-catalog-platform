@@ -28,6 +28,7 @@ import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -62,6 +63,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Link,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <app-auth-card>
@@ -69,7 +71,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         <h1 appPageTitle class="mb-4">
           {{ text.register.successHeading }}
         </h1>
-        <p class="text-muted">{{ text.register.success }}</p>
+        <p appPageIntro>{{ text.register.success }}</p>
         <a appButton variant="secondary" routerLink="/" class="mt-8">
           {{ home }}
         </a>
@@ -77,7 +79,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         <h1 appPageTitle class="mb-2">
           {{ text.register.heading }}
         </h1>
-        <p class="mb-4 text-muted">{{ text.register.intro }}</p>
+        <p appPageIntro class="mb-4">{{ text.register.intro }}</p>
 
         <form
           [formGroup]="form"

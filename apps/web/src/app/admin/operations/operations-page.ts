@@ -35,6 +35,8 @@ import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -62,6 +64,8 @@ import { ErrorText } from '../../shared/ui/error-text';
     Switch,
     PageTitle,
     ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <!-- Wrapping, unlike the token list's heading row: this title is several
@@ -74,7 +78,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       </a>
     </div>
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">
@@ -144,7 +148,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               />
             </div>
 
-            <p class="mt-1 text-sm text-muted">{{ allText.description }}</p>
+            <p appHint class="mt-1">{{ allText.description }}</p>
 
             <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
@@ -191,7 +195,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                       />
                     </div>
 
-                    <p class="mt-1 text-sm text-muted">
+                    <p appHint class="mt-1">
                       {{ areaText(area).description }}
                     </p>
 

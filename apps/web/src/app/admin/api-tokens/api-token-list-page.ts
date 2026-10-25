@@ -25,6 +25,7 @@ import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -117,6 +118,7 @@ const SCOPE_ROWS: readonly {
     RecordFormActions,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
@@ -134,7 +136,7 @@ const SCOPE_ROWS: readonly {
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">

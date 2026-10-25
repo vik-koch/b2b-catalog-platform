@@ -31,6 +31,8 @@ import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -70,6 +72,8 @@ type EditTarget = { id: string } | { id: null } | null;
     RouterLink,
     PageTitle,
     ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
@@ -87,7 +91,7 @@ type EditTarget = { id: string } | { id: null } | null;
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <!-- Narrower than the heading above it: everything below is a column of
@@ -335,7 +339,7 @@ type EditTarget = { id: string } | { id: null } | null;
               (input)="draftKey.set($any($event.target).value)"
             />
           </div>
-          <p class="text-xs text-muted sm:col-span-2">
+          <p appHint class="sm:col-span-2">
             {{ keyLocked() ? ownershipText.tierKeyLocked : text.keyHint }}
           </p>
           <div appRecordFormActions>

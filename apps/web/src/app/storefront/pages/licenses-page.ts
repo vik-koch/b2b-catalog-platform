@@ -13,6 +13,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { LicenseNotice, parseLicenseNotices } from './license-notice';
 import { PageTitle } from '../../shared/ui/page-title';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * Open-source attribution for the JavaScript this site sends to the browser.
@@ -38,7 +39,7 @@ import { PageTitle } from '../../shared/ui/page-title';
  */
 @Component({
   selector: 'app-licenses-page',
-  imports: [Skeleton, PageTitle],
+  imports: [Skeleton, PageTitle, PageIntro],
   template: `
     <!-- A reading measure, like the static pages this page is read alongside:
          it is prose and a list of names, and a package name three words long
@@ -46,7 +47,7 @@ import { PageTitle } from '../../shared/ui/page-title';
          back. -->
     <div class="max-w-3xl">
       <h1 appPageTitle class="mb-2">{{ heading }}</h1>
-      <p class="mb-4 text-muted">{{ text.intro }}</p>
+      <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (notices(); as list) {
         @if (list.length === 0) {

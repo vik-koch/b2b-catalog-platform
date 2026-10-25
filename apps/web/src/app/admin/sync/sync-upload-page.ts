@@ -26,6 +26,7 @@ import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file
@@ -58,6 +59,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     Link,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -73,7 +75,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         {{ text.backToRuns }}
       </a>
     </div>
-    <p class="mb-6 max-w-3xl text-sm text-muted">{{ text.description }}</p>
+    <p appPageIntro class="mb-6 max-w-3xl">{{ text.description }}</p>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line

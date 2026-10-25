@@ -25,6 +25,7 @@ import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Edit a category (FR-ADM-01) on its own screen at
@@ -49,6 +50,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     LockedFieldMarker,
     PageTitle,
     ErrorText,
+    Hint,
   ],
   template: `
     <h1 appPageTitle class="mb-4">
@@ -99,9 +101,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               [value]="shortName()"
               (input)="shortName.set($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.shortNameHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.shortNameHint }}</span>
           </label>
 
           <div class="block">
@@ -129,9 +129,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               [value]="effectiveSlug()"
               (input)="onSlugInput($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.slugHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.slugHint }}</span>
           </label>
 
           <label class="block">
@@ -149,9 +147,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               [disabled]="fieldsLocked()"
               (input)="sourceId.set($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.sourceIdHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.sourceIdHint }}</span>
           </label>
         </div>
 

@@ -93,6 +93,7 @@ import {
 } from '../../shared/ui/unit-field';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -131,6 +132,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     StatusBadge,
     PageTitle,
     ErrorText,
+    Hint,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -344,9 +346,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               [value]="effectiveSlug()"
               (input)="onSlugInput($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.slugHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.slugHint }}</span>
           </label>
 
           <label class="block">
@@ -364,9 +364,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               [disabled]="catalogOwned()"
               (input)="sourceId.set($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.sourceIdHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.sourceIdHint }}</span>
           </label>
         </div>
 
@@ -522,9 +520,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                 [placeholder]="text.lineNote.promptPlaceholder"
                 (input)="lineNotePrompt.set($any($event.target).value)"
               />
-              <span class="mt-1 block text-xs text-subtle">{{
-                text.lineNote.promptHint
-              }}</span>
+              <span appHint class="mt-1">{{ text.lineNote.promptHint }}</span>
             </label>
           }
         </app-feature-disclosure>

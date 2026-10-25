@@ -27,6 +27,7 @@ import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
 import { SyncService } from './sync.service';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * One area's runs, newest first (FR-ADM-09) — the screen
@@ -61,6 +62,7 @@ import { SyncService } from './sync.service';
     RecordRow,
     Skeleton,
     StatusBadge,
+    PageIntro,
   ],
   template: `
     <app-admin-list-header
@@ -82,7 +84,7 @@ import { SyncService } from './sync.service';
       }
     </app-admin-list-header>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">
+    <p appPageIntro class="mb-6 max-w-3xl">
       {{ areaText().runsDescription }}
     </p>
 

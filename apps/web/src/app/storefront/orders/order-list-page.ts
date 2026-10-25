@@ -18,6 +18,7 @@ import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * The account's own order requests (FR-ACC-01), newest first — the whole
@@ -34,10 +35,11 @@ import { ErrorText } from '../../shared/ui/error-text';
     Icon,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <h1 appPageTitle class="mb-2">{{ text.heading }}</h1>
-    <p class="mb-4 text-muted">{{ text.intro }}</p>
+    <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
     <!-- What the history is narrowed to, said as the one chip that narrowed
          it (FR-WORK-03). A chip and not a dropdown: nothing on this page

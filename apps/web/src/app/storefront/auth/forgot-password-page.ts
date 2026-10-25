@@ -13,6 +13,7 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { TextButton } from '../../shared/ui/link';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -37,6 +38,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     TextButton,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <app-auth-card>
@@ -44,7 +46,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         <h1 appPageTitle class="mb-2">
           {{ text.successHeading }}
         </h1>
-        <p class="text-muted" role="status">{{ text.success }}</p>
+        <p appPageIntro role="status">{{ text.success }}</p>
         <a appButton variant="secondary" routerLink="/login" class="mt-8">
           {{ text.backToLogin }}
         </a>
@@ -52,7 +54,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         <h1 appPageTitle class="mb-2">
           {{ text.heading }}
         </h1>
-        <p class="mb-4 text-muted">{{ text.intro }}</p>
+        <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
         <form
           class="space-y-6"

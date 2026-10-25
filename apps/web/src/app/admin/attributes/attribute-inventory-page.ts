@@ -28,6 +28,7 @@ import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -65,6 +66,7 @@ type RenameTarget =
     Skeleton,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
@@ -75,7 +77,7 @@ type RenameTarget =
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <!-- Narrower than the heading above it: everything below is a column of

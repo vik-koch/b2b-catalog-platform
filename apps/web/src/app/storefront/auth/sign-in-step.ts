@@ -13,6 +13,7 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
 import { CodeEntry, formatWait } from './code-entry';
 import { PageTitle } from '../../shared/ui/page-title';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 export { formatWait };
 
@@ -27,13 +28,13 @@ export { formatWait };
  */
 @Component({
   selector: 'app-sign-in-step',
-  imports: [RouterLink, Button, CallWait, CodeEntry, PageTitle],
+  imports: [RouterLink, Button, CallWait, CodeEntry, PageTitle, PageIntro],
   template: `
     @if (restart()) {
       <h1 appPageTitle class="mb-4">
         {{ heading() }}
       </h1>
-      <p class="text-muted" role="alert">{{ text.restart }}</p>
+      <p appPageIntro role="alert">{{ text.restart }}</p>
       <a appButton routerLink="/login" class="mt-8">{{ text.restartAction }}</a>
     } @else if (step(); as step) {
       @if (step.step === 'call') {

@@ -33,6 +33,7 @@ import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Add or edit a document (FR-DOC-01/02/05) at `/admin/documents/new` and
@@ -64,6 +65,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     Skeleton,
     PageTitle,
     ErrorText,
+    Hint,
   ],
   template: `
     <h1 appPageTitle class="mb-4">
@@ -91,9 +93,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             [value]="title()"
             (input)="title.set($any($event.target).value)"
           />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.titleHint
-          }}</span>
+          <span appHint class="mt-1">{{ text.titleHint }}</span>
         </label>
 
         <div class="block">
@@ -191,9 +191,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               }}</span>
             </button>
           }
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.fileHint
-          }}</span>
+          <span appHint class="mt-1">{{ text.fileHint }}</span>
         </div>
 
         <!-- Where the document is held elsewhere (FR-DOC-05). Beside the file
@@ -226,9 +224,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               </a>
             }
           </div>
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.linkHint
-          }}</span>
+          <span appHint class="mt-1">{{ text.linkHint }}</span>
         </div>
 
         <!-- Two dates copied off the document, side by side because that is how

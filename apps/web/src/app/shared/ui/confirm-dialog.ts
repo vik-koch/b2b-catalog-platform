@@ -17,6 +17,7 @@ import { Input } from './input';
 import { DialogActions } from './dialog-actions';
 import { DialogPanel } from './dialog-panel';
 import { WarningNote } from './warning-note';
+import { Hint } from './hint';
 
 /**
  * One thing that happens because the answer was yes, offered as a tick.
@@ -71,6 +72,7 @@ export interface ConfirmAnswer {
     FieldLabel,
     Input,
     WarningNote,
+    Hint,
   ],
   template: `
     <dialog
@@ -137,7 +139,7 @@ export interface ConfirmAnswer {
           <span>
             {{ check.label }}
             @if (check.hint) {
-              <span class="block text-xs text-subtle">{{ check.hint }}</span>
+              <span appHint>{{ check.hint }}</span>
             }
           </span>
         </label>

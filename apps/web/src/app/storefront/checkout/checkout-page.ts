@@ -63,6 +63,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -104,6 +105,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     TermsNotice,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     @if (placed(); as reference) {
@@ -174,7 +176,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               <h1 appPageTitle class="mb-2">
                 {{ heading() }}
               </h1>
-              <p class="text-muted">
+              <p appPageIntro>
                 {{ reviewing() ? text.review.intro : text.intro }}
               </p>
             </div>

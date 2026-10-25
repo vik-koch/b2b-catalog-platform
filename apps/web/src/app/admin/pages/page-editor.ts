@@ -28,6 +28,7 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -45,6 +46,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     Checkbox,
     PageTitle,
     ErrorText,
+    Hint,
   ],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
@@ -120,7 +122,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                 (input)="onConsentLabelInput($event)"
               ></textarea>
             </label>
-            <p id="consent-label-hint" class="mt-1 text-sm text-muted">
+            <p id="consent-label-hint" appHint class="mt-1">
               {{ text.consentLabelHint }}
             </p>
           </div>

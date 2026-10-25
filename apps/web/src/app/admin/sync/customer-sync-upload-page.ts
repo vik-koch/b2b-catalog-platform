@@ -30,6 +30,7 @@ import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncService } from './sync.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick
@@ -62,6 +63,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     SyncCustomerPlanView,
     PageTitle,
     ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -77,7 +79,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         {{ text.backToRuns }}
       </a>
     </div>
-    <p class="mb-6 max-w-3xl text-sm text-muted">
+    <p appPageIntro class="mb-6 max-w-3xl">
       {{ text.customers.uploadDescription }}
     </p>
 

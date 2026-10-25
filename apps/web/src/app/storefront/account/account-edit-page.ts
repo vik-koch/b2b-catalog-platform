@@ -30,6 +30,8 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { AccountService } from './account.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -55,13 +57,15 @@ type Status = 'idle' | 'submitting' | 'error';
     Skeleton,
     PageTitle,
     ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <div class="max-w-xl">
       <h1 appPageTitle class="mb-2">
         {{ text.heading }}
       </h1>
-      <p class="mb-4 text-muted">{{ text.intro }}</p>
+      <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (profile.hasValue()) {
         <form
@@ -122,7 +126,7 @@ type Status = 'idle' | 'submitting' | 'error';
             <div>
               <p appFieldLabel>{{ fields.phone.label }}</p>
               <p>{{ lockedPhone() }}</p>
-              <p class="mt-1 text-sm text-muted">{{ text.phoneLocked }}</p>
+              <p appHint class="mt-1">{{ text.phoneLocked }}</p>
             </div>
           } @else {
             <app-phone-field

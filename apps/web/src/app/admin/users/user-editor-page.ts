@@ -48,6 +48,7 @@ import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -83,6 +84,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     WarningNote,
     PageTitle,
     ErrorText,
+    Hint,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
@@ -336,7 +338,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                   class="w-full"
                   autocomplete="off"
                 />
-                <p class="mt-1 text-sm text-muted">{{ text.sourceIdHint }}</p>
+                <p appHint class="mt-1">{{ text.sourceIdHint }}</p>
               </div>
             }
 

@@ -79,6 +79,8 @@ import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {
@@ -171,6 +173,8 @@ const PREVIEW_DEBOUNCE_MS = 250;
     LockedNote,
     PageTitle,
     ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <!-- An order answered by an external system has nothing to propose, so
@@ -201,7 +205,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
           <div class="max-w-xl">
             <h1 appPageTitle>{{ title() }}</h1>
             @if (text.page.intro; as intro) {
-              <p class="mt-2 text-muted">{{ intro }}</p>
+              <p appPageIntro class="mt-2">{{ intro }}</p>
             }
 
             <!-- Amber, not red: none of these refuses the adjustment. They
@@ -640,7 +644,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 [value]="note()"
                 (input)="note.set($any($event.target).value)"
               ></textarea>
-              <p class="mt-1 text-xs text-subtle">{{ text.noteHint }}</p>
+              <p appHint class="mt-1">{{ text.noteHint }}</p>
               @if (noteMissing()) {
                 <p appErrorText class="mt-1" role="alert">
                   {{ text.noteRequired }}
@@ -671,7 +675,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               />
               <span>
                 {{ text.notify }}
-                <span class="block text-xs text-subtle">
+                <span appHint>
                   {{ text.notifyHint }}
                 </span>
               </span>

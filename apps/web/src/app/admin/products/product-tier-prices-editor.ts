@@ -8,6 +8,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { PriceField } from '../../shared/ui/price-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
+import { Hint } from '../../shared/ui/hint';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */
 export interface TierPriceDraft {
@@ -34,7 +35,7 @@ export interface TierPriceDraft {
  */
 @Component({
   selector: 'app-product-tier-prices-editor',
-  imports: [FieldLabel, PriceField, UnitField, LockedFieldMarker],
+  imports: [FieldLabel, PriceField, UnitField, LockedFieldMarker, Hint],
   template: `
     <span appFieldLabel>
       {{ text.heading }}
@@ -77,7 +78,7 @@ export interface TierPriceDraft {
       }
     </div>
     @if (!disabled()) {
-      <span class="mt-1 block text-xs text-subtle">{{ text.hint }}</span>
+      <span appHint class="mt-1">{{ text.hint }}</span>
     }
   `,
 })

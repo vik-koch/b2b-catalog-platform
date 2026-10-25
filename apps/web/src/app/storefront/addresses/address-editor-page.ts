@@ -16,6 +16,7 @@ import {
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -30,13 +31,21 @@ type Status = 'idle' | 'submitting' | 'error';
  */
 @Component({
   selector: 'app-address-editor-page',
-  imports: [RouterLink, AddressFields, Button, Skeleton, PageTitle, ErrorText],
+  imports: [
+    RouterLink,
+    AddressFields,
+    Button,
+    Skeleton,
+    PageTitle,
+    ErrorText,
+    PageIntro,
+  ],
   template: `
     <div class="max-w-xl">
       <h1 appPageTitle class="mb-2">
         {{ isNew ? text.newHeading : text.editHeading }}
       </h1>
-      <p class="mb-4 text-muted">{{ text.intro }}</p>
+      <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (ready()) {
         <!-- The native submit rather than Angular's: the form group lives

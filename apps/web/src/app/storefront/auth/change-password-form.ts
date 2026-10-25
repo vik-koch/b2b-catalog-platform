@@ -17,6 +17,7 @@ import {
   ChangePasswordResult,
 } from '../../shared/auth/auth.service';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Cross-field check: the confirmation has to match. It lives on the group
@@ -28,7 +29,7 @@ import { ErrorText } from '../../shared/ui/error-text';
  */
 @Component({
   selector: 'app-change-password-form',
-  imports: [ReactiveFormsModule, Button, FieldLabel, Input, ErrorText],
+  imports: [ReactiveFormsModule, Button, FieldLabel, Input, ErrorText, Hint],
   template: `
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-6">
       <div>
@@ -78,7 +79,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             }}
           </p>
         } @else {
-          <p [id]="id('new-hint')" class="mt-1 text-sm text-muted">
+          <p [id]="id('new-hint')" appHint class="mt-1">
             {{ minLengthHint }}
           </p>
         }

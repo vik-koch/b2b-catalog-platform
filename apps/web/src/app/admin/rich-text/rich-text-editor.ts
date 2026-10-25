@@ -35,6 +35,7 @@ import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -62,6 +63,7 @@ interface ToolbarAction {
     Input,
     NgTemplateOutlet,
     ErrorText,
+    Hint,
   ],
   template: `
     <!-- The box carries no overflow clipping: a clipping ancestor would be
@@ -161,7 +163,7 @@ interface ToolbarAction {
           (keydown.enter)="applyLink()"
           (keydown.escape)="closeLinkPanel()"
         />
-        <span class="mt-1 block text-xs text-subtle">{{ link.hint }}</span>
+        <span appHint class="mt-1">{{ link.hint }}</span>
       </label>
       <div appDialogActions>
         @if (editingExistingLink()) {
@@ -209,7 +211,7 @@ interface ToolbarAction {
           [value]="imageAlt()"
           (input)="onImageAltInput($any($event.target).value)"
         />
-        <span class="mt-1 block text-xs text-subtle">{{ image.altHint }}</span>
+        <span appHint class="mt-1">{{ image.altHint }}</span>
       </label>
 
       <label class="mt-3 block">

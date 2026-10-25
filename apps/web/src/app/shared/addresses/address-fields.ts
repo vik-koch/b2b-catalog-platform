@@ -21,6 +21,7 @@ import { AddressSuggestField } from './address-suggest-field';
 import { TextButton } from '../ui/link';
 import { SHARED_TEXT } from '../config/shared-text';
 import { ErrorText } from '../ui/error-text';
+import { Hint } from '../ui/hint';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */
@@ -57,6 +58,7 @@ let nextId = 0;
     SelectField,
     TextButton,
     ErrorText,
+    Hint,
   ],
   host: { class: 'block' },
   template: `
@@ -77,7 +79,7 @@ let nextId = 0;
             appInput
             class="w-full"
           />
-          <p class="mt-1 text-sm text-muted">{{ text.labelHint }}</p>
+          <p appHint class="mt-1">{{ text.labelHint }}</p>
         </div>
       }
 
