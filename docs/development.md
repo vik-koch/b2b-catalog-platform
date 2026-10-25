@@ -39,6 +39,9 @@ Both end-to-end suites bring up and empty their own Compose stacks, so they neve
 database you develop against, and they can run at the same time. The web suite runs a desktop
 and a phone viewport.
 
+`npx nx test web -c coverage` adds a coverage report under `coverage/web/` (open
+`index.html`). It is a map of thin spots, not a gate: CI does not run it.
+
 CI runs a few more checks, each a plain Node script:
 
 <!-- prettier-ignore -->
