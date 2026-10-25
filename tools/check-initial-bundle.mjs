@@ -14,10 +14,26 @@
  * broke". This says exactly which rule broke.
  *
  * Needs the stats file: `npx nx build web --statsJson`.
+ *
+ * `--report` also prints what the first load is made of and what each lazy
+ * entry adds on top of it, gzipped sizes included. `--save <file>` keeps that
+ * report as JSON, and `--baseline <file>` prints the change against one kept
+ * earlier. CI runs neither.
  */
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { parseArgs } from 'node:util';
+import { gzipSync } from 'node:zlib';
 
 const STATS = 'dist/apps/web/browser-stats.json';
+const BROWSER = 'dist/apps/web/browser';
+
+const { values: args } = parseArgs({
+  options: {
+    report: { type: 'boolean' },
+    save: { type: 'string' },
+    baseline: { type: 'string' },
+  },
+});
 
 /** Modules that must never be reachable without a lazy chunk boundary. */
 const FORBIDDEN = [
@@ -41,17 +57,25 @@ if (!entry) {
   process.exit(1);
 }
 
-/** Every chunk reachable from the entry by a static import — the first load. */
-const initial = new Set();
-const pending = [entry];
-while (pending.length > 0) {
-  const chunk = pending.pop();
-  if (!chunk || initial.has(chunk) || !outputs[chunk]) continue;
-  initial.add(chunk);
-  for (const imported of outputs[chunk].imports ?? []) {
-    if (imported.kind === 'import-statement') pending.push(imported.path);
+/** The chunks reachable from `start` by static imports, minus `loaded`. */
+function closure(start, loaded = new Set()) {
+  const chunks = new Set();
+  const pending = [start];
+  while (pending.length > 0) {
+    const chunk = pending.pop();
+    if (!chunk || chunks.has(chunk) || loaded.has(chunk) || !outputs[chunk]) {
+      continue;
+    }
+    chunks.add(chunk);
+    for (const imported of outputs[chunk].imports ?? []) {
+      if (imported.kind === 'import-statement') pending.push(imported.path);
+    }
   }
+  return chunks;
 }
+
+/** The first load. */
+const initial = closure(entry);
 
 const violations = new Map();
 let initialBytes = 0;
@@ -89,3 +113,98 @@ if (violations.size > 0) {
   process.exit(1);
 }
 console.log('check-initial-bundle: no validation runtime in the first load.');
+
+if (args.report || args.save || args.baseline) report();
+
+function report() {
+  const size = (chunks) => {
+    let raw = 0;
+    let gzip = 0;
+    for (const chunk of chunks) {
+      raw += outputs[chunk].bytes ?? 0;
+      gzip += gzipSync(readFileSync(`${BROWSER}/${chunk}`)).length;
+    }
+    return { raw, gzip };
+  };
+
+  // Packages by name, the app by its top-level folder.
+  const groupOf = (input) =>
+    input.match(/node_modules\/((?:@[^/]+\/)?[^/]+)/)?.[1] ??
+    input.match(/^apps\/web\/src\/app\/([^/.]+)\//)?.[1].replace(/^/, 'web/') ??
+    input.match(/^libs\/[^/]+/)?.[0] ??
+    'other';
+  const groups = {};
+  for (const chunk of initial) {
+    for (const [input, info] of Object.entries(outputs[chunk].inputs ?? {})) {
+      const group = groupOf(input);
+      groups[group] = (groups[group] ?? 0) + (info.bytesInOutput ?? 0);
+    }
+  }
+
+  const lazy = {};
+  for (const [chunk, info] of Object.entries(outputs)) {
+    // The global stylesheet is an entry too; it is reported as styles.
+    if (!info.entryPoint?.endsWith('.ts') || chunk === entry) continue;
+    const name = info.entryPoint.replace(/^apps\/web\/src\/app\//, '');
+    lazy[name] = size(closure(chunk, initial));
+  }
+
+  const css = readdirSync(BROWSER).filter((file) => file.endsWith('.css'));
+  const current = {
+    initial: size(initial),
+    styles: css.reduce(
+      (sum, file) => {
+        const bytes = readFileSync(`${BROWSER}/${file}`);
+        return {
+          raw: sum.raw + bytes.length,
+          gzip: sum.gzip + gzipSync(bytes).length,
+        };
+      },
+      { raw: 0, gzip: 0 },
+    ),
+    groups,
+    lazy,
+  };
+
+  const before = args.baseline
+    ? JSON.parse(readFileSync(args.baseline, 'utf8'))
+    : null;
+  const delta = (now, then) => {
+    if (then === undefined) return before ? '  (new)' : '';
+    const change = now - then;
+    if (Math.abs(change) < 51) return '';
+    return `  (${change > 0 ? '+' : '−'}${kb(Math.abs(change))})`;
+  };
+  const line = (label, now, then) =>
+    `  ${label.padEnd(48)} ${kb(now.raw).padStart(9)} ${kb(now.gzip).padStart(9)} gzip` +
+    delta(now.raw, then?.raw);
+
+  console.log('\nFirst load:');
+  console.log(line('JavaScript', current.initial, before?.initial));
+  console.log(line('styles', current.styles, before?.styles));
+
+  console.log('\nLargest in the first load (before compression):');
+  for (const [group, bytes] of Object.entries(groups)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 15)) {
+    console.log(
+      `  ${group.padEnd(48)} ${kb(bytes).padStart(9)}` +
+        delta(bytes, before?.groups[group]),
+    );
+  }
+
+  console.log('\nLazy entries, on top of the first load:');
+  for (const [name, now] of Object.entries(lazy).sort(
+    (a, b) => b[1].raw - a[1].raw,
+  )) {
+    console.log(line(name, now, before?.lazy[name]));
+  }
+  for (const name of Object.keys(before?.lazy ?? {})) {
+    if (!(name in lazy)) console.log(`  ${name.padEnd(48)} (gone)`);
+  }
+
+  if (args.save) {
+    writeFileSync(args.save, `${JSON.stringify(current, null, 2)}\n`);
+    console.log(`\ncheck-initial-bundle: report saved to ${args.save}.`);
+  }
+}
