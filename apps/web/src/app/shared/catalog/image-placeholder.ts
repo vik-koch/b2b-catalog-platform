@@ -19,7 +19,7 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
     role: 'img',
     '[attr.aria-label]': 'ariaLabel()',
     class:
-      '@container/placeholder flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-strong text-faint',
+      '@container/placeholder flex h-full w-full flex-col items-center justify-center gap-2 bg-surface-strong text-subtle',
   },
   template: `
     <svg

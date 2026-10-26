@@ -513,9 +513,9 @@ describe('CategoryGrid', () => {
       expect(chip('decaf')?.getAttribute('href')).toBe(
         '/catalog/decaf?sort=price',
       );
-      expect(chip('decaf')?.className).toContain('text-faint');
+      expect(chip('decaf')?.className).toContain('text-subtle');
       expect(chip('dark')?.getAttribute('href')).toContain('attr=grind:fine');
-      expect(chip('dark')?.className).not.toContain('text-faint');
+      expect(chip('dark')?.className).not.toContain('text-subtle');
     });
 
     it('keeps the panel on screen when the selection matches nothing', async () => {

@@ -106,12 +106,12 @@ export function segmentClass(
     selected: 'bg-primary text-white hover:bg-accent active:bg-primary-press',
     available:
       'text-ink hover:bg-surface-hover hover:text-accent active:bg-surface-press active:text-primary',
-    unavailable: 'text-faint hover:bg-surface-hover active:bg-surface-press',
+    unavailable: 'text-subtle hover:bg-surface-hover active:bg-surface-press',
   };
   const lockedStates: Record<SegmentState, string> = {
-    selected: 'bg-faint text-white',
-    available: 'text-faint',
-    unavailable: 'text-faint',
+    selected: 'bg-disabled text-white',
+    available: 'text-disabled',
+    unavailable: 'text-disabled',
   };
   // The quiet pill says the same things in grey: the chip is the fill, and
   // the hover language is a ghost button's on both.
@@ -121,7 +121,7 @@ export function segmentClass(
     available:
       'text-muted hover:bg-surface-strong-hover hover:text-accent active:bg-surface-strong-press active:text-primary-press',
     unavailable:
-      'text-faint hover:bg-surface-strong-hover active:bg-surface-strong-press',
+      'text-subtle hover:bg-surface-strong-hover active:bg-surface-strong-press',
   };
   const look = locked
     ? `cursor-not-allowed ${lockedStates[state]}`

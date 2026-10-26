@@ -91,7 +91,7 @@ import { ErrorText } from '../ui/error-text';
                         >{{ item.name }}</a
                       >
                     </h3>
-                    <p class="mt-auto pt-2 font-emphasis text-faint">
+                    <p class="mt-auto pt-2 font-emphasis text-subtle">
                       @if (item.priceMinor === null) {
                         {{ text.unpricedHint }}
                       } @else {

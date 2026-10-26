@@ -201,18 +201,17 @@
    * Text. `ink` is the default (stone-900). The two quieter levels below it
    * are kept apart because the app really does use both: `muted` is
    * secondary body copy (descriptions, help text), `subtle` is meta text
-   * (eyebrows, table headers, counts, timestamps). `muted` is stone-600,
-   * 7.0:1 on surface. `subtle` is a quarter step from stone-500 toward it:
-   * stone-500 itself is 4.4:1 on the stone-100 of the footer and the header's
-   * top bar, this is 4.9:1 there. `faint` is a glyph that steps back (an icon
-   * at rest, a chevron, an option that is not available), 2.6:1 on white and
-   * so never body text; `disabled` is the text of a control that cannot be
-   * used.
+   * (eyebrows, table headers, counts, timestamps) and every glyph that steps
+   * back without leaving (an icon at rest, a chevron, an option that is not
+   * available). `muted` is stone-600, 7.0:1 on surface. `subtle` is a quarter
+   * step from stone-500 toward it: stone-500 itself is 4.4:1 on the stone-100
+   * of the footer and the header's top bar, this is 4.9:1 there. `disabled`
+   * is the text of a control that cannot be used, the one text role below
+   * 4.5:1.
    */
   --color-ink: #1c1917;
   --color-muted: #57534e;
   --color-subtle: #706a65;
-  --color-faint: var(--color-stone-400);
   --color-disabled: var(--color-stone-400);
 
   /*
@@ -262,10 +261,10 @@
    * a control's, `-hover` and `-press` a filled control's two states,
    * `-dot` a marker that carries no words. Only the roles the app draws.
    *
-   * red-700 is 5.9:1 on stone-100; red-600 falls below 4.5:1 there. The
-   * warning dot is amber-600 rather than 500: it stands alone on the page as
-   * the sign that work is waiting, so it needs 3:1 against the page itself,
-   * which 500 falls short of.
+   * red-700 is 5.9:1 on stone-100; red-600 falls below 4.5:1 there. Every
+   * dot is its colour's 600, the first step at 3:1 against the page: a dot
+   * that stands alone, such as the sign that work is waiting, has nothing
+   * else to be seen by.
    */
   --color-danger: var(--color-red-700);
   --color-danger-hover: var(--color-red-800);
@@ -275,7 +274,7 @@
   --color-danger-surface-strong: var(--color-red-100);
   --color-danger-edge: var(--color-red-200);
   --color-danger-edge-strong: var(--color-red-300);
-  --color-danger-dot: var(--color-red-500);
+  --color-danger-dot: var(--color-red-600);
   --color-warning: var(--color-amber-700);
   --color-warning-ink: var(--color-amber-800);
   --color-warning-surface: var(--color-amber-50);
@@ -285,12 +284,12 @@
   --color-success: var(--color-green-700);
   --color-success-ink: var(--color-green-800);
   --color-success-surface-strong: var(--color-green-100);
-  --color-success-dot: var(--color-green-500);
+  --color-success-dot: var(--color-green-600);
   --color-info-ink: var(--color-sky-800);
   --color-info-surface: var(--color-sky-50);
   --color-info-surface-strong: var(--color-sky-100);
   --color-info-edge: var(--color-sky-200);
-  --color-info-dot: var(--color-sky-500);
+  --color-info-dot: var(--color-sky-600);
 }
 
 /*

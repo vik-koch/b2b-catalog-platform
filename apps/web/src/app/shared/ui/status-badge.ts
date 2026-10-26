@@ -27,7 +27,7 @@ const tones = {
  * to be scanned down a column, not to shout from inside a card.
  */
 const dots = {
-  neutral: 'before:bg-faint',
+  neutral: 'before:bg-subtle',
   waiting: 'before:bg-warning-dot',
   ok: 'before:bg-success-dot',
   danger: 'before:bg-danger-dot',

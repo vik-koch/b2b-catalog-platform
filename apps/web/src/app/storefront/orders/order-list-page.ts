@@ -54,7 +54,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           <span>{{ filterLabel() }}</span>
           <a
             routerLink="/account/orders"
-            class="flex items-center justify-center rounded-full p-0.5 text-faint hover:text-danger"
+            class="flex items-center justify-center rounded-full p-0.5 text-subtle hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
             <app-icon name="close" class="size-3.5" />
