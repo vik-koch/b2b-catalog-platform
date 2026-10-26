@@ -13,24 +13,8 @@ import {
 import { pagesConfigSchema } from './pages-config';
 import { signInStepConfigSchema } from './sign-in-step-config';
 import { taxConfigSchema } from './tax-config';
+import { themeConfigSchema } from './theme-config';
 import { CUSTOMER_TYPES } from '../accounts/user-constants';
-
-/** The steps of the grey ramp a deployment may replace (`theme.neutrals`):
- * Tailwind's, plus the one between 100 and 200 the category chip uses. */
-export const NEUTRAL_STEPS = [
-  '50',
-  '100',
-  '125',
-  '200',
-  '300',
-  '400',
-  '500',
-  '600',
-  '700',
-  '800',
-  '900',
-  '950',
-] as const;
 
 /**
  * A map embed — restricted to an iframe URL by design.
@@ -286,38 +270,10 @@ export const deploymentConfigSchema = z
           .strict()
           .optional(),
         /**
-         * Semantic color tokens. The three brand colors are required; the
-         * neutrals default to the stone ramp in styles.css and are only worth
-         * setting for a deployment whose palette is not warm-gray.
+         * The colours, as the roles in the web app's styles.css; only the
+         * brand is required (theme-config.ts says what each key colours).
          */
-        theme: z
-          .object({
-            primary: z.string(),
-            primaryPress: z.string(),
-            secondary: z.string(),
-            accent: z.string(),
-            /** The page, and the level of the white things on it. */
-            surfaceSubtle: z.string().optional(),
-            ink: z.string().optional(),
-            /** Everything quieter than body text: secondary copy, meta
-             * text, glyphs that step back. */
-            inkSubtle: z.string().optional(),
-            /** Structural lines: card edges, dividers, table rules. */
-            edge: z.string().optional(),
-            /** Control edges: inputs, secondary buttons. */
-            edgeStrong: z.string().optional(),
-            /**
-             * The grey ramp behind the tokens above: interaction backgrounds,
-             * placeholders and disabled states, which the app draws in
-             * Tailwind's `stone-*` shades directly. Stone is warm; a cool
-             * palette replaces it here, step by step. A step left out keeps
-             * stone's own.
-             */
-            neutrals: z
-              .partialRecord(z.enum(NEUTRAL_STEPS), z.string())
-              .optional(),
-          })
-          .strict(),
+        theme: themeConfigSchema,
       })
       .strict(),
     /** Which static pages this deployment has, and where they are linked. */

@@ -149,10 +149,20 @@ exception, on `chip`, because a grey a step from the page all but vanishes on it
 
 A deployment's `branding.theme` overrides the roles at runtime: `App` writes them onto `<html>`,
 server-rendered pages included, so one image serves every deployment
-([ADR 0008](adr/0008-tailwind-owned-primitives-runtime-theming.md)). The keys and what each one
-colours are documented on the schema
-([deployment-config.ts](../libs/shared/src/lib/config/deployment-config.ts)). A replacement
-palette keeps the floors above; the status colours are not themeable.
+([ADR 0008](adr/0008-tailwind-owned-primitives-runtime-theming.md)). A key is the role of the
+same name, `surfaceStrong` for `surface-strong`; [theme-config.ts](../libs/shared/src/lib/config/theme-config.ts)
+lists them with what each one colours.
+
+- **The brand** (`primary`, `secondary`, `accent`) is the one part a deployment must set. Its
+  press and its stronger accent are mixed from it, 15% toward black, unless set too.
+- **A grey** is set one role at a time, and a derived role follows the role it derives from: a
+  deployment that sets `surface` and `surfaceStrong` gets the hovers, the presses, the chip and the
+  skeleton to match without naming them. A cool palette is about ten keys; a different page colour
+  is one.
+- **A status colour** is set whole or not at all, every role it has in `#rrggbb`: its shades only
+  work as a set. At boot each pair is measured against the floors above (its text on the page and
+  on its own surface, its dot on the page, a white label on danger's fills), and a pair below its
+  floor stops the app with the role named.
 
 ## Keeping to it
 

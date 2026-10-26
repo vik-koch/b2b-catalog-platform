@@ -120,6 +120,26 @@ heading, and with the name the title of every page that has none of its own:
 `Coffee Kontor — Wholesale specialty coffee`. `mapProvider` is who serves the
 map embeds; the map notice and the cookie banner name it as `{provider}`.
 
+### Colours
+
+`branding.theme` sets the shop's colours, each key the colour role of the same
+name ([design-language.md](../../../docs/design-language.md) says what each
+role is for). Only the brand is required: `primary`, `secondary` and `accent`.
+Everything else keeps the app's own default unless set.
+
+- **The brand's press and stronger accent** (`primaryPress`, `accentStrong`)
+  are mixed from it, 15% toward black, unless set.
+- **The greys** are set one role at a time. The three grounds (`surfaceSubtle`,
+  the page; `surface`; `surfaceStrong`) carry their hovers, presses, the chip
+  and the loading blocks with them, so a cool palette is about ten keys: the
+  grounds, `ink`, `inkSubtle`, `inkDisabled`, `edge` and `edgeStrong`, and
+  `chip` if the mix of the grounds is not right for it.
+- **A status colour** (`danger`, `warning`, `success`, `info`) is set whole,
+  every role it has, each as `#rrggbb`. Set one when the brand comes too close
+  to red or amber for the two to be told apart. Its text must stay readable,
+  so each pair is measured when the app starts; one under the floor stops it
+  and names the role.
+
 ### The locale
 
 `locale` is the one language the deployment speaks, as a BCP 47 tag in its

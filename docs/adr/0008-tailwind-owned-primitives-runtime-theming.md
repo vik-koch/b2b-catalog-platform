@@ -142,17 +142,21 @@ and placeholder, and the red, amber, green and sky of every status. A
 deployment could replace the greys only as a whole ramp and the status colours
 not at all, and nothing stopped a new template from adding more.
 
-- **Every colour a template draws is a role in `styles.css`.** The status
-  colours name their shades by what they do, after the brand colours: the bare
-  name is text on the page, `-ink` text on the colour's own `-surface`, `-edge`
-  its line, `-dot` a marker without words, `-accent`/`-deep` a filled
-  control's hover and press. The greys name grounds (`surface-strong`, `chip`,
-  `skeleton`), lines (`edge`, `edge-strong`, `edge-subtle`; `edge` was
-  `border`) and states, a hover or press named for the ground it happens on
-  (`surface-hover`, `surface-strong-press`). The roles point at Tailwind's
-  palette, so the palette stays the source of shades and a deployment's
-  `neutrals` still reach every grey. Rich text takes the same roles through
-  Typography's colour variables instead of one of its palettes.
+- **Every colour a template draws is a role in `styles.css`**, named family ·
+  role · intensity · state: a ground (`surface`), text (`ink`), a line
+  (`edge`) or a marker (`dot`), stepped `-subtle` < base < `-strong`, with
+  `-hover`, `-press` and `-disabled` named for what they happen on
+  (`surface-hover`, `danger-press`, `ink-disabled`). The status colours use the
+  same roles: the bare name is text on the page, `-ink` text on the colour's
+  own `-surface`. The roles point at Tailwind's palette, so the palette stays
+  the source of shades; a value between two steps is a mix of them, not a
+  picked hex. Rich text takes the same roles through Typography's colour
+  variables instead of one of its palettes. The grammar, the contrast floors
+  and the measured pairs are in [design-language.md](../design-language.md).
+- **A deployment sets a role by its own name** instead of a grey ramp step by
+  step: a derived role follows the one it derives from, the brand's press and
+  stronger accent are mixed from it, and a status colour is set whole, its
+  pairs measured against the contrast floors at boot.
 - **The theme is written onto `<html>`**, not onto the root component: a
   dialog appended to `<body>` sits outside that component and drew in the
   default colours.

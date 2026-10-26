@@ -172,31 +172,32 @@ export class App {
 
 /**
  * The custom properties a deployment's branding overrides, the ones it leaves
- * out keeping the stylesheet's own. `neutrals` replaces the `--color-stone-*`
- * steps one by one.
+ * out keeping the stylesheet's own. A theme key is the role of the same name
+ * (`surfaceStrong` is `--color-surface-strong`), a status colour's keys its
+ * roles (`danger.edgeStrong` is `--color-danger-edge-strong`, `base` the bare
+ * name).
  */
 function themeProperties(
   branding: DeploymentConfig['branding'],
 ): [string, string][] {
-  const { theme } = branding;
-  const properties: [string, string | number | undefined][] = [
-    ['--color-primary', theme.primary],
-    ['--color-primary-press', theme.primaryPress],
-    ['--color-secondary', theme.secondary],
-    ['--color-accent', theme.accent],
-    ['--color-surface-subtle', theme.surfaceSubtle],
-    ['--color-ink', theme.ink],
-    ['--color-ink-subtle', theme.inkSubtle],
-    ['--color-edge', theme.edge],
-    ['--color-edge-strong', theme.edgeStrong],
-    ...Object.entries(theme.neutrals ?? {}).map(
-      ([step, colour]): [string, string] => [`--color-stone-${step}`, colour],
-    ),
-    // Not a colour, but the same seam: one custom property a deployment may
-    // override without a rebuild (see styles.css).
-    ['--font-weight-emphasis', branding.font?.emphasisWeight],
-  ];
-  return properties.flatMap(([name, value]) =>
-    value === undefined || value === '' ? [] : [[name, String(value)]],
-  );
+  const kebab = (key: string) =>
+    key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+  const properties: [string, string][] = [];
+  for (const [key, value] of Object.entries(branding.theme)) {
+    if (typeof value === 'string') {
+      if (value !== '') properties.push([`--color-${kebab(key)}`, value]);
+    } else if (value) {
+      for (const [role, colour] of Object.entries(value)) {
+        const suffix = role === 'base' ? '' : `-${kebab(role)}`;
+        properties.push([`--color-${key}${suffix}`, colour]);
+      }
+    }
+  }
+  // Not a colour, but the same seam: one custom property a deployment may
+  // override without a rebuild (see styles.css).
+  const emphasis = branding.font?.emphasisWeight;
+  if (emphasis !== undefined) {
+    properties.push(['--font-weight-emphasis', String(emphasis)]);
+  }
+  return properties;
 }

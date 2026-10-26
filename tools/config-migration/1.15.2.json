@@ -45,24 +45,59 @@
       "copy": true
     },
     "deployment.json:branding.theme.edge": {
-      "from": ["deployment.json:branding.theme.border"],
+      "from": [
+        "deployment.json:branding.theme.border",
+        "deployment.json:branding.theme.neutrals.200"
+      ],
       "optional": true
     },
     "deployment.json:branding.theme.edgeStrong": {
-      "from": ["deployment.json:branding.theme.borderStrong"],
+      "from": [
+        "deployment.json:branding.theme.borderStrong",
+        "deployment.json:branding.theme.neutrals.300"
+      ],
       "optional": true
     },
     "deployment.json:branding.theme.primaryPress": {
       "from": ["deployment.json:branding.theme.primaryDeep"]
     },
     "deployment.json:branding.theme.surfaceSubtle": {
-      "from": ["deployment.json:branding.theme.surface"],
+      "from": [
+        "deployment.json:branding.theme.surface",
+        "deployment.json:branding.theme.neutrals.50"
+      ],
       "optional": true
     },
     "deployment.json:branding.theme.inkSubtle": {
       "from": ["deployment.json:branding.theme.subtle"],
       "optional": true
+    },
+    "deployment.json:branding.theme.ink": {
+      "from": [
+        "deployment.json:branding.theme.ink",
+        "deployment.json:branding.theme.neutrals.900"
+      ],
+      "optional": true
+    },
+    "deployment.json:branding.theme.inkDisabled": {
+      "from": ["deployment.json:branding.theme.neutrals.400"],
+      "optional": true
+    },
+    "deployment.json:branding.theme.surface": {
+      "from": ["deployment.json:branding.theme.neutrals.100"],
+      "optional": true
+    },
+    "deployment.json:branding.theme.surfaceStrong": {
+      "from": ["deployment.json:branding.theme.neutrals.200"],
+      "optional": true
+    },
+    "deployment.json:branding.theme.chip": {
+      "from": ["deployment.json:branding.theme.neutrals.125"],
+      "optional": true
     }
   },
-  "drop": ["deployment.json:branding.theme.muted"]
+  "drop": [
+    "deployment.json:branding.theme.muted",
+    "deployment.json:branding.theme.neutrals"
+  ]
 }

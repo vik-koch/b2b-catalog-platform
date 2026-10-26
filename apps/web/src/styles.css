@@ -241,20 +241,8 @@
    */
   --color-edge: var(--color-stone-200);
   --color-edge-strong: var(--color-stone-300);
-  --color-edge-subtle: var(--color-stone-100);
+  --color-edge-subtle: var(--color-surface);
 
-  /*
-   * A step in Tailwind's stone scale that Tailwind does not ship, for the one
-   * thing the app fills a lot of surface with: the category chip. stone-100
-   * is barely a shade off the stone-50 page, and stone-150 read as a grey block
-   * once a grid of chips carried it; this is a quarter step from stone-100
-   * toward stone-200.
-   */
-  --color-stone-125: color-mix(
-    in oklab,
-    var(--color-stone-100) 75%,
-    var(--color-stone-200)
-  );
   /*
    * Grounds, and the states on them. `surface` is a recessed ground (footer,
    * notes, pills, a segmented track), one step from the page as a status
@@ -263,20 +251,29 @@
    * further (a switch that is off). `chip` is a small fill that has to show
    * on the page (the category chip, the neutral badge), `skeleton` a block
    * standing in for content still loading. A hover or a press is named for
-   * the ground it happens on, one and two steps down from it. All but
-   * `surface-subtle` are drawn from the stone ramp, so a deployment's
-   * `neutrals` replace them.
+   * the ground it happens on, one and two steps down from it, and defaults
+   * to the ground at that step: a deployment that sets the three grounds
+   * gets matching hovers, presses and chips without setting those too.
    */
   --color-surface-subtle: var(--color-stone-50);
-  --color-surface-subtle-hover: var(--color-stone-100);
-  --color-surface-subtle-press: var(--color-stone-200);
+  --color-surface-subtle-hover: var(--color-surface);
+  --color-surface-subtle-press: var(--color-surface-strong);
   --color-surface: var(--color-stone-100);
-  --color-surface-hover: var(--color-stone-200);
-  --color-surface-press: var(--color-stone-300);
+  --color-surface-hover: var(--color-surface-strong);
+  --color-surface-press: var(--color-edge-strong);
   --color-surface-strong: var(--color-stone-200);
-  --color-chip: var(--color-stone-125);
-  --color-chip-hover: var(--color-stone-200);
-  --color-skeleton: var(--color-stone-200);
+  /*
+   * The category chip fills a lot of the page: stone-100 is barely a shade
+   * off the page, and stone-200 read as a grey block once a grid of chips
+   * carried it, so the chip is a quarter step from one toward the other.
+   */
+  --color-chip: color-mix(
+    in oklab,
+    var(--color-surface) 75%,
+    var(--color-surface-strong)
+  );
+  --color-chip-hover: var(--color-surface-strong);
+  --color-skeleton: var(--color-surface-strong);
 
   /*
    * Status. `danger` is a refusal: an error message, a refused field's edge,
