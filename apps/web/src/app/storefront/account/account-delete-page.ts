@@ -56,7 +56,7 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
         </h1>
         <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
-        <ul class="mb-6 list-disc space-y-2 pl-5 text-sm text-subtle">
+        <ul class="mb-6 list-disc space-y-2 pl-5 text-sm text-ink-subtle">
           @for (line of text.consequences; track line) {
             <li>{{ line }}</li>
           }

@@ -103,12 +103,12 @@ import { ErrorText } from '../../shared/ui/error-text';
                 </span>
               }
             </div>
-            <p class="mt-2 text-subtle">{{ placed(detail) }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed(detail) }}</p>
             <!-- Why, on the line that says where the order stands: the reason
                  is part of the status, not a fact beside it. -->
             @if (detail.statusReason; as reason) {
-              <p class="mt-1 text-subtle">
-                <span class="text-subtle">{{ names.reason }}:</span>
+              <p class="mt-1 text-ink-subtle">
+                <span class="text-ink-subtle">{{ names.reason }}:</span>
                 {{ reason }}
               </p>
             }
@@ -116,8 +116,8 @@ import { ErrorText } from '../../shared/ui/error-text';
                  reason: the order reads as it now is, and this is the sentence
                  that says why it differs from the one that was sent. -->
             @if (detail.changes.length) {
-              <div class="mt-1 text-subtle">
-                <span class="text-subtle">{{ names.changeNote }}:</span>
+              <div class="mt-1 text-ink-subtle">
+                <span class="text-ink-subtle">{{ names.changeNote }}:</span>
                 @for (change of detail.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }

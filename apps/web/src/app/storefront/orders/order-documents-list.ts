@@ -47,7 +47,7 @@ import { Icon } from '../../shared/ui/icons/icon';
             >
               <app-icon
                 name="file-text"
-                class="mt-0.5 size-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
                 <span
@@ -55,7 +55,7 @@ import { Icon } from '../../shared/ui/icons/icon';
                 >
                   {{ document.label }}
                 </span>
-                <span class="block text-xs text-subtle">{{
+                <span class="block text-xs text-ink-subtle">{{
                   document.caption
                 }}</span>
               </span>

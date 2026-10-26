@@ -35,7 +35,7 @@ import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
       />
       <app-page-history [slug]="slug" />
     } @else if (page.error()) {
-      <p class="text-subtle" role="alert">{{ text.saveError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
         <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>

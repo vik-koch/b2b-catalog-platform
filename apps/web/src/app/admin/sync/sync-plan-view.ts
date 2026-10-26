@@ -52,7 +52,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
         @for (tile of tiles(); track tile.label) {
           <div>
-            <dt class="text-subtle">{{ text.count[tile.label] }}</dt>
+            <dt class="text-ink-subtle">{{ text.count[tile.label] }}</dt>
             <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
               {{ tile.value }}
             </dd>
@@ -61,7 +61,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-subtle">{{ noopText() }}</p>
+        <p class="text-ink-subtle">{{ noopText() }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {
@@ -71,7 +71,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
-              <span class="text-subtle">{{ rowLabel(error.row) }}</span>
+              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
               — {{ rowErrorText(error) }}
             </li>
           }
@@ -83,12 +83,14 @@ import { ErrorText } from '../../shared/ui/error-text';
           <h3 class="mt-6 mb-1 text-sm font-medium">
             {{ text.categoriesTitle }}
           </h3>
-          <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
+          <p class="mb-2 text-sm text-ink-subtle">{{ text.categoriesHint }}</p>
           <ul class="space-y-1 text-sm">
             @for (category of created; track category.name) {
               <li>
                 {{ category.name }}
-                <span class="text-subtle">({{ category.productCount }})</span>
+                <span class="text-ink-subtle"
+                  >({{ category.productCount }})</span
+                >
               </li>
             }
           </ul>
@@ -100,17 +102,19 @@ import { ErrorText } from '../../shared/ui/error-text';
           <h3 class="mt-6 mb-1 text-sm font-medium">
             {{ text.renamedCategoriesTitle }}
           </h3>
-          <p class="mb-2 text-sm text-subtle">
+          <p class="mb-2 text-sm text-ink-subtle">
             {{ text.renamedCategoriesHint }}
           </p>
           <ul class="space-y-1 text-sm">
             @for (category of renamed; track category.name) {
               <li>
-                <span class="line-through text-subtle">{{
+                <span class="line-through text-ink-subtle">{{
                   category.from
                 }}</span>
                 → {{ category.name }}
-                <span class="text-subtle">({{ category.productCount }})</span>
+                <span class="text-ink-subtle"
+                  >({{ category.productCount }})</span
+                >
               </li>
             }
           </ul>
@@ -139,7 +143,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                 >{{ product.name }}</a
               >
               @for (change of product.changes; track change.field) {
-                <span class="text-subtle">
+                <span class="text-ink-subtle">
                   {{ change.field }}:
                   <span class="line-through">{{
                     display(change.field, change.from)
@@ -157,7 +161,7 @@ import { ErrorText } from '../../shared/ui/error-text';
 
       @if (plan().emptiedCategories.length > 0) {
         <h3 class="mt-6 mb-1 text-sm font-medium">{{ text.emptiedTitle }}</h3>
-        <p class="mb-2 text-sm text-subtle">{{ text.emptiedHint }}</p>
+        <p class="mb-2 text-sm text-ink-subtle">{{ text.emptiedHint }}</p>
         <ul class="space-y-1 text-sm">
           @for (category of plan().emptiedCategories; track category.slug) {
             <li>
@@ -169,7 +173,7 @@ import { ErrorText } from '../../shared/ui/error-text';
 
       @if (plan().keptManual.length > 0) {
         <h3 class="mt-6 mb-1 text-sm font-medium">{{ text.keptTitle }}</h3>
-        <p class="mb-2 text-sm text-subtle">{{ text.keptHint }}</p>
+        <p class="mb-2 text-sm text-ink-subtle">{{ text.keptHint }}</p>
         <ul class="space-y-1 text-sm">
           @for (kept of plan().keptManual; track kept.sourceId) {
             <li>
@@ -185,7 +189,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       }
 
       @if (plan().truncated) {
-        <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
+        <p class="mt-4 text-sm text-ink-subtle">{{ text.truncated }}</p>
       }
 
       @if (applicable()) {

@@ -83,7 +83,7 @@ interface DetailRow {
          full width of a desktop is a heading beside half a screen of nothing. -->
     <div class="max-w-3xl">
       @if (account.error()) {
-        <p class="text-subtle" role="alert">{{ text.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
       } @else if (user(); as person) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h1 appPageTitle>{{ name() }}</h1>
@@ -106,7 +106,7 @@ interface DetailRow {
               >
                 @for (row of details(); track row.label) {
                   <dt
-                    class="text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                    class="text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                   >
                     {{ row.label }}
                   </dt>
@@ -126,7 +126,7 @@ interface DetailRow {
               >
                 @for (row of accountRows(); track row.label) {
                   <dt
-                    class="text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                    class="text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                   >
                     {{ row.label }}
                   </dt>
@@ -149,7 +149,7 @@ interface DetailRow {
                 >
                   @for (row of signInRows(); track row.label) {
                     <dt
-                      class="text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
@@ -192,7 +192,7 @@ interface DetailRow {
                   [showAccount]="false"
                 />
               } @else {
-                <p class="text-sm text-subtle">{{ text.consentsEmpty }}</p>
+                <p class="text-sm text-ink-subtle">{{ text.consentsEmpty }}</p>
               }
             </section>
           }
@@ -251,7 +251,7 @@ interface DetailRow {
           <p appErrorText class="mt-3" role="alert">{{ error }}</p>
         }
       } @else if (notFound()) {
-        <p class="text-subtle" role="alert">{{ text.notFound }}</p>
+        <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
       } @else if (showSkeleton()) {
         <app-skeleton [lines]="6" />
       }
@@ -261,7 +261,7 @@ interface DetailRow {
 export class UserDetailPage {
   /** One heading treatment written once, as the account page's is. */
   protected readonly headingClass =
-    'mb-1.5 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1.5 text-xs font-medium tracking-wide text-ink-subtle uppercase';
 
   private readonly service = inject(StaffUsersService);
   private readonly tiers = inject(TiersService);

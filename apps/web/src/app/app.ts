@@ -124,7 +124,7 @@ export class App {
 
   /** A recessed grey behind the auth card, the ordinary page background otherwise. */
   protected readonly pageBackground = computed(() =>
-    this.centered() ? 'bg-surface-strong' : 'bg-surface',
+    this.centered() ? 'bg-surface' : 'bg-surface-subtle',
   );
 
   private isCenteredRoute(): boolean {
@@ -184,10 +184,9 @@ function themeProperties(
     ['--color-primary-press', theme.primaryPress],
     ['--color-secondary', theme.secondary],
     ['--color-accent', theme.accent],
-    ['--color-surface', theme.surface],
+    ['--color-surface-subtle', theme.surfaceSubtle],
     ['--color-ink', theme.ink],
-    ['--color-muted', theme.muted],
-    ['--color-subtle', theme.subtle],
+    ['--color-ink-subtle', theme.inkSubtle],
     ['--color-edge', theme.edge],
     ['--color-edge-strong', theme.edgeStrong],
     ...Object.entries(theme.neutrals ?? {}).map(

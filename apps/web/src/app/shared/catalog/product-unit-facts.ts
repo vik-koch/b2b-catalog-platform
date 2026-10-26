@@ -25,7 +25,7 @@ import { useProductUnits } from './product-units-view';
   selector: 'app-product-unit-facts',
   // On the host, so a caller reserving room for a line it may not have can
   // measure that room in lines of this text.
-  host: { class: 'block text-xs leading-snug text-subtle' },
+  host: { class: 'block text-xs leading-snug text-ink-subtle' },
   template: `
     @if (shows('minimum')) {
       <p class="tracking-tight">{{ minimum() }}</p>

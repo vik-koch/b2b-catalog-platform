@@ -89,7 +89,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
     </p>
 
     @if (runs.error()) {
-      <p class="text-subtle" role="alert">{{ text.runLoadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="sync-runs"
@@ -113,10 +113,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
               <app-grid-timestamp [value]="run.startedAt" />
             </a>
           </td>
-          <td class="truncate text-subtle" [title]="who(run)">
+          <td class="truncate text-ink-subtle" [title]="who(run)">
             {{ who(run) }}
           </td>
-          <td class="truncate text-subtle" [title]="run.filename">
+          <td class="truncate text-ink-subtle" [title]="run.filename">
             {{ run.filename }}
           </td>
           <td data-keep>
@@ -125,7 +125,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
               [ngTemplateOutletContext]="{ $implicit: run }"
             />
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <span class="block tabular-nums">{{ changeSummary(run) }}</span>
             <span class="block truncate text-xs" [title]="fieldsTitle(run)">{{
               fieldsLine(run)
@@ -149,7 +149,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 [ngTemplateOutletContext]="{ $implicit: run }"
               />
             </span>
-            <p recordBody class="mt-1 truncate text-sm text-subtle">
+            <p recordBody class="mt-1 truncate text-sm text-ink-subtle">
               {{ who(run) }}
               @if (run.filename) {
                 · {{ run.filename }}

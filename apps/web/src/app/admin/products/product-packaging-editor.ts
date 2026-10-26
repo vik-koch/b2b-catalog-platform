@@ -67,7 +67,7 @@ export function parseCount(text: string): number | null {
          will not shrink below its content's min-content width. -->
     <fieldset class="min-w-0">
       <legend appFieldLabel>{{ packing.heading }}</legend>
-      <p class="mb-2 text-xs text-subtle">{{ text.hint }}</p>
+      <p class="mb-2 text-xs text-ink-subtle">{{ text.hint }}</p>
 
       @if (narrow()) {
         <!-- The same six fields, stacked. Not the record list the attribute
@@ -87,7 +87,7 @@ export function parseCount(text: string): number | null {
                 {{ row.label }}
               </span>
               @if (row.hint) {
-                <span class="mb-1 block text-xs text-subtle">{{
+                <span class="mb-1 block text-xs text-ink-subtle">{{
                   row.hint
                 }}</span>
               }
@@ -106,7 +106,7 @@ export function parseCount(text: string): number | null {
                 />
               </app-unit-field>
               @if (row.price) {
-                <span class="mt-1 block text-xs text-subtle">{{
+                <span class="mt-1 block text-xs text-ink-subtle">{{
                   row.price
                 }}</span>
               }
@@ -123,14 +123,14 @@ export function parseCount(text: string): number | null {
               <tr>
                 <th
                   scope="row"
-                  class="w-1/3 border border-edge-strong bg-surface px-2 py-1.5 text-left font-medium"
+                  class="w-1/3 border border-edge-strong bg-surface-subtle px-2 py-1.5 text-left font-medium"
                 >
                   <label [attr.for]="'packaging-' + row.key">{{
                     row.label
                   }}</label>
                   @if (row.hint) {
                     <span
-                      class="mt-0.5 block text-xs font-normal text-subtle"
+                      class="mt-0.5 block text-xs font-normal text-ink-subtle"
                       >{{ row.hint }}</span
                     >
                   }
@@ -140,7 +140,7 @@ export function parseCount(text: string): number | null {
                    behaves as one field, like the attribute grid's. -->
                 <td
                   class="border border-edge-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
-                  [class]="row.disabled ? 'bg-surface-strong' : 'bg-white'"
+                  [class]="row.disabled ? 'bg-surface' : 'bg-white'"
                 >
                   <div class="flex items-center">
                     <input
@@ -156,13 +156,15 @@ export function parseCount(text: string): number | null {
                       (blur)="normalize(row.key)"
                     />
                     @if (row.suffix) {
-                      <span class="pr-3 text-xs text-subtle">{{
+                      <span class="pr-3 text-xs text-ink-subtle">{{
                         row.suffix
                       }}</span>
                     }
                   </div>
                 </td>
-                <td class="w-48 border-0 pl-3 align-middle text-xs text-subtle">
+                <td
+                  class="w-48 border-0 pl-3 align-middle text-xs text-ink-subtle"
+                >
                   {{ row.price }}
                 </td>
               </tr>

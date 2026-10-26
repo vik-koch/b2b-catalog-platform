@@ -44,7 +44,7 @@ const chevrons = {
     <ng-content />
     <app-icon
       name="chevron-down"
-      class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-subtle transition-colors"
+      class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-ink-subtle transition-colors"
       [class]="chevron()"
     />
   `,

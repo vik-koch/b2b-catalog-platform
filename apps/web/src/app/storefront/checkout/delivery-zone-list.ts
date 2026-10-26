@@ -38,18 +38,21 @@ const SPAN: Record<number, string> = {
           [class]="spread() ? 'flex gap-3 ' + spans[i] : ''"
         >
           @if (spread()) {
-            <app-icon name="map" class="mt-0.5 size-5 shrink-0 text-subtle" />
+            <app-icon
+              name="map"
+              class="mt-0.5 size-5 shrink-0 text-ink-subtle"
+            />
           }
           <div class="min-w-0 flex-1">
             <p class="font-medium">{{ zone.title }}</p>
             @if (zone.description; as description) {
-              <p class="mt-1 text-sm text-subtle">
+              <p class="mt-1 text-sm text-ink-subtle">
                 <app-emphasised [text]="description" />
               </p>
             }
             <!-- Said out loud either way: a zone with no line under it would
                  read as an unstated free threshold rather than none. -->
-            <p class="mt-2 text-sm text-subtle">{{ terms(zone) }}</p>
+            <p class="mt-2 text-sm text-ink-subtle">{{ terms(zone) }}</p>
           </div>
         </li>
       }

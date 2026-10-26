@@ -7,7 +7,7 @@ import { computed, Directive, input } from '@angular/core';
  */
 const tones = {
   /** Nothing is pending and nothing is wrong — history, or a plain fact. */
-  neutral: 'bg-chip text-subtle',
+  neutral: 'bg-chip text-ink-subtle',
   /** Somebody has to act before this moves. */
   waiting: 'bg-warning-surface-strong text-warning-ink',
   /** Settled, and settled well. */
@@ -27,7 +27,7 @@ const tones = {
  * to be scanned down a column, not to shout from inside a card.
  */
 const dots = {
-  neutral: 'before:bg-subtle',
+  neutral: 'before:bg-ink-subtle',
   waiting: 'before:bg-warning-dot',
   ok: 'before:bg-success-dot',
   danger: 'before:bg-danger-dot',
@@ -47,7 +47,7 @@ export type StatusBadgeVariant = 'solid' | 'dot';
 const shapes = {
   solid: 'rounded-full px-2 py-0.5',
   dot:
-    'gap-x-1.5 rounded-md border border-edge bg-white px-1.5 py-0.5 text-subtle ' +
+    'gap-x-1.5 rounded-md border border-edge bg-white px-1.5 py-0.5 text-ink-subtle ' +
     "before:size-1.5 before:shrink-0 before:rounded-full before:content-['']",
 } as const;
 

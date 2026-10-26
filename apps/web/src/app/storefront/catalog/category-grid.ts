@@ -231,7 +231,7 @@ interface Listing {
                    from, which on a wide screen is half a line of nothing. As
                    text, a long name wraps where it runs out of room and the
                    trail stays a trail. -->
-              <ol role="list" class="text-sm text-subtle">
+              <ol role="list" class="text-sm text-ink-subtle">
                 @if (data.category; as category) {
                   <li class="inline">
                     <a routerLink="/catalog" class="hover:text-accent">
@@ -375,7 +375,7 @@ interface Listing {
                      column's own heading and sits over the same gap, so the
                      first card starts on the line the first facet does. -->
                 <div class="mb-4 flex h-8 items-center justify-between gap-4">
-                  <p class="text-sm text-subtle">
+                  <p class="text-sm text-ink-subtle">
                     {{ productCount(data.pagination.total) }}
                   </p>
                   <div class="flex items-center gap-3">
@@ -449,7 +449,7 @@ interface Listing {
                 <!-- What the prices include, where the deployment says so beside
                      them (NFR-LEGAL-11). Once for the page, naming no rate. -->
                 @if (taxNote) {
-                  <p class="mt-4 text-xs text-subtle">{{ taxNote }}</p>
+                  <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
                 }
 
                 @if (data.pagination.totalPages > 1) {
@@ -471,11 +471,11 @@ interface Listing {
                         >{{ pagination.previous }}</a
                       >
                     } @else {
-                      <span class="px-3 py-1.5 text-disabled">{{
+                      <span class="px-3 py-1.5 text-ink-disabled">{{
                         pagination.previous
                       }}</span>
                     }
-                    <span class="text-subtle">{{
+                    <span class="text-ink-subtle">{{
                       pageStatus(data.pagination)
                     }}</span>
                     @if (data.pagination.page < data.pagination.totalPages) {
@@ -492,14 +492,14 @@ interface Listing {
                         >{{ pagination.next }}</a
                       >
                     } @else {
-                      <span class="px-3 py-1.5 text-disabled">{{
+                      <span class="px-3 py-1.5 text-ink-disabled">{{
                         pagination.next
                       }}</span>
                     }
                   </nav>
                 }
               } @else {
-                <p class="text-subtle">
+                <p class="text-ink-subtle">
                   {{
                     hasSelection()
                       ? filterText.noMatches

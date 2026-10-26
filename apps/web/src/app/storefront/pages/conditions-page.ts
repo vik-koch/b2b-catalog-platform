@@ -85,7 +85,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {
-        <p class="mb-4 text-subtle">{{ editorText.emptyNotice }}</p>
+        <p class="mb-4 text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
 
       <div class="max-w-3xl space-y-10">
@@ -95,7 +95,7 @@ import { PageTitle } from '../../shared/ui/page-title';
               {{ fulfilmentText.conditionsHeading }}
             </h2>
             <app-delivery-zone-list [spread]="true" />
-            <p class="mt-4 text-sm text-subtle">
+            <p class="mt-4 text-sm text-ink-subtle">
               {{ fulfilmentText.conditionsNote }}
             </p>
           </section>
@@ -106,7 +106,7 @@ import { PageTitle } from '../../shared/ui/page-title';
             <h2 class="text-2xl font-normal tracking-tight">
               {{ sharedText.fulfilment.pickup }}
             </h2>
-            <p class="mt-1 mb-4 text-subtle">
+            <p class="mt-1 mb-4 text-ink-subtle">
               {{ fulfilmentText.pickupDescription }}
             </p>
             <ul class="space-y-3">
@@ -130,11 +130,11 @@ import { PageTitle } from '../../shared/ui/page-title';
                         </a>
                       }
                     </div>
-                    <p class="mt-1 text-sm text-subtle">
+                    <p class="mt-1 text-sm text-ink-subtle">
                       {{ location.address }}
                     </p>
                     @if (location.description) {
-                      <p class="mt-2 text-sm text-subtle">
+                      <p class="mt-2 text-sm text-ink-subtle">
                         <app-emphasised [text]="location.description" />
                       </p>
                     }
@@ -157,10 +157,10 @@ import { PageTitle } from '../../shared/ui/page-title';
               <app-icon name="banknote" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
-                <p class="mt-1 text-sm text-subtle">
+                <p class="mt-1 text-sm text-ink-subtle">
                   {{ pageText.cashDescription }}
                 </p>
-                <p class="mt-2 text-sm text-subtle">
+                <p class="mt-2 text-sm text-ink-subtle">
                   {{ paymentText.cashPersonOnly }}
                 </p>
               </div>
@@ -169,10 +169,10 @@ import { PageTitle } from '../../shared/ui/page-title';
               <app-icon name="landmark" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
-                <p class="mt-1 text-sm text-subtle">
+                <p class="mt-1 text-sm text-ink-subtle">
                   {{ paymentText.transferDescription }}
                 </p>
-                <p class="mt-2 text-sm text-subtle">
+                <p class="mt-2 text-sm text-ink-subtle">
                   {{ paymentText.transferCompanyOnly }}
                 </p>
               </div>
@@ -187,7 +187,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           <h2 class="mb-4 text-2xl font-normal tracking-tight">
             {{ pageText.goodsHeading }}
           </h2>
-          <div class="space-y-3 text-subtle">
+          <div class="space-y-3 text-ink-subtle">
             @for (paragraph of pageText.goodsParagraphs; track $index) {
               <p><app-emphasised [text]="paragraph" /></p>
             }
@@ -202,7 +202,7 @@ import { PageTitle } from '../../shared/ui/page-title';
             <h2 class="mb-4 text-2xl font-normal tracking-tight">
               {{ pageText.returnsHeading }}
             </h2>
-            <div class="space-y-3 text-subtle">
+            <div class="space-y-3 text-ink-subtle">
               @for (paragraph of pageText.returnsParagraphs; track $index) {
                 <p><app-emphasised [text]="paragraph" /></p>
               }
@@ -235,7 +235,7 @@ export class ConditionsPage {
   private readonly pageService = inject(PageService);
 
   protected readonly cardClass = 'flex gap-3 rounded-lg border border-edge p-4';
-  protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
+  protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-ink-subtle';
 
   protected readonly navLabel = this.nav.conditions;
   protected readonly errorText = this.storefrontText.errors;

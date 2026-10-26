@@ -296,12 +296,12 @@ export const deploymentConfigSchema = z
             primaryPress: z.string(),
             secondary: z.string(),
             accent: z.string(),
-            surface: z.string().optional(),
+            /** The page, and the level of the white things on it. */
+            surfaceSubtle: z.string().optional(),
             ink: z.string().optional(),
-            /** Secondary body copy. */
-            muted: z.string().optional(),
-            /** Meta text: eyebrows, table headers, counts. */
-            subtle: z.string().optional(),
+            /** Everything quieter than body text: secondary copy, meta
+             * text, glyphs that step back. */
+            inkSubtle: z.string().optional(),
             /** Structural lines: card edges, dividers, table rules. */
             edge: z.string().optional(),
             /** Control edges: inputs, secondary buttons. */

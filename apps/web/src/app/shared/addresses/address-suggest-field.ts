@@ -66,7 +66,7 @@ export type AddressSuggestFieldText = SuggestListText;
       @if (list.panelOpen()) {
         <div [class]="panel">
           @if (list.suggestions().length === 0) {
-            <p class="px-3 py-2 text-sm text-subtle">
+            <p class="px-3 py-2 text-sm text-ink-subtle">
               {{ text().noSuggestions }}
             </p>
           }
@@ -81,7 +81,7 @@ export type AddressSuggestFieldText = SuggestListText;
                 role="option"
                 [attr.aria-selected]="i === list.activeIndex()"
                 class="cursor-pointer px-3 py-2 text-sm"
-                [class.bg-surface-hover]="i === list.activeIndex()"
+                [class.bg-surface-subtle-hover]="i === list.activeIndex()"
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >
@@ -96,7 +96,7 @@ export type AddressSuggestFieldText = SuggestListText;
                      of the same name in two towns are otherwise one row
                      repeated. -->
                 @if (item.components.region; as region) {
-                  <span class="block truncate text-xs text-subtle">{{
+                  <span class="block truncate text-xs text-ink-subtle">{{
                     region
                   }}</span>
                 }

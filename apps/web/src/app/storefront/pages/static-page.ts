@@ -57,7 +57,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           [updatedAt]="content.updatedAt"
         />
       } @else if (canEdit(); as editorText) {
-        <p class="text-subtle">{{ editorText.emptyNotice }}</p>
+        <p class="text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">

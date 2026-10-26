@@ -89,7 +89,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
            a greyed form invites an attempt the API would refuse anyway. -->
       @if (customersOwned()) {
         <p
-          class="rounded-md border border-edge bg-surface-strong px-4 py-3 text-sm text-subtle"
+          class="rounded-md border border-edge bg-surface px-4 py-3 text-sm text-ink-subtle"
           role="status"
         >
           {{ text.formatErrors['customers-externally-owned'] }}
@@ -114,7 +114,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           </div>
 
           <details class="mt-4">
-            <summary class="cursor-pointer text-sm text-subtle">
+            <summary class="cursor-pointer text-sm text-ink-subtle">
               {{ text.advanced }}
             </summary>
             <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
@@ -157,7 +157,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             <app-admin-icon name="upload" class="size-6 mb-2" />
             @if (file(); as chosen) {
               <span class="font-medium">{{ chosen.name }}</span>
-              <span class="text-sm text-subtle">{{ text.changeFile }}</span>
+              <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
             } @else {
               <span class="font-medium">{{ text.dropHint }}</span>
               <span class="text-sm">{{ text.browse }}</span>
@@ -169,7 +169,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           <!-- The columns, listed rather than described: the file is written by
                whoever is holding the other system's export, and the one thing
                they need from this screen is the spelling. -->
-          <p class="mt-1 text-sm text-subtle">{{ fileHint }}</p>
+          <p class="mt-1 text-sm text-ink-subtle">{{ fileHint }}</p>
 
           <div class="mt-4 flex items-center gap-3">
             <button
@@ -211,10 +211,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
         }
 
         @if (appliedRun(); as run) {
-          <p
-            class="mb-8 rounded-md bg-surface-strong p-3 text-sm"
-            role="status"
-          >
+          <p class="mb-8 rounded-md bg-surface p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
             <a appLink routerLink="/admin/users" class="ml-2">{{
               usersText.customersPage.title

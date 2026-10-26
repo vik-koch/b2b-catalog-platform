@@ -154,7 +154,7 @@ export const FACET_SIBLING_ALONE =
                 class="hidden items-center justify-between h-8 gap-2 @min-[63.75rem]/listing:flex"
               >
                 <h2
-                  class="text-xs font-medium tracking-wide text-subtle uppercase"
+                  class="text-xs font-medium tracking-wide text-ink-subtle uppercase"
                 >
                   {{ text.title }}
                 </h2>
@@ -242,7 +242,7 @@ export const FACET_SIBLING_ALONE =
                greyed row is the answer to "why can I not combine these two?". -->
           <label
             class="flex cursor-pointer items-start gap-2 text-sm"
-            [class.text-subtle]="disabled(value)"
+            [class.text-ink-subtle]="disabled(value)"
             [class.cursor-not-allowed]="disabled(value)"
           >
             <input
@@ -260,7 +260,7 @@ export const FACET_SIBLING_ALONE =
             <!-- leading-5 so the smaller count shares the label's line box:
                  the row is top-aligned for the sake of a value that wraps, and
                  a 1rem line box in a 1.25rem row sat visibly high. -->
-            <span class="text-xs/5 px-2 text-subtle tabular-nums">
+            <span class="text-xs/5 px-2 text-ink-subtle tabular-nums">
               {{ value.count }}
             </span>
           </label>

@@ -15,7 +15,7 @@
 export const DROP_ZONE =
   'flex cursor-pointer flex-col items-center justify-center rounded-md ' +
   'border-1 border-edge-strong bg-white border-dashed transition-colors ' +
-  'text-center text-subtle disabled:cursor-not-allowed disabled:opacity-50';
+  'text-center text-ink-subtle disabled:cursor-not-allowed disabled:opacity-50';
 
 /**
  * What it is doing. `dragging` is the only state that fills the box — a file

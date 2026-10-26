@@ -32,7 +32,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
         @for (tile of tiles(); track tile.label) {
           <div>
-            <dt class="text-subtle">{{ text.orders.count[tile.label] }}</dt>
+            <dt class="text-ink-subtle">{{ text.orders.count[tile.label] }}</dt>
             <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
               {{ tile.value }}
             </dd>
@@ -41,7 +41,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-subtle">{{ text.nothingChanged }}</p>
+        <p class="text-ink-subtle">{{ text.nothingChanged }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {
@@ -51,7 +51,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
-              <span class="text-subtle">{{ rowLabel(error.row) }}</span>
+              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
               — {{ rowErrorText(error) }}
             </li>
           }
@@ -79,7 +79,9 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
                 >{{ order.reference }}</a
               >
               @if (order.notified) {
-                <span class="text-subtle">{{ text.orders.notifiedRow }}</span>
+                <span class="text-ink-subtle">{{
+                  text.orders.notifiedRow
+                }}</span>
               }
             </li>
           }
@@ -87,7 +89,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       }
 
       @if (plan().truncated) {
-        <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
+        <p class="mt-4 text-sm text-ink-subtle">{{ text.truncated }}</p>
       }
     </section>
   `,

@@ -74,12 +74,12 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-subtle">{{ text.hint }}</p>
+          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
             <ul class="mt-3 divide-y divide-edge border-y border-edge">
@@ -103,7 +103,7 @@ let nextId = 0;
           }
 
           @if (value().length >= max) {
-            <p class="mt-3 text-xs text-subtle">{{ limitLabel() }}</p>
+            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
               <label [for]="inputId" appFieldLabel>{{ text.add }}</label>

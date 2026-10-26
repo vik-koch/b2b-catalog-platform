@@ -57,7 +57,9 @@ export interface TierPriceDraft {
     >
       @for (tier of tiers(); track tier.id) {
         <label class="block w-full sm:w-auto">
-          <span class="mb-1 block text-sm text-subtle">{{ tier.label }}</span>
+          <span class="mb-1 block text-sm text-ink-subtle">{{
+            tier.label
+          }}</span>
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
           <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">

@@ -62,7 +62,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
   ],
   template: `
     @if (run.error()) {
-      <p class="text-subtle" role="alert">{{ text.runLoadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
       <a
         appButton
         variant="secondary"
@@ -96,22 +96,22 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              what, and what it was called. -->
           <dl class="mb-6 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
             <div class="flex gap-2">
-              <dt class="text-subtle">{{ text.startedLabel }}</dt>
+              <dt class="text-ink-subtle">{{ text.startedLabel }}</dt>
               <dd>{{ moment(data.run.startedAt) }}</dd>
             </div>
             @if (data.run.finishedAt; as finished) {
               <div class="flex gap-2">
-                <dt class="text-subtle">{{ text.finishedLabel }}</dt>
+                <dt class="text-ink-subtle">{{ text.finishedLabel }}</dt>
                 <dd>{{ moment(finished) }}</dd>
               </div>
             }
             <div class="flex gap-2">
-              <dt class="text-subtle">{{ text.col.actor }}</dt>
+              <dt class="text-ink-subtle">{{ text.col.actor }}</dt>
               <dd>{{ who(data.run) }}</dd>
             </div>
             @if (data.run.filename; as label) {
               <div class="flex min-w-0 gap-2">
-                <dt class="text-subtle">{{ text.col.file }}</dt>
+                <dt class="text-ink-subtle">{{ text.col.file }}</dt>
                 <dd class="truncate">{{ label }}</dd>
               </div>
             }
@@ -196,7 +196,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               (discardRun)="discard(data.run.id)"
             />
           } @else if (!data.run.error) {
-            <p class="text-subtle">{{ text.planUnavailable }}</p>
+            <p class="text-ink-subtle">{{ text.planUnavailable }}</p>
           }
         </div>
       </div>

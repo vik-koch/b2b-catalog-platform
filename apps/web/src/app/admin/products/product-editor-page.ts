@@ -168,7 +168,7 @@ import { Hint } from '../../shared/ui/hint';
         <app-skeleton [lines]="4" />
       }
     } @else if (notFound()) {
-      <p class="text-subtle" role="alert">{{ text.saveError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else if (newAndOwned()) {
       <!-- Creating writes every owned field at once, identity included, so
            there is nothing here to offer. The affordances that lead here are
@@ -178,7 +178,7 @@ import { Hint } from '../../shared/ui/hint';
       <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-subtle"
+        class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
         role="status"
       >
         {{ text.previewNotice }}
@@ -290,7 +290,7 @@ import { Hint } from '../../shared/ui/hint';
                 <p class="text-warning">{{ text.priceCleared }}</p>
               }
               @if (taxRateNotInEffect) {
-                <p class="text-xs text-subtle">
+                <p class="text-xs text-ink-subtle">
                   {{ text.taxRate.notInEffect }}
                 </p>
               }
@@ -399,7 +399,7 @@ import { Hint } from '../../shared/ui/hint';
         <fieldset class="max-w-xl">
           <legend appFieldLabel>{{ text.stock.heading }}</legend>
           @if (!catalogOwned()) {
-            <p class="mb-2 text-xs text-subtle">{{ text.stock.hint }}</p>
+            <p class="mb-2 text-xs text-ink-subtle">{{ text.stock.hint }}</p>
           }
           <!-- Both counts in pieces, said in the fields rather than under
                them: the two are one sentence about how much is left, and a
@@ -451,7 +451,9 @@ import { Hint } from '../../shared/ui/hint';
                too far down the page to answer that while typing. As tall as
                the pill either way — 22px, the badge's own height — so entering
                a figure does not nudge the line down as the pill appears. -->
-          <p class="mt-3 flex min-h-5.5 items-center gap-2 text-xs text-subtle">
+          <p
+            class="mt-3 flex min-h-5.5 items-center gap-2 text-xs text-ink-subtle"
+          >
             <span>{{ text.stock.preview }}</span>
             @if (previewAvailability(); as state) {
               <app-product-availability-badge [availability]="state" />
@@ -470,7 +472,7 @@ import { Hint } from '../../shared/ui/hint';
           [glyph]="glyphs.featured"
           [on]="featured()"
         >
-          <p class="mb-2 text-xs text-subtle">{{ text.featured.hint }}</p>
+          <p class="mb-2 text-xs text-ink-subtle">{{ text.featured.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
               type="checkbox"
@@ -497,7 +499,7 @@ import { Hint } from '../../shared/ui/hint';
           [glyph]="glyphs.note"
           [on]="lineNoteEnabled()"
         >
-          <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
+          <p class="mb-2 text-xs text-ink-subtle">{{ text.lineNote.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
               type="checkbox"

@@ -98,7 +98,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     }
 
     @if (orders.error()) {
-      <p class="text-subtle" role="alert">{{ text.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="orders"
@@ -130,11 +130,11 @@ import { ErrorText } from '../../shared/ui/error-text';
             <span class="block truncate text-ink">
               {{ order.contactName }}
             </span>
-            <span class="block truncate text-xs text-subtle">
+            <span class="block truncate text-xs text-ink-subtle">
               {{ order.customerEmail ?? ordersText.guest }}
             </span>
           </td>
-          <td class="truncate text-subtle">
+          <td class="truncate text-ink-subtle">
             {{ lineCount(order.itemCount) }}
           </td>
           <td class="tabular-nums">{{ total(order) }}</td>
@@ -154,7 +154,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               {{ statusLabel(order) }}
             </span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="order.createdAt" />
           </td>
           <td data-keep>
@@ -206,7 +206,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             </span>
             <p
               recordBody
-              class="mt-1 truncate text-subtle"
+              class="mt-1 truncate text-ink-subtle"
               [class.opacity-50]="isEnded(order)"
             >
               {{ order.contactName }}

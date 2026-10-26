@@ -80,7 +80,7 @@ interface ToolbarAction {
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.labelAria"
-          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-surface-strong p-1.5"
+          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-surface p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -132,7 +132,7 @@ interface ToolbarAction {
     />
 
     @if (uploading()) {
-      <p class="mt-2 text-sm text-subtle" role="status">
+      <p class="mt-2 text-sm text-ink-subtle" role="status">
         {{ adminText.upload.progress }}
       </p>
     }
@@ -252,7 +252,7 @@ interface ToolbarAction {
       <label class="mt-3 block">
         <span class="mb-1 flex justify-between text-sm font-medium">
           <span>{{ image.widthLabel }}</span>
-          <span class="text-subtle">{{ imageSize() }}%</span>
+          <span class="text-ink-subtle">{{ imageSize() }}%</span>
         </span>
         <input
           type="range"
@@ -652,14 +652,14 @@ export class RichTextEditor {
       'flex size-9 cursor-pointer items-center justify-center rounded transition-colors [&>*]:size-5 md:size-8 md:[&>*]:size-4';
     return active
       ? `${base} bg-primary text-white`
-      : `${base} text-ink hover:bg-surface-strong-hover`;
+      : `${base} text-ink hover:bg-surface-hover`;
   }
 
   protected alignButtonClass(active: boolean): string {
     const base = 'flex-1 rounded px-2 py-1 text-xs transition-colors';
     return active
       ? `${base} bg-primary text-white`
-      : `${base} text-ink hover:bg-surface-strong-hover`;
+      : `${base} text-ink hover:bg-surface-hover`;
   }
 
   protected alignLabel(align: ImageAlign): string {

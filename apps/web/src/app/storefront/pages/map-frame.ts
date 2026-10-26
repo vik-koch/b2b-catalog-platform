@@ -26,7 +26,7 @@ import { Button } from '../../shared/ui/button';
       ></iframe>
     } @else {
       <div
-        class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border border-edge bg-surface-strong p-6 text-center text-sm text-subtle"
+        class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border border-edge bg-surface p-6 text-center text-sm text-ink-subtle"
         [class]="shapeClass()"
       >
         <p class="max-w-md">{{ notice }}</p>

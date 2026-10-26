@@ -38,14 +38,14 @@ export const UNIT_FIELD_INPUT_COMPACT =
     // focused is the stronger statement, and on a plain input the app's
     // unlayered focus rule already settles that.
     class:
-      'flex items-center rounded-md border border-edge-strong bg-white transition-colors [&:has(input:enabled):not(:focus-within):hover]:border-accent focus-within:border-secondary focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary has-[input:disabled]:bg-surface-strong',
+      'flex items-center rounded-md border border-edge-strong bg-white transition-colors [&:has(input:enabled):not(:focus-within):hover]:border-accent focus-within:border-secondary focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary has-[input:disabled]:bg-surface',
   },
   template: `
     <ng-content />
     @if (unit()) {
       <span
         [class]="compact() ? 'pr-3 sm:pr-2' : 'pr-3'"
-        class="text-xs text-subtle"
+        class="text-xs text-ink-subtle"
         >{{ unit() }}</span
       >
     }

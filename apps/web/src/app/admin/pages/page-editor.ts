@@ -54,7 +54,7 @@ import { Hint } from '../../shared/ui/hint';
   template: `
     @if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-subtle"
+        class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
         role="status"
       >
         {{ text.previewNotice }}
@@ -65,7 +65,7 @@ import { Hint } from '../../shared/ui/hint';
       <div class="prose max-w-3xl" [innerHTML]="safeBody(body())"></div>
       @if (isConsent()) {
         <div class="mt-8 max-w-3xl border-t border-edge pt-4">
-          <p class="mb-2 text-sm text-subtle">{{ text.consentPreview }}</p>
+          <p class="mb-2 text-sm text-ink-subtle">{{ text.consentPreview }}</p>
           <label class="flex items-start gap-2 text-sm">
             <input type="checkbox" appCheckbox class="mt-0.5" disabled />
             @if (consentParts(); as parts) {

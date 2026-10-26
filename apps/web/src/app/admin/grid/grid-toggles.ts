@@ -8,7 +8,7 @@ const PILL =
 
 /** Off and on. Only colour changes between the two — never the weight — so a
  * chip keeps its width and its neighbours stay put. */
-const OFF = `${PILL} border-edge bg-white text-subtle hover:border-edge-strong hover:text-accent`;
+const OFF = `${PILL} border-edge bg-white text-ink-subtle hover:border-edge-strong hover:text-accent`;
 const ON = `${PILL} border-border-secondary bg-primary text-white hover:bg-accent`;
 
 /**

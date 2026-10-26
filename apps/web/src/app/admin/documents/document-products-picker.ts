@@ -72,7 +72,9 @@ type View = 'all' | 'linked';
     <div class="flex flex-nowrap items-end justify-between gap-3">
       <div>
         <span appFieldLabel class="mb-0">{{ text.heading }}</span>
-        <p class="mt-1 text-xs wrap-break-word text-subtle">{{ text.hint }}</p>
+        <p class="mt-1 text-xs wrap-break-word text-ink-subtle">
+          {{ text.hint }}
+        </p>
       </div>
       <!-- The app's segmented pill, as everywhere else one choice is made
            between a few: they are two views of one list, and the count in the
@@ -127,7 +129,7 @@ type View = 'all' | 'linked';
       @for (row of rows(); track row.slug; let index = $index) {
         <li>
           <label
-            class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm select-none hover:bg-surface-hover"
+            class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm select-none hover:bg-surface-subtle-hover"
           >
             <input
               type="checkbox"
@@ -146,13 +148,15 @@ type View = 'all' | 'linked';
                 productStates.unpublished
               }}</span>
             }
-            <span class="w-32 shrink-0 truncate text-right text-xs text-subtle">
+            <span
+              class="w-32 shrink-0 truncate text-right text-xs text-ink-subtle"
+            >
               {{ row.category }}
             </span>
           </label>
         </li>
       } @empty {
-        <li class="px-3 py-6 text-center text-sm text-subtle">
+        <li class="px-3 py-6 text-center text-sm text-ink-subtle">
           {{ view() === 'linked' ? text.noneLinked : text.empty }}
         </li>
       }
@@ -160,7 +164,7 @@ type View = 'all' | 'linked';
 
     <!-- What the list is not showing, said where the list ends. -->
     @if (more(); as note) {
-      <p class="mt-2 text-xs text-subtle">{{ note }}</p>
+      <p class="mt-2 text-xs text-ink-subtle">{{ note }}</p>
     }
   `,
 })

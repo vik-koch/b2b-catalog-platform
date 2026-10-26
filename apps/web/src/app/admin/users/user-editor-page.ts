@@ -97,7 +97,7 @@ import { Hint } from '../../shared/ui/hint';
           <app-skeleton [lines]="5" />
         }
       } @else if (notFound()) {
-        <p class="text-subtle" role="alert">{{ text.notFound }}</p>
+        <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
       } @else {
         <!-- The account's fixed facts: who this is and where it stands. An
              existing account leads with them because they are the context for
@@ -109,11 +109,11 @@ import { Hint } from '../../shared/ui/hint';
           <dl
             class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm wrap-break-word"
           >
-            <dt class="text-subtle">{{ fields.email.label }}</dt>
+            <dt class="text-ink-subtle">{{ fields.email.label }}</dt>
             <dd class="font-medium text-ink">{{ user.email }}</dd>
-            <dt class="text-subtle">{{ listText.registered }}</dt>
-            <dd class="text-subtle">{{ registered() }}</dd>
-            <dt class="text-subtle">{{ text.status }}</dt>
+            <dt class="text-ink-subtle">{{ listText.registered }}</dt>
+            <dd class="text-ink-subtle">{{ registered() }}</dd>
+            <dt class="text-ink-subtle">{{ text.status }}</dt>
             <dd>
               <span appStatusBadge [tone]="statusTone(user.status)">{{
                 statusLabel(user.status)
@@ -124,7 +124,7 @@ import { Hint } from '../../shared/ui/hint';
 
         @if (closed()) {
           <p
-            class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-subtle"
+            class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
           >
             {{ text.closed }}
           </p>
@@ -175,7 +175,7 @@ import { Hint } from '../../shared/ui/hint';
                 autocomplete="off"
               />
             } @else {
-              <p class="text-sm text-subtle">{{ text.emailFixed }}</p>
+              <p class="text-sm text-ink-subtle">{{ text.emailFixed }}</p>
             }
 
             @if (isCustomer()) {
@@ -345,7 +345,7 @@ import { Hint } from '../../shared/ui/hint';
             }
 
             @if (isNew) {
-              <p class="text-sm text-subtle">{{ text.inviteHint }}</p>
+              <p class="text-sm text-ink-subtle">{{ text.inviteHint }}</p>
             }
 
             @if (error()) {

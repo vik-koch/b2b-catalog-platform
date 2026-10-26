@@ -85,10 +85,10 @@ type RenameTarget =
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (keys.error()) {
-        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (keys.hasValue()) {
         @if (keys.value().length === 0) {
-          <p class="text-sm text-subtle">{{ text.empty }}</p>
+          <p class="text-sm text-ink-subtle">{{ text.empty }}</p>
         } @else {
           <!-- Divided rules on the page, not a card: this is the same list of
                records an admin grid draws on a phone. -->
@@ -216,11 +216,9 @@ type RenameTarget =
                          subcategory: these values belong to the key above them,
                          and a flat list of both reads as one list of
                          everything. -->
-                    <div
-                      class="border-t border-edge bg-surface-strong ml-6 pl-2"
-                    >
+                    <div class="border-t border-edge bg-surface ml-6 pl-2">
                       @if (values.error()) {
-                        <p class="py-3 text-sm text-subtle" role="alert">
+                        <p class="py-3 text-sm text-ink-subtle" role="alert">
                           {{ adminText.loadError }}
                         </p>
                       } @else if (values.hasValue()) {
@@ -247,7 +245,7 @@ type RenameTarget =
                                        stop lining up. -->
                                   <span
                                     class="text-ink"
-                                    [class.text-subtle]="value.value === ''"
+                                    [class.text-ink-subtle]="value.value === ''"
                                   >
                                     {{ value.value || text.emptyValue }}
                                   </span>

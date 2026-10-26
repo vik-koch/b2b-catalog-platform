@@ -116,7 +116,7 @@ import { ErrorText } from '../../shared/ui/error-text';
           [invalid]="errors().show(phoneControl())"
         />
 
-        <p class="text-sm text-subtle">{{ text.note }}</p>
+        <p class="text-sm text-ink-subtle">{{ text.note }}</p>
       </ng-template>
     </fieldset>
   `,

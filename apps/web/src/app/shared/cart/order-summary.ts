@@ -40,12 +40,12 @@ import { WarningNote } from '../ui/warning-note';
         <!-- How many lines is the cart's own answer, so it is stated before
              the estimate and whether or not one arrives. -->
         <div class="flex items-baseline justify-between gap-4">
-          <dt class="text-subtle">{{ text.summaryLines }}</dt>
+          <dt class="text-ink-subtle">{{ text.summaryLines }}</dt>
           <dd class="text-right">{{ lineCount() }}</dd>
         </div>
         @for (row of rows(); track row.label) {
           <div class="flex items-baseline justify-between gap-4">
-            <dt class="text-subtle">{{ row.label }}</dt>
+            <dt class="text-ink-subtle">{{ row.label }}</dt>
             <dd class="text-right">{{ row.value }}</dd>
           </div>
         } @empty {
@@ -56,12 +56,14 @@ import { WarningNote } from '../ui/warning-note';
         <div
           class="flex items-baseline justify-between gap-4 border-t border-edge pt-3"
         >
-          <dt class="text-subtle">{{ text.subtotal }}</dt>
+          <dt class="text-ink-subtle">{{ text.subtotal }}</dt>
           <dd class="text-xl font-emphasis text-primary">{{ subtotal() }}</dd>
         </div>
       </dl>
       <!-- What the figure includes, straight under it (NFR-LEGAL-11). -->
-      <p class="mt-1 text-right text-xs text-subtle">{{ taxStatement() }}</p>
+      <p class="mt-1 text-right text-xs text-ink-subtle">
+        {{ taxStatement() }}
+      </p>
 
       @if (!complete()) {
         <app-warning-note class="mt-2">
@@ -69,7 +71,9 @@ import { WarningNote } from '../ui/warning-note';
         </app-warning-note>
       }
       @if (hasEstimate()) {
-        <p class="mt-3 text-xs text-subtle">{{ text.shipmentApproximate }}</p>
+        <p class="mt-3 text-xs text-ink-subtle">
+          {{ text.shipmentApproximate }}
+        </p>
         @if (uncovered(); as count) {
           <p class="mt-1 text-xs text-warning">{{ uncoveredMessage() }}</p>
         }

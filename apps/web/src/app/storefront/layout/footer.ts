@@ -14,7 +14,7 @@ import { ScrollToTop } from './scroll-to-top';
   selector: 'app-footer',
   template: `
     <footer
-      class="bg-surface-strong"
+      class="bg-surface"
       [class.border-t]="!seamless()"
       [class.border-edge]="!seamless()"
     >
@@ -62,7 +62,7 @@ import { ScrollToTop } from './scroll-to-top';
                 <!-- Baseline-aligned with the links: its first line reads
                      as the same row however many lines it wraps to. -->
                 <address
-                  class="text-xs not-italic text-subtle sm:col-start-1 sm:row-start-1 sm:self-baseline"
+                  class="text-xs not-italic text-ink-subtle sm:col-start-1 sm:row-start-1 sm:self-baseline"
                 >
                   <span class="whitespace-nowrap">{{ seller.name }}</span>
                   @for (number of seller.registration; track $index) {
@@ -93,7 +93,7 @@ import { ScrollToTop } from './scroll-to-top';
                 </address>
               }
               <p
-                class="text-xs text-subtle sm:col-start-1 sm:row-start-2 sm:self-center"
+                class="text-xs text-ink-subtle sm:col-start-1 sm:row-start-2 sm:self-center"
               >
                 {{ copyright }}
               </p>
@@ -117,7 +117,7 @@ import { ScrollToTop } from './scroll-to-top';
                  is one that is not readily reachable, and folding away four
                  lines is not worth that. -->
             <nav
-              class="flex flex-col gap-2 text-subtle sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
+              class="flex flex-col gap-2 text-ink-subtle sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
               [class.sm:self-baseline]="seller"
               [attr.aria-label]="text.a11y.legalNav"
             >

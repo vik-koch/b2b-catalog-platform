@@ -62,15 +62,15 @@ import { ErrorText } from '../../shared/ui/error-text';
       </h2>
 
       @if (mode() === 'loading') {
-        <p class="mt-3 text-subtle" role="status">…</p>
+        <p class="mt-3 text-ink-subtle" role="status">…</p>
       } @else if (mode() === 'blocked-children') {
-        <p class="mt-3 text-subtle">{{ blockedChildrenMessage() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ blockedChildrenMessage() }}</p>
       } @else if (mode() === 'blocked-owned') {
-        <p class="mt-3 text-subtle">{{ ownedMessage() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ ownedMessage() }}</p>
       } @else if (mode() === 'reassign') {
-        <p class="mt-3 text-subtle">{{ reassignIntro() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ reassignIntro() }}</p>
         @if (self()?.deletedProductCount; as deleted) {
-          <p class="mt-2 text-subtle">{{ reassignDeleted(deleted) }}</p>
+          <p class="mt-2 text-ink-subtle">{{ reassignDeleted(deleted) }}</p>
         }
         <div class="mt-4">
           <span appFieldLabel>{{ text.reassignLabel }}</span>
@@ -83,7 +83,7 @@ import { ErrorText } from '../../shared/ui/error-text';
           />
         </div>
       } @else {
-        <p class="mt-3 text-subtle">{{ confirmMessage() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ confirmMessage() }}</p>
       }
 
       @if (error()) {

@@ -39,7 +39,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
       {{
         method() === 'pickup' ? names.preferredPickup : names.preferredDelivery
       }}
-      <span class="font-normal text-subtle">({{ optional }})</span>
+      <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
     <app-date-field
       class="max-w-70"
@@ -54,7 +54,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
     <p
       [id]="id + '-hint'"
       class="mt-1 text-sm"
-      [class]="invalid() ? 'text-danger' : 'text-subtle'"
+      [class]="invalid() ? 'text-danger' : 'text-ink-subtle'"
     >
       {{
         invalid()

@@ -44,7 +44,7 @@ let nextId = 0;
       @if (required()) {
         <span class="text-accent" aria-hidden="true">*</span>
       } @else if (optionalLabel()) {
-        <span class="font-normal text-subtle">({{ optionalLabel() }})</span>
+        <span class="font-normal text-ink-subtle">({{ optionalLabel() }})</span>
       }
     </label>
 
@@ -74,7 +74,7 @@ let nextId = 0;
              its own column is too narrow to read a suggestion in. -->
         <div [class]="panel">
           @if (list.suggestions().length === 0) {
-            <p class="px-3 py-2 text-sm text-subtle">
+            <p class="px-3 py-2 text-sm text-ink-subtle">
               {{ text().noSuggestions }}
             </p>
           }
@@ -89,7 +89,7 @@ let nextId = 0;
                 role="option"
                 [attr.aria-selected]="i === list.activeIndex()"
                 class="cursor-pointer px-3 py-2 text-sm"
-                [class.bg-surface-hover]="i === list.activeIndex()"
+                [class.bg-surface-subtle-hover]="i === list.activeIndex()"
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >
@@ -102,7 +102,7 @@ let nextId = 0;
                 <!-- Marked too, because the number is a query in its own right:
                      a customer who typed one is looking for it in the row. -->
                 @if (secondLine(item); as second) {
-                  <span class="block truncate text-subtle">
+                  <span class="block truncate text-ink-subtle">
                     <app-highlighted-line
                       [line]="second"
                       [query]="list.query()"

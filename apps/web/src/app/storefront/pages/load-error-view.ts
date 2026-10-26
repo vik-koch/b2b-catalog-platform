@@ -23,7 +23,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
       <h1 appPageTitle>{{ heading() }}</h1>
       <p appPageIntro class="mt-4">{{ message() ?? text.cannotLoadBody }}</p>
     } @else {
-      <p class="text-subtle">{{ message() ?? text.cannotLoadBody }}</p>
+      <p class="text-ink-subtle">{{ message() ?? text.cannotLoadBody }}</p>
     }
   `,
 })

@@ -152,7 +152,7 @@ const NARROW = '(max-width: 39.999rem)';
            one and leaves the gap it came from, which on a wide screen is half a
            line of nothing. As text, a long name wraps where it runs out of room
            and the trail stays a trail. -->
-      <ol role="list" class="text-sm text-subtle">
+      <ol role="list" class="text-sm text-ink-subtle">
         <li class="inline">
           <a routerLink="/catalog" class="hover:text-accent">
             {{ text.catalogRoot }}
@@ -251,7 +251,7 @@ const NARROW = '(max-width: 39.999rem)';
                   <tr>
                     <th
                       scope="row"
-                      class="py-2 pr-4 text-left font-normal text-subtle"
+                      class="py-2 pr-4 text-left font-normal text-ink-subtle"
                     >
                       {{ attr.key }}
                     </th>
@@ -324,7 +324,7 @@ const NARROW = '(max-width: 39.999rem)';
             @if (descriptionFaded()) {
               <div
                 aria-hidden="true"
-                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-surface to-surface/0"
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-surface-subtle to-surface-subtle/0"
               ></div>
             }
           </div>
@@ -390,7 +390,7 @@ const NARROW = '(max-width: 39.999rem)';
                 <tr>
                   <th
                     scope="row"
-                    class="py-2 pr-4 text-left font-normal text-subtle"
+                    class="py-2 pr-4 text-left font-normal text-ink-subtle"
                   >
                     {{ attr.key }}
                   </th>
@@ -408,7 +408,7 @@ const NARROW = '(max-width: 39.999rem)';
                 <tr>
                   <th
                     scope="row"
-                    class="py-2 pr-4 text-left font-normal text-subtle"
+                    class="py-2 pr-4 text-left font-normal text-ink-subtle"
                   >
                     {{ row.label }}
                   </th>
@@ -467,7 +467,7 @@ export class ProductDetailView {
    * is what carries the editor's return path.
    */
   protected readonly sectionHeading =
-    'text-xs font-medium tracking-wide text-subtle uppercase';
+    'text-xs font-medium tracking-wide text-ink-subtle uppercase';
   protected readonly sectionAnchor = 'transition-colors hover:text-accent';
   protected readonly descriptionId = 'description';
   protected readonly specsId = 'specifications';

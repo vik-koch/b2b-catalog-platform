@@ -82,12 +82,12 @@ const SUGGESTIONS_SHOWN = 8;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-subtle">{{ text.hint }}</p>
+          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
             <ul class="mt-3 divide-y divide-edge border-y border-edge">
@@ -101,7 +101,7 @@ const SUGGESTIONS_SHOWN = 8;
                     [routerLink]="['/admin/documents', item.id, 'edit']"
                     >{{ item.title }}</a
                   >
-                  <span class="shrink-0 text-xs text-subtle">
+                  <span class="shrink-0 text-xs text-ink-subtle">
                     {{ expiry(item) }}
                   </span>
                   <button
@@ -141,7 +141,7 @@ const SUGGESTIONS_SHOWN = 8;
               @if (list.panelOpen()) {
                 <div [class]="panel">
                   @if (options().length === 0) {
-                    <p class="px-3 py-2 text-sm text-subtle">
+                    <p class="px-3 py-2 text-sm text-ink-subtle">
                       {{ text.noSuggestions }}
                     </p>
                   }
@@ -156,7 +156,9 @@ const SUGGESTIONS_SHOWN = 8;
                         role="option"
                         [attr.aria-selected]="i === list.activeIndex()"
                         class="cursor-pointer px-3 py-2 text-sm"
-                        [class.bg-surface-hover]="i === list.activeIndex()"
+                        [class.bg-surface-subtle-hover]="
+                          i === list.activeIndex()
+                        "
                         (mouseenter)="list.activeIndex.set(i)"
                         (mousedown)="pick($event, item)"
                       >
@@ -167,7 +169,7 @@ const SUGGESTIONS_SHOWN = 8;
                             [alternateQuery]="alternateQuery()"
                           />
                         </span>
-                        <span class="block text-xs text-subtle">
+                        <span class="block text-xs text-ink-subtle">
                           {{ expiry(item) }}
                         </span>
                       </li>

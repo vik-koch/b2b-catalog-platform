@@ -44,7 +44,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 
       <app-delivery-zone-list class="mt-4" />
 
-      <p class="mt-4 text-sm text-subtle">{{ text.conditionsNote }}</p>
+      <p class="mt-4 text-sm text-ink-subtle">{{ text.conditionsNote }}</p>
 
       <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
         @if (conditionsPath) {

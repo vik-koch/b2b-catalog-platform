@@ -26,7 +26,7 @@ import { Popover } from '../../shared/ui/popover';
   template: `
     <button
       type="button"
-      class="inline-flex items-center rounded-sm p-0.5 text-subtle"
+      class="inline-flex items-center rounded-sm p-0.5 text-ink-subtle"
       [attr.aria-label]="text.fieldLockedShort"
       [attr.aria-expanded]="open()"
       (click)="open.set(!open())"

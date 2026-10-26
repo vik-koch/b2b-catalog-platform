@@ -66,7 +66,7 @@ const SORT_FIELD_ID = 'product-sort';
           class="hidden items-center gap-2 @min-[38rem]/listing:flex"
         >
           <span
-            class="text-sm whitespace-nowrap text-subtle"
+            class="text-sm whitespace-nowrap text-ink-subtle"
             aria-hidden="true"
           >
             {{ text.sort.label }}
@@ -85,7 +85,7 @@ const SORT_FIELD_ID = 'product-sort';
                 @if (field.arrow) {
                   <span
                     aria-hidden="true"
-                    [class]="field.active ? '' : 'text-subtle'"
+                    [class]="field.active ? '' : 'text-ink-subtle'"
                     >{{ field.arrow }}</span
                   >
                 }
@@ -97,7 +97,7 @@ const SORT_FIELD_ID = 'product-sort';
       <div [class]="selectRow()">
         <label
           [attr.for]="id()"
-          class="text-sm whitespace-nowrap text-subtle"
+          class="text-sm whitespace-nowrap text-ink-subtle"
           >{{ text.sort.label }}</label
         >
         <app-select-field class="max-w-52">

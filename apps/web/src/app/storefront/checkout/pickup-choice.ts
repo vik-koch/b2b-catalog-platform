@@ -61,9 +61,11 @@ import { ErrorText } from '../../shared/ui/error-text';
               />
               <span class="flex flex-wrap items-baseline gap-x-4">
                 <span>{{ location.name }}</span>
-                <span class="text-sm text-subtle">{{ location.address }}</span>
+                <span class="text-sm text-ink-subtle">{{
+                  location.address
+                }}</span>
                 @if (location.description) {
-                  <span class="text-sm text-subtle">
+                  <span class="text-sm text-ink-subtle">
                     <app-emphasised [text]="location.description" />
                   </span>
                 }

@@ -8,23 +8,25 @@ than by how it looks. Lint keeps the names honest and the audit keeps the contra
 ## Naming
 
 A colour's name is **family · role · intensity · state**, each part optional, always in that
-order: `danger-surface-strong`, `surface-strong-hover`, `primary-press`.
+order: `danger-surface`, `surface-hover`, `ink-subtle`, `primary-press`.
 
 - **Family.** Brand (`primary`, `secondary`, `accent`), neutral (no prefix) and status
   (`danger`, `warning`, `success`, `info`).
 - **Role**, what the colour paints:
   - a ground: `surface`, `chip`, `skeleton`;
-  - text: `ink`, the quieter `subtle`, and `disabled`;
+  - text: `ink`;
   - a line: `edge`;
   - a marker: `dot`.
 
   A status colour's bare name is its text on the page and its fill; `-ink` is its text on its own
   `-surface`.
 
-- **Intensity**, for grounds and lines: `-subtle` is a step closer to the page than the base,
-  `-strong` a step further from it, `-stronger` a step further still.
+- **Intensity**: `-subtle` is a step closer to the page than the base, `-strong` a step further
+  from it, `-stronger` a step further still. `surface-subtle` is the page itself, `ink-subtle`
+  the quieter text, `edge-subtle` the lighter line.
 - **State**: `-hover` and `-press`, named for what they happen on, one and two steps from its
-  resting colour. The brand's hover is its own colour, `accent`.
+  resting colour; `-disabled` for a control that cannot be used. The brand's hover is its own
+  colour, `accent`.
 
 A name says what a colour does, never which shade it is. Two roles may share a value (a hovered
 row and a recessed panel are both stone-100) and still keep two names, because they do different
@@ -41,9 +43,9 @@ The floors are WCAG 2.1 AA.
 <!-- prettier-ignore -->
 | What | Floor | Against |
 |---|---|---|
-| Text, of any role but `disabled` | 4.5:1 | every ground it is drawn on |
+| Text, except `ink-disabled` | 4.5:1 | every ground it is drawn on |
 | A glyph that identifies a control (an icon button, a chevron), a dot that stands alone, a focus indicator | 3:1 | the ground beside it |
-| `disabled` text, lines, separators, a dot beside its own words | none | |
+| `ink-disabled`, lines, separators, a dot beside its own words | none | |
 
 A state keeps its floor: text that turns `accent` on hover still reaches 4.5:1 on the ground it
 hovers over. Colour is never the only sign of a state; a refusal also says so in words.
@@ -53,16 +55,16 @@ How the defaults meet the floors:
 <!-- prettier-ignore -->
 | Pair | Ratio |
 |---|---|
-| `ink` / `subtle` on `surface-strong`, the darkest ground they meet | 16.0 / 4.9 |
-| `primary` / `accent` on `surface-strong` | 6.8 / 4.6 |
+| `ink` / `ink-subtle` on `surface`, the darkest ground they meet | 16.0 / 4.9 |
+| `primary` / `accent` on `surface` | 6.8 / 4.6 |
 | `accent-strong` on `chip` / on the stone-200 hover grounds | 6.3 / 5.7 |
-| `danger` / `warning` / `success` on `surface-strong` | 5.9 / 4.6 / 4.5 |
+| `danger` / `warning` / `success` on `surface` | 5.9 / 4.6 / 4.5 |
 | A status `-ink` on its `-surface-strong` (danger, warning, success, info) | 6.9 / 6.4 / 6.5 / 6.5 |
 | White on `primary` / `primary-press` / `accent` | 7.4 / 10.0 / 5.0 |
 | White on `danger` / `danger-hover` / `danger-press` | 6.4 / 8.4 / 10.0 |
 | `secondary`, the focus colour, on white | 4.7 |
-| A `-dot` on `surface` (danger, warning, success, info) | 4.6 / 3.1 / 3.1 / 3.9 |
-| `disabled` on white | 2.6 |
+| A `-dot` on `surface-subtle` (danger, warning, success, info) | 4.6 / 3.1 / 3.1 / 3.9 |
+| `ink-disabled` on white | 2.6 |
 
 Known exceptions:
 
@@ -95,10 +97,10 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 | Role | Default | Used for |
 |---|---|---|
 | `ink` | stone-900 | Body text |
-| `subtle` | `#706a65` | Everything quieter than body text: secondary copy, meta text (table headers, counts, timestamps), and every glyph that steps back (icons at rest, chevrons, unavailable options) |
-| `disabled` | stone-400 | A control that cannot be used |
+| `ink-subtle` | `#706a65` | Everything quieter than body text: secondary copy, meta text (table headers, counts, timestamps), and every glyph that steps back (icons at rest, chevrons, unavailable options) |
+| `ink-disabled` | stone-400 | A control that cannot be used |
 
-`subtle` sits a quarter step from stone-500 toward stone-600: stone-500 itself falls below 4.5:1
+`ink-subtle` sits a quarter step from stone-500 toward stone-600: stone-500 itself falls below 4.5:1
 on the recessed grounds.
 
 ### Lines
@@ -115,15 +117,16 @@ on the recessed grounds.
 <!-- prettier-ignore -->
 | Role | Default | Used for |
 |---|---|---|
-| `surface` | stone-50 | The page |
-| `surface-hover` / `surface-press` | stone-100 / 200 | A control on the page or on white, hovered and pressed |
-| `surface-strong` | stone-100 | A recessed ground: footer, notes, pills, a segmented track, a disabled field |
-| `surface-strong-hover` / `surface-strong-press` | stone-200 / 300 | A control on a recessed ground |
-| `surface-stronger` | stone-200 | One step further: a switch that is off, a nested row |
+| `surface-subtle` | stone-50 | The page, and the level of the white things on it |
+| `surface-subtle-hover` / `surface-subtle-press` | stone-100 / 200 | A control on the page or on white, hovered and pressed |
+| `surface` | stone-100 | A recessed ground: footer, notes, pills, a segmented track, a disabled field. One step from the page, as a status colour's `-surface` is |
+| `surface-hover` / `surface-press` | stone-200 / 300 | A control on a recessed ground |
+| `surface-strong` | stone-200 | One step further: a switch that is off, a nested row |
 | `chip` / `chip-hover` | `#f2f1f0` / stone-200 | A small fill that has to show on the page: the category chip, the neutral badge. Between stone-100, which all but vanishes on the page, and stone-200, which turns a grid of them grey |
 | `skeleton` | stone-200 | A block standing in for content still loading |
 
-White is a ground too: cards, fields and the menus over the page.
+White belongs to the page level: cards, fields and the menus over the page are white, and a
+control on them takes `surface-subtle-hover` and `surface-subtle-press` like one on the page.
 
 ### Status
 

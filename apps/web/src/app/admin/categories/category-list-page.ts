@@ -160,7 +160,7 @@ const EDGE_SLACK = 24;
            until there is something to undo, so nothing moves at the moment a
            drop lands and the admin is looking at the row that just moved. -->
       <div class="mb-4 flex min-h-8 items-start justify-between gap-4">
-        <p class="text-sm text-subtle">{{ text.reorderHint }}</p>
+        <p class="text-sm text-ink-subtle">{{ text.reorderHint }}</p>
         <button
           appIconButton
           type="button"
@@ -182,10 +182,10 @@ const EDGE_SLACK = 24;
       }
 
       @if (categories.error()) {
-        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (categories.hasValue()) {
         @if (rows().length === 0) {
-          <p class="text-subtle">{{ text.empty }}</p>
+          <p class="text-ink-subtle">{{ text.empty }}</p>
         } @else {
           <div class="relative">
             <ul
@@ -297,7 +297,9 @@ const EDGE_SLACK = 24;
                           </a>
                         }
                         @if (!node.category.liveProductCount) {
-                          <span class="text-subtle">{{ text.notShown }}</span>
+                          <span class="text-ink-subtle">{{
+                            text.notShown
+                          }}</span>
                         }
                       </ng-container>
                       <ng-container recordActions>
@@ -413,7 +415,7 @@ export class CategoryListPage {
    */
   protected depthTint(depth: number): string {
     if (depth <= 0) return '';
-    return depth === 1 ? 'bg-surface-strong pl-2' : 'bg-surface-stronger pl-2';
+    return depth === 1 ? 'bg-surface pl-2' : 'bg-surface-strong pl-2';
   }
 
   /** The category whose delete confirmation modal is open, if any. */

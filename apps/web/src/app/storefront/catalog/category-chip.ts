@@ -86,7 +86,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
               [alternateQuery]="alternateQuery()"
             />
           </span>
-          <span class="truncate text-xs/4 text-subtle">{{ context }}</span>
+          <span class="truncate text-xs/4 text-ink-subtle">{{ context }}</span>
         </span>
       } @else if (query()) {
         <span [class]="nameClass()">
@@ -141,7 +141,7 @@ export class CategoryChip {
   protected readonly linkClass = computed(
     () =>
       `${CHIP_BASE} ${CHIP_SIZES[this.size()].link} ${
-        this.muted() ? 'text-subtle' : 'text-ink'
+        this.muted() ? 'text-ink-subtle' : 'text-ink'
       }`,
   );
   protected readonly markClass = computed(

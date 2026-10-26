@@ -246,7 +246,7 @@ interface CartRow {
                  first tick moves the whole list down as it is ticked. -->
               <button
                 type="button"
-                class="group flex cursor-pointer items-center gap-1.5 text-danger disabled:cursor-not-allowed disabled:text-disabled"
+                class="group flex cursor-pointer items-center gap-1.5 text-danger disabled:cursor-not-allowed disabled:text-ink-disabled"
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
@@ -420,7 +420,7 @@ interface CartRow {
                 >
                   {{ pagination.previous }}
                 </button>
-                <span class="text-subtle">{{ pageStatus() }}</span>
+                <span class="text-ink-subtle">{{ pageStatus() }}</span>
                 <button
                   type="button"
                   appButton

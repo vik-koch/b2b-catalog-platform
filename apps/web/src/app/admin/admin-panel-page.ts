@@ -111,7 +111,7 @@ import { PageTitle } from '../shared/ui/page-title';
                 link="/admin/sync/orders"
               >
                 @if (lastOrderSync(); as moment) {
-                  <span class="flex text-xs text-subtle">{{ moment }}</span>
+                  <span class="flex text-xs text-ink-subtle">{{ moment }}</span>
                 }
               </app-panel-row>
             </ul>
@@ -200,7 +200,9 @@ import { PageTitle } from '../shared/ui/page-title';
                       />
                     }
                     @if (lastSync(); as moment) {
-                      <span class="flex text-xs text-subtle">{{ moment }}</span>
+                      <span class="flex text-xs text-ink-subtle">{{
+                        moment
+                      }}</span>
                     }
                   </div>
                 </app-panel-row>
@@ -292,7 +294,9 @@ import { PageTitle } from '../shared/ui/page-title';
                     />
                   }
                   @if (lastCustomerSync(); as moment) {
-                    <span class="flex text-xs text-subtle">{{ moment }}</span>
+                    <span class="flex text-xs text-ink-subtle">{{
+                      moment
+                    }}</span>
                   }
                 </div>
               </app-panel-row>
@@ -427,7 +431,7 @@ import { PageTitle } from '../shared/ui/page-title';
            problem. Absent until it arrives — an empty footer line needs no
            placeholder. -->
       @if (buildInfo(); as info) {
-        <p class="mt-10 text-xs text-subtle" [title]="info.title">
+        <p class="mt-10 text-xs text-ink-subtle" [title]="info.title">
           {{ info.line }}
         </p>
       }
@@ -477,7 +481,7 @@ export class AdminPanelPage {
   /** One heading, one card frame, written once: seven sections spelling the
    * same two class lists is seven chances for one of them to drift. */
   protected readonly headingClass =
-    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase';
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly cardClass =

@@ -34,9 +34,11 @@ import { Button } from '../../shared/ui/button';
             >{{ pageText.previous }}</a
           >
         } @else {
-          <span class="px-3 py-1.5 text-disabled">{{ pageText.previous }}</span>
+          <span class="px-3 py-1.5 text-ink-disabled">{{
+            pageText.previous
+          }}</span>
         }
-        <span class="text-subtle">{{ status() }}</span>
+        <span class="text-ink-subtle">{{ status() }}</span>
         @if (pagination().page < pagination().totalPages) {
           <a
             routerLink="."
@@ -48,7 +50,7 @@ import { Button } from '../../shared/ui/button';
             >{{ pageText.next }}</a
           >
         } @else {
-          <span class="px-3 py-1.5 text-disabled">{{ pageText.next }}</span>
+          <span class="px-3 py-1.5 text-ink-disabled">{{ pageText.next }}</span>
         }
       </nav>
     }

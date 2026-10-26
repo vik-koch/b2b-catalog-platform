@@ -125,7 +125,7 @@ function knownValues<T extends string>(
     </app-admin-list-header>
 
     @if (products.error()) {
-      <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="products"
@@ -147,7 +147,7 @@ function knownValues<T extends string>(
              product that was deleted (FR-ADM-22); the archive keeps the
              search and every other filter, and changes only the state. -->
         @if (data.deletedMatches; as count) {
-          <p gridEmpty class="mt-2 text-subtle">
+          <p gridEmpty class="mt-2 text-ink-subtle">
             {{ deletedMatchesLabel(count) }}
             <a
               appLink
@@ -184,7 +184,7 @@ function knownValues<T extends string>(
                 class="align-middle font-medium text-ink hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
               >&ngsp;<span
-                class="inline-block max-w-full truncate rounded-sm bg-surface-strong px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
+                class="inline-block max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
                 [title]="item.sourceId"
                 >{{ item.sourceId }}</span
               >
@@ -202,7 +202,7 @@ function knownValues<T extends string>(
                 <a
                   [routerLink]="['/catalog', category.slug]"
                   [queryParams]="editorFrom()"
-                  class="line-clamp-2 wrap-break-word text-subtle hover:text-accent"
+                  class="line-clamp-2 wrap-break-word text-ink-subtle hover:text-accent"
                   >{{ category.name }}</a
                 >
               }
@@ -227,7 +227,7 @@ function knownValues<T extends string>(
                  taken on trust as one of them. Non-breaking, so the two never
                  land on separate lines in the card. -->
             @if (item.stockPieces === null) {
-              <span class="text-subtle">{{ text.stockUntracked }}</span>
+              <span class="text-ink-subtle">{{ text.stockUntracked }}</span>
             } @else {
               <span
                 appStatusBadge
@@ -244,7 +244,7 @@ function knownValues<T extends string>(
               {{ stateLabel(item) }}
             </span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="item.updatedAt" />
           </td>
           <td data-keep>
@@ -299,7 +299,7 @@ function knownValues<T extends string>(
               >{{ stateLabel(item) }}</span
             >
             <span
-              class="max-w-full truncate rounded-sm bg-surface-strong px-1.5 py-0.5 font-mono text-xs"
+              class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5 font-mono text-xs"
               [class.opacity-50]="isDeleted(item)"
               >{{ item.sourceId }}</span
             >

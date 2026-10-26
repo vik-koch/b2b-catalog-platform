@@ -116,7 +116,7 @@ type EditTarget = { id: string } | { id: null } | null;
       }
 
       @if (definitions.error()) {
-        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (definitions.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone. -->
@@ -161,9 +161,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </span>
                     <!-- The URL key beside the name it belongs to: the two are
                          read as a pair, not as two ends of the row. -->
-                    <code
-                      class="rounded-sm bg-surface-strong px-1.5 py-0.5 text-xs"
-                    >
+                    <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
                       {{ definition.slug }}
                     </code>
                     <!-- The two counts are the two ways out of this row: the
@@ -264,7 +262,7 @@ type EditTarget = { id: string } | { id: null } | null;
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (definitions.value().length === 0) {
-            <p class="py-3 text-sm text-subtle">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

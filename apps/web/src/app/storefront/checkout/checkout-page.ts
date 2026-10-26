@@ -129,7 +129,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
       </app-empty-state>
 
       @if (guest()) {
-        <p class="mt-8 max-w-xl text-sm text-subtle">
+        <p class="mt-8 max-w-xl text-sm text-ink-subtle">
           {{ invite.text }}
           <a appLink routerLink="/register">
             {{ invite.action }}
@@ -189,11 +189,11 @@ import { PageIntro } from '../../shared/ui/page-intro';
               <!-- Marked with the glyph the account control wears, so it reads
                    as being about an account before it is read at all. -->
               <p
-                class="mb-8 flex max-w-xl items-start gap-2 text-sm text-subtle"
+                class="mb-8 flex max-w-xl items-start gap-2 text-sm text-ink-subtle"
               >
                 <app-icon
                   name="circle-user-round"
-                  class="mt-0.5 size-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.signInPrompt }}
@@ -459,18 +459,18 @@ import { PageIntro } from '../../shared/ui/page-intro';
                  here is the difference between a form somebody fills in for
                  nothing and one they never start. -->
             @if (staff()) {
-              <p class="mt-3 flex items-start gap-2 text-sm text-subtle">
+              <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <app-icon
                   name="lock"
-                  class="mt-0.5 size-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>{{ text.errors.staffAccount }}</span>
               </p>
             } @else if (accountPhoneMissing()) {
-              <p class="mt-3 flex items-start gap-2 text-sm text-subtle">
+              <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <app-icon
                   name="phone"
-                  class="mt-0.5 size-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.phoneMissing }}

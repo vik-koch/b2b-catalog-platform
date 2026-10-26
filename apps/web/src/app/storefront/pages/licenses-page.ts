@@ -51,7 +51,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
 
       @if (notices(); as list) {
         @if (list.length === 0) {
-          <p class="text-subtle">{{ text.unavailable }}</p>
+          <p class="text-ink-subtle">{{ text.unavailable }}</p>
         } @else {
           <ul class="divide-y divide-edge border-t border-edge">
             @for (notice of list; track notice.name) {
@@ -61,12 +61,12 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     class="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-1 outline-offset-2 hover:text-accent"
                   >
                     <span class="font-medium">{{ notice.name }}</span>
-                    <span class="text-sm text-subtle">{{
+                    <span class="text-sm text-ink-subtle">{{
                       notice.license ?? text.unknownLicense
                     }}</span>
                   </summary>
                   <pre
-                    class="mt-3 overflow-x-auto rounded-sm bg-surface-strong p-4 text-xs whitespace-pre-wrap text-subtle"
+                    class="mt-3 overflow-x-auto rounded-sm bg-surface p-4 text-xs whitespace-pre-wrap text-ink-subtle"
                     >{{ notice.text }}</pre>
                 </details>
               </li>

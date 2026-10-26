@@ -71,7 +71,7 @@ export class SearchOverlay {
   private readonly leaving = this.exit.leaving;
 
   private readonly row =
-    'fixed inset-x-0 top-0 z-60 flex h-15 items-center gap-2 border-b border-edge bg-surface/85 backdrop-blur px-4 motion-reduce:animate-none';
+    'fixed inset-x-0 top-0 z-60 flex h-15 items-center gap-2 border-b border-edge bg-surface-subtle/85 backdrop-blur px-4 motion-reduce:animate-none';
   private readonly scrim =
     'fixed inset-0 z-50 cursor-default bg-black/40 backdrop-blur-[2px] motion-reduce:animate-none';
 

@@ -60,7 +60,7 @@ let nextId = 0;
               <!-- Name and lines on one axis, the way a collection point reads:
                    what it is called, then in a quieter voice where it is. -->
               <span branchLabel>{{ name(address) }}</span>
-              <span branchLabel class="text-sm text-subtle">
+              <span branchLabel class="text-sm text-ink-subtle">
                 {{ lines(address) }}
               </span>
             </app-choice-branch>

@@ -49,12 +49,12 @@ import { PageIntro } from '../../shared/ui/page-intro';
     @if (filter(); as state) {
       <div class="mb-6 flex flex-wrap items-center gap-2">
         <span
-          class="flex items-center gap-1.5 rounded-full bg-surface-strong py-1 pr-1.5 pl-3 text-sm"
+          class="flex items-center gap-1.5 rounded-full bg-surface py-1 pr-1.5 pl-3 text-sm"
         >
           <span>{{ filterLabel() }}</span>
           <a
             routerLink="/account/orders"
-            class="flex items-center justify-center rounded-full p-0.5 text-subtle hover:text-danger"
+            class="flex items-center justify-center rounded-full p-0.5 text-ink-subtle hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
             <app-icon name="close" class="size-3.5" />
@@ -101,11 +101,13 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 >{{ pagination.previous }}</a
               >
             } @else {
-              <span class="px-3 py-1.5 text-disabled">{{
+              <span class="px-3 py-1.5 text-ink-disabled">{{
                 pagination.previous
               }}</span>
             }
-            <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
+            <span class="text-ink-subtle">{{
+              pageStatus(data.pagination)
+            }}</span>
             @if (data.pagination.page < data.pagination.totalPages) {
               <a
                 routerLink="/account/orders"
@@ -116,7 +118,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 >{{ pagination.next }}</a
               >
             } @else {
-              <span class="px-3 py-1.5 text-disabled">{{
+              <span class="px-3 py-1.5 text-ink-disabled">{{
                 pagination.next
               }}</span>
             }

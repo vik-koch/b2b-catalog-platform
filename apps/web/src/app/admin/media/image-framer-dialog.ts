@@ -56,7 +56,7 @@ const ZOOM_KEY_FACTOR = 1.1;
       <h2 id="image-framer-heading" class="text-xl font-normal tracking-tight">
         {{ text.heading }}
       </h2>
-      <p class="mt-3 text-sm text-subtle">{{ text.hint }}</p>
+      <p class="mt-3 text-sm text-ink-subtle">{{ text.hint }}</p>
 
       <!-- Capped by the screen's height too, so the controls under it stay in
            view on a phone held sideways. -->
@@ -88,7 +88,7 @@ const ZOOM_KEY_FACTOR = 1.1;
       <label class="mt-4 block">
         <span class="mb-1 flex justify-between text-sm font-medium">
           <span>{{ text.zoom }}</span>
-          <span class="text-subtle">{{ zoomPercent() }}%</span>
+          <span class="text-ink-subtle">{{ zoomPercent() }}%</span>
         </span>
         <input
           type="range"

@@ -77,7 +77,7 @@ export interface CompanyFieldsText {
           <p appErrorText>{{ message }}</p>
         } @empty {
           @if (hint()) {
-            <p class="text-sm text-subtle">{{ hint() }}</p>
+            <p class="text-sm text-ink-subtle">{{ hint() }}</p>
           }
         }
       </div>

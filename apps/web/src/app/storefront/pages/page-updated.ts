@@ -11,7 +11,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
  */
 @Component({
   selector: 'app-page-updated',
-  host: { class: 'block text-sm text-subtle empty:hidden' },
+  host: { class: 'block text-sm text-ink-subtle empty:hidden' },
   template: `
     @if (label(); as label) {
       {{ label }}

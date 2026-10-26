@@ -52,12 +52,12 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
       <h1 appPageTitle class="mb-2">{{ heading }}</h1>
 
       @if (status() === 'success') {
-        <p class="text-subtle">{{ text.success }}</p>
+        <p class="text-ink-subtle">{{ text.success }}</p>
         <a appButton variant="secondary" routerLink="/" class="mt-8">
           {{ errors.notFoundBack }}
         </a>
       } @else {
-        <p class="mb-4 text-subtle">{{ text.intro }}</p>
+        <p class="mb-4 text-ink-subtle">{{ text.intro }}</p>
 
         <form
           [formGroup]="form"

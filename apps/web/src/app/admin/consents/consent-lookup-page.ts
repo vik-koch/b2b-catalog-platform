@@ -100,7 +100,7 @@ type SearchBy = 'email' | 'phone';
 
       <div class="mt-8">
         @if (results.error()) {
-          <p class="text-subtle" role="alert">{{ text.loadError }}</p>
+          <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
         } @else if (results.hasValue() && query(); as asked) {
           @if (withdrawError(); as message) {
             <p appErrorText class="mb-4" role="alert">{{ message }}</p>
@@ -112,7 +112,7 @@ type SearchBy = 'email' | 'phone';
               (withdraw)="withdraw($event)"
             />
           } @else {
-            <p class="text-subtle">{{ emptyLine(asked) }}</p>
+            <p class="text-ink-subtle">{{ emptyLine(asked) }}</p>
           }
         } @else if (showSkeleton()) {
           <app-skeleton [lines]="4" />

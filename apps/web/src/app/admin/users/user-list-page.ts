@@ -141,7 +141,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     }
 
     @if (users.error()) {
-      <p class="text-subtle" role="alert">{{ text.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
       <app-admin-grid
         [gridId]="gridId()"
@@ -172,26 +172,26 @@ const typeRank = (t: StaffUser['customerType']): number =>
             >
               {{ name(user) }}
             </a>
-            <span class="block truncate text-xs text-subtle">
+            <span class="block truncate text-xs text-ink-subtle">
               {{ user.email }}
             </span>
           </td>
-          <td class="truncate text-subtle" [title]="phone(user)">
+          <td class="truncate text-ink-subtle" [title]="phone(user)">
             {{ phone(user) || dash }}
           </td>
           @if (isCustomers()) {
             <td
-              class="truncate font-mono text-xs text-subtle"
+              class="truncate font-mono text-xs text-ink-subtle"
               [title]="user.companyRegistrationId"
             >
               {{ user.companyRegistrationId || dash }}
             </td>
           }
           @if (isStaff()) {
-            <td class="text-subtle">{{ roleLabel(user.role) }}</td>
+            <td class="text-ink-subtle">{{ roleLabel(user.role) }}</td>
           }
           @if (isCustomers()) {
-            <td class="truncate text-subtle">
+            <td class="truncate text-ink-subtle">
               {{ tierName(user.tierId) }}
             </td>
           }
@@ -200,7 +200,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
               statusLabel(user.status)
             }}</span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="user.createdAt" />
           </td>
           <td data-keep>
@@ -237,9 +237,13 @@ const typeRank = (t: StaffUser['customerType']): number =>
               >{{ statusLabel(user.status) }}</span
             >
             <div recordBody [class.opacity-50]="isClosed(user)">
-              <p class="mt-1 truncate text-sm text-subtle">{{ user.email }}</p>
+              <p class="mt-1 truncate text-sm text-ink-subtle">
+                {{ user.email }}
+              </p>
               @if (phone(user)) {
-                <p class="truncate text-sm text-subtle">{{ phone(user) }}</p>
+                <p class="truncate text-sm text-ink-subtle">
+                  {{ phone(user) }}
+                </p>
               }
             </div>
             <span

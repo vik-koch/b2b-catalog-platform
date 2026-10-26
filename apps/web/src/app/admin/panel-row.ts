@@ -68,7 +68,7 @@ export function panelRowFloor(height: number): number {
          one of them. -->
     <div
       #row
-      class="group/row relative flex items-center justify-between gap-4 px-5 py-1.75 transition-[min-height,background-color] duration-200 ease-out hover:bg-surface-hover"
+      class="group/row relative flex items-center justify-between gap-4 px-5 py-1.75 transition-[min-height,background-color] duration-200 ease-out hover:bg-surface-subtle-hover"
       [style.min-height.px]="floor()"
     >
       <a

@@ -175,13 +175,13 @@
    * lint refuses Tailwind's palette (eslint.config.mjs), and a deployment's
    * `branding.theme` overrides them on <html> (`App`).
    *
-   * A name is family · role · intensity · state: `danger-surface-strong`,
-   * `surface-strong-hover`. Roles: a ground (`surface`, `chip`), text
-   * (`ink` › `subtle`, `disabled`), a line (`edge`), a marker
-   * (`dot`). Intensity: `-subtle` < base < `-strong` < `-stronger`, further
-   * from the page each step. State: `-hover`, `-press`, named for what they
-   * happen on. Text holds 4.5:1 on every ground it meets, a control's glyph
-   * or a lone marker 3:1; `disabled` and lines are exempt. The reasoning,
+   * A name is family · role · intensity · state: `danger-surface`,
+   * `surface-hover`, `ink-subtle`. Roles: a ground (`surface`, `chip`), text
+   * (`ink`), a line (`edge`), a marker (`dot`). Intensity: `-subtle` < base
+   * < `-strong` < `-stronger`, further from the page each step. State:
+   * `-hover`, `-press`, named for what they happen on, and `-disabled`.
+   * Text holds 4.5:1 on every ground it meets, a control's glyph or a lone
+   * marker 3:1; `ink-disabled` and lines are exempt. The reasoning,
    * the measured pairs and the exceptions: docs/design-language.md.
    */
 
@@ -214,18 +214,19 @@
   --color-accent-strong: color-mix(in oklab, var(--color-accent), black 15%);
 
   /*
-   * Text. `ink` is the default (stone-900); `subtle` is everything quieter:
+   * Text. `ink` is the default (stone-900); `ink-subtle` is everything quieter:
    * secondary copy, meta text (eyebrows, table headers, counts, timestamps)
    * and every glyph that steps back without leaving (an icon at rest, a
    * chevron, an option that is not available). Size, not a second shade,
-   * tells a description from a timestamp. `subtle` is a quarter step from
+   * tells a description from a timestamp. `ink-subtle` is a quarter step from
    * stone-500 toward stone-600: stone-500 itself is 4.4:1 on the stone-100 of
-   * the footer and the header's top bar, this is 4.9:1 there. `disabled` is
-   * the text of a control that cannot be used, the one text role below 4.5:1.
+   * the footer and the header's top bar, this is 4.9:1 there.
+   * `ink-disabled` is the text of a control that cannot be used, the one
+   * text role below 4.5:1.
    */
   --color-ink: #1c1917;
-  --color-subtle: #706a65;
-  --color-disabled: var(--color-stone-400);
+  --color-ink-subtle: #706a65;
+  --color-ink-disabled: var(--color-stone-400);
 
   /*
    * Lines. `edge` is structural — card edges, dividers, table rules;
@@ -245,22 +246,24 @@
    */
   --color-stone-125: #f2f1f0;
   /*
-   * Grounds, and the states on them. `surface` is the page (stone-50);
-   * `surface-strong` a recessed ground (footer, notes, pills, a segmented
-   * track), `surface-stronger` one step further (a switch that is off),
-   * `chip` a small fill that has to show on the page (the category chip,
-   * the neutral badge), `skeleton` a block standing in for content still
-   * loading. A hover or a press is named for the ground
-   * it happens on, one and two steps down from it. All but `surface` are drawn
-   * from the stone ramp, so a deployment's `neutrals` replace them.
+   * Grounds, and the states on them. `surface` is a recessed ground (footer,
+   * notes, pills, a segmented track), one step from the page as a status
+   * colour's `-surface` is; `surface-subtle` is the page itself (stone-50)
+   * and the level of the white things on it; `surface-strong` one step
+   * further (a switch that is off). `chip` is a small fill that has to show
+   * on the page (the category chip, the neutral badge), `skeleton` a block
+   * standing in for content still loading. A hover or a press is named for
+   * the ground it happens on, one and two steps down from it. All but
+   * `surface-subtle` are drawn from the stone ramp, so a deployment's
+   * `neutrals` replace them.
    */
-  --color-surface: #fafaf9;
-  --color-surface-hover: var(--color-stone-100);
-  --color-surface-press: var(--color-stone-200);
-  --color-surface-strong: var(--color-stone-100);
-  --color-surface-strong-hover: var(--color-stone-200);
-  --color-surface-strong-press: var(--color-stone-300);
-  --color-surface-stronger: var(--color-stone-200);
+  --color-surface-subtle: #fafaf9;
+  --color-surface-subtle-hover: var(--color-stone-100);
+  --color-surface-subtle-press: var(--color-stone-200);
+  --color-surface: var(--color-stone-100);
+  --color-surface-hover: var(--color-stone-200);
+  --color-surface-press: var(--color-stone-300);
+  --color-surface-strong: var(--color-stone-200);
   --color-chip: var(--color-stone-125);
   --color-chip-hover: var(--color-stone-200);
   --color-skeleton: var(--color-stone-200);
@@ -662,7 +665,7 @@ body:has(dialog[open]) {
   --tw-prose-bold: var(--color-ink);
   --tw-prose-quotes: var(--color-ink);
   --tw-prose-links: var(--color-primary);
-  --tw-prose-counters: var(--color-subtle);
+  --tw-prose-counters: var(--color-ink-subtle);
   --tw-prose-bullets: var(--color-edge-strong);
   --tw-prose-hr: var(--color-edge);
   --tw-prose-quote-borders: var(--color-edge);

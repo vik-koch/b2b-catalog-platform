@@ -70,7 +70,7 @@ let nextId = 0;
         <div>
           <label [for]="id('label')" appFieldLabel>
             {{ text.label }}
-            <span class="font-normal text-subtle">({{ optional }})</span>
+            <span class="font-normal text-ink-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('label')"
@@ -107,14 +107,14 @@ let nextId = 0;
                of the address, and the customer is the only one who can say it
                is wrong. -->
           @if (collapsed() && filled()) {
-            <p class="mt-1 text-sm text-subtle">{{ filled() }}</p>
+            <p class="mt-1 text-sm text-ink-subtle">{{ filled() }}</p>
           }
         </div>
 
         <div>
           <label [for]="id('street2')" appFieldLabel>
             {{ text.street2 }}
-            <span class="font-normal text-subtle">({{ optional }})</span>
+            <span class="font-normal text-ink-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('street2')"
@@ -213,7 +213,7 @@ let nextId = 0;
         <div>
           <label [for]="id('region')" appFieldLabel>
             {{ text.region }}
-            <span class="font-normal text-subtle">({{ optional }})</span>
+            <span class="font-normal text-ink-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('region')"

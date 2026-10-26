@@ -54,7 +54,7 @@ describe('StatusBadge', () => {
     // whatever the state, which is the whole difference from the filled pill.
     expect(badge.classList.contains('bg-white')).toBe(true);
     expect(badge.classList.contains('border-edge')).toBe(true);
-    expect(badge.classList.contains('text-subtle')).toBe(true);
+    expect(badge.classList.contains('text-ink-subtle')).toBe(true);
     expect(badge.className).not.toContain('green-100');
     expect(badge.classList.contains('rounded-full')).toBe(false);
   });

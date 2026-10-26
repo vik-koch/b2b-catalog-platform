@@ -76,7 +76,7 @@ import { PageTitle } from '../../shared/ui/page-title';
                 {{ statusLabel() }}
               </span>
             </div>
-            <p class="mt-2 text-subtle">{{ placed() }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed() }}</p>
 
             <!-- The same block staff read on the order itself, and
                  deliberately the same: what only staff see, in the shape they
@@ -87,30 +87,32 @@ import { PageTitle } from '../../shared/ui/page-title';
               <dl
                 class="grid gap-x-6 gap-y-3 wrap-break-word sm:grid-cols-[7rem_1fr]"
               >
-                <dt class="text-subtle">{{ ordersText.account }}</dt>
+                <dt class="text-ink-subtle">{{ ordersText.account }}</dt>
                 <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
-                <dt class="text-subtle">{{ ordersText.tier }}</dt>
+                <dt class="text-ink-subtle">{{ ordersText.tier }}</dt>
                 <dd>{{ order.tierKey ?? ordersText.tierDefault }}</dd>
 
-                <dt class="text-subtle">
+                <dt class="text-ink-subtle">
                   {{ names.payment }}
                 </dt>
                 <dd>{{ paymentLabel() }}</dd>
 
-                <dt class="text-subtle">{{ names.status }}</dt>
+                <dt class="text-ink-subtle">{{ names.status }}</dt>
                 <dd class="min-w-0">
                   <span appStatusBadge [tone]="statusTone()">
                     {{ statusLabel() }}
                   </span>
                   @if (order.statusReason; as reason) {
                     <p class="mt-1">
-                      <span class="text-subtle"> {{ names.reason }}: </span>
+                      <span class="text-ink-subtle"> {{ names.reason }}: </span>
                       {{ reason }}
                     </p>
                   }
                   @if (order.changes.length) {
                     <div class="mt-1 ">
-                      <span class="text-subtle">{{ names.changeNote }}:</span>
+                      <span class="text-ink-subtle"
+                        >{{ names.changeNote }}:</span
+                      >
                       @for (change of order.changes; track $index) {
                         <span class="block">{{ change }}</span>
                       }
@@ -122,22 +124,22 @@ import { PageTitle } from '../../shared/ui/page-title';
                      is the one they are on, and whether they were written to.
                      Above the version row, as it is on the order itself — the
                      two blocks list the same facts in the same order. -->
-                <dt class="text-subtle">
+                <dt class="text-ink-subtle">
                   {{ detailText.tellCustomer.heading }}
                 </dt>
                 <dd>
                   {{ order.customerView ? text.customerView : customerSees() }}
                   @if (notified(); as notified) {
-                    <p class="mt-1 text-subtle">{{ notified }}</p>
+                    <p class="mt-1 text-ink-subtle">{{ notified }}</p>
                   }
                 </dd>
 
                 <!-- Which version this is, and what it was written for — the
                      two questions only this page is asked. -->
-                <dt class="text-subtle">{{ text.heading }}</dt>
+                <dt class="text-ink-subtle">{{ text.heading }}</dt>
                 <dd>
                   {{ written() }}
-                  <p class="mt-1 text-subtle">{{ kindLabel() }}</p>
+                  <p class="mt-1 text-ink-subtle">{{ kindLabel() }}</p>
                 </dd>
               </dl>
             </section>
@@ -203,7 +205,7 @@ import { PageTitle } from '../../shared/ui/page-title';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-subtle">{{ ordersText.notFound }}</p>
+      <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>

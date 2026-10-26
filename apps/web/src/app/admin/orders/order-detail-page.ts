@@ -135,7 +135,7 @@ const MARK_PAID = 'markPaid';
                 {{ order.reference }}
               </h1>
             </div>
-            <p class="mt-2 text-subtle">{{ placed(order) }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed(order) }}</p>
 
             <!-- Above the block whose controls it explains: every one of them
                  is gone while the order is answered elsewhere, and a card that
@@ -248,7 +248,7 @@ const MARK_PAID = 'markPaid';
                       <span appStatusBadge [tone]="statusTone(order)">
                         {{ statusLabel(order) }}
                       </span>
-                      <span class="text-subtle">{{
+                      <span class="text-ink-subtle">{{
                         statusChanged(order)
                       }}</span>
                     </div>
@@ -257,7 +257,7 @@ const MARK_PAID = 'markPaid';
                          own. -->
                     @if (order.statusReason; as reason) {
                       <p class="mt-1">
-                        <span class="text-subtle">{{ names.reason }}:</span>
+                        <span class="text-ink-subtle">{{ names.reason }}:</span>
                         {{ reason }}
                       </p>
                     }
@@ -267,7 +267,9 @@ const MARK_PAID = 'markPaid';
                          current one, where a manager is already looking. -->
                     @if (order.changes.length) {
                       <div class="mt-1 ">
-                        <span class="text-subtle">{{ names.changeNote }}:</span>
+                        <span class="text-ink-subtle"
+                          >{{ names.changeNote }}:</span
+                        >
                         @for (change of order.changes; track $index) {
                           <span class="block">{{ change }}</span>
                         }
@@ -348,7 +350,7 @@ const MARK_PAID = 'markPaid';
                       [routerLink]="['/admin/orders', order.reference, 'revisions', part.version]"
                       [title]="revisionText.openRevision"
                     >{{ part.text }}</a>} @else {{{ part.text }}}}</p>
-                    <p class="text-subtle">{{ emailed() }}</p>
+                    <p class="text-ink-subtle">{{ emailed() }}</p>
                   </div>
                   @if (customerAction(); as action) {
                     <div [class]="actions">
@@ -449,11 +451,11 @@ const MARK_PAID = 'markPaid';
                                     <span appStatusBadge [tone]="entry.tone">
                                       {{ entry.status }}
                                     </span>
-                                    <span class="text-subtle">
+                                    <span class="text-ink-subtle">
                                       {{ entry.kindLabel }}
                                     </span>
                                   </div>
-                                  <p class="mt-1 text-subtle">
+                                  <p class="mt-1 text-ink-subtle">
                                     {{ entry.writtenBy }}
                                   </p>
 
@@ -489,7 +491,7 @@ const MARK_PAID = 'markPaid';
 
                                   @if (entry.note) {
                                     <p class="mt-1">
-                                      <span class="text-subtle">
+                                      <span class="text-ink-subtle">
                                         {{ names.changeNote }}:
                                       </span>
                                       {{ entry.note }}
@@ -525,7 +527,7 @@ const MARK_PAID = 'markPaid';
                             </ol>
                           } @else if (revisions.error()) {
                             <p
-                              class="border-t border-edge p-4 text-subtle"
+                              class="border-t border-edge p-4 text-ink-subtle"
                               role="alert"
                             >
                               {{ revisionText.loadError }}
@@ -582,12 +584,12 @@ const MARK_PAID = 'markPaid';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-subtle">{{ ordersText.notFound }}</p>
+      <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (order.error()) {
-      <p class="text-subtle" role="alert">{{ ordersText.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
@@ -635,7 +637,7 @@ export class AdminOrderDetailPage {
    * splitting them.
    */
   protected readonly term =
-    'text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0';
+    'text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0';
   protected readonly value = 'min-w-0 even:mb-3 last:mb-0';
   /**
    * A fact and the control that changes it: the control under the fact it

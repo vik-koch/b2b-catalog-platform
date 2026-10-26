@@ -32,11 +32,13 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
                     {{ versionLabel(entry.version) }}
                   </span>
                   @if (first) {
-                    <span class="text-subtle">{{ text.current }}</span>
+                    <span class="text-ink-subtle">{{ text.current }}</span>
                   }
-                  <span class="text-subtle">{{ moment(entry.updatedAt) }}</span>
+                  <span class="text-ink-subtle">{{
+                    moment(entry.updatedAt)
+                  }}</span>
                   @if (entry.editorEmail) {
-                    <span class="min-w-0 break-all text-subtle">
+                    <span class="min-w-0 break-all text-ink-subtle">
                       {{ entry.editorEmail }}
                     </span>
                   }
@@ -45,7 +47,9 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
                   <h3 class="mb-3 text-xl font-medium">{{ entry.title }}</h3>
                   @if (entry.consentLabel) {
                     <p class="mb-4 text-sm">
-                      <span class="text-subtle">{{ text.consentLabel }}</span>
+                      <span class="text-ink-subtle">{{
+                        text.consentLabel
+                      }}</span>
                       {{ entry.consentLabel }}
                     </p>
                   }

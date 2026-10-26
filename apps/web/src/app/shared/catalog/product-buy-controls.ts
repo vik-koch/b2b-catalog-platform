@@ -194,7 +194,7 @@ export interface BuyableProduct {
         </div>
       </div>
       @if (priceNote(); as note) {
-        <p class="text-xs text-subtle">{{ note }}</p>
+        <p class="text-xs text-ink-subtle">{{ note }}</p>
       }
     </ng-template>
 
@@ -662,8 +662,8 @@ export class ProductBuyControls {
   );
   protected readonly priceUnitClass = computed(() =>
     this.compact()
-      ? 'text-xs font-normal text-subtle'
-      : 'text-base font-normal text-subtle',
+      ? 'text-xs font-normal text-ink-subtle'
+      : 'text-base font-normal text-ink-subtle',
   );
 
   /** In a row the spacing belongs to the cells, which have to space
@@ -765,7 +765,7 @@ export class ProductBuyControls {
    */
   protected readonly stepperButton = computed(
     () =>
-      `flex shrink-0 cursor-pointer items-center justify-center border border-edge-strong text-ink transition-colors select-none hover:bg-surface-hover hover:text-accent active:bg-surface-press active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-disabled disabled:hover:bg-transparent disabled:hover:text-disabled ${
+      `flex shrink-0 cursor-pointer items-center justify-center border border-edge-strong text-ink transition-colors select-none hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-ink-disabled disabled:hover:bg-transparent disabled:hover:text-ink-disabled ${
         this.compact() ? 'w-9' : 'w-10'
       }`,
   );

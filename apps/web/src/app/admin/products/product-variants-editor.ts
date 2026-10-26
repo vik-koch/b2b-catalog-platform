@@ -88,12 +88,12 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
-          <p class="text-xs text-subtle">{{ text.hint }}</p>
+          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
             <div class="@container/variants mt-3">
@@ -101,7 +101,7 @@ let nextId = 0;
                    On a phone the controls wrap under the name and say what
                    they are themselves. -->
               <div
-                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight text-subtle @min-[30rem]/variants:flex"
+                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight text-ink-subtle @min-[30rem]/variants:flex"
                 aria-hidden="true"
               >
                 <span class="flex-1"></span>
@@ -129,7 +129,7 @@ let nextId = 0;
                   >
                     <span
                       cdkDragHandle
-                      class="inline-flex cursor-grab text-subtle active:cursor-grabbing"
+                      class="inline-flex cursor-grab text-ink-subtle active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
                       <app-admin-icon name="grip-vertical" class="size-4" />
@@ -147,7 +147,7 @@ let nextId = 0;
                       (input)="rename(variant.id, $any($event.target).value)"
                     />
                     <span
-                      class="ml-6 inline-flex shrink-0 items-center gap-1 text-xs text-subtle @min-[30rem]/variants:ml-0 @min-[30rem]/variants:w-10 @min-[30rem]/variants:justify-end"
+                      class="ml-6 inline-flex shrink-0 items-center gap-1 text-xs text-ink-subtle @min-[30rem]/variants:ml-0 @min-[30rem]/variants:w-10 @min-[30rem]/variants:justify-end"
                       [title]="picturesLabel(variant.id)"
                       [attr.aria-label]="picturesLabel(variant.id)"
                     >
@@ -194,7 +194,7 @@ let nextId = 0;
           }
 
           @if (value().length >= max) {
-            <p class="mt-3 text-xs text-subtle">{{ limitLabel() }}</p>
+            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
               <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
@@ -247,7 +247,7 @@ export class ProductVariantsEditor implements OnInit {
 
   protected readonly max = PRODUCT_VARIANTS_MAX;
   protected readonly nameMax = PRODUCT_VARIANT_NAME_MAX_LENGTH;
-  protected readonly previewClass = ['bg-surface', 'shadow-md'];
+  protected readonly previewClass = ['bg-surface-subtle', 'shadow-md'];
   protected readonly open = signal(false);
   protected readonly draft = signal('');
   /** Set by a refused add and cleared by the next keystroke, as the parts

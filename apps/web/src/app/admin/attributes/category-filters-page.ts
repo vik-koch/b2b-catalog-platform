@@ -108,25 +108,25 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     </div>
 
     @if (slug() ? text.page.intro : text.catalogIntro; as intro) {
-      <p class="mb-2 max-w-3xl text-sm text-subtle">{{ intro }}</p>
+      <p class="mb-2 max-w-3xl text-sm text-ink-subtle">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">
       @if (filters.error()) {
-        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (filters.hasValue()) {
         @if (loaded(); as panel) {
           <!-- Where the list comes from is the first thing to read: an
                inherited panel looks identical to an owned one until it is
                saved, and only this line tells them apart. -->
           @if (sourceLabel(panel); as source) {
-            <p class="mb-6 text-sm text-subtle">{{ source }}</p>
+            <p class="mb-6 text-sm text-ink-subtle">{{ source }}</p>
           } @else {
             <div class="mb-6"></div>
           }
 
           @if (draft().length === 0) {
-            <p class="text-sm text-subtle">{{ text.noDefinitions }}</p>
+            <p class="text-sm text-ink-subtle">{{ text.noDefinitions }}</p>
           } @else {
             <!-- Divided rules on the page, not a card: this is the same list
                  of records the rest of the panel draws. -->
@@ -251,7 +251,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
             }
           }
         } @else {
-          <p class="text-subtle" role="alert">
+          <p class="text-ink-subtle" role="alert">
             {{ notFound() }}
           </p>
         }

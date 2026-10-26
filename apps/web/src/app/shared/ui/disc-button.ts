@@ -32,6 +32,6 @@ export class DiscButton {
     () =>
       `inline-flex cursor-pointer items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-edge transition-colors select-none disabled:cursor-not-allowed ${
         sizes[this.size()]
-      } text-subtle hover:text-accent active:text-primary-press`,
+      } text-ink-subtle hover:text-accent active:text-primary-press`,
   );
 }

@@ -603,7 +603,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             <section class="mb-6">
               <h2 class="mb-2 font-medium">{{ text.customerHeading }}</h2>
               <p class="text-sm">{{ wished(loaded) }}</p>
-              <p class="text-sm text-subtle">
+              <p class="text-sm text-ink-subtle">
                 {{ loaded.customerNote ?? text.customerNone }}
               </p>
             </section>
@@ -702,12 +702,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-subtle">{{ ordersText.notFound }}</p>
+      <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (loadFailed()) {
-      <p class="text-subtle" role="alert">{{ ordersText.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>

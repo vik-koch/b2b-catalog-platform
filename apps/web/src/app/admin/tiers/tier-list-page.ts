@@ -105,7 +105,7 @@ type EditTarget = { id: string } | { id: null } | null;
       }
 
       @if (tiers.error()) {
-        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tiers.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone, and two lists in one panel
@@ -142,14 +142,12 @@ type EditTarget = { id: string } | { id: null } | null;
                     <!-- The sync key beside the label it belongs to, not across
                          the row: it is this tier's identifier, and read as a
                          pair with the name it identifies. -->
-                    <code
-                      class="rounded-sm bg-surface-strong px-1.5 py-0.5 text-xs"
-                    >
+                    <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
                       {{ tier.key }}
                     </code>
                     @if (tier.isDefault) {
                       <span
-                        class="rounded-sm bg-subtle px-1.5 py-0.5 text-xs text-white"
+                        class="rounded-sm bg-ink-subtle px-1.5 py-0.5 text-xs text-white"
                         [title]="text.defaultHint"
                       >
                         {{ text.defaultBadge }}
@@ -265,7 +263,7 @@ type EditTarget = { id: string } | { id: null } | null;
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (tiers.value().tiers.length === 0) {
-            <p class="py-3 text-sm text-subtle">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

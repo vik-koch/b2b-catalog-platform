@@ -187,7 +187,7 @@ const SCOPE_ROWS: readonly {
       }
 
       @if (tokens.error()) {
-        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tokens.hasValue()) {
         <div class="divide-y divide-edge border-y border-edge">
           @for (token of tokens.value(); track token.id) {
@@ -198,10 +198,12 @@ const SCOPE_ROWS: readonly {
               <app-record-row [stackMeta]="true">
                 <span
                   class="font-medium"
-                  [class]="token.revokedAt ? 'text-subtle line-through' : ''"
+                  [class]="
+                    token.revokedAt ? 'text-ink-subtle line-through' : ''
+                  "
                   >{{ token.name }}</span
                 >
-                <code class="font-mono text-sm text-subtle"
+                <code class="font-mono text-sm text-ink-subtle"
                   >{{ token.prefix }}…</code
                 >
                 <ng-container recordBadge>
@@ -295,10 +297,10 @@ const SCOPE_ROWS: readonly {
                       class="grid grid-cols-[auto_auto_auto] justify-start items-center gap-x-8 gap-y-1.5 text-sm"
                     >
                       <span aria-hidden="true"></span>
-                      <span class="justify-self-center text-xs text-subtle">
+                      <span class="justify-self-center text-xs text-ink-subtle">
                         {{ text.scopeKind.read }}
                       </span>
-                      <span class="justify-self-center text-xs text-subtle">
+                      <span class="justify-self-center text-xs text-ink-subtle">
                         {{ text.scopeKind.submit }}
                       </span>
                       @for (row of scopeRows; track row.area) {
@@ -327,7 +329,7 @@ const SCOPE_ROWS: readonly {
                     </p>
                   </div>
                 }
-                <p class="text-xs text-subtle sm:col-span-full">
+                <p class="text-xs text-ink-subtle sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
                 <div appRecordFormActions>
@@ -362,7 +364,7 @@ const SCOPE_ROWS: readonly {
               </form>
             </div>
           } @else if (tokens.value().length === 0) {
-            <p class="py-3 text-sm text-subtle">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

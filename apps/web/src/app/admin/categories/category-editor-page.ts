@@ -62,7 +62,7 @@ import { Hint } from '../../shared/ui/hint';
         <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !category()) {
-      <p class="text-subtle" role="alert">{{ text.saveError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
         <!-- Only two of this form's fields are locked, so the banner names the
@@ -153,7 +153,7 @@ import { Hint } from '../../shared/ui/hint';
 
         <div>
           <span appFieldLabel>{{ text.mark }}</span>
-          <p class="mb-2 text-xs text-subtle">{{ text.markHint }}</p>
+          <p class="mb-2 text-xs text-ink-subtle">{{ text.markHint }}</p>
           <!-- Cropped to a square on upload, so the square tile beside it is
                the stored picture rather than a framing of it. -->
           <app-image-picker

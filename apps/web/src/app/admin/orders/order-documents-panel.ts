@@ -89,14 +89,16 @@ interface DocumentRow {
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
             <app-admin-icon
               name="file-text"
-              class="size-4 shrink-0 text-subtle"
+              class="size-4 shrink-0 text-ink-subtle"
             />
             <!-- The name and what it is, together: when the controls wrap to
                  their own line the caption must not be left under them,
                  describing the buttons. -->
             <span class="min-w-36 flex-1">
               <span class="block truncate">{{ row.label }}</span>
-              <span class="block text-xs text-subtle">{{ row.detail }}</span>
+              <span class="block text-xs text-ink-subtle">{{
+                row.detail
+              }}</span>
             </span>
 
             <!-- Opening the file is a sibling of the name, not a member of
@@ -191,7 +193,7 @@ interface DocumentRow {
             <!-- Why there is no send button on this row. Said rather than left
                  to be worked out from an absence. -->
             @if (row.behind; as waiting) {
-              <p class="mt-1 text-xs text-subtle">{{ waiting }}</p>
+              <p class="mt-1 text-xs text-ink-subtle">{{ waiting }}</p>
             }
           </div>
         </li>

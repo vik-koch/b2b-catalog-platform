@@ -13,10 +13,9 @@
       "primaryPress": "#17497a",
       "secondary": "#4a86c5",
       "accent": "#0e7c86",
-      "surface": "#f8fafc",
+      "surfaceSubtle": "#f8fafc",
       "ink": "#0f172a",
-      "muted": "#475569",
-      "subtle": "#5d6c83",
+      "inkSubtle": "#5d6c83",
       "edge": "#e2e8f0",
       "edgeStrong": "#cbd5e1",
       "neutrals": {

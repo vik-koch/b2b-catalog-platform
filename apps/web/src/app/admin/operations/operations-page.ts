@@ -115,7 +115,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 (toggled)="flipMaintenance($event)"
               />
             </div>
-            <p class="mt-3 text-sm text-subtle">
+            <p class="mt-3 text-sm text-ink-subtle">
               {{ maintenanceText.description }}
             </p>
 
@@ -131,7 +131,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           <h2 class="mb-1 text-base font-medium">
             {{ text.ownershipHeading }}
           </h2>
-          <p class="mb-3 text-sm text-subtle">{{ ownershipText.intro }}</p>
+          <p class="mb-3 text-sm text-ink-subtle">{{ ownershipText.intro }}</p>
 
           <!-- One shop above, areas beneath it. The master is a read over the
                areas and an action across them, never a fourth stored flag: a
@@ -153,7 +153,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
               @if (mixed()) {
-                <p class="text-sm text-subtle">{{ mixedEffect() }}</p>
+                <p class="text-sm text-ink-subtle">{{ mixedEffect() }}</p>
               }
             </div>
           </div>
@@ -215,7 +215,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                             : ownershipText.statusOwn
                         }}
                       </span>
-                      <p class="text-sm text-subtle">
+                      <p class="text-sm text-ink-subtle">
                         {{
                           isOwned(area)
                             ? areaText(area).ownedEffect
@@ -257,7 +257,9 @@ import { PageIntro } from '../../shared/ui/page-intro';
                         class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-edge px-4 py-2.5 last:border-b-0"
                       >
                         <span class="text-sm">{{ entry.what }}</span>
-                        <span class="text-xs text-subtle">{{ entry.who }}</span>
+                        <span class="text-xs text-ink-subtle">{{
+                          entry.who
+                        }}</span>
                       </li>
                     }
                   </ul>
@@ -266,12 +268,12 @@ import { PageIntro } from '../../shared/ui/page-intro';
                        recency question, and a settings trail that needed pages
                        would be a shop with a much stranger problem. -->
                   @if (recordCount() >= pageSize) {
-                    <p class="px-4 py-2.5 text-xs text-subtle">
+                    <p class="px-4 py-2.5 text-xs text-ink-subtle">
                       {{ moreLabel }}
                     </p>
                   }
                 } @else {
-                  <p class="px-4 py-3 text-sm text-subtle">
+                  <p class="px-4 py-3 text-sm text-ink-subtle">
                     {{ text.historyEmpty }}
                   </p>
                 }

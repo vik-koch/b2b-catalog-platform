@@ -77,7 +77,7 @@ import { Hint } from '../../shared/ui/hint';
         <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !loaded()) {
-      <p class="text-subtle" role="alert">{{ text.notFound }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
         <label class="block">
@@ -119,11 +119,11 @@ import { Hint } from '../../shared/ui/hint';
               <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
                 <app-admin-icon
                   name="file-text"
-                  class="size-5 shrink-0 text-subtle"
+                  class="size-5 shrink-0 text-ink-subtle"
                 />
                 <span class="min-w-0">
                   <span class="block truncate text-sm">{{ stored.name }}</span>
-                  <span class="block text-xs text-subtle">{{
+                  <span class="block text-xs text-ink-subtle">{{
                     meta(stored)
                   }}</span>
                 </span>
@@ -251,7 +251,7 @@ import { Hint } from '../../shared/ui/hint';
             />
           </div>
         </div>
-        <p class="text-xs text-subtle">{{ text.datesHint }}</p>
+        <p class="text-xs text-ink-subtle">{{ text.datesHint }}</p>
 
         <!-- Where the links are made (FR-DOC-02). The product's own form only
              lists them, so this is the one screen that writes them. -->

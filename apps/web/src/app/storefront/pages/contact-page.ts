@@ -73,7 +73,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {
-        <p class="mb-4 text-subtle">{{ editorText.emptyNotice }}</p>
+        <p class="mb-4 text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
 
       <div class="space-y-10">
@@ -83,7 +83,7 @@ import { PageTitle } from '../../shared/ui/page-title';
               {{ location.name }}
             </h2>
             @if (location.description) {
-              <p class="mt-1 text-subtle">
+              <p class="mt-1 text-ink-subtle">
                 <app-emphasised [text]="location.description" />
               </p>
             }

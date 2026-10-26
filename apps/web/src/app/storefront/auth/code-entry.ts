@@ -59,13 +59,13 @@ function around(line: string, placeholder: string): [string, string] {
     <!-- Each masked value is one unit: a number broken across two lines no
          longer reads as a number. -->
     @let lead = around(fill(intro()), '{sentTo}');
-    <p class="text-subtle">
+    <p class="text-ink-subtle">
       {{ lead[0] }}<span class="whitespace-nowrap">{{ sent().sentTo }}</span
       >{{ lead[1] }}
     </p>
     @if (note(); as line) {
       @let tail = around(fill(line), '{phone}');
-      <p class="mt-1 text-subtle">
+      <p class="mt-1 text-ink-subtle">
         {{ tail[0] }}<span class="whitespace-nowrap">{{ sent().phone }}</span
         >{{ tail[1] }}
       </p>
@@ -91,7 +91,7 @@ function around(line: string, placeholder: string): [string, string] {
             />
             <span>{{ rememberLabel() }}</span>
           </label>
-          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-subtle">
+          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-ink-subtle">
             {{ text.rememberHint }}
           </p>
         </div>
@@ -122,7 +122,7 @@ function around(line: string, placeholder: string): [string, string] {
         [id]="inputId + '-message'"
         class="text-sm"
         [class.text-danger]="!notice()"
-        [class.text-subtle]="notice()"
+        [class.text-ink-subtle]="notice()"
         [attr.role]="notice() ? 'status' : 'alert'"
         [hidden]="!message()"
       >

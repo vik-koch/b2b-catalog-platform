@@ -130,7 +130,7 @@ let nextId = 0;
                is muted and takes no pointer events. -->
           <app-icon
             name="search"
-            class="pointer-events-none absolute left-2.5 size-4 text-subtle"
+            class="pointer-events-none absolute left-2.5 size-4 text-ink-subtle"
           />
           <input
             #input
@@ -151,7 +151,7 @@ let nextId = 0;
             (keydown)="keydown($event)"
             (focus)="mobileSearch.setFocused(true)"
             (blur)="blurred()"
-            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-ink placeholder:text-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-ink placeholder:text-ink-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           @if (value()) {
             <!-- flex on the button itself, not just on its row: the icon is an
@@ -159,7 +159,7 @@ let nextId = 0;
                  rather than on the field's centre line. -->
             <button
               type="button"
-              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-subtle transition-colors hover:text-accent active:text-primary-press"
+              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-ink-subtle transition-colors hover:text-accent active:text-primary-press"
               (click)="clear()"
             >
               <app-icon name="close" class="size-4" />
@@ -188,7 +188,7 @@ let nextId = 0;
             (mousedown)="$event.preventDefault()"
           >
             @if (noMatches()) {
-              <p class="p-3 text-sm text-subtle">
+              <p class="p-3 text-sm text-ink-subtle">
                 {{ text.noSuggestions }}
               </p>
             }
@@ -217,7 +217,7 @@ let nextId = 0;
                   <div class="flex h-7 items-center justify-between gap-2 px-3">
                     <span
                       [id]="listId + '-categories'"
-                      class="text-xs font-medium text-subtle"
+                      class="text-xs font-medium text-ink-subtle"
                       >{{ text.categoriesLabel }}</span
                     >
                     @if (stripBack() || stripForward()) {
@@ -297,7 +297,9 @@ let nextId = 0;
                   <div
                     role="row"
                     class="flex items-center gap-3 py-2 pr-3 pl-2"
-                    [class.bg-surface-hover]="i + offset() === activeIndex()"
+                    [class.bg-surface-subtle-hover]="
+                      i + offset() === activeIndex()
+                    "
                     (mouseenter)="hover(i + offset())"
                   >
                     <div
@@ -354,7 +356,7 @@ let nextId = 0;
                             class="text-sm font-semibold whitespace-nowrap text-ink"
                           >
                             {{ price(item).price }}
-                            <span class="text-xs font-normal text-subtle">{{
+                            <span class="text-xs font-normal text-ink-subtle">{{
                               price(item).label
                             }}</span>
                           </span>
@@ -418,7 +420,7 @@ let nextId = 0;
               <button
                 type="button"
                 tabindex="-1"
-                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-surface-hover hover:text-accent active:text-primary-press"
+                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-surface-subtle-hover hover:text-accent active:text-primary-press"
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}

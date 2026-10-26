@@ -39,12 +39,12 @@ import {
                it worth clicking, and a link around it is a bigger target than
                the text. -->
           <a
-            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-surface-hover"
+            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-surface-subtle-hover"
             [routerLink]="['/account/orders', order.reference]"
           >
             <div>
               <p class="text-sm font-medium">{{ order.reference }}</p>
-              <p class="mt-1 text-sm text-subtle">
+              <p class="mt-1 text-sm text-ink-subtle">
                 {{ formatDate(order.createdAt) }} ·
                 {{ lineCount(order.itemCount) }}
               </p>

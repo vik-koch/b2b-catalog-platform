@@ -170,7 +170,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         </li>
       </ul>
       <!-- A pointer's hint: a phone has no shortcut, and drops nothing. -->
-      <p class="mt-2 hidden text-xs text-subtle pointer-fine:block">
+      <p class="mt-2 hidden text-xs text-ink-subtle pointer-fine:block">
         {{ tileHint }}
       </p>
 

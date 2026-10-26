@@ -54,7 +54,15 @@
     },
     "deployment.json:branding.theme.primaryPress": {
       "from": ["deployment.json:branding.theme.primaryDeep"]
+    },
+    "deployment.json:branding.theme.surfaceSubtle": {
+      "from": ["deployment.json:branding.theme.surface"],
+      "optional": true
+    },
+    "deployment.json:branding.theme.inkSubtle": {
+      "from": ["deployment.json:branding.theme.subtle"],
+      "optional": true
     }
   },
-  "drop": []
+  "drop": ["deployment.json:branding.theme.muted"]
 }

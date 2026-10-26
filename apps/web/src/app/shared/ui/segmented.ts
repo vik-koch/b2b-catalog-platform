@@ -42,7 +42,7 @@ export const SEGMENTED_GROUP =
  * concentric-corner reason as above.
  */
 export const SEGMENTED_GROUP_NEUTRAL =
-  'inline-flex gap-0.5 rounded-lg bg-surface-strong p-0.5';
+  'inline-flex gap-0.5 rounded-lg bg-surface p-0.5';
 
 /** Which pill a segment sits in — see the two groups above. */
 export type SegmentTone = 'brand' | 'neutral';
@@ -105,13 +105,14 @@ export function segmentClass(
   const states: Record<SegmentState, string> = {
     selected: 'bg-primary text-white hover:bg-accent active:bg-primary-press',
     available:
-      'text-ink hover:bg-surface-hover hover:text-accent active:bg-surface-press active:text-primary',
-    unavailable: 'text-subtle hover:bg-surface-hover active:bg-surface-press',
+      'text-ink hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary',
+    unavailable:
+      'text-ink-subtle hover:bg-surface-subtle-hover active:bg-surface-subtle-press',
   };
   const lockedStates: Record<SegmentState, string> = {
-    selected: 'bg-disabled text-white',
-    available: 'text-disabled',
-    unavailable: 'text-disabled',
+    selected: 'bg-ink-disabled text-white',
+    available: 'text-ink-disabled',
+    unavailable: 'text-ink-disabled',
   };
   // The quiet pill says the same things in grey: the chip is the fill, and
   // the hover language is a ghost button's on both.
@@ -119,9 +120,9 @@ export function segmentClass(
     selected:
       'bg-white text-ink shadow-xs hover:text-accent active:text-primary-press',
     available:
-      'text-subtle hover:bg-surface-strong-hover hover:text-accent-strong active:bg-surface-strong-press active:text-primary-press',
+      'text-ink-subtle hover:bg-surface-hover hover:text-accent-strong active:bg-surface-press active:text-primary-press',
     unavailable:
-      'text-subtle hover:bg-surface-strong-hover active:bg-surface-strong-press',
+      'text-ink-subtle hover:bg-surface-hover active:bg-surface-press',
   };
   const look = locked
     ? `cursor-not-allowed ${lockedStates[state]}`

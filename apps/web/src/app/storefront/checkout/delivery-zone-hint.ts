@@ -33,16 +33,16 @@ import { WarningNote } from '../../shared/ui/warning-note';
   host: { class: 'block empty:hidden' },
   template: `
     @if (zone(); as resolved) {
-      <p class="text-sm text-subtle">{{ resolved.title }}</p>
+      <p class="text-sm text-ink-subtle">{{ resolved.title }}</p>
       @if (resolved.delivers) {
         @if (resolved.threshold) {
-          <p class="text-sm text-subtle">{{ resolved.threshold }}</p>
+          <p class="text-sm text-ink-subtle">{{ resolved.threshold }}</p>
         }
       } @else {
         <app-warning-note>{{ text.noDelivery }}</app-warning-note>
       }
     } @else if (hasAddress()) {
-      <p class="text-sm text-subtle">{{ text.unknown }}</p>
+      <p class="text-sm text-ink-subtle">{{ text.unknown }}</p>
     }
   `,
 })

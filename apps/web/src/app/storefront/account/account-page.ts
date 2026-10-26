@@ -136,7 +136,7 @@ interface DetailRow {
               <app-skeleton [lines]="3" />
             } @else if (recentOrders(); as recent) {
               @if (recent.length === 0) {
-                <p class="text-sm text-subtle">{{ orderText.empty }}</p>
+                <p class="text-sm text-ink-subtle">{{ orderText.empty }}</p>
                 <a
                   appButton
                   variant="secondary"
@@ -206,7 +206,7 @@ interface DetailRow {
                 <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
                   @for (row of rows(); track row.label) {
                     <dt
-                      class="text-sm text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-sm text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
@@ -215,7 +215,7 @@ interface DetailRow {
                     </dd>
                   }
                 </dl>
-                <p class="mt-2 text-sm text-subtle">
+                <p class="mt-2 text-sm text-ink-subtle">
                   {{ accountText.changeHint }}
                 </p>
                 <a
@@ -249,7 +249,7 @@ interface DetailRow {
                 <app-skeleton [lines]="3" />
               } @else if (addresses.hasValue()) {
                 @if (addresses.value().length === 0) {
-                  <p class="text-sm text-subtle">{{ addressText.empty }}</p>
+                  <p class="text-sm text-ink-subtle">{{ addressText.empty }}</p>
                 } @else {
                   <ul class="divide-y divide-edge">
                     @for (address of addresses.value(); track address.id) {
@@ -268,7 +268,7 @@ interface DetailRow {
                             {{ name(address) }}
                           </p>
                           @if (lines(address)) {
-                            <p class="mt-1 text-sm text-subtle">
+                            <p class="mt-1 text-sm text-ink-subtle">
                               {{ lines(address) }}
                             </p>
                           }
@@ -340,7 +340,7 @@ interface DetailRow {
                 <h3 class="mb-2 text-sm font-medium">
                   {{ text.changePassword.heading }}
                 </h3>
-                <p class="mb-4 text-sm text-subtle">
+                <p class="mb-4 text-sm text-ink-subtle">
                   {{ text.changePassword.intro }}
                 </p>
                 <!-- Pinned to the bottom of its own column, so the two buttons sit
@@ -359,7 +359,9 @@ interface DetailRow {
                 <h3 class="mb-2 text-sm font-medium">
                   {{ deleteText.heading }}
                 </h3>
-                <p class="mb-4 text-sm text-subtle">{{ deleteText.intro }}</p>
+                <p class="mb-4 text-sm text-ink-subtle">
+                  {{ deleteText.intro }}
+                </p>
                 <!-- Outlined, not solid: this only opens the page that explains what
                      would be lost. The solid red belongs to the click that confirms. -->
                 <a
@@ -382,7 +384,7 @@ export class AccountPage {
   /** One heading treatment, written once: four sections spelling the same
    * class list out is four chances for one of them to drift. */
   protected readonly headingClass =
-    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase';
 
   private readonly account = inject(AccountService);
   private readonly api = inject(OrdersService);

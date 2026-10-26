@@ -25,12 +25,12 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
   host: { class: 'block' },
   template: `
     <p
-      class="flex items-start gap-2.5 rounded-md bg-surface-strong px-4 py-3 text-sm text-subtle"
+      class="flex items-start gap-2.5 rounded-md bg-surface px-4 py-3 text-sm text-ink-subtle"
       role="status"
     >
       <app-admin-icon
         name="lock"
-        class="mt-0.5 size-4 shrink-0 text-subtle"
+        class="mt-0.5 size-4 shrink-0 text-ink-subtle"
         aria-hidden="true"
       />
       <span><ng-content /></span>

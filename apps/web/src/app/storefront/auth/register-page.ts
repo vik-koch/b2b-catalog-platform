@@ -210,7 +210,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </button>
         </form>
 
-        <p class="mt-8 text-sm text-subtle">
+        <p class="mt-8 text-sm text-ink-subtle">
           {{ text.register.haveAccount }}
           <a appLink routerLink="/login">{{ text.login }}</a>
         </p>

@@ -33,7 +33,7 @@ const BAND =
         >
           {{ tagline }}
         </h1>
-        <p class="mt-4 max-w-xl text-lg text-subtle">
+        <p class="mt-4 max-w-xl text-lg text-ink-subtle">
           {{ text.home.intro }}
         </p>
       </section>
