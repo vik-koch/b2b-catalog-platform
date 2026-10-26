@@ -44,7 +44,7 @@ import {
           >
             <div>
               <p class="text-sm font-medium">{{ order.reference }}</p>
-              <p class="mt-1 text-sm text-muted">
+              <p class="mt-1 text-sm text-subtle">
                 {{ formatDate(order.createdAt) }} ·
                 {{ lineCount(order.itemCount) }}
               </p>

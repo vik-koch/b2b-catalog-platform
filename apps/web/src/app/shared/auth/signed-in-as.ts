@@ -25,7 +25,7 @@ import { AuthService } from './auth.service';
           <!-- Only when the greeting used a name; otherwise it *is* the
                address, and repeating it says nothing. -->
           @if (user.firstName) {
-            <p class="text-sm text-muted">{{ user.email }}</p>
+            <p class="text-sm text-subtle">{{ user.email }}</p>
           }
         </div>
         <button appButton variant="secondary" type="button" (click)="logout()">

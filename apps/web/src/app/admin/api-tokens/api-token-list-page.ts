@@ -187,7 +187,7 @@ const SCOPE_ROWS: readonly {
       }
 
       @if (tokens.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tokens.hasValue()) {
         <div class="divide-y divide-edge border-y border-edge">
           @for (token of tokens.value(); track token.id) {
@@ -198,7 +198,7 @@ const SCOPE_ROWS: readonly {
               <app-record-row [stackMeta]="true">
                 <span
                   class="font-medium"
-                  [class]="token.revokedAt ? 'text-muted line-through' : ''"
+                  [class]="token.revokedAt ? 'text-subtle line-through' : ''"
                   >{{ token.name }}</span
                 >
                 <code class="font-mono text-sm text-subtle"
@@ -327,7 +327,7 @@ const SCOPE_ROWS: readonly {
                     </p>
                   </div>
                 }
-                <p class="text-xs text-muted sm:col-span-full">
+                <p class="text-xs text-subtle sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
                 <div appRecordFormActions>
@@ -362,7 +362,7 @@ const SCOPE_ROWS: readonly {
               </form>
             </div>
           } @else if (tokens.value().length === 0) {
-            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

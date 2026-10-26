@@ -61,7 +61,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-muted">{{ noopText() }}</p>
+        <p class="text-subtle">{{ noopText() }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {

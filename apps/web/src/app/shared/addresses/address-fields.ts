@@ -107,7 +107,7 @@ let nextId = 0;
                of the address, and the customer is the only one who can say it
                is wrong. -->
           @if (collapsed() && filled()) {
-            <p class="mt-1 text-sm text-muted">{{ filled() }}</p>
+            <p class="mt-1 text-sm text-subtle">{{ filled() }}</p>
           }
         </div>
 

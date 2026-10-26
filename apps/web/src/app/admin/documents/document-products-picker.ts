@@ -152,7 +152,7 @@ type View = 'all' | 'linked';
           </label>
         </li>
       } @empty {
-        <li class="px-3 py-6 text-center text-sm text-muted">
+        <li class="px-3 py-6 text-center text-sm text-subtle">
           {{ view() === 'linked' ? text.noneLinked : text.empty }}
         </li>
       }

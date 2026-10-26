@@ -35,7 +35,7 @@ import { Icon, IconName } from './icons/icon';
           {{ heading() }}
         </h2>
       }
-      <p class="mt-2 max-w-md text-muted">{{ message() }}</p>
+      <p class="mt-2 max-w-md text-subtle">{{ message() }}</p>
 
       <!-- The buttons the page projects, on one row with room between them
            and wrapping rather than shrinking. Stacked on a narrow screen,

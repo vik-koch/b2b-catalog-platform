@@ -107,7 +107,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         </form>
 
         <div class="mt-10 border-t border-edge pt-6">
-          <p class="mb-3 text-sm text-muted">{{ text.register.noAccount }}</p>
+          <p class="mb-3 text-sm text-subtle">{{ text.register.noAccount }}</p>
           <a appButton variant="secondary" routerLink="/register">
             {{ text.register.signUp }}
           </a>

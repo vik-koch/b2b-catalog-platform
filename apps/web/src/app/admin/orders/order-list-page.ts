@@ -98,7 +98,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     }
 
     @if (orders.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="orders"

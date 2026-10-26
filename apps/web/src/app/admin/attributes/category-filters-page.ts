@@ -108,12 +108,12 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     </div>
 
     @if (slug() ? text.page.intro : text.catalogIntro; as intro) {
-      <p class="mb-2 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p class="mb-2 max-w-3xl text-sm text-subtle">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">
       @if (filters.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (filters.hasValue()) {
         @if (loaded(); as panel) {
           <!-- Where the list comes from is the first thing to read: an
@@ -126,7 +126,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
           }
 
           @if (draft().length === 0) {
-            <p class="text-sm text-muted">{{ text.noDefinitions }}</p>
+            <p class="text-sm text-subtle">{{ text.noDefinitions }}</p>
           } @else {
             <!-- Divided rules on the page, not a card: this is the same list
                  of records the rest of the panel draws. -->
@@ -251,7 +251,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
             }
           }
         } @else {
-          <p class="text-muted" role="alert">
+          <p class="text-subtle" role="alert">
             {{ notFound() }}
           </p>
         }

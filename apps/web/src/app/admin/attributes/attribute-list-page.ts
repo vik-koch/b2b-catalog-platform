@@ -116,7 +116,7 @@ type EditTarget = { id: string } | { id: null } | null;
       }
 
       @if (definitions.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (definitions.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone. -->
@@ -264,7 +264,7 @@ type EditTarget = { id: string } | { id: null } | null;
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (definitions.value().length === 0) {
-            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

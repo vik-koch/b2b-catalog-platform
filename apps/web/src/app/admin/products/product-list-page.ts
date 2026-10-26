@@ -125,7 +125,7 @@ function knownValues<T extends string>(
     </app-admin-list-header>
 
     @if (products.error()) {
-      <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+      <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="products"
@@ -147,7 +147,7 @@ function knownValues<T extends string>(
              product that was deleted (FR-ADM-22); the archive keeps the
              search and every other filter, and changes only the state. -->
         @if (data.deletedMatches; as count) {
-          <p gridEmpty class="mt-2 text-muted">
+          <p gridEmpty class="mt-2 text-subtle">
             {{ deletedMatchesLabel(count) }}
             <a
               appLink
@@ -227,7 +227,7 @@ function knownValues<T extends string>(
                  taken on trust as one of them. Non-breaking, so the two never
                  land on separate lines in the card. -->
             @if (item.stockPieces === null) {
-              <span class="text-muted">{{ text.stockUntracked }}</span>
+              <span class="text-subtle">{{ text.stockUntracked }}</span>
             } @else {
               <span
                 appStatusBadge

@@ -29,7 +29,7 @@ import { Link } from '../../shared/ui/link';
         <div
           class="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"
         >
-          <p class="text-sm text-muted">
+          <p class="text-sm text-subtle">
             {{ message }}
             <a appLink routerLink="/privacy">{{ text.policyLink }}</a
             >{{ text.policyLinkAfter }}

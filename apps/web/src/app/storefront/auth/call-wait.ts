@@ -50,13 +50,13 @@ function pieces(line: string, values: Record<string, string>) {
     <!-- Each number is one unit: a number broken across two lines no longer
          reads as a number. Every piece is a span of its own, so no line break
          in this template turns into a space before the punctuation. -->
-    <p class="text-muted">
+    <p class="text-subtle">
       @for (part of intro(); track $index) {
         <span [class]="part.value ? valueClass : ''">{{ part.text }}</span>
       }
     </p>
     @if (step().confirming) {
-      <p class="mt-1 text-muted">
+      <p class="mt-1 text-subtle">
         @for (part of confirmNote(); track $index) {
           <span [class.whitespace-nowrap]="part.value">{{ part.text }}</span>
         }
@@ -77,7 +77,7 @@ function pieces(line: string, values: Record<string, string>) {
             />
             <span>{{ rememberLabel() }}</span>
           </label>
-          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-muted">
+          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-subtle">
             {{ text.rememberHint }}
           </p>
         </div>
@@ -92,7 +92,7 @@ function pieces(line: string, values: Record<string, string>) {
       <p
         class="text-sm tabular-nums"
         [class.text-danger]="failed()"
-        [class.text-muted]="!failed()"
+        [class.text-subtle]="!failed()"
         [attr.role]="failed() ? 'alert' : 'status'"
       >
         {{ message() }}

@@ -97,7 +97,7 @@ import { Hint } from '../../shared/ui/hint';
           <app-skeleton [lines]="5" />
         }
       } @else if (notFound()) {
-        <p class="text-muted" role="alert">{{ text.notFound }}</p>
+        <p class="text-subtle" role="alert">{{ text.notFound }}</p>
       } @else {
         <!-- The account's fixed facts: who this is and where it stands. An
              existing account leads with them because they are the context for
@@ -124,7 +124,7 @@ import { Hint } from '../../shared/ui/hint';
 
         @if (closed()) {
           <p
-            class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-muted"
+            class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-subtle"
           >
             {{ text.closed }}
           </p>
@@ -175,7 +175,7 @@ import { Hint } from '../../shared/ui/hint';
                 autocomplete="off"
               />
             } @else {
-              <p class="text-sm text-muted">{{ text.emailFixed }}</p>
+              <p class="text-sm text-subtle">{{ text.emailFixed }}</p>
             }
 
             @if (isCustomer()) {
@@ -345,7 +345,7 @@ import { Hint } from '../../shared/ui/hint';
             }
 
             @if (isNew) {
-              <p class="text-sm text-muted">{{ text.inviteHint }}</p>
+              <p class="text-sm text-subtle">{{ text.inviteHint }}</p>
             }
 
             @if (error()) {

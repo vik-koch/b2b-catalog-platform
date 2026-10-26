@@ -83,7 +83,7 @@ interface DetailRow {
          full width of a desktop is a heading beside half a screen of nothing. -->
     <div class="max-w-3xl">
       @if (account.error()) {
-        <p class="text-muted" role="alert">{{ text.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ text.loadError }}</p>
       } @else if (user(); as person) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
           <h1 appPageTitle>{{ name() }}</h1>
@@ -105,7 +105,9 @@ interface DetailRow {
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
               >
                 @for (row of details(); track row.label) {
-                  <dt class="text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0">
+                  <dt
+                    class="text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                  >
                     {{ row.label }}
                   </dt>
                   <dd class="even:mb-3 sm:even:mb-3 last:mb-0">
@@ -123,7 +125,9 @@ interface DetailRow {
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
               >
                 @for (row of accountRows(); track row.label) {
-                  <dt class="text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0">
+                  <dt
+                    class="text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                  >
                     {{ row.label }}
                   </dt>
                   <dd class="even:mb-3 sm:even:mb-3 last:mb-0">
@@ -145,7 +149,7 @@ interface DetailRow {
                 >
                   @for (row of signInRows(); track row.label) {
                     <dt
-                      class="text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
@@ -188,7 +192,7 @@ interface DetailRow {
                   [showAccount]="false"
                 />
               } @else {
-                <p class="text-sm text-muted">{{ text.consentsEmpty }}</p>
+                <p class="text-sm text-subtle">{{ text.consentsEmpty }}</p>
               }
             </section>
           }
@@ -247,7 +251,7 @@ interface DetailRow {
           <p appErrorText class="mt-3" role="alert">{{ error }}</p>
         }
       } @else if (notFound()) {
-        <p class="text-muted" role="alert">{{ text.notFound }}</p>
+        <p class="text-subtle" role="alert">{{ text.notFound }}</p>
       } @else if (showSkeleton()) {
         <app-skeleton [lines]="6" />
       }

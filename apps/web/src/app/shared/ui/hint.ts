@@ -9,6 +9,6 @@ import { Directive } from '@angular/core';
  */
 @Directive({
   selector: '[appHint]',
-  host: { class: 'block text-sm text-muted' },
+  host: { class: 'block text-sm text-subtle' },
 })
 export class Hint {}

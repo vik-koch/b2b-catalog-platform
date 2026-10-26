@@ -41,7 +41,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-muted">{{ text.nothingChanged }}</p>
+        <p class="text-subtle">{{ text.nothingChanged }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {

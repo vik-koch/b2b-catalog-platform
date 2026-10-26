@@ -76,7 +76,7 @@ import { PageTitle } from '../../shared/ui/page-title';
                 {{ statusLabel() }}
               </span>
             </div>
-            <p class="mt-2 text-muted">{{ placed() }}</p>
+            <p class="mt-2 text-subtle">{{ placed() }}</p>
 
             <!-- The same block staff read on the order itself, and
                  deliberately the same: what only staff see, in the shape they
@@ -203,7 +203,7 @@ import { PageTitle } from '../../shared/ui/page-title';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ ordersText.notFound }}</p>
+      <p class="text-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>

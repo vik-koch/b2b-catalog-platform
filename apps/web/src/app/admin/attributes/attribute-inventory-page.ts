@@ -85,10 +85,10 @@ type RenameTarget =
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (keys.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (keys.hasValue()) {
         @if (keys.value().length === 0) {
-          <p class="text-sm text-muted">{{ text.empty }}</p>
+          <p class="text-sm text-subtle">{{ text.empty }}</p>
         } @else {
           <!-- Divided rules on the page, not a card: this is the same list of
                records an admin grid draws on a phone. -->
@@ -220,7 +220,7 @@ type RenameTarget =
                       class="border-t border-edge bg-surface-strong ml-6 pl-2"
                     >
                       @if (values.error()) {
-                        <p class="py-3 text-sm text-muted" role="alert">
+                        <p class="py-3 text-sm text-subtle" role="alert">
                           {{ adminText.loadError }}
                         </p>
                       } @else if (values.hasValue()) {
@@ -247,7 +247,7 @@ type RenameTarget =
                                        stop lining up. -->
                                   <span
                                     class="text-ink"
-                                    [class.text-muted]="value.value === ''"
+                                    [class.text-subtle]="value.value === ''"
                                   >
                                     {{ value.value || text.emptyValue }}
                                   </span>

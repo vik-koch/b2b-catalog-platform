@@ -8,6 +8,6 @@ import { Directive } from '@angular/core';
  */
 @Directive({
   selector: '[appPageIntro]',
-  host: { class: 'text-muted' },
+  host: { class: 'text-subtle' },
 })
 export class PageIntro {}

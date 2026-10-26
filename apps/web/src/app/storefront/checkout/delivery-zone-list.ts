@@ -43,7 +43,7 @@ const SPAN: Record<number, string> = {
           <div class="min-w-0 flex-1">
             <p class="font-medium">{{ zone.title }}</p>
             @if (zone.description; as description) {
-              <p class="mt-1 text-sm text-muted">
+              <p class="mt-1 text-sm text-subtle">
                 <app-emphasised [text]="description" />
               </p>
             }

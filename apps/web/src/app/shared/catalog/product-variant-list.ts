@@ -109,5 +109,5 @@ export class ProductVariantList {
 
   /** One that is out for now: greyed on the page's ground, which is what says
    * it cannot be had rather than that it has no picture. */
-  protected readonly unavailable = `${this.base} bg-ink/5 text-muted`;
+  protected readonly unavailable = `${this.base} bg-ink/5 text-subtle`;
 }

@@ -77,7 +77,7 @@ import { Hint } from '../../shared/ui/hint';
         <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !loaded()) {
-      <p class="text-muted" role="alert">{{ text.notFound }}</p>
+      <p class="text-subtle" role="alert">{{ text.notFound }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
         <label class="block">

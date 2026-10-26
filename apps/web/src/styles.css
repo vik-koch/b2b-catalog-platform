@@ -177,7 +177,7 @@
    *
    * A name is family · role · intensity · state: `danger-surface-strong`,
    * `surface-strong-hover`. Roles: a ground (`surface`, `chip`), text
-   * (`ink` › `muted` › `subtle`, `disabled`), a line (`edge`), a marker
+   * (`ink` › `subtle`, `disabled`), a line (`edge`), a marker
    * (`dot`). Intensity: `-subtle` < base < `-strong` < `-stronger`, further
    * from the page each step. State: `-hover`, `-press`, named for what they
    * happen on. Text holds 4.5:1 on every ground it meets, a control's glyph
@@ -207,19 +207,16 @@
   --color-accent: #b45309;
 
   /*
-   * Text. `ink` is the default (stone-900). The two quieter levels below it
-   * are kept apart because the app really does use both: `muted` is
-   * secondary body copy (descriptions, help text), `subtle` is meta text
-   * (eyebrows, table headers, counts, timestamps) and every glyph that steps
-   * back without leaving (an icon at rest, a chevron, an option that is not
-   * available). `muted` is stone-600, 7.0:1 on surface. `subtle` is a quarter
-   * step from stone-500 toward it: stone-500 itself is 4.4:1 on the stone-100
-   * of the footer and the header's top bar, this is 4.9:1 there. `disabled`
-   * is the text of a control that cannot be used, the one text role below
-   * 4.5:1.
+   * Text. `ink` is the default (stone-900); `subtle` is everything quieter:
+   * secondary copy, meta text (eyebrows, table headers, counts, timestamps)
+   * and every glyph that steps back without leaving (an icon at rest, a
+   * chevron, an option that is not available). Size, not a second shade,
+   * tells a description from a timestamp. `subtle` is a quarter step from
+   * stone-500 toward stone-600: stone-500 itself is 4.4:1 on the stone-100 of
+   * the footer and the header's top bar, this is 4.9:1 there. `disabled` is
+   * the text of a control that cannot be used, the one text role below 4.5:1.
    */
   --color-ink: #1c1917;
-  --color-muted: #57534e;
   --color-subtle: #706a65;
   --color-disabled: var(--color-stone-400);
 
@@ -243,9 +240,10 @@
   /*
    * Grounds, and the states on them. `surface` is the page (stone-50);
    * `surface-strong` a recessed ground (footer, notes, pills, a segmented
-   * track), `surface-stronger` one step further (a neutral badge, a switch
-   * that is off), `chip` the category chip's fill, `skeleton` a block standing
-   * in for content still loading. A hover or a press is named for the ground
+   * track), `surface-stronger` one step further (a switch that is off),
+   * `chip` a small fill that has to show on the page (the category chip,
+   * the neutral badge), `skeleton` a block standing in for content still
+   * loading. A hover or a press is named for the ground
    * it happens on, one and two steps down from it. All but `surface` are drawn
    * from the stone ramp, so a deployment's `neutrals` replace them.
    */

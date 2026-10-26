@@ -25,7 +25,7 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
   host: { class: 'block' },
   template: `
     <p
-      class="flex items-start gap-2.5 rounded-md bg-surface-strong px-4 py-3 text-sm text-muted"
+      class="flex items-start gap-2.5 rounded-md bg-surface-strong px-4 py-3 text-sm text-subtle"
       role="status"
     >
       <app-admin-icon

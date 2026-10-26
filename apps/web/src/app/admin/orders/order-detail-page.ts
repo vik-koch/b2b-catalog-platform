@@ -135,7 +135,7 @@ const MARK_PAID = 'markPaid';
                 {{ order.reference }}
               </h1>
             </div>
-            <p class="mt-2 text-muted">{{ placed(order) }}</p>
+            <p class="mt-2 text-subtle">{{ placed(order) }}</p>
 
             <!-- Above the block whose controls it explains: every one of them
                  is gone while the order is answered elsewhere, and a card that
@@ -525,7 +525,7 @@ const MARK_PAID = 'markPaid';
                             </ol>
                           } @else if (revisions.error()) {
                             <p
-                              class="border-t border-edge p-4 text-muted"
+                              class="border-t border-edge p-4 text-subtle"
                               role="alert"
                             >
                               {{ revisionText.loadError }}
@@ -582,12 +582,12 @@ const MARK_PAID = 'markPaid';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ ordersText.notFound }}</p>
+      <p class="text-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (order.error()) {
-      <p class="text-muted" role="alert">{{ ordersText.loadError }}</p>
+      <p class="text-subtle" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>

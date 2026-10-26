@@ -111,7 +111,7 @@ import { PageTitle } from '../shared/ui/page-title';
                 link="/admin/sync/orders"
               >
                 @if (lastOrderSync(); as moment) {
-                  <span class="flex text-xs text-muted">{{ moment }}</span>
+                  <span class="flex text-xs text-subtle">{{ moment }}</span>
                 }
               </app-panel-row>
             </ul>
@@ -200,7 +200,7 @@ import { PageTitle } from '../shared/ui/page-title';
                       />
                     }
                     @if (lastSync(); as moment) {
-                      <span class="flex text-xs text-muted">{{ moment }}</span>
+                      <span class="flex text-xs text-subtle">{{ moment }}</span>
                     }
                   </div>
                 </app-panel-row>
@@ -292,7 +292,7 @@ import { PageTitle } from '../shared/ui/page-title';
                     />
                   }
                   @if (lastCustomerSync(); as moment) {
-                    <span class="flex text-xs text-muted">{{ moment }}</span>
+                    <span class="flex text-xs text-subtle">{{ moment }}</span>
                   }
                 </div>
               </app-panel-row>

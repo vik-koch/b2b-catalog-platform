@@ -499,7 +499,7 @@ interface Listing {
                   </nav>
                 }
               } @else {
-                <p class="text-muted">
+                <p class="text-subtle">
                   {{
                     hasSelection()
                       ? filterText.noMatches

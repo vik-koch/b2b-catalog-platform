@@ -83,7 +83,7 @@ type Status =
           </a>
         }
         @case ('checking') {
-          <p class="text-muted">{{ text.checking }}</p>
+          <p class="text-subtle">{{ text.checking }}</p>
         }
         @case ('expired') {
           <h1 appPageTitle class="mb-4">

@@ -87,7 +87,7 @@ export interface ConfirmAnswer {
       >
         {{ heading() }}
       </h2>
-      <p class="mt-3 text-muted">{{ message() }}</p>
+      <p class="mt-3 text-subtle">{{ message() }}</p>
 
       <!-- Something to weigh before answering yes, where the question has one.
            Amber and never red: it refuses nothing, and the button below it

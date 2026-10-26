@@ -160,7 +160,7 @@ const EDGE_SLACK = 24;
            until there is something to undo, so nothing moves at the moment a
            drop lands and the admin is looking at the row that just moved. -->
       <div class="mb-4 flex min-h-8 items-start justify-between gap-4">
-        <p class="text-sm text-muted">{{ text.reorderHint }}</p>
+        <p class="text-sm text-subtle">{{ text.reorderHint }}</p>
         <button
           appIconButton
           type="button"
@@ -182,10 +182,10 @@ const EDGE_SLACK = 24;
       }
 
       @if (categories.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (categories.hasValue()) {
         @if (rows().length === 0) {
-          <p class="text-muted">{{ text.empty }}</p>
+          <p class="text-subtle">{{ text.empty }}</p>
         } @else {
           <div class="relative">
             <ul

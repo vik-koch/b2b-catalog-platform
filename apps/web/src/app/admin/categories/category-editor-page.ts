@@ -62,7 +62,7 @@ import { Hint } from '../../shared/ui/hint';
         <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !category()) {
-      <p class="text-muted" role="alert">{{ text.saveError }}</p>
+      <p class="text-subtle" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
         <!-- Only two of this form's fields are locked, so the banner names the

@@ -56,7 +56,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       </h2>
       <p class="mt-2 text-xs text-subtle">{{ text.addKeysHint }}</p>
       @if (hints().length === 0) {
-        <p class="mt-3 text-sm text-muted">{{ text.addKeysEmpty }}</p>
+        <p class="mt-3 text-sm text-subtle">{{ text.addKeysEmpty }}</p>
       } @else {
         <!-- Right padding, not on the rows: the counts would otherwise sit
              against the scrollbar of a long list. -->

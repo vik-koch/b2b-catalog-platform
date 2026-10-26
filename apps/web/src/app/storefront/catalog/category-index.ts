@@ -69,7 +69,7 @@ export const CATEGORY_GRID =
           }
         </ul>
       } @else {
-        <p class="text-muted">{{ text.emptyCategories }}</p>
+        <p class="text-subtle">{{ text.emptyCategories }}</p>
       }
     } @else if (showSkeleton()) {
       <ul [class]="gridClass" aria-hidden="true">

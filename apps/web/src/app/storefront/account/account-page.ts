@@ -136,7 +136,7 @@ interface DetailRow {
               <app-skeleton [lines]="3" />
             } @else if (recentOrders(); as recent) {
               @if (recent.length === 0) {
-                <p class="text-sm text-muted">{{ orderText.empty }}</p>
+                <p class="text-sm text-subtle">{{ orderText.empty }}</p>
                 <a
                   appButton
                   variant="secondary"
@@ -206,7 +206,7 @@ interface DetailRow {
                 <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
                   @for (row of rows(); track row.label) {
                     <dt
-                      class="text-sm text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-sm text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
@@ -249,7 +249,7 @@ interface DetailRow {
                 <app-skeleton [lines]="3" />
               } @else if (addresses.hasValue()) {
                 @if (addresses.value().length === 0) {
-                  <p class="text-sm text-muted">{{ addressText.empty }}</p>
+                  <p class="text-sm text-subtle">{{ addressText.empty }}</p>
                 } @else {
                   <ul class="divide-y divide-edge">
                     @for (address of addresses.value(); track address.id) {
@@ -268,7 +268,7 @@ interface DetailRow {
                             {{ name(address) }}
                           </p>
                           @if (lines(address)) {
-                            <p class="mt-1 text-sm text-muted">
+                            <p class="mt-1 text-sm text-subtle">
                               {{ lines(address) }}
                             </p>
                           }
@@ -340,7 +340,7 @@ interface DetailRow {
                 <h3 class="mb-2 text-sm font-medium">
                   {{ text.changePassword.heading }}
                 </h3>
-                <p class="mb-4 text-sm text-muted">
+                <p class="mb-4 text-sm text-subtle">
                   {{ text.changePassword.intro }}
                 </p>
                 <!-- Pinned to the bottom of its own column, so the two buttons sit
@@ -359,7 +359,7 @@ interface DetailRow {
                 <h3 class="mb-2 text-sm font-medium">
                   {{ deleteText.heading }}
                 </h3>
-                <p class="mb-4 text-sm text-muted">{{ deleteText.intro }}</p>
+                <p class="mb-4 text-sm text-subtle">{{ deleteText.intro }}</p>
                 <!-- Outlined, not solid: this only opens the page that explains what
                      would be lost. The solid red belongs to the click that confirms. -->
                 <a

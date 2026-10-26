@@ -93,26 +93,26 @@ import { ErrorText } from '../../shared/ui/error-text';
                 </span>
               }
             </div>
-            <p class="mt-2 text-muted">{{ placed(order) }}</p>
+            <p class="mt-2 text-subtle">{{ placed(order) }}</p>
             <!-- Why, on the line that says where the order stands. A mailed
                  link is where a guest reads it and they have nowhere else to
                  look; the link stays a read capability, and nothing here moves
                  the order. -->
             @if (order.statusReason; as reason) {
-              <p class="mt-1 text-muted">
+              <p class="mt-1 text-subtle">
                 <span class="text-subtle"> {{ names.reason }}: </span>
                 {{ reason }}
               </p>
             }
             @if (order.changes.length) {
-              <div class="mt-1 text-muted">
+              <div class="mt-1 text-subtle">
                 <span class="text-subtle">{{ names.changeNote }}:</span>
                 @for (change of order.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
               </div>
             }
-            <p class="mt-4 max-w-xl text-muted">{{ text.intro }}</p>
+            <p class="mt-4 max-w-xl text-subtle">{{ text.intro }}</p>
 
             <app-order-read-back
               class="mt-8"
@@ -153,7 +153,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                  next. -->
             @if (!signedIn()) {
               <div class="mt-5 rounded-lg border border-edge p-5">
-                <p class="text-sm text-muted">{{ invite.text }}</p>
+                <p class="text-sm text-subtle">{{ invite.text }}</p>
                 <a
                   appButton
                   variant="secondary"

@@ -78,7 +78,7 @@ export class CategoryChildren {
   );
   protected readonly rest = computed(() => this.parent().children.slice(SHOWN));
 
-  protected readonly listClass = 'px-3 text-sm text-muted';
+  protected readonly listClass = 'px-3 text-sm text-subtle';
   protected readonly lineClass =
     'block py-0.5 hover:text-accent [overflow-wrap:anywhere]';
 }

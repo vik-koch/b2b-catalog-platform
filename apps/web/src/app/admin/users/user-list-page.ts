@@ -141,7 +141,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     }
 
     @if (users.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
       <app-admin-grid
         [gridId]="gridId()"

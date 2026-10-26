@@ -242,7 +242,7 @@ export const FACET_SIBLING_ALONE =
                greyed row is the answer to "why can I not combine these two?". -->
           <label
             class="flex cursor-pointer items-start gap-2 text-sm"
-            [class.text-muted]="disabled(value)"
+            [class.text-subtle]="disabled(value)"
             [class.cursor-not-allowed]="disabled(value)"
           >
             <input

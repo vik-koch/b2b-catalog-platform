@@ -89,7 +89,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
            a greyed form invites an attempt the API would refuse anyway. -->
       @if (customersOwned()) {
         <p
-          class="rounded-md border border-edge bg-surface-strong px-4 py-3 text-sm text-muted"
+          class="rounded-md border border-edge bg-surface-strong px-4 py-3 text-sm text-subtle"
           role="status"
         >
           {{ text.formatErrors['customers-externally-owned'] }}
@@ -114,7 +114,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           </div>
 
           <details class="mt-4">
-            <summary class="cursor-pointer text-sm text-muted">
+            <summary class="cursor-pointer text-sm text-subtle">
               {{ text.advanced }}
             </summary>
             <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">

@@ -57,5 +57,5 @@ export class ProductSetBadge {
    * and all but vanished on the `surface` page a row and the product panel sit on.
    */
   protected readonly pill =
-    'inline-flex min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-ink/5 px-1.5 py-0.5 text-xs font-medium text-muted select-none';
+    'inline-flex min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-ink/5 px-1.5 py-0.5 text-xs font-medium text-subtle select-none';
 }

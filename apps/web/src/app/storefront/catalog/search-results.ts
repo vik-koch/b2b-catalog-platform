@@ -112,7 +112,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
             }
             <div [class]="data.facets.length ? listingColumn : listingAlone">
               @if (!data.items.length) {
-                <p class="text-muted">{{ filterText.noMatches }}</p>
+                <p class="text-subtle">{{ filterText.noMatches }}</p>
               } @else {
                 <!-- How many results there are, and the two ways of asking
                      for them differently — over the grid and at the height of
@@ -258,7 +258,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
             >{{ catalogText.backToCatalog }}</a
           >
         } @else {
-          <p class="mt-8 text-muted">{{ text.emptyQuery }}</p>
+          <p class="mt-8 text-subtle">{{ text.emptyQuery }}</p>
         }
       } @else if (showSkeleton()) {
         <h1

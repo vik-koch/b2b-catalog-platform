@@ -57,7 +57,7 @@ import { ChangePasswordForm } from './change-password-form';
             >
               {{ text.heading }}
             </h2>
-            <p class="mb-6 text-sm text-muted" role="status">
+            <p class="mb-6 text-sm text-subtle" role="status">
               {{ text.success }}
             </p>
             <button appButton type="button" (click)="changed.set(false)">
@@ -70,7 +70,7 @@ import { ChangePasswordForm } from './change-password-form';
             >
               {{ text.forcedHeading }}
             </h2>
-            <p class="mb-6 text-sm text-muted">{{ text.forcedIntro }}</p>
+            <p class="mb-6 text-sm text-subtle">{{ text.forcedIntro }}</p>
 
             <app-change-password-form
               idPrefix="forced-change-password"

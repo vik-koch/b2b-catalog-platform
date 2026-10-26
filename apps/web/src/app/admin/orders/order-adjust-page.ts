@@ -702,12 +702,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ ordersText.notFound }}</p>
+      <p class="text-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (loadFailed()) {
-      <p class="text-muted" role="alert">{{ ordersText.loadError }}</p>
+      <p class="text-subtle" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>

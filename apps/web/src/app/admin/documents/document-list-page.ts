@@ -110,7 +110,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     }
 
     @if (documents.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
       <app-admin-grid
         gridId="documents"

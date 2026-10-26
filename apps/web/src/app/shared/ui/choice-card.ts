@@ -52,7 +52,7 @@ import { Radio } from './radio';
             {{ title() }}
           </span>
           @if (description()) {
-            <span class="mt-1 block text-sm text-muted">
+            <span class="mt-1 block text-sm text-subtle">
               {{ description() }}
             </span>
           }

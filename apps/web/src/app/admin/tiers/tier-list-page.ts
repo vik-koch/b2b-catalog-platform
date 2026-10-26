@@ -105,7 +105,7 @@ type EditTarget = { id: string } | { id: null } | null;
       }
 
       @if (tiers.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tiers.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone, and two lists in one panel
@@ -149,7 +149,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </code>
                     @if (tier.isDefault) {
                       <span
-                        class="rounded-sm bg-muted px-1.5 py-0.5 text-xs text-white"
+                        class="rounded-sm bg-subtle px-1.5 py-0.5 text-xs text-white"
                         [title]="text.defaultHint"
                       >
                         {{ text.defaultBadge }}
@@ -265,7 +265,7 @@ type EditTarget = { id: string } | { id: null } | null;
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (tiers.value().tiers.length === 0) {
-            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

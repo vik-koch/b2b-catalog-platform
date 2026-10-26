@@ -115,7 +115,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 (toggled)="flipMaintenance($event)"
               />
             </div>
-            <p class="mt-3 text-sm text-muted">
+            <p class="mt-3 text-sm text-subtle">
               {{ maintenanceText.description }}
             </p>
 
@@ -131,7 +131,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           <h2 class="mb-1 text-base font-medium">
             {{ text.ownershipHeading }}
           </h2>
-          <p class="mb-3 text-sm text-muted">{{ ownershipText.intro }}</p>
+          <p class="mb-3 text-sm text-subtle">{{ ownershipText.intro }}</p>
 
           <!-- One shop above, areas beneath it. The master is a read over the
                areas and an action across them, never a fourth stored flag: a
@@ -153,7 +153,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
               @if (mixed()) {
-                <p class="text-sm text-muted">{{ mixedEffect() }}</p>
+                <p class="text-sm text-subtle">{{ mixedEffect() }}</p>
               }
             </div>
           </div>
@@ -215,7 +215,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                             : ownershipText.statusOwn
                         }}
                       </span>
-                      <p class="text-sm text-muted">
+                      <p class="text-sm text-subtle">
                         {{
                           isOwned(area)
                             ? areaText(area).ownedEffect
@@ -271,7 +271,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     </p>
                   }
                 } @else {
-                  <p class="px-4 py-3 text-sm text-muted">
+                  <p class="px-4 py-3 text-sm text-subtle">
                     {{ text.historyEmpty }}
                   </p>
                 }

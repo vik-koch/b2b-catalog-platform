@@ -85,7 +85,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {
-        <p class="mb-4 text-muted">{{ editorText.emptyNotice }}</p>
+        <p class="mb-4 text-subtle">{{ editorText.emptyNotice }}</p>
       }
 
       <div class="max-w-3xl space-y-10">
@@ -106,7 +106,7 @@ import { PageTitle } from '../../shared/ui/page-title';
             <h2 class="text-2xl font-normal tracking-tight">
               {{ sharedText.fulfilment.pickup }}
             </h2>
-            <p class="mt-1 mb-4 text-muted">
+            <p class="mt-1 mb-4 text-subtle">
               {{ fulfilmentText.pickupDescription }}
             </p>
             <ul class="space-y-3">
@@ -130,7 +130,7 @@ import { PageTitle } from '../../shared/ui/page-title';
                         </a>
                       }
                     </div>
-                    <p class="mt-1 text-sm text-muted">
+                    <p class="mt-1 text-sm text-subtle">
                       {{ location.address }}
                     </p>
                     @if (location.description) {
@@ -157,7 +157,7 @@ import { PageTitle } from '../../shared/ui/page-title';
               <app-icon name="banknote" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
-                <p class="mt-1 text-sm text-muted">
+                <p class="mt-1 text-sm text-subtle">
                   {{ pageText.cashDescription }}
                 </p>
                 <p class="mt-2 text-sm text-subtle">
@@ -169,7 +169,7 @@ import { PageTitle } from '../../shared/ui/page-title';
               <app-icon name="landmark" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
-                <p class="mt-1 text-sm text-muted">
+                <p class="mt-1 text-sm text-subtle">
                   {{ paymentText.transferDescription }}
                 </p>
                 <p class="mt-2 text-sm text-subtle">
@@ -187,7 +187,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           <h2 class="mb-4 text-2xl font-normal tracking-tight">
             {{ pageText.goodsHeading }}
           </h2>
-          <div class="space-y-3 text-muted">
+          <div class="space-y-3 text-subtle">
             @for (paragraph of pageText.goodsParagraphs; track $index) {
               <p><app-emphasised [text]="paragraph" /></p>
             }
@@ -202,7 +202,7 @@ import { PageTitle } from '../../shared/ui/page-title';
             <h2 class="mb-4 text-2xl font-normal tracking-tight">
               {{ pageText.returnsHeading }}
             </h2>
-            <div class="space-y-3 text-muted">
+            <div class="space-y-3 text-subtle">
               @for (paragraph of pageText.returnsParagraphs; track $index) {
                 <p><app-emphasised [text]="paragraph" /></p>
               }

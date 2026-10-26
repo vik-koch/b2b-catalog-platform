@@ -144,7 +144,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               </span>
               <span
                 class="font-medium wrap-break-word text-ink"
-                [class.text-muted]="row.key.trim() === ''"
+                [class.text-subtle]="row.key.trim() === ''"
               >
                 {{ row.key.trim() || text.key }}
               </span>
@@ -165,7 +165,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               <ng-container recordMeta>
                 <span
                   class="wrap-break-word"
-                  [class.text-muted]="!row.value.trim()"
+                  [class.text-subtle]="!row.value.trim()"
                 >
                   {{ row.value.trim() || dash }}
                 </span>

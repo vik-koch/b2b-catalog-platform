@@ -132,7 +132,7 @@ interface ToolbarAction {
     />
 
     @if (uploading()) {
-      <p class="mt-2 text-sm text-muted" role="status">
+      <p class="mt-2 text-sm text-subtle" role="status">
         {{ adminText.upload.progress }}
       </p>
     }

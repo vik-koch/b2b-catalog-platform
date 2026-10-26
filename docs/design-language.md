@@ -14,7 +14,7 @@ order: `danger-surface-strong`, `surface-strong-hover`, `primary-press`.
   (`danger`, `warning`, `success`, `info`).
 - **Role**, what the colour paints:
   - a ground: `surface`, `chip`, `skeleton`;
-  - text: `ink`, then the quieter `muted` and `subtle`, and `disabled`;
+  - text: `ink`, the quieter `subtle`, and `disabled`;
   - a line: `edge`;
   - a marker: `dot`.
 
@@ -53,7 +53,7 @@ How the defaults meet the floors:
 <!-- prettier-ignore -->
 | Pair | Ratio |
 |---|---|
-| `ink` / `muted` / `subtle` on `surface-strong`, the darkest ground they meet | 16.0 / 7.0 / 4.9 |
+| `ink` / `subtle` on `surface-strong`, the darkest ground they meet | 16.0 / 4.9 |
 | `primary` / `accent` on `surface-strong` | 6.8 / 4.6 |
 | `danger` / `warning` / `success` on `surface-strong` | 5.9 / 4.6 / 4.5 |
 | A status `-ink` on its `-surface-strong` (danger, warning, success, info) | 6.9 / 6.4 / 6.5 / 6.5 |
@@ -95,8 +95,7 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 | Role | Default | Used for |
 |---|---|---|
 | `ink` | stone-900 | Body text |
-| `muted` | stone-600 | Secondary copy: descriptions, help text |
-| `subtle` | `#706a65` | Meta text (table headers, counts, timestamps) and every glyph that steps back: icons at rest, chevrons, unavailable options |
+| `subtle` | `#706a65` | Everything quieter than body text: secondary copy, meta text (table headers, counts, timestamps), and every glyph that steps back (icons at rest, chevrons, unavailable options) |
 | `disabled` | stone-400 | A control that cannot be used |
 
 `subtle` sits a quarter step from stone-500 toward stone-600: stone-500 itself falls below 4.5:1
@@ -120,8 +119,8 @@ on the recessed grounds.
 | `surface-hover` / `surface-press` | stone-100 / 200 | A control on the page or on white, hovered and pressed |
 | `surface-strong` | stone-100 | A recessed ground: footer, notes, pills, a segmented track, a disabled field |
 | `surface-strong-hover` / `surface-strong-press` | stone-200 / 300 | A control on a recessed ground |
-| `surface-stronger` | stone-200 | One step further: a neutral badge, a switch that is off |
-| `chip` / `chip-hover` | `#f2f1f0` / stone-200 | The category chip, between stone-100 and 200 so a grid of them neither vanishes nor turns grey |
+| `surface-stronger` | stone-200 | One step further: a switch that is off, a nested row |
+| `chip` / `chip-hover` | `#f2f1f0` / stone-200 | A small fill that has to show on the page: the category chip, the neutral badge. Between stone-100, which all but vanishes on the page, and stone-200, which turns a grid of them grey |
 | `skeleton` | stone-200 | A block standing in for content still loading |
 
 White is a ground too: cards, fields and the menus over the page.

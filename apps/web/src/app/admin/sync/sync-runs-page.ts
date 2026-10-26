@@ -89,7 +89,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
     </p>
 
     @if (runs.error()) {
-      <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
+      <p class="text-subtle" role="alert">{{ text.runLoadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="sync-runs"

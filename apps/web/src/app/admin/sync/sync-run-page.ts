@@ -62,7 +62,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
   ],
   template: `
     @if (run.error()) {
-      <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
+      <p class="text-subtle" role="alert">{{ text.runLoadError }}</p>
       <a
         appButton
         variant="secondary"
@@ -196,7 +196,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               (discardRun)="discard(data.run.id)"
             />
           } @else if (!data.run.error) {
-            <p class="text-muted">{{ text.planUnavailable }}</p>
+            <p class="text-subtle">{{ text.planUnavailable }}</p>
           }
         </div>
       </div>
