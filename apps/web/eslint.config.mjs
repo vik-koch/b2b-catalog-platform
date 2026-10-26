@@ -1,6 +1,41 @@
 import nx from '@nx/eslint-plugin';
 import betterTailwindcss from 'eslint-plugin-better-tailwindcss';
+import { getDefaultSelectors } from 'eslint-plugin-better-tailwindcss/defaults';
+import {
+  MatcherType,
+  SelectorKind,
+} from 'eslint-plugin-better-tailwindcss/types';
 import baseConfig from '../../eslint.config.mjs';
+
+/** Tailwind's colour palettes, none of which a template may name. */
+const PALETTE = [
+  'slate',
+  'gray',
+  'zinc',
+  'neutral',
+  'stone',
+  'red',
+  'orange',
+  'amber',
+  'yellow',
+  'lime',
+  'green',
+  'emerald',
+  'teal',
+  'cyan',
+  'sky',
+  'blue',
+  'indigo',
+  'violet',
+  'purple',
+  'fuchsia',
+  'pink',
+  'rose',
+];
+const PALETTE_MESSAGE =
+  'A Tailwind palette colour; use a colour role from styles.css (ink, surface-strong, danger, …).';
+/** A palette class anywhere in a string of classes. No `/`: it ends an esquery regex. */
+const PALETTE_IN_TEXT = `(^|[\\s:])!?-?[a-z-]+-(${PALETTE.join('|')})-\\d`;
 
 export default [
   ...nx.configs['flat/angular'],
@@ -23,6 +58,57 @@ export default [
     rules: {
       'better-tailwindcss/enforce-canonical-classes': 'error',
       'better-tailwindcss/no-deprecated-classes': 'error',
+      // Colour comes from the role tokens in styles.css, which a deployment's
+      // theme reaches; a palette class or a literal colour draws the same in
+      // every deployment and slips past the contrast the tokens were picked for.
+      'better-tailwindcss/no-restricted-classes': [
+        'error',
+        {
+          // Every string, not only the places the plugin knows hold classes:
+          // the variant maps and computed class strings are named freely, and
+          // a palette name cannot turn up in a string that is not a class.
+          selectors: [
+            ...getDefaultSelectors(),
+            {
+              kind: SelectorKind.Variable,
+              name: '.*',
+              match: [
+                { type: MatcherType.String },
+                { type: MatcherType.ObjectValue },
+              ],
+            },
+            {
+              kind: SelectorKind.Callee,
+              name: '.*',
+              match: [
+                { type: MatcherType.String },
+                { type: MatcherType.ObjectValue },
+                {
+                  type: MatcherType.AnonymousFunctionReturn,
+                  match: [{ type: MatcherType.String }],
+                },
+              ],
+            },
+          ],
+          restrict: [
+            {
+              pattern: `(?:^|:)!?-?[a-z-]+-(?:${PALETTE.join('|')})-\\d+(?:/\\d+)?!?$`,
+              message: PALETTE_MESSAGE,
+            },
+            {
+              pattern: '(?:^|:)prose-(?:slate|gray|zinc|neutral|stone)$',
+              message:
+                'A Typography colour theme; `.prose` takes its colours from the roles in styles.css.',
+            },
+            {
+              pattern:
+                '(?:^|:)!?[a-z-]+-\\[(?:#|rgba?\\(|hsla?\\(|oklch\\(|color:)',
+              message:
+                'A literal colour; use a colour role from styles.css instead.',
+            },
+          ],
+        },
+      ],
       'better-tailwindcss/no-unknown-classes': [
         'error',
         {
@@ -156,6 +242,15 @@ function rulesFor(part, forbidden, entries, text) {
         selector: `ImportExpression[source.value=/^\\.{1,2}\\/(.*\\/)?(${forbidden.join('|')})(\\/|$)/]`,
         message: `${part} code imports shared code, not ${forbidden.join(' or ')} code, lazily or not (see eslint.config.mjs).`,
       },
+      // A class string kept in a class field, which the Tailwind plugin's
+      // selectors do not reach.
+      ...[
+        'PropertyDefinition > Literal',
+        'PropertyDefinition > TemplateLiteral > TemplateElement',
+      ].map((node) => ({
+        selector: `${node}[${node.endsWith('Literal') ? 'value' : 'value.raw'}=/${PALETTE_IN_TEXT}/]`,
+        message: PALETTE_MESSAGE,
+      })),
     ],
   };
 }

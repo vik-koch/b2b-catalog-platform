@@ -1,6 +1,6 @@
 # 0008 — Tailwind with owned UI primitives and runtime theme tokens
 
-**Status:** accepted (amended 2026-09-04, 2026-09-05) · **Date:** 2026-07-19
+**Status:** accepted (amended 2026-09-04, 2026-09-05, 2026-10-02, 2026-10-26) · **Date:** 2026-07-19
 
 ## Context
 
@@ -133,3 +133,30 @@ keeps the link's colour and weight but underlines on hover only, and it takes
 the standalone text controls — show password, generate, enter manually, a map
 link under an address, reset widths. A word inside a sentence keeps `appLink`,
 and so does a count in a record row, which links to the list it counts.
+
+## Amendment — 2026-10-26 (v1.15.2): every colour is a role, and lint holds the line
+
+The semantic names covered the brand and the text, but the rest of the colour
+in the templates was still Tailwind's palette: the greys of every hover, ground
+and placeholder, and the red, amber, green and sky of every status. A
+deployment could replace the greys only as a whole ramp and the status colours
+not at all, and nothing stopped a new template from adding more.
+
+- **Every colour a template draws is a role in `styles.css`.** The status
+  colours name their shades by what they do, after the brand colours: the bare
+  name is text on the page, `-ink` text on the colour's own `-surface`, `-edge`
+  its line, `-dot` a marker without words, `-accent`/`-deep` a filled
+  control's hover and press. The greys name grounds (`surface-strong`, `chip`,
+  `skeleton`), lines (`edge`, `edge-strong`, `edge-subtle`; `edge` was
+  `border`) and states, a hover or press named for the ground it happens on
+  (`surface-hover`, `surface-strong-press`). The roles point at Tailwind's
+  palette, so the palette stays the source of shades and a deployment's
+  `neutrals` still reach every grey. Rich text takes the same roles through
+  Typography's colour variables instead of one of its palettes.
+- **The theme is written onto `<html>`**, not onto the root component: a
+  dialog appended to `<body>` sits outside that component and drew in the
+  default colours.
+- **A palette colour in web code is a lint error** (`no-restricted-classes`
+  in `apps/web/eslint.config.mjs`), in templates and in every TypeScript
+  string, as is a literal colour or a Typography colour theme. The discipline
+  this ADR named as a cost is now a check.
