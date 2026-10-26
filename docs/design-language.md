@@ -22,8 +22,8 @@ order: `danger-surface`, `surface-hover`, `ink-subtle`, `primary-press`.
   `-surface`.
 
 - **Intensity**: `-subtle` is a step closer to the page than the base, `-strong` a step further
-  from it, `-stronger` a step further still. `surface-subtle` is the page itself, `ink-subtle`
-  the quieter text, `edge-subtle` the lighter line.
+  from it. `surface-subtle` is the page itself, `ink-subtle` the quieter text, `edge-subtle` the
+  lighter line.
 - **State**: `-hover` and `-press`, named for what they happen on, one and two steps from its
   resting colour; `-disabled` for a control that cannot be used. The brand's hover is its own
   colour, `accent`.
@@ -34,8 +34,12 @@ jobs and a deployment may want to tell them apart. Two roles that do the same jo
 
 Tailwind's palette (`stone-200`, `red-700`) is where the values come from, not a name a template
 may use: `styles.css` switches it off and keeps the steps the roles use as private `--palette-*`
-values. `white` and `black` stay: white is the text on every fill, black only ever a translucent
-overlay.
+values. `white` and `black` stay: white is the text on every fill and the ground of cards and
+fields, black only ever translucent (a shadow, the dimming behind an overlay). A role at reduced
+opacity is a tint of it and keeps its name: the scrim behind a dialog (`ink/50`), the brand wash
+under the site notice, a pressed outlined button or menu row and a bottom-bar tab (`primary/10`,
+`/20` pressed), a search match (`accent/25`), the set badge and a variant that is out for now
+(`ink/5`).
 
 ## Contrast
 
@@ -87,7 +91,7 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 | Role | Default | Used for |
 |---|---|---|
 | `primary` | `#6f4e37` | The resting brand colour: primary buttons, links, the selected option |
-| `primary-press` | primary, 15% toward black | Every pressed control. A colour of its own, because a press that only undid the hover would show nothing to a finger, which never hovers |
+| `primary-press` | primary, 15% toward black | A pressed button, segment or icon control. A colour of its own, because a press that only undid the hover would show nothing to a finger, which never hovers. Links and linked text answer only to hover so far |
 | `secondary` | `#8b6f52` | Focus, on every control |
 | `accent` | `#b45309` | Hover, on every control; highlights and eyebrows |
 | `accent-strong` | accent, 15% toward black | Accent on a ground too dark for it: a hovered chip, a segment hovered inside its track, a notice badge |
@@ -99,7 +103,7 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 |---|---|---|
 | `ink` | stone-900 | Body text |
 | `ink-subtle` | stone-500 → 600, a quarter step | Everything quieter than body text: secondary copy, meta text (table headers, counts, timestamps), and every glyph that steps back (icons at rest, chevrons, unavailable options) |
-| `ink-disabled` | stone-400 | A control that cannot be used |
+| `ink-disabled` | stone-400 | A control that cannot be used. A disabled primary button keeps `ink-subtle` on its `surface-strong` fill instead: it is the page's one action, and switched off it still has to say what it would do |
 
 `ink-subtle` sits a quarter step from stone-500 toward stone-600: stone-500 itself falls below 4.5:1
 on the recessed grounds.
@@ -177,5 +181,7 @@ lists them with what each one colours.
   and `surfaceSubtle` from the theme where they are hex, the defaults above otherwise.
 - **The audit** (`npx nx run web-e2e:audit`) screenshots every page on desktop and phone and
   runs axe against WCAG 2.1 AA, so a contrast slip shows up as a new finding next to its ratio.
-- **A new role** gets a name by the grammar above, a default in `styles.css`, a row here, and a
-  measured ratio if it carries text.
+- **A new role** gets a name by the grammar above, a default in `styles.css`, a key of the same
+  name in [theme-config.ts](../libs/shared/src/lib/config/theme-config.ts) so a deployment can
+  set it, a row here, and a measured ratio if it carries text. A renamed role also moves its key
+  in the release's config migration map.

@@ -180,7 +180,7 @@
    * A name is family · role · intensity · state: `danger-surface`,
    * `surface-hover`, `ink-subtle`. Roles: a ground (`surface`, `chip`), text
    * (`ink`), a line (`edge`), a marker (`dot`). Intensity: `-subtle` < base
-   * < `-strong` < `-stronger`, further from the page each step. State:
+   * < `-strong`, further from the page each step. State:
    * `-hover`, `-press`, named for what they happen on, and `-disabled`.
    * Text holds 4.5:1 on every ground it meets, a control's glyph or a lone
    * marker 3:1; `ink-disabled` and lines are exempt. The reasoning,
@@ -194,8 +194,8 @@
   --color-primary: oklch(45.39% 0.0568 55.64);
   /*
    * Primary, 15% toward black — 10.0:1 on white. Mixed, so a deployment's own
-   * primary gets its press unless it sets one. The press, on everything that
-   * can be pressed. It has to be a colour of its own: a press that returns a
+   * primary gets its press unless it sets one. The press of a button, a
+   * segment or an icon control. It has to be a colour of its own: a press that returns a
    * control to its resting colour is only legible on the way back from hover,
    * and a finger never goes through hover, so on a phone it showed nothing at
    * all. Deeper rather than lighter, so a control being pushed into the page
