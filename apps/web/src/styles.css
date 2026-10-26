@@ -205,6 +205,13 @@
   --color-secondary: #8b6f52;
   /* Highlights, badges, eyebrows, hover (amber-700) */
   --color-accent: #b45309;
+  /*
+   * Accent where the ground is too dark for it: on `chip` and on the
+   * stone-200 hover grounds accent falls below 4.5:1 (4.45 and 4.0), this is
+   * 5.7 on the darker of the two. Mixed from the accent rather than picked, so a
+   * deployment's own accent gets its stronger step for free.
+   */
+  --color-accent-strong: color-mix(in oklab, var(--color-accent), black 15%);
 
   /*
    * Text. `ink` is the default (stone-900); `subtle` is everything quieter:

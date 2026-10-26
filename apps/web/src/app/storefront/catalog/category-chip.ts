@@ -31,7 +31,7 @@ export interface CategoryChipTarget {
 export type CategoryChipSize = 'responsive' | 'small';
 
 const CHIP_BASE =
-  'flex w-full items-center pl-3 overflow-hidden rounded-xl bg-chip text-base tracking-tight transition-colors hover:bg-chip-hover hover:text-accent';
+  'flex w-full items-center pl-3 overflow-hidden rounded-xl bg-chip text-base tracking-tight transition-colors hover:bg-chip-hover hover:text-accent-strong';
 
 /** The mark is the chip's full height and square — the upload stores a square
  * — so nothing is cropped here; only how much of the chip it takes changes. */

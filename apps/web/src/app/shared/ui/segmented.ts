@@ -119,7 +119,7 @@ export function segmentClass(
     selected:
       'bg-white text-ink shadow-xs hover:text-accent active:text-primary-press',
     available:
-      'text-subtle hover:bg-surface-strong-hover hover:text-accent active:bg-surface-strong-press active:text-primary-press',
+      'text-subtle hover:bg-surface-strong-hover hover:text-accent-strong active:bg-surface-strong-press active:text-primary-press',
     unavailable:
       'text-subtle hover:bg-surface-strong-hover active:bg-surface-strong-press',
   };

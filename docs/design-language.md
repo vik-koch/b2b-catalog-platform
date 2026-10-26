@@ -55,6 +55,7 @@ How the defaults meet the floors:
 |---|---|
 | `ink` / `subtle` on `surface-strong`, the darkest ground they meet | 16.0 / 4.9 |
 | `primary` / `accent` on `surface-strong` | 6.8 / 4.6 |
+| `accent-strong` on `chip` / on the stone-200 hover grounds | 6.3 / 5.7 |
 | `danger` / `warning` / `success` on `surface-strong` | 5.9 / 4.6 / 4.5 |
 | A status `-ink` on its `-surface-strong` (danger, warning, success, info) | 6.9 / 6.4 / 6.5 / 6.5 |
 | White on `primary` / `primary-press` / `accent` | 7.4 / 10.0 / 5.0 |
@@ -68,8 +69,6 @@ Known exceptions:
 - **The cart's count** is white on `warning-dot`, 3.2:1. The count is the same dot as the
   account's waiting-work marker, and white figures were chosen over dark ones that read as a
   foreign colour in the header.
-- **`accent` on `surface-stronger`** is 4.0:1. The category chip and the segmented control's
-  inactive options hover onto that ground; a deeper accent for them is planned.
 - **`edge-strong`**, the edge of a field, is 1.5:1 on white. Read strictly, an edge that
   identifies a control wants 3:1; the field's label and position identify it here, and a darker
   edge everywhere is a decision of its own.
@@ -88,6 +87,7 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 | `primary-press` | `#573d2b` | Every pressed control. A colour of its own, because a press that only undid the hover would show nothing to a finger, which never hovers |
 | `secondary` | `#8b6f52` | Focus, on every control |
 | `accent` | `#b45309` | Hover, on every control; highlights and eyebrows |
+| `accent-strong` | accent, 15% toward black | Accent on a ground too dark for it: a hovered chip, a segment hovered inside its track, a notice badge |
 
 ### Text
 
