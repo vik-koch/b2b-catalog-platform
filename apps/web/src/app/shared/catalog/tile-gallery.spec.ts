@@ -213,7 +213,7 @@ describe('TileGallery labels (FR-CAT-11)', () => {
     variant,
   });
 
-  function renderLabelled(labels = true): ComponentFixture<TileGallery> {
+  function renderLabeled(labels = true): ComponentFixture<TileGallery> {
     const f = render([shot(1, null), shot(2, 'Speckled off-white')]);
     f.componentRef.setInput('labels', labels);
     f.detectChanges();
@@ -226,7 +226,7 @@ describe('TileGallery labels (FR-CAT-11)', () => {
       ?.textContent?.trim() ?? null;
 
   it('names the variant of the picture on show, and nothing over a range shot', () => {
-    const f = renderLabelled();
+    const f = renderLabeled();
     expect(label(f)).toBeNull();
 
     const link = (f.nativeElement as HTMLElement).querySelector(
@@ -240,7 +240,7 @@ describe('TileGallery labels (FR-CAT-11)', () => {
   });
 
   it('names the variant in the picture’s text alternative', () => {
-    const f = renderLabelled();
+    const f = renderLabeled();
     const alts = [
       ...(f.nativeElement as HTMLElement).querySelectorAll('img'),
     ].map((image) => image.alt);
@@ -249,7 +249,7 @@ describe('TileGallery labels (FR-CAT-11)', () => {
   });
 
   it('prints no label where the photo is too small to carry one', () => {
-    const f = renderLabelled(false);
+    const f = renderLabeled(false);
 
     const link = (f.nativeElement as HTMLElement).querySelector(
       'a',
