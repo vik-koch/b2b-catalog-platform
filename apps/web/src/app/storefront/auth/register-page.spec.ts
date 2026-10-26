@@ -39,7 +39,9 @@ function setInput(root: HTMLElement, selector: string, value: string): void {
 function blur(root: HTMLElement, selector: string): void {
   const input = root.querySelector<HTMLInputElement>(selector);
   if (!input) throw new Error(`no element for ${selector}`);
-  input.dispatchEvent(new Event('blur'));
+  // Both, as a browser fires them: the field listens for the bubbling one.
+  input.dispatchEvent(new FocusEvent('blur'));
+  input.dispatchEvent(new FocusEvent('focusout', { bubbles: true }));
 }
 
 function check(root: HTMLElement, selector: string): void {

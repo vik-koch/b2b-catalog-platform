@@ -28,7 +28,7 @@ import {
 } from '@b2b-catalog-platform/shared/admin';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import { AddressForm } from '../../shared/addresses/address-form';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { ReactiveCompanyFields } from '../../shared/parties/reactive-company-fields';
 import {
   canonicalPhone,
   companyIdFormat,
@@ -156,7 +156,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     AddressFields,
     Button,
     Checkbox,
-    CompanyFields,
+    ReactiveCompanyFields,
     DisclosureToggle,
     EmailField,
     FieldLabel,
@@ -471,7 +471,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           }
                         </div>
                       } @else {
-                        <app-company-fields
+                        <app-reactive-company-fields
                           idInputId="adjust-party-id"
                           nameInputId="adjust-party-name"
                           [idControl]="party.controls.companyId"

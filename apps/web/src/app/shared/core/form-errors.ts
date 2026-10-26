@@ -39,8 +39,6 @@ export class FieldErrors {
 
   /** True once the form has been sent for validation at least once. */
   private readonly submitted = signal(false);
-  /** For a field kept outside the group, such as the consent box. */
-  readonly attempted = this.submitted.asReadonly();
 
   constructor(private readonly form: FormGroup) {
     for (const control of Object.values(form.controls)) {

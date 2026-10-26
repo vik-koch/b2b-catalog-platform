@@ -30,7 +30,7 @@ let nextId = 0;
  * empty list and therefore no dropdown.
  *
  * It draws no hint and no message: the pair shares one, under the row (see
- * `CompanyFields`).
+ * `ReactiveCompanyFields`).
  */
 @Component({
   selector: 'app-party-suggest-field',

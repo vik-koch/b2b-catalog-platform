@@ -5,7 +5,7 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { ReactiveCompanyFields } from '../../shared/parties/reactive-company-fields';
 import { ChoiceBranch } from '../../shared/ui/choice-branch';
 import { Input } from '../../shared/ui/input';
 import { FieldLabel } from '../../shared/ui/field-label';
@@ -40,7 +40,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   imports: [
     WarningNote,
     ChoiceBranch,
-    CompanyFields,
+    ReactiveCompanyFields,
     NgTemplateOutlet,
     FieldLabel,
     Input,
@@ -122,7 +122,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               }
             </div>
           } @else {
-            <app-company-fields
+            <app-reactive-company-fields
               idInputId="party-companyId"
               nameInputId="party-companyName"
               [idControl]="companyIdControl()"

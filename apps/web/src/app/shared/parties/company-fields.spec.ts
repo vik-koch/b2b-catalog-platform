@@ -1,10 +1,12 @@
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormControl, Validators } from '@angular/forms';
+import { form, required } from '@angular/forms/signals';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
-import { companyIdFormat } from '../core/contact-fields';
+import { companyIdFormat } from '../core/field-rules';
+import { FORM_FIELDS } from '../ui/form-fields';
 import { CompanyFields } from './company-fields';
 import { PartiesService } from './parties.service';
 
@@ -16,14 +18,42 @@ const text = {
   idLabel: 'Company ID',
   nameLabel: 'Company name',
   hint: 'e.g. {examples}',
+};
+const messages = {
   idFormat: 'Please enter it in one of the expected formats, e.g. {examples}.',
   idRequired: 'Please enter your company ID.',
   nameRequired: 'Please enter your company name.',
 };
 
-async function render(options: { required?: boolean } = {}) {
+@Component({
+  imports: [FORM_FIELDS, CompanyFields],
+  template: `
+    <form [formRoot]="form">
+      <app-company-fields
+        [idField]="form.id"
+        [nameField]="form.name"
+        [text]="text"
+      />
+      <button type="submit">Send</button>
+    </form>
+  `,
+})
+class Host {
+  protected readonly text = text;
+  readonly form = form(
+    signal({ id: '', name: '' }),
+    (company) => {
+      required(company.id, { message: messages.idRequired });
+      companyIdFormat(company.id, formats, messages.idFormat);
+      required(company.name, { message: messages.nameRequired });
+    },
+    { name: 'company', submission: { action: async () => undefined } },
+  );
+}
+
+async function render() {
   TestBed.configureTestingModule({
-    imports: [CompanyFields],
+    imports: [Host],
     providers: [
       { provide: DEPLOYMENT_CONFIG, useValue: defaultDeploymentConfig },
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
@@ -31,41 +61,27 @@ async function render(options: { required?: boolean } = {}) {
     ],
   });
 
-  const required = options.required ?? true;
-  const idControl = new FormControl('', {
-    nonNullable: true,
-    validators: [
-      ...(required ? [Validators.required] : []),
-      companyIdFormat(formats),
-    ],
-  });
-  const nameControl = new FormControl('', {
-    nonNullable: true,
-    validators: required ? [Validators.required] : [],
-  });
-
-  const fixture = TestBed.createComponent(CompanyFields);
-  fixture.componentRef.setInput('idControl', idControl);
-  fixture.componentRef.setInput('nameControl', nameControl);
-  fixture.componentRef.setInput('text', text);
-  fixture.componentRef.setInput('required', required);
+  const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
-  fixture.detectChanges();
+  const el = fixture.nativeElement as HTMLElement;
+  const settle = async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
 
   return {
-    fixture,
-    idControl,
-    nameControl,
-    el: fixture.nativeElement as HTMLElement,
-    type: (control: FormControl<string>, value: string) => {
-      control.setValue(value);
-      fixture.detectChanges();
+    el,
+    host: fixture.componentInstance,
+    type: async (selector: string, value: string) => {
+      const input = el.querySelector<HTMLInputElement>(selector);
+      if (!input) throw new Error(`no ${selector}`);
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      await settle();
     },
-    /** What the form does when its FieldErrors decides a message is due. */
-    showErrors: () => {
-      fixture.componentRef.setInput('idInvalid', idControl.invalid);
-      fixture.componentRef.setInput('nameInvalid', nameControl.invalid);
-      fixture.detectChanges();
+    submit: async () => {
+      el.querySelector<HTMLButtonElement>('button[type="submit"]')?.click();
+      await settle();
     },
   };
 }
@@ -83,15 +99,28 @@ describe('CompanyFields', () => {
   // The number's column is ten characters wide; a message wrapped into five
   // lines under it is worse than no layout at all.
   it('spans its messages under the row rather than under a column', async () => {
-    const { el, idControl, type, showErrors } = await render();
+    const { el, type, submit } = await render();
 
-    type(idControl, '12345');
-    showErrors();
+    await type('#companyId', '12345');
+    await submit();
 
     const message = [...el.querySelectorAll('p')].find((p) =>
       p.textContent?.includes('expected formats'),
     );
+    expect(message).toBeDefined();
     expect(message?.closest('.grid')).toBeNull();
+  });
+
+  it('points both fields at the line under the row', async () => {
+    const { el } = await render();
+    const line = el.querySelector('.grid + div');
+
+    expect(line?.id).toBeTruthy();
+    for (const id of ['#companyId', '#companyName']) {
+      expect(el.querySelector(id)?.getAttribute('aria-describedby')).toBe(
+        line?.id,
+      );
+    }
   });
 
   it('names every accepted shape in its hint', async () => {
@@ -102,25 +131,25 @@ describe('CompanyFields', () => {
   });
 
   it('accepts a number in any of them, spaces and case included', async () => {
-    const { idControl, type } = await render();
+    const { host, type } = await render();
 
-    type(idControl, 'DE123456789');
-    expect(idControl.valid).toBe(true);
+    await type('#companyId', 'DE123456789');
+    expect(host.form.id().valid()).toBe(true);
 
-    type(idControl, '1234567890');
-    expect(idControl.valid).toBe(true);
+    await type('#companyId', '1234567890');
+    expect(host.form.id().valid()).toBe(true);
 
-    type(idControl, 'de 123 456 789');
-    expect(idControl.valid).toBe(true);
+    await type('#companyId', 'de 123 456 789');
+    expect(host.form.id().valid()).toBe(true);
   });
 
   it('refuses one in no configured shape, naming them all', async () => {
-    const { el, idControl, type, showErrors } = await render();
+    const { el, host, type, submit } = await render();
 
-    type(idControl, '12345');
-    showErrors();
+    await type('#companyId', '12345');
+    await submit();
 
-    expect(idControl.valid).toBe(false);
+    expect(host.form.id().valid()).toBe(false);
     expect(el.textContent).toContain(
       `Please enter it in one of the expected formats, e.g. ${examples}.`,
     );
@@ -129,31 +158,24 @@ describe('CompanyFields', () => {
   // Missing and malformed are different mistakes, and only the first has a
   // message of its own.
   it('says a number is missing before it says it is malformed', async () => {
-    const { el, showErrors } = await render();
+    const { el, submit } = await render();
 
-    showErrors();
+    await submit();
 
-    expect(el.textContent).toContain(text.idRequired);
+    expect(el.textContent).toContain(messages.idRequired);
+    expect(el.textContent).not.toContain('expected formats');
   });
 
   // Two fields, one message area: both mistakes have to be readable at once.
   it('shows what is wrong with either field, together', async () => {
-    const { el, idControl, type, showErrors } = await render();
+    const { el, type, submit } = await render();
 
-    type(idControl, '12345');
-    showErrors();
+    await type('#companyId', '12345');
+    await submit();
 
     expect(el.textContent).toContain('expected formats');
-    expect(el.textContent).toContain(text.nameRequired);
-  });
-
-  // An address's company is optional, and passes no required wording in.
-  it('asks for nothing where the pair is optional', async () => {
-    const { el, showErrors } = await render({ required: false });
-
-    showErrors();
-
-    expect(el.textContent).not.toContain(text.idRequired);
-    expect(el.textContent).not.toContain(text.nameRequired);
+    expect(el.textContent).toContain(messages.nameRequired);
+    // The hint gives way to the messages rather than sitting beside them.
+    expect(el.querySelector('.grid + div p.text-ink-subtle')).toBeNull();
   });
 });

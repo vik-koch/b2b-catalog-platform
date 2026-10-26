@@ -1,0 +1,159 @@
+import { Component, computed, inject, input, output } from '@angular/core';
+import { FormField, type FieldTree } from '@angular/forms/signals';
+import {
+  PARTY_QUERY_MIN_LENGTH,
+  PartySuggestion,
+} from '@b2b-catalog-platform/shared';
+import { HighlightedLine } from '../core/highlighted-line';
+import {
+  SUGGEST_PANEL,
+  SuggestList,
+  SuggestListText,
+} from '../core/suggest-list';
+import { FieldBinding } from '../ui/field-binding';
+import { Input } from '../ui/input';
+import { PartiesService } from './parties.service';
+
+/** `aria-controls` must name one list, and a form holds two of these. */
+let nextId = 0;
+
+/**
+ * A text input that suggests companies as it is typed (FR-AUTH-09, ADR 0041),
+ * inside a Field that names it.
+ *
+ * Used for **both** company fields, the name and the registration number,
+ * because the provider takes either as its query and answers with the whole
+ * party. Whichever the customer starts in, picking a row fills the other, which
+ * is why neither field is ever disabled to steer them into the "right" one.
+ *
+ * An ordinary text input first: typing always works, nothing about the form
+ * depends on a suggestion arriving, and a deployment with no sidecar gets an
+ * empty list and therefore no dropdown.
+ */
+@Component({
+  selector: 'app-party-suggest-input',
+  imports: [FormField, FieldBinding, Input, HighlightedLine],
+  host: { class: 'block' },
+  template: `
+    <div class="relative">
+      <input
+        type="text"
+        role="combobox"
+        aria-autocomplete="list"
+        [autocomplete]="autocomplete()"
+        [attr.aria-expanded]="list.panelOpen()"
+        [attr.aria-controls]="listId"
+        [attr.aria-activedescendant]="activeOptionId()"
+        [formField]="field()"
+        appInput
+        class="w-full"
+        (input)="list.type($any($event.target).value)"
+        (keydown)="keydown($event)"
+        (blur)="list.close()"
+      />
+
+      @if (list.panelOpen()) {
+        <!-- As wide as the field, but never narrower than a company name and
+             the number under it: this field shares a row with the other, so
+             its own column is too narrow to read a suggestion in. -->
+        <div [class]="panel">
+          @if (list.suggestions().length === 0) {
+            <p class="px-3 py-2 text-sm text-ink-subtle">
+              {{ text().noSuggestions }}
+            </p>
+          }
+          <ul
+            [id]="listId"
+            role="listbox"
+            [attr.aria-label]="text().suggestionsAria"
+          >
+            @for (item of list.suggestions(); track $index; let i = $index) {
+              <li
+                [id]="listId + '-' + i"
+                role="option"
+                [attr.aria-selected]="i === list.activeIndex()"
+                class="cursor-pointer px-3 py-2 text-sm"
+                [class.bg-surface-subtle-hover]="i === list.activeIndex()"
+                (mouseenter)="list.activeIndex.set(i)"
+                (mousedown)="pick($event, item)"
+              >
+                <span class="block truncate font-medium text-ink">
+                  <app-highlighted-line
+                    [line]="item.name"
+                    [query]="list.query()"
+                  />
+                </span>
+                <!-- Marked too, because the number is a query in its own right:
+                     a customer who typed one is looking for it in the row. -->
+                @if (secondLine(item); as second) {
+                  <span class="block truncate text-ink-subtle">
+                    <app-highlighted-line
+                      [line]="second"
+                      [query]="list.query()"
+                    />
+                  </span>
+                }
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+
+    <p aria-live="polite" class="sr-only">{{ list.announcement(text()) }}</p>
+  `,
+})
+export class PartySuggestInput {
+  private readonly parties = inject(PartiesService);
+
+  readonly field = input.required<FieldTree<string>>();
+  readonly text = input.required<SuggestListText>();
+  readonly autocomplete = input('off');
+
+  /** The whole party the customer picked: both fields fill from it. */
+  readonly picked = output<PartySuggestion>();
+
+  /** Wide enough for a company's registered name, which the ten-character
+   * number field beside it is nowhere near, where the form has the room. */
+  protected readonly panel = `${SUGGEST_PANEL} min-w-[min(20rem,100cqw)]`;
+
+  protected readonly listId = `party-suggestions-${nextId++}`;
+
+  protected readonly list = new SuggestList<PartySuggestion>({
+    load: (q) => this.parties.suggest(q),
+    minLength: PARTY_QUERY_MIN_LENGTH,
+  });
+
+  protected readonly activeOptionId = computed(() =>
+    this.list.panelOpen() && this.list.activeIndex() >= 0
+      ? `${this.listId}-${this.list.activeIndex()}`
+      : null,
+  );
+
+  /**
+   * What tells two rows apart when the names look alike: the number, and where
+   * the company is registered. Absent parts are simply left out: a provider
+   * answers at whatever granularity it has.
+   */
+  protected secondLine(item: PartySuggestion): string {
+    return [item.registrationId, item.address?.city]
+      .filter(Boolean)
+      .join(' · ');
+  }
+
+  protected keydown(event: KeyboardEvent): void {
+    const chosen = this.list.keydown(event);
+    if (chosen) this.apply(chosen);
+  }
+
+  /** mousedown, not click: the field's own blur would close the panel first. */
+  protected pick(event: MouseEvent, item: PartySuggestion): void {
+    event.preventDefault();
+    this.apply(item);
+  }
+
+  private apply(item: PartySuggestion): void {
+    this.picked.emit(item);
+    this.list.close();
+  }
+}

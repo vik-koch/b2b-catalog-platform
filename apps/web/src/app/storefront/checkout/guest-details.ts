@@ -6,7 +6,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldErrors } from '../../shared/core/form-errors';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { ReactiveCompanyFields } from '../../shared/parties/reactive-company-fields';
 import { EmailField } from '../../shared/ui/email-field';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
@@ -31,7 +31,7 @@ import { ErrorText } from '../../shared/ui/error-text';
 @Component({
   selector: 'app-guest-details',
   imports: [
-    CompanyFields,
+    ReactiveCompanyFields,
     EmailField,
     FieldLabel,
     Input,
@@ -61,7 +61,7 @@ import { ErrorText } from '../../shared/ui/error-text';
            the one and confirmed with the other, and that is the order they are
            read in on the paperwork. -->
       @if (party() === 'company') {
-        <app-company-fields
+        <app-reactive-company-fields
           idInputId="party-companyId"
           nameInputId="party-companyName"
           [idControl]="companyIdControl()"

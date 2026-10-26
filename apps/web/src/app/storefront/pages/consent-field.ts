@@ -91,8 +91,6 @@ let nextId = 0;
 })
 export class ConsentField {
   readonly consent = input.required<ConsentRequest>();
-  /** From a reactive form's FieldErrors; a signal form needs none. */
-  readonly invalid = input(false);
   /** The privacy notice in place of the box, where none is asked. */
   readonly alone = input(true);
 
@@ -100,9 +98,7 @@ export class ConsentField {
   private readonly attempt = inject(SubmitAttempt, { optional: true });
   /** Required is all the box can break, so its message waits for a submit. */
   protected readonly shown = computed(
-    () =>
-      this.invalid() ||
-      (!!this.attempt?.attempted() && this.consent().field().invalid()),
+    () => !!this.attempt?.attempted() && this.consent().field().invalid(),
   );
   protected readonly text = inject(STOREFRONT_TEXT).consentBox;
   protected readonly parts = computed(() => {

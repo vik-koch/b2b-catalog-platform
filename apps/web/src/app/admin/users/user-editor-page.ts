@@ -30,7 +30,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { LockedNote } from '../ownership/locked-note';
 import { Button } from '../../shared/ui/button';
-import { CompanyFields } from '../../shared/parties/company-fields';
+import { ReactiveCompanyFields } from '../../shared/parties/reactive-company-fields';
 import { EmailField } from '../../shared/ui/email-field';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { PhoneField } from '../../shared/ui/phone-field';
@@ -72,7 +72,7 @@ import { Hint } from '../../shared/ui/hint';
     ReactiveFormsModule,
     Button,
     AdminIcon,
-    CompanyFields,
+    ReactiveCompanyFields,
     EmailField,
     FieldLabel,
     Input,
@@ -245,7 +245,7 @@ import { Hint } from '../../shared/ui/hint';
             </div>
 
             @if (isCompany()) {
-              <app-company-fields
+              <app-reactive-company-fields
                 idInputId="companyRegistrationId"
                 [idControl]="form.controls.companyRegistrationId"
                 [nameControl]="form.controls.companyName"

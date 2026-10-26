@@ -90,10 +90,13 @@ let nextId = 0;
         <ng-container [ngTemplateOutlet]="caption" />
       }
       <ng-container [ngTemplateOutlet]="control" />
-      @if (error(); as error) {
-        <p appErrorText [id]="errorId()" class="mt-1">{{ error }}</p>
-      } @else if (hint(); as hint) {
-        <p appHint [id]="hintId()" class="mt-1">{{ hint }}</p>
+      <!-- With a shared line, that line draws them. -->
+      @if (!sharedLine()) {
+        @if (error(); as error) {
+          <p appErrorText [id]="errorId()" class="mt-1">{{ error }}</p>
+        } @else if (hint(); as hint) {
+          <p appHint [id]="hintId()" class="mt-1">{{ hint }}</p>
+        }
       }
     }
   `,
@@ -112,6 +115,12 @@ export class Field<T> {
   readonly controlId = input(`field-${nextId++}`);
   /** Ids of further lines that describe the control, such as a server's answer. */
   readonly describedBy = input<string>();
+  /**
+   * The id of a line outside the field that says its hint and error, for
+   * fields that share one under their row. The field still decides when its
+   * error is due; the line reads `error()` and draws it.
+   */
+  readonly sharedLine = input<string>();
 
   private readonly host =
     inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
@@ -138,10 +147,12 @@ export class Field<T> {
   protected readonly errorId = computed(() => `${this.controlId()}-error`);
   /** Under a single control the error takes the hint's place; a group keeps both. */
   readonly descriptionIds = computed(() => {
-    const hint = this.hint() && (this.group() || !this.error());
+    const shared = this.sharedLine();
+    const hint = !shared && this.hint() && (this.group() || !this.error());
     const ids = [
       hint && this.hintId(),
-      this.error() && this.errorId(),
+      !shared && this.error() && this.errorId(),
+      shared,
       this.describedBy(),
     ];
     return ids.filter(Boolean).join(' ') || null;
