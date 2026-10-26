@@ -5,7 +5,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { SyncRun } from '@b2b-catalog-platform/shared/sync';
 import type { MailBranding } from './mail-branding';
-import { DEFAULT_MAIL_COLOURS } from './mail-colours';
+import { DEFAULT_MAIL_COLORS } from './mail-colors';
 import { MailContent, RenderedMail, renderMail } from './mail-layout';
 import { demoSharedText, demoMailText } from './mail-text.fixture';
 import type { MailText } from './mail-text';
@@ -65,7 +65,7 @@ const currency: MoneyFormat = { code: 'EUR', locale: 'de-DE' };
 export const demoMailBranding: MailBranding = {
   name: 'Demo Shop',
   primaryColor: '#6f4e37',
-  colours: DEFAULT_MAIL_COLOURS,
+  colors: DEFAULT_MAIL_COLORS,
   siteUrl: 'https://shop.example.com',
   locale: currency.locale,
 };

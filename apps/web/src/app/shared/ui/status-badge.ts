@@ -79,7 +79,7 @@ export class StatusBadge {
 
   protected readonly classes = computed(() => {
     const variant = this.variant();
-    const colours = variant === 'dot' ? dots[this.tone()] : tones[this.tone()];
+    const colors = variant === 'dot' ? dots[this.tone()] : tones[this.tone()];
     // select-none: a badge names a state, it is not text about one. See Button.
     // nowrap for the same reason: a two-word state is one label, and a narrow
     // column — a table the reader has dragged, a phone — should push it out of
@@ -87,6 +87,6 @@ export class StatusBadge {
     const flow = this.wrap()
       ? 'items-start leading-tight before:mt-[calc(0.5lh-0.1875rem)]'
       : 'items-center whitespace-nowrap';
-    return `inline-flex ${flow} text-xs font-medium select-none ${shapes[variant]} ${colours}`;
+    return `inline-flex ${flow} text-xs font-medium select-none ${shapes[variant]} ${colors}`;
   });
 }

@@ -15,7 +15,7 @@ import { requireEnv } from '../support/env';
 // Per-run suffix, so a crashed run's leftovers cannot collide with this one.
 const R = Date.now().toString(36);
 const CATEGORY = `e2e-facets-${R}`;
-const COLOUR = `E2E Colour ${R}`;
+const COLOR = `E2E Colour ${R}`;
 const LENGTH = `E2E Length ${R}`;
 const FINISH = `E2E Finish ${R}`;
 const NAME_TOKEN = `Facetberry${R}`;
@@ -57,7 +57,7 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
   let client: Client;
   let categoryId = '';
   const definitionIds: string[] = [];
-  let colourSlug = '';
+  let colorSlug = '';
   let lengthSlug = '';
 
   async function addProduct(
@@ -127,40 +127,40 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
     );
     categoryId = category.rows[0].id;
 
-    colourSlug = await define(COLOUR, 'text');
+    colorSlug = await define(COLOR, 'text');
     lengthSlug = await define(LENGTH, 'number', 'cm');
 
     await addProduct('blue-30', [
-      { key: COLOUR, value: 'Blue' },
+      { key: COLOR, value: 'Blue' },
       { key: LENGTH, value: '30' },
       // A key nobody declared: it is entered the same way and simply does not
       // become a facet (FR-ATTR-02).
       { key: FINISH, value: 'Matt' },
     ]);
     await addProduct('blue-40', [
-      { key: COLOUR, value: 'Blue' },
+      { key: COLOR, value: 'Blue' },
       { key: LENGTH, value: '40' },
     ]);
     await addProduct('red-30', [
-      { key: COLOUR, value: 'Red' },
+      { key: COLOR, value: 'Red' },
       { key: LENGTH, value: '30' },
     ]);
     await addProduct('green-ca', [
-      { key: COLOUR, value: 'Green' },
+      { key: COLOR, value: 'Green' },
       { key: LENGTH, value: 'ca. 30' },
       // A row saved before valueless attributes stopped being stored.
-      { key: COLOUR, value: '' },
+      { key: COLOR, value: '' },
     ]);
     // Neither of these may be counted or listed.
     await addProduct(
       'unpublished',
       [
-        { key: COLOUR, value: 'Blue' },
+        { key: COLOR, value: 'Blue' },
         { key: LENGTH, value: '30' },
       ],
       { published: false },
     );
-    await addProduct('deleted', [{ key: COLOUR, value: 'Blue' }], {
+    await addProduct('deleted', [{ key: COLOR, value: 'Blue' }], {
       deleted: true,
     });
   });
@@ -184,10 +184,10 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
     it('offers the declared attributes only, counted over what a visitor can reach', async () => {
       const { facets } = await listing();
 
-      expect(facets.map((f) => f.name)).toEqual([COLOUR, LENGTH]);
+      expect(facets.map((f) => f.name)).toEqual([COLOR, LENGTH]);
       // Blue is on four products; the unpublished and the deleted one do not
       // count.
-      expect(facet(facets, colourSlug)?.values).toEqual([
+      expect(facet(facets, colorSlug)?.values).toEqual([
         { value: 'Blue', count: 2, selected: false },
         { value: 'Green', count: 1, selected: false },
         { value: 'Red', count: 1, selected: false },
@@ -226,7 +226,7 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
       const { facets } = await listing();
 
       expect(
-        facet(facets, colourSlug)?.values.map((v) => v.value),
+        facet(facets, colorSlug)?.values.map((v) => v.value),
       ).not.toContain('');
     });
   });
@@ -234,8 +234,8 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
   describe('selecting (FR-ATTR-05)', () => {
     it('matches any of one attribute’s values', async () => {
       const { slugs } = await listing([
-        `${colourSlug}:Blue`,
-        `${colourSlug}:Red`,
+        `${colorSlug}:Blue`,
+        `${colorSlug}:Red`,
       ]);
 
       expect(slugs.sort()).toEqual([
@@ -247,7 +247,7 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
 
     it('requires every selected attribute to match', async () => {
       const { slugs } = await listing([
-        `${colourSlug}:Blue`,
+        `${colorSlug}:Blue`,
         `${lengthSlug}:40`,
       ]);
 
@@ -255,11 +255,11 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
     });
 
     it('counts an attribute against the others, not against itself', async () => {
-      const { facets } = await listing([`${colourSlug}:Blue`]);
+      const { facets } = await listing([`${colorSlug}:Blue`]);
 
       // Colour keeps its full list and its full counts: picking Blue must not
       // make Red look impossible.
-      expect(facet(facets, colourSlug)?.values).toEqual([
+      expect(facet(facets, colorSlug)?.values).toEqual([
         { value: 'Blue', count: 2, selected: true },
         { value: 'Green', count: 1, selected: false },
         { value: 'Red', count: 1, selected: false },
@@ -271,7 +271,7 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
     it('greys a value that would leave nothing, rather than hiding it', async () => {
       const { facets } = await listing([`${lengthSlug}:30`]);
 
-      expect(facet(facets, colourSlug)?.values).toContainEqual({
+      expect(facet(facets, colorSlug)?.values).toContainEqual({
         value: 'Green',
         count: 0,
         selected: false,
@@ -281,7 +281,7 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
     it('accepts a single selection as a bare parameter', async () => {
       const res = await products(
         `/catalog/categories/${CATEGORY}/products?attr=${encodeURIComponent(
-          `${colourSlug}:Red`,
+          `${colorSlug}:Red`,
         )}`,
       );
 
@@ -306,12 +306,12 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
       products(withAttrs(`/catalog/search?q=${NAME_TOKEN}`, attrs));
 
     it('filters the result set and counts within it', async () => {
-      const { slugs, facets } = await search([`${colourSlug}:Red`]);
+      const { slugs, facets } = await search([`${colorSlug}:Red`]);
 
       expect(slugs).toEqual([`e2e-facet-${R}-red-30`]);
-      expect(countOf(facet(facets, colourSlug)?.values, 'Red')).toBe(1);
+      expect(countOf(facet(facets, colorSlug)?.values, 'Red')).toBe(1);
       // Counted against the other facets only, so Blue keeps its own count.
-      expect(countOf(facet(facets, colourSlug)?.values, 'Blue')).toBe(2);
+      expect(countOf(facet(facets, colorSlug)?.values, 'Blue')).toBe(2);
     });
   });
 
@@ -324,8 +324,8 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
       setSlug = await addProduct(
         'set',
         [
-          { key: COLOUR, part: 'cup', value: 'Black' },
-          { key: COLOUR, part: 'lid', value: 'White' },
+          { key: COLOR, part: 'cup', value: 'Black' },
+          { key: COLOR, part: 'lid', value: 'White' },
         ],
         { parts: ['cup', 'lid'] },
       );
@@ -337,14 +337,14 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
 
     it('is found under either part’s colour, and counted once in each', async () => {
       const { facets } = await listing();
-      expect(countOf(facet(facets, colourSlug)?.values, 'Black')).toBe(1);
-      expect(countOf(facet(facets, colourSlug)?.values, 'White')).toBe(1);
+      expect(countOf(facet(facets, colorSlug)?.values, 'Black')).toBe(1);
+      expect(countOf(facet(facets, colorSlug)?.values, 'White')).toBe(1);
 
-      expect((await listing([`${colourSlug}:White`])).slugs).toEqual([setSlug]);
+      expect((await listing([`${colorSlug}:White`])).slugs).toEqual([setSlug]);
       // One product for two rows of one attribute: both selections together
       // still list it once.
       expect(
-        (await listing([`${colourSlug}:Black`, `${colourSlug}:White`])).slugs,
+        (await listing([`${colorSlug}:Black`, `${colorSlug}:White`])).slugs,
       ).toEqual([setSlug]);
     });
 
@@ -354,16 +354,16 @@ describe('Storefront attribute facets (FR-ATTR-04…07)', () => {
       expect(product.data.parts).toEqual(['cup', 'lid']);
       expect(product.data.attributes).toEqual([
         {
-          key: `${COLOUR} (cup)`,
+          key: `${COLOR} (cup)`,
           value: 'Black',
           unit: null,
-          filterSlug: colourSlug,
+          filterSlug: colorSlug,
         },
         {
-          key: `${COLOUR} (lid)`,
+          key: `${COLOR} (lid)`,
           value: 'White',
           unit: null,
-          filterSlug: colourSlug,
+          filterSlug: colorSlug,
         },
       ]);
     });

@@ -1,10 +1,7 @@
-import {
-  type DeploymentConfig,
-  HEX_COLOUR,
-} from '@b2b-catalog-platform/shared';
+import { type DeploymentConfig, HEX_COLOR } from '@b2b-catalog-platform/shared';
 
 /** The greys a message is drawn in, by the web app's role names. */
-export interface MailColours {
+export interface MailColors {
   /** Headings and body text. */
   readonly ink: string;
   /** Labels, quantities, the footer. */
@@ -22,7 +19,7 @@ export interface MailColours {
  * neither oklch nor color-mix. `inkSubtle` holds 4.5:1 on `surface`, where
  * the footer sits.
  */
-export const DEFAULT_MAIL_COLOURS: MailColours = {
+export const DEFAULT_MAIL_COLORS: MailColors = {
   ink: '#1c1917',
   inkSubtle: '#706963',
   edge: '#e7e5e4',
@@ -31,12 +28,12 @@ export const DEFAULT_MAIL_COLOURS: MailColours = {
 };
 
 /** The deployment's own greys where it set them as hex, the defaults otherwise. */
-export function mailColours(
+export function mailColors(
   theme: DeploymentConfig['branding']['theme'],
-): MailColours {
-  const pick = (key: keyof MailColours) => {
+): MailColors {
+  const pick = (key: keyof MailColors) => {
     const set = theme[key];
-    return set && HEX_COLOUR.test(set) ? set : DEFAULT_MAIL_COLOURS[key];
+    return set && HEX_COLOR.test(set) ? set : DEFAULT_MAIL_COLORS[key];
   };
   return {
     ink: pick('ink'),

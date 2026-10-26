@@ -108,12 +108,12 @@ function renderHtml(
   branding: MailBranding,
   footerNote: string,
 ): string {
-  const colour = branding.colours;
+  const color = branding.colors;
   const parts: string[] = [];
 
   for (const paragraph of content.paragraphs ?? []) {
     parts.push(
-      `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${colour.ink};">${escapeHtml(
+      `<p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:${color.ink};">${escapeHtml(
         paragraph,
       )}</p>`,
     );
@@ -124,12 +124,12 @@ function renderHtml(
       .map(
         (row) =>
           `<tr>` +
-          `<td style="padding:6px 12px 6px 0;font-size:14px;color:${colour.inkSubtle};vertical-align:top;white-space:nowrap;">${escapeHtml(
+          `<td style="padding:6px 12px 6px 0;font-size:14px;color:${color.inkSubtle};vertical-align:top;white-space:nowrap;">${escapeHtml(
             row.label,
           )}</td>` +
           // Long words (a URL, an unbroken message) must wrap rather than
           // stretch the table past the card on a phone.
-          `<td style="padding:6px 0;font-size:14px;color:${colour.ink};word-break:break-word;">${escapeHtml(
+          `<td style="padding:6px 0;font-size:14px;color:${color.ink};word-break:break-word;">${escapeHtml(
             row.value,
           )}</td>` +
           `</tr>`,
@@ -142,7 +142,7 @@ function renderHtml(
 
   if (content.items?.length) {
     const heading = content.itemsHeading
-      ? `<tr><td colspan="2" style="padding:0 0 6px;font-size:13px;font-weight:600;color:${colour.inkSubtle};text-transform:uppercase;letter-spacing:.04em;">${escapeHtml(
+      ? `<tr><td colspan="2" style="padding:0 0 6px;font-size:13px;font-weight:600;color:${color.inkSubtle};text-transform:uppercase;letter-spacing:.04em;">${escapeHtml(
           content.itemsHeading,
         )}</td></tr>`
       : '';
@@ -150,19 +150,19 @@ function renderHtml(
       .map(
         (item) =>
           `<tr>` +
-          `<td style="padding:8px 12px 8px 0;font-size:14px;color:${colour.ink};border-top:1px solid ${colour.edge};word-break:break-word;">` +
+          `<td style="padding:8px 12px 8px 0;font-size:14px;color:${color.ink};border-top:1px solid ${color.edge};word-break:break-word;">` +
           `${escapeHtml(item.name)}<br>` +
-          `<span style="font-size:13px;color:${colour.inkSubtle};">${escapeHtml(
+          `<span style="font-size:13px;color:${color.inkSubtle};">${escapeHtml(
             item.quantity,
           )}</span>` +
           (item.note
-            ? `<br><span style="font-size:13px;color:${colour.inkSubtle};font-style:italic;">${escapeHtml(
+            ? `<br><span style="font-size:13px;color:${color.inkSubtle};font-style:italic;">${escapeHtml(
                 item.note,
               )}</span>`
             : '') +
           `</td>` +
           // Right-aligned and unwrapped: a column of amounts is read down.
-          `<td style="padding:8px 0;font-size:14px;color:${colour.ink};border-top:1px solid ${colour.edge};text-align:right;white-space:nowrap;vertical-align:top;">${escapeHtml(
+          `<td style="padding:8px 0;font-size:14px;color:${color.ink};border-top:1px solid ${color.edge};text-align:right;white-space:nowrap;vertical-align:top;">${escapeHtml(
             item.total,
           )}</td>` +
           `</tr>`,
@@ -188,7 +188,7 @@ function renderHtml(
         `</td></tr></table>` +
         // Buttons are unreliable (some clients strip the styling, some readers
         // copy links out), so the URL is always readable as text too.
-        `<p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:${colour.inkSubtle};word-break:break-all;">${escapeHtml(
+        `<p style="margin:0 0 16px;font-size:13px;line-height:1.6;color:${color.inkSubtle};word-break:break-all;">${escapeHtml(
           url,
         )}</p>`,
     );
@@ -201,11 +201,11 @@ function renderHtml(
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${escapeHtml(content.subject)}</title>
 </head>
-<body style="margin:0;padding:0;background:${colour.surface};font-family:${FONT};">
+<body style="margin:0;padding:0;background:${color.surface};font-family:${FONT};">
 <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(
     content.preheader,
   )}</span>
-<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${colour.surface};">
+<table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:${color.surface};">
 <tr><td align="center" style="padding:24px 12px;">
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:100%;max-width:600px;background:#ffffff;border-radius:8px;overflow:hidden;">
 <tr><td style="background:${escapeHtml(
@@ -214,18 +214,18 @@ function renderHtml(
     branding.name,
   )}</td></tr>
 ${renderNotice(branding)}<tr><td style="padding:28px;">
-<h1 style="margin:0 0 16px;font-size:20px;line-height:1.3;color:${colour.ink};">${escapeHtml(
+<h1 style="margin:0 0 16px;font-size:20px;line-height:1.3;color:${color.ink};">${escapeHtml(
     content.heading,
   )}</h1>
 ${parts.join('\n')}
 </td></tr>
 </table>
 <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:100%;max-width:600px;">
-<tr><td style="padding:16px 28px;font-size:12px;line-height:1.6;color:${colour.inkSubtle};">
+<tr><td style="padding:16px 28px;font-size:12px;line-height:1.6;color:${color.inkSubtle};">
 ${escapeHtml(footerNote)}<br>
 <a href="${escapeHtml(
     branding.siteUrl,
-  )}" style="color:${colour.inkSubtle};">${escapeHtml(branding.siteUrl)}</a>
+  )}" style="color:${color.inkSubtle};">${escapeHtml(branding.siteUrl)}</a>
 </td></tr>
 </table>
 </td></tr>
@@ -238,14 +238,14 @@ ${escapeHtml(footerNote)}<br>
 function renderNotice(branding: MailBranding): string {
   const notice = branding.notice;
   if (!notice) return '';
-  const colour = branding.colours;
+  const color = branding.colors;
   const link = notice.link
     ? ` <a href="${escapeHtml(notice.link.url)}" style="color:${escapeHtml(
         branding.primaryColor,
       )};font-weight:600;">${escapeHtml(notice.link.label)}</a>`
     : '';
   return (
-    `<tr><td style="background:${colour.surfaceSubtle};border-bottom:1px solid ${colour.edge};padding:10px 28px;font-size:13px;line-height:1.5;color:${colour.ink};">` +
+    `<tr><td style="background:${color.surfaceSubtle};border-bottom:1px solid ${color.edge};padding:10px 28px;font-size:13px;line-height:1.5;color:${color.ink};">` +
     `${escapeHtml(notice.text)}${link}</td></tr>\n`
   );
 }
