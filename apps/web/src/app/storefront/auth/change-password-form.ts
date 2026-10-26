@@ -1,14 +1,12 @@
 import { Component, inject, input, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  newPasswordSchema,
   PASSWORD_MIN_LENGTH,
   PasswordRejectionCode,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { zodValidator } from '../../shared/core/zod-validator';
 import { FieldErrors } from '../../shared/core/form-errors';
-import { passwordsMatch } from '../../shared/core/password';
+import { passwordLength, passwordsMatch } from '../../shared/core/password';
 import { Button } from '../../shared/ui/button';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
@@ -175,12 +173,9 @@ export class ChangePasswordForm {
   protected readonly form = this.fb.nonNullable.group(
     {
       currentPassword: ['', Validators.required],
-      // The contract's own rule, so client and server agree on what counts as
+      // The contract's limits, so client and server agree on what counts as
       // an acceptable password.
-      newPassword: [
-        '',
-        [Validators.required, zodValidator(newPasswordSchema, 'tooShort')],
-      ],
+      newPassword: ['', [Validators.required, passwordLength]],
       confirmPassword: ['', Validators.required],
     },
     { validators: passwordsMatch },

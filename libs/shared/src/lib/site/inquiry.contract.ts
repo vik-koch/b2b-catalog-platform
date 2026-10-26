@@ -10,10 +10,10 @@ const emptyToUndefined = (value: unknown): unknown =>
   typeof value === 'string' && value.trim() === '' ? undefined : value;
 
 /**
- * Per-field schemas, exported so the frontend can validate each control
- * against the exact same rule the server enforces (see zodValidator on the
- * web side) instead of a hand-rolled near-copy that drifts — e.g. Angular's
- * Validators.email accepts `a@b` where `emailSchema` requires a TLD.
+ * Per-field schemas. The browser checks the same rules without them: the
+ * email pattern and the limits live in import-free modules, so the form
+ * loads no Zod, and Angular's `Validators.email` (which accepts `a@b`) is
+ * not used.
  */
 export const nameSchema = z.string().trim().min(1).max(200);
 export const emailSchema = z.preprocess(

@@ -76,6 +76,9 @@ export const MAINTENANCE_REFUSED = 'maintenance' as const;
  */
 export const PASSWORD_MIN_LENGTH = 12;
 
+/** A ceiling against absurd input, not a rule anyone is meant to meet. */
+export const PASSWORD_MAX_LENGTH = 200;
+
 /**
  * A set-a-password link that is no good. Unknown, already used and expired are
  * deliberately one code, as they are one answer.

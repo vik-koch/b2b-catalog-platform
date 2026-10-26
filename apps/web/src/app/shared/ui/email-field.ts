@@ -21,7 +21,7 @@ export interface EmailFieldText {
  * editor), each repeating the same `required ? … : …` message choice.
  *
  * Deliberately *not* here: the validators. The address rule is the shared
- * contract's `emailSchema`, applied through `zodValidator` by the form that
+ * pattern the API checks too, applied through `emailFormat` by the form that
  * owns the control, so client and server keep agreeing on what a valid address
  * is — and so a form like the inquiry can make the field required or not as the
  * visitor changes their preferred channel.

@@ -2,15 +2,17 @@ import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import {
-  newPasswordSchema,
   PASSWORD_MIN_LENGTH,
   PasswordTokenPurpose,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { FieldErrors } from '../../shared/core/form-errors';
-import { generatePassword, passwordsMatch } from '../../shared/core/password';
-import { zodValidator } from '../../shared/core/zod-validator';
+import {
+  generatePassword,
+  passwordLength,
+  passwordsMatch,
+} from '../../shared/core/password';
 import { AuthCard } from './auth-card';
 import { Button } from '../../shared/ui/button';
 import { FieldLabel } from '../../shared/ui/field-label';
@@ -265,10 +267,7 @@ export class SetPasswordPage implements OnInit {
 
   protected readonly form = this.fb.nonNullable.group(
     {
-      newPassword: [
-        '',
-        [Validators.required, zodValidator(newPasswordSchema, 'tooShort')],
-      ],
+      newPassword: ['', [Validators.required, passwordLength]],
       confirmPassword: ['', Validators.required],
       consent: this.consent.control,
     },

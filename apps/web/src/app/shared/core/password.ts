@@ -1,4 +1,21 @@
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '@b2b-catalog-platform/shared';
+
+/**
+ * The contract's length limits, from the constants rather than its schema so
+ * the page loads no Zod. One key for both ends, as the schema check had: the
+ * ceiling is far past anything typed, so its wording is the floor's.
+ */
+export const passwordLength: ValidatorFn = (control) => {
+  const length = String(control.value ?? '').length;
+  return length === 0 ||
+    (length >= PASSWORD_MIN_LENGTH && length <= PASSWORD_MAX_LENGTH)
+    ? null
+    : { tooShort: true };
+};
 
 /**
  * Group validator: the password and its confirmation must agree. Lives here
