@@ -34,6 +34,8 @@ import { Input } from '../../shared/ui/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -60,13 +62,15 @@ interface ToolbarAction {
     FieldLabel,
     Input,
     NgTemplateOutlet,
+    ErrorText,
+    Hint,
   ],
   template: `
     <!-- The box carries no overflow clipping: a clipping ancestor would be
          the toolbar's scroller and stop it sticking. The toolbar rounds its
          own top corners instead. -->
     <div
-      class="rounded-md border border-border-strong bg-white focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+      class="rounded-md border border-edge-strong bg-white focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
     >
       <!-- Sticks under the header while the box is on screen, so a long page
            body never sends the author back up for a button. The panels hang
@@ -76,7 +80,7 @@ interface ToolbarAction {
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.labelAria"
-          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-border bg-stone-100 p-1.5"
+          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-surface p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -115,7 +119,7 @@ interface ToolbarAction {
            the saved page exactly. -->
       <div
         #host
-        class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
+        class="prose max-w-none p-4 [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
       ></div>
     </div>
 
@@ -128,12 +132,12 @@ interface ToolbarAction {
     />
 
     @if (uploading()) {
-      <p class="mt-2 text-sm text-muted" role="status">
+      <p class="mt-2 text-sm text-ink-subtle" role="status">
         {{ adminText.upload.progress }}
       </p>
     }
     @if (uploadError()) {
-      <p class="mt-2 text-sm text-red-700" role="alert">
+      <p appErrorText class="mt-2" role="alert">
         {{ adminText.upload.error }}
       </p>
     }
@@ -159,7 +163,7 @@ interface ToolbarAction {
           (keydown.enter)="applyLink()"
           (keydown.escape)="closeLinkPanel()"
         />
-        <span class="mt-1 block text-xs text-subtle">{{ link.hint }}</span>
+        <span appHint class="mt-1">{{ link.hint }}</span>
       </label>
       <div appDialogActions>
         @if (editingExistingLink()) {
@@ -207,7 +211,7 @@ interface ToolbarAction {
           [value]="imageAlt()"
           (input)="onImageAltInput($any($event.target).value)"
         />
-        <span class="mt-1 block text-xs text-subtle">{{ image.altHint }}</span>
+        <span appHint class="mt-1">{{ image.altHint }}</span>
       </label>
 
       <label class="mt-3 block">
@@ -248,7 +252,7 @@ interface ToolbarAction {
       <label class="mt-3 block">
         <span class="mb-1 flex justify-between text-sm font-medium">
           <span>{{ image.widthLabel }}</span>
-          <span class="text-subtle">{{ imageSize() }}%</span>
+          <span class="text-ink-subtle">{{ imageSize() }}%</span>
         </span>
         <input
           type="range"
@@ -313,7 +317,7 @@ export class RichTextEditor {
    * answers at its foot — the old 18rem left them wrapping.
    */
   protected readonly panelClass =
-    'absolute top-full mt-2 z-10 w-80 max-w-[calc(100%-1rem)] rounded-md border border-border-strong bg-white p-3 shadow-lg';
+    'absolute top-full mt-2 z-10 w-80 max-w-[calc(100%-1rem)] rounded-md border border-edge-strong bg-white p-3 shadow-lg';
   protected readonly image = this.text.imagePanel;
   private readonly headerCollapsed = inject(HeaderCollapse).collapsed;
   /**
@@ -648,14 +652,14 @@ export class RichTextEditor {
       'flex size-9 cursor-pointer items-center justify-center rounded transition-colors [&>*]:size-5 md:size-8 md:[&>*]:size-4';
     return active
       ? `${base} bg-primary text-white`
-      : `${base} text-ink hover:bg-stone-200`;
+      : `${base} text-ink hover:bg-surface-hover`;
   }
 
   protected alignButtonClass(active: boolean): string {
     const base = 'flex-1 rounded px-2 py-1 text-xs transition-colors';
     return active
       ? `${base} bg-primary text-white`
-      : `${base} text-ink hover:bg-stone-200`;
+      : `${base} text-ink hover:bg-surface-hover`;
   }
 
   protected alignLabel(align: ImageAlign): string {

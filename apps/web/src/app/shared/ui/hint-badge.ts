@@ -5,11 +5,11 @@ export type HintBadgeTone = 'neutral' | 'notice' | 'warning';
 
 const tones: Record<HintBadgeTone, string> = {
   /** A fact about the row, no action implied. */
-  neutral: 'bg-stone-100 text-subtle',
+  neutral: 'bg-chip text-ink-subtle',
   /** Something the shop does with this row — filterable, published, indexed. */
-  notice: 'bg-stone-100 text-accent',
+  notice: 'bg-chip text-accent-strong',
   /** Something the admin may want to look at, but nothing is refused. */
-  warning: 'bg-amber-50 text-amber-700',
+  warning: 'bg-warning-surface text-warning-ink',
 };
 
 /**

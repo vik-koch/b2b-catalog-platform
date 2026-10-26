@@ -39,8 +39,8 @@ import { Component, input, output } from '@angular/core';
       class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-[background-color,box-shadow] select-none disabled:cursor-not-allowed disabled:opacity-60"
       [class]="
         checked()
-          ? 'bg-primary hover:bg-accent active:bg-primary-deep'
-          : 'bg-stone-200 ring-1 ring-border-strong hover:bg-accent hover:ring-accent active:ring-primary'
+          ? 'bg-primary hover:bg-accent active:bg-primary-press'
+          : 'bg-surface-strong ring-1 ring-edge-strong hover:bg-accent hover:ring-accent active:ring-primary'
       "
       (click)="toggled.emit(!checked())"
     >

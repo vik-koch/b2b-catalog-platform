@@ -20,6 +20,8 @@ import { AddressForm } from './address-form';
 import { AddressSuggestField } from './address-suggest-field';
 import { TextButton } from '../ui/link';
 import { SHARED_TEXT } from '../config/shared-text';
+import { ErrorText } from '../ui/error-text';
+import { Hint } from '../ui/hint';
 
 /** Ids have to be unique per instance: checkout draws two of these on one
  * page, and a label pointing at the wrong form's city is worse than none. */
@@ -55,6 +57,8 @@ let nextId = 0;
     Input,
     SelectField,
     TextButton,
+    ErrorText,
+    Hint,
   ],
   host: { class: 'block' },
   template: `
@@ -66,7 +70,7 @@ let nextId = 0;
         <div>
           <label [for]="id('label')" appFieldLabel>
             {{ text.label }}
-            <span class="font-normal text-subtle">({{ optional }})</span>
+            <span class="font-normal text-ink-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('label')"
@@ -75,7 +79,7 @@ let nextId = 0;
             appInput
             class="w-full"
           />
-          <p class="mt-1 text-sm text-muted">{{ text.labelHint }}</p>
+          <p appHint class="mt-1">{{ text.labelHint }}</p>
         </div>
       }
 
@@ -97,20 +101,20 @@ let nextId = 0;
             (picked)="suggested($event)"
           />
           @if (isInvalid('street')) {
-            <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+            <p appErrorText class="mt-1">{{ text.required }}</p>
           }
           <!-- What the provider filled in, read back. Not an aside: it is most
                of the address, and the customer is the only one who can say it
                is wrong. -->
           @if (collapsed() && filled()) {
-            <p class="mt-1 text-sm text-muted">{{ filled() }}</p>
+            <p class="mt-1 text-sm text-ink-subtle">{{ filled() }}</p>
           }
         </div>
 
         <div>
           <label [for]="id('street2')" appFieldLabel>
             {{ text.street2 }}
-            <span class="font-normal text-subtle">({{ optional }})</span>
+            <span class="font-normal text-ink-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('street2')"
@@ -176,7 +180,7 @@ let nextId = 0;
               />
             }
             @if (isInvalid('postalCode')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p appErrorText class="mt-1">
                 {{ postalCodeError() }}
               </p>
             }
@@ -199,7 +203,7 @@ let nextId = 0;
               [attr.aria-invalid]="isInvalid('city') || null"
             />
             @if (isInvalid('city')) {
-              <p class="mt-1 text-sm text-red-600">{{ text.required }}</p>
+              <p appErrorText class="mt-1">{{ text.required }}</p>
             }
           </div>
         </div>
@@ -209,7 +213,7 @@ let nextId = 0;
         <div>
           <label [for]="id('region')" appFieldLabel>
             {{ text.region }}
-            <span class="font-normal text-subtle">({{ optional }})</span>
+            <span class="font-normal text-ink-subtle">({{ optional }})</span>
           </label>
           <input
             [id]="id('region')"

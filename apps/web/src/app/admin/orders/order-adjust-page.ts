@@ -77,6 +77,10 @@ import { customerQuantity } from '../../shared/orders/order-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {
@@ -167,6 +171,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
     Skeleton,
     WarningNote,
     LockedNote,
+    PageTitle,
+    ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <!-- An order answered by an external system has nothing to propose, so
@@ -176,7 +184,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
          route. -->
     @if (locked()) {
       <div class="max-w-xl">
-        <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
+        <h1 appPageTitle>{{ title() }}</h1>
         <app-locked-note class="mt-4">{{
           ownershipText.orderLocked
         }}</app-locked-note>
@@ -195,9 +203,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
           class="grid gap-10 @min-[63.75rem]/adjust:grid-cols-[1fr_20rem] @min-[63.75rem]/adjust:justify-between"
         >
           <div class="max-w-xl">
-            <h1 class="text-3xl font-medium tracking-tight">{{ title() }}</h1>
+            <h1 appPageTitle>{{ title() }}</h1>
             @if (text.page.intro; as intro) {
-              <p class="mt-2 text-muted">{{ intro }}</p>
+              <p appPageIntro class="mt-2">{{ intro }}</p>
             }
 
             <!-- Amber, not red: none of these refuses the adjustment. They
@@ -239,13 +247,13 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 @if (itemsOpen()) {
                   <div
                     [id]="itemsPanelId"
-                    class="space-y-6 border-t border-border p-4"
+                    class="space-y-6 border-t border-edge p-4"
                   >
                     <!-- Where the pricing itself was refused, said here rather
                          than beside the save button: the figures on these lines
                          are the ones that could not be worked out. -->
                     @if (refusalOn() === 'lines') {
-                      <p class="text-sm text-red-600" role="alert">
+                      <p appErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -316,10 +324,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 @if (detailsOpen()) {
                   <div
                     [id]="detailsPanelId"
-                    class="space-y-8 border-t border-border p-4"
+                    class="space-y-8 border-t border-edge p-4"
                   >
                     @if (refusalOn() === 'details') {
-                      <p class="text-sm text-red-600" role="alert">
+                      <p appErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -457,7 +465,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [attr.aria-invalid]="invalid('personName') || null"
                           />
                           @if (invalid('personName')) {
-                            <p class="mt-1 text-sm text-red-600">
+                            <p appErrorText class="mt-1">
                               {{ fields.name.required }}
                             </p>
                           }
@@ -542,7 +550,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             [attr.aria-invalid]="invalidContact('name') || null"
                           />
                           @if (invalidContact('name')) {
-                            <p class="mt-1 text-sm text-red-600">
+                            <p appErrorText class="mt-1">
                               {{ fields.name.required }}
                             </p>
                           }
@@ -579,7 +587,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             </div>
 
             @if (formFailure(); as message) {
-              <p class="mt-6 text-sm text-red-600" role="alert">
+              <p appErrorText class="mt-6" role="alert">
                 {{ message }}
               </p>
             }
@@ -595,7 +603,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             <section class="mb-6">
               <h2 class="mb-2 font-medium">{{ text.customerHeading }}</h2>
               <p class="text-sm">{{ wished(loaded) }}</p>
-              <p class="text-sm text-subtle">
+              <p class="text-sm text-ink-subtle">
                 {{ loaded.customerNote ?? text.customerNone }}
               </p>
             </section>
@@ -636,9 +644,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 [value]="note()"
                 (input)="note.set($any($event.target).value)"
               ></textarea>
-              <p class="mt-1 text-xs text-subtle">{{ text.noteHint }}</p>
+              <p appHint class="mt-1">{{ text.noteHint }}</p>
               @if (noteMissing()) {
-                <p class="mt-1 text-sm text-red-600" role="alert">
+                <p appErrorText class="mt-1" role="alert">
                   {{ text.noteRequired }}
                 </p>
               } @else if (noteFailure(); as message) {
@@ -646,7 +654,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                      either fold to say it. It reads here, on the last thing
                      written before saving and beside the button that was
                      pressed. -->
-                <p class="mt-1 text-sm text-red-600" role="alert">
+                <p appErrorText class="mt-1" role="alert">
                   {{ message }}
                 </p>
               }
@@ -667,7 +675,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               />
               <span>
                 {{ text.notify }}
-                <span class="block text-xs text-subtle">
+                <span appHint>
                   {{ text.notifyHint }}
                 </span>
               </span>
@@ -694,12 +702,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ ordersText.notFound }}</p>
+      <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (loadFailed()) {
-      <p class="text-muted" role="alert">{{ ordersText.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>

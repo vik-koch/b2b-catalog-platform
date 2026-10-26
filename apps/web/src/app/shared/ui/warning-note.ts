@@ -16,7 +16,7 @@ import { Icon } from './icons/icon';
 @Component({
   selector: 'app-warning-note',
   imports: [Icon],
-  host: { class: 'flex items-start gap-2 text-sm text-amber-700' },
+  host: { class: 'flex items-start gap-2 text-sm text-warning' },
   template: `
     <app-icon name="triangle-alert" class="mt-0.5 size-4 shrink-0" />
     <span class="min-w-0"><ng-content /></span>

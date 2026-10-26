@@ -24,7 +24,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
   selector: 'app-sync-order-plan-view',
   imports: [Link, RouterLink, StatusBadge],
   template: `
-    <section class="rounded-md border border-border p-4">
+    <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
         {{ text.summaryTitleApplied }}
       </h2>
@@ -32,8 +32,8 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
         @for (tile of tiles(); track tile.label) {
           <div>
-            <dt class="text-subtle">{{ text.orders.count[tile.label] }}</dt>
-            <dd class="text-lg font-medium" [class.text-red-700]="tile.danger">
+            <dt class="text-ink-subtle">{{ text.orders.count[tile.label] }}</dt>
+            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
               {{ tile.value }}
             </dd>
           </div>
@@ -41,17 +41,17 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-muted">{{ text.nothingChanged }}</p>
+        <p class="text-ink-subtle">{{ text.nothingChanged }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {
-        <h3 class="mt-6 mb-2 text-sm font-medium text-red-700">
+        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
           {{ text.errorsTitle }}
         </h3>
-        <ul class="space-y-1 text-sm text-stone-700">
+        <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
-              <span class="text-subtle">{{ rowLabel(error.row) }}</span>
+              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
               — {{ rowErrorText(error) }}
             </li>
           }
@@ -62,7 +62,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         <h3 class="mt-6 mb-2 text-sm font-medium">
           {{ text.orders.ordersTitle }}
         </h3>
-        <ul class="divide-y divide-stone-100 text-sm">
+        <ul class="divide-y divide-edge-subtle text-sm">
           @for (order of answered(); track order.reference) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(order.kind)">
@@ -79,7 +79,9 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
                 >{{ order.reference }}</a
               >
               @if (order.notified) {
-                <span class="text-subtle">{{ text.orders.notifiedRow }}</span>
+                <span class="text-ink-subtle">{{
+                  text.orders.notifiedRow
+                }}</span>
               }
             </li>
           }
@@ -87,7 +89,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       }
 
       @if (plan().truncated) {
-        <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
+        <p class="mt-4 text-sm text-ink-subtle">{{ text.truncated }}</p>
       }
     </section>
   `,

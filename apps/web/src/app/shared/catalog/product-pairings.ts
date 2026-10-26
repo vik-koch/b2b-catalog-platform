@@ -86,7 +86,7 @@ export class ProductPairings {
   protected readonly lineClass = computed(
     () =>
       `flex items-start gap-1.5 self-start text-sm ${
-        this.message() ? 'text-amber-700' : 'text-primary'
+        this.message() ? 'text-warning' : 'text-primary'
       }`,
   );
   protected readonly linkClass = computed(

@@ -44,6 +44,8 @@ import {
   moveCategoryEntries,
   resolveDropTarget,
 } from './category-tree';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,
@@ -93,6 +95,8 @@ const EDGE_SLACK = 24;
     CdkDragHandle,
     Skeleton,
     UnpublishedCount,
+    PageTitle,
+    ErrorText,
   ],
   styles: `
     /* Both of these are the CDK's clone of the row, so they carry its exact
@@ -122,7 +126,7 @@ const EDGE_SLACK = 24;
   `,
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <div class="flex flex-wrap justify-end gap-2">
         <a
           appButton
@@ -156,7 +160,7 @@ const EDGE_SLACK = 24;
            until there is something to undo, so nothing moves at the moment a
            drop lands and the admin is looking at the row that just moved. -->
       <div class="mb-4 flex min-h-8 items-start justify-between gap-4">
-        <p class="text-sm text-muted">{{ text.reorderHint }}</p>
+        <p class="text-sm text-ink-subtle">{{ text.reorderHint }}</p>
         <button
           appIconButton
           type="button"
@@ -172,16 +176,16 @@ const EDGE_SLACK = 24;
       </div>
 
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-red-700" role="alert">
+        <p appErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
 
       @if (categories.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (categories.hasValue()) {
         @if (rows().length === 0) {
-          <p class="text-muted">{{ text.empty }}</p>
+          <p class="text-ink-subtle">{{ text.empty }}</p>
         } @else {
           <div class="relative">
             <ul
@@ -207,7 +211,7 @@ const EDGE_SLACK = 24;
                      is one row at its real size and type, never its subtree —
                      children are their own rows and stay where they are. -->
                   <div
-                    class="border-border py-3"
+                    class="border-edge py-3"
                     [class]="depthTint(node.depth)"
                     [class.border-t]="!first"
                     [style.marginLeft.px]="node.depth * indent"
@@ -236,7 +240,7 @@ const EDGE_SLACK = 24;
                            leaves it out, because nothing beneath it is live
                            (FR-ADM-19); the words in its meta say so too. -->
                       <a
-                        class="wrap-break-word font-medium text-stone-700 hover:text-accent"
+                        class="wrap-break-word font-medium text-ink hover:text-accent"
                         [class.opacity-50]="!node.category.liveProductCount"
                         [routerLink]="['/catalog', node.category.slug]"
                         [title]="text.seeProducts"
@@ -293,7 +297,9 @@ const EDGE_SLACK = 24;
                           </a>
                         }
                         @if (!node.category.liveProductCount) {
-                          <span class="text-subtle">{{ text.notShown }}</span>
+                          <span class="text-ink-subtle">{{
+                            text.notShown
+                          }}</span>
                         }
                       </ng-container>
                       <ng-container recordActions>
@@ -400,16 +406,15 @@ export class CategoryListPage {
   protected readonly indent = INDENT;
 
   /**
-   * How deep a row sits, as a shade. The indent alone says it, but only against
-   * the row above — a subcategory read on its own is just a row starting a
-   * little to the right, and on a phone, where the whole list is 340px wide,
-   * two levels of indent are 72px of that. A tint gives each level an edge of
-   * its own, and stops after two: a third grey is a grey nobody can tell from
-   * the second.
+   * Whether a row is nested, as a shade. The indent alone says it, but only
+   * against the row above — a subcategory read on its own is just a row
+   * starting a little to the right, and on a phone, where the whole list is
+   * 340px wide, two levels of indent are 72px of that. One tint for every
+   * nested level, the indent telling them apart: a darker one takes the
+   * accent and amber text in the row below 4.5:1.
    */
   protected depthTint(depth: number): string {
-    if (depth <= 0) return '';
-    return depth === 1 ? 'bg-stone-100 pl-2' : 'bg-stone-200 pl-2';
+    return depth > 0 ? 'bg-surface pl-2' : '';
   }
 
   /** The category whose delete confirmation modal is open, if any. */

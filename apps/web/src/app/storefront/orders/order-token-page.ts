@@ -36,6 +36,8 @@ import {
   orderStatusTone,
 } from '../../shared/orders/order-status';
 import { OrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * An order opened by the link its confirmation mail carries (FR-NOTIF-06).
@@ -59,6 +61,8 @@ import { OrdersService } from './orders.service';
     OrderReadBack,
     OrderSummary,
     StatusBadge,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (detail(); as order) {
@@ -77,7 +81,7 @@ import { OrdersService } from './orders.service';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ order.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone(order)">
@@ -89,26 +93,26 @@ import { OrdersService } from './orders.service';
                 </span>
               }
             </div>
-            <p class="mt-2 text-muted">{{ placed(order) }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed(order) }}</p>
             <!-- Why, on the line that says where the order stands. A mailed
                  link is where a guest reads it and they have nowhere else to
                  look; the link stays a read capability, and nothing here moves
                  the order. -->
             @if (order.statusReason; as reason) {
-              <p class="mt-1 text-muted">
-                <span class="text-subtle"> {{ names.reason }}: </span>
+              <p class="mt-1 text-ink-subtle">
+                <span class="text-ink-subtle"> {{ names.reason }}: </span>
                 {{ reason }}
               </p>
             }
             @if (order.changes.length) {
-              <div class="mt-1 text-muted">
-                <span class="text-subtle">{{ names.changeNote }}:</span>
+              <div class="mt-1 text-ink-subtle">
+                <span class="text-ink-subtle">{{ names.changeNote }}:</span>
                 @for (change of order.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
               </div>
             }
-            <p class="mt-4 max-w-xl text-muted">{{ text.intro }}</p>
+            <p class="mt-4 max-w-xl text-ink-subtle">{{ text.intro }}</p>
 
             <app-order-read-back
               class="mt-8"
@@ -148,8 +152,8 @@ import { OrdersService } from './orders.service';
                  Under the summary, where every other flow keeps what to do
                  next. -->
             @if (!signedIn()) {
-              <div class="mt-5 rounded-lg border border-border p-5">
-                <p class="text-sm text-muted">{{ invite.text }}</p>
+              <div class="mt-5 rounded-lg border border-edge p-5">
+                <p class="text-sm text-ink-subtle">{{ invite.text }}</p>
                 <a
                   appButton
                   variant="secondary"
@@ -175,7 +179,7 @@ import { OrdersService } from './orders.service';
         [backLabel]="text.home"
       />
     } @else if (order.error()) {
-      <p class="text-sm text-red-600" role="alert">{{ orderText.error }}</p>
+      <p appErrorText role="alert">{{ orderText.error }}</p>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }

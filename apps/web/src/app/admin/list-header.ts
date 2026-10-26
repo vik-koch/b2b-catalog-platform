@@ -2,6 +2,7 @@ import { Component, computed, input } from '@angular/core';
 import { NarrowBreakpoint } from '../shared/core/narrow-screen';
 import { GridClearFilters } from './grid/grid-clear-filters';
 import { GridSearchField } from './grid/grid-search-field';
+import { PageIntro } from '../shared/ui/page-intro';
 
 /**
  * Where the clear-filters glyph stops belonging to the heading: below its
@@ -35,7 +36,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
  */
 @Component({
   selector: 'app-admin-list-header',
-  imports: [GridSearchField, GridClearFilters],
+  imports: [GridSearchField, GridClearFilters, PageIntro],
   template: `
     <!-- One grid, reordered rather than re-laid-out: the three parts are the
          same three at both widths, and projected content can only be placed
@@ -77,7 +78,7 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
       }
     </div>
     @if (intro(); as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
   `,
 })

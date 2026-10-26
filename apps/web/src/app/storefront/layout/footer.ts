@@ -14,9 +14,9 @@ import { ScrollToTop } from './scroll-to-top';
   selector: 'app-footer',
   template: `
     <footer
-      class="bg-stone-100"
+      class="bg-surface"
       [class.border-t]="!seamless()"
-      [class.border-border]="!seamless()"
+      [class.border-edge]="!seamless()"
     >
       <div class="mx-auto w-full max-w-328 p-4 sm:py-6 text-sm">
         <!-- A column below "sm", and in it the copyright comes last, where a
@@ -62,7 +62,7 @@ import { ScrollToTop } from './scroll-to-top';
                 <!-- Baseline-aligned with the links: its first line reads
                      as the same row however many lines it wraps to. -->
                 <address
-                  class="text-xs not-italic text-subtle sm:col-start-1 sm:row-start-1 sm:self-baseline"
+                  class="text-xs not-italic text-ink-subtle sm:col-start-1 sm:row-start-1 sm:self-baseline"
                 >
                   <span class="whitespace-nowrap">{{ seller.name }}</span>
                   @for (number of seller.registration; track $index) {
@@ -74,7 +74,7 @@ import { ScrollToTop } from './scroll-to-top';
                       @if (contact.phone; as phone) {
                         <a
                           [href]="telHref(phone)"
-                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-press"
                           >{{ phone }}</a
                         >
                       }
@@ -84,7 +84,7 @@ import { ScrollToTop } from './scroll-to-top';
                       @if (contact.email; as email) {
                         <a
                           [href]="'mailto:' + email"
-                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-press"
                           >{{ email }}</a
                         >
                       }
@@ -93,7 +93,7 @@ import { ScrollToTop } from './scroll-to-top';
                 </address>
               }
               <p
-                class="text-xs text-subtle sm:col-start-1 sm:row-start-2 sm:self-center"
+                class="text-xs text-ink-subtle sm:col-start-1 sm:row-start-2 sm:self-center"
               >
                 {{ copyright }}
               </p>
@@ -117,7 +117,7 @@ import { ScrollToTop } from './scroll-to-top';
                  is one that is not readily reachable, and folding away four
                  lines is not worth that. -->
             <nav
-              class="flex flex-col gap-2 text-subtle sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
+              class="flex flex-col gap-2 text-ink-subtle sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
               [class.sm:self-baseline]="seller"
               [attr.aria-label]="text.a11y.legalNav"
             >
@@ -127,7 +127,7 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="nav[slug]"
-                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-press aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
                   {{ nav[slug] }}
                 </a>
@@ -137,7 +137,7 @@ import { ScrollToTop } from './scroll-to-top';
               @if (consent.enabled) {
                 <button
                   type="button"
-                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-deep"
+                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-press"
                   (click)="consent.withdraw()"
                 >
                   {{ text.consent.settings }}
@@ -189,7 +189,7 @@ import { ScrollToTop } from './scroll-to-top';
 export class Footer {
   /**
    * Drops the top border, for the pages whose own background is already the
-   * footer's stone (the signed-out screens). Set by the shell, which is the
+   * footer's grey (the signed-out screens). Set by the shell, which is the
    * only thing that knows which those are.
    */
   readonly seamless = input(false);

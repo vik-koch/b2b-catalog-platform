@@ -23,19 +23,19 @@ import { Icon, IconName } from './icons/icon';
   host: { class: 'block' },
   template: `
     <div
-      class="flex flex-col items-center rounded-lg border border-border px-6 py-12 text-center"
+      class="flex flex-col items-center rounded-lg border border-edge px-6 py-12 text-center"
     >
       <app-icon
         [name]="icon()"
         class="size-10"
-        [class]="tone() === 'positive' ? 'text-primary' : 'text-subtle'"
+        [class]="tone() === 'positive' ? 'text-primary' : 'text-ink-subtle'"
       />
       @if (heading()) {
         <h2 class="mt-4 text-xl font-normal tracking-tight">
           {{ heading() }}
         </h2>
       }
-      <p class="mt-2 max-w-md text-muted">{{ message() }}</p>
+      <p class="mt-2 max-w-md text-ink-subtle">{{ message() }}</p>
 
       <!-- The buttons the page projects, on one row with room between them
            and wrapping rather than shrinking. Stacked on a narrow screen,

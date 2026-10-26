@@ -41,6 +41,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
 import { WarningNote } from '../../shared/ui/warning-note';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * How many lines a page of the cart holds (FR-CART-02). A cart row is a
@@ -127,6 +128,7 @@ interface CartRow {
 @Component({
   selector: 'app-cart-page',
   imports: [
+    Notice,
     WarningNote,
     AutoGrow,
     Button,
@@ -154,12 +156,12 @@ interface CartRow {
       </app-empty-state>
     } @else {
       @if (cart.persistFailed()) {
-        <p class="mb-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p appNotice tone="warning" class="mb-4">
           {{ text.storageFailed }}
         </p>
       }
       @if (preview.error()) {
-        <p class="mb-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p appNotice tone="warning" class="mb-4">
           {{ text.loadError }}
         </p>
       }
@@ -185,7 +187,9 @@ interface CartRow {
            one place that says it happened *since last time*. -->
             @if (changes().length) {
               <section
-                class="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                appNotice
+                tone="warning"
+                class="mb-6"
                 [attr.aria-label]="changeText.heading"
               >
                 <div class="flex items-start justify-between gap-4">
@@ -242,7 +246,7 @@ interface CartRow {
                  first tick moves the whole list down as it is ticked. -->
               <button
                 type="button"
-                class="group flex cursor-pointer items-center gap-1.5 text-red-700 disabled:cursor-not-allowed disabled:text-stone-400"
+                class="group flex cursor-pointer items-center gap-1.5 text-danger disabled:cursor-not-allowed disabled:text-ink-disabled"
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
@@ -416,7 +420,7 @@ interface CartRow {
                 >
                   {{ pagination.previous }}
                 </button>
-                <span class="text-subtle">{{ pageStatus() }}</span>
+                <span class="text-ink-subtle">{{ pageStatus() }}</span>
                 <button
                   type="button"
                   appButton

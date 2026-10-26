@@ -125,7 +125,7 @@ function knownValues<T extends string>(
     </app-admin-list-header>
 
     @if (products.error()) {
-      <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="products"
@@ -147,7 +147,7 @@ function knownValues<T extends string>(
              product that was deleted (FR-ADM-22); the archive keeps the
              search and every other filter, and changes only the state. -->
         @if (data.deletedMatches; as count) {
-          <p gridEmpty class="mt-2 text-muted">
+          <p gridEmpty class="mt-2 text-ink-subtle">
             {{ deletedMatchesLabel(count) }}
             <a
               appLink
@@ -161,7 +161,7 @@ function knownValues<T extends string>(
         <ng-template appGridRow [of]="data.items" let-item>
           <td>
             <div
-              class="size-10 overflow-hidden rounded-sm border border-border bg-white"
+              class="size-10 overflow-hidden rounded-sm border border-edge bg-white"
             >
               @if (item.thumb) {
                 <img
@@ -181,10 +181,10 @@ function knownValues<T extends string>(
               <a
                 [routerLink]="pageOf(item)"
                 [queryParams]="editorFrom()"
-                class="align-middle font-medium text-stone-700 hover:text-accent [word-spacing:normal]"
+                class="align-middle font-medium text-ink hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
               >&ngsp;<span
-                class="inline-block max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
+                class="inline-block max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
                 [title]="item.sourceId"
                 >{{ item.sourceId }}</span
               >
@@ -202,13 +202,13 @@ function knownValues<T extends string>(
                 <a
                   [routerLink]="['/catalog', category.slug]"
                   [queryParams]="editorFrom()"
-                  class="line-clamp-2 wrap-break-word text-subtle hover:text-accent"
+                  class="line-clamp-2 wrap-break-word text-ink-subtle hover:text-accent"
                   >{{ category.name }}</a
                 >
               }
             </div>
           </td>
-          <td class="text-stone-700">
+          <td class="text-ink">
             @if (item.priceMinor === null) {
               <span [title]="productStates.unpriced">{{ text.noPrice }}</span>
             } @else {
@@ -227,7 +227,7 @@ function knownValues<T extends string>(
                  taken on trust as one of them. Non-breaking, so the two never
                  land on separate lines in the card. -->
             @if (item.stockPieces === null) {
-              <span class="text-muted">{{ text.stockUntracked }}</span>
+              <span class="text-ink-subtle">{{ text.stockUntracked }}</span>
             } @else {
               <span
                 appStatusBadge
@@ -244,7 +244,7 @@ function knownValues<T extends string>(
               {{ stateLabel(item) }}
             </span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="item.updatedAt" />
           </td>
           <td data-keep>
@@ -272,7 +272,7 @@ function knownValues<T extends string>(
           <app-record-row>
             <div
               recordLead
-              class="size-14 shrink-0 overflow-hidden rounded-sm border border-border bg-white"
+              class="size-14 shrink-0 overflow-hidden rounded-sm border border-edge bg-white"
               [class.opacity-50]="isDeleted(item)"
             >
               @if (item.thumb) {
@@ -286,7 +286,7 @@ function knownValues<T extends string>(
             <a
               [routerLink]="pageOf(item)"
               [queryParams]="editorFrom()"
-              class="font-medium wrap-break-word line-clamp-2 text-stone-700"
+              class="font-medium wrap-break-word line-clamp-2 text-ink"
               [class.opacity-50]="isDeleted(item)"
             >
               {{ item.name }}
@@ -299,7 +299,7 @@ function knownValues<T extends string>(
               >{{ stateLabel(item) }}</span
             >
             <span
-              class="max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
+              class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5 font-mono text-xs"
               [class.opacity-50]="isDeleted(item)"
               >{{ item.sourceId }}</span
             >
@@ -308,7 +308,7 @@ function knownValues<T extends string>(
               [ngTemplateOutletContext]="{ $implicit: item, card: true }"
             />
             <ng-container recordMeta>
-              <span class="text-stone-700" [class.opacity-50]="isDeleted(item)">
+              <span class="text-ink" [class.opacity-50]="isDeleted(item)">
                 @if (item.priceMinor === null) {
                   {{ productStates.unpriced }}
                 } @else {
@@ -368,9 +368,7 @@ function knownValues<T extends string>(
             <app-product-feature-glyphs [features]="item.features" />
           }
           @if (item.gaps.length) {
-            <span class="text-xs text-amber-700">{{
-              gapsLabel(item.gaps)
-            }}</span>
+            <span class="text-xs text-warning">{{ gapsLabel(item.gaps) }}</span>
           }
         </div>
       }

@@ -39,12 +39,12 @@ interface AppliedFilter {
              attribute names are unique, so it identifies the chip. -->
         @for (filter of applied(); track filter.label) {
           <li
-            class="flex items-center gap-1.5 rounded-full bg-stone-100 py-1 pr-1.5 pl-3 text-sm"
+            class="flex items-center gap-1.5 rounded-full bg-surface py-1 pr-1.5 pl-3 text-sm"
           >
             <span>{{ filter.label }}</span>
             <button
               type="button"
-              class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-stone-400 hover:text-red-700"
+              class="flex items-center justify-center cursor-pointer rounded-full p-0.5 text-ink-subtle hover:text-danger"
               [attr.aria-label]="removeLabel(filter)"
               (click)="remove(filter)"
             >

@@ -60,7 +60,7 @@ import { useTaxStatement } from './tax-statement';
          early — on the product page the panel shed it while it still had 2rem
          of slack over its floor. -->
     <div
-      class="rounded-xl border border-border py-4 px-2.75 @min-[15.75rem]/buy:px-4"
+      class="rounded-xl border border-edge py-4 px-2.75 @min-[15.75rem]/buy:px-4"
     >
       <!-- Over the price, as it is over the name on a card: whether the thing
            can be had is read before what it costs, and the panel's first line

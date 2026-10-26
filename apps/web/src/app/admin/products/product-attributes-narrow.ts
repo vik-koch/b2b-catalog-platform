@@ -73,7 +73,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   ],
   template: `
     <ul
-      class="max-w-xl divide-y divide-border border-y border-border"
+      class="max-w-xl divide-y divide-edge border-y border-edge"
       cdkDropList
       [cdkDropListDisabled]="editing() !== null"
       (cdkDropListDropped)="onDrop($event)"
@@ -143,8 +143,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 <app-admin-icon name="grip-vertical" />
               </span>
               <span
-                class="font-medium wrap-break-word text-stone-700"
-                [class.text-muted]="row.key.trim() === ''"
+                class="font-medium wrap-break-word text-ink"
+                [class.text-ink-subtle]="row.key.trim() === ''"
               >
                 {{ row.key.trim() || text.key }}
               </span>
@@ -165,7 +165,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               <ng-container recordMeta>
                 <span
                   class="wrap-break-word"
-                  [class.text-muted]="!row.value.trim()"
+                  [class.text-ink-subtle]="!row.value.trim()"
                 >
                   {{ row.value.trim() || dash }}
                 </span>

@@ -13,6 +13,7 @@ import { Input } from '../../shared/ui/input';
 import { PhoneField } from '../../shared/ui/phone-field';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Everything a guest is asked about themselves (FR-CART-03/09), in one block:
@@ -38,6 +39,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
     PhoneField,
     ReactiveFormsModule,
     Segmented,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -92,7 +94,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
             [attr.aria-invalid]="errors().show(nameControl()) || null"
           />
           @if (errors().show(nameControl())) {
-            <p class="mt-1 text-sm text-red-600">{{ text.nameRequired }}</p>
+            <p appErrorText class="mt-1">{{ text.nameRequired }}</p>
           }
         </div>
 
@@ -114,7 +116,7 @@ import { PartyChoice as Party } from './checkout-draft.service';
           [invalid]="errors().show(phoneControl())"
         />
 
-        <p class="text-sm text-muted">{{ text.note }}</p>
+        <p class="text-sm text-ink-subtle">{{ text.note }}</p>
       </ng-template>
     </fieldset>
   `,

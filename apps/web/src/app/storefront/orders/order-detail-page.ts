@@ -48,6 +48,8 @@ import {
 } from '../../shared/orders/order-status';
 import { customerQuantity } from '../../shared/orders/order-view';
 import { OrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * One of the account's own orders (FR-ACC-01), read back exactly as it was
@@ -69,6 +71,8 @@ import { OrdersService } from './orders.service';
     OrderReadBack,
     OrderSummary,
     StatusBadge,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (detail(); as detail) {
@@ -87,7 +91,7 @@ import { OrdersService } from './orders.service';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ detail.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone(detail)">
@@ -99,12 +103,12 @@ import { OrdersService } from './orders.service';
                 </span>
               }
             </div>
-            <p class="mt-2 text-muted">{{ placed(detail) }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed(detail) }}</p>
             <!-- Why, on the line that says where the order stands: the reason
                  is part of the status, not a fact beside it. -->
             @if (detail.statusReason; as reason) {
-              <p class="mt-1 text-muted">
-                <span class="text-subtle">{{ names.reason }}:</span>
+              <p class="mt-1 text-ink-subtle">
+                <span class="text-ink-subtle">{{ names.reason }}:</span>
                 {{ reason }}
               </p>
             }
@@ -112,8 +116,8 @@ import { OrdersService } from './orders.service';
                  reason: the order reads as it now is, and this is the sentence
                  that says why it differs from the one that was sent. -->
             @if (detail.changes.length) {
-              <div class="mt-1 text-muted">
-                <span class="text-subtle">{{ names.changeNote }}:</span>
+              <div class="mt-1 text-ink-subtle">
+                <span class="text-ink-subtle">{{ names.changeNote }}:</span>
                 @for (change of detail.changes; track $index) {
                   <span class="block">{{ change }}</span>
                 }
@@ -166,7 +170,7 @@ import { OrdersService } from './orders.service';
               </button>
             }
             @if (cancelFailed()) {
-              <p class="mt-3 text-sm text-red-600" role="alert">
+              <p appErrorText class="mt-3" role="alert">
                 {{ text.cancel.error }}
               </p>
             }
@@ -191,7 +195,7 @@ import { OrdersService } from './orders.service';
         [backLabel]="text.backToList"
       />
     } @else if (order.error()) {
-      <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <p appErrorText role="alert">{{ text.error }}</p>
       <a
         appButton
         variant="secondary"

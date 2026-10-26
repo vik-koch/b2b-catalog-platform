@@ -34,7 +34,7 @@ import { Directive } from '@angular/core';
  * specificity rather than of the order Tailwind happened to emit them in.
  */
 const TICKABLE =
-  'h-4 w-4 shrink-0 cursor-pointer appearance-none border border-border-strong ' +
+  'h-4 w-4 shrink-0 cursor-pointer appearance-none border border-edge-strong ' +
   'bg-white bg-contain bg-center bg-no-repeat transition-colors ' +
   'checked:border-primary checked:bg-primary ' +
   // Every hover rule behind `(hover: hover)`. A `:hover` written as a bare

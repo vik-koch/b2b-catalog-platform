@@ -1,6 +1,6 @@
 # 0008 — Tailwind with owned UI primitives and runtime theme tokens
 
-**Status:** accepted (amended 2026-09-04, 2026-09-05) · **Date:** 2026-07-19
+**Status:** accepted (amended 2026-09-04, 2026-09-05, 2026-10-02, 2026-10-26) · **Date:** 2026-07-19
 
 ## Context
 
@@ -133,3 +133,41 @@ keeps the link's colour and weight but underlines on hover only, and it takes
 the standalone text controls — show password, generate, enter manually, a map
 link under an address, reset widths. A word inside a sentence keeps `appLink`,
 and so does a count in a record row, which links to the list it counts.
+
+## Amendment — 2026-10-26 (v1.15.2): every colour is a role, and lint holds the line
+
+The semantic names covered the brand and the text, but the rest of the colour
+in the templates was still Tailwind's palette: the greys of every hover, ground
+and placeholder, and the red, amber, green and sky of every status. A
+deployment could replace the greys only as a whole ramp and the status colours
+not at all, and nothing stopped a new template from adding more.
+
+- **Every colour a template draws is a role in `styles.css`**, named family ·
+  role · intensity · state: a ground (`surface`), text (`ink`), a line
+  (`edge`) or a marker (`dot`), stepped `-subtle` < base < `-strong`, with
+  `-hover`, `-press` and `-disabled` named for what they happen on
+  (`surface-hover`, `danger-press`, `ink-disabled`). The status colours use the
+  same roles: the bare name is text on the page, `-ink` text on the colour's
+  own `-surface`. The roles take Tailwind's shades, copied into private
+  `--palette-*` steps so an upgrade cannot move them; a value between two
+  steps is a mix of them, not a picked hex. Rich text takes the same roles through Typography's colour
+  variables instead of one of its palettes. The grammar, the contrast floors
+  and the measured pairs are in [design-language.md](../design-language.md).
+- **A deployment sets a role by its own name** instead of a grey ramp step by
+  step: a derived role follows the one it derives from, the brand's press and
+  stronger accent are mixed from it, and a status colour is set whole, its
+  pairs measured against the contrast floors at boot.
+- **The theme is written onto `<html>`**, not onto the root component: a
+  dialog appended to `<body>` sits outside that component and drew in the
+  default colours.
+- **Only the roles exist.** `styles.css` switches Tailwind's own colours off
+  (`--color-*: initial`), keeping white and black, so a palette class draws
+  nothing and `no-unknown-classes` reports it. Lint also refuses, in templates
+  and in every TypeScript string, a colour class with a palette step, a
+  palette variable, a literal colour other than black or white, and a
+  Typography colour theme (`no-restricted-classes` in
+  `apps/web/eslint.config.mjs`). The discipline this ADR named as a cost is
+  now a check, and it needs no list of palettes to keep current.
+- **Mail draws in the same greys.** The API's message layout takes the roles
+  it uses (`ink`, `inkSubtle`, `edge`, `surface`, `surfaceSubtle`) from the
+  theme where they are set as hex, and the web app's defaults otherwise.

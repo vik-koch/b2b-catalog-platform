@@ -18,6 +18,8 @@ import { Button } from '../../shared/ui/button';
 import { Input } from '../../shared/ui/input';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,
@@ -32,16 +34,18 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
  */
 @Component({
   selector: 'app-sync-customer-plan-view',
-  imports: [Button, Input, Link, RouterLink, StatusBadge],
+  imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
-    <section class="rounded-md border border-border p-4">
+    <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">{{ title() }}</h2>
 
       <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
         @for (tile of tiles(); track tile.label) {
           <div>
-            <dt class="text-subtle">{{ text.customers.count[tile.label] }}</dt>
-            <dd class="text-lg font-medium" [class.text-red-700]="tile.danger">
+            <dt class="text-ink-subtle">
+              {{ text.customers.count[tile.label] }}
+            </dt>
+            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
               {{ tile.value }}
             </dd>
           </div>
@@ -49,17 +53,17 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-muted">{{ noopText() }}</p>
+        <p class="text-ink-subtle">{{ noopText() }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {
-        <h3 class="mt-6 mb-2 text-sm font-medium text-red-700">
+        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
           {{ text.errorsTitle }}
         </h3>
-        <ul class="space-y-1 text-sm text-stone-700">
+        <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
-              <span class="text-subtle">{{ rowLabel(error.row) }}</span>
+              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
               — {{ rowErrorText(error) }}
             </li>
           }
@@ -70,7 +74,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         <h3 class="mt-6 mb-2 text-sm font-medium">
           {{ text.customers.accountsTitle }}
         </h3>
-        <ul class="divide-y divide-stone-100 text-sm">
+        <ul class="divide-y divide-edge-subtle text-sm">
           @for (account of plan().accounts; track account.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(account.kind)">
@@ -90,15 +94,17 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
                 >
               }
               @for (change of account.changes; track change.field) {
-                <span class="text-subtle">
+                <span class="text-ink-subtle">
                   {{ fieldLabel(change.field) }}:
                   <span class="line-through">{{ display(change.from) }}</span>
                   →
-                  <span class="text-stone-700">{{ display(change.to) }}</span>
+                  <span class="text-ink">{{ display(change.to) }}</span>
                 </span>
               }
               @if (account.mailed) {
-                <span class="text-subtle">{{ text.customers.mailedRow }}</span>
+                <span class="text-ink-subtle">{{
+                  text.customers.mailedRow
+                }}</span>
               }
             </li>
           }
@@ -106,17 +112,14 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       }
 
       @if (plan().truncated) {
-        <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
+        <p class="mt-4 text-sm text-ink-subtle">{{ text.truncated }}</p>
       }
 
       @if (applicable()) {
         <!-- An adoption changes what a key means from now on, so a reader
              about to apply one is told before they press, not after. -->
         @if (plan().summary.claimed > 0) {
-          <p
-            class="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
-            role="status"
-          >
+          <p appNotice tone="warning" class="mt-6" role="status">
             {{ claimWarning() }}
           </p>
         }
@@ -124,10 +127,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
              carry either kind or both, and the two are told apart by which
              evidence adopted the account. -->
         @if (plan().summary.claimedById > 0) {
-          <p
-            class="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
-            role="status"
-          >
+          <p appNotice tone="warning" class="mt-6" role="status">
             {{ claimByIdWarning() }}
           </p>
         }
@@ -136,8 +136,8 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
              typed confirmation a sweep of the catalog asks for, because it is
              the same class of act. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
-            <p class="text-sm text-red-800">{{ disableWarning() }}</p>
+          <div appNotice tone="danger" class="mt-6">
+            <p>{{ disableWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
@@ -178,7 +178,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         }
 
         @if (error(); as message) {
-          <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
+          <p appErrorText class="mt-3" role="alert">{{ message }}</p>
         }
       }
     </section>

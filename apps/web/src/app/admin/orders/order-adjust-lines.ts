@@ -91,7 +91,7 @@ export interface AdjustLineRow {
   ],
   host: { class: 'block' },
   template: `
-    <ul class="divide-y divide-border border-b border-border">
+    <ul class="divide-y divide-edge border-b border-edge">
       @for (line of lines(); track line.key; let i = $index) {
         <li class="py-2 first:pt-0">
           <!-- The name has the row to itself: a long one is the ordinary case
@@ -100,7 +100,7 @@ export interface AdjustLineRow {
                four times. -->
           <span class="block">{{ line.name }}</span>
           @if (line.note) {
-            <span class="block text-sm text-subtle italic">{{
+            <span class="block text-sm text-ink-subtle italic">{{
               line.note
             }}</span>
           }
@@ -156,12 +156,12 @@ export interface AdjustLineRow {
                    a line under somebody already reading it. -->
               <span class="text-right">
                 @if (line.totalLabel) {
-                  <span class="block text-sm text-subtle">
+                  <span class="block text-sm text-ink-subtle">
                     {{ line.quantityLabel }}
                   </span>
                   <span class="block">{{ line.totalLabel }}</span>
                   @if (line.taxLabel) {
-                    <span class="block text-xs text-subtle">
+                    <span class="block text-xs text-ink-subtle">
                       {{ line.taxLabel }}
                     </span>
                   }
@@ -222,7 +222,7 @@ export interface AdjustLineRow {
           </div>
         </li>
       } @empty {
-        <li class="py-3 text-sm text-subtle">{{ text.empty }}</li>
+        <li class="py-3 text-sm text-ink-subtle">{{ text.empty }}</li>
       }
     </ul>
 
@@ -253,7 +253,9 @@ export interface AdjustLineRow {
       @if (list.panelOpen()) {
         <div [class]="panel">
           @if (options().length === 0) {
-            <p class="px-3 py-2 text-sm text-subtle">{{ text.noMatches }}</p>
+            <p class="px-3 py-2 text-sm text-ink-subtle">
+              {{ text.noMatches }}
+            </p>
           }
           <ul [id]="listId" role="listbox" [attr.aria-label]="text.addLabel">
             @for (item of options(); track item.slug; let i = $index) {
@@ -262,7 +264,7 @@ export interface AdjustLineRow {
                 role="option"
                 class="cursor-pointer px-3 py-2 text-sm"
                 [attr.aria-selected]="i === list.activeIndex()"
-                [class.bg-stone-100]="i === list.activeIndex()"
+                [class.bg-surface-subtle-hover]="i === list.activeIndex()"
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >
@@ -274,7 +276,7 @@ export interface AdjustLineRow {
                   />
                 </span>
                 @if (item.publishedAt === null) {
-                  <span class="block text-xs text-subtle">
+                  <span class="block text-xs text-ink-subtle">
                     {{ products.unpublished }}
                   </span>
                 }

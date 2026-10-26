@@ -39,6 +39,10 @@ import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -77,10 +81,14 @@ type EditTarget = { id: string } | { id: null } | null;
     FieldLabel,
     SelectField,
     Skeleton,
+    PageTitle,
+    ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -94,7 +102,7 @@ type EditTarget = { id: string } | { id: null } | null;
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <!-- Narrower than the heading above it: everything below is a column of
@@ -102,19 +110,19 @@ type EditTarget = { id: string } | { id: null } | null;
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-red-700" role="alert">
+        <p appErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
 
       @if (definitions.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (definitions.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone. -->
-        <div class="border-y border-border">
+        <div class="border-y border-edge">
           <ul
-            class="divide-y divide-border"
+            class="divide-y divide-edge"
             cdkDropList
             [cdkDropListDisabled]="busy() || editing() !== null"
             (cdkDropListDropped)="onDrop($event)"
@@ -148,12 +156,12 @@ type EditTarget = { id: string } | { id: null } | null;
                     >
                       <app-admin-icon name="grip-vertical" />
                     </span>
-                    <span class="font-medium text-stone-700">
+                    <span class="font-medium text-ink">
                       {{ definition.name }}
                     </span>
                     <!-- The URL key beside the name it belongs to: the two are
                          read as a pair, not as two ends of the row. -->
-                    <code class="rounded-sm bg-stone-100 px-1.5 py-0.5 text-xs">
+                    <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
                       {{ definition.slug }}
                     </code>
                     <!-- The two counts are the two ways out of this row: the
@@ -235,7 +243,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </app-warning-note>
                   }
                   @if (rowError()?.id === definition.id) {
-                    <p class="mt-2 text-sm text-red-700" role="alert">
+                    <p appErrorText class="mt-2" role="alert">
                       {{ rowError()?.message }}
                     </p>
                   }
@@ -248,13 +256,13 @@ type EditTarget = { id: string } | { id: null } | null;
             <div
               class="py-3"
               [class]="
-                definitions.value().length !== 0 ? 'border-t border-border' : ''
+                definitions.value().length !== 0 ? 'border-t border-edge' : ''
               "
             >
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (definitions.value().length === 0) {
-            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {
@@ -335,7 +343,7 @@ type EditTarget = { id: string } | { id: null } | null;
               />
             </div>
           }
-          <p class="text-xs text-muted sm:col-span-2">{{ text.nameHint }}</p>
+          <p appHint class="sm:col-span-2">{{ text.nameHint }}</p>
           <div appRecordFormActions>
             <button
               appButton
@@ -361,7 +369,7 @@ type EditTarget = { id: string } | { id: null } | null;
             </button>
           </div>
           @if (formError()) {
-            <p class="text-sm text-red-700 sm:col-span-2" role="alert">
+            <p appErrorText class="sm:col-span-2" role="alert">
               {{ formError() }}
             </p>
           }

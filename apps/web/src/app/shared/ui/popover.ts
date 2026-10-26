@@ -101,7 +101,7 @@ export class Popover {
     // Centred on the anchor whatever the alignment: the arrow says which
     // control the bubble is about, and a bubble that pointed beside its own
     // button said it about nothing.
-    return `absolute z-10 h-3 w-3 rotate-45 border-border-strong bg-white left-1/2 -translate-x-1/2 ${side}`;
+    return `absolute z-10 h-3 w-3 rotate-45 border-edge-strong bg-white left-1/2 -translate-x-1/2 ${side}`;
   });
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -131,7 +131,7 @@ export class Popover {
       : this.roomy()
         ? 'w-56 max-w-[calc(100vw-2rem)] p-3 text-left'
         : 'w-max max-w-[min(13rem,calc(100vw-2rem))] px-3 py-2 text-center';
-    return `absolute rounded-md border border-border-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
+    return `absolute rounded-md border border-edge-strong bg-white text-sm text-ink shadow-xl ${size} ${place} ${vertical}`;
   });
 
   private readonly onOutside = (event: Event) => {

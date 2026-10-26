@@ -21,6 +21,7 @@ import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
@@ -44,6 +45,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     FieldLabel,
     DialogActions,
     DialogPanel,
+    ErrorText,
   ],
   template: `
     <dialog
@@ -60,15 +62,15 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       </h2>
 
       @if (mode() === 'loading') {
-        <p class="mt-3 text-subtle" role="status">…</p>
+        <p class="mt-3 text-ink-subtle" role="status">…</p>
       } @else if (mode() === 'blocked-children') {
-        <p class="mt-3 text-muted">{{ blockedChildrenMessage() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ blockedChildrenMessage() }}</p>
       } @else if (mode() === 'blocked-owned') {
-        <p class="mt-3 text-muted">{{ ownedMessage() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ ownedMessage() }}</p>
       } @else if (mode() === 'reassign') {
-        <p class="mt-3 text-muted">{{ reassignIntro() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ reassignIntro() }}</p>
         @if (self()?.deletedProductCount; as deleted) {
-          <p class="mt-2 text-muted">{{ reassignDeleted(deleted) }}</p>
+          <p class="mt-2 text-ink-subtle">{{ reassignDeleted(deleted) }}</p>
         }
         <div class="mt-4">
           <span appFieldLabel>{{ text.reassignLabel }}</span>
@@ -81,11 +83,11 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           />
         </div>
       } @else {
-        <p class="mt-3 text-muted">{{ confirmMessage() }}</p>
+        <p class="mt-3 text-ink-subtle">{{ confirmMessage() }}</p>
       }
 
       @if (error()) {
-        <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div appDialogActions>

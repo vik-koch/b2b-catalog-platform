@@ -54,9 +54,9 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       >
         {{ text.addKeys }}
       </h2>
-      <p class="mt-2 text-xs text-subtle">{{ text.addKeysHint }}</p>
+      <p class="mt-2 text-xs text-ink-subtle">{{ text.addKeysHint }}</p>
       @if (hints().length === 0) {
-        <p class="mt-3 text-sm text-muted">{{ text.addKeysEmpty }}</p>
+        <p class="mt-3 text-sm text-ink-subtle">{{ text.addKeysEmpty }}</p>
       } @else {
         <!-- Right padding, not on the rows: the counts would otherwise sit
              against the scrollbar of a long list. -->
@@ -65,7 +65,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             <li>
               <label
                 class="flex cursor-pointer items-center gap-2 py-1 text-sm has-[input:disabled]:cursor-not-allowed"
-                [class.text-subtle]="used().includes(hint.key)"
+                [class.text-ink-subtle]="used().includes(hint.key)"
               >
                 <input
                   type="checkbox"
@@ -81,7 +81,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                     <app-admin-icon name="funnel" class="size-3.5" />
                   </app-hint-badge>
                 }
-                <span class="ml-auto pl-3 text-xs text-subtle">
+                <span class="ml-auto pl-3 text-xs text-ink-subtle">
                   @if (used().includes(hint.key)) {
                     {{ text.inTable }}
                   } @else {

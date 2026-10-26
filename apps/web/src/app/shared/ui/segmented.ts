@@ -30,10 +30,10 @@ const SEGMENT_BASE =
  * the two curves visibly out of step.
  */
 export const SEGMENTED_GROUP =
-  'inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1';
+  'inline-flex gap-1 rounded-lg border border-edge-strong bg-white p-1';
 
 /**
- * The quiet pill: a stone track with no edge, the chosen segment lifted out of
+ * The quiet pill: a grey track with no edge, the chosen segment lifted out of
  * it as a white chip. For a control that arranges what is already on the page
  * — the listing's layout and order — rather than one that decides something,
  * so it stays out of the brand colour the buying controls beside it speak in.
@@ -42,7 +42,7 @@ export const SEGMENTED_GROUP =
  * concentric-corner reason as above.
  */
 export const SEGMENTED_GROUP_NEUTRAL =
-  'inline-flex gap-0.5 rounded-lg bg-stone-100 p-0.5';
+  'inline-flex gap-0.5 rounded-lg bg-surface p-0.5';
 
 /** Which pill a segment sits in — see the two groups above. */
 export type SegmentTone = 'brand' | 'neutral';
@@ -93,7 +93,7 @@ export function segmentClass(
 ): string {
   /*
    * The app's one hover language, said on a segment: a fill lightens to accent
-   * (as a primary button does), a chromeless one gains the stone-100 wash and
+   * (as a primary button does), a chromeless one gains the hover wash and
    * takes its label to accent (as a ghost button does). The chosen segment used
    * to answer a pointer with nothing at all, which read as the one segment that
    * could not be pressed — it is the one that already is.
@@ -103,24 +103,26 @@ export function segmentClass(
    * has to answer, and the label is what says it is not a choice.
    */
   const states: Record<SegmentState, string> = {
-    selected: 'bg-primary text-white hover:bg-accent active:bg-primary-deep',
+    selected: 'bg-primary text-white hover:bg-accent active:bg-primary-press',
     available:
-      'text-ink hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
-    unavailable: 'text-stone-400 hover:bg-stone-100 active:bg-stone-200',
+      'text-ink hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary',
+    unavailable:
+      'text-ink-subtle hover:bg-surface-subtle-hover active:bg-surface-subtle-press',
   };
   const lockedStates: Record<SegmentState, string> = {
-    selected: 'bg-stone-400 text-white',
-    available: 'text-stone-400',
-    unavailable: 'text-stone-400',
+    selected: 'bg-ink-disabled text-white',
+    available: 'text-ink-disabled',
+    unavailable: 'text-ink-disabled',
   };
-  // The quiet pill says the same things in stone: the chip is the fill, and
+  // The quiet pill says the same things in grey: the chip is the fill, and
   // the hover language is a ghost button's on both.
   const neutralStates: Record<SegmentState, string> = {
     selected:
-      'bg-white text-ink shadow-xs hover:text-accent active:text-primary-deep',
+      'bg-white text-ink shadow-xs hover:text-accent active:text-primary-press',
     available:
-      'text-muted hover:bg-stone-200 hover:text-accent active:bg-stone-300 active:text-primary-deep',
-    unavailable: 'text-stone-400 hover:bg-stone-200 active:bg-stone-300',
+      'text-ink-subtle hover:bg-surface-hover hover:text-accent-strong active:bg-surface-press active:text-primary-press',
+    unavailable:
+      'text-ink-subtle hover:bg-surface-hover active:bg-surface-press',
   };
   const look = locked
     ? `cursor-not-allowed ${lockedStates[state]}`

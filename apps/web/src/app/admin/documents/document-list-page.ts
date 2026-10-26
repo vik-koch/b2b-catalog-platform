@@ -44,6 +44,7 @@ import {
   documentFileSize,
   documentLinkHost,
 } from '../../shared/core/document-file';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document
@@ -81,6 +82,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     Skeleton,
     StatusBadge,
     UnpublishedCount,
+    ErrorText,
   ],
   template: `
     <app-admin-list-header
@@ -104,11 +106,11 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     </app-admin-list-header>
 
     @if (pageError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">{{ pageError() }}</p>
+      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (documents.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
       <app-admin-grid
         gridId="documents"
@@ -126,7 +128,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                are the same thing. -->
           <td class="truncate">
             <a
-              class="block truncate wrap-break-word font-medium text-stone-700 hover:text-accent"
+              class="block truncate wrap-break-word font-medium text-ink hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"
@@ -139,7 +141,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                content hash, and the name it was uploaded under is the second
                line because it is what an admin recognises it by. A link is
                named by its site beside it (FR-DOC-05). -->
-          <td class="truncate text-subtle" [title]="names(document)">
+          <td class="truncate text-ink-subtle" [title]="names(document)">
             <span class="block truncate">{{ fileLabel(document) }}</span>
             <span class="block truncate text-xs">{{ names(document) }}</span>
           </td>
@@ -151,8 +153,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
               [ngTemplateOutletContext]="{ $implicit: document }"
             />
           </td>
-          <td class="text-subtle">{{ day(document.issuedAt) }}</td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">{{ day(document.issuedAt) }}</td>
+          <td class="text-ink-subtle">
             {{ day(document.expiresAt) || text.noExpiry }}
           </td>
           <!-- Where the document stands, as its own column (FR-DOC-04) — the
@@ -165,7 +167,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
               {{ stateLabel(document) }}
             </span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="document.updatedAt" />
           </td>
           <td>
@@ -183,14 +185,14 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         <ng-template appGridCard [of]="data" let-document>
           <app-record-row>
             <a
-              class="wrap-break-word font-medium text-stone-700 hover:text-accent"
+              class="wrap-break-word font-medium text-ink hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"
               >{{ document.title }}</a
             >
             <div recordBody>
-              <p class="mt-1 truncate text-sm text-subtle">
+              <p class="mt-1 truncate text-sm text-ink-subtle">
                 {{ fileLabel(document) }} · {{ names(document) }}
               </p>
               <p class="mt-1 truncate text-sm">
@@ -258,7 +260,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
           />
         }
       } @else {
-        <span class="text-subtle">{{ text.noProducts }}</span>
+        <span class="text-ink-subtle">{{ text.noProducts }}</span>
       }
     </ng-template>
 

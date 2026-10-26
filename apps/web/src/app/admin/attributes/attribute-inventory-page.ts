@@ -26,6 +26,9 @@ import { RecordRow } from '../records/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -61,17 +64,20 @@ type RenameTarget =
     HintBadge,
     Input,
     Skeleton,
+    PageTitle,
+    ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
       </a>
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <!-- Narrower than the heading above it: everything below is a column of
@@ -79,15 +85,15 @@ type RenameTarget =
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (keys.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (keys.hasValue()) {
         @if (keys.value().length === 0) {
-          <p class="text-sm text-muted">{{ text.empty }}</p>
+          <p class="text-sm text-ink-subtle">{{ text.empty }}</p>
         } @else {
           <!-- Divided rules on the page, not a card: this is the same list of
                records an admin grid draws on a phone. -->
-          <div class="border-y border-border">
-            <ul class="divide-y divide-border">
+          <div class="border-y border-edge">
+            <ul class="divide-y divide-edge">
               @for (entry of keys.value(); track entry.key) {
                 <!-- scroll-mt clears the sticky header: without it the anchor
                    puts the row's own heading under the bar and the values look
@@ -110,7 +116,7 @@ type RenameTarget =
                         <button
                           recordControl
                           type="button"
-                          class="flex cursor-pointer items-center gap-2 self-stretch text-left font-medium text-stone-700 hover:text-accent"
+                          class="flex cursor-pointer items-center gap-2 self-stretch text-left font-medium text-ink hover:text-accent"
                           [attr.aria-expanded]="expanded() === entry.key"
                           (click)="toggle(entry.key)"
                         >
@@ -210,13 +216,13 @@ type RenameTarget =
                          subcategory: these values belong to the key above them,
                          and a flat list of both reads as one list of
                          everything. -->
-                    <div class="border-t border-border bg-stone-100 ml-6 pl-2">
+                    <div class="border-t border-edge bg-surface ml-6 pl-2">
                       @if (values.error()) {
-                        <p class="py-3 text-sm text-muted" role="alert">
+                        <p class="py-3 text-sm text-ink-subtle" role="alert">
                           {{ adminText.loadError }}
                         </p>
                       } @else if (values.hasValue()) {
-                        <ul class="divide-y divide-border">
+                        <ul class="divide-y divide-edge">
                           @for (value of values.value(); track value.value) {
                             <li class="py-3">
                               @if (
@@ -238,8 +244,8 @@ type RenameTarget =
                                        of a different height, and the two lists
                                        stop lining up. -->
                                   <span
-                                    class="text-stone-700"
-                                    [class.text-muted]="value.value === ''"
+                                    class="text-ink"
+                                    [class.text-ink-subtle]="value.value === ''"
                                   >
                                     {{ value.value || text.emptyValue }}
                                   </span>
@@ -327,7 +333,7 @@ type RenameTarget =
                            cannot drift: only the text and the glyphs are
                            replaced by bars. -->
                         <ul
-                          class="animate-pulse divide-y divide-border"
+                          class="animate-pulse divide-y divide-edge"
                           aria-hidden="true"
                         >
                           @for (
@@ -343,7 +349,7 @@ type RenameTarget =
                                      placeholder short of the real row. -->
                                 <span class="flex h-5 items-center">
                                   <span
-                                    class="h-4 rounded-sm bg-stone-200"
+                                    class="h-4 rounded-sm bg-skeleton"
                                     [style.width]="width"
                                   ></span>
                                 </span>
@@ -352,7 +358,7 @@ type RenameTarget =
                                   class="flex h-5 items-center mr-7"
                                 >
                                   <span
-                                    class="h-4 w-20 rounded-sm bg-stone-200"
+                                    class="h-4 w-20 rounded-sm bg-skeleton"
                                   ></span>
                                 </span>
                                 <ng-container recordActions>
@@ -360,7 +366,7 @@ type RenameTarget =
                                        hands its icon as --icon-size. -->
                                   <span appIconButton>
                                     <span
-                                      class="block size-(--icon-size) rounded-sm bg-stone-200"
+                                      class="block size-(--icon-size) rounded-sm bg-skeleton"
                                     ></span>
                                   </span>
                                 </ng-container>
@@ -381,7 +387,7 @@ type RenameTarget =
       }
 
       @if (renameError()) {
-        <p class="mt-4 text-sm text-red-700" role="alert">
+        <p appErrorText class="mt-4" role="alert">
           {{ renameError() }}
         </p>
       }

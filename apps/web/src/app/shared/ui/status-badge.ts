@@ -7,15 +7,15 @@ import { computed, Directive, input } from '@angular/core';
  */
 const tones = {
   /** Nothing is pending and nothing is wrong — history, or a plain fact. */
-  neutral: 'bg-stone-200 text-muted',
+  neutral: 'bg-chip text-ink-subtle',
   /** Somebody has to act before this moves. */
-  waiting: 'bg-amber-100 text-amber-800',
+  waiting: 'bg-warning-surface text-warning-ink',
   /** Settled, and settled well. */
-  ok: 'bg-green-100 text-green-800',
+  ok: 'bg-success-surface text-success-ink',
   /** Settled by a refusal, or deliberately switched off. */
-  danger: 'bg-red-100 text-red-800',
+  danger: 'bg-danger-surface text-danger-ink',
   /** A state worth pointing out that is neither good nor bad. */
-  info: 'bg-sky-100 text-sky-800',
+  info: 'bg-info-surface text-info-ink',
 } as const;
 
 /**
@@ -27,11 +27,11 @@ const tones = {
  * to be scanned down a column, not to shout from inside a card.
  */
 const dots = {
-  neutral: 'before:bg-stone-400',
-  waiting: 'before:bg-amber-500',
-  ok: 'before:bg-green-500',
-  danger: 'before:bg-red-500',
-  info: 'before:bg-sky-500',
+  neutral: 'before:bg-ink-subtle',
+  waiting: 'before:bg-warning-dot',
+  ok: 'before:bg-success-dot',
+  danger: 'before:bg-danger-dot',
+  info: 'before:bg-info-dot',
 } as const;
 
 export type StatusTone = keyof typeof tones;
@@ -47,7 +47,7 @@ export type StatusBadgeVariant = 'solid' | 'dot';
 const shapes = {
   solid: 'rounded-full px-2 py-0.5',
   dot:
-    'gap-x-1.5 rounded-md border border-border bg-white px-1.5 py-0.5 text-muted ' +
+    'gap-x-1.5 rounded-md border border-edge bg-white px-1.5 py-0.5 text-ink-subtle ' +
     "before:size-1.5 before:shrink-0 before:rounded-full before:content-['']",
 } as const;
 

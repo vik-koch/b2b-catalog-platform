@@ -231,7 +231,7 @@ interface Listing {
                    from, which on a wide screen is half a line of nothing. As
                    text, a long name wraps where it runs out of room and the
                    trail stays a trail. -->
-              <ol role="list" class="text-sm text-subtle">
+              <ol role="list" class="text-sm text-ink-subtle">
                 @if (data.category; as category) {
                   <li class="inline">
                     <a routerLink="/catalog" class="hover:text-accent">
@@ -242,7 +242,7 @@ interface Listing {
                     <li aria-hidden="true" class="inline">
                       <app-icon
                         name="chevron-right"
-                        class="mx-1 size-4 align-middle text-stone-300"
+                        class="mx-1 size-4 align-middle text-edge-strong"
                       />
                     </li>
                     <li class="inline">
@@ -260,23 +260,17 @@ interface Listing {
                   <li aria-hidden="true" class="inline">
                     <app-icon
                       name="chevron-right"
-                      class="mx-1 size-4 align-middle text-stone-300"
+                      class="mx-1 size-4 align-middle text-edge-strong"
                     />
                   </li>
                   <li class="inline">
-                    <span
-                      aria-current="page"
-                      class="font-medium text-stone-700"
-                    >
+                    <span aria-current="page" class="font-medium text-ink">
                       {{ displayName(category) }}
                     </span>
                   </li>
                 } @else {
                   <li class="inline">
-                    <span
-                      aria-current="page"
-                      class="font-medium text-stone-700"
-                    >
+                    <span aria-current="page" class="font-medium text-ink">
                       {{ text.catalogRoot }}
                     </span>
                   </li>
@@ -381,7 +375,7 @@ interface Listing {
                      column's own heading and sits over the same gap, so the
                      first card starts on the line the first facet does. -->
                 <div class="mb-4 flex h-8 items-center justify-between gap-4">
-                  <p class="text-sm text-subtle">
+                  <p class="text-sm text-ink-subtle">
                     {{ productCount(data.pagination.total) }}
                   </p>
                   <div class="flex items-center gap-3">
@@ -455,7 +449,7 @@ interface Listing {
                 <!-- What the prices include, where the deployment says so beside
                      them (NFR-LEGAL-11). Once for the page, naming no rate. -->
                 @if (taxNote) {
-                  <p class="mt-4 text-xs text-subtle">{{ taxNote }}</p>
+                  <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
                 }
 
                 @if (data.pagination.totalPages > 1) {
@@ -477,11 +471,11 @@ interface Listing {
                         >{{ pagination.previous }}</a
                       >
                     } @else {
-                      <span class="px-3 py-1.5 text-stone-300">{{
+                      <span class="px-3 py-1.5 text-ink-disabled">{{
                         pagination.previous
                       }}</span>
                     }
-                    <span class="text-subtle">{{
+                    <span class="text-ink-subtle">{{
                       pageStatus(data.pagination)
                     }}</span>
                     @if (data.pagination.page < data.pagination.totalPages) {
@@ -498,14 +492,14 @@ interface Listing {
                         >{{ pagination.next }}</a
                       >
                     } @else {
-                      <span class="px-3 py-1.5 text-stone-300">{{
+                      <span class="px-3 py-1.5 text-ink-disabled">{{
                         pagination.next
                       }}</span>
                     }
                   </nav>
                 }
               } @else {
-                <p class="text-muted">
+                <p class="text-ink-subtle">
                   {{
                     hasSelection()
                       ? filterText.noMatches
@@ -525,13 +519,13 @@ interface Listing {
                real content arrives. -->
           <div class="space-y-3">
             <div
-              class="h-4 w-1/2 rounded-sm bg-stone-200 @min-[38rem]/listing:w-1/3"
+              class="h-4 w-1/2 rounded-sm bg-skeleton @min-[38rem]/listing:w-1/3"
             ></div>
-            <div class="h-8 w-1/3 rounded-sm bg-stone-200"></div>
+            <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
           </div>
           <div [class]="productGrid">
             @for (i of skeletons; track i) {
-              <div class="aspect-square rounded-lg bg-stone-200"></div>
+              <div class="aspect-square rounded-lg bg-skeleton"></div>
             }
           </div>
         </div>

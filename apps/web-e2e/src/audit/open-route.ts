@@ -5,12 +5,14 @@ import type { AuditRoute } from './routes';
  * The seed dates its records relative to when it ran, so dates move from day
  * to day and times from run to run, and their width moves what stands beside
  * them. Every text node is given one fixed date and time instead, as it is
- * parsed and whenever a render writes it again.
+ * parsed and whenever a render writes it again: numeric, and the long form
+ * with the month spelled out (`26. Oktober 2026`, `26 October 2026`).
  */
 const FIXED_DATES = `(() => {
   const fix = (node) => {
     const next = node.nodeValue
       .replace(/\\b\\d{2}\\.\\d{2}\\.\\d{4}\\b/g, '01.01.2000')
+      .replace(/\\b\\d{1,2}(\\.?) [A-ZÄÖÜ][a-zäöüé]+ \\d{4}\\b/g, '1$1 Januar 2000')
       .replace(/\\b\\d{1,2}:\\d{2}(:\\d{2})?\\b/g, (_, seconds) =>
         seconds ? '00:00:00' : '00:00');
     if (next !== node.nodeValue) node.nodeValue = next;
@@ -46,6 +48,13 @@ export async function openRoute(page: Page, route: AuditRoute): Promise<void> {
   // eslint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState('networkidle');
   await route.arrange?.(page);
+  // A date field's value is no text node, so the observer above never sees
+  // it. Set without an input event, so the form underneath keeps its own.
+  await page.evaluate(
+    `document.querySelectorAll('input[type=date]').forEach((input) => {
+      if (input.value) input.value = '2000-01-01';
+    })`,
+  );
   // An arranged state may have scrolled to its message, and a full-page shot
   // taken from there draws the sticky header mid-page.
   await page.evaluate('window.scrollTo(0, 0)');

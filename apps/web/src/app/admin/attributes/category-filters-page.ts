@@ -34,6 +34,8 @@ import { UnpublishedCount } from '../products/unpublished-count';
 import { RecordRow } from '../records/record-row';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -81,6 +83,8 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     Skeleton,
     Link,
     UnpublishedCount,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
@@ -89,12 +93,12 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
            later reads as the page changing its mind. A bar of the same height
            holds the row instead. -->
       @if (loaded(); as panel) {
-        <h1 class="text-3xl font-medium tracking-tight">
+        <h1 appPageTitle>
           {{ headingFor(panel) }}
         </h1>
       } @else {
         <div
-          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-stone-200"
+          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-skeleton"
           aria-hidden="true"
         ></div>
       }
@@ -104,31 +108,31 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     </div>
 
     @if (slug() ? text.page.intro : text.catalogIntro; as intro) {
-      <p class="mb-2 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p class="mb-2 max-w-3xl text-sm text-ink-subtle">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">
       @if (filters.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (filters.hasValue()) {
         @if (loaded(); as panel) {
           <!-- Where the list comes from is the first thing to read: an
                inherited panel looks identical to an owned one until it is
                saved, and only this line tells them apart. -->
           @if (sourceLabel(panel); as source) {
-            <p class="mb-6 text-sm text-subtle">{{ source }}</p>
+            <p class="mb-6 text-sm text-ink-subtle">{{ source }}</p>
           } @else {
             <div class="mb-6"></div>
           }
 
           @if (draft().length === 0) {
-            <p class="text-sm text-muted">{{ text.noDefinitions }}</p>
+            <p class="text-sm text-ink-subtle">{{ text.noDefinitions }}</p>
           } @else {
             <!-- Divided rules on the page, not a card: this is the same list
                  of records the rest of the panel draws. -->
-            <div class="border-y border-border">
+            <div class="border-y border-edge">
               <ul
-                class="divide-y divide-border"
+                class="divide-y divide-edge"
                 cdkDropList
                 [cdkDropListDisabled]="busy()"
                 (cdkDropListDropped)="onDrop($event)"
@@ -149,7 +153,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                         [title]="text.show"
                         (change)="toggle(filter)"
                       />
-                      <span class="font-medium text-stone-700">
+                      <span class="font-medium text-ink">
                         {{ filter.name }}
                       </span>
                       <ng-container recordMeta>
@@ -175,7 +179,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                           />
                         }
                         @if (filter.isNew) {
-                          <span class="text-amber-700">{{ text.isNew }}</span>
+                          <span class="text-warning">{{ text.isNew }}</span>
                         }
                       </ng-container>
                       <span
@@ -195,7 +199,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
             </div>
 
             @if (noneVisible()) {
-              <p class="mt-4 text-sm text-amber-700">
+              <p class="mt-4 text-sm text-warning">
                 {{ slug() ? text.empty : text.catalogEmpty }}
               </p>
             }
@@ -236,18 +240,18 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
             </div>
 
             @if (wasReset()) {
-              <p class="mt-4 text-sm text-stone-700" role="status">
+              <p class="mt-4 text-sm text-ink" role="status">
                 {{ text.resetDone }}
               </p>
             }
             @if (error()) {
-              <p class="mt-4 text-sm text-red-700" role="alert">
+              <p appErrorText class="mt-4" role="alert">
                 {{ error() }}
               </p>
             }
           }
         } @else {
-          <p class="text-muted" role="alert">
+          <p class="text-ink-subtle" role="alert">
             {{ notFound() }}
           </p>
         }

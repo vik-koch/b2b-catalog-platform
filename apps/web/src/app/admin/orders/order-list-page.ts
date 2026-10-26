@@ -52,6 +52,7 @@ import {
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Every order request, for staff (FR-AUTH-03). An order is answered on its own
@@ -79,6 +80,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     StatusBadge,
     RecordRow,
     OrderRowActions,
+    ErrorText,
   ],
   template: `
     <app-admin-list-header
@@ -92,11 +94,11 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
     />
 
     @if (pageError(); as message) {
-      <p class="mb-4 text-sm text-red-600" role="alert">{{ message }}</p>
+      <p appErrorText class="mb-4" role="alert">{{ message }}</p>
     }
 
     @if (orders.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="orders"
@@ -125,14 +127,14 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
           <!-- Who to call, and underneath the account it came from — or
                that it came from nobody, which is what a guest order is. -->
           <td class="truncate" [title]="order.customerEmail ?? ''">
-            <span class="block truncate text-stone-700">
+            <span class="block truncate text-ink">
               {{ order.contactName }}
             </span>
-            <span class="block truncate text-xs text-subtle">
+            <span class="block truncate text-xs text-ink-subtle">
               {{ order.customerEmail ?? ordersText.guest }}
             </span>
           </td>
-          <td class="truncate text-subtle">
+          <td class="truncate text-ink-subtle">
             {{ lineCount(order.itemCount) }}
           </td>
           <td class="tabular-nums">{{ total(order) }}</td>
@@ -152,7 +154,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
               {{ statusLabel(order) }}
             </span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="order.createdAt" />
           </td>
           <td data-keep>
@@ -204,7 +206,7 @@ import { AdminOrdersService, StaffOrderSummary } from './orders.service';
             </span>
             <p
               recordBody
-              class="mt-1 truncate text-subtle"
+              class="mt-1 truncate text-ink-subtle"
               [class.opacity-50]="isEnded(order)"
             >
               {{ order.contactName }}

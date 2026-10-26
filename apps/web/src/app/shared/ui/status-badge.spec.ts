@@ -33,7 +33,7 @@ describe('StatusBadge', () => {
     fixture.detectChanges();
 
     expect(badge.classList.contains('rounded-full')).toBe(true);
-    expect(badge.classList.contains('bg-green-100')).toBe(true);
+    expect(badge.classList.contains('bg-success-surface')).toBe(true);
     expect(badge.className).not.toContain('before:');
   });
 
@@ -49,12 +49,12 @@ describe('StatusBadge', () => {
 
     // The dot is a pseudo-element, so the tone has to reach it through a
     // variant class — the one thing a swapped colour could quietly drop.
-    expect(badge.classList.contains('before:bg-green-500')).toBe(true);
+    expect(badge.classList.contains('before:bg-success-dot')).toBe(true);
     // And the tone reaches nothing else: field, border and label stay neutral
     // whatever the state, which is the whole difference from the filled pill.
     expect(badge.classList.contains('bg-white')).toBe(true);
-    expect(badge.classList.contains('border-border')).toBe(true);
-    expect(badge.classList.contains('text-muted')).toBe(true);
+    expect(badge.classList.contains('border-edge')).toBe(true);
+    expect(badge.classList.contains('text-ink-subtle')).toBe(true);
     expect(badge.className).not.toContain('green-100');
     expect(badge.classList.contains('rounded-full')).toBe(false);
   });

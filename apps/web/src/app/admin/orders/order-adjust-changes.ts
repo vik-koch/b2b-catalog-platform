@@ -36,23 +36,23 @@ export interface OrderChange {
     @if (loading()) {
       <app-skeleton size="sm" [lines]="1" />
     } @else if (changes().length === 0 && !pending()) {
-      <p class="text-sm text-subtle">{{ empty() }}</p>
+      <p class="text-sm text-ink-subtle">{{ empty() }}</p>
     } @else {
-      <ul class="divide-y divide-border border-t border-border">
+      <ul class="divide-y divide-edge border-t border-edge">
         @for (change of changes(); track $index) {
           <li class="py-2 last:pb-0 text-sm">
-            <span class="block text-subtle">{{ change.label }}</span>
+            <span class="block text-ink-subtle">{{ change.label }}</span>
             <!-- Old struck through, new beside it: the pair reads as one
                  sentence, and the colours are the only thing carrying the
                  direction, so neither side is left to them alone. -->
             @if (change.before) {
-              <span class="text-red-700 line-through">{{ change.before }}</span>
+              <span class="text-danger line-through">{{ change.before }}</span>
             }
             @if (change.before && change.after) {
-              <span class="px-1 text-subtle" aria-hidden="true">→</span>
+              <span class="px-1 text-ink-subtle" aria-hidden="true">→</span>
             }
             @if (change.after) {
-              <span class="text-green-800">{{ change.after }}</span>
+              <span class="text-success">{{ change.after }}</span>
             }
           </li>
         }
@@ -62,7 +62,7 @@ export interface OrderChange {
              "nothing has changed yet" because one field is half-typed is a
              screen nobody believes the second time. -->
         @if (pending(); as note) {
-          <li class="py-2 text-sm text-subtle">{{ note }}</li>
+          <li class="py-2 text-sm text-ink-subtle">{{ note }}</li>
         }
       </ul>
     }

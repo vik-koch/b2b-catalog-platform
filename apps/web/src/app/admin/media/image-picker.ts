@@ -10,6 +10,7 @@ import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,
@@ -20,11 +21,11 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [AdminIcon, FileTarget],
+  imports: [AdminIcon, FileTarget, ErrorText],
   template: `
     @if (value(); as image) {
       <div
-        class="relative size-26 overflow-hidden rounded-md border border-border bg-white"
+        class="relative size-26 overflow-hidden rounded-md border border-edge bg-white"
       >
         <img [src]="image.thumb" alt="" class="size-full object-cover" />
         <div
@@ -63,13 +64,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         }}</span>
       </button>
       <!-- A pointer's hint: a phone has no shortcut, and drops nothing. -->
-      <p class="mt-2 hidden text-xs text-subtle pointer-fine:block">
+      <p class="mt-2 hidden text-xs text-ink-subtle pointer-fine:block">
         {{ tileHint }}
       </p>
     }
 
     @if (error()) {
-      <p class="mt-2 text-sm text-red-700" role="alert">{{ error() }}</p>
+      <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
     }
   `,
 })

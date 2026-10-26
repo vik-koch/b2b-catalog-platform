@@ -24,6 +24,7 @@ import { StatusBadge } from '../ui/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';
+import { ErrorText } from '../ui/error-text';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category
@@ -41,15 +42,15 @@ import { SHARED_TEXT } from '../config/shared-text';
  */
 @Component({
   selector: 'app-hidden-products-section',
-  imports: [PricePipe, Button, AdminIcon, StatusBadge, RouterLink],
+  imports: [PricePipe, Button, AdminIcon, StatusBadge, RouterLink, ErrorText],
   template: `
     @if (hidden.value(); as items) {
       @if (items.length) {
-        <section class="mt-12 border-t border-border pt-8">
-          <h2 class="text-lg font-normal tracking-tight text-subtle">
+        <section class="mt-12 border-t border-edge pt-8">
+          <h2 class="text-lg font-normal tracking-tight text-ink-subtle">
             {{ text.hiddenHeading }}
           </h2>
-          <p class="mt-1 text-sm text-subtle">{{ text.hiddenHint }}</p>
+          <p class="mt-1 text-sm text-ink-subtle">{{ text.hiddenHint }}</p>
           <ul [class]="grid">
             @for (item of items; track item.slug) {
               <li class="h-full">
@@ -81,7 +82,7 @@ import { SHARED_TEXT } from '../config/shared-text';
                     <!-- The page an admin is shown even while it is hidden,
                          saying why (FR-ADM-06). -->
                     <h3
-                      class="line-clamp-2 text-sm text-subtle"
+                      class="line-clamp-2 text-sm text-ink-subtle"
                       [title]="item.name"
                     >
                       <a
@@ -90,7 +91,7 @@ import { SHARED_TEXT } from '../config/shared-text';
                         >{{ item.name }}</a
                       >
                     </h3>
-                    <p class="mt-auto pt-2 font-emphasis text-stone-400">
+                    <p class="mt-auto pt-2 font-emphasis text-ink-subtle">
                       @if (item.priceMinor === null) {
                         {{ text.unpricedHint }}
                       } @else {
@@ -133,7 +134,7 @@ import { SHARED_TEXT } from '../config/shared-text';
             }
           </ul>
           @if (error()) {
-            <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+            <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
           }
         </section>
       }
@@ -171,7 +172,7 @@ export class HiddenProductsSection {
    * grid draws the rules between them, so the card drops its own frame.
    */
   protected readonly card =
-    'flex h-full flex-col rounded-lg border border-dashed border-border-strong bg-stone-50 ' +
+    'flex h-full flex-col rounded-lg border border-dashed border-edge-strong bg-surface-subtle ' +
     '@max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none @max-[38rem]/listing:border-0 @max-[38rem]/listing:bg-transparent ' +
     NARROW_PADDING_IN_GRID;
 
@@ -180,7 +181,7 @@ export class HiddenProductsSection {
   /** Flush with the card's top edge, and its own framed square once the card
    * has no frame to lend it — the tile's rule, and a row's at every width. */
   protected readonly photo =
-    'block aspect-square w-full overflow-hidden rounded-t-lg bg-white @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-border';
+    'block aspect-square w-full overflow-hidden rounded-t-lg bg-white @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-edge';
 
   protected readonly body =
     'flex flex-1 flex-col p-3 @max-[38rem]/listing:p-0 ' + NARROW_BODY_IN_GRID;

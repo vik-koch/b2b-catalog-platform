@@ -31,6 +31,7 @@ import {
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** One line of the list: a document that exists, or a kind that could. */
 interface DocumentRow {
@@ -67,7 +68,7 @@ interface DocumentRow {
  */
 @Component({
   selector: 'app-order-documents-panel',
-  imports: [Button, IconButton, AdminIcon],
+  imports: [Button, IconButton, AdminIcon, ErrorText],
   host: { class: 'block' },
   template: `
     <input
@@ -78,7 +79,7 @@ interface DocumentRow {
       (change)="onFile($event)"
     />
 
-    <ul class="divide-y divide-border">
+    <ul class="divide-y divide-edge">
       @for (row of rows(); track row.kind) {
         <li class="py-2 first:pt-0">
           <!-- The name and what can be done to it on one centred line; the
@@ -88,14 +89,16 @@ interface DocumentRow {
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
             <app-admin-icon
               name="file-text"
-              class="size-4 shrink-0 text-subtle"
+              class="size-4 shrink-0 text-ink-subtle"
             />
             <!-- The name and what it is, together: when the controls wrap to
                  their own line the caption must not be left under them,
                  describing the buttons. -->
             <span class="min-w-36 flex-1">
               <span class="block truncate">{{ row.label }}</span>
-              <span class="block text-xs text-subtle">{{ row.detail }}</span>
+              <span class="block text-xs text-ink-subtle">{{
+                row.detail
+              }}</span>
             </span>
 
             <!-- Opening the file is a sibling of the name, not a member of
@@ -185,12 +188,12 @@ interface DocumentRow {
             <!-- Nothing checks a supplied file against the order, so this is
                  the only warning there is that it quotes an older total. -->
             @if (row.outdated; as warning) {
-              <p class="text-xs text-amber-700">{{ warning }}</p>
+              <p class="text-xs text-warning">{{ warning }}</p>
             }
             <!-- Why there is no send button on this row. Said rather than left
                  to be worked out from an absence. -->
             @if (row.behind; as waiting) {
-              <p class="mt-1 text-xs text-subtle">{{ waiting }}</p>
+              <p class="mt-1 text-xs text-ink-subtle">{{ waiting }}</p>
             }
           </div>
         </li>
@@ -198,7 +201,7 @@ interface DocumentRow {
     </ul>
 
     @if (failed()) {
-      <p class="mt-2 text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <p appErrorText class="mt-2" role="alert">{{ text.error }}</p>
     }
   `,
 })

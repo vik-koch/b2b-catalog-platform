@@ -130,7 +130,7 @@ let nextId = 0;
                is muted and takes no pointer events. -->
           <app-icon
             name="search"
-            class="pointer-events-none absolute left-2.5 size-4 text-subtle"
+            class="pointer-events-none absolute left-2.5 size-4 text-ink-subtle"
           />
           <input
             #input
@@ -151,7 +151,7 @@ let nextId = 0;
             (keydown)="keydown($event)"
             (focus)="mobileSearch.setFocused(true)"
             (blur)="blurred()"
-            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-stone-800 placeholder:text-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-ink placeholder:text-ink-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
           />
           @if (value()) {
             <!-- flex on the button itself, not just on its row: the icon is an
@@ -159,7 +159,7 @@ let nextId = 0;
                  rather than on the field's centre line. -->
             <button
               type="button"
-              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-subtle transition-colors hover:text-accent active:text-primary-deep"
+              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-ink-subtle transition-colors hover:text-accent active:text-primary-press"
               (click)="clear()"
             >
               <app-icon name="close" class="size-4" />
@@ -188,7 +188,7 @@ let nextId = 0;
             (mousedown)="$event.preventDefault()"
           >
             @if (noMatches()) {
-              <p class="p-3 text-sm text-subtle">
+              <p class="p-3 text-sm text-ink-subtle">
                 {{ text.noSuggestions }}
               </p>
             }
@@ -213,11 +213,11 @@ let nextId = 0;
                      rather than laid on the chips' names. They stay out of the
                      accessibility tree: the keyboard walks the chips with the
                      arrow keys, and each one it reaches is scrolled into view. -->
-                <div class="shrink-0 border-b border-border pt-2">
+                <div class="shrink-0 border-b border-edge pt-2">
                   <div class="flex h-7 items-center justify-between gap-2 px-3">
                     <span
                       [id]="listId + '-categories'"
-                      class="text-xs font-medium text-subtle"
+                      class="text-xs font-medium text-ink-subtle"
                       >{{ text.categoriesLabel }}</span
                     >
                     @if (stripBack() || stripForward()) {
@@ -297,7 +297,9 @@ let nextId = 0;
                   <div
                     role="row"
                     class="flex items-center gap-3 py-2 pr-3 pl-2"
-                    [class.bg-stone-100]="i + offset() === activeIndex()"
+                    [class.bg-surface-subtle-hover]="
+                      i + offset() === activeIndex()
+                    "
                     (mouseenter)="hover(i + offset())"
                   >
                     <div
@@ -340,7 +342,7 @@ let nextId = 0;
                            answered that query, and marking them against later
                            keystrokes would flicker a highlight the list has
                            not caught up with. -->
-                          <span class="line-clamp-2 text-sm text-stone-800">
+                          <span class="line-clamp-2 text-sm text-ink">
                             <app-highlighted-line
                               [line]="item.name"
                               [query]="query()"
@@ -354,7 +356,7 @@ let nextId = 0;
                             class="text-sm font-semibold whitespace-nowrap text-ink"
                           >
                             {{ price(item).price }}
-                            <span class="text-xs font-normal text-subtle">{{
+                            <span class="text-xs font-normal text-ink-subtle">{{
                               price(item).label
                             }}</span>
                           </span>
@@ -418,7 +420,7 @@ let nextId = 0;
               <button
                 type="button"
                 tabindex="-1"
-                class="flex cursor-pointer items-center justify-center gap-1 border-t border-border px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-stone-100 hover:text-accent active:text-primary-deep"
+                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-surface-subtle-hover hover:text-accent active:text-primary-press"
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}
@@ -433,7 +435,7 @@ let nextId = 0;
              drawn inside. -->
         <button
           type="submit"
-          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-[:hover:not(:focus-within)]:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent active:border-primary-deep active:bg-primary-deep focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
+          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-[:hover:not(:focus-within)]:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent active:border-primary-press active:bg-primary-press focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
         >
           {{ text.submit }}
         </button>
@@ -490,8 +492,8 @@ export class SearchField {
     () =>
       'z-20 flex flex-col overflow-hidden bg-white ' +
       (this.sheet()
-        ? 'fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b border-border shadow-lg'
-        : 'absolute top-full right-0 left-0 mt-1 min-w-[min(22rem,100vw_-_2rem)] rounded-md border border-border-strong shadow-lg'),
+        ? 'fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b border-edge shadow-lg'
+        : 'absolute top-full right-0 left-0 mt-1 min-w-[min(22rem,100vw_-_2rem)] rounded-md border border-edge-strong shadow-lg'),
   );
   protected readonly rowsClass = computed(
     () =>

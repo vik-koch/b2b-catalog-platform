@@ -36,6 +36,7 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -68,6 +69,7 @@ let nextId = 0;
     FieldLabel,
     IconButton,
     Input,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -86,12 +88,12 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
-          <p class="text-xs text-subtle">{{ text.hint }}</p>
+        <div [id]="panelId" class="border-t border-edge p-4">
+          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
             <div class="@container/variants mt-3">
@@ -99,7 +101,7 @@ let nextId = 0;
                    On a phone the controls wrap under the name and say what
                    they are themselves. -->
               <div
-                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight text-subtle @min-[30rem]/variants:flex"
+                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight text-ink-subtle @min-[30rem]/variants:flex"
                 aria-hidden="true"
               >
                 <span class="flex-1"></span>
@@ -108,7 +110,7 @@ let nextId = 0;
                 <span class="w-6"></span>
               </div>
               <ul
-                class="divide-y divide-border border-y border-border"
+                class="divide-y divide-edge border-y border-edge"
                 cdkDropList
                 (cdkDropListDropped)="onDrop($event)"
               >
@@ -127,7 +129,7 @@ let nextId = 0;
                   >
                     <span
                       cdkDragHandle
-                      class="inline-flex cursor-grab text-subtle active:cursor-grabbing"
+                      class="inline-flex cursor-grab text-ink-subtle active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
                       <app-admin-icon name="grip-vertical" class="size-4" />
@@ -145,7 +147,7 @@ let nextId = 0;
                       (input)="rename(variant.id, $any($event.target).value)"
                     />
                     <span
-                      class="ml-6 inline-flex shrink-0 items-center gap-1 text-xs text-subtle @min-[30rem]/variants:ml-0 @min-[30rem]/variants:w-10 @min-[30rem]/variants:justify-end"
+                      class="ml-6 inline-flex shrink-0 items-center gap-1 text-xs text-ink-subtle @min-[30rem]/variants:ml-0 @min-[30rem]/variants:w-10 @min-[30rem]/variants:justify-end"
                       [title]="picturesLabel(variant.id)"
                       [attr.aria-label]="picturesLabel(variant.id)"
                     >
@@ -185,14 +187,14 @@ let nextId = 0;
             </div>
           }
           @if (hasClash()) {
-            <p class="mt-2 text-xs text-red-700">{{ text.duplicate }}</p>
+            <p appErrorText class="mt-2">{{ text.duplicate }}</p>
           }
           @if (allWithheld()) {
-            <p class="mt-2 text-xs text-amber-800">{{ text.allWithheld }}</p>
+            <p class="mt-2 text-xs text-warning">{{ text.allWithheld }}</p>
           }
 
           @if (value().length >= max) {
-            <p class="mt-3 text-xs text-subtle">{{ limitLabel() }}</p>
+            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
               <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
@@ -221,7 +223,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p class="mt-1 text-xs text-red-700">{{ text.exists }}</p>
+                <p appErrorText class="mt-1">{{ text.exists }}</p>
               }
             </div>
           }
@@ -245,7 +247,7 @@ export class ProductVariantsEditor implements OnInit {
 
   protected readonly max = PRODUCT_VARIANTS_MAX;
   protected readonly nameMax = PRODUCT_VARIANT_NAME_MAX_LENGTH;
-  protected readonly previewClass = ['bg-surface', 'shadow-md'];
+  protected readonly previewClass = ['bg-surface-subtle', 'shadow-md'];
   protected readonly open = signal(false);
   protected readonly draft = signal('');
   /** Set by a refused add and cleared by the next keystroke, as the parts

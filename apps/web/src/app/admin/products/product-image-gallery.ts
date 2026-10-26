@@ -25,6 +25,7 @@ import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
@@ -53,6 +54,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     FileTarget,
     Input,
     SelectField,
+    ErrorText,
   ],
   template: `
     <fieldset class="max-w-xl">
@@ -75,7 +77,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             ></div>
             <div
               cdkDragHandle
-              class="relative size-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
+              class="relative size-26 cursor-grab overflow-hidden rounded-md border border-edge bg-white active:cursor-grabbing"
               [attr.aria-label]="adminText.actions.reorder"
             >
               <img
@@ -168,12 +170,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         </li>
       </ul>
       <!-- A pointer's hint: a phone has no shortcut, and drops nothing. -->
-      <p class="mt-2 hidden text-xs text-subtle pointer-fine:block">
+      <p class="mt-2 hidden text-xs text-ink-subtle pointer-fine:block">
         {{ tileHint }}
       </p>
 
       @if (error()) {
-        <p class="mt-2 text-sm text-red-700" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
       }
     </fieldset>
   `,

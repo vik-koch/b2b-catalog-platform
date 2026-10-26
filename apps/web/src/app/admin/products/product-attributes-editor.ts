@@ -109,7 +109,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
            cannot drift apart on one product and line up on the next. -->
         <table class="w-full max-w-3xl table-fixed border-collapse text-sm">
           <thead>
-            <tr class="text-left text-subtle">
+            <tr class="text-left text-ink-subtle">
               <th class="w-1/3 pb-1 font-medium">{{ text.key }}</th>
               <th class="pb-1 font-medium">{{ text.value }}</th>
               <th class="w-48"></th>
@@ -138,7 +138,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                    floating drag preview is a plain labelled chip instead. -->
                 <div
                   *cdkDragPreview
-                  class="rounded-md border border-border-strong bg-white px-3 py-1.5 text-sm shadow-md"
+                  class="rounded-md border border-edge-strong bg-white px-3 py-1.5 text-sm shadow-md"
                 >
                   {{ row.key || text.key }}
                 </div>
@@ -153,7 +153,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 <td
                   [attr.data-row]="$index"
                   data-col="0"
-                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
+                  class="h-10 border border-edge-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 0) +
                     (isFilterable(row) || rowStatus(row) === 'stray-part'
@@ -166,7 +166,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 <td
                   [attr.data-row]="$index"
                   data-col="1"
-                  class="h-10 border border-border-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
+                  class="h-10 border border-edge-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')
                   "
@@ -218,7 +218,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                          small grey. It is never part of the value — the cell
                          holds "1000", the shop shows "1000 g". -->
                       <span
-                        class="absolute top-1/2 right-48 mr-3 -translate-y-1/2 text-xs text-subtle"
+                        class="absolute top-1/2 right-48 mr-3 -translate-y-1/2 text-xs text-ink-subtle"
                         >{{ mark }}</span
                       >
                     }

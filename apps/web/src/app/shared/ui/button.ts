@@ -50,7 +50,7 @@ const sizes = BUTTON_SIZES;
 
 /*
  * Press deepens rather than lightens: hover goes outward to accent, press goes
- * down to `primary-deep`. It has to be a shade of its own rather than the
+ * down to `primary-press`. It has to be a shade of its own rather than the
  * resting colour — a press that merely undoes the hover reads as a press only
  * to a cursor that was hovering, and a finger never hovers, so on a phone the
  * whole press was invisible. Every variant therefore ends up somewhere it has
@@ -63,14 +63,14 @@ const variants = {
   // shelf. The fill has to go, or a button that refuses the press still
   // invites it.
   primary:
-    'bg-primary text-white hover:bg-accent active:bg-primary-deep disabled:bg-stone-200 disabled:text-stone-500 disabled:hover:bg-stone-200 disabled:active:bg-stone-200',
+    'bg-primary text-white hover:bg-accent active:bg-primary-press disabled:bg-surface-strong disabled:text-ink-subtle disabled:hover:bg-surface-strong disabled:active:bg-surface-strong',
   // Hover recolors border and text rather than the background: this variant
-  // appears both on the white page and inside stone-100 blocks (the signed-in
-  // bar), where a stone background change is invisible. Accent is the app's
+  // appears both on the white page and inside `surface` blocks (the
+  // signed-in bar), where a grey background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
-    'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
-  danger: 'bg-red-700 text-white hover:bg-red-800 active:bg-red-900',
+    'border border-edge-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
+  danger: 'bg-danger text-white hover:bg-danger-hover active:bg-danger-press',
   /**
    * The way *into* a destructive flow — a link that only opens the page
    * explaining what would be lost. Outlined like secondary so it stays a
@@ -78,13 +78,13 @@ const variants = {
    * solid variant above is left to the click that cannot be taken back.
    */
   dangerOutline:
-    'border border-red-300 text-red-700 hover:border-red-700 hover:bg-red-700 hover:text-white active:border-red-900 active:bg-red-900 active:text-white',
+    'border border-danger-edge-strong text-danger hover:border-danger hover:bg-danger hover:text-white active:border-danger-press active:bg-danger-press active:text-white',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.
    */
   ghost:
-    'text-stone-700 hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
+    'text-ink hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary',
 } as const;
 
 /**

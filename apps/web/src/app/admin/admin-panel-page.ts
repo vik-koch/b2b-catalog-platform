@@ -22,6 +22,7 @@ import { adminMomentFormat } from './grid/admin-date';
 import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';
+import { PageTitle } from '../shared/ui/page-title';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -32,13 +33,13 @@ import { SyncService } from './sync/sync.service';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote],
+  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote, PageTitle],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
          and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ isAdmin() ? panelText.adminPanel : panelText.staffArea }}
       </h1>
       <app-signed-in-as />
@@ -110,7 +111,7 @@ import { SyncService } from './sync/sync.service';
                 link="/admin/sync/orders"
               >
                 @if (lastOrderSync(); as moment) {
-                  <span class="flex text-xs text-muted">{{ moment }}</span>
+                  <span class="flex text-xs text-ink-subtle">{{ moment }}</span>
                 }
               </app-panel-row>
             </ul>
@@ -199,7 +200,9 @@ import { SyncService } from './sync/sync.service';
                       />
                     }
                     @if (lastSync(); as moment) {
-                      <span class="flex text-xs text-muted">{{ moment }}</span>
+                      <span class="flex text-xs text-ink-subtle">{{
+                        moment
+                      }}</span>
                     }
                   </div>
                 </app-panel-row>
@@ -291,7 +294,9 @@ import { SyncService } from './sync/sync.service';
                     />
                   }
                   @if (lastCustomerSync(); as moment) {
-                    <span class="flex text-xs text-muted">{{ moment }}</span>
+                    <span class="flex text-xs text-ink-subtle">{{
+                      moment
+                    }}</span>
                   }
                 </div>
               </app-panel-row>
@@ -426,7 +431,7 @@ import { SyncService } from './sync/sync.service';
            problem. Absent until it arrives — an empty footer line needs no
            placeholder. -->
       @if (buildInfo(); as info) {
-        <p class="mt-10 text-xs text-subtle" [title]="info.title">
+        <p class="mt-10 text-xs text-ink-subtle" [title]="info.title">
           {{ info.line }}
         </p>
       }
@@ -476,11 +481,11 @@ export class AdminPanelPage {
   /** One heading, one card frame, written once: seven sections spelling the
    * same two class lists is seven chances for one of them to drift. */
   protected readonly headingClass =
-    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase';
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly cardClass =
-    'divide-y divide-border overflow-hidden rounded-lg border border-border';
+    'divide-y divide-edge overflow-hidden rounded-lg border border-edge';
 
   private readonly work = inject(WorkService);
   private readonly settings = inject(SettingsService);

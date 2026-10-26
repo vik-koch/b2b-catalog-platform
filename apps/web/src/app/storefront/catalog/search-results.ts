@@ -112,7 +112,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
             }
             <div [class]="data.facets.length ? listingColumn : listingAlone">
               @if (!data.items.length) {
-                <p class="text-muted">{{ filterText.noMatches }}</p>
+                <p class="text-ink-subtle">{{ filterText.noMatches }}</p>
               } @else {
                 <!-- How many results there are, and the two ways of asking
                      for them differently — over the grid and at the height of
@@ -123,7 +123,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                      this row only while there is a filter column to hold the
                      other copy of it. -->
                 <div class="mb-4 flex h-8 items-center justify-between gap-4">
-                  <p class="text-sm text-subtle">
+                  <p class="text-sm text-ink-subtle">
                     {{ resultCount(data.pagination.total) }}
                   </p>
                   <div class="flex items-center gap-3">
@@ -187,7 +187,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
               <!-- What the prices include, where the deployment says so beside
                    them (NFR-LEGAL-11). Once for the page, naming no rate. -->
               @if (taxNote && data.items.length) {
-                <p class="mt-4 text-xs text-subtle">{{ taxNote }}</p>
+                <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
               }
 
               @if (data.pagination.totalPages > 1) {
@@ -210,11 +210,11 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                       >{{ pagination.previous }}</a
                     >
                   } @else {
-                    <span class="px-3 py-1.5 text-stone-300">{{
+                    <span class="px-3 py-1.5 text-ink-disabled">{{
                       pagination.previous
                     }}</span>
                   }
-                  <span class="text-subtle">{{
+                  <span class="text-ink-subtle">{{
                     pageStatus(data.pagination)
                   }}</span>
                   @if (data.pagination.page < data.pagination.totalPages) {
@@ -232,7 +232,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                       >{{ pagination.next }}</a
                     >
                   } @else {
-                    <span class="px-3 py-1.5 text-stone-300">{{
+                    <span class="px-3 py-1.5 text-ink-disabled">{{
                       pagination.next
                     }}</span>
                   }
@@ -246,10 +246,10 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
           >
             {{ heading() }}
           </h1>
-          <p class="mt-4 text-subtle">
+          <p class="mt-4 text-ink-subtle">
             {{ noResults() }}
           </p>
-          <p class="mt-2 text-subtle">{{ text.noResultsHint }}</p>
+          <p class="mt-2 text-ink-subtle">{{ text.noResultsHint }}</p>
           <a
             routerLink="/catalog"
             appButton
@@ -258,7 +258,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
             >{{ catalogText.backToCatalog }}</a
           >
         } @else {
-          <p class="mt-8 text-muted">{{ text.emptyQuery }}</p>
+          <p class="mt-8 text-ink-subtle">{{ text.emptyQuery }}</p>
         }
       } @else if (showSkeleton()) {
         <h1
@@ -269,7 +269,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
         <div class="mt-8 animate-pulse" aria-hidden="true">
           <div [class]="productGrid">
             @for (i of skeletons; track i) {
-              <div class="aspect-square rounded-lg bg-stone-200"></div>
+              <div class="aspect-square rounded-lg bg-skeleton"></div>
             }
           </div>
         </div>

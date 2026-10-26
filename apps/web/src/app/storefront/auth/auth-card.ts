@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 /**
  * The white panel every signed-out screen sits in — login, register, and the
- * two password-reset steps. Pairs with the shell's stone page background on
+ * two password-reset steps. Pairs with the shell's grey page background on
  * those routes (see app.routes.ts `layout: 'centered'`): the card is what the
  * gray is there to set off, so the two belong to the same decision.
  *
@@ -14,7 +14,7 @@ import { Component } from '@angular/core';
   selector: 'app-auth-card',
   template: `
     <div
-      class="mx-auto max-w-xl rounded-xl border border-border bg-white p-6 shadow-sm sm:p-8"
+      class="mx-auto max-w-xl rounded-xl border border-edge bg-white p-6 shadow-sm sm:p-8"
     >
       <ng-content />
     </div>

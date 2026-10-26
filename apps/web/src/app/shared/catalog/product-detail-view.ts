@@ -96,7 +96,7 @@ export const PRODUCT_PAGE_SECTION_CELL = 'col-span-full scroll-mt-24';
  * drawn to the same width, so the column has a bottom edge and the
  * specifications below read as the next thing rather than as more of it.
  */
-const READING_WIDTH = 'max-w-3xl border-b border-border pb-8';
+const READING_WIDTH = 'max-w-3xl border-b border-edge pb-8';
 const TABLE_WIDTH = 'max-w-xl';
 
 /**
@@ -152,7 +152,7 @@ const NARROW = '(max-width: 39.999rem)';
            one and leaves the gap it came from, which on a wide screen is half a
            line of nothing. As text, a long name wraps where it runs out of room
            and the trail stays a trail. -->
-      <ol role="list" class="text-sm text-subtle">
+      <ol role="list" class="text-sm text-ink-subtle">
         <li class="inline">
           <a routerLink="/catalog" class="hover:text-accent">
             {{ text.catalogRoot }}
@@ -162,7 +162,7 @@ const NARROW = '(max-width: 39.999rem)';
           <li aria-hidden="true" class="inline">
             <app-icon
               name="chevron-right"
-              class="mx-1 size-4 align-middle text-stone-300"
+              class="mx-1 size-4 align-middle text-edge-strong"
             />
           </li>
           <li class="inline">
@@ -177,7 +177,7 @@ const NARROW = '(max-width: 39.999rem)';
         <li aria-hidden="true" class="inline">
           <app-icon
             name="chevron-right"
-            class="mx-1 size-4 align-middle text-stone-300"
+            class="mx-1 size-4 align-middle text-edge-strong"
           />
         </li>
         <li class="inline">
@@ -196,11 +196,11 @@ const NARROW = '(max-width: 39.999rem)';
         <li aria-hidden="true" class="hidden sm:inline">
           <app-icon
             name="chevron-right"
-            class="mx-1 size-4 align-middle text-stone-300"
+            class="mx-1 size-4 align-middle text-edge-strong"
           />
         </li>
         <li class="hidden sm:inline">
-          <span aria-current="page" class="font-medium text-stone-700">
+          <span aria-current="page" class="font-medium text-ink">
             {{ item().name }}
           </span>
         </li>
@@ -245,17 +245,17 @@ const NARROW = '(max-width: 39.999rem)';
         <div class="hidden @min-[65rem]/product:block">
           @if (mainAttributes().length) {
             <h2 [class]="sectionHeading">{{ text.mainSpecifications }}</h2>
-            <table class="mt-3 w-full border-t border-border text-sm">
-              <tbody class="divide-y divide-border">
+            <table class="mt-3 w-full border-t border-edge text-sm">
+              <tbody class="divide-y divide-edge">
                 @for (attr of mainAttributes(); track $index) {
                   <tr>
                     <th
                       scope="row"
-                      class="py-2 pr-4 text-left font-normal text-subtle"
+                      class="py-2 pr-4 text-left font-normal text-ink-subtle"
                     >
                       {{ attr.key }}
                     </th>
-                    <td class="py-2 text-right text-stone-700">
+                    <td class="py-2 text-right text-ink">
                       <ng-container
                         [ngTemplateOutlet]="attributeValue"
                         [ngTemplateOutletContext]="{ $implicit: attr }"
@@ -297,7 +297,7 @@ const NARROW = '(max-width: 39.999rem)';
            more line in a page of them. -->
       <div
         aria-hidden="true"
-        class="col-span-full hidden border-t border-border @min-[40rem]/product:block"
+        class="col-span-full hidden border-t border-edge @min-[40rem]/product:block"
       ></div>
 
       @if (item().descriptionHtml) {
@@ -316,7 +316,7 @@ const NARROW = '(max-width: 39.999rem)';
             <div
               #description
               [id]="descriptionTextId"
-              class="prose prose-stone max-w-none"
+              class="prose max-w-none"
               [class]="descriptionClass()"
               [style.--desc-full]="descriptionFullHeight()"
               [innerHTML]="safeDescription(item().descriptionHtml)"
@@ -324,7 +324,7 @@ const NARROW = '(max-width: 39.999rem)';
             @if (descriptionFaded()) {
               <div
                 aria-hidden="true"
-                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-surface to-surface/0"
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-surface-subtle to-surface-subtle/0"
               ></div>
             }
           </div>
@@ -384,17 +384,17 @@ const NARROW = '(max-width: 39.999rem)';
           <!-- A real table (not a dl) so selecting rows and copying yields
              tab-separated key/value pairs — paste-ready into a spreadsheet or
              the product editor's attribute grid. -->
-          <table class="mt-3 w-full border-t border-border text-sm">
-            <tbody class="divide-y divide-border">
+          <table class="mt-3 w-full border-t border-edge text-sm">
+            <tbody class="divide-y divide-edge">
               @for (attr of attributes(); track $index) {
                 <tr>
                   <th
                     scope="row"
-                    class="py-2 pr-4 text-left font-normal text-subtle"
+                    class="py-2 pr-4 text-left font-normal text-ink-subtle"
                   >
                     {{ attr.key }}
                   </th>
-                  <td class="py-2 text-right text-stone-700">
+                  <td class="py-2 text-right text-ink">
                     <ng-container
                       [ngTemplateOutlet]="attributeValue"
                       [ngTemplateOutletContext]="{ $implicit: attr }"
@@ -408,11 +408,11 @@ const NARROW = '(max-width: 39.999rem)';
                 <tr>
                   <th
                     scope="row"
-                    class="py-2 pr-4 text-left font-normal text-subtle"
+                    class="py-2 pr-4 text-left font-normal text-ink-subtle"
                   >
                     {{ row.label }}
                   </th>
-                  <td class="py-2 text-right text-stone-700">
+                  <td class="py-2 text-right text-ink">
                     {{ row.value }}
                   </td>
                 </tr>
@@ -467,7 +467,7 @@ export class ProductDetailView {
    * is what carries the editor's return path.
    */
   protected readonly sectionHeading =
-    'text-xs font-medium tracking-wide text-subtle uppercase';
+    'text-xs font-medium tracking-wide text-ink-subtle uppercase';
   protected readonly sectionAnchor = 'transition-colors hover:text-accent';
   protected readonly descriptionId = 'description';
   protected readonly specsId = 'specifications';

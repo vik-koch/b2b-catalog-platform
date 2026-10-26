@@ -19,7 +19,7 @@ export const DISCLOSURE_FRAME =
   'transition-colors has-[app-disclosure-toggle:hover]:border-accent';
 
 export function disclosureBorder(open: boolean): string {
-  return open ? 'border-secondary' : 'border-border-strong';
+  return open ? 'border-secondary' : 'border-edge-strong';
 }
 
 /**
@@ -65,7 +65,7 @@ export function disclosureBorder(open: boolean): string {
            said at the two call sites. -->
       <app-icon
         name="chevron-down"
-        class="size-4 shrink-0 text-subtle transition-[transform,color] [button:hover_&]:text-accent"
+        class="size-4 shrink-0 text-ink-subtle transition-[transform,color] [button:hover_&]:text-accent"
         [class.rotate-180]="open()"
       />
     </button>

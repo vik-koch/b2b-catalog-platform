@@ -22,7 +22,7 @@ import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
     <button
       type="button"
       class="inline-flex cursor-pointer items-center gap-1 hover:text-accent"
-      [class.text-stone-700]="active()"
+      [class.text-ink]="active()"
       (click)="toggle()"
     >
       {{ label() }}

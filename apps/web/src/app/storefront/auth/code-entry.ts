@@ -20,6 +20,7 @@ import { CodeInput } from '../../shared/ui/code-input';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { TextButton } from '../../shared/ui/link';
 import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */
 export function formatWait(seconds: number): string {
@@ -51,19 +52,20 @@ function around(line: string, placeholder: string): [string, string] {
     CodeInput,
     FieldLabel,
     TextButton,
+    ErrorText,
   ],
   host: { class: 'block' },
   template: `
     <!-- Each masked value is one unit: a number broken across two lines no
          longer reads as a number. -->
     @let lead = around(fill(intro()), '{sentTo}');
-    <p class="text-muted">
+    <p class="text-ink-subtle">
       {{ lead[0] }}<span class="whitespace-nowrap">{{ sent().sentTo }}</span
       >{{ lead[1] }}
     </p>
     @if (note(); as line) {
       @let tail = around(fill(line), '{phone}');
-      <p class="mt-1 text-muted">
+      <p class="mt-1 text-ink-subtle">
         {{ tail[0] }}<span class="whitespace-nowrap">{{ sent().phone }}</span
         >{{ tail[1] }}
       </p>
@@ -89,7 +91,7 @@ function around(line: string, placeholder: string): [string, string] {
             />
             <span>{{ rememberLabel() }}</span>
           </label>
-          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-muted">
+          <p id="rememberBrowserHint" class="mt-1 pl-6 text-sm text-ink-subtle">
             {{ text.rememberHint }}
           </p>
         </div>
@@ -106,7 +108,7 @@ function around(line: string, placeholder: string): [string, string] {
           (completed)="submit()"
         />
         @if (errors.show(form.controls.code)) {
-          <p class="mt-1 text-sm text-red-600">
+          <p appErrorText class="mt-1">
             {{
               form.controls.code.hasError('required')
                 ? text.codeRequired
@@ -119,8 +121,8 @@ function around(line: string, placeholder: string): [string, string] {
       <p
         [id]="inputId + '-message'"
         class="text-sm"
-        [class.text-red-600]="!notice()"
-        [class.text-muted]="notice()"
+        [class.text-danger]="!notice()"
+        [class.text-ink-subtle]="notice()"
         [attr.role]="notice() ? 'status' : 'alert'"
         [hidden]="!message()"
       >

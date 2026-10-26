@@ -23,6 +23,9 @@ import { categoryDescendantIds } from './category-tree';
 import { ImagePicker } from '../media/image-picker';
 import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Edit a category (FR-ADM-01) on its own screen at
@@ -45,9 +48,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     ImagePicker,
     Skeleton,
     LockedFieldMarker,
+    PageTitle,
+    ErrorText,
+    Hint,
   ],
   template: `
-    <h1 class="mb-4 text-3xl font-medium tracking-tight">
+    <h1 appPageTitle class="mb-4">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
@@ -56,7 +62,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !category()) {
-      <p class="text-muted" role="alert">{{ text.saveError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
         <!-- Only two of this form's fields are locked, so the banner names the
@@ -95,9 +101,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               [value]="shortName()"
               (input)="shortName.set($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.shortNameHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.shortNameHint }}</span>
           </label>
 
           <div class="block">
@@ -125,9 +129,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               [value]="effectiveSlug()"
               (input)="onSlugInput($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.slugHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.slugHint }}</span>
           </label>
 
           <label class="block">
@@ -145,15 +147,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               [disabled]="fieldsLocked()"
               (input)="sourceId.set($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.sourceIdHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.sourceIdHint }}</span>
           </label>
         </div>
 
         <div>
           <span appFieldLabel>{{ text.mark }}</span>
-          <p class="mb-2 text-xs text-subtle">{{ text.markHint }}</p>
+          <p class="mb-2 text-xs text-ink-subtle">{{ text.markHint }}</p>
           <!-- Cropped to a square on upload, so the square tile beside it is
                the stored picture rather than a framing of it. -->
           <app-image-picker
@@ -166,7 +166,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       </div>
 
       @if (error()) {
-        <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">

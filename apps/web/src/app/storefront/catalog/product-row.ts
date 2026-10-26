@@ -20,7 +20,7 @@ import { TileGallery } from '../../shared/catalog/tile-gallery';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
  * one above and below the run, so the list reads as a single block. */
-export const PRODUCT_ROWS = 'divide-y divide-border border-y border-border';
+export const PRODUCT_ROWS = 'divide-y divide-edge border-y border-edge';
 
 /** What a row needs: the little that makes a product buyable, plus its photos. */
 export interface RowProduct extends BuyableProduct {
@@ -123,7 +123,7 @@ export interface RowProduct extends BuyableProduct {
                  were two drawings of one thing. -->
             <a [routerLink]="link()" class="group block">
               <h2
-                class="text-sm text-stone-700 group-hover:text-accent"
+                class="text-sm text-ink group-hover:text-accent"
                 [title]="item().name"
               >
                 {{ item().name }}

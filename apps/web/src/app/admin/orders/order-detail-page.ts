@@ -67,6 +67,8 @@ import { OrderDocumentsPanel } from './order-documents-panel';
 import { orderChanges } from './order-changes';
 import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
@@ -115,6 +117,8 @@ const MARK_PAID = 'markPaid';
     OrderSummary,
     StatusBadge,
     LockedNote,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     @if (detail(); as order) {
@@ -127,11 +131,11 @@ const MARK_PAID = 'markPaid';
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ order.reference }}
               </h1>
             </div>
-            <p class="mt-2 text-muted">{{ placed(order) }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed(order) }}</p>
 
             <!-- Above the block whose controls it explains: every one of them
                  is gone while the order is answered elsewhere, and a card that
@@ -153,7 +157,7 @@ const MARK_PAID = 'markPaid';
               are looking at. Nothing has to line up across the block for that
               to read: a button is next to its own sentence.
             -->
-            <section class="mt-4 rounded-lg border border-border p-5 text-sm">
+            <section class="mt-4 rounded-lg border border-edge p-5 text-sm">
               <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
                 <dt [class]="term">{{ ordersText.account }}</dt>
                 <dd [class]="value">
@@ -244,7 +248,7 @@ const MARK_PAID = 'markPaid';
                       <span appStatusBadge [tone]="statusTone(order)">
                         {{ statusLabel(order) }}
                       </span>
-                      <span class="text-subtle">{{
+                      <span class="text-ink-subtle">{{
                         statusChanged(order)
                       }}</span>
                     </div>
@@ -253,7 +257,7 @@ const MARK_PAID = 'markPaid';
                          own. -->
                     @if (order.statusReason; as reason) {
                       <p class="mt-1">
-                        <span class="text-subtle">{{ names.reason }}:</span>
+                        <span class="text-ink-subtle">{{ names.reason }}:</span>
                         {{ reason }}
                       </p>
                     }
@@ -263,7 +267,9 @@ const MARK_PAID = 'markPaid';
                          current one, where a manager is already looking. -->
                     @if (order.changes.length) {
                       <div class="mt-1 ">
-                        <span class="text-subtle">{{ names.changeNote }}:</span>
+                        <span class="text-ink-subtle"
+                          >{{ names.changeNote }}:</span
+                        >
                         @for (change of order.changes; track $index) {
                           <span class="block">{{ change }}</span>
                         }
@@ -344,7 +350,7 @@ const MARK_PAID = 'markPaid';
                       [routerLink]="['/admin/orders', order.reference, 'revisions', part.version]"
                       [title]="revisionText.openRevision"
                     >{{ part.text }}</a>} @else {{{ part.text }}}}</p>
-                    <p class="text-subtle">{{ emailed() }}</p>
+                    <p class="text-ink-subtle">{{ emailed() }}</p>
                   </div>
                   @if (customerAction(); as action) {
                     <div [class]="actions">
@@ -413,7 +419,7 @@ const MARK_PAID = 'markPaid';
                              each carrying a note, a state and a fold reads as
                              one block of text without a line between them. -->
                             <ol
-                              class="divide-y divide-border border-t border-border"
+                              class="divide-y divide-edge border-t border-edge"
                             >
                               @for (entry of history(); track entry.number) {
                                 <li class="p-4">
@@ -445,11 +451,11 @@ const MARK_PAID = 'markPaid';
                                     <span appStatusBadge [tone]="entry.tone">
                                       {{ entry.status }}
                                     </span>
-                                    <span class="text-subtle">
+                                    <span class="text-ink-subtle">
                                       {{ entry.kindLabel }}
                                     </span>
                                   </div>
-                                  <p class="mt-1 text-subtle">
+                                  <p class="mt-1 text-ink-subtle">
                                     {{ entry.writtenBy }}
                                   </p>
 
@@ -485,7 +491,7 @@ const MARK_PAID = 'markPaid';
 
                                   @if (entry.note) {
                                     <p class="mt-1">
-                                      <span class="text-subtle">
+                                      <span class="text-ink-subtle">
                                         {{ names.changeNote }}:
                                       </span>
                                       {{ entry.note }}
@@ -521,13 +527,13 @@ const MARK_PAID = 'markPaid';
                             </ol>
                           } @else if (revisions.error()) {
                             <p
-                              class="border-t border-border p-4 text-muted"
+                              class="border-t border-edge p-4 text-ink-subtle"
                               role="alert"
                             >
                               {{ revisionText.loadError }}
                             </p>
                           } @else {
-                            <div class="border-t border-border p-4">
+                            <div class="border-t border-edge p-4">
                               <app-skeleton [lines]="3" />
                             </div>
                           }
@@ -540,7 +546,7 @@ const MARK_PAID = 'markPaid';
             </section>
 
             @if (failed(); as message) {
-              <p class="mt-3 max-w-xl text-red-600" role="alert">
+              <p appErrorText class="mt-3 max-w-xl" role="alert">
                 {{ message }}
               </p>
             }
@@ -578,12 +584,12 @@ const MARK_PAID = 'markPaid';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ ordersText.notFound }}</p>
+      <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (order.error()) {
-      <p class="text-muted" role="alert">{{ ordersText.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ text.back }}
       </a>
@@ -631,7 +637,7 @@ export class AdminOrderDetailPage {
    * splitting them.
    */
   protected readonly term =
-    'text-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0';
+    'text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0';
   protected readonly value = 'min-w-0 even:mb-3 last:mb-0';
   /**
    * A fact and the control that changes it: the control under the fact it

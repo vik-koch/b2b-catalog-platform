@@ -26,6 +26,9 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -34,28 +37,35 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
  */
 @Component({
   selector: 'app-page-editor',
-  imports: [Button, RichTextEditor, AdminIcon, FieldLabel, Input, Checkbox],
+  imports: [
+    Button,
+    RichTextEditor,
+    AdminIcon,
+    FieldLabel,
+    Input,
+    Checkbox,
+    PageTitle,
+    ErrorText,
+    Hint,
+  ],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
   host: { '(click)': 'onPreviewClick($event)' },
   template: `
     @if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
+        class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
         role="status"
       >
         {{ text.previewNotice }}
       </p>
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ title() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ title() }}</h1>
       <!-- The published width, so the preview shows the line breaks the
            visitor will get — the same measure the editing surface uses. -->
-      <div
-        class="prose prose-stone max-w-3xl"
-        [innerHTML]="safeBody(body())"
-      ></div>
+      <div class="prose max-w-3xl" [innerHTML]="safeBody(body())"></div>
       @if (isConsent()) {
-        <div class="mt-8 max-w-3xl border-t border-border pt-4">
-          <p class="mb-2 text-sm text-muted">{{ text.consentPreview }}</p>
+        <div class="mt-8 max-w-3xl border-t border-edge pt-4">
+          <p class="mb-2 text-sm text-ink-subtle">{{ text.consentPreview }}</p>
           <label class="flex items-start gap-2 text-sm">
             <input type="checkbox" appCheckbox class="mt-0.5" disabled />
             @if (consentParts(); as parts) {
@@ -71,7 +81,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         </div>
       }
     } @else {
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ isNew() ? text.newTitle : text.editTitle }}
       </h1>
       <!-- The published measure, which is what the preview above uses: text
@@ -109,7 +119,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 (input)="onConsentLabelInput($event)"
               ></textarea>
             </label>
-            <p id="consent-label-hint" class="mt-1 text-sm text-muted">
+            <p id="consent-label-hint" appHint class="mt-1">
               {{ text.consentLabelHint }}
             </p>
           </div>
@@ -123,7 +133,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     }
 
     @if (error()) {
-      <p class="mt-4 max-w-3xl text-sm text-red-700" role="alert">
+      <p appErrorText class="mt-4 max-w-3xl" role="alert">
         {{ error() }}
       </p>
     }

@@ -31,6 +31,9 @@ import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Add or edit a document (FR-DOC-01/02/05) at `/admin/documents/new` and
@@ -60,9 +63,12 @@ import { DocumentsService } from './documents.service';
     FileTarget,
     Input,
     Skeleton,
+    PageTitle,
+    ErrorText,
+    Hint,
   ],
   template: `
-    <h1 class="mb-4 text-3xl font-medium tracking-tight">
+    <h1 appPageTitle class="mb-4">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
@@ -71,7 +77,7 @@ import { DocumentsService } from './documents.service';
         <app-skeleton [lines]="4" />
       }
     } @else if (!isNew && !loaded()) {
-      <p class="text-muted" role="alert">{{ text.notFound }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
         <label class="block">
@@ -87,9 +93,7 @@ import { DocumentsService } from './documents.service';
             [value]="title()"
             (input)="title.set($any($event.target).value)"
           />
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.titleHint
-          }}</span>
+          <span appHint class="mt-1">{{ text.titleHint }}</span>
         </label>
 
         <div class="block">
@@ -108,18 +112,18 @@ import { DocumentsService } from './documents.service';
                  own name is the line, because the stored name is a hash and
                  the title above is what the shop calls it. -->
             <div
-              class="flex flex-wrap items-center gap-3 rounded-md border border-border p-3"
+              class="flex flex-wrap items-center gap-3 rounded-md border border-edge p-3"
             >
               <!-- The name keeps a readable width; on a phone the three
                    controls take the next line rather than squeeze it. -->
               <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
                 <app-admin-icon
                   name="file-text"
-                  class="size-5 shrink-0 text-subtle"
+                  class="size-5 shrink-0 text-ink-subtle"
                 />
                 <span class="min-w-0">
                   <span class="block truncate text-sm">{{ stored.name }}</span>
-                  <span class="block text-xs text-subtle">{{
+                  <span class="block text-xs text-ink-subtle">{{
                     meta(stored)
                   }}</span>
                 </span>
@@ -187,9 +191,7 @@ import { DocumentsService } from './documents.service';
               }}</span>
             </button>
           }
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.fileHint
-          }}</span>
+          <span appHint class="mt-1">{{ text.fileHint }}</span>
         </div>
 
         <!-- Where the document is held elsewhere (FR-DOC-05). Beside the file
@@ -222,9 +224,7 @@ import { DocumentsService } from './documents.service';
               </a>
             }
           </div>
-          <span class="mt-1 block text-xs text-subtle">{{
-            text.linkHint
-          }}</span>
+          <span appHint class="mt-1">{{ text.linkHint }}</span>
         </div>
 
         <!-- Two dates copied off the document, side by side because that is how
@@ -251,7 +251,7 @@ import { DocumentsService } from './documents.service';
             />
           </div>
         </div>
-        <p class="text-xs text-subtle">{{ text.datesHint }}</p>
+        <p class="text-xs text-ink-subtle">{{ text.datesHint }}</p>
 
         <!-- Where the links are made (FR-DOC-02). The product's own form only
              lists them, so this is the one screen that writes them. -->
@@ -262,7 +262,7 @@ import { DocumentsService } from './documents.service';
       </div>
 
       @if (error()) {
-        <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">

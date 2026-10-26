@@ -33,6 +33,7 @@ import { AdminOrdersService } from './orders.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderDocumentsPanel } from './order-documents-panel';
 import { revisionKindLabel } from './revision-labels';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * One version of an order, read back (FR-ORD-03, ADR 0051).
@@ -58,6 +59,7 @@ import { revisionKindLabel } from './revision-labels';
     OrderSummary,
     OrderDocumentsPanel,
     StatusBadge,
+    PageTitle,
   ],
   template: `
     @if (revision(); as order) {
@@ -67,48 +69,50 @@ import { revisionKindLabel } from './revision-labels';
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 class="text-3xl font-medium tracking-tight">
+              <h1 appPageTitle>
                 {{ order.reference }}
               </h1>
               <span appStatusBadge [tone]="statusTone()">
                 {{ statusLabel() }}
               </span>
             </div>
-            <p class="mt-2 text-muted">{{ placed() }}</p>
+            <p class="mt-2 text-ink-subtle">{{ placed() }}</p>
 
             <!-- The same block staff read on the order itself, and
                  deliberately the same: what only staff see, in the shape they
                  see it in everywhere else. Without a single control — this
                  page reads a version, and a version already superseded is not
                  a thing to press buttons at. -->
-            <section class="mt-4 rounded-lg border border-border p-5 text-sm">
+            <section class="mt-4 rounded-lg border border-edge p-5 text-sm">
               <dl
                 class="grid gap-x-6 gap-y-3 wrap-break-word sm:grid-cols-[7rem_1fr]"
               >
-                <dt class="text-subtle">{{ ordersText.account }}</dt>
+                <dt class="text-ink-subtle">{{ ordersText.account }}</dt>
                 <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
-                <dt class="text-subtle">{{ ordersText.tier }}</dt>
+                <dt class="text-ink-subtle">{{ ordersText.tier }}</dt>
                 <dd>{{ order.tierKey ?? ordersText.tierDefault }}</dd>
 
-                <dt class="text-subtle">
+                <dt class="text-ink-subtle">
                   {{ names.payment }}
                 </dt>
                 <dd>{{ paymentLabel() }}</dd>
 
-                <dt class="text-subtle">{{ names.status }}</dt>
+                <dt class="text-ink-subtle">{{ names.status }}</dt>
                 <dd class="min-w-0">
                   <span appStatusBadge [tone]="statusTone()">
                     {{ statusLabel() }}
                   </span>
                   @if (order.statusReason; as reason) {
                     <p class="mt-1">
-                      <span class="text-subtle"> {{ names.reason }}: </span>
+                      <span class="text-ink-subtle"> {{ names.reason }}: </span>
                       {{ reason }}
                     </p>
                   }
                   @if (order.changes.length) {
                     <div class="mt-1 ">
-                      <span class="text-subtle">{{ names.changeNote }}:</span>
+                      <span class="text-ink-subtle"
+                        >{{ names.changeNote }}:</span
+                      >
                       @for (change of order.changes; track $index) {
                         <span class="block">{{ change }}</span>
                       }
@@ -120,22 +124,22 @@ import { revisionKindLabel } from './revision-labels';
                      is the one they are on, and whether they were written to.
                      Above the version row, as it is on the order itself — the
                      two blocks list the same facts in the same order. -->
-                <dt class="text-subtle">
+                <dt class="text-ink-subtle">
                   {{ detailText.tellCustomer.heading }}
                 </dt>
                 <dd>
                   {{ order.customerView ? text.customerView : customerSees() }}
                   @if (notified(); as notified) {
-                    <p class="mt-1 text-subtle">{{ notified }}</p>
+                    <p class="mt-1 text-ink-subtle">{{ notified }}</p>
                   }
                 </dd>
 
                 <!-- Which version this is, and what it was written for — the
                      two questions only this page is asked. -->
-                <dt class="text-subtle">{{ text.heading }}</dt>
+                <dt class="text-ink-subtle">{{ text.heading }}</dt>
                 <dd>
                   {{ written() }}
-                  <p class="mt-1 text-subtle">{{ kindLabel() }}</p>
+                  <p class="mt-1 text-ink-subtle">{{ kindLabel() }}</p>
                 </dd>
               </dl>
             </section>
@@ -166,7 +170,7 @@ import { revisionKindLabel } from './revision-labels';
                  other order screen puts it — a document is a copy of what has
                  just been read, and the controls stay last. -->
             @if (order.documents.length) {
-              <section class="mt-5 rounded-lg border border-border p-5">
+              <section class="mt-5 rounded-lg border border-edge p-5">
                 <h2 class="font-medium">{{ documentsText.heading }}</h2>
                 <div class="mt-1 text-sm">
                   <app-order-documents-panel
@@ -201,7 +205,7 @@ import { revisionKindLabel } from './revision-labels';
         </div>
       </div>
     } @else if (missing()) {
-      <p class="text-muted">{{ ordersText.notFound }}</p>
+      <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
       <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>

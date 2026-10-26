@@ -28,7 +28,7 @@ export function firstPictureOf(
   template: `
     <h2
       [id]="headingId"
-      class="mb-3 font-medium text-subtle text-xs tracking-wide uppercase"
+      class="mb-3 font-medium text-ink-subtle text-xs tracking-wide uppercase"
     >
       {{ product.variants }}
     </h2>
@@ -48,11 +48,11 @@ export function firstPictureOf(
             </button>
           } @else {
             <span [class]="variant.unavailable ? unavailable : pictureless">
-              <span [class.text-subtle]="variant.unavailable">{{
+              <span [class.text-ink-subtle]="variant.unavailable">{{
                 variant.name
               }}</span>
               @if (variant.unavailable) {
-                <span class="text-xs text-subtle">
+                <span class="text-xs text-ink-subtle">
                   · {{ text.unavailable }}</span
                 >
               }
@@ -61,7 +61,7 @@ export function firstPictureOf(
         </li>
       }
     </ul>
-    <p class="mt-2 text-xs text-subtle">{{ text.note }}</p>
+    <p class="mt-2 text-xs text-ink-subtle">{{ text.note }}</p>
   `,
 })
 export class ProductVariantList {
@@ -99,15 +99,15 @@ export class ProductVariantList {
     return `${this.base} text-left ring-1 transition-colors ${
       chosen
         ? 'bg-secondary text-white ring-secondary animate-variant-chosen motion-reduce:animate-none'
-        : 'bg-white ring-border-strong hover:text-accent hover:ring-accent'
+        : 'bg-white ring-edge-strong hover:text-accent hover:ring-accent'
     }`;
   }
 
   /** A variant with no picture yet: offered like the others, so drawn like
    * them at rest, but with nothing to answer a pointer with. */
-  protected readonly pictureless = `${this.base} bg-white ring-1 ring-border`;
+  protected readonly pictureless = `${this.base} bg-white ring-1 ring-edge`;
 
   /** One that is out for now: greyed on the page's ground, which is what says
    * it cannot be had rather than that it has no picture. */
-  protected readonly unavailable = `${this.base} bg-ink/5 text-muted`;
+  protected readonly unavailable = `${this.base} bg-ink/5 text-ink-subtle`;
 }

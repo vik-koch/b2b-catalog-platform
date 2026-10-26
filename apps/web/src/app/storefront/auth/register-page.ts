@@ -26,6 +26,9 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { Link } from '../../shared/ui/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -58,22 +61,25 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     PhoneField,
     Segmented,
     Link,
+    PageTitle,
+    ErrorText,
+    PageIntro,
   ],
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ text.register.successHeading }}
         </h1>
-        <p class="text-muted">{{ text.register.success }}</p>
+        <p appPageIntro>{{ text.register.success }}</p>
         <a appButton variant="secondary" routerLink="/" class="mt-8">
           {{ home }}
         </a>
       } @else {
-        <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-2">
           {{ text.register.heading }}
         </h1>
-        <p class="mb-4 text-muted">{{ text.register.intro }}</p>
+        <p appPageIntro class="mb-4">{{ text.register.intro }}</p>
 
         <form
           [formGroup]="form"
@@ -111,7 +117,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
                 [attr.aria-invalid]="isInvalid('firstName') || null"
               />
               @if (isInvalid('firstName')) {
-                <p class="mt-1 text-sm text-red-600">
+                <p appErrorText class="mt-1">
                   {{ fields.firstName.required }}
                 </p>
               }
@@ -133,7 +139,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
                 [attr.aria-invalid]="isInvalid('lastName') || null"
               />
               @if (isInvalid('lastName')) {
-                <p class="mt-1 text-sm text-red-600">
+                <p appErrorText class="mt-1">
                   {{ fields.lastName.required }}
                 </p>
               }
@@ -186,7 +192,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           />
 
           @if (status() === 'error') {
-            <p class="text-sm text-red-600" role="alert">
+            <p appErrorText role="alert">
               {{ text.register.error }}
             </p>
           }
@@ -204,7 +210,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </button>
         </form>
 
-        <p class="mt-8 text-sm text-muted">
+        <p class="mt-8 text-sm text-ink-subtle">
           {{ text.register.haveAccount }}
           <a appLink routerLink="/login">{{ text.login }}</a>
         </p>

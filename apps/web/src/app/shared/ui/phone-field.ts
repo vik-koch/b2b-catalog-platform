@@ -5,6 +5,7 @@ import { DigitMask } from './digit-mask';
 import { FieldLabel } from './field-label';
 import { FieldPrefix } from './field-prefix';
 import { Input } from './input';
+import { ErrorText } from './error-text';
 
 /**
  * The two things that can be wrong with a phone number. Passed in rather than
@@ -34,7 +35,14 @@ export interface PhoneFieldText {
  */
 @Component({
   selector: 'app-phone-field',
-  imports: [ReactiveFormsModule, DigitMask, FieldLabel, FieldPrefix, Input],
+  imports: [
+    ReactiveFormsModule,
+    DigitMask,
+    FieldLabel,
+    FieldPrefix,
+    Input,
+    ErrorText,
+  ],
   // A block, like every other field: a custom element is inline by default, and
   // an inline box drops the vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
@@ -78,7 +86,7 @@ export interface PhoneFieldText {
     }
 
     @if (invalid()) {
-      <p class="mt-1 text-sm text-red-600">{{ message() }}</p>
+      <p appErrorText class="mt-1">{{ message() }}</p>
     }
   `,
 })

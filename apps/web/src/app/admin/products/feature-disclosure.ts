@@ -40,11 +40,11 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph()"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
+        <div [id]="panelId" class="border-t border-edge p-4">
           <ng-content />
         </div>
       }

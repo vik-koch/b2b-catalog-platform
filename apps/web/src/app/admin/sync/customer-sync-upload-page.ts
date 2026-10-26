@@ -28,6 +28,9 @@ import {
 } from './customer-sync-presets';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncService } from './sync.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick
@@ -58,10 +61,13 @@ import { SyncService } from './sync.service';
     Link,
     RouterLink,
     SyncCustomerPlanView,
+    PageTitle,
+    ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">
+      <h1 appPageTitle>
         {{ text.customers.uploadTitle }}
       </h1>
       <a
@@ -73,7 +79,7 @@ import { SyncService } from './sync.service';
         {{ text.backToRuns }}
       </a>
     </div>
-    <p class="mb-6 max-w-3xl text-sm text-muted">
+    <p appPageIntro class="mb-6 max-w-3xl">
       {{ text.customers.uploadDescription }}
     </p>
 
@@ -83,7 +89,7 @@ import { SyncService } from './sync.service';
            a greyed form invites an attempt the API would refuse anyway. -->
       @if (customersOwned()) {
         <p
-          class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
+          class="rounded-md border border-edge bg-surface px-4 py-3 text-sm text-ink-subtle"
           role="status"
         >
           {{ text.formatErrors['customers-externally-owned'] }}
@@ -108,10 +114,10 @@ import { SyncService } from './sync.service';
           </div>
 
           <details class="mt-4">
-            <summary class="cursor-pointer text-sm text-muted">
+            <summary class="cursor-pointer text-sm text-ink-subtle">
               {{ text.advanced }}
             </summary>
-            <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
+            <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
               @for (flag of flags; track flag.key) {
                 <label class="flex cursor-pointer items-start gap-2 text-sm">
                   <input
@@ -151,7 +157,7 @@ import { SyncService } from './sync.service';
             <app-admin-icon name="upload" class="size-6 mb-2" />
             @if (file(); as chosen) {
               <span class="font-medium">{{ chosen.name }}</span>
-              <span class="text-sm text-subtle">{{ text.changeFile }}</span>
+              <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
             } @else {
               <span class="font-medium">{{ text.dropHint }}</span>
               <span class="text-sm">{{ text.browse }}</span>
@@ -163,7 +169,7 @@ import { SyncService } from './sync.service';
           <!-- The columns, listed rather than described: the file is written by
                whoever is holding the other system's export, and the one thing
                they need from this screen is the spelling. -->
-          <p class="mt-1 text-sm text-subtle">{{ fileHint }}</p>
+          <p class="mt-1 text-sm text-ink-subtle">{{ fileHint }}</p>
 
           <div class="mt-4 flex items-center gap-3">
             <button
@@ -187,7 +193,7 @@ import { SyncService } from './sync.service';
           </div>
 
           @if (previewError(); as message) {
-            <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
+            <p appErrorText class="mt-3" role="alert">{{ message }}</p>
           }
         </section>
 
@@ -205,7 +211,7 @@ import { SyncService } from './sync.service';
         }
 
         @if (appliedRun(); as run) {
-          <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
+          <p class="mb-8 rounded-md bg-surface p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
             <a appLink routerLink="/admin/users" class="ml-2">{{
               usersText.customersPage.title

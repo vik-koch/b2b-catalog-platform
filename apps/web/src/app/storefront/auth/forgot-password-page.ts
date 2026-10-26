@@ -11,6 +11,9 @@ import { EmailField } from '../../shared/ui/email-field';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
 import { TextButton } from '../../shared/ui/link';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
@@ -33,22 +36,25 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Button,
     EmailField,
     TextButton,
+    PageTitle,
+    ErrorText,
+    PageIntro,
   ],
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-2">
           {{ text.successHeading }}
         </h1>
-        <p class="text-muted" role="status">{{ text.success }}</p>
+        <p appPageIntro role="status">{{ text.success }}</p>
         <a appButton variant="secondary" routerLink="/login" class="mt-8">
           {{ text.backToLogin }}
         </a>
       } @else {
-        <h1 class="mb-2 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-2">
           {{ text.heading }}
         </h1>
-        <p class="mb-4 text-muted">{{ text.intro }}</p>
+        <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
         <form
           class="space-y-6"
@@ -78,7 +84,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           </div>
 
           @if (status() === 'error') {
-            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+            <p appErrorText role="alert">{{ text.error }}</p>
           }
         </form>
       }

@@ -31,9 +31,9 @@ import { Icon } from '../../shared/ui/icons/icon';
   imports: [Icon],
   host: { class: 'block' },
   template: `
-    <section class="rounded-lg border border-border p-5">
+    <section class="rounded-lg border border-edge p-5">
       <h2 class="font-medium">{{ text.heading }}</h2>
-      <ul class="mt-1 divide-y divide-border text-sm">
+      <ul class="mt-1 divide-y divide-edge text-sm">
         @for (document of rows(); track document.kind) {
           <li>
             <!-- The whole row is the link, glyph and caption included: they
@@ -47,7 +47,7 @@ import { Icon } from '../../shared/ui/icons/icon';
             >
               <app-icon
                 name="file-text"
-                class="mt-0.5 size-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
                 <span
@@ -55,7 +55,7 @@ import { Icon } from '../../shared/ui/icons/icon';
                 >
                   {{ document.label }}
                 </span>
-                <span class="block text-xs text-subtle">{{
+                <span class="block text-xs text-ink-subtle">{{
                   document.caption
                 }}</span>
               </span>

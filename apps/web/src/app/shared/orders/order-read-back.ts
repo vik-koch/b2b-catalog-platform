@@ -25,7 +25,7 @@ import { SHARED_TEXT } from '../config/shared-text';
     <div class="space-y-8">
       <section>
         <h2 class="mb-2 font-medium">{{ itemsHeading() || itemsDefault }}</h2>
-        <ul class="divide-y divide-border border-y border-border">
+        <ul class="divide-y divide-edge border-y border-edge">
           @for (line of lines(); track line.key) {
             <li class="flex items-baseline justify-between gap-4 py-2 text-sm">
               <span class="min-w-0">
@@ -39,9 +39,9 @@ import { SHARED_TEXT } from '../config/shared-text';
                 } @else {
                   <span class="block">{{ line.name }}</span>
                 }
-                <span class="text-subtle">{{ line.quantity }}</span>
+                <span class="text-ink-subtle">{{ line.quantity }}</span>
                 @if (line.note) {
-                  <span class="mt-0.5 block text-subtle italic">
+                  <span class="mt-0.5 block text-ink-subtle italic">
                     {{ line.note }}
                   </span>
                 }
@@ -51,7 +51,7 @@ import { SHARED_TEXT } from '../config/shared-text';
                 <!-- Under the figure it qualifies, where a reader checking
                      the line against an invoice looks for it. -->
                 @if (line.taxRate) {
-                  <span class="block text-xs text-subtle">{{
+                  <span class="block text-xs text-ink-subtle">{{
                     line.taxRate
                   }}</span>
                 }
@@ -71,7 +71,10 @@ import { SHARED_TEXT } from '../config/shared-text';
             <!-- An answer can be one long word — an email, a company with no
                  spaces in its name — and a block that will not break takes the
                  page sideways on a phone. -->
-            <p class="text-sm wrap-break-word" [class.text-subtle]="$index > 0">
+            <p
+              class="text-sm wrap-break-word"
+              [class.text-ink-subtle]="$index > 0"
+            >
               {{ line }}
             </p>
           }

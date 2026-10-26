@@ -27,7 +27,7 @@ import { RecordRow } from '../records/record-row';
   selector: 'app-consent-record-list',
   imports: [RouterLink, AdminIcon, IconButton, Link, RecordRow, StatusBadge],
   template: `
-    <div class="divide-y divide-border border-y border-border">
+    <div class="divide-y divide-edge border-y border-edge">
       @for (record of records(); track record.id) {
         <div class="py-3">
           <app-record-row [stackMeta]="true">

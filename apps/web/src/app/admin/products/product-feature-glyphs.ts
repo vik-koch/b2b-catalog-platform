@@ -27,7 +27,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
   imports: [AdminIcon],
   template: `
     @if (features().length) {
-      <ul class="flex items-center gap-1.5 text-subtle">
+      <ul class="flex items-center gap-1.5 text-ink-subtle">
         @for (feature of features(); track feature) {
           <li class="flex" [title]="text[feature]">
             <app-admin-icon [name]="glyphs[feature]" class="size-3.5" />

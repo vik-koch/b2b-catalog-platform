@@ -27,6 +27,7 @@ import { GridTimestamp } from '../grid/grid-timestamp';
 import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
 import { SyncService } from './sync.service';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * One area's runs, newest first (FR-ADM-09) — the screen
@@ -61,6 +62,7 @@ import { SyncService } from './sync.service';
     RecordRow,
     Skeleton,
     StatusBadge,
+    PageIntro,
   ],
   template: `
     <app-admin-list-header
@@ -82,12 +84,12 @@ import { SyncService } from './sync.service';
       }
     </app-admin-list-header>
 
-    <p class="mb-6 max-w-3xl text-sm text-muted">
+    <p appPageIntro class="mb-6 max-w-3xl">
       {{ areaText().runsDescription }}
     </p>
 
     @if (runs.error()) {
-      <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
     } @else if (shown(); as data) {
       <app-admin-grid
         gridId="sync-runs"
@@ -105,16 +107,16 @@ import { SyncService } from './sync.service';
                it, and it is the way into the run itself. -->
           <td class="truncate">
             <a
-              class="font-medium text-stone-700 hover:text-accent"
+              class="font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/sync/runs', run.id]"
             >
               <app-grid-timestamp [value]="run.startedAt" />
             </a>
           </td>
-          <td class="truncate text-subtle" [title]="who(run)">
+          <td class="truncate text-ink-subtle" [title]="who(run)">
             {{ who(run) }}
           </td>
-          <td class="truncate text-subtle" [title]="run.filename">
+          <td class="truncate text-ink-subtle" [title]="run.filename">
             {{ run.filename }}
           </td>
           <td data-keep>
@@ -123,7 +125,7 @@ import { SyncService } from './sync.service';
               [ngTemplateOutletContext]="{ $implicit: run }"
             />
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <span class="block tabular-nums">{{ changeSummary(run) }}</span>
             <span class="block truncate text-xs" [title]="fieldsTitle(run)">{{
               fieldsLine(run)
@@ -136,7 +138,7 @@ import { SyncService } from './sync.service';
         <ng-template appGridCard [of]="data.runs" let-run>
           <app-record-row>
             <a
-              class="font-medium text-stone-700 hover:text-accent"
+              class="font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/sync/runs', run.id]"
             >
               <app-grid-timestamp [value]="run.startedAt" />
@@ -147,7 +149,7 @@ import { SyncService } from './sync.service';
                 [ngTemplateOutletContext]="{ $implicit: run }"
               />
             </span>
-            <p recordBody class="mt-1 truncate text-sm text-subtle">
+            <p recordBody class="mt-1 truncate text-sm text-ink-subtle">
               {{ who(run) }}
               @if (run.filename) {
                 · {{ run.filename }}

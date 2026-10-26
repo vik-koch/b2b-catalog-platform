@@ -33,6 +33,10 @@ import { Switch } from '../../shared/ui/switch';
 import { adminMomentFormat } from '../grid/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -58,19 +62,23 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     Skeleton,
     StatusBadge,
     Switch,
+    PageTitle,
+    ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <!-- Wrapping, unlike the token list's heading row: this title is several
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
     <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <a appButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
     </div>
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">
@@ -87,7 +95,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             {{ text.maintenanceHeading }}
           </h2>
 
-          <div class="rounded-lg border border-border px-5 py-4">
+          <div class="rounded-lg border border-edge px-5 py-4">
             <div class="flex items-center justify-between gap-4">
               <p class="text-sm font-medium">
                 {{
@@ -107,12 +115,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 (toggled)="flipMaintenance($event)"
               />
             </div>
-            <p class="mt-3 text-sm text-muted">
+            <p class="mt-3 text-sm text-ink-subtle">
               {{ maintenanceText.description }}
             </p>
 
             @if (maintenanceFailed()) {
-              <p class="mt-3 text-sm text-red-600">
+              <p appErrorText class="mt-3">
                 {{ maintenanceText.error }}
               </p>
             }
@@ -123,13 +131,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           <h2 class="mb-1 text-base font-medium">
             {{ text.ownershipHeading }}
           </h2>
-          <p class="mb-3 text-sm text-muted">{{ ownershipText.intro }}</p>
+          <p class="mb-3 text-sm text-ink-subtle">{{ ownershipText.intro }}</p>
 
           <!-- One shop above, areas beneath it. The master is a read over the
                areas and an action across them, never a fourth stored flag: a
                stored answer to "is everything owned" could disagree with the
                three switches under it, and then neither would be believable. -->
-          <div class="mb-4 rounded-lg border border-border px-5 py-4">
+          <div class="mb-4 rounded-lg border border-edge px-5 py-4">
             <div class="flex items-center justify-between gap-4">
               <h3 class="text-sm font-medium">{{ allText.heading }}</h3>
               <app-switch
@@ -140,12 +148,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               />
             </div>
 
-            <p class="mt-1 text-sm text-muted">{{ allText.description }}</p>
+            <p appHint class="mt-1">{{ allText.description }}</p>
 
             <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
               @if (mixed()) {
-                <p class="text-sm text-muted">{{ mixedEffect() }}</p>
+                <p class="text-sm text-ink-subtle">{{ mixedEffect() }}</p>
               }
             </div>
           </div>
@@ -166,10 +174,10 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             />
 
             @if (areasOpen()) {
-              <div [id]="areasPanelId" class="border-t border-border p-4">
+              <div [id]="areasPanelId" class="border-t border-edge p-4">
                 @for (area of areas; track area) {
                   <div
-                    class="mb-4 rounded-lg border border-border px-5 py-4 last:mb-0"
+                    class="mb-4 rounded-lg border border-edge px-5 py-4 last:mb-0"
                   >
                     <div class="flex items-center justify-between gap-4">
                       <h3 class="text-sm font-medium">
@@ -187,7 +195,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                       />
                     </div>
 
-                    <p class="mt-1 text-sm text-muted">
+                    <p appHint class="mt-1">
                       {{ areaText(area).description }}
                     </p>
 
@@ -207,7 +215,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                             : ownershipText.statusOwn
                         }}
                       </span>
-                      <p class="text-sm text-muted">
+                      <p class="text-sm text-ink-subtle">
                         {{
                           isOwned(area)
                             ? areaText(area).ownedEffect
@@ -222,7 +230,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           </section>
 
           @if (ownershipFailed()) {
-            <p class="text-sm text-red-600">{{ ownershipText.error }}</p>
+            <p appErrorText>{{ ownershipText.error }}</p>
           }
         </section>
         <!-- Behind a lid, and not fetched until it is opened: the switches
@@ -240,16 +248,18 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           />
 
           @if (historyOpen()) {
-            <div [id]="historyPanelId" class="border-t border-border">
+            <div [id]="historyPanelId" class="border-t border-edge">
               @if (entries(); as rows) {
                 @if (rows.length) {
                   <ul>
                     @for (entry of rows; track entry.id) {
                       <li
-                        class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-2.5 last:border-b-0"
+                        class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-edge px-4 py-2.5 last:border-b-0"
                       >
                         <span class="text-sm">{{ entry.what }}</span>
-                        <span class="text-xs text-subtle">{{ entry.who }}</span>
+                        <span class="text-xs text-ink-subtle">{{
+                          entry.who
+                        }}</span>
                       </li>
                     }
                   </ul>
@@ -258,12 +268,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                        recency question, and a settings trail that needed pages
                        would be a shop with a much stranger problem. -->
                   @if (recordCount() >= pageSize) {
-                    <p class="px-4 py-2.5 text-xs text-subtle">
+                    <p class="px-4 py-2.5 text-xs text-ink-subtle">
                       {{ moreLabel }}
                     </p>
                   }
                 } @else {
-                  <p class="px-4 py-3 text-sm text-muted">
+                  <p class="px-4 py-3 text-sm text-ink-subtle">
                     {{ text.historyEmpty }}
                   </p>
                 }
@@ -278,7 +288,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           }
         </section>
       } @else if (settings.error()) {
-        <p class="text-sm text-red-600">{{ text.loadError }}</p>
+        <p appErrorText>{{ text.loadError }}</p>
       }
     </div>
   `,

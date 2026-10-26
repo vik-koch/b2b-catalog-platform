@@ -61,6 +61,9 @@ import { PrivacyNotice } from '../pages/privacy-notice';
 import { TermsNotice } from '../pages/terms-notice';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -100,10 +103,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     Link,
     PrivacyNotice,
     TermsNotice,
+    PageTitle,
+    ErrorText,
+    PageIntro,
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
       <!-- The cart's and the account's own empty panel, read the other way
            round: the same shape of screen says "there is nothing here" and
            "that is done". Opening the order comes first — it is what somebody
@@ -123,7 +129,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       </app-empty-state>
 
       @if (guest()) {
-        <p class="mt-8 max-w-xl text-sm text-muted">
+        <p class="mt-8 max-w-xl text-sm text-ink-subtle">
           {{ invite.text }}
           <a appLink routerLink="/register">
             {{ invite.action }}
@@ -131,7 +137,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ heading() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
       <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
         <a appButton routerLink="/catalog">
           {{ cartText.emptyAction }}
@@ -167,10 +173,10 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                  form field wraps for no reason, and the questions below want
                  the shorter measure. -->
             <div class="mb-8">
-              <h1 class="mb-2 text-3xl font-medium tracking-tight">
+              <h1 appPageTitle class="mb-2">
                 {{ heading() }}
               </h1>
-              <p class="text-muted">
+              <p appPageIntro>
                 {{ reviewing() ? text.review.intro : text.intro }}
               </p>
             </div>
@@ -183,11 +189,11 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               <!-- Marked with the glyph the account control wears, so it reads
                    as being about an account before it is read at all. -->
               <p
-                class="mb-8 flex max-w-xl items-start gap-2 text-sm text-muted"
+                class="mb-8 flex max-w-xl items-start gap-2 text-sm text-ink-subtle"
               >
                 <app-icon
                   name="circle-user-round"
-                  class="mt-0.5 size-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.signInPrompt }}
@@ -427,7 +433,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                    across the card. -->
               @if (!isPickup()) {
                 <app-delivery-zone-hint
-                  class="mt-3 border-t border-border pt-3"
+                  class="mt-3 border-t border-edge pt-3"
                   [postalCode]="deliveryPostalCode()"
                 />
               }
@@ -443,7 +449,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             <!-- Where the ADR says a refusal belongs: beside the button, not
                  only at the field it came from. -->
             @if (error(); as message) {
-              <p class="mt-3 text-sm text-red-600" role="alert">
+              <p appErrorText class="mt-3" role="alert">
                 {{ message }}
               </p>
             }
@@ -453,18 +459,18 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                  here is the difference between a form somebody fills in for
                  nothing and one they never start. -->
             @if (staff()) {
-              <p class="mt-3 flex items-start gap-2 text-sm text-muted">
+              <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <app-icon
                   name="lock"
-                  class="mt-0.5 size-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>{{ text.errors.staffAccount }}</span>
               </p>
             } @else if (accountPhoneMissing()) {
-              <p class="mt-3 flex items-start gap-2 text-sm text-muted">
+              <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <app-icon
                   name="phone"
-                  class="mt-0.5 size-4 shrink-0 text-subtle"
+                  class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.phoneMissing }}

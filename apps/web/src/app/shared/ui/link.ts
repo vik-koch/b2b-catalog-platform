@@ -4,9 +4,9 @@ import { Directive } from '@angular/core';
  * A link inside running content — the treatment that says "this word goes
  * somewhere" without the weight of a button.
  *
- * The rule under it is drawn in the border colour rather than the text's, so
- * it reads as a hairline under a coloured word instead of a second line of the
- * same colour; hover takes both to the accent. It applies to <a> and to a
+ * The rule under it is the text's colour at 30%, so it reads as a hairline
+ * under a coloured word instead of a second line of the same weight; hover
+ * takes both to the accent. It applies to <a> and to a
  * <button> that reads as a link, because a control that opens a panel makes
  * the same promise as one that navigates.
  */
@@ -21,7 +21,7 @@ export const LINK_BASE =
 export const LINK_TONES = {
   default:
     'text-primary decoration-primary/30 hover:text-accent hover:decoration-accent',
-  warning: 'text-amber-700 decoration-amber-700/30 hover:decoration-amber-700',
+  warning: 'text-warning decoration-warning/30 hover:decoration-warning',
 } as const;
 
 /**

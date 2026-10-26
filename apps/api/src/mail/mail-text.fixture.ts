@@ -5,6 +5,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { loadConfigFile } from '@b2b-catalog-platform/shared/node';
 import { MailBranding } from './mail-branding';
+import { DEFAULT_MAIL_COLOURS } from './mail-colours';
 import { MailText, mailTextSchema } from './mail-text';
 import { PdfText, pdfTextSchema } from '../pdf/pdf-text';
 
@@ -31,6 +32,7 @@ export const demoPdfText: PdfText = loadConfigFile(
 export const demoMailBranding: MailBranding = {
   name: 'Coffee Kontor',
   primaryColor: '#6f4e37',
+  colours: DEFAULT_MAIL_COLOURS,
   siteUrl: 'https://shop.example',
   locale: 'de-DE',
 };

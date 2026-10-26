@@ -95,3 +95,96 @@ describe('deploymentConfigSchema — notice', () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe('deploymentConfigSchema — theme', () => {
+  const parseTheme = (theme: Record<string, unknown>) =>
+    deploymentConfigSchema.safeParse({
+      ...defaultDeploymentConfig,
+      branding: {
+        ...defaultDeploymentConfig.branding,
+        theme: { ...defaultDeploymentConfig.branding.theme, ...theme },
+      },
+    });
+  const pathOf = (result: ReturnType<typeof parseTheme>) =>
+    result.error?.issues[0]?.path.slice(2);
+
+  // Tailwind's own shades, the stylesheet's defaults.
+  const danger = {
+    base: '#c10007',
+    hover: '#9f0712',
+    press: '#82181a',
+    ink: '#9f0712',
+    surface: '#ffe2e2',
+    edge: '#ffc9c9',
+    edgeStrong: '#ffa2a2',
+    dot: '#e7000b',
+  };
+  const warning = {
+    base: '#bb4d00',
+    ink: '#973c00',
+    surface: '#fef3c6',
+    edge: '#fee685',
+    dot: '#e17100',
+  };
+
+  it('takes the brand alone, every other colour keeping its default', () => {
+    const { primary, secondary, accent } =
+      defaultDeploymentConfig.branding.theme;
+    const result = deploymentConfigSchema.safeParse({
+      ...defaultDeploymentConfig,
+      branding: {
+        ...defaultDeploymentConfig.branding,
+        theme: { primary, secondary, accent },
+      },
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it('takes a grey role by its own name', () => {
+    expect(parseTheme({ surfaceStrong: '#e2e8f0' }).success).toBe(true);
+  });
+
+  it('refuses the grey ramp it replaced', () => {
+    expect(parseTheme({ neutrals: { 100: '#f1f5f9' } }).success).toBe(false);
+  });
+
+  it('accepts a status colour set whole', () => {
+    expect(parseTheme({ danger, warning }).success).toBe(true);
+  });
+
+  it('refuses a status colour with a role left out, naming the role', () => {
+    const { edge: _, ...partial } = warning;
+    const result = parseTheme({ warning: partial });
+
+    expect(result.success).toBe(false);
+    expect(pathOf(result)).toEqual(['warning', 'edge']);
+  });
+
+  it('refuses text too light for the ground it is drawn on', () => {
+    // Amber's 500 as the text on its own tint.
+    const result = parseTheme({ warning: { ...warning, ink: '#fe9a00' } });
+
+    expect(result.success).toBe(false);
+    expect(pathOf(result)).toEqual(['warning', 'ink']);
+  });
+
+  it('refuses a danger fill too light for a white label', () => {
+    const result = parseTheme({ danger: { ...danger, press: '#ffa2a2' } });
+
+    expect(result.success).toBe(false);
+    expect(pathOf(result)).toEqual(['danger', 'press']);
+  });
+
+  it('measures status text against the deployment’s own recessed ground', () => {
+    expect(
+      parseTheme({ danger, surface: '#d6d3d1' }).error?.issues[0]?.path,
+    ).toEqual(['branding', 'theme', 'danger', 'base']);
+  });
+
+  it('takes only #rrggbb in a status colour, the form the check measures', () => {
+    expect(parseTheme({ danger: { ...danger, base: 'red' } }).success).toBe(
+      false,
+    );
+  });
+});

@@ -32,7 +32,7 @@ export interface SuggestListText {
  * of these in cards — and the containing form declares the container.
  */
 export const SUGGEST_PANEL =
-  'absolute top-full left-0 z-20 mt-1 w-full overflow-hidden rounded-md border border-border-strong bg-white py-1 shadow-lg';
+  'absolute top-full left-0 z-20 mt-1 w-full overflow-hidden rounded-md border border-edge-strong bg-white py-1 shadow-lg';
 
 /**
  * Long enough that a fast typist produces one call per word — and every call

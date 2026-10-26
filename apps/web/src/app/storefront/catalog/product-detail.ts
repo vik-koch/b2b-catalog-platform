@@ -133,26 +133,26 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           <!-- The breadcrumb is part of the loaded page, so it is part of the
                placeholder too — otherwise everything below shifts up a row
                when the real content arrives. -->
-          <div class="mb-4 h-4 w-2/3 rounded-sm bg-stone-200 sm:w-2/5"></div>
-          <div class="mb-4 h-8 w-2/5 rounded-sm bg-stone-200"></div>
+          <div class="mb-4 h-4 w-2/3 rounded-sm bg-skeleton sm:w-2/5"></div>
+          <div class="mb-4 h-8 w-2/5 rounded-sm bg-skeleton"></div>
           <!-- The page's own columns, so nothing moves sideways when the real
                content arrives. -->
           <div [class]="columns">
             <div
-              class="aspect-square w-full rounded-xl bg-stone-200 md:max-w-120"
+              class="aspect-square w-full rounded-xl bg-skeleton md:max-w-120"
             ></div>
             <!-- The facts column, which only the widest shape has. -->
             <div
-              class="hidden h-48 rounded-sm bg-stone-200 @min-[65rem]/product:block"
+              class="hidden h-48 rounded-sm bg-skeleton @min-[65rem]/product:block"
             ></div>
-            <div class="h-64 rounded-xl bg-stone-200"></div>
+            <div class="h-64 rounded-xl bg-skeleton"></div>
             <div [class]="sectionCell + ' max-w-3xl space-y-4'">
-              <div class="h-4 w-full rounded-sm bg-stone-200"></div>
-              <div class="h-4 w-5/6 rounded-sm bg-stone-200"></div>
-              <div class="h-4 w-4/6 rounded-sm bg-stone-200"></div>
+              <div class="h-4 w-full rounded-sm bg-skeleton"></div>
+              <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
+              <div class="h-4 w-4/6 rounded-sm bg-skeleton"></div>
             </div>
             <div
-              [class]="sectionCell + ' h-24 max-w-xl rounded-sm bg-stone-200'"
+              [class]="sectionCell + ' h-24 max-w-xl rounded-sm bg-skeleton'"
             ></div>
           </div>
         </div>

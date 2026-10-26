@@ -80,10 +80,10 @@ export class ChoiceBranch {
     // which is exactly where the radio is, and a rule through the control it
     // belongs to reads as a strike-through.
     return [
-      'rounded-md border border-border border-l-transparent p-0',
+      'rounded-md border border-edge border-l-transparent p-0',
       'bg-no-repeat bg-origin-border',
       'bg-[position:left_top] bg-[size:1px_100%]',
-      'bg-[image:linear-gradient(to_bottom,transparent_0,transparent_1rem,var(--color-border)_1rem)]',
+      'bg-[image:linear-gradient(to_bottom,transparent_0,transparent_1rem,var(--color-edge)_1rem)]',
     ].join(' ');
   });
 

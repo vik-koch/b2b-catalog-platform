@@ -11,10 +11,11 @@ import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { LoadErrorView } from './load-error-view';
 import { PageUpdated } from './page-updated';
+import { PageTitle } from '../../shared/ui/page-title';
 
 @Component({
   selector: 'app-static-page',
-  imports: [RichTextLinks, EditActions, LoadErrorView, PageUpdated],
+  imports: [RichTextLinks, EditActions, LoadErrorView, PageUpdated, PageTitle],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets the load error rather
@@ -32,7 +33,7 @@ import { PageUpdated } from './page-updated';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
@@ -46,7 +47,7 @@ import { PageUpdated } from './page-updated';
       </div>
       @if (content) {
         <div
-          class="prose prose-stone max-w-3xl"
+          class="prose max-w-3xl"
           appRichTextLinks
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
@@ -56,13 +57,13 @@ import { PageUpdated } from './page-updated';
           [updatedAt]="content.updatedAt"
         />
       } @else if (canEdit(); as editorText) {
-        <p class="text-muted">{{ editorText.emptyNotice }}</p>
+        <p class="text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-stone-200"></div>
-        <div class="h-4 w-full rounded-sm bg-stone-200"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-stone-200"></div>
+        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
+        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
+        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
       </div>
     }
   `,

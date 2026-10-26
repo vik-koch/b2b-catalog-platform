@@ -46,6 +46,9 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { userStatusTone } from './user-status';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { WarningNote } from '../../shared/ui/warning-note';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -79,19 +82,22 @@ import { WarningNote } from '../../shared/ui/warning-note';
     StatusBadge,
     Segmented,
     WarningNote,
+    PageTitle,
+    ErrorText,
+    Hint,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
          title over a narrow form is a third layout where two will do. -->
     <div class="max-w-xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">{{ title() }}</h1>
+      <h1 appPageTitle class="mb-4">{{ title() }}</h1>
 
       @if (loading()) {
         @if (showSkeleton()) {
           <app-skeleton [lines]="5" />
         }
       } @else if (notFound()) {
-        <p class="text-muted" role="alert">{{ text.notFound }}</p>
+        <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
       } @else {
         <!-- The account's fixed facts: who this is and where it stands. An
              existing account leads with them because they are the context for
@@ -103,11 +109,11 @@ import { WarningNote } from '../../shared/ui/warning-note';
           <dl
             class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm wrap-break-word"
           >
-            <dt class="text-subtle">{{ fields.email.label }}</dt>
-            <dd class="font-medium text-stone-700">{{ user.email }}</dd>
-            <dt class="text-subtle">{{ listText.registered }}</dt>
-            <dd class="text-subtle">{{ registered() }}</dd>
-            <dt class="text-subtle">{{ text.status }}</dt>
+            <dt class="text-ink-subtle">{{ fields.email.label }}</dt>
+            <dd class="font-medium text-ink">{{ user.email }}</dd>
+            <dt class="text-ink-subtle">{{ listText.registered }}</dt>
+            <dd class="text-ink-subtle">{{ registered() }}</dd>
+            <dt class="text-ink-subtle">{{ text.status }}</dt>
             <dd>
               <span appStatusBadge [tone]="statusTone(user.status)">{{
                 statusLabel(user.status)
@@ -117,7 +123,9 @@ import { WarningNote } from '../../shared/ui/warning-note';
         }
 
         @if (closed()) {
-          <p class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted">
+          <p
+            class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
+          >
             {{ text.closed }}
           </p>
         }
@@ -167,7 +175,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                 autocomplete="off"
               />
             } @else {
-              <p class="text-sm text-muted">{{ text.emailFixed }}</p>
+              <p class="text-sm text-ink-subtle">{{ text.emailFixed }}</p>
             }
 
             @if (isCustomer()) {
@@ -206,7 +214,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   [disabled]="locked()"
                 />
                 @if (isInvalid('firstName')) {
-                  <p class="mt-1 text-sm text-red-600">
+                  <p appErrorText class="mt-1">
                     {{ fields.firstName.required }}
                   </p>
                 }
@@ -229,7 +237,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   [disabled]="locked()"
                 />
                 @if (isInvalid('lastName')) {
-                  <p class="mt-1 text-sm text-red-600">
+                  <p appErrorText class="mt-1">
                     {{ fields.lastName.required }}
                   </p>
                 }
@@ -291,7 +299,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   </select>
                 </app-select-field>
                 @if (isInvalid('tierId')) {
-                  <p class="mt-1 text-sm text-red-600">
+                  <p appErrorText class="mt-1">
                     {{ text.validation.tierRequired }}
                   </p>
                 }
@@ -332,19 +340,19 @@ import { WarningNote } from '../../shared/ui/warning-note';
                   class="w-full"
                   autocomplete="off"
                 />
-                <p class="mt-1 text-sm text-muted">{{ text.sourceIdHint }}</p>
+                <p appHint class="mt-1">{{ text.sourceIdHint }}</p>
               </div>
             }
 
             @if (isNew) {
-              <p class="text-sm text-muted">{{ text.inviteHint }}</p>
+              <p class="text-sm text-ink-subtle">{{ text.inviteHint }}</p>
             }
 
             @if (error()) {
-              <p class="text-sm text-red-700" role="alert">{{ error() }}</p>
+              <p appErrorText role="alert">{{ error() }}</p>
             }
             @if (resent()) {
-              <p class="text-sm text-green-700" role="status">
+              <p class="text-sm text-success" role="status">
                 {{ text.resendSent }}
               </p>
             }

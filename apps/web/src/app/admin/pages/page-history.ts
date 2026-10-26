@@ -17,7 +17,7 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
     @if (versions.hasValue() && versions.value().length > 0) {
       <section class="mt-12 max-w-3xl">
         <h2 class="mb-3 text-lg font-medium">{{ text.heading }}</h2>
-        <ul class="divide-y divide-border border-y border-border">
+        <ul class="divide-y divide-edge border-y border-edge">
           @for (
             entry of versions.value();
             track entry.version;
@@ -32,11 +32,13 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
                     {{ versionLabel(entry.version) }}
                   </span>
                   @if (first) {
-                    <span class="text-muted">{{ text.current }}</span>
+                    <span class="text-ink-subtle">{{ text.current }}</span>
                   }
-                  <span class="text-muted">{{ moment(entry.updatedAt) }}</span>
+                  <span class="text-ink-subtle">{{
+                    moment(entry.updatedAt)
+                  }}</span>
                   @if (entry.editorEmail) {
-                    <span class="min-w-0 break-all text-muted">
+                    <span class="min-w-0 break-all text-ink-subtle">
                       {{ entry.editorEmail }}
                     </span>
                   }
@@ -45,12 +47,14 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
                   <h3 class="mb-3 text-xl font-medium">{{ entry.title }}</h3>
                   @if (entry.consentLabel) {
                     <p class="mb-4 text-sm">
-                      <span class="text-muted">{{ text.consentLabel }}</span>
+                      <span class="text-ink-subtle">{{
+                        text.consentLabel
+                      }}</span>
                       {{ entry.consentLabel }}
                     </p>
                   }
                   <div
-                    class="prose prose-stone max-w-none"
+                    class="prose max-w-none"
                     [innerHTML]="safeBody(entry.bodyHtml)"
                   ></div>
                 </div>

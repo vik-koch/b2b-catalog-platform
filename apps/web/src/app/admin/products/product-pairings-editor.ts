@@ -83,15 +83,15 @@ const SUGGESTIONS_SHOWN = 8;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
-          <p class="text-xs text-subtle">{{ text.hint }}</p>
+        <div [id]="panelId" class="border-t border-edge p-4">
+          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
-            <ul class="mt-3 divide-y divide-border border-y border-border">
+            <ul class="mt-3 divide-y divide-edge border-y border-edge">
               @for (item of value(); track item.slug) {
                 <li class="flex items-center gap-2 py-1.5 text-sm">
                   <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>
@@ -118,7 +118,7 @@ const SUGGESTIONS_SHOWN = 8;
           }
 
           @if (value().length >= max) {
-            <p class="mt-3 text-xs text-subtle">{{ limitLabel() }}</p>
+            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
               <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
@@ -144,7 +144,7 @@ const SUGGESTIONS_SHOWN = 8;
                 @if (list.panelOpen()) {
                   <div [class]="panel">
                     @if (options().length === 0) {
-                      <p class="px-3 py-2 text-sm text-subtle">
+                      <p class="px-3 py-2 text-sm text-ink-subtle">
                         {{ text.noSuggestions }}
                       </p>
                     }
@@ -163,7 +163,9 @@ const SUGGESTIONS_SHOWN = 8;
                           role="option"
                           [attr.aria-selected]="i === list.activeIndex()"
                           class="cursor-pointer px-3 py-2 text-sm"
-                          [class.bg-stone-100]="i === list.activeIndex()"
+                          [class.bg-surface-subtle-hover]="
+                            i === list.activeIndex()
+                          "
                           (mouseenter)="list.activeIndex.set(i)"
                           (mousedown)="pick($event, item)"
                         >
@@ -175,7 +177,7 @@ const SUGGESTIONS_SHOWN = 8;
                             />
                           </span>
                           @if (item.publishedAt === null) {
-                            <span class="block text-xs text-subtle">
+                            <span class="block text-xs text-ink-subtle">
                               {{ productStates.unpublished }}
                             </span>
                           }

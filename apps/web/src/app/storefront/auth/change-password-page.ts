@@ -2,16 +2,17 @@ import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { ChangePasswordForm } from './change-password-form';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * Home for the change-password form, reachable by every signed-in role.
  */
 @Component({
   selector: 'app-change-password-page',
-  imports: [ChangePasswordForm],
+  imports: [ChangePasswordForm, PageTitle],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ text.heading }}
       </h1>
       <app-change-password-form />

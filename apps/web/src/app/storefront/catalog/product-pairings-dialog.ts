@@ -79,7 +79,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
         <h2 id="pairings-heading" class="text-xl font-normal tracking-tight">
           {{ pairingsName }}
         </h2>
-        <p class="mt-2 text-sm text-muted">{{ text.intro }}</p>
+        <p class="mt-2 text-sm text-ink-subtle">{{ text.intro }}</p>
 
         @if (rows(); as rows) {
           <ul [class]="rowList" class="mt-4">

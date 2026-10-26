@@ -16,6 +16,9 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { Icon } from '../../shared/ui/icons/icon';
 import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * The account's own order requests (FR-ACC-01), newest first — the whole
@@ -23,10 +26,20 @@ import { OrdersService } from './orders.service';
  */
 @Component({
   selector: 'app-order-list-page',
-  imports: [RouterLink, Button, EmptyState, OrderRows, Skeleton, Icon],
+  imports: [
+    RouterLink,
+    Button,
+    EmptyState,
+    OrderRows,
+    Skeleton,
+    Icon,
+    PageTitle,
+    ErrorText,
+    PageIntro,
+  ],
   template: `
-    <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ text.heading }}</h1>
-    <p class="mb-4 text-muted">{{ text.intro }}</p>
+    <h1 appPageTitle class="mb-2">{{ text.heading }}</h1>
+    <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
     <!-- What the history is narrowed to, said as the one chip that narrowed
          it (FR-WORK-03). A chip and not a dropdown: nothing on this page
@@ -36,12 +49,12 @@ import { OrdersService } from './orders.service';
     @if (filter(); as state) {
       <div class="mb-6 flex flex-wrap items-center gap-2">
         <span
-          class="flex items-center gap-1.5 rounded-full bg-stone-100 py-1 pr-1.5 pl-3 text-sm"
+          class="flex items-center gap-1.5 rounded-full bg-surface py-1 pr-1.5 pl-3 text-sm"
         >
           <span>{{ filterLabel() }}</span>
           <a
             routerLink="/account/orders"
-            class="flex items-center justify-center rounded-full p-0.5 text-stone-400 hover:text-red-700"
+            class="flex items-center justify-center rounded-full p-0.5 text-ink-subtle hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
             <app-icon name="close" class="size-3.5" />
@@ -88,11 +101,13 @@ import { OrdersService } from './orders.service';
                 >{{ pagination.previous }}</a
               >
             } @else {
-              <span class="px-3 py-1.5 text-stone-300">{{
+              <span class="px-3 py-1.5 text-ink-disabled">{{
                 pagination.previous
               }}</span>
             }
-            <span class="text-subtle">{{ pageStatus(data.pagination) }}</span>
+            <span class="text-ink-subtle">{{
+              pageStatus(data.pagination)
+            }}</span>
             @if (data.pagination.page < data.pagination.totalPages) {
               <a
                 routerLink="/account/orders"
@@ -103,7 +118,7 @@ import { OrdersService } from './orders.service';
                 >{{ pagination.next }}</a
               >
             } @else {
-              <span class="px-3 py-1.5 text-stone-300">{{
+              <span class="px-3 py-1.5 text-ink-disabled">{{
                 pagination.next
               }}</span>
             }
@@ -115,7 +130,7 @@ import { OrdersService } from './orders.service';
         </a>
       }
     } @else if (orders.error()) {
-      <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+      <p appErrorText role="alert">{{ text.error }}</p>
       <a appButton variant="secondary" routerLink="/account" class="mt-5">
         {{ text.back }}
       </a>

@@ -24,6 +24,8 @@ import { Button } from '../../shared/ui/button';
 import { Input } from '../../shared/ui/input';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * What a run would do, or did: the counts, the products, the categories and
@@ -41,9 +43,9 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
  */
 @Component({
   selector: 'app-sync-plan-view',
-  imports: [Button, Input, Link, RouterLink, StatusBadge],
+  imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
-    <section class="rounded-md border border-border p-4">
+    <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
         {{ title() }}
       </h2>
@@ -51,8 +53,8 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       <dl class="mb-6 flex flex-wrap gap-x-8 gap-y-3 text-sm">
         @for (tile of tiles(); track tile.label) {
           <div>
-            <dt class="text-subtle">{{ text.count[tile.label] }}</dt>
-            <dd class="text-lg font-medium" [class.text-red-700]="tile.danger">
+            <dt class="text-ink-subtle">{{ text.count[tile.label] }}</dt>
+            <dd class="text-lg font-medium" [class.text-danger]="tile.danger">
               {{ tile.value }}
             </dd>
           </div>
@@ -60,17 +62,17 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       </dl>
 
       @if (isNoop()) {
-        <p class="text-muted">{{ noopText() }}</p>
+        <p class="text-ink-subtle">{{ noopText() }}</p>
       }
 
       @if (plan().rowErrors.length > 0) {
-        <h3 class="mt-6 mb-2 text-sm font-medium text-red-700">
+        <h3 class="mt-6 mb-2 text-sm font-medium text-danger">
           {{ text.errorsTitle }}
         </h3>
-        <ul class="space-y-1 text-sm text-stone-700">
+        <ul class="space-y-1 text-sm text-ink">
           @for (error of plan().rowErrors; track $index) {
             <li>
-              <span class="text-subtle">{{ rowLabel(error.row) }}</span>
+              <span class="text-ink-subtle">{{ rowLabel(error.row) }}</span>
               — {{ rowErrorText(error) }}
             </li>
           }
@@ -82,12 +84,14 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
           <h3 class="mt-6 mb-1 text-sm font-medium">
             {{ text.categoriesTitle }}
           </h3>
-          <p class="mb-2 text-sm text-subtle">{{ text.categoriesHint }}</p>
+          <p class="mb-2 text-sm text-ink-subtle">{{ text.categoriesHint }}</p>
           <ul class="space-y-1 text-sm">
             @for (category of created; track category.name) {
               <li>
                 {{ category.name }}
-                <span class="text-subtle">({{ category.productCount }})</span>
+                <span class="text-ink-subtle"
+                  >({{ category.productCount }})</span
+                >
               </li>
             }
           </ul>
@@ -99,17 +103,19 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
           <h3 class="mt-6 mb-1 text-sm font-medium">
             {{ text.renamedCategoriesTitle }}
           </h3>
-          <p class="mb-2 text-sm text-subtle">
+          <p class="mb-2 text-sm text-ink-subtle">
             {{ text.renamedCategoriesHint }}
           </p>
           <ul class="space-y-1 text-sm">
             @for (category of renamed; track category.name) {
               <li>
-                <span class="line-through text-subtle">{{
+                <span class="line-through text-ink-subtle">{{
                   category.from
                 }}</span>
                 → {{ category.name }}
-                <span class="text-subtle">({{ category.productCount }})</span>
+                <span class="text-ink-subtle"
+                  >({{ category.productCount }})</span
+                >
               </li>
             }
           </ul>
@@ -118,7 +124,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 
       @if (plan().products.length > 0) {
         <h3 class="mt-6 mb-2 text-sm font-medium">{{ text.productsTitle }}</h3>
-        <ul class="divide-y divide-stone-100 text-sm">
+        <ul class="divide-y divide-edge-subtle text-sm">
           @for (product of plan().products; track product.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(product.kind)">
@@ -138,13 +144,13 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
                 >{{ product.name }}</a
               >
               @for (change of product.changes; track change.field) {
-                <span class="text-subtle">
+                <span class="text-ink-subtle">
                   {{ change.field }}:
                   <span class="line-through">{{
                     display(change.field, change.from)
                   }}</span>
                   →
-                  <span class="text-stone-700">{{
+                  <span class="text-ink">{{
                     display(change.field, change.to)
                   }}</span>
                 </span>
@@ -156,7 +162,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 
       @if (plan().emptiedCategories.length > 0) {
         <h3 class="mt-6 mb-1 text-sm font-medium">{{ text.emptiedTitle }}</h3>
-        <p class="mb-2 text-sm text-subtle">{{ text.emptiedHint }}</p>
+        <p class="mb-2 text-sm text-ink-subtle">{{ text.emptiedHint }}</p>
         <ul class="space-y-1 text-sm">
           @for (category of plan().emptiedCategories; track category.slug) {
             <li>
@@ -168,7 +174,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 
       @if (plan().keptManual.length > 0) {
         <h3 class="mt-6 mb-1 text-sm font-medium">{{ text.keptTitle }}</h3>
-        <p class="mb-2 text-sm text-subtle">{{ text.keptHint }}</p>
+        <p class="mb-2 text-sm text-ink-subtle">{{ text.keptHint }}</p>
         <ul class="space-y-1 text-sm">
           @for (kept of plan().keptManual; track kept.sourceId) {
             <li>
@@ -184,16 +190,14 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
       }
 
       @if (plan().truncated) {
-        <p class="mt-4 text-sm text-subtle">{{ text.truncated }}</p>
+        <p class="mt-4 text-sm text-ink-subtle">{{ text.truncated }}</p>
       }
 
       @if (applicable()) {
         <!-- The delete gate: typed confirmation, and only when it applies. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
-            <p class="text-sm text-red-800">
-              {{ deleteWarning() }}
-            </p>
+          <div appNotice tone="danger" class="mt-6">
+            <p>{{ deleteWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
@@ -234,7 +238,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         }
 
         @if (error(); as message) {
-          <p class="mt-3 text-sm text-red-700" role="alert">{{ message }}</p>
+          <p appErrorText class="mt-3" role="alert">{{ message }}</p>
         }
       }
     </section>

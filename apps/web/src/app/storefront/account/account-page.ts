@@ -29,6 +29,8 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { WorkNote } from '../../shared/work/work-note';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -76,13 +78,15 @@ interface DetailRow {
     RouterLink,
     Icon,
     WorkNote,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <!-- Narrower than the shell allows, as the admin panel is: this is a
          column of short cards, and at the full width of a desktop each one
          was a heading and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 class="mb-4 text-3xl font-medium tracking-tight">
+      <h1 appPageTitle class="mb-4">
         {{ text.account }}
       </h1>
       <app-signed-in-as />
@@ -102,7 +106,7 @@ interface DetailRow {
             {{ orderText.heading }}
           </h2>
           <!-- As above: the frame and its bars from the first frame. -->
-          <div class="rounded-lg border border-border p-5">
+          <div class="rounded-lg border border-edge p-5">
             <!-- What waits on the account holder, above the rows it is about
                  (FR-WORK-03): the same amber line the marker on the account
                  control leads here for, and the link opens the history it is
@@ -132,7 +136,7 @@ interface DetailRow {
               <app-skeleton [lines]="3" />
             } @else if (recentOrders(); as recent) {
               @if (recent.length === 0) {
-                <p class="text-sm text-muted">{{ orderText.empty }}</p>
+                <p class="text-sm text-ink-subtle">{{ orderText.empty }}</p>
                 <a
                   appButton
                   variant="secondary"
@@ -158,7 +162,7 @@ interface DetailRow {
                 }
               }
             } @else {
-              <p class="text-sm text-red-600" role="alert">
+              <p appErrorText role="alert">
                 {{ orderText.error }}
               </p>
             }
@@ -185,7 +189,7 @@ interface DetailRow {
                card is known before the calls answer, so the bars stand in the box
                the values will fill and the arrival is a fill rather than a jump.
                The delayed skeleton is for regions whose height nobody can guess. -->
-          <div class="rounded-lg border border-border">
+          <div class="rounded-lg border border-edge">
             <div class="p-5">
               <!-- Both halves at once, never each as it lands. They are two
                      answers to one question arriving on two round trips, and drawn
@@ -202,7 +206,7 @@ interface DetailRow {
                 <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
                   @for (row of rows(); track row.label) {
                     <dt
-                      class="text-sm text-muted odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-sm text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
@@ -211,7 +215,7 @@ interface DetailRow {
                     </dd>
                   }
                 </dl>
-                <p class="mt-2 text-sm text-subtle">
+                <p class="mt-2 text-sm text-ink-subtle">
                   {{ accountText.changeHint }}
                 </p>
                 <a
@@ -223,7 +227,7 @@ interface DetailRow {
                   {{ accountText.edit.action }}
                 </a>
               } @else {
-                <p class="text-sm text-red-600" role="alert">
+                <p appErrorText role="alert">
                   {{ accountText.error }}
                 </p>
               }
@@ -239,15 +243,15 @@ interface DetailRow {
             <app-icon name="map-pin" class="size-4" />
             {{ addressText.heading }}
           </h2>
-          <div class="rounded-lg border border-border">
+          <div class="rounded-lg border border-edge">
             <div class="p-5">
               @if (!profileReady()) {
                 <app-skeleton [lines]="3" />
               } @else if (addresses.hasValue()) {
                 @if (addresses.value().length === 0) {
-                  <p class="text-sm text-muted">{{ addressText.empty }}</p>
+                  <p class="text-sm text-ink-subtle">{{ addressText.empty }}</p>
                 } @else {
-                  <ul class="divide-y divide-border">
+                  <ul class="divide-y divide-edge">
                     @for (address of addresses.value(); track address.id) {
                       <!-- The buttons sit against the middle of the row they
                              act on, not against its first line: an address is one
@@ -264,7 +268,7 @@ interface DetailRow {
                             {{ name(address) }}
                           </p>
                           @if (lines(address)) {
-                            <p class="mt-1 text-sm text-muted">
+                            <p class="mt-1 text-sm text-ink-subtle">
                               {{ lines(address) }}
                             </p>
                           }
@@ -311,7 +315,7 @@ interface DetailRow {
                   {{ addressText.add }}
                 </a>
               } @else {
-                <p class="text-sm text-red-600" role="alert">
+                <p appErrorText role="alert">
                   {{ addressText.error }}
                 </p>
               }
@@ -328,15 +332,15 @@ interface DetailRow {
             <app-icon name="lock" class="size-4" />
             {{ text.securityHeading }}
           </h2>
-          <div class="rounded-lg border border-border">
+          <div class="rounded-lg border border-edge">
             <div
-              class="grid divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0"
+              class="grid divide-y divide-edge md:grid-cols-2 md:divide-x md:divide-y-0"
             >
               <div class="flex flex-col p-5">
                 <h3 class="mb-2 text-sm font-medium">
                   {{ text.changePassword.heading }}
                 </h3>
-                <p class="mb-4 text-sm text-muted">
+                <p class="mb-4 text-sm text-ink-subtle">
                   {{ text.changePassword.intro }}
                 </p>
                 <!-- Pinned to the bottom of its own column, so the two buttons sit
@@ -355,7 +359,9 @@ interface DetailRow {
                 <h3 class="mb-2 text-sm font-medium">
                   {{ deleteText.heading }}
                 </h3>
-                <p class="mb-4 text-sm text-muted">{{ deleteText.intro }}</p>
+                <p class="mb-4 text-sm text-ink-subtle">
+                  {{ deleteText.intro }}
+                </p>
                 <!-- Outlined, not solid: this only opens the page that explains what
                      would be lost. The solid red belongs to the click that confirms. -->
                 <a
@@ -378,7 +384,7 @@ export class AccountPage {
   /** One heading treatment, written once: four sections spelling the same
    * class list out is four chances for one of them to drift. */
   protected readonly headingClass =
-    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-subtle uppercase';
+    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase';
 
   private readonly account = inject(AccountService);
   private readonly api = inject(OrdersService);

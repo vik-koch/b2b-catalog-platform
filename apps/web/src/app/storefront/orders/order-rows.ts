@@ -32,19 +32,19 @@ import {
   imports: [RouterLink, StatusBadge],
   host: { class: 'block' },
   template: `
-    <ul class="divide-y divide-border">
+    <ul class="divide-y divide-edge">
       @for (order of orders(); track order.reference) {
         <li class="-mx-2 py-3 first:pt-0 last:pb-0">
           <!-- The whole row opens the order: the reference is the only thing on
                it worth clicking, and a link around it is a bigger target than
                the text. -->
           <a
-            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-stone-50"
+            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-surface-subtle-hover"
             [routerLink]="['/account/orders', order.reference]"
           >
             <div>
               <p class="text-sm font-medium">{{ order.reference }}</p>
-              <p class="mt-1 text-sm text-muted">
+              <p class="mt-1 text-sm text-ink-subtle">
                 {{ formatDate(order.createdAt) }} ·
                 {{ lineCount(order.itemCount) }}
               </p>

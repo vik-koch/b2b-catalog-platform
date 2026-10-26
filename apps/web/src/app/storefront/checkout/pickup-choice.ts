@@ -4,6 +4,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
 import { Radio } from '../../shared/ui/radio';
 import { TextButton } from '../../shared/ui/link';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Which point the order is collected from — pickup's answer to the delivery
@@ -21,7 +22,7 @@ import { TextButton } from '../../shared/ui/link';
  */
 @Component({
   selector: 'app-pickup-choice',
-  imports: [EmphasisedText, Radio, TextButton],
+  imports: [EmphasisedText, Radio, TextButton, ErrorText],
   // Block, or the page's own spacing between sections cannot reach it: a
   // margin on an inline element does nothing.
   host: { class: 'block' },
@@ -60,9 +61,11 @@ import { TextButton } from '../../shared/ui/link';
               />
               <span class="flex flex-wrap items-baseline gap-x-4">
                 <span>{{ location.name }}</span>
-                <span class="text-sm text-muted">{{ location.address }}</span>
+                <span class="text-sm text-ink-subtle">{{
+                  location.address
+                }}</span>
                 @if (location.description) {
-                  <span class="text-sm text-subtle">
+                  <span class="text-sm text-ink-subtle">
                     <app-emphasised [text]="location.description" />
                   </span>
                 }
@@ -84,7 +87,7 @@ import { TextButton } from '../../shared/ui/link';
       </div>
 
       @if (invalid()) {
-        <p id="pickup-error" class="mt-2 text-sm text-red-600">
+        <p id="pickup-error" appErrorText class="mt-2">
           {{ text.pickupRequired }}
         </p>
       }

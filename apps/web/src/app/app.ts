@@ -9,6 +9,7 @@ import { CartFigures } from './storefront/cart/cart-figures';
 import { LastListingService } from './storefront/catalog/last-listing.service';
 import { PairingsService } from './shared/catalog/pairings.service';
 import { ProductPairingsDialog } from './storefront/catalog/product-pairings-dialog';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from './shared/config/deployment-config';
 import { CookieConsent } from './storefront/consent/cookie-consent';
 import { shopTitle } from './shared/core/page-seo';
@@ -33,7 +34,7 @@ import { SiteNotice } from './storefront/layout/site-notice';
   ],
   selector: 'app-root',
   template: `
-    <!-- Stone behind the signed-out screens, so the white card the auth pages
+    <!-- A recessed grey behind the signed-out screens, so the white card the auth pages
          draw has something to sit on; the ordinary page background otherwise.
          Bound rather than toggled with a second class: two background
          utilities on one element would be decided by stylesheet order. -->
@@ -75,7 +76,7 @@ import { SiteNotice } from './storefront/layout/site-notice';
            for any page with nothing on it to edit. Between the page and the
            footer, which is the line it comes to rest on. -->
       <app-edit-mode-toggle />
-      <!-- No top border where the page behind it is already stone: the line
+      <!-- No top border where the page behind it is already the footer's grey: the line
            would divide two areas of the same colour. -->
       <app-footer [seamless]="centered()" />
       <!-- The bottom bar is fixed, so it covers whatever the page ends with.
@@ -106,32 +107,9 @@ import { SiteNotice } from './storefront/layout/site-notice';
          change, so public pages carry only the (empty) component instance. -->
     <app-force-password-change />
   `,
-  host: {
-    '[style.--color-primary]': 'branding.theme.primary',
-    '[style.--color-primary-deep]': 'branding.theme.primaryDeep',
-    '[style.--color-secondary]': 'branding.theme.secondary',
-    '[style.--color-accent]': 'branding.theme.accent',
-    '[style.--color-surface]': 'branding.theme.surface || null',
-    '[style.--color-ink]': 'branding.theme.ink || null',
-    '[style.--color-muted]': 'branding.theme.muted || null',
-    '[style.--color-subtle]': 'branding.theme.subtle || null',
-    '[style.--color-border]': 'branding.theme.border || null',
-    '[style.--color-border-strong]': 'branding.theme.borderStrong || null',
-    '[style]': 'neutralRamp',
-    // Not a colour, but the same seam: one custom property a deployment may
-    // override without a rebuild (see styles.css).
-    '[style.--font-weight-emphasis]': 'branding.font?.emphasisWeight || null',
-  },
 })
 export class App {
   protected branding = inject(DEPLOYMENT_CONFIG).branding;
-  /** The deployment's own greys, as the `--color-stone-*` they replace. */
-  protected readonly neutralRamp = Object.fromEntries(
-    Object.entries(this.branding.theme.neutrals ?? {}).map(([step, colour]) => [
-      `--color-stone-${step}`,
-      colour,
-    ]),
-  );
   /** Which sold-together panel is open — what the deferred block waits on. */
   protected readonly pairings = inject(PairingsService);
   private readonly router = inject(Router);
@@ -140,13 +118,13 @@ export class App {
    * Whether the active route asked for the signed-out treatment. Seeded from
    * the router's own snapshot rather than waiting for a navigation event, so
    * the first render already has it — a page that arrived white and turned
-   * stone would flash.
+   * grey would flash.
    */
   protected readonly centered = signal(this.isCenteredRoute());
 
-  /** Stone behind the auth card, the ordinary page background otherwise. */
+  /** A recessed grey behind the auth card, the ordinary page background otherwise. */
   protected readonly pageBackground = computed(() =>
-    this.centered() ? 'bg-stone-100' : 'bg-surface',
+    this.centered() ? 'bg-surface' : 'bg-surface-subtle',
   );
 
   private isCenteredRoute(): boolean {
@@ -172,7 +150,15 @@ export class App {
     // The language the text is written in, from the same config and for the
     // same reason: a screen reader picks its voice by it, and a browser its
     // hyphenation and spell-checking.
-    inject(DOCUMENT).documentElement.lang = inject(DEPLOYMENT_CONFIG).locale;
+    const root = inject(DOCUMENT).documentElement;
+    root.lang = inject(DEPLOYMENT_CONFIG).locale;
+    // The theme goes on <html> rather than on this component: the confirm
+    // dialog is appended to <body>, outside it, and has to be drawn in the
+    // same colours. Property by property, because <html> also carries the
+    // cart's figures, which the pre-paint script set before this runs.
+    for (const [name, value] of themeProperties(this.branding)) {
+      root.style.setProperty(name, value);
+    }
 
     // Starts recording which listing the visitor is standing at, so leaving
     // the cart returns to the shelf rather than to the front of the shop.
@@ -182,4 +168,36 @@ export class App {
     // and the pre-paint script read them from.
     inject(CartFigures);
   }
+}
+
+/**
+ * The custom properties a deployment's branding overrides, the ones it leaves
+ * out keeping the stylesheet's own. A theme key is the role of the same name
+ * (`surfaceStrong` is `--color-surface-strong`), a status colour's keys its
+ * roles (`danger.edgeStrong` is `--color-danger-edge-strong`, `base` the bare
+ * name).
+ */
+function themeProperties(
+  branding: DeploymentConfig['branding'],
+): [string, string][] {
+  const kebab = (key: string) =>
+    key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
+  const properties: [string, string][] = [];
+  for (const [key, value] of Object.entries(branding.theme)) {
+    if (typeof value === 'string') {
+      if (value !== '') properties.push([`--color-${kebab(key)}`, value]);
+    } else if (value) {
+      for (const [role, colour] of Object.entries(value)) {
+        const suffix = role === 'base' ? '' : `-${kebab(role)}`;
+        properties.push([`--color-${key}${suffix}`, colour]);
+      }
+    }
+  }
+  // Not a colour, but the same seam: one custom property a deployment may
+  // override without a rebuild (see styles.css).
+  const emphasis = branding.font?.emphasisWeight;
+  if (emphasis !== undefined) {
+    properties.push(['--font-weight-emphasis', String(emphasis)]);
+  }
+  return properties;
 }

@@ -21,6 +21,8 @@ import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { InquiryService } from './inquiry.service';
 import { ConsentField } from './consent-field';
 import { useConsent } from './consent';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'submitting' | 'success' | 'error';
@@ -42,18 +44,20 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
     Input,
     PhoneField,
     Segmented,
+    PageTitle,
+    ErrorText,
   ],
   template: `
     <div class="max-w-xl">
-      <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ heading }}</h1>
+      <h1 appPageTitle class="mb-2">{{ heading }}</h1>
 
       @if (status() === 'success') {
-        <p class="text-muted">{{ text.success }}</p>
+        <p class="text-ink-subtle">{{ text.success }}</p>
         <a appButton variant="secondary" routerLink="/" class="mt-8">
           {{ errors.notFoundBack }}
         </a>
       } @else {
-        <p class="mb-4 text-muted">{{ text.intro }}</p>
+        <p class="mb-4 text-ink-subtle">{{ text.intro }}</p>
 
         <form
           [formGroup]="form"
@@ -76,7 +80,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
               [attr.aria-invalid]="isInvalid('name') || null"
             />
             @if (isInvalid('name')) {
-              <p class="mt-1 text-sm text-red-600">
+              <p appErrorText class="mt-1">
                 {{ fields.name.required }}
               </p>
             }
@@ -142,7 +146,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
           />
 
           @if (status() === 'error') {
-            <p class="text-sm text-red-600" role="alert">{{ text.error }}</p>
+            <p appErrorText role="alert">{{ text.error }}</p>
           }
 
           <button

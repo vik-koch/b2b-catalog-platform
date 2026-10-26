@@ -12,6 +12,8 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { LicenseNotice, parseLicenseNotices } from './license-notice';
+import { PageTitle } from '../../shared/ui/page-title';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /**
  * Open-source attribution for the JavaScript this site sends to the browser.
@@ -37,21 +39,21 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
  */
 @Component({
   selector: 'app-licenses-page',
-  imports: [Skeleton],
+  imports: [Skeleton, PageTitle, PageIntro],
   template: `
     <!-- A reading measure, like the static pages this page is read alongside:
          it is prose and a list of names, and a package name three words long
          stranded at the far edge of a wide screen is a line nobody follows
          back. -->
     <div class="max-w-3xl">
-      <h1 class="mb-2 text-3xl font-medium tracking-tight">{{ heading }}</h1>
-      <p class="mb-4 text-muted">{{ text.intro }}</p>
+      <h1 appPageTitle class="mb-2">{{ heading }}</h1>
+      <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (notices(); as list) {
         @if (list.length === 0) {
-          <p class="text-muted">{{ text.unavailable }}</p>
+          <p class="text-ink-subtle">{{ text.unavailable }}</p>
         } @else {
-          <ul class="divide-y divide-border border-t border-border">
+          <ul class="divide-y divide-edge border-t border-edge">
             @for (notice of list; track notice.name) {
               <li class="py-3">
                 <details class="group">
@@ -59,12 +61,12 @@ import { LicenseNotice, parseLicenseNotices } from './license-notice';
                     class="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-1 outline-offset-2 hover:text-accent"
                   >
                     <span class="font-medium">{{ notice.name }}</span>
-                    <span class="text-sm text-subtle">{{
+                    <span class="text-sm text-ink-subtle">{{
                       notice.license ?? text.unknownLicense
                     }}</span>
                   </summary>
                   <pre
-                    class="mt-3 overflow-x-auto rounded-sm bg-stone-100 p-4 text-xs whitespace-pre-wrap text-muted"
+                    class="mt-3 overflow-x-auto rounded-sm bg-surface p-4 text-xs whitespace-pre-wrap text-ink-subtle"
                     >{{ notice.text }}</pre>
                 </details>
               </li>

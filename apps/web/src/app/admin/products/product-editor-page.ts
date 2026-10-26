@@ -91,6 +91,9 @@ import {
   UNIT_FIELD_INPUT_COMPACT,
   UnitField,
 } from '../../shared/ui/unit-field';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -127,10 +130,13 @@ import {
     UnitField,
     LockedFieldMarker,
     StatusBadge,
+    PageTitle,
+    ErrorText,
+    Hint,
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
-      <h1 class="text-3xl font-medium tracking-tight">
+      <h1 appPageTitle>
         {{ isNew ? text.newTitle : text.editTitle }}
       </h1>
       <!-- Where the product stands, beside its name — the same badges the
@@ -162,7 +168,7 @@ import {
         <app-skeleton [lines]="4" />
       }
     } @else if (notFound()) {
-      <p class="text-muted" role="alert">{{ text.saveError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else if (newAndOwned()) {
       <!-- Creating writes every owned field at once, identity included, so
            there is nothing here to offer. The affordances that lead here are
@@ -172,7 +178,7 @@ import {
       <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
+        class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
         role="status"
       >
         {{ text.previewNotice }}
@@ -281,10 +287,10 @@ import {
           @if ((priceCleared() && published()) || taxRateNotInEffect) {
             <div class="-mt-4 space-y-1 text-sm sm:col-span-3 sm:row-start-2">
               @if (priceCleared() && published()) {
-                <p class="text-amber-700">{{ text.priceCleared }}</p>
+                <p class="text-warning">{{ text.priceCleared }}</p>
               }
               @if (taxRateNotInEffect) {
-                <p class="text-xs text-subtle">
+                <p class="text-xs text-ink-subtle">
                   {{ text.taxRate.notInEffect }}
                 </p>
               }
@@ -340,9 +346,7 @@ import {
               [value]="effectiveSlug()"
               (input)="onSlugInput($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.slugHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.slugHint }}</span>
           </label>
 
           <label class="block">
@@ -360,9 +364,7 @@ import {
               [disabled]="catalogOwned()"
               (input)="sourceId.set($any($event.target).value)"
             />
-            <span class="mt-1 block text-xs text-subtle">{{
-              text.sourceIdHint
-            }}</span>
+            <span appHint class="mt-1">{{ text.sourceIdHint }}</span>
           </label>
         </div>
 
@@ -397,7 +399,7 @@ import {
         <fieldset class="max-w-xl">
           <legend appFieldLabel>{{ text.stock.heading }}</legend>
           @if (!catalogOwned()) {
-            <p class="mb-2 text-xs text-subtle">{{ text.stock.hint }}</p>
+            <p class="mb-2 text-xs text-ink-subtle">{{ text.stock.hint }}</p>
           }
           <!-- Both counts in pieces, said in the fields rather than under
                them: the two are one sentence about how much is left, and a
@@ -449,7 +451,9 @@ import {
                too far down the page to answer that while typing. As tall as
                the pill either way — 22px, the badge's own height — so entering
                a figure does not nudge the line down as the pill appears. -->
-          <p class="mt-3 flex min-h-5.5 items-center gap-2 text-xs text-subtle">
+          <p
+            class="mt-3 flex min-h-5.5 items-center gap-2 text-xs text-ink-subtle"
+          >
             <span>{{ text.stock.preview }}</span>
             @if (previewAvailability(); as state) {
               <app-product-availability-badge [availability]="state" />
@@ -468,7 +472,7 @@ import {
           [glyph]="glyphs.featured"
           [on]="featured()"
         >
-          <p class="mb-2 text-xs text-subtle">{{ text.featured.hint }}</p>
+          <p class="mb-2 text-xs text-ink-subtle">{{ text.featured.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
               type="checkbox"
@@ -495,7 +499,7 @@ import {
           [glyph]="glyphs.note"
           [on]="lineNoteEnabled()"
         >
-          <p class="mb-2 text-xs text-subtle">{{ text.lineNote.hint }}</p>
+          <p class="mb-2 text-xs text-ink-subtle">{{ text.lineNote.hint }}</p>
           <label class="flex cursor-pointer items-start gap-2 text-sm">
             <input
               type="checkbox"
@@ -518,9 +522,7 @@ import {
                 [placeholder]="text.lineNote.promptPlaceholder"
                 (input)="lineNotePrompt.set($any($event.target).value)"
               />
-              <span class="mt-1 block text-xs text-subtle">{{
-                text.lineNote.promptHint
-              }}</span>
+              <span appHint class="mt-1">{{ text.lineNote.promptHint }}</span>
             </label>
           }
         </app-feature-disclosure>
@@ -552,7 +554,7 @@ import {
     }
 
     @if (error()) {
-      <p class="mt-4 text-sm text-red-700" role="alert">{{ error() }}</p>
+      <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
     }
 
     @if (!loading() && !notFound()) {

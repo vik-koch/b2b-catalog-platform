@@ -23,6 +23,10 @@ import { RecordRow } from '../records/record-row';
 import { adminMomentFormat } from '../grid/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { PageIntro } from '../../shared/ui/page-intro';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -102,6 +106,7 @@ const SCOPE_ROWS: readonly {
 @Component({
   selector: 'app-api-token-list-page',
   imports: [
+    Notice,
     Button,
     IconButton,
     AdminIcon,
@@ -113,10 +118,13 @@ const SCOPE_ROWS: readonly {
     RecordRow,
     RecordFields,
     RecordFormActions,
+    PageTitle,
+    ErrorText,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -130,7 +138,7 @@ const SCOPE_ROWS: readonly {
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <div class="max-w-3xl">
@@ -139,17 +147,14 @@ const SCOPE_ROWS: readonly {
            until it is dismissed — an admin who navigates away has not lost a
            step, they have lost the credential. -->
       @if (created(); as token) {
-        <div
-          class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4"
-          role="status"
-        >
-          <p class="text-sm font-medium text-amber-900">
+        <div appNotice tone="warning" class="mb-6" role="status">
+          <p class="font-medium">
             {{ fill(text.createdHeading, token.name) }}
           </p>
-          <p class="mt-1 text-sm text-amber-800">{{ text.createdOnce }}</p>
+          <p class="mt-1">{{ text.createdOnce }}</p>
           <div class="mt-3 flex items-center gap-2">
             <code
-              class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-amber-300 bg-white px-2 py-1.5 font-mono text-sm break-all"
+              class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-warning-edge bg-white px-2 py-1.5 font-mono text-sm break-all"
               >{{ token.token }}</code
             >
             <button
@@ -181,9 +186,9 @@ const SCOPE_ROWS: readonly {
       }
 
       @if (tokens.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tokens.hasValue()) {
-        <div class="divide-y divide-border border-y border-border">
+        <div class="divide-y divide-edge border-y border-edge">
           @for (token of tokens.value(); track token.id) {
             <div class="py-3">
               <!-- Three sentences, not three figures: what this credential
@@ -192,10 +197,12 @@ const SCOPE_ROWS: readonly {
               <app-record-row [stackMeta]="true">
                 <span
                   class="font-medium"
-                  [class]="token.revokedAt ? 'text-muted line-through' : ''"
+                  [class]="
+                    token.revokedAt ? 'text-ink-subtle line-through' : ''
+                  "
                   >{{ token.name }}</span
                 >
-                <code class="font-mono text-sm text-subtle"
+                <code class="font-mono text-sm text-ink-subtle"
                   >{{ token.prefix }}…</code
                 >
                 <ng-container recordBadge>
@@ -226,7 +233,7 @@ const SCOPE_ROWS: readonly {
                 </ng-container>
               </app-record-row>
               @if (rowError() === token.id) {
-                <p class="mt-2 text-sm text-red-700" role="alert">
+                <p appErrorText class="mt-2" role="alert">
                   {{ text.revokeError }}
                 </p>
               }
@@ -289,10 +296,10 @@ const SCOPE_ROWS: readonly {
                       class="grid grid-cols-[auto_auto_auto] justify-start items-center gap-x-8 gap-y-1.5 text-sm"
                     >
                       <span aria-hidden="true"></span>
-                      <span class="justify-self-center text-xs text-subtle">
+                      <span class="justify-self-center text-xs text-ink-subtle">
                         {{ text.scopeKind.read }}
                       </span>
-                      <span class="justify-self-center text-xs text-subtle">
+                      <span class="justify-self-center text-xs text-ink-subtle">
                         {{ text.scopeKind.submit }}
                       </span>
                       @for (row of scopeRows; track row.area) {
@@ -321,7 +328,7 @@ const SCOPE_ROWS: readonly {
                     </p>
                   </div>
                 }
-                <p class="text-xs text-muted sm:col-span-full">
+                <p class="text-xs text-ink-subtle sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
                 <div appRecordFormActions>
@@ -349,14 +356,14 @@ const SCOPE_ROWS: readonly {
                   </button>
                 </div>
                 @if (formError()) {
-                  <p class="text-sm text-red-700 sm:col-span-full" role="alert">
+                  <p appErrorText class="sm:col-span-full" role="alert">
                     {{ formError() }}
                   </p>
                 }
               </form>
             </div>
           } @else if (tokens.value().length === 0) {
-            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {

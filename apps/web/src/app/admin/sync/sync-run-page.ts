@@ -32,6 +32,8 @@ import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { Notice } from '../../shared/ui/notice';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
@@ -49,6 +51,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
 @Component({
   selector: 'app-sync-run-page',
   imports: [
+    Notice,
     Button,
     LockedNote,
     RouterLink,
@@ -57,10 +60,11 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
     SyncCustomerPlanView,
     SyncOrderPlanView,
     SyncPlanView,
+    PageTitle,
   ],
   template: `
     @if (run.error()) {
-      <p class="text-muted" role="alert">{{ text.runLoadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
       <a
         appButton
         variant="secondary"
@@ -74,7 +78,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
         <!-- Title left, way back right: the same shape as every list heading,
              and the counterpart of the button that opened this page. -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
-          <h1 class="text-3xl font-medium tracking-tight">
+          <h1 appPageTitle>
             {{ text.runTitle }}
           </h1>
           <span appStatusBadge [tone]="tone(data.run)">
@@ -94,22 +98,22 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              what, and what it was called. -->
           <dl class="mb-6 grid gap-x-8 gap-y-2 text-sm sm:grid-cols-2">
             <div class="flex gap-2">
-              <dt class="text-subtle">{{ text.startedLabel }}</dt>
+              <dt class="text-ink-subtle">{{ text.startedLabel }}</dt>
               <dd>{{ moment(data.run.startedAt) }}</dd>
             </div>
             @if (data.run.finishedAt; as finished) {
               <div class="flex gap-2">
-                <dt class="text-subtle">{{ text.finishedLabel }}</dt>
+                <dt class="text-ink-subtle">{{ text.finishedLabel }}</dt>
                 <dd>{{ moment(finished) }}</dd>
               </div>
             }
             <div class="flex gap-2">
-              <dt class="text-subtle">{{ text.col.actor }}</dt>
+              <dt class="text-ink-subtle">{{ text.col.actor }}</dt>
               <dd>{{ who(data.run) }}</dd>
             </div>
             @if (data.run.filename; as label) {
               <div class="flex min-w-0 gap-2">
-                <dt class="text-subtle">{{ text.col.file }}</dt>
+                <dt class="text-ink-subtle">{{ text.col.file }}</dt>
                 <dd class="truncate">{{ label }}</dd>
               </div>
             }
@@ -118,9 +122,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           <!-- Why it is waiting. Said in full here, where there is room for the
              sentence the log's badge only had a word for. -->
           @if (stagedReason(data.run); as reason) {
-            <p
-              class="mb-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-stone-700"
-            >
+            <p appNotice tone="warning" class="mb-6">
               {{ reason }}
             </p>
           }
@@ -131,13 +133,11 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              refusal nor a reason to wait: it is shown on a run of any status,
              including one that applied itself hours ago. -->
           @if (data.run.notice; as note) {
-            <section
-              class="mb-6 rounded-md border border-sky-200 bg-sky-50 p-3"
-            >
-              <h2 class="mb-1 text-sm font-medium text-sky-800">
+            <section appNotice tone="info" class="mb-6">
+              <h2 class="mb-1 font-medium">
                 {{ text.noticeTitle }}
               </h2>
-              <p class="wrap-break-word font-mono text-sm text-stone-700">
+              <p class="wrap-break-word font-mono text-sm text-ink">
                 {{ note }}
               </p>
             </section>
@@ -146,13 +146,11 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           <!-- A failure the sending system reported: its own words, kept as a
              diagnostic rather than turned into wording of ours. -->
           @if (data.run.error; as failure) {
-            <section
-              class="mb-6 rounded-md border border-red-200 bg-red-50 p-3"
-            >
-              <h2 class="mb-1 text-sm font-medium text-red-800">
+            <section appNotice tone="danger" class="mb-6">
+              <h2 class="mb-1 font-medium">
                 {{ text.failureTitle }}
               </h2>
-              <p class="wrap-break-word font-mono text-sm text-stone-700">
+              <p class="wrap-break-word font-mono text-sm text-ink">
                 {{ failure }}
               </p>
             </section>
@@ -194,7 +192,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
               (discardRun)="discard(data.run.id)"
             />
           } @else if (!data.run.error) {
-            <p class="text-muted">{{ text.planUnavailable }}</p>
+            <p class="text-ink-subtle">{{ text.planUnavailable }}</p>
           }
         </div>
       </div>

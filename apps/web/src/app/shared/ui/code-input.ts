@@ -122,8 +122,8 @@ export class CodeInput implements OnInit {
     if (active) {
       return 'border-secondary outline outline-1 -outline-offset-1 outline-secondary';
     }
-    if (this.invalid()) return 'border-red-600';
-    return 'border-border-strong group-hover:border-accent';
+    if (this.invalid()) return 'border-danger';
+    return 'border-edge-strong group-hover:border-accent';
   }
 
   /** A digit typed into a filled box takes that box's place. */

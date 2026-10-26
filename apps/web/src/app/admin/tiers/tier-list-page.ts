@@ -29,6 +29,10 @@ import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { PageTitle } from '../../shared/ui/page-title';
+import { ErrorText } from '../../shared/ui/error-text';
+import { Hint } from '../../shared/ui/hint';
+import { PageIntro } from '../../shared/ui/page-intro';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -66,10 +70,14 @@ type EditTarget = { id: string } | { id: null } | null;
     FieldLabel,
     Skeleton,
     RouterLink,
+    PageTitle,
+    ErrorText,
+    Hint,
+    PageIntro,
   ],
   template: `
     <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 class="text-3xl font-medium tracking-tight">{{ text.page.title }}</h1>
+      <h1 appPageTitle>{{ text.page.title }}</h1>
       <button
         appButton
         type="button"
@@ -83,7 +91,7 @@ type EditTarget = { id: string } | { id: null } | null;
     </div>
 
     @if (text.page.intro; as intro) {
-      <p class="mb-6 max-w-3xl text-sm text-muted">{{ intro }}</p>
+      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
     }
 
     <!-- Narrower than the heading above it: everything below is a column of
@@ -91,20 +99,20 @@ type EditTarget = { id: string } | { id: null } | null;
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
-        <p class="mb-4 text-sm text-red-700" role="alert">
+        <p appErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
 
       @if (tiers.error()) {
-        <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
+        <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
       } @else if (tiers.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone, and two lists in one panel
              that frame themselves differently read as two tools. -->
-        <div class="divide-y divide-border border-y border-border">
+        <div class="divide-y divide-edge border-y border-edge">
           <ul
-            class="divide-y divide-border"
+            class="divide-y divide-edge"
             cdkDropList
             [cdkDropListDisabled]="busy() || editing() !== null"
             (cdkDropListDropped)="onDrop($event)"
@@ -130,18 +138,16 @@ type EditTarget = { id: string } | { id: null } | null;
                     >
                       <app-admin-icon name="grip-vertical" />
                     </span>
-                    <span class="font-medium text-stone-700">{{
-                      tier.label
-                    }}</span>
+                    <span class="font-medium text-ink">{{ tier.label }}</span>
                     <!-- The sync key beside the label it belongs to, not across
                          the row: it is this tier's identifier, and read as a
                          pair with the name it identifies. -->
-                    <code class="rounded-sm bg-stone-100 px-1.5 py-0.5 text-xs">
+                    <code class="rounded-sm bg-surface px-1.5 py-0.5 text-xs">
                       {{ tier.key }}
                     </code>
                     @if (tier.isDefault) {
                       <span
-                        class="rounded-sm bg-stone-700 px-1.5 py-0.5 text-xs text-white"
+                        class="rounded-sm bg-ink-subtle px-1.5 py-0.5 text-xs text-white"
                         [title]="text.defaultHint"
                       >
                         {{ text.defaultBadge }}
@@ -243,7 +249,7 @@ type EditTarget = { id: string } | { id: null } | null;
                     </ng-container>
                   </app-record-row>
                   @if (rowError()?.id === tier.id) {
-                    <p class="mt-2 text-sm text-red-700" role="alert">
+                    <p appErrorText class="mt-2" role="alert">
                       {{ rowError()?.message }}
                     </p>
                   }
@@ -257,7 +263,7 @@ type EditTarget = { id: string } | { id: null } | null;
               <ng-container [ngTemplateOutlet]="form" />
             </div>
           } @else if (tiers.value().tiers.length === 0) {
-            <p class="py-3 text-sm text-muted">{{ text.empty }}</p>
+            <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
           }
         </div>
       } @else if (showSkeleton()) {
@@ -331,7 +337,7 @@ type EditTarget = { id: string } | { id: null } | null;
               (input)="draftKey.set($any($event.target).value)"
             />
           </div>
-          <p class="text-xs text-muted sm:col-span-2">
+          <p appHint class="sm:col-span-2">
             {{ keyLocked() ? ownershipText.tierKeyLocked : text.keyHint }}
           </p>
           <div appRecordFormActions>
@@ -359,7 +365,7 @@ type EditTarget = { id: string } | { id: null } | null;
             </button>
           </div>
           @if (formError()) {
-            <p class="text-sm text-red-700 sm:col-span-2" role="alert">
+            <p appErrorText class="sm:col-span-2" role="alert">
               {{ formError() }}
             </p>
           }

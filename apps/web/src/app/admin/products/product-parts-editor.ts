@@ -27,6 +27,7 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -47,7 +48,15 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-product-parts-editor',
-  imports: [AdminIcon, Button, DisclosureToggle, FieldLabel, IconButton, Input],
+  imports: [
+    AdminIcon,
+    Button,
+    DisclosureToggle,
+    FieldLabel,
+    IconButton,
+    Input,
+    ErrorText,
+  ],
   host: { class: 'block' },
   template: `
     <div
@@ -65,15 +74,15 @@ let nextId = 0;
         <app-admin-icon
           disclosureLead
           [name]="glyph"
-          class="size-4 text-subtle"
+          class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
-          <p class="text-xs text-subtle">{{ text.hint }}</p>
+        <div [id]="panelId" class="border-t border-edge p-4">
+          <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
-            <ul class="mt-3 divide-y divide-border border-y border-border">
+            <ul class="mt-3 divide-y divide-edge border-y border-edge">
               @for (part of value(); track part) {
                 <li class="flex items-center gap-2 py-1.5 text-sm">
                   <span class="min-w-0 flex-1 truncate">{{ part }}</span>
@@ -90,11 +99,11 @@ let nextId = 0;
             </ul>
           }
           @if (tooFew()) {
-            <p class="mt-2 text-xs text-red-700">{{ text.tooFew }}</p>
+            <p appErrorText class="mt-2">{{ text.tooFew }}</p>
           }
 
           @if (value().length >= max) {
-            <p class="mt-3 text-xs text-subtle">{{ limitLabel() }}</p>
+            <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
               <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
@@ -122,7 +131,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p class="mt-1 text-xs text-red-700">{{ rejectedLabel() }}</p>
+                <p appErrorText class="mt-1">{{ rejectedLabel() }}</p>
               }
             </div>
           }

@@ -69,7 +69,7 @@ async function render(
     user: session,
     work,
     /** The marker itself — a dot, so it has nothing to match on but its shape. */
-    marker: () => el.querySelector('span.rounded-full.bg-amber-500'),
+    marker: () => el.querySelector('span.rounded-full.bg-warning-dot'),
     markerLabel: () => el.querySelector('.sr-only')?.textContent?.trim(),
     rerender: async () => {
       fixture.detectChanges();

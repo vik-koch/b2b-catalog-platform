@@ -107,7 +107,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
 
         <!-- Always there, so the live region is in place before the text
              it announces changes. -->
-        <p class="mb-2 text-sm text-subtle" aria-live="polite">
+        <p class="mb-2 text-sm text-ink-subtle" aria-live="polite">
           {{ countText() }}
         </p>
 
@@ -119,7 +119,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
            borders with no rows between them read as one thick rule. -->
         @if (rows().length) {
           <ul
-            class="divide-y divide-border border-y border-border"
+            class="divide-y divide-edge border-y border-edge"
             [attr.aria-busy]="busy() ? 'true' : null"
           >
             @for (row of rows(); track trackBy()(row)) {
@@ -144,9 +144,9 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         <ul class="mb-4 flex flex-wrap gap-2 text-sm">
           @for (chip of chips(); track chip.label) {
             <li
-              class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1"
+              class="flex items-center gap-2 rounded-full bg-surface px-3 py-1"
             >
-              <span class="text-subtle">{{ chip.label }}</span>
+              <span class="text-ink-subtle">{{ chip.label }}</span>
               <span class="font-medium">{{ chip.value }}</span>
               <a
                 appIconButton
@@ -173,7 +173,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           class="flex items-center justify-between gap-4 overflow-hidden text-sm"
           [class]="countText() || customised() ? 'h-6' : 'h-0'"
         >
-          <p class="text-subtle" aria-live="polite">{{ countText() }}</p>
+          <p class="text-ink-subtle" aria-live="polite">{{ countText() }}</p>
           @if (customised()) {
             <button type="button" appTextButton (click)="resetWidths()">
               {{ adminText.grid.resetWidths }}
@@ -211,7 +211,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
               </colgroup>
             }
             <thead>
-              <tr class="border-b border-border text-subtle">
+              <tr class="border-b border-edge text-ink-subtle">
                 @for (column of columns(); track column.key) {
                   <th
                     #headerCell
@@ -260,7 +260,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         (keydown)="onHandleKey($event, handleAt()[$index])"
                       >
                         <span
-                          class="w-px bg-transparent group-hover/handle:bg-border-strong group-focus/handle:bg-accent"
+                          class="w-px bg-transparent group-hover/handle:bg-edge-strong group-focus/handle:bg-accent"
                         ></span>
                       </div>
                     }
@@ -268,7 +268,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                 }
               </tr>
             </thead>
-            <tbody class="divide-y divide-stone-100">
+            <tbody class="divide-y divide-edge-subtle">
               @for (row of rows(); track trackBy()(row)) {
                 <!-- A row that is over — deleted, declined, switched off — is
                      greyed, but only its content: the buttons that undo the
@@ -289,7 +289,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
     }
 
     @if (rows().length === 0) {
-      <p class="mt-6 text-muted">{{ emptyMessage() }}</p>
+      <p class="mt-6 text-ink-subtle">{{ emptyMessage() }}</p>
       <!-- What the page knows beyond "nothing", such as where else to look. -->
       <ng-content select="[gridEmpty]" />
     }

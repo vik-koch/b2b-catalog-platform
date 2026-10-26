@@ -91,13 +91,13 @@ interface SortOption {
             <div class="overflow-hidden">
               <div
                 [id]="panelId"
-                class="grid gap-4 border-t border-border p-4"
+                class="grid gap-4 border-t border-edge p-4"
                 role="group"
                 [attr.aria-label]="adminText.grid.filters"
               >
                 @if (sortOptions().length) {
                   <label class="block">
-                    <span class="mb-1 block text-sm text-subtle">{{
+                    <span class="mb-1 block text-sm text-ink-subtle">{{
                       adminText.grid.sort
                     }}</span>
                     <app-select-field>
@@ -133,7 +133,7 @@ interface SortOption {
 
                 @for (column of filters(); track column.key) {
                   <label class="block">
-                    <span class="mb-1 block text-sm text-subtle">{{
+                    <span class="mb-1 block text-sm text-ink-subtle">{{
                       column.filter?.label
                     }}</span>
                     <app-select-field>
@@ -173,9 +173,9 @@ interface SortOption {
                   <ul class="flex flex-wrap gap-2">
                     @for (chip of chips(); track chip.label) {
                       <li
-                        class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1 text-sm"
+                        class="flex items-center gap-2 rounded-full bg-surface px-3 py-1 text-sm"
                       >
-                        <span class="text-subtle">{{ chip.label }}</span>
+                        <span class="text-ink-subtle">{{ chip.label }}</span>
                         <span class="font-medium">{{ chip.value }}</span>
                         <a
                           appIconButton

@@ -2,6 +2,7 @@ import { Component, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { FieldLabel } from './field-label';
 import { Input } from './input';
+import { ErrorText } from './error-text';
 
 /**
  * Missing, and malformed. Two messages rather than one because they are two
@@ -27,7 +28,7 @@ export interface EmailFieldText {
  */
 @Component({
   selector: 'app-email-field',
-  imports: [ReactiveFormsModule, FieldLabel, Input],
+  imports: [ReactiveFormsModule, FieldLabel, Input, ErrorText],
   // See PhoneField: a custom element is inline by default, and an inline box
   // drops the vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
@@ -49,7 +50,7 @@ export interface EmailFieldText {
       [attr.aria-invalid]="invalid() || null"
     />
     @if (invalid()) {
-      <p class="mt-1 text-sm text-red-600">
+      <p appErrorText class="mt-1">
         {{ control().hasError('required') ? text().required : text().invalid }}
       </p>
     }

@@ -4,6 +4,7 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { PartySuggestField } from './party-suggest-field';
+import { ErrorText } from '../ui/error-text';
 
 export interface CompanyFieldsText {
   readonly idLabel: string;
@@ -36,7 +37,7 @@ export interface CompanyFieldsText {
  */
 @Component({
   selector: 'app-company-fields',
-  imports: [PartySuggestField],
+  imports: [PartySuggestField, ErrorText],
   host: { class: 'block' },
   template: `
     <div>
@@ -73,10 +74,10 @@ export interface CompanyFieldsText {
            person. -->
       <div class="empty:hidden mt-1">
         @for (message of messages(); track message) {
-          <p class="text-sm text-red-600">{{ message }}</p>
+          <p appErrorText>{{ message }}</p>
         } @empty {
           @if (hint()) {
-            <p class="text-sm text-muted">{{ hint() }}</p>
+            <p class="text-sm text-ink-subtle">{{ hint() }}</p>
           }
         }
       </div>

@@ -52,10 +52,10 @@ export class ProductSetBadge {
   );
 
   /**
-   * A tint of the ink rather than a stone shade, so the chip stands the same
-   * step off whatever it sits on: stone-100 read clearly on a white card and
-   * all but vanished on the stone-50 page a row and the product panel sit on.
+   * A tint of the ink rather than a grey ground, so the chip stands the same
+   * step off whatever it sits on: `surface` read clearly on a white card
+   * and all but vanished on the `surface-subtle` page a row and the product panel sit on.
    */
   protected readonly pill =
-    'inline-flex min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-ink/5 px-1.5 py-0.5 text-xs font-medium text-muted select-none';
+    'inline-flex min-w-0 items-center gap-1.5 rounded-md border border-transparent bg-ink/5 px-1.5 py-0.5 text-xs font-medium text-ink-subtle select-none';
 }

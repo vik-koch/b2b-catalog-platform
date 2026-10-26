@@ -25,7 +25,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   template: `
     <label [for]="id" appFieldLabel>
       {{ text.label }}
-      <span class="font-normal text-subtle">({{ optional }})</span>
+      <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
     <textarea
       [id]="id"

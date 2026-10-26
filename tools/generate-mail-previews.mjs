@@ -67,6 +67,9 @@ const { sharedTextSchema } = await loadTypeScript(
 const { renderMailPreviews, MAIL_PREVIEW_GROUPS } = await loadTypeScript(
   'apps/api/src/mail/mail-previews.ts',
 );
+const { mailColours } = await loadTypeScript(
+  'apps/api/src/mail/mail-colours.ts',
+);
 
 /**
  * The wording, validated the way the API validates it at boot. A translated
@@ -95,6 +98,7 @@ const deployment = JSON.parse(
 const branding = {
   name: deployment.branding.name,
   primaryColor: deployment.branding.theme.primary,
+  colours: mailColours(deployment.branding.theme),
   // Not the deployment's real origin: that is an environment variable, and a
   // gallery whose links changed with whoever generated it would be unreviewable.
   siteUrl: 'https://shop.example.com',

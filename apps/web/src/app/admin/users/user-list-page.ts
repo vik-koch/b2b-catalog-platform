@@ -42,6 +42,7 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
@@ -115,6 +116,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     Skeleton,
     StatusBadge,
     UserRowActions,
+    ErrorText,
   ],
   template: `
     <app-admin-list-header
@@ -135,11 +137,11 @@ const typeRank = (t: StaffUser['customerType']): number =>
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
     @if (pageError()) {
-      <p class="mb-4 text-sm text-red-700" role="alert">{{ pageError() }}</p>
+      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (users.error()) {
-      <p class="text-muted" role="alert">{{ text.loadError }}</p>
+      <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
       <app-admin-grid
         [gridId]="gridId()"
@@ -164,32 +166,32 @@ const typeRank = (t: StaffUser['customerType']): number =>
                  it. Two jobs, two links — most of what a manager does with a
                  list is look somebody up. -->
             <a
-              class="block truncate font-medium text-stone-700 hover:text-accent"
+              class="block truncate font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/users', user.id]"
               [queryParams]="editorFrom()"
             >
               {{ name(user) }}
             </a>
-            <span class="block truncate text-xs text-subtle">
+            <span class="block truncate text-xs text-ink-subtle">
               {{ user.email }}
             </span>
           </td>
-          <td class="truncate text-subtle" [title]="phone(user)">
+          <td class="truncate text-ink-subtle" [title]="phone(user)">
             {{ phone(user) || dash }}
           </td>
           @if (isCustomers()) {
             <td
-              class="truncate font-mono text-xs text-subtle"
+              class="truncate font-mono text-xs text-ink-subtle"
               [title]="user.companyRegistrationId"
             >
               {{ user.companyRegistrationId || dash }}
             </td>
           }
           @if (isStaff()) {
-            <td class="text-subtle">{{ roleLabel(user.role) }}</td>
+            <td class="text-ink-subtle">{{ roleLabel(user.role) }}</td>
           }
           @if (isCustomers()) {
-            <td class="truncate text-subtle">
+            <td class="truncate text-ink-subtle">
               {{ tierName(user.tierId) }}
             </td>
           }
@@ -198,7 +200,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
               statusLabel(user.status)
             }}</span>
           </td>
-          <td class="text-subtle">
+          <td class="text-ink-subtle">
             <app-grid-timestamp [value]="user.createdAt" />
           </td>
           <td data-keep>
@@ -220,7 +222,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
                that says so — the same rule the table follows cell by cell. -->
           <app-record-row>
             <a
-              class="truncate font-medium text-stone-700"
+              class="truncate font-medium text-ink"
               [class.opacity-50]="isClosed(user)"
               [routerLink]="['/admin/users', user.id]"
               [queryParams]="editorFrom()"
@@ -235,9 +237,13 @@ const typeRank = (t: StaffUser['customerType']): number =>
               >{{ statusLabel(user.status) }}</span
             >
             <div recordBody [class.opacity-50]="isClosed(user)">
-              <p class="mt-1 truncate text-sm text-subtle">{{ user.email }}</p>
+              <p class="mt-1 truncate text-sm text-ink-subtle">
+                {{ user.email }}
+              </p>
               @if (phone(user)) {
-                <p class="truncate text-sm text-subtle">{{ phone(user) }}</p>
+                <p class="truncate text-sm text-ink-subtle">
+                  {{ phone(user) }}
+                </p>
               }
             </div>
             <span

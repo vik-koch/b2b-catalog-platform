@@ -26,6 +26,7 @@ import { SegmentOption, Segmented } from '../../shared/ui/segmented';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
+import { ErrorText } from '../../shared/ui/error-text';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;
@@ -57,13 +58,23 @@ type View = 'all' | 'linked';
  */
 @Component({
   selector: 'app-document-products-picker',
-  imports: [Checkbox, FieldLabel, Input, SelectField, Segmented, StatusBadge],
+  imports: [
+    Checkbox,
+    FieldLabel,
+    Input,
+    SelectField,
+    Segmented,
+    StatusBadge,
+    ErrorText,
+  ],
   host: { class: 'block' },
   template: `
     <div class="flex flex-nowrap items-end justify-between gap-3">
       <div>
         <span appFieldLabel class="mb-0">{{ text.heading }}</span>
-        <p class="mt-1 text-xs wrap-break-word text-subtle">{{ text.hint }}</p>
+        <p class="mt-1 text-xs wrap-break-word text-ink-subtle">
+          {{ text.hint }}
+        </p>
       </div>
       <!-- The app's segmented pill, as everywhere else one choice is made
            between a few: they are two views of one list, and the count in the
@@ -105,20 +116,20 @@ type View = 'all' | 'linked';
     </div>
 
     @if (products.error()) {
-      <p class="mt-3 text-sm text-red-700" role="alert">{{ text.loadError }}</p>
+      <p appErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
     }
 
     <!-- A fixed-height scroller: the list is up to fifty rows, and a form that
          grows by a screenful when a search matches everything is one nobody can
          reach the save button in. -->
     <ul
-      class="mt-3 max-h-80 divide-y divide-border overflow-y-auto rounded-md border border-border"
+      class="mt-3 max-h-80 divide-y divide-edge overflow-y-auto rounded-md border border-edge"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @for (row of rows(); track row.slug; let index = $index) {
         <li>
           <label
-            class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm select-none hover:bg-stone-50"
+            class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm select-none hover:bg-surface-subtle-hover"
           >
             <input
               type="checkbox"
@@ -137,13 +148,15 @@ type View = 'all' | 'linked';
                 productStates.unpublished
               }}</span>
             }
-            <span class="w-32 shrink-0 truncate text-right text-xs text-subtle">
+            <span
+              class="w-32 shrink-0 truncate text-right text-xs text-ink-subtle"
+            >
               {{ row.category }}
             </span>
           </label>
         </li>
       } @empty {
-        <li class="px-3 py-6 text-center text-sm text-muted">
+        <li class="px-3 py-6 text-center text-sm text-ink-subtle">
           {{ view() === 'linked' ? text.noneLinked : text.empty }}
         </li>
       }
@@ -151,7 +164,7 @@ type View = 'all' | 'linked';
 
     <!-- What the list is not showing, said where the list ends. -->
     @if (more(); as note) {
-      <p class="mt-2 text-xs text-subtle">{{ note }}</p>
+      <p class="mt-2 text-xs text-ink-subtle">{{ note }}</p>
     }
   `,
 })

@@ -15,7 +15,7 @@ import { Directive } from '@angular/core';
   selector: '[appFieldPrefix]',
   host: {
     class:
-      'inline-flex items-center rounded-l-md border border-r-0 border-border-strong bg-stone-100 px-3 text-muted',
+      'inline-flex items-center rounded-l-md border border-r-0 border-edge-strong bg-surface px-3 text-ink-subtle',
   },
 })
 export class FieldPrefix {}

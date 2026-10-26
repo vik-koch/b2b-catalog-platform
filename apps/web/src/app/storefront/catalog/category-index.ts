@@ -69,12 +69,12 @@ export const CATEGORY_GRID =
           }
         </ul>
       } @else {
-        <p class="text-muted">{{ text.emptyCategories }}</p>
+        <p class="text-ink-subtle">{{ text.emptyCategories }}</p>
       }
     } @else if (showSkeleton()) {
       <ul [class]="gridClass" aria-hidden="true">
         @for (i of skeletons; track i) {
-          <li class="h-16 animate-pulse rounded-xl bg-stone-125 sm:h-24"></li>
+          <li class="h-16 animate-pulse rounded-xl bg-chip sm:h-24"></li>
         }
       </ul>
     }

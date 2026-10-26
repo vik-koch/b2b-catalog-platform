@@ -8,6 +8,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { PriceField } from '../../shared/ui/price-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
+import { Hint } from '../../shared/ui/hint';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */
 export interface TierPriceDraft {
@@ -34,7 +35,7 @@ export interface TierPriceDraft {
  */
 @Component({
   selector: 'app-product-tier-prices-editor',
-  imports: [FieldLabel, PriceField, UnitField, LockedFieldMarker],
+  imports: [FieldLabel, PriceField, UnitField, LockedFieldMarker, Hint],
   template: `
     <span appFieldLabel>
       {{ text.heading }}
@@ -52,11 +53,13 @@ export interface TierPriceDraft {
          side they are already a group and the box would only be a box around a
          row. -->
     <div
-      class="flex flex-wrap gap-4 rounded-md border border-border p-4 sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
+      class="flex flex-wrap gap-4 rounded-md border border-edge p-4 sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
     >
       @for (tier of tiers(); track tier.id) {
         <label class="block w-full sm:w-auto">
-          <span class="mb-1 block text-sm text-muted">{{ tier.label }}</span>
+          <span class="mb-1 block text-sm text-ink-subtle">{{
+            tier.label
+          }}</span>
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
           <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
@@ -77,7 +80,7 @@ export interface TierPriceDraft {
       }
     </div>
     @if (!disabled()) {
-      <span class="mt-1 block text-xs text-subtle">{{ text.hint }}</span>
+      <span appHint class="mt-1">{{ text.hint }}</span>
     }
   `,
 })

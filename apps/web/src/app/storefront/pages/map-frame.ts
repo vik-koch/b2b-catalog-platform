@@ -19,14 +19,14 @@ import { Button } from '../../shared/ui/button';
       <iframe
         [src]="safeUrl()"
         [title]="title()"
-        class="w-full rounded-lg border border-border"
+        class="w-full rounded-lg border border-edge"
         [class]="shapeClass()"
         loading="lazy"
         referrerpolicy="strict-origin-when-cross-origin"
       ></iframe>
     } @else {
       <div
-        class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border border-border bg-stone-100 p-6 text-center text-sm text-subtle"
+        class="flex w-full flex-col items-center justify-center gap-4 rounded-lg border border-edge bg-surface p-6 text-center text-sm text-ink-subtle"
         [class]="shapeClass()"
       >
         <p class="max-w-md">{{ notice }}</p>

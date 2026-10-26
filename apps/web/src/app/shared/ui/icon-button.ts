@@ -49,10 +49,10 @@ const variants = {
    * case; two weights of the same control read as two controls, so this is the
    * lighter of them and the only one.
    */
-  default: 'text-stone-400 hover:text-accent active:text-primary-deep',
+  default: 'text-ink-subtle hover:text-accent active:text-primary-press',
   /** A control whose glyph already says something has been set. */
-  marked: 'text-primary hover:text-accent active:text-primary-deep',
-  danger: 'text-stone-400 hover:text-red-700 active:text-red-900',
+  marked: 'text-primary hover:text-accent active:text-primary-press',
+  danger: 'text-ink-subtle hover:text-danger active:text-danger-press',
 } as const;
 
 /**

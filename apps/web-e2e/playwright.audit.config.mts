@@ -36,7 +36,14 @@ export default defineConfig({
   fullyParallel: true,
   retries: 0,
   expect: {
-    toHaveScreenshot: { animations: 'disabled', caret: 'hide' },
+    // The default threshold (0.2) passes a red-600 drawn as red-700, so a
+    // token change would go unseen. One shade step measures about 0.07, the
+    // renderer's own noise under 0.005.
+    toHaveScreenshot: {
+      animations: 'disabled',
+      caret: 'hide',
+      threshold: 0.02,
+    },
   },
   projects: [
     { name: 'sign-in', testMatch: /sign-in\.setup\.ts/ },

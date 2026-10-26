@@ -39,7 +39,7 @@ interface DocumentRow {
   selector: 'app-product-documents',
   imports: [Icon],
   template: `
-    <ul class="mt-3 divide-y divide-border border-t border-border text-sm">
+    <ul class="mt-3 divide-y divide-edge border-t border-edge text-sm">
       @for (row of rows(); track $index) {
         <li>
           @if (row.link; as link) {
@@ -48,7 +48,7 @@ interface DocumentRow {
             <div class="flex items-start gap-3 py-2.5">
               <app-icon
                 [name]="row.glyph"
-                class="mt-0.5 size-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
                 <a
@@ -60,7 +60,7 @@ interface DocumentRow {
                 >
                   {{ row.title }}
                 </a>
-                <span class="block text-xs text-subtle">
+                <span class="block text-xs text-ink-subtle">
                   {{ row.caption }} ·
                   <a
                     [href]="link.href"
@@ -68,7 +68,7 @@ interface DocumentRow {
                     rel="noopener"
                     [attr.aria-label]="link.ariaLabel"
                     [attr.aria-describedby]="hintId"
-                    class="inline-flex items-center gap-1 underline decoration-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
+                    class="inline-flex items-center gap-1 underline decoration-ink-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
                     >{{ link.host
                     }}<app-icon name="external-link" class="size-3 shrink-0"
                   /></a>
@@ -88,7 +88,7 @@ interface DocumentRow {
             >
               <app-icon
                 [name]="row.glyph"
-                class="mt-0.5 size-4 shrink-0 text-subtle"
+                class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
                 <span
@@ -96,7 +96,7 @@ interface DocumentRow {
                 >
                   {{ row.title }}
                 </span>
-                <span class="block text-xs text-subtle">
+                <span class="block text-xs text-ink-subtle">
                   {{ row.caption }}
                 </span>
               </span>

@@ -98,7 +98,7 @@ import { WorkService } from '../../shared/work/work.service';
         @if (waiting()) {
           <span
             aria-hidden="true"
-            class="absolute -top-0.5 -right-0.5 size-2.5 animate-marker-pop rounded-full bg-amber-500"
+            class="absolute -top-0.5 -right-0.5 size-2.5 animate-marker-pop rounded-full bg-warning-dot"
           ></span>
         }
       </span>

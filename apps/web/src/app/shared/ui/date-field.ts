@@ -32,7 +32,7 @@ const segments =
  * date somebody chose.
  */
 const empty =
-  'text-subtle [&::-webkit-datetime-edit]:text-subtle ' +
+  'text-ink-subtle [&::-webkit-datetime-edit]:text-ink-subtle ' +
   '[&:not(:focus)]:text-transparent ' +
   '[&:not(:focus)::-webkit-datetime-edit]:text-transparent';
 
@@ -85,7 +85,7 @@ const empty =
         type="button"
         tabindex="-1"
         aria-hidden="true"
-        class="absolute left-2 flex cursor-pointer items-center justify-center rounded-sm p-1 text-subtle transition-colors hover:text-accent"
+        class="absolute left-2 flex cursor-pointer items-center justify-center rounded-sm p-1 text-ink-subtle transition-colors hover:text-accent"
         (click)="openPicker(input)"
       >
         <app-icon name="calendar" class="size-4" />
@@ -113,7 +113,7 @@ const empty =
       @if (value() === null && placeholder()) {
         <span
           aria-hidden="true"
-          class="pointer-events-none absolute left-9 text-subtle select-none peer-focus:hidden"
+          class="pointer-events-none absolute left-9 text-ink-subtle select-none peer-focus:hidden"
         >
           {{ placeholder() }}
         </span>

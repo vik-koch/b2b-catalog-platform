@@ -21,6 +21,7 @@ import { Icon } from '../../shared/ui/icons/icon';
 import { TextButton } from '../../shared/ui/link';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from '../../shared/pages/page.service';
+import { PageTitle } from '../../shared/ui/page-title';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -51,6 +52,7 @@ import { PageService } from '../../shared/pages/page.service';
     RouterLink,
     TextButton,
     LoadErrorView,
+    PageTitle,
   ],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
@@ -63,7 +65,7 @@ import { PageService } from '../../shared/pages/page.service';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 class="mb-4 text-3xl font-medium tracking-tight">
+        <h1 appPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
@@ -78,12 +80,12 @@ import { PageService } from '../../shared/pages/page.service';
 
       @if (content) {
         <div
-          class="prose prose-stone mb-8 max-w-3xl"
+          class="prose mb-8 max-w-3xl"
           appRichTextLinks
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
       } @else if (canEdit(); as editorText) {
-        <p class="mb-4 text-muted">{{ editorText.emptyNotice }}</p>
+        <p class="mb-4 text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
 
       <div class="max-w-3xl space-y-10">
@@ -93,7 +95,7 @@ import { PageService } from '../../shared/pages/page.service';
               {{ fulfilmentText.conditionsHeading }}
             </h2>
             <app-delivery-zone-list [spread]="true" />
-            <p class="mt-4 text-sm text-subtle">
+            <p class="mt-4 text-sm text-ink-subtle">
               {{ fulfilmentText.conditionsNote }}
             </p>
           </section>
@@ -104,7 +106,7 @@ import { PageService } from '../../shared/pages/page.service';
             <h2 class="text-2xl font-normal tracking-tight">
               {{ sharedText.fulfilment.pickup }}
             </h2>
-            <p class="mt-1 mb-4 text-muted">
+            <p class="mt-1 mb-4 text-ink-subtle">
               {{ fulfilmentText.pickupDescription }}
             </p>
             <ul class="space-y-3">
@@ -128,11 +130,11 @@ import { PageService } from '../../shared/pages/page.service';
                         </a>
                       }
                     </div>
-                    <p class="mt-1 text-sm text-muted">
+                    <p class="mt-1 text-sm text-ink-subtle">
                       {{ location.address }}
                     </p>
                     @if (location.description) {
-                      <p class="mt-2 text-sm text-subtle">
+                      <p class="mt-2 text-sm text-ink-subtle">
                         <app-emphasised [text]="location.description" />
                       </p>
                     }
@@ -155,10 +157,10 @@ import { PageService } from '../../shared/pages/page.service';
               <app-icon name="banknote" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
-                <p class="mt-1 text-sm text-muted">
+                <p class="mt-1 text-sm text-ink-subtle">
                   {{ pageText.cashDescription }}
                 </p>
-                <p class="mt-2 text-sm text-subtle">
+                <p class="mt-2 text-sm text-ink-subtle">
                   {{ paymentText.cashPersonOnly }}
                 </p>
               </div>
@@ -167,10 +169,10 @@ import { PageService } from '../../shared/pages/page.service';
               <app-icon name="landmark" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
-                <p class="mt-1 text-sm text-muted">
+                <p class="mt-1 text-sm text-ink-subtle">
                   {{ paymentText.transferDescription }}
                 </p>
-                <p class="mt-2 text-sm text-subtle">
+                <p class="mt-2 text-sm text-ink-subtle">
                   {{ paymentText.transferCompanyOnly }}
                 </p>
               </div>
@@ -185,7 +187,7 @@ import { PageService } from '../../shared/pages/page.service';
           <h2 class="mb-4 text-2xl font-normal tracking-tight">
             {{ pageText.goodsHeading }}
           </h2>
-          <div class="space-y-3 text-muted">
+          <div class="space-y-3 text-ink-subtle">
             @for (paragraph of pageText.goodsParagraphs; track $index) {
               <p><app-emphasised [text]="paragraph" /></p>
             }
@@ -200,7 +202,7 @@ import { PageService } from '../../shared/pages/page.service';
             <h2 class="mb-4 text-2xl font-normal tracking-tight">
               {{ pageText.returnsHeading }}
             </h2>
-            <div class="space-y-3 text-muted">
+            <div class="space-y-3 text-ink-subtle">
               @for (paragraph of pageText.returnsParagraphs; track $index) {
                 <p><app-emphasised [text]="paragraph" /></p>
               }
@@ -217,9 +219,9 @@ import { PageService } from '../../shared/pages/page.service';
       </div>
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-stone-200"></div>
-        <div class="h-4 w-full rounded-sm bg-stone-200"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-stone-200"></div>
+        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
+        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
+        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
       </div>
     }
   `,
@@ -232,9 +234,8 @@ export class ConditionsPage {
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly pageService = inject(PageService);
 
-  protected readonly cardClass =
-    'flex gap-3 rounded-lg border border-border p-4';
-  protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
+  protected readonly cardClass = 'flex gap-3 rounded-lg border border-edge p-4';
+  protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-ink-subtle';
 
   protected readonly navLabel = this.nav.conditions;
   protected readonly errorText = this.storefrontText.errors;
