@@ -170,7 +170,13 @@
    */
   --font-weight-emphasis: 700;
 
-  /* "Coffee" — 7.5:1 on white */
+  /*
+   * Colour, by family. Every colour a template draws is one of these roles:
+   * lint refuses Tailwind's palette (eslint.config.mjs), and a deployment's
+   * `branding.theme` overrides them on <html> (`App`).
+   */
+
+  /* Brand. Primary is "coffee", 7.5:1 on white. */
   --color-primary: #6f4e37;
   /*
    * Darker roast of primary — 10.6:1 on white. The press, on everything that
@@ -190,32 +196,68 @@
   --color-secondary: #8b6f52;
   /* Highlights, badges, eyebrows, hover (amber-700) */
   --color-accent: #b45309;
-  /* Page background (stone-50) and default text (stone-900) */
-  --color-surface: #fafaf9;
-  --color-ink: #1c1917;
+
   /*
-   * The two quieter text levels below `ink`, kept apart because the app really
-   * does use both: `muted` is secondary body copy (descriptions, help text),
-   * `subtle` is meta text (eyebrows, table headers, counts, timestamps).
-   * `muted` is stone-600, 7.0:1 on surface. `subtle` is a quarter step from
-   * stone-500 toward it: stone-500 itself is 4.4:1 on the stone-100 of the
-   * footer and the header's top bar, this is 4.9:1 there.
+   * Text. `ink` is the default (stone-900). The two quieter levels below it
+   * are kept apart because the app really does use both: `muted` is
+   * secondary body copy (descriptions, help text), `subtle` is meta text
+   * (eyebrows, table headers, counts, timestamps). `muted` is stone-600,
+   * 7.0:1 on surface. `subtle` is a quarter step from stone-500 toward it:
+   * stone-500 itself is 4.4:1 on the stone-100 of the footer and the header's
+   * top bar, this is 4.9:1 there. `faint` is a glyph that steps back (an icon
+   * at rest, a chevron, an option that is not available), 2.6:1 on white and
+   * so never body text; `disabled` is the text of a control that cannot be
+   * used.
    */
+  --color-ink: #1c1917;
   --color-muted: #57534e;
   --color-subtle: #706a65;
+  --color-faint: var(--color-stone-400);
+  --color-disabled: var(--color-stone-400);
+
   /*
    * Lines. `edge` is structural — card edges, dividers, table rules;
    * `edge-strong` is the heavier edge that makes a control look operable
-   * (inputs, secondary buttons). stone-200 / stone-300.
+   * (inputs, secondary buttons); `edge-subtle` is lighter than `edge`, for
+   * rows that repeat. stone-200 / stone-300 / stone-100.
    */
   --color-edge: #e7e5e4;
   --color-edge-strong: #d6d3d1;
+  --color-edge-subtle: var(--color-stone-100);
+
   /*
-   * The status colours. `danger` is a refusal: an error message, a refused
-   * field's edge, a destructive control. `warning` is something to weigh
-   * before going on, `success` a thing done, `info` a state worth pointing
-   * out. Shades are named by role, as the brand colours are: the bare name is
-   * text on the page, `-ink` text on the colour's own `-surface` (a panel) or
+   * A step in Tailwind's stone scale that Tailwind does not ship, for the one
+   * thing the app fills a lot of surface with: the category chip. stone-100
+   * is barely a shade off the stone-50 page, and stone-150 read as a grey block
+   * once a grid of chips carried it; this sits between the two.
+   */
+  --color-stone-125: #f2f1f0;
+  /*
+   * Grounds, and the states on them. `surface` is the page (stone-50);
+   * `surface-strong` a recessed ground (footer, notes, pills, a segmented
+   * track), `surface-stronger` one step further (a neutral badge, a switch
+   * that is off), `chip` the category chip's fill, `skeleton` a block standing
+   * in for content still loading. A hover or a press is named for the ground
+   * it happens on, one and two steps down from it. All but `surface` are drawn
+   * from the stone ramp, so a deployment's `neutrals` replace them.
+   */
+  --color-surface: #fafaf9;
+  --color-surface-hover: var(--color-stone-100);
+  --color-surface-press: var(--color-stone-200);
+  --color-surface-strong: var(--color-stone-100);
+  --color-surface-strong-hover: var(--color-stone-200);
+  --color-surface-strong-press: var(--color-stone-300);
+  --color-surface-stronger: var(--color-stone-200);
+  --color-chip: var(--color-stone-125);
+  --color-chip-hover: var(--color-stone-200);
+  --color-skeleton: var(--color-stone-200);
+
+  /*
+   * Status. `danger` is a refusal: an error message, a refused field's edge,
+   * a destructive control. `warning` is something to weigh before going on,
+   * `success` a thing done, `info` a state worth pointing out. Shades are
+   * named by role, as the brand colours are: the bare name is text on the
+   * page, `-ink` text on the colour's own `-surface` (a panel) or
    * `-surface-strong` (a badge), `-edge` the panel's line and `-edge-strong`
    * a control's, `-accent` and `-deep` a filled control's hover and press,
    * `-dot` a marker that carries no words. Only the roles the app draws.
@@ -226,13 +268,13 @@
    * which 500 falls short of.
    */
   --color-danger: var(--color-red-700);
+  --color-danger-accent: var(--color-red-800);
+  --color-danger-deep: var(--color-red-900);
   --color-danger-ink: var(--color-red-800);
   --color-danger-surface: var(--color-red-50);
   --color-danger-surface-strong: var(--color-red-100);
   --color-danger-edge: var(--color-red-200);
   --color-danger-edge-strong: var(--color-red-300);
-  --color-danger-accent: var(--color-red-800);
-  --color-danger-deep: var(--color-red-900);
   --color-danger-dot: var(--color-red-500);
   --color-warning: var(--color-amber-700);
   --color-warning-ink: var(--color-amber-800);
@@ -249,37 +291,6 @@
   --color-info-surface-strong: var(--color-sky-100);
   --color-info-edge: var(--color-sky-200);
   --color-info-dot: var(--color-sky-500);
-  /*
-   * A step in Tailwind's stone scale that Tailwind does not ship, for the one
-   * thing the app fills a lot of surface with: the category chip. stone-100
-   * is barely a shade off the stone-50 page, and stone-150 read as a grey block
-   * once a grid of chips carried it; this sits between the two.
-   */
-  --color-stone-125: #f2f1f0;
-  /*
-   * The greys by role, drawn from the stone ramp so a deployment's `neutrals`
-   * replace them all. Grounds: `surface-strong` is a recessed one (footer,
-   * notes, pills, a segmented track), `surface-stronger` one step further (a
-   * neutral badge, a switch that is off), `chip` the category chip's fill,
-   * `skeleton` a block standing in for content still loading. A hover or a
-   * press is named for the ground it happens on, one and two steps down from
-   * it. `edge-subtle` is a line lighter than `edge`, for rows that repeat.
-   * `faint` is a glyph that steps back (an icon at rest, a chevron, an option
-   * that is not available), 2.6:1 on white and so never body text; `disabled`
-   * is the text of a control that cannot be used.
-   */
-  --color-surface-strong: var(--color-stone-100);
-  --color-surface-stronger: var(--color-stone-200);
-  --color-surface-hover: var(--color-stone-100);
-  --color-surface-press: var(--color-stone-200);
-  --color-surface-strong-hover: var(--color-stone-200);
-  --color-surface-strong-press: var(--color-stone-300);
-  --color-chip: var(--color-stone-125);
-  --color-chip-hover: var(--color-stone-200);
-  --color-skeleton: var(--color-stone-200);
-  --color-edge-subtle: var(--color-stone-100);
-  --color-faint: var(--color-stone-400);
-  --color-disabled: var(--color-stone-400);
 }
 
 /*
