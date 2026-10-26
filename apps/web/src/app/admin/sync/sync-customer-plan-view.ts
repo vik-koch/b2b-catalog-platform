@@ -19,6 +19,7 @@ import { Input } from '../../shared/ui/input';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,
@@ -33,7 +34,7 @@ import { ErrorText } from '../../shared/ui/error-text';
  */
 @Component({
   selector: 'app-sync-customer-plan-view',
-  imports: [Button, Input, Link, RouterLink, StatusBadge, ErrorText],
+  imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
     <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">{{ title() }}</h2>
@@ -118,10 +119,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         <!-- An adoption changes what a key means from now on, so a reader
              about to apply one is told before they press, not after. -->
         @if (plan().summary.claimed > 0) {
-          <p
-            class="mt-6 rounded-md border border-warning-edge bg-warning-surface p-3 text-sm text-warning-ink"
-            role="status"
-          >
+          <p appNotice tone="warning" class="mt-6" role="status">
             {{ claimWarning() }}
           </p>
         }
@@ -129,10 +127,7 @@ import { ErrorText } from '../../shared/ui/error-text';
              carry either kind or both, and the two are told apart by which
              evidence adopted the account. -->
         @if (plan().summary.claimedById > 0) {
-          <p
-            class="mt-6 rounded-md border border-warning-edge bg-warning-surface p-3 text-sm text-warning-ink"
-            role="status"
-          >
+          <p appNotice tone="warning" class="mt-6" role="status">
             {{ claimByIdWarning() }}
           </p>
         }
@@ -141,10 +136,8 @@ import { ErrorText } from '../../shared/ui/error-text';
              typed confirmation a sweep of the catalog asks for, because it is
              the same class of act. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div
-            class="mt-6 rounded-md border border-danger-edge bg-danger-surface p-3"
-          >
-            <p class="text-sm text-danger-ink">{{ disableWarning() }}</p>
+          <div appNotice tone="danger" class="mt-6">
+            <p>{{ disableWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input

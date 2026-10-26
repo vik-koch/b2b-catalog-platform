@@ -26,6 +26,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -105,6 +106,7 @@ const SCOPE_ROWS: readonly {
 @Component({
   selector: 'app-api-token-list-page',
   imports: [
+    Notice,
     Button,
     IconButton,
     AdminIcon,
@@ -145,14 +147,11 @@ const SCOPE_ROWS: readonly {
            until it is dismissed — an admin who navigates away has not lost a
            step, they have lost the credential. -->
       @if (created(); as token) {
-        <div
-          class="mb-6 rounded-lg border border-warning-edge bg-warning-surface p-4"
-          role="status"
-        >
-          <p class="text-sm font-medium text-warning-ink">
+        <div appNotice tone="warning" class="mb-6" role="status">
+          <p class="font-medium">
             {{ fill(text.createdHeading, token.name) }}
           </p>
-          <p class="mt-1 text-sm text-warning-ink">{{ text.createdOnce }}</p>
+          <p class="mt-1">{{ text.createdOnce }}</p>
           <div class="mt-3 flex items-center gap-2">
             <code
               class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-warning-edge bg-white px-2 py-1.5 font-mono text-sm break-all"

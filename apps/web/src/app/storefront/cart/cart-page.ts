@@ -41,6 +41,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
 import { WarningNote } from '../../shared/ui/warning-note';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * How many lines a page of the cart holds (FR-CART-02). A cart row is a
@@ -127,6 +128,7 @@ interface CartRow {
 @Component({
   selector: 'app-cart-page',
   imports: [
+    Notice,
     WarningNote,
     AutoGrow,
     Button,
@@ -154,16 +156,12 @@ interface CartRow {
       </app-empty-state>
     } @else {
       @if (cart.persistFailed()) {
-        <p
-          class="mb-4 rounded-md bg-warning-surface px-4 py-3 text-sm text-warning-ink"
-        >
+        <p appNotice tone="warning" class="mb-4">
           {{ text.storageFailed }}
         </p>
       }
       @if (preview.error()) {
-        <p
-          class="mb-4 rounded-md bg-warning-surface px-4 py-3 text-sm text-warning-ink"
-        >
+        <p appNotice tone="warning" class="mb-4">
           {{ text.loadError }}
         </p>
       }
@@ -189,7 +187,9 @@ interface CartRow {
            one place that says it happened *since last time*. -->
             @if (changes().length) {
               <section
-                class="mb-6 rounded-md border border-warning-edge bg-warning-surface px-4 py-3 text-sm text-warning-ink"
+                appNotice
+                tone="warning"
+                class="mb-6"
                 [attr.aria-label]="changeText.heading"
               >
                 <div class="flex items-start justify-between gap-4">

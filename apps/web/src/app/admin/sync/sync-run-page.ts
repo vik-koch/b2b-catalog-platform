@@ -33,6 +33,7 @@ import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
+import { Notice } from '../../shared/ui/notice';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
@@ -50,6 +51,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
 @Component({
   selector: 'app-sync-run-page',
   imports: [
+    Notice,
     Button,
     LockedNote,
     RouterLink,
@@ -120,9 +122,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           <!-- Why it is waiting. Said in full here, where there is room for the
              sentence the log's badge only had a word for. -->
           @if (stagedReason(data.run); as reason) {
-            <p
-              class="mb-6 rounded-md border border-warning-edge bg-warning-surface p-3 text-sm text-ink"
-            >
+            <p appNotice tone="warning" class="mb-6">
               {{ reason }}
             </p>
           }
@@ -133,10 +133,8 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              refusal nor a reason to wait: it is shown on a run of any status,
              including one that applied itself hours ago. -->
           @if (data.run.notice; as note) {
-            <section
-              class="mb-6 rounded-md border border-info-edge bg-info-surface p-3"
-            >
-              <h2 class="mb-1 text-sm font-medium text-info-ink">
+            <section appNotice tone="info" class="mb-6">
+              <h2 class="mb-1 font-medium">
                 {{ text.noticeTitle }}
               </h2>
               <p class="wrap-break-word font-mono text-sm text-ink">
@@ -148,10 +146,8 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           <!-- A failure the sending system reported: its own words, kept as a
              diagnostic rather than turned into wording of ours. -->
           @if (data.run.error; as failure) {
-            <section
-              class="mb-6 rounded-md border border-danger-edge bg-danger-surface p-3"
-            >
-              <h2 class="mb-1 text-sm font-medium text-danger-ink">
+            <section appNotice tone="danger" class="mb-6">
+              <h2 class="mb-1 font-medium">
                 {{ text.failureTitle }}
               </h2>
               <p class="wrap-break-word font-mono text-sm text-ink">

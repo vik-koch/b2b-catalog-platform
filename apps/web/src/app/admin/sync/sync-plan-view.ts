@@ -25,6 +25,7 @@ import { Input } from '../../shared/ui/input';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Notice } from '../../shared/ui/notice';
 
 /**
  * What a run would do, or did: the counts, the products, the categories and
@@ -42,7 +43,7 @@ import { ErrorText } from '../../shared/ui/error-text';
  */
 @Component({
   selector: 'app-sync-plan-view',
-  imports: [Button, Input, Link, RouterLink, StatusBadge, ErrorText],
+  imports: [Notice, Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
     <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
@@ -195,12 +196,8 @@ import { ErrorText } from '../../shared/ui/error-text';
       @if (applicable()) {
         <!-- The delete gate: typed confirmation, and only when it applies. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div
-            class="mt-6 rounded-md border border-danger-edge bg-danger-surface p-3"
-          >
-            <p class="text-sm text-danger-ink">
-              {{ deleteWarning() }}
-            </p>
+          <div appNotice tone="danger" class="mt-6">
+            <p>{{ deleteWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
