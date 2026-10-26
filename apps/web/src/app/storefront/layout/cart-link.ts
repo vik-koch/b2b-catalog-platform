@@ -51,14 +51,14 @@ import { navActionClasses, NavVariant } from './nav-action';
            row's centre. -->
       <span class="relative inline-flex">
         <app-icon name="shopping-basket" class="size-6" />
-        <!-- Secondary, like the total below it and like the "in your cart"
-             field on the buying controls: all three state a fact about the
-             cart. Amber is reserved for work that wants somebody to act (see
-             AccountLink), and a filled amber count sat next to that marker
-             claiming to be the same kind of thing. -->
+        <!-- The account's waiting-work dot, because a filled cart is work too:
+             an order the customer has still to place or drop. The white
+             figure on it is 3.2:1, short of the 4.5:1 text wants; dark digits
+             passed but read as a foreign colour in the header, and a darker
+             dot would no longer be the same dot. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-amber-500 p-0.5 text-[0.625rem]/3 text-white font-normal transition-colors"
+          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-warning-dot p-0.5 text-[0.625rem]/3 text-white font-normal transition-colors"
         ></span>
       </span>
       <span [class]="cls().labelRow">

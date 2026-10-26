@@ -9,7 +9,7 @@ const tones: Record<HintBadgeTone, string> = {
   /** Something the shop does with this row — filterable, published, indexed. */
   notice: 'bg-stone-100 text-accent',
   /** Something the admin may want to look at, but nothing is refused. */
-  warning: 'bg-amber-50 text-amber-700',
+  warning: 'bg-warning-surface text-warning-ink',
 };
 
 /**

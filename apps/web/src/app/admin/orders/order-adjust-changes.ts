@@ -52,7 +52,7 @@ export interface OrderChange {
               <span class="px-1 text-subtle" aria-hidden="true">→</span>
             }
             @if (change.after) {
-              <span class="text-green-800">{{ change.after }}</span>
+              <span class="text-success">{{ change.after }}</span>
             }
           </li>
         }

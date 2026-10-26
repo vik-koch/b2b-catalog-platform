@@ -190,7 +190,7 @@ let nextId = 0;
             <p appErrorText class="mt-2">{{ text.duplicate }}</p>
           }
           @if (allWithheld()) {
-            <p class="mt-2 text-xs text-amber-800">{{ text.allWithheld }}</p>
+            <p class="mt-2 text-xs text-warning">{{ text.allWithheld }}</p>
           }
 
           @if (value().length >= max) {

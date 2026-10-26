@@ -287,7 +287,7 @@ import { Hint } from '../../shared/ui/hint';
           @if ((priceCleared() && published()) || taxRateNotInEffect) {
             <div class="-mt-4 space-y-1 text-sm sm:col-span-3 sm:row-start-2">
               @if (priceCleared() && published()) {
-                <p class="text-amber-700">{{ text.priceCleared }}</p>
+                <p class="text-warning">{{ text.priceCleared }}</p>
               }
               @if (taxRateNotInEffect) {
                 <p class="text-xs text-subtle">

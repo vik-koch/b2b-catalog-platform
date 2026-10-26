@@ -211,10 +211,44 @@
   --color-edge: #e7e5e4;
   --color-edge-strong: #d6d3d1;
   /*
-   * A refusal: an error message, a refused field's edge, a destructive
-   * control. red-700, 5.9:1 on stone-100; red-600 falls below 4.5:1 there.
+   * The status colours. `danger` is a refusal: an error message, a refused
+   * field's edge, a destructive control. `warning` is something to weigh
+   * before going on, `success` a thing done, `info` a state worth pointing
+   * out. Shades are named by role, as the brand colours are: the bare name is
+   * text on the page, `-ink` text on the colour's own `-surface` (a panel) or
+   * `-surface-strong` (a badge), `-edge` the panel's line and `-edge-strong`
+   * a control's, `-accent` and `-deep` a filled control's hover and press,
+   * `-dot` a marker that carries no words. Only the roles the app draws.
+   *
+   * red-700 is 5.9:1 on stone-100; red-600 falls below 4.5:1 there. The
+   * warning dot is amber-600 rather than 500: it stands alone on the page as
+   * the sign that work is waiting, so it needs 3:1 against the page itself,
+   * which 500 falls short of.
    */
   --color-danger: var(--color-red-700);
+  --color-danger-ink: var(--color-red-800);
+  --color-danger-surface: var(--color-red-50);
+  --color-danger-surface-strong: var(--color-red-100);
+  --color-danger-edge: var(--color-red-200);
+  --color-danger-edge-strong: var(--color-red-300);
+  --color-danger-accent: var(--color-red-800);
+  --color-danger-deep: var(--color-red-900);
+  --color-danger-dot: var(--color-red-500);
+  --color-warning: var(--color-amber-700);
+  --color-warning-ink: var(--color-amber-800);
+  --color-warning-surface: var(--color-amber-50);
+  --color-warning-surface-strong: var(--color-amber-100);
+  --color-warning-edge: var(--color-amber-200);
+  --color-warning-dot: var(--color-amber-600);
+  --color-success: var(--color-green-700);
+  --color-success-ink: var(--color-green-800);
+  --color-success-surface-strong: var(--color-green-100);
+  --color-success-dot: var(--color-green-500);
+  --color-info-ink: var(--color-sky-800);
+  --color-info-surface: var(--color-sky-50);
+  --color-info-surface-strong: var(--color-sky-100);
+  --color-info-edge: var(--color-sky-200);
+  --color-info-dot: var(--color-sky-500);
   /*
    * A step in Tailwind's stone scale that Tailwind does not ship, for the one
    * thing the app now fills a lot of surface with: the category chip. stone-100

@@ -186,7 +186,7 @@ interface DocumentRow {
             <!-- Nothing checks a supplied file against the order, so this is
                  the only warning there is that it quotes an older total. -->
             @if (row.outdated; as warning) {
-              <p class="text-xs text-amber-700">{{ warning }}</p>
+              <p class="text-xs text-warning">{{ warning }}</p>
             }
             <!-- Why there is no send button on this row. Said rather than left
                  to be worked out from an absence. -->

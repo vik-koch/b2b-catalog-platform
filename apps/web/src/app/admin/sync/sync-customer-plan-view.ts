@@ -115,7 +115,7 @@ import { ErrorText } from '../../shared/ui/error-text';
              about to apply one is told before they press, not after. -->
         @if (plan().summary.claimed > 0) {
           <p
-            class="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            class="mt-6 rounded-md border border-warning-edge bg-warning-surface p-3 text-sm text-warning-ink"
             role="status"
           >
             {{ claimWarning() }}
@@ -126,7 +126,7 @@ import { ErrorText } from '../../shared/ui/error-text';
              evidence adopted the account. -->
         @if (plan().summary.claimedById > 0) {
           <p
-            class="mt-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900"
+            class="mt-6 rounded-md border border-warning-edge bg-warning-surface p-3 text-sm text-warning-ink"
             role="status"
           >
             {{ claimByIdWarning() }}
@@ -137,8 +137,10 @@ import { ErrorText } from '../../shared/ui/error-text';
              typed confirmation a sweep of the catalog asks for, because it is
              the same class of act. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
-            <p class="text-sm text-red-800">{{ disableWarning() }}</p>
+          <div
+            class="mt-6 rounded-md border border-danger-edge bg-danger-surface p-3"
+          >
+            <p class="text-sm text-danger-ink">{{ disableWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input

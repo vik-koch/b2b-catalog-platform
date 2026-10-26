@@ -21,7 +21,7 @@ export const LINK_BASE =
 export const LINK_TONES = {
   default:
     'text-primary decoration-primary/30 hover:text-accent hover:decoration-accent',
-  warning: 'text-amber-700 decoration-amber-700/30 hover:decoration-amber-700',
+  warning: 'text-warning decoration-warning/30 hover:decoration-warning',
 } as const;
 
 /**

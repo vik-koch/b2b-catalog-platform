@@ -151,7 +151,7 @@ describe('OrderDocumentsPanel', () => {
     );
 
     expect(el.textContent).toContain('1');
-    expect(el.querySelector('.text-amber-700')).not.toBeNull();
+    expect(el.querySelector('.text-warning')).not.toBeNull();
   });
 
   /**

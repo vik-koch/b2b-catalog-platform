@@ -28,11 +28,11 @@ import { Params, RouterLink } from '@angular/router';
     <a
       [routerLink]="link()"
       [queryParams]="queryParams()"
-      class="group/note flex w-fit items-center text-xs font-medium text-amber-800 hover:text-accent"
+      class="group/note flex w-fit items-center text-xs font-medium text-warning hover:text-accent"
     >
       <span
         aria-hidden="true"
-        class="size-1.5 shrink-0 rounded-full bg-amber-500 mr-2"
+        class="size-1.5 shrink-0 rounded-full bg-warning-dot mr-2"
       ></span>
       <!-- The rule belongs under the words. On the anchor it also ran under
            the dot and the arrow, which made the arrow look struck through

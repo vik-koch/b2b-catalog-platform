@@ -154,12 +154,16 @@ interface CartRow {
       </app-empty-state>
     } @else {
       @if (cart.persistFailed()) {
-        <p class="mb-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p
+          class="mb-4 rounded-md bg-warning-surface px-4 py-3 text-sm text-warning-ink"
+        >
           {{ text.storageFailed }}
         </p>
       }
       @if (preview.error()) {
-        <p class="mb-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+        <p
+          class="mb-4 rounded-md bg-warning-surface px-4 py-3 text-sm text-warning-ink"
+        >
           {{ text.loadError }}
         </p>
       }
@@ -185,7 +189,7 @@ interface CartRow {
            one place that says it happened *since last time*. -->
             @if (changes().length) {
               <section
-                class="mb-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+                class="mb-6 rounded-md border border-warning-edge bg-warning-surface px-4 py-3 text-sm text-warning-ink"
                 [attr.aria-label]="changeText.heading"
               >
                 <div class="flex items-start justify-between gap-4">

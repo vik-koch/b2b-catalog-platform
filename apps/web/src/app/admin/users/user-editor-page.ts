@@ -350,7 +350,7 @@ import { Hint } from '../../shared/ui/hint';
               <p appErrorText role="alert">{{ error() }}</p>
             }
             @if (resent()) {
-              <p class="text-sm text-green-700" role="status">
+              <p class="text-sm text-success" role="status">
                 {{ text.resendSent }}
               </p>
             }

@@ -71,7 +71,7 @@ import { WarningNote } from '../ui/warning-note';
       @if (hasEstimate()) {
         <p class="mt-3 text-xs text-subtle">{{ text.shipmentApproximate }}</p>
         @if (uncovered(); as count) {
-          <p class="mt-1 text-xs text-amber-700">{{ uncoveredMessage() }}</p>
+          <p class="mt-1 text-xs text-warning">{{ uncoveredMessage() }}</p>
         }
       }
 

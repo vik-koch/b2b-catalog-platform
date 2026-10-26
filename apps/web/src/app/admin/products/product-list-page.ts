@@ -368,9 +368,7 @@ function knownValues<T extends string>(
             <app-product-feature-glyphs [features]="item.features" />
           }
           @if (item.gaps.length) {
-            <span class="text-xs text-amber-700">{{
-              gapsLabel(item.gaps)
-            }}</span>
+            <span class="text-xs text-warning">{{ gapsLabel(item.gaps) }}</span>
           }
         </div>
       }

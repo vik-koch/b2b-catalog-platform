@@ -191,8 +191,10 @@ import { ErrorText } from '../../shared/ui/error-text';
       @if (applicable()) {
         <!-- The delete gate: typed confirmation, and only when it applies. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div class="mt-6 rounded-md border border-red-200 bg-red-50 p-3">
-            <p class="text-sm text-red-800">
+          <div
+            class="mt-6 rounded-md border border-danger-edge bg-danger-surface p-3"
+          >
+            <p class="text-sm text-danger-ink">
               {{ deleteWarning() }}
             </p>
             <label class="mt-2 block text-sm">

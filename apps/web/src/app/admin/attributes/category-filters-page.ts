@@ -179,7 +179,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                           />
                         }
                         @if (filter.isNew) {
-                          <span class="text-amber-700">{{ text.isNew }}</span>
+                          <span class="text-warning">{{ text.isNew }}</span>
                         }
                       </ng-container>
                       <span
@@ -199,7 +199,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
             </div>
 
             @if (noneVisible()) {
-              <p class="mt-4 text-sm text-amber-700">
+              <p class="mt-4 text-sm text-warning">
                 {{ slug() ? text.empty : text.catalogEmpty }}
               </p>
             }

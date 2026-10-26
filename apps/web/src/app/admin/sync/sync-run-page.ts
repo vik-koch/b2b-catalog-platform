@@ -121,7 +121,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              sentence the log's badge only had a word for. -->
           @if (stagedReason(data.run); as reason) {
             <p
-              class="mb-6 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-ink"
+              class="mb-6 rounded-md border border-warning-edge bg-warning-surface p-3 text-sm text-ink"
             >
               {{ reason }}
             </p>
@@ -134,9 +134,9 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              including one that applied itself hours ago. -->
           @if (data.run.notice; as note) {
             <section
-              class="mb-6 rounded-md border border-sky-200 bg-sky-50 p-3"
+              class="mb-6 rounded-md border border-info-edge bg-info-surface p-3"
             >
-              <h2 class="mb-1 text-sm font-medium text-sky-800">
+              <h2 class="mb-1 text-sm font-medium text-info-ink">
                 {{ text.noticeTitle }}
               </h2>
               <p class="wrap-break-word font-mono text-sm text-ink">
@@ -149,9 +149,9 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              diagnostic rather than turned into wording of ours. -->
           @if (data.run.error; as failure) {
             <section
-              class="mb-6 rounded-md border border-red-200 bg-red-50 p-3"
+              class="mb-6 rounded-md border border-danger-edge bg-danger-surface p-3"
             >
-              <h2 class="mb-1 text-sm font-medium text-red-800">
+              <h2 class="mb-1 text-sm font-medium text-danger-ink">
                 {{ text.failureTitle }}
               </h2>
               <p class="wrap-break-word font-mono text-sm text-ink">

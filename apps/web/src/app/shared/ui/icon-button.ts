@@ -52,7 +52,7 @@ const variants = {
   default: 'text-stone-400 hover:text-accent active:text-primary-deep',
   /** A control whose glyph already says something has been set. */
   marked: 'text-primary hover:text-accent active:text-primary-deep',
-  danger: 'text-stone-400 hover:text-danger active:text-red-900',
+  danger: 'text-stone-400 hover:text-danger active:text-danger-deep',
 } as const;
 
 /**

@@ -9,13 +9,13 @@ const tones = {
   /** Nothing is pending and nothing is wrong — history, or a plain fact. */
   neutral: 'bg-stone-200 text-muted',
   /** Somebody has to act before this moves. */
-  waiting: 'bg-amber-100 text-amber-800',
+  waiting: 'bg-warning-surface-strong text-warning-ink',
   /** Settled, and settled well. */
-  ok: 'bg-green-100 text-green-800',
+  ok: 'bg-success-surface-strong text-success-ink',
   /** Settled by a refusal, or deliberately switched off. */
-  danger: 'bg-red-100 text-red-800',
+  danger: 'bg-danger-surface-strong text-danger-ink',
   /** A state worth pointing out that is neither good nor bad. */
-  info: 'bg-sky-100 text-sky-800',
+  info: 'bg-info-surface-strong text-info-ink',
 } as const;
 
 /**
@@ -28,10 +28,10 @@ const tones = {
  */
 const dots = {
   neutral: 'before:bg-stone-400',
-  waiting: 'before:bg-amber-500',
-  ok: 'before:bg-green-500',
-  danger: 'before:bg-red-500',
-  info: 'before:bg-sky-500',
+  waiting: 'before:bg-warning-dot',
+  ok: 'before:bg-success-dot',
+  danger: 'before:bg-danger-dot',
+  info: 'before:bg-info-dot',
 } as const;
 
 export type StatusTone = keyof typeof tones;

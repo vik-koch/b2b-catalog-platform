@@ -110,7 +110,7 @@ import { Hint } from '../../shared/ui/hint';
         <p appErrorText role="alert">{{ message }}</p>
       }
       @if (status() === 'ok') {
-        <p class="text-sm text-green-700" role="status">{{ text.success }}</p>
+        <p class="text-sm text-success" role="status">{{ text.success }}</p>
       }
 
       <button appButton type="submit" [disabled]="status() === 'submitting'">

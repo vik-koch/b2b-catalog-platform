@@ -146,16 +146,16 @@ const SCOPE_ROWS: readonly {
            step, they have lost the credential. -->
       @if (created(); as token) {
         <div
-          class="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4"
+          class="mb-6 rounded-lg border border-warning-edge bg-warning-surface p-4"
           role="status"
         >
-          <p class="text-sm font-medium text-amber-900">
+          <p class="text-sm font-medium text-warning-ink">
             {{ fill(text.createdHeading, token.name) }}
           </p>
-          <p class="mt-1 text-sm text-amber-800">{{ text.createdOnce }}</p>
+          <p class="mt-1 text-sm text-warning-ink">{{ text.createdOnce }}</p>
           <div class="mt-3 flex items-center gap-2">
             <code
-              class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-amber-300 bg-white px-2 py-1.5 font-mono text-sm break-all"
+              class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-warning-edge bg-white px-2 py-1.5 font-mono text-sm break-all"
               >{{ token.token }}</code
             >
             <button
