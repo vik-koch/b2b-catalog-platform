@@ -100,7 +100,7 @@ export function useConsent(
     version: () => (asked() ? current()?.version : undefined),
     refused(code) {
       if (code === 'consent-stale') {
-        ticked.set(false);
+        field().reset(false);
         notice.set('changed');
         page.reload();
         return true;

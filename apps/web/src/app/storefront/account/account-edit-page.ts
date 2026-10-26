@@ -1,13 +1,12 @@
 import {
   Component,
   computed,
-  effect,
   inject,
+  linkedSignal,
   resource,
   signal,
-  untracked,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
@@ -15,17 +14,17 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   canonicalPhone,
   formatPhone,
-  phoneValidators,
   typedPhone,
 } from '../../shared/core/contact-fields';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { FieldErrors } from '../../shared/core/form-errors';
+import { completeMask } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { AuthService } from '../../shared/auth/auth.service';
 import { Button } from '../../shared/ui/button';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
-import { PhoneField } from '../../shared/ui/phone-field';
+import { PhoneInput } from '../../shared/ui/phone-input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AccountService } from './account.service';
 import { PageTitle } from '../../shared/ui/page-title';
@@ -48,12 +47,12 @@ type Status = 'idle' | 'submitting' | 'error';
 @Component({
   selector: 'app-account-edit-page',
   imports: [
-    ReactiveFormsModule,
+    FORM_FIELDS,
     RouterLink,
     Button,
     FieldLabel,
     Input,
-    PhoneField,
+    PhoneInput,
     Skeleton,
     PageTitle,
     ErrorText,
@@ -68,55 +67,34 @@ type Status = 'idle' | 'submitting' | 'error';
       <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (profile.hasValue()) {
-        <form
-          class="space-y-6"
-          novalidate
-          (ngSubmit)="submit()"
-          [formGroup]="form"
-        >
-          <div>
-            <label for="firstName" appFieldLabel>
-              {{ fields.firstName.label }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
+        <form [formRoot]="form" class="space-y-6">
+          <app-field
+            [field]="form.firstName"
+            [label]="fields.firstName.label"
+            controlId="firstName"
+          >
             <input
-              id="firstName"
               type="text"
-              formControlName="firstName"
               autocomplete="given-name"
-              aria-required="true"
               appInput
               class="w-full"
-              [attr.aria-invalid]="isInvalid('firstName') || null"
+              [formField]="form.firstName"
             />
-            @if (isInvalid('firstName')) {
-              <p appErrorText class="mt-1">
-                {{ fields.firstName.required }}
-              </p>
-            }
-          </div>
+          </app-field>
 
-          <div>
-            <label for="lastName" appFieldLabel>
-              {{ fields.lastName.label }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
+          <app-field
+            [field]="form.lastName"
+            [label]="fields.lastName.label"
+            controlId="lastName"
+          >
             <input
-              id="lastName"
               type="text"
-              formControlName="lastName"
               autocomplete="family-name"
-              aria-required="true"
               appInput
               class="w-full"
-              [attr.aria-invalid]="isInvalid('lastName') || null"
+              [formField]="form.lastName"
             />
-            @if (isInvalid('lastName')) {
-              <p appErrorText class="mt-1">
-                {{ fields.lastName.required }}
-              </p>
-            }
-          </div>
+          </app-field>
 
           <!-- Optional, as on the staff editor: a staff account often has no
                number, and one that is gone is not a reason to refuse the save. -->
@@ -129,12 +107,13 @@ type Status = 'idle' | 'submitting' | 'error';
               <p appHint class="mt-1">{{ text.phoneLocked }}</p>
             </div>
           } @else {
-            <app-phone-field
-              [control]="form.controls.phone"
+            <app-field
+              [field]="form.phone"
               [label]="fields.phone.label"
-              [text]="phoneText"
-              [invalid]="isInvalid('phone')"
-            />
+              controlId="phone"
+            >
+              <app-phone-input [field]="form.phone" />
+            </app-field>
           }
 
           <div class="flex flex-wrap items-center gap-3">
@@ -163,7 +142,6 @@ type Status = 'idle' | 'submitting' | 'error';
   `,
 })
 export class AccountEditPage {
-  private readonly fb = inject(FormBuilder);
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -173,10 +151,6 @@ export class AccountEditPage {
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
-  protected readonly phoneText = {
-    required: this.fields.phone.required,
-    incomplete: this.fields.phone.incomplete,
-  };
   protected readonly status = signal<Status>('idle');
 
   protected readonly profile = resource({
@@ -184,32 +158,35 @@ export class AccountEditPage {
   });
   protected readonly showSkeleton = delayedLoading(this.profile.isLoading);
 
-  protected readonly form = this.fb.nonNullable.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    phone: ['', phoneValidators(this.phoneInput, false)],
+  /**
+   * Seeded from the record rather than from the session: the greeting knows a
+   * first name, the form has to know everything it may write back.
+   */
+  private readonly draft = linkedSignal(() => {
+    const profile = this.profile.value();
+    return {
+      firstName: profile?.firstName ?? '',
+      lastName: profile?.lastName ?? '',
+      phone: typedPhone(profile?.phone ?? null, this.phoneInput),
+    };
   });
 
-  protected readonly fieldErrors = new FieldErrors(this.form);
+  protected readonly form = form(
+    this.draft,
+    (account) => {
+      required(account.firstName, { message: this.fields.firstName.required });
+      required(account.lastName, { message: this.fields.lastName.required });
+      // Optional, but half a number is a typo.
+      completeMask(
+        account.phone,
+        this.phoneInput?.mask,
+        this.fields.phone.incomplete,
+      );
+    },
+    { name: 'account-edit', submission: { action: () => this.send() } },
+  );
 
   constructor() {
-    // Seeded from the record rather than from the session: the greeting knows a
-    // first name, the form has to know everything it may write back.
-    effect(() => {
-      const profile = this.profile.value();
-      if (!profile) return;
-      // Only the profile is a dependency. Writing the form fires its change
-      // handlers, and any signal they read would otherwise re-run this on the
-      // next save and put the stored values back over what was typed.
-      untracked(() => {
-        this.form.reset({
-          firstName: profile.firstName ?? '',
-          lastName: profile.lastName ?? '',
-          phone: typedPhone(profile.phone, this.phoneInput),
-        });
-      });
-    });
-
     usePageSeo({ name: () => this.text.heading });
   }
 
@@ -229,16 +206,9 @@ export class AccountEditPage {
     return this.status() === 'submitting';
   }
 
-  protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    return this.fieldErrors.show(this.form.controls[control]);
-  }
-
-  protected async submit(): Promise<void> {
-    this.fieldErrors.markSubmitted();
-    if (this.form.invalid) return;
-
+  private async send(): Promise<void> {
     this.status.set('submitting');
-    const value = this.form.getRawValue();
+    const value = this.form().value();
     try {
       const saved = await this.account.updateProfile({
         firstName: value.firstName.trim(),

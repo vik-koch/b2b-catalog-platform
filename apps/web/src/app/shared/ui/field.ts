@@ -2,6 +2,7 @@ import {
   booleanAttribute,
   Component,
   computed,
+  contentChild,
   ElementRef,
   inject,
   input,
@@ -11,6 +12,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { type FieldTree } from '@angular/forms/signals';
 import { ErrorText } from './error-text';
 import { FieldLabel } from './field-label';
+import { FieldAction } from './field-action';
 import { Hint } from './hint';
 import { SubmitAttempt } from './submit-attempt';
 
@@ -56,9 +58,15 @@ let nextId = 0;
         <span class="text-accent" aria-hidden="true">*</span>
       }
     </ng-template>
+    <ng-template #caption>
+      <label [for]="controlId()" appFieldLabel>
+        {{ label() }}
+        <ng-container [ngTemplateOutlet]="mark" />
+      </label>
+    </ng-template>
 
     @if (group()) {
-      <fieldset [attr.aria-describedby]="describedBy()">
+      <fieldset [attr.aria-describedby]="descriptionIds()">
         <legend appFieldLabel>
           {{ label() }}
           <ng-container [ngTemplateOutlet]="mark" />
@@ -73,10 +81,14 @@ let nextId = 0;
         }
       </fieldset>
     } @else {
-      <label [for]="controlId()" appFieldLabel>
-        {{ label() }}
-        <ng-container [ngTemplateOutlet]="mark" />
-      </label>
+      @if (action()) {
+        <div class="flex items-baseline justify-between">
+          <ng-container [ngTemplateOutlet]="caption" />
+          <ng-content select="[appFieldAction]" />
+        </div>
+      } @else {
+        <ng-container [ngTemplateOutlet]="caption" />
+      }
       <ng-container [ngTemplateOutlet]="control" />
       @if (error(); as error) {
         <p appErrorText [id]="errorId()" class="mt-1">{{ error }}</p>
@@ -98,12 +110,15 @@ export class Field<T> {
   readonly marker = input(true);
   /** Given where a test or a link has to find the control by it. */
   readonly controlId = input(`field-${nextId++}`);
+  /** Ids of further lines that describe the control, such as a server's answer. */
+  readonly describedBy = input<string>();
 
   private readonly host =
     inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly attempt = inject(SubmitAttempt, { optional: true });
   /** Rule 3: left since its last edit. */
   protected readonly left = signal(false);
+  protected readonly action = contentChild(FieldAction);
 
   readonly required = computed(() => this.field()().required());
   protected readonly marked = computed(() => this.marker() && this.required());
@@ -122,9 +137,13 @@ export class Field<T> {
   protected readonly hintId = computed(() => `${this.controlId()}-hint`);
   protected readonly errorId = computed(() => `${this.controlId()}-error`);
   /** Under a single control the error takes the hint's place; a group keeps both. */
-  readonly describedBy = computed(() => {
+  readonly descriptionIds = computed(() => {
     const hint = this.hint() && (this.group() || !this.error());
-    const ids = [hint && this.hintId(), this.error() && this.errorId()];
+    const ids = [
+      hint && this.hintId(),
+      this.error() && this.errorId(),
+      this.describedBy(),
+    ];
     return ids.filter(Boolean).join(' ') || null;
   });
 

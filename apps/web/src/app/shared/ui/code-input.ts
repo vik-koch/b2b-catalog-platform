@@ -1,8 +1,6 @@
 import {
   Component,
-  OnInit,
   computed,
-  DestroyRef,
   ElementRef,
   inject,
   input,
@@ -10,8 +8,9 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, type FieldTree } from '@angular/forms/signals';
+import { Field } from './field';
+import { FieldBinding } from './field-binding';
 
 /**
  * A short numeric code as a row of boxes, one digit each (FR-AUTH-12).
@@ -24,10 +23,19 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
  * Two things differ from a plain field, both because the boxes promise them.
  * Typing over a filled box replaces its digit rather than pushing the rest
  * along, and clicking a box puts the caret on it.
+ *
+ * Inside a Field, which names it and says when it is refused:
+ *
+ *   <app-field [field]="form.code" [label]="text.code">
+ *     <app-code-input [field]="form.code" />
+ *   </app-field>
+ *
+ * As many boxes as the field's `maxLength` rule allows, which FormField also
+ * sets on the input, so the schema is the one place the length is said.
  */
 @Component({
   selector: 'app-code-input',
-  imports: [ReactiveFormsModule],
+  imports: [FormField, FieldBinding],
   host: { class: 'block' },
   template: `
     <!-- A block-level row, not inline-flex: an inline box takes its height
@@ -50,16 +58,11 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
         </div>
       }
       <input
-        #field
-        [id]="inputId()"
-        [formControl]="control()"
+        #typed
+        [formField]="field()"
         type="text"
         inputmode="numeric"
         autocomplete="one-time-code"
-        aria-required="true"
-        [attr.maxlength]="length()"
-        [attr.aria-invalid]="invalid() || null"
-        [attr.aria-describedby]="describedBy() || null"
         class="absolute inset-0 size-full cursor-text border-0 bg-transparent text-transparent caret-transparent selection:bg-transparent focus-visible:outline-none"
         (beforeinput)="overwrite($event)"
         (input)="sanitize()"
@@ -72,49 +75,36 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
     </div>
   `,
 })
-export class CodeInput implements OnInit {
-  readonly control = input.required<FormControl<string>>();
-  readonly length = input(6);
-  readonly inputId = input('code');
-  readonly invalid = input(false);
-  readonly describedBy = input<string | null>(null);
+export class CodeInput {
+  readonly field = input.required<FieldTree<string>>();
+  protected readonly length = computed(() => this.field()().maxLength?.() ?? 6);
 
   /** Every box is filled. */
   readonly completed = output<string>();
 
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly field =
-    viewChild.required<ElementRef<HTMLInputElement>>('field');
+  private readonly shell = inject(Field, { optional: true });
+  private readonly typed =
+    viewChild.required<ElementRef<HTMLInputElement>>('typed');
   protected readonly focused = signal(false);
   private readonly caret = signal(0);
-  private readonly value = signal('');
+  /** The field is the truth: a reset from the form reaches the boxes. */
+  private readonly value = computed(() => this.field()().value());
 
   protected readonly slots = computed(() => {
     const value = this.value();
     return Array.from({ length: this.length() }, (_, i) => value[i] ?? '');
   });
 
-  /** The box the next digit lands in. */
+  /**
+   * The box the next digit lands in. Never past the digits there are: a
+   * reset from outside empties the boxes without moving the caret.
+   */
   protected readonly active = computed(() =>
-    Math.min(this.caret(), this.length() - 1),
+    Math.min(this.caret(), this.value().length, this.length() - 1),
   );
 
-  ngOnInit(): void {
-    // The control is the truth: a reset from the form has to reach the boxes.
-    const control = this.control();
-    this.value.set(control.value);
-    control.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((value) => {
-        this.value.set(value ?? '');
-        // A reset from outside empties the boxes; the caret goes with it, or
-        // it would be drawn in a box past the end.
-        this.caret.update((at) => Math.min(at, (value ?? '').length));
-      });
-  }
-
   focus(): void {
-    this.field().nativeElement.focus();
+    this.typed().nativeElement.focus();
   }
 
   protected slotClass(index: number): string {
@@ -122,14 +112,14 @@ export class CodeInput implements OnInit {
     if (active) {
       return 'border-secondary outline outline-1 -outline-offset-1 outline-secondary';
     }
-    if (this.invalid()) return 'border-danger';
+    if (this.shell?.error()) return 'border-danger';
     return 'border-edge-strong group-hover:border-accent';
   }
 
   /** A digit typed into a filled box takes that box's place. */
   protected overwrite(event: InputEvent): void {
     if (event.inputType !== 'insertText' || !event.data) return;
-    const el = this.field().nativeElement;
+    const el = this.typed().nativeElement;
     if (!/^\d$/.test(event.data)) {
       event.preventDefault();
       return;
@@ -146,7 +136,7 @@ export class CodeInput implements OnInit {
 
   /** Whatever arrived — a paste, a suggestion from a message — as digits. */
   protected sanitize(): void {
-    const el = this.field().nativeElement;
+    const el = this.typed().nativeElement;
     const digits = el.value.replace(/\D/g, '').slice(0, this.length());
     if (digits !== el.value) {
       this.write(digits, digits.length);
@@ -157,7 +147,7 @@ export class CodeInput implements OnInit {
 
   /** A click lands on the box under the pointer, never past the last digit. */
   protected pointAt(event: MouseEvent): void {
-    const el = this.field().nativeElement;
+    const el = this.typed().nativeElement;
     const box = el.getBoundingClientRect();
     const index = Math.floor(
       ((event.clientX - box.left) / box.width) * this.length(),
@@ -172,23 +162,23 @@ export class CodeInput implements OnInit {
   }
 
   protected track(): void {
-    this.caret.set(this.field().nativeElement.selectionStart ?? 0);
+    this.caret.set(this.typed().nativeElement.selectionStart ?? 0);
   }
 
   private write(value: string, caret: number): void {
-    const el = this.field().nativeElement;
+    const el = this.typed().nativeElement;
     el.value = value;
-    this.control().setValue(value);
+    this.field()().value.set(value);
     el.setSelectionRange(caret, caret);
     this.afterChange();
   }
 
   private afterChange(): void {
-    const value = this.field().nativeElement.value;
+    const value = this.typed().nativeElement.value;
     // Which input listener runs first, the form's or this one, is not ours to
-    // decide; the control has to hold the value before `completed` is heard.
-    if (this.control().value !== value) this.control().setValue(value);
-    this.value.set(value);
+    // decide; the field has to hold the value before `completed` is heard.
+    const state = this.field()();
+    if (state.value() !== value) state.value.set(value);
     this.track();
     if (value.length === this.length()) this.completed.emit(value);
   }

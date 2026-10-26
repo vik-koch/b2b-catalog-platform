@@ -12,14 +12,16 @@ import { FORM_FIELDS } from './form-fields';
         label="Code"
         [hint]="hint()"
         controlId="code"
+        describedBy="answer"
       >
+        <button appFieldAction type="button">Show</button>
         <input [formField]="form.code" />
       </app-field>
       <app-field group [field]="form.size" label="Size" hint="Pick one">
         <input type="radio" value="s" [formField]="form.size" />
         <input type="radio" value="m" [formField]="form.size" />
       </app-field>
-      <input id="trap" [formField]="form.trap" />
+      <input id="trap" aria-describedby="trap-hint" [formField]="form.trap" />
       <button type="submit">Send</button>
     </form>
   `,
@@ -71,7 +73,7 @@ async function render() {
     await settle();
   };
   const submit = async () => {
-    el.querySelector<HTMLButtonElement>('button')?.click();
+    el.querySelector<HTMLButtonElement>('button[type="submit"]')?.click();
     await settle();
   };
   const errorOf = (id: string) => el.querySelector(`#${id}-error`);
@@ -92,7 +94,7 @@ describe('Field', () => {
   it('points the control at its hint while there is no error', async () => {
     const { el, input } = await render();
 
-    expect(input.getAttribute('aria-describedby')).toBe('code-hint');
+    expect(input.getAttribute('aria-describedby')).toBe('code-hint answer');
     expect(el.querySelector('#code-hint')?.textContent).toContain(
       'Five digits',
     );
@@ -110,7 +112,7 @@ describe('Field', () => {
     await submit();
     expect(errorOf('code')?.textContent).toContain('Enter a code');
     expect(input.getAttribute('aria-invalid')).toBe('true');
-    expect(input.getAttribute('aria-describedby')).toBe('code-error');
+    expect(input.getAttribute('aria-describedby')).toBe('code-error answer');
     expect(fixture.componentInstance.sent()).toBe(0);
   });
 
@@ -148,12 +150,22 @@ describe('Field', () => {
     expect(fieldset.textContent).toContain('Pick a size');
   });
 
-  it('leaves the id of a control outside any field alone', async () => {
+  it('draws a caption-row action beside the caption, not in the control', async () => {
     const { el } = await render();
+    const label = el.querySelector('label[for="code"]');
 
-    expect(el.querySelector('#trap')).not.toBeNull();
-    expect(el.querySelector('#trap')?.hasAttribute('aria-describedby')).toBe(
-      false,
+    expect(label?.parentElement?.querySelector('button')?.textContent).toBe(
+      'Show',
     );
+    expect(label?.parentElement?.classList).toContain('justify-between');
+  });
+
+  it('leaves a control outside any field with its own attributes', async () => {
+    const { el } = await render();
+    const trap = el.querySelector('#trap');
+
+    expect(trap).not.toBeNull();
+    expect(trap?.getAttribute('aria-describedby')).toBe('trap-hint');
+    expect(trap?.hasAttribute('aria-invalid')).toBe(false);
   });
 });

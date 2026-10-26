@@ -1,5 +1,6 @@
 import { FormField, FormRoot } from '@angular/forms/signals';
 import { Field } from './field';
+import { FieldAction } from './field-action';
 import { FieldBinding } from './field-binding';
 import { SubmitAttempt } from './submit-attempt';
 
@@ -13,5 +14,6 @@ export const FORM_FIELDS = [
   FormField,
   SubmitAttempt,
   Field,
+  FieldAction,
   FieldBinding,
 ] as const;

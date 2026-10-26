@@ -335,9 +335,6 @@ describe('InquiryPage', () => {
 
       fill(el);
       tickConsent(el);
-      // A render between tick and refusal, as in a browser: FormField writes
-      // the box only when the value differs from the last one it wrote.
-      await sync();
       submitForm(el);
       await sync();
       await sync();

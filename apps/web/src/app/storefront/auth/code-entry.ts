@@ -10,17 +10,16 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, maxLength, pattern, required } from '@angular/forms/signals';
 import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { FieldErrors } from '../../shared/core/form-errors';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { CodeInput } from '../../shared/ui/code-input';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { SubmitAttempt } from '../../shared/ui/submit-attempt';
 import { TextButton } from '../../shared/ui/link';
 import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
-import { ErrorText } from '../../shared/ui/error-text';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */
 export function formatWait(seconds: number): string {
@@ -45,15 +44,7 @@ function around(line: string, placeholder: string): [string, string] {
  */
 @Component({
   selector: 'app-code-entry',
-  imports: [
-    ReactiveFormsModule,
-    Button,
-    Checkbox,
-    CodeInput,
-    FieldLabel,
-    TextButton,
-    ErrorText,
-  ],
+  imports: [FORM_FIELDS, Button, Checkbox, CodeInput, TextButton],
   host: { class: 'block' },
   template: `
     <!-- Each masked value is one unit: a number broken across two lines no
@@ -71,12 +62,7 @@ function around(line: string, placeholder: string): [string, string] {
       </p>
     }
 
-    <form
-      [formGroup]="form"
-      (ngSubmit)="submit()"
-      novalidate
-      class="mt-6 space-y-6"
-    >
+    <form #formElement [formRoot]="form" class="mt-6 space-y-6">
       <!-- Above the boxes, not below: six digits submit by themselves, so a
            box after them would be passed before anyone reached it. -->
       @if (rememberDays() > 0) {
@@ -86,7 +72,7 @@ function around(line: string, placeholder: string): [string, string] {
               appCheckbox
               type="checkbox"
               class="mt-0.5"
-              formControlName="remember"
+              [formField]="form.remember"
               aria-describedby="rememberBrowserHint"
             />
             <span>{{ rememberLabel() }}</span>
@@ -97,26 +83,19 @@ function around(line: string, placeholder: string): [string, string] {
         </div>
       }
 
-      <div>
-        <label [for]="inputId" appFieldLabel>{{ text.code }}</label>
+      <app-field
+        [field]="form.code"
+        [label]="text.code"
+        [marker]="false"
+        [controlId]="inputId"
+        [describedBy]="inputId + '-message'"
+      >
+        <!-- Six digits send themselves, the way pressing Enter would. -->
         <app-code-input
-          [inputId]="inputId"
-          [control]="form.controls.code"
-          [length]="length"
-          [invalid]="errors.show(form.controls.code)"
-          [describedBy]="inputId + '-message'"
-          (completed)="submit()"
+          [field]="form.code"
+          (completed)="formElement.requestSubmit()"
         />
-        @if (errors.show(form.controls.code)) {
-          <p appErrorText class="mt-1">
-            {{
-              form.controls.code.hasError('required')
-                ? text.codeRequired
-                : fill(text.codeFormat)
-            }}
-          </p>
-        }
-      </div>
+      </app-field>
 
       <p
         [id]="inputId + '-message'"
@@ -161,11 +140,8 @@ function around(line: string, placeholder: string): [string, string] {
   `,
 })
 export class CodeEntry {
-  private readonly fb = inject(FormBuilder);
-
   protected readonly text = inject(STOREFRONT_TEXT).auth.signInStep;
   private readonly closed = inject(STOREFRONT_TEXT).auth.closed;
-  protected readonly length = SIGN_IN_CODE_LENGTH;
   protected readonly inputId = 'signInCode';
 
   /** Where the code went and when another may be asked. Each new value
@@ -192,6 +168,7 @@ export class CodeEntry {
   readonly restart = output<void>();
 
   private readonly codeInput = viewChild(CodeInput);
+  private readonly attempt = viewChild(SubmitAttempt);
 
   protected readonly busy = signal(false);
   /** One line under the boxes; a notice (a code was resent) is not an error. */
@@ -205,17 +182,18 @@ export class CodeEntry {
     Math.max(0, (this.resendAt() - this.now()) / 1000),
   );
 
-  protected readonly form = this.fb.nonNullable.group({
-    code: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`)),
-      ],
-    ],
-    remember: false,
-  });
-  protected readonly errors = new FieldErrors(this.form);
+  private readonly model = signal({ code: '', remember: false });
+  protected readonly form = form(
+    this.model,
+    (entry) => {
+      required(entry.code, { message: this.text.codeRequired });
+      maxLength(entry.code, SIGN_IN_CODE_LENGTH);
+      pattern(entry.code, new RegExp(`^\\d{${SIGN_IN_CODE_LENGTH}}$`), {
+        message: this.fill(this.text.codeFormat),
+      });
+    },
+    { name: 'sign-in-code', submission: { action: () => this.send() } },
+  );
 
   constructor() {
     effect(() => this.waitFor(this.sent().resendIn));
@@ -240,13 +218,11 @@ export class CodeEntry {
     return formatWait(seconds);
   }
 
-  protected async submit(): Promise<void> {
+  private async send(): Promise<void> {
     if (this.busy()) return;
-    this.errors.markSubmitted();
-    if (this.form.invalid) return;
 
     this.busy.set(true);
-    const { code, remember } = this.form.getRawValue();
+    const { code, remember } = this.model();
     const outcome = await this.submitCode()(
       code.trim(),
       this.rememberDays() > 0 && remember,
@@ -271,8 +247,8 @@ export class CodeEntry {
 
   private clear(): void {
     // The code only: a ticked box stays ticked for the next try.
-    this.form.controls.code.reset();
-    this.errors.reset();
+    this.form.code().reset('');
+    this.attempt()?.reset();
     this.codeInput()?.focus();
   }
 

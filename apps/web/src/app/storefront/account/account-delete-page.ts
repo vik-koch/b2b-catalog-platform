@@ -1,19 +1,17 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { AuthService } from '../../shared/auth/auth.service';
-import { FieldErrors } from '../../shared/core/form-errors';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
 import { PageIntro } from '../../shared/ui/page-intro';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
@@ -32,14 +30,12 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 @Component({
   selector: 'app-account-delete-page',
   imports: [
-    ReactiveFormsModule,
+    FORM_FIELDS,
     RouterLink,
     Button,
-    FieldLabel,
     Input,
     PageTitle,
     ErrorText,
-    Hint,
     PageIntro,
   ],
   template: `
@@ -71,35 +67,21 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
           </p>
         }
 
-        <form
-          class="space-y-6"
-          novalidate
-          (ngSubmit)="submit()"
-          [formGroup]="form"
-        >
-          <div>
-            <label for="password" appFieldLabel>
-              {{ password }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
+        <form [formRoot]="form" class="space-y-6">
+          <app-field
+            [field]="form.password"
+            [label]="password"
+            [hint]="text.passwordHint"
+            controlId="password"
+          >
             <input
-              id="password"
               type="password"
-              formControlName="password"
               autocomplete="current-password"
-              aria-required="true"
               appInput
               class="w-full"
-              [attr.aria-invalid]="isInvalid() || null"
+              [formField]="form.password"
             />
-            @if (isInvalid()) {
-              <p appErrorText class="mt-1">
-                {{ validation.currentPasswordRequired }}
-              </p>
-            } @else {
-              <p appHint class="mt-1">{{ text.passwordHint }}</p>
-            }
-          </div>
+          </app-field>
 
           <div class="flex flex-wrap items-center gap-3">
             <!-- Destructive, and styled as such: this is the one control on the
@@ -128,7 +110,6 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
   `,
 })
 export class AccountDeletePage {
-  private readonly fb = inject(FormBuilder);
   private readonly account = inject(AccountService);
   private readonly auth = inject(AuthService);
 
@@ -158,17 +139,18 @@ export class AccountDeletePage {
     return fillText(this.text.openOrders, { count });
   }
 
-  protected readonly form = this.fb.nonNullable.group({
-    password: ['', Validators.required],
-  });
-  private readonly fieldErrors = new FieldErrors(this.form);
+  protected readonly form = form(
+    signal({ password: '' }),
+    (request) => {
+      required(request.password, {
+        message: this.validation.currentPasswordRequired,
+      });
+    },
+    { name: 'account-delete', submission: { action: () => this.send() } },
+  );
 
   constructor() {
     usePageSeo({ name: () => this.text.heading });
-  }
-
-  protected isInvalid(): boolean {
-    return this.fieldErrors.show(this.form.controls.password);
   }
 
   /** The refusal to show, or null while there is none. */
@@ -185,14 +167,11 @@ export class AccountDeletePage {
     }
   }
 
-  protected async submit(): Promise<void> {
-    this.fieldErrors.markSubmitted();
-    if (this.form.invalid) return;
-
+  private async send(): Promise<void> {
     this.status.set('submitting');
     try {
       const result = await this.account.deleteAccount(
-        this.form.getRawValue().password,
+        this.form.password().value(),
       );
       if (result !== 'ok') {
         this.status.set(result);

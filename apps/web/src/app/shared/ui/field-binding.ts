@@ -1,34 +1,40 @@
 import { computed, Directive, HostAttributeToken, inject } from '@angular/core';
 import { Field } from './field';
 
+const own = (name: string) =>
+  inject(new HostAttributeToken(name), { optional: true });
+
 /**
  * The control's half of Field: it takes the id the caption points at, and the
  * describedby, required and invalid state the field decides. Sits beside
  * FormField, which binds the value, `required` and `disabled` themselves.
- * Outside a Field it leaves the element's own id alone.
+ *
+ * Outside a Field it keeps whatever the element says for itself: a host
+ * binding to null would remove an attribute written in the template.
  */
 @Directive({
   // eslint-disable-next-line @angular-eslint/directive-selector -- rides on FormField's selector, so no control forgets it
   selector: '[formField]',
   host: {
-    '[attr.id]': 'id()',
-    '[attr.aria-describedby]': 'control() ? shell?.describedBy() : null',
+    '[attr.id]': 'control() ? shell?.controlId() : ownId',
+    '[attr.aria-describedby]':
+      'control() ? shell?.descriptionIds() : ownDescribedBy',
     // A custom control gets no native `required`, so it is said once here.
-    '[attr.aria-required]': 'control() && shell?.required() ? true : null',
-    '[attr.aria-invalid]': 'control() && shell?.error() ? true : null',
+    '[attr.aria-required]':
+      'control() ? (shell?.required() ? true : null) : ownRequired',
+    '[attr.aria-invalid]':
+      'control() ? (shell?.error() ? true : null) : ownInvalid',
   },
 })
 export class FieldBinding {
   protected readonly shell = inject(Field, { optional: true });
-  private readonly ownId = inject(new HostAttributeToken('id'), {
-    optional: true,
-  });
+  protected readonly ownId = own('id');
+  protected readonly ownDescribedBy = own('aria-describedby');
+  protected readonly ownRequired = own('aria-required');
+  protected readonly ownInvalid = own('aria-invalid');
 
   /** A group's fieldset carries the wiring; its inputs do not. */
   protected readonly control = computed(
     () => !!this.shell && !this.shell.group(),
-  );
-  protected readonly id = computed(() =>
-    this.control() ? this.shell?.controlId() : this.ownId,
   );
 }

@@ -12,4 +12,12 @@ import { Directive, signal } from '@angular/core';
 })
 export class SubmitAttempt {
   readonly attempted = signal(false);
+
+  /**
+   * Back to silence, for a form emptied for another go. Without it the
+   * cleared required fields would all light up beside the answer.
+   */
+  reset(): void {
+    this.attempted.set(false);
+  }
 }
