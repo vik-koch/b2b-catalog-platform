@@ -33,7 +33,8 @@ row and a recessed panel are both stone-100) and still keep two names, because t
 jobs and a deployment may want to tell them apart. Two roles that do the same job are one role.
 
 Tailwind's palette (`stone-200`, `red-700`) is where the values come from, not a name a template
-may use. `white` and `black` stay: white is the text on every fill, black only ever a translucent
+may use: `styles.css` switches it off and keeps the steps the roles use as private `--palette-*`
+values. `white` and `black` stay: white is the text on every fill, black only ever a translucent
 overlay.
 
 ## Contrast
@@ -119,9 +120,9 @@ on the recessed grounds.
 |---|---|---|
 | `surface-subtle` | stone-50 | The page, and the level of the white things on it |
 | `surface-subtle-hover` / `surface-subtle-press` | stone-100 / 200 | A control on the page or on white, hovered and pressed |
-| `surface` | stone-100 | A recessed ground: footer, notes, pills, a segmented track, a disabled field. One step from the page, as a status colour's `-surface` is |
+| `surface` | stone-100 | A recessed ground: footer, notes, pills, a segmented track, a disabled field, a nested row. One step from the page, as a status colour's `-surface` is |
 | `surface-hover` / `surface-press` | stone-200 / 300 | A control on a recessed ground |
-| `surface-strong` | stone-200 | One step further: a switch that is off, a nested row |
+| `surface-strong` | stone-200 | One step further: a switch that is off, a disabled primary button |
 | `chip` / `chip-hover` | stone-100 → 200, a quarter step / stone-200 | A small fill that has to show on the page: the category chip, the neutral badge. Between stone-100, which all but vanishes on the page, and stone-200, which turns a grid of them grey |
 | `skeleton` | stone-200 | A block standing in for content still loading |
 
@@ -167,8 +168,10 @@ lists them with what each one colours.
 
 ## Keeping to it
 
-- **Lint** refuses a Tailwind palette colour, a literal colour and a Typography colour theme
-  anywhere in web code, in templates and in TypeScript strings alike (`no-restricted-classes` in
+- **Only the roles exist.** With Tailwind's palette switched off, `bg-stone-200` draws nothing
+  and lint reports it as unknown. Lint also refuses a colour with a palette step, a palette
+  variable, a literal colour other than black or white and a Typography colour theme anywhere in
+  web code, in templates and in TypeScript strings alike (`no-restricted-classes` in
   [eslint.config.mjs](../apps/web/eslint.config.mjs)).
 - **The audit** (`npx nx run web-e2e:audit`) screenshots every page on desktop and phone and
   runs axe against WCAG 2.1 AA, so a contrast slip shows up as a new finding next to its ratio.

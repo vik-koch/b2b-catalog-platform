@@ -172,8 +172,10 @@
 
   /*
    * Colour, by family. Every colour a template draws is one of these roles:
-   * lint refuses Tailwind's palette (eslint.config.mjs), and a deployment's
-   * `branding.theme` overrides them on <html> (`App`).
+   * Tailwind's own palette is switched off, so `bg-stone-200` generates
+   * nothing and lint reports it, and a deployment's `branding.theme`
+   * overrides the roles on <html> (`App`). The steps they are drawn from are
+   * the `--palette-*` block below.
    *
    * A name is family · role · intensity · state: `danger-surface`,
    * `surface-hover`, `ink-subtle`. Roles: a ground (`surface`, `chip`), text
@@ -184,6 +186,9 @@
    * marker 3:1; `ink-disabled` and lines are exempt. The reasoning,
    * the measured pairs and the exceptions: docs/design-language.md.
    */
+  --color-*: initial;
+  --color-white: #fff;
+  --color-black: #000;
 
   /* Brand. Primary is "coffee", 7.4:1 on white. */
   --color-primary: oklch(45.39% 0.0568 55.64);
@@ -225,13 +230,13 @@
    * `ink-disabled` is the text of a control that cannot be used, the one
    * text role below 4.5:1.
    */
-  --color-ink: var(--color-stone-900);
+  --color-ink: var(--palette-stone-900);
   --color-ink-subtle: color-mix(
     in oklab,
-    var(--color-stone-500) 75%,
-    var(--color-stone-600)
+    var(--palette-stone-500) 75%,
+    var(--palette-stone-600)
   );
-  --color-ink-disabled: var(--color-stone-400);
+  --color-ink-disabled: var(--palette-stone-400);
 
   /*
    * Lines. `edge` is structural — card edges, dividers, table rules;
@@ -239,8 +244,8 @@
    * (inputs, secondary buttons); `edge-subtle` is lighter than `edge`, for
    * rows that repeat. stone-200 / stone-300 / stone-100.
    */
-  --color-edge: var(--color-stone-200);
-  --color-edge-strong: var(--color-stone-300);
+  --color-edge: var(--palette-stone-200);
+  --color-edge-strong: var(--palette-stone-300);
   --color-edge-subtle: var(--color-surface);
 
   /*
@@ -255,13 +260,13 @@
    * to the ground at that step: a deployment that sets the three grounds
    * gets matching hovers, presses and chips without setting those too.
    */
-  --color-surface-subtle: var(--color-stone-50);
+  --color-surface-subtle: var(--palette-stone-50);
   --color-surface-subtle-hover: var(--color-surface);
   --color-surface-subtle-press: var(--color-surface-strong);
-  --color-surface: var(--color-stone-100);
+  --color-surface: var(--palette-stone-100);
   --color-surface-hover: var(--color-surface-strong);
   --color-surface-press: var(--color-edge-strong);
-  --color-surface-strong: var(--color-stone-200);
+  --color-surface-strong: var(--palette-stone-200);
   /*
    * The category chip fills a lot of the page: stone-100 is barely a shade
    * off the page, and stone-200 read as a grey block once a grid of chips
@@ -291,27 +296,64 @@
    * that stands alone, such as the sign that work is waiting, has nothing
    * else to be seen by.
    */
-  --color-danger: var(--color-red-700);
-  --color-danger-hover: var(--color-red-800);
-  --color-danger-press: var(--color-red-900);
-  --color-danger-ink: var(--color-red-800);
-  --color-danger-surface: var(--color-red-100);
-  --color-danger-edge: var(--color-red-200);
-  --color-danger-edge-strong: var(--color-red-300);
-  --color-danger-dot: var(--color-red-600);
-  --color-warning: var(--color-amber-700);
-  --color-warning-ink: var(--color-amber-800);
-  --color-warning-surface: var(--color-amber-100);
-  --color-warning-edge: var(--color-amber-200);
-  --color-warning-dot: var(--color-amber-600);
-  --color-success: var(--color-green-700);
-  --color-success-ink: var(--color-green-800);
-  --color-success-surface: var(--color-green-100);
-  --color-success-dot: var(--color-green-600);
-  --color-info-ink: var(--color-sky-800);
-  --color-info-surface: var(--color-sky-100);
-  --color-info-edge: var(--color-sky-200);
-  --color-info-dot: var(--color-sky-600);
+  --color-danger: var(--palette-red-700);
+  --color-danger-hover: var(--palette-red-800);
+  --color-danger-press: var(--palette-red-900);
+  --color-danger-ink: var(--palette-red-800);
+  --color-danger-surface: var(--palette-red-100);
+  --color-danger-edge: var(--palette-red-200);
+  --color-danger-edge-strong: var(--palette-red-300);
+  --color-danger-dot: var(--palette-red-600);
+  --color-warning: var(--palette-amber-700);
+  --color-warning-ink: var(--palette-amber-800);
+  --color-warning-surface: var(--palette-amber-100);
+  --color-warning-edge: var(--palette-amber-200);
+  --color-warning-dot: var(--palette-amber-600);
+  --color-success: var(--palette-green-700);
+  --color-success-ink: var(--palette-green-800);
+  --color-success-surface: var(--palette-green-100);
+  --color-success-dot: var(--palette-green-600);
+  --color-info-ink: var(--palette-sky-800);
+  --color-info-surface: var(--palette-sky-100);
+  --color-info-edge: var(--palette-sky-200);
+  --color-info-dot: var(--palette-sky-600);
+}
+
+/*
+ * The palette steps the colour roles are drawn from: Tailwind 4.3's values,
+ * copied because its palette is switched off above. Outside Tailwind's
+ * namespaces, so no class can name them (lint also refuses `--palette-` in
+ * a class), and a Tailwind upgrade cannot move a colour.
+ */
+:root {
+  --palette-stone-50: oklch(98.5% 0.001 106.423);
+  --palette-stone-100: oklch(97% 0.001 106.424);
+  --palette-stone-200: oklch(92.3% 0.003 48.717);
+  --palette-stone-300: oklch(86.9% 0.005 56.366);
+  --palette-stone-400: oklch(70.9% 0.01 56.259);
+  --palette-stone-500: oklch(55.3% 0.013 58.071);
+  --palette-stone-600: oklch(44.4% 0.011 73.639);
+  --palette-stone-900: oklch(21.6% 0.006 56.043);
+  --palette-red-100: oklch(93.6% 0.032 17.717);
+  --palette-red-200: oklch(88.5% 0.062 18.334);
+  --palette-red-300: oklch(80.8% 0.114 19.571);
+  --palette-red-600: oklch(57.7% 0.245 27.325);
+  --palette-red-700: oklch(50.5% 0.213 27.518);
+  --palette-red-800: oklch(44.4% 0.177 26.899);
+  --palette-red-900: oklch(39.6% 0.141 25.723);
+  --palette-amber-100: oklch(96.2% 0.059 95.617);
+  --palette-amber-200: oklch(92.4% 0.12 95.746);
+  --palette-amber-600: oklch(66.6% 0.179 58.318);
+  --palette-amber-700: oklch(55.5% 0.163 48.998);
+  --palette-amber-800: oklch(47.3% 0.137 46.201);
+  --palette-green-100: oklch(96.2% 0.044 156.743);
+  --palette-green-600: oklch(62.7% 0.194 149.214);
+  --palette-green-700: oklch(52.7% 0.154 150.069);
+  --palette-green-800: oklch(44.8% 0.119 151.328);
+  --palette-sky-100: oklch(95.1% 0.026 236.824);
+  --palette-sky-200: oklch(90.1% 0.058 230.902);
+  --palette-sky-600: oklch(58.8% 0.158 241.966);
+  --palette-sky-800: oklch(44.3% 0.11 240.79);
 }
 
 /*

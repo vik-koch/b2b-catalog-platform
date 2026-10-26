@@ -52,7 +52,7 @@ import { EditModeService } from '../shared/edit-mode/edit-mode.service';
         class="absolute right-4 bottom-0 flex translate-y-1/2 cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium shadow-lg transition-colors"
         [class]="
           editMode.enabled()
-            ? 'bg-accent text-white hover:border-accent hover:bg-white hover:text-black active:bg-primary-press active:text-white'
+            ? 'bg-accent text-white hover:border-accent hover:bg-white hover:text-ink active:bg-primary-press active:text-white'
             : 'bg-white text-ink hover:text-accent active:text-primary-press'
         "
         [attr.aria-pressed]="editMode.enabled()"

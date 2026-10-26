@@ -148,9 +148,9 @@ not at all, and nothing stopped a new template from adding more.
   `-hover`, `-press` and `-disabled` named for what they happen on
   (`surface-hover`, `danger-press`, `ink-disabled`). The status colours use the
   same roles: the bare name is text on the page, `-ink` text on the colour's
-  own `-surface`. The roles point at Tailwind's palette, so the palette stays
-  the source of shades; a value between two steps is a mix of them, not a
-  picked hex. Rich text takes the same roles through Typography's colour
+  own `-surface`. The roles take Tailwind's shades, copied into private
+  `--palette-*` steps so an upgrade cannot move them; a value between two
+  steps is a mix of them, not a picked hex. Rich text takes the same roles through Typography's colour
   variables instead of one of its palettes. The grammar, the contrast floors
   and the measured pairs are in [design-language.md](../design-language.md).
 - **A deployment sets a role by its own name** instead of a grey ramp step by
@@ -160,7 +160,14 @@ not at all, and nothing stopped a new template from adding more.
 - **The theme is written onto `<html>`**, not onto the root component: a
   dialog appended to `<body>` sits outside that component and drew in the
   default colours.
-- **A palette colour in web code is a lint error** (`no-restricted-classes`
-  in `apps/web/eslint.config.mjs`), in templates and in every TypeScript
-  string, as is a literal colour or a Typography colour theme. The discipline
-  this ADR named as a cost is now a check.
+- **Only the roles exist.** `styles.css` switches Tailwind's own colours off
+  (`--color-*: initial`), keeping white and black, so a palette class draws
+  nothing and `no-unknown-classes` reports it. Lint also refuses, in templates
+  and in every TypeScript string, a colour class with a palette step, a
+  palette variable, a literal colour other than black or white, and a
+  Typography colour theme (`no-restricted-classes` in
+  `apps/web/eslint.config.mjs`). The discipline this ADR named as a cost is
+  now a check, and it needs no list of palettes to keep current.
+- **Mail draws in the same greys.** The API's message layout takes the roles
+  it uses (`ink`, `inkSubtle`, `edge`, `surface`, `surfaceSubtle`) from the
+  theme where they are set as hex, and the web app's defaults otherwise.

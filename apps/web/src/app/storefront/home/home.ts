@@ -14,7 +14,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
  * reaches over the page's own padding to meet the header.
  */
 const BAND =
-  'bg-white [border-image:linear-gradient(#fff,#fff_calc(100%_-_5px),#f7f7f7)_fill_0/1/1rem_100vmax_0]';
+  'bg-white [border-image:linear-gradient(#fff,#fff_calc(100%_-_5px),var(--color-surface))_fill_0/1/1rem_100vmax_0]';
 
 // The storefront landing in two parts: a brief intro and a row of products
 // (FR-CAT-09) on a white band, then the categories — the same index /catalog

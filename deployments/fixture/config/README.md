@@ -133,7 +133,10 @@ Everything else keeps the app's own default unless set.
   the page; `surface`; `surfaceStrong`) carry their hovers, presses, the chip
   and the loading blocks with them, so a cool palette is about ten keys: the
   grounds, `ink`, `inkSubtle`, `inkDisabled`, `edge` and `edgeStrong`, and
-  `chip` if the mix of the grounds is not right for it.
+  `chip` if the mix of the grounds is not right for it. Written as `#rrggbb`,
+  `ink`, `inkSubtle`, `edge`, `surface` and `surfaceSubtle` colour the mails
+  too; a mail client reads no other form, so another keeps the mails on the
+  defaults.
 - **A status colour** (`danger`, `warning`, `success`, `info`) is set whole,
   every role it has, each as `#rrggbb`. Set one when the brand comes too close
   to red or amber for the two to be told apart. Its text must stay readable,

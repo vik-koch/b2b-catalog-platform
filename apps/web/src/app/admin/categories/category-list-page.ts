@@ -406,16 +406,15 @@ export class CategoryListPage {
   protected readonly indent = INDENT;
 
   /**
-   * How deep a row sits, as a shade. The indent alone says it, but only against
-   * the row above — a subcategory read on its own is just a row starting a
-   * little to the right, and on a phone, where the whole list is 340px wide,
-   * two levels of indent are 72px of that. A tint gives each level an edge of
-   * its own, and stops after two: a third grey is a grey nobody can tell from
-   * the second.
+   * Whether a row is nested, as a shade. The indent alone says it, but only
+   * against the row above — a subcategory read on its own is just a row
+   * starting a little to the right, and on a phone, where the whole list is
+   * 340px wide, two levels of indent are 72px of that. One tint for every
+   * nested level, the indent telling them apart: a darker one takes the
+   * accent and amber text in the row below 4.5:1.
    */
   protected depthTint(depth: number): string {
-    if (depth <= 0) return '';
-    return depth === 1 ? 'bg-surface pl-2' : 'bg-surface-strong pl-2';
+    return depth > 0 ? 'bg-surface pl-2' : '';
   }
 
   /** The category whose delete confirmation modal is open, if any. */
