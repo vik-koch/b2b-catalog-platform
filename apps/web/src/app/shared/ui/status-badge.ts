@@ -9,13 +9,13 @@ const tones = {
   /** Nothing is pending and nothing is wrong — history, or a plain fact. */
   neutral: 'bg-chip text-ink-subtle',
   /** Somebody has to act before this moves. */
-  waiting: 'bg-warning-surface-strong text-warning-ink',
+  waiting: 'bg-warning-surface text-warning-ink',
   /** Settled, and settled well. */
-  ok: 'bg-success-surface-strong text-success-ink',
+  ok: 'bg-success-surface text-success-ink',
   /** Settled by a refusal, or deliberately switched off. */
-  danger: 'bg-danger-surface-strong text-danger-ink',
+  danger: 'bg-danger-surface text-danger-ink',
   /** A state worth pointing out that is neither good nor bad. */
-  info: 'bg-info-surface-strong text-info-ink',
+  info: 'bg-info-surface text-info-ink',
 } as const;
 
 /**

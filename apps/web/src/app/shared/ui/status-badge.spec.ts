@@ -33,7 +33,7 @@ describe('StatusBadge', () => {
     fixture.detectChanges();
 
     expect(badge.classList.contains('rounded-full')).toBe(true);
-    expect(badge.classList.contains('bg-success-surface-strong')).toBe(true);
+    expect(badge.classList.contains('bg-success-surface')).toBe(true);
     expect(badge.className).not.toContain('before:');
   });
 

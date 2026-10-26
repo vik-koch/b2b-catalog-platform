@@ -273,8 +273,9 @@
    * a destructive control. `warning` is something to weigh before going on,
    * `success` a thing done, `info` a state worth pointing out. Shades are
    * named by role, as the brand colours are: the bare name is text on the
-   * page, `-ink` text on the colour's own `-surface` (a panel) or
-   * `-surface-strong` (a badge), `-edge` the panel's line and `-edge-strong`
+   * page, `-ink` text on the colour's own `-surface` (a panel or a badge,
+   * one step from the page like the neutral `surface`), `-edge` the panel's
+   * line and `-edge-strong`
    * a control's, `-hover` and `-press` a filled control's two states,
    * `-dot` a marker that carries no words. Only the roles the app draws.
    *
@@ -287,24 +288,21 @@
   --color-danger-hover: var(--color-red-800);
   --color-danger-press: var(--color-red-900);
   --color-danger-ink: var(--color-red-800);
-  --color-danger-surface: var(--color-red-50);
-  --color-danger-surface-strong: var(--color-red-100);
+  --color-danger-surface: var(--color-red-100);
   --color-danger-edge: var(--color-red-200);
   --color-danger-edge-strong: var(--color-red-300);
   --color-danger-dot: var(--color-red-600);
   --color-warning: var(--color-amber-700);
   --color-warning-ink: var(--color-amber-800);
-  --color-warning-surface: var(--color-amber-50);
-  --color-warning-surface-strong: var(--color-amber-100);
+  --color-warning-surface: var(--color-amber-100);
   --color-warning-edge: var(--color-amber-200);
   --color-warning-dot: var(--color-amber-600);
   --color-success: var(--color-green-700);
   --color-success-ink: var(--color-green-800);
-  --color-success-surface-strong: var(--color-green-100);
+  --color-success-surface: var(--color-green-100);
   --color-success-dot: var(--color-green-600);
   --color-info-ink: var(--color-sky-800);
-  --color-info-surface: var(--color-sky-50);
-  --color-info-surface-strong: var(--color-sky-100);
+  --color-info-surface: var(--color-sky-100);
   --color-info-edge: var(--color-sky-200);
   --color-info-dot: var(--color-sky-600);
 }

@@ -59,7 +59,7 @@ How the defaults meet the floors:
 | `primary` / `accent` on `surface` | 6.8 / 4.6 |
 | `accent-strong` on `chip` / on the stone-200 hover grounds | 6.3 / 5.7 |
 | `danger` / `warning` / `success` on `surface` | 5.9 / 4.6 / 4.5 |
-| A status `-ink` on its `-surface-strong` (danger, warning, success, info) | 6.9 / 6.4 / 6.5 / 6.5 |
+| A status `-ink` on its `-surface` (danger, warning, success, info) | 6.9 / 6.4 / 6.5 / 6.5 |
 | White on `primary` / `primary-press` / `accent` | 7.4 / 10.0 / 5.0 |
 | White on `danger` / `danger-hover` / `danger-press` | 6.4 / 8.4 / 10.0 |
 | `secondary`, the focus colour, on white | 4.7 |
@@ -133,15 +133,17 @@ control on them takes `surface-subtle-hover` and `surface-subtle-press` like one
 <!-- prettier-ignore -->
 | Family | Says | Roles it has |
 |---|---|---|
-| `danger` (red) | A refusal: an error, a refused field, a destructive control | bare, `-hover`, `-press`, `-ink`, `-surface`, `-surface-strong`, `-edge`, `-edge-strong`, `-dot` |
-| `warning` (amber) | Something to weigh before going on, or work that waits for someone | bare, `-ink`, `-surface`, `-surface-strong`, `-edge`, `-dot` |
-| `success` (green) | A thing done | bare, `-ink`, `-surface-strong`, `-dot` |
-| `info` (sky) | A state worth pointing out | `-ink`, `-surface`, `-surface-strong`, `-edge`, `-dot` |
+| `danger` (red) | A refusal: an error, a refused field, a destructive control | bare, `-hover`, `-press`, `-ink`, `-surface`, `-edge`, `-edge-strong`, `-dot` |
+| `warning` (amber) | Something to weigh before going on, or work that waits for someone | bare, `-ink`, `-surface`, `-edge`, `-dot` |
+| `success` (green) | A thing done | bare, `-ink`, `-surface`, `-dot` |
+| `info` (sky) | A state worth pointing out | `-ink`, `-surface`, `-edge`, `-dot` |
 
 Each colour has only the roles the app draws. Their steps are the same across the four: the bare
-name is 700, `-ink` 800, `-surface` 50, `-surface-strong` 100, `-edge` 200, `-edge-strong` 300,
-`-dot` 600, and danger's `-hover` and `-press` 800 and 900. A badge is `-ink` on
-`-surface-strong` with a `-dot`; a panel is `-ink` on `-surface` inside an `-edge`.
+name is 700, `-ink` 800, `-surface` 100, `-edge` 200, `-edge-strong` 300,
+`-dot` 600, and danger's `-hover` and `-press` 800 and 900. Badges and panels share the one
+ground, a step from the page as the neutral `surface` is: a badge is `-ink` on `-surface` with
+a `-dot`, a panel is `-ink` on `-surface` inside an `-edge`. The neutral badge is the one
+exception, on `chip`, because a grey a step from the page all but vanishes on it.
 
 ## Themes
 
