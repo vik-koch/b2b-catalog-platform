@@ -9,6 +9,7 @@ import { CartFigures } from './storefront/cart/cart-figures';
 import { LastListingService } from './storefront/catalog/last-listing.service';
 import { PairingsService } from './shared/catalog/pairings.service';
 import { ProductPairingsDialog } from './storefront/catalog/product-pairings-dialog';
+import { DeploymentConfig } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from './shared/config/deployment-config';
 import { CookieConsent } from './storefront/consent/cookie-consent';
 import { shopTitle } from './shared/core/page-seo';
@@ -106,32 +107,9 @@ import { SiteNotice } from './storefront/layout/site-notice';
          change, so public pages carry only the (empty) component instance. -->
     <app-force-password-change />
   `,
-  host: {
-    '[style.--color-primary]': 'branding.theme.primary',
-    '[style.--color-primary-deep]': 'branding.theme.primaryDeep',
-    '[style.--color-secondary]': 'branding.theme.secondary',
-    '[style.--color-accent]': 'branding.theme.accent',
-    '[style.--color-surface]': 'branding.theme.surface || null',
-    '[style.--color-ink]': 'branding.theme.ink || null',
-    '[style.--color-muted]': 'branding.theme.muted || null',
-    '[style.--color-subtle]': 'branding.theme.subtle || null',
-    '[style.--color-border]': 'branding.theme.border || null',
-    '[style.--color-border-strong]': 'branding.theme.borderStrong || null',
-    '[style]': 'neutralRamp',
-    // Not a colour, but the same seam: one custom property a deployment may
-    // override without a rebuild (see styles.css).
-    '[style.--font-weight-emphasis]': 'branding.font?.emphasisWeight || null',
-  },
 })
 export class App {
   protected branding = inject(DEPLOYMENT_CONFIG).branding;
-  /** The deployment's own greys, as the `--color-stone-*` they replace. */
-  protected readonly neutralRamp = Object.fromEntries(
-    Object.entries(this.branding.theme.neutrals ?? {}).map(([step, colour]) => [
-      `--color-stone-${step}`,
-      colour,
-    ]),
-  );
   /** Which sold-together panel is open — what the deferred block waits on. */
   protected readonly pairings = inject(PairingsService);
   private readonly router = inject(Router);
@@ -172,7 +150,15 @@ export class App {
     // The language the text is written in, from the same config and for the
     // same reason: a screen reader picks its voice by it, and a browser its
     // hyphenation and spell-checking.
-    inject(DOCUMENT).documentElement.lang = inject(DEPLOYMENT_CONFIG).locale;
+    const root = inject(DOCUMENT).documentElement;
+    root.lang = inject(DEPLOYMENT_CONFIG).locale;
+    // The theme goes on <html> rather than on this component: the confirm
+    // dialog is appended to <body>, outside it, and has to be drawn in the
+    // same colours. Property by property, because <html> also carries the
+    // cart's figures, which the pre-paint script set before this runs.
+    for (const [name, value] of themeProperties(this.branding)) {
+      root.style.setProperty(name, value);
+    }
 
     // Starts recording which listing the visitor is standing at, so leaving
     // the cart returns to the shelf rather than to the front of the shop.
@@ -182,4 +168,36 @@ export class App {
     // and the pre-paint script read them from.
     inject(CartFigures);
   }
+}
+
+/**
+ * The custom properties a deployment's branding overrides, the ones it leaves
+ * out keeping the stylesheet's own. `neutrals` replaces the `--color-stone-*`
+ * steps one by one.
+ */
+function themeProperties(
+  branding: DeploymentConfig['branding'],
+): [string, string][] {
+  const { theme } = branding;
+  const properties: [string, string | number | undefined][] = [
+    ['--color-primary', theme.primary],
+    ['--color-primary-deep', theme.primaryDeep],
+    ['--color-secondary', theme.secondary],
+    ['--color-accent', theme.accent],
+    ['--color-surface', theme.surface],
+    ['--color-ink', theme.ink],
+    ['--color-muted', theme.muted],
+    ['--color-subtle', theme.subtle],
+    ['--color-border', theme.border],
+    ['--color-border-strong', theme.borderStrong],
+    ...Object.entries(theme.neutrals ?? {}).map(
+      ([step, colour]): [string, string] => [`--color-stone-${step}`, colour],
+    ),
+    // Not a colour, but the same seam: one custom property a deployment may
+    // override without a rebuild (see styles.css).
+    ['--font-weight-emphasis', branding.font?.emphasisWeight],
+  ];
+  return properties.flatMap(([name, value]) =>
+    value === undefined || value === '' ? [] : [[name, String(value)]],
+  );
 }

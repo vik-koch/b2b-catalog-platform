@@ -4,9 +4,9 @@
 /*
  * Deployment-themeable design tokens — templates use only these semantic
  * names (bg-primary, text-ink, …), never raw palette colors. Tailwind v4
- * compiles the utilities to var() references, so a deployment can re-theme
- * a built image at runtime by overriding the :root custom properties
- * (planned: SSR-injected from deployment config, like the map embed URL).
+ * compiles the utilities to var() references, so a deployment re-themes a
+ * built image at runtime: `App` writes its `branding.theme` onto <html> as
+ * these same custom properties, server-rendered pages included.
  *
  * Token rule: replacement palettes must keep similar lightness — primary is
  * used as text on white (needs >= 4.5:1) and as a background under white text.
