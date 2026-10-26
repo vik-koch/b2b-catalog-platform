@@ -74,7 +74,7 @@ export const CATEGORY_GRID =
     } @else if (showSkeleton()) {
       <ul [class]="gridClass" aria-hidden="true">
         @for (i of skeletons; track i) {
-          <li class="h-16 animate-pulse rounded-xl bg-stone-125 sm:h-24"></li>
+          <li class="h-16 animate-pulse rounded-xl bg-chip sm:h-24"></li>
         }
       </ul>
     }

@@ -297,7 +297,7 @@ let nextId = 0;
                   <div
                     role="row"
                     class="flex items-center gap-3 py-2 pr-3 pl-2"
-                    [class.bg-stone-100]="i + offset() === activeIndex()"
+                    [class.bg-surface-hover]="i + offset() === activeIndex()"
                     (mouseenter)="hover(i + offset())"
                   >
                     <div
@@ -418,7 +418,7 @@ let nextId = 0;
               <button
                 type="button"
                 tabindex="-1"
-                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-stone-100 hover:text-accent active:text-primary-deep"
+                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-surface-hover hover:text-accent active:text-primary-deep"
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}

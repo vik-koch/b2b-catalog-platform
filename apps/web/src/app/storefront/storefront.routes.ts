@@ -58,8 +58,8 @@ const isPublishedPage: CanMatchFn = (_: Route, [first]: UrlSegment[]) => {
 export const storefrontRoutes: Route[] = [
   { path: '', component: Home, canActivate: [maintenanceGate] },
   // Session-scoped routes, lazy so the public bundle carries none of them.
-  // `layout: 'centered'` is the signed-out treatment: the shell paints a stone
-  // background (see app.ts) and the page draws its form in an AuthCard on top.
+  // `layout: 'centered'` is the signed-out treatment: the shell paints a recessed
+  // grey background (see app.ts) and the page draws its form in an AuthCard on top.
   // These four are the whole of it — every other route is a page of the app,
   // with content around it that the card would fight.
   {

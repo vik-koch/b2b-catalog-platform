@@ -178,7 +178,7 @@ import { Hint } from '../../shared/ui/hint';
       <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
+        class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-muted"
         role="status"
       >
         {{ text.previewNotice }}

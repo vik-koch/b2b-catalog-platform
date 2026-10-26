@@ -87,7 +87,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
            invites an attempt the API would refuse anyway. -->
       @if (catalogOwned()) {
         <p
-          class="rounded-md border border-edge bg-stone-100 px-4 py-3 text-sm text-muted"
+          class="rounded-md border border-edge bg-surface-strong px-4 py-3 text-sm text-muted"
           role="status"
         >
           {{ text.formatErrors['catalog-externally-owned'] }}
@@ -116,7 +116,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             <summary class="cursor-pointer text-sm text-muted">
               {{ text.advanced }}
             </summary>
-            <div class="mt-3 space-y-2 border-l-2 border-stone-100 pl-4">
+            <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
               @for (flag of flags; track flag.key) {
                 <label class="flex cursor-pointer items-start gap-2 text-sm">
                   <input
@@ -220,7 +220,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
         }
 
         @if (appliedRun(); as run) {
-          <p class="mb-8 rounded-md bg-stone-100 p-3 text-sm" role="status">
+          <p
+            class="mb-8 rounded-md bg-surface-strong p-3 text-sm"
+            role="status"
+          >
             {{ text.applied }} {{ changeSummary(run) }}
             <a appLink routerLink="/catalog" class="ml-2">{{
               navText.catalog

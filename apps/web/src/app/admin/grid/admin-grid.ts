@@ -144,7 +144,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
         <ul class="mb-4 flex flex-wrap gap-2 text-sm">
           @for (chip of chips(); track chip.label) {
             <li
-              class="flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1"
+              class="flex items-center gap-2 rounded-full bg-surface-strong px-3 py-1"
             >
               <span class="text-subtle">{{ chip.label }}</span>
               <span class="font-medium">{{ chip.value }}</span>
@@ -268,7 +268,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                 }
               </tr>
             </thead>
-            <tbody class="divide-y divide-stone-100">
+            <tbody class="divide-y divide-edge-subtle">
               @for (row of rows(); track trackBy()(row)) {
                 <!-- A row that is over — deleted, declined, switched off — is
                      greyed, but only its content: the buttons that undo the

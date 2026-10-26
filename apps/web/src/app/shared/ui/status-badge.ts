@@ -7,7 +7,7 @@ import { computed, Directive, input } from '@angular/core';
  */
 const tones = {
   /** Nothing is pending and nothing is wrong — history, or a plain fact. */
-  neutral: 'bg-stone-200 text-muted',
+  neutral: 'bg-surface-stronger text-muted',
   /** Somebody has to act before this moves. */
   waiting: 'bg-warning-surface-strong text-warning-ink',
   /** Settled, and settled well. */
@@ -27,7 +27,7 @@ const tones = {
  * to be scanned down a column, not to shout from inside a card.
  */
 const dots = {
-  neutral: 'before:bg-stone-400',
+  neutral: 'before:bg-faint',
   waiting: 'before:bg-warning-dot',
   ok: 'before:bg-success-dot',
   danger: 'before:bg-danger-dot',

@@ -47,7 +47,7 @@ import { PageTitle } from '../../shared/ui/page-title';
       </div>
       @if (content) {
         <div
-          class="prose prose-stone max-w-3xl"
+          class="prose max-w-3xl"
           appRichTextLinks
           [innerHTML]="safeBody(content.bodyHtml)"
         ></div>
@@ -61,9 +61,9 @@ import { PageTitle } from '../../shared/ui/page-title';
       }
     } @else if (showSkeleton()) {
       <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-stone-200"></div>
-        <div class="h-4 w-full rounded-sm bg-stone-200"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-stone-200"></div>
+        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
+        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
+        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
       </div>
     }
   `,

@@ -54,7 +54,7 @@ import { Hint } from '../../shared/ui/hint';
   template: `
     @if (previewing()) {
       <p
-        class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted"
+        class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-muted"
         role="status"
       >
         {{ text.previewNotice }}
@@ -62,10 +62,7 @@ import { Hint } from '../../shared/ui/hint';
       <h1 appPageTitle class="mb-4">{{ title() }}</h1>
       <!-- The published width, so the preview shows the line breaks the
            visitor will get — the same measure the editing surface uses. -->
-      <div
-        class="prose prose-stone max-w-3xl"
-        [innerHTML]="safeBody(body())"
-      ></div>
+      <div class="prose max-w-3xl" [innerHTML]="safeBody(body())"></div>
       @if (isConsent()) {
         <div class="mt-8 max-w-3xl border-t border-edge pt-4">
           <p class="mb-2 text-sm text-muted">{{ text.consentPreview }}</p>

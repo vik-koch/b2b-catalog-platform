@@ -66,7 +66,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     }}</span>
                   </summary>
                   <pre
-                    class="mt-3 overflow-x-auto rounded-sm bg-stone-100 p-4 text-xs whitespace-pre-wrap text-muted"
+                    class="mt-3 overflow-x-auto rounded-sm bg-surface-strong p-4 text-xs whitespace-pre-wrap text-muted"
                     >{{ notice.text }}</pre>
                 </details>
               </li>

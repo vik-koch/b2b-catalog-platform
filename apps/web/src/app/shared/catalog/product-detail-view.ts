@@ -162,7 +162,7 @@ const NARROW = '(max-width: 39.999rem)';
           <li aria-hidden="true" class="inline">
             <app-icon
               name="chevron-right"
-              class="mx-1 size-4 align-middle text-stone-300"
+              class="mx-1 size-4 align-middle text-edge-strong"
             />
           </li>
           <li class="inline">
@@ -177,7 +177,7 @@ const NARROW = '(max-width: 39.999rem)';
         <li aria-hidden="true" class="inline">
           <app-icon
             name="chevron-right"
-            class="mx-1 size-4 align-middle text-stone-300"
+            class="mx-1 size-4 align-middle text-edge-strong"
           />
         </li>
         <li class="inline">
@@ -196,7 +196,7 @@ const NARROW = '(max-width: 39.999rem)';
         <li aria-hidden="true" class="hidden sm:inline">
           <app-icon
             name="chevron-right"
-            class="mx-1 size-4 align-middle text-stone-300"
+            class="mx-1 size-4 align-middle text-edge-strong"
           />
         </li>
         <li class="hidden sm:inline">
@@ -316,7 +316,7 @@ const NARROW = '(max-width: 39.999rem)';
             <div
               #description
               [id]="descriptionTextId"
-              class="prose prose-stone max-w-none"
+              class="prose max-w-none"
               [class]="descriptionClass()"
               [style.--desc-full]="descriptionFullHeight()"
               [innerHTML]="safeDescription(item().descriptionHtml)"

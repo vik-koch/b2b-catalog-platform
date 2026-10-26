@@ -49,12 +49,12 @@ import { PageIntro } from '../../shared/ui/page-intro';
     @if (filter(); as state) {
       <div class="mb-6 flex flex-wrap items-center gap-2">
         <span
-          class="flex items-center gap-1.5 rounded-full bg-stone-100 py-1 pr-1.5 pl-3 text-sm"
+          class="flex items-center gap-1.5 rounded-full bg-surface-strong py-1 pr-1.5 pl-3 text-sm"
         >
           <span>{{ filterLabel() }}</span>
           <a
             routerLink="/account/orders"
-            class="flex items-center justify-center rounded-full p-0.5 text-stone-400 hover:text-danger"
+            class="flex items-center justify-center rounded-full p-0.5 text-faint hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
             <app-icon name="close" class="size-3.5" />
@@ -101,7 +101,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 >{{ pagination.previous }}</a
               >
             } @else {
-              <span class="px-3 py-1.5 text-stone-300">{{
+              <span class="px-3 py-1.5 text-disabled">{{
                 pagination.previous
               }}</span>
             }
@@ -116,7 +116,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 >{{ pagination.next }}</a
               >
             } @else {
-              <span class="px-3 py-1.5 text-stone-300">{{
+              <span class="px-3 py-1.5 text-disabled">{{
                 pagination.next
               }}</span>
             }

@@ -262,7 +262,7 @@ export interface AdjustLineRow {
                 role="option"
                 class="cursor-pointer px-3 py-2 text-sm"
                 [attr.aria-selected]="i === list.activeIndex()"
-                [class.bg-stone-100]="i === list.activeIndex()"
+                [class.bg-surface-hover]="i === list.activeIndex()"
                 (mouseenter)="list.activeIndex.set(i)"
                 (mousedown)="pick($event, item)"
               >

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 /**
  * The white panel every signed-out screen sits in — login, register, and the
- * two password-reset steps. Pairs with the shell's stone page background on
+ * two password-reset steps. Pairs with the shell's grey page background on
  * those routes (see app.routes.ts `layout: 'centered'`): the card is what the
  * gray is there to set off, so the two belong to the same decision.
  *

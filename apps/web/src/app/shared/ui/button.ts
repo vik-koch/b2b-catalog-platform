@@ -63,10 +63,10 @@ const variants = {
   // shelf. The fill has to go, or a button that refuses the press still
   // invites it.
   primary:
-    'bg-primary text-white hover:bg-accent active:bg-primary-deep disabled:bg-stone-200 disabled:text-stone-500 disabled:hover:bg-stone-200 disabled:active:bg-stone-200',
+    'bg-primary text-white hover:bg-accent active:bg-primary-deep disabled:bg-surface-stronger disabled:text-subtle disabled:hover:bg-surface-stronger disabled:active:bg-surface-stronger',
   // Hover recolors border and text rather than the background: this variant
-  // appears both on the white page and inside stone-100 blocks (the signed-in
-  // bar), where a stone background change is invisible. Accent is the app's
+  // appears both on the white page and inside `surface-strong` blocks (the
+  // signed-in bar), where a grey background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
     'border border-edge-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
@@ -84,7 +84,7 @@ const variants = {
    * noisy as outlined buttons: pagination, table row actions.
    */
   ghost:
-    'text-ink hover:bg-stone-100 hover:text-accent active:bg-stone-200 active:text-primary',
+    'text-ink hover:bg-surface-hover hover:text-accent active:bg-surface-press active:text-primary',
 } as const;
 
 /**

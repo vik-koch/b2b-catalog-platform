@@ -142,12 +142,14 @@ type EditTarget = { id: string } | { id: null } | null;
                     <!-- The sync key beside the label it belongs to, not across
                          the row: it is this tier's identifier, and read as a
                          pair with the name it identifies. -->
-                    <code class="rounded-sm bg-stone-100 px-1.5 py-0.5 text-xs">
+                    <code
+                      class="rounded-sm bg-surface-strong px-1.5 py-0.5 text-xs"
+                    >
                       {{ tier.key }}
                     </code>
                     @if (tier.isDefault) {
                       <span
-                        class="rounded-sm bg-stone-700 px-1.5 py-0.5 text-xs text-white"
+                        class="rounded-sm bg-muted px-1.5 py-0.5 text-xs text-white"
                         [title]="text.defaultHint"
                       >
                         {{ text.defaultBadge }}

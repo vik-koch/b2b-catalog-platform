@@ -34,7 +34,7 @@ import { SiteNotice } from './storefront/layout/site-notice';
   ],
   selector: 'app-root',
   template: `
-    <!-- Stone behind the signed-out screens, so the white card the auth pages
+    <!-- A recessed grey behind the signed-out screens, so the white card the auth pages
          draw has something to sit on; the ordinary page background otherwise.
          Bound rather than toggled with a second class: two background
          utilities on one element would be decided by stylesheet order. -->
@@ -76,7 +76,7 @@ import { SiteNotice } from './storefront/layout/site-notice';
            for any page with nothing on it to edit. Between the page and the
            footer, which is the line it comes to rest on. -->
       <app-edit-mode-toggle />
-      <!-- No top border where the page behind it is already stone: the line
+      <!-- No top border where the page behind it is already the footer's grey: the line
            would divide two areas of the same colour. -->
       <app-footer [seamless]="centered()" />
       <!-- The bottom bar is fixed, so it covers whatever the page ends with.
@@ -118,13 +118,13 @@ export class App {
    * Whether the active route asked for the signed-out treatment. Seeded from
    * the router's own snapshot rather than waiting for a navigation event, so
    * the first render already has it — a page that arrived white and turned
-   * stone would flash.
+   * grey would flash.
    */
   protected readonly centered = signal(this.isCenteredRoute());
 
-  /** Stone behind the auth card, the ordinary page background otherwise. */
+  /** A recessed grey behind the auth card, the ordinary page background otherwise. */
   protected readonly pageBackground = computed(() =>
-    this.centered() ? 'bg-stone-100' : 'bg-surface',
+    this.centered() ? 'bg-surface-strong' : 'bg-surface',
   );
 
   private isCenteredRoute(): boolean {

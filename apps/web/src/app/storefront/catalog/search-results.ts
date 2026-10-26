@@ -210,7 +210,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                       >{{ pagination.previous }}</a
                     >
                   } @else {
-                    <span class="px-3 py-1.5 text-stone-300">{{
+                    <span class="px-3 py-1.5 text-disabled">{{
                       pagination.previous
                     }}</span>
                   }
@@ -232,7 +232,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                       >{{ pagination.next }}</a
                     >
                   } @else {
-                    <span class="px-3 py-1.5 text-stone-300">{{
+                    <span class="px-3 py-1.5 text-disabled">{{
                       pagination.next
                     }}</span>
                   }
@@ -269,7 +269,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
         <div class="mt-8 animate-pulse" aria-hidden="true">
           <div [class]="productGrid">
             @for (i of skeletons; track i) {
-              <div class="aspect-square rounded-lg bg-stone-200"></div>
+              <div class="aspect-square rounded-lg bg-skeleton"></div>
             }
           </div>
         </div>

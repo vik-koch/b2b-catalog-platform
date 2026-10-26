@@ -161,7 +161,9 @@ type EditTarget = { id: string } | { id: null } | null;
                     </span>
                     <!-- The URL key beside the name it belongs to: the two are
                          read as a pair, not as two ends of the row. -->
-                    <code class="rounded-sm bg-stone-100 px-1.5 py-0.5 text-xs">
+                    <code
+                      class="rounded-sm bg-surface-strong px-1.5 py-0.5 text-xs"
+                    >
                       {{ definition.slug }}
                     </code>
                     <!-- The two counts are the two ways out of this row: the

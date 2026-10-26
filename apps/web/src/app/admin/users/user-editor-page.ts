@@ -123,7 +123,9 @@ import { Hint } from '../../shared/ui/hint';
         }
 
         @if (closed()) {
-          <p class="mb-6 rounded-md bg-stone-100 px-4 py-2 text-sm text-muted">
+          <p
+            class="mb-6 rounded-md bg-surface-strong px-4 py-2 text-sm text-muted"
+          >
             {{ text.closed }}
           </p>
         }

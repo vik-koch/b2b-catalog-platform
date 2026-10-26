@@ -156,7 +156,7 @@ const SUGGESTIONS_SHOWN = 8;
                         role="option"
                         [attr.aria-selected]="i === list.activeIndex()"
                         class="cursor-pointer px-3 py-2 text-sm"
-                        [class.bg-stone-100]="i === list.activeIndex()"
+                        [class.bg-surface-hover]="i === list.activeIndex()"
                         (mouseenter)="list.activeIndex.set(i)"
                         (mousedown)="pick($event, item)"
                       >

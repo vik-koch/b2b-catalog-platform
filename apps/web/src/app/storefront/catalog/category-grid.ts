@@ -242,7 +242,7 @@ interface Listing {
                     <li aria-hidden="true" class="inline">
                       <app-icon
                         name="chevron-right"
-                        class="mx-1 size-4 align-middle text-stone-300"
+                        class="mx-1 size-4 align-middle text-edge-strong"
                       />
                     </li>
                     <li class="inline">
@@ -260,7 +260,7 @@ interface Listing {
                   <li aria-hidden="true" class="inline">
                     <app-icon
                       name="chevron-right"
-                      class="mx-1 size-4 align-middle text-stone-300"
+                      class="mx-1 size-4 align-middle text-edge-strong"
                     />
                   </li>
                   <li class="inline">
@@ -471,7 +471,7 @@ interface Listing {
                         >{{ pagination.previous }}</a
                       >
                     } @else {
-                      <span class="px-3 py-1.5 text-stone-300">{{
+                      <span class="px-3 py-1.5 text-disabled">{{
                         pagination.previous
                       }}</span>
                     }
@@ -492,7 +492,7 @@ interface Listing {
                         >{{ pagination.next }}</a
                       >
                     } @else {
-                      <span class="px-3 py-1.5 text-stone-300">{{
+                      <span class="px-3 py-1.5 text-disabled">{{
                         pagination.next
                       }}</span>
                     }
@@ -519,13 +519,13 @@ interface Listing {
                real content arrives. -->
           <div class="space-y-3">
             <div
-              class="h-4 w-1/2 rounded-sm bg-stone-200 @min-[38rem]/listing:w-1/3"
+              class="h-4 w-1/2 rounded-sm bg-skeleton @min-[38rem]/listing:w-1/3"
             ></div>
-            <div class="h-8 w-1/3 rounded-sm bg-stone-200"></div>
+            <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
           </div>
           <div [class]="productGrid">
             @for (i of skeletons; track i) {
-              <div class="aspect-square rounded-lg bg-stone-200"></div>
+              <div class="aspect-square rounded-lg bg-skeleton"></div>
             }
           </div>
         </div>

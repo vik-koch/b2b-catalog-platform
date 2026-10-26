@@ -119,7 +119,7 @@ import { ErrorText } from '../../shared/ui/error-text';
 
       @if (plan().products.length > 0) {
         <h3 class="mt-6 mb-2 text-sm font-medium">{{ text.productsTitle }}</h3>
-        <ul class="divide-y divide-stone-100 text-sm">
+        <ul class="divide-y divide-edge-subtle text-sm">
           @for (product of plan().products; track product.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(product.kind)">

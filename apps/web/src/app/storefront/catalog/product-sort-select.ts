@@ -85,7 +85,7 @@ const SORT_FIELD_ID = 'product-sort';
                 @if (field.arrow) {
                   <span
                     aria-hidden="true"
-                    [class]="field.active ? '' : 'text-stone-400'"
+                    [class]="field.active ? '' : 'text-faint'"
                     >{{ field.arrow }}</span
                   >
                 }

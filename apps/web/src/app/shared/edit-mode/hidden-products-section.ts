@@ -91,7 +91,7 @@ import { ErrorText } from '../ui/error-text';
                         >{{ item.name }}</a
                       >
                     </h3>
-                    <p class="mt-auto pt-2 font-emphasis text-stone-400">
+                    <p class="mt-auto pt-2 font-emphasis text-faint">
                       @if (item.priceMinor === null) {
                         {{ text.unpricedHint }}
                       } @else {
@@ -172,7 +172,7 @@ export class HiddenProductsSection {
    * grid draws the rules between them, so the card drops its own frame.
    */
   protected readonly card =
-    'flex h-full flex-col rounded-lg border border-dashed border-edge-strong bg-stone-50 ' +
+    'flex h-full flex-col rounded-lg border border-dashed border-edge-strong bg-surface ' +
     '@max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none @max-[38rem]/listing:border-0 @max-[38rem]/listing:bg-transparent ' +
     NARROW_PADDING_IN_GRID;
 

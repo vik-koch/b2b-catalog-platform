@@ -39,7 +39,7 @@ import {
                it worth clicking, and a link around it is a bigger target than
                the text. -->
           <a
-            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-stone-50"
+            class="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-2 hover:bg-surface-hover"
             [routerLink]="['/account/orders', order.reference]"
           >
             <div>

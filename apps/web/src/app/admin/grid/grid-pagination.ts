@@ -34,9 +34,7 @@ import { Button } from '../../shared/ui/button';
             >{{ pageText.previous }}</a
           >
         } @else {
-          <span class="px-3 py-1.5 text-stone-300">{{
-            pageText.previous
-          }}</span>
+          <span class="px-3 py-1.5 text-disabled">{{ pageText.previous }}</span>
         }
         <span class="text-subtle">{{ status() }}</span>
         @if (pagination().page < pagination().totalPages) {
@@ -50,7 +48,7 @@ import { Button } from '../../shared/ui/button';
             >{{ pageText.next }}</a
           >
         } @else {
-          <span class="px-3 py-1.5 text-stone-300">{{ pageText.next }}</span>
+          <span class="px-3 py-1.5 text-disabled">{{ pageText.next }}</span>
         }
       </nav>
     }

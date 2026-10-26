@@ -123,7 +123,7 @@ export function parseCount(text: string): number | null {
               <tr>
                 <th
                   scope="row"
-                  class="w-1/3 border border-edge-strong bg-stone-50 px-2 py-1.5 text-left font-medium"
+                  class="w-1/3 border border-edge-strong bg-surface px-2 py-1.5 text-left font-medium"
                 >
                   <label [attr.for]="'packaging-' + row.key">{{
                     row.label
@@ -140,7 +140,7 @@ export function parseCount(text: string): number | null {
                    behaves as one field, like the attribute grid's. -->
                 <td
                   class="border border-edge-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
-                  [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
+                  [class]="row.disabled ? 'bg-surface-strong' : 'bg-white'"
                 >
                   <div class="flex items-center">
                     <input

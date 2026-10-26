@@ -71,7 +71,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         <h3 class="mt-6 mb-2 text-sm font-medium">
           {{ text.customers.accountsTitle }}
         </h3>
-        <ul class="divide-y divide-stone-100 text-sm">
+        <ul class="divide-y divide-edge-subtle text-sm">
           @for (account of plan().accounts; track account.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
               <span appStatusBadge [tone]="kindTone(account.kind)">

@@ -413,7 +413,7 @@ export class CategoryListPage {
    */
   protected depthTint(depth: number): string {
     if (depth <= 0) return '';
-    return depth === 1 ? 'bg-stone-100 pl-2' : 'bg-stone-200 pl-2';
+    return depth === 1 ? 'bg-surface-strong pl-2' : 'bg-surface-stronger pl-2';
   }
 
   /** The category whose delete confirmation modal is open, if any. */

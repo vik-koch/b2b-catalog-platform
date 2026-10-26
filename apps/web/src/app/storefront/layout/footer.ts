@@ -14,7 +14,7 @@ import { ScrollToTop } from './scroll-to-top';
   selector: 'app-footer',
   template: `
     <footer
-      class="bg-stone-100"
+      class="bg-surface-strong"
       [class.border-t]="!seamless()"
       [class.border-edge]="!seamless()"
     >
@@ -189,7 +189,7 @@ import { ScrollToTop } from './scroll-to-top';
 export class Footer {
   /**
    * Drops the top border, for the pages whose own background is already the
-   * footer's stone (the signed-out screens). Set by the shell, which is the
+   * footer's grey (the signed-out screens). Set by the shell, which is the
    * only thing that knows which those are.
    */
   readonly seamless = input(false);

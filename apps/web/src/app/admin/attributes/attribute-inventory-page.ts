@@ -216,7 +216,9 @@ type RenameTarget =
                          subcategory: these values belong to the key above them,
                          and a flat list of both reads as one list of
                          everything. -->
-                    <div class="border-t border-edge bg-stone-100 ml-6 pl-2">
+                    <div
+                      class="border-t border-edge bg-surface-strong ml-6 pl-2"
+                    >
                       @if (values.error()) {
                         <p class="py-3 text-sm text-muted" role="alert">
                           {{ adminText.loadError }}
@@ -349,7 +351,7 @@ type RenameTarget =
                                      placeholder short of the real row. -->
                                 <span class="flex h-5 items-center">
                                   <span
-                                    class="h-4 rounded-sm bg-stone-200"
+                                    class="h-4 rounded-sm bg-skeleton"
                                     [style.width]="width"
                                   ></span>
                                 </span>
@@ -358,7 +360,7 @@ type RenameTarget =
                                   class="flex h-5 items-center mr-7"
                                 >
                                   <span
-                                    class="h-4 w-20 rounded-sm bg-stone-200"
+                                    class="h-4 w-20 rounded-sm bg-skeleton"
                                   ></span>
                                 </span>
                                 <ng-container recordActions>
@@ -366,7 +368,7 @@ type RenameTarget =
                                        hands its icon as --icon-size. -->
                                   <span appIconButton>
                                     <span
-                                      class="block size-(--icon-size) rounded-sm bg-stone-200"
+                                      class="block size-(--icon-size) rounded-sm bg-skeleton"
                                     ></span>
                                   </span>
                                 </ng-container>

@@ -50,7 +50,7 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
                     </p>
                   }
                   <div
-                    class="prose prose-stone max-w-none"
+                    class="prose max-w-none"
                     [innerHTML]="safeBody(entry.bodyHtml)"
                   ></div>
                 </div>

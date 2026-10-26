@@ -184,7 +184,7 @@ function knownValues<T extends string>(
                 class="align-middle font-medium text-ink hover:text-accent [word-spacing:normal]"
                 >{{ item.name }}</a
               >&ngsp;<span
-                class="inline-block max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
+                class="inline-block max-w-full truncate rounded-sm bg-surface-strong px-1.5 py-0.5 align-middle font-mono text-xs [word-spacing:normal]"
                 [title]="item.sourceId"
                 >{{ item.sourceId }}</span
               >
@@ -299,7 +299,7 @@ function knownValues<T extends string>(
               >{{ stateLabel(item) }}</span
             >
             <span
-              class="max-w-full truncate rounded-sm bg-stone-100 px-1.5 py-0.5 font-mono text-xs"
+              class="max-w-full truncate rounded-sm bg-surface-strong px-1.5 py-0.5 font-mono text-xs"
               [class.opacity-50]="isDeleted(item)"
               >{{ item.sourceId }}</span
             >

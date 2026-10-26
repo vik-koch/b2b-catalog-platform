@@ -80,7 +80,7 @@ interface ToolbarAction {
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.labelAria"
-          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-stone-100 p-1.5"
+          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-surface-strong p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -119,7 +119,7 @@ interface ToolbarAction {
            the saved page exactly. -->
       <div
         #host
-        class="prose prose-stone max-w-none p-4 [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
+        class="prose max-w-none p-4 [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
       ></div>
     </div>
 
@@ -652,14 +652,14 @@ export class RichTextEditor {
       'flex size-9 cursor-pointer items-center justify-center rounded transition-colors [&>*]:size-5 md:size-8 md:[&>*]:size-4';
     return active
       ? `${base} bg-primary text-white`
-      : `${base} text-ink hover:bg-stone-200`;
+      : `${base} text-ink hover:bg-surface-strong-hover`;
   }
 
   protected alignButtonClass(active: boolean): string {
     const base = 'flex-1 rounded px-2 py-1 text-xs transition-colors';
     return active
       ? `${base} bg-primary text-white`
-      : `${base} text-ink hover:bg-stone-200`;
+      : `${base} text-ink hover:bg-surface-strong-hover`;
   }
 
   protected alignLabel(align: ImageAlign): string {

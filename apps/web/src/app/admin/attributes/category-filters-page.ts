@@ -98,7 +98,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
         </h1>
       } @else {
         <div
-          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-stone-200"
+          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-skeleton"
           aria-hidden="true"
         ></div>
       }
