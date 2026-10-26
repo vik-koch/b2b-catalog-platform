@@ -173,6 +173,8 @@ lists them with what each one colours.
   variable, a literal colour other than black or white and a Typography colour theme anywhere in
   web code, in templates and in TypeScript strings alike (`no-restricted-classes` in
   [eslint.config.mjs](../apps/web/eslint.config.mjs)).
+- **Mail** draws in the same greys: the API's layout takes `ink`, `inkSubtle`, `edge`, `surface`
+  and `surfaceSubtle` from the theme where they are hex, the defaults above otherwise.
 - **The audit** (`npx nx run web-e2e:audit`) screenshots every page on desktop and phone and
   runs axe against WCAG 2.1 AA, so a contrast slip shows up as a new finding next to its ratio.
 - **A new role** gets a name by the grammar above, a default in `styles.css`, a row here, and a

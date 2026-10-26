@@ -25,6 +25,7 @@ export * from './lib/catalog/product-parts';
 export * from './lib/catalog/product-units';
 export * from './lib/catalog/search-terms';
 export * from './lib/config/address-config';
+export * from './lib/config/colour-contrast';
 export * from './lib/config/consent-config';
 export * from './lib/config/contact-config';
 export * from './lib/config/deployment-config';
