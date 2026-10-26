@@ -76,8 +76,10 @@ test('a preview says how many people it would email, and writes nothing', async 
   // somebody is about to be asked about.
   // The count tiles, matched as tile terms: the preset descriptions above use
   // the same words in sentences, and each row's badge repeats its tile's word.
+  // Whitespace allowed around the word: a regex is matched against the raw
+  // text, which keeps the spaces of a template line the formatter wrapped.
   const tile = (name: string) =>
-    page.getByRole('term').filter({ hasText: new RegExp(`^${name}$`) });
+    page.getByRole('term').filter({ hasText: new RegExp(`^\\s*${name}\\s*$`) });
   await expect(tile('Invited')).toBeVisible();
   await expect(tile('Links sent')).toBeVisible();
   await expect(
