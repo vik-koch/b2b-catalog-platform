@@ -817,7 +817,7 @@ function withVariants(line: unknown): unknown {
       ? candidate.variants
       : [];
   const images =
-    Array.isArray(candidate.images) && candidate.images.every(isLabelledImage)
+    Array.isArray(candidate.images) && candidate.images.every(isLabeledImage)
       ? candidate.images
       : [];
   return { ...candidate, variants, images };
@@ -832,7 +832,7 @@ function isVariant(value: unknown): value is ProductVariant {
   );
 }
 
-function isLabelledImage(value: unknown): value is ProductImage {
+function isLabeledImage(value: unknown): value is ProductImage {
   const candidate = value as ProductImage | null;
   return (
     isImage(candidate) &&

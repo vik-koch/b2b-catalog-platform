@@ -1,102 +1,56 @@
-# Project Brief
+# Project brief
 
-## What this is
+`b2b-catalog-platform` is a B2B catalog and ordering platform for small wholesale businesses,
+built for a real client and public as a portfolio piece. The public repo carries fictional demo
+shops only: **nothing about the client** (its name, providers, location or jurisdiction) goes
+into it. That lives in a private repo, which uses only what this one publishes. Right-sizing is
+the recurring theme: the smallest component that does the job, on one VM.
 
-`b2b-catalog-platform` — a B2B catalog/ordering platform serving two purposes:
+## Where things are
 
-1. Real production deployment for an actual client: a small retail/wholesale business,
-   25-year history, ~1,500-SKU catalog, manual/negotiated pricing for repeat
-   customers.
-2. Public open-source portfolio piece demonstrating requirements engineering, documented
-   architecture decisions, disciplined AI-assisted development, and phased backward-compatible
-   delivery. Target audience: freelance clients in the EU. Public repo uses a fictional demo shop
-   persona for demonstration purposes. All client specifics live only in the private deployment repo.
+- **The product:** [README.md](README.md), `docs/features.md`, `docs/requirements.md` (FR-\*/
+  NFR-\* IDs), `docs/roadmap.md` (iterations), `docs/scope-and-limitations.md`.
+- **How it fits together**, including the modelling rules the domain rests on (role ≠ tier, a
+  price per piece, an order as versions): `docs/architecture.md`. Every decision with its
+  alternatives: `docs/adr/`.
+- **Running, checking, generated files, database changes:** `docs/development.md`.
+- **Contracts and entry points:** `libs/shared/README.md`. **Colours:** `docs/design-language.md`.
+  **A deployment's config and texts:** `deployments/fixture/config/README.md`.
+- **Behaviour:** `docs/order-lifecycle.md`, `docs/account-lifecycle.md`, `docs/mail.md`, and
+  for the back-office exchanges `docs/exchange-areas.md` with the `*-sync.md` and
+  `*-machine-api.md` pairs.
 
-Docs: `docs/requirements.md` (stable "what", FR-\*/NFR-\* IDs) · `docs/roadmap.md` (changing
-"when", iteration→requirement mapping) · `docs/adr/NNNN-*.md` (decisions). Issue tracking:
-GitHub Milestones per iteration; release notes: GitHub Releases per tag.
+## Rules for every change
 
-## Architecture decisions (right-sizing is the recurring theme)
+- A change in behaviour starts as a requirement; a decision that shapes the code gets an ADR.
+- One Zod contract per API route in `libs/shared`, implemented and called through oRPC. A
+  `*.contract.ts` exports schemas only; limits and helpers live in import-free modules, so Zod
+  stays out of the browser. After changing a route: `node tools/generate-contract-routes.mjs`.
+  A refusal travels as a contract error code, never as a message.
+- Storefront, admin and shared at every level: web folders, text files, `libs/shared` entry
+  points. Neither side imports the other; only the web root composes both (ADR 0069).
+- The UI's wording comes from the deployment's text files, one language per deployment, no i18n
+  framework. A new or moved text or config key lands in the fixture and in every directory under
+  `deployments/`; a moved one also gets a line in the release's `tools/config-migration` map.
+- Colours are the roles in `styles.css`; Tailwind's palette is switched off.
+- Generated files are regenerated in the same change (the table in `docs/development.md`).
+- A schema change adds first and removes what it replaces a release later. Versions follow ADR
+  0044: major when a port contract breaks or a migration cannot run unattended, minor for new
+  scope, patch otherwise. The machine API stays stable; config keys are version-neutral.
 
-- Angular + NestJS + PostgreSQL, custom-built. TypeScript throughout.
-- Search: Postgres FTS (`tsvector` + `pg_trgm`), NOT Elasticsearch.
-- Maps: configurable iframe embed URL per deployment.
-- Auth: app-issued JWT (httpOnly cookie) + NestJS AuthGuard/RolesGuard, NOT OAuth2, NOT OPA.
-- API contracts: oRPC + Zod (ADR 0043). One schema per endpoint lives in `libs/shared`
-  (`*.contract.ts`), consumed by both apps — the single source of truth for shape and
-  validation. API implements them with `@orpc/nest` (`@Implement`/`implement`); web calls
-  them with `@orpc/client` over an OpenAPI link. No class-validator, no global ValidationPipe.
-  A `*.contract.ts` exports **schemas only**: constants and pure helpers live in
-  import-free modules (`*-constants.ts`, `email-format.ts`) so a component importing a
-  limit does not pull Zod into the browser. The client is handed generated route metadata
-  (`contract-routes.generated.ts`, one per side), never the schemas — regenerate with
-  `node tools/generate-contract-routes.mjs` after changing a route.
-- Storefront / admin / shared at every level (ADR 0069): web folders, text files
-  (`storefront.json`, `admin.json`, `shared.json`) and `libs/shared` entry points (root,
-  `/storefront`, `/admin`, `/sync`, `/node`). Lint enforces the direction; only the web root
-  composes both sides.
-- Rendering: Angular SSR (one running Node process) serves all crawler-visible routes —
-  catalog/product and static pages alike. Static-page HTML is cached per slug, invalidated
-  on admin save. No build-time prerendering of DB-backed content.
-- Infra: Docker + Compose + Terraform + cloud-init, NOT Kubernetes/Helm. Terraform provisions
-  VM/network/firewall only; cloud-init installs Docker; CI/CD deploys containers.
-- One shared Traefik reverse proxy: TLS (Let's Encrypt), host-based dev/prod routing on
-  one VM (no port juggling). Rate limiting lives in the API (`@nestjs/throttler`, ADR 0015),
-  not at the proxy. No separate API gateway.
-- Region-specific integrations: ports-and-adapters — interfaces public, concrete regional
-  adapters private. Private repo consumes only public artifacts for deployment.
+## Style
 
-## Hosting
+- Comments are short and say why: a trap, an ordering constraint, an invariant the code cannot
+  show. No history (what it was, which iteration, phase or ADR changed it), no restating of the
+  code; a colon or a full stop reads better than an em dash.
+- Names in code are US English (`color`, `customize`); comments and docs are British. A spelling
+  already stored or on the wire keeps it: the `cancelled` order status and the names that mirror
+  it, seed bundle fields, text and config keys.
+- Hand-written Markdown tables are compact under a `<!-- prettier-ignore -->` line; generated
+  tables stay as their generator writes them.
 
-- Demo: one Hetzner VM. CI publishes multi-arch images (`linux/amd64` + `linux/arm64`,
-  native runners per arch), so any host pulls its native variant. Dev + prod = two compose
-  stacks, one VM, hostname-routed, each running one of `deployments/` with its seed: dev
-  the German shop on every merge, prod the English shop on a release tag (or by hand
-  from one, `deploy-prod.yml`).
-- Client deployment: provider/region documented only in the private repo. Billed and owned by
-  the client, isolated from author's other infrastructure.
-- Walking skeleton first: hello-world Angular+NestJS+Postgres through the full pipeline
-  before any real feature.
+## Workflow
 
-## Data model invariants
-
-- **Role ≠ tier.** Role (admin/manager/user) = authorization. Customer tier = pricing group,
-  independent field, only for `user` accounts, assigned on approval, invisible to the user.
-  Prices resolve via tier→price-list mapping; one list carries the default badge and
-  guests see it. A price is a (product, price list) row; a product with none cannot be
-  published.
-- Single-language throughout (product content and UI), no i18n framework, no locale keys.
-  Each deployment ships one locale's text; i18n is explicitly out of scope (see roadmap).
-- Static page content (privacy, imprint, about, conditions, contact) = generic `Page`
-  entity (slug/title/rich-text body), admin-editable. Fixed slug set — no page
-  create/delete (ADR 0027). Which pages a deployment publishes and where they are linked
-  is deployment config (`pages.published`/`headerNav`/`footerNav`); `contact` has an
-  editable body but a code route, so its office list and map embeds stay structured
-  config. Navigation, header/footer, and interactive widgets (contact form, map embed)
-  are code; the map embed URL and header contact info come from deployment config, not
-  CMS content.
-- Catalog sync: manual file-based, upsert by private `sourceId` — the source system's own
-  key, readable and admin-editable but never serialized to the storefront, and the only
-  identity the platform models. There is no public article number: the catalog has no SKU
-  field and the storefront quotes none. Soft-delete missing, diff preview before commit,
-  audit-logged. The same run contract is also driven headlessly by a machine token, so an
-  external system can feed the catalog without anyone opening the admin panel; which of the
-  two is allowed is the ownership switch, never both at once.
-- Account deletion anonymizes past orders, never deletes them.
-
-## Workflow conventions
-
-- Trunk-based: `main` only, branch protection (PR + green CI required), short-lived
-  `feat/123-*` / `fix/123-*` branches. Issue titles carry requirement IDs: `[FR-CAT-04] ...`.
-- Versioning by what a release changes (ADR 0044): major = a port contract breaks or a
-  migration cannot be applied unattended; minor = new scope; patch = no new scope.
-  Config keys are version-neutral. API contracts (esp. the sync import shape) stay stable;
-  internals may change freely.
-- Deploys: merge to `main` → auto-deploy `dev` environment. Semver tag is used for deploy to `prod`.
-- Code comments are short and say why, not what: a trap, an ordering constraint, an
-  invariant the code cannot show. No history (what it was, which iteration, phase or ADR
-  changed it) and no restating of the code; a colon or a full stop reads better than an
-  em dash.
-- Hand-written Markdown tables are compact (no column padding) under a `<!-- prettier-ignore -->`
-  line, so a new row diffs one line instead of re-padding the table. Generated tables are left
-  as their generator writes them.
+Trunk-based: short-lived `feat/123-*`, `fix/123-*` or `debt/123-*` branches into `main` through
+a pull request and green CI; issue titles carry requirement IDs (`[FR-CAT-04] …`). A merge
+deploys the German demo shop (dev), a release tag the English one (prod).

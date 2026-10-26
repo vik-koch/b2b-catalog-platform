@@ -91,8 +91,8 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Requirements first.** A change in behaviour starts as a requirement in
   [requirements.md](requirements.md); a decision that shapes the code gets an ADR
   ([docs/adr/](adr/README.md)).
-- **Trunk-based.** Short-lived `feat/123-…` or `fix/123-…` branches into `main`, behind a pull
-  request and green CI. Issue titles carry requirement IDs, such as `[FR-CAT-04] …`.
+- **Trunk-based.** Short-lived `feat/123-…`, `fix/123-…` or `debt/123-…` branches into `main`,
+  behind a pull request and green CI. Issue titles carry requirement IDs, such as `[FR-CAT-04] …`.
 - **A text or config key changes in every deployment.** The fixture and each directory under
   `deployments/` carry the same keys. A release that moves keys ships a map in
   `tools/config-migration/<version>.json` for the deployments kept elsewhere.
@@ -107,6 +107,10 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Comments say why, briefly.** A comment is there for what the code cannot show: a trap, an
   ordering constraint, an invariant. It does not retell the code or its history; git and the
   ADRs hold that.
+- **Names in code are US English** (`color`, `customize`), as the platform's own APIs are, so a
+  search finds one spelling; comments and docs are British. A spelling already stored or on the
+  wire keeps it: the `cancelled` order status is a Postgres enum and a machine API value, and the
+  names that mirror it, the seed bundle's fields and the text and config keys stay as they are.
 - **Tables in Markdown are written compact** under a `<!-- prettier-ignore -->` line, so adding
   a row changes one line.
 - [CLAUDE.md](../CLAUDE.md) is the project brief the AI sessions work from, and the shortest

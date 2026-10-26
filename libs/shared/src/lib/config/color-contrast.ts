@@ -1,5 +1,5 @@
 /** A colour written as `#rrggbb`, the one form the contrast check reads. */
-export const HEX_COLOUR = /^#[0-9a-f]{6}$/i;
+export const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
 /** WCAG's minimum for body text. */
 export const TEXT_CONTRAST = 4.5;

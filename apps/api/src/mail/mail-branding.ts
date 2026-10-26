@@ -1,7 +1,7 @@
 import type { SiteNotice } from '@b2b-catalog-platform/shared';
 import { loadApiDeploymentConfig } from '../config/deployment-config';
 import { env } from '../env';
-import { MailColours, mailColours } from './mail-colours';
+import { MailColors, mailColors } from './mail-colors';
 
 /** What a rendered message needs to look like it came from this deployment. */
 export interface MailBranding {
@@ -9,7 +9,7 @@ export interface MailBranding {
   readonly name: string;
   /** Header band colour, from the deployment theme. */
   readonly primaryColor: string;
-  readonly colours: MailColours;
+  readonly colors: MailColors;
   /** Public origin, for links back into the shop. No trailing slash. */
   readonly siteUrl: string;
   /** The language the message is written in, which it declares. */
@@ -35,7 +35,7 @@ export function loadMailBranding(): MailBranding {
   return {
     name: config.branding.name,
     primaryColor: config.branding.theme.primary,
-    colours: mailColours(config.branding.theme),
+    colors: mailColors(config.branding.theme),
     siteUrl: origin.replace(/\/+$/, ''),
     locale: config.locale,
     notice: config.notice,

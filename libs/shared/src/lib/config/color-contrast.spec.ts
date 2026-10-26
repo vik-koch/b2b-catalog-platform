@@ -1,4 +1,4 @@
-import { contrastRatio } from './colour-contrast';
+import { contrastRatio } from './color-contrast';
 
 describe('contrastRatio', () => {
   it('spans 1 to 21 between white and black, in either order', () => {

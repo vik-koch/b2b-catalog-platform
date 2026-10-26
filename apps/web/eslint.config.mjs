@@ -16,20 +16,20 @@ import baseConfig from '../../eslint.config.mjs';
  * (variant maps, class fields). A role has no numbered step, so a colour
  * class with one is a palette's, whichever palette: no list to keep.
  */
-const COLOUR_UTILITY =
+const COLOR_UTILITY =
   '(?:bg|text|border(?:-[xytrblse])?|divide|ring(?:-offset)?|inset-ring|outline|decoration|accent|caret|fill|stroke|shadow|inset-shadow|drop-shadow|text-shadow|from|via|to)';
 const STEP = '(?:50|[1-9]00|950)(?![\\w-])';
-const PALETTE_CLASS = `!?${COLOUR_UTILITY}-[a-z]+-${STEP}`;
+const PALETTE_CLASS = `!?${COLOR_UTILITY}-[a-z]+-${STEP}`;
 /** A palette step reached by its variable, in an arbitrary value. */
 const PALETTE_VARIABLE = `--(?:palette-|color-[a-z]+-${STEP})`;
 /** A literal colour inside an arbitrary value; black and white, at any alpha, pass. */
-const LITERAL_COLOUR =
+const LITERAL_COLOR =
   '\\[[^\\]]*(?:#(?!(?:[fF]{3}|[fF]{6}|0{3}|0{6})[0-9a-fA-F]{0,2}(?![0-9a-fA-F]))[0-9a-fA-F]{3,8}' +
   '|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch|color)\\((?!(?:0[\\s,_]+0[\\s,_]+0|255[\\s,_]+255[\\s,_]+255)(?![\\d.])))';
-const COLOUR_MESSAGE =
+const COLOR_MESSAGE =
   'Not a colour role; use one from styles.css (ink, surface-strong, danger, …).';
 /** Any of the above anywhere in a string of classes. */
-const COLOUR_IN_TEXT = `(?:(?:^|[\\s:])${PALETTE_CLASS}|${PALETTE_VARIABLE}|${LITERAL_COLOUR})`;
+const COLOR_IN_TEXT = `(?:(?:^|[\\s:])${PALETTE_CLASS}|${PALETTE_VARIABLE}|${LITERAL_COLOR})`;
 
 export default [
   ...nx.configs['flat/angular'],
@@ -87,15 +87,15 @@ export default [
           restrict: [
             {
               pattern: `(?:^|:)${PALETTE_CLASS}`,
-              message: `A palette colour, switched off in styles.css. ${COLOUR_MESSAGE}`,
+              message: `A palette colour, switched off in styles.css. ${COLOR_MESSAGE}`,
             },
             {
               pattern: PALETTE_VARIABLE,
-              message: `A palette step by its variable. ${COLOUR_MESSAGE}`,
+              message: `A palette step by its variable. ${COLOR_MESSAGE}`,
             },
             {
-              pattern: LITERAL_COLOUR,
-              message: `A literal colour other than black or white. ${COLOUR_MESSAGE}`,
+              pattern: LITERAL_COLOR,
+              message: `A literal colour other than black or white. ${COLOR_MESSAGE}`,
             },
             {
               // Typography has a colour theme for every palette name.
@@ -245,8 +245,8 @@ function rulesFor(part, forbidden, entries, text) {
         'PropertyDefinition > Literal',
         'PropertyDefinition > TemplateLiteral > TemplateElement',
       ].map((node) => ({
-        selector: `${node}[${node.endsWith('Literal') ? 'value' : 'value.raw'}=/${COLOUR_IN_TEXT}/]`,
-        message: COLOUR_MESSAGE,
+        selector: `${node}[${node.endsWith('Literal') ? 'value' : 'value.raw'}=/${COLOR_IN_TEXT}/]`,
+        message: COLOR_MESSAGE,
       })),
     ],
   };

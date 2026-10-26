@@ -19,7 +19,7 @@ const PASSWORD = 'e2e-catalog-root-password';
 // Per-run suffix, so a crashed run's leftovers cannot collide with this one.
 const R = Date.now().toString(36);
 const BRAND = `E2E Brand ${R}`;
-const COLOUR = `E2E Root Colour ${R}`;
+const COLOR = `E2E Root Colour ${R}`;
 const UNTOUCHED = `E2E Untouched ${R}`;
 const TOOLS = `e2e-root-tools-${R}`;
 const GARDEN = `e2e-root-garden-${R}`;
@@ -170,7 +170,7 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     const brand = await define(BRAND);
     brandId = brand.id;
     brandSlug = brand.slug;
-    colourId = (await define(COLOUR)).id;
+    colourId = (await define(COLOR)).id;
     untouchedId = (await define(UNTOUCHED)).id;
 
     // One brand across two categories — the case the panel exists for. Tools
@@ -180,15 +180,15 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     const hidden = await addCategory(HIDDEN);
     await addProduct(`${TOOLS}-acme`, tools, {
       [BRAND]: 'Acme',
-      [COLOUR]: 'Red',
+      [COLOR]: 'Red',
     });
     await addProduct(`${TOOLS}-other`, tools, {
       [BRAND]: 'Other',
-      [COLOUR]: 'Blue',
+      [COLOR]: 'Blue',
     });
     await addProduct(`${GARDEN}-acme`, garden, {
       [BRAND]: 'Acme',
-      [COLOUR]: 'Green',
+      [COLOR]: 'Green',
     });
     await addProduct(`${HIDDEN}-acme`, hidden, { [BRAND]: 'Acme' }, false);
     await client.query(
@@ -199,7 +199,7 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     // Beds sits under garden; plain has no Acme; sheds has none either, but
     // its own panel does not offer the brand at all.
     const beds = await addCategory(BEDS, 0, garden);
-    await addProduct(`${BEDS}-rose`, beds, { [COLOUR]: 'Red' });
+    await addProduct(`${BEDS}-rose`, beds, { [COLOR]: 'Red' });
     const plain = await addCategory(PLAIN);
     await addProduct(`${PLAIN}-other`, plain, { [BRAND]: 'Other' });
     const sheds = await addCategory(SHEDS);
@@ -327,11 +327,11 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
     });
 
     it("counts a category listing's subcategories the same way", async () => {
-      const colourSlug = COLOUR.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const colorSlug = COLOR.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const res = await request(
         'get',
         `/catalog/categories/${GARDEN}/products?attr=${encodeURIComponent(
-          `${colourSlug}:Green`,
+          `${colorSlug}:Green`,
         )}`,
         undefined,
         '',
@@ -340,7 +340,7 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
         expect.objectContaining({
           slug: BEDS,
           count: 0,
-          attr: [`${colourSlug}:Green`],
+          attr: [`${colorSlug}:Green`],
         }),
       ]);
     });
@@ -400,7 +400,7 @@ describe('Whole-catalogue listing (FR-CAT-02, FR-ATTR-12)', () => {
       );
       const names = res.data.facets.map((f: Facet) => f.name);
       expect(names).toContain(BRAND);
-      expect(names).toContain(COLOUR);
+      expect(names).toContain(COLOR);
     });
 
     it('refuses an attribute nobody has', async () => {

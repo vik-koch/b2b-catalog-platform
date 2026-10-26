@@ -171,10 +171,10 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
              page, so the count is still announced when rows come back. -->
         <div
           class="flex items-center justify-between gap-4 overflow-hidden text-sm"
-          [class]="countText() || customised() ? 'h-6' : 'h-0'"
+          [class]="countText() || customized() ? 'h-6' : 'h-0'"
         >
           <p class="text-ink-subtle" aria-live="polite">{{ countText() }}</p>
-          @if (customised()) {
+          @if (customized()) {
             <button type="button" appTextButton (click)="resetWidths()">
               {{ adminText.grid.resetWidths }}
             </button>
@@ -436,7 +436,7 @@ export class AdminGrid<T> {
   protected readonly widths = signal<GridWidths | null>(null);
   /** Whether what is on screen is the admin's own doing, so there is something
    * to reset. */
-  protected readonly customised = signal(false);
+  protected readonly customized = signal(false);
 
   constructor() {
     // Stored widths are read per column set: the customers and staff lists are
@@ -445,7 +445,7 @@ export class AdminGrid<T> {
       const stored = this.store.load(this.gridId(), this.keys());
       untracked(() => {
         this.widths.set(stored);
-        this.customised.set(stored !== null);
+        this.customized.set(stored !== null);
       });
     });
 
@@ -564,7 +564,7 @@ export class AdminGrid<T> {
    * the reset link and a double-click on any boundary both mean. */
   protected resetWidths(): void {
     this.store.clear(this.gridId());
-    this.customised.set(false);
+    this.customized.set(false);
     this.widths.set(null);
   }
 
@@ -572,6 +572,6 @@ export class AdminGrid<T> {
     const widths = this.widths();
     if (!widths) return;
     this.store.save(this.gridId(), widths);
-    this.customised.set(true);
+    this.customized.set(true);
   }
 }

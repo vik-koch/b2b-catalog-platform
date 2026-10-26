@@ -1,10 +1,10 @@
 import * as z from 'zod';
 import {
   contrastRatio,
-  HEX_COLOUR,
+  HEX_COLOR,
   MARK_CONTRAST,
   TEXT_CONTRAST,
-} from './colour-contrast';
+} from './color-contrast';
 
 /**
  * The roles each status colour has, every one of which a deployment sets when
@@ -35,16 +35,16 @@ type StatusTone = keyof typeof STATUS_ROLES;
  */
 const DEFAULT_GROUNDS = { surfaceSubtle: '#fafaf9', surface: '#f5f5f4' };
 
-const statusColour = z
+const statusColor = z
   .string()
-  .regex(HEX_COLOUR, 'a status colour is #rrggbb, the form the check measures');
+  .regex(HEX_COLOR, 'a status colour is #rrggbb, the form the check measures');
 
 function statusSchema<const R extends string>(roles: readonly R[]) {
   return z
     .object(
-      Object.fromEntries(roles.map((role) => [role, statusColour])) as Record<
+      Object.fromEntries(roles.map((role) => [role, statusColor])) as Record<
         R,
-        typeof statusColour
+        typeof statusColor
       >,
     )
     .strict()
@@ -115,12 +115,12 @@ export const themeConfigSchema = z
   .superRefine((theme, ctx) => {
     const ground = (key: keyof typeof DEFAULT_GROUNDS) => {
       const set = theme[key];
-      return set && HEX_COLOUR.test(set) ? set : DEFAULT_GROUNDS[key];
+      return set && HEX_COLOR.test(set) ? set : DEFAULT_GROUNDS[key];
     };
     for (const tone of Object.keys(STATUS_ROLES) as StatusTone[]) {
-      const colours = theme[tone] as Record<string, string> | undefined;
-      if (!colours) continue;
-      for (const pair of statusPairs(tone, colours, ground)) {
+      const colors = theme[tone] as Record<string, string> | undefined;
+      if (!colors) continue;
+      for (const pair of statusPairs(tone, colors, ground)) {
         const ratio = contrastRatio(pair.fore, pair.back);
         if (ratio < pair.floor) {
           ctx.addIssue({
@@ -145,30 +145,30 @@ interface Pair {
  * (docs/design-language.md). */
 function statusPairs(
   tone: StatusTone,
-  colours: Record<string, string>,
+  colors: Record<string, string>,
   ground: (key: keyof typeof DEFAULT_GROUNDS) => string,
 ): Pair[] {
   const pairs: Pair[] = [
     {
       role: 'ink',
       label: `${tone}.ink on ${tone}.surface`,
-      fore: colours['ink'],
-      back: colours['surface'],
+      fore: colors['ink'],
+      back: colors['surface'],
       floor: TEXT_CONTRAST,
     },
     {
       role: 'dot',
       label: `${tone}.dot on the page`,
-      fore: colours['dot'],
+      fore: colors['dot'],
       back: ground('surfaceSubtle'),
       floor: MARK_CONTRAST,
     },
   ];
-  if (colours['base']) {
+  if (colors['base']) {
     pairs.push({
       role: 'base',
       label: `${tone}.base on the theme's surface`,
-      fore: colours['base'],
+      fore: colors['base'],
       back: ground('surface'),
       floor: TEXT_CONTRAST,
     });
@@ -180,7 +180,7 @@ function statusPairs(
         role: fill,
         label: `white on danger.${fill}`,
         fore: '#ffffff',
-        back: colours[fill],
+        back: colors[fill],
         floor: TEXT_CONTRAST,
       });
     }

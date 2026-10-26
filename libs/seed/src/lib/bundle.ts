@@ -65,7 +65,7 @@ const packaging = z.strictObject({
   boxCount: z.number().int().positive().optional(),
 });
 
-const colour = z.string().regex(/^#[0-9a-f]{6}$/i, 'a #rrggbb colour');
+const hexColor = z.string().regex(/^#[0-9a-f]{6}$/i, 'a #rrggbb colour');
 
 /**
  * One picture. With a `url` it is a photo the seed downloads and stores like an
@@ -93,13 +93,13 @@ const picture = z.strictObject({
     })
     .optional(),
   /** Recolours the photo, keeping its light and shade. */
-  tint: colour.optional(),
+  tint: hexColor.optional(),
 });
 
 const variant = z.strictObject({
   name: z.string(),
   /** The colour its placeholders are drawn in. A photo carries its own. */
-  colour: colour.optional(),
+  colour: hexColor.optional(),
   pictures: z.array(picture),
   /** Currently unavailable: its pictures are withheld. */
   unavailable: z.boolean().optional(),

@@ -99,7 +99,7 @@ export function pairingShortfalls(
     }
   }
 
-  maximiseFlow(graph, source, sink);
+  maximizeFlow(graph, source, sink);
 
   // What is left on the source's edges is what could not be covered: the edge
   // was created with the product's whole piece count, and every unit of flow
@@ -121,7 +121,7 @@ export function pairingShortfalls(
  * being the least machinery that terminates predictably — the graph has a few
  * dozen nodes at the very most, so nothing here is worth making faster.
  */
-function maximiseFlow(graph: Edge[][], source: number, sink: number): void {
+function maximizeFlow(graph: Edge[][], source: number, sink: number): void {
   for (;;) {
     // BFS over the residual graph, recording the edge each node was reached by.
     const cameFrom: (Edge | null)[] = Array(graph.length).fill(null);
