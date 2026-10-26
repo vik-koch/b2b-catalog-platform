@@ -51,6 +51,9 @@
     "deployment.json:branding.theme.edgeStrong": {
       "from": ["deployment.json:branding.theme.borderStrong"],
       "optional": true
+    },
+    "deployment.json:branding.theme.primaryPress": {
+      "from": ["deployment.json:branding.theme.primaryDeep"]
     }
   },
   "drop": []

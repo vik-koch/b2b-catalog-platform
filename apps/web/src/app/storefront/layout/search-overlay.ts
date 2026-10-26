@@ -40,7 +40,7 @@ const LEAVE_MS = 150;
         />
         <button
           type="button"
-          class="-mr-1.5 inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-primary transition-colors hover:text-accent active:text-primary-deep"
+          class="-mr-1.5 inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-primary transition-colors hover:text-accent active:text-primary-press"
           (click)="search.close()"
         >
           <app-icon name="close" class="size-6" />

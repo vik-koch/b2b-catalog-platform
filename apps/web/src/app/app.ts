@@ -181,7 +181,7 @@ function themeProperties(
   const { theme } = branding;
   const properties: [string, string | number | undefined][] = [
     ['--color-primary', theme.primary],
-    ['--color-primary-deep', theme.primaryDeep],
+    ['--color-primary-press', theme.primaryPress],
     ['--color-secondary', theme.secondary],
     ['--color-accent', theme.accent],
     ['--color-surface', theme.surface],

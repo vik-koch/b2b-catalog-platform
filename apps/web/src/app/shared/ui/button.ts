@@ -50,7 +50,7 @@ const sizes = BUTTON_SIZES;
 
 /*
  * Press deepens rather than lightens: hover goes outward to accent, press goes
- * down to `primary-deep`. It has to be a shade of its own rather than the
+ * down to `primary-press`. It has to be a shade of its own rather than the
  * resting colour — a press that merely undoes the hover reads as a press only
  * to a cursor that was hovering, and a finger never hovers, so on a phone the
  * whole press was invisible. Every variant therefore ends up somewhere it has
@@ -63,14 +63,14 @@ const variants = {
   // shelf. The fill has to go, or a button that refuses the press still
   // invites it.
   primary:
-    'bg-primary text-white hover:bg-accent active:bg-primary-deep disabled:bg-surface-stronger disabled:text-subtle disabled:hover:bg-surface-stronger disabled:active:bg-surface-stronger',
+    'bg-primary text-white hover:bg-accent active:bg-primary-press disabled:bg-surface-stronger disabled:text-subtle disabled:hover:bg-surface-stronger disabled:active:bg-surface-stronger',
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside `surface-strong` blocks (the
   // signed-in bar), where a grey background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
     'border border-edge-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
-  danger: 'bg-danger text-white hover:bg-danger-accent active:bg-danger-deep',
+  danger: 'bg-danger text-white hover:bg-danger-hover active:bg-danger-press',
   /**
    * The way *into* a destructive flow — a link that only opens the page
    * explaining what would be lost. Outlined like secondary so it stays a
@@ -78,7 +78,7 @@ const variants = {
    * solid variant above is left to the click that cannot be taken back.
    */
   dangerOutline:
-    'border border-danger-edge-strong text-danger hover:border-danger hover:bg-danger hover:text-white active:border-danger-deep active:bg-danger-deep active:text-white',
+    'border border-danger-edge-strong text-danger hover:border-danger hover:bg-danger hover:text-white active:border-danger-press active:bg-danger-press active:text-white',
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.

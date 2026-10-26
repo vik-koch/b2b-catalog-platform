@@ -103,7 +103,7 @@ export function segmentClass(
    * has to answer, and the label is what says it is not a choice.
    */
   const states: Record<SegmentState, string> = {
-    selected: 'bg-primary text-white hover:bg-accent active:bg-primary-deep',
+    selected: 'bg-primary text-white hover:bg-accent active:bg-primary-press',
     available:
       'text-ink hover:bg-surface-hover hover:text-accent active:bg-surface-press active:text-primary',
     unavailable: 'text-faint hover:bg-surface-hover active:bg-surface-press',
@@ -117,9 +117,9 @@ export function segmentClass(
   // the hover language is a ghost button's on both.
   const neutralStates: Record<SegmentState, string> = {
     selected:
-      'bg-white text-ink shadow-xs hover:text-accent active:text-primary-deep',
+      'bg-white text-ink shadow-xs hover:text-accent active:text-primary-press',
     available:
-      'text-muted hover:bg-surface-strong-hover hover:text-accent active:bg-surface-strong-press active:text-primary-deep',
+      'text-muted hover:bg-surface-strong-hover hover:text-accent active:bg-surface-strong-press active:text-primary-press',
     unavailable:
       'text-faint hover:bg-surface-strong-hover active:bg-surface-strong-press',
   };

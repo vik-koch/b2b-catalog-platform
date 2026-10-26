@@ -186,12 +186,12 @@
    * all. Deeper rather than lighter, so a control being pushed into the page
    * does not look like it is rising out of it.
    */
-  --color-primary-deep: #573d2b;
+  --color-primary-press: #573d2b;
   /*
    * Lighter roast of primary — 4.7:1 on white, still text-safe. Carries the
    * focus state across every control (fields, buttons, switches, grid cells),
    * which keeps the brand colors on one state each: primary = resting,
-   * accent = hover, primary-deep = pressed, secondary = focused.
+   * accent = hover, primary-press = pressed, secondary = focused.
    */
   --color-secondary: #8b6f52;
   /* Highlights, badges, eyebrows, hover (amber-700) */
@@ -259,7 +259,7 @@
    * named by role, as the brand colours are: the bare name is text on the
    * page, `-ink` text on the colour's own `-surface` (a panel) or
    * `-surface-strong` (a badge), `-edge` the panel's line and `-edge-strong`
-   * a control's, `-accent` and `-deep` a filled control's hover and press,
+   * a control's, `-hover` and `-press` a filled control's two states,
    * `-dot` a marker that carries no words. Only the roles the app draws.
    *
    * red-700 is 5.9:1 on stone-100; red-600 falls below 4.5:1 there. The
@@ -268,8 +268,8 @@
    * which 500 falls short of.
    */
   --color-danger: var(--color-red-700);
-  --color-danger-accent: var(--color-red-800);
-  --color-danger-deep: var(--color-red-900);
+  --color-danger-hover: var(--color-red-800);
+  --color-danger-press: var(--color-red-900);
   --color-danger-ink: var(--color-red-800);
   --color-danger-surface: var(--color-red-50);
   --color-danger-surface-strong: var(--color-red-100);
@@ -477,7 +477,7 @@ a:hover .logo-mark {
 }
 
 a:active .logo-mark {
-  background-color: var(--color-primary-deep);
+  background-color: var(--color-primary-press);
 }
 
 /*
@@ -502,7 +502,7 @@ a:hover .elsewhere-mark {
 }
 
 a:active .elsewhere-mark {
-  background-color: var(--color-primary-deep);
+  background-color: var(--color-primary-press);
 }
 
 /*

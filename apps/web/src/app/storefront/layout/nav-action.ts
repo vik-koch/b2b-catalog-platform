@@ -19,7 +19,7 @@
  * it wins regardless of the order Tailwind emits utilities in — and it is the
  * signal a screen reader announces as "current page".
  *
- * `active:` is the press: `primary-deep`, the app's press colour everywhere.
+ * `active:` is the press: `primary-press`, the app's press colour everywhere.
  * Hover is accent and only exists where there is a pointer — Tailwind's
  * `hover:` carries `(hover: hover)` — so a touch goes straight to the press,
  * and a cursor goes through accent on the way to it.
@@ -32,7 +32,7 @@
 export type NavVariant = 'bar' | 'tab';
 
 const SHARED =
-  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:[--icon-stroke-width:2.25]';
+  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-primary-press aria-[current=page]:font-medium aria-[current=page]:[--icon-stroke-width:2.25]';
 
 /**
  * Header row. The padding is what it is so the icon and its caption together

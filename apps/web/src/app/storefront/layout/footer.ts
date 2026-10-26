@@ -74,7 +74,7 @@ import { ScrollToTop } from './scroll-to-top';
                       @if (contact.phone; as phone) {
                         <a
                           [href]="telHref(phone)"
-                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-press"
                           >{{ phone }}</a
                         >
                       }
@@ -84,7 +84,7 @@ import { ScrollToTop } from './scroll-to-top';
                       @if (contact.email; as email) {
                         <a
                           [href]="'mailto:' + email"
-                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-deep"
+                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-press"
                           >{{ email }}</a
                         >
                       }
@@ -127,7 +127,7 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="nav[slug]"
-                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-deep aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-press aria-[current=page]:font-medium aria-[current=page]:text-primary"
                 >
                   {{ nav[slug] }}
                 </a>
@@ -137,7 +137,7 @@ import { ScrollToTop } from './scroll-to-top';
               @if (consent.enabled) {
                 <button
                   type="button"
-                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-deep"
+                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-press"
                   (click)="consent.withdraw()"
                 >
                   {{ text.consent.settings }}

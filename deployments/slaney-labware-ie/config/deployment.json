@@ -10,7 +10,7 @@
     },
     "theme": {
       "primary": "#1f5f9e",
-      "primaryDeep": "#17497a",
+      "primaryPress": "#17497a",
       "secondary": "#4a86c5",
       "accent": "#0e7c86",
       "surface": "#f8fafc",

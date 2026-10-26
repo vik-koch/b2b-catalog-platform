@@ -73,7 +73,7 @@ import { navActionClasses, NavVariant } from './nav-action';
         @if (variant() === 'bar') {
           <span
             aria-hidden="true"
-            class="cart-total -mx-3 items-center justify-center rounded-sm bg-primary p-1 text-[0.6875rem]/4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-deep"
+            class="cart-total -mx-3 items-center justify-center rounded-sm bg-primary p-1 text-[0.6875rem]/4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-press"
           ></span>
         }
         <span [class]="labelClass()" [attr.data-label]="text.navLabel">
