@@ -186,25 +186,26 @@
    */
 
   /* Brand. Primary is "coffee", 7.4:1 on white. */
-  --color-primary: #6f4e37;
+  --color-primary: oklch(45.39% 0.0568 55.64);
   /*
-   * Darker roast of primary — 10.0:1 on white. The press, on everything that
+   * Primary, 15% toward black — 10.0:1 on white. Mixed, so a deployment's own
+   * primary gets its press unless it sets one. The press, on everything that
    * can be pressed. It has to be a colour of its own: a press that returns a
    * control to its resting colour is only legible on the way back from hover,
    * and a finger never goes through hover, so on a phone it showed nothing at
    * all. Deeper rather than lighter, so a control being pushed into the page
    * does not look like it is rising out of it.
    */
-  --color-primary-press: #573d2b;
+  --color-primary-press: color-mix(in oklab, var(--color-primary), black 15%);
   /*
    * Lighter roast of primary — 4.7:1 on white, still text-safe. Carries the
    * focus state across every control (fields, buttons, switches, grid cells),
    * which keeps the brand colors on one state each: primary = resting,
    * accent = hover, primary-press = pressed, secondary = focused.
    */
-  --color-secondary: #8b6f52;
-  /* Highlights, badges, eyebrows, hover (amber-700) */
-  --color-accent: #b45309;
+  --color-secondary: oklch(56.16% 0.0549 67.31);
+  /* Highlights, badges, eyebrows, hover */
+  --color-accent: oklch(55.53% 0.1455 49);
   /*
    * Accent where the ground is too dark for it: on `chip` and on the
    * stone-200 hover grounds accent falls below 4.5:1 (4.45 and 4.0), this is
@@ -220,12 +221,16 @@
    * chevron, an option that is not available). Size, not a second shade,
    * tells a description from a timestamp. `ink-subtle` is a quarter step from
    * stone-500 toward stone-600: stone-500 itself is 4.4:1 on the stone-100 of
-   * the footer and the header's top bar, this is 4.9:1 there.
+   * the footer and the header's top bar, this is 4.95:1 there.
    * `ink-disabled` is the text of a control that cannot be used, the one
    * text role below 4.5:1.
    */
-  --color-ink: #1c1917;
-  --color-ink-subtle: #706a65;
+  --color-ink: var(--color-stone-900);
+  --color-ink-subtle: color-mix(
+    in oklab,
+    var(--color-stone-500) 75%,
+    var(--color-stone-600)
+  );
   --color-ink-disabled: var(--color-stone-400);
 
   /*
@@ -234,17 +239,22 @@
    * (inputs, secondary buttons); `edge-subtle` is lighter than `edge`, for
    * rows that repeat. stone-200 / stone-300 / stone-100.
    */
-  --color-edge: #e7e5e4;
-  --color-edge-strong: #d6d3d1;
+  --color-edge: var(--color-stone-200);
+  --color-edge-strong: var(--color-stone-300);
   --color-edge-subtle: var(--color-stone-100);
 
   /*
    * A step in Tailwind's stone scale that Tailwind does not ship, for the one
    * thing the app fills a lot of surface with: the category chip. stone-100
    * is barely a shade off the stone-50 page, and stone-150 read as a grey block
-   * once a grid of chips carried it; this sits between the two.
+   * once a grid of chips carried it; this is a quarter step from stone-100
+   * toward stone-200.
    */
-  --color-stone-125: #f2f1f0;
+  --color-stone-125: color-mix(
+    in oklab,
+    var(--color-stone-100) 75%,
+    var(--color-stone-200)
+  );
   /*
    * Grounds, and the states on them. `surface` is a recessed ground (footer,
    * notes, pills, a segmented track), one step from the page as a status
@@ -257,7 +267,7 @@
    * `surface-subtle` are drawn from the stone ramp, so a deployment's
    * `neutrals` replace them.
    */
-  --color-surface-subtle: #fafaf9;
+  --color-surface-subtle: var(--color-stone-50);
   --color-surface-subtle-hover: var(--color-stone-100);
   --color-surface-subtle-press: var(--color-stone-200);
   --color-surface: var(--color-stone-100);

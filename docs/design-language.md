@@ -55,7 +55,7 @@ How the defaults meet the floors:
 <!-- prettier-ignore -->
 | Pair | Ratio |
 |---|---|
-| `ink` / `ink-subtle` on `surface`, the darkest ground they meet | 16.0 / 4.9 |
+| `ink` / `ink-subtle` on `surface`, the darkest ground they meet | 16.0 / 4.95 |
 | `primary` / `accent` on `surface` | 6.8 / 4.6 |
 | `accent-strong` on `chip` / on the stone-200 hover grounds | 6.3 / 5.7 |
 | `danger` / `warning` / `success` on `surface` | 5.9 / 4.6 / 4.5 |
@@ -86,7 +86,7 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 | Role | Default | Used for |
 |---|---|---|
 | `primary` | `#6f4e37` | The resting brand colour: primary buttons, links, the selected option |
-| `primary-press` | `#573d2b` | Every pressed control. A colour of its own, because a press that only undid the hover would show nothing to a finger, which never hovers |
+| `primary-press` | primary, 15% toward black | Every pressed control. A colour of its own, because a press that only undid the hover would show nothing to a finger, which never hovers |
 | `secondary` | `#8b6f52` | Focus, on every control |
 | `accent` | `#b45309` | Hover, on every control; highlights and eyebrows |
 | `accent-strong` | accent, 15% toward black | Accent on a ground too dark for it: a hovered chip, a segment hovered inside its track, a notice badge |
@@ -97,7 +97,7 @@ The defaults below are the coffee theme's; [Themes](#themes) says what a deploym
 | Role | Default | Used for |
 |---|---|---|
 | `ink` | stone-900 | Body text |
-| `ink-subtle` | `#706a65` | Everything quieter than body text: secondary copy, meta text (table headers, counts, timestamps), and every glyph that steps back (icons at rest, chevrons, unavailable options) |
+| `ink-subtle` | stone-500 → 600, a quarter step | Everything quieter than body text: secondary copy, meta text (table headers, counts, timestamps), and every glyph that steps back (icons at rest, chevrons, unavailable options) |
 | `ink-disabled` | stone-400 | A control that cannot be used |
 
 `ink-subtle` sits a quarter step from stone-500 toward stone-600: stone-500 itself falls below 4.5:1
@@ -122,7 +122,7 @@ on the recessed grounds.
 | `surface` | stone-100 | A recessed ground: footer, notes, pills, a segmented track, a disabled field. One step from the page, as a status colour's `-surface` is |
 | `surface-hover` / `surface-press` | stone-200 / 300 | A control on a recessed ground |
 | `surface-strong` | stone-200 | One step further: a switch that is off, a nested row |
-| `chip` / `chip-hover` | `#f2f1f0` / stone-200 | A small fill that has to show on the page: the category chip, the neutral badge. Between stone-100, which all but vanishes on the page, and stone-200, which turns a grid of them grey |
+| `chip` / `chip-hover` | stone-100 → 200, a quarter step / stone-200 | A small fill that has to show on the page: the category chip, the neutral badge. Between stone-100, which all but vanishes on the page, and stone-200, which turns a grid of them grey |
 | `skeleton` | stone-200 | A block standing in for content still loading |
 
 White belongs to the page level: cards, fields and the menus over the page are white, and a
