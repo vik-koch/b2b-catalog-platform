@@ -101,6 +101,9 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Storefront, admin and shared.** A web file lives on the side that uses it, and moves to
   `shared/` only once both do; the contracts and the texts split the same way. Lint fails a
   wrong-way import ([ADR 0069](adr/0069-split-web-texts-and-contracts-by-audience.md)).
+- **Colours are roles.** A template names what a colour does (`ink`, `surface-strong`,
+  `danger`), never a Tailwind shade; lint refuses the palette. The names, the contrast floors and
+  what each role is for are in [design-language.md](design-language.md).
 - **Comments say why, briefly.** A comment is there for what the code cannot show: a trap, an
   ordering constraint, an invariant. It does not retell the code or its history; git and the
   ADRs hold that.
