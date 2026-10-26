@@ -91,7 +91,7 @@ export interface AdjustLineRow {
   ],
   host: { class: 'block' },
   template: `
-    <ul class="divide-y divide-border border-b border-border">
+    <ul class="divide-y divide-edge border-b border-edge">
       @for (line of lines(); track line.key; let i = $index) {
         <li class="py-2 first:pt-0">
           <!-- The name has the row to itself: a long one is the ordinary case

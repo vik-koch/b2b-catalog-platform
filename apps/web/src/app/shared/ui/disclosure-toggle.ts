@@ -19,7 +19,7 @@ export const DISCLOSURE_FRAME =
   'transition-colors has-[app-disclosure-toggle:hover]:border-accent';
 
 export function disclosureBorder(open: boolean): string {
-  return open ? 'border-secondary' : 'border-border-strong';
+  return open ? 'border-secondary' : 'border-edge-strong';
 }
 
 /**

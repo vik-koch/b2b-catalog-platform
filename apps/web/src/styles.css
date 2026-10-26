@@ -204,12 +204,12 @@
   --color-muted: #57534e;
   --color-subtle: #706a65;
   /*
-   * Lines. `border` is structural — card edges, dividers, table rules;
-   * `border-strong` is the heavier edge that makes a control look operable
+   * Lines. `edge` is structural — card edges, dividers, table rules;
+   * `edge-strong` is the heavier edge that makes a control look operable
    * (inputs, secondary buttons). stone-200 / stone-300.
    */
-  --color-border: #e7e5e4;
-  --color-border-strong: #d6d3d1;
+  --color-edge: #e7e5e4;
+  --color-edge-strong: #d6d3d1;
   /*
    * A refusal: an error message, a refused field's edge, a destructive
    * control. red-700, 5.9:1 on stone-100; red-600 falls below 4.5:1 there.
@@ -549,7 +549,7 @@ body:has(dialog[open]) {
  * show through.
  *
  * Unlayered on purpose. This has to beat two utilities on the same element —
- * the resting `border-border-strong` and the refusal's `border-danger` — and
+ * the resting `border-edge-strong` and the refusal's `border-danger` — and
  * between two utility classes the winner is the order Tailwind emitted them in,
  * which is not something a call site can see or a reader can predict. Outside
  * the layers it beats both by origin, whatever that order turns out to be.

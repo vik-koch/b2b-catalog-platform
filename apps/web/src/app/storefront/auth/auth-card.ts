@@ -14,7 +14,7 @@ import { Component } from '@angular/core';
   selector: 'app-auth-card',
   template: `
     <div
-      class="mx-auto max-w-xl rounded-xl border border-border bg-white p-6 shadow-sm sm:p-8"
+      class="mx-auto max-w-xl rounded-xl border border-edge bg-white p-6 shadow-sm sm:p-8"
     >
       <ng-content />
     </div>

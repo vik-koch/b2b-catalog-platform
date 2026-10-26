@@ -18,7 +18,7 @@
  * width and the photo keeps its own. `ring` rather than a bare `box-shadow`
  * so it composes with the shadow a card raises on hover.
  */
-export const FRAME = 'ring-1 ring-border';
+export const FRAME = 'ring-1 ring-edge';
 
 /** The frame at the weight and colour that marks the chosen one of several —
  * the gallery's thumbnails. Growing outwards, so choosing one does not resize

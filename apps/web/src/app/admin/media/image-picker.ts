@@ -25,7 +25,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   template: `
     @if (value(); as image) {
       <div
-        class="relative size-26 overflow-hidden rounded-md border border-border bg-white"
+        class="relative size-26 overflow-hidden rounded-md border border-edge bg-white"
       >
         <img [src]="image.thumb" alt="" class="size-full object-cover" />
         <div

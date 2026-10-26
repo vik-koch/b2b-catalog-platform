@@ -119,7 +119,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
            borders with no rows between them read as one thick rule. -->
         @if (rows().length) {
           <ul
-            class="divide-y divide-border border-y border-border"
+            class="divide-y divide-edge border-y border-edge"
             [attr.aria-busy]="busy() ? 'true' : null"
           >
             @for (row of rows(); track trackBy()(row)) {
@@ -211,7 +211,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
               </colgroup>
             }
             <thead>
-              <tr class="border-b border-border text-subtle">
+              <tr class="border-b border-edge text-subtle">
                 @for (column of columns(); track column.key) {
                   <th
                     #headerCell
@@ -260,7 +260,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         (keydown)="onHandleKey($event, handleAt()[$index])"
                       >
                         <span
-                          class="w-px bg-transparent group-hover/handle:bg-border-strong group-focus/handle:bg-accent"
+                          class="w-px bg-transparent group-hover/handle:bg-edge-strong group-focus/handle:bg-accent"
                         ></span>
                       </div>
                     }

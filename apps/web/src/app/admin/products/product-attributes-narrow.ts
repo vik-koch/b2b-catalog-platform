@@ -73,7 +73,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   ],
   template: `
     <ul
-      class="max-w-xl divide-y divide-border border-y border-border"
+      class="max-w-xl divide-y divide-edge border-y border-edge"
       cdkDropList
       [cdkDropListDisabled]="editing() !== null"
       (cdkDropListDropped)="onDrop($event)"

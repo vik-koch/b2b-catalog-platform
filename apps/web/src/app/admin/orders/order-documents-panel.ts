@@ -79,7 +79,7 @@ interface DocumentRow {
       (change)="onFile($event)"
     />
 
-    <ul class="divide-y divide-border">
+    <ul class="divide-y divide-edge">
       @for (row of rows(); track row.kind) {
         <li class="py-2 first:pt-0">
           <!-- The name and what can be done to it on one centred line; the

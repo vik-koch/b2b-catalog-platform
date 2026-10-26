@@ -40,7 +40,7 @@ import { Component, input, output } from '@angular/core';
       [class]="
         checked()
           ? 'bg-primary hover:bg-accent active:bg-primary-deep'
-          : 'bg-stone-200 ring-1 ring-border-strong hover:bg-accent hover:ring-accent active:ring-primary'
+          : 'bg-stone-200 ring-1 ring-edge-strong hover:bg-accent hover:ring-accent active:ring-primary'
       "
       (click)="toggled.emit(!checked())"
     >

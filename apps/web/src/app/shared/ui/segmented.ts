@@ -30,7 +30,7 @@ const SEGMENT_BASE =
  * the two curves visibly out of step.
  */
 export const SEGMENTED_GROUP =
-  'inline-flex gap-1 rounded-lg border border-border-strong bg-white p-1';
+  'inline-flex gap-1 rounded-lg border border-edge-strong bg-white p-1';
 
 /**
  * The quiet pill: a stone track with no edge, the chosen segment lifted out of

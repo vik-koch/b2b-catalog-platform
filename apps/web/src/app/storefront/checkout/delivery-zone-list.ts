@@ -34,7 +34,7 @@ const SPAN: Record<number, string> = {
     <ul [class]="spread() ? 'grid gap-3 sm:grid-cols-12' : 'space-y-3'">
       @for (zone of zones; track zone.key; let i = $index) {
         <li
-          class="rounded-lg border border-border p-4"
+          class="rounded-lg border border-edge p-4"
           [class]="spread() ? 'flex gap-3 ' + spans[i] : ''"
         >
           @if (spread()) {

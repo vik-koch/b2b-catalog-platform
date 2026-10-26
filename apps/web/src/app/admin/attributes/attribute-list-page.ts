@@ -120,9 +120,9 @@ type EditTarget = { id: string } | { id: null } | null;
       } @else if (definitions.hasValue()) {
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone. -->
-        <div class="border-y border-border">
+        <div class="border-y border-edge">
           <ul
-            class="divide-y divide-border"
+            class="divide-y divide-edge"
             cdkDropList
             [cdkDropListDisabled]="busy() || editing() !== null"
             (cdkDropListDropped)="onDrop($event)"
@@ -256,7 +256,7 @@ type EditTarget = { id: string } | { id: null } | null;
             <div
               class="py-3"
               [class]="
-                definitions.value().length !== 0 ? 'border-t border-border' : ''
+                definitions.value().length !== 0 ? 'border-t border-edge' : ''
               "
             >
               <ng-container [ngTemplateOutlet]="form" />

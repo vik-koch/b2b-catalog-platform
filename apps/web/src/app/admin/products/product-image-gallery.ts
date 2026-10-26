@@ -77,7 +77,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             ></div>
             <div
               cdkDragHandle
-              class="relative size-26 cursor-grab overflow-hidden rounded-md border border-border bg-white active:cursor-grabbing"
+              class="relative size-26 cursor-grab overflow-hidden rounded-md border border-edge bg-white active:cursor-grabbing"
               [attr.aria-label]="adminText.actions.reorder"
             >
               <img

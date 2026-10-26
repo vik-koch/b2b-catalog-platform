@@ -99,13 +99,13 @@ export class ProductVariantList {
     return `${this.base} text-left ring-1 transition-colors ${
       chosen
         ? 'bg-secondary text-white ring-secondary animate-variant-chosen motion-reduce:animate-none'
-        : 'bg-white ring-border-strong hover:text-accent hover:ring-accent'
+        : 'bg-white ring-edge-strong hover:text-accent hover:ring-accent'
     }`;
   }
 
   /** A variant with no picture yet: offered like the others, so drawn like
    * them at rest, but with nothing to answer a pointer with. */
-  protected readonly pictureless = `${this.base} bg-white ring-1 ring-border`;
+  protected readonly pictureless = `${this.base} bg-white ring-1 ring-edge`;
 
   /** One that is out for now: greyed on the page's ground, which is what says
    * it cannot be had rather than that it has no picture. */

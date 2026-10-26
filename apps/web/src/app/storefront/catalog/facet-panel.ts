@@ -141,7 +141,7 @@ export const FACET_SIBLING_ALONE =
           <div class="overflow-hidden">
             <div
               [id]="panelId"
-              class="border-t border-border p-4 @min-[63.75rem]/listing:border-t-0 @min-[63.75rem]/listing:p-0"
+              class="border-t border-edge p-4 @min-[63.75rem]/listing:border-t-0 @min-[63.75rem]/listing:p-0"
               role="group"
               [attr.aria-label]="text.title"
             >

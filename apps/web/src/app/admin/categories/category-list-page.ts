@@ -211,7 +211,7 @@ const EDGE_SLACK = 24;
                      is one row at its real size and type, never its subtree —
                      children are their own rows and stay where they are. -->
                   <div
-                    class="border-border py-3"
+                    class="border-edge py-3"
                     [class]="depthTint(node.depth)"
                     [class.border-t]="!first"
                     [style.marginLeft.px]="node.depth * indent"

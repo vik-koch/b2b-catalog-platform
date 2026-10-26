@@ -34,7 +34,7 @@ import { WarningNote } from '../ui/warning-note';
   imports: [WarningNote, Skeleton],
   host: { class: 'block' },
   template: `
-    <div class="rounded-lg border border-border p-5">
+    <div class="rounded-lg border border-edge p-5">
       <h2 class="mb-3 font-medium">{{ text.summaryTitle }}</h2>
       <dl class="space-y-2 text-sm">
         <!-- How many lines is the cart's own answer, so it is stated before
@@ -54,7 +54,7 @@ import { WarningNote } from '../ui/warning-note';
           }
         }
         <div
-          class="flex items-baseline justify-between gap-4 border-t border-border pt-3"
+          class="flex items-baseline justify-between gap-4 border-t border-edge pt-3"
         >
           <dt class="text-subtle">{{ text.subtotal }}</dt>
           <dd class="text-xl font-emphasis text-primary">{{ subtotal() }}</dd>

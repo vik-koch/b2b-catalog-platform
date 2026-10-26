@@ -303,9 +303,9 @@ export const deploymentConfigSchema = z
             /** Meta text: eyebrows, table headers, counts. */
             subtle: z.string().optional(),
             /** Structural lines: card edges, dividers, table rules. */
-            border: z.string().optional(),
+            edge: z.string().optional(),
             /** Control edges: inputs, secondary buttons. */
-            borderStrong: z.string().optional(),
+            edgeStrong: z.string().optional(),
             /**
              * The grey ramp behind the tokens above: interaction backgrounds,
              * placeholders and disabled states, which the app draws in

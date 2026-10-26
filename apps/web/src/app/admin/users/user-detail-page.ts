@@ -100,7 +100,7 @@ interface DetailRow {
         <div class="mt-7 flex flex-col gap-7">
           <section>
             <h2 [class]="headingClass">{{ text.detailsHeading }}</h2>
-            <div class="rounded-lg border border-border p-5">
+            <div class="rounded-lg border border-edge p-5">
               <dl
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
               >
@@ -118,7 +118,7 @@ interface DetailRow {
 
           <section>
             <h2 [class]="headingClass">{{ text.accountHeading }}</h2>
-            <div class="rounded-lg border border-border p-5">
+            <div class="rounded-lg border border-edge p-5">
               <dl
                 class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
               >
@@ -139,7 +139,7 @@ interface DetailRow {
           @if (asksCode()) {
             <section>
               <h2 [class]="headingClass">{{ text.signInHeading }}</h2>
-              <div class="rounded-lg border border-border p-5">
+              <div class="rounded-lg border border-edge p-5">
                 <dl
                   class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
                 >

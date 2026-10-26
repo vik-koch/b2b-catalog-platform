@@ -152,7 +152,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                  Under the summary, where every other flow keeps what to do
                  next. -->
             @if (!signedIn()) {
-              <div class="mt-5 rounded-lg border border-border p-5">
+              <div class="mt-5 rounded-lg border border-edge p-5">
                 <p class="text-sm text-muted">{{ invite.text }}</p>
                 <a
                   appButton

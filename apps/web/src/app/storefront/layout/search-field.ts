@@ -213,7 +213,7 @@ let nextId = 0;
                      rather than laid on the chips' names. They stay out of the
                      accessibility tree: the keyboard walks the chips with the
                      arrow keys, and each one it reaches is scrolled into view. -->
-                <div class="shrink-0 border-b border-border pt-2">
+                <div class="shrink-0 border-b border-edge pt-2">
                   <div class="flex h-7 items-center justify-between gap-2 px-3">
                     <span
                       [id]="listId + '-categories'"
@@ -418,7 +418,7 @@ let nextId = 0;
               <button
                 type="button"
                 tabindex="-1"
-                class="flex cursor-pointer items-center justify-center gap-1 border-t border-border px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-stone-100 hover:text-accent active:text-primary-deep"
+                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-stone-100 hover:text-accent active:text-primary-deep"
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}
@@ -490,8 +490,8 @@ export class SearchField {
     () =>
       'z-20 flex flex-col overflow-hidden bg-white ' +
       (this.sheet()
-        ? 'fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b border-border shadow-lg'
-        : 'absolute top-full right-0 left-0 mt-1 min-w-[min(22rem,100vw_-_2rem)] rounded-md border border-border-strong shadow-lg'),
+        ? 'fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b border-edge shadow-lg'
+        : 'absolute top-full right-0 left-0 mt-1 min-w-[min(22rem,100vw_-_2rem)] rounded-md border border-edge-strong shadow-lg'),
   );
   protected readonly rowsClass = computed(
     () =>

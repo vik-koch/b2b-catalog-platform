@@ -247,7 +247,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 @if (itemsOpen()) {
                   <div
                     [id]="itemsPanelId"
-                    class="space-y-6 border-t border-border p-4"
+                    class="space-y-6 border-t border-edge p-4"
                   >
                     <!-- Where the pricing itself was refused, said here rather
                          than beside the save button: the figures on these lines
@@ -324,7 +324,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 @if (detailsOpen()) {
                   <div
                     [id]="detailsPanelId"
-                    class="space-y-8 border-t border-border p-4"
+                    class="space-y-8 border-t border-edge p-4"
                   >
                     @if (refusalOn() === 'details') {
                       <p appErrorText role="alert">

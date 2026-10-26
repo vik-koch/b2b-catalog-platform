@@ -235,7 +235,7 @@ export class ConditionsPage {
   private readonly pageService = inject(PageService);
 
   protected readonly cardClass =
-    'flex gap-3 rounded-lg border border-border p-4';
+    'flex gap-3 rounded-lg border border-edge p-4';
   protected readonly cardMark = 'mt-0.5 size-5 shrink-0 text-subtle';
 
   protected readonly navLabel = this.nav.conditions;

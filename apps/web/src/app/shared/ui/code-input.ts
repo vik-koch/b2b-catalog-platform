@@ -123,7 +123,7 @@ export class CodeInput implements OnInit {
       return 'border-secondary outline outline-1 -outline-offset-1 outline-secondary';
     }
     if (this.invalid()) return 'border-danger';
-    return 'border-border-strong group-hover:border-accent';
+    return 'border-edge-strong group-hover:border-accent';
   }
 
   /** A digit typed into a filled box takes that box's place. */

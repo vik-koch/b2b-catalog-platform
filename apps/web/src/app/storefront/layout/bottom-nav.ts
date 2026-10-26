@@ -145,7 +145,7 @@ const LEAVE_MS = 150;
            the reserve the shell leaves under the page can be written as the
            same number. -->
       <div
-        class="relative border-t border-border bg-surface/85 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
+        class="relative border-t border-edge bg-surface/85 backdrop-blur-sm pb-[env(safe-area-inset-bottom)]"
       >
         <div class="flex h-14 items-stretch px-1">
           <!-- Reaching for any of these is a decision to go somewhere else, so
@@ -221,7 +221,7 @@ export class BottomNav {
    * and the page showed through the hairline between them. The bar is the
    * positioned sibling, so it keeps painting over that pixel. */
   private readonly panel =
-    'absolute inset-x-0 bottom-full -mb-px max-h-[60dvh] overflow-y-auto border-t border-border bg-surface/85 backdrop-blur shadow-[0_-4px_16px_rgba(0,0,0,0.08)] motion-reduce:animate-none';
+    'absolute inset-x-0 bottom-full -mb-px max-h-[60dvh] overflow-y-auto border-t border-edge bg-surface/85 backdrop-blur shadow-[0_-4px_16px_rgba(0,0,0,0.08)] motion-reduce:animate-none';
   protected readonly panelClasses = computed(
     () =>
       `${this.panel} ${this.exit.leaving() ? 'animate-menu-sink' : 'animate-menu-rise'}`,

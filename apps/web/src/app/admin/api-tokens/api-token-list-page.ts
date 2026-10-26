@@ -189,7 +189,7 @@ const SCOPE_ROWS: readonly {
       @if (tokens.error()) {
         <p class="text-muted" role="alert">{{ adminText.loadError }}</p>
       } @else if (tokens.hasValue()) {
-        <div class="divide-y divide-border border-y border-border">
+        <div class="divide-y divide-edge border-y border-edge">
           @for (token of tokens.value(); track token.id) {
             <div class="py-3">
               <!-- Three sentences, not three figures: what this credential

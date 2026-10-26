@@ -63,7 +63,7 @@ const ZOOM_KEY_FACTOR = 1.1;
       <div
         #stage
         tabindex="0"
-        class="relative mx-auto mt-4 aspect-square w-full max-w-[55vh] cursor-grab touch-none overflow-hidden rounded-md border border-border-strong bg-white select-none active:cursor-grabbing"
+        class="relative mx-auto mt-4 aspect-square w-full max-w-[55vh] cursor-grab touch-none overflow-hidden rounded-md border border-edge-strong bg-white select-none active:cursor-grabbing"
         [attr.aria-label]="text.stageAria"
         (pointerdown)="onPointerDown($event)"
         (pointermove)="onPointerMove($event)"

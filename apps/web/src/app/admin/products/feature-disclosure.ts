@@ -44,7 +44,7 @@ let nextId = 0;
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
+        <div [id]="panelId" class="border-t border-edge p-4">
           <ng-content />
         </div>
       }

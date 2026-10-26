@@ -53,7 +53,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
         @if (list.length === 0) {
           <p class="text-muted">{{ text.unavailable }}</p>
         } @else {
-          <ul class="divide-y divide-border border-t border-border">
+          <ul class="divide-y divide-edge border-t border-edge">
             @for (notice of list; track notice.name) {
               <li class="py-3">
                 <details class="group">

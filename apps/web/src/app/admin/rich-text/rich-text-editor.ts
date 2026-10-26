@@ -70,7 +70,7 @@ interface ToolbarAction {
          the toolbar's scroller and stop it sticking. The toolbar rounds its
          own top corners instead. -->
     <div
-      class="rounded-md border border-border-strong bg-white focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+      class="rounded-md border border-edge-strong bg-white focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
     >
       <!-- Sticks under the header while the box is on screen, so a long page
            body never sends the author back up for a button. The panels hang
@@ -80,7 +80,7 @@ interface ToolbarAction {
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.labelAria"
-          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-border bg-stone-100 p-1.5"
+          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-stone-100 p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -317,7 +317,7 @@ export class RichTextEditor {
    * answers at its foot — the old 18rem left them wrapping.
    */
   protected readonly panelClass =
-    'absolute top-full mt-2 z-10 w-80 max-w-[calc(100%-1rem)] rounded-md border border-border-strong bg-white p-3 shadow-lg';
+    'absolute top-full mt-2 z-10 w-80 max-w-[calc(100%-1rem)] rounded-md border border-edge-strong bg-white p-3 shadow-lg';
   protected readonly image = this.text.imagePanel;
   private readonly headerCollapsed = inject(HeaderCollapse).collapsed;
   /**

@@ -188,8 +188,8 @@ function themeProperties(
     ['--color-ink', theme.ink],
     ['--color-muted', theme.muted],
     ['--color-subtle', theme.subtle],
-    ['--color-border', theme.border],
-    ['--color-border-strong', theme.borderStrong],
+    ['--color-edge', theme.edge],
+    ['--color-edge-strong', theme.edgeStrong],
     ...Object.entries(theme.neutrals ?? {}).map(
       ([step, colour]): [string, string] => [`--color-stone-${step}`, colour],
     ),

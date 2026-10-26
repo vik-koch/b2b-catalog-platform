@@ -161,7 +161,7 @@ function knownValues<T extends string>(
         <ng-template appGridRow [of]="data.items" let-item>
           <td>
             <div
-              class="size-10 overflow-hidden rounded-sm border border-border bg-white"
+              class="size-10 overflow-hidden rounded-sm border border-edge bg-white"
             >
               @if (item.thumb) {
                 <img
@@ -272,7 +272,7 @@ function knownValues<T extends string>(
           <app-record-row>
             <div
               recordLead
-              class="size-14 shrink-0 overflow-hidden rounded-sm border border-border bg-white"
+              class="size-14 shrink-0 overflow-hidden rounded-sm border border-edge bg-white"
               [class.opacity-50]="isDeleted(item)"
             >
               @if (item.thumb) {

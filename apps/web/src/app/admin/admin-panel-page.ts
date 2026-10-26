@@ -481,7 +481,7 @@ export class AdminPanelPage {
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly cardClass =
-    'divide-y divide-border overflow-hidden rounded-lg border border-border';
+    'divide-y divide-edge overflow-hidden rounded-lg border border-edge';
 
   private readonly work = inject(WorkService);
   private readonly settings = inject(SettingsService);

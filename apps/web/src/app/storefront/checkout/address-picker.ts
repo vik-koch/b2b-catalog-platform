@@ -45,7 +45,7 @@ let nextId = 0;
         <!-- Nothing to choose between, so nothing is asked: the fields are the
              whole picker, in a card of their own with no option to tick. A
              list of one option is not a question. -->
-        <div class="space-y-4 rounded-md border border-border p-4">
+        <div class="space-y-4 rounded-md border border-edge p-4">
           <ng-container [ngTemplateOutlet]="addressFields" />
         </div>
       } @else {

@@ -92,7 +92,7 @@ let nextId = 0;
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
+        <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
@@ -110,7 +110,7 @@ let nextId = 0;
                 <span class="w-6"></span>
               </div>
               <ul
-                class="divide-y divide-border border-y border-border"
+                class="divide-y divide-edge border-y border-edge"
                 cdkDropList
                 (cdkDropListDropped)="onDrop($event)"
               >

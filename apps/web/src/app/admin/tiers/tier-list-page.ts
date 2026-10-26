@@ -110,9 +110,9 @@ type EditTarget = { id: string } | { id: null } | null;
         <!-- Divided rules on the page, not a card: this is the same list of
              records an admin grid draws on a phone, and two lists in one panel
              that frame themselves differently read as two tools. -->
-        <div class="divide-y divide-border border-y border-border">
+        <div class="divide-y divide-edge border-y border-edge">
           <ul
-            class="divide-y divide-border"
+            class="divide-y divide-edge"
             cdkDropList
             [cdkDropListDisabled]="busy() || editing() !== null"
             (cdkDropListDropped)="onDrop($event)"

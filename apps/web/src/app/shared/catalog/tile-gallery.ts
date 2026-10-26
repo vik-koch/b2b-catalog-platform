@@ -91,7 +91,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
             <span
               class="h-0.5 flex-1 rounded-full transition-colors"
               [class.bg-secondary]="$index === selected()"
-              [class.bg-border-strong]="$index !== selected()"
+              [class.bg-edge-strong]="$index !== selected()"
             ></span>
           }
         </div>

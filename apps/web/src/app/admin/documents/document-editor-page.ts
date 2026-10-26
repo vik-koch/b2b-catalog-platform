@@ -112,7 +112,7 @@ import { Hint } from '../../shared/ui/hint';
                  own name is the line, because the stored name is a hash and
                  the title above is what the shop calls it. -->
             <div
-              class="flex flex-wrap items-center gap-3 rounded-md border border-border p-3"
+              class="flex flex-wrap items-center gap-3 rounded-md border border-edge p-3"
             >
               <!-- The name keeps a readable width; on a phone the three
                    controls take the next line rather than squeeze it. -->

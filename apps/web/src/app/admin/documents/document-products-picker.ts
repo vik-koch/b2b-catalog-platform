@@ -121,7 +121,7 @@ type View = 'all' | 'linked';
          grows by a screenful when a search matches everything is one nobody can
          reach the save button in. -->
     <ul
-      class="mt-3 max-h-80 divide-y divide-border overflow-y-auto rounded-md border border-border"
+      class="mt-3 max-h-80 divide-y divide-edge overflow-y-auto rounded-md border border-edge"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @for (row of rows(); track row.slug; let index = $index) {

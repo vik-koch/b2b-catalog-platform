@@ -36,6 +36,6 @@ export class DialogPanel {
 
   protected readonly classes = computed(
     () =>
-      `m-auto ${widths[this.size()]} max-h-[calc(100%-2rem)] overflow-y-auto rounded-lg border border-border bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50`,
+      `m-auto ${widths[this.size()]} max-h-[calc(100%-2rem)] overflow-y-auto rounded-lg border border-edge bg-surface p-6 text-ink shadow-xl backdrop:bg-ink/50`,
   );
 }

@@ -25,7 +25,7 @@ import { SHARED_TEXT } from '../config/shared-text';
     <div class="space-y-8">
       <section>
         <h2 class="mb-2 font-medium">{{ itemsHeading() || itemsDefault }}</h2>
-        <ul class="divide-y divide-border border-y border-border">
+        <ul class="divide-y divide-edge border-y border-edge">
           @for (line of lines(); track line.key) {
             <li class="flex items-baseline justify-between gap-4 py-2 text-sm">
               <span class="min-w-0">

@@ -67,7 +67,7 @@ import { Hint } from '../../shared/ui/hint';
         [innerHTML]="safeBody(body())"
       ></div>
       @if (isConsent()) {
-        <div class="mt-8 max-w-3xl border-t border-border pt-4">
+        <div class="mt-8 max-w-3xl border-t border-edge pt-4">
           <p class="mb-2 text-sm text-muted">{{ text.consentPreview }}</p>
           <label class="flex items-start gap-2 text-sm">
             <input type="checkbox" appCheckbox class="mt-0.5" disabled />

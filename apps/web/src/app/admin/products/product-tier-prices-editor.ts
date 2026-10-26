@@ -53,7 +53,7 @@ export interface TierPriceDraft {
          side they are already a group and the box would only be a box around a
          row. -->
     <div
-      class="flex flex-wrap gap-4 rounded-md border border-border p-4 sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
+      class="flex flex-wrap gap-4 rounded-md border border-edge p-4 sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
     >
       @for (tier of tiers(); track tier.id) {
         <label class="block w-full sm:w-auto">

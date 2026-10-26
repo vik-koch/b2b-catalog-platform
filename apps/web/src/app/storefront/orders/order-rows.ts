@@ -32,7 +32,7 @@ import {
   imports: [RouterLink, StatusBadge],
   host: { class: 'block' },
   template: `
-    <ul class="divide-y divide-border">
+    <ul class="divide-y divide-edge">
       @for (order of orders(); track order.reference) {
         <li class="-mx-2 py-3 first:pt-0 last:pb-0">
           <!-- The whole row opens the order: the reference is the only thing on

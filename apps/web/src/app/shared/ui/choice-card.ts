@@ -101,10 +101,10 @@ export class ChoiceCard {
     // it is the one that already is. Its press deepens rather than tinting,
     // there being a tint on it already.
     const state = this.disabled()
-      ? 'border-border opacity-60'
+      ? 'border-edge opacity-60'
       : this.checked()
         ? 'border-primary bg-stone-50 hover:border-accent active:border-primary-deep'
-        : 'border-border-strong hover:border-accent active:border-primary active:bg-stone-100';
+        : 'border-edge-strong hover:border-accent active:border-primary active:bg-stone-100';
     return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

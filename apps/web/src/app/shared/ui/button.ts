@@ -69,7 +69,7 @@ const variants = {
   // bar), where a stone background change is invisible. Accent is the app's
   // interactive-hover color throughout.
   secondary:
-    'border border-border-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
+    'border border-edge-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
   danger: 'bg-danger text-white hover:bg-red-800 active:bg-red-900',
   /**
    * The way *into* a destructive flow — a link that only opens the page

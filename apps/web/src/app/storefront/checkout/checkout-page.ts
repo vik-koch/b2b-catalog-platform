@@ -433,7 +433,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                    across the card. -->
               @if (!isPickup()) {
                 <app-delivery-zone-hint
-                  class="mt-3 border-t border-border pt-3"
+                  class="mt-3 border-t border-edge pt-3"
                   [postalCode]="deliveryPostalCode()"
                 />
               }

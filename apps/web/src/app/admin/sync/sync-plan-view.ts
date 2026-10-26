@@ -44,7 +44,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   selector: 'app-sync-plan-view',
   imports: [Button, Input, Link, RouterLink, StatusBadge, ErrorText],
   template: `
-    <section class="rounded-md border border-border p-4">
+    <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
         {{ title() }}
       </h2>

@@ -87,7 +87,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
            invites an attempt the API would refuse anyway. -->
       @if (catalogOwned()) {
         <p
-          class="rounded-md border border-border bg-stone-100 px-4 py-3 text-sm text-muted"
+          class="rounded-md border border-edge bg-stone-100 px-4 py-3 text-sm text-muted"
           role="status"
         >
           {{ text.formatErrors['catalog-externally-owned'] }}

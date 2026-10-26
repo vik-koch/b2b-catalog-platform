@@ -16,7 +16,7 @@ import { ScrollToTop } from './scroll-to-top';
     <footer
       class="bg-stone-100"
       [class.border-t]="!seamless()"
-      [class.border-border]="!seamless()"
+      [class.border-edge]="!seamless()"
     >
       <div class="mx-auto w-full max-w-328 p-4 sm:py-6 text-sm">
         <!-- A column below "sm", and in it the copyright comes last, where a

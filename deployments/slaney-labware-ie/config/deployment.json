@@ -17,8 +17,8 @@
       "ink": "#0f172a",
       "muted": "#475569",
       "subtle": "#5d6c83",
-      "border": "#e2e8f0",
-      "borderStrong": "#cbd5e1",
+      "edge": "#e2e8f0",
+      "edgeStrong": "#cbd5e1",
       "neutrals": {
         "50": "#f8fafc",
         "100": "#f1f5f9",

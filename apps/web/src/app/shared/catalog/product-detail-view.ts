@@ -96,7 +96,7 @@ export const PRODUCT_PAGE_SECTION_CELL = 'col-span-full scroll-mt-24';
  * drawn to the same width, so the column has a bottom edge and the
  * specifications below read as the next thing rather than as more of it.
  */
-const READING_WIDTH = 'max-w-3xl border-b border-border pb-8';
+const READING_WIDTH = 'max-w-3xl border-b border-edge pb-8';
 const TABLE_WIDTH = 'max-w-xl';
 
 /**
@@ -245,8 +245,8 @@ const NARROW = '(max-width: 39.999rem)';
         <div class="hidden @min-[65rem]/product:block">
           @if (mainAttributes().length) {
             <h2 [class]="sectionHeading">{{ text.mainSpecifications }}</h2>
-            <table class="mt-3 w-full border-t border-border text-sm">
-              <tbody class="divide-y divide-border">
+            <table class="mt-3 w-full border-t border-edge text-sm">
+              <tbody class="divide-y divide-edge">
                 @for (attr of mainAttributes(); track $index) {
                   <tr>
                     <th
@@ -297,7 +297,7 @@ const NARROW = '(max-width: 39.999rem)';
            more line in a page of them. -->
       <div
         aria-hidden="true"
-        class="col-span-full hidden border-t border-border @min-[40rem]/product:block"
+        class="col-span-full hidden border-t border-edge @min-[40rem]/product:block"
       ></div>
 
       @if (item().descriptionHtml) {
@@ -384,8 +384,8 @@ const NARROW = '(max-width: 39.999rem)';
           <!-- A real table (not a dl) so selecting rows and copying yields
              tab-separated key/value pairs — paste-ready into a spreadsheet or
              the product editor's attribute grid. -->
-          <table class="mt-3 w-full border-t border-border text-sm">
-            <tbody class="divide-y divide-border">
+          <table class="mt-3 w-full border-t border-edge text-sm">
+            <tbody class="divide-y divide-edge">
               @for (attr of attributes(); track $index) {
                 <tr>
                   <th

@@ -38,7 +38,7 @@ export const UNIT_FIELD_INPUT_COMPACT =
     // focused is the stronger statement, and on a plain input the app's
     // unlayered focus rule already settles that.
     class:
-      'flex items-center rounded-md border border-border-strong bg-white transition-colors [&:has(input:enabled):not(:focus-within):hover]:border-accent focus-within:border-secondary focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary has-[input:disabled]:bg-stone-100',
+      'flex items-center rounded-md border border-edge-strong bg-white transition-colors [&:has(input:enabled):not(:focus-within):hover]:border-accent focus-within:border-secondary focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary has-[input:disabled]:bg-stone-100',
   },
   template: `
     <ng-content />

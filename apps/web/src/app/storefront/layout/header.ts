@@ -67,7 +67,7 @@ import { SearchField } from './search-field';
          row being hidden — which is the same 40px either way, the phone's
          brand row on the results page and the utility bar from "sm". -->
     <header
-      class="z-20 border-b border-border bg-surface/85 backdrop-blur-sm transition-transform duration-300 sm:sticky sm:top-0"
+      class="z-20 border-b border-edge bg-surface/85 backdrop-blur-sm transition-transform duration-300 sm:sticky sm:top-0"
       [class]="headerClasses()"
     >
       <!-- The phone's top row. Everything in it is reachable further down the

@@ -28,7 +28,7 @@ import { HeaderCollapse } from '../../shared/layout/header-collapse';
   template: `
     <button
       type="button"
-      class="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-border-strong bg-surface text-muted transition-colors hover:border-accent hover:text-accent active:border-primary-deep active:text-primary-deep disabled:cursor-default disabled:border-border disabled:bg-transparent disabled:text-subtle disabled:hover:border-border disabled:hover:text-subtle"
+      class="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-edge-strong bg-surface text-muted transition-colors hover:border-accent hover:text-accent active:border-primary-deep active:text-primary-deep disabled:cursor-default disabled:border-edge disabled:bg-transparent disabled:text-subtle disabled:hover:border-edge disabled:hover:text-subtle"
       [disabled]="!collapsed()"
       [title]="label"
       (click)="toTop()"

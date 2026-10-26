@@ -87,11 +87,11 @@ const SUGGESTIONS_SHOWN = 8;
         />
       </app-disclosure-toggle>
       @if (open()) {
-        <div [id]="panelId" class="border-t border-border p-4">
+        <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-subtle">{{ text.hint }}</p>
 
           @if (value().length > 0) {
-            <ul class="mt-3 divide-y divide-border border-y border-border">
+            <ul class="mt-3 divide-y divide-edge border-y border-edge">
               @for (item of value(); track item.slug) {
                 <li class="flex items-center gap-2 py-1.5 text-sm">
                   <span class="min-w-0 flex-1 truncate">{{ item.name }}</span>

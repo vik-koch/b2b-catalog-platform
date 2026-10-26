@@ -106,7 +106,7 @@ interface DetailRow {
             {{ orderText.heading }}
           </h2>
           <!-- As above: the frame and its bars from the first frame. -->
-          <div class="rounded-lg border border-border p-5">
+          <div class="rounded-lg border border-edge p-5">
             <!-- What waits on the account holder, above the rows it is about
                  (FR-WORK-03): the same amber line the marker on the account
                  control leads here for, and the link opens the history it is
@@ -189,7 +189,7 @@ interface DetailRow {
                card is known before the calls answer, so the bars stand in the box
                the values will fill and the arrival is a fill rather than a jump.
                The delayed skeleton is for regions whose height nobody can guess. -->
-          <div class="rounded-lg border border-border">
+          <div class="rounded-lg border border-edge">
             <div class="p-5">
               <!-- Both halves at once, never each as it lands. They are two
                      answers to one question arriving on two round trips, and drawn
@@ -243,7 +243,7 @@ interface DetailRow {
             <app-icon name="map-pin" class="size-4" />
             {{ addressText.heading }}
           </h2>
-          <div class="rounded-lg border border-border">
+          <div class="rounded-lg border border-edge">
             <div class="p-5">
               @if (!profileReady()) {
                 <app-skeleton [lines]="3" />
@@ -251,7 +251,7 @@ interface DetailRow {
                 @if (addresses.value().length === 0) {
                   <p class="text-sm text-muted">{{ addressText.empty }}</p>
                 } @else {
-                  <ul class="divide-y divide-border">
+                  <ul class="divide-y divide-edge">
                     @for (address of addresses.value(); track address.id) {
                       <!-- The buttons sit against the middle of the row they
                              act on, not against its first line: an address is one
@@ -332,9 +332,9 @@ interface DetailRow {
             <app-icon name="lock" class="size-4" />
             {{ text.securityHeading }}
           </h2>
-          <div class="rounded-lg border border-border">
+          <div class="rounded-lg border border-edge">
             <div
-              class="grid divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0"
+              class="grid divide-y divide-edge md:grid-cols-2 md:divide-x md:divide-y-0"
             >
               <div class="flex flex-col p-5">
                 <h3 class="mb-2 text-sm font-medium">

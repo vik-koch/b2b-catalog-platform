@@ -39,7 +39,7 @@ interface DocumentRow {
   selector: 'app-product-documents',
   imports: [Icon],
   template: `
-    <ul class="mt-3 divide-y divide-border border-t border-border text-sm">
+    <ul class="mt-3 divide-y divide-edge border-t border-edge text-sm">
       @for (row of rows(); track $index) {
         <li>
           @if (row.link; as link) {

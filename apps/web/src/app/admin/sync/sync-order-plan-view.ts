@@ -24,7 +24,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
   selector: 'app-sync-order-plan-view',
   imports: [Link, RouterLink, StatusBadge],
   template: `
-    <section class="rounded-md border border-border p-4">
+    <section class="rounded-md border border-edge p-4">
       <h2 class="mb-4 text-lg font-normal tracking-tight">
         {{ text.summaryTitleApplied }}
       </h2>

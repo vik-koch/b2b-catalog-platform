@@ -92,8 +92,8 @@ type RenameTarget =
         } @else {
           <!-- Divided rules on the page, not a card: this is the same list of
                records an admin grid draws on a phone. -->
-          <div class="border-y border-border">
-            <ul class="divide-y divide-border">
+          <div class="border-y border-edge">
+            <ul class="divide-y divide-edge">
               @for (entry of keys.value(); track entry.key) {
                 <!-- scroll-mt clears the sticky header: without it the anchor
                    puts the row's own heading under the bar and the values look
@@ -216,13 +216,13 @@ type RenameTarget =
                          subcategory: these values belong to the key above them,
                          and a flat list of both reads as one list of
                          everything. -->
-                    <div class="border-t border-border bg-stone-100 ml-6 pl-2">
+                    <div class="border-t border-edge bg-stone-100 ml-6 pl-2">
                       @if (values.error()) {
                         <p class="py-3 text-sm text-muted" role="alert">
                           {{ adminText.loadError }}
                         </p>
                       } @else if (values.hasValue()) {
-                        <ul class="divide-y divide-border">
+                        <ul class="divide-y divide-edge">
                           @for (value of values.value(); track value.value) {
                             <li class="py-3">
                               @if (
@@ -333,7 +333,7 @@ type RenameTarget =
                            cannot drift: only the text and the glyphs are
                            replaced by bars. -->
                         <ul
-                          class="animate-pulse divide-y divide-border"
+                          class="animate-pulse divide-y divide-edge"
                           aria-hidden="true"
                         >
                           @for (

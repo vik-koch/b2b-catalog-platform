@@ -80,7 +80,7 @@ export function parseCount(text: string): number | null {
              One outlined box rather than six divided rows: these are not
              records, they are the parts of one answer about how the product is
              packed, and rules between them would say the opposite. -->
-        <div class="max-w-xl space-y-4 rounded-md border border-border p-4">
+        <div class="max-w-xl space-y-4 rounded-md border border-edge p-4">
           @for (row of rows(); track row.key) {
             <label class="block">
               <span class="mb-1 block text-sm font-medium text-ink">
@@ -123,7 +123,7 @@ export function parseCount(text: string): number | null {
               <tr>
                 <th
                   scope="row"
-                  class="w-1/3 border border-border-strong bg-stone-50 px-2 py-1.5 text-left font-medium"
+                  class="w-1/3 border border-edge-strong bg-stone-50 px-2 py-1.5 text-left font-medium"
                 >
                   <label [attr.for]="'packaging-' + row.key">{{
                     row.label
@@ -139,7 +139,7 @@ export function parseCount(text: string): number | null {
                    and the focus ring is drawn around the pair — so the cell
                    behaves as one field, like the attribute grid's. -->
                 <td
-                  class="border border-border-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+                  class="border border-edge-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
                   [class]="row.disabled ? 'bg-stone-100' : 'bg-white'"
                 >
                   <div class="flex items-center">

@@ -38,7 +38,7 @@ export interface OrderChange {
     } @else if (changes().length === 0 && !pending()) {
       <p class="text-sm text-subtle">{{ empty() }}</p>
     } @else {
-      <ul class="divide-y divide-border border-t border-border">
+      <ul class="divide-y divide-edge border-t border-edge">
         @for (change of changes(); track $index) {
           <li class="py-2 last:pb-0 text-sm">
             <span class="block text-subtle">{{ change.label }}</span>

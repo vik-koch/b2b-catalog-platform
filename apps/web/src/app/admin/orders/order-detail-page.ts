@@ -157,7 +157,7 @@ const MARK_PAID = 'markPaid';
               are looking at. Nothing has to line up across the block for that
               to read: a button is next to its own sentence.
             -->
-            <section class="mt-4 rounded-lg border border-border p-5 text-sm">
+            <section class="mt-4 rounded-lg border border-edge p-5 text-sm">
               <dl class="grid gap-x-6 wrap-break-word sm:grid-cols-[7rem_1fr]">
                 <dt [class]="term">{{ ordersText.account }}</dt>
                 <dd [class]="value">
@@ -417,7 +417,7 @@ const MARK_PAID = 'markPaid';
                              each carrying a note, a state and a fold reads as
                              one block of text without a line between them. -->
                             <ol
-                              class="divide-y divide-border border-t border-border"
+                              class="divide-y divide-edge border-t border-edge"
                             >
                               @for (entry of history(); track entry.number) {
                                 <li class="p-4">
@@ -525,13 +525,13 @@ const MARK_PAID = 'markPaid';
                             </ol>
                           } @else if (revisions.error()) {
                             <p
-                              class="border-t border-border p-4 text-muted"
+                              class="border-t border-edge p-4 text-muted"
                               role="alert"
                             >
                               {{ revisionText.loadError }}
                             </p>
                           } @else {
-                            <div class="border-t border-border p-4">
+                            <div class="border-t border-edge p-4">
                               <app-skeleton [lines]="3" />
                             </div>
                           }

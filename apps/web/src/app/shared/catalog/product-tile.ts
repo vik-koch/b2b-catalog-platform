@@ -24,7 +24,7 @@ import { ImagePriority, TileGallery } from './tile-gallery';
  * is the first of the five, so track and gap are read together.
  */
 export const PRODUCT_GRID =
-  'grid grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] gap-5 @max-[38rem]/listing:grid-cols-1 @max-[38rem]/listing:gap-y-0 @max-[38rem]/listing:divide-y @max-[38rem]/listing:divide-border @max-[38rem]/listing:border-y @max-[38rem]/listing:border-border';
+  'grid grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] gap-5 @max-[38rem]/listing:grid-cols-1 @max-[38rem]/listing:gap-y-0 @max-[38rem]/listing:divide-y @max-[38rem]/listing:divide-edge @max-[38rem]/listing:border-y @max-[38rem]/listing:border-edge';
 
 /**
  * One product card in a grid (FR-CAT-04) — gallery, name, price — shared by the
@@ -132,7 +132,7 @@ export class ProductTile {
   /** With no card frame to borrow in the narrow shape, the photo takes the
    * one a line's photo carries at every width. */
   protected readonly photo =
-    'block aspect-square w-full overflow-hidden rounded-t-lg @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-border';
+    'block aspect-square w-full overflow-hidden rounded-t-lg @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-edge';
 
   protected readonly body =
     'flex flex-1 flex-col px-3 py-3 @max-[38rem]/listing:p-0 ' +

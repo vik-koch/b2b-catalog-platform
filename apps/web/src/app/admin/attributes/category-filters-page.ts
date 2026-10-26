@@ -130,9 +130,9 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
           } @else {
             <!-- Divided rules on the page, not a card: this is the same list
                  of records the rest of the panel draws. -->
-            <div class="border-y border-border">
+            <div class="border-y border-edge">
               <ul
-                class="divide-y divide-border"
+                class="divide-y divide-edge"
                 cdkDropList
                 [cdkDropListDisabled]="busy()"
                 (cdkDropListDropped)="onDrop($event)"

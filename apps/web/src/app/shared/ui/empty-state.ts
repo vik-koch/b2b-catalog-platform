@@ -23,7 +23,7 @@ import { Icon, IconName } from './icons/icon';
   host: { class: 'block' },
   template: `
     <div
-      class="flex flex-col items-center rounded-lg border border-border px-6 py-12 text-center"
+      class="flex flex-col items-center rounded-lg border border-edge px-6 py-12 text-center"
     >
       <app-icon
         [name]="icon()"

@@ -17,7 +17,7 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
     @if (versions.hasValue() && versions.value().length > 0) {
       <section class="mt-12 max-w-3xl">
         <h2 class="mb-3 text-lg font-medium">{{ text.heading }}</h2>
-        <ul class="divide-y divide-border border-y border-border">
+        <ul class="divide-y divide-edge border-y border-edge">
           @for (
             entry of versions.value();
             track entry.version;
