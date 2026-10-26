@@ -210,7 +210,7 @@ type Status =
                  and the account's details were collected long before. -->
             <app-consent-field
               [consent]="consent"
-              [invalid]="isInvalid('consent')"
+              [invalid]="fieldErrors.attempted() && consent.field().invalid()"
               [alone]="false"
             />
 
@@ -269,7 +269,6 @@ export class SetPasswordPage implements OnInit {
     {
       newPassword: ['', [Validators.required, passwordLength]],
       confirmPassword: ['', Validators.required],
-      consent: this.consent.control,
     },
     { validators: passwordsMatch },
   );
@@ -324,7 +323,12 @@ export class SetPasswordPage implements OnInit {
     // The refusal stays until the next answer replaces it, so the form does
     // not jump while the request is out.
     this.fieldErrors.markSubmitted();
-    if (this.form.invalid || !this.consent.sendable()) return;
+    if (
+      this.form.invalid ||
+      this.consent.field().invalid() ||
+      !this.consent.sendable()
+    )
+      return;
 
     this.status.set('submitting');
     const outcome = await this.service.setPassword({

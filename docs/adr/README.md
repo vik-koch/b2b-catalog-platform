@@ -59,7 +59,7 @@ The index below is generated from each record's heading and status line
 | 0040 | [Suggest addresses through a port, and match them against configured delivery zones](0040-address-suggestion-and-delivery-zone-rules.md) | 2026-08-23 | accepted |
 | 0041 | [Suggest a company through the same sidecar, and never let it decide](0041-company-identification-and-party-suggestion.md) | 2026-08-24 | accepted |
 | 0042 | [A unit is a lens on an integer piece count](0042-a-unit-is-a-lens-on-a-piece-count.md) | 2026-08-26 | accepted, amended |
-| 0043 | [Move contracts to oRPC, and send the browser routes rather than schemas](0043-contract-layer-and-what-the-browser-downloads.md) | 2026-09-03 | accepted |
+| 0043 | [Move contracts to oRPC, and send the browser routes rather than schemas](0043-contract-layer-and-what-the-browser-downloads.md) | 2026-09-03 | accepted, amended |
 | 0044 | [Version releases by blast radius, then by scope](0044-versioning-by-what-a-release-changes.md) | 2026-09-03 | accepted |
 | 0045 | [Derive availability from a stock piece count, and sort by it everywhere](0045-availability-as-a-derived-state-of-a-piece-count.md) | 2026-09-03 | accepted |
 | 0046 | [Work awaiting attention is a query, not a table](0046-work-awaiting-attention-is-a-query-not-a-table.md) | 2026-09-03 | accepted |
@@ -86,5 +86,6 @@ The index below is generated from each record's heading and status line
 | 0067 | [Send each night's backup off the host as an encrypted pair, to storage the host cannot erase](0067-backups-leave-the-host-as-an-encrypted-pair.md) | 2026-10-09 | accepted |
 | 0068 | [Simulate the demo shop's back office as a client of the machine API](0068-simulate-the-demo-back-office-through-the-machine-api.md) | 2026-10-23 | accepted |
 | 0069 | [Split the web app, its texts and the contracts by audience](0069-split-web-texts-and-contracts-by-audience.md) | 2026-10-25 | accepted |
+| 0070 | [Build every form on Signal Forms, around one field shell](0070-build-forms-on-signal-forms.md) | 2026-10-26 | accepted |
 
 <!-- /generated:adr-index -->

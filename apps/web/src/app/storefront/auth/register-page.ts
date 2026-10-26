@@ -188,7 +188,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
           <app-consent-field
             [consent]="consent"
-            [invalid]="isInvalid('consent')"
+            [invalid]="fieldErrors.attempted() && consent.field().invalid()"
           />
 
           @if (status() === 'error') {
@@ -282,7 +282,6 @@ export class RegisterPage {
     companyName: [''],
     companyRegistrationId: [''],
     website: [''],
-    consent: this.consent.control,
   });
 
   constructor() {
@@ -309,7 +308,11 @@ export class RegisterPage {
 
   protected async submit(): Promise<void> {
     this.fieldErrors.markSubmitted();
-    if (this.form.invalid || !this.consent.sendable()) {
+    if (
+      this.form.invalid ||
+      this.consent.field().invalid() ||
+      !this.consent.sendable()
+    ) {
       return;
     }
 
