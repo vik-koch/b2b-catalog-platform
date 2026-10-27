@@ -26,7 +26,8 @@ order: `danger-surface`, `surface-hover`, `ink-subtle`, `primary-press`.
   lighter line.
 - **State**: `-hover` and `-press`, named for what they happen on, one and two steps from its
   resting colour; `-disabled` for a control that cannot be used. The brand's hover is its own
-  colour, `accent`.
+  colour, `accent`. A disabled control never takes its hover or press: `ui.css` redefines
+  Tailwind's `hover:` and `active:` to skip `:disabled`, so no class has to cancel them.
 
 A name says what a colour does, never which shade it is. Two roles may share a value (a hovered
 row and a recessed panel are both stone-100) and still keep two names, because they do different

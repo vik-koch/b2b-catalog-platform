@@ -2,13 +2,26 @@
 
 /*
  * The design tokens: breakpoints, the emphasis weight, the colour roles and
- * the palette steps behind them. Why each value is what it is:
- * docs/design-language.md.
+ * the palette steps behind them, and what hover and press apply to. Why each
+ * value is what it is: docs/design-language.md.
  *
  * Tailwind compiles the utilities to var() references, so a theme set on
  * <html> as these same custom properties re-colours a built image.
  */
 @source '.';
+
+/*
+ * A disabled control does not answer to the pointer, so `hover:` and `active:` skip it; `:where`
+ * keeps their specificity as Tailwind's own. The rest is Tailwind's definition.
+ */
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover:where(:not(:disabled)) {
+      @slot;
+    }
+  }
+}
+@custom-variant active (&:active:where(:not(:disabled)));
 
 @theme {
   /*

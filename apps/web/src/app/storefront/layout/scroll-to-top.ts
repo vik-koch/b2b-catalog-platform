@@ -35,8 +35,7 @@ import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up'
              hover:border-accent hover:text-accent
              active:border-primary-press active:text-primary-press
              disabled:cursor-default disabled:border-edge
-             disabled:bg-transparent disabled:text-ink-disabled
-             disabled:hover:border-edge disabled:hover:text-ink-disabled"
+             disabled:bg-transparent disabled:text-ink-disabled"
       [disabled]="!collapsed()"
       [title]="label"
       (click)="toTop()"

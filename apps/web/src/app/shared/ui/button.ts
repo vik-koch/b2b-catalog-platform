@@ -43,8 +43,7 @@ const variants = {
   primary: `bg-primary text-white
             hover:bg-accent
             active:bg-primary-press
-            disabled:bg-surface-strong disabled:text-ink-subtle
-            disabled:hover:bg-surface-strong disabled:active:bg-surface-strong`,
+            disabled:bg-surface-strong disabled:text-ink-subtle`,
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside `surface` blocks (the
   // signed-in bar), where a grey background change is invisible. Accent is the app's
