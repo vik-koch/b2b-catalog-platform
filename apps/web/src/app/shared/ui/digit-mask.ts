@@ -76,32 +76,28 @@ export class DigitMask implements FormValueControl<string> {
   private lastMask: string | null = null;
 
   constructor() {
-    // A value from the form is painted with whatever mask is bound now, and
-    // left as it is: the form keeps what it wrote until a mask takes digits.
+    // One effect for both: a form that sets the value and the format together
+    // (a whole address, country and postal code) delivers them in one pass,
+    // and two effects would each find the other's half already on screen.
     effect(() => {
       const value = this.value();
-      untracked(() => {
-        if (value === this.written) return;
-        // The form has moved past what was typed: a later write of that same
-        // value is the form's again, and has to be painted.
-        this.written = null;
-        this.source = this.stripPrefix(value);
-        this.el.value = this.format(this.source);
-      });
-    });
-    // A changed mask regroups from the source, and pushes the result: a mask
-    // that takes fewer digits drops some, and a value the visitor can no
-    // longer see must not still be saved.
-    effect(() => {
       const mask = this.mask();
       untracked(() => {
-        const first = this.lastMask === null;
-        this.lastMask = mask;
-        if (first) return;
+        if (value !== this.written) {
+          // The form has moved past what was typed: a later write of that
+          // same value is the form's again, and has to be painted.
+          this.written = null;
+          this.source = this.stripPrefix(value);
+        }
         const formatted = applyMask(this.source, mask);
-        if (formatted === this.el.value) return;
-        this.el.value = formatted;
-        this.write(formatted);
+        if (formatted !== this.el.value) this.el.value = formatted;
+        const maskChanged = this.lastMask !== null && mask !== this.lastMask;
+        this.lastMask = mask;
+        // A value from the form is left as it is under the mask it came with.
+        // A changed mask pushes what it shows: one that takes fewer digits
+        // drops some, and a value the visitor can no longer see must not
+        // still be saved.
+        if (maskChanged && formatted !== value) this.write(formatted);
       });
     });
   }

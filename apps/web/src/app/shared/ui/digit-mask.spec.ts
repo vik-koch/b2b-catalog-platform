@@ -72,6 +72,17 @@ describe('DigitMask', () => {
     expect(fixture.componentInstance.value()).toBe('(030) 123-4567');
   });
 
+  it('keeps the field to what a mask that arrives with the value shows', async () => {
+    const { fixture, input } = await render('##########');
+
+    fixture.componentInstance.value.set('1234567890');
+    fixture.componentInstance.mask.set('#####');
+    await fixture.whenStable();
+
+    expect(input.value).toBe('12345');
+    expect(fixture.componentInstance.value()).toBe('12345');
+  });
+
   it('paints a form write that matches an earlier typed value', async () => {
     const { fixture, input, type } = await render('#####');
 
