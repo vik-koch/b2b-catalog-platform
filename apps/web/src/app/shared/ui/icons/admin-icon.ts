@@ -74,13 +74,16 @@ export type AdminIconName =
 @Component({
   selector: 'app-admin-icon',
   host: { class: 'inline-flex' },
-  // Sized as Icon is — see there for why this is not left to a class.
+  // Sized and stroked as Icon is: see there for why neither is left to a class or attribute.
   styles: `
     @layer components {
       :host {
         width: var(--icon-size, 1em);
         height: var(--icon-size, 1em);
       }
+    }
+    svg {
+      stroke-width: var(--icon-stroke-width, 1.75);
     }
   `,
   template: `
@@ -89,7 +92,6 @@ export type AdminIconName =
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
       stroke-linecap="round"
       stroke-linejoin="round"
       class="size-full"
