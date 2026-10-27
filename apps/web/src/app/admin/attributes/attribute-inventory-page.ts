@@ -122,7 +122,9 @@ type RenameTarget =
                         <button
                           recordControl
                           type="button"
-                          class="flex cursor-pointer items-center gap-2 self-stretch text-left font-medium text-ink hover:text-accent"
+                          class="flex cursor-pointer items-center gap-2
+                                 self-stretch text-left font-medium text-ink
+                                 hover:text-accent"
                           [attr.aria-expanded]="expanded() === entry.key"
                           (click)="toggle(entry.key)"
                         >
@@ -372,7 +374,8 @@ type RenameTarget =
                                        hands its icon as --icon-size. -->
                                   <span appIconButton>
                                     <span
-                                      class="block size-(--icon-size) rounded-sm bg-skeleton"
+                                      class="block size-(--icon-size)
+                                             rounded-sm bg-skeleton"
                                     ></span>
                                   </span>
                                 </ng-container>

@@ -41,7 +41,10 @@ const LEAVE_MS = 150;
         />
         <button
           type="button"
-          class="-mr-1.5 inline-flex cursor-pointer items-center justify-center rounded-lg p-2 text-primary transition-colors hover:text-accent active:text-primary-press"
+          class="-mr-1.5 inline-flex cursor-pointer items-center
+                 justify-center rounded-lg p-2 text-primary transition-colors
+                 hover:text-accent
+                 active:text-primary-press"
           (click)="search.close()"
         >
           <app-icon [glyph]="xIcon" class="size-6" />
@@ -72,10 +75,13 @@ export class SearchOverlay {
   protected readonly shown = this.exit.shown;
   private readonly leaving = this.exit.leaving;
 
-  private readonly row =
-    'fixed inset-x-0 top-0 z-60 flex h-15 items-center gap-2 border-b border-edge bg-surface-subtle/85 backdrop-blur px-4 motion-reduce:animate-none';
-  private readonly scrim =
-    'fixed inset-0 z-50 cursor-default bg-black/40 backdrop-blur-[2px] motion-reduce:animate-none';
+  private readonly row = `fixed inset-x-0 top-0 z-60 flex h-15 items-center
+                          gap-2 border-b border-edge bg-surface-subtle/85
+                          backdrop-blur px-4
+                          motion-reduce:animate-none`;
+  private readonly scrim = `fixed inset-0 z-50 cursor-default bg-black/40
+                            backdrop-blur-[2px]
+                            motion-reduce:animate-none`;
 
   protected readonly rowClasses = computed(
     () =>

@@ -45,14 +45,17 @@ import { FieldBinding } from './field-binding';
       @for (slot of slots(); track $index) {
         <div
           aria-hidden="true"
-          class="flex h-12 w-10 items-center justify-center rounded-md border bg-white text-xl tabular-nums transition-colors sm:w-11"
+          class="flex h-12 w-10 items-center justify-center rounded-md border
+                 bg-white text-xl tabular-nums transition-colors
+                 sm:w-11"
           [class]="slotClass($index)"
         >
           @if (slot) {
             {{ slot }}
           } @else if (focused() && $index === active()) {
             <span
-              class="h-6 w-px animate-caret-blink bg-current motion-reduce:animate-none"
+              class="h-6 w-px animate-caret-blink bg-current
+                     motion-reduce:animate-none"
             ></span>
           }
         </div>
@@ -63,7 +66,10 @@ import { FieldBinding } from './field-binding';
         type="text"
         inputmode="numeric"
         autocomplete="one-time-code"
-        class="absolute inset-0 size-full cursor-text border-0 bg-transparent text-transparent caret-transparent selection:bg-transparent focus-visible:outline-none"
+        class="absolute inset-0 size-full cursor-text border-0 bg-transparent
+               text-transparent caret-transparent
+               selection:bg-transparent
+               focus-visible:outline-none"
         (beforeinput)="overwrite($event)"
         (input)="sanitize()"
         (focus)="focused.set(true); track()"
@@ -110,7 +116,8 @@ export class CodeInput {
   protected slotClass(index: number): string {
     const active = this.focused() && index === this.active();
     if (active) {
-      return 'border-secondary outline outline-1 -outline-offset-1 outline-secondary';
+      return `border-secondary outline outline-1 -outline-offset-1
+              outline-secondary`;
     }
     if (this.shell?.error()) return 'border-danger';
     return 'border-edge-strong group-hover:border-accent';

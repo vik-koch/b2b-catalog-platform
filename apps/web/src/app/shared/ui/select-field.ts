@@ -38,14 +38,16 @@ const chevrons = {
    * UnitField gives.
    */
   host: {
-    class:
-      'relative block [&:has(select:enabled):not(:focus-within):hover_app-icon]:text-accent [&:focus-within_app-icon]:text-secondary',
+    class: `relative block
+            [&:has(select:enabled):not(:focus-within):hover_app-icon]:text-accent
+            [&:focus-within_app-icon]:text-secondary`,
   },
   template: `
     <ng-content />
     <app-icon
       [glyph]="chevronDownIcon"
-      class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-ink-subtle transition-colors"
+      class="pointer-events-none absolute top-1/2 -translate-y-1/2
+             text-ink-subtle transition-colors"
       [class]="chevron()"
     />
   `,

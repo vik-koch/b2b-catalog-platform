@@ -103,8 +103,12 @@ export class ChoiceCard {
     const state = this.disabled()
       ? 'border-edge opacity-60'
       : this.checked()
-        ? 'border-primary bg-surface-subtle hover:border-accent active:border-primary-press'
-        : 'border-edge-strong hover:border-accent active:border-primary active:bg-surface-subtle-press';
+        ? `border-primary bg-surface-subtle
+           hover:border-accent
+           active:border-primary-press`
+        : `border-edge-strong
+           hover:border-accent
+           active:border-primary active:bg-surface-subtle-press`;
     return `relative h-full rounded-lg border p-3 transition-colors has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary ${state}`;
   });
 }

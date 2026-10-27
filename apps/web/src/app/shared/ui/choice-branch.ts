@@ -37,7 +37,8 @@ import { Radio } from './radio';
              disclosure's label follows its chevron — this is one short line
              naming a choice, not a sentence about it. -->
         <label
-          class="flex cursor-pointer items-baseline gap-2 transition-colors hover:text-accent"
+          class="flex cursor-pointer items-baseline gap-2 transition-colors
+                 hover:text-accent"
         >
           <input
             type="radio"

@@ -118,7 +118,8 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
                   <app-icon [glyph]="mapPinIcon" [class]="cardMark" />
                   <div class="min-w-0 flex-1">
                     <div
-                      class="flex flex-wrap items-baseline justify-between gap-x-4"
+                      class="flex flex-wrap items-baseline justify-between
+                             gap-x-4"
                     >
                       <p class="font-medium">{{ location.name }}</p>
                       @if (location.mapUrl) {

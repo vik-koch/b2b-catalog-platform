@@ -65,7 +65,9 @@ import { PageTitle } from '../../shared/ui/page-title';
     @if (revision(); as order) {
       <div class="@container/order">
         <div
-          class="grid gap-10 @min-[63.75rem]/order:grid-cols-[1fr_20rem] @min-[63.75rem]/order:justify-between"
+          class="grid gap-10
+                 @min-[63.75rem]/order:grid-cols-[1fr_20rem]
+                 @min-[63.75rem]/order:justify-between"
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -85,7 +87,8 @@ import { PageTitle } from '../../shared/ui/page-title';
                  a thing to press buttons at. -->
             <section class="mt-4 rounded-lg border border-edge p-5 text-sm">
               <dl
-                class="grid gap-x-6 gap-y-3 wrap-break-word sm:grid-cols-[7rem_1fr]"
+                class="grid gap-x-6 gap-y-3 wrap-break-word
+                       sm:grid-cols-[7rem_1fr]"
               >
                 <dt class="text-ink-subtle">{{ ordersText.account }}</dt>
                 <dd>{{ order.customerEmail ?? ordersText.guest }}</dd>
@@ -152,7 +155,10 @@ import { PageTitle } from '../../shared/ui/page-title';
           </div>
 
           <aside
-            class="max-w-xl @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky @min-[63.75rem]/order:top-20 @min-[63.75rem]/order:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
+                   @min-[63.75rem]/order:top-20
+                   @min-[63.75rem]/order:self-start"
           >
             <app-order-summary
               [lineCount]="order.lines.length"

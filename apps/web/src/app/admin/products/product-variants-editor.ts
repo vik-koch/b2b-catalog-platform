@@ -105,7 +105,9 @@ let nextId = 0;
                    On a phone the controls wrap under the name and say what
                    they are themselves. -->
               <div
-                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight text-ink-subtle @min-[30rem]/variants:flex"
+                class="hidden items-end gap-x-2 pb-1.5 pl-6 text-xs/tight
+                       text-ink-subtle
+                       @min-[30rem]/variants:flex"
                 aria-hidden="true"
               >
                 <span class="flex-1"></span>
@@ -129,11 +131,13 @@ let nextId = 0;
                   <li
                     cdkDrag
                     [cdkDragPreviewClass]="previewClass"
-                    class="flex flex-wrap items-center gap-x-2 gap-y-1.5 py-1.5 text-sm"
+                    class="flex flex-wrap items-center gap-x-2 gap-y-1.5
+                           py-1.5 text-sm"
                   >
                     <span
                       cdkDragHandle
-                      class="inline-flex cursor-grab text-ink-subtle active:cursor-grabbing"
+                      class="inline-flex cursor-grab text-ink-subtle
+                             active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
                       <app-icon [glyph]="gripVerticalIcon" class="size-4" />
@@ -142,7 +146,8 @@ let nextId = 0;
                       type="text"
                       appInput
                       size="sm"
-                      class="min-w-0 flex-1 basis-[calc(100%-1.5rem)] @min-[30rem]/variants:basis-0"
+                      class="min-w-0 flex-1 basis-[calc(100%-1.5rem)]
+                             @min-[30rem]/variants:basis-0"
                       autocomplete="off"
                       [attr.aria-label]="text.nameAria"
                       [attr.maxlength]="nameMax"
@@ -151,7 +156,11 @@ let nextId = 0;
                       (input)="rename(variant.id, $any($event.target).value)"
                     />
                     <span
-                      class="ml-6 inline-flex shrink-0 items-center gap-1 text-xs text-ink-subtle @min-[30rem]/variants:ml-0 @min-[30rem]/variants:w-10 @min-[30rem]/variants:justify-end"
+                      class="ml-6 inline-flex shrink-0 items-center gap-1
+                             text-xs text-ink-subtle
+                             @min-[30rem]/variants:ml-0
+                             @min-[30rem]/variants:w-10
+                             @min-[30rem]/variants:justify-end"
                       [title]="picturesLabel(variant.id)"
                       [attr.aria-label]="picturesLabel(variant.id)"
                     >
@@ -159,7 +168,10 @@ let nextId = 0;
                       {{ pictureCount(variant.id) }}
                     </span>
                     <label
-                      class="flex shrink-0 cursor-pointer items-center gap-1.5 text-xs @min-[30rem]/variants:w-24 @min-[30rem]/variants:justify-center"
+                      class="flex shrink-0 cursor-pointer items-center gap-1.5
+                             text-xs
+                             @min-[30rem]/variants:w-24
+                             @min-[30rem]/variants:justify-center"
                     >
                       <input
                         type="checkbox"

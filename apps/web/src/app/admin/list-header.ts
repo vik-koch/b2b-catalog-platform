@@ -42,7 +42,8 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
          same three at both widths, and projected content can only be placed
          once. -->
     <div
-      class="mb-4 grid grid-cols-[1fr_auto] items-center gap-4 md:grid-cols-[1fr_2fr_1fr]"
+      class="mb-4 grid grid-cols-[1fr_auto] items-center gap-4
+             md:grid-cols-[1fr_2fr_1fr]"
     >
       <!-- Top-aligned, alone among the three: the row is as tall as whatever
            else is in it — a 38px button here, a search box there, nothing at
@@ -61,7 +62,8 @@ const CLEAR_AT: Record<NarrowBreakpoint, string> = {
            there it pushed "Add customer" a line below the search box. -->
       @if (searchable()) {
         <div
-          class="order-3 col-span-2 flex w-full items-center gap-2 md:order-2 md:col-span-1 md:justify-self-center"
+          class="order-3 col-span-2 flex w-full items-center gap-2
+                 md:order-2 md:col-span-1 md:justify-self-center"
         >
           <app-grid-search-field
             class="min-w-0 flex-1"

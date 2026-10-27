@@ -85,7 +85,9 @@ interface ToolbarAction {
          the toolbar's scroller and stop it sticking. The toolbar rounds its
          own top corners instead. -->
     <div
-      class="rounded-md border border-edge-strong bg-white focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+      class="rounded-md border border-edge-strong bg-white
+             focus-within:outline-1 focus-within:-outline-offset-1
+             focus-within:outline-secondary"
     >
       <!-- Sticks under the header while the box is on screen, so a long page
            body never sends the author back up for a button. The panels hang
@@ -95,7 +97,8 @@ interface ToolbarAction {
         <div
           role="toolbar"
           [attr.aria-label]="text.toolbar.labelAria"
-          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b border-edge bg-surface p-1.5"
+          class="flex flex-wrap items-center gap-0.5 rounded-t-md border-b
+                 border-edge bg-surface p-1.5"
         >
           @for (action of visibleActions(); track action.id) {
             <button
@@ -134,7 +137,8 @@ interface ToolbarAction {
            the saved page exactly. -->
       <div
         #host
-        class="prose max-w-none p-4 [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
+        class="prose max-w-none p-4
+               [&_.ProseMirror]:min-h-48 [&_.ProseMirror]:outline-none"
       ></div>
     </div>
 
@@ -331,8 +335,9 @@ export class RichTextEditor {
    * corner of the editor its button is on, and wide enough for the row of
    * answers at its foot — the old 18rem left them wrapping.
    */
-  protected readonly panelClass =
-    'absolute top-full mt-2 z-10 w-80 max-w-[calc(100%-1rem)] rounded-md border border-edge-strong bg-white p-3 shadow-lg';
+  protected readonly panelClass = `absolute top-full mt-2 z-10 w-80
+                                   max-w-[calc(100%-1rem)] rounded-md border
+                                   border-edge-strong bg-white p-3 shadow-lg`;
   protected readonly image = this.text.imagePanel;
   private readonly headerCollapsed = inject(HeaderCollapse).collapsed;
   /**
@@ -663,8 +668,10 @@ export class RichTextEditor {
    * width below `md`, a pointer's above, glyph included.
    */
   protected buttonClass(active: boolean): string {
-    const base =
-      'flex size-9 cursor-pointer items-center justify-center rounded transition-colors [&>*]:size-5 md:size-8 md:[&>*]:size-4';
+    const base = `flex size-9 cursor-pointer items-center justify-center
+                  rounded transition-colors
+                  [&>*]:size-5
+                  md:size-8 md:[&>*]:size-4`;
     return active
       ? `${base} bg-primary text-white`
       : `${base} text-ink hover:bg-surface-hover`;

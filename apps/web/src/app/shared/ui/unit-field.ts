@@ -5,13 +5,16 @@ import { Component, input } from '@angular/core';
  * carries the border, the background and the focus ring, so the field itself
  * is a bare box that fills what is left of the row.
  */
-export const UNIT_FIELD_INPUT =
-  'h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed';
+export const UNIT_FIELD_INPUT = `h-10 min-w-0 flex-1 bg-transparent px-2
+                                 py-1.5 leading-6 outline-none
+                                 disabled:cursor-not-allowed`;
 
 /** The same, with the figure close up to its unit from `sm` up — for a
  * compact field. */
-export const UNIT_FIELD_INPUT_COMPACT =
-  'h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed sm:pr-1';
+export const UNIT_FIELD_INPUT_COMPACT = `h-10 min-w-0 flex-1 bg-transparent
+                                         px-2 py-1.5 leading-6 outline-none
+                                         disabled:cursor-not-allowed
+                                         sm:pr-1`;
 
 /**
  * A field with its unit printed inside it, after the figure it measures — the
@@ -37,8 +40,12 @@ export const UNIT_FIELD_INPUT_COMPACT =
     // caret is in it. The hover excludes `:focus-within` explicitly — being
     // focused is the stronger statement, and on a plain input the app's
     // unlayered focus rule already settles that.
-    class:
-      'flex items-center rounded-md border border-edge-strong bg-white transition-colors [&:has(input:enabled):not(:focus-within):hover]:border-accent focus-within:border-secondary focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary has-[input:disabled]:bg-surface',
+    class: `flex items-center rounded-md border border-edge-strong bg-white
+            transition-colors
+            [&:has(input:enabled):not(:focus-within):hover]:border-accent
+            focus-within:border-secondary focus-within:outline-1
+            focus-within:-outline-offset-1 focus-within:outline-secondary
+            has-[input:disabled]:bg-surface`,
   },
   template: `
     <ng-content />

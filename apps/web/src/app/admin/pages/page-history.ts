@@ -26,7 +26,8 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
             <li>
               <details class="group">
                 <summary
-                  class="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-1 py-3 text-sm"
+                  class="flex cursor-pointer flex-wrap items-baseline gap-x-3
+                         gap-y-1 py-3 text-sm"
                 >
                   <span class="font-medium">
                     {{ versionLabel(entry.version) }}

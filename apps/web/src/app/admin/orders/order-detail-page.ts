@@ -135,7 +135,9 @@ const MARK_PAID = 'markPaid';
            card for staff and under it for the customer at one width. -->
       <div class="@container/order">
         <div
-          class="grid gap-10 @min-[63.75rem]/order:grid-cols-[1fr_20rem] @min-[63.75rem]/order:justify-between"
+          class="grid gap-10
+                 @min-[63.75rem]/order:grid-cols-[1fr_20rem]
+                 @min-[63.75rem]/order:justify-between"
         >
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -432,7 +434,8 @@ const MARK_PAID = 'markPaid';
                               @for (entry of history(); track entry.number) {
                                 <li class="p-4">
                                   <div
-                                    class="flex flex-wrap items-center gap-x-2 gap-y-1"
+                                    class="flex flex-wrap items-center gap-x-2
+                                           gap-y-1"
                                   >
                                     <!-- What the version was for and where the
                                      order stood, first: it is the sentence the
@@ -474,7 +477,8 @@ const MARK_PAID = 'markPaid';
                                    thing. -->
                                   @if (entry.customerView || entry.notified) {
                                     <p
-                                      class="mt-1 flex flex-wrap items-center gap-2"
+                                      class="mt-1 flex flex-wrap items-center
+                                             gap-2"
                                     >
                                       @if (entry.customerView) {
                                         <span
@@ -571,7 +575,10 @@ const MARK_PAID = 'markPaid';
           </div>
 
           <aside
-            class="max-w-xl @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky @min-[63.75rem]/order:top-20 @min-[63.75rem]/order:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
+                   @min-[63.75rem]/order:top-20
+                   @min-[63.75rem]/order:self-start"
           >
             <app-order-summary
               [lineCount]="order.lines.length"

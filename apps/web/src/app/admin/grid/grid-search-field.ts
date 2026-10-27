@@ -48,7 +48,8 @@ const SEARCH_DEBOUNCE_MS = 200;
            muted and takes no pointer events. -->
       <app-icon
         [glyph]="searchIcon"
-        class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-subtle"
+        class="pointer-events-none absolute top-1/2 left-2.5 size-4
+               -translate-y-1/2 text-ink-subtle"
       />
       <input
         #input
@@ -61,12 +62,15 @@ const SEARCH_DEBOUNCE_MS = 200;
         [value]="value()"
         (input)="value.set($any($event.target).value)"
         (keydown.escape)="clear()"
-        class="w-full pr-8 pl-9 text-sm [&::-webkit-search-cancel-button]:hidden"
+        class="w-full pr-8 pl-9 text-sm
+               [&::-webkit-search-cancel-button]:hidden"
       />
       @if (value()) {
         <button
           type="button"
-          class="absolute top-1/2 right-1.5 flex -translate-y-1/2 cursor-pointer items-center rounded-full p-1 text-ink-subtle hover:text-accent"
+          class="absolute top-1/2 right-1.5 flex -translate-y-1/2
+                 cursor-pointer items-center rounded-full p-1 text-ink-subtle
+                 hover:text-accent"
           [title]="clearLabel()"
           (click)="clear()"
         >

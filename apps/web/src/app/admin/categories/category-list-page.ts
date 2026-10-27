@@ -246,7 +246,8 @@ const EDGE_SLACK = 24;
                            leaves it out, because nothing beneath it is live
                            (FR-ADM-19); the words in its meta say so too. -->
                       <a
-                        class="wrap-break-word font-medium text-ink hover:text-accent"
+                        class="wrap-break-word font-medium text-ink
+                               hover:text-accent"
                         [class.opacity-50]="!node.category.liveProductCount"
                         [routerLink]="['/catalog', node.category.slug]"
                         [title]="text.seeProducts"
@@ -367,12 +368,14 @@ const EDGE_SLACK = 24;
             <!-- The only drop feedback: where the row lands, at what level. -->
             @if (line(); as l) {
               <div
-                class="pointer-events-none absolute right-0 h-[3px] rounded-full bg-primary"
+                class="pointer-events-none absolute right-0 h-[3px]
+                       rounded-full bg-primary"
                 [style.top.px]="l.top"
                 [style.left.px]="l.left"
               >
                 <span
-                  class="absolute top-[-3px] left-0 size-[9px] -translate-x-1/2 rounded-full bg-primary"
+                  class="absolute top-[-3px] left-0 size-[9px]
+                         -translate-x-1/2 rounded-full bg-primary"
                 ></span>
               </div>
             }

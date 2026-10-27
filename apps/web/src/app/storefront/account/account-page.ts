@@ -212,7 +212,10 @@ interface DetailRow {
                 <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
                   @for (row of rows(); track row.label) {
                     <dt
-                      class="text-sm text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-sm text-ink-subtle
+                             odd:mb-1
+                             sm:odd:mb-3
+                             nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
@@ -267,7 +270,10 @@ interface DetailRow {
                              "add address" stands the same distance under the list
                              as "edit details" does under its own last line. -->
                       <li
-                        class="flex flex-wrap items-center justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                        class="flex flex-wrap items-center justify-between
+                               gap-4 py-4
+                               first:pt-0
+                               last:pb-0"
                       >
                         <div>
                           <p class="text-sm font-medium">
@@ -340,7 +346,8 @@ interface DetailRow {
           </h2>
           <div class="rounded-lg border border-edge">
             <div
-              class="grid divide-y divide-edge md:grid-cols-2 md:divide-x md:divide-y-0"
+              class="grid divide-y divide-edge
+                     md:grid-cols-2 md:divide-x md:divide-y-0"
             >
               <div class="flex flex-col p-5">
                 <h3 class="mb-2 text-sm font-medium">
@@ -395,8 +402,9 @@ export class AccountPage {
   protected readonly userIcon = userIcon;
   /** One heading treatment, written once: four sections spelling the same
    * class list out is four chances for one of them to drift. */
-  protected readonly headingClass =
-    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase';
+  protected readonly headingClass = `mb-1.5 flex items-center gap-2 text-xs
+                                     font-medium tracking-wide text-ink-subtle
+                                     uppercase`;
 
   private readonly account = inject(AccountService);
   private readonly api = inject(OrdersService);

@@ -21,8 +21,10 @@ import { computed, Directive, input } from '@angular/core';
  * merely names a state — see IconButton, DiscButton, Switch, the segments and
  * the badges. Running content is untouched.
  */
-const base =
-  'inline-flex cursor-pointer items-center justify-center rounded-md text-sm font-medium transition-colors select-none disabled:cursor-not-allowed [&>*]:shrink-0';
+const base = `inline-flex cursor-pointer items-center justify-center
+              rounded-md text-sm font-medium transition-colors select-none
+              disabled:cursor-not-allowed
+              [&>*]:shrink-0`;
 
 /*
  * Height comes from a floor rather than from the padding, so a label that
@@ -62,14 +64,18 @@ const variants = {
   // switch off — an order that cannot be placed, a product that is off the
   // shelf. The fill has to go, or a button that refuses the press still
   // invites it.
-  primary:
-    'bg-primary text-white hover:bg-accent active:bg-primary-press disabled:bg-surface-strong disabled:text-ink-subtle disabled:hover:bg-surface-strong disabled:active:bg-surface-strong',
+  primary: `bg-primary text-white
+            hover:bg-accent
+            active:bg-primary-press
+            disabled:bg-surface-strong disabled:text-ink-subtle
+            disabled:hover:bg-surface-strong disabled:active:bg-surface-strong`,
   // Hover recolors border and text rather than the background: this variant
   // appears both on the white page and inside `surface` blocks (the
   // signed-in bar), where a grey background change is invisible. Accent is the app's
   // interactive-hover color throughout.
-  secondary:
-    'border border-edge-strong text-ink hover:border-accent hover:text-accent active:border-primary active:bg-primary/10 active:text-primary',
+  secondary: `border border-edge-strong text-ink
+              hover:border-accent hover:text-accent
+              active:border-primary active:bg-primary/10 active:text-primary`,
   danger: 'bg-danger text-white hover:bg-danger-hover active:bg-danger-press',
   /**
    * The way *into* a destructive flow — a link that only opens the page
@@ -77,14 +83,17 @@ const variants = {
    * navigation, red so it reads as one of these, and filling on hover so the
    * solid variant above is left to the click that cannot be taken back.
    */
-  dangerOutline:
-    'border border-danger-edge-strong text-danger hover:border-danger hover:bg-danger hover:text-white active:border-danger-press active:bg-danger-press active:text-white',
+  dangerOutline: `border border-danger-edge-strong text-danger
+                  hover:border-danger hover:bg-danger hover:text-white
+                  active:border-danger-press active:bg-danger-press
+                  active:text-white`,
   /**
    * Chromeless until hovered — for controls that repeat in a row and would be
    * noisy as outlined buttons: pagination, table row actions.
    */
-  ghost:
-    'text-ink hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary',
+  ghost: `text-ink
+          hover:bg-surface-subtle-hover hover:text-accent
+          active:bg-surface-subtle-press active:text-primary`,
 } as const;
 
 /**

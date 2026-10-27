@@ -495,7 +495,8 @@ interface ProductDraft {
                the pill either way — 22px, the badge's own height — so entering
                a figure does not nudge the line down as the pill appears. -->
           <p
-            class="mt-3 flex min-h-5.5 items-center gap-2 text-xs text-ink-subtle"
+            class="mt-3 flex min-h-5.5 items-center gap-2 text-xs
+                   text-ink-subtle"
           >
             <span>{{ text.stock.preview }}</span>
             @if (previewAvailability(); as state) {

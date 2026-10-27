@@ -24,10 +24,18 @@ export const LISTING_NARROW = '38rem';
  * string modulo that name: agreeing by hand is what let the card's photo lose
  * its frame.
  */
-export const NARROW_PHOTO_IN_GRID =
-  '@max-[38rem]/listing:w-auto @max-[38rem]/listing:min-w-16 @max-[38rem]/listing:max-w-48 @max-[38rem]/listing:flex-1 @max-[38rem]/listing:shrink @max-[38rem]/listing:self-start';
-export const NARROW_PHOTO_IN_LINE =
-  '@max-[38rem]/line:w-auto @max-[38rem]/line:min-w-16 @max-[38rem]/line:max-w-48 @max-[38rem]/line:flex-1 @max-[38rem]/line:shrink @max-[38rem]/line:self-start';
+export const NARROW_PHOTO_IN_GRID = `@max-[38rem]/listing:w-auto
+                                     @max-[38rem]/listing:min-w-16
+                                     @max-[38rem]/listing:max-w-48
+                                     @max-[38rem]/listing:flex-1
+                                     @max-[38rem]/listing:shrink
+                                     @max-[38rem]/listing:self-start`;
+export const NARROW_PHOTO_IN_LINE = `@max-[38rem]/line:w-auto
+                                     @max-[38rem]/line:min-w-16
+                                     @max-[38rem]/line:max-w-48
+                                     @max-[38rem]/line:flex-1
+                                     @max-[38rem]/line:shrink
+                                     @max-[38rem]/line:self-start`;
 
 /** 13.5rem — what the buying controls take in a card, so the narrow shape
  * gives the body exactly the room every other shape does and nothing drawn

@@ -166,7 +166,9 @@ const SCOPE_ROWS: readonly {
           <p class="mt-1">{{ text.createdOnce }}</p>
           <div class="mt-3 flex items-center gap-2">
             <code
-              class="min-w-0 flex-1 overflow-x-auto rounded-sm border border-warning-edge bg-white px-2 py-1.5 font-mono text-sm break-all"
+              class="min-w-0 flex-1 overflow-x-auto rounded-sm border
+                     border-warning-edge bg-white px-2 py-1.5 font-mono
+                     text-sm break-all"
               >{{ token.token }}</code
             >
             <button
@@ -297,7 +299,8 @@ const SCOPE_ROWS: readonly {
                          and two stretched columns put it halfway across the
                          screen from both. -->
                     <div
-                      class="grid grid-cols-[auto_auto_auto] justify-start items-center gap-x-8 gap-y-1.5 text-sm"
+                      class="grid grid-cols-[auto_auto_auto] justify-start
+                             items-center gap-x-8 gap-y-1.5 text-sm"
                     >
                       <span aria-hidden="true"></span>
                       <span class="justify-self-center text-xs text-ink-subtle">

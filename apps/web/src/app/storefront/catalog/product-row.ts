@@ -105,7 +105,8 @@ export interface RowProduct extends BuyableProduct {
                — the cart's note field — drops to the photo's bottom edge. A
                longer name pushes it down instead. -->
           <div
-            class="flex min-w-0 flex-1 flex-col @min-[47.5rem]/row:min-h-24 @min-[47.5rem]/row:min-w-44"
+            class="flex min-w-0 flex-1 flex-col
+                   @min-[47.5rem]/row:min-h-24 @min-[47.5rem]/row:min-w-44"
           >
             <!-- Over the name, as on a card: the same fact in the same place
                  whichever way the listing is drawn. -->
@@ -166,12 +167,13 @@ export class ProductRow {
     'relative flex items-start gap-4 py-3 ' + NARROW_PADDING_IN_LINE;
 
   protected readonly photoBox =
-    'relative flex w-[min(8.125rem,100%_-_29.5rem)] shrink-0 @min-[47.5rem]/row:w-24 ' +
-    NARROW_PHOTO_IN_LINE;
+    `relative flex w-[min(8.125rem,100%_-_29.5rem)] shrink-0
+     @min-[47.5rem]/row:w-24 ` + NARROW_PHOTO_IN_LINE;
 
   protected readonly bodyColumn =
-    '@container/body flex min-w-0 flex-1 flex-col gap-2 @min-[47.5rem]/row:flex-row @min-[47.5rem]/row:items-start @min-[47.5rem]/row:gap-4 ' +
-    NARROW_BODY_IN_LINE;
+    `@container/body flex min-w-0 flex-1 flex-col gap-2
+     @min-[47.5rem]/row:flex-row @min-[47.5rem]/row:items-start
+     @min-[47.5rem]/row:gap-4 ` + NARROW_BODY_IN_LINE;
 
   readonly item = input.required<RowProduct>();
   /** False in a preview: the row is there to show what a visitor will see,

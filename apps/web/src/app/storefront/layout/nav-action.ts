@@ -31,8 +31,12 @@
  */
 export type NavVariant = 'bar' | 'tab';
 
-const SHARED =
-  'group flex flex-col items-center text-primary transition-colors hover:text-accent active:text-primary-press aria-[current=page]:font-medium aria-[current=page]:[--icon-stroke-width:2.25]';
+const SHARED = `group flex flex-col items-center text-primary
+                transition-colors
+                hover:text-accent
+                active:text-primary-press
+                aria-[current=page]:font-medium
+                aria-[current=page]:[--icon-stroke-width:2.25]`;
 
 /**
  * Header row. The padding is what it is so the icon and its caption together
@@ -92,7 +96,9 @@ const TAB =
   // is `sr-only`, so it takes no room and nothing pulls the glyph off centre.
   // Behind the icon, and `isolate` so that `-z-10` cannot reach past the tab
   // and hide under the bar's own surface.
-  `before:absolute before:top-1/2 before:left-1/2 before:-z-10 before:h-9 before:w-9 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full before:transition-colors before:content-[''] ` +
+  `before:absolute before:top-1/2 before:left-1/2 before:-z-10 before:h-9
+   before:w-9 before:-translate-x-1/2 before:-translate-y-1/2
+   before:rounded-full before:transition-colors before:content-[''] ` +
   // `not-active` because the two rules are the same weight and Tailwind emits
   // the press first, so the current tab would keep its own disc under a
   // thumb — the one tab where the press most needs to be visible.
@@ -126,8 +132,8 @@ const TAB_LABEL_ROW = 'contents';
  * therefore has 60px of the 72px control before the control grows and pushes
  * the row around — and it still cannot touch the control next to it.
  */
-const BAR_LABEL =
-  'text-stable sr-only text-center text-xs leading-none md:not-sr-only md:-mx-1.5';
+const BAR_LABEL = `text-stable sr-only text-center text-xs leading-none
+                   md:not-sr-only md:-mx-1.5`;
 const TAB_LABEL = 'sr-only';
 
 /** The three class strings a nav control needs, for one of the two shapes. */

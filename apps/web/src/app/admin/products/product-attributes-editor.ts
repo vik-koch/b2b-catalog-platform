@@ -142,7 +142,8 @@ import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
                    floating drag preview is a plain labelled chip instead. -->
                 <div
                   *cdkDragPreview
-                  class="rounded-md border border-edge-strong bg-white px-3 py-1.5 text-sm shadow-md"
+                  class="rounded-md border border-edge-strong bg-white px-3
+                         py-1.5 text-sm shadow-md"
                 >
                   {{ row.key || text.key }}
                 </div>
@@ -157,7 +158,8 @@ import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
                 <td
                   [attr.data-row]="$index"
                   data-col="0"
-                  class="h-10 border border-edge-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
+                  class="h-10 border border-edge-strong bg-white px-2 py-1.5
+                         leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 0) +
                     (isFilterable(row) || rowStatus(row) === 'stray-part'
@@ -170,7 +172,8 @@ import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
                 <td
                   [attr.data-row]="$index"
                   data-col="1"
-                  class="h-10 border border-edge-strong bg-white px-2 py-1.5 leading-6 align-middle wrap-break-word"
+                  class="h-10 border border-edge-strong bg-white px-2 py-1.5
+                         leading-6 align-middle wrap-break-word"
                   [class]="
                     cellFocus($index, 1) + (valueMark(row) ? ' pr-9' : '')
                   "
@@ -225,7 +228,8 @@ import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
                          small grey. It is never part of the value — the cell
                          holds "1000", the shop shows "1000 g". -->
                       <span
-                        class="absolute top-1/2 right-48 mr-3 -translate-y-1/2 text-xs text-ink-subtle"
+                        class="absolute top-1/2 right-48 mr-3 -translate-y-1/2
+                               text-xs text-ink-subtle"
                         >{{ mark }}</span
                       >
                     }

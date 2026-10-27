@@ -172,7 +172,8 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
              list has neither, so the line folds away — but stays in the
              page, so the count is still announced when rows come back. -->
         <div
-          class="flex items-center justify-between gap-4 overflow-hidden text-sm"
+          class="flex items-center justify-between gap-4 overflow-hidden
+                 text-sm"
           [class]="countText() || customized() ? 'h-6' : 'h-0'"
         >
           <p class="text-ink-subtle" aria-live="polite">{{ countText() }}</p>
@@ -193,7 +194,10 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           <table
             #table
             [style.min-width.px]="minTableWidth()"
-            class="w-full text-left text-sm [&_th,&_td]:py-2 [&_th,&_td]:pr-4 [&_th,&_td]:pl-2 [&_th:first-child,&_td:first-child]:pl-0 [&_th:last-child,&_td:last-child]:pr-0"
+            class="w-full text-left text-sm
+                   [&_th,&_td]:py-2 [&_th,&_td]:pr-4 [&_th,&_td]:pl-2
+                   [&_th:first-child,&_td:first-child]:pl-0
+                   [&_th:last-child,&_td:last-child]:pr-0"
             [class.table-fixed]="widths()"
             [class.table-auto]="!widths()"
             [attr.aria-busy]="busy() ? 'true' : null"
@@ -254,7 +258,9 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         role="separator"
                         aria-orientation="vertical"
                         tabindex="0"
-                        class="group/handle absolute top-0 right-0 z-10 flex h-full w-3 translate-x-1/2 cursor-col-resize touch-none items-stretch justify-center"
+                        class="group/handle absolute top-0 right-0 z-10 flex
+                               h-full w-3 translate-x-1/2 cursor-col-resize
+                               touch-none items-stretch justify-center"
                         [attr.aria-label]="resizeLabel(column)"
                         [title]="adminText.grid.resizeColumn"
                         (pointerdown)="startDrag($event, handleAt()[$index])"
@@ -262,7 +268,9 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                         (keydown)="onHandleKey($event, handleAt()[$index])"
                       >
                         <span
-                          class="w-px bg-transparent group-hover/handle:bg-edge-strong group-focus/handle:bg-accent"
+                          class="w-px bg-transparent
+                                 group-hover/handle:bg-edge-strong
+                                 group-focus/handle:bg-accent"
                         ></span>
                       </div>
                     }

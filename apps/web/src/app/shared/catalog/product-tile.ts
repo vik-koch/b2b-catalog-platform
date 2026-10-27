@@ -23,8 +23,15 @@ import { ImagePriority, TileGallery } from './tile-gallery';
  * the 1.25rem gap, five tracks are exactly the page width and the filter panel
  * is the first of the five, so track and gap are read together.
  */
-export const PRODUCT_GRID =
-  'grid grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] gap-5 @max-[38rem]/listing:grid-cols-1 @max-[38rem]/listing:gap-y-0 @max-[38rem]/listing:divide-y @max-[38rem]/listing:divide-edge @max-[38rem]/listing:border-y @max-[38rem]/listing:border-edge';
+export const PRODUCT_GRID = `grid
+                             grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))]
+                             gap-5
+                             @max-[38rem]/listing:grid-cols-1
+                             @max-[38rem]/listing:gap-y-0
+                             @max-[38rem]/listing:divide-y
+                             @max-[38rem]/listing:divide-edge
+                             @max-[38rem]/listing:border-y
+                             @max-[38rem]/listing:border-edge`;
 
 /**
  * One product card in a grid (FR-CAT-04) — gallery, name, price — shared by the
@@ -88,7 +95,8 @@ export const PRODUCT_GRID =
              promised a click that only lands on these two lines. -->
         <a [routerLink]="['/product', item().slug]" class="block">
           <h2
-            class="line-clamp-2 text-sm text-ink transition-colors hover:text-accent"
+            class="line-clamp-2 text-sm text-ink transition-colors
+                   hover:text-accent"
             [title]="item().name"
           >
             {{ item().name }}
@@ -122,17 +130,24 @@ export class ProductTile {
    * three of the card's edges. Dropped in the narrow shape, where the card is
    * a line with nothing drawn around it. */
   protected readonly card =
-    'group relative flex h-full flex-col rounded-lg bg-white transition-shadow hover:shadow-md ' +
+    `group relative flex h-full flex-col rounded-lg bg-white transition-shadow
+     hover:shadow-md ` +
     FRAME +
-    ' @max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none @max-[38rem]/listing:ring-0 @max-[38rem]/listing:bg-transparent @max-[38rem]/listing:hover:shadow-none ' +
+    ` @max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch
+      @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none
+      @max-[38rem]/listing:ring-0 @max-[38rem]/listing:bg-transparent
+      @max-[38rem]/listing:hover:shadow-none ` +
     NARROW_PADDING_IN_GRID;
 
   protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
 
   /** With no card frame to borrow in the narrow shape, the photo takes the
    * one a line's photo carries at every width. */
-  protected readonly photo =
-    'block aspect-square w-full overflow-hidden rounded-t-lg @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-edge';
+  protected readonly photo = `block aspect-square w-full overflow-hidden
+                              rounded-t-lg
+                              @max-[38rem]/listing:rounded-md
+                              @max-[38rem]/listing:ring-1
+                              @max-[38rem]/listing:ring-edge`;
 
   protected readonly body =
     'flex flex-1 flex-col px-3 py-3 @max-[38rem]/listing:p-0 ' +

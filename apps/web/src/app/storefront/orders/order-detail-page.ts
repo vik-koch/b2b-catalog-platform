@@ -82,7 +82,9 @@ import { ErrorText } from '../../shared/ui/error-text';
            one screen and under them on the next. -->
       <div class="@container/order">
         <div
-          class="grid gap-10 @min-[63.75rem]/order:grid-cols-[36rem_20rem] @min-[63.75rem]/order:justify-between"
+          class="grid gap-10
+                 @min-[63.75rem]/order:grid-cols-[36rem_20rem]
+                 @min-[63.75rem]/order:justify-between"
         >
           <!-- The track is the measure: an order is read down its left edge,
                and a name-and-price line spanning a wide screen is one nobody
@@ -135,7 +137,10 @@ import { ErrorText } from '../../shared/ui/error-text';
                below the card they act after, which is where the cart and the
                checkout put theirs. -->
           <aside
-            class="max-w-xl @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky @min-[63.75rem]/order:top-20 @min-[63.75rem]/order:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
+                   @min-[63.75rem]/order:top-20
+                   @min-[63.75rem]/order:self-start"
           >
             <app-order-summary
               [lineCount]="detail.lines.length"

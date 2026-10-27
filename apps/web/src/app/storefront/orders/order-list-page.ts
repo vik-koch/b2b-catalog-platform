@@ -51,12 +51,15 @@ import { xIcon } from '../../shared/ui/icons/glyphs/x';
     @if (filter(); as state) {
       <div class="mb-6 flex flex-wrap items-center gap-2">
         <span
-          class="flex items-center gap-1.5 rounded-full bg-surface py-1 pr-1.5 pl-3 text-sm"
+          class="flex items-center gap-1.5 rounded-full bg-surface py-1 pr-1.5
+                 pl-3 text-sm"
         >
           <span>{{ filterLabel() }}</span>
           <a
             routerLink="/account/orders"
-            class="flex items-center justify-center rounded-full p-0.5 text-ink-subtle hover:text-danger"
+            class="flex items-center justify-center rounded-full p-0.5
+                   text-ink-subtle
+                   hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
             <app-icon [glyph]="xIcon" class="size-3.5" />

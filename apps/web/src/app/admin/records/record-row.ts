@@ -112,6 +112,7 @@ export class RecordRow {
   protected readonly metaClass = computed(() =>
     this.stackMeta()
       ? 'flex min-w-0 flex-col items-start gap-y-0.5 text-sm text-ink-subtle'
-      : 'flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-subtle',
+      : `flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-sm
+         text-ink-subtle`,
   );
 }

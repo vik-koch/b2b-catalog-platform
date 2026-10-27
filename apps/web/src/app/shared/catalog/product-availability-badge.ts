@@ -61,6 +61,7 @@ export class ProductAvailabilityBadge {
   });
 
   // The badge's own box, borders included, with nothing in it.
-  protected readonly spacer =
-    'inline-flex items-center border border-transparent px-2 py-0.5 text-xs font-medium';
+  protected readonly spacer = `inline-flex items-center border
+                               border-transparent px-2 py-0.5 text-xs
+                               font-medium`;
 }

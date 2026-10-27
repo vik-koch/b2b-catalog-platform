@@ -58,7 +58,9 @@ import { PageIntro } from '../../shared/ui/page-intro';
               <li class="py-3">
                 <details class="group">
                   <summary
-                    class="flex cursor-pointer flex-wrap items-baseline gap-x-3 gap-y-1 outline-offset-2 hover:text-accent"
+                    class="flex cursor-pointer flex-wrap items-baseline
+                           gap-x-3 gap-y-1 outline-offset-2
+                           hover:text-accent"
                   >
                     <span class="font-medium">{{ notice.name }}</span>
                     <span class="text-sm text-ink-subtle">{{
@@ -66,7 +68,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     }}</span>
                   </summary>
                   <pre
-                    class="mt-3 overflow-x-auto rounded-sm bg-surface p-4 text-xs whitespace-pre-wrap text-ink-subtle"
+                    class="mt-3 overflow-x-auto rounded-sm bg-surface p-4
+                           text-xs whitespace-pre-wrap text-ink-subtle"
                     >{{ notice.text }}</pre>
                 </details>
               </li>

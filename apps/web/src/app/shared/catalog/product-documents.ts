@@ -59,7 +59,9 @@ interface DocumentRow {
                   target="_blank"
                   rel="noopener"
                   [attr.aria-describedby]="hintId"
-                  class="block font-medium text-primary underline decoration-primary/30 underline-offset-2 hover:text-accent hover:decoration-accent"
+                  class="block font-medium text-primary underline
+                         decoration-primary/30 underline-offset-2
+                         hover:text-accent hover:decoration-accent"
                 >
                   {{ row.title }}
                 </a>
@@ -71,7 +73,9 @@ interface DocumentRow {
                     rel="noopener"
                     [attr.aria-label]="link.ariaLabel"
                     [attr.aria-describedby]="hintId"
-                    class="inline-flex items-center gap-1 underline decoration-ink-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
+                    class="inline-flex items-center gap-1 underline
+                           decoration-ink-subtle/40 underline-offset-2
+                           hover:text-accent hover:decoration-accent"
                     >{{ link.host
                     }}<app-icon
                       [glyph]="externalLinkIcon"
@@ -97,7 +101,9 @@ interface DocumentRow {
               />
               <span class="min-w-0">
                 <span
-                  class="block font-medium text-primary underline decoration-primary/30 underline-offset-2 group-hover:text-accent group-hover:decoration-accent"
+                  class="block font-medium text-primary underline
+                         decoration-primary/30 underline-offset-2
+                         group-hover:text-accent group-hover:decoration-accent"
                 >
                   {{ row.title }}
                 </span>

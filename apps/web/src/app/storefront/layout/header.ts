@@ -67,14 +67,17 @@ import { SearchField } from './search-field';
          row being hidden — which is the same 40px either way, the phone's
          brand row on the results page and the utility bar from "sm". -->
     <header
-      class="z-20 border-b border-edge bg-surface-subtle/85 backdrop-blur-sm transition-transform duration-300 sm:sticky sm:top-0"
+      class="z-20 border-b border-edge bg-surface-subtle/85 backdrop-blur-sm
+             transition-transform duration-300
+             sm:sticky sm:top-0"
       [class]="headerClasses()"
     >
       <!-- The phone's top row. Everything in it is reachable further down the
            page or from the bottom bar's panel, which is what makes hiding it
            on scroll safe. -->
       <div
-        class="flex mt-2 h-8 w-full items-center justify-between gap-4 px-4 sm:hidden"
+        class="flex mt-2 h-8 w-full items-center justify-between gap-4 px-4
+               sm:hidden"
       >
         <a [routerLink]="'/'" [attr.aria-label]="homeLabel" class="shrink-0">
           <span
@@ -91,7 +94,8 @@ import { SearchField } from './search-field';
            address ends in an ellipsis rather than the row losing a channel. -->
       <div class="hidden sm:block">
         <div
-          class="mx-auto flex mt-2 h-8 w-full max-w-328 items-center justify-between gap-4 px-4"
+          class="mx-auto flex mt-2 h-8 w-full max-w-328 items-center
+                 justify-between gap-4 px-4"
         >
           <nav
             class="flex shrink-0 gap-4 text-sm"
@@ -103,7 +107,12 @@ import { SearchField } from './search-field';
                 routerLinkActive
                 ariaCurrentWhenActive="page"
                 [attr.data-label]="nav[route]"
-                class="text-stable text-center text-ink-subtle transition-colors hover:text-accent active:text-primary-press aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                class="text-stable text-center text-ink-subtle
+                       transition-colors
+                       hover:text-accent
+                       active:text-primary-press
+                       aria-[current=page]:font-medium
+                       aria-[current=page]:text-primary"
               >
                 {{ nav[route] }}
               </a>
@@ -118,7 +127,8 @@ import { SearchField } from './search-field';
       <!-- The main bar. On a phone it is the search field and nothing else. -->
       <div
         #searchRow
-        class="mx-auto flex h-15 w-full max-w-328 items-center justify-between px-4"
+        class="mx-auto flex h-15 w-full max-w-328 items-center justify-between
+               px-4"
       >
         <!-- The mark is a mask, not an <img>, so it can take the accent on
              hover like everything else in this row (see .logo-mark in

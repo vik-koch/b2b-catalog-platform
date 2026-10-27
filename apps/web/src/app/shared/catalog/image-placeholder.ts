@@ -18,8 +18,8 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
   host: {
     role: 'img',
     '[attr.aria-label]': 'ariaLabel()',
-    class:
-      '@container/placeholder flex h-full w-full flex-col items-center justify-center gap-2 bg-surface text-ink-subtle',
+    class: `@container/placeholder flex h-full w-full flex-col items-center
+            justify-center gap-2 bg-surface text-ink-subtle`,
   },
   template: `
     <svg
@@ -46,7 +46,8 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
          box as tall as it is wide. Below that it is a thumbnail, and the
          glyph says the same thing on its own. -->
     <span
-      class="hidden px-2 text-center text-xs text-balance @min-[6rem]/placeholder:block"
+      class="hidden px-2 text-center text-xs text-balance
+             @min-[6rem]/placeholder:block"
       >{{ text.imagePlaceholder }}</span
     >
   `,

@@ -58,24 +58,28 @@ import { userIcon } from '../../shared/ui/icons/glyphs/user';
              session, so neither timing has to serve both. -->
         <span
           data-session="known"
-          class="col-start-1 row-start-1 grid transition-opacity delay-300 duration-200"
+          class="col-start-1 row-start-1 grid transition-opacity delay-300
+                 duration-200"
           [class.opacity-0]="signedOut()"
         >
           <app-icon
             [glyph]="circleUserRoundIcon"
-            class="col-start-1 row-start-1 size-6 transition-opacity duration-200"
+            class="col-start-1 row-start-1 size-6 transition-opacity
+                   duration-200"
             [class.opacity-0]="waiting()"
           />
           <app-icon
             [glyph]="circleUserRoundDotIcon"
-            class="col-start-1 row-start-1 size-6 transition-opacity duration-200"
+            class="col-start-1 row-start-1 size-6 transition-opacity
+                   duration-200"
             [class.opacity-0]="!waiting()"
           />
         </span>
         <app-icon
           data-session="anonymous"
           [glyph]="userIcon"
-          class="col-start-1 row-start-1 size-6 transition-opacity delay-300 duration-200"
+          class="col-start-1 row-start-1 size-6 transition-opacity delay-300
+                 duration-200"
           [class.opacity-0]="!signedOut()"
         />
         <!-- The marker (FR-WORK-01): a bare dot, never a figure. It is
@@ -101,7 +105,8 @@ import { userIcon } from '../../shared/ui/icons/glyphs/user';
         @if (waiting()) {
           <span
             aria-hidden="true"
-            class="absolute -top-0.5 -right-0.5 size-2.5 animate-marker-pop rounded-full bg-warning-dot"
+            class="absolute -top-0.5 -right-0.5 size-2.5 animate-marker-pop
+                   rounded-full bg-warning-dot"
           ></span>
         }
       </span>
@@ -119,14 +124,16 @@ import { userIcon } from '../../shared/ui/icons/glyphs/user';
           <span class="grid text-center">
             <span
               data-session="known"
-              class="col-start-1 row-start-1 transition-opacity delay-300 duration-200"
+              class="col-start-1 row-start-1 transition-opacity delay-300
+                     duration-200"
               [class.opacity-0]="signedOut()"
               [attr.aria-hidden]="signedOut() ? 'true' : null"
               >{{ text.accountNav }}</span
             >
             <span
               data-session="anonymous"
-              class="col-start-1 row-start-1 transition-opacity delay-300 duration-200"
+              class="col-start-1 row-start-1 transition-opacity delay-300
+                     duration-200"
               [class.opacity-0]="!signedOut()"
               [attr.aria-hidden]="signedOut() ? null : 'true'"
               >{{ text.login }}</span

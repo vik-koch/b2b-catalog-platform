@@ -36,7 +36,9 @@ import { Component, input, output } from '@angular/core';
       [attr.aria-checked]="checked()"
       [attr.aria-label]="label()"
       [disabled]="disabled()"
-      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full transition-[background-color,box-shadow] select-none disabled:cursor-not-allowed disabled:opacity-60"
+      class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer
+             rounded-full transition-[background-color,box-shadow] select-none
+             disabled:cursor-not-allowed disabled:opacity-60"
       [class]="
         checked()
           ? 'bg-primary hover:bg-accent active:bg-primary-press'
@@ -46,7 +48,9 @@ import { Component, input, output } from '@angular/core';
     >
       <!-- The knob. Transform only, so the travel never reflows anything. -->
       <span
-        class="pointer-events-none absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow-sm ring-1 ring-black/5 transition-transform"
+        class="pointer-events-none absolute top-0.5 left-0.5 size-5
+               rounded-full bg-white shadow-sm ring-1 ring-black/5
+               transition-transform"
         [class]="checked() ? 'translate-x-5' : 'translate-x-0'"
         aria-hidden="true"
       ></span>

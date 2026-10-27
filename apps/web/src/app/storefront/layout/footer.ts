@@ -62,7 +62,8 @@ import { ScrollToTop } from './scroll-to-top';
                 <!-- Baseline-aligned with the links: its first line reads
                      as the same row however many lines it wraps to. -->
                 <address
-                  class="text-xs not-italic text-ink-subtle sm:col-start-1 sm:row-start-1 sm:self-baseline"
+                  class="text-xs not-italic text-ink-subtle
+                         sm:col-start-1 sm:row-start-1 sm:self-baseline"
                 >
                   <span class="whitespace-nowrap">{{ seller.name }}</span>
                   @for (number of seller.registration; track $index) {
@@ -74,7 +75,9 @@ import { ScrollToTop } from './scroll-to-top';
                       @if (contact.phone; as phone) {
                         <a
                           [href]="telHref(phone)"
-                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-press"
+                          class="whitespace-nowrap transition-colors
+                                 hover:text-accent
+                                 active:text-primary-press"
                           >{{ phone }}</a
                         >
                       }
@@ -84,7 +87,9 @@ import { ScrollToTop } from './scroll-to-top';
                       @if (contact.email; as email) {
                         <a
                           [href]="'mailto:' + email"
-                          class="whitespace-nowrap transition-colors hover:text-accent active:text-primary-press"
+                          class="whitespace-nowrap transition-colors
+                                 hover:text-accent
+                                 active:text-primary-press"
                           >{{ email }}</a
                         >
                       }
@@ -93,7 +98,8 @@ import { ScrollToTop } from './scroll-to-top';
                 </address>
               }
               <p
-                class="text-xs text-ink-subtle sm:col-start-1 sm:row-start-2 sm:self-center"
+                class="text-xs text-ink-subtle
+                       sm:col-start-1 sm:row-start-2 sm:self-center"
               >
                 {{ copyright }}
               </p>
@@ -117,7 +123,9 @@ import { ScrollToTop } from './scroll-to-top';
                  is one that is not readily reachable, and folding away four
                  lines is not worth that. -->
             <nav
-              class="flex flex-col gap-2 text-ink-subtle sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:gap-x-4"
+              class="flex flex-col gap-2 text-ink-subtle
+                     sm:col-start-2 sm:row-start-1 sm:flex-row sm:flex-wrap
+                     sm:items-center sm:justify-end sm:gap-x-4"
               [class.sm:self-baseline]="seller"
               [attr.aria-label]="text.a11y.legalNav"
             >
@@ -127,7 +135,12 @@ import { ScrollToTop } from './scroll-to-top';
                   routerLinkActive
                   ariaCurrentWhenActive="page"
                   [attr.data-label]="nav[slug]"
-                  class="text-stable transition-colors sm:text-center hover:text-accent active:text-primary-press aria-[current=page]:font-medium aria-[current=page]:text-primary"
+                  class="text-stable transition-colors
+                         sm:text-center
+                         hover:text-accent
+                         active:text-primary-press
+                         aria-[current=page]:font-medium
+                         aria-[current=page]:text-primary"
                 >
                   {{ nav[slug] }}
                 </a>
@@ -137,7 +150,9 @@ import { ScrollToTop } from './scroll-to-top';
               @if (consent.enabled) {
                 <button
                   type="button"
-                  class="cursor-pointer text-left transition-colors hover:text-accent active:text-primary-press"
+                  class="cursor-pointer text-left transition-colors
+                         hover:text-accent
+                         active:text-primary-press"
                   (click)="consent.withdraw()"
                 >
                   {{ text.consent.settings }}
@@ -145,7 +160,8 @@ import { ScrollToTop } from './scroll-to-top';
               }
             </nav>
             <div
-              class="flex items-center gap-4 sm:col-start-2 sm:row-start-2 sm:justify-self-end"
+              class="flex items-center gap-4
+                     sm:col-start-2 sm:row-start-2 sm:justify-self-end"
             >
               <!-- The places the shop also exists ride the enquiry button's
                    line: they are the same kind of thing — a way to reach the
@@ -159,7 +175,8 @@ import { ScrollToTop } from './scroll-to-top';
                     [href]="link.url"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="flex h-9 w-auto shrink-0 items-center justify-center"
+                    class="flex h-9 w-auto shrink-0 items-center
+                           justify-center"
                   >
                     <!-- The words come first and are only hidden while the
                          mark is there to stand in for them: a screen reader

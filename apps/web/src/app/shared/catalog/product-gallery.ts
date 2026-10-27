@@ -211,7 +211,8 @@ export class ProductGallery {
     // it, one column of 4rem squares.
     const beside = this.shared()
       ? // The photo's 25rem less the five gutters between six squares.
-        'grid grid-cols-5 gap-2 md:w-[calc((25rem-5*0.75rem)/6)] md:shrink-0 md:grid-cols-1 md:gap-3'
+        `grid grid-cols-5 gap-2
+         md:w-[calc((25rem-5*0.75rem)/6)] md:shrink-0 md:grid-cols-1 md:gap-3`
       : 'grid grid-cols-5 gap-2 md:w-16 md:shrink-0 md:grid-cols-1 md:gap-3';
     return this.beside()
       ? beside

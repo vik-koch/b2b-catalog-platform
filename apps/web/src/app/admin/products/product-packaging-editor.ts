@@ -137,7 +137,8 @@ export function parseCount(text: string): number | null {
               <tr>
                 <th
                   scope="row"
-                  class="w-1/3 border border-edge-strong bg-surface-subtle px-2 py-1.5 text-left font-medium"
+                  class="w-1/3 border border-edge-strong bg-surface-subtle
+                         px-2 py-1.5 text-left font-medium"
                 >
                   <label [attr.for]="'packaging-' + row.key">{{
                     row.label
@@ -153,7 +154,9 @@ export function parseCount(text: string): number | null {
                    and the focus ring is drawn around the pair — so the cell
                    behaves as one field, like the attribute grid's. -->
                 <td
-                  class="border border-edge-strong p-0 focus-within:outline-1 focus-within:-outline-offset-1 focus-within:outline-secondary"
+                  class="border border-edge-strong p-0
+                         focus-within:outline-1 focus-within:-outline-offset-1
+                         focus-within:outline-secondary"
                   [class]="row.disabled ? 'bg-surface' : 'bg-white'"
                 >
                   <div class="flex items-center">
@@ -162,7 +165,9 @@ export function parseCount(text: string): number | null {
                       type="text"
                       [attr.inputmode]="row.inputMode"
                       [appNumericField]="row.inputMode"
-                      class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5 leading-6 outline-none disabled:cursor-not-allowed"
+                      class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5
+                             leading-6 outline-none
+                             disabled:cursor-not-allowed"
                       [value]="row.value"
                       [placeholder]="row.placeholder"
                       [disabled]="row.disabled"
@@ -179,7 +184,8 @@ export function parseCount(text: string): number | null {
                   </div>
                 </td>
                 <td
-                  class="w-48 border-0 pl-3 align-middle text-xs text-ink-subtle"
+                  class="w-48 border-0 pl-3 align-middle text-xs
+                         text-ink-subtle"
                 >
                   {{ row.price }}
                 </td>

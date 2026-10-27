@@ -163,7 +163,8 @@ function knownValues<T extends string>(
         <ng-template appGridRow [of]="data.items" let-item>
           <td>
             <div
-              class="size-10 overflow-hidden rounded-sm border border-edge bg-white"
+              class="size-10 overflow-hidden rounded-sm border border-edge
+                     bg-white"
             >
               @if (item.thumb) {
                 <img
@@ -204,7 +205,8 @@ function knownValues<T extends string>(
                 <a
                   [routerLink]="['/catalog', category.slug]"
                   [queryParams]="editorFrom()"
-                  class="line-clamp-2 wrap-break-word text-ink-subtle hover:text-accent"
+                  class="line-clamp-2 wrap-break-word text-ink-subtle
+                         hover:text-accent"
                   >{{ category.name }}</a
                 >
               }
@@ -274,7 +276,8 @@ function knownValues<T extends string>(
           <app-record-row>
             <div
               recordLead
-              class="size-14 shrink-0 overflow-hidden rounded-sm border border-edge bg-white"
+              class="size-14 shrink-0 overflow-hidden rounded-sm border
+                     border-edge bg-white"
               [class.opacity-50]="isDeleted(item)"
             >
               @if (item.thumb) {
@@ -301,7 +304,8 @@ function knownValues<T extends string>(
               >{{ stateLabel(item) }}</span
             >
             <span
-              class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5 font-mono text-xs"
+              class="max-w-full truncate rounded-sm bg-surface px-1.5 py-0.5
+                     font-mono text-xs"
               [class.opacity-50]="isDeleted(item)"
               >{{ item.sourceId }}</span
             >

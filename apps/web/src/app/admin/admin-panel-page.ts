@@ -496,8 +496,9 @@ export class AdminPanelPage {
 
   /** One heading, one card frame, written once: seven sections spelling the
    * same two class lists is seven chances for one of them to drift. */
-  protected readonly headingClass =
-    'mb-1.5 flex items-center gap-2 text-xs font-medium tracking-wide text-ink-subtle uppercase';
+  protected readonly headingClass = `mb-1.5 flex items-center gap-2 text-xs
+                                     font-medium tracking-wide text-ink-subtle
+                                     uppercase`;
   /** `overflow-hidden` because a row's hover ground is a square: without it
    * the first and last row paint their corners over the card's rounding. */
   protected readonly cardClass =

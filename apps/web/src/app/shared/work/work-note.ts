@@ -28,7 +28,9 @@ import { Params, RouterLink } from '@angular/router';
     <a
       [routerLink]="link()"
       [queryParams]="queryParams()"
-      class="group/note flex w-fit items-center text-xs font-medium text-warning hover:text-accent"
+      class="group/note flex w-fit items-center text-xs font-medium
+             text-warning
+             hover:text-accent"
     >
       <span
         aria-hidden="true"

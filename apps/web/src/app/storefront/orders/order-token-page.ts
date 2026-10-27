@@ -72,7 +72,9 @@ import { ErrorText } from '../../shared/ui/error-text';
            and it should not be a differently shaped page for it. -->
       <div class="@container/order">
         <div
-          class="grid gap-10 @min-[63.75rem]/order:grid-cols-[36rem_20rem] @min-[63.75rem]/order:justify-between"
+          class="grid gap-10
+                 @min-[63.75rem]/order:grid-cols-[36rem_20rem]
+                 @min-[63.75rem]/order:justify-between"
         >
           <!-- The track is the measure: an order is read down its left edge,
                and a name-and-price line spanning a wide screen is one nobody
@@ -122,7 +124,10 @@ import { ErrorText } from '../../shared/ui/error-text';
           </div>
 
           <aside
-            class="max-w-xl @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky @min-[63.75rem]/order:top-20 @min-[63.75rem]/order:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/order:mt-9 @min-[63.75rem]/order:sticky
+                   @min-[63.75rem]/order:top-20
+                   @min-[63.75rem]/order:self-start"
           >
             <app-order-summary
               [lineCount]="order.lines.length"

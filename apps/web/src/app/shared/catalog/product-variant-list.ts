@@ -89,8 +89,8 @@ export class ProductVariantList {
     if (index >= 0) this.pick.emit(index);
   }
 
-  private readonly base =
-    'inline-flex min-w-0 items-center gap-1 rounded-md px-2 py-1 text-sm leading-tight';
+  private readonly base = `inline-flex min-w-0 items-center gap-1 rounded-md
+                           px-2 py-1 text-sm leading-tight`;
 
   /** A hairline at rest, answering a pointer with accent. The chosen one is
    * filled in the secondary colour, which is the one the pictures' labels
@@ -98,7 +98,8 @@ export class ProductVariantList {
   protected chip(chosen: boolean): string {
     return `${this.base} text-left ring-1 transition-colors ${
       chosen
-        ? 'bg-secondary text-white ring-secondary animate-variant-chosen motion-reduce:animate-none'
+        ? `bg-secondary text-white ring-secondary animate-variant-chosen
+           motion-reduce:animate-none`
         : 'bg-white ring-edge-strong hover:text-accent hover:ring-accent'
     }`;
   }

@@ -14,8 +14,8 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[appFieldPrefix]',
   host: {
-    class:
-      'inline-flex items-center rounded-l-md border border-r-0 border-edge-strong bg-surface px-3 text-ink-subtle',
+    class: `inline-flex items-center rounded-l-md border border-r-0
+            border-edge-strong bg-surface px-3 text-ink-subtle`,
   },
 })
 export class FieldPrefix {}
