@@ -31,7 +31,8 @@ the recurring theme: the smallest component that does the job, on one VM.
   points. Neither side imports the other; only the web root composes both (ADR 0069).
 - The UI's wording comes from the deployment's text files, one language per deployment, no i18n
   framework. A new or moved text or config key lands in the fixture and in every directory under
-  `deployments/`; a moved one also gets a line in the release's `tools/config-migration` map.
+  `deployments/`, and in the release's `tools/config-migration` map: a moved one names where it
+  came `from`, a new one carries its `new` value. `node tools/migrate-config.mjs --check` proves it.
 - Colours are the roles in `styles.css`; Tailwind's palette is switched off.
 - Generated files are regenerated in the same change (the table in `docs/development.md`).
 - A schema change adds first and removes what it replaces a release later. Versions follow ADR
@@ -43,6 +44,8 @@ the recurring theme: the smallest component that does the job, on one VM.
 - Comments are short and say why: a trap, an ordering constraint, an invariant the code cannot
   show. No history (what it was, which iteration, phase or ADR changed it), no restating of the
   code; a colon or a full stop reads better than an em dash.
+- One class per file, named after it, error classes included. Only a spec keeps its test hosts
+  and fakes inside it.
 - Names in code are US English (`color`, `customize`); comments and docs are British. A spelling
   already stored or on the wire keeps it: the `cancelled` order status and the names that mirror
   it, seed bundle fields, text and config keys.
