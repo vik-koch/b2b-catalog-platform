@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   effect,
+  forwardRef,
   inject,
   input,
   output,
@@ -13,11 +14,13 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SHARED_TEXT } from '../config/shared-text';
 import { DigitMask } from '../ui/digit-mask';
+import { FIELD_ATTEMPT } from '../ui/field-attempt';
 import { Field } from '../ui/field';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
 import { TextButton } from '../ui/link';
 import { SelectField } from '../ui/select-field';
+import { submitAttempt } from '../ui/submit-attempt';
 import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
 
@@ -58,6 +61,12 @@ let nextId = 0;
     TextButton,
   ],
   host: { class: 'block' },
+  // Its own attempt, keyed by the address: where it is the whole form, that is
+  // the form's; where it is part of one, the page marks it only while the
+  // address is being typed (see FIELD_ATTEMPT).
+  providers: [
+    { provide: FIELD_ATTEMPT, useExisting: forwardRef(() => AddressFields) },
+  ],
   template: `
     @let address = form().field;
     <!-- A container, for the suggestion panel under the street: it is allowed
@@ -264,6 +273,8 @@ export class AddressFields {
   /** A provider filled the address in. The page hears about it because a
    * delivery address that moves re-resolves its zone. */
   readonly picked = output<AddressComponents>();
+
+  readonly attempted = computed(() => submitAttempt(this.form().field)());
 
   /** Once the fields are open they stay open: a form that folded itself back
    * up after being corrected would hide the correction. */

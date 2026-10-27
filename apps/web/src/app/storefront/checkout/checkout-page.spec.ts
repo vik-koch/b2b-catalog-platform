@@ -548,6 +548,8 @@ describe('CheckoutPage', () => {
       page.drafts.patch({ party: 'person' });
       await page.settle();
       page.type('#party-personName', 'Fischer Alex');
+      // The draft follows the form on the next render, not inside the event.
+      await page.settle();
       expect(page.drafts.draft().otherPartyName).toBe('Fischer Alex');
 
       page.pick('party-kind', 'company');

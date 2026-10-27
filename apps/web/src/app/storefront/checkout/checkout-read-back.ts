@@ -5,7 +5,7 @@ import {
   unitQuantity,
   moneyFormat,
 } from '@b2b-catalog-platform/shared';
-import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
+import { AddressForm } from '../../shared/addresses/address-form';
 import { addressLines } from '../../shared/addresses/address-format';
 import { CartService, CartStoredLine } from '../../shared/cart/cart.service';
 import { formatPriceMinor } from '../../shared/catalog/price';
@@ -31,12 +31,9 @@ export interface ReadBackDeps {
   /** The account's registered name, null until the profile answers. */
   accountName: Signal<string | null>;
   /** The chosen saved row, or what is in the picker's own fields. */
-  addressFor: (
-    id: string | null,
-    form: ReactiveAddressForm,
-  ) => AddressInput | null;
-  deliveryForm: ReactiveAddressForm;
-  billingForm: ReactiveAddressForm;
+  addressFor: (id: string | null, form: AddressForm) => AddressInput | null;
+  deliveryForm: AddressForm;
+  billingForm: AddressForm;
   /** The party as the form named it, for the invoice heading. */
   typedParty: () => {
     personName: string;

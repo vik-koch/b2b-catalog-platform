@@ -1,18 +1,19 @@
 import { Component, inject, input, output } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, type FieldTree } from '@angular/forms/signals';
 import { NgTemplateOutlet } from '@angular/common';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { ReactiveCompanyFields } from '../../shared/parties/reactive-company-fields';
+import { CompanyFields } from '../../shared/parties/company-fields';
 import { ChoiceBranch } from '../../shared/ui/choice-branch';
+import { Field } from '../../shared/ui/field';
+import { FieldBinding } from '../../shared/ui/field-binding';
 import { Input } from '../../shared/ui/input';
-import { FieldLabel } from '../../shared/ui/field-label';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
+import { PartyAnswers } from './checkout-forms';
 import { WarningNote } from '../../shared/ui/warning-note';
-import { ErrorText } from '../../shared/ui/error-text';
 
 /**
  * Who the order is invoiced to (FR-CART-09) — a field of the order, not a
@@ -40,13 +41,13 @@ import { ErrorText } from '../../shared/ui/error-text';
   imports: [
     WarningNote,
     ChoiceBranch,
-    ReactiveCompanyFields,
+    CompanyFields,
+    Field,
+    FieldBinding,
+    FormField,
     NgTemplateOutlet,
-    FieldLabel,
     Input,
-    ReactiveFormsModule,
     Segmented,
-    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -102,35 +103,26 @@ import { ErrorText } from '../../shared/ui/error-text';
           }
 
           @if (party() === 'person') {
-            <div>
-              <label for="party-personName" appFieldLabel>
-                {{ text.personName }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
+            <app-field
+              [field]="partyField().personName"
+              [label]="text.personName"
+              controlId="party-personName"
+            >
               <input
-                id="party-personName"
                 type="text"
                 autocomplete="off"
-                aria-required="true"
                 appInput
                 class="w-full"
-                [formControl]="personNameControl()"
-                [attr.aria-invalid]="personNameInvalid() || null"
+                [formField]="partyField().personName"
               />
-              @if (personNameInvalid()) {
-                <p appErrorText class="mt-1">{{ text.nameRequired }}</p>
-              }
-            </div>
+            </app-field>
           } @else {
-            <app-reactive-company-fields
+            <app-company-fields
               idInputId="party-companyId"
               nameInputId="party-companyName"
-              [idControl]="companyIdControl()"
-              [nameControl]="companyNameControl()"
+              [idField]="partyField().companyId"
+              [nameField]="partyField().companyName"
               [text]="companyText"
-              [required]="true"
-              [idInvalid]="companyIdInvalid()"
-              [nameInvalid]="companyNameInvalid()"
               (picked)="picked.emit($event)"
             />
           }
@@ -167,9 +159,6 @@ export class PartyChoice {
     // No hint here, unlike registration: which numbers are accepted is
     // something to read while opening an account, not a paragraph to step over
     // on the way to sending an order. A wrong one still says so.
-    idFormat: this.fields.companyId.format,
-    idRequired: this.fields.companyId.required,
-    nameRequired: this.fields.companyName.required,
   };
 
   readonly party = input.required<Party>();
@@ -192,16 +181,11 @@ export class PartyChoice {
    * back does not undo the switch. */
   readonly lastOther = input<Party>('person');
   /**
-   * A control per field rather than one name shared by both branches: a person
-   * and a company are two answers, and typing one into the other's field
-   * because the customer changed their mind is a name nobody entered there.
+   * A field per branch rather than one name shared by both: a person and a
+   * company are two answers, and typing one into the other's field because
+   * the customer changed their mind is a name nobody entered there.
    */
-  readonly personNameControl = input.required<FormControl<string>>();
-  readonly companyNameControl = input.required<FormControl<string>>();
-  readonly companyIdControl = input.required<FormControl<string>>();
-  readonly personNameInvalid = input(false);
-  readonly companyNameInvalid = input(false);
-  readonly companyIdInvalid = input(false);
+  readonly partyField = input.required<FieldTree<PartyAnswers>>();
 
   readonly partyChange = output<Party>();
   readonly picked = output<PartySuggestion>();

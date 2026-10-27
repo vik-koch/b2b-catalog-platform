@@ -14,7 +14,7 @@ import { ErrorText } from './error-text';
 import { FieldLabel } from './field-label';
 import { FieldAction } from './field-action';
 import { Hint } from './hint';
-import { SubmitAttempt } from './submit-attempt';
+import { FIELD_ATTEMPT } from './field-attempt';
 
 let nextId = 0;
 
@@ -131,7 +131,7 @@ export class Field<T> {
 
   private readonly host =
     inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
-  private readonly attempt = inject(SubmitAttempt, { optional: true });
+  private readonly attempt = inject(FIELD_ATTEMPT, { optional: true });
   /** Rule 3: left since its last edit. */
   protected readonly left = signal(false);
   protected readonly action = contentChild(FieldAction);

@@ -8,8 +8,6 @@ import {
   signal,
   untracked,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   AddressInput,
@@ -23,7 +21,7 @@ import {
   localToday,
 } from '@b2b-catalog-platform/shared/storefront';
 import { AccountService } from '../account/account.service';
-import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
+import { AddressForm } from '../../shared/addresses/address-form';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CartService } from '../../shared/cart/cart.service';
@@ -36,6 +34,8 @@ import { OrderReadBack } from '../../shared/orders/order-read-back';
 import { OrdersService } from '../orders/orders.service';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { EmptyState } from '../../shared/ui/empty-state';
 import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -97,7 +97,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
     PaymentChoice,
     PickupChoice,
     PreferredDate,
-    ReactiveFormsModule,
+    FORM_FIELDS,
     RouterLink,
     Skeleton,
     Link,
@@ -223,7 +223,9 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 <app-skeleton class="max-w-xl" [lines]="10" />
               }
             } @else {
-              <div class="max-w-xl space-y-8">
+              <!-- A form for its fields' sake: they read from it when it was
+                   last sent. Sent by review(), not by its own submit. -->
+              <form [formRoot]="checkoutForm" class="max-w-xl space-y-8">
                 <app-fulfilment-choice
                   [method]="draft().fulfilmentMethod"
                   (methodChange)="chooseFulfilment($event)"
@@ -258,18 +260,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 @if (guest()) {
                   <app-guest-details
                     [party]="draft().party"
-                    [nameControl]="contactForm.controls.name"
-                    [emailControl]="contactForm.controls.email"
-                    [phoneControl]="contactForm.controls.phone"
-                    [companyNameControl]="partyForm.controls.companyName"
-                    [companyIdControl]="partyForm.controls.companyId"
-                    [companyNameInvalid]="
-                      partyErrors.show(partyForm.controls.companyName)
-                    "
-                    [companyIdInvalid]="
-                      partyErrors.show(partyForm.controls.companyId)
-                    "
-                    [errors]="contactErrors"
+                    [partyField]="checkoutForm.party"
+                    [contact]="checkoutForm.contact"
                     (partyChange)="chooseParty($event)"
                     (picked)="pickParty($event)"
                   />
@@ -283,7 +275,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                       type="text"
                       tabindex="-1"
                       autocomplete="off"
-                      [formControl]="contactForm.controls.website"
+                      [formField]="checkoutForm.contact.website"
                     />
                   </div>
                 }
@@ -294,18 +286,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     [ownAllowed]="ownPartyAllowed()"
                     [accountName]="accountName()"
                     [lastOther]="otherParty()"
-                    [personNameControl]="partyForm.controls.personName"
-                    [companyNameControl]="partyForm.controls.companyName"
-                    [companyIdControl]="partyForm.controls.companyId"
-                    [personNameInvalid]="
-                      partyErrors.show(partyForm.controls.personName)
-                    "
-                    [companyNameInvalid]="
-                      partyErrors.show(partyForm.controls.companyName)
-                    "
-                    [companyIdInvalid]="
-                      partyErrors.show(partyForm.controls.companyId)
-                    "
+                    [partyField]="checkoutForm.party"
                     (partyChange)="chooseParty($event)"
                     (picked)="pickParty($event)"
                   />
@@ -324,7 +305,6 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     [addresses]="addresses()"
                     [selectedId]="draft().deliveryAddressId"
                     [form]="deliveryForm"
-                    [fieldErrors]="deliveryErrors"
                     [canSave]="!guest()"
                     [reveal]="revealDelivery()"
                     [save]="saveDelivery()"
@@ -371,7 +351,6 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     [addresses]="addresses()"
                     [selectedId]="draft().billingAddressId"
                     [form]="billingForm"
-                    [fieldErrors]="billingErrors"
                     [save]="saveBilling()"
                     (selectedIdChange)="
                       drafts.patch({ billingAddressId: $event })
@@ -404,7 +383,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                   [note]="draft().customerNote"
                   (noteChange)="drafts.patch({ customerNote: $event })"
                 />
-              </div>
+              </form>
             }
           </div>
 
@@ -558,16 +537,16 @@ export class CheckoutPage {
    * Built after `guest`, because who is asking decides which of the party's
    * fields are required.
    */
-  private readonly forms = createCheckoutForms({ guest: this.guest });
+  private readonly forms = createCheckoutForms({
+    guest: this.guest,
+    party: () => this.draft().party,
+    deliveryTyped: () => this.deliveryTyped(),
+    billingTyped: () => this.billingTyped(),
+  });
 
-  protected readonly partyForm = this.forms.party;
-  protected readonly contactForm = this.forms.contact;
+  protected readonly checkoutForm = this.forms.field;
   protected readonly deliveryForm = this.forms.delivery;
   protected readonly billingForm = this.forms.billing;
-  protected readonly partyErrors = this.forms.partyErrors;
-  protected readonly contactErrors = this.forms.contactErrors;
-  protected readonly deliveryErrors = this.forms.deliveryErrors;
-  protected readonly billingErrors = this.forms.billingErrors;
 
   /**
    * The book and the account, neither of which a guest has. Idle rather than
@@ -646,7 +625,7 @@ export class CheckoutPage {
   protected readonly revealDelivery = signal(false);
   protected readonly revealBilling = signal(false);
   /** Set when a submission was refused for want of a collection point. The
-   * radio group has no control, so its error cannot come from a FieldErrors. */
+   * radio group is no field of the form, so the form cannot say so itself. */
   private readonly pickupSubmitted = signal(false);
 
   protected readonly pickupInvalid = computed(
@@ -793,10 +772,9 @@ export class CheckoutPage {
   });
 
   /**
-   * The typed address as the zone last saw it. A signal rather than the
-   * control, because a FormControl read through a method is not a reactive
-   * dependency — and a snapshot rather than every value, because it is only
-   * re-read when focus leaves the picker or a suggestion fills it.
+   * The typed address as the zone last saw it: a snapshot rather than every
+   * value, because it is only re-read when focus leaves the picker or a
+   * suggestion fills it.
    */
   private readonly committedDelivery = signal({ postalCode: '' });
 
@@ -813,7 +791,7 @@ export class CheckoutPage {
    * signal set to the value it already had would redraw the card for every
    * field the customer tabs through. */
   protected commitDelivery(): void {
-    const { postalCode } = this.deliveryForm.group.getRawValue();
+    const postalCode = this.deliveryForm.field.postalCode().value();
     if (this.committedDelivery().postalCode === postalCode) return;
     this.committedDelivery.set({ postalCode });
   }
@@ -833,8 +811,8 @@ export class CheckoutPage {
     addressFor: (id, form) => this.addressFor(id, form),
     deliveryForm: this.deliveryForm,
     billingForm: this.billingForm,
-    typedParty: () => this.partyForm.getRawValue(),
-    guestName: () => this.contactForm.controls.name.value,
+    typedParty: () => this.checkoutForm.party().value(),
+    guestName: () => this.checkoutForm.contact.name().value(),
   });
 
   protected readonly reviewLines = this.readBack.lines;
@@ -909,11 +887,7 @@ export class CheckoutPage {
         party === 'account'
           ? this.guest() || !this.ownPartyAllowed()
           : !accepted.includes(party);
-      if (refused) {
-        untracked(() => this.chooseParty(this.lastOtherParty()));
-        return;
-      }
-      untracked(() => this.forms.applyPartyValidators(party));
+      if (refused) untracked(() => this.chooseParty(this.lastOtherParty()));
     });
 
     // A payment method the party can no longer take falls back to the one it
@@ -966,28 +940,24 @@ export class CheckoutPage {
     // a blur that has already happened once.
     this.commitDelivery();
     this.chooseParty(this.draft().party);
-    this.deliveryForm.group.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() =>
-        this.drafts.patch({ newDeliveryAddress: this.deliveryForm.value() }),
-      );
-    this.billingForm.group.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() =>
-        this.drafts.patch({ newBillingAddress: this.billingForm.value() }),
-      );
-    this.contactForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      const { name, email, phone } = this.contactForm.getRawValue();
-      this.drafts.patch({ contact: { name, email, phone } });
-    });
-    this.partyForm.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
-      const { personName, companyName, companyId } =
-        this.partyForm.getRawValue();
-      const name = this.draft().party === 'company' ? companyName : personName;
-      this.drafts.patch({
+    // Read through the computed so that the draft this writes does not run
+    // it again: only a change of party does.
+    const party = computed(() => this.draft().party);
+    effect(() => {
+      const { contact, party: typed } = this.checkoutForm().value();
+      const name = party() === 'company' ? typed.companyName : typed.personName;
+      const draft = {
+        newDeliveryAddress: this.deliveryForm.value(),
+        newBillingAddress: this.billingForm.value(),
+        contact: {
+          name: contact.name,
+          email: contact.email,
+          phone: contact.phone,
+        },
         otherPartyName: name.trim() || null,
-        otherPartyId: companyId.trim() || null,
-      });
+        otherPartyId: typed.companyId.trim() || null,
+      };
+      untracked(() => this.drafts.patch(draft));
     });
   }
 
@@ -996,21 +966,15 @@ export class CheckoutPage {
   }
 
   /**
-   * The party's own fields are required only while that party is chosen, and
-   * are cleared on the way out: a hidden branch must be inert rather than
-   * merely invisible, or an abandoned answer is submitted unseen.
-   *
-   * A person gives a name; a company gives a name and a number, on the rule
-   * registration applies — which is why a sole trader needs no case of its own.
-   * Each has its own control, so leaving one branch does not carry what was
-   * typed there into the other.
+   * The party's own fields are asked only while that party is chosen (see
+   * `checkout-forms`). A person gives a name; a company gives a name and a
+   * number, on the rule registration applies, which is why a sole trader needs
+   * no case of its own. Each has its own field, so leaving one branch does not
+   * carry what was typed there into the other.
    */
   protected chooseParty(party: Party): void {
-    // Before the controls are touched: what they write into the draft depends
-    // on which party is chosen, and they fire on the way through.
     this.drafts.patch({ party });
     if (party !== 'account') this.lastOtherParty.set(party);
-    this.forms.applyPartyValidators(party);
   }
 
   protected pickParty(suggestion: PartySuggestion): void {
@@ -1042,10 +1006,11 @@ export class CheckoutPage {
    * nobody visited. */
   private markProblems(): void {
     this.pickupSubmitted.set(true);
-    this.partyErrors.markSubmitted();
-    if (this.guest()) this.contactErrors.markSubmitted();
-    if (this.deliveryTyped()) this.deliveryErrors.markSubmitted();
-    if (this.billingTyped()) this.billingErrors.markSubmitted();
+    submitAttempt(this.checkoutForm).set(true);
+    // An address answers to the send only while it is the one being typed:
+    // one opened afterwards waits for the next.
+    if (this.deliveryTyped()) submitAttempt(this.deliveryForm.field).set(true);
+    if (this.billingTyped()) submitAttempt(this.billingForm.field).set(true);
 
     // A compact address holds the postcode and the city out of sight, which is
     // exactly where a form that never got a suggestion is wrong. Opened only
@@ -1053,10 +1018,10 @@ export class CheckoutPage {
     // nothing to correct, and unfolding it would be noise about a field the
     // customer never had to fill.
     this.revealDelivery.set(
-      this.deliveryTyped() && this.deliveryForm.group.invalid,
+      this.deliveryTyped() && this.checkoutForm.delivery().invalid(),
     );
     this.revealBilling.set(
-      this.billingTyped() && this.billingForm.group.invalid,
+      this.billingTyped() && this.checkoutForm.billing().invalid(),
     );
   }
 
@@ -1130,7 +1095,7 @@ export class CheckoutPage {
   /** The chosen row, or what is in the picker's own fields. */
   private addressFor(
     id: string | null,
-    form: ReactiveAddressForm,
+    form: AddressForm,
   ): AddressInput | null {
     if (id === null) return form.value();
     const row = this.addresses().find((address) => address.id === id);

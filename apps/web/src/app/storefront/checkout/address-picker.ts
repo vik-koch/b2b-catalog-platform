@@ -4,9 +4,8 @@ import { Address, AddressComponents } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
-import { FieldErrors } from '../../shared/core/form-errors';
-import { ReactiveAddressFields } from '../../shared/addresses/reactive-address-fields';
-import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
+import { AddressFields } from '../../shared/addresses/address-fields';
+import { AddressForm } from '../../shared/addresses/address-form';
 import {
   addressDetailLines,
   addressDisplayName,
@@ -35,7 +34,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-address-picker',
-  imports: [ReactiveAddressFields, Checkbox, ChoiceBranch, NgTemplateOutlet],
+  imports: [AddressFields, Checkbox, ChoiceBranch, NgTemplateOutlet],
   host: { class: 'block' },
   template: `
     <fieldset>
@@ -93,9 +92,8 @@ let nextId = 0;
         <!-- No label asked for here: at checkout an address is named by its own
              street line, and inventing a word for it is a question asked for
              nothing. -->
-        <app-reactive-address-fields
+        <app-address-fields
           [form]="form()"
-          [fieldErrors]="fieldErrors()"
           [showLabel]="false"
           [compact]="suggests"
           [reveal]="reveal()"
@@ -138,8 +136,7 @@ export class AddressPicker {
   readonly addresses = input.required<readonly Address[]>();
   /** The chosen row, or null for the one being typed. */
   readonly selectedId = input.required<string | null>();
-  readonly form = input.required<ReactiveAddressForm>();
-  readonly fieldErrors = input.required<FieldErrors>();
+  readonly form = input.required<AddressForm>();
   readonly canSave = input(true);
   /** Open the folded-away fields: the page found the address wanting, and what
    * is wrong with it is what the compact form is hiding. */

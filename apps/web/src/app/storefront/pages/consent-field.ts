@@ -8,7 +8,7 @@ import { Link } from '../../shared/ui/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';
 import { ErrorText } from '../../shared/ui/error-text';
-import { SubmitAttempt } from '../../shared/ui/submit-attempt';
+import { FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 
 let nextId = 0;
 
@@ -95,7 +95,7 @@ export class ConsentField {
   readonly alone = input(true);
 
   protected readonly id = `consent-${nextId++}`;
-  private readonly attempt = inject(SubmitAttempt, { optional: true });
+  private readonly attempt = inject(FIELD_ATTEMPT, { optional: true });
   /** Required is all the box can break, so its message waits for a submit. */
   protected readonly shown = computed(
     () => !!this.attempt?.attempted() && this.consent().field().invalid(),

@@ -5,7 +5,7 @@ import {
   OrderSubmission,
 } from '@b2b-catalog-platform/shared';
 import { AccountProfile } from '@b2b-catalog-platform/shared/storefront';
-import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
+import { AddressForm } from '../../shared/addresses/address-form';
 import { CartService } from '../../shared/cart/cart.service';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -28,10 +28,7 @@ export interface SubmissionDeps {
   profile: () => AccountProfile | undefined;
   /** The account's registered name, resolved the way the server resolves it. */
   accountName: Signal<string | null>;
-  addressFor: (
-    id: string | null,
-    form: ReactiveAddressForm,
-  ) => AddressInput | null;
+  addressFor: (id: string | null, form: AddressForm) => AddressInput | null;
 }
 
 /**
@@ -61,7 +58,7 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
         phone: profile?.phone ?? '',
       };
     }
-    const { name, email, phone } = deps.forms.contact.getRawValue();
+    const { name, email, phone } = deps.forms.field.contact().value();
     return {
       name: name.trim(),
       email: email.trim(),
@@ -82,17 +79,17 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
       const { forms } = deps;
       const draft = deps.draft();
 
+      // What does not apply is hidden and counts for nothing: the contact for
+      // a customer, the party branch not chosen, an address picked from the
+      // book.
+      if (!forms.field().valid()) return null;
       if (deps.guest()) {
-        if (forms.contact.invalid) return null;
         // A filled honeypot is a bot; the form goes no further and says
         // nothing about why (ADR 0015). The server refuses it again.
-        if (forms.contact.controls.website.value.trim()) return null;
+        if (forms.field.contact.website().value().trim()) return null;
       } else if (!deps.profile()) {
         return null;
       }
-      if (forms.party.invalid) return null;
-      if (deps.deliveryTyped() && forms.delivery.group.invalid) return null;
-      if (deps.billingTyped() && forms.billing.group.invalid) return null;
       if (deps.isPickup() && !draft.pickupLocationKey) return null;
       if (deps.preferredDateInvalid()) return null;
 
@@ -110,7 +107,9 @@ export function createCheckoutSubmission(deps: SubmissionDeps) {
           : delivery;
       if (deps.billingEnabled && !billing) return null;
 
-      const { personName, companyName, companyId } = forms.party.getRawValue();
+      const { personName, companyName, companyId } = forms.field
+        .party()
+        .value();
       const who = contact();
       // A guest ordering as a private person *is* the party, so the one name
       // they gave answers both. A company is its own party, with somebody at it
