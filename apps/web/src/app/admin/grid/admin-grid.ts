@@ -21,7 +21,7 @@ import {
   NarrowBreakpoint,
 } from '../../shared/core/narrow-screen';
 import { IconButton } from '../../shared/ui/icon-button';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import {
   columnMinWidth,
@@ -36,7 +36,8 @@ import { GridNarrowControls } from './grid-narrow-controls';
 import { DEFAULT_ADMIN_SORT } from './grid-query';
 import { fitWidths, resizeBoundary } from './grid-resize';
 import { GridSortHeader } from './grid-sort-header';
-import { GridCardTemplate, GridRowTemplate } from './grid-templates';
+import { GridCardTemplate } from './grid-card-template';
+import { GridRowTemplate } from './grid-row-template';
 import { GridWidths, GridWidthsStore } from './grid-widths';
 
 /** How far one press of an arrow key moves a column boundary. Coarse enough to

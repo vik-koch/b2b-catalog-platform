@@ -19,7 +19,7 @@ import { Input } from '../../shared/ui/input';
 import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
 import { landingFor } from '../../shared/auth/auth.guard';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

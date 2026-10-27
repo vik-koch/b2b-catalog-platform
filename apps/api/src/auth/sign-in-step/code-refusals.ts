@@ -1,7 +1,7 @@
 import { HttpException } from '@nestjs/common';
 import { ORPCError } from '@orpc/nest';
 import { CodeDeliveryError } from './code-delivery';
-import { CodeResendLimitError } from './sign-in-codes';
+import { CodeResendLimitError } from './code-resend-limit-error';
 
 /**
  * A step call that sends a message, with its failures restated as the

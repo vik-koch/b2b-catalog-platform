@@ -9,7 +9,8 @@ import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { AdminGrid } from './admin-grid';
 import { GridColumn } from './grid-column';
 import { GridWidths, GRID_WIDTHS_KEY } from './grid-widths';
-import { GridCardTemplate, GridRowTemplate } from './grid-templates';
+import { GridCardTemplate } from './grid-card-template';
+import { GridRowTemplate } from './grid-row-template';
 
 interface Row {
   id: string;

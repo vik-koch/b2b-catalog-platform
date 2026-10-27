@@ -17,7 +17,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '../../shared/ui/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import {
   clampFrame,
   filled,

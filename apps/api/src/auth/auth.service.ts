@@ -2,11 +2,10 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthUser } from '@b2b-catalog-platform/shared';
 import { UserRow, UsersService } from '../users/users.service';
 import { toAuthUser } from './auth-user';
-import { PasswordPolicy, PasswordRejectedError } from './password-policy';
+import { PasswordPolicy } from './password-policy';
+import { PasswordRejectedError } from './password-rejected-error';
 import { PasswordService } from './password.service';
-
-/** The current password did not match — a different 400 from a refused new one. */
-export class WrongCurrentPasswordError extends Error {}
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
 
 @Injectable()
 export class AuthService {

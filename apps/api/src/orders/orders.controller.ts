@@ -14,11 +14,9 @@ import {
 } from '../throttling/throttle-presets';
 import { AuditLogger } from '../audit/audit.logger';
 import { refusals } from '../orpc/refusals';
-import {
-  CartChangedException,
-  OrdersService,
-  PairingUnsatisfiedException,
-} from './orders.service';
+import { OrdersService } from './orders.service';
+import { CartChangedException } from './cart-changed-exception';
+import { PairingUnsatisfiedException } from './pairing-unsatisfied-exception';
 
 /**
  * Placing an order request and reading it back.

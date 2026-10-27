@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, count, eq, inArray, notInArray, sql } from 'drizzle-orm';
 import {
@@ -15,6 +15,7 @@ import {
 } from '../destruction/record-destruction';
 import { addresses, orders, signInCodes, users } from '../db/schema';
 import { scrubOrders } from '../orders/order-scrub';
+import { LastAdminError } from './last-admin-error';
 
 export type UserRow = typeof users.$inferSelect;
 
@@ -22,17 +23,6 @@ export type UserRow = typeof users.$inferSelect;
 type Tx = Parameters<
   Parameters<NodePgDatabase<typeof schema>['transaction']>[0]
 >[0];
-
-/**
- * The refusal every admin-removal path shares. One class rather than three
- * literals: a security rule with three copies is a security rule with three
- * behaviours.
- */
-export class LastAdminError extends ConflictException {
-  constructor() {
-    super({ code: 'last-admin', message: 'This is the last admin account' });
-  }
-}
 
 /**
  * What a self-registration writes: the identity staff need to decide on it, and

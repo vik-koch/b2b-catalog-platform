@@ -50,7 +50,8 @@ import {
   resolveAdminSort,
   resolveAdminState,
 } from '../grid/grid-query';
-import { GridCardTemplate, GridRowTemplate } from '../grid/grid-templates';
+import { GridCardTemplate } from '../grid/grid-card-template';
+import { GridRowTemplate } from '../grid/grid-row-template';
 import { GridTimestamp } from '../grid/grid-timestamp';
 import { RecordRow } from '../records/record-row';
 import { AdminListHeader } from '../list-header';

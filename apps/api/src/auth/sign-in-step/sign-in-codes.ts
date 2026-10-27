@@ -9,6 +9,7 @@ import { signInCodes } from '../../db/schema';
 import { MAIL_TEXT, MailText } from '../../mail/mail-text';
 import { signInCodeText } from '../../mail/templates/sign-in-code.template';
 import { SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
+import { CodeResendLimitError } from './code-resend-limit-error';
 
 /** How long a code is good for. */
 export const CODE_TTL_MS = 10 * 60 * 1000;
@@ -28,13 +29,6 @@ export const CODE_MAX_SENDS = CODE_WAITS_MS.length + 1;
 export const CODE_PAUSE_MS = 30 * 60 * 1000;
 
 export type CodePurpose = (typeof schema.signInCodePurpose.enumValues)[number];
-
-/** A code asked for before the account's wait is over. */
-export class CodeResendLimitError extends Error {
-  constructor(readonly retryAfterMs: number) {
-    super('No new code yet');
-  }
-}
 
 export type CodeCheck =
   | { result: 'ok'; purpose: CodePurpose; phone: string }

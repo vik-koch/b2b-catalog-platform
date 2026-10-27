@@ -94,8 +94,10 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Trunk-based.** Short-lived `feat/123-…`, `fix/123-…` or `debt/123-…` branches into `main`,
   behind a pull request and green CI. Issue titles carry requirement IDs, such as `[FR-CAT-04] …`.
 - **A text or config key changes in every deployment.** The fixture and each directory under
-  `deployments/` carry the same keys. A release that moves keys ships a map in
-  `tools/config-migration/<version>.json` for the deployments kept elsewhere.
+  `deployments/` carry the same keys. A release that adds or moves keys ships a map in
+  `tools/config-migration/<version>.json` for the deployments kept elsewhere: a moved key names
+  the old keys it comes `from`, a new one its `new` value. `node tools/migrate-config.mjs --check`
+  fails CI when the map misses one.
 - **Contracts export schemas only.** Limits and helpers a component needs live in import-free
   modules, so they do not pull Zod into the browser ([libs/shared](../libs/shared/README.md)).
 - **Storefront, admin and shared.** A web file lives on the side that uses it, and moves to
@@ -107,6 +109,10 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Comments say why, briefly.** A comment is there for what the code cannot show: a trap, an
   ordering constraint, an invariant. It does not retell the code or its history; git and the
   ADRs hold that.
+- **One class per file.** A component, directive, service or error has its file to itself, named
+  after it, together with the types only it uses. A small error class too: who throws it changes,
+  and a caller that catches it should not import the service. Only a spec keeps its test hosts
+  and fakes inside it. Lint refuses a second class (`max-classes-per-file`).
 - **Names in code are US English** (`color`, `customize`), as the platform's own APIs are, so a
   search finds one spelling; comments and docs are British. A spelling already stored or on the
   wire keeps it: the `cancelled` order status is a Postgres enum and a machine API value, and the

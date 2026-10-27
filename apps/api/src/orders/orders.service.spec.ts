@@ -21,11 +21,9 @@ import { OrderNotifications } from './order-notifications';
 import { TermsPdf } from './terms-pdf';
 import { demoAdminOrder } from './order.fixture';
 import * as reference from './order-reference';
-import {
-  CartChangedException,
-  OrdersService,
-  PairingUnsatisfiedException,
-} from './orders.service';
+import { OrdersService } from './orders.service';
+import { CartChangedException } from './cart-changed-exception';
+import { PairingUnsatisfiedException } from './pairing-unsatisfied-exception';
 
 /**
  * Submission, without a database. What is worth pinning here is everything that

@@ -2,7 +2,8 @@ import { env } from '../env';
 import { MailText } from '../mail/mail-text';
 import { demoSharedText, demoMailText } from '../mail/mail-text.fixture';
 import { dispatcherOver } from '../mail/mail-dispatcher.fixture';
-import { LastAdminError, UserRow } from '../users/users.service';
+import { UserRow } from '../users/users.service';
+import { LastAdminError } from '../users/last-admin-error';
 import { AccountDeletion } from './account-deletion';
 
 const row = (overrides: Partial<UserRow> = {}): UserRow =>

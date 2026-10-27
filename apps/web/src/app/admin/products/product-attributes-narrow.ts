@@ -27,7 +27,8 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Icon } from '../../shared/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
-import { RecordFields, RecordFormActions } from '../records/record-form';
+import { RecordFields } from '../records/record-fields';
+import { RecordFormActions } from '../records/record-form-actions';
 import { RecordRow } from '../records/record-row';
 import {
   AttributeHint,

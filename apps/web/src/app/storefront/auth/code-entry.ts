@@ -18,7 +18,7 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { CodeInput } from '../../shared/ui/code-input';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { SubmitAttempt } from '../../shared/ui/submit-attempt';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */

@@ -10,7 +10,7 @@ import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';

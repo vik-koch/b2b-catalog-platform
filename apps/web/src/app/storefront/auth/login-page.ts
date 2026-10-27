@@ -12,7 +12,7 @@ import { AuthCard } from './auth-card';
 import { landingFor } from '../../shared/auth/auth.guard';
 import { AuthService, LoginResult } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 

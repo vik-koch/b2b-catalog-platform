@@ -24,8 +24,9 @@ import {
 } from '../throttling/throttle-presets';
 import { Auth } from './auth.decorator';
 import { CurrentUser } from './current-user.decorator';
-import { AuthService, WrongCurrentPasswordError } from './auth.service';
-import { PasswordRejectedError } from './password-policy';
+import { AuthService } from './auth.service';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
+import { PasswordRejectedError } from './password-rejected-error';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
