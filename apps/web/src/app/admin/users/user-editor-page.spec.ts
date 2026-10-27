@@ -170,9 +170,9 @@ async function render(
     const input = field(id);
     if (!input) throw new Error(`no field #${id}`);
     input.value = value;
-    input.dispatchEvent(
-      new Event(input.tagName === 'SELECT' ? 'change' : 'input'),
-    );
+    // A browser fires both on a select; the form listens to input.
+    input.dispatchEvent(new Event('input'));
+    if (input.tagName === 'SELECT') input.dispatchEvent(new Event('change'));
     await settle();
   };
   const button = (label: string) =>
