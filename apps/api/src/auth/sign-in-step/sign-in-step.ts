@@ -21,10 +21,10 @@ import {
   CallCheckResult,
   CodeCheck,
   CodePurpose,
-  CodeResendLimitError,
   CodeSent,
   SignInCodes,
 } from './sign-in-codes';
+import { CodeResendLimitError } from './code-resend-limit-error';
 import { byMail, SIGN_IN_PROOF, SignInProof } from './sign-in-proof';
 
 export const SIGN_IN_STEP_CONFIG = 'SIGN_IN_STEP_CONFIG';

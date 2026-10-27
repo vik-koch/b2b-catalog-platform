@@ -11,7 +11,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Button } from '../../shared/ui/button';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import { DeliveryZoneList } from './delivery-zone-list';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 

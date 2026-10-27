@@ -18,7 +18,7 @@ import { FIELD_ATTEMPT } from '../ui/field-attempt';
 import { Field } from '../ui/field';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
-import { TextButton } from '../ui/link';
+import { TextButton } from '../ui/text-button';
 import { SelectField } from '../ui/select-field';
 import { submitAttempt } from '../ui/submit-attempt';
 import { AddressForm } from './address-form';

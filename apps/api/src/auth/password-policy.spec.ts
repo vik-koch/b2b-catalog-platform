@@ -2,7 +2,8 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { resetApiDeploymentConfig } from '../config/deployment-config';
-import { PasswordPolicy, PasswordRejectedError } from './password-policy';
+import { PasswordPolicy } from './password-policy';
+import { PasswordRejectedError } from './password-rejected-error';
 
 /**
  * The policy reads the shop's name from the mounted deployment config, so the

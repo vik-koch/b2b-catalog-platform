@@ -1,7 +1,8 @@
 import { getTableName } from 'drizzle-orm';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '../db/schema';
-import { LastAdminError, UsersService } from './users.service';
+import { UsersService } from './users.service';
+import { LastAdminError } from './last-admin-error';
 
 /**
  * Account deletion (FR-AUTH-06), rendered rather than executed.

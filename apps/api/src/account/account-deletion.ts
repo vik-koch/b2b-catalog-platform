@@ -12,7 +12,8 @@ import { accountDeletedMail } from '../mail/templates/account-deleted.template';
 import { OrderDocumentFiles } from '../orders/order-document-files';
 import { SharedText } from '@b2b-catalog-platform/shared';
 import { AccountDeletionReason } from '@b2b-catalog-platform/shared/admin';
-import { LastAdminError, UserRow, UsersService } from '../users/users.service';
+import { UserRow, UsersService } from '../users/users.service';
+import { LastAdminError } from '../users/last-admin-error';
 import { env } from '../env';
 
 /** Why a deletion was refused, when it was. */

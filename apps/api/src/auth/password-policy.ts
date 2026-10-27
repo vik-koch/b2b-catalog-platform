@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { Injectable } from '@nestjs/common';
-import { PasswordRejectionCode } from '@b2b-catalog-platform/shared';
 import { loadApiDeploymentConfig } from '../config/deployment-config';
+import { PasswordRejectedError } from './password-rejected-error';
 
 /**
  * Common-password blocklist (NIST 800-63B §5.1.1.2, OWASP ASVS V2.1.7): the
@@ -28,24 +28,6 @@ function loadBlocklist(): ReadonlySet<string> {
       // Blank lines and `#` comments, so the mounted file can explain itself.
       .filter((line) => line.length > 0 && !line.startsWith('#')),
   );
-}
-
-/**
- * A password the policy refuses, carrying the rule that refused it. The code is
- * what the browser shows a sentence for; the message is for the log.
- *
- * Its own type rather than a BadRequestException, because the two endpoints
- * that set passwords answer it differently — and because change-password
- * already has a *different* 400 ("wrong current password") that callers must be
- * able to tell apart.
- */
-export class PasswordRejectedError extends Error {
-  constructor(
-    readonly code: PasswordRejectionCode,
-    message: string,
-  ) {
-    super(message);
-  }
 }
 
 /**

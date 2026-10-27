@@ -9,8 +9,9 @@ import {
   SESSION_HINT_COOKIE,
 } from '@b2b-catalog-platform/shared';
 import { AuthController } from './auth.controller';
-import { AuthService, WrongCurrentPasswordError } from './auth.service';
-import { PasswordRejectedError } from './password-policy';
+import { AuthService } from './auth.service';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
+import { PasswordRejectedError } from './password-rejected-error';
 import { PasswordResetService } from './password-reset.service';
 import { PasswordSetupService } from './password-setup.service';
 import { RegistrationService } from './registration.service';
@@ -22,7 +23,7 @@ import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { PHONE_RULE } from '../config/deployment-config';
 import { CodeDeliveryError } from './sign-in-step/code-delivery';
 import { MailCallCheck } from './sign-in-step/mail-call-check';
-import { CodeResendLimitError } from './sign-in-step/sign-in-codes';
+import { CodeResendLimitError } from './sign-in-step/code-resend-limit-error';
 import { SignInStep } from './sign-in-step/sign-in-step';
 import { SIGN_IN_PROOF } from './sign-in-step/sign-in-proof';
 import { MailService } from '../mail/mail.service';

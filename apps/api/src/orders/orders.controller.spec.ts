@@ -8,7 +8,8 @@ import { OptionalAuthGuard } from '../auth/optional-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { ContractErrorFilter } from '../orpc/contract-error.filter';
 import { OrdersController } from './orders.controller';
-import { CartChangedException, OrdersService } from './orders.service';
+import { OrdersService } from './orders.service';
+import { CartChangedException } from './cart-changed-exception';
 
 /**
  * The two refusals the controller makes on its own, before the service sees

@@ -1,8 +1,10 @@
 import type { Mock } from 'vitest';
 import { UnauthorizedException } from '@nestjs/common';
 import { UserRow, UsersService } from '../users/users.service';
-import { AuthService, WrongCurrentPasswordError } from './auth.service';
-import { PasswordPolicy, PasswordRejectedError } from './password-policy';
+import { AuthService } from './auth.service';
+import { WrongCurrentPasswordError } from './wrong-current-password-error';
+import { PasswordPolicy } from './password-policy';
+import { PasswordRejectedError } from './password-rejected-error';
 import { PasswordService } from './password.service';
 
 const user = (overrides: Partial<UserRow> = {}): UserRow =>

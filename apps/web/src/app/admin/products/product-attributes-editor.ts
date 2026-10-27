@@ -35,7 +35,7 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Icon } from '../../shared/ui/icons/icon';
 import { HintBadge } from '../../shared/ui/hint-badge';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { TextButton } from '../../shared/ui/link';
+import { TextButton } from '../../shared/ui/text-button';
 import {
   AttributeHint,
   attributeHints,

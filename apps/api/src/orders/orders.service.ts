@@ -106,6 +106,8 @@ import {
   users,
 } from '../db/schema';
 import { priceCart, PricedCart } from './cart-pricing';
+import { CartChangedException } from './cart-changed-exception';
+import { PairingUnsatisfiedException } from './pairing-unsatisfied-exception';
 import { priceAdjustment, PricedAdjustment } from './order-adjustment';
 import { OrderDocumentsService } from './order-documents.service';
 import { OrderNotifications } from './order-notifications';
@@ -2667,28 +2669,6 @@ export class OrdersService {
       .from(products)
       .where(and(inArray(products.id, ids), publiclyVisible));
     return new Map(rows.map((row) => [row.id, row.slug]));
-  }
-}
-
-/**
- * A cart the server priced differently from what the browser last saw. Carries
- * the fresh preview, so the controller can answer the refusal with the
- * corrected cart rather than telling the customer to try again.
- */
-export class CartChangedException extends Error {
-  constructor(readonly priced: PricedCart) {
-    super('The cart changed while it was being submitted');
-  }
-}
-
-/**
- * A cart missing what its products are sold with, where the deployment refuses
- * on that (FR-SET-04). Carries the shortfalls, so the page can name the lines
- * rather than send the customer back to hunt for them.
- */
-export class PairingUnsatisfiedException extends Error {
-  constructor(readonly shortfalls: { slug: string; shortPieces: number }[]) {
-    super('The cart is missing what its products are sold with');
   }
 }
 
