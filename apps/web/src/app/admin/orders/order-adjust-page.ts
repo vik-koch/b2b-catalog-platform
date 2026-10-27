@@ -26,8 +26,8 @@ import {
   OrderAdjustment,
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/admin';
-import { AddressFields } from '../../shared/addresses/address-fields';
-import { AddressForm } from '../../shared/addresses/address-form';
+import { ReactiveAddressFields } from '../../shared/addresses/reactive-address-fields';
+import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
 import { ReactiveCompanyFields } from '../../shared/parties/reactive-company-fields';
 import {
   canonicalPhone,
@@ -153,7 +153,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
 @Component({
   selector: 'app-order-adjust-page',
   imports: [
-    AddressFields,
+    ReactiveAddressFields,
     Button,
     Checkbox,
     ReactiveCompanyFields,
@@ -418,7 +418,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           <h3 class="mb-2 text-sm font-medium">
                             {{ names.deliveryAddress }}
                           </h3>
-                          <app-address-fields
+                          <app-reactive-address-fields
                             [form]="delivery"
                             [fieldErrors]="deliveryErrors"
                             [showLabel]="false"
@@ -490,7 +490,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                         <h2 class="mb-2 font-medium">
                           {{ text.billingAddress }}
                         </h2>
-                        <app-address-fields
+                        <app-reactive-address-fields
                           [form]="billing"
                           [fieldErrors]="billingErrors"
                           [showLabel]="false"
@@ -785,8 +785,8 @@ export class AdminOrderAdjustPage {
    * the order records. The switch is how it is asked, not a third field. */
   protected readonly partyKind = signal<'person' | 'company'>('company');
 
-  protected readonly delivery = new AddressForm();
-  protected readonly billing = new AddressForm();
+  protected readonly delivery = new ReactiveAddressForm();
+  protected readonly billing = new ReactiveAddressForm();
   /** Which of the address messages are on screen. Nothing here marks them
    * submitted: the server prices the draft on every pause and answers with the
    * refusal itself, so a postcode is corrected by the rule that will refuse

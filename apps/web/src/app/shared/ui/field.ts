@@ -56,6 +56,8 @@ let nextId = 0;
     <ng-template #mark>
       @if (marked()) {
         <span class="text-accent" aria-hidden="true">*</span>
+      } @else if (optional() && !required()) {
+        <span class="font-normal text-ink-subtle">({{ optional() }})</span>
       }
     </ng-template>
     <ng-template #caption>
@@ -111,6 +113,11 @@ export class Field<T> {
    * marking all of them marks none.
    */
   readonly marker = input(true);
+  /**
+   * The word for "optional", said beside the caption of a field that is not
+   * required, on a form where most are.
+   */
+  readonly optional = input<string>();
   /** Given where a test or a link has to find the control by it. */
   readonly controlId = input(`field-${nextId++}`);
   /** Ids of further lines that describe the control, such as a server's answer. */

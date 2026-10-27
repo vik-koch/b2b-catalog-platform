@@ -2,9 +2,9 @@ import { inject, Signal } from '@angular/core';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { FormBuilder, Validators } from '@angular/forms';
 import {
-  AddressForm,
-  createAddressForm,
-} from '../../shared/addresses/address-form';
+  ReactiveAddressForm,
+  createReactiveAddressForm,
+} from '../../shared/addresses/reactive-address-form';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import {
   companyIdFormat,
@@ -53,8 +53,8 @@ export function createCheckoutForms(deps: { guest: Signal<boolean> }) {
     website: [''],
   });
 
-  const delivery = createAddressForm();
-  const billing = createAddressForm();
+  const delivery = createReactiveAddressForm();
+  const billing = createReactiveAddressForm();
 
   return {
     party,
@@ -136,4 +136,4 @@ export function createCheckoutForms(deps: { guest: Signal<boolean> }) {
 }
 
 export type CheckoutForms = ReturnType<typeof createCheckoutForms>;
-export type { AddressForm };
+export type { ReactiveAddressForm };

@@ -23,7 +23,7 @@ import {
   localToday,
 } from '@b2b-catalog-platform/shared/storefront';
 import { AccountService } from '../account/account.service';
-import { AddressForm } from '../../shared/addresses/address-form';
+import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CartService } from '../../shared/cart/cart.service';
@@ -1130,7 +1130,7 @@ export class CheckoutPage {
   /** The chosen row, or what is in the picker's own fields. */
   private addressFor(
     id: string | null,
-    form: AddressForm,
+    form: ReactiveAddressForm,
   ): AddressInput | null {
     if (id === null) return form.value();
     const row = this.addresses().find((address) => address.id === id);

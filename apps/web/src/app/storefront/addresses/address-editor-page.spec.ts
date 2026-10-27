@@ -14,7 +14,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { AccountService } from '../account/account.service';
 import { AddressEditorPage } from './address-editor-page';
-import { AddressSuggestField } from '../../shared/addresses/address-suggest-field';
+import { AddressSuggestInput } from '../../shared/addresses/address-suggest-input';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 
 const text = defaultStorefrontText.account.addresses;
@@ -316,7 +316,7 @@ describe('AddressEditorPage', () => {
       const { fixture, el, field } = await render();
 
       fixture.debugElement
-        .query(By.directive(AddressSuggestField))
+        .query(By.directive(AddressSuggestInput))
         .componentInstance.picked.emit({
           street: 'Hafenstraße 12',
           unit: 'Büro 505',
@@ -326,8 +326,7 @@ describe('AddressEditorPage', () => {
         } satisfies AddressComponents);
       fixture.detectChanges();
 
-      // The street input's id is the suggest field's own; found by what it
-      // autocompletes, as elsewhere in this file.
+      // Found by what it autocompletes, as elsewhere in this file.
       expect(
         el.querySelector<HTMLInputElement>(
           'input[autocomplete="street-address"]',
@@ -344,7 +343,7 @@ describe('AddressEditorPage', () => {
 
       type('street2', 'Gate 4');
       fixture.debugElement
-        .query(By.directive(AddressSuggestField))
+        .query(By.directive(AddressSuggestInput))
         .componentInstance.picked.emit({
           street: 'Hafenstraße 12',
         } satisfies AddressComponents);

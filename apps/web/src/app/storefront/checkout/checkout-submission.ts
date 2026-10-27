@@ -5,7 +5,7 @@ import {
   OrderSubmission,
 } from '@b2b-catalog-platform/shared';
 import { AccountProfile } from '@b2b-catalog-platform/shared/storefront';
-import { AddressForm } from '../../shared/addresses/address-form';
+import { ReactiveAddressForm } from '../../shared/addresses/reactive-address-form';
 import { CartService } from '../../shared/cart/cart.service';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
@@ -28,7 +28,10 @@ export interface SubmissionDeps {
   profile: () => AccountProfile | undefined;
   /** The account's registered name, resolved the way the server resolves it. */
   accountName: Signal<string | null>;
-  addressFor: (id: string | null, form: AddressForm) => AddressInput | null;
+  addressFor: (
+    id: string | null,
+    form: ReactiveAddressForm,
+  ) => AddressInput | null;
 }
 
 /**
