@@ -9,7 +9,7 @@ import {
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { SelectField } from '../../shared/ui/select-field';
 import { GridClearFilters } from './grid-clear-filters';
@@ -24,6 +24,7 @@ import {
   sortableColumns,
 } from './grid-column';
 import { DEFAULT_ADMIN_SORT, gridParam, injectGridNav } from './grid-query';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** One line of the sort picker: a column in one direction. */
 interface SortOption {
@@ -58,7 +59,7 @@ interface SortOption {
   selector: 'app-grid-narrow-controls',
   imports: [
     RouterLink,
-    AdminIcon,
+    Icon,
     DisclosureToggle,
     IconButton,
     Input,
@@ -185,7 +186,7 @@ interface SortOption {
                           queryParamsHandling="merge"
                           [attr.aria-label]="chip.clearLabel"
                         >
-                          <app-admin-icon name="x" />
+                          <app-icon [glyph]="xIcon" />
                         </a>
                       </li>
                     }
@@ -212,6 +213,7 @@ interface SortOption {
   `,
 })
 export class GridNarrowControls {
+  protected readonly xIcon = xIcon;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   private readonly navigate = injectGridNav();

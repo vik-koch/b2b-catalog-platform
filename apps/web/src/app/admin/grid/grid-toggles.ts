@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { GridToggleGroup, GridToggleOption } from './grid-column';
 import { injectGridNav } from './grid-query';
 
@@ -24,7 +24,7 @@ const ON = `${PILL} border-primary bg-primary text-white hover:border-accent hov
  */
 @Component({
   selector: 'app-grid-toggles',
-  imports: [AdminIcon],
+  imports: [Icon],
   host: { class: 'flex flex-col gap-2' },
   template: `
     @for (group of groups(); track group.param) {
@@ -41,7 +41,7 @@ const ON = `${PILL} border-primary bg-primary text-white hover:border-accent hov
             (click)="toggle(group, option)"
           >
             @if (option.icon) {
-              <app-admin-icon [name]="option.icon" class="size-3.5" />
+              <app-icon [glyph]="option.icon" class="size-3.5" />
             }
             {{ option.label }}
           </button>

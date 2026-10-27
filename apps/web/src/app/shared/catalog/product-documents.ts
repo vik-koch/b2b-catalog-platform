@@ -7,14 +7,17 @@ import {
   documentFileSize,
   documentLinkHost,
 } from '../core/document-file';
-import { Icon, IconName } from '../ui/icons/icon';
+import { Icon } from '../ui/icons/icon';
+import { Glyph } from '../ui/icons/glyph';
+import { externalLinkIcon } from '../ui/icons/glyphs/external-link';
+import { fileTextIcon } from '../ui/icons/glyphs/file-text';
 
 /** One row as the template draws it: where the title leads, and — for a
  * document with both a file and a link — the link as a second way in. */
 interface DocumentRow {
   title: string;
   href: string;
-  glyph: IconName;
+  glyph: Glyph;
   caption: string;
   link: { href: string; host: string; ariaLabel: string } | null;
 }
@@ -47,7 +50,7 @@ interface DocumentRow {
                  title opens the file, the site under it the entry. -->
             <div class="flex items-start gap-3 py-2.5">
               <app-icon
-                [name]="row.glyph"
+                [glyph]="row.glyph"
                 class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
@@ -70,7 +73,9 @@ interface DocumentRow {
                     [attr.aria-describedby]="hintId"
                     class="inline-flex items-center gap-1 underline decoration-ink-subtle/40 underline-offset-2 hover:text-accent hover:decoration-accent"
                     >{{ link.host
-                    }}<app-icon name="external-link" class="size-3 shrink-0"
+                    }}<app-icon
+                      [glyph]="externalLinkIcon"
+                      class="size-3 shrink-0"
                   /></a>
                 </span>
               </span>
@@ -87,7 +92,7 @@ interface DocumentRow {
               class="group flex items-start gap-3 py-2.5"
             >
               <app-icon
-                [name]="row.glyph"
+                [glyph]="row.glyph"
                 class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
@@ -111,6 +116,7 @@ interface DocumentRow {
   `,
 })
 export class ProductDocuments {
+  protected readonly externalLinkIcon = externalLinkIcon;
   protected readonly text = inject(STOREFRONT_TEXT).catalog.documents;
   private readonly sizes = inject(SHARED_TEXT).fileSize;
   protected readonly hintId = 'product-documents-hint';
@@ -127,7 +133,7 @@ export class ProductDocuments {
       return {
         title,
         href: file.url,
-        glyph: 'file-text',
+        glyph: fileTextIcon,
         // What the file is and what it weighs — "PDF · 240 kB".
         caption: `${documentFileLabel(file.contentType)} · ${documentFileSize(
           file.byteSize,
@@ -146,7 +152,7 @@ export class ProductDocuments {
       return {
         title,
         href: link,
-        glyph: 'external-link',
+        glyph: externalLinkIcon,
         caption: host,
         link: null,
       };

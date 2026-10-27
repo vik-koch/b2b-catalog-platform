@@ -42,6 +42,9 @@ import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { Notice } from '../../shared/ui/notice';
+import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /**
  * How many lines a page of the cart holds (FR-CART-02). A cart row is a
@@ -151,7 +154,7 @@ interface CartRow {
            checkout draws once one has been sent: three screens that say
            "there is nothing here, here is where to go" should not be three
            different screens. -->
-      <app-empty-state icon="shopping-basket" [message]="text.empty">
+      <app-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
         <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
       </app-empty-state>
     } @else {
@@ -201,7 +204,7 @@ interface CartRow {
                     [attr.aria-label]="changeText.dismissAria"
                     (click)="cart.dismissChanges()"
                   >
-                    <app-icon name="close" />
+                    <app-icon [glyph]="xIcon" />
                   </button>
                 </div>
                 <ul class="mt-1 space-y-1">
@@ -250,7 +253,7 @@ interface CartRow {
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
-                <app-icon name="trash-2" class="size-4" />
+                <app-icon [glyph]="trash2Icon" class="size-4" />
                 <span class="group-enabled:group-hover:underline">
                   {{ text.deleteSelected }}
                 </span>
@@ -393,7 +396,7 @@ interface CartRow {
                       [attr.aria-label]="removeLabel(row)"
                       (click)="remove(row)"
                     >
-                      <app-icon name="trash-2" />
+                      <app-icon [glyph]="trash2Icon" />
                     </button>
                   </app-product-row>
                 </li>
@@ -505,6 +508,9 @@ interface CartRow {
   `,
 })
 export class CartPage {
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly xIcon = xIcon;
   protected readonly cart = inject(CartService);
   private readonly pricing = inject(CartPreviewService);
   private readonly lastListing = inject(LastListingService);

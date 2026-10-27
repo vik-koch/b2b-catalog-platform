@@ -15,7 +15,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
@@ -29,6 +29,7 @@ import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
 import { SyncService } from './sync.service';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 
 /**
  * One area's runs, newest first (FR-ADM-09) — the screen
@@ -53,7 +54,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
     NgTemplateOutlet,
     RouterLink,
     AdminGrid,
-    AdminIcon,
+    Icon,
     AdminListHeader,
     Button,
     GridCardTemplate,
@@ -79,7 +80,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
            quietly is not there. -->
       @if (canUpload()) {
         <a appButton class="gap-2" [routerLink]="uploadLink()">
-          <app-admin-icon name="upload" class="size-4" />
+          <app-icon [glyph]="uploadIcon" class="size-4" />
           {{ text.newRun }}
         </a>
       }
@@ -179,6 +180,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
   `,
 })
 export class SyncRunsPage {
+  protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
   protected readonly text = inject(ADMIN_TEXT).sync;
   protected readonly adminText = inject(ADMIN_TEXT);

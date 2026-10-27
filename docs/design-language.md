@@ -1,8 +1,8 @@
 # Design language
 
-The rules the web app's colours follow. [styles.css](../apps/web/src/styles.css) holds the
-values; this page holds the reasoning, so a new screen can pick a colour by what it does rather
-than by how it looks. Lint keeps the names honest and the audit keeps the contrast honest
+The rules the web app's colours and icons follow. [styles.css](../apps/web/src/styles.css) holds
+the values; this page holds the reasoning, so a new screen can pick a colour by what it does
+rather than by how it looks. Lint keeps the names honest and the audit keeps the contrast honest
 ([Keeping to it](#keeping-to-it)).
 
 ## Naming
@@ -169,6 +169,25 @@ lists them with what each one colours.
   work as a set. At boot each pair is measured against the floors above (its text on the page and
   on its own surface, its dot on the page, a white label on danger's fills), and a pair below its
   floor stops the app with the role named.
+
+## Icons
+
+Glyphs are [Lucide](https://lucide.dev)'s (ISC), owned as data: one constant per glyph in
+[icons/glyphs/](../apps/web/src/app/shared/ui/icons/glyphs/), drawn by one `Icon` component
+([ADR 0008](adr/0008-tailwind-owned-primitives-runtime-theming.md)).
+
+- **One stroke weight**, 1.75 on Lucide's 24-unit grid, the same on both sides of the app. Emphasis
+  raises it to 2.25 (the navigation's current tab) through `--icon-stroke-width`; nothing else
+  changes it.
+- **Size** comes from a class on the icon (`size-4`) or from the control around it through
+  `--icon-size`. The colour is `currentColor`: an icon takes the role of the text or control it
+  sits in, and a glyph that identifies a control keeps the 3:1 floor above.
+- **Decorative.** The SVG is hidden from assistive technology; the control or the words beside
+  it carry the name.
+- **A new glyph** is copied from the Lucide source into `glyphs/<lucide-name>.ts`, its elements in
+  the same order, and imported from that module directly, never through a barrel: chunks are cut
+  by module, so a shared one would put every glyph into the first load. A glyph that is not
+  Lucide's says so in its comment.
 
 ## Keeping to it
 

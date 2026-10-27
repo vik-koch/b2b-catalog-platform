@@ -1,6 +1,8 @@
 import { Component, computed, input } from '@angular/core';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
+import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
+import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
 
 /**
  * A sortable column heading for an admin grid (FR-ADM-05) — the ordering control
@@ -13,7 +15,7 @@ import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
  */
 @Component({
   selector: 'app-grid-sort',
-  imports: [AdminIcon],
+  imports: [Icon],
   host: {
     // `group` so the affordance chevron can appear on hover; see the icon.
     class: 'group py-2 font-medium',
@@ -30,14 +32,16 @@ import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
            the one in effect (or under the pointer): a row of permanent arrows
            reads as noise, and a header that gains an icon on hover says
            "clickable" without claiming to be sorted. -->
-      <app-admin-icon
-        [name]="descending() ? 'chevron-down' : 'chevron-up'"
+      <app-icon
+        [glyph]="descending() ? chevronDownIcon : chevronUpIcon"
         [class]="iconClass()"
       />
     </button>
   `,
 })
 export class GridSortHeader {
+  protected readonly chevronDownIcon = chevronDownIcon;
+  protected readonly chevronUpIcon = chevronUpIcon;
   private readonly navigate = injectGridNav();
 
   /** The sort key this column applies when first clicked, and its reverse. */

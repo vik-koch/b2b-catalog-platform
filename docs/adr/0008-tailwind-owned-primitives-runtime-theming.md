@@ -1,6 +1,6 @@
 # 0008 — Tailwind with owned UI primitives and runtime theme tokens
 
-**Status:** accepted (amended 2026-09-04, 2026-09-05, 2026-10-02, 2026-10-26) · **Date:** 2026-07-19
+**Status:** accepted (amended 2026-09-04, 2026-09-05, 2026-10-02, 2026-10-26, 2026-10-27) · **Date:** 2026-07-19
 
 ## Context
 
@@ -171,3 +171,17 @@ not at all, and nothing stopped a new template from adding more.
 - **Mail draws in the same greys.** The API's message layout takes the roles
   it uses (`ink`, `inkSubtle`, `edge`, `surface`, `surfaceSubtle`) from the
   theme where they are set as hex, and the web app's defaults otherwise.
+
+## Amendment — 2026-10-27 (v1.15.2): icons are data
+
+Two icon components, a storefront set and an admin set, kept the admin glyphs out of a
+visitor's download: a component's `@switch` ships every glyph it holds, so the split was by
+bundle, and 17 glyphs were copied into both. The admin set also drew at a heavier stroke.
+
+- **A glyph is a constant**, `glyphs/<lucide-name>.ts`, holding the SVG's elements as data.
+  One `Icon` component draws whichever it is given and holds none itself, so a chunk carries
+  exactly the glyphs it imports. The copies and the two sets go.
+- **Imported from its own module, never through a barrel.** Chunks are cut by module, not by
+  export: a module re-exporting every glyph put all of them into the first load.
+- **One stroke weight**, 1.75, raised to 2.25 for emphasis (the navigation's current tab),
+  through `--icon-stroke-width`. The rules are in [design-language.md](../design-language.md#icons).

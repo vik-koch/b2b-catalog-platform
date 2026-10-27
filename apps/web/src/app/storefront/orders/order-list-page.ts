@@ -19,6 +19,8 @@ import { OrdersService } from './orders.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /**
  * The account's own order requests (FR-ACC-01), newest first — the whole
@@ -57,7 +59,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             class="flex items-center justify-center rounded-full p-0.5 text-ink-subtle hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
-            <app-icon name="close" class="size-3.5" />
+            <app-icon [glyph]="xIcon" class="size-3.5" />
           </a>
         </span>
       </div>
@@ -69,7 +71,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
              drawn and the link being followed, which is what a count over
              current state does. The way out is the whole history, not the
              catalog. -->
-        <app-empty-state icon="shopping-basket" [message]="text.filterEmpty">
+        <app-empty-state
+          [icon]="shoppingBasketIcon"
+          [message]="text.filterEmpty"
+        >
           <a appButton routerLink="/account/orders">{{ text.action }}</a>
         </app-empty-state>
       } @else if (data.items.length === 0) {
@@ -77,7 +82,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
              cart with nothing in it read as the same kind of screen. The two
              actions are a row inside it rather than two buttons left touching
              each other under a sentence. -->
-        <app-empty-state icon="shopping-basket" [message]="text.empty">
+        <app-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
           <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
           <a appButton variant="secondary" routerLink="/account">
             {{ text.back }}
@@ -140,6 +145,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
   `,
 })
 export class OrderListPage {
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
+  protected readonly xIcon = xIcon;
   private readonly api = inject(OrdersService);
   protected readonly text = inject(STOREFRONT_TEXT).orders;
   protected readonly pagination = inject(SHARED_TEXT).pagination;

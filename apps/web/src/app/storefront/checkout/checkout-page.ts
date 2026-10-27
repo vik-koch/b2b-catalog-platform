@@ -64,6 +64,11 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { circleUserRoundIcon } from '../../shared/ui/icons/glyphs/circle-user-round';
+import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
+import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
+import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -116,7 +121,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
            who has just sent one wants, and for a guest the link is the only
            copy they have besides the mail. -->
       <app-empty-state
-        icon="circle-check"
+        [icon]="circleCheckIcon"
         tone="positive"
         [message]="successMessage(reference)"
       >
@@ -138,7 +143,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
       }
     } @else if (cart.isEmpty()) {
       <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
-      <app-empty-state icon="shopping-basket" [message]="text.emptyCart">
+      <app-empty-state [icon]="shoppingBasketIcon" [message]="text.emptyCart">
         <a appButton routerLink="/catalog">
           {{ cartText.emptyAction }}
         </a>
@@ -192,7 +197,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                 class="mb-8 flex max-w-xl items-start gap-2 text-sm text-ink-subtle"
               >
                 <app-icon
-                  name="circle-user-round"
+                  [glyph]="circleUserRoundIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
@@ -440,7 +445,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             @if (staff()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <app-icon
-                  name="lock"
+                  [glyph]="lockIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>{{ text.errors.staffAccount }}</span>
@@ -448,7 +453,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             } @else if (accountPhoneMissing()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
                 <app-icon
-                  name="phone"
+                  [glyph]="phoneIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
@@ -506,6 +511,11 @@ import { PageIntro } from '../../shared/ui/page-intro';
   `,
 })
 export class CheckoutPage {
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
+  protected readonly circleUserRoundIcon = circleUserRoundIcon;
+  protected readonly lockIcon = lockIcon;
+  protected readonly phoneIcon = phoneIcon;
   protected readonly cart = inject(CartService);
   protected readonly drafts = inject(CheckoutDraftService);
   protected readonly draft = this.drafts.draft;

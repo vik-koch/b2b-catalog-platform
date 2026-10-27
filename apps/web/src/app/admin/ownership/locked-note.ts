@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
 
 /**
  * Why something on this screen cannot be changed here — an area handed to an
@@ -20,7 +21,7 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
  */
 @Component({
   selector: 'app-locked-note',
-  imports: [AdminIcon],
+  imports: [Icon],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
   template: `
@@ -28,8 +29,8 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
       class="flex items-start gap-2.5 rounded-md bg-surface px-4 py-3 text-sm text-ink-subtle"
       role="status"
     >
-      <app-admin-icon
-        name="lock"
+      <app-icon
+        [glyph]="lockIcon"
         class="mt-0.5 size-4 shrink-0 text-ink-subtle"
         aria-hidden="true"
       />
@@ -37,4 +38,6 @@ import { AdminIcon } from '../../shared/ui/icons/admin-icon';
     </p>
   `,
 })
-export class LockedNote {}
+export class LockedNote {
+  protected readonly lockIcon = lockIcon;
+}

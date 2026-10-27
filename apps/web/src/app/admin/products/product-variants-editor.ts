@@ -34,10 +34,13 @@ import {
 } from '../../shared/ui/disclosure-toggle';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { ErrorText } from '../../shared/ui/error-text';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { imageIcon } from '../../shared/ui/icons/glyphs/image';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -60,7 +63,7 @@ let nextId = 0;
 @Component({
   selector: 'app-product-variants-editor',
   imports: [
-    AdminIcon,
+    Icon,
     Button,
     CdkDrag,
     CdkDragHandle,
@@ -86,9 +89,9 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-admin-icon
+        <app-icon
           disclosureLead
-          [name]="glyph"
+          [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
@@ -133,7 +136,7 @@ let nextId = 0;
                       class="inline-flex cursor-grab text-ink-subtle active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
-                      <app-admin-icon name="grip-vertical" class="size-4" />
+                      <app-icon [glyph]="gripVerticalIcon" class="size-4" />
                     </span>
                     <input
                       type="text"
@@ -152,7 +155,7 @@ let nextId = 0;
                       [title]="picturesLabel(variant.id)"
                       [attr.aria-label]="picturesLabel(variant.id)"
                     >
-                      <app-admin-icon name="image" class="size-3.5" />
+                      <app-icon [glyph]="imageIcon" class="size-3.5" />
                       {{ pictureCount(variant.id) }}
                     </span>
                     <label
@@ -180,7 +183,7 @@ let nextId = 0;
                       [attr.aria-label]="removeLabel(variant.name)"
                       (click)="remove(variant.id)"
                     >
-                      <app-admin-icon name="x" />
+                      <app-icon [glyph]="xIcon" />
                     </button>
                   </li>
                 }
@@ -234,6 +237,9 @@ let nextId = 0;
   `,
 })
 export class ProductVariantsEditor implements OnInit {
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly imageIcon = imageIcon;
+  protected readonly xIcon = xIcon;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);

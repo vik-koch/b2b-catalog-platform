@@ -1,5 +1,6 @@
 import { Component, input, output } from '@angular/core';
 import { Icon } from './icons/icon';
+import { chevronDownIcon } from './icons/glyphs/chevron-down';
 
 /**
  * The edge of the box a disclosure lives in, as its four hosts draw it — the
@@ -64,7 +65,7 @@ export function disclosureBorder(open: boolean): string {
            on the button rather than on a group class, so nothing has to be
            said at the two call sites. -->
       <app-icon
-        name="chevron-down"
+        [glyph]="chevronDownIcon"
         class="size-4 shrink-0 text-ink-subtle transition-[transform,color] [button:hover_&]:text-accent"
         [class.rotate-180]="open()"
       />
@@ -72,6 +73,7 @@ export function disclosureBorder(open: boolean): string {
   `,
 })
 export class DisclosureToggle {
+  protected readonly chevronDownIcon = chevronDownIcon;
   readonly label = input.required<string>();
   /** How many choices are in effect; zero shows nothing. */
   readonly count = input(0);

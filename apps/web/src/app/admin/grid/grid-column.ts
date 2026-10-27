@@ -1,5 +1,5 @@
-import type { AdminIconName } from '../../shared/ui/icons/admin-icon';
 import { GridFilterOption } from './grid-filter-select';
+import { Glyph } from '../../shared/ui/icons/glyph';
 
 /** How a column is ordered: the key each direction writes to `sort`. */
 export interface GridSort {
@@ -145,7 +145,7 @@ export interface GridToggleGroup {
 export interface GridToggleOption {
   value: string;
   label: string;
-  icon?: AdminIconName;
+  icon?: Glyph;
 }
 
 /** How many filters are narrowing the grid, for the disclosure's badge — the

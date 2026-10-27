@@ -21,7 +21,7 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../shared/ui/button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
@@ -38,6 +38,8 @@ import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 interface CategoryDraft {
   name: string;
@@ -64,7 +66,7 @@ interface CategoryDraft {
     FORM_FIELDS,
     LockedNote,
     Button,
-    AdminIcon,
+    Icon,
     CategoryPicker,
     FieldLabel,
     Input,
@@ -207,7 +209,7 @@ interface CategoryDraft {
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-admin-icon name="save" class="size-4" />
+          <app-icon [glyph]="saveIcon" class="size-4" />
           {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
@@ -217,7 +219,7 @@ interface CategoryDraft {
           class="gap-2"
           (click)="cancel()"
         >
-          <app-admin-icon name="x" class="size-4" />
+          <app-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>
@@ -225,6 +227,8 @@ interface CategoryDraft {
   `,
 })
 export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
+  protected readonly saveIcon = saveIcon;
+  protected readonly xIcon = xIcon;
   private readonly admin = inject(AdminCatalogService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).categories.editor;

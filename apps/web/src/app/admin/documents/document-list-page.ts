@@ -26,7 +26,7 @@ import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Link } from '../../shared/ui/link';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
@@ -46,6 +46,9 @@ import {
   documentLinkHost,
 } from '../../shared/core/document-file';
 import { ErrorText } from '../../shared/ui/error-text';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document
@@ -72,7 +75,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     RouterLink,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     Link,
     AdminListHeader,
     AdminGrid,
@@ -101,7 +104,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         routerLink="/admin/documents/new"
         [queryParams]="editorFrom()"
       >
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </a>
     </app-admin-list-header>
@@ -275,7 +278,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [attr.aria-label]="adminText.actions.edit"
         [title]="adminText.actions.edit"
       >
-        <app-admin-icon name="pencil" />
+        <app-icon [glyph]="pencilIcon" />
       </a>
       <button
         type="button"
@@ -284,12 +287,15 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [title]="adminText.actions.delete"
         (click)="remove(document)"
       >
-        <app-admin-icon name="trash-2" />
+        <app-icon [glyph]="trash2Icon" />
       </button>
     </ng-template>
   `,
 })
 export class DocumentListPage {
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly trash2Icon = trash2Icon;
   private readonly service = inject(DocumentsService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).documents.list;

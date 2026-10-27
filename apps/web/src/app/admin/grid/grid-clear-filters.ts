@@ -2,8 +2,9 @@ import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
+import { funnelXIcon } from '../../shared/ui/icons/glyphs/funnel-x';
 
 /**
  * One way back to the whole list, wherever a grid puts it: beside the search
@@ -29,7 +30,7 @@ import { IconButton } from '../../shared/ui/icon-button';
  */
 @Component({
   selector: 'app-grid-clear-filters',
-  imports: [RouterLink, AdminIcon, IconButton],
+  imports: [RouterLink, Icon, IconButton],
   template: `
     @if (filtered()) {
       <a
@@ -40,7 +41,7 @@ import { IconButton } from '../../shared/ui/icon-button';
         [attr.aria-label]="adminText.grid.clearFilters"
         [title]="adminText.grid.clearFilters"
       >
-        <app-admin-icon name="funnel-x" />
+        <app-icon [glyph]="funnelXIcon" />
       </a>
     } @else {
       <button
@@ -51,12 +52,13 @@ import { IconButton } from '../../shared/ui/icon-button';
         [attr.aria-label]="adminText.grid.clearFilters"
         [title]="adminText.grid.clearFilters"
       >
-        <app-admin-icon name="funnel-x" />
+        <app-icon [glyph]="funnelXIcon" />
       </button>
     }
   `,
 })
 export class GridClearFilters {
+  protected readonly funnelXIcon = funnelXIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
 
   /** Whether anything — a filter, a chip, the search box — is narrowing the

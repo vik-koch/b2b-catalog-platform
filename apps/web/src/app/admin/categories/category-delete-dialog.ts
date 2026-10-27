@@ -15,13 +15,14 @@ import { SettingsService } from '../settings/settings.service';
 import { Button } from '../../shared/ui/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
@@ -40,7 +41,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   selector: 'app-category-delete-dialog',
   imports: [
     Button,
-    AdminIcon,
+    Icon,
     CategoryPicker,
     FieldLabel,
     DialogActions,
@@ -112,7 +113,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             [disabled]="deleting() || (mode() === 'reassign' && !reassignTo())"
             (click)="confirm()"
           >
-            <app-admin-icon name="trash-2" class="size-4" />
+            <app-icon [glyph]="trash2Icon" class="size-4" />
             {{ deleting() ? actionText.deleting : adminText.actions.delete }}
           </button>
         }
@@ -121,6 +122,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   `,
 })
 export class CategoryDeleteDialog {
+  protected readonly trash2Icon = trash2Icon;
   private readonly admin = inject(AdminCatalogService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;

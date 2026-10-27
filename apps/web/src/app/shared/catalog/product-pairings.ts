@@ -6,6 +6,7 @@ import { Icon } from '../ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { LINK_BASE, LINK_TONES } from '../ui/link';
 import { PairingsService } from './pairings.service';
+import { packagePlusIcon } from '../ui/icons/glyphs/package-plus';
 
 /**
  * The sold-together marker (FR-SET-05) — the one place a customer meets a
@@ -41,7 +42,7 @@ import { PairingsService } from './pairings.service';
         [title]="label()"
         (click)="open()"
       >
-        <app-icon name="package-plus" />
+        <app-icon [glyph]="packagePlusIcon" />
       </button>
     } @else {
       <!-- The glyph and the word, sized like the facts around it: on a product
@@ -52,7 +53,7 @@ import { PairingsService } from './pairings.service';
         <!-- Nudged to the first line's optical middle rather than centred on
              the whole line: the shortfall wraps to two lines in a narrow
              column, and a glyph centred on that sits beside neither. -->
-        <app-icon name="package-plus" class="mt-0.5 size-4 shrink-0" />
+        <app-icon [glyph]="packagePlusIcon" class="mt-0.5 size-4 shrink-0" />
         <!-- One flex item for the whole sentence, so the words wrap as words:
              the link and what follows it in two items broke between them
              first, leaving "Add 20 pc" alone on a line. Written tight and left
@@ -67,6 +68,7 @@ import { PairingsService } from './pairings.service';
   `,
 })
 export class ProductPairings {
+  protected readonly packagePlusIcon = packagePlusIcon;
   protected readonly text = inject(STOREFRONT_TEXT).catalog.pairings;
   protected readonly product = inject(SHARED_TEXT).product;
   private readonly pairings = inject(PairingsService);

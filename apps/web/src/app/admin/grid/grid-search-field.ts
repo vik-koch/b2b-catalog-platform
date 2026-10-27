@@ -12,6 +12,8 @@ import { debounced } from '../../shared/core/debounced';
 import { Input } from '../../shared/ui/input';
 import { injectGridNav } from './grid-query';
 import { Icon } from '../../shared/ui/icons/icon';
+import { searchIcon } from '../../shared/ui/icons/glyphs/search';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** Long enough that a fast typist produces one request per word rather than one
  * per letter, short enough that a pause feels answered immediately. The same
@@ -45,7 +47,7 @@ const SEARCH_DEBOUNCE_MS = 200;
       <!-- Leading glyph: a label for the field rather than a control, so it is
            muted and takes no pointer events. -->
       <app-icon
-        name="search"
+        [glyph]="searchIcon"
         class="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-ink-subtle"
       />
       <input
@@ -68,7 +70,7 @@ const SEARCH_DEBOUNCE_MS = 200;
           [title]="clearLabel()"
           (click)="clear()"
         >
-          <app-icon name="close" class="size-4" />
+          <app-icon [glyph]="xIcon" class="size-4" />
           <span class="sr-only">{{ clearLabel() }}</span>
         </button>
       }
@@ -76,6 +78,8 @@ const SEARCH_DEBOUNCE_MS = 200;
   `,
 })
 export class GridSearchField {
+  protected readonly searchIcon = searchIcon;
+  protected readonly xIcon = xIcon;
   private readonly navigate = injectGridNav();
   private readonly input = viewChild<ElementRef<HTMLInputElement>>('input');
   protected readonly maxLength = SEARCH_QUERY_MAX_LENGTH;

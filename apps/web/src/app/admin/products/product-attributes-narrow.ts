@@ -24,7 +24,6 @@ import { Button } from '../../shared/ui/button';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { HintBadge } from '../../shared/ui/hint-badge';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Icon } from '../../shared/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { RecordFields } from '../records/record-fields';
@@ -36,6 +35,14 @@ import {
   attributeRowStatus,
 } from './attribute-hints';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
@@ -58,7 +65,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 @Component({
   selector: 'app-product-attributes-narrow',
   imports: [
-    AdminIcon,
+    Icon,
     Icon,
     Button,
     HintBadge,
@@ -112,7 +119,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               </label>
               <div appRecordFormActions>
                 <button appButton size="sm" type="submit" class="gap-2">
-                  <app-admin-icon name="save" class="size-4" />
+                  <app-icon [glyph]="saveIcon" class="size-4" />
                   {{ adminText.actions.save }}
                 </button>
                 <button
@@ -123,7 +130,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                   class="gap-2"
                   (click)="cancel()"
                 >
-                  <app-admin-icon name="x" class="size-4" />
+                  <app-icon [glyph]="xIcon" class="size-4" />
                   {{ actionText.cancel }}
                 </button>
               </div>
@@ -141,7 +148,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 class="cursor-grab active:cursor-grabbing"
                 [attr.aria-label]="adminText.actions.reorder"
               >
-                <app-admin-icon name="grip-vertical" />
+                <app-icon [glyph]="gripVerticalIcon" />
               </span>
               <span
                 class="font-medium wrap-break-word text-ink"
@@ -155,12 +162,12 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                    it read as a property of the buttons under it. -->
               @if (strayLabel(row); as label) {
                 <app-hint-badge tone="warning" [label]="label">
-                  <app-icon name="triangle-alert" class="size-3.5" />
+                  <app-icon [glyph]="triangleAlertIcon" class="size-3.5" />
                 </app-hint-badge>
               }
               @if (isFilterable(row)) {
                 <app-hint-badge tone="neutral" [label]="text.filterable">
-                  <app-admin-icon name="funnel" class="size-3.5" />
+                  <app-icon [glyph]="funnelIcon" class="size-3.5" />
                 </app-hint-badge>
               }
               <ng-container recordMeta>
@@ -173,7 +180,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 @if (valueMark(row); as mark) {
                   @if (mark === 'not-numeric') {
                     <app-hint-badge tone="warning" [label]="text.notNumeric">
-                      <app-icon name="triangle-alert" class="size-3.5" />
+                      <app-icon [glyph]="triangleAlertIcon" class="size-3.5" />
                     </app-hint-badge>
                   } @else {
                     <span class="text-xs">{{ mark }}</span>
@@ -190,7 +197,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                   [attr.aria-label]="text.addAria"
                   (click)="addBelow($index)"
                 >
-                  <app-admin-icon name="plus" />
+                  <app-icon [glyph]="plusIcon" />
                 </button>
                 <button
                   appIconButton
@@ -198,7 +205,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                   [attr.aria-label]="adminText.actions.edit"
                   (click)="open($index)"
                 >
-                  <app-admin-icon name="pencil" />
+                  <app-icon [glyph]="pencilIcon" />
                 </button>
                 <button
                   appIconButton
@@ -207,7 +214,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                   [attr.aria-label]="actionText.remove"
                   (click)="remove($index)"
                 >
-                  <app-admin-icon name="trash-2" />
+                  <app-icon [glyph]="trash2Icon" />
                 </button>
               </ng-container>
             </app-record-row>
@@ -218,6 +225,14 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   `,
 })
 export class ProductAttributesNarrow {
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly triangleAlertIcon = triangleAlertIcon;
+  protected readonly xIcon = xIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly actionText = inject(SHARED_TEXT).actions;

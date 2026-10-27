@@ -2,8 +2,13 @@ import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
 import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * What can be done to one account from the list, drawn once for both shapes it
@@ -18,7 +23,7 @@ import { IconButton } from '../../shared/ui/icon-button';
  */
 @Component({
   selector: 'app-user-row-actions',
-  imports: [RouterLink, AdminIcon, IconButton],
+  imports: [RouterLink, Icon, IconButton],
   host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
     <!-- Both open the same editor; only the glyph differs, because on a pending
@@ -35,8 +40,8 @@ import { IconButton } from '../../shared/ui/icon-button';
           user().status === 'pending' ? text.approve : text.edit
         "
       >
-        <app-admin-icon
-          [name]="user().status === 'pending' ? 'circle-check' : 'pencil'"
+        <app-icon
+          [glyph]="user().status === 'pending' ? circleCheckIcon : pencilIcon"
         />
       </a>
     }
@@ -53,7 +58,7 @@ import { IconButton } from '../../shared/ui/icon-button';
         [attr.aria-label]="text.declineAria"
         (click)="declined.emit(user())"
       >
-        <app-admin-icon name="trash-2" />
+        <app-icon [glyph]="trash2Icon" />
       </button>
     } @else if (user().status === 'disabled') {
       <button
@@ -62,7 +67,7 @@ import { IconButton } from '../../shared/ui/icon-button';
         [attr.aria-label]="text.reactivateAria"
         (click)="activeChanged.emit({ user: user(), active: true })"
       >
-        <app-admin-icon name="rotate-ccw" />
+        <app-icon [glyph]="rotateCcwIcon" />
       </button>
     } @else if (user().status !== 'anonymized') {
       <button
@@ -72,12 +77,17 @@ import { IconButton } from '../../shared/ui/icon-button';
         [attr.aria-label]="text.deactivateAria"
         (click)="activeChanged.emit({ user: user(), active: false })"
       >
-        <app-admin-icon name="circle-slash" />
+        <app-icon [glyph]="circleSlashIcon" />
       </button>
     }
   `,
 })
 export class UserRowActions {
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly circleSlashIcon = circleSlashIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly rotateCcwIcon = rotateCcwIcon;
+  protected readonly trash2Icon = trash2Icon;
   protected readonly text = inject(ADMIN_TEXT).users.list;
 
   readonly user = input.required<StaffUser>();

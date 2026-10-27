@@ -6,6 +6,8 @@ import {
   segmentClass,
 } from '../../shared/ui/segmented';
 import { ProductLayout, ProductLayoutService } from './product-layout';
+import { layoutGridIcon } from '../../shared/ui/icons/glyphs/layout-grid';
+import { layoutListIcon } from '../../shared/ui/icons/glyphs/layout-list';
 
 /**
  * Cards or lines (FR-CAT-06), on the quiet pill the sort beside it uses: both
@@ -45,7 +47,7 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
         [title]="text.grid"
         (click)="choose('grid')"
       >
-        <app-icon name="layout-grid" class="size-4" />
+        <app-icon [glyph]="layoutGridIcon" class="size-4" />
       </button>
       <button
         type="button"
@@ -55,12 +57,14 @@ import { ProductLayout, ProductLayoutService } from './product-layout';
         [title]="text.list"
         (click)="choose('list')"
       >
-        <app-icon name="layout-list" class="size-4" />
+        <app-icon [glyph]="layoutListIcon" class="size-4" />
       </button>
     </div>
   `,
 })
 export class ProductLayoutToggle {
+  protected readonly layoutGridIcon = layoutGridIcon;
+  protected readonly layoutListIcon = layoutListIcon;
   private readonly layout = inject(ProductLayoutService);
   protected readonly text = inject(STOREFRONT_TEXT).catalog.layout;
   protected readonly chosen = this.layout.layout;

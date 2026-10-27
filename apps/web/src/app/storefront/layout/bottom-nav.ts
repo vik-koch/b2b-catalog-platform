@@ -20,6 +20,11 @@ import { telHref } from './contact-info';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
 import { navActionClasses, TAB_CURRENT } from './nav-action';
+import { mailIcon } from '../../shared/ui/icons/glyphs/mail';
+import { menuIcon } from '../../shared/ui/icons/glyphs/menu';
+import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
+import { searchIcon } from '../../shared/ui/icons/glyphs/search';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** Must match the exit animation in styles.css. */
 const LEAVE_MS = 150;
@@ -118,13 +123,13 @@ const LEAVE_MS = 150;
                wordmark; this is where the other one lives on a phone. -->
           @if (contact?.phone; as phone) {
             <a [href]="telHref(phone)" [class]="menuRow" (click)="close()">
-              <app-icon name="phone" class="size-4" />
+              <app-icon [glyph]="phoneIcon" class="size-4" />
               {{ phone }}
             </a>
           }
           @if (contact?.email; as email) {
             <a [href]="'mailto:' + email" [class]="menuRow" (click)="close()">
-              <app-icon name="mail" class="size-4" />
+              <app-icon [glyph]="mailIcon" class="size-4" />
               {{ email }}
             </a>
           }
@@ -170,7 +175,7 @@ const LEAVE_MS = 150;
             [class]="searchClasses()"
             (click)="openSearch()"
           >
-            <app-icon name="search" class="size-6" />
+            <app-icon [glyph]="searchIcon" class="size-6" />
             <span [class]="tab.labelRow">
               <span [class]="tab.label">{{ search.openSearch }}</span>
             </span>
@@ -191,9 +196,9 @@ const LEAVE_MS = 150;
             (click)="toggle()"
           >
             @if (menuOpen()) {
-              <app-icon name="close" class="size-6" />
+              <app-icon [glyph]="xIcon" class="size-6" />
             } @else {
-              <app-icon name="menu" class="size-6" />
+              <app-icon [glyph]="menuIcon" class="size-6" />
             }
             <span [class]="tab.labelRow">
               <span [class]="tab.label">{{ nav['more'] }}</span>
@@ -205,6 +210,11 @@ const LEAVE_MS = 150;
   `,
 })
 export class BottomNav {
+  protected readonly mailIcon = mailIcon;
+  protected readonly menuIcon = menuIcon;
+  protected readonly phoneIcon = phoneIcon;
+  protected readonly searchIcon = searchIcon;
+  protected readonly xIcon = xIcon;
   private readonly config = inject(DEPLOYMENT_CONFIG);
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly auth = inject(AuthService);

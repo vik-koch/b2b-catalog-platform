@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { GridToggleGroup } from './grid-column';
 import { GridToggles } from './grid-toggles';
+import { imageIcon } from '../../shared/ui/icons/glyphs/image';
 
 @Component({
   imports: [GridToggles],
@@ -17,7 +18,7 @@ const group = (selected: string[]): GridToggleGroup => ({
   param: 'missing',
   options: [
     { value: 'incomplete', label: 'Incomplete' },
-    { value: 'picture', label: 'No picture', icon: 'image' },
+    { value: 'picture', label: 'No picture', icon: imageIcon },
   ],
   selected,
 });

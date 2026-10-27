@@ -5,12 +5,14 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
+import { imagePlusIcon } from '../../shared/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,
@@ -21,7 +23,7 @@ import { ErrorText } from '../../shared/ui/error-text';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [AdminIcon, FileTarget, ErrorText],
+  imports: [Icon, FileTarget, ErrorText],
   template: `
     @if (value(); as image) {
       <div
@@ -37,7 +39,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             [attr.aria-label]="actionText.remove"
             (click)="valueChange.emit(null)"
           >
-            <app-admin-icon name="trash-2" class="size-5 md:size-4" />
+            <app-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
           </button>
         </div>
       </div>
@@ -58,7 +60,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         (click)="fileInput.click()"
         (filesReceived)="upload($event[0])"
       >
-        <app-admin-icon name="image-plus" class="size-6" />
+        <app-icon [glyph]="imagePlusIcon" class="size-6" />
         <span class="text-xs">{{
           uploading() ? adminText.upload.progress : label()
         }}</span>
@@ -75,6 +77,8 @@ import { ErrorText } from '../../shared/ui/error-text';
   `,
 })
 export class ImagePicker {
+  protected readonly imagePlusIcon = imagePlusIcon;
+  protected readonly trash2Icon = trash2Icon;
   private readonly media = inject(MediaService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;

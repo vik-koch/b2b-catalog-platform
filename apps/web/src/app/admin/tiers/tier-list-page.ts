@@ -18,7 +18,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
 import { filled } from '../../shared/core/field-rules';
@@ -38,6 +38,13 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { eyeIcon } from '../../shared/ui/icons/glyphs/eye';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -66,7 +73,7 @@ type EditTarget = { id: string } | { id: null } | null;
     NgTemplateOutlet,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     Link,
     RecordRow,
     RecordFields,
@@ -90,7 +97,7 @@ type EditTarget = { id: string } | { id: null } | null;
         [disabled]="editing() !== null"
         (click)="startAdd()"
       >
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
     </div>
@@ -141,7 +148,7 @@ type EditTarget = { id: string } | { id: null } | null;
                       [attr.aria-label]="adminText.actions.reorder"
                       [title]="adminText.actions.reorder"
                     >
-                      <app-admin-icon name="grip-vertical" />
+                      <app-icon [glyph]="gripVerticalIcon" />
                     </span>
                     <span class="font-medium text-ink">{{ tier.label }}</span>
                     <!-- The sync key beside the label it belongs to, not across
@@ -217,7 +224,7 @@ type EditTarget = { id: string } | { id: null } | null;
                           [disabled]="busy() || editing() !== null"
                           (click)="makeDefault(tier)"
                         >
-                          <app-admin-icon name="eye" />
+                          <app-icon [glyph]="eyeIcon" />
                         </button>
                       } @else {
                         <!-- The badged list keeps the place rather than the
@@ -235,7 +242,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         [disabled]="editing() !== null"
                         (click)="startEdit(tier)"
                       >
-                        <app-admin-icon name="pencil" />
+                        <app-icon [glyph]="pencilIcon" />
                       </button>
                       <!-- Present on the storefront's list too, and it
                            explains rather than disappears: a control that is
@@ -249,7 +256,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         [disabled]="busy()"
                         (click)="remove(tier)"
                       >
-                        <app-admin-icon name="trash-2" />
+                        <app-icon [glyph]="trash2Icon" />
                       </button>
                     </ng-container>
                   </app-record-row>
@@ -341,7 +348,7 @@ type EditTarget = { id: string } | { id: null } | null;
               class="gap-2"
               [disabled]="busy()"
             >
-              <app-admin-icon name="save" class="size-4" />
+              <app-icon [glyph]="saveIcon" class="size-4" />
               {{ busy() ? actionText.saving : adminText.actions.save }}
             </button>
             <button
@@ -353,7 +360,7 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
               (click)="cancel()"
             >
-              <app-admin-icon name="x" class="size-4" />
+              <app-icon [glyph]="xIcon" class="size-4" />
               {{ actionText.cancel }}
             </button>
           </div>
@@ -368,6 +375,13 @@ type EditTarget = { id: string } | { id: null } | null;
   `,
 })
 export class TierListPage {
+  protected readonly eyeIcon = eyeIcon;
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(TiersService);
   private readonly confirm = inject(ConfirmService);
   private readonly settings = inject(SettingsService);

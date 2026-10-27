@@ -11,6 +11,7 @@ import { FieldBinding } from './field-binding';
 import { injectCoarsePointer } from '../core/coarse-pointer';
 import { Icon } from './icons/icon';
 import { Input } from './input';
+import { calendarIcon } from './icons/glyphs/calendar';
 
 /*
  * The day/month/year segments a date is typed into, which only the WebKit
@@ -97,7 +98,7 @@ const empty =
         class="absolute left-2 flex cursor-pointer items-center justify-center rounded-sm p-1 text-ink-subtle transition-colors hover:text-accent"
         (click)="openPicker(dateInput()?.nativeElement)"
       >
-        <app-icon name="calendar" class="size-4" />
+        <app-icon [glyph]="calendarIcon" class="size-4" />
       </button>
       @if (field(); as field) {
         <!-- Inside a Field, which gives it its id and ARIA wiring. -->
@@ -146,6 +147,7 @@ const empty =
   `,
 })
 export class DateField {
+  protected readonly calendarIcon = calendarIcon;
   /** ISO `YYYY-MM-DD`, or null for no date at all. */
   readonly value = input<string | null>(null);
   /** The field the input is the control of, where a form holds the date; an

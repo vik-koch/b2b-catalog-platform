@@ -17,7 +17,7 @@ import {
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { SelectField } from '../../shared/ui/select-field';
 import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
@@ -26,6 +26,10 @@ import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
+import { cropIcon } from '../../shared/ui/icons/glyphs/crop';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { imagePlusIcon } from '../../shared/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
@@ -45,7 +49,7 @@ import { ErrorText } from '../../shared/ui/error-text';
 @Component({
   selector: 'app-product-image-gallery',
   imports: [
-    AdminIcon,
+    Icon,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -89,8 +93,8 @@ import { ErrorText } from '../../shared/ui/error-text';
                 class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
               >
                 <span class="p-1.5 inline-flex text-white/70 md:p-1">
-                  <app-admin-icon
-                    name="grip-vertical"
+                  <app-icon
+                    [glyph]="gripVerticalIcon"
                     class="size-5 md:size-4"
                   />
                 </span>
@@ -103,7 +107,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                     [disabled]="uploading()"
                     (click)="reframe(image)"
                   >
-                    <app-admin-icon name="crop" class="size-5 md:size-4" />
+                    <app-icon [glyph]="cropIcon" class="size-5 md:size-4" />
                   </button>
                   <button
                     type="button"
@@ -111,7 +115,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                     [attr.aria-label]="actionText.remove"
                     (click)="remove($index)"
                   >
-                    <app-admin-icon name="trash-2" class="size-5 md:size-4" />
+                    <app-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
                   </button>
                 </span>
               </div>
@@ -162,7 +166,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             (click)="fileInput.click()"
             (filesReceived)="upload($event)"
           >
-            <app-admin-icon name="image-plus" class="size-6" />
+            <app-icon [glyph]="imagePlusIcon" class="size-6" />
             <span class="text-xs">
               {{ uploading() ? adminText.upload.progress : text.add }}
             </span>
@@ -181,6 +185,10 @@ import { ErrorText } from '../../shared/ui/error-text';
   `,
 })
 export class ProductImageGallery {
+  protected readonly cropIcon = cropIcon;
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly imagePlusIcon = imagePlusIcon;
+  protected readonly trash2Icon = trash2Icon;
   private readonly media = inject(MediaService);
   private readonly framer = inject(ImageFramerService);
   protected readonly text = inject(ADMIN_TEXT).products.editor.images;

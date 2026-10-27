@@ -2,6 +2,11 @@ import { Component, computed, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { DiscButton } from '../ui/disc-button';
 import { Icon } from '../ui/icons/icon';
+import { bookCheckIcon } from '../ui/icons/glyphs/book-check';
+import { bookDashedIcon } from '../ui/icons/glyphs/book-dashed';
+import { funnelIcon } from '../ui/icons/glyphs/funnel';
+import { pencilIcon } from '../ui/icons/glyphs/pencil';
+import { tableIcon } from '../ui/icons/glyphs/table';
 
 /**
  * Where a cluster sits, and how big it is there:
@@ -70,7 +75,7 @@ export const EDIT_ACTIONS_INSET = 'pr-30';
           [attr.aria-label]="listLabel()"
           [attr.title]="listLabel()"
         >
-          <app-icon name="table" [class]="style().icon" />
+          <app-icon [glyph]="tableIcon" [class]="style().icon" />
         </a>
       }
       @if (editLink(); as link) {
@@ -82,7 +87,7 @@ export const EDIT_ACTIONS_INSET = 'pr-30';
           [attr.aria-label]="editLabel()"
           [attr.title]="editLabel()"
         >
-          <app-icon name="pencil" [class]="style().icon" />
+          <app-icon [glyph]="pencilIcon" [class]="style().icon" />
         </a>
       }
       @if (filtersLink(); as link) {
@@ -94,7 +99,7 @@ export const EDIT_ACTIONS_INSET = 'pr-30';
           [attr.aria-label]="filtersLabel()"
           [attr.title]="filtersLabel()"
         >
-          <app-icon name="funnel" [class]="style().icon" />
+          <app-icon [glyph]="funnelIcon" [class]="style().icon" />
         </a>
       }
       @if (publishLabel(); as label) {
@@ -107,7 +112,7 @@ export const EDIT_ACTIONS_INSET = 'pr-30';
           (click)="togglePublished.emit()"
         >
           <app-icon
-            [name]="published() ? 'book-dashed' : 'book-check'"
+            [glyph]="published() ? bookDashedIcon : bookCheckIcon"
             [class]="style().icon"
           />
         </button>
@@ -116,6 +121,11 @@ export const EDIT_ACTIONS_INSET = 'pr-30';
   `,
 })
 export class EditActions {
+  protected readonly bookCheckIcon = bookCheckIcon;
+  protected readonly bookDashedIcon = bookDashedIcon;
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly tableIcon = tableIcon;
   readonly variant = input<keyof typeof variants>('page');
   /** The admin product list narrowed to what this page shows — the way back
    * from the storefront that a product's name in the list is the way out. */

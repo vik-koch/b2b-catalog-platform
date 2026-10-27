@@ -21,6 +21,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { FeaturedRowService } from './featured-row.service';
+import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
 
 /**
  * One card width at every window width: a listing's column, 15rem, which is
@@ -76,7 +77,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     [attr.aria-controls]="trackId"
                     (click)="page(-1)"
                   >
-                    <app-icon name="chevron-right" class="rotate-180" />
+                    <app-icon [glyph]="chevronRightIcon" class="rotate-180" />
                   </button>
                   <button
                     appIconButton
@@ -87,7 +88,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     [attr.aria-controls]="trackId"
                     (click)="page(1)"
                   >
-                    <app-icon name="chevron-right" />
+                    <app-icon [glyph]="chevronRightIcon" />
                   </button>
                 </div>
               }
@@ -145,6 +146,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
   `,
 })
 export class FeaturedRow {
+  protected readonly chevronRightIcon = chevronRightIcon;
   private readonly featured = inject(FeaturedRowService);
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
   protected readonly text = inject(STOREFRONT_TEXT).home.featured;

@@ -10,11 +10,12 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPhone } from '../../shared/core/contact-fields';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { adminMomentFormat } from '../grid/admin-date';
 import { RecordRow } from '../records/record-row';
+import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
 
 /**
  * Consent records as evidence reads them (NFR-LEGAL-09): what was consented
@@ -25,7 +26,7 @@ import { RecordRow } from '../records/record-row';
  */
 @Component({
   selector: 'app-consent-record-list',
-  imports: [RouterLink, AdminIcon, IconButton, Link, RecordRow, StatusBadge],
+  imports: [RouterLink, Icon, IconButton, Link, RecordRow, StatusBadge],
   template: `
     <div class="divide-y divide-edge border-y border-edge">
       @for (record of records(); track record.id) {
@@ -88,7 +89,7 @@ import { RecordRow } from '../records/record-row';
                   [title]="text.withdraw"
                   (click)="withdraw.emit(record)"
                 >
-                  <app-admin-icon name="circle-slash" />
+                  <app-icon [glyph]="circleSlashIcon" />
                 </button>
               }
             </ng-container>
@@ -99,6 +100,7 @@ import { RecordRow } from '../records/record-row';
   `,
 })
 export class ConsentRecordList {
+  protected readonly circleSlashIcon = circleSlashIcon;
   readonly records = input.required<readonly ConsentRecord[]>();
   /** Whether each record names its account, with a link to it. */
   readonly showAccount = input(true);

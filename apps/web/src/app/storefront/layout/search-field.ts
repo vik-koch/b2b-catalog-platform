@@ -45,6 +45,11 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { FRAME } from '../../shared/ui/frame';
 import { Icon } from '../../shared/ui/icons/icon';
 import { WarningNote } from '../../shared/ui/warning-note';
+import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { searchIcon } from '../../shared/ui/icons/glyphs/search';
+import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */
@@ -129,7 +134,7 @@ let nextId = 0;
           <!-- Leading glyph: a label for the field rather than a control, so it
                is muted and takes no pointer events. -->
           <app-icon
-            name="search"
+            [glyph]="searchIcon"
             class="pointer-events-none absolute left-2.5 size-4 text-ink-subtle"
           />
           <input
@@ -162,7 +167,7 @@ let nextId = 0;
               class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-ink-subtle transition-colors hover:text-accent active:text-primary-press"
               (click)="clear()"
             >
-              <app-icon name="close" class="size-4" />
+              <app-icon [glyph]="xIcon" class="size-4" />
               <span class="sr-only">{{ text.clearAria }}</span>
             </button>
           }
@@ -231,7 +236,10 @@ let nextId = 0;
                           [disabled]="!stripBack()"
                           (click)="pageStrip(-1)"
                         >
-                          <app-icon name="chevron-right" class="rotate-180" />
+                          <app-icon
+                            [glyph]="chevronRightIcon"
+                            class="rotate-180"
+                          />
                         </button>
                         <button
                           appIconButton
@@ -242,7 +250,7 @@ let nextId = 0;
                           [disabled]="!stripForward()"
                           (click)="pageStrip(1)"
                         >
-                          <app-icon name="chevron-right" />
+                          <app-icon [glyph]="chevronRightIcon" />
                         </button>
                       </span>
                     }
@@ -381,7 +389,7 @@ let nextId = 0;
                           [attr.aria-label]="inCartLabel(item)"
                           [class]="addBox + ' ' + addedMark"
                         >
-                          <app-icon name="circle-check" class="size-4" />
+                          <app-icon [glyph]="circleCheckIcon" class="size-4" />
                         </span>
                       } @else {
                         <!-- Out of the tab order: the caret stays in the field
@@ -398,7 +406,10 @@ let nextId = 0;
                           [disabled]="item.availability === 'out'"
                           (click)="add(item)"
                         >
-                          <app-icon name="shopping-basket" class="size-4" />
+                          <app-icon
+                            [glyph]="shoppingBasketIcon"
+                            class="size-4"
+                          />
                         </button>
                       }
                     </div>
@@ -424,7 +435,7 @@ let nextId = 0;
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}
-                <app-icon name="chevron-right" class="size-4" />
+                <app-icon [glyph]="chevronRightIcon" class="size-4" />
               </button>
             }
           </div>
@@ -448,6 +459,11 @@ let nextId = 0;
   `,
 })
 export class SearchField {
+  protected readonly chevronRightIcon = chevronRightIcon;
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly searchIcon = searchIcon;
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
+  protected readonly xIcon = xIcon;
   private readonly router = inject(Router);
   /** Only to say whether the caret is here — see MobileSearch.active, which the
    * bottom bar's search tab is lit from. */

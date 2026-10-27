@@ -21,12 +21,15 @@ import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { PriceField } from '../../shared/ui/price-field';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
+import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
+import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -79,7 +82,7 @@ export interface AdjustLineRow {
 @Component({
   selector: 'app-order-adjust-lines',
   imports: [
-    AdminIcon,
+    Icon,
     FieldLabel,
     HighlightedLine,
     IconButton,
@@ -197,7 +200,7 @@ export interface AdjustLineRow {
                   [attr.aria-label]="moveLabel(line, text.moveUpAria)"
                   (click)="moved.emit({ from: i, to: i - 1 })"
                 >
-                  <app-admin-icon name="chevron-up" />
+                  <app-icon [glyph]="chevronUpIcon" />
                 </button>
                 <button
                   appIconButton
@@ -206,7 +209,7 @@ export interface AdjustLineRow {
                   [attr.aria-label]="moveLabel(line, text.moveDownAria)"
                   (click)="moved.emit({ from: i, to: i + 1 })"
                 >
-                  <app-admin-icon name="chevron-down" />
+                  <app-icon [glyph]="chevronDownIcon" />
                 </button>
                 <button
                   appIconButton
@@ -215,7 +218,7 @@ export interface AdjustLineRow {
                   [attr.aria-label]="removeLabel(line)"
                   (click)="removed.emit(i)"
                 >
-                  <app-admin-icon name="x" />
+                  <app-icon [glyph]="xIcon" />
                 </button>
               </span>
             </span>
@@ -289,6 +292,9 @@ export interface AdjustLineRow {
   `,
 })
 export class OrderAdjustLines {
+  protected readonly chevronDownIcon = chevronDownIcon;
+  protected readonly chevronUpIcon = chevronUpIcon;
+  protected readonly xIcon = xIcon;
   private readonly catalog = inject(AdminCatalogService);
   protected readonly text = inject(ADMIN_TEXT).orders.adjust.lines;
   protected readonly products = inject(ADMIN_TEXT).products;

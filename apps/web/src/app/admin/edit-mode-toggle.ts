@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { adminText } from '../shared/config/admin-text';
 import { Icon } from '../shared/ui/icons/icon';
 import { EditModeService } from '../shared/edit-mode/edit-mode.service';
+import { pencilIcon } from '../shared/ui/icons/glyphs/pencil';
 
 /**
  * A floating, admin-only toggle for storefront edit mode (FR-ADM-01). Renders
@@ -58,13 +59,14 @@ import { EditModeService } from '../shared/edit-mode/edit-mode.service';
         [attr.aria-pressed]="editMode.enabled()"
         (click)="editMode.toggle()"
       >
-        <app-icon name="pencil" class="size-4" />
+        <app-icon [glyph]="pencilIcon" class="size-4" />
         {{ editMode.enabled() ? text.editMode.disable : text.editMode.enable }}
       </button>
     }
   `,
 })
 export class EditModeToggle {
+  protected readonly pencilIcon = pencilIcon;
   protected readonly editMode = inject(EditModeService);
   protected readonly text = adminText;
 }

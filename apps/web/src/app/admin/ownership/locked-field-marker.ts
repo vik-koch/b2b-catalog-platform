@@ -1,7 +1,8 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Popover } from '../../shared/ui/popover';
+import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
 
 /**
  * The mark beside a field an external system owns (FR-ADM-10) — a lock the
@@ -26,7 +27,7 @@ import { Popover } from '../../shared/ui/popover';
  */
 @Component({
   selector: 'app-locked-field-marker',
-  imports: [AdminIcon, Popover],
+  imports: [Icon, Popover],
   host: {
     class: 'relative inline-flex align-middle',
     '[style.display]': "reason() ? null : 'none'",
@@ -39,7 +40,7 @@ import { Popover } from '../../shared/ui/popover';
       [attr.aria-expanded]="open()"
       (click)="open.set(!open())"
     >
-      <app-admin-icon name="lock" class="size-3.5" />
+      <app-icon [glyph]="lockIcon" class="size-3.5" />
     </button>
 
     @if (open()) {
@@ -50,6 +51,7 @@ import { Popover } from '../../shared/ui/popover';
   `,
 })
 export class LockedFieldMarker<T> {
+  protected readonly lockIcon = lockIcon;
   readonly field = input.required<FieldTree<T>>();
 
   protected readonly reason = computed(

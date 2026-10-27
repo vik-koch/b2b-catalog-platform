@@ -1,20 +1,27 @@
 import { Component, inject, input } from '@angular/core';
 import { ProductFeature } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
+import { Glyph } from '../../shared/ui/icons/glyph';
+import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
+import { layers2Icon } from '../../shared/ui/icons/glyphs/layers-2';
+import { messageCircleIcon } from '../../shared/ui/icons/glyphs/message-circle';
+import { packagePlusIcon } from '../../shared/ui/icons/glyphs/package-plus';
+import { paletteIcon } from '../../shared/ui/icons/glyphs/palette';
+import { starIcon } from '../../shared/ui/icons/glyphs/star';
 
 /**
  * One glyph per thing a product can carry (FR-ADM-20), shared by the grid row,
  * the grid's filter chips and the editor's section headings, so each is learnt
  * once. Variants, sets and pairings are the storefront's own glyphs.
  */
-export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
-  featured: 'star',
-  variants: 'palette',
-  note: 'message-circle',
-  set: 'layers-2',
-  pairings: 'package-plus',
-  documents: 'file-text',
+export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, Glyph> = {
+  featured: starIcon,
+  variants: paletteIcon,
+  note: messageCircleIcon,
+  set: layers2Icon,
+  pairings: packagePlusIcon,
+  documents: fileTextIcon,
 };
 
 /**
@@ -24,13 +31,13 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, AdminIconName> = {
  */
 @Component({
   selector: 'app-product-feature-glyphs',
-  imports: [AdminIcon],
+  imports: [Icon],
   template: `
     @if (features().length) {
       <ul class="flex items-center gap-1.5 text-ink-subtle">
         @for (feature of features(); track feature) {
           <li class="flex" [title]="text[feature]">
-            <app-admin-icon [name]="glyphs[feature]" class="size-3.5" />
+            <app-icon [glyph]="glyphs[feature]" class="size-3.5" />
             <span class="sr-only">{{ text[feature] }}</span>
           </li>
         }

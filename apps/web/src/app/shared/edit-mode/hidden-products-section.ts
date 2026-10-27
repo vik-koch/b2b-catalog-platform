@@ -19,12 +19,14 @@ import { PRODUCT_GRID } from '../catalog/product-tile';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { ConfirmService } from '../ui/confirm.service';
-import { AdminIcon } from '../ui/icons/admin-icon';
+import { Icon } from '../ui/icons/icon';
 import { StatusBadge } from '../ui/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';
 import { ErrorText } from '../ui/error-text';
+import { bookCheckIcon } from '../ui/icons/glyphs/book-check';
+import { pencilIcon } from '../ui/icons/glyphs/pencil';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category
@@ -42,7 +44,7 @@ import { ErrorText } from '../ui/error-text';
  */
 @Component({
   selector: 'app-hidden-products-section',
-  imports: [PricePipe, Button, AdminIcon, StatusBadge, RouterLink, ErrorText],
+  imports: [PricePipe, Button, Icon, StatusBadge, RouterLink, ErrorText],
   template: `
     @if (hidden.value(); as items) {
       @if (items.length) {
@@ -112,7 +114,7 @@ import { ErrorText } from '../ui/error-text';
                         [routerLink]="['/admin/products', item.slug, 'edit']"
                         [queryParams]="editorFrom()"
                       >
-                        <app-admin-icon name="pencil" class="size-4" />
+                        <app-icon [glyph]="pencilIcon" class="size-4" />
                         {{ text.editProduct }}
                       </a>
                       <button
@@ -124,7 +126,7 @@ import { ErrorText } from '../ui/error-text';
                         [title]="cannotPublish(item) ? text.unpricedHint : null"
                         (click)="publish(item)"
                       >
-                        <app-admin-icon name="book-check" class="size-4" />
+                        <app-icon [glyph]="bookCheckIcon" class="size-4" />
                         {{ actionLabel(item) }}
                       </button>
                     </div>
@@ -142,6 +144,8 @@ import { ErrorText } from '../ui/error-text';
   `,
 })
 export class HiddenProductsSection {
+  protected readonly bookCheckIcon = bookCheckIcon;
+  protected readonly pencilIcon = pencilIcon;
   private readonly catalog = inject(EDIT_MODE_CATALOG);
   private readonly confirm = inject(ConfirmService);
   /** So the editor's cancel lands back on the page the tile was on. */

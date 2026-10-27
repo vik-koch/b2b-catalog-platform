@@ -8,6 +8,9 @@ import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '../../shared/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { WorkService } from '../../shared/work/work.service';
+import { circleUserRoundDotIcon } from '../../shared/ui/icons/glyphs/circle-user-round-dot';
+import { circleUserRoundIcon } from '../../shared/ui/icons/glyphs/circle-user-round';
+import { userIcon } from '../../shared/ui/icons/glyphs/user';
 
 /**
  * The account control in the main navbar — one control for every role, and a
@@ -59,19 +62,19 @@ import { WorkService } from '../../shared/work/work.service';
           [class.opacity-0]="signedOut()"
         >
           <app-icon
-            name="circle-user-round"
+            [glyph]="circleUserRoundIcon"
             class="col-start-1 row-start-1 size-6 transition-opacity duration-200"
             [class.opacity-0]="waiting()"
           />
           <app-icon
-            name="circle-user-round-dot"
+            [glyph]="circleUserRoundDotIcon"
             class="col-start-1 row-start-1 size-6 transition-opacity duration-200"
             [class.opacity-0]="!waiting()"
           />
         </span>
         <app-icon
           data-session="anonymous"
-          name="user"
+          [glyph]="userIcon"
           class="col-start-1 row-start-1 size-6 transition-opacity delay-300 duration-200"
           [class.opacity-0]="!signedOut()"
         />
@@ -135,6 +138,9 @@ import { WorkService } from '../../shared/work/work.service';
   `,
 })
 export class AccountLink {
+  protected readonly circleUserRoundDotIcon = circleUserRoundDotIcon;
+  protected readonly circleUserRoundIcon = circleUserRoundIcon;
+  protected readonly userIcon = userIcon;
   /** Which of the two navbars is drawing this control. */
   readonly variant = input<NavVariant>('bar');
   protected readonly cls = computed(() => navActionClasses(this.variant()));

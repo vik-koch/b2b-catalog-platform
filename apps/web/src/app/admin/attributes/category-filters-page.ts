@@ -25,7 +25,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
@@ -36,6 +36,9 @@ import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -78,7 +81,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
     Button,
     Checkbox,
     IconButton,
-    AdminIcon,
+    Icon,
     RecordRow,
     Skeleton,
     Link,
@@ -190,7 +193,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                         [attr.aria-label]="text.reorder"
                         [title]="text.reorder"
                       >
-                        <app-admin-icon name="grip-vertical" />
+                        <app-icon [glyph]="gripVerticalIcon" />
                       </span>
                     </app-record-row>
                   </li>
@@ -212,7 +215,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 [disabled]="busy()"
                 (click)="save()"
               >
-                <app-admin-icon name="save" class="size-4" />
+                <app-icon [glyph]="saveIcon" class="size-4" />
                 {{ busy() ? actionText.saving : text.save }}
               </button>
               <button
@@ -223,7 +226,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                 [disabled]="busy()"
                 (click)="cancel()"
               >
-                <app-admin-icon name="x" class="size-4" />
+                <app-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {
@@ -262,6 +265,9 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
   `,
 })
 export class CategoryFiltersPage {
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   /** Back where the panel was opened from — the grid, or the category list. */

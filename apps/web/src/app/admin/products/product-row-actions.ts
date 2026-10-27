@@ -2,11 +2,16 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { bookCheckIcon } from '../../shared/ui/icons/glyphs/book-check';
+import { bookDashedIcon } from '../../shared/ui/icons/glyphs/book-dashed';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -38,7 +43,7 @@ export interface ProductRowState {
  */
 @Component({
   selector: 'app-product-row-actions',
-  imports: [RouterLink, AdminIcon, IconButton],
+  imports: [RouterLink, Icon, IconButton],
   host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
     <a
@@ -48,7 +53,7 @@ export interface ProductRowState {
       [attr.aria-label]="editText.editProduct"
       [title]="editText.editProduct"
     >
-      <app-admin-icon name="pencil" />
+      <app-icon [glyph]="pencilIcon" />
     </a>
 
     <!-- Three fixed places, so a column of rows reads as one grid: edit,
@@ -66,7 +71,7 @@ export interface ProductRowState {
         [title]="adminText.actions.restore"
         (click)="onRestoreClick()"
       >
-        <app-admin-icon name="rotate-ccw" />
+        <app-icon [glyph]="rotateCcwIcon" />
       </button>
       <!-- On every deleted row, since the deleted state offers this step.
            Where this product cannot take it — somebody ordered it, or the
@@ -82,11 +87,11 @@ export interface ProductRowState {
         [title]="purgeRefusal() ?? editText.purgeProduct"
         (click)="onPurgeClick()"
       >
-        <app-admin-icon name="trash-2" />
+        <app-icon [glyph]="trash2Icon" />
       </button>
     } @else if (product().publishedAt) {
       <span appIconButton class="invisible" aria-hidden="true">
-        <app-admin-icon name="book-check" />
+        <app-icon [glyph]="bookCheckIcon" />
       </span>
       <button
         type="button"
@@ -96,7 +101,7 @@ export interface ProductRowState {
         [title]="editText.unpublishProduct"
         (click)="publishToggled.emit(product())"
       >
-        <app-admin-icon name="book-dashed" />
+        <app-icon [glyph]="bookDashedIcon" />
       </button>
     } @else {
       <!-- Present and live on a product nothing prices: it explains instead of
@@ -111,7 +116,7 @@ export interface ProductRowState {
         "
         (click)="onPublishClick()"
       >
-        <app-admin-icon name="book-check" />
+        <app-icon [glyph]="bookCheckIcon" />
       </button>
       <button
         type="button"
@@ -122,12 +127,17 @@ export interface ProductRowState {
         [title]="editText.deleteProduct"
         (click)="deleteRequested.emit(product())"
       >
-        <app-admin-icon name="trash-2" />
+        <app-icon [glyph]="trash2Icon" />
       </button>
     }
   `,
 })
 export class ProductRowActions {
+  protected readonly bookCheckIcon = bookCheckIcon;
+  protected readonly bookDashedIcon = bookDashedIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly rotateCcwIcon = rotateCcwIcon;
+  protected readonly trash2Icon = trash2Icon;
   private readonly confirm = inject(ConfirmService);
   private readonly settings = inject(SettingsService);
   protected readonly adminText = inject(ADMIN_TEXT);

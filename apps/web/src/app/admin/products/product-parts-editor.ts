@@ -25,10 +25,11 @@ import {
 } from '../../shared/ui/disclosure-toggle';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { ErrorText } from '../../shared/ui/error-text';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -50,7 +51,7 @@ let nextId = 0;
 @Component({
   selector: 'app-product-parts-editor',
   imports: [
-    AdminIcon,
+    Icon,
     Button,
     DisclosureToggle,
     FieldLabel,
@@ -72,9 +73,9 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-admin-icon
+        <app-icon
           disclosureLead
-          [name]="glyph"
+          [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
@@ -93,7 +94,7 @@ let nextId = 0;
                     [attr.aria-label]="removeLabel(part)"
                     (click)="remove(part)"
                   >
-                    <app-admin-icon name="x" />
+                    <app-icon [glyph]="xIcon" />
                   </button>
                 </li>
               }
@@ -142,6 +143,7 @@ let nextId = 0;
   `,
 })
 export class ProductPartsEditor implements OnInit {
+  protected readonly xIcon = xIcon;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);
