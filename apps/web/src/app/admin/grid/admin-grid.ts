@@ -22,7 +22,7 @@ import {
 } from '../../shared/core/narrow-screen';
 import { IconButton } from '../../shared/ui/icon-button';
 import { TextButton } from '../../shared/ui/text-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import {
   columnMinWidth,
   flexibleColumns,
@@ -39,6 +39,7 @@ import { GridSortHeader } from './grid-sort-header';
 import { GridCardTemplate } from './grid-card-template';
 import { GridRowTemplate } from './grid-row-template';
 import { GridWidths, GridWidthsStore } from './grid-widths';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** How far one press of an arrow key moves a column boundary. Coarse enough to
  * be worth pressing, fine enough to land on a width. */
@@ -79,7 +80,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
   imports: [
     NgTemplateOutlet,
     RouterLink,
-    AdminIcon,
+    Icon,
     IconButton,
     TextButton,
     GridSortHeader,
@@ -157,7 +158,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                 queryParamsHandling="merge"
                 [attr.aria-label]="chip.clearLabel"
               >
-                <app-admin-icon name="x" />
+                <app-icon [glyph]="xIcon" />
               </a>
             </li>
           }
@@ -297,6 +298,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
   `,
 })
 export class AdminGrid<T> {
+  protected readonly xIcon = xIcon;
   private readonly store = inject(GridWidthsStore);
   protected readonly adminText = inject(ADMIN_TEXT);
 

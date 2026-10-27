@@ -27,7 +27,7 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -46,6 +46,12 @@ import {
 } from './category-tree';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,
@@ -86,7 +92,7 @@ const EDGE_SLACK = 24;
     RouterLink,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     Link,
     RecordRow,
     CategoryDeleteDialog,
@@ -135,7 +141,7 @@ const EDGE_SLACK = 24;
           [queryParams]="editorFrom()"
           class="gap-2"
         >
-          <app-admin-icon name="funnel" class="size-4" />
+          <app-icon [glyph]="funnelIcon" class="size-4" />
           {{ text.catalogFilters }}
         </a>
         <a
@@ -144,7 +150,7 @@ const EDGE_SLACK = 24;
           [queryParams]="editorFrom()"
           class="gap-2"
         >
-          <app-admin-icon name="plus" class="size-4" />
+          <app-icon [glyph]="plusIcon" class="size-4" />
           {{ text.add }}
         </a>
       </div>
@@ -171,7 +177,7 @@ const EDGE_SLACK = 24;
           [title]="text.undo"
           (click)="undo()"
         >
-          <app-admin-icon name="rotate-ccw" />
+          <app-icon [glyph]="rotateCcwIcon" />
         </button>
       </div>
 
@@ -226,7 +232,7 @@ const EDGE_SLACK = 24;
                         [attr.aria-label]="adminText.actions.reorder"
                         [title]="adminText.actions.reorder"
                       >
-                        <app-admin-icon name="grip-vertical" />
+                        <app-icon [glyph]="gripVerticalIcon" />
                       </span>
                       <!-- The whole line, and it wraps: a category's name is
                            written for the shelf it heads, not for this list,
@@ -313,7 +319,7 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="text.addChild"
                           [title]="text.addChild"
                         >
-                          <app-admin-icon name="plus" />
+                          <app-icon [glyph]="plusIcon" />
                         </a>
                         <a
                           appIconButton
@@ -326,7 +332,7 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="text.editFilters"
                           [title]="text.editFilters"
                         >
-                          <app-admin-icon name="funnel" />
+                          <app-icon [glyph]="funnelIcon" />
                         </a>
                         <a
                           appIconButton
@@ -339,7 +345,7 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="adminText.actions.edit"
                           [title]="adminText.actions.edit"
                         >
-                          <app-admin-icon name="pencil" />
+                          <app-icon [glyph]="pencilIcon" />
                         </a>
                         <button
                           appIconButton
@@ -349,7 +355,7 @@ const EDGE_SLACK = 24;
                           [title]="adminText.actions.delete"
                           (click)="deletingCategory.set(node.category)"
                         >
-                          <app-admin-icon name="trash-2" />
+                          <app-icon [glyph]="trash2Icon" />
                         </button>
                       </ng-container>
                     </app-record-row>
@@ -388,6 +394,12 @@ const EDGE_SLACK = 24;
   `,
 })
 export class CategoryListPage {
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly rotateCcwIcon = rotateCcwIcon;
+  protected readonly trash2Icon = trash2Icon;
   private readonly admin = inject(AdminCatalogService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).categories.list;

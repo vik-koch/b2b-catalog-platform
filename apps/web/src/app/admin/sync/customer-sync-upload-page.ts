@@ -18,7 +18,7 @@ import { ChoiceCard } from '../../shared/ui/choice-card';
 import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { SettingsService } from '../settings/settings.service';
 import {
@@ -31,6 +31,7 @@ import { SyncService } from './sync.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick
@@ -52,7 +53,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
 @Component({
   selector: 'app-customer-sync-page',
   imports: [
-    AdminIcon,
+    Icon,
     Button,
     Checkbox,
     ChoiceCard,
@@ -154,7 +155,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             (click)="openPicker(fileInput)"
             (filesReceived)="setFile($event[0])"
           >
-            <app-admin-icon name="upload" class="size-6 mb-2" />
+            <app-icon [glyph]="uploadIcon" class="size-6 mb-2" />
             @if (file(); as chosen) {
               <span class="font-medium">{{ chosen.name }}</span>
               <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
@@ -223,6 +224,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
   `,
 })
 export class CustomerSyncUploadPage {
+  protected readonly uploadIcon = uploadIcon;
   private readonly sync = inject(SyncService);
   private readonly ownership = inject(SettingsService);
   protected readonly text = inject(ADMIN_TEXT).sync;

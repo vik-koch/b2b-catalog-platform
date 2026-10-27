@@ -78,7 +78,7 @@ import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { NumericField } from '../../shared/ui/numeric-field';
@@ -116,6 +116,11 @@ import {
 } from '../../shared/ui/unit-field';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { eyeIcon } from '../../shared/ui/icons/glyphs/eye';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 interface ProductDraft {
   name: string;
@@ -147,7 +152,7 @@ interface ProductDraft {
     FORM_FIELDS,
     LockedNote,
     Button,
-    AdminIcon,
+    Icon,
     RichTextEditor,
     NumericField,
     PercentField,
@@ -611,7 +616,7 @@ interface ProductDraft {
             [disabled]="saving()"
             (click)="save()"
           >
-            <app-admin-icon name="save" class="size-4" />
+            <app-icon [glyph]="saveIcon" class="size-4" />
             {{ saving() ? actionText.saving : saveLabel() }}
           </button>
         }
@@ -632,7 +637,7 @@ interface ProductDraft {
             [disabled]="saving()"
             (click)="save(true)"
           >
-            <app-admin-icon name="circle-check" class="size-4" />
+            <app-icon [glyph]="circleCheckIcon" class="size-4" />
             {{ text.saveAndPublish }}
           </button>
         }
@@ -644,8 +649,8 @@ interface ProductDraft {
             class="gap-2"
             (click)="previewing.set(!previewing())"
           >
-            <app-admin-icon
-              [name]="previewing() ? 'pencil' : 'eye'"
+            <app-icon
+              [glyph]="previewing() ? pencilIcon : eyeIcon"
               class="size-4"
             />
             {{
@@ -662,7 +667,7 @@ interface ProductDraft {
           class="gap-2"
           (click)="cancel()"
         >
-          <app-admin-icon name="x" class="size-4" />
+          <app-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
         <!-- Cancel puts the admin back where they came from, which for an
@@ -679,7 +684,7 @@ interface ProductDraft {
             class="gap-2"
             (click)="cancelToPage()"
           >
-            <app-admin-icon name="eye" class="size-4" />
+            <app-icon [glyph]="eyeIcon" class="size-4" />
             {{ text.cancelToPage }}
           </button>
         }
@@ -688,6 +693,11 @@ interface ProductDraft {
   `,
 })
 export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly eyeIcon = eyeIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(AdminCatalogService);
   private readonly tiersService = inject(TiersService);
   private readonly attributesService = inject(AttributesService);

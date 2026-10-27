@@ -22,6 +22,7 @@ import { Icon } from '../../shared/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
 import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
+import { funnelXIcon } from '../../shared/ui/icons/glyphs/funnel-x';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;
@@ -298,7 +299,7 @@ export const FACET_SIBLING_ALONE =
           [title]="text.clearAll"
           (click)="selection.clearAll()"
         >
-          <app-icon name="funnel-x" />
+          <app-icon [glyph]="funnelXIcon" />
         </button>
       } @else {
         <button
@@ -310,13 +311,14 @@ export const FACET_SIBLING_ALONE =
           [attr.aria-label]="text.clearAll"
           [title]="text.clearAll"
         >
-          <app-icon name="funnel-x" />
+          <app-icon [glyph]="funnelXIcon" />
         </button>
       }
     </ng-template>
   `,
 })
 export class FacetPanel {
+  protected readonly funnelXIcon = funnelXIcon;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   protected readonly selection = inject(FacetSelection);

@@ -1,4 +1,5 @@
 import { computed, Directive, input } from '@angular/core';
+import { pencilIcon } from './icons/glyphs/pencil';
 
 // See Button for the cursor, focus-outline and select-none reasoning.
 const base =
@@ -62,7 +63,7 @@ const variants = {
  * so links and actions look identical, keeping their native semantics and
  * router integration.
  *
- *   <a appIconButton routerLink="…"><app-icon name="pencil" /></a>
+ *   <a appIconButton routerLink="…"><app-icon [glyph]="pencilIcon" /></a>
  *   <button appIconButton variant="danger" (click)="…">…</button>
  *
  * The glyph needs no size of its own — see the sizes above. For the disc laid
@@ -73,6 +74,7 @@ const variants = {
   host: { '[class]': 'classes()' },
 })
 export class IconButton {
+  protected readonly pencilIcon = pencilIcon;
   variant = input<keyof typeof variants>('default');
   size = input<keyof typeof sizes>('sm');
 

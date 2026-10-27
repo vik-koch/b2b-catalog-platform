@@ -12,7 +12,7 @@ import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { SHARED_TEXT } from '../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
-import { AdminIcon } from '../shared/ui/icons/admin-icon';
+import { Icon } from '../shared/ui/icons/icon';
 import { StatusBadge } from '../shared/ui/status-badge';
 import { WorkNote } from '../shared/work/work-note';
 import { WorkService } from '../shared/work/work.service';
@@ -23,6 +23,14 @@ import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';
 import { PageTitle } from '../shared/ui/page-title';
+import { bookCheckIcon } from '../shared/ui/icons/glyphs/book-check';
+import { clipboardListIcon } from '../shared/ui/icons/glyphs/clipboard-list';
+import { fileTextIcon } from '../shared/ui/icons/glyphs/file-text';
+import { funnelIcon } from '../shared/ui/icons/glyphs/funnel';
+import { lockIcon } from '../shared/ui/icons/glyphs/lock';
+import { packageIcon } from '../shared/ui/icons/glyphs/package';
+import { usersIcon } from '../shared/ui/icons/glyphs/users';
+import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -33,7 +41,7 @@ import { PageTitle } from '../shared/ui/page-title';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, AdminIcon, PanelRow, StatusBadge, WorkNote, PageTitle],
+  imports: [SignedInAs, Icon, PanelRow, StatusBadge, WorkNote, PageTitle],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
@@ -70,7 +78,7 @@ import { PageTitle } from '../shared/ui/page-title';
                catalog. -->
           <section class="order-1 md:order-0">
             <h2 id="admin-orders-heading" [class]="headingClass">
-              <app-admin-icon name="clipboard-list" class="size-4" />
+              <app-icon [glyph]="clipboardListIcon" class="size-4" />
               {{ panelText.orders }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
@@ -124,7 +132,7 @@ import { PageTitle } from '../shared/ui/page-title';
                  button underneath. -->
             <section class="order-3 md:order-0">
               <h2 id="admin-catalog-heading" [class]="headingClass">
-                <app-admin-icon name="package" class="size-4" />
+                <app-icon [glyph]="packageIcon" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
@@ -217,7 +225,7 @@ import { PageTitle } from '../shared/ui/page-title';
                  storefront edit mode happens to be on. -->
             <section class="order-5 md:order-0">
               <h2 id="admin-pages-heading" [class]="headingClass">
-                <app-admin-icon name="file-text" class="size-4" />
+                <app-icon [glyph]="fileTextIcon" class="size-4" />
                 {{ panelText.pages }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-pages-heading">
@@ -237,7 +245,7 @@ import { PageTitle } from '../shared/ui/page-title';
                and last of all on a phone. -->
           <section class="order-8 md:order-0">
             <h2 id="admin-security-heading" [class]="headingClass">
-              <app-admin-icon name="lock" class="size-4" />
+              <app-icon [glyph]="lockIcon" class="size-4" />
               {{ panelText.securityHeading }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-security-heading">
@@ -256,7 +264,7 @@ import { PageTitle } from '../shared/ui/page-title';
                already approved. -->
           <section class="order-2 md:order-0">
             <h2 id="admin-accounts-heading" [class]="headingClass">
-              <app-admin-icon name="users" class="size-4" />
+              <app-icon [glyph]="usersIcon" class="size-4" />
               {{ panelText.accounts }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
@@ -311,7 +319,7 @@ import { PageTitle } from '../shared/ui/page-title';
                  same thing twice. -->
             <section class="order-4 md:order-0">
               <h2 id="admin-registries-heading" [class]="headingClass">
-                <app-admin-icon name="funnel" class="size-4" />
+                <app-icon [glyph]="funnelIcon" class="size-4" />
                 {{ panelText.registries }}
               </h2>
               <ul
@@ -340,7 +348,7 @@ import { PageTitle } from '../shared/ui/page-title';
             @if (consentPurposes.length > 0) {
               <section class="order-6 md:order-0">
                 <h2 id="admin-consents-heading" [class]="headingClass">
-                  <app-admin-icon name="book-check" class="size-4" />
+                  <app-icon [glyph]="bookCheckIcon" class="size-4" />
                   {{ consentText.page.title }}
                 </h2>
                 <ul
@@ -369,7 +377,7 @@ import { PageTitle } from '../shared/ui/page-title';
                  history to sit above. -->
             <section class="order-7 md:order-0">
               <h2 id="admin-operations-heading" [class]="headingClass">
-                <app-admin-icon name="wrench" class="size-4" />
+                <app-icon [glyph]="wrenchIcon" class="size-4" />
                 {{ panelText.operations }}
               </h2>
               <ul
@@ -439,6 +447,14 @@ import { PageTitle } from '../shared/ui/page-title';
   `,
 })
 export class AdminPanelPage {
+  protected readonly bookCheckIcon = bookCheckIcon;
+  protected readonly clipboardListIcon = clipboardListIcon;
+  protected readonly fileTextIcon = fileTextIcon;
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly lockIcon = lockIcon;
+  protected readonly packageIcon = packageIcon;
+  protected readonly usersIcon = usersIcon;
+  protected readonly wrenchIcon = wrenchIcon;
   private readonly sync = inject(SyncService);
   private readonly build = inject(BuildInfoService);
   private readonly auth = inject(AuthService);

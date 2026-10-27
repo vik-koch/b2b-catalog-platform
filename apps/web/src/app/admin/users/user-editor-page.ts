@@ -31,7 +31,7 @@ import { CompanyFields } from '../../shared/parties/company-fields';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { PhoneInput } from '../../shared/ui/phone-input';
-import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
@@ -45,6 +45,11 @@ import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { Glyph } from '../../shared/ui/icons/glyph';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { sendIcon } from '../../shared/ui/icons/glyphs/send';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 interface UserDraft {
   email: string;
@@ -83,7 +88,7 @@ interface UserDraft {
     FORM_FIELDS,
     LockedNote,
     Button,
-    AdminIcon,
+    Icon,
     CompanyFields,
     Input,
     PhoneInput,
@@ -164,7 +169,7 @@ interface UserDraft {
             class="gap-2"
             (click)="cancel()"
           >
-            <app-admin-icon name="x" class="size-4" />
+            <app-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         } @else {
@@ -344,7 +349,7 @@ interface UserDraft {
                   class="gap-2"
                   [disabled]="saving()"
                 >
-                  <app-admin-icon [name]="submitIcon()" class="size-4" />
+                  <app-icon [glyph]="submitIcon()" class="size-4" />
                   {{ saving() ? actionText.saving : submitLabel() }}
                 </button>
                 <!-- On a pending account the primary button approves, which is a
@@ -359,7 +364,7 @@ interface UserDraft {
                     [disabled]="saving()"
                     (click)="submit(false)"
                   >
-                    <app-admin-icon name="save" class="size-4" />
+                    <app-icon [glyph]="saveIcon" class="size-4" />
                     {{ adminText.actions.save }}
                   </button>
                 }
@@ -376,7 +381,7 @@ interface UserDraft {
                   [disabled]="saving()"
                   (click)="sendPasswordLink()"
                 >
-                  <app-admin-icon name="send" class="size-4" />
+                  <app-icon [glyph]="sendIcon" class="size-4" />
                   {{ text.resend }}
                 </button>
               }
@@ -387,7 +392,7 @@ interface UserDraft {
                 class="gap-2"
                 (click)="cancel()"
               >
-                <app-admin-icon name="x" class="size-4" />
+                <app-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
             </div>
@@ -398,6 +403,9 @@ interface UserDraft {
   `,
 })
 export class UserEditorPage implements UnsavedChangesAware {
+  protected readonly saveIcon = saveIcon;
+  protected readonly sendIcon = sendIcon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(StaffUsersService);
   private readonly tiersService = inject(TiersService);
   private readonly route = inject(ActivatedRoute);
@@ -601,8 +609,8 @@ export class UserEditorPage implements UnsavedChangesAware {
     return this.isApproval() ? this.text.approve : this.adminText.actions.save;
   });
 
-  protected readonly submitIcon = computed<AdminIconName>(() =>
-    this.isApproval() ? 'circle-check' : 'save',
+  protected readonly submitIcon = computed<Glyph>(() =>
+    this.isApproval() ? circleCheckIcon : saveIcon,
   );
 
   private readonly dateFormat = new Intl.DateTimeFormat(this.config.locale, {

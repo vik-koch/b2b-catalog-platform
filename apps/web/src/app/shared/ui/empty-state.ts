@@ -1,5 +1,6 @@
 import { Component, input } from '@angular/core';
-import { Icon, IconName } from './icons/icon';
+import { Icon } from './icons/icon';
+import { Glyph } from './icons/glyph';
 
 /**
  * The panel a screen draws when there is nothing on it — an empty cart, an
@@ -26,7 +27,7 @@ import { Icon, IconName } from './icons/icon';
       class="flex flex-col items-center rounded-lg border border-edge px-6 py-12 text-center"
     >
       <app-icon
-        [name]="icon()"
+        [glyph]="icon()"
         class="size-10"
         [class]="tone() === 'positive' ? 'text-primary' : 'text-ink-subtle'"
       />
@@ -49,7 +50,7 @@ import { Icon, IconName } from './icons/icon';
   `,
 })
 export class EmptyState {
-  readonly icon = input.required<IconName>();
+  readonly icon = input.required<Glyph>();
   /** Optional: the page's own `h1` usually says it already. */
   readonly heading = input('');
   readonly message = input.required<string>();

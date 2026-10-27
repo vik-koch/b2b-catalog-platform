@@ -31,7 +31,7 @@ import {
   ConfirmService,
   confirmRequest,
 } from '../../shared/ui/confirm.service';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -41,6 +41,10 @@ import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { arrowLeftIcon } from '../../shared/ui/icons/glyphs/arrow-left';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {
@@ -69,7 +73,7 @@ interface DetailRow {
   selector: 'app-user-detail-page',
   imports: [
     RouterLink,
-    AdminIcon,
+    Icon,
     Button,
     ConsentRecordList,
     LockedNote,
@@ -216,8 +220,8 @@ interface DetailRow {
               [routerLink]="['/admin/users', person.id, 'edit']"
               [queryParams]="editorFrom()"
             >
-              <app-admin-icon
-                [name]="isPending() ? 'circle-check' : 'pencil'"
+              <app-icon
+                [glyph]="isPending() ? circleCheckIcon : pencilIcon"
                 class="size-4"
               />
               {{ isPending() ? listText.approve : listText.edit }}
@@ -229,7 +233,7 @@ interface DetailRow {
             class="gap-2"
             [routerLink]="listUrl()"
           >
-            <app-admin-icon name="arrow-left" class="size-4" />
+            <app-icon [glyph]="arrowLeftIcon" class="size-4" />
             {{ text.back }}
           </a>
           <!-- Set apart from the two above: it cannot be taken back. -->
@@ -242,7 +246,7 @@ interface DetailRow {
               [disabled]="deleting()"
               (click)="deleteOnRequest(person)"
             >
-              <app-admin-icon name="trash-2" class="size-4" />
+              <app-icon [glyph]="trash2Icon" class="size-4" />
               {{ text.delete }}
             </button>
           }
@@ -259,6 +263,10 @@ interface DetailRow {
   `,
 })
 export class UserDetailPage {
+  protected readonly arrowLeftIcon = arrowLeftIcon;
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly trash2Icon = trash2Icon;
   /** One heading treatment written once, as the account page's is. */
   protected readonly headingClass =
     'mb-1.5 text-xs font-medium tracking-wide text-ink-subtle uppercase';

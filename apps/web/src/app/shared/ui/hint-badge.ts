@@ -1,4 +1,5 @@
 import { Component, computed, input } from '@angular/core';
+import { triangleAlertIcon } from './icons/glyphs/triangle-alert';
 
 /** How much attention the badge asks for. */
 export type HintBadgeTone = 'neutral' | 'notice' | 'warning';
@@ -23,7 +24,7 @@ const tones: Record<HintBadgeTone, string> = {
  * of its own.
  *
  *   <app-hint-badge tone="warning" [label]="text.notNumeric">
- *     <app-icon name="triangle-alert" class="h-3.5 w-3.5" />
+ *     <app-icon [glyph]="triangleAlertIcon" class="h-3.5 w-3.5" />
  *   </app-hint-badge>
  */
 @Component({
@@ -41,6 +42,7 @@ const tones: Record<HintBadgeTone, string> = {
   `,
 })
 export class HintBadge {
+  protected readonly triangleAlertIcon = triangleAlertIcon;
   /** The whole remark — it is the tooltip and the accessible name. */
   readonly label = input.required<string>();
   readonly tone = input<HintBadgeTone>('neutral');

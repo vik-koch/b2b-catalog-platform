@@ -3,9 +3,12 @@ import { Params, RouterLink } from '@angular/router';
 import { allowedTransitions } from '@b2b-catalog-platform/shared';
 import { TransitionTarget } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { StaffOrderSummary } from './orders.service';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
 
 /**
  * What can be done to one order from the list, drawn once for both shapes it
@@ -20,7 +23,7 @@ import { StaffOrderSummary } from './orders.service';
  */
 @Component({
   selector: 'app-order-row-actions',
-  imports: [RouterLink, AdminIcon, IconButton],
+  imports: [RouterLink, Icon, IconButton],
   host: { class: 'flex items-center justify-end gap-2 sm:gap-1' },
   template: `
     <!-- Both open the same page; only the glyph differs, because on an
@@ -35,7 +38,7 @@ import { StaffOrderSummary } from './orders.service';
       [attr.aria-label]="answerable() ? text.actions.answer : text.actions.open"
       [title]="answerable() ? text.actions.answer : text.actions.open"
     >
-      <app-admin-icon [name]="answerable() ? 'circle-check' : 'pencil'" />
+      <app-icon [glyph]="answerable() ? circleCheckIcon : pencilIcon" />
     </a>
 
     <!-- One slot for "stop this order", with the word the row's state gives
@@ -50,12 +53,15 @@ import { StaffOrderSummary } from './orders.service';
         [title]="endingLabel()"
         (click)="endRequested.emit({ order: order(), to: ending })"
       >
-        <app-admin-icon name="circle-slash" />
+        <app-icon [glyph]="circleSlashIcon" />
       </button>
     }
   `,
 })
 export class OrderRowActions {
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly circleSlashIcon = circleSlashIcon;
+  protected readonly pencilIcon = pencilIcon;
   protected readonly text = inject(ADMIN_TEXT).orders.detail;
 
   readonly order = input.required<StaffOrderSummary>();

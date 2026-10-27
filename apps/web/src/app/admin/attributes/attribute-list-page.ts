@@ -28,7 +28,7 @@ import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
 import { filled } from '../../shared/core/field-rules';
@@ -48,6 +48,12 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -92,7 +98,7 @@ const blankAttribute = (): AttributeDraft => ({
     CdkDragHandle,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     Link,
     RecordRow,
     UnpublishedCount,
@@ -116,7 +122,7 @@ const blankAttribute = (): AttributeDraft => ({
         [disabled]="editing() !== null"
         (click)="startAdd()"
       >
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
     </div>
@@ -177,7 +183,7 @@ const blankAttribute = (): AttributeDraft => ({
                       [attr.aria-label]="adminText.actions.reorder"
                       [title]="adminText.actions.reorder"
                     >
-                      <app-admin-icon name="grip-vertical" />
+                      <app-icon [glyph]="gripVerticalIcon" />
                     </span>
                     <span class="font-medium text-ink">
                       {{ definition.name }}
@@ -238,7 +244,7 @@ const blankAttribute = (): AttributeDraft => ({
                         [disabled]="editing() !== null"
                         (click)="startEdit(definition)"
                       >
-                        <app-admin-icon name="pencil" />
+                        <app-icon [glyph]="pencilIcon" />
                       </button>
                       <button
                         appIconButton
@@ -248,7 +254,7 @@ const blankAttribute = (): AttributeDraft => ({
                         [disabled]="busy()"
                         (click)="remove(definition)"
                       >
-                        <app-admin-icon name="trash-2" />
+                        <app-icon [glyph]="trash2Icon" />
                       </button>
                     </ng-container>
                   </app-record-row>
@@ -367,7 +373,7 @@ const blankAttribute = (): AttributeDraft => ({
               class="gap-2"
               [disabled]="busy()"
             >
-              <app-admin-icon name="save" class="size-4" />
+              <app-icon [glyph]="saveIcon" class="size-4" />
               {{ busy() ? actionText.saving : adminText.actions.save }}
             </button>
             <button
@@ -379,7 +385,7 @@ const blankAttribute = (): AttributeDraft => ({
               [disabled]="busy()"
               (click)="cancel()"
             >
-              <app-admin-icon name="x" class="size-4" />
+              <app-icon [glyph]="xIcon" class="size-4" />
               {{ actionText.cancel }}
             </button>
           </div>
@@ -394,6 +400,12 @@ const blankAttribute = (): AttributeDraft => ({
   `,
 })
 export class AttributeListPage {
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).attributes.list;

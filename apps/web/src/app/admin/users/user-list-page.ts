@@ -26,7 +26,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
@@ -44,6 +44,7 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { ErrorText } from '../../shared/ui/error-text';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
@@ -107,7 +108,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
   imports: [
     Button,
     RouterLink,
-    AdminIcon,
+    Icon,
     AdminListHeader,
     AdminGrid,
     GridRowTemplate,
@@ -130,7 +131,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
       [filtered]="filtered()"
     >
       <button appButton type="button" class="gap-2" (click)="add()">
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
       </button>
     </app-admin-list-header>
@@ -273,6 +274,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
   `,
 })
 export class UserListPage {
+  protected readonly plusIcon = plusIcon;
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(SettingsService);
   private readonly tiers = inject(TiersService);

@@ -4,6 +4,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { currentUrl } from '../../shared/core/current-url';
 import { navActionClasses, NavVariant } from './nav-action';
 import { Icon } from '../../shared/ui/icons/icon';
+import { storeIcon } from '../../shared/ui/icons/glyphs/store';
 
 /** Routes that count as "browsing the catalogue" for the navbar's active state. */
 const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
@@ -27,7 +28,7 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
       [attr.aria-current]="active() ? 'page' : null"
       [class]="cls().action"
     >
-      <app-icon name="store" class="size-6" />
+      <app-icon [glyph]="storeIcon" class="size-6" />
       <span [class]="cls().labelRow">
         <span [class]="cls().label" [attr.data-label]="label">{{ label }}</span>
       </span>
@@ -35,6 +36,7 @@ const CATALOG_ROUTES = ['/catalog', '/product', '/search'];
   `,
 })
 export class CatalogLink {
+  protected readonly storeIcon = storeIcon;
   /** Which of the two navbars is drawing this control. */
   readonly variant = input<NavVariant>('bar');
   protected readonly cls = computed(() => navActionClasses(this.variant()));

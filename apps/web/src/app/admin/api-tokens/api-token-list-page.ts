@@ -17,7 +17,7 @@ import { filled } from '../../shared/core/field-rules';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -32,6 +32,12 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
 import { Notice } from '../../shared/ui/notice';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
+import { copyIcon } from '../../shared/ui/icons/glyphs/copy';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -115,7 +121,7 @@ const SCOPE_ROWS: readonly {
     Notice,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     Input,
     FieldLabel,
     Checkbox,
@@ -138,7 +144,7 @@ const SCOPE_ROWS: readonly {
         [disabled]="adding()"
         (click)="startAdd()"
       >
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
     </div>
@@ -171,8 +177,8 @@ const SCOPE_ROWS: readonly {
               class="shrink-0 gap-2"
               (click)="copy(token.token)"
             >
-              <app-admin-icon
-                [name]="copied() ? 'circle-check' : 'copy'"
+              <app-icon
+                [glyph]="copied() ? circleCheckIcon : copyIcon"
                 class="size-4"
               />
               {{ copied() ? text.copied : text.copy }}
@@ -233,7 +239,7 @@ const SCOPE_ROWS: readonly {
                       [disabled]="busy()"
                       (click)="revoke(token)"
                     >
-                      <app-admin-icon name="circle-slash" />
+                      <app-icon [glyph]="circleSlashIcon" />
                     </button>
                   }
                 </ng-container>
@@ -337,7 +343,7 @@ const SCOPE_ROWS: readonly {
                     class="gap-2"
                     [disabled]="busy()"
                   >
-                    <app-admin-icon name="save" class="size-4" />
+                    <app-icon [glyph]="saveIcon" class="size-4" />
                     {{ busy() ? actionText.saving : text.create }}
                   </button>
                   <button
@@ -349,7 +355,7 @@ const SCOPE_ROWS: readonly {
                     [disabled]="busy()"
                     (click)="cancel()"
                   >
-                    <app-admin-icon name="x" class="size-4" />
+                    <app-icon [glyph]="xIcon" class="size-4" />
                     {{ actionText.cancel }}
                   </button>
                 </div>
@@ -371,6 +377,12 @@ const SCOPE_ROWS: readonly {
   `,
 })
 export class ApiTokenListPage {
+  protected readonly circleCheckIcon = circleCheckIcon;
+  protected readonly circleSlashIcon = circleSlashIcon;
+  protected readonly copyIcon = copyIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(ApiTokensService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).apiTokens;

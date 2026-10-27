@@ -28,10 +28,14 @@ import {
   ConfirmService,
   confirmRequest,
 } from '../../shared/ui/confirm.service';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
 import { ErrorText } from '../../shared/ui/error-text';
+import { externalLinkIcon } from '../../shared/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
+import { sendIcon } from '../../shared/ui/icons/glyphs/send';
+import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 
 /** One line of the list: a document that exists, or a kind that could. */
 interface DocumentRow {
@@ -68,7 +72,7 @@ interface DocumentRow {
  */
 @Component({
   selector: 'app-order-documents-panel',
-  imports: [Button, IconButton, AdminIcon, ErrorText],
+  imports: [Button, IconButton, Icon, ErrorText],
   host: { class: 'block' },
   template: `
     <input
@@ -87,8 +91,8 @@ interface DocumentRow {
                group so they wrap as one — squeezed into the same row they took
                the name down to a letter a line. -->
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <app-admin-icon
-              name="file-text"
+            <app-icon
+              [glyph]="fileTextIcon"
               class="size-4 shrink-0 text-ink-subtle"
             />
             <!-- The name and what it is, together: when the controls wrap to
@@ -118,7 +122,7 @@ interface DocumentRow {
                 [attr.aria-label]="text.open"
                 [title]="text.open"
               >
-                <app-admin-icon name="external-link" />
+                <app-icon [glyph]="externalLinkIcon" />
               </a>
             }
 
@@ -137,7 +141,7 @@ interface DocumentRow {
                   [disabled]="busy() !== null"
                   (click)="choose(row.kind, fileInput)"
                 >
-                  <app-admin-icon name="upload" class="size-4" />
+                  <app-icon [glyph]="uploadIcon" class="size-4" />
                   {{
                     busy() === row.kind
                       ? adminText.upload.progress
@@ -163,7 +167,7 @@ interface DocumentRow {
                       [disabled]="busy() !== null"
                       (click)="notify(row.kind)"
                     >
-                      <app-admin-icon name="send" class="size-4" />
+                      <app-icon [glyph]="sendIcon" class="size-4" />
                       {{ row.sent ? text.notifySent : text.notify }}
                     </button>
                   }
@@ -206,6 +210,10 @@ interface DocumentRow {
   `,
 })
 export class OrderDocumentsPanel {
+  protected readonly externalLinkIcon = externalLinkIcon;
+  protected readonly fileTextIcon = fileTextIcon;
+  protected readonly sendIcon = sendIcon;
+  protected readonly uploadIcon = uploadIcon;
   private readonly api = inject(AdminOrdersService);
   private readonly confirm = inject(ConfirmService);
   protected readonly text = inject(ADMIN_TEXT).orders.detail.documents;

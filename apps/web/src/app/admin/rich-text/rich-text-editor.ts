@@ -28,7 +28,7 @@ import { HeaderCollapse } from '../../shared/layout/header-collapse';
 import { Button } from '../../shared/ui/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { RichTextImage } from './rich-text-image';
@@ -36,13 +36,28 @@ import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
+import { Glyph } from '../../shared/ui/icons/glyph';
+import { boldIcon } from '../../shared/ui/icons/glyphs/bold';
+import { heading2Icon } from '../../shared/ui/icons/glyphs/heading-2';
+import { heading3Icon } from '../../shared/ui/icons/glyphs/heading-3';
+import { imageIcon } from '../../shared/ui/icons/glyphs/image';
+import { italicIcon } from '../../shared/ui/icons/glyphs/italic';
+import { linkIcon } from '../../shared/ui/icons/glyphs/link';
+import { listIcon } from '../../shared/ui/icons/glyphs/list';
+import { listOrderedIcon } from '../../shared/ui/icons/glyphs/list-ordered';
+import { quoteIcon } from '../../shared/ui/icons/glyphs/quote';
+import { removeFormattingIcon } from '../../shared/ui/icons/glyphs/remove-formatting';
+import { squareSplitVerticalIcon } from '../../shared/ui/icons/glyphs/square-split-vertical';
+import { strikethroughIcon } from '../../shared/ui/icons/glyphs/strikethrough';
+import { underlineIcon } from '../../shared/ui/icons/glyphs/underline';
+import { unlinkIcon } from '../../shared/ui/icons/glyphs/unlink';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
 interface ToolbarAction {
   id: string;
   label: string;
-  icon: AdminIconName;
+  icon: Glyph;
   run: (editor: Editor) => void;
   isActive?: (editor: Editor) => boolean;
 }
@@ -55,7 +70,7 @@ interface ToolbarAction {
 @Component({
   selector: 'app-rich-text-editor',
   imports: [
-    AdminIcon,
+    Icon,
     Button,
     DialogActions,
     DialogPanel,
@@ -91,7 +106,7 @@ interface ToolbarAction {
               [class]="buttonClass(activeIds().includes(action.id))"
               (click)="run(action)"
             >
-              <app-admin-icon [name]="action.icon" />
+              <app-icon [glyph]="action.icon" />
             </button>
           }
         </div>
@@ -407,95 +422,95 @@ export class RichTextEditor {
     {
       id: 'bold',
       label: this.text.toolbar.bold,
-      icon: 'bold',
+      icon: boldIcon,
       run: (e) => e.chain().focus().toggleBold().run(),
       isActive: (e) => e.isActive('bold'),
     },
     {
       id: 'italic',
       label: this.text.toolbar.italic,
-      icon: 'italic',
+      icon: italicIcon,
       run: (e) => e.chain().focus().toggleItalic().run(),
       isActive: (e) => e.isActive('italic'),
     },
     {
       id: 'underline',
       label: this.text.toolbar.underline,
-      icon: 'underline',
+      icon: underlineIcon,
       run: (e) => e.chain().focus().toggleUnderline().run(),
       isActive: (e) => e.isActive('underline'),
     },
     {
       id: 'strike',
       label: this.text.toolbar.strikethrough,
-      icon: 'strikethrough',
+      icon: strikethroughIcon,
       run: (e) => e.chain().focus().toggleStrike().run(),
       isActive: (e) => e.isActive('strike'),
     },
     {
       id: 'heading2',
       label: this.text.toolbar.heading2,
-      icon: 'heading-2',
+      icon: heading2Icon,
       run: (e) => e.chain().focus().toggleHeading({ level: 2 }).run(),
       isActive: (e) => e.isActive('heading', { level: 2 }),
     },
     {
       id: 'heading3',
       label: this.text.toolbar.heading3,
-      icon: 'heading-3',
+      icon: heading3Icon,
       run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
       isActive: (e) => e.isActive('heading', { level: 3 }),
     },
     {
       id: 'bulletList',
       label: this.text.toolbar.bulletList,
-      icon: 'list',
+      icon: listIcon,
       run: (e) => e.chain().focus().toggleBulletList().run(),
       isActive: (e) => e.isActive('bulletList'),
     },
     {
       id: 'orderedList',
       label: this.text.toolbar.orderedList,
-      icon: 'list-ordered',
+      icon: listOrderedIcon,
       run: (e) => e.chain().focus().toggleOrderedList().run(),
       isActive: (e) => e.isActive('orderedList'),
     },
     {
       id: 'blockquote',
       label: this.text.toolbar.blockquote,
-      icon: 'quote',
+      icon: quoteIcon,
       run: (e) => e.chain().focus().toggleBlockquote().run(),
       isActive: (e) => e.isActive('blockquote'),
     },
     {
       id: 'link',
       label: this.text.toolbar.link,
-      icon: 'link',
+      icon: linkIcon,
       run: () => this.openLinkPanel(),
       isActive: (e) => e.isActive('link'),
     },
     {
       id: 'unlink',
       label: this.text.toolbar.unlink,
-      icon: 'unlink',
+      icon: unlinkIcon,
       run: (e) => e.chain().focus().unsetLink().run(),
     },
     {
       id: 'removeFormatting',
       label: this.text.toolbar.removeFormatting,
-      icon: 'remove-formatting',
+      icon: removeFormattingIcon,
       run: (e) => e.chain().focus().unsetAllMarks().clearNodes().run(),
     },
     {
       id: 'horizontalRule',
       label: this.text.toolbar.horizontalRule,
-      icon: 'square-split-vertical',
+      icon: squareSplitVerticalIcon,
       run: (e) => e.chain().focus().setHorizontalRule().run(),
     },
     {
       id: 'image',
       label: this.text.toolbar.image,
-      icon: 'image',
+      icon: imageIcon,
       run: () => this.pickImage(),
       isActive: (e) => e.isActive('image'),
     },

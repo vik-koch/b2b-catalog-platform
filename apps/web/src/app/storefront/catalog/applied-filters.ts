@@ -3,6 +3,7 @@ import { Facet, formatAttributeValue } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { FacetSelection, selectedValues } from './facet-selection';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** One ticked value, as the chip row needs it. */
 interface AppliedFilter {
@@ -48,7 +49,7 @@ interface AppliedFilter {
               [attr.aria-label]="removeLabel(filter)"
               (click)="remove(filter)"
             >
-              <app-icon name="close" class="size-3.5" />
+              <app-icon [glyph]="xIcon" class="size-3.5" />
             </button>
           </li>
         }
@@ -57,6 +58,7 @@ interface AppliedFilter {
   `,
 })
 export class AppliedFilters {
+  protected readonly xIcon = xIcon;
   private readonly selection = inject(FacetSelection);
   protected readonly text = inject(STOREFRONT_TEXT).catalog.filters;
 

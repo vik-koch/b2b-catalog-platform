@@ -67,6 +67,7 @@ import {
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from '../../shared/catalog/product-tile';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
+import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
 
 /**
  * What the collapsed chip list clips to, in px: four `h-16` chip rows, the
@@ -241,7 +242,7 @@ interface Listing {
                   @for (crumb of category.ancestors; track crumb.slug) {
                     <li aria-hidden="true" class="inline">
                       <app-icon
-                        name="chevron-right"
+                        [glyph]="chevronRightIcon"
                         class="mx-1 size-4 align-middle text-edge-strong"
                       />
                     </li>
@@ -259,7 +260,7 @@ interface Listing {
                   }
                   <li aria-hidden="true" class="inline">
                     <app-icon
-                      name="chevron-right"
+                      [glyph]="chevronRightIcon"
                       class="mx-1 size-4 align-middle text-edge-strong"
                     />
                   </li>
@@ -551,6 +552,7 @@ interface Listing {
   `,
 })
 export class CategoryGrid {
+  protected readonly chevronRightIcon = chevronRightIcon;
   /** Whether this page of products states any stock at all — see the badge. */
   protected readonly anyStatus = anyStatus;
 

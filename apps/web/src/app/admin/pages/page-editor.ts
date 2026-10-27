@@ -24,7 +24,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '../../shared/ui/button';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
@@ -35,6 +35,10 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { eyeIcon } from '../../shared/ui/icons/glyphs/eye';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -46,7 +50,7 @@ import { ErrorText } from '../../shared/ui/error-text';
   imports: [
     Button,
     RichTextEditor,
-    AdminIcon,
+    Icon,
     FORM_FIELDS,
     Input,
     Checkbox,
@@ -145,7 +149,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         [disabled]="saving()"
         (click)="save()"
       >
-        <app-admin-icon name="save" class="size-4" />
+        <app-icon [glyph]="saveIcon" class="size-4" />
         {{ saving() ? actionText.saving : adminText.actions.save }}
       </button>
       <button
@@ -155,8 +159,8 @@ import { ErrorText } from '../../shared/ui/error-text';
         class="gap-2"
         (click)="previewing.set(!previewing())"
       >
-        <app-admin-icon
-          [name]="previewing() ? 'pencil' : 'eye'"
+        <app-icon
+          [glyph]="previewing() ? pencilIcon : eyeIcon"
           class="size-4"
         />
         {{
@@ -172,13 +176,17 @@ import { ErrorText } from '../../shared/ui/error-text';
         class="gap-2"
         (click)="cancel()"
       >
-        <app-admin-icon name="x" class="size-4" />
+        <app-icon [glyph]="xIcon" class="size-4" />
         {{ actionText.cancel }}
       </button>
     </div>
   `,
 })
 export class PageEditor implements FieldAttempt {
+  protected readonly eyeIcon = eyeIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly xIcon = xIcon;
   private readonly pageService = inject(PageEditingService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).pages;

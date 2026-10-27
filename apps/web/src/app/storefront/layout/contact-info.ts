@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Icon } from '../../shared/ui/icons/icon';
+import { mailIcon } from '../../shared/ui/icons/glyphs/mail';
+import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
 
 /** tel: needs dial characters only; the displayed value keeps its spacing. */
 export function telHref(phone: string): string {
@@ -33,19 +35,21 @@ export function telHref(phone: string): string {
   template: `
     @if (contact?.phone; as phone) {
       <a [href]="telHref(phone)" [class]="pillClass">
-        <app-icon name="phone" class="size-4" />
+        <app-icon [glyph]="phoneIcon" class="size-4" />
         {{ phone }}
       </a>
     }
     @if (contact?.email; as email) {
       <a [href]="'mailto:' + email" [class]="pillClass">
-        <app-icon name="mail" class="size-4" />
+        <app-icon [glyph]="mailIcon" class="size-4" />
         {{ email }}
       </a>
     }
   `,
 })
 export class ContactInfo {
+  protected readonly mailIcon = mailIcon;
+  protected readonly phoneIcon = phoneIcon;
   protected readonly contact = inject(DEPLOYMENT_CONFIG).contact;
 
   /** `whitespace-nowrap` so a pill wraps as a whole or not at all — a broken

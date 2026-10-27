@@ -25,11 +25,12 @@ import {
 } from '../../shared/ui/disclosure-toggle';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from '../products/product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { Link } from '../../shared/ui/link';
 import { DocumentsService } from './documents.service';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -57,7 +58,7 @@ const SUGGESTIONS_SHOWN = 8;
   selector: 'app-product-documents-editor',
   imports: [
     RouterLink,
-    AdminIcon,
+    Icon,
     DisclosureToggle,
     FieldLabel,
     HighlightedLine,
@@ -79,9 +80,9 @@ const SUGGESTIONS_SHOWN = 8;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-admin-icon
+        <app-icon
           disclosureLead
-          [name]="glyph"
+          [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
       </app-disclosure-toggle>
@@ -110,7 +111,7 @@ const SUGGESTIONS_SHOWN = 8;
                     [attr.aria-label]="removeLabel(item)"
                     (click)="remove(item.id)"
                   >
-                    <app-admin-icon name="x" />
+                    <app-icon [glyph]="xIcon" />
                   </button>
                 </li>
               }
@@ -186,6 +187,7 @@ const SUGGESTIONS_SHOWN = 8;
   `,
 })
 export class ProductDocumentsEditor implements OnInit {
+  protected readonly xIcon = xIcon;
   protected readonly frame = DISCLOSURE_FRAME;
   protected readonly disclosureBorder = disclosureBorder;
   private readonly service = inject(DocumentsService);

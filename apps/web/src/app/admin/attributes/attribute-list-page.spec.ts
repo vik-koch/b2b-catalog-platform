@@ -200,7 +200,7 @@ describe('AttributeListPage', () => {
   it('creates a definition, leaving the slug to the server when blank', async () => {
     const { service, click, type, select, submit } = await render();
 
-    await click('button:has(app-admin-icon[name="plus"])');
+    await click('h1 + button');
     await type('#attribute-name', '  Width  ');
     await select('#attribute-type', 'number');
     await type('#attribute-unit', ' cm ');
@@ -217,7 +217,7 @@ describe('AttributeListPage', () => {
   it('sends an empty unit as null rather than an empty string', async () => {
     const { service, click, type, submit } = await render();
 
-    await click('button:has(app-admin-icon[name="plus"])');
+    await click('h1 + button');
     await type('#attribute-name', 'Colour');
     await submit();
 
@@ -232,7 +232,7 @@ describe('AttributeListPage', () => {
   it('refuses an unusable slug before the request', async () => {
     const { el, service, click, type, submit } = await render();
 
-    await click('button:has(app-admin-icon[name="plus"])');
+    await click('h1 + button');
     await type('#attribute-name', 'Colour');
     await type('#attribute-slug', 'Not A Slug');
     await submit();
@@ -267,7 +267,7 @@ describe('AttributeListPage', () => {
       create: { ok: false, code: 'attribute-name-taken' },
     });
 
-    await click('button:has(app-admin-icon[name="plus"])');
+    await click('h1 + button');
     await type('#attribute-name', 'Colour');
     await submit();
 

@@ -1,0 +1,6 @@
+import { Glyph } from '../glyph';
+
+export const plusIcon: Glyph = [
+  { tag: 'path', d: 'M5 12h14' },
+  { tag: 'path', d: 'M12 5v14' },
+];

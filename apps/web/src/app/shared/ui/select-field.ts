@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
 import { Icon } from './icons/icon';
+import { chevronDownIcon } from './icons/glyphs/chevron-down';
 
 const chevrons = {
   md: 'right-2.5 h-4 w-4',
@@ -43,13 +44,14 @@ const chevrons = {
   template: `
     <ng-content />
     <app-icon
-      name="chevron-down"
+      [glyph]="chevronDownIcon"
       class="pointer-events-none absolute top-1/2 -translate-y-1/2 text-ink-subtle transition-colors"
       [class]="chevron()"
     />
   `,
 })
 export class SelectField {
+  protected readonly chevronDownIcon = chevronDownIcon;
   readonly size = input<keyof typeof chevrons>('md');
 
   protected readonly chevron = computed(() => chevrons[this.size()]);

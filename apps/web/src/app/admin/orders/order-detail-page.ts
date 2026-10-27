@@ -57,7 +57,7 @@ import {
   disclosureBorder,
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { LockedNote } from '../ownership/locked-note';
@@ -69,6 +69,14 @@ import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { arrowLeftIcon } from '../../shared/ui/icons/glyphs/arrow-left';
+import { arrowRightIcon } from '../../shared/ui/icons/glyphs/arrow-right';
+import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
+import { sendIcon } from '../../shared/ui/icons/glyphs/send';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what
@@ -106,7 +114,7 @@ const MARK_PAID = 'markPaid';
   selector: 'app-admin-order-detail-page',
   imports: [
     RouterLink,
-    AdminIcon,
+    Icon,
     Button,
     Link,
     DisclosureToggle,
@@ -195,7 +203,7 @@ const MARK_PAID = 'markPaid';
                           [disabled]="busy()"
                           (click)="removePersonalData(order)"
                         >
-                          <app-admin-icon name="trash-2" class="size-4" />
+                          <app-icon [glyph]="trash2Icon" class="size-4" />
                           {{ text.personalData.remove }}
                         </button>
                       </div>
@@ -231,7 +239,7 @@ const MARK_PAID = 'markPaid';
                         [disabled]="busy()"
                         (click)="move.run()"
                       >
-                        <app-admin-icon [name]="move.icon" class="size-4" />
+                        <app-icon [glyph]="move.icon" class="size-4" />
                         {{ move.label }}
                       </button>
                     </div>
@@ -301,7 +309,7 @@ const MARK_PAID = 'markPaid';
                           'adjust',
                         ]"
                       >
-                        <app-admin-icon name="pencil" class="size-4" />
+                        <app-icon [glyph]="pencilIcon" class="size-4" />
                         {{ text.actions.adjust }}
                       </a>
 
@@ -321,7 +329,7 @@ const MARK_PAID = 'markPaid';
                           [disabled]="busy()"
                           (click)="move.run()"
                         >
-                          <app-admin-icon [name]="move.icon" class="size-4" />
+                          <app-icon [glyph]="move.icon" class="size-4" />
                           {{ move.label }}
                         </button>
                       }
@@ -363,7 +371,7 @@ const MARK_PAID = 'markPaid';
                         [disabled]="busy()"
                         (click)="tellCustomer(order, action.kind)"
                       >
-                        <app-admin-icon [name]="action.icon" class="size-4" />
+                        <app-icon [glyph]="action.icon" class="size-4" />
                         {{ action.label }}
                       </button>
                     </div>
@@ -599,6 +607,8 @@ const MARK_PAID = 'markPaid';
   `,
 })
 export class AdminOrderDetailPage {
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly trash2Icon = trash2Icon;
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
   private readonly confirm = inject(ConfirmService);
@@ -957,7 +967,7 @@ export class AdminOrderDetailPage {
       return {
         kind: 'update' as const,
         label: this.tellText.update,
-        icon: 'arrow-right' as const,
+        icon: arrowRightIcon,
       };
     }
     return {
@@ -966,7 +976,7 @@ export class AdminOrderDetailPage {
         order.notifiedRevisionNumber < order.customerRevisionNumber
           ? this.tellText.email
           : this.tellText.emailAgain,
-      icon: 'send' as const,
+      icon: sendIcon,
     };
   });
 
@@ -1041,10 +1051,10 @@ export class AdminOrderDetailPage {
         // or off it. The two ways an order ends share the mark the list's own
         // row action uses for them.
         icon: transitionHasReason(to)
-          ? ('circle-slash' as const)
+          ? circleSlashIcon
           : backwards(order.status, to)
-            ? ('arrow-left' as const)
-            : ('arrow-right' as const),
+            ? arrowLeftIcon
+            : arrowRightIcon,
         // Walking an order back is a correction, not the next step in its
         // life: it should not look like the button a manager is meant to
         // press next.
@@ -1250,7 +1260,7 @@ export class AdminOrderDetailPage {
       label: paid ? payment.clear : payment.record,
       // Recording it is an observation; clearing it is an undo, and wears the
       // mark every undo in the admin wears.
-      icon: paid ? ('rotate-ccw' as const) : ('circle-check' as const),
+      icon: paid ? rotateCcwIcon : circleCheckIcon,
       run: () => this.setPayment(order, !paid),
     };
   });

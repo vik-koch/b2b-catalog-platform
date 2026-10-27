@@ -21,6 +21,8 @@ import { IconButton } from '../ui/icon-button';
 import { Input } from '../ui/input';
 import { Popover } from '../ui/popover';
 import { SHARED_TEXT } from '../config/shared-text';
+import { messageCircleCheckIcon } from '../ui/icons/glyphs/message-circle-check';
+import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
 
 /**
  * The line note's button and its field (FR-CART-08) — a bubble on a pointer, a
@@ -80,7 +82,7 @@ import { SHARED_TEXT } from '../config/shared-text';
     >
       <!-- The glyph says whether anything is written. -->
       <app-icon
-        [name]="written() ? 'message-circle-check' : 'message-circle-plus'"
+        [glyph]="written() ? messageCircleCheckIcon : messageCirclePlusIcon"
       />
     </button>
 
@@ -132,6 +134,8 @@ import { SHARED_TEXT } from '../config/shared-text';
   `,
 })
 export class ProductNoteEditor {
+  protected readonly messageCircleCheckIcon = messageCircleCheckIcon;
+  protected readonly messageCirclePlusIcon = messageCirclePlusIcon;
   protected readonly text = inject(STOREFRONT_TEXT).cart;
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly noteMax = CART_NOTE_MAX;

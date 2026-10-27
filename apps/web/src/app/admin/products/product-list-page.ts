@@ -32,7 +32,7 @@ import {
   confirmRequest,
   ConfirmService,
 } from '../../shared/ui/confirm.service';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -64,6 +64,7 @@ import {
   PRODUCT_FEATURE_GLYPHS,
   ProductFeatureGlyphs,
 } from './product-feature-glyphs';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
 
 /** Marks the category filter's "without subcategories" option. A category id
  * is a uuid, so it can never end this way on its own. */
@@ -92,7 +93,7 @@ function knownValues<T extends string>(
     RouterLink,
     PricePipe,
     ProductFeatureGlyphs,
-    AdminIcon,
+    Icon,
     Button,
     Link,
     ProductRowActions,
@@ -120,7 +121,7 @@ function knownValues<T extends string>(
            who owns it instead of opening an editor that could only refuse the
            save. -->
       <button appButton type="button" class="gap-2" (click)="addProduct()">
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ editText.addProduct }}
       </button>
     </app-admin-list-header>
@@ -377,6 +378,7 @@ function knownValues<T extends string>(
   `,
 })
 export class ProductListPage {
+  protected readonly plusIcon = plusIcon;
   private readonly admin = inject(AdminCatalogService);
   private readonly attributes = inject(AttributesService);
   private readonly tierService = inject(TiersService);

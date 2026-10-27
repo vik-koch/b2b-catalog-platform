@@ -15,7 +15,6 @@ import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Icon } from '../../shared/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
@@ -29,6 +28,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
+import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
+import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
+import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -56,7 +62,7 @@ type RenameTarget =
     RouterLink,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     Icon,
     Link,
     RecordRow,
@@ -120,12 +126,12 @@ type RenameTarget =
                           [attr.aria-expanded]="expanded() === entry.key"
                           (click)="toggle(entry.key)"
                         >
-                          <app-admin-icon
+                          <app-icon
                             class="size-5 shrink-0 md:size-4"
-                            [name]="
+                            [glyph]="
                               expanded() === entry.key
-                                ? 'chevron-down'
-                                : 'chevron-right'
+                                ? chevronDownIcon
+                                : chevronRightIcon
                             "
                           />
                           {{ entry.key }}
@@ -180,7 +186,7 @@ type RenameTarget =
                               [queryParams]="{ name: entry.key }"
                               [attr.aria-label]="text.toDefinitionAria"
                             >
-                              <app-admin-icon name="funnel" />
+                              <app-icon [glyph]="funnelIcon" />
                             </a>
                           } @else {
                             <span
@@ -189,7 +195,7 @@ type RenameTarget =
                               [attr.aria-label]="text.notFilterable"
                               [title]="text.notFilterable"
                             >
-                              <app-admin-icon name="funnel" />
+                              <app-icon [glyph]="funnelIcon" />
                             </span>
                           }
                           <button
@@ -201,7 +207,7 @@ type RenameTarget =
                               startRename({ kind: 'key', key: entry.key })
                             "
                           >
-                            <app-admin-icon name="pencil" />
+                            <app-icon [glyph]="pencilIcon" />
                           </button>
                         </ng-container>
                       </app-record-row>
@@ -264,7 +270,7 @@ type RenameTarget =
                                       [label]="text.notNumeric"
                                     >
                                       <app-icon
-                                        name="triangle-alert"
+                                        [glyph]="triangleAlertIcon"
                                         class="size-3.5"
                                       />
                                     </app-hint-badge>
@@ -316,7 +322,7 @@ type RenameTarget =
                                         })
                                       "
                                     >
-                                      <app-admin-icon name="pencil" />
+                                      <app-icon [glyph]="pencilIcon" />
                                     </button>
                                   </ng-container>
                                 </app-record-row>
@@ -416,7 +422,7 @@ type RenameTarget =
             class="gap-2"
             [disabled]="busy()"
           >
-            <app-admin-icon name="save" class="size-4" />
+            <app-icon [glyph]="saveIcon" class="size-4" />
             {{ busy() ? actionText.saving : adminText.actions.save }}
           </button>
           <button
@@ -428,7 +434,7 @@ type RenameTarget =
             [disabled]="busy()"
             (click)="cancel()"
           >
-            <app-admin-icon name="x" class="size-4" />
+            <app-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         </form>
@@ -437,6 +443,13 @@ type RenameTarget =
   `,
 })
 export class AttributeInventoryPage {
+  protected readonly chevronDownIcon = chevronDownIcon;
+  protected readonly chevronRightIcon = chevronRightIcon;
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly triangleAlertIcon = triangleAlertIcon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(AttributesService);
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);

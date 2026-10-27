@@ -7,6 +7,7 @@ import {
   documentFileSize,
 } from '../../shared/core/document-file';
 import { Icon } from '../../shared/ui/icons/icon';
+import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
 
 /**
  * What a customer can open on their order (FR-ORD-05, FR-ACC-02).
@@ -46,7 +47,7 @@ import { Icon } from '../../shared/ui/icons/icon';
               class="group flex items-start gap-3 py-2.5"
             >
               <app-icon
-                name="file-text"
+                [glyph]="fileTextIcon"
                 class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />
               <span class="min-w-0">
@@ -67,6 +68,7 @@ import { Icon } from '../../shared/ui/icons/icon';
   `,
 })
 export class OrderDocumentsList {
+  protected readonly fileTextIcon = fileTextIcon;
   protected readonly text = inject(STOREFRONT_TEXT).orders.detail.documents;
   private readonly sizes = inject(SHARED_TEXT).fileSize;
 

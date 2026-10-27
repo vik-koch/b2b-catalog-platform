@@ -37,6 +37,9 @@ import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 import { WarningNote } from '../ui/warning-note';
 import { FirstRender } from '../core/first-render';
+import { minusIcon } from '../ui/icons/glyphs/minus';
+import { plusIcon } from '../ui/icons/glyphs/plus';
+import { shoppingBasketIcon } from '../ui/icons/glyphs/shopping-basket';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
@@ -276,7 +279,7 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             (click)="step(-1)"
           >
-            <app-icon name="minus" class="size-4" />
+            <app-icon [glyph]="minusIcon" class="size-4" />
           </button>
 
           @if (popup(); as open) {
@@ -351,7 +354,7 @@ export interface BuyableProduct {
           [disabled]="!sellable()"
           (click)="step(1)"
         >
-          <app-icon name="plus" class="size-4" />
+          <app-icon [glyph]="plusIcon" class="size-4" />
         </button>
       </div>
     </ng-template>
@@ -375,7 +378,7 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             (click)="add()"
           >
-            <app-icon name="shopping-basket" class="mr-2 size-4" />
+            <app-icon [glyph]="shoppingBasketIcon" class="mr-2 size-4" />
             {{ text.add }}
           </button>
         }
@@ -440,6 +443,9 @@ export interface BuyableProduct {
   `,
 })
 export class ProductBuyControls {
+  protected readonly minusIcon = minusIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
   private readonly cart = inject(CartService);
   private readonly firstRender = inject(FirstRender);
   private readonly units = useProductUnits();

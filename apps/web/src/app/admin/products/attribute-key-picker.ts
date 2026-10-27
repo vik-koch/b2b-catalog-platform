@@ -16,9 +16,11 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
 import { HintBadge } from '../../shared/ui/hint-badge';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { AttributeHint } from './attribute-hints';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
 
 /**
  * "Add attributes" — the names the catalog already uses, in a dialog opened
@@ -39,7 +41,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
  */
 @Component({
   selector: 'app-attribute-key-picker',
-  imports: [AdminIcon, Button, Checkbox, DialogActions, DialogPanel, HintBadge],
+  imports: [Icon, Button, Checkbox, DialogActions, DialogPanel, HintBadge],
   template: `
     <dialog
       #dialog
@@ -78,7 +80,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                 <!-- The same badge the grid row shows, for the same fact. -->
                 @if (hint.type) {
                   <app-hint-badge tone="neutral" [label]="text.filterable">
-                    <app-admin-icon name="funnel" class="size-3.5" />
+                    <app-icon [glyph]="funnelIcon" class="size-3.5" />
                   </app-hint-badge>
                 }
                 <span class="ml-auto pl-3 text-xs text-ink-subtle">
@@ -110,7 +112,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           [disabled]="picked().length === 0"
           (click)="apply()"
         >
-          <app-admin-icon name="plus" class="size-4" />
+          <app-icon [glyph]="plusIcon" class="size-4" />
           {{ applyLabel() }}
         </button>
       </div>
@@ -118,6 +120,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   `,
 })
 export class AttributeKeyPicker {
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly plusIcon = plusIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   private readonly productsText = inject(ADMIN_TEXT).products;

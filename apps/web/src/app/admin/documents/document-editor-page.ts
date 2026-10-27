@@ -22,7 +22,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { Icon } from '../../shared/ui/icons/icon';
 import { DateField } from '../../shared/ui/date-field';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -39,6 +39,12 @@ import { DocumentsService } from './documents.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
+import { externalLinkIcon } from '../../shared/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
+import { saveIcon } from '../../shared/ui/icons/glyphs/save';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { xIcon } from '../../shared/ui/icons/glyphs/x';
 
 interface DocumentDraft {
   title: string;
@@ -70,7 +76,7 @@ interface DocumentDraft {
     FORM_FIELDS,
     Button,
     IconButton,
-    AdminIcon,
+    Icon,
     DateField,
     DocumentProductsPicker,
     FieldLabel,
@@ -138,8 +144,8 @@ interface DocumentDraft {
               <!-- The name keeps a readable width; on a phone the three
                    controls take the next line rather than squeeze it. -->
               <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
-                <app-admin-icon
-                  name="file-text"
+                <app-icon
+                  [glyph]="fileTextIcon"
                   class="size-5 shrink-0 text-ink-subtle"
                 />
                 <span class="min-w-0">
@@ -158,7 +164,7 @@ interface DocumentDraft {
                   [attr.aria-label]="text.open"
                   [title]="text.open"
                 >
-                  <app-admin-icon name="external-link" />
+                  <app-icon [glyph]="externalLinkIcon" />
                 </a>
                 <button
                   appButton
@@ -170,7 +176,7 @@ interface DocumentDraft {
                   (click)="fileInput.click()"
                   (filesReceived)="upload($event[0])"
                 >
-                  <app-admin-icon name="upload" class="size-4" />
+                  <app-icon [glyph]="uploadIcon" class="size-4" />
                   {{ uploading() ? adminText.upload.progress : text.replace }}
                 </button>
                 <!-- Leaves the link as the document; the bytes go when the
@@ -182,7 +188,7 @@ interface DocumentDraft {
                   [title]="text.removeFile"
                   (click)="file.set(null)"
                 >
-                  <app-admin-icon name="trash-2" />
+                  <app-icon [glyph]="trash2Icon" />
                 </button>
               </span>
             </div>
@@ -202,7 +208,7 @@ interface DocumentDraft {
               (click)="fileInput.click()"
               (filesReceived)="upload($event[0])"
             >
-              <app-admin-icon name="upload" class="size-6 mb-2" />
+              <app-icon [glyph]="uploadIcon" class="size-6 mb-2" />
               <span class="font-medium">{{
                 uploading() ? adminText.upload.progress : text.dropHint
               }}</span>
@@ -245,7 +251,7 @@ interface DocumentDraft {
                 [attr.aria-label]="text.openLink"
                 [title]="text.openLink"
               >
-                <app-admin-icon name="external-link" />
+                <app-icon [glyph]="externalLinkIcon" />
               </a>
             }
           </div>
@@ -299,7 +305,7 @@ interface DocumentDraft {
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-admin-icon name="save" class="size-4" />
+          <app-icon [glyph]="saveIcon" class="size-4" />
           {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
@@ -309,7 +315,7 @@ interface DocumentDraft {
           class="gap-2"
           (click)="cancel()"
         >
-          <app-admin-icon name="x" class="size-4" />
+          <app-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>
@@ -317,6 +323,12 @@ interface DocumentDraft {
   `,
 })
 export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
+  protected readonly externalLinkIcon = externalLinkIcon;
+  protected readonly fileTextIcon = fileTextIcon;
+  protected readonly saveIcon = saveIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly uploadIcon = uploadIcon;
+  protected readonly xIcon = xIcon;
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documents.editor;

@@ -31,6 +31,12 @@ import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
+import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
+import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
+import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { userIcon } from '../../shared/ui/icons/glyphs/user';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -102,7 +108,7 @@ interface DetailRow {
              still there for the rest of it. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="shopping-basket" class="size-4" />
+            <app-icon [glyph]="shoppingBasketIcon" class="size-4" />
             {{ orderText.heading }}
           </h2>
           <!-- As above: the frame and its bars from the first frame. -->
@@ -181,7 +187,7 @@ interface DetailRow {
              the section heading is that heading. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="user" class="size-4" />
+            <app-icon [glyph]="userIcon" class="size-4" />
             {{ accountText.detailsHeading }}
           </h2>
           <!-- The card is drawn straight away with grey bars where the values
@@ -240,7 +246,7 @@ interface DetailRow {
              used — this is where it is kept. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="map-pin" class="size-4" />
+            <app-icon [glyph]="mapPinIcon" class="size-4" />
             {{ addressText.heading }}
           </h2>
           <div class="rounded-lg border border-edge">
@@ -290,7 +296,7 @@ interface DetailRow {
                               'edit',
                             ]"
                           >
-                            <app-icon name="pencil" />
+                            <app-icon [glyph]="pencilIcon" />
                           </a>
                           <button
                             appIconButton
@@ -299,7 +305,7 @@ interface DetailRow {
                             [attr.aria-label]="removeLabel(address)"
                             (click)="remove(address)"
                           >
-                            <app-icon name="trash-2" />
+                            <app-icon [glyph]="trash2Icon" />
                           </button>
                         </div>
                       </li>
@@ -329,7 +335,7 @@ interface DetailRow {
              their own page rather than being crammed in beside the link. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon name="lock" class="size-4" />
+            <app-icon [glyph]="lockIcon" class="size-4" />
             {{ text.securityHeading }}
           </h2>
           <div class="rounded-lg border border-edge">
@@ -381,6 +387,12 @@ interface DetailRow {
   `,
 })
 export class AccountPage {
+  protected readonly lockIcon = lockIcon;
+  protected readonly mapPinIcon = mapPinIcon;
+  protected readonly pencilIcon = pencilIcon;
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly userIcon = userIcon;
   /** One heading treatment, written once: four sections spelling the same
    * class list out is four chances for one of them to drift. */
   protected readonly headingClass =

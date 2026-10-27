@@ -22,6 +22,9 @@ import { TextButton } from '../../shared/ui/text-button';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from '../../shared/pages/page.service';
 import { PageTitle } from '../../shared/ui/page-title';
+import { banknoteIcon } from '../../shared/ui/icons/glyphs/banknote';
+import { landmarkIcon } from '../../shared/ui/icons/glyphs/landmark';
+import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -112,7 +115,7 @@ import { PageTitle } from '../../shared/ui/page-title';
             <ul class="space-y-3">
               @for (location of pickupLocations; track location.key) {
                 <li [class]="cardClass">
-                  <app-icon name="map-pin" [class]="cardMark" />
+                  <app-icon [glyph]="mapPinIcon" [class]="cardMark" />
                   <div class="min-w-0 flex-1">
                     <div
                       class="flex flex-wrap items-baseline justify-between gap-x-4"
@@ -154,7 +157,7 @@ import { PageTitle } from '../../shared/ui/page-title';
           </h2>
           <ul class="space-y-3">
             <li [class]="cardClass">
-              <app-icon name="banknote" [class]="cardMark" />
+              <app-icon [glyph]="banknoteIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
                 <p class="mt-1 text-sm text-ink-subtle">
@@ -166,7 +169,7 @@ import { PageTitle } from '../../shared/ui/page-title';
               </div>
             </li>
             <li [class]="cardClass">
-              <app-icon name="landmark" [class]="cardMark" />
+              <app-icon [glyph]="landmarkIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
                 <p class="mt-1 text-sm text-ink-subtle">
@@ -227,6 +230,9 @@ import { PageTitle } from '../../shared/ui/page-title';
   `,
 })
 export class ConditionsPage {
+  protected readonly banknoteIcon = banknoteIcon;
+  protected readonly landmarkIcon = landmarkIcon;
+  protected readonly mapPinIcon = mapPinIcon;
   private readonly storefrontText = inject(STOREFRONT_TEXT);
   protected readonly sharedText = inject(SHARED_TEXT);
   private readonly nav = this.sharedText.nav;

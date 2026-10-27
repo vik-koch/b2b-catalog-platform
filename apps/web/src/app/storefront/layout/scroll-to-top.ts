@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '../../shared/ui/icons/icon';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
+import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
 
 /**
  * Back to the top of the page, closing the footer's action row — which is
@@ -33,12 +34,13 @@ import { HeaderCollapse } from '../../shared/layout/header-collapse';
       [title]="label"
       (click)="toTop()"
     >
-      <app-icon name="chevron-up" class="size-4" />
+      <app-icon [glyph]="chevronUpIcon" class="size-4" />
       <span class="sr-only">{{ label }}</span>
     </button>
   `,
 })
 export class ScrollToTop {
+  protected readonly chevronUpIcon = chevronUpIcon;
   protected readonly label = inject(STOREFRONT_TEXT).a11y.scrollToTop;
   protected readonly collapsed = inject(HeaderCollapse).collapsed;
 

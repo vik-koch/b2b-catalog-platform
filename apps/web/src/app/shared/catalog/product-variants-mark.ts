@@ -23,6 +23,7 @@ import { Icon } from '../ui/icons/icon';
 import { LINK_BASE, LINK_TONES } from '../ui/link';
 import { Popover } from '../ui/popover';
 import { ProductVariantGallery } from './product-variant-gallery';
+import { paletteIcon } from '../ui/icons/glyphs/palette';
 
 /**
  * Says a product comes in variants, where its picture is too small to label
@@ -59,7 +60,7 @@ import { ProductVariantGallery } from './product-variant-gallery';
       [title]="label()"
       (click)="toggle()"
     >
-      <app-icon name="palette" class="size-3.5 shrink-0" />
+      <app-icon [glyph]="paletteIcon" class="size-3.5 shrink-0" />
       <span [class]="word">{{ product.variants }}</span>
     </button>
 
@@ -107,6 +108,7 @@ import { ProductVariantGallery } from './product-variant-gallery';
   `,
 })
 export class ProductVariantsMark {
+  protected readonly paletteIcon = paletteIcon;
   protected readonly text = inject(STOREFRONT_TEXT).catalog.variants;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly actionText = inject(SHARED_TEXT).actions;

@@ -32,6 +32,7 @@ import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { ProductVariantList } from './product-variant-list';
 import { useProductUnits } from './product-units-view';
+import { chevronRightIcon } from '../ui/icons/glyphs/chevron-right';
 
 /**
  * The product page's grid — one band of three columns at the top, and the two
@@ -162,7 +163,7 @@ const NARROW = '(max-width: 39.999rem)';
         @for (crumb of item().category.ancestors; track crumb.slug) {
           <li aria-hidden="true" class="inline">
             <app-icon
-              name="chevron-right"
+              [glyph]="chevronRightIcon"
               class="mx-1 size-4 align-middle text-edge-strong"
             />
           </li>
@@ -177,7 +178,7 @@ const NARROW = '(max-width: 39.999rem)';
         }
         <li aria-hidden="true" class="inline">
           <app-icon
-            name="chevron-right"
+            [glyph]="chevronRightIcon"
             class="mx-1 size-4 align-middle text-edge-strong"
           />
         </li>
@@ -196,7 +197,7 @@ const NARROW = '(max-width: 39.999rem)';
              twice, not a missing landmark. -->
         <li aria-hidden="true" class="hidden sm:inline">
           <app-icon
-            name="chevron-right"
+            [glyph]="chevronRightIcon"
             class="mx-1 size-4 align-middle text-edge-strong"
           />
         </li>
@@ -446,6 +447,7 @@ const NARROW = '(max-width: 39.999rem)';
   `,
 })
 export class ProductDetailView {
+  protected readonly chevronRightIcon = chevronRightIcon;
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
   protected readonly product = inject(SHARED_TEXT).product;
   protected readonly columnsClass = `${PRODUCT_PAGE_COLUMNS} mt-6`;

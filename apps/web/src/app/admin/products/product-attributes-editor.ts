@@ -31,7 +31,6 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { injectNarrowScreen } from '../../shared/core/narrow-screen';
 import { IconButton } from '../../shared/ui/icon-button';
-import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Icon } from '../../shared/ui/icons/icon';
 import { HintBadge } from '../../shared/ui/hint-badge';
 import { FieldLabel } from '../../shared/ui/field-label';
@@ -54,6 +53,11 @@ import {
   selectionToTsv,
 } from './attribute-grid';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
+import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
+import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
 
 /**
  * The product's custom-attribute table (FR-CAT-05) as a spreadsheet-like grid.
@@ -76,7 +80,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 @Component({
   selector: 'app-product-attributes-editor',
   imports: [
-    AdminIcon,
+    Icon,
     Icon,
     IconButton,
     AttributeKeyPicker,
@@ -188,7 +192,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                       tone="warning"
                       [label]="strayLabel(row)"
                     >
-                      <app-icon name="triangle-alert" class="size-3.5" />
+                      <app-icon [glyph]="triangleAlertIcon" class="size-3.5" />
                     </app-hint-badge>
                   }
                   @if (isFilterable(row)) {
@@ -200,7 +204,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                       tone="neutral"
                       [label]="text.filterable"
                     >
-                      <app-admin-icon name="funnel" class="size-3.5" />
+                      <app-icon [glyph]="funnelIcon" class="size-3.5" />
                     </app-hint-badge>
                   }
                   @if (valueMark(row); as mark) {
@@ -210,7 +214,10 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                         tone="warning"
                         [label]="text.notNumeric"
                       >
-                        <app-icon name="triangle-alert" class="size-3.5" />
+                        <app-icon
+                          [glyph]="triangleAlertIcon"
+                          class="size-3.5"
+                        />
                       </app-hint-badge>
                     } @else {
                       <!-- The declared unit, where the packaging grid below puts
@@ -231,7 +238,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                       class="cursor-grab active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
-                      <app-admin-icon name="grip-vertical" />
+                      <app-icon [glyph]="gripVerticalIcon" />
                     </button>
                     <button
                       appIconButton
@@ -239,7 +246,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                       [attr.aria-label]="text.addAria"
                       (click)="addBelow($index)"
                     >
-                      <app-admin-icon name="plus" />
+                      <app-icon [glyph]="plusIcon" />
                     </button>
                     <button
                       appIconButton
@@ -248,7 +255,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
                       [attr.aria-label]="actionText.remove"
                       (click)="remove($index)"
                     >
-                      <app-admin-icon name="trash-2" />
+                      <app-icon [glyph]="trash2Icon" />
                     </button>
                   </div>
                 </td>
@@ -267,7 +274,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
         class="mt-2 inline-flex items-center gap-1.5 text-sm"
         (click)="picking.set(true)"
       >
-        <app-admin-icon name="plus" class="size-4" />
+        <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.addKeys }}
       </button>
       @if (picking()) {
@@ -282,6 +289,11 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   `,
 })
 export class ProductAttributesEditor {
+  protected readonly funnelIcon = funnelIcon;
+  protected readonly gripVerticalIcon = gripVerticalIcon;
+  protected readonly plusIcon = plusIcon;
+  protected readonly trash2Icon = trash2Icon;
+  protected readonly triangleAlertIcon = triangleAlertIcon;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.attributes;
   protected readonly actionText = inject(SHARED_TEXT).actions;

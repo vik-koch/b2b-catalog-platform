@@ -9,6 +9,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
 import { Icon } from '../../shared/ui/icons/icon';
 import { navActionClasses, NavVariant } from './nav-action';
+import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
 
 /**
  * The cart control in the main navbar (FR-CART-01): a link to `/cart` carrying
@@ -50,7 +51,7 @@ import { navActionClasses, NavVariant } from './nav-action';
            line's descender space under the glyph and pushes the icon off the
            row's centre. -->
       <span class="relative inline-flex">
-        <app-icon name="shopping-basket" class="size-6" />
+        <app-icon [glyph]="shoppingBasketIcon" class="size-6" />
         <!-- The account's waiting-work dot, because a filled cart is work too:
              an order the customer has still to place or drop. The white
              figure on it is 3.2:1, short of the 4.5:1 text wants; dark digits
@@ -84,6 +85,7 @@ import { navActionClasses, NavVariant } from './nav-action';
   `,
 })
 export class CartLink {
+  protected readonly shoppingBasketIcon = shoppingBasketIcon;
   /** Which of the two navbars is drawing this control. */
   readonly variant = input<NavVariant>('bar');
   protected readonly cls = computed(() => navActionClasses(this.variant()));
