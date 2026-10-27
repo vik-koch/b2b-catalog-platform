@@ -154,8 +154,7 @@ async function render(
     await settle();
   };
   /** The first message on the page: beside a field, or the save's own. */
-  const error = () =>
-    el.querySelector('[appErrorText]')?.textContent?.trim();
+  const error = () => el.querySelector('[appErrorText]')?.textContent?.trim();
 
   return {
     fixture,

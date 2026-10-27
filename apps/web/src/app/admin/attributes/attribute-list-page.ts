@@ -155,7 +155,10 @@ const blankAttribute = (): AttributeDraft => ({
                 [id]="rowId(definition.name)"
               >
                 @if (isEditing(definition.id)) {
-                  <ng-container [ngTemplateOutlet]="recordForm" class="bg-white" />
+                  <ng-container
+                    [ngTemplateOutlet]="recordForm"
+                    class="bg-white"
+                  />
                 } @else {
                   <app-record-row [compact]="true">
                     <!-- Ordering is the filter panel's order and nothing else.
