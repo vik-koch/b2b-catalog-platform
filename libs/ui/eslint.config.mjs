@@ -1,5 +1,6 @@
 import nx from '@nx/eslint-plugin';
 import baseConfig from '../../eslint.config.mjs';
+import { classLines } from '../../tools/lint/class-lines.mjs';
 import {
   classFieldColours,
   tailwindChecks,
@@ -9,6 +10,7 @@ export default [
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
   ...baseConfig,
+  ...classLines,
   tailwindChecks(`${import.meta.dirname}/src/ui.css`),
   {
     files: ['**/*.ts'],

@@ -270,7 +270,7 @@ export const deploymentConfigSchema = z
           .strict()
           .optional(),
         /**
-         * The colours, as the roles in the web app's styles.css; only the
+         * The colours, as the roles in the UI library's ui.css; only the
          * brand is required (theme-config.ts says what each key colours).
          */
         theme: themeConfigSchema,

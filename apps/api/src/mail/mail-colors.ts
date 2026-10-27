@@ -15,7 +15,7 @@ export interface MailColors {
 }
 
 /**
- * The web app's defaults (styles.css) written as hex: a mail client reads
+ * The web app's defaults (libs/ui/src/ui.css) written as hex: a mail client reads
  * neither oklch nor color-mix. `inkSubtle` holds 4.5:1 on `surface`, where
  * the footer sits.
  */

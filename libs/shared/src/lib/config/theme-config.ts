@@ -53,7 +53,7 @@ function statusSchema<const R extends string>(roles: readonly R[]) {
 
 /**
  * The colours a deployment re-themes, each the role of the same name in
- * styles.css (`surfaceStrong` is `--color-surface-strong`). Only the brand is
+ * libs/ui/src/ui.css (`surfaceStrong` is `--color-surface-strong`). Only the brand is
  * required; every other key overrides the stylesheet's default, and a derived
  * role (a hover, a press) follows the role it derives from unless set itself.
  */

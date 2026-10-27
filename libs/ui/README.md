@@ -30,6 +30,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | Folder | Holds |
 | --- | --- |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
+| `ui.css` | Tailwind, the breakpoints, the type weight and the colour roles; the app's stylesheet imports it |
 
 ## Checking
 
