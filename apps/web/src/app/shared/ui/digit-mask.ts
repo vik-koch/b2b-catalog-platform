@@ -82,6 +82,9 @@ export class DigitMask implements FormValueControl<string> {
       const value = this.value();
       untracked(() => {
         if (value === this.written) return;
+        // The form has moved past what was typed: a later write of that same
+        // value is the form's again, and has to be painted.
+        this.written = null;
         this.source = this.stripPrefix(value);
         this.el.value = this.format(this.source);
       });
