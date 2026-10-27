@@ -1,4 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  forwardRef,
+  inject,
+  signal,
+  untracked,
+} from '@angular/core';
+import { disabled, form } from '@angular/forms/signals';
+import { filled } from '../../shared/core/field-rules';
 import { ActivatedRoute } from '@angular/router';
 import { CatalogImage } from '@b2b-catalog-platform/shared';
 import { AdminCategory, slugify } from '@b2b-catalog-platform/shared/admin';
@@ -12,7 +22,10 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../shared/ui/button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
+import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { Input } from '../../shared/ui/input';
 import {
   AdminCatalogService,
@@ -25,7 +38,16 @@ import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+
+interface CategoryDraft {
+  name: string;
+  /** Optional nickname for contexts where the parent is visible; empty means
+   * "fall back to the full name". */
+  shortName: string;
+  slug: string;
+  parentId: string;
+  sourceId: string;
+}
 
 /**
  * Edit a category (FR-ADM-01) on its own screen at
@@ -39,6 +61,7 @@ import { Hint } from '../../shared/ui/hint';
 @Component({
   selector: 'app-category-editor-page',
   imports: [
+    FORM_FIELDS,
     LockedNote,
     Button,
     AdminIcon,
@@ -50,7 +73,14 @@ import { Hint } from '../../shared/ui/hint';
     LockedFieldMarker,
     PageTitle,
     ErrorText,
-    Hint,
+  ],
+  // No <form> element: the buttons under the page save or leave, so the page
+  // says itself when the form has been sent.
+  providers: [
+    {
+      provide: FIELD_ATTEMPT,
+      useExisting: forwardRef(() => CategoryEditorPage),
+    },
   ],
   template: `
     <h1 appPageTitle class="mb-4">
@@ -73,82 +103,86 @@ import { Hint } from '../../shared/ui/hint';
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
 
-        <label class="block">
-          <span appFieldLabel>
-            {{ text.name }}
-            <span class="text-accent" aria-hidden="true">*</span>
-            @if (fieldsLocked()) {
-              <app-locked-field-marker />
-            }
-          </span>
+        <app-field
+          [field]="form.name"
+          [label]="text.name"
+          controlId="category-name"
+        >
+          @if (fieldsLocked()) {
+            <app-locked-field-marker appFieldCaption />
+          }
           <input
             type="text"
             appInput
             class="w-full"
-            [value]="name()"
-            [disabled]="fieldsLocked()"
-            (input)="onNameInput($any($event.target).value)"
+            [formField]="form.name"
+            (input)="onNameInput()"
           />
-        </label>
+        </app-field>
 
         <div class="grid gap-6 sm:grid-cols-2">
-          <label class="block">
-            <span appFieldLabel>{{ text.shortName }}</span>
+          <app-field
+            [field]="form.shortName"
+            [label]="text.shortName"
+            [hint]="text.shortNameHint"
+            controlId="category-short-name"
+          >
             <input
               type="text"
               appInput
               class="w-full"
-              [value]="shortName()"
-              (input)="shortName.set($any($event.target).value)"
+              [formField]="form.shortName"
             />
-            <span appHint class="mt-1">{{ text.shortNameHint }}</span>
-          </label>
+          </app-field>
 
-          <div class="block">
-            <span appFieldLabel>{{ text.parent }}</span>
+          <app-field
+            [field]="form.parentId"
+            [label]="text.parent"
+            controlId="category-parent"
+          >
             <app-category-picker
               [categories]="parentOptions()"
-              [value]="parentId()"
+              [field]="form.parentId"
               [emptyLabel]="text.noParent"
-              [ariaLabel]="text.parent"
-              (valueChange)="parentId.set($event)"
             />
-          </div>
+          </app-field>
         </div>
 
         <!-- The category's two identifiers side by side, as the product
              editor pairs them: the one the shop addresses it by and the one
              the source system knows it as. One per line below sm. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <label class="block">
-            <span appFieldLabel>{{ text.slug }}</span>
+          <app-field
+            [field]="form.slug"
+            [label]="text.slug"
+            [hint]="text.slugHint"
+            controlId="category-slug"
+          >
             <input
               type="text"
               appInput
               class="w-full font-mono text-sm"
-              [value]="effectiveSlug()"
+              [formField]="form.slug"
               (input)="onSlugInput($any($event.target).value)"
             />
-            <span appHint class="mt-1">{{ text.slugHint }}</span>
-          </label>
+          </app-field>
 
-          <label class="block">
-            <span appFieldLabel>
-              {{ text.sourceId }}
-              @if (fieldsLocked()) {
-                <app-locked-field-marker />
-              }
-            </span>
+          <app-field
+            [field]="form.sourceId"
+            [label]="text.sourceId"
+            [hint]="text.sourceIdHint"
+            controlId="category-source-id"
+          >
+            @if (fieldsLocked()) {
+              <app-locked-field-marker appFieldCaption />
+            }
             <input
               type="text"
               appInput
               class="w-full font-mono text-sm"
-              [value]="sourceId()"
-              [disabled]="fieldsLocked()"
-              (input)="sourceId.set($any($event.target).value)"
+              [formField]="form.sourceId"
             />
-            <span appHint class="mt-1">{{ text.sourceIdHint }}</span>
-          </label>
+          </app-field>
         </div>
 
         <div>
@@ -194,7 +228,7 @@ import { Hint } from '../../shared/ui/hint';
     }
   `,
 })
-export class CategoryEditorPage implements UnsavedChangesAware {
+export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly admin = inject(AdminCatalogService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).categories.editor;
@@ -238,19 +272,32 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private readonly all = signal<AdminCategory[]>([]);
   protected readonly category = signal<AdminCategory | null>(null);
 
-  protected readonly name = signal('');
-  /** Optional nickname for contexts where the parent is visible; empty means
-   * "fall back to the full name". */
-  protected readonly shortName = signal('');
-  protected readonly slug = signal('');
   /** Where the slug comes from. A new record follows its name from the start.
    * An emptied box stays empty until the name is next edited, then follows
    * it, so clearing the box does not refill it from the current name. */
   private readonly slugSource = signal<'typed' | 'emptied' | 'name'>(
     this.isNew ? 'name' : 'typed',
   );
-  protected readonly parentId = signal('');
-  protected readonly sourceId = signal('');
+  private readonly model = signal<CategoryDraft>({
+    name: '',
+    shortName: '',
+    slug: '',
+    parentId: '',
+    sourceId: '',
+  });
+  protected readonly form = form(
+    this.model,
+    (category) => {
+      // The two fields an exchange writes, on a category it knows.
+      const locked = { when: () => this.fieldsLocked() };
+      disabled(category.name, locked);
+      disabled(category.sourceId, locked);
+      filled(category.name, this.text.nameRequired);
+    },
+    { name: 'category-editor' },
+  );
+  /** Read by every field on the page (FIELD_ATTEMPT). */
+  readonly attempted = computed(() => submitAttempt(this.form)());
   /** The chip mark (FR-CAT-07). */
   protected readonly mark = signal<CatalogImage | null>(null);
 
@@ -259,14 +306,6 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   private navigatingAway = false;
   private readonly close = injectEditorReturn();
   private readonly dirty = computed(() => this.snapshot() !== this.original);
-
-  protected readonly effectiveSlug = computed(() =>
-    this.slugSource() === 'name'
-      ? slugify(this.name())
-      : this.slugSource() === 'emptied'
-        ? ''
-        : this.slug(),
-  );
 
   /** Parents this category may move under: everyone except itself and its
    * descendants (which would form a cycle). */
@@ -292,6 +331,18 @@ export class CategoryEditorPage implements UnsavedChangesAware {
     usePageSeo({
       name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
     });
+    // A following slug is the name's, kept in the model so the field shows it;
+    // an emptied one stays empty until the name is next edited.
+    effect(() => {
+      const name = this.form.name().value();
+      if (this.slugSource() !== 'name') return;
+      const next = slugify(name);
+      untracked(() => {
+        if (this.form.slug().value() !== next) {
+          this.form.slug().value.set(next);
+        }
+      });
+    });
     void this.load();
   }
 
@@ -306,7 +357,7 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       // An empty form, so the category only exists once it is saved with a name
       // the admin chose — rather than appearing in the tree as "New category".
       const parent = categories.find((c) => c.slug === this.parentParam);
-      this.parentId.set(parent?.id ?? '');
+      this.form.parentId().value.set(parent?.id ?? '');
       this.original = this.snapshot();
       this.loading.set(false);
       return;
@@ -314,11 +365,13 @@ export class CategoryEditorPage implements UnsavedChangesAware {
     const match = categories.find((c) => c.slug === this.slugParam) ?? null;
     this.category.set(match);
     if (match) {
-      this.name.set(match.name);
-      this.shortName.set(match.shortName ?? '');
-      this.slug.set(match.slug);
-      this.parentId.set(match.parentId ?? '');
-      this.sourceId.set(match.sourceId ?? '');
+      this.model.set({
+        name: match.name,
+        shortName: match.shortName ?? '',
+        slug: match.slug,
+        parentId: match.parentId ?? '',
+        sourceId: match.sourceId ?? '',
+      });
       this.mark.set(match.mark);
       this.original = this.snapshot();
     }
@@ -326,29 +379,26 @@ export class CategoryEditorPage implements UnsavedChangesAware {
   }
 
   private snapshot(): string {
-    return JSON.stringify({
-      name: this.name(),
-      shortName: this.shortName(),
-      slug: this.effectiveSlug(),
-      sourceId: this.sourceId(),
-      parentId: this.parentId(),
-      mark: this.mark(),
-    });
+    return JSON.stringify({ ...this.model(), mark: this.mark() });
   }
 
   protected onSlugInput(value: string): void {
     this.slugSource.set(value.trim() ? 'typed' : 'emptied');
-    this.slug.set(value);
   }
 
-  protected onNameInput(value: string): void {
-    this.name.set(value);
+  protected onNameInput(): void {
     if (this.slugSource() === 'emptied') this.slugSource.set('name');
   }
 
   protected async save(): Promise<void> {
     const current = this.category();
     if (!this.isNew && !current) return;
+    submitAttempt(this.form).set(true);
+    if (this.form().invalid()) {
+      this.form().errorSummary()[0]?.fieldTree().focusBoundControl();
+      return;
+    }
+    const draft = this.model();
     // An emptied box saves the name's slug, as a following one does. For a
     // new category it is omitted, so the server derives and de-duplicates it;
     // an existing one sends it, because omitting it there keeps the stored one.
@@ -356,16 +406,16 @@ export class CategoryEditorPage implements UnsavedChangesAware {
       this.slugSource() !== 'typed'
         ? this.isNew
           ? undefined
-          : slugify(this.name()) || undefined
-        : this.slug().trim() || undefined;
+          : slugify(draft.name) || undefined
+        : draft.slug.trim() || undefined;
     // Always sent, never omitted: an emptied box detaches the category from
     // the exchange, which is the only way to undo a key typed by mistake.
-    const sourceId = this.sourceId().trim() || null;
+    const sourceId = draft.sourceId.trim() || null;
 
     const body = {
-      name: this.name().trim(),
-      shortName: this.shortName().trim() || null,
-      parentId: this.parentId() || null,
+      name: draft.name.trim(),
+      shortName: draft.shortName.trim() || null,
+      parentId: draft.parentId || null,
       mark: this.mark(),
       ...(slug ? { slug } : {}),
       sourceId,

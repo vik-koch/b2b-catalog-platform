@@ -68,6 +68,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
+import { filled } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../shared/ui/button';
@@ -806,7 +807,7 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
         disabled(path, owned);
       }
       disabled(product.tierPrices, owned);
-      required(product.name, { message: this.text.nameRequired });
+      filled(product.name, this.text.nameRequired);
       required(product.categoryId, { message: this.text.categoryRequired });
       // An empty field is "no price", a real state; anything else that will
       // not parse is a typo.

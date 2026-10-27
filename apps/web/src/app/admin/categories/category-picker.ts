@@ -23,7 +23,11 @@ import { flattenCategoryTree } from './category-tree';
       @if (field(); as field) {
         <!-- No [selected] here: the field sets the select's value itself. -->
         <select appInput class="w-full" [formField]="field">
-          <option value="" disabled>{{ placeholder() }}</option>
+          @if (emptyLabel() !== null) {
+            <option value="">{{ emptyLabel() }}</option>
+          } @else {
+            <option value="" disabled>{{ placeholder() }}</option>
+          }
           @for (o of options(); track o.id) {
             <option [value]="o.id">{{ indent(o.depth) }}{{ o.name }}</option>
           }

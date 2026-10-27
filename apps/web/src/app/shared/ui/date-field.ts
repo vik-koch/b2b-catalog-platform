@@ -1,4 +1,13 @@
-import { Component, computed, input, output } from '@angular/core';
+import {
+  Component,
+  computed,
+  ElementRef,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
+import { FormField, type FieldTree } from '@angular/forms/signals';
+import { FieldBinding } from './field-binding';
 import { injectCoarsePointer } from '../core/coarse-pointer';
 import { Icon } from './icons/icon';
 import { Input } from './input';
@@ -53,7 +62,7 @@ const empty =
  */
 @Component({
   selector: 'app-date-field',
-  imports: [Icon, Input],
+  imports: [FormField, FieldBinding, Icon, Input],
   host: { class: 'block' },
   template: `
     <!-- Under a mouse there are two ways in, and they are different gestures.
@@ -86,31 +95,46 @@ const empty =
         tabindex="-1"
         aria-hidden="true"
         class="absolute left-2 flex cursor-pointer items-center justify-center rounded-sm p-1 text-ink-subtle transition-colors hover:text-accent"
-        (click)="openPicker(input)"
+        (click)="openPicker(dateInput()?.nativeElement)"
       >
         <app-icon name="calendar" class="size-4" />
       </button>
-      <input
-        #input
-        [id]="fieldId()"
-        type="date"
-        [attr.min]="min()"
-        [attr.max]="max()"
-        [value]="value() ?? ''"
-        appInput
-        class="peer w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
-        [class]="fieldClass()"
-        (click)="onFieldClick(input)"
-        (change)="picked($event)"
-        [attr.aria-label]="ariaLabel() || null"
-        [attr.aria-invalid]="invalid() || null"
-        [attr.aria-describedby]="describedBy() || null"
-      />
+      @if (field(); as field) {
+        <!-- Inside a Field, which gives it its id and ARIA wiring. -->
+        <input
+          #input
+          type="date"
+          [attr.min]="min()"
+          [attr.max]="max()"
+          appInput
+          class="peer w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+          [class]="fieldClass()"
+          [formField]="field"
+          (click)="onFieldClick(input)"
+        />
+      } @else {
+        <input
+          #input
+          [id]="fieldId()"
+          type="date"
+          [attr.min]="min()"
+          [attr.max]="max()"
+          [value]="value() ?? ''"
+          appInput
+          class="peer w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+          [class]="fieldClass()"
+          (click)="onFieldClick(input)"
+          (change)="picked($event)"
+          [attr.aria-label]="ariaLabel() || null"
+          [attr.aria-invalid]="invalid() || null"
+          [attr.aria-describedby]="describedBy() || null"
+        />
+      }
       <!-- Our own empty state, over the field the engine has been made to
            draw nothing in. After the input so it can watch it: it goes away
            the moment the caret arrives, which is when the segments underneath
            become the thing to read. Decorative — the label names the field. -->
-      @if (value() === null && placeholder()) {
+      @if (current() === null && placeholder()) {
         <span
           aria-hidden="true"
           class="pointer-events-none absolute left-9 text-ink-subtle select-none peer-focus:hidden"
@@ -123,7 +147,10 @@ const empty =
 })
 export class DateField {
   /** ISO `YYYY-MM-DD`, or null for no date at all. */
-  readonly value = input.required<string | null>();
+  readonly value = input<string | null>(null);
+  /** The field the input is the control of, where a form holds the date; an
+   * empty string is no date. */
+  readonly field = input<FieldTree<string>>();
   readonly fieldId = input<string>();
   /** What an empty field says, since a native one says something different in
    * every engine. */
@@ -140,9 +167,18 @@ export class DateField {
   readonly valueChange = output<string | null>();
 
   private readonly coarse = injectCoarsePointer();
+  /** Whichever of the two inputs is drawn, for the glyph outside them. */
+  protected readonly dateInput =
+    viewChild<ElementRef<HTMLInputElement>>('input');
+
+  /** The date shown, whichever of the two holds it. */
+  protected readonly current = computed(() => {
+    const field = this.field();
+    return field ? field().value() || null : this.value();
+  });
 
   protected readonly fieldClass = computed(() => {
-    const state = this.value() === null ? `${segments} ${empty}` : segments;
+    const state = this.current() === null ? `${segments} ${empty}` : segments;
     // Under a finger the field is a button that opens the picker, and says so:
     // a caret it will not keep, and a text selection it cannot act on, are
     // both promises the tap is about to break.
@@ -158,9 +194,9 @@ export class DateField {
    * affordance, which is drawn differently in every browser. Guarded:
    * `showPicker` is absent on older engines and refuses outside a user
    * gesture, and the field still takes typing either way. */
-  protected openPicker(input: HTMLInputElement): void {
+  protected openPicker(input: HTMLInputElement | undefined): void {
     try {
-      input.showPicker?.();
+      input?.showPicker?.();
     } catch {
       // Nothing to do: the date can still be typed.
     }

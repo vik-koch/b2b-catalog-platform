@@ -1,4 +1,5 @@
 import {
+  required,
   validate,
   type PathKind,
   type SchemaPath,
@@ -17,6 +18,23 @@ type StringPath<K extends PathKind> = SchemaPath<
   SchemaPathRules.Supported,
   K
 >;
+
+/**
+ * Required, with spaces alone counting as nothing: `required` takes any
+ * non-empty string, and a name of three spaces is saved trimmed to none. Both
+ * errors are of the `required` kind, so the field treats them alike.
+ */
+export function filled<K extends PathKind>(
+  path: StringPath<K>,
+  message: string,
+): void {
+  required(path, { message });
+  validate(path, ({ value }) =>
+    value() !== '' && value().trim() === ''
+      ? { kind: 'required', message }
+      : undefined,
+  );
+}
 
 /**
  * The email rule the API applies, from the shared pattern rather than the
