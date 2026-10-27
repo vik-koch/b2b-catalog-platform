@@ -108,9 +108,7 @@ interface CategoryDraft {
           [label]="text.name"
           controlId="category-name"
         >
-          @if (fieldsLocked()) {
-            <app-locked-field-marker appFieldCaption />
-          }
+          <app-locked-field-marker appFieldCaption [field]="form.name" />
           <input
             type="text"
             appInput
@@ -173,9 +171,7 @@ interface CategoryDraft {
             [hint]="text.sourceIdHint"
             controlId="category-source-id"
           >
-            @if (fieldsLocked()) {
-              <app-locked-field-marker appFieldCaption />
-            }
+            <app-locked-field-marker appFieldCaption [field]="form.sourceId" />
             <input
               type="text"
               appInput
@@ -288,8 +284,11 @@ export class CategoryEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly form = form(
     this.model,
     (category) => {
-      // The two fields an exchange writes, on a category it knows.
-      const locked = { when: () => this.fieldsLocked() };
+      // The two fields an exchange writes, on a category it knows. The reason
+      // is what each field's lock says.
+      const locked = {
+        when: () => this.fieldsLocked() && this.ownershipText.fieldLockedShort,
+      };
       disabled(category.name, locked);
       disabled(category.sourceId, locked);
       filled(category.name, this.text.nameRequired);

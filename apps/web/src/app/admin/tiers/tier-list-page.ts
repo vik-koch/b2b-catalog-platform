@@ -319,9 +319,7 @@ type EditTarget = { id: string } | { id: null } | null;
                field — it is how an admin answers a run that priced a key this
                deployment does not have. -->
           <app-field [field]="form.key" [label]="text.key" controlId="tier-key">
-            @if (keyLocked()) {
-              <app-locked-field-marker appFieldCaption />
-            }
+            <app-locked-field-marker appFieldCaption [field]="form.key" />
             <input
               appInput
               size="sm"
@@ -390,7 +388,10 @@ export class TierListPage {
       filled(tier.label, this.text.labelRequired);
       // The contract's rule, from its import-free parts.
       filled(tier.key, this.text.keyInvalid);
-      disabled(tier.key, { when: () => this.keyLocked() });
+      // The reason is what the key's lock says.
+      disabled(tier.key, {
+        when: () => this.keyLocked() && this.ownershipText.fieldLockedShort,
+      });
       validate(tier.key, ({ value }) => {
         const key = value().trim().normalize('NFC');
         return !key ||

@@ -49,9 +49,7 @@ export interface TierPriceDraft {
   template: `
     <span appFieldLabel>
       {{ text.heading }}
-      @if (disabled()) {
-        <app-locked-field-marker />
-      }
+      <app-locked-field-marker [field]="field()" />
     </span>
     <!-- A line each below sm, as the base price above them takes: a row of
          10rem fields on a phone is a row of fields with more chrome than value

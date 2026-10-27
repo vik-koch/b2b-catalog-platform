@@ -246,9 +246,7 @@ interface ProductDraft {
           [label]="text.name"
           controlId="product-name"
         >
-          @if (catalogOwned()) {
-            <app-locked-field-marker appFieldCaption />
-          }
+          <app-locked-field-marker appFieldCaption [field]="form.name" />
           <input
             type="text"
             appInput
@@ -281,9 +279,7 @@ interface ProductDraft {
             [label]="priceLabel()"
             controlId="product-price"
           >
-            @if (catalogOwned()) {
-              <app-locked-field-marker appFieldCaption />
-            }
+            <app-locked-field-marker appFieldCaption [field]="form.price" />
             <!-- Text, not type=number: a number input reports a half-typed
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
@@ -311,9 +307,7 @@ interface ProductDraft {
             [label]="text.taxRate.label"
             controlId="product-tax-rate"
           >
-            @if (catalogOwned()) {
-              <app-locked-field-marker appFieldCaption />
-            }
+            <app-locked-field-marker appFieldCaption [field]="form.taxRate" />
             <app-unit-field class="w-full" unit="%" [compact]="true">
               <input
                 type="text"
@@ -350,9 +344,10 @@ interface ProductDraft {
             [label]="text.category"
             controlId="product-category"
           >
-            @if (catalogOwned()) {
-              <app-locked-field-marker appFieldCaption />
-            }
+            <app-locked-field-marker
+              appFieldCaption
+              [field]="form.categoryId"
+            />
             <app-category-picker
               [categories]="categories()"
               [field]="form.categoryId"
@@ -401,9 +396,7 @@ interface ProductDraft {
             [hint]="text.sourceIdHint"
             controlId="product-source-id"
           >
-            @if (catalogOwned()) {
-              <app-locked-field-marker appFieldCaption />
-            }
+            <app-locked-field-marker appFieldCaption [field]="form.sourceId" />
             <input
               type="text"
               appInput
@@ -456,9 +449,10 @@ interface ProductDraft {
               [label]="text.stock.pieces"
               controlId="product-stock"
             >
-              @if (catalogOwned()) {
-                <app-locked-field-marker appFieldCaption />
-              }
+              <app-locked-field-marker
+                appFieldCaption
+                [field]="form.stockPieces"
+              />
               <app-unit-field class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
@@ -794,8 +788,11 @@ export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly form = form(
     this.model,
     (product) => {
-      // Only the fields an exchange writes; the rest stay the shop's own.
-      const owned = { when: () => this.catalogOwned() };
+      // Only the fields an exchange writes; the rest stay the shop's own. The
+      // reason is what each field's lock says.
+      const owned = {
+        when: () => this.catalogOwned() && this.ownershipText.fieldLockedShort,
+      };
       for (const path of [
         product.name,
         product.price,

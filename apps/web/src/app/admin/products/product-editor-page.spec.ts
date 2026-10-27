@@ -256,6 +256,13 @@ function tierInput(el: HTMLElement, tierLabel: string): HTMLInputElement {
   return inputByLabel(el, tierLabel);
 }
 
+/** The lock markers on screen: a marker with no reason is in the DOM but not drawn. */
+function shownLocks(el: HTMLElement): HTMLElement[] {
+  return [
+    ...el.querySelectorAll<HTMLElement>('app-locked-field-marker'),
+  ].filter((lock) => lock.style.display !== 'none');
+}
+
 function saveButton(el: HTMLElement): HTMLButtonElement {
   const button = [...el.querySelectorAll('button')].find((b) =>
     b.textContent?.includes(defaultAdminText.actions.save),
@@ -1260,12 +1267,32 @@ describe('ProductEditorPage', () => {
       expect(occurrences).toHaveLength(1);
     });
 
+    it('marks each locked field with a lock, and only those', async () => {
+      const { el } = await render(
+        { slug: 'coffee-beans' },
+        {},
+        { catalogOwned: true },
+      );
+
+      const locked = shownLocks(el).map((lock) =>
+        lock.closest('app-field')?.querySelector('label')?.getAttribute('for'),
+      );
+      expect(locked).toEqual(
+        expect.arrayContaining(['product-name', 'product-stock']),
+      );
+      expect(locked).not.toContain('product-slug');
+      expect(shownLocks(el)[0].querySelector('button')?.ariaLabel).toBe(
+        defaultAdminText.ownership.fieldLockedShort,
+      );
+    });
+
     it('leaves every field editable when nothing is owned', async () => {
       const { el } = await render({ slug: 'coffee-beans' });
 
       expect(inputByLabel(el, text.name).disabled).toBe(false);
       expect(inputByLabel(el, priceLabel).disabled).toBe(false);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(false);
+      expect(shownLocks(el)).toEqual([]);
     });
   });
 

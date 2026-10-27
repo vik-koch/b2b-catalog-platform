@@ -41,10 +41,11 @@ Alternatives considered:
 **Every form is a Signal Forms `form()`** over a signal model. Its rules live in
 the schema: `required` with a `when` where a field is only sometimes required,
 `hidden` for a branch the page does not show (it counts for nothing and is not
-sent), `disabled` for the fields an external system owns. Every rule carries a
-message from the deployment's text files; limits and patterns come from the
-import-free modules. `filled()` is `required` that takes spaces alone as
-nothing, for the fields a save trims.
+sent), `disabled` for the fields an external system owns, with the reason the
+lock beside the caption says. Every rule carries a message from the
+deployment's text files; limits and patterns come from the import-free modules.
+`filled()` is `required` that takes spaces alone as nothing, for the fields a
+save trims.
 
 **Every field is an `<app-field>`.** The shell draws the caption (a `<legend>`
 in group mode), the required mark, the hint and the error, all read from the
