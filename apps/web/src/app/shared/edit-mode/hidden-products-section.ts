@@ -63,7 +63,8 @@ import { pencilIcon } from '../ui/icons/glyphs/pencil';
                         <img
                           [src]="image.thumb"
                           [alt]="item.name"
-                          class="size-full bg-white object-contain opacity-50 grayscale"
+                          class="size-full bg-white object-contain opacity-50
+                                 grayscale"
                         />
                       }
                     </div>
@@ -176,16 +177,22 @@ export class HiddenProductsSection {
    * grid draws the rules between them, so the card drops its own frame.
    */
   protected readonly card =
-    'flex h-full flex-col rounded-lg border border-dashed border-edge-strong bg-surface-subtle ' +
-    '@max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none @max-[38rem]/listing:border-0 @max-[38rem]/listing:bg-transparent ' +
+    `flex h-full flex-col rounded-lg border border-dashed border-edge-strong
+     bg-surface-subtle ` +
+    `@max-[38rem]/listing:flex-row @max-[38rem]/listing:items-stretch
+     @max-[38rem]/listing:gap-4 @max-[38rem]/listing:rounded-none
+     @max-[38rem]/listing:border-0 @max-[38rem]/listing:bg-transparent ` +
     NARROW_PADDING_IN_GRID;
 
   protected readonly photoBox = 'relative flex ' + NARROW_PHOTO_IN_GRID;
 
   /** Flush with the card's top edge, and its own framed square once the card
    * has no frame to lend it — the tile's rule, and a row's at every width. */
-  protected readonly photo =
-    'block aspect-square w-full overflow-hidden rounded-t-lg bg-white @max-[38rem]/listing:rounded-md @max-[38rem]/listing:ring-1 @max-[38rem]/listing:ring-edge';
+  protected readonly photo = `block aspect-square w-full overflow-hidden
+                              rounded-t-lg bg-white
+                              @max-[38rem]/listing:rounded-md
+                              @max-[38rem]/listing:ring-1
+                              @max-[38rem]/listing:ring-edge`;
 
   protected readonly body =
     'flex flex-1 flex-col p-3 @max-[38rem]/listing:p-0 ' + NARROW_BODY_IN_GRID;

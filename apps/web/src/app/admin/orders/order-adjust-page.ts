@@ -220,7 +220,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
     } @else if (order(); as loaded) {
       <div class="@container/adjust">
         <div
-          class="grid gap-10 @min-[63.75rem]/adjust:grid-cols-[1fr_20rem] @min-[63.75rem]/adjust:justify-between"
+          class="grid gap-10
+                 @min-[63.75rem]/adjust:grid-cols-[1fr_20rem]
+                 @min-[63.75rem]/adjust:justify-between"
         >
           <div class="max-w-xl">
             <h1 appPageTitle>{{ title() }}</h1>
@@ -595,7 +597,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
           </div>
 
           <aside
-            class="max-w-xl @min-[63.75rem]/adjust:mt-9 @min-[63.75rem]/adjust:sticky @min-[63.75rem]/adjust:top-20 @min-[63.75rem]/adjust:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/adjust:mt-9 @min-[63.75rem]/adjust:sticky
+                   @min-[63.75rem]/adjust:top-20
+                   @min-[63.75rem]/adjust:self-start"
           >
             <!-- The customer's own words first, because they are the question
                  everything below is an answer to: what they asked for, when

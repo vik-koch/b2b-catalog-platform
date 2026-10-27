@@ -123,13 +123,16 @@ type View = 'all' | 'linked';
          grows by a screenful when a search matches everything is one nobody can
          reach the save button in. -->
     <ul
-      class="mt-3 max-h-80 divide-y divide-edge overflow-y-auto rounded-md border border-edge"
+      class="mt-3 max-h-80 divide-y divide-edge overflow-y-auto rounded-md
+             border border-edge"
       [attr.aria-busy]="products.isLoading() ? 'true' : null"
     >
       @for (row of rows(); track row.slug; let index = $index) {
         <li>
           <label
-            class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm select-none hover:bg-surface-subtle-hover"
+            class="flex cursor-pointer items-center gap-3 px-3 py-2 text-sm
+                   select-none
+                   hover:bg-surface-subtle-hover"
           >
             <input
               type="checkbox"

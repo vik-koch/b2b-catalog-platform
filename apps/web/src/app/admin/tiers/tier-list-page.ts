@@ -159,7 +159,8 @@ type EditTarget = { id: string } | { id: null } | null;
                     </code>
                     @if (tier.isDefault) {
                       <span
-                        class="rounded-sm bg-ink-subtle px-1.5 py-0.5 text-xs text-white"
+                        class="rounded-sm bg-ink-subtle px-1.5 py-0.5 text-xs
+                               text-white"
                         [title]="text.defaultHint"
                       >
                         {{ text.defaultBadge }}

@@ -31,8 +31,9 @@ export interface SuggestListText {
  * window because a form is not the width of the page — the checkout draws two
  * of these in cards — and the containing form declares the container.
  */
-export const SUGGEST_PANEL =
-  'absolute top-full left-0 z-20 mt-1 w-full overflow-hidden rounded-md border border-edge-strong bg-white py-1 shadow-lg';
+export const SUGGEST_PANEL = `absolute top-full left-0 z-20 mt-1 w-full
+                              overflow-hidden rounded-md border
+                              border-edge-strong bg-white py-1 shadow-lg`;
 
 /**
  * Long enough that a fast typist produces one call per word — and every call

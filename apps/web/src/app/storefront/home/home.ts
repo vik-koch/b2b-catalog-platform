@@ -29,7 +29,8 @@ const BAND =
           {{ text.home.eyebrow }}
         </p>
         <h1
-          class="mt-3 max-w-2xl text-3xl font-medium tracking-tight sm:text-5xl"
+          class="mt-3 max-w-2xl text-3xl font-medium tracking-tight
+                 sm:text-5xl"
         >
           {{ tagline }}
         </h1>

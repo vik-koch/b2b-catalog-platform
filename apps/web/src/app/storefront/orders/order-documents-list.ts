@@ -52,7 +52,9 @@ import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
               />
               <span class="min-w-0">
                 <span
-                  class="block font-medium text-primary underline decoration-primary/30 underline-offset-2 group-hover:text-accent group-hover:decoration-accent"
+                  class="block font-medium text-primary underline
+                         decoration-primary/30 underline-offset-2
+                         group-hover:text-accent group-hover:decoration-accent"
                 >
                   {{ document.label }}
                 </span>

@@ -90,7 +90,8 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
            a greyed form invites an attempt the API would refuse anyway. -->
       @if (customersOwned()) {
         <p
-          class="rounded-md border border-edge bg-surface px-4 py-3 text-sm text-ink-subtle"
+          class="rounded-md border border-edge bg-surface px-4 py-3 text-sm
+                 text-ink-subtle"
           role="status"
         >
           {{ text.formatErrors['customers-externally-owned'] }}

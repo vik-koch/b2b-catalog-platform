@@ -2,8 +2,9 @@ import { computed, Directive, input } from '@angular/core';
 import { pencilIcon } from './icons/glyphs/pencil';
 
 // See Button for the cursor, focus-outline and select-none reasoning.
-const base =
-  'inline-flex cursor-pointer items-center justify-center transition-colors select-none disabled:cursor-not-allowed';
+const base = `inline-flex cursor-pointer items-center justify-center
+              transition-colors select-none
+              disabled:cursor-not-allowed`;
 
 /**
  * How much room the glyph gets — the padding *and* the glyph, because the two

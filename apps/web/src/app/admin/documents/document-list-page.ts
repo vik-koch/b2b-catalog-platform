@@ -132,7 +132,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                are the same thing. -->
           <td class="truncate">
             <a
-              class="block truncate wrap-break-word font-medium text-ink hover:text-accent"
+              class="block truncate wrap-break-word font-medium text-ink
+                     hover:text-accent"
               [href]="opens(document)"
               target="_blank"
               rel="noopener"

@@ -159,7 +159,8 @@ export class FeaturedRow {
   );
 
   protected readonly trackClass =
-    'grid grid-flow-col gap-5 overflow-x-auto overscroll-x-contain snap-x snap-mandatory ' +
+    `grid grid-flow-col gap-5 overflow-x-auto overscroll-x-contain snap-x
+     snap-mandatory ` +
     'motion-safe:scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ' +
     '-mx-4 px-4 pt-1 pb-8 scroll-px-4 ' +
     CARD_WIDTH;

@@ -29,7 +29,14 @@ import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
   template: `
     <button
       type="button"
-      class="inline-flex size-9 cursor-pointer items-center justify-center rounded-full border border-edge-strong bg-surface-subtle text-ink-subtle transition-colors hover:border-accent hover:text-accent active:border-primary-press active:text-primary-press disabled:cursor-default disabled:border-edge disabled:bg-transparent disabled:text-ink-disabled disabled:hover:border-edge disabled:hover:text-ink-disabled"
+      class="inline-flex size-9 cursor-pointer items-center justify-center
+             rounded-full border border-edge-strong bg-surface-subtle
+             text-ink-subtle transition-colors
+             hover:border-accent hover:text-accent
+             active:border-primary-press active:text-primary-press
+             disabled:cursor-default disabled:border-edge
+             disabled:bg-transparent disabled:text-ink-disabled
+             disabled:hover:border-edge disabled:hover:text-ink-disabled"
       [disabled]="!collapsed()"
       [title]="label"
       (click)="toTop()"

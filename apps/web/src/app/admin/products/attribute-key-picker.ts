@@ -66,7 +66,8 @@ import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
           @for (hint of hints(); track hint.key) {
             <li>
               <label
-                class="flex cursor-pointer items-center gap-2 py-1 text-sm has-[input:disabled]:cursor-not-allowed"
+                class="flex cursor-pointer items-center gap-2 py-1 text-sm
+                       has-[input:disabled]:cursor-not-allowed"
                 [class.text-ink-subtle]="used().includes(hint.key)"
               >
                 <input

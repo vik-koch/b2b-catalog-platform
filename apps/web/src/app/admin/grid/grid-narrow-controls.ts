@@ -174,7 +174,8 @@ interface SortOption {
                   <ul class="flex flex-wrap gap-2">
                     @for (chip of chips(); track chip.label) {
                       <li
-                        class="flex items-center gap-2 rounded-full bg-surface px-3 py-1 text-sm"
+                        class="flex items-center gap-2 rounded-full bg-surface
+                               px-3 py-1 text-sm"
                       >
                         <span class="text-ink-subtle">{{ chip.label }}</span>
                         <span class="font-medium">{{ chip.value }}</span>

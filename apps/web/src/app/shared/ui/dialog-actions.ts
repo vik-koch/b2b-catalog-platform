@@ -23,8 +23,9 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[appDialogActions]',
   host: {
-    class:
-      'mt-6 flex flex-wrap gap-3 sm:justify-end [&>*]:min-w-0 [&>*]:flex-1 sm:[&>*]:flex-initial',
+    class: `mt-6 flex flex-wrap gap-3
+            sm:justify-end sm:[&>*]:flex-initial
+            [&>*]:min-w-0 [&>*]:flex-1`,
   },
 })
 export class DialogActions {}

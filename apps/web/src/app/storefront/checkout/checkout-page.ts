@@ -167,7 +167,9 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
            summary sits under the form instead of beside it. -->
       <div class="@container/checkout">
         <div
-          class="grid gap-10 @min-[63.75rem]/checkout:grid-cols-[36rem_20rem] @min-[63.75rem]/checkout:justify-between"
+          class="grid gap-10
+                 @min-[63.75rem]/checkout:grid-cols-[36rem_20rem]
+                 @min-[63.75rem]/checkout:justify-between"
         >
           <!-- Heading and intro in the column, not above the grid: the summary
                beside them then starts level with the heading, and the same card
@@ -194,7 +196,8 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
               <!-- Marked with the glyph the account control wears, so it reads
                    as being about an account before it is read at all. -->
               <p
-                class="mb-8 flex max-w-xl items-start gap-2 text-sm text-ink-subtle"
+                class="mb-8 flex max-w-xl items-start gap-2 text-sm
+                       text-ink-subtle"
               >
                 <app-icon
                   [glyph]="circleUserRoundIcon"
@@ -325,7 +328,8 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                      same as. -->
                     @if (billingEnabled) {
                       <label
-                        class="mt-4 flex cursor-pointer items-start gap-2 text-sm"
+                        class="mt-4 flex cursor-pointer items-start gap-2
+                               text-sm"
                       >
                         <input
                           type="checkbox"
@@ -400,7 +404,12 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                under the heading and was pushed down the moment the form
                arrived. Beside the form it has nothing to wait for. -->
           <aside
-            class="max-w-xl @min-[63.75rem]/checkout:visible @min-[63.75rem]/checkout:mt-9 @min-[63.75rem]/checkout:sticky @min-[63.75rem]/checkout:top-20 @min-[63.75rem]/checkout:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/checkout:visible
+                   @min-[63.75rem]/checkout:mt-9
+                   @min-[63.75rem]/checkout:sticky
+                   @min-[63.75rem]/checkout:top-20
+                   @min-[63.75rem]/checkout:self-start"
             [class.invisible]="formPending()"
           >
             <app-order-summary

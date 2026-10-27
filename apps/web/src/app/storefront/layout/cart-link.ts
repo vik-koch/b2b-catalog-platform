@@ -59,7 +59,9 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
              dot would no longer be the same dot. -->
         <span
           aria-hidden="true"
-          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3 items-center justify-center rounded-full bg-warning-dot p-0.5 text-[0.625rem]/3 text-white font-normal transition-colors"
+          class="cart-count absolute -top-0.75 -right-2 h-3 min-w-3
+                 items-center justify-center rounded-full bg-warning-dot p-0.5
+                 text-[0.625rem]/3 text-white font-normal transition-colors"
         ></span>
       </span>
       <span [class]="cls().labelRow">
@@ -74,7 +76,11 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
         @if (variant() === 'bar') {
           <span
             aria-hidden="true"
-            class="cart-total -mx-3 items-center justify-center rounded-sm bg-primary p-1 text-[0.6875rem]/4 font-medium whitespace-nowrap text-white transition-colors group-hover:bg-accent group-active:bg-primary-press"
+            class="cart-total -mx-3 items-center justify-center rounded-sm
+                   bg-primary p-1 text-[0.6875rem]/4 font-medium
+                   whitespace-nowrap text-white transition-colors
+                   group-hover:bg-accent
+                   group-active:bg-primary-press"
           ></span>
         }
         <span [class]="labelClass()" [attr.data-label]="text.navLabel">

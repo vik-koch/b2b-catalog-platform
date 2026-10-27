@@ -26,7 +26,8 @@ import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
   host: { class: 'block' },
   template: `
     <p
-      class="flex items-start gap-2.5 rounded-md bg-surface px-4 py-3 text-sm text-ink-subtle"
+      class="flex items-start gap-2.5 rounded-md bg-surface px-4 py-3 text-sm
+             text-ink-subtle"
       role="status"
     >
       <app-icon

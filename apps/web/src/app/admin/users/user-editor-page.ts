@@ -121,7 +121,8 @@ interface UserDraft {
                floors at its longest word, so an email nobody shortened widens
                the grid past the screen rather than wrapping inside it. -->
           <dl
-            class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm wrap-break-word"
+            class="mb-8 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm
+                   wrap-break-word"
           >
             <dt class="text-ink-subtle">{{ fields.email.label }}</dt>
             <dd class="font-medium text-ink">{{ user.email }}</dd>
@@ -138,7 +139,8 @@ interface UserDraft {
 
         @if (closed()) {
           <p
-            class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
+            class="mb-6 rounded-md bg-surface px-4 py-2 text-sm
+                   text-ink-subtle"
           >
             {{ text.closed }}
           </p>

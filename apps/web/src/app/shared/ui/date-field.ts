@@ -95,7 +95,9 @@ const empty =
         type="button"
         tabindex="-1"
         aria-hidden="true"
-        class="absolute left-2 flex cursor-pointer items-center justify-center rounded-sm p-1 text-ink-subtle transition-colors hover:text-accent"
+        class="absolute left-2 flex cursor-pointer items-center justify-center
+               rounded-sm p-1 text-ink-subtle transition-colors
+               hover:text-accent"
         (click)="openPicker(dateInput()?.nativeElement)"
       >
         <app-icon [glyph]="calendarIcon" class="size-4" />
@@ -108,7 +110,9 @@ const empty =
           [attr.min]="min()"
           [attr.max]="max()"
           appInput
-          class="peer w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+          class="peer w-full appearance-none pl-9
+                 [&::-webkit-calendar-picker-indicator]:hidden
+                 [&::-webkit-inner-spin-button]:hidden"
           [class]="fieldClass()"
           [formField]="field"
           (click)="onFieldClick(input)"
@@ -122,7 +126,9 @@ const empty =
           [attr.max]="max()"
           [value]="value() ?? ''"
           appInput
-          class="peer w-full appearance-none pl-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-inner-spin-button]:hidden"
+          class="peer w-full appearance-none pl-9
+                 [&::-webkit-calendar-picker-indicator]:hidden
+                 [&::-webkit-inner-spin-button]:hidden"
           [class]="fieldClass()"
           (click)="onFieldClick(input)"
           (change)="picked($event)"
@@ -138,7 +144,9 @@ const empty =
       @if (current() === null && placeholder()) {
         <span
           aria-hidden="true"
-          class="pointer-events-none absolute left-9 text-ink-subtle select-none peer-focus:hidden"
+          class="pointer-events-none absolute left-9 text-ink-subtle
+                 select-none
+                 peer-focus:hidden"
         >
           {{ placeholder() }}
         </span>

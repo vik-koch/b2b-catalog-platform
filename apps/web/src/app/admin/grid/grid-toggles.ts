@@ -3,8 +3,8 @@ import { Icon } from '../../shared/ui/icons/icon';
 import { GridToggleGroup, GridToggleOption } from './grid-column';
 import { injectGridNav } from './grid-query';
 
-const PILL =
-  'inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-3 py-1 text-sm whitespace-nowrap transition-colors';
+const PILL = `inline-flex cursor-pointer items-center gap-1.5 rounded-full
+              border px-3 py-1 text-sm whitespace-nowrap transition-colors`;
 
 /** Off and on. Only colour changes between the two — never the weight — so a
  * chip keeps its width and its neighbours stay put. */

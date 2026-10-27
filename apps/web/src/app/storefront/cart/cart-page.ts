@@ -249,7 +249,9 @@ interface CartRow {
                  first tick moves the whole list down as it is ticked. -->
               <button
                 type="button"
-                class="group flex cursor-pointer items-center gap-1.5 text-danger disabled:cursor-not-allowed disabled:text-ink-disabled"
+                class="group flex cursor-pointer items-center gap-1.5
+                       text-danger
+                       disabled:cursor-not-allowed disabled:text-ink-disabled"
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
@@ -314,7 +316,8 @@ interface CartRow {
                          edge read as belonging to the row, not to the column
                          it is in. -->
                       <div
-                        class="mt-auto flex flex-col items-start gap-2 pt-2 @max-[47.5rem]/row:max-w-114"
+                        class="mt-auto flex flex-col items-start gap-2 pt-2
+                               @max-[47.5rem]/row:max-w-114"
                       >
                         <!-- Above the note, because it is something the shop
                            says about the product and the note is something the
@@ -455,7 +458,9 @@ interface CartRow {
              checkout gives it too: stacked, the card is the page, and three
              pages that agree about the card should agree about its width. -->
           <aside
-            class="max-w-xl @min-[63.75rem]/cart:mt-9 @min-[63.75rem]/cart:sticky @min-[63.75rem]/cart:top-20 @min-[63.75rem]/cart:self-start"
+            class="max-w-xl
+                   @min-[63.75rem]/cart:mt-9 @min-[63.75rem]/cart:sticky
+                   @min-[63.75rem]/cart:top-20 @min-[63.75rem]/cart:self-start"
           >
             <app-order-summary
               [lineCount]="cart.count()"

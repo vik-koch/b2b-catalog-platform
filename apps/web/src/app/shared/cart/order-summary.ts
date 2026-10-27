@@ -54,7 +54,8 @@ import { WarningNote } from '../ui/warning-note';
           }
         }
         <div
-          class="flex items-baseline justify-between gap-4 border-t border-edge pt-3"
+          class="flex items-baseline justify-between gap-4 border-t
+                 border-edge pt-3"
         >
           <dt class="text-ink-subtle">{{ text.subtotal }}</dt>
           <dd class="text-xl font-emphasis text-primary">{{ subtotal() }}</dd>

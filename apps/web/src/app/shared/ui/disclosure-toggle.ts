@@ -42,7 +42,9 @@ export function disclosureBorder(open: boolean): string {
   template: `
     <button
       type="button"
-      class="flex w-full cursor-pointer items-center justify-between gap-2 px-4 py-2.5 text-sm font-medium transition-colors select-none hover:text-accent"
+      class="flex w-full cursor-pointer items-center justify-between gap-2
+             px-4 py-2.5 text-sm font-medium transition-colors select-none
+             hover:text-accent"
       [attr.aria-expanded]="open()"
       [attr.aria-controls]="panelId()"
       (click)="toggled.emit()"
@@ -66,7 +68,8 @@ export function disclosureBorder(open: boolean): string {
            said at the two call sites. -->
       <app-icon
         [glyph]="chevronDownIcon"
-        class="size-4 shrink-0 text-ink-subtle transition-[transform,color] [button:hover_&]:text-accent"
+        class="size-4 shrink-0 text-ink-subtle transition-[transform,color]
+               [button:hover_&]:text-accent"
         [class.rotate-180]="open()"
       />
     </button>

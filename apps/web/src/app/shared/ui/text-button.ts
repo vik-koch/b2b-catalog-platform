@@ -11,8 +11,8 @@ import { Directive } from '@angular/core';
 @Directive({
   selector: '[appTextButton]',
   host: {
-    class:
-      'cursor-pointer font-medium underline-offset-2 text-primary hover:text-accent hover:underline',
+    class: `cursor-pointer font-medium underline-offset-2 text-primary
+            hover:text-accent hover:underline`,
   },
 })
 export class TextButton {}

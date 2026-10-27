@@ -6,6 +6,7 @@ import {
   SelectorKind,
 } from 'eslint-plugin-better-tailwindcss/types';
 import baseConfig from '../../eslint.config.mjs';
+import { classLines } from '../../tools/lint/class-lines.mjs';
 
 /*
  * Colour patterns, as regex source. No `/` in any of them: the class-field
@@ -35,6 +36,7 @@ export default [
   ...nx.configs['flat/angular'],
   ...nx.configs['flat/angular-template'],
   ...baseConfig,
+  ...classLines,
   {
     // The same canonical-class check the Tailwind IntelliSense extension
     // shows, so CI and the editor agree. Ordering and wrapping stay with

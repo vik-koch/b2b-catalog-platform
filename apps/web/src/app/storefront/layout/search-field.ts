@@ -129,13 +129,17 @@ let nextId = 0;
              being typed, not with the submit button. The border lives on the
              wrapper, not the input, so the leading glyph sits inside it. -->
         <div
-          class="peer relative flex min-w-0 flex-1 items-center rounded-l-md border-2 border-r-0 border-primary bg-white/80 not-focus-within:hover:border-accent focus-within:border-secondary"
+          class="peer relative flex min-w-0 flex-1 items-center rounded-l-md
+                 border-2 border-r-0 border-primary bg-white/80
+                 not-focus-within:hover:border-accent
+                 focus-within:border-secondary"
         >
           <!-- Leading glyph: a label for the field rather than a control, so it
                is muted and takes no pointer events. -->
           <app-icon
             [glyph]="searchIcon"
-            class="pointer-events-none absolute left-2.5 size-4 text-ink-subtle"
+            class="pointer-events-none absolute left-2.5 size-4
+                   text-ink-subtle"
           />
           <input
             #input
@@ -156,7 +160,11 @@ let nextId = 0;
             (keydown)="keydown($event)"
             (focus)="mobileSearch.setFocused(true)"
             (blur)="blurred()"
-            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm text-ink placeholder:text-ink-subtle focus:outline-none [&::-webkit-search-cancel-button]:hidden"
+            class="min-w-0 flex-1 bg-transparent py-2 pr-1 pl-9 text-sm
+                   text-ink
+                   placeholder:text-ink-subtle
+                   focus:outline-none
+                   [&::-webkit-search-cancel-button]:hidden"
           />
           @if (value()) {
             <!-- flex on the button itself, not just on its row: the icon is an
@@ -164,7 +172,11 @@ let nextId = 0;
                  rather than on the field's centre line. -->
             <button
               type="button"
-              class="mr-1 flex shrink-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-ink-subtle transition-colors hover:text-accent active:text-primary-press"
+              class="mr-1 flex shrink-0 cursor-pointer items-center
+                     justify-center rounded-full p-1.5 text-ink-subtle
+                     transition-colors
+                     hover:text-accent
+                     active:text-primary-press"
               (click)="clear()"
             >
               <app-icon [glyph]="xIcon" class="size-4" />
@@ -361,7 +373,8 @@ let nextId = 0;
                            (FR-UNIT-08) — and the viewer's own, since the API
                            resolves it for their tier (FR-AUTH-05). -->
                           <span
-                            class="text-sm font-semibold whitespace-nowrap text-ink"
+                            class="text-sm font-semibold whitespace-nowrap
+                                   text-ink"
                           >
                             {{ price(item).price }}
                             <span class="text-xs font-normal text-ink-subtle">{{
@@ -431,7 +444,11 @@ let nextId = 0;
               <button
                 type="button"
                 tabindex="-1"
-                class="flex cursor-pointer items-center justify-center gap-1 border-t border-edge px-3 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-surface-subtle-hover hover:text-accent active:text-primary-press"
+                class="flex cursor-pointer items-center justify-center gap-1
+                       border-t border-edge px-3 py-2.5 text-sm font-medium
+                       text-primary transition-colors
+                       hover:bg-surface-subtle-hover hover:text-accent
+                       active:text-primary-press"
                 (click)="showAll()"
               >
                 {{ text.showAllResults }}
@@ -446,7 +463,15 @@ let nextId = 0;
              drawn inside. -->
         <button
           type="submit"
-          class="flex shrink-0 cursor-pointer items-center rounded-r-md border-l-2 border-primary bg-primary px-3 text-sm font-medium text-white transition-colors peer-[:hover:not(:focus-within)]:border-accent peer-focus-within:border-secondary hover:border-accent hover:bg-accent active:border-primary-press active:bg-primary-press focus-visible:-outline-offset-2 focus-visible:outline-1 focus-visible:outline-white"
+          class="flex shrink-0 cursor-pointer items-center rounded-r-md
+                 border-l-2 border-primary bg-primary px-3 text-sm font-medium
+                 text-white transition-colors
+                 peer-[:hover:not(:focus-within)]:border-accent
+                 peer-focus-within:border-secondary
+                 hover:border-accent hover:bg-accent
+                 active:border-primary-press active:bg-primary-press
+                 focus-visible:-outline-offset-2 focus-visible:outline-1
+                 focus-visible:outline-white"
         >
           {{ text.submit }}
         </button>
@@ -508,8 +533,11 @@ export class SearchField {
     () =>
       'z-20 flex flex-col overflow-hidden bg-white ' +
       (this.sheet()
-        ? 'fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b border-edge shadow-lg'
-        : 'absolute top-full right-0 left-0 mt-1 min-w-[min(22rem,100vw_-_2rem)] rounded-md border border-edge-strong shadow-lg'),
+        ? `fixed inset-x-0 top-15 max-h-[calc(100dvh-3.75rem)] border-b
+           border-edge shadow-lg`
+        : `absolute top-full right-0 left-0 mt-1
+           min-w-[min(22rem,100vw_-_2rem)] rounded-md border
+           border-edge-strong shadow-lg`),
   );
   protected readonly rowsClass = computed(
     () =>
@@ -552,7 +580,8 @@ export class SearchField {
    * across a wide panel, and two lines of name beside a mark have the room
    * they need on a narrow one. */
   protected readonly stripClass =
-    'grid auto-cols-[18rem] grid-flow-col gap-2 overflow-x-auto overscroll-x-contain px-2 pt-1 pb-2 ' +
+    `grid auto-cols-[18rem] grid-flow-col gap-2 overflow-x-auto
+     overscroll-x-contain px-2 pt-1 pb-2 ` +
     'snap-x snap-mandatory scroll-px-2 motion-safe:scroll-smooth ' +
     '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden';
   private readonly strip = viewChild<ElementRef<HTMLElement>>('strip');

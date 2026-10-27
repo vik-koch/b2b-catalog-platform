@@ -20,8 +20,9 @@ import { CategoryChip } from './category-chip';
  * grid: a category is drawn the same way wherever it is shown, and that has to
  * include how wide it is drawn.
  */
-export const CATEGORY_GRID =
-  'grid gap-5 max-sm:gap-3 grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))]';
+export const CATEGORY_GRID = `grid gap-5 grid-cols-1
+                              max-sm:gap-3
+                              sm:grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))]`;
 
 /**
  * Every top-level category as a chip, with the first few of its subcategories

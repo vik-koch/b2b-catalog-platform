@@ -43,14 +43,17 @@ import { pencilIcon } from '../shared/ui/icons/glyphs/pencil';
   // own height would pin it in place. Zero height, so the line it stands for
   // is the seam itself and it adds nothing to either side of it.
   host: {
-    class:
-      'sticky bottom-[calc(4.25rem+1px+1rem+env(safe-area-inset-bottom))] z-20 block h-0 sm:bottom-[calc(1.375rem+1rem)]',
+    class: `sticky bottom-[calc(4.25rem+1px+1rem+env(safe-area-inset-bottom))]
+            z-20 block h-0
+            sm:bottom-[calc(1.375rem+1rem)]`,
   },
   template: `
     @if (editMode.isAdmin() && editMode.hasEditables() && text(); as text) {
       <button
         type="button"
-        class="absolute right-4 bottom-0 flex translate-y-1/2 cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium shadow-lg transition-colors"
+        class="absolute right-4 bottom-0 flex translate-y-1/2 cursor-pointer
+               items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium
+               shadow-lg transition-colors"
         [class]="
           editMode.enabled()
             ? 'bg-accent text-white hover:border-accent hover:bg-white hover:text-ink active:bg-primary-press active:text-white'

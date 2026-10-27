@@ -11,8 +11,10 @@ import { type FormValueControl } from '@angular/forms/signals';
  * says why, and the listing's layout toggle, a pressed-button group of icons.
  * Both are the same pill and have to stay looking like it.
  */
-const SEGMENT_BASE =
-  'text-center transition-colors select-none has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-secondary';
+const SEGMENT_BASE = `text-center transition-colors select-none
+                      has-[:focus-visible]:outline-1
+                      has-[:focus-visible]:outline-offset-2
+                      has-[:focus-visible]:outline-secondary`;
 
 /**
  * The pill around the segments, sized to its content.
@@ -97,10 +99,12 @@ export function segmentClass(
    */
   const states: Record<SegmentState, string> = {
     selected: 'bg-primary text-white hover:bg-accent active:bg-primary-press',
-    available:
-      'text-ink hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary',
-    unavailable:
-      'text-ink-subtle hover:bg-surface-subtle-hover active:bg-surface-subtle-press',
+    available: `text-ink
+                hover:bg-surface-subtle-hover hover:text-accent
+                active:bg-surface-subtle-press active:text-primary`,
+    unavailable: `text-ink-subtle
+                  hover:bg-surface-subtle-hover
+                  active:bg-surface-subtle-press`,
   };
   const lockedStates: Record<SegmentState, string> = {
     selected: 'bg-ink-disabled text-white',
@@ -112,8 +116,9 @@ export function segmentClass(
   const neutralStates: Record<SegmentState, string> = {
     selected:
       'bg-white text-ink shadow-xs hover:text-accent active:text-primary-press',
-    available:
-      'text-ink-subtle hover:bg-surface-hover hover:text-accent-strong active:bg-surface-press active:text-primary-press',
+    available: `text-ink-subtle
+                hover:bg-surface-hover hover:text-accent-strong
+                active:bg-surface-press active:text-primary-press`,
     unavailable:
       'text-ink-subtle hover:bg-surface-hover active:bg-surface-press',
   };

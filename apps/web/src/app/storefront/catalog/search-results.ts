@@ -69,7 +69,8 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
     >
       @if (results.error()) {
         <h1
-          class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+          class="text-2xl font-medium tracking-tight
+                 @min-[38rem]/listing:text-3xl"
         >
           {{ heading() }}
         </h1>
@@ -80,10 +81,12 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
             class="flex flex-row flex-wrap justify-between items-stretch gap-3"
           >
             <div
-              class="flex w-full flex-col justify-between @min-[38rem]/listing:w-auto"
+              class="flex w-full flex-col justify-between
+                     @min-[38rem]/listing:w-auto"
             >
               <h1
-                class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+                class="text-2xl font-medium tracking-tight
+                       @min-[38rem]/listing:text-3xl"
               >
                 {{ heading() }}
               </h1>
@@ -242,7 +245,8 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
           </div>
         } @else if (query()) {
           <h1
-            class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+            class="text-2xl font-medium tracking-tight
+                   @min-[38rem]/listing:text-3xl"
           >
             {{ heading() }}
           </h1>
@@ -262,7 +266,8 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
         }
       } @else if (showSkeleton()) {
         <h1
-          class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+          class="text-2xl font-medium tracking-tight
+                 @min-[38rem]/listing:text-3xl"
         >
           {{ heading() }}
         </h1>

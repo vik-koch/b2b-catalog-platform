@@ -27,7 +27,8 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
   template: `
     @if (value(); as image) {
       <div
-        class="relative size-26 overflow-hidden rounded-md border border-edge bg-white"
+        class="relative size-26 overflow-hidden rounded-md border border-edge
+               bg-white"
       >
         <img [src]="image.thumb" alt="" class="size-full object-cover" />
         <div
@@ -35,7 +36,10 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
         >
           <button
             type="button"
-            class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
+            class="cursor-pointer p-1.5 inline-flex items-center
+                   justify-center text-white/90
+                   hover:text-white
+                   md:p-1"
             [attr.aria-label]="actionText.remove"
             (click)="valueChange.emit(null)"
           >

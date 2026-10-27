@@ -281,10 +281,12 @@ interface Listing {
           </div>
 
           <div
-            class="mt-2 flex flex-wrap items-center justify-between gap-x-6 gap-y-3"
+            class="mt-2 flex flex-wrap items-center justify-between gap-x-6
+                   gap-y-3"
           >
             <h1
-              class="text-2xl font-medium tracking-tight @min-[38rem]/listing:text-3xl"
+              class="text-2xl font-medium tracking-tight
+                     @min-[38rem]/listing:text-3xl"
             >
               {{ data.category?.name ?? text.catalogRoot }}
             </h1>
@@ -520,7 +522,8 @@ interface Listing {
                real content arrives. -->
           <div class="space-y-3">
             <div
-              class="h-4 w-1/2 rounded-sm bg-skeleton @min-[38rem]/listing:w-1/3"
+              class="h-4 w-1/2 rounded-sm bg-skeleton
+                     @min-[38rem]/listing:w-1/3"
             ></div>
             <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
           </div>

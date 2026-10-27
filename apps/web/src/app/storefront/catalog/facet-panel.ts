@@ -58,16 +58,19 @@ const VALUES_COLLAPSED = 8;
  * given, which comes out at the same width: an area of n-1 tracks and their
  * gaps fits exactly n-1 columns of the same size.
  */
-export const FACET_LAYOUT =
-  'flex flex-col gap-4 @min-[63.75rem]/listing:grid @min-[63.75rem]/listing:grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))] @min-[63.75rem]/listing:items-start';
+export const FACET_LAYOUT = `flex flex-col gap-4
+                             @min-[63.75rem]/listing:grid
+                             @min-[63.75rem]/listing:grid-cols-[repeat(auto-fill,minmax(min(15rem,100%),1fr))]
+                             @min-[63.75rem]/listing:items-start`;
 export const FACET_COLUMN = 'min-w-0';
 /** The listing beside the panel: everything the panel's one track leaves. A
  * listing with no facets has no panel either, and takes the lot. */
 /* Start and end rather than one `col-[2/-1]`: a slash in a utility is
  * Tailwind's modifier separator, so that class is never generated and the
  * listing silently falls back to a single track. */
-export const FACET_SIBLING =
-  'min-w-0 @min-[63.75rem]/listing:col-start-2 @min-[63.75rem]/listing:col-end-[-1]';
+export const FACET_SIBLING = `min-w-0
+                              @min-[63.75rem]/listing:col-start-2
+                              @min-[63.75rem]/listing:col-end-[-1]`;
 export const FACET_SIBLING_ALONE =
   'min-w-0 @min-[63.75rem]/listing:col-span-full';
 
@@ -111,7 +114,9 @@ export const FACET_SIBLING_ALONE =
          with it, are gone and this is simply the column. -->
     <div class="flex items-start gap-1">
       <div
-        class="min-w-0 flex-1 rounded-md border @min-[63.75rem]/listing:rounded-none @min-[63.75rem]/listing:border-0"
+        class="min-w-0 flex-1 rounded-md border
+               @min-[63.75rem]/listing:rounded-none
+               @min-[63.75rem]/listing:border-0"
         [class]="
           frame +
           ' ' +
@@ -142,7 +147,9 @@ export const FACET_SIBLING_ALONE =
           <div class="overflow-hidden">
             <div
               [id]="panelId"
-              class="border-t border-edge p-4 @min-[63.75rem]/listing:border-t-0 @min-[63.75rem]/listing:p-0"
+              class="border-t border-edge p-4
+                     @min-[63.75rem]/listing:border-t-0
+                     @min-[63.75rem]/listing:p-0"
               role="group"
               [attr.aria-label]="text.title"
             >
@@ -152,10 +159,12 @@ export const FACET_SIBLING_ALONE =
                    catalogue, which is the disclosure's own toggle row at any
                    narrower width. -->
               <div
-                class="hidden items-center justify-between h-8 gap-2 @min-[63.75rem]/listing:flex"
+                class="hidden items-center justify-between h-8 gap-2
+                       @min-[63.75rem]/listing:flex"
               >
                 <h2
-                  class="text-xs font-medium tracking-wide text-ink-subtle uppercase"
+                  class="text-xs font-medium tracking-wide text-ink-subtle
+                         uppercase"
                 >
                   {{ text.title }}
                 </h2>

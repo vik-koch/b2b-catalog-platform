@@ -133,8 +133,10 @@ export class ProductVariantsMark {
 
   /** A badge's box — its text size, padding and transparent border — with
    * nothing drawn in it, so it sits level with the badges beside it. */
-  protected readonly trigger =
-    'inline-flex min-w-0 cursor-pointer items-center gap-1 whitespace-nowrap border border-transparent py-0.5 text-xs text-primary hover:text-accent';
+  protected readonly trigger = `inline-flex min-w-0 cursor-pointer
+                                items-center gap-1 whitespace-nowrap border
+                                border-transparent py-0.5 text-xs text-primary
+                                hover:text-accent`;
   protected readonly word = `truncate ${LINK_BASE} ${LINK_TONES.default}`;
 
   private readonly popover = viewChild(Popover, { read: ElementRef });

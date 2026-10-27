@@ -177,7 +177,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
               <div [id]="areasPanelId" class="border-t border-edge p-4">
                 @for (area of areas; track area) {
                   <div
-                    class="mb-4 rounded-lg border border-edge px-5 py-4 last:mb-0"
+                    class="mb-4 rounded-lg border border-edge px-5 py-4
+                           last:mb-0"
                   >
                     <div class="flex items-center justify-between gap-4">
                       <h3 class="text-sm font-medium">
@@ -254,7 +255,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
                   <ul>
                     @for (entry of rows; track entry.id) {
                       <li
-                        class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-edge px-4 py-2.5 last:border-b-0"
+                        class="flex flex-wrap items-baseline justify-between
+                               gap-x-4 gap-y-1 border-b border-edge px-4
+                               py-2.5
+                               last:border-b-0"
                       >
                         <span class="text-sm">{{ entry.what }}</span>
                         <span class="text-xs text-ink-subtle">{{

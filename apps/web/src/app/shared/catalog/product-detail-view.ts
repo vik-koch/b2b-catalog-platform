@@ -299,7 +299,8 @@ const NARROW = '(max-width: 39.999rem)';
            more line in a page of them. -->
       <div
         aria-hidden="true"
-        class="col-span-full hidden border-t border-edge @min-[40rem]/product:block"
+        class="col-span-full hidden border-t border-edge
+               @min-[40rem]/product:block"
       ></div>
 
       @if (item().descriptionHtml) {
@@ -326,7 +327,8 @@ const NARROW = '(max-width: 39.999rem)';
             @if (descriptionFaded()) {
               <div
                 aria-hidden="true"
-                class="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-surface-subtle to-surface-subtle/0"
+                class="pointer-events-none absolute inset-x-0 bottom-0 h-12
+                       bg-linear-to-t from-surface-subtle to-surface-subtle/0"
               ></div>
             }
           </div>

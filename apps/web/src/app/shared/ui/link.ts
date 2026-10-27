@@ -19,8 +19,8 @@ export const LINK_BASE =
  * would read as unrelated to the thing it answers.
  */
 export const LINK_TONES = {
-  default:
-    'text-primary decoration-primary/30 hover:text-accent hover:decoration-accent',
+  default: `text-primary decoration-primary/30
+            hover:text-accent hover:decoration-accent`,
   warning: 'text-warning decoration-warning/30 hover:decoration-warning',
 } as const;
 
@@ -32,8 +32,9 @@ export const LINK_TONES = {
 @Directive({
   selector: '[appLink]',
   host: {
-    class:
-      'cursor-pointer font-medium underline underline-offset-2 text-primary decoration-primary/30 hover:text-accent hover:decoration-accent',
+    class: `cursor-pointer font-medium underline underline-offset-2
+            text-primary decoration-primary/30
+            hover:text-accent hover:decoration-accent`,
   },
 })
 export class Link {}

@@ -143,7 +143,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
             ></div>
             <!-- The facts column, which only the widest shape has. -->
             <div
-              class="hidden h-48 rounded-sm bg-skeleton @min-[65rem]/product:block"
+              class="hidden h-48 rounded-sm bg-skeleton
+                     @min-[65rem]/product:block"
             ></div>
             <div class="h-64 rounded-xl bg-skeleton"></div>
             <div [class]="sectionCell + ' max-w-3xl space-y-4'">

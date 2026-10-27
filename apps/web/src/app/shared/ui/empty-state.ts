@@ -24,7 +24,8 @@ import { Glyph } from './icons/glyph';
   host: { class: 'block' },
   template: `
     <div
-      class="flex flex-col items-center rounded-lg border border-edge px-6 py-12 text-center"
+      class="flex flex-col items-center rounded-lg border border-edge px-6
+             py-12 text-center"
     >
       <app-icon
         [glyph]="icon()"
@@ -42,7 +43,8 @@ import { Glyph } from './icons/glyph';
            and wrapping rather than shrinking. Stacked on a narrow screen,
            where two buttons side by side are two half-buttons. -->
       <div
-        class="mt-6 flex w-full flex-col items-stretch gap-3 sm:w-auto sm:flex-row sm:items-center"
+        class="mt-6 flex w-full flex-col items-stretch gap-3
+               sm:w-auto sm:flex-row sm:items-center"
       >
         <ng-content />
       </div>

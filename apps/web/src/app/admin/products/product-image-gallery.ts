@@ -81,7 +81,9 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
             ></div>
             <div
               cdkDragHandle
-              class="relative size-26 cursor-grab overflow-hidden rounded-md border border-edge bg-white active:cursor-grabbing"
+              class="relative size-26 cursor-grab overflow-hidden rounded-md
+                     border border-edge bg-white
+                     active:cursor-grabbing"
               [attr.aria-label]="adminText.actions.reorder"
             >
               <img
@@ -90,7 +92,8 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                 class="pointer-events-none size-full bg-white object-contain"
               />
               <div
-                class="absolute inset-x-0 bottom-0 flex justify-between bg-black/45 p-1"
+                class="absolute inset-x-0 bottom-0 flex justify-between
+                       bg-black/45 p-1"
               >
                 <span class="p-1.5 inline-flex text-white/70 md:p-1">
                   <app-icon
@@ -101,7 +104,11 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                 <span class="flex">
                   <button
                     type="button"
-                    class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white disabled:cursor-not-allowed disabled:text-white/40 md:p-1"
+                    class="cursor-pointer p-1.5 inline-flex items-center
+                           justify-center text-white/90
+                           hover:text-white
+                           disabled:cursor-not-allowed disabled:text-white/40
+                           md:p-1"
                     [attr.aria-label]="text.reframe"
                     [title]="text.reframe"
                     [disabled]="uploading()"
@@ -111,7 +118,10 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                   </button>
                   <button
                     type="button"
-                    class="cursor-pointer p-1.5 inline-flex items-center justify-center text-white/90 hover:text-white md:p-1"
+                    class="cursor-pointer p-1.5 inline-flex items-center
+                           justify-center text-white/90
+                           hover:text-white
+                           md:p-1"
                     [attr.aria-label]="actionText.remove"
                     (click)="remove($index)"
                   >

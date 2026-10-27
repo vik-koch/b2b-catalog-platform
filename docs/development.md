@@ -106,6 +106,10 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **Colours are roles.** A template names what a colour does (`ink`, `surface-strong`,
   `danger`), never a Tailwind shade; lint refuses the palette. The names, the contrast floors and
   what each role is for are in [design-language.md](design-language.md).
+- **A long class list is laid out by variant.** When it does not fit on one line, the classes
+  without a variant come first, then one line per leading variant (`hover:`, `active:`,
+  `disabled:`), aligned under the first class. Prettier leaves the inside of a string alone, so
+  lint does it (`tools/lint/class-lines.mjs`); `npx nx lint web --fix` writes it.
 - **Comments say why, briefly.** A comment is there for what the code cannot show: a trap, an
   ordering constraint, an invariant. It does not retell the code or its history; git and the
   ADRs hold that.

@@ -106,11 +106,15 @@ interface DetailRow {
             <h2 [class]="headingClass">{{ text.detailsHeading }}</h2>
             <div class="rounded-lg border border-edge p-5">
               <dl
-                class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
+                class="grid gap-x-8 mt-2 text-sm wrap-break-word
+                       sm:grid-cols-[12rem_1fr]"
               >
                 @for (row of details(); track row.label) {
                   <dt
-                    class="text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                    class="text-ink-subtle
+                           odd:mb-1
+                           sm:odd:mb-3
+                           nth-last-[2]:mb-0"
                   >
                     {{ row.label }}
                   </dt>
@@ -126,11 +130,15 @@ interface DetailRow {
             <h2 [class]="headingClass">{{ text.accountHeading }}</h2>
             <div class="rounded-lg border border-edge p-5">
               <dl
-                class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
+                class="grid gap-x-8 mt-2 text-sm wrap-break-word
+                       sm:grid-cols-[12rem_1fr]"
               >
                 @for (row of accountRows(); track row.label) {
                   <dt
-                    class="text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                    class="text-ink-subtle
+                           odd:mb-1
+                           sm:odd:mb-3
+                           nth-last-[2]:mb-0"
                   >
                     {{ row.label }}
                   </dt>
@@ -149,11 +157,15 @@ interface DetailRow {
               <h2 [class]="headingClass">{{ text.signInHeading }}</h2>
               <div class="rounded-lg border border-edge p-5">
                 <dl
-                  class="grid gap-x-8 mt-2 text-sm wrap-break-word sm:grid-cols-[12rem_1fr]"
+                  class="grid gap-x-8 mt-2 text-sm wrap-break-word
+                         sm:grid-cols-[12rem_1fr]"
                 >
                   @for (row of signInRows(); track row.label) {
                     <dt
-                      class="text-ink-subtle odd:mb-1 sm:odd:mb-3 nth-last-[2]:mb-0"
+                      class="text-ink-subtle
+                             odd:mb-1
+                             sm:odd:mb-3
+                             nth-last-[2]:mb-0"
                     >
                       {{ row.label }}
                     </dt>
