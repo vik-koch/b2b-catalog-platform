@@ -23,7 +23,8 @@ import {
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { Button, BUTTON_SIZES } from '../ui/button';
+import { Button } from '../ui/button';
+import { ButtonBox } from '../ui/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
@@ -141,6 +142,7 @@ export interface BuyableProduct {
   imports: [
     WarningNote,
     Button,
+    ButtonBox,
     Icon,
     Input,
     NgTemplateOutlet,
@@ -365,7 +367,9 @@ export interface BuyableProduct {
           <!-- A field, not a button: it is the same size and in the same place
                as the one it replaced, so the row does not move, but there is
                nothing left to press — the stepper is what changes the line. -->
-          <p [class]="addedField()" role="status">{{ addedMessage() }}</p>
+          <p appButtonBox [class]="addedField()" role="status">
+            {{ addedMessage() }}
+          </p>
         } @else {
           <!-- Switched off rather than taken away where the product cannot be
                bought (FR-STOCK-04): the badge beside it already says why, and a
@@ -780,8 +784,7 @@ export class ProductBuyControls {
        hover:bg-surface-subtle-hover hover:text-accent
        active:bg-surface-subtle-press active:text-primary
        focus-visible:-outline-offset-2
-       disabled:cursor-not-allowed disabled:text-ink-disabled
-       disabled:hover:bg-transparent disabled:hover:text-ink-disabled`,
+       disabled:cursor-not-allowed disabled:text-ink-disabled`,
   );
   /**
    * Everything the ends leave over, and **no border at all**.
@@ -815,9 +818,8 @@ export class ProductBuyControls {
    * collapses into the one above it, and the row moved up by the difference. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} inline-flex w-full animate-field-in
-       items-center justify-center rounded-md bg-secondary text-center text-sm
-       font-medium text-white ${BUTTON_SIZES.md}`,
+      `${this.row() ? '' : 'mt-2'} w-full animate-field-in bg-secondary
+       text-center text-white`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,

@@ -20,7 +20,7 @@ import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
 import { DialogPanel } from '../ui/dialog-panel';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { LINK_BASE, LINK_TONES } from '../ui/link';
+import { Link } from '../ui/link';
 import { Popover } from '../ui/popover';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
@@ -49,6 +49,7 @@ import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
     Icon,
     Popover,
     ProductVariantGallery,
+    Link,
   ],
   host: { class: 'relative flex min-w-0' },
   template: `
@@ -61,7 +62,7 @@ import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
       (click)="toggle()"
     >
       <app-icon [glyph]="paletteIcon" class="size-3.5 shrink-0" />
-      <span [class]="word">{{ product.variants }}</span>
+      <span appLink class="truncate">{{ product.variants }}</span>
     </button>
 
     @if (open()) {
@@ -137,7 +138,6 @@ export class ProductVariantsMark {
                                 items-center gap-1 whitespace-nowrap border
                                 border-transparent py-0.5 text-xs text-primary
                                 hover:text-accent`;
-  protected readonly word = `truncate ${LINK_BASE} ${LINK_TONES.default}`;
 
   private readonly popover = viewChild(Popover, { read: ElementRef });
 

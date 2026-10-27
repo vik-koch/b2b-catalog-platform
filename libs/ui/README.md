@@ -14,6 +14,10 @@ library, and Nx refuses an import from an app.
 A piece that names a product, an order or a customer, or reads the deployment, is a composition:
 it stays in the app and is built from these.
 
+A piece exports its directive or component, the types of its inputs and pure helpers; its classes
+stay private. Another element that needs the look takes the directive (a directive styles any
+element), and a look that varies is an input (`<a appLink tone="warning">`).
+
 ## Importing
 
 One file at a time, by its path:

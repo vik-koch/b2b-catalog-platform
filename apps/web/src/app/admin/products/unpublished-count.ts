@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { LINK_BASE, LINK_TONES } from '../../shared/ui/link';
+import { Link } from '../../shared/ui/link';
 
 /**
  * How many of a product count are not on the storefront, beside that count:
@@ -12,14 +12,18 @@ import { LINK_BASE, LINK_TONES } from '../../shared/ui/link';
  */
 @Component({
   selector: 'app-unpublished-count',
-  imports: [RouterLink],
+  imports: [RouterLink, Link],
   // No box of its own: at zero it must not take a gap in the row's meta.
   host: { class: 'contents' },
   template: `
     @if (count()) {
-      <a [class]="link" routerLink="/admin/products" [queryParams]="params()">{{
-        label()
-      }}</a>
+      <a
+        appLink
+        tone="warning"
+        routerLink="/admin/products"
+        [queryParams]="params()"
+        >{{ label() }}</a
+      >
     }
   `,
 })
@@ -30,7 +34,6 @@ export class UnpublishedCount {
   /** The narrowing the count beside it links with. */
   readonly query = input.required<Params>();
 
-  protected readonly link = `${LINK_BASE} ${LINK_TONES.warning}`;
   protected readonly params = computed(() => ({
     ...this.query(),
     state: 'unpublished',

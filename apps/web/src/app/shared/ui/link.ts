@@ -1,4 +1,4 @@
-import { Directive } from '@angular/core';
+import { computed, Directive, input } from '@angular/core';
 
 /**
  * A link inside running content — the treatment that says "this word goes
@@ -10,19 +10,15 @@ import { Directive } from '@angular/core';
  * <button> that reads as a link, because a control that opens a panel makes
  * the same promise as one that navigates.
  */
-export const LINK_BASE =
-  'cursor-pointer font-medium underline underline-offset-2';
 
-/**
- * The colours of it. `warning` is the same link standing inside a sentence
- * that is already amber — the shortfall on a cart line — where a blue word
- * would read as unrelated to the thing it answers.
- */
-export const LINK_TONES = {
+/** `warning` for a link inside a sentence that is already amber. */
+const tones = {
   default: `text-primary decoration-primary/30
             hover:text-accent hover:decoration-accent`,
   warning: 'text-warning decoration-warning/30 hover:decoration-warning',
 } as const;
+
+export type LinkTone = keyof typeof tones;
 
 /**
  * The default tone as a directive, for the ordinary case.
@@ -31,10 +27,14 @@ export const LINK_TONES = {
  */
 @Directive({
   selector: '[appLink]',
-  host: {
-    class: `cursor-pointer font-medium underline underline-offset-2
-            text-primary decoration-primary/30
-            hover:text-accent hover:decoration-accent`,
-  },
+  host: { '[class]': 'classes()' },
 })
-export class Link {}
+export class Link {
+  readonly tone = input<LinkTone>('default');
+
+  protected readonly classes = computed(
+    () =>
+      `cursor-pointer font-medium underline underline-offset-2
+       ${tones[this.tone()]}`,
+  );
+}
