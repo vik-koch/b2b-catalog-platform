@@ -88,6 +88,7 @@ export class StatusBadge {
     const flow = this.wrap()
       ? 'items-start leading-tight before:mt-[calc(0.5lh-0.1875rem)]'
       : 'items-center whitespace-nowrap';
-    return `inline-flex ${flow} text-xs font-medium select-none ${shapes[variant]} ${colors}`;
+    return `inline-flex ${flow} text-xs font-medium select-none
+            ${shapes[variant]} ${colors}`;
   });
 }

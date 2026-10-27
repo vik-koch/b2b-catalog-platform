@@ -761,9 +761,8 @@ export class ProductBuyControls {
    */
   protected readonly stepperGroup = computed(
     () =>
-      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch ${
-        this.compact() ? 'h-9' : 'h-10'
-      }`,
+      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch
+       ${this.compact() ? 'h-9' : 'h-10'}`,
   );
   /**
    * Square ends, so the stepper reads as a field with two keys rather than as a
@@ -775,9 +774,14 @@ export class ProductBuyControls {
    */
   protected readonly stepperButton = computed(
     () =>
-      `flex shrink-0 cursor-pointer items-center justify-center border border-edge-strong text-ink transition-colors select-none hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-ink-disabled disabled:hover:bg-transparent disabled:hover:text-ink-disabled ${
-        this.compact() ? 'w-9' : 'w-10'
-      }`,
+      `flex shrink-0 cursor-pointer items-center justify-center border
+       border-edge-strong text-ink transition-colors select-none
+       ${this.compact() ? 'w-9' : 'w-10'}
+       hover:bg-surface-subtle-hover hover:text-accent
+       active:bg-surface-subtle-press active:text-primary
+       focus-visible:-outline-offset-2
+       disabled:cursor-not-allowed disabled:text-ink-disabled
+       disabled:hover:bg-transparent disabled:hover:text-ink-disabled`,
   );
   /**
    * Everything the ends leave over, and **no border at all**.
@@ -799,9 +803,8 @@ export class ProductBuyControls {
    */
   protected readonly quantityField = computed(
     () =>
-      `h-full w-full min-w-0 rounded-none px-1 py-0 text-center ${
-        this.compact() ? 'text-sm' : ''
-      }`,
+      `h-full w-full min-w-0 rounded-none px-1 py-0 text-center
+       ${this.compact() ? 'text-sm' : ''}`,
   );
   /** The button's own metrics, so the row does not move when one replaces the
    * other — the size shared from Button, including how it grows when the words
@@ -812,7 +815,9 @@ export class ProductBuyControls {
    * collapses into the one above it, and the row moved up by the difference. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} inline-flex w-full animate-field-in items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
+      `${this.row() ? '' : 'mt-2'} inline-flex w-full animate-field-in
+       items-center justify-center rounded-md bg-secondary text-center text-sm
+       font-medium text-white ${BUTTON_SIZES.md}`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,

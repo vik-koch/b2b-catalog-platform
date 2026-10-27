@@ -572,7 +572,8 @@ export class SearchField {
   /** Photos that failed to load, drawn as the placeholder instead. */
   protected readonly failed = signal<ReadonlySet<string>>(new Set());
 
-  protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden rounded-md ${FRAME}`;
+  protected readonly thumb = `block h-16 w-16 shrink-0 overflow-hidden
+                              rounded-md ${FRAME}`;
   /** The add button's box, and the mark's that replaces it — one size, so a
    * row does not move when one becomes the other. */
   protected readonly addBox = 'inline-flex h-9 w-9 items-center justify-center';

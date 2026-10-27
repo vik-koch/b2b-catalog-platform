@@ -187,7 +187,8 @@ export class ProductSortSelect {
   });
 
   protected segment(active: boolean): string {
-    return `${segmentClass(active ? 'selected' : 'available', { tone: 'neutral' })} flex h-full items-center gap-1 px-2.5 whitespace-nowrap`;
+    return `${segmentClass(active ? 'selected' : 'available', { tone: 'neutral' })}
+            flex h-full items-center gap-1 px-2.5 whitespace-nowrap`;
   }
 
   /** A new field starts ascending; the chosen one turns round. */

@@ -152,9 +152,8 @@ export class ProductGallery {
    * reversed row, and it went where nothing could scroll to it. */
   protected readonly mainImage = computed(
     () =>
-      `aspect-square w-full min-w-0 touch-pan-y overflow-hidden bg-white ${FRAME} ${
-        this.compact() ? 'rounded-lg' : 'rounded-xl md:w-100'
-      }`,
+      `aspect-square w-full min-w-0 touch-pan-y overflow-hidden bg-white
+       ${FRAME} ${this.compact() ? 'rounded-lg' : 'rounded-xl md:w-100'}`,
   );
 
   protected readonly THUMBS_COLLAPSED = THUMBS_COLLAPSED;
@@ -277,9 +276,9 @@ export class ProductGallery {
    * chosen. Both answer a pointer with accent, the chosen one included: it is
    * still a thing you can press, and it was the one that said otherwise. */
   protected thumb(selected: boolean): string {
-    return `block aspect-square w-full overflow-hidden rounded-md transition-shadow ${FRAME_HOVER} ${
-      selected ? FRAME_SELECTED : FRAME
-    }`;
+    return `block aspect-square w-full overflow-hidden rounded-md
+            transition-shadow ${FRAME_HOVER}
+            ${selected ? FRAME_SELECTED : FRAME}`;
   }
 
   protected thumbLabel(index: number): string {

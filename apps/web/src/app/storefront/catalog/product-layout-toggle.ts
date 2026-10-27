@@ -71,7 +71,8 @@ export class ProductLayoutToggle {
   protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
 
   protected segment(layout: ProductLayout): string {
-    return `${segmentClass(this.chosen() === layout ? 'selected' : 'available', { tone: 'neutral' })} flex h-full items-center px-2`;
+    return `${segmentClass(this.chosen() === layout ? 'selected' : 'available', { tone: 'neutral' })}
+            flex h-full items-center px-2`;
   }
 
   protected choose(layout: ProductLayout): void {

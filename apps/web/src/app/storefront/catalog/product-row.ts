@@ -159,7 +159,8 @@ export interface RowProduct extends BuyableProduct {
 })
 export class ProductRow {
   /** The frame is on the gallery itself, which is what clips the photo. */
-  protected readonly photo = `block aspect-square w-full overflow-hidden rounded-md ${FRAME}`;
+  protected readonly photo = `block aspect-square w-full overflow-hidden
+                              rounded-md ${FRAME}`;
 
   /** Roomier in the narrow shape, where there is no frame around a product to
    * say where one ends and the next begins. */

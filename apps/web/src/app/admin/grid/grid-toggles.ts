@@ -8,8 +8,10 @@ const PILL = `inline-flex cursor-pointer items-center gap-1.5 rounded-full
 
 /** Off and on. Only colour changes between the two — never the weight — so a
  * chip keeps its width and its neighbours stay put. */
-const OFF = `${PILL} border-edge bg-white text-ink-subtle hover:border-edge-strong hover:text-accent`;
-const ON = `${PILL} border-primary bg-primary text-white hover:border-accent hover:bg-accent`;
+const OFF = `${PILL} border-edge bg-white text-ink-subtle
+             hover:border-edge-strong hover:text-accent`;
+const ON = `${PILL} border-primary bg-primary text-white
+            hover:border-accent hover:bg-accent`;
 
 /**
  * The toggle chips of a grid (FR-ADM-20): every option in view, each switched

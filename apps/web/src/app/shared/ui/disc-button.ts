@@ -30,8 +30,11 @@ export class DiscButton {
   // See Button for the cursor and focus-outline reasoning.
   protected classes = computed(
     () =>
-      `inline-flex cursor-pointer items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-edge transition-colors select-none disabled:cursor-not-allowed ${
-        sizes[this.size()]
-      } text-ink-subtle hover:text-accent active:text-primary-press`,
+      `inline-flex cursor-pointer items-center justify-center rounded-full
+       bg-white shadow-sm ring-1 ring-edge transition-colors select-none
+       ${sizes[this.size()]} text-ink-subtle
+       disabled:cursor-not-allowed
+       hover:text-accent
+       active:text-primary-press`,
   );
 }

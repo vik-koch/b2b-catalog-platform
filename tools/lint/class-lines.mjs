@@ -17,8 +17,11 @@ const CLOSING = 2;
 /** Tailwind classes, not prose: lower case outside arbitrary values, no sentence punctuation. */
 const CLASS_TOKEN = /^!?[a-z0-9@&>*:/.\-_%#=~+<(),'"]+!?$/;
 
-function isClassList(text) {
-  const tokens = text.trim().split(/\s+/);
+/** A `${…}` in a template literal: a class list of its own, laid out as one class. */
+const isExpression = (token) => token.startsWith('${');
+
+function isClassList(tokens) {
+  tokens = tokens.filter((token) => !isExpression(token));
   if (tokens.length < 3) return false;
   const plain = tokens.map((token) => token.replace(/\[[^\]]*\]/g, ''));
   if (
@@ -31,21 +34,32 @@ function isClassList(text) {
   );
 }
 
-/** The variant a class starts with, ignoring colons inside `[…]` and `(…)`. */
+/**
+ * The variant a class is grouped by: its first, ignoring colons inside `[…]` and `(…)`. A leading
+ * `not-…` only narrows the state after it, so `not-disabled:hover:` groups with the hovers.
+ */
 function leadingVariant(token) {
+  if (isExpression(token)) return '';
+  const variants = [];
   let depth = 0;
+  let start = 0;
   for (let i = 0; i < token.length; i++) {
     const char = token[i];
     if (char === '[' || char === '(') depth++;
     else if (char === ']' || char === ')') depth--;
-    else if (char === ':' && depth === 0) return token.slice(0, i);
+    else if (char === ':' && depth === 0) {
+      variants.push(token.slice(start, i));
+      start = i + 1;
+    }
   }
-  return '';
+  if (variants.length > 1 && variants[0].startsWith('not-')) {
+    return variants.slice(0, 2).join(':');
+  }
+  return variants[0] ?? '';
 }
 
-/** The lines `text` is laid out in when its first class sits at `column`. */
-function layout(text, column) {
-  const tokens = text.trim().split(/\s+/);
+/** The lines `tokens` are laid out in when the first sits at `column`. */
+function layout(tokens, column) {
   const single = tokens.join(' ');
   if (column + single.length + CLOSING <= WIDTH) return [single];
 
@@ -72,6 +86,31 @@ function layout(text, column) {
   return lines;
 }
 
+const words = (text) => text.trim().split(/\s+/).filter(Boolean);
+
+/**
+ * The classes of a template literal, each `${…}` one of them, or null when an
+ * expression is glued to a class (`gap-${size}`): that cannot be moved apart.
+ */
+function templateTokens(node, sourceCode) {
+  const tokens = [];
+  node.quasis.forEach((quasi, i) => {
+    tokens.push(...words(quasi.value.raw));
+    const expression = node.expressions[i];
+    if (expression) tokens.push(`\${${sourceCode.getText(expression)}}`);
+  });
+  const glued = node.expressions.some((_, i) => {
+    const before = node.quasis[i].value.raw;
+    const after = node.quasis[i + 1].value.raw;
+    return (before && !/\s$/.test(before)) || (after && !/^\s/.test(after));
+  });
+  // An expression written over several lines has no place in a line of classes.
+  const spread = node.expressions.some((e) =>
+    sourceCode.getText(e).includes('\n'),
+  );
+  return glued || spread ? null : tokens;
+}
+
 function columnOf(text, offset) {
   return offset - (text.lastIndexOf('\n', offset - 1) + 1);
 }
@@ -91,8 +130,9 @@ const classLinesRule = {
   },
   create(context) {
     const sourceCode = context.sourceCode;
-    function check(node, text) {
-      if (!isClassList(text)) return;
+    /** `tokens` are the classes; `lead` and `trail` the spaces at either end. */
+    function check(node, tokens, lead, trail) {
+      if (!isClassList(tokens)) return;
       const parent = node.parent;
       if (parent?.type === 'Property' && parent.key === node) return;
       if (parent?.type === 'Property' && NOT_CLASSES.has(parent.key?.name))
@@ -104,23 +144,24 @@ const classLinesRule = {
         return;
       if (parent?.type === 'TSLiteralType') return;
 
+      const source = sourceCode.getText(node);
       // A piece of a concatenation keeps the spaces that join it to the next.
-      const lead = text.match(/^\s*/)[0];
-      const trail = text.match(/\s*$/)[0];
       const column = node.loc.start.column + 1 + lead.length;
-      const lines = layout(text, column);
-      if (
-        lines.length === 1 &&
-        text.replace(/\s+/g, ' ') === `${lead && ' '}${lines[0]}${trail && ' '}`
-      ) {
-        return;
-      }
+      const lines = layout(tokens, column);
+      // A string that fits and is written on one line is left as written.
+      if (lines.length === 1 && !source.includes('\n')) return;
       const body = `${lead}${lines.join(`\n${' '.repeat(column)}`)}${trail}`;
+      // Only a template literal can span lines or hold an expression.
       const quote =
-        node.type === 'Literal' ? node.raw[0] : body.includes("'") ? '"' : "'";
-      const expected =
-        lines.length === 1 ? `${quote}${body}${quote}` : `\`${body}\``;
-      if (sourceCode.getText(node) === expected) return;
+        lines.length > 1 || node.expressions?.length
+          ? '`'
+          : node.type === 'Literal'
+            ? node.raw[0]
+            : body.includes("'")
+              ? '"'
+              : "'";
+      const expected = `${quote}${body}${quote}`;
+      if (source === expected) return;
       context.report({
         node,
         messageId: 'layout',
@@ -129,18 +170,22 @@ const classLinesRule = {
     }
     return {
       Literal(node) {
-        if (typeof node.value === 'string' && !/\\/.test(node.raw))
-          check(node, node.value);
+        if (typeof node.value !== 'string' || /\\/.test(node.raw)) return;
+        const text = node.value;
+        check(node, words(text), text.match(/^\s*/)[0], text.match(/\s*$/)[0]);
       },
       TemplateLiteral(node) {
-        if (
-          node.expressions.length > 0 ||
-          node.parent?.type === 'TaggedTemplateExpression'
-        )
-          return;
-        const raw = node.quasis[0].value.raw;
-        if (/\\|`|\$\{/.test(raw)) return;
-        check(node, raw);
+        if (node.parent?.type === 'TaggedTemplateExpression') return;
+        const raws = node.quasis.map((quasi) => quasi.value.raw);
+        if (raws.some((raw) => /\\|`/.test(raw))) return;
+        const tokens = templateTokens(node, sourceCode);
+        if (!tokens) return;
+        check(
+          node,
+          tokens,
+          raws[0].match(/^\s*/)[0],
+          raws.at(-1).match(/\s*$/)[0],
+        );
       },
     };
   },
@@ -163,7 +208,7 @@ const templateClassLinesRule = {
         for (const attribute of element.attributes) {
           if (attribute.name !== 'class' || !attribute.valueSpan) continue;
           const value = attribute.value;
-          if (value.includes('{{') || !isClassList(value)) continue;
+          if (value.includes('{{') || !isClassList(words(value))) continue;
           const start = attribute.valueSpan.start.offset;
           const end = attribute.valueSpan.end.offset;
           // The span may or may not include the quotes; anchor on the text itself.
@@ -172,7 +217,7 @@ const templateClassLinesRule = {
           const from = quoted ? start + 1 : start;
           const to = quoted ? end - 1 : end;
           const column = columnOf(text, from);
-          const expected = layout(value, column).join(
+          const expected = layout(words(value), column).join(
             `\n${' '.repeat(column)}`,
           );
           if (text.slice(from, to) === expected) continue;

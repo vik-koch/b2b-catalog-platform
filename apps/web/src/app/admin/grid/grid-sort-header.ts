@@ -67,9 +67,8 @@ export class GridSortHeader {
 
   protected readonly iconClass = computed(
     () =>
-      `h-3.5 w-3.5 transition-opacity ${
-        this.active() ? '' : 'opacity-0 group-hover:opacity-40'
-      }`,
+      `h-3.5 w-3.5 transition-opacity
+       ${this.active() ? '' : 'opacity-0 group-hover:opacity-40'}`,
   );
 
   /** Clicking the column in effect reverses it; clicking any other takes the
