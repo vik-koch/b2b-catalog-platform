@@ -112,7 +112,7 @@ it replaces a release later. A migration that cannot run unattended makes the re
 - **One class per file.** A component, directive, service or error has its file to itself, named
   after it, together with the types only it uses. A small error class too: who throws it changes,
   and a caller that catches it should not import the service. Only a spec keeps its test hosts
-  and fakes inside it.
+  and fakes inside it. Lint refuses a second class (`max-classes-per-file`).
 - **Names in code are US English** (`color`, `customize`), as the platform's own APIs are, so a
   search finds one spelling; comments and docs are British. A spelling already stored or on the
   wire keeps it: the `cancelled` order status is a Postgres enum and a machine API value, and the

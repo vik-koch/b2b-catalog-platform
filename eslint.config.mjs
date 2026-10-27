@@ -61,6 +61,14 @@ export default [
           ignoreRestSiblings: true,
         },
       ],
+      'max-classes-per-file': ['error', { max: 1, ignoreExpressions: true }],
+    },
+  },
+  {
+    // A spec keeps its test hosts and fakes beside the tests that use them.
+    files: ['**/*.spec.ts', '**/*.test.ts'],
+    rules: {
+      'max-classes-per-file': 'off',
     },
   },
 ];
