@@ -4,7 +4,7 @@ import baseSlugify from 'slugify';
  * Turn arbitrary text — including non-Latin scripts — into a URL-safe slug by
  * transliterating to Latin, lowercasing, and joining words with hyphens.
  * `strict` drops anything left that is not `[a-z0-9-]`, so the result always
- * matches `SLUG_PATTERN` (see slug.ts) or is empty.
+ * matches `SLUG_PATTERN` (see slug-constants.ts) or is empty.
  *
  * Isomorphic on purpose: the product/category editor calls this to preview the
  * slug live as the admin types the name, and the server calls the same function
