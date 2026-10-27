@@ -14,7 +14,8 @@ the recurring theme: the smallest component that does the job, on one VM.
   price per piece, an order as versions): `docs/architecture.md`. Every decision with its
   alternatives: `docs/adr/`.
 - **Running, checking, generated files, database changes:** `docs/development.md`.
-- **Contracts and entry points:** `libs/shared/README.md`. **Colours:** `docs/design-language.md`.
+- **Contracts and entry points:** `libs/shared/README.md`. **Building blocks:** `libs/ui/README.md`.
+  **Colours and icons:** `docs/design-language.md`.
   **A deployment's config and texts:** `deployments/fixture/config/README.md`.
 - **Behaviour:** `docs/order-lifecycle.md`, `docs/account-lifecycle.md`, `docs/mail.md`, and
   for the back-office exchanges `docs/exchange-areas.md` with the `*-sync.md` and
