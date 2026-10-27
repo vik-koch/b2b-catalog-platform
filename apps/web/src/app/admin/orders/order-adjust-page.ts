@@ -463,7 +463,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           class="mb-4"
                           [options]="partyKinds"
                           [value]="partyKind()"
-                          (chosen)="setPartyKind($event)"
+                          (valueChange)="setPartyKind($event)"
                         />
                       }
 

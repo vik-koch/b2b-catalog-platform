@@ -51,7 +51,7 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           name="party-kind"
           [options]="kinds"
           [value]="party()"
-          (chosen)="partyChange.emit($event)"
+          (valueChange)="partyChange.emit($event)"
         />
       }
 

@@ -98,7 +98,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
               name="party-kind"
               [options]="kinds"
               [value]="party()"
-              (chosen)="partyChange.emit($event)"
+              (valueChange)="partyChange.emit($event)"
             />
           }
 
