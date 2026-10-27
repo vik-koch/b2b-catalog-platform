@@ -31,8 +31,8 @@ import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
  * Without that the field keeps the old grouping until the next keystroke, and
  * a shorter new mask would truncate on screen only.
  *
- * Implemented as a ControlValueAccessor so it drops into reactive forms via
- * `formControlName`. Deliberately simple: it reformats on input and leaves the
+ * Implemented as a ControlValueAccessor, which `[formField]` binds like any
+ * other control. Deliberately simple: it reformats on input and leaves the
  * caret at the end, which is fine for a short, append-mostly field — a mask
  * library would only be worth it if we needed mid-string editing.
  */

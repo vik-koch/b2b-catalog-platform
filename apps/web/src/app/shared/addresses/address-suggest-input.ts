@@ -32,8 +32,8 @@ let nextId = 0;
 @Component({
   selector: 'app-address-suggest-input',
   imports: [FormField, FieldBinding, Input, HighlightedLine],
-  // See PhoneField: a custom element is inline by default, and an inline box
-  // drops the vertical margin a form's `space-y-*` puts on it.
+  // A custom element is inline by default, and an inline box drops the
+  // vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
   template: `
     <div class="relative">

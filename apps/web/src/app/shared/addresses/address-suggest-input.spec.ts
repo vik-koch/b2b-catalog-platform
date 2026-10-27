@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { signal } from '@angular/core';
+import { form } from '@angular/forms/signals';
 import {
   AddressComponents,
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
-import { AddressSuggestField } from './address-suggest-field';
+import { AddressSuggestInput } from './address-suggest-input';
 import { AddressesService } from './addresses.service';
 
 const text = defaultStorefrontText.address;
@@ -28,16 +29,15 @@ async function render() {
     return answers;
   });
   TestBed.configureTestingModule({
-    imports: [AddressSuggestField],
+    imports: [AddressSuggestInput],
     providers: [{ provide: AddressesService, useValue: { suggest } }],
   });
 
-  const fixture = TestBed.createComponent(AddressSuggestField);
+  const fixture = TestBed.createComponent(AddressSuggestInput);
   fixture.componentRef.setInput(
-    'control',
-    new FormControl('', { nonNullable: true }),
+    'field',
+    TestBed.runInInjectionContext(() => form(signal(''))),
   );
-  fixture.componentRef.setInput('label', text.street);
   fixture.componentRef.setInput('text', text.suggest);
   await fixture.whenStable();
   fixture.detectChanges();
@@ -66,7 +66,7 @@ async function render() {
   };
 }
 
-describe('AddressSuggestField (FR-CART-11)', () => {
+describe('AddressSuggestInput (FR-CART-11)', () => {
   beforeEach(() => {
     rejects = false;
     answers = [

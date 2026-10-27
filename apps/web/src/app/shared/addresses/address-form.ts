@@ -175,6 +175,18 @@ export class AddressForm {
 }
 
 /**
+ * The address rules with the deployment's countries and wording, for a form
+ * outside the storefront, which may not read its texts itself. Must be called
+ * in an injection context.
+ */
+export function injectAddressRules(): Schema<AddressDraft> {
+  return addressRules(
+    inject(STOREFRONT_TEXT).address,
+    inject(DEPLOYMENT_CONFIG).address?.countries,
+  );
+}
+
+/**
  * An address that is a whole form of its own, as on the account's editor.
  * Must be called in an injection context: it reads the deployment's address
  * rules and the wording of their messages.
@@ -183,11 +195,9 @@ export function createAddressForm(
   submission?: FormSubmitOptions<AddressDraft, unknown>,
 ): AddressForm {
   const countries = inject(DEPLOYMENT_CONFIG).address?.countries;
-  const text = inject(STOREFRONT_TEXT).address;
-  const field = form(
-    signal(blankAddress(countries)),
-    addressRules(text, countries),
-    { name: 'address', submission },
-  );
+  const field = form(signal(blankAddress(countries)), injectAddressRules(), {
+    name: 'address',
+    submission,
+  });
   return new AddressForm(field, countries);
 }

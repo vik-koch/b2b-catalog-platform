@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
-import { FormControl } from '@angular/forms';
+import { signal } from '@angular/core';
+import { form } from '@angular/forms/signals';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { PartiesService } from './parties.service';
-import { PartySuggestField } from './party-suggest-field';
+import { PartySuggestInput } from './party-suggest-input';
 
 /** What the stubbed provider answers with; set per test. */
 let answers: PartySuggestion[] = [];
@@ -28,16 +29,15 @@ async function render() {
   });
 
   TestBed.configureTestingModule({
-    imports: [PartySuggestField],
+    imports: [PartySuggestInput],
     providers: [{ provide: PartiesService, useValue: { suggest } }],
   });
 
-  const fixture = TestBed.createComponent(PartySuggestField);
+  const fixture = TestBed.createComponent(PartySuggestInput);
   fixture.componentRef.setInput(
-    'control',
-    new FormControl('', { nonNullable: true }),
+    'field',
+    TestBed.runInInjectionContext(() => form(signal(''))),
   );
-  fixture.componentRef.setInput('label', 'Company name');
   fixture.componentRef.setInput('text', text);
   await fixture.whenStable();
   fixture.detectChanges();
@@ -64,7 +64,7 @@ async function render() {
   };
 }
 
-describe('PartySuggestField (FR-AUTH-09)', () => {
+describe('PartySuggestInput (FR-AUTH-09)', () => {
   beforeEach(() => {
     answers = [kontor];
     rejects = false;
