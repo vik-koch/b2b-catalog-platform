@@ -39,6 +39,8 @@ let nextId = 0;
  *
  * `group` draws a fieldset and legend instead, for a control made of several
  * inputs (a segmented choice, a radio list), which no one label can name.
+ * An element marked `appFieldCaption` joins the caption after the mark; it
+ * needs no import, so what it holds stays in the chunk of the page using it.
  * Templates import it through FORM_FIELDS, with the directives it relies on.
  */
 @Component({
@@ -59,6 +61,8 @@ let nextId = 0;
       } @else if (optional() && !required()) {
         <span class="font-normal text-ink-subtle">({{ optional() }})</span>
       }
+      <!-- What else the caption says about the field, such as a lock. -->
+      <ng-content select="[appFieldCaption]" />
     </ng-template>
     <ng-template #caption>
       <label [for]="controlId()" appFieldLabel>

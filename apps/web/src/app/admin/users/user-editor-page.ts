@@ -541,7 +541,7 @@ export class UserEditorPage implements UnsavedChangesAware {
     this.model,
     (user) => {
       // The whole area belongs to an exchange; nothing here is the shop's.
-      disabled(user, () => this.locked());
+      disabled(user, { when: () => this.locked() });
       // Shown only on a new account; an existing one cannot change it.
       if (this.isNew) {
         required(user.email, { message: this.fields.email.required });

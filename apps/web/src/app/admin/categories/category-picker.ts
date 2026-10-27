@@ -1,5 +1,7 @@
 import { Component, computed, input, output } from '@angular/core';
+import { FormField, type FieldTree } from '@angular/forms/signals';
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
+import { FieldBinding } from '../../shared/ui/field-binding';
 import { Input } from '../../shared/ui/input';
 import { SelectField } from '../../shared/ui/select-field';
 import { flattenCategoryTree } from './category-tree';
@@ -8,38 +10,54 @@ import { flattenCategoryTree } from './category-tree';
  * Single-select category picker for the product editor: a native <select> whose
  * options are the category tree flattened depth-first and indented by depth. A
  * product belongs to exactly one category (the `categoryId` FK).
+ *
+ * Given a `field`, the select is that field's control inside a Field, which
+ * names it and decides what it shows; otherwise it takes a `value` and says
+ * `valueChange`.
  */
 @Component({
   selector: 'app-category-picker',
-  imports: [Input, SelectField],
+  imports: [FormField, FieldBinding, Input, SelectField],
   template: `
     <app-select-field>
-      <select
-        appInput
-        class="w-full"
-        [attr.aria-label]="ariaLabel() || placeholder()"
-        [disabled]="disabled()"
-        (change)="onChange($event)"
-      >
-        @if (emptyLabel() !== null) {
-          <!-- A selectable "none" (e.g. top-level) — opt-in via emptyLabel. -->
-          <option value="" [selected]="!value()">{{ emptyLabel() }}</option>
-        } @else {
-          <option value="" disabled [selected]="!value()">
-            {{ placeholder() }}
-          </option>
-        }
-        @for (o of options(); track o.id) {
-          <option [value]="o.id" [selected]="o.id === value()">
-            {{ indent(o.depth) }}{{ o.name }}
-          </option>
-        }
-      </select>
+      @if (field(); as field) {
+        <!-- No [selected] here: the field sets the select's value itself. -->
+        <select appInput class="w-full" [formField]="field">
+          <option value="" disabled>{{ placeholder() }}</option>
+          @for (o of options(); track o.id) {
+            <option [value]="o.id">{{ indent(o.depth) }}{{ o.name }}</option>
+          }
+        </select>
+      } @else {
+        <select
+          appInput
+          class="w-full"
+          [attr.aria-label]="ariaLabel() || placeholder()"
+          [disabled]="disabled()"
+          (change)="onChange($event)"
+        >
+          @if (emptyLabel() !== null) {
+            <!-- A selectable "none" (e.g. top-level) — opt-in via emptyLabel. -->
+            <option value="" [selected]="!value()">{{ emptyLabel() }}</option>
+          } @else {
+            <option value="" disabled [selected]="!value()">
+              {{ placeholder() }}
+            </option>
+          }
+          @for (o of options(); track o.id) {
+            <option [value]="o.id" [selected]="o.id === value()">
+              {{ indent(o.depth) }}{{ o.name }}
+            </option>
+          }
+        </select>
+      }
     </app-select-field>
   `,
 })
 export class CategoryPicker {
   readonly categories = input.required<readonly AdminCategory[]>();
+  /** The field the select is the control of, where a form holds the value. */
+  readonly field = input<FieldTree<string>>();
   readonly value = input<string | null>(null);
   readonly placeholder = input('');
   /** When set, adds a selectable empty option with this label (value ""), for
@@ -61,6 +79,7 @@ export class CategoryPicker {
   );
 
   protected indent(depth: number): string {
+    // No-break spaces: an option collapses ordinary ones.
     return '   '.repeat(depth);
   }
 

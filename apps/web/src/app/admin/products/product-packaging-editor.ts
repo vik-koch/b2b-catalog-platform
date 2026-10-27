@@ -5,6 +5,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { ErrorText } from '../../shared/ui/error-text';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { NumericField } from '../../shared/ui/numeric-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
@@ -51,6 +52,17 @@ export const emptyPackaging = (): PackagingDraft => ({
  */
 const REQUIRED_COUNTS = ['minPieceQty'] as const;
 
+/** The fields that hold a whole number, where any number is held at all. */
+const COUNT_KEYS = [
+  'piecesPerPack',
+  'packsPerBox',
+  'minPieceQty',
+  'boxCount',
+] as const;
+
+/** Ids for the error line; a page may hold more than one editor. */
+let nextId = 0;
+
 /** A whole number, or null for blank/invalid. */
 export function parseCount(text: string): number | null {
   const trimmed = text.trim();
@@ -61,7 +73,7 @@ export function parseCount(text: string): number | null {
 
 @Component({
   selector: 'app-product-packaging-editor',
-  imports: [FieldLabel, NumericField, UnitField],
+  imports: [ErrorText, FieldLabel, NumericField, UnitField],
   template: `
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
@@ -101,6 +113,8 @@ export function parseCount(text: string): number | null {
                   [value]="row.value"
                   [placeholder]="row.placeholder"
                   [disabled]="row.disabled"
+                  [attr.aria-invalid]="row.invalid || null"
+                  [attr.aria-describedby]="row.invalid ? errorId : null"
                   (input)="edit(row.key, $any($event.target).value)"
                   (blur)="normalize(row.key)"
                 />
@@ -152,6 +166,8 @@ export function parseCount(text: string): number | null {
                       [value]="row.value"
                       [placeholder]="row.placeholder"
                       [disabled]="row.disabled"
+                      [attr.aria-invalid]="row.invalid || null"
+                      [attr.aria-describedby]="row.invalid ? errorId : null"
                       (input)="edit(row.key, $any($event.target).value)"
                       (blur)="normalize(row.key)"
                     />
@@ -172,6 +188,9 @@ export function parseCount(text: string): number | null {
           </tbody>
         </table>
       }
+      @if (error(); as error) {
+        <p appErrorText [id]="errorId" class="mt-1">{{ error }}</p>
+      }
     </fieldset>
   `,
 })
@@ -190,7 +209,26 @@ export class ProductPackagingEditor {
   readonly value = input.required<PackagingDraft>();
   /** The piece price, so each level can show what it will be sold for. */
   readonly priceMinor = input<number | null>(null);
+  /** Why the packaging cannot be saved, once a save has asked. */
+  readonly error = input<string | null>(null);
   readonly valueChange = output<PackagingDraft>();
+
+  protected readonly errorId = `packaging-error-${++nextId}`;
+
+  /**
+   * The rows the error is about: a count that is not a whole number, or else
+   * the minimum, which is the only other thing the packaging rule refuses.
+   */
+  private readonly invalidKeys = computed<ReadonlySet<keyof PackagingDraft>>(
+    () => {
+      if (!this.error()) return new Set();
+      const v = this.value();
+      const counts = COUNT_KEYS.filter(
+        (key) => v[key].trim() !== '' && parseCount(v[key]) === null,
+      );
+      return new Set(counts.length ? counts : ['minPieceQty']);
+    },
+  );
 
   /**
    * Ordered the way the values depend on each other: what a piece costs and how
@@ -226,6 +264,7 @@ export class ProductPackagingEditor {
       hint: opts.hint ?? '',
       inputMode: opts.decimal ? ('decimal' as const) : ('integer' as const),
       disabled: opts.enabled === false,
+      invalid: this.invalidKeys().has(key),
     });
 
     return [

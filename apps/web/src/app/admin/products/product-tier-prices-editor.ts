@@ -1,10 +1,12 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
+import { type FieldTree } from '@angular/forms/signals';
 import { moneyFormat } from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
 import { currencySymbol, parsePriceInput } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { PriceField } from '../../shared/ui/price-field';
 import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
@@ -18,7 +20,8 @@ export interface TierPriceDraft {
 }
 
 /**
- * The per-tier price fields of the product editor (FR-AUTH-05).
+ * The per-tier price fields of the product editor (FR-AUTH-05), one per tier
+ * in the order the form holds them.
  *
  * Values stay as *typed text* rather than numbers, because the distinction the
  * model needs is "empty" versus "priced", and a half-typed decimal has to
@@ -35,7 +38,14 @@ export interface TierPriceDraft {
  */
 @Component({
   selector: 'app-product-tier-prices-editor',
-  imports: [FieldLabel, PriceField, UnitField, LockedFieldMarker, Hint],
+  imports: [
+    FORM_FIELDS,
+    FieldLabel,
+    PriceField,
+    UnitField,
+    LockedFieldMarker,
+    Hint,
+  ],
   template: `
     <span appFieldLabel>
       {{ text.heading }}
@@ -55,11 +65,13 @@ export interface TierPriceDraft {
     <div
       class="flex flex-wrap gap-4 rounded-md border border-edge p-4 sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
     >
-      @for (tier of tiers(); track tier.id) {
-        <label class="block w-full sm:w-auto">
-          <span class="mb-1 block text-sm text-ink-subtle">{{
-            tier.label
-          }}</span>
+      @for (draft of field()().value(); track draft.tierId; let i = $index) {
+        <app-field
+          class="w-full sm:w-auto"
+          [field]="field()[i].value"
+          [label]="labelFor(draft.tierId)"
+          [controlId]="'tier-price-' + draft.tierId"
+        >
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
           <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
@@ -68,15 +80,12 @@ export interface TierPriceDraft {
               inputmode="decimal"
               appPriceField
               [class]="unitFieldInput"
-              [attr.aria-label]="tier.label"
-              [value]="valueFor(tier.id)"
               [placeholder]="placeholder()"
-              [disabled]="disabled()"
-              (input)="onInput(tier.id, $any($event.target).value)"
-              (blur)="onBlur(tier.id, $any($event.target).value)"
+              [formField]="field()[i].value"
+              (blur)="onBlur(i)"
             />
           </app-unit-field>
-        </label>
+        </app-field>
       }
     </div>
     @if (!disabled()) {
@@ -94,21 +103,17 @@ export class ProductTierPricesEditor {
   readonly tiers = input.required<CustomerTier[]>();
   /** The base price as text, e.g. "18,90" — empty while none is entered. */
   readonly basePrice = input('');
-  readonly value = input.required<TierPriceDraft[]>();
+  readonly field = input.required<FieldTree<TierPriceDraft[]>>();
+
   /** Read-only while an external system sets the prices (FR-ADM-10). */
-  readonly disabled = input(false);
-  readonly valueChange = output<TierPriceDraft[]>();
+  protected readonly disabled = computed(() => this.field()().disabled());
 
   protected readonly placeholder = computed(
     () => this.basePrice() || this.text.usesBase,
   );
 
-  private readonly byTier = computed(
-    () => new Map(this.value().map((d) => [d.tierId, d.value])),
-  );
-
-  protected valueFor(tierId: string): string {
-    return this.byTier().get(tierId) ?? '';
+  protected labelFor(tierId: string): string {
+    return this.tiers().find((tier) => tier.id === tierId)?.label ?? '';
   }
 
   /**
@@ -117,21 +122,10 @@ export class ProductTierPricesEditor {
    * that state as soon as it is left, rather than saving something that reads
    * as a free product and quietly storing something else.
    */
-  protected onBlur(tierId: string, value: string): void {
-    // Read off the field rather than out of the draft: the draft is the
-    // parent's signal coming back down, and a blur that follows the last
-    // keystroke closely enough arrives before it has.
-    if (parsePriceInput(value, this.currency) === 0) this.onInput(tierId, '');
-  }
-
-  protected onInput(tierId: string, value: string): void {
-    const next = this.value().filter((d) => d.tierId !== tierId);
-    // An emptied field is dropped rather than kept as an empty string, so the
-    // saved payload and the dirty snapshot both mean the same thing by absence.
-    if (value.trim() !== '') next.push({ tierId, value });
-    // Sorted, because the parent's dirty check is a JSON snapshot: without a
-    // stable order, editing two tiers and undoing one would still read dirty.
-    next.sort((a, b) => a.tierId.localeCompare(b.tierId));
-    this.valueChange.emit(next);
+  protected onBlur(index: number): void {
+    const value = this.field()[index].value();
+    if (parsePriceInput(value.value(), this.currency) === 0) {
+      value.value.set('');
+    }
   }
 }

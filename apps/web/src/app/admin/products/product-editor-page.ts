@@ -1,4 +1,23 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  afterNextRender,
+  Component,
+  computed,
+  effect,
+  forwardRef,
+  inject,
+  Injector,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
+import {
+  applyEach,
+  disabled,
+  form,
+  maxLength,
+  required,
+  validate,
+} from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   effectiveTaxRate,
@@ -54,7 +73,10 @@ import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { ConfirmService } from '../../shared/ui/confirm.service';
+import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
@@ -93,7 +115,24 @@ import {
 } from '../../shared/ui/unit-field';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+
+interface ProductDraft {
+  name: string;
+  slug: string;
+  /** Prices and counts as typed, so a half-typed figure survives. */
+  price: string;
+  taxRate: string;
+  categoryId: string;
+  sourceId: string;
+  stockPieces: string;
+  lowStockThreshold: string;
+  lineNotePrompt: string;
+  /** One per tier other than the storefront's; empty uses the base price. */
+  tierPrices: TierPriceDraft[];
+  packaging: PackagingDraft;
+  parts: string[];
+  variants: ProductVariantInput[];
+}
 
 /**
  * Add/Edit a product (FR-ADM-01). One screen for both: `/admin/products/new`
@@ -104,6 +143,7 @@ import { Hint } from '../../shared/ui/hint';
 @Component({
   selector: 'app-product-editor-page',
   imports: [
+    FORM_FIELDS,
     LockedNote,
     Button,
     AdminIcon,
@@ -132,7 +172,14 @@ import { Hint } from '../../shared/ui/hint';
     StatusBadge,
     PageTitle,
     ErrorText,
-    Hint,
+  ],
+  // No <form> element: the buttons under the page save, publish or preview,
+  // so the page says itself when the form has been sent.
+  providers: [
+    {
+      provide: FIELD_ATTEMPT,
+      useExisting: forwardRef(() => ProductEditorPage),
+    },
   ],
   template: `
     <div class="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2">
@@ -193,23 +240,22 @@ import { Hint } from '../../shared/ui/hint';
           <app-locked-note>{{ ownershipText.fieldLocked }}</app-locked-note>
         }
 
-        <label class="block">
-          <span appFieldLabel>
-            {{ text.name }}
-            <span class="text-accent" aria-hidden="true">*</span>
-            @if (catalogOwned()) {
-              <app-locked-field-marker />
-            }
-          </span>
+        <app-field
+          [field]="form.name"
+          [label]="text.name"
+          controlId="product-name"
+        >
+          @if (catalogOwned()) {
+            <app-locked-field-marker appFieldCaption />
+          }
           <input
             type="text"
             appInput
             class="w-full"
-            [value]="name()"
-            [disabled]="catalogOwned()"
-            (input)="onNameInput($any($event.target).value)"
+            [formField]="form.name"
+            (input)="onNameInput()"
           />
-        </label>
+        </app-field>
 
         <!-- Side by side from sm up: the price is a short field and the
              category picker is the long one beside it. Below that each takes a
@@ -225,16 +271,18 @@ import { Hint } from '../../shared/ui/hint';
         <div
           class="grid gap-6 sm:grid-cols-[10.875rem_4.6875rem_minmax(0,1fr)]"
         >
-          <label class="block w-full sm:w-auto">
-            <!-- Named after the list it writes: it is one price list's row like
-                 any other below, and the only thing separating it is that the
-                 storefront quotes it. -->
-            <span appFieldLabel>
-              {{ priceLabel() }}
-              @if (catalogOwned()) {
-                <app-locked-field-marker />
-              }
-            </span>
+          <!-- Named after the list it writes: it is one price list's row like
+               any other below, and the only thing separating it is that the
+               storefront quotes it. -->
+          <app-field
+            class="w-full sm:w-auto"
+            [field]="form.price"
+            [label]="priceLabel()"
+            controlId="product-price"
+          >
+            @if (catalogOwned()) {
+              <app-locked-field-marker appFieldCaption />
+            }
             <!-- Text, not type=number: a number input reports a half-typed
                  "18." as an empty value, so binding the signal back to it wiped
                  the field the moment a decimal separator was pressed. The
@@ -245,38 +293,36 @@ import { Hint } from '../../shared/ui/hint';
                 inputmode="decimal"
                 appPriceField
                 [class]="unitFieldInput"
-                [value]="priceInput()"
                 [placeholder]="pricePlaceholder"
-                [disabled]="catalogOwned()"
-                (input)="priceInput.set($any($event.target).value)"
+                [formField]="form.price"
                 (blur)="onPriceBlur()"
               />
             </app-unit-field>
-          </label>
+          </app-field>
 
           <!-- The product's own tax rate, beside the price it qualifies and
                owned like it. Half the price field less half a gap, which
                holds "12.75"; empty is the deployment's default, which the
                placeholder shows. Its own line on a phone, like the price. -->
-          <label class="block w-full">
-            <span appFieldLabel>
-              {{ text.taxRate.label }}
-              @if (catalogOwned()) {
-                <app-locked-field-marker />
-              }
-            </span>
+          <app-field
+            class="w-full"
+            [field]="form.taxRate"
+            [label]="text.taxRate.label"
+            controlId="product-tax-rate"
+          >
+            @if (catalogOwned()) {
+              <app-locked-field-marker appFieldCaption />
+            }
             <app-unit-field class="w-full" unit="%" [compact]="true">
               <input
                 type="text"
                 appPercentField
                 [class]="unitFieldInputCompact"
-                [value]="taxRateInput()"
                 [placeholder]="taxRatePlaceholder"
-                [disabled]="catalogOwned()"
-                (input)="taxRateInput.set($any($event.target).value)"
+                [formField]="form.taxRate"
               />
             </app-unit-field>
-          </label>
+          </app-field>
 
           <!-- Said where the fields are, not only on the button: by the time
                somebody reads the button they have already cleared the price.
@@ -297,23 +343,21 @@ import { Hint } from '../../shared/ui/hint';
             </div>
           }
 
-          <div class="w-full sm:col-start-3 sm:row-start-1 sm:w-auto">
-            <span appFieldLabel>
-              {{ text.category }}
-              <span class="text-accent" aria-hidden="true">*</span>
-              @if (catalogOwned()) {
-                <app-locked-field-marker />
-              }
-            </span>
+          <app-field
+            class="w-full sm:col-start-3 sm:row-start-1 sm:w-auto"
+            [field]="form.categoryId"
+            [label]="text.category"
+            controlId="product-category"
+          >
+            @if (catalogOwned()) {
+              <app-locked-field-marker appFieldCaption />
+            }
             <app-category-picker
               [categories]="categories()"
-              [value]="categoryId()"
+              [field]="form.categoryId"
               [placeholder]="text.categoryPlaceholder"
-              [ariaLabel]="text.category"
-              [disabled]="catalogOwned()"
-              (valueChange)="categoryId.set($event)"
             />
-          </div>
+          </app-field>
         </div>
 
         <!-- Only where the deployment actually has tiers: with none, the base
@@ -324,9 +368,7 @@ import { Hint } from '../../shared/ui/hint';
             <app-product-tier-prices-editor
               [tiers]="otherTiers()"
               [basePrice]="basePriceText()"
-              [value]="tierPrices()"
-              [disabled]="catalogOwned()"
-              (valueChange)="tierPrices.set($event)"
+              [field]="form.tierPrices"
             />
           </div>
         }
@@ -337,35 +379,37 @@ import { Hint } from '../../shared/ui/hint';
              of a 48rem form. One per line below sm, like every other pair on
              this page. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <label class="block">
-            <span appFieldLabel>{{ text.slug }}</span>
+          <app-field
+            [field]="form.slug"
+            [label]="text.slug"
+            [hint]="text.slugHint"
+            controlId="product-slug"
+          >
             <input
               type="text"
               appInput
               class="w-full font-mono text-sm"
-              [value]="effectiveSlug()"
+              [formField]="form.slug"
               (input)="onSlugInput($any($event.target).value)"
             />
-            <span appHint class="mt-1">{{ text.slugHint }}</span>
-          </label>
+          </app-field>
 
-          <label class="block">
-            <span appFieldLabel>
-              {{ text.sourceId }}
-              @if (catalogOwned()) {
-                <app-locked-field-marker />
-              }
-            </span>
+          <app-field
+            [field]="form.sourceId"
+            [label]="text.sourceId"
+            [hint]="text.sourceIdHint"
+            controlId="product-source-id"
+          >
+            @if (catalogOwned()) {
+              <app-locked-field-marker appFieldCaption />
+            }
             <input
               type="text"
               appInput
               class="w-full font-mono text-sm"
-              [value]="sourceId()"
-              [disabled]="catalogOwned()"
-              (input)="sourceId.set($any($event.target).value)"
+              [formField]="form.sourceId"
             />
-            <span appHint class="mt-1">{{ text.sourceIdHint }}</span>
-          </label>
+          </app-field>
         </div>
 
         <div>
@@ -392,7 +436,8 @@ import { Hint } from '../../shared/ui/hint';
           <app-product-packaging-editor
             [value]="packaging()"
             [priceMinor]="packagingPriceMinor()"
-            (valueChange)="packaging.set($event)"
+            [error]="packagingError()"
+            (valueChange)="form.packaging().value.set($event)"
           />
         </div>
 
@@ -405,46 +450,44 @@ import { Hint } from '../../shared/ui/hint';
                them: the two are one sentence about how much is left, and a
                hint apiece made the block four lines deep for two numbers. -->
           <div class="grid gap-4 sm:grid-cols-2">
-            <label class="block">
-              <span appFieldLabel>
-                {{ text.stock.pieces }}
-                @if (catalogOwned()) {
-                  <app-locked-field-marker />
-                }
-              </span>
+            <app-field
+              [field]="form.stockPieces"
+              [label]="text.stock.pieces"
+              controlId="product-stock"
+            >
+              @if (catalogOwned()) {
+                <app-locked-field-marker appFieldCaption />
+              }
               <app-unit-field class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
                   appNumericField="signed"
                   [class]="unitFieldInput"
-                  [value]="stockPieces()"
-                  [disabled]="catalogOwned()"
-                  (input)="stockPieces.set($any($event.target).value)"
+                  [formField]="form.stockPieces"
                 />
               </app-unit-field>
-            </label>
-            <label class="block">
-              <span appFieldLabel>{{ text.stock.threshold }}</span>
-              <!-- The figure in force as the placeholder: empty means "work it
-                   out from the packaging", and the number that would be worked
-                   out is what an empty field then shows. It follows the
-                   packaging as it is edited, and there is nothing to show
-                   while the stock is untracked — the field is disabled then,
-                   and a greyed figure in a greyed field reads as a value. -->
+            </app-field>
+            <!-- The figure in force as the placeholder: empty means "work it
+                 out from the packaging", and the number that would be worked
+                 out is what an empty field then shows. It follows the
+                 packaging as it is edited, and there is nothing to show while
+                 the stock is untracked — the field is disabled then, and a
+                 greyed figure in a greyed field reads as a value. -->
+            <app-field
+              [field]="form.lowStockThreshold"
+              [label]="text.stock.threshold"
+              controlId="product-threshold"
+            >
               <app-unit-field class="w-full" [unit]="pieceSuffix">
                 <input
                   type="text"
                   appNumericField="integer"
                   [class]="unitFieldInput"
-                  [disabled]="parsedStockPieces() === null"
                   [placeholder]="thresholdPlaceholder()"
-                  [value]="lowStockThresholdInput()"
-                  (input)="
-                    lowStockThresholdInput.set($any($event.target).value)
-                  "
+                  [formField]="form.lowStockThreshold"
                 />
               </app-unit-field>
-            </label>
+            </app-field>
           </div>
           <!-- The badge itself rather than its name: what the admin is
                choosing is what a customer will see, and the preview panel is
@@ -511,25 +554,27 @@ import { Hint } from '../../shared/ui/hint';
             <span>{{ text.lineNote.enable }}</span>
           </label>
           @if (lineNoteEnabled()) {
-            <label class="mt-3 block">
-              <span appFieldLabel>{{ text.lineNote.prompt }}</span>
+            <app-field
+              class="mt-3"
+              [field]="form.lineNotePrompt"
+              [label]="text.lineNote.prompt"
+              [hint]="text.lineNote.promptHint"
+              controlId="product-line-note-prompt"
+            >
               <input
                 type="text"
                 appInput
                 class="w-full"
-                [attr.maxlength]="lineNotePromptMaxLength"
-                [value]="lineNotePrompt()"
                 [placeholder]="text.lineNote.promptPlaceholder"
-                (input)="lineNotePrompt.set($any($event.target).value)"
+                [formField]="form.lineNotePrompt"
               />
-              <span appHint class="mt-1">{{ text.lineNote.promptHint }}</span>
-            </label>
+            </app-field>
           }
         </app-feature-disclosure>
 
         <app-product-parts-editor
           [value]="parts()"
-          (valueChange)="parts.set($event)"
+          (valueChange)="form.parts().value.set($event)"
         />
 
         <app-product-pairings-editor
@@ -647,7 +692,7 @@ import { Hint } from '../../shared/ui/hint';
     }
   `,
 })
-export class ProductEditorPage implements UnsavedChangesAware {
+export class ProductEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly service = inject(AdminCatalogService);
   private readonly tiersService = inject(TiersService);
   private readonly attributesService = inject(AttributesService);
@@ -713,45 +758,150 @@ export class ProductEditorPage implements UnsavedChangesAware {
    */
   protected readonly ownAttributeKeys = signal<string[]>([]);
 
-  protected readonly name = signal('');
-  protected readonly slug = signal('');
   /** Where the slug comes from. A new record follows its name from the start.
    * An emptied box stays empty until the name is next edited, then follows
    * it, so clearing the box does not refill it from the current name. */
   private readonly slugSource = signal<'typed' | 'emptied' | 'name'>(
     this.isNew ? 'name' : 'typed',
   );
-  protected readonly priceInput = signal('');
-  protected readonly categoryId = signal('');
-  protected readonly sourceId = signal('');
   protected readonly description = signal('');
   protected readonly attributes = signal<ProductAttribute[]>([]);
-  protected readonly tierPrices = signal<TierPriceDraft[]>([]);
   protected readonly images = signal<ProductImageInput[]>([]);
-  protected readonly variants = signal<ProductVariantInput[]>([]);
-  protected readonly packaging = signal<PackagingDraft>(emptyPackaging());
   protected readonly pairings = signal<PairedProduct[]>([]);
   protected readonly documents = signal<LinkedDocument[]>([]);
   /** Offered first to the main page's row (FR-CAT-09). */
   protected readonly featured = signal(false);
   protected readonly lineNoteEnabled = signal(false);
-  protected readonly lineNotePrompt = signal('');
-  /** What one piece is made of, where it is sold as a set (FR-CAT-10). */
-  protected readonly parts = signal<string[]>([]);
-  protected readonly partsValid = computed(() => isValidPartList(this.parts()));
+
+  /** What can be wrong, and so what the form checks. */
+  private readonly model = signal<ProductDraft>({
+    name: '',
+    slug: '',
+    price: '',
+    taxRate: '',
+    categoryId: '',
+    sourceId: '',
+    stockPieces: '',
+    lowStockThreshold: '',
+    lineNotePrompt: '',
+    tierPrices: [],
+    packaging: emptyPackaging(),
+    parts: [],
+    variants: [],
+  });
+
+  protected readonly form = form(
+    this.model,
+    (product) => {
+      // Only the fields an exchange writes; the rest stay the shop's own.
+      const owned = { when: () => this.catalogOwned() };
+      for (const path of [
+        product.name,
+        product.price,
+        product.taxRate,
+        product.categoryId,
+        product.sourceId,
+        product.stockPieces,
+      ]) {
+        disabled(path, owned);
+      }
+      disabled(product.tierPrices, owned);
+      required(product.name, { message: this.text.nameRequired });
+      required(product.categoryId, { message: this.text.categoryRequired });
+      // An empty field is "no price", a real state; anything else that will
+      // not parse is a typo.
+      validate(product.price, ({ value }) =>
+        value().trim() && parsePriceInput(value(), this.currency) === null
+          ? { kind: 'price', message: this.text.priceInvalid }
+          : undefined,
+      );
+      validate(product.taxRate, ({ value }) =>
+        parseTaxRate(value()) === undefined
+          ? { kind: 'taxRate', message: this.text.taxRate.invalid }
+          : undefined,
+      );
+      // Nothing to measure "few left" against while the stock is untracked.
+      disabled(product.lowStockThreshold, {
+        when: () => this.parsedStockPieces() === null,
+      });
+      maxLength(product.lineNotePrompt, PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH);
+      // Each tier against its own name: "invalid price" on a screen with
+      // several price fields does not say which one.
+      applyEach(product.tierPrices, (draft) => {
+        validate(draft.value, ({ value, valueOf }) => {
+          if (parsePriceInput(value(), this.currency) !== null)
+            return undefined;
+          if (!value().trim()) return undefined;
+          const tier = this.tiers().find((t) => t.id === valueOf(draft.tierId));
+          return {
+            kind: 'price',
+            message: this.text.tierPrices.invalid.replace(
+              '{tier}',
+              tier?.label ?? '',
+            ),
+          };
+        });
+      });
+      validate(product.packaging, () => {
+        const packaging = this.packagingInput();
+        if (packaging === null) {
+          return { kind: 'packaging', message: this.text.packaging.invalid };
+        }
+        return minimumFitsPacks(packaging)
+          ? undefined
+          : { kind: 'minimum', message: this.text.packaging.minMustFitPacks };
+      });
+      validate(product.parts, ({ value }) =>
+        isValidPartList(value())
+          ? undefined
+          : { kind: 'parts', message: this.text.parts.tooFew },
+      );
+      validate(product.variants, ({ value }) =>
+        value().some((variant) => variant.name.trim() === '') ||
+        !hasDistinctVariants(value())
+          ? { kind: 'variants', message: this.text.variants.duplicate }
+          : undefined,
+      );
+    },
+    { name: 'product-editor' },
+  );
+
+  // Views of the model for the rest of the page; writes go through the form.
+  protected readonly name = computed(() => this.model().name);
+  protected readonly slug = computed(() => this.model().slug);
+  protected readonly priceInput = computed(() => this.model().price);
+  protected readonly taxRateInput = computed(() => this.model().taxRate);
+  protected readonly categoryId = computed(() => this.model().categoryId);
+  protected readonly sourceId = computed(() => this.model().sourceId);
   /** Kept as strings like the packaging drafts, so a half-typed or
    * deliberately blank figure is not thrown away between keystrokes. */
-  protected readonly stockPieces = signal('');
-  protected readonly lowStockThresholdInput = signal('');
-  protected readonly taxRateInput = signal('');
+  protected readonly stockPieces = computed(() => this.model().stockPieces);
+  protected readonly lowStockThresholdInput = computed(
+    () => this.model().lowStockThreshold,
+  );
+  protected readonly lineNotePrompt = computed(
+    () => this.model().lineNotePrompt,
+  );
+  protected readonly tierPrices = computed(() => this.model().tierPrices);
+  protected readonly packaging = computed(() => this.model().packaging);
+  /** What one piece is made of, where it is sold as a set (FR-CAT-10). */
+  protected readonly parts = computed(() => this.model().parts);
+  protected readonly partsValid = computed(() => isValidPartList(this.parts()));
+  protected readonly variants = computed(() => this.model().variants);
+
+  /** The packaging rule's message, once a save has asked for it: the editor
+   * corrects most of what it catches as a field is left. */
+  protected readonly packagingError = computed(() =>
+    submitAttempt(this.form)()
+      ? (this.form.packaging().errors()[0]?.message ?? null)
+      : null,
+  );
   /** The default rate, shown in the empty field. */
   protected readonly taxRatePlaceholder =
     this.tax.basis === 'none' ? '' : formatTaxRate(this.tax.rate, this.locale);
   /** Under a basis that charges no tax a rate is kept but applies to
    * nothing yet, which the field alone would not say. */
   protected readonly taxRateNotInEffect = this.tax.basis === 'none';
-  protected readonly lineNotePromptMaxLength =
-    PRODUCT_LINE_NOTE_PROMPT_MAX_LENGTH;
 
   /** Null until loaded; drives the publish switch and where a save returns to. */
   protected readonly published = signal(false);
@@ -766,13 +916,11 @@ export class ProductEditorPage implements UnsavedChangesAware {
   private navigatingAway = false;
   private readonly close = injectEditorReturn();
 
-  protected readonly effectiveSlug = computed(() =>
-    this.slugSource() === 'name'
-      ? slugify(this.name())
-      : this.slugSource() === 'emptied'
-        ? ''
-        : this.slug(),
-  );
+  /** Read by every field on the page (FIELD_ATTEMPT). */
+  readonly attempted = computed(() => submitAttempt(this.form)());
+  private readonly partsEditor = viewChild(ProductPartsEditor);
+  private readonly variantsEditor = viewChild(ProductVariantsEditor);
+  private readonly injector = inject(Injector);
 
   /** Shows the shape a price takes here, e.g. "0,00" in a de-DE deployment. */
   protected readonly pricePlaceholder = `0${decimalSeparator(this.currency)}00`;
@@ -841,7 +989,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
    */
   protected onPriceBlur(): void {
     if (parsePriceInput(this.priceInput(), this.currency) === 0) {
-      this.priceInput.set('');
+      this.form.price().value.set('');
     }
   }
 
@@ -939,7 +1087,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
       return pieces === null ? null : totalMinor(stored, pieces);
     };
     return {
-      slug: this.effectiveSlug(),
+      slug: this.slug(),
       name: this.name(),
       priceMinor: stored,
       prices: {
@@ -1012,6 +1160,18 @@ export class ProductEditorPage implements UnsavedChangesAware {
     usePageSeo({
       name: () => (this.isNew ? this.text.newTitle : this.text.editTitle),
     });
+    // A following slug is the name's, kept in the model so the field shows it;
+    // an emptied one stays empty until the name is next edited.
+    effect(() => {
+      const name = this.form.name().value();
+      if (this.slugSource() !== 'name') return;
+      const next = slugify(name);
+      untracked(() => {
+        if (this.form.slug().value() !== next) {
+          this.form.slug().value.set(next);
+        }
+      });
+    });
     void this.load();
   }
 
@@ -1047,18 +1207,8 @@ export class ProductEditorPage implements UnsavedChangesAware {
         this.loading.set(false);
         return;
       }
-      this.name.set(product.name);
-      this.slug.set(product.slug);
-      this.priceInput.set(
-        product.priceMinor === null
-          ? ''
-          : formatPriceInput(product.priceMinor, this.currency),
-      );
-      this.categoryId.set(product.categoryId);
-      this.sourceId.set(product.sourceId);
       this.description.set(product.descriptionHtml);
       this.attributes.set(product.attributes);
-      this.parts.set(product.parts);
       // The names the rest of the catalog counts: "Colour", not "Colour (cup)".
       this.ownAttributeKeys.set(
         product.attributes.map(
@@ -1066,52 +1216,70 @@ export class ProductEditorPage implements UnsavedChangesAware {
         ),
       );
       this.images.set(product.images);
-      this.variants.set(product.variants);
       this.published.set(product.publishedAt !== null);
       this.deleted.set(product.deletedAt !== null);
       this.pairings.set(product.pairings);
       this.documents.set(product.documents);
       this.featured.set(product.featured);
       this.lineNoteEnabled.set(product.lineNoteEnabled);
-      this.lineNotePrompt.set(product.lineNotePrompt ?? '');
-      this.stockPieces.set(product.stockPieces?.toString() ?? '');
-      this.taxRateInput.set(
-        product.taxRate === null
-          ? ''
-          : formatTaxRate(product.taxRate, this.locale),
+      const stored = new Map(
+        product.tierPrices.map((p) => [p.tierId, p.priceMinor]),
       );
-      this.lowStockThresholdInput.set(
-        product.lowStockThresholdPieces?.toString() ?? '',
-      );
-      this.packaging.set({
-        piecesPerPack: product.piecesPerPack?.toString() ?? '',
-        packsPerBox: product.packsPerBox?.toString() ?? '',
-        minPieceQty: product.minPieceQty.toString(),
-        // Shown with the deployment's own decimal separator, like a price:
-        // the column holds "0.072" whatever the locale, and a form that prints
-        // 18,90 beside 0.072 looks like two different products' data.
-        boxVolume: this.showDecimal(product.boxVolume),
-        boxWeight: this.showDecimal(product.boxWeight),
-        // A box ships as one unless told otherwise, and the rule is shown the
-        // way the minimum is. Without a box there is nothing to count, and the
-        // field is disabled and empty.
-        boxCount:
-          product.packsPerBox === null ? '' : product.boxCount.toString(),
+      this.model.set({
+        name: product.name,
+        slug: product.slug,
+        price:
+          product.priceMinor === null
+            ? ''
+            : formatPriceInput(product.priceMinor, this.currency),
+        taxRate:
+          product.taxRate === null
+            ? ''
+            : formatTaxRate(product.taxRate, this.locale),
+        categoryId: product.categoryId,
+        sourceId: product.sourceId,
+        stockPieces: product.stockPieces?.toString() ?? '',
+        lowStockThreshold: product.lowStockThresholdPieces?.toString() ?? '',
+        lineNotePrompt: product.lineNotePrompt ?? '',
+        tierPrices: this.otherTiers().map((tier) => {
+          const minor = stored.get(tier.id);
+          return {
+            tierId: tier.id,
+            value:
+              minor === undefined ? '' : formatPriceInput(minor, this.currency),
+          };
+        }),
+        packaging: {
+          piecesPerPack: product.piecesPerPack?.toString() ?? '',
+          packsPerBox: product.packsPerBox?.toString() ?? '',
+          minPieceQty: product.minPieceQty.toString(),
+          // Shown with the deployment's own decimal separator, like a price:
+          // the column holds "0.072" whatever the locale, and a form that
+          // prints 18,90 beside 0.072 looks like two different products' data.
+          boxVolume: this.showDecimal(product.boxVolume),
+          boxWeight: this.showDecimal(product.boxWeight),
+          // A box ships as one unless told otherwise, and the rule is shown
+          // the way the minimum is. Without a box there is nothing to count,
+          // and the field is disabled and empty.
+          boxCount:
+            product.packsPerBox === null ? '' : product.boxCount.toString(),
+        },
+        parts: product.parts,
+        variants: product.variants,
       });
-      this.tierPrices.set(
-        product.tierPrices
-          .map((p) => ({
-            tierId: p.tierId,
-            value: formatPriceInput(p.priceMinor, this.currency),
-          }))
-          .sort((a, b) => a.tierId.localeCompare(b.tierId)),
-      );
     } else {
       // "Add product in this category" preselects it (by slug) — set before the
       // snapshot so the default doesn't count as an unsaved change.
       const categorySlug = this.route.snapshot.queryParamMap.get('category');
       const match = this.categories().find((c) => c.slug === categorySlug);
-      if (match) this.categoryId.set(match.id);
+      this.model.update((draft) => ({
+        ...draft,
+        categoryId: match?.id ?? '',
+        tierPrices: this.otherTiers().map((tier) => ({
+          tierId: tier.id,
+          value: '',
+        })),
+      }));
     }
     this.original = this.snapshot();
     this.loading.set(false);
@@ -1130,26 +1298,14 @@ export class ProductEditorPage implements UnsavedChangesAware {
 
   private snapshot(): string {
     return JSON.stringify({
-      name: this.name(),
-      slug: this.effectiveSlug(),
-      price: this.priceInput(),
-      categoryId: this.categoryId(),
-      sourceId: this.sourceId(),
+      ...this.model(),
       description: this.description(),
       attributes: this.attributes(),
       images: this.images(),
-      variants: this.variants(),
-      tierPrices: this.tierPrices(),
       pairings: this.pairings(),
       documents: this.documents(),
-      packaging: this.packaging(),
       featured: this.featured(),
       lineNoteEnabled: this.lineNoteEnabled(),
-      lineNotePrompt: this.lineNotePrompt(),
-      parts: this.parts(),
-      stockPieces: this.stockPieces(),
-      lowStockThresholdPieces: this.lowStockThresholdInput(),
-      taxRate: this.taxRateInput(),
     });
   }
 
@@ -1222,7 +1378,7 @@ export class ProductEditorPage implements UnsavedChangesAware {
     if (this.variants().length === 0 && next.length > 0) {
       this.lineNoteEnabled.set(true);
     }
-    this.variants.set(next);
+    this.form.variants().value.set(next);
     this.images.update((images) =>
       images.map((image) =>
         image.variantId !== null && !ids.has(image.variantId)
@@ -1236,69 +1392,60 @@ export class ProductEditorPage implements UnsavedChangesAware {
    * stores, and leaving the text behind would show the form as unsaved. */
   protected onLineNoteToggle(enabled: boolean): void {
     this.lineNoteEnabled.set(enabled);
-    if (!enabled) this.lineNotePrompt.set('');
+    if (!enabled) this.form.lineNotePrompt().value.set('');
   }
 
   protected onSlugInput(value: string): void {
     this.slugSource.set(value.trim() ? 'typed' : 'emptied');
-    this.slug.set(value);
   }
 
-  protected onNameInput(value: string): void {
-    this.name.set(value);
+  protected onNameInput(): void {
     if (this.slugSource() === 'emptied') this.slugSource.set('name');
   }
 
+  /**
+   * Shows the first thing that stopped a save: back from the preview, the
+   * field focused, or the list's box opened where the list is the culprit.
+   */
+  private revealFirstError(): void {
+    const first = this.form().errorSummary()[0]?.fieldTree;
+    if (!first) return;
+    this.previewing.set(false);
+    afterNextRender(
+      () => {
+        if (first === this.form.parts) this.partsEditor()?.reveal();
+        else if (first === this.form.variants) this.variantsEditor()?.reveal();
+        else first().focusBoundControl();
+      },
+      { injector: this.injector },
+    );
+  }
+
   protected async save(andPublish = false): Promise<void> {
-    if (!this.name().trim()) return this.error.set(this.text.nameRequired);
-    if (!this.categoryId()) return this.error.set(this.text.categoryRequired);
-    // An empty field is "no price", a real state; anything else that will not
-    // parse is a typo and is refused.
+    submitAttempt(this.form).set(true);
+    if (this.form().invalid()) return this.revealFirstError();
+
     const priceMinor = this.priceCleared()
       ? null
       : parsePriceInput(this.priceInput(), this.currency);
-    if (!this.priceCleared() && priceMinor === null) {
-      return this.error.set(this.text.priceInvalid);
-    }
-
-    // Each tier field is validated against its own name, since "invalid price"
-    // on a screen with several price fields does not say which one.
     const tierPrices = [];
     for (const draft of this.tierPrices()) {
       const tierMinor = parsePriceInput(draft.value, this.currency);
-      if (tierMinor === null) {
-        const tier = this.tiers().find((t) => t.id === draft.tierId);
-        return this.error.set(
-          this.text.tierPrices.invalid.replace('{tier}', tier?.label ?? ''),
-        );
-      }
-      // A zero is dropped rather than written, the same reading the field
-      // above gets: the list keeps no price of its own and is charged the
-      // storefront's, which is what an emptied field already means here.
-      if (tierMinor === 0) continue;
+      // An empty field uses the base price, and so does a zero: the list keeps
+      // no price of its own and is charged the storefront's.
+      if (!tierMinor) continue;
       tierPrices.push({ tierId: draft.tierId, priceMinor: tierMinor });
     }
-
-    if (!this.partsValid()) return this.error.set(this.text.parts.tooFew);
-    const variants = this.variants().map((variant) => ({
-      ...variant,
-      name: variant.name.trim(),
+    // Field by field: the form keeps an identity of its own on each item.
+    const variants = this.variants().map(({ id, name, unavailable }) => ({
+      id,
+      name: name.trim(),
+      unavailable,
     }));
-    if (
-      variants.some((variant) => variant.name === '') ||
-      !hasDistinctVariants(variants)
-    ) {
-      return this.error.set(this.text.variants.duplicate);
-    }
-
-    const taxRate = this.parsedTaxRate();
-    if (taxRate === undefined) return this.error.set(this.text.taxRate.invalid);
-
+    // The rules above have read both; neither is null or undefined here.
+    const taxRate = this.parsedTaxRate() ?? null;
     const packaging = this.packagingInput();
-    if (packaging === null) return this.error.set(this.text.packaging.invalid);
-    if (!minimumFitsPacks(packaging)) {
-      return this.error.set(this.text.packaging.minMustFitPacks);
-    }
+    if (!packaging) return;
 
     // An emptied box saves the name's slug, as a following one does. For a
     // new product it is omitted, so the server derives and de-duplicates it;
