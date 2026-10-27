@@ -15,6 +15,7 @@ import { FieldLabel } from './field-label';
 import { FieldAction } from './field-action';
 import { Hint } from './hint';
 import { FIELD_ATTEMPT } from './field-attempt';
+import { SHARED_TEXT } from '../config/shared-text';
 
 let nextId = 0;
 
@@ -79,6 +80,10 @@ let nextId = 0;
         <legend appFieldLabel>
           {{ label() }}
           <ng-container [ngTemplateOutlet]="mark" />
+          <!-- A fieldset takes no aria-required, so the word joins its name. -->
+          @if (required() && requiredWord) {
+            <span class="sr-only">{{ requiredWord }}</span>
+          }
         </legend>
         <!-- Above the control: a group's hint says what the set is for. -->
         @if (hint(); as hint) {
@@ -139,6 +144,9 @@ export class Field<T> {
   private readonly host =
     inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly attempt = inject(FIELD_ATTEMPT, { optional: true });
+  /** Optional, so a spec that renders a field needs no texts for it. */
+  protected readonly requiredWord = inject(SHARED_TEXT, { optional: true })
+    ?.required;
   /** Rule 3: left since its last edit. */
   protected readonly left = signal(false);
   protected readonly action = contentChild(FieldAction);

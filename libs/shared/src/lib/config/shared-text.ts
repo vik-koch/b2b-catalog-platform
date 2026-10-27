@@ -75,6 +75,9 @@ export const sharedTextSchema = z
       .strict(),
     /** Beside a field that may be left empty. */
     optional: z.string(),
+    /** Read out after the name of a group of choices that needs an answer:
+     * the asterisk is drawn, not read, and a group cannot say it otherwise. */
+    required: z.string(),
     /** Under a list that runs to more than one page. `status` fills in
      * `{page}` and `{total}`. */
     pagination: z

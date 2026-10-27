@@ -94,6 +94,9 @@
     "deployment.json:branding.theme.chip": {
       "from": ["deployment.json:branding.theme.neutrals.125"],
       "optional": true
+    },
+    "texts/shared.json:required": {
+      "new": "required"
     }
   },
   "drop": [

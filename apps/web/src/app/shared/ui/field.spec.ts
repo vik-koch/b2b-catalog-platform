@@ -2,6 +2,8 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { form, required, validate } from '@angular/forms/signals';
 import { FORM_FIELDS } from './form-fields';
+import { SHARED_TEXT } from '../config/shared-text';
+import { defaultSharedText } from '../config/shared-text.fixture';
 
 @Component({
   imports: [FORM_FIELDS],
@@ -52,7 +54,10 @@ class Host {
 
 async function render() {
   TestBed.resetTestingModule();
-  TestBed.configureTestingModule({ imports: [Host] });
+  TestBed.configureTestingModule({
+    imports: [Host],
+    providers: [{ provide: SHARED_TEXT, useValue: defaultSharedText }],
+  });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();
   const el = fixture.nativeElement as HTMLElement;
@@ -148,6 +153,18 @@ describe('Field', () => {
       /-hint \S+-error$/,
     );
     expect(fieldset.textContent).toContain('Pick a size');
+  });
+
+  it('says a required group is required in its name, which takes no aria-required', async () => {
+    const { el } = await render();
+    const legend = el.querySelector('legend') as HTMLLegendElement;
+
+    expect(legend.querySelector('.sr-only')?.textContent?.trim()).toBe(
+      defaultSharedText.required,
+    );
+    expect(el.querySelector('fieldset')?.hasAttribute('aria-required')).toBe(
+      false,
+    );
   });
 
   it('draws a caption-row action beside the caption, not in the control', async () => {
