@@ -16,9 +16,11 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AttributeType, ATTRIBUTE_TYPES } from '@b2b-catalog-platform/shared';
+import { form, hidden, validate } from '@angular/forms/signals';
 import {
   AttributeDefinition,
-  slugSchema,
+  SLUG_MAX_LENGTH,
+  SLUG_PATTERN,
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
@@ -29,7 +31,9 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { filled } from '../../shared/core/field-rules';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { SelectField } from '../../shared/ui/select-field';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
@@ -47,6 +51,21 @@ import { PageIntro } from '../../shared/ui/page-intro';
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;
 
+interface AttributeDraft {
+  name: string;
+  /** Empty asks the server to derive one from the name. */
+  slug: string;
+  type: AttributeType;
+  unit: string;
+}
+
+const blankAttribute = (): AttributeDraft => ({
+  name: '',
+  slug: '',
+  type: 'text',
+  unit: '',
+});
+
 /**
  * Filterable attributes (FR-ATTR-01) — which of the keys staff type into a
  * product's attribute grid the storefront offers as a filter.
@@ -63,6 +82,7 @@ type EditTarget = { id: string } | { id: null } | null;
 @Component({
   selector: 'app-attribute-list-page',
   imports: [
+    FORM_FIELDS,
     WarningNote,
     NgTemplateOutlet,
     RouterLink,
@@ -78,7 +98,6 @@ type EditTarget = { id: string } | { id: null } | null;
     RecordFields,
     RecordFormActions,
     Input,
-    FieldLabel,
     SelectField,
     Skeleton,
     PageTitle,
@@ -136,7 +155,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 [id]="rowId(definition.name)"
               >
                 @if (isEditing(definition.id)) {
-                  <ng-container [ngTemplateOutlet]="form" class="bg-white" />
+                  <ng-container [ngTemplateOutlet]="recordForm" class="bg-white" />
                 } @else {
                   <app-record-row [compact]="true">
                     <!-- Ordering is the filter panel's order and nothing else.
@@ -259,7 +278,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 definitions.value().length !== 0 ? 'border-t border-edge' : ''
               "
             >
-              <ng-container [ngTemplateOutlet]="form" />
+              <ng-container [ngTemplateOutlet]="recordForm" />
             </div>
           } @else if (definitions.value().length === 0) {
             <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
@@ -271,77 +290,69 @@ type EditTarget = { id: string } | { id: null } | null;
 
       <!-- One form for both add and edit: a definition is the same four fields
          either way, and only the request differs. -->
-      <ng-template #form>
+      <ng-template #recordForm>
         <!-- Name and URL key across the top, since one is derived from the
              other; the type below with the unit it measures beside it, which
              is the pair that only exists together. One field per line below sm. -->
-        <form appRecordFields (submit)="save($event)">
-          <div>
-            <label appFieldLabel for="attribute-name">
-              {{ text.name }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
+        <form appRecordFields [formRoot]="form" (submit)="save()">
+          <app-field
+            [field]="form.name"
+            [label]="text.name"
+            controlId="attribute-name"
+          >
             <input
               appInput
               size="sm"
-              id="attribute-name"
-              name="name"
               class="w-full"
               autocomplete="off"
-              [value]="draftName()"
               [placeholder]="text.namePlaceholder"
-              (input)="draftName.set($any($event.target).value)"
+              [formField]="form.name"
             />
-          </div>
-          <div>
-            <label appFieldLabel for="attribute-slug">{{ text.slug }}</label>
+          </app-field>
+          <app-field
+            [field]="form.slug"
+            [label]="text.slug"
+            controlId="attribute-slug"
+          >
             <input
               appInput
               size="sm"
-              id="attribute-slug"
-              name="slug"
               class="w-full font-mono"
               autocomplete="off"
-              [value]="draftSlug()"
               [placeholder]="text.slugPlaceholder"
-              (input)="draftSlug.set($any($event.target).value)"
+              [formField]="form.slug"
             />
-          </div>
-          <div>
-            <label appFieldLabel for="attribute-type">{{ text.type }}</label>
+          </app-field>
+          <app-field
+            [field]="form.type"
+            [label]="text.type"
+            controlId="attribute-type"
+          >
             <app-select-field size="sm" class="block w-full">
-              <select
-                appInput
-                size="sm"
-                id="attribute-type"
-                name="type"
-                class="w-full"
-                [value]="draftType()"
-                (change)="draftType.set($any($event.target).value)"
-              >
+              <select appInput size="sm" class="w-full" [formField]="form.type">
                 @for (type of types; track type) {
                   <option [value]="type">{{ text.types[type] }}</option>
                 }
               </select>
             </app-select-field>
-          </div>
+          </app-field>
           <!-- A unit measures a quantity: a text attribute has none, and the
              field would only invite "Blue cm". -->
-          @if (draftType() === 'number') {
-            <div>
-              <label appFieldLabel for="attribute-unit">{{ text.unit }}</label>
+          @if (draft().type === 'number') {
+            <app-field
+              [field]="form.unit"
+              [label]="text.unit"
+              controlId="attribute-unit"
+            >
               <input
                 appInput
                 size="sm"
-                id="attribute-unit"
-                name="unit"
                 class="w-full"
                 autocomplete="off"
-                [value]="draftUnit()"
                 [placeholder]="text.unitPlaceholder"
-                (input)="draftUnit.set($any($event.target).value)"
+                [formField]="form.unit"
               />
-            </div>
+            </app-field>
           }
           <p appHint class="sm:col-span-2">{{ text.nameHint }}</p>
           <div appRecordFormActions>
@@ -394,10 +405,25 @@ export class AttributeListPage {
 
   /** Which row is open for editing — `{ id: null }` is the add form. */
   protected readonly editing = signal<EditTarget>(null);
-  protected readonly draftName = signal('');
-  protected readonly draftSlug = signal('');
-  protected readonly draftType = signal<AttributeType>('text');
-  protected readonly draftUnit = signal('');
+  protected readonly draft = signal<AttributeDraft>(blankAttribute());
+  protected readonly form = form(
+    this.draft,
+    (attribute) => {
+      filled(attribute.name, this.text.nameRequired);
+      // Empty is valid: the server derives a slug from the name.
+      validate(attribute.slug, ({ value }) => {
+        const slug = value().trim();
+        return !slug ||
+          (slug.length <= SLUG_MAX_LENGTH && SLUG_PATTERN.test(slug))
+          ? undefined
+          : { kind: 'slug', message: this.text.slugInvalid };
+      });
+      hidden(attribute.unit, {
+        when: ({ valueOf }) => valueOf(attribute.type) !== 'number',
+      });
+    },
+    { name: 'attribute' },
+  );
   protected readonly formError = signal<string | null>(null);
   /** A refusal that belongs to a row rather than the form — a lost delete. */
   protected readonly rowError = signal<{ id: string; message: string } | null>(
@@ -471,10 +497,12 @@ export class AttributeListPage {
   protected startEdit(definition: AttributeDefinition): void {
     this.reset();
     this.editing.set({ id: definition.id });
-    this.draftName.set(definition.name);
-    this.draftSlug.set(definition.slug);
-    this.draftType.set(definition.type);
-    this.draftUnit.set(definition.unit ?? '');
+    this.draft.set({
+      name: definition.name,
+      slug: definition.slug,
+      type: definition.type,
+      unit: definition.unit ?? '',
+    });
   }
 
   protected cancel(): void {
@@ -483,37 +511,26 @@ export class AttributeListPage {
 
   private reset(): void {
     this.editing.set(null);
-    this.draftName.set('');
-    this.draftSlug.set('');
-    this.draftType.set('text');
-    this.draftUnit.set('');
+    this.draft.set(blankAttribute());
+    // The next row opened starts quiet, not red from this one's attempt.
+    submitAttempt(this.form).set(false);
     this.formError.set(null);
     this.rowError.set(null);
   }
 
-  protected async save(event: Event): Promise<void> {
-    event.preventDefault();
+  protected async save(): Promise<void> {
     const target = this.editing();
-    if (!target || this.busy()) return;
+    if (!target || this.busy() || this.form().invalid()) return;
 
-    const name = this.draftName().trim();
-    const slug = this.draftSlug().trim();
-    const unit = this.draftUnit().trim();
-    // Checked here as well as by the contract so a typo is answered on the spot
-    // rather than by a 400 the user has to interpret. An empty slug is valid:
-    // the server derives one from the name.
-    if (!name) return this.formError.set(this.text.nameRequired);
-    if (slug && !slugSchema.safeParse(slug).success) {
-      return this.formError.set(this.text.slugInvalid);
-    }
-
+    const draft = this.draft();
+    const slug = draft.slug.trim();
     const body = {
-      name,
+      name: draft.name.trim(),
       slug: slug || undefined,
-      type: this.draftType(),
+      type: draft.type,
       // Retyping to text drops the unit the server would drop anyway, so the
       // form and the row agree the moment the save returns.
-      unit: this.draftType() === 'number' ? unit || null : null,
+      unit: draft.type === 'number' ? draft.unit.trim() || null : null,
     };
 
     this.busy.set(true);

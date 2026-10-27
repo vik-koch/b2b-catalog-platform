@@ -7,10 +7,12 @@ import {
 } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, resource, signal } from '@angular/core';
+import { disabled, form, validate } from '@angular/forms/signals';
 import {
-  CustomerTier,
-  tierKeySchema,
-} from '@b2b-catalog-platform/shared/admin';
+  TIER_KEY_MAX_LENGTH,
+  TIER_KEY_PATTERN,
+} from '@b2b-catalog-platform/shared';
+import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
@@ -19,7 +21,9 @@ import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { filled } from '../../shared/core/field-rules';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { RecordFields, RecordFormActions } from '../records/record-form';
@@ -54,6 +58,7 @@ type EditTarget = { id: string } | { id: null } | null;
 @Component({
   selector: 'app-tier-list-page',
   imports: [
+    FORM_FIELDS,
     CdkDropList,
     CdkDrag,
     CdkDragHandle,
@@ -67,7 +72,6 @@ type EditTarget = { id: string } | { id: null } | null;
     RecordFormActions,
     LockedFieldMarker,
     Input,
-    FieldLabel,
     Skeleton,
     RouterLink,
     PageTitle,
@@ -120,7 +124,7 @@ type EditTarget = { id: string } | { id: null } | null;
             @for (tier of tiers.value().tiers; track tier.id) {
               <li class="py-3" cdkDrag [cdkDragData]="tier">
                 @if (isEditing(tier.id)) {
-                  <ng-container [ngTemplateOutlet]="form" />
+                  <ng-container [ngTemplateOutlet]="recordForm" />
                 } @else {
                   <app-record-row [compact]="true">
                     <!-- A handle, not a pair of step buttons: everything else
@@ -260,7 +264,7 @@ type EditTarget = { id: string } | { id: null } | null;
 
           @if (isEditing(null)) {
             <div class="py-3">
-              <ng-container [ngTemplateOutlet]="form" />
+              <ng-container [ngTemplateOutlet]="recordForm" />
             </div>
           } @else if (tiers.value().tiers.length === 0) {
             <p class="py-3 text-sm text-ink-subtle">{{ text.empty }}</p>
@@ -290,53 +294,43 @@ type EditTarget = { id: string } | { id: null } | null;
         }
       </ng-template>
 
-      <ng-template #form>
+      <ng-template #recordForm>
         <!-- The label and the sync key it is stored under, side by side from
              sm up and one per line below it — the same two-column form the
              filterable attributes wear. -->
-        <form appRecordFields (submit)="save($event)">
-          <div>
-            <label appFieldLabel for="tier-label">
-              {{ text.label }}
-              <span class="text-accent" aria-hidden="true">*</span>
-            </label>
+        <form appRecordFields [formRoot]="form" (submit)="save()">
+          <app-field
+            [field]="form.label"
+            [label]="text.label"
+            controlId="tier-label"
+          >
             <input
               appInput
               size="sm"
-              id="tier-label"
-              name="label"
               class="w-full"
               autocomplete="off"
-              [value]="draftLabel()"
               [placeholder]="text.labelPlaceholder"
-              (input)="draftLabel.set($any($event.target).value)"
+              [formField]="form.label"
             />
-          </div>
-          <div>
-            <!-- Locked only on an existing list, and only while the catalog is
-                 managed elsewhere: the key is that system's handle on this
-                 list. A list being added has no handle yet, so the add form
-                 keeps the field — it is how an admin answers a run that priced
-                 a key this deployment does not have. -->
-            <label appFieldLabel for="tier-key">
-              {{ text.key }}
-              @if (keyLocked()) {
-                <app-locked-field-marker />
-              }
-            </label>
+          </app-field>
+          <!-- Locked only on an existing list, and only while the catalog is
+               managed elsewhere: the key is that system's handle on this list.
+               A list being added has no handle yet, so the add form keeps the
+               field — it is how an admin answers a run that priced a key this
+               deployment does not have. -->
+          <app-field [field]="form.key" [label]="text.key" controlId="tier-key">
+            @if (keyLocked()) {
+              <app-locked-field-marker appFieldCaption />
+            }
             <input
               appInput
               size="sm"
-              id="tier-key"
-              name="key"
               class="w-full font-mono"
               autocomplete="off"
-              [value]="draftKey()"
-              [disabled]="keyLocked()"
               [placeholder]="text.keyPlaceholder"
-              (input)="draftKey.set($any($event.target).value)"
+              [formField]="form.key"
             />
-          </div>
+          </app-field>
           <p appHint class="sm:col-span-2">
             {{ keyLocked() ? ownershipText.tierKeyLocked : text.keyHint }}
           </p>
@@ -389,8 +383,24 @@ export class TierListPage {
 
   /** Which row is open for editing — `{ id: null }` is the add form. */
   protected readonly editing = signal<EditTarget>(null);
-  protected readonly draftLabel = signal('');
-  protected readonly draftKey = signal('');
+  private readonly draft = signal({ label: '', key: '' });
+  protected readonly form = form(
+    this.draft,
+    (tier) => {
+      filled(tier.label, this.text.labelRequired);
+      // The contract's rule, from its import-free parts.
+      filled(tier.key, this.text.keyInvalid);
+      disabled(tier.key, { when: () => this.keyLocked() });
+      validate(tier.key, ({ value }) => {
+        const key = value().trim().normalize('NFC');
+        return !key ||
+          (key.length <= TIER_KEY_MAX_LENGTH && TIER_KEY_PATTERN.test(key))
+          ? undefined
+          : { kind: 'key', message: this.text.keyInvalid };
+      });
+    },
+    { name: 'tier' },
+  );
   protected readonly formError = signal<string | null>(null);
   /** A refusal that belongs to a row rather than the form — a blocked delete. */
   protected readonly rowError = signal<{ id: string; message: string } | null>(
@@ -533,8 +543,7 @@ export class TierListPage {
   protected startEdit(tier: CustomerTier): void {
     this.reset();
     this.editing.set({ id: tier.id });
-    this.draftLabel.set(tier.label);
-    this.draftKey.set(tier.key);
+    this.draft.set({ label: tier.label, key: tier.key });
   }
 
   protected cancel(): void {
@@ -543,25 +552,19 @@ export class TierListPage {
 
   private reset(): void {
     this.editing.set(null);
-    this.draftLabel.set('');
-    this.draftKey.set('');
+    this.draft.set({ label: '', key: '' });
+    // The next row opened starts quiet, not red from this one's attempt.
+    submitAttempt(this.form).set(false);
     this.formError.set(null);
     this.rowError.set(null);
   }
 
-  protected async save(event: Event): Promise<void> {
-    event.preventDefault();
+  protected async save(): Promise<void> {
     const target = this.editing();
-    if (!target || this.busy()) return;
+    if (!target || this.busy() || this.form().invalid()) return;
 
-    const label = this.draftLabel().trim();
-    const key = this.draftKey().trim();
-    // Checked here as well as by the contract so a typo is answered on the spot
-    // rather than by a 400 the user has to interpret.
-    if (!label) return this.formError.set(this.text.labelRequired);
-    if (!tierKeySchema.safeParse(key).success) {
-      return this.formError.set(this.text.keyInvalid);
-    }
+    const label = this.draft().label.trim();
+    const key = this.draft().key.trim();
 
     this.busy.set(true);
     this.formError.set(null);
