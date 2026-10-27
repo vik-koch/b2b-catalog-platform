@@ -1,19 +1,20 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {
-  newPasswordSchema,
   PASSWORD_MIN_LENGTH,
   PasswordTokenPurpose,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { FieldErrors } from '../../shared/core/form-errors';
-import { generatePassword, passwordsMatch } from '../../shared/core/password';
-import { zodValidator } from '../../shared/core/zod-validator';
+import {
+  confirmation,
+  generatePassword,
+  newPassword,
+} from '../../shared/core/password';
 import { AuthCard } from './auth-card';
 import { Button } from '../../shared/ui/button';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
@@ -32,7 +33,6 @@ type Status =
   | 'ready'
   | 'expired'
   | 'closed'
-  | 'submitting'
   | 'done'
   // The password is saved and a code is owed (FR-AUTH-12)…
   | 'step'
@@ -55,10 +55,9 @@ type Status =
   imports: [
     AuthCard,
     ConsentField,
-    ReactiveFormsModule,
+    FORM_FIELDS,
     RouterLink,
     Button,
-    FieldLabel,
     Input,
     SignInStepPanel,
     TextButton,
@@ -123,18 +122,20 @@ type Status =
             <span class="mt-1 block">{{ text.forAccount }} {{ email() }}</span>
           </p>
 
-          <form
-            [formGroup]="form"
-            (ngSubmit)="submit()"
-            novalidate
-            class="space-y-6"
-          >
+          <form [formRoot]="form" class="space-y-6">
             <div>
-              <div class="flex items-baseline justify-between">
-                <label for="newPassword" appFieldLabel>
-                  {{ auth.password }}
-                </label>
+              <!-- The length rule is stated up front, as on the change-password
+                   form: it is the same sentence before and after the refusal,
+                   and only its colour changes. -->
+              <app-field
+                [field]="form.newPassword"
+                [label]="auth.password"
+                [hint]="tooShort"
+                [marker]="false"
+                controlId="newPassword"
+              >
                 <button
+                  appFieldAction
                   type="button"
                   appTextButton
                   class="text-sm"
@@ -142,34 +143,14 @@ type Status =
                 >
                   {{ revealed() ? text.hide : text.show }}
                 </button>
-              </div>
-              <input
-                id="newPassword"
-                [type]="revealed() ? 'text' : 'password'"
-                formControlName="newPassword"
-                autocomplete="new-password"
-                aria-required="true"
-                appInput
-                class="w-full"
-                aria-describedby="newPassword-hint"
-                [attr.aria-invalid]="isInvalid('newPassword') || null"
-              />
-              <!-- The length rule is stated up front, as on the change-password
-                   form: it is the same sentence before and after the refusal,
-                   and only its colour changes. -->
-              @if (isInvalid('newPassword')) {
-                <p id="newPassword-hint" appErrorText class="mt-1">
-                  {{
-                    form.controls.newPassword.hasError('required')
-                      ? validation.newPasswordRequired
-                      : tooShort
-                  }}
-                </p>
-              } @else {
-                <p id="newPassword-hint" appHint class="mt-1">
-                  {{ tooShort }}
-                </p>
-              }
+                <input
+                  [type]="revealed() ? 'text' : 'password'"
+                  autocomplete="new-password"
+                  appInput
+                  class="w-full"
+                  [formField]="form.newPassword"
+                />
+              </app-field>
               <button
                 type="button"
                 appTextButton
@@ -183,45 +164,31 @@ type Status =
               }
             </div>
 
-            <div>
-              <label for="confirmPassword" appFieldLabel>
-                {{ text.confirmPassword }}
-              </label>
+            <app-field
+              [field]="form.confirmPassword"
+              [label]="text.confirmPassword"
+              [marker]="false"
+              controlId="confirmPassword"
+            >
               <input
-                id="confirmPassword"
                 [type]="revealed() ? 'text' : 'password'"
-                formControlName="confirmPassword"
                 autocomplete="new-password"
-                aria-required="true"
                 appInput
                 class="w-full"
-                [attr.aria-invalid]="showMismatch() || null"
+                [formField]="form.confirmPassword"
               />
-              @if (showMismatch()) {
-                <p appErrorText class="mt-1">
-                  {{ validation.confirmPasswordMismatch }}
-                </p>
-              }
-            </div>
+            </app-field>
 
             <!-- The notice only beside the box: a reset owes no consent,
                  and the account's details were collected long before. -->
-            <app-consent-field
-              [consent]="consent"
-              [invalid]="isInvalid('consent')"
-              [alone]="false"
-            />
+            <app-consent-field [consent]="consent" [alone]="false" />
 
             @if (rejection(); as message) {
               <p appErrorText role="alert">{{ message }}</p>
             }
 
-            <button
-              appButton
-              type="submit"
-              [disabled]="status() === 'submitting'"
-            >
-              {{ status() === 'submitting' ? actionText.saving : text.submit }}
+            <button appButton type="submit" [disabled]="form().submitting()">
+              {{ form().submitting() ? actionText.saving : text.submit }}
             </button>
           </form>
         }
@@ -230,7 +197,6 @@ type Status =
   `,
 })
 export class SetPasswordPage implements OnInit {
-  private readonly fb = inject(FormBuilder);
   private readonly service = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -263,19 +229,22 @@ export class SetPasswordPage implements OnInit {
   /** The refusal to show under the field, once there is one. */
   protected readonly rejection = signal<string | null>(null);
 
-  protected readonly form = this.fb.nonNullable.group(
-    {
-      newPassword: [
-        '',
-        [Validators.required, zodValidator(newPasswordSchema, 'tooShort')],
-      ],
-      confirmPassword: ['', Validators.required],
-      consent: this.consent.control,
+  private readonly model = signal({ newPassword: '', confirmPassword: '' });
+  protected readonly form = form(
+    this.model,
+    (password) => {
+      newPassword(password.newPassword, {
+        required: this.validation.newPasswordRequired,
+        length: this.tooShort,
+      });
+      confirmation(
+        password.confirmPassword,
+        password.newPassword,
+        this.validation.confirmPasswordMismatch,
+      );
     },
-    { validators: passwordsMatch },
+    { name: 'set-password', submission: { action: () => this.send() } },
   );
-
-  protected readonly fieldErrors = new FieldErrors(this.form);
 
   constructor() {
     usePageSeo({
@@ -298,17 +267,6 @@ export class SetPasswordPage implements OnInit {
     this.status.set('ready');
   }
 
-  protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    return this.fieldErrors.show(this.form.controls[control]);
-  }
-
-  protected showMismatch(): boolean {
-    return this.fieldErrors.showGroupError(
-      'mismatch',
-      this.form.controls.confirmPassword,
-    );
-  }
-
   /**
    * Fill both fields with a strong password and reveal it: a password nobody
    * can see is a password nobody can save, and the point of suggesting one is
@@ -316,21 +274,19 @@ export class SetPasswordPage implements OnInit {
    */
   protected suggest(): void {
     const password = generatePassword();
-    this.form.patchValue({ newPassword: password, confirmPassword: password });
+    this.model.set({ newPassword: password, confirmPassword: password });
     this.revealed.set(true);
     this.suggested.set(true);
   }
 
-  protected async submit(): Promise<void> {
+  private async send(): Promise<void> {
+    if (this.consent.field().invalid() || !this.consent.sendable()) return;
+
     // The refusal stays until the next answer replaces it, so the form does
     // not jump while the request is out.
-    this.fieldErrors.markSubmitted();
-    if (this.form.invalid || !this.consent.sendable()) return;
-
-    this.status.set('submitting');
     const outcome = await this.service.setPassword({
       token: this.token(),
-      password: this.form.controls.newPassword.value,
+      password: this.model().newPassword,
       consentVersion: this.consent.version(),
     });
     const { result } = outcome;

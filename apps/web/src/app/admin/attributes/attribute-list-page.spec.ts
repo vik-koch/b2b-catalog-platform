@@ -100,6 +100,8 @@ async function render(
     const field = el.querySelector<HTMLSelectElement>(selector);
     if (!field) throw new Error(`no field ${selector}`);
     field.value = value;
+    // A browser fires both on a select; the form listens to input.
+    field.dispatchEvent(new Event('input'));
     field.dispatchEvent(new Event('change'));
     await fixture.whenStable();
     fixture.detectChanges();

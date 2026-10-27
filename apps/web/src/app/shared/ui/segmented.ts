@@ -1,12 +1,5 @@
-import {
-  Component,
-  computed,
-  forwardRef,
-  input,
-  output,
-  signal,
-} from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, input, model, output } from '@angular/core';
+import { type FormValueControl } from '@angular/forms/signals';
 
 /**
  * The look of a segmented choice — several mutually exclusive options side by
@@ -145,12 +138,11 @@ export interface SegmentOption<T extends string> {
  * A segmented choice, as a component: a row of options in one pill, exactly
  * one chosen.
  *
- * It serves both ways a choice is held in this app. Where the pill is a field
- * on a form it is a `ControlValueAccessor`, so `formControlName` binds it like
- * any input. Where the choice lives in a signal — the checkout's party rows,
- * which redraw the fields under the pill — the caller binds `value` and hears
- * `chosen`. Whichever is in use, the segment classes and the radio semantics
- * come from one place.
+ * One `value` model serves both ways a choice is held in this app: a form's
+ * `[formField]` binds it like any control, and a caller holding the choice in
+ * a signal binds `[(value)]`, or `[value]` and `(valueChange)` where picking
+ * does more than set it — the checkout's party rows, which redraw the fields
+ * under the pill.
  *
  * The radios stay real radios, hidden rather than replaced: arrow-key
  * navigation, the group semantics and the focus ring all come from the
@@ -168,25 +160,18 @@ export interface SegmentOption<T extends string> {
             class="sr-only"
             [name]="name()"
             [value]="option.value"
-            [checked]="option.value === chosenValue()"
+            [checked]="option.value === value()"
             [disabled]="disabled()"
-            (change)="choose(option.value)"
-            (blur)="markTouched()"
+            (change)="value.set(option.value)"
+            (blur)="touch.emit()"
           />
           {{ option.label }}
         </label>
       }
     </div>
   `,
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => Segmented),
-      multi: true,
-    },
-  ],
 })
-export class Segmented<T extends string> implements ControlValueAccessor {
+export class Segmented<T extends string> implements FormValueControl<T> {
   protected readonly group = SEGMENTED_GROUP;
 
   /** The radio group's name. Unique per instance unless the caller names it:
@@ -199,19 +184,10 @@ export class Segmented<T extends string> implements ControlValueAccessor {
   /** Only where the pill has no `legend` naming it. */
   readonly ariaLabel = input<string>();
 
-  /** What is chosen, for a caller holding it in a signal. Left alone where a
-   * form control is writing through the value accessor instead. */
-  readonly value = input<T | null>(null);
-  /** A segment was picked. The caller decides what that means — this does not
-   * assume the choice took. */
-  readonly chosen = output<T>();
-
-  /** What a form control last wrote, used only when nobody binds `value`. */
-  private readonly written = signal<T | null>(null);
-  protected readonly disabled = signal(false);
-  protected readonly chosenValue = computed(
-    () => this.value() ?? this.written(),
-  );
+  readonly value = model.required<T>();
+  readonly disabled = input(false);
+  /** Left, for a form that tells a visited field from an untouched one. */
+  readonly touch = output<void>();
 
   /**
    * A disabled group takes the locked look rather than only refusing the
@@ -220,41 +196,9 @@ export class Segmented<T extends string> implements ControlValueAccessor {
    * a hover wash is a pill that claims to be a choice.
    */
   protected segment(value: T): string {
-    return segmentClass(
-      value === this.chosenValue() ? 'selected' : 'available',
-      {
-        size: this.size(),
-        locked: this.disabled(),
-      },
-    );
-  }
-
-  protected choose(value: T): void {
-    this.written.set(value);
-    this.onChange(value);
-    this.chosen.emit(value);
-  }
-
-  protected markTouched(): void {
-    this.onTouched();
-  }
-
-  private onChange: (value: T | null) => void = () => undefined;
-  private onTouched: () => void = () => undefined;
-
-  writeValue(value: T | null): void {
-    this.written.set(value);
-  }
-
-  registerOnChange(fn: (value: T | null) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.disabled.set(isDisabled);
+    return segmentClass(value === this.value() ? 'selected' : 'available', {
+      size: this.size(),
+      locked: this.disabled(),
+    });
   }
 }

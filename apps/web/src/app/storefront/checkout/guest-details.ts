@@ -1,19 +1,18 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject, input, output } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, type FieldTree } from '@angular/forms/signals';
 import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { FieldErrors } from '../../shared/core/form-errors';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { EmailField } from '../../shared/ui/email-field';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { Field } from '../../shared/ui/field';
+import { FieldBinding } from '../../shared/ui/field-binding';
 import { Input } from '../../shared/ui/input';
-import { PhoneField } from '../../shared/ui/phone-field';
+import { PhoneInput } from '../../shared/ui/phone-input';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ContactAnswers, PartyAnswers } from './checkout-forms';
 
 /**
  * Everything a guest is asked about themselves (FR-CART-03/09), in one block:
@@ -32,14 +31,13 @@ import { ErrorText } from '../../shared/ui/error-text';
   selector: 'app-guest-details',
   imports: [
     CompanyFields,
-    EmailField,
-    FieldLabel,
+    Field,
+    FieldBinding,
+    FormField,
     Input,
     NgTemplateOutlet,
-    PhoneField,
-    ReactiveFormsModule,
+    PhoneInput,
     Segmented,
-    ErrorText,
   ],
   host: { class: 'block' },
   template: `
@@ -53,7 +51,7 @@ import { ErrorText } from '../../shared/ui/error-text';
           name="party-kind"
           [options]="kinds"
           [value]="party()"
-          (chosen)="partyChange.emit($event)"
+          (valueChange)="partyChange.emit($event)"
         />
       }
 
@@ -64,12 +62,9 @@ import { ErrorText } from '../../shared/ui/error-text';
         <app-company-fields
           idInputId="party-companyId"
           nameInputId="party-companyName"
-          [idControl]="companyIdControl()"
-          [nameControl]="companyNameControl()"
+          [idField]="partyField().companyId"
+          [nameField]="partyField().companyName"
           [text]="companyText"
-          [required]="true"
-          [idInvalid]="companyIdInvalid()"
-          [nameInvalid]="companyNameInvalid()"
           (picked)="picked.emit($event)"
         />
         <ng-container [ngTemplateOutlet]="reach" />
@@ -78,43 +73,41 @@ import { ErrorText } from '../../shared/ui/error-text';
       }
 
       <ng-template #reach>
-        <div>
-          <label for="contact-name" appFieldLabel>
-            {{ party() === 'company' ? text.contactName : text.name }}
-            <span class="text-accent" aria-hidden="true">*</span>
-          </label>
+        <app-field
+          [field]="contact().name"
+          [label]="party() === 'company' ? text.contactName : text.name"
+          controlId="contact-name"
+        >
           <input
-            id="contact-name"
             type="text"
             autocomplete="name"
-            aria-required="true"
             appInput
             class="w-full"
-            [formControl]="nameControl()"
-            [attr.aria-invalid]="errors().show(nameControl()) || null"
+            [formField]="contact().name"
           />
-          @if (errors().show(nameControl())) {
-            <p appErrorText class="mt-1">{{ text.nameRequired }}</p>
-          }
-        </div>
+        </app-field>
 
-        <app-email-field
-          inputId="contact-email"
-          [control]="emailControl()"
+        <app-field
+          [field]="contact().email"
           [label]="fields.email.label"
-          [text]="emailText"
-          [required]="true"
-          [invalid]="errors().show(emailControl())"
-        />
+          controlId="contact-email"
+        >
+          <input
+            type="email"
+            autocomplete="email"
+            appInput
+            class="w-full"
+            [formField]="contact().email"
+          />
+        </app-field>
 
-        <app-phone-field
-          inputId="contact-phone"
-          [control]="phoneControl()"
+        <app-field
+          [field]="contact().phone"
           [label]="fields.phone.label"
-          [text]="phoneText"
-          [required]="true"
-          [invalid]="errors().show(phoneControl())"
-        />
+          controlId="contact-phone"
+        >
+          <app-phone-input [field]="contact().phone" />
+        </app-field>
 
         <p class="text-sm text-ink-subtle">{{ text.note }}</p>
       </ng-template>
@@ -135,34 +128,15 @@ export class GuestDetails {
     label: this.partyChoice[value],
   }));
 
-  /** The same messages the sign-up form shows for the same fields. */
-  protected readonly emailText = {
-    required: this.fields.email.required,
-    invalid: this.fields.email.invalid,
-  };
-  protected readonly phoneText = {
-    required: this.fields.phone.required,
-    incomplete: this.fields.phone.incomplete,
-  };
   protected readonly companyText = {
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
-    idFormat: this.fields.companyId.format,
-    idRequired: this.fields.companyId.required,
-    nameRequired: this.fields.companyName.required,
   };
 
   readonly party = input.required<Party>();
-  readonly nameControl = input.required<FormControl<string>>();
-  readonly emailControl = input.required<FormControl<string>>();
-  readonly phoneControl = input.required<FormControl<string>>();
-  readonly companyNameControl = input.required<FormControl<string>>();
-  readonly companyIdControl = input.required<FormControl<string>>();
-  readonly companyNameInvalid = input(false);
-  readonly companyIdInvalid = input(false);
-  /** Whose rules decide when a message is due — the page's, since only it
-   * knows whether the form has been sent for checking yet. */
-  readonly errors = input.required<FieldErrors>();
+  /** The page's form decides what each answer must be. */
+  readonly partyField = input.required<FieldTree<PartyAnswers>>();
+  readonly contact = input.required<FieldTree<ContactAnswers>>();
 
   readonly partyChange = output<Party>();
   readonly picked = output<PartySuggestion>();

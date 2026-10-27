@@ -1,6 +1,5 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, inject, signal } from '@angular/core';
+import { disabled, form, hidden, required } from '@angular/forms/signals';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   CustomerType,
@@ -17,23 +16,21 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { AuthService } from '../../shared/auth/auth.service';
-import {
-  canonicalPhone,
-  companyIdValidators,
-  emailFormat,
-  phoneValidators,
-  typedPhone,
-} from '../../shared/core/contact-fields';
+import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { FieldErrors } from '../../shared/core/form-errors';
+import {
+  companyIdFormat,
+  completeMask,
+  emailAddress,
+} from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { LockedNote } from '../ownership/locked-note';
 import { Button } from '../../shared/ui/button';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { EmailField } from '../../shared/ui/email-field';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { PhoneField } from '../../shared/ui/phone-field';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
+import { PhoneInput } from '../../shared/ui/phone-input';
 import { AdminIcon, AdminIconName } from '../../shared/ui/icons/admin-icon';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -48,7 +45,22 @@ import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
+
+interface UserDraft {
+  email: string;
+  customerType: CustomerType;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  companyName: string;
+  companyRegistrationId: string;
+  /** `default` is the base price list; `''` only exists before an approval. */
+  tierId: string;
+  role: UserRole;
+  /** Empty means the account carries none: every account nobody has claimed,
+   * and a normal state. */
+  sourceId: string;
+}
 
 /**
  * Add, edit and approve an account (FR-AUTH-03/04) — `/admin/users/new`,
@@ -68,15 +80,13 @@ import { Hint } from '../../shared/ui/hint';
 @Component({
   selector: 'app-user-editor-page',
   imports: [
+    FORM_FIELDS,
     LockedNote,
-    ReactiveFormsModule,
     Button,
     AdminIcon,
     CompanyFields,
-    EmailField,
-    FieldLabel,
     Input,
-    PhoneField,
+    PhoneInput,
     Skeleton,
     SelectField,
     StatusBadge,
@@ -84,7 +94,6 @@ import { Hint } from '../../shared/ui/hint';
     WarningNote,
     PageTitle,
     ErrorText,
-    Hint,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
@@ -159,21 +168,21 @@ import { Hint } from '../../shared/ui/hint';
             {{ actionText.cancel }}
           </button>
         } @else {
-          <form
-            [formGroup]="form"
-            (ngSubmit)="submit()"
-            novalidate
-            class="space-y-6"
-          >
+          <form [formRoot]="form" (submit)="submit()" class="space-y-6">
             @if (isNew) {
-              <app-email-field
-                [control]="form.controls.email"
+              <app-field
+                [field]="form.email"
                 [label]="fields.email.label"
-                [text]="emailText"
-                [required]="true"
-                [invalid]="isInvalid('email')"
-                autocomplete="off"
-              />
+                controlId="email"
+              >
+                <input
+                  type="email"
+                  autocomplete="off"
+                  appInput
+                  class="w-full"
+                  [formField]="form.email"
+                />
+              </app-field>
             } @else {
               <p class="text-sm text-ink-subtle">{{ text.emailFixed }}</p>
             }
@@ -185,73 +194,56 @@ import { Hint } from '../../shared/ui/hint';
               <!-- Only where the shop sells to more than one kind of customer
                    (FR-AUTH-13): with one, there is nothing to choose. -->
               @if (customerTypes.length > 1) {
-                <fieldset>
-                  <legend appFieldLabel>{{ text.customerType }}</legend>
+                <app-field
+                  group
+                  [field]="form.customerType"
+                  [label]="text.customerType"
+                >
                   <app-segmented
                     [options]="customerTypes"
                     size="md"
-                    formControlName="customerType"
+                    [formField]="form.customerType"
                   />
-                </fieldset>
+                </app-field>
               }
             }
 
             <div class="grid gap-6 sm:grid-cols-2">
-              <div>
-                <label for="firstName" appFieldLabel>
-                  {{ fields.firstName.label }}
-                  <span class="text-accent" aria-hidden="true">*</span>
-                </label>
+              <app-field
+                [field]="form.firstName"
+                [label]="fields.firstName.label"
+                controlId="firstName"
+              >
                 <input
-                  id="firstName"
                   type="text"
-                  formControlName="firstName"
                   autocomplete="off"
-                  aria-required="true"
                   appInput
                   class="w-full"
-                  [attr.aria-invalid]="isInvalid('firstName') || null"
-                  [disabled]="locked()"
+                  [formField]="form.firstName"
                 />
-                @if (isInvalid('firstName')) {
-                  <p appErrorText class="mt-1">
-                    {{ fields.firstName.required }}
-                  </p>
-                }
-              </div>
+              </app-field>
 
-              <div>
-                <label for="lastName" appFieldLabel>
-                  {{ fields.lastName.label }}
-                  <span class="text-accent" aria-hidden="true">*</span>
-                </label>
+              <app-field
+                [field]="form.lastName"
+                [label]="fields.lastName.label"
+                controlId="lastName"
+              >
                 <input
-                  id="lastName"
                   type="text"
-                  formControlName="lastName"
                   autocomplete="off"
-                  aria-required="true"
                   appInput
                   class="w-full"
-                  [attr.aria-invalid]="isInvalid('lastName') || null"
-                  [disabled]="locked()"
+                  [formField]="form.lastName"
                 />
-                @if (isInvalid('lastName')) {
-                  <p appErrorText class="mt-1">
-                    {{ fields.lastName.required }}
-                  </p>
-                }
-              </div>
+              </app-field>
             </div>
 
             @if (isCompany()) {
               <app-company-fields
                 idInputId="companyRegistrationId"
-                [idControl]="form.controls.companyRegistrationId"
-                [nameControl]="form.controls.companyName"
+                [idField]="form.companyRegistrationId"
+                [nameField]="form.companyName"
                 [text]="companyText"
-                [idInvalid]="isInvalid('companyRegistrationId')"
-                [nameInvalid]="isInvalid('companyName')"
                 (picked)="fillCompanyFrom($event)"
               />
             }
@@ -259,30 +251,22 @@ import { Hint } from '../../shared/ui/hint';
             <!-- Optional here, unlike on the registration form: staff often set
                an account up from an email alone, and a phone number they do
                not have is not a reason to block the account. -->
-            <app-phone-field
-              [control]="form.controls.phone"
+            <app-field
+              [field]="form.phone"
               [label]="fields.phone.label"
-              [text]="phoneText"
-              [invalid]="isInvalid('phone')"
-              autocomplete="off"
-            />
+              controlId="phone"
+            >
+              <app-phone-input [field]="form.phone" autocomplete="off" />
+            </app-field>
 
             @if (isCustomer()) {
-              <div>
-                <label for="tier" appFieldLabel>
-                  {{ text.tier }}
-                  @if (isApproval()) {
-                    <span class="text-accent" aria-hidden="true">*</span>
-                  }
-                </label>
+              <app-field
+                [field]="form.tierId"
+                [label]="text.tier"
+                controlId="tier"
+              >
                 <app-select-field class="w-full">
-                  <select
-                    appInput
-                    id="tier"
-                    formControlName="tierId"
-                    class="w-full"
-                    [attr.aria-invalid]="isInvalid('tierId') || null"
-                  >
+                  <select appInput class="w-full" [formField]="form.tierId">
                     <!-- No tier is a default anywhere (ADR 0031), so an approval
                        has nothing to fall back on and must be chosen. -->
                     @if (isApproval()) {
@@ -298,32 +282,25 @@ import { Hint } from '../../shared/ui/hint';
                     }
                   </select>
                 </app-select-field>
-                @if (isInvalid('tierId')) {
-                  <p appErrorText class="mt-1">
-                    {{ text.validation.tierRequired }}
-                  </p>
-                }
-              </div>
+              </app-field>
             }
 
             <!-- Admin only. A manager who could grant a role could grant it to
                themselves, so the field is absent for them and the API refuses
                it besides. -->
             @if (showsRole()) {
-              <div>
-                <label for="role" appFieldLabel>{{ text.role }}</label>
+              <app-field
+                [field]="form.role"
+                [label]="text.role"
+                controlId="role"
+              >
                 <app-select-field class="w-full">
-                  <select
-                    id="role"
-                    formControlName="role"
-                    appInput
-                    class="w-full"
-                  >
+                  <select appInput class="w-full" [formField]="form.role">
                     <option value="manager">{{ listText.roleManager }}</option>
                     <option value="admin">{{ listText.roleAdmin }}</option>
                   </select>
                 </app-select-field>
-              </div>
+              </app-field>
             }
 
             <!-- Admin only, and only on a customer: the key an exchange
@@ -331,17 +308,19 @@ import { Hint } from '../../shared/ui/hint';
                  account alone — a staff-created account has nothing to be
                  keyed against yet, and the field would invite a guess. -->
             @if (showsSourceId()) {
-              <div>
-                <label for="sourceId" appFieldLabel>{{ text.sourceId }}</label>
+              <app-field
+                [field]="form.sourceId"
+                [label]="text.sourceId"
+                [hint]="text.sourceIdHint"
+                controlId="sourceId"
+              >
                 <input
-                  id="sourceId"
-                  formControlName="sourceId"
                   appInput
                   class="w-full"
                   autocomplete="off"
+                  [formField]="form.sourceId"
                 />
-                <p appHint class="mt-1">{{ text.sourceIdHint }}</p>
-              </div>
+              </app-field>
             }
 
             @if (isNew) {
@@ -419,7 +398,6 @@ import { Hint } from '../../shared/ui/hint';
   `,
 })
 export class UserEditorPage implements UnsavedChangesAware {
-  private readonly fb = inject(FormBuilder);
   private readonly service = inject(StaffUsersService);
   private readonly tiersService = inject(TiersService);
   private readonly route = inject(ActivatedRoute);
@@ -480,24 +458,9 @@ export class UserEditorPage implements UnsavedChangesAware {
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
-  // What the shared fields put under themselves — the admin's wording, not the
-  // storefront's. Held as fields so the object identity is stable across change
-  // detection.
-  protected readonly emailText = {
-    required: this.fields.email.required,
-    invalid: this.fields.email.invalid,
-  };
-  // No `required` wording: the number is optional on this screen, so there is
-  // no such refusal to word.
-  protected readonly phoneText = {
-    incomplete: this.fields.phone.incomplete,
-  };
   protected readonly companyText = {
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
-    idFormat: this.fields.companyId.format,
-    idRequired: this.fields.companyId.required,
-    nameRequired: this.fields.companyName.required,
   };
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
@@ -561,24 +524,63 @@ export class UserEditorPage implements UnsavedChangesAware {
   /** Cleared on the next action, so it never outlives what it reports. */
   protected readonly resent = signal(false);
 
-  protected readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, emailFormat()]],
-    customerType: [this.firstType],
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    phone: ['', phoneValidators(this.phoneInput, false)],
-    companyName: [''],
-    companyRegistrationId: [''],
-    /** `default` is the base price list; `''` only exists before an approval. */
-    tierId: ['default'],
-    role: ['manager' as UserRole],
-    /** Empty means the account carries none — which is every account nobody
-     * has claimed, and a normal state. */
-    sourceId: [''],
+  private readonly model = signal<UserDraft>({
+    email: '',
+    customerType: this.firstType,
+    firstName: '',
+    lastName: '',
+    phone: '',
+    companyName: '',
+    companyRegistrationId: '',
+    tierId: 'default',
+    role: 'manager',
+    sourceId: '',
   });
 
-  protected readonly isCompany = signal(false);
-  protected readonly fieldErrors = new FieldErrors(this.form);
+  protected readonly form = form(
+    this.model,
+    (user) => {
+      // The whole area belongs to an exchange; nothing here is the shop's.
+      disabled(user, { when: () => this.locked() });
+      // Shown only on a new account; an existing one cannot change it.
+      if (this.isNew) {
+        required(user.email, { message: this.fields.email.required });
+        emailAddress(user.email, this.fields.email.invalid);
+      }
+      required(user.firstName, { message: this.fields.firstName.required });
+      required(user.lastName, { message: this.fields.lastName.required });
+      completeMask(
+        user.phone,
+        this.phoneInput?.mask,
+        this.fields.phone.incomplete,
+      );
+      // Hidden, the company's fields count for nothing and are never sent.
+      hidden(user.companyName, { when: () => !this.isCompany() });
+      hidden(user.companyRegistrationId, { when: () => !this.isCompany() });
+      required(user.companyName, {
+        message: this.fields.companyName.required,
+      });
+      required(user.companyRegistrationId, {
+        message: this.fields.companyId.required,
+      });
+      companyIdFormat(
+        user.companyRegistrationId,
+        this.companyIdInput?.formats,
+        this.fields.companyId.format,
+      );
+      // No tier is a default anywhere (ADR 0031), so an approval has nothing
+      // to fall back on. The plain save on a pending account does not ask.
+      required(user.tierId, {
+        when: () => this.isApproval(),
+        message: this.text.validation.tierRequired,
+      });
+    },
+    { name: 'user-editor' },
+  );
+
+  protected readonly isCompany = computed(
+    () => this.isCustomer() && this.form.customerType().value() === 'company',
+  );
 
   // JSON snapshot of the form at load, for dirty detection.
   private original = '';
@@ -613,17 +615,6 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   constructor() {
     usePageSeo({ name: () => this.title() });
-
-    this.form.controls.customerType.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((type) => this.applyCompanyValidators(type));
-    this.applyCompanyValidators(this.firstType);
-
-    effect(() => {
-      if (this.locked()) {
-        this.form.disable();
-      }
-    });
     void this.ownership.load();
     void this.load();
   }
@@ -664,30 +655,26 @@ export class UserEditorPage implements UnsavedChangesAware {
     const type = this.config.customerTypes.includes(stored)
       ? stored
       : this.firstType;
-    this.form.patchValue(
-      {
-        email: user.email,
-        customerType: type,
-        firstName: user.firstName ?? '',
-        lastName: user.lastName ?? '',
-        phone: typedPhone(user.phone, this.phoneInput),
-        companyName: user.companyName ?? '',
-        // Shown exactly as stored, whatever shape it is in — including one from
-        // before the current config, which staff must be able to read and
-        // correct rather than have silently reshaped.
-        companyRegistrationId: user.companyRegistrationId ?? '',
-        // A pending account has no tier yet and must be given one explicitly.
-        tierId: user.status === 'pending' ? '' : (user.tierId ?? 'default'),
-        role: user.role === 'admin' ? 'admin' : 'manager',
-        sourceId: user.sourceId ?? '',
-      },
-      { emitEvent: false },
-    );
-    this.applyCompanyValidators(type);
+    this.model.set({
+      email: user.email,
+      customerType: type,
+      firstName: user.firstName ?? '',
+      lastName: user.lastName ?? '',
+      phone: typedPhone(user.phone, this.phoneInput),
+      companyName: user.companyName ?? '',
+      // Shown exactly as stored, whatever shape it is in — including one from
+      // before the current config, which staff must be able to read and
+      // correct rather than have silently reshaped.
+      companyRegistrationId: user.companyRegistrationId ?? '',
+      // A pending account has no tier yet and must be given one explicitly.
+      tierId: user.status === 'pending' ? '' : (user.tierId ?? 'default'),
+      role: user.role === 'admin' ? 'admin' : 'manager',
+      sourceId: user.sourceId ?? '',
+    });
   }
 
   private snapshot(): string {
-    return JSON.stringify(this.form.getRawValue());
+    return JSON.stringify(this.model());
   }
 
   /**
@@ -727,22 +714,21 @@ export class UserEditorPage implements UnsavedChangesAware {
   /** The shared palette; see user-status.ts. */
   protected readonly statusTone = userStatusTone;
 
-  protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    return this.fieldErrors.show(this.form.controls[control]);
-  }
-
   /**
    * Save. `approving` is what the primary button means on a pending account:
    * corrections are written first and the approval follows, so a manager who
    * fixed a digit on the way in does not approve the version with the typo.
    */
   protected async submit(approving = true): Promise<void> {
-    this.fieldErrors.markSubmitted();
+    // The secondary button is no submit button, so it records the attempt
+    // that the form's own submit would.
+    submitAttempt(this.form).set(true);
     const approve = approving && this.isApproval();
-    if (approve && !this.form.controls.tierId.value) {
-      this.form.controls.tierId.setErrors({ required: true });
-    }
-    if (this.form.invalid) return;
+    // A correction without the approval may leave the tier for later.
+    const blocking = this.form()
+      .errorSummary()
+      .filter((error) => approve || error.fieldTree !== this.form.tierId);
+    if (blocking.length > 0) return;
 
     this.saving.set(true);
     this.error.set(null);
@@ -768,7 +754,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   private async createAccount(): Promise<StaffUser | null> {
-    const value = this.form.getRawValue();
+    const value = this.model();
     const result = await this.service.create({
       email: value.email.trim(),
       role: this.isCustomer() ? 'user' : value.role,
@@ -787,7 +773,7 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   private async saveEdits(): Promise<StaffUser | null> {
-    const value = this.form.getRawValue();
+    const value = this.model();
     const contact = this.contactFields();
     const result = await this.service.update(this.idParam as string, {
       firstName: value.firstName.trim(),
@@ -811,7 +797,7 @@ export class UserEditorPage implements UnsavedChangesAware {
 
   /** `''` (only reachable before an approval) and the base list are both null. */
   private tierId(): string | null {
-    const value = this.form.controls.tierId.value;
+    const value = this.model().tierId;
     return value && value !== 'default' ? value : null;
   }
 
@@ -822,11 +808,12 @@ export class UserEditorPage implements UnsavedChangesAware {
     companyName?: string;
     companyRegistrationId?: string;
   } {
-    const value = this.form.getRawValue();
+    const value = this.model();
     const phone = canonicalPhone(value.phone, this.phoneInput);
-    const isCompany = this.isCustomer() && value.customerType === 'company';
-    const companyName = isCompany ? value.companyName.trim() : '';
-    const companyId = isCompany ? value.companyRegistrationId.trim() : '';
+    const companyName = this.isCompany() ? value.companyName.trim() : '';
+    const companyId = this.isCompany()
+      ? value.companyRegistrationId.trim()
+      : '';
     return {
       ...(phone ? { phone } : {}),
       ...(companyName ? { companyName } : {}),
@@ -835,38 +822,14 @@ export class UserEditorPage implements UnsavedChangesAware {
   }
 
   /**
-   * The registration number is required exactly when the account says it is a
-   * company — the contract refuses it in the other direction too, so the field
-   * is cleared rather than left holding a stale value.
-   */
-  /**
    * A picked company, across both fields. Staff get the same accelerator the
    * customer does — a manager typing an account up from a phone call is the
    * likeliest person to have only half the details.
    */
   protected fillCompanyFrom(party: PartySuggestion): void {
-    this.form.patchValue({
-      companyName: party.name,
-      ...(party.registrationId
-        ? { companyRegistrationId: party.registrationId }
-        : {}),
-    });
-  }
-
-  private applyCompanyValidators(type: CustomerType): void {
-    this.isCompany.set(this.isCustomer() && type === 'company');
-    const fields = [
-      [this.form.controls.companyName, [Validators.required]],
-      [
-        this.form.controls.companyRegistrationId,
-        companyIdValidators(this.companyIdInput?.formats),
-      ],
-    ] as const;
-
-    for (const [control, validators] of fields) {
-      control.setValidators(this.isCompany() ? [...validators] : []);
-      if (!this.isCompany()) control.setValue('', { emitEvent: false });
-      control.updateValueAndValidity({ emitEvent: false });
+    this.form.companyName().value.set(party.name);
+    if (party.registrationId) {
+      this.form.companyRegistrationId().value.set(party.registrationId);
     }
   }
 

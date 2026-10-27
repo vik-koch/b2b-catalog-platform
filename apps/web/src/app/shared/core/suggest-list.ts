@@ -63,9 +63,9 @@ export class SuggestList<T> {
   readonly activeIndex = signal(-1);
 
   /**
-   * What has been typed, tracked here rather than read off the control: a
-   * FormControl's value is not a signal, and `debounced` samples its source the
-   * moment it is created — which is before a required input has a value.
+   * What has been typed, tracked here rather than read off the field:
+   * `debounced` samples its source the moment it is created, which is before
+   * a required input has a value.
    */
   private readonly typed = signal('');
   /**

@@ -1,7 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, type FieldTree } from '@angular/forms/signals';
 import {
-  ADDRESS_LINE_MAX_LENGTH,
   ADDRESS_QUERY_MIN_LENGTH,
   AddressComponents,
   AddressSuggestion,
@@ -12,18 +11,17 @@ import {
   SuggestList,
   SuggestListText,
 } from '../core/suggest-list';
-import { FieldLabel } from '../ui/field-label';
+import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
 import { AddressesService } from './addresses.service';
 
 /** `aria-controls` must name one list, and a form may hold two of these. */
 let nextId = 0;
 
-export type AddressSuggestFieldText = SuggestListText;
-
 /**
- * The street field, with suggestions where a deployment configures a provider
- * (FR-CART-11, ADR 0040). An ordinary text input first: typing always works,
+ * The street input inside a Field, with suggestions where a deployment
+ * configures a provider (FR-CART-11, ADR 0040). Its length is the schema's
+ * `maxLength`, which FormField sets on it. An ordinary text input first: typing always works,
  * nothing about the form depends on a suggestion arriving, and a deployment
  * with no adapter gets an empty list and therefore no dropdown.
  *
@@ -32,20 +30,14 @@ export type AddressSuggestFieldText = SuggestListText;
  * zone is decided from it.
  */
 @Component({
-  selector: 'app-address-suggest-field',
-  imports: [ReactiveFormsModule, FieldLabel, Input, HighlightedLine],
-  // See PhoneField: a custom element is inline by default, and an inline box
-  // drops the vertical margin a form's `space-y-*` puts on it.
+  selector: 'app-address-suggest-input',
+  imports: [FormField, FieldBinding, Input, HighlightedLine],
+  // A custom element is inline by default, and an inline box drops the
+  // vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
   template: `
-    <label [for]="inputId" appFieldLabel>
-      {{ label() }}
-      <span class="text-accent" aria-hidden="true">*</span>
-    </label>
-
     <div class="relative">
       <input
-        [id]="inputId"
         type="text"
         autocomplete="street-address"
         role="combobox"
@@ -53,9 +45,7 @@ export type AddressSuggestFieldText = SuggestListText;
         [attr.aria-expanded]="list.panelOpen()"
         [attr.aria-controls]="listId"
         [attr.aria-activedescendant]="activeOptionId()"
-        [attr.aria-invalid]="invalid() || null"
-        [attr.maxlength]="maxLength"
-        [formControl]="control()"
+        [formField]="field()"
         appInput
         class="w-full"
         (input)="list.type($any($event.target).value)"
@@ -110,13 +100,11 @@ export type AddressSuggestFieldText = SuggestListText;
     <p aria-live="polite" class="sr-only">{{ list.announcement(text()) }}</p>
   `,
 })
-export class AddressSuggestField {
+export class AddressSuggestInput {
   private readonly addresses = inject(AddressesService);
 
-  readonly control = input.required<FormControl<string>>();
-  readonly label = input.required<string>();
-  readonly text = input.required<AddressSuggestFieldText>();
-  readonly invalid = input(false);
+  readonly field = input.required<FieldTree<string>>();
+  readonly text = input.required<SuggestListText>();
   /** Biases the provider; the form's own country picker feeds it. */
   readonly country = input<string | undefined>(undefined);
 
@@ -127,8 +115,6 @@ export class AddressSuggestField {
    * form has that much room to give. */
   protected readonly panel = `${SUGGEST_PANEL} min-w-[min(26rem,100cqw)]`;
 
-  protected readonly maxLength = ADDRESS_LINE_MAX_LENGTH;
-  protected readonly inputId = `address-street-${nextId}`;
   protected readonly listId = `address-suggestions-${nextId++}`;
 
   /** The shared type-ahead behaviour; only what to ask and what to draw is

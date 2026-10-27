@@ -1,14 +1,12 @@
 import { Component, inject, input, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { emailFormat } from '../../shared/core/contact-fields';
-import { FieldErrors } from '../../shared/core/form-errors';
+import { emailAddress } from '../../shared/core/field-rules';
 import { Button } from '../../shared/ui/button';
-import { EmailField } from '../../shared/ui/email-field';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from '../../shared/auth/auth.guard';
@@ -27,11 +25,9 @@ import { ErrorText } from '../../shared/ui/error-text';
   selector: 'app-login-page',
   imports: [
     AuthCard,
-    ReactiveFormsModule,
+    FORM_FIELDS,
     RouterLink,
     Button,
-    EmailField,
-    FieldLabel,
     Input,
     SignInStepPanel,
     TextButton,
@@ -47,43 +43,38 @@ import { ErrorText } from '../../shared/ui/error-text';
           {{ text.login }}
         </h1>
 
-        <form
-          [formGroup]="form"
-          (ngSubmit)="submit()"
-          novalidate
-          class="space-y-6"
-        >
+        <form [formRoot]="form" class="space-y-6">
           <!-- No required-marker beside either label: both fields are required,
              and marking every field on a form marks none of them. -->
-          <app-email-field
-            [control]="form.controls.email"
+          <app-field
+            [field]="form.email"
             [label]="fields.email.label"
-            [text]="emailText"
-            [required]="true"
             [marker]="false"
-            [invalid]="isInvalid('email')"
-          />
-
-          <div>
-            <label for="password" appFieldLabel>
-              {{ text.password }}
-            </label>
+            controlId="email"
+          >
             <input
-              id="password"
-              type="password"
-              formControlName="password"
-              autocomplete="current-password"
-              aria-required="true"
+              type="email"
+              autocomplete="email"
               appInput
               class="w-full"
-              [attr.aria-invalid]="isInvalid('password') || null"
+              [formField]="form.email"
             />
-            @if (isInvalid('password')) {
-              <p appErrorText class="mt-1">
-                {{ text.validation.passwordRequired }}
-              </p>
-            }
-          </div>
+          </app-field>
+
+          <app-field
+            [field]="form.password"
+            [label]="text.password"
+            [marker]="false"
+            controlId="password"
+          >
+            <input
+              type="password"
+              autocomplete="current-password"
+              appInput
+              class="w-full"
+              [formField]="form.password"
+            />
+          </app-field>
 
           @if (failure(); as message) {
             <p appErrorText role="alert">{{ message }}</p>
@@ -119,16 +110,11 @@ import { ErrorText } from '../../shared/ui/error-text';
   `,
 })
 export class LoginPage {
-  private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
 
   protected readonly text = inject(STOREFRONT_TEXT).auth;
   protected readonly fields = inject(SHARED_TEXT).fields;
-  protected readonly emailText = {
-    required: this.fields.email.required,
-    invalid: this.fields.email.invalid,
-  };
   protected readonly status = signal<'idle' | 'submitting' | LoginResult>(
     'idle',
   );
@@ -166,36 +152,27 @@ export class LoginPage {
   /** Set by the guards when they bounce a deep link here (query param). */
   readonly returnUrl = input<string>();
 
-  protected readonly form = this.fb.nonNullable.group({
-    // The contract's own rule, so client and server agree on what a valid
-    // address is; the password is only checked for presence here — length and
-    // strength rules belong to the account that owns it, not to this form.
-    email: ['', [Validators.required, emailFormat()]],
-    password: ['', Validators.required],
-  });
-
-  /**
-   * Error visibility, not validity: revealed on blur, hidden again while the
-   * field is being retyped, and everything shown once submit is attempted.
-   */
-  protected readonly fieldErrors = new FieldErrors(this.form);
+  protected readonly form = form(
+    signal({ email: '', password: '' }),
+    (login) => {
+      required(login.email, { message: this.fields.email.required });
+      emailAddress(login.email, this.fields.email.invalid);
+      // Presence only: length and strength belong to the account that owns
+      // the password, not to the form that signs in with it.
+      required(login.password, {
+        message: this.text.validation.passwordRequired,
+      });
+    },
+    { name: 'login', submission: { action: () => this.send() } },
+  );
 
   constructor() {
     usePageSeo({ name: () => this.text.login });
   }
 
-  protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    return this.fieldErrors.show(this.form.controls[control]);
-  }
-
-  protected async submit(): Promise<void> {
-    this.fieldErrors.markSubmitted();
-    if (this.form.invalid) {
-      return;
-    }
-
+  private async send(): Promise<void> {
     this.status.set('submitting');
-    const result = await this.auth.login(this.form.getRawValue());
+    const result = await this.auth.login(this.form().value());
     this.status.set(result);
     this.answered.set(result);
 

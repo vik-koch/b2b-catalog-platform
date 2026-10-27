@@ -1,11 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { Component, computed, input, signal } from '@angular/core';
+import { type FieldTree } from '@angular/forms/signals';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Popover } from '../../shared/ui/popover';
 
 /**
  * The mark beside a field an external system owns (FR-ADM-10) — a lock the
  * admin can ask about.
+ *
+ * Drawn while the field is disabled with a reason, and the reason is what it
+ * says: the rule that locks the field is the only place that decides it. A
+ * field disabled without one, such as a threshold with nothing to measure
+ * against, is not locked by anyone and shows no lock.
  *
  * It sits next to the label rather than repeating the explanation under every
  * field: the banner at the top of the editor says what is going on and where
@@ -22,12 +27,15 @@ import { Popover } from '../../shared/ui/popover';
 @Component({
   selector: 'app-locked-field-marker',
   imports: [AdminIcon, Popover],
-  host: { class: 'relative inline-flex align-middle' },
+  host: {
+    class: 'relative inline-flex align-middle',
+    '[style.display]': "reason() ? null : 'none'",
+  },
   template: `
     <button
       type="button"
       class="inline-flex items-center rounded-sm p-0.5 text-ink-subtle"
-      [attr.aria-label]="text.fieldLockedShort"
+      [attr.aria-label]="reason()"
       [attr.aria-expanded]="open()"
       (click)="open.set(!open())"
     >
@@ -36,12 +44,19 @@ import { Popover } from '../../shared/ui/popover';
 
     @if (open()) {
       <app-popover align="start" (dismissed)="open.set(false)">
-        <p class="text-sm">{{ text.fieldLockedShort }}</p>
+        <p class="text-sm">{{ reason() }}</p>
       </app-popover>
     }
   `,
 })
-export class LockedFieldMarker {
-  protected readonly text = inject(ADMIN_TEXT).ownership;
+export class LockedFieldMarker<T> {
+  readonly field = input.required<FieldTree<T>>();
+
+  protected readonly reason = computed(
+    () =>
+      this.field()()
+        .disabledReasons()
+        .find((reason) => reason.message)?.message ?? null,
+  );
   protected readonly open = signal(false);
 }

@@ -1,4 +1,5 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
+import { form, maxLength, required, validate } from '@angular/forms/signals';
 import {
   API_TOKEN_NAME_MAX_LENGTH,
   API_TOKEN_SCOPES,
@@ -12,6 +13,9 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { filled } from '../../shared/core/field-rules';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { Checkbox } from '../../shared/ui/checkbox';
@@ -106,6 +110,7 @@ const SCOPE_ROWS: readonly {
 @Component({
   selector: 'app-api-token-list-page',
   imports: [
+    FORM_FIELDS,
     Notice,
     Button,
     IconButton,
@@ -245,25 +250,21 @@ const SCOPE_ROWS: readonly {
               <!-- Name and capabilities, and nothing else: a token has no
                    expiry to set (revocation is the control) and no value to
                    choose. -->
-              <form appRecordFields (submit)="save($event)">
-                <div>
-                  <label appFieldLabel for="api-token-name">
-                    {{ text.name }}
-                    <span class="text-accent" aria-hidden="true">*</span>
-                  </label>
+              <form appRecordFields [formRoot]="form" (submit)="save()">
+                <app-field
+                  [field]="form.name"
+                  [label]="text.name"
+                  controlId="api-token-name"
+                >
                   <input
                     appInput
                     size="sm"
-                    id="api-token-name"
-                    name="name"
                     class="w-full"
                     autocomplete="off"
-                    [attr.maxlength]="nameMaxLength"
-                    [value]="draftName()"
                     [placeholder]="text.namePlaceholder"
-                    (input)="draftName.set($any($event.target).value)"
+                    [formField]="form.name"
                   />
-                </div>
+                </app-field>
                 <!-- One token, however many capabilities: the automated
                      client a deployment runs is usually one process doing
                      several things, and two credentials for it would be two
@@ -283,11 +284,7 @@ const SCOPE_ROWS: readonly {
                      so it is stated instead; the ticks appear on their own
                      when a second one is added. -->
                 @if (scopes.length > 1) {
-                  <fieldset>
-                    <legend appFieldLabel>
-                      {{ text.scope }}
-                      <span class="text-accent" aria-hidden="true">*</span>
-                    </legend>
+                  <app-field group [field]="form.scopes" [label]="text.scope">
                     <!-- Columns as wide as their heading, not as wide as the
                          form: a tick belongs beside the words that name it,
                          and two stretched columns put it halfway across the
@@ -310,7 +307,7 @@ const SCOPE_ROWS: readonly {
                               <input
                                 type="checkbox"
                                 appCheckbox
-                                [checked]="draftScopes().includes(scope)"
+                                [checked]="draft().scopes.includes(scope)"
                                 [attr.aria-label]="scopeLabel(scope)"
                                 (change)="toggleScope(scope)"
                               />
@@ -319,12 +316,12 @@ const SCOPE_ROWS: readonly {
                         }
                       }
                     </div>
-                  </fieldset>
+                  </app-field>
                 } @else {
                   <div>
                     <span appFieldLabel>{{ text.scope }}</span>
                     <p class="pt-1.5 text-sm">
-                      {{ scopeList(draftScopes()) }}
+                      {{ scopeList(draft().scopes) }}
                     </p>
                   </div>
                 }
@@ -384,14 +381,32 @@ export class ApiTokenListPage {
    * how many there are. */
   protected readonly scopes: readonly ApiTokenScope[] = API_TOKEN_SCOPES;
   protected readonly scopeRows = SCOPE_ROWS;
-  protected readonly nameMaxLength = API_TOKEN_NAME_MAX_LENGTH;
 
   protected readonly tokens = resource({ loader: () => this.service.list() });
   protected readonly showSkeleton = delayedLoading(this.tokens.isLoading);
 
   protected readonly adding = signal(false);
-  protected readonly draftName = signal('');
-  protected readonly draftScopes = signal<ApiTokenScope[]>(defaultScopes());
+  protected readonly draft = signal({
+    name: '',
+    scopes: defaultScopes(),
+  });
+  protected readonly form = form(
+    this.draft,
+    (token) => {
+      filled(token.name, this.text.nameRequired);
+      maxLength(token.name, API_TOKEN_NAME_MAX_LENGTH);
+      // A token allowed nothing is a row that can only mislead; the API
+      // refuses one too. `required` takes an empty list as given, so the
+      // count says it, as the same kind.
+      required(token.scopes);
+      validate(token.scopes, ({ value }) =>
+        value().length === 0
+          ? { kind: 'required', message: this.text.scopeRequired }
+          : undefined,
+      );
+    },
+    { name: 'api-token' },
+  );
   protected readonly formError = signal<string | null>(null);
   /** The id of a row whose revoke was refused. */
   protected readonly rowError = signal<string | null>(null);
@@ -423,11 +438,13 @@ export class ApiTokenListPage {
   }
 
   protected toggleScope(scope: ApiTokenScope): void {
-    this.draftScopes.update((current) =>
-      current.includes(scope)
-        ? current.filter((s) => s !== scope)
-        : [...current, scope],
-    );
+    this.form
+      .scopes()
+      .value.update((current) =>
+        current.includes(scope)
+          ? current.filter((s) => s !== scope)
+          : [...current, scope],
+      );
   }
 
   protected createdLine(token: ApiToken): string {
@@ -450,8 +467,8 @@ export class ApiTokenListPage {
   }
 
   protected startAdd(): void {
-    this.draftName.set('');
-    this.draftScopes.set(defaultScopes());
+    this.draft.set({ name: '', scopes: defaultScopes() });
+    submitAttempt(this.form).set(false);
     this.formError.set(null);
     this.adding.set(true);
   }
@@ -476,20 +493,10 @@ export class ApiTokenListPage {
     }
   }
 
-  protected async save(event: Event): Promise<void> {
-    event.preventDefault();
-    const name = this.draftName().trim();
-    if (!name) {
-      this.formError.set(this.text.nameRequired);
-      return;
-    }
-    // A token allowed nothing is a row that can only mislead; the API refuses
-    // one too, but the form should not have to ask.
-    const scopes = this.draftScopes();
-    if (scopes.length === 0) {
-      this.formError.set(this.text.scopeRequired);
-      return;
-    }
+  protected async save(): Promise<void> {
+    if (this.busy() || this.form().invalid()) return;
+    const name = this.draft().name.trim();
+    const scopes = this.draft().scopes;
 
     this.busy.set(true);
     this.formError.set(null);

@@ -8,6 +8,7 @@ import {
 import {
   Component,
   computed,
+  ElementRef,
   inject,
   input,
   OnInit,
@@ -245,6 +246,9 @@ export class ProductVariantsEditor implements OnInit {
   readonly images = input.required<readonly ProductImageInput[]>();
   readonly valueChange = output<ProductVariantInput[]>();
 
+  private readonly host =
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
   protected readonly max = PRODUCT_VARIANTS_MAX;
   protected readonly nameMax = PRODUCT_VARIANT_NAME_MAX_LENGTH;
   protected readonly previewClass = ['bg-surface-subtle', 'shadow-md'];
@@ -288,6 +292,12 @@ export class ProductVariantsEditor implements OnInit {
   /** Open where there is something to see; read once, as the parts do. */
   ngOnInit(): void {
     this.open.set(this.value().length > 0);
+  }
+
+  /** Opened and brought into view, for a save this list stopped. */
+  reveal(): void {
+    this.open.set(true);
+    this.host.scrollIntoView({ block: 'nearest' });
   }
 
   protected type(value: string): void {

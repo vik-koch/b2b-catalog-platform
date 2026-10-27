@@ -4,7 +4,6 @@ import { Address, AddressComponents } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { SUGGESTIONS_ENABLED } from '../../shared/config/suggestions-enabled';
-import { FieldErrors } from '../../shared/core/form-errors';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import { AddressForm } from '../../shared/addresses/address-form';
 import {
@@ -95,7 +94,6 @@ let nextId = 0;
              nothing. -->
         <app-address-fields
           [form]="form()"
-          [fieldErrors]="fieldErrors()"
           [showLabel]="false"
           [compact]="suggests"
           [reveal]="reveal()"
@@ -139,7 +137,6 @@ export class AddressPicker {
   /** The chosen row, or null for the one being typed. */
   readonly selectedId = input.required<string | null>();
   readonly form = input.required<AddressForm>();
-  readonly fieldErrors = input.required<FieldErrors>();
   readonly canSave = input(true);
   /** Open the folded-away fields: the page found the address wanting, and what
    * is wrong with it is what the compact form is hiding. */

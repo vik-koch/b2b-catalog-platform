@@ -1,17 +1,54 @@
-import { AbstractControl, ValidationErrors } from '@angular/forms';
+import {
+  required,
+  validate,
+  type PathKind,
+  type SchemaPath,
+  type SchemaPathRules,
+} from '@angular/forms/signals';
+import {
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '@b2b-catalog-platform/shared';
+
+type StringPath<K extends PathKind> = SchemaPath<
+  string,
+  SchemaPathRules.Supported,
+  K
+>;
 
 /**
- * Group validator: the password and its confirmation must agree. Lives here
- * rather than in one form, because every screen that sets a password needs the
- * same rule and the same error key.
+ * A new password: present, and within the contract's limits, read from the
+ * constants rather than its schema so the page loads no Zod. The ceiling is
+ * far past anything typed, so it shares the floor's wording.
  */
-export const passwordsMatch = (
-  group: AbstractControl,
-): ValidationErrors | null => {
-  const password = group.get('newPassword')?.value;
-  const confirmation = group.get('confirmPassword')?.value;
-  return password === confirmation ? null : { mismatch: true };
-};
+export function newPassword<K extends PathKind>(
+  path: StringPath<K>,
+  text: { required: string; length: string },
+): void {
+  required(path, { message: text.required });
+  validate(path, ({ value }) => {
+    const length = value().length;
+    return length === 0 ||
+      (length >= PASSWORD_MIN_LENGTH && length <= PASSWORD_MAX_LENGTH)
+      ? undefined
+      : { kind: 'length', message: text.length };
+  });
+}
+
+/**
+ * The confirmation has to match the password it repeats. Required without a
+ * message of its own: left empty, it is the mismatch that says why.
+ */
+export function confirmation<K extends PathKind>(
+  path: StringPath<K>,
+  password: StringPath<K>,
+  message: string,
+): void {
+  required(path);
+  validate(path, ({ value, valueOf }) =>
+    value() === valueOf(password) ? undefined : { kind: 'mismatch', message },
+  );
+}
 
 /**
  * The alphabet a generated password is drawn from: no `l`/`I`/`1` or `O`/`0`,

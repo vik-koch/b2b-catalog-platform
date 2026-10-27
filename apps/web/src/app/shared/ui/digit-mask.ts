@@ -2,12 +2,13 @@ import {
   Directive,
   effect,
   ElementRef,
-  forwardRef,
-  HostListener,
   inject,
   input,
+  model,
+  output,
+  untracked,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { type FormValueControl } from '@angular/forms/signals';
 import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
 
 /**
@@ -31,31 +32,37 @@ import { applyMask, stripDialPrefix } from '@b2b-catalog-platform/shared';
  * Without that the field keeps the old grouping until the next keystroke, and
  * a shorter new mask would truncate on screen only.
  *
- * Implemented as a ControlValueAccessor so it drops into reactive forms via
- * `formControlName`. Deliberately simple: it reformats on input and leaves the
- * caret at the end, which is fine for a short, append-mostly field — a mask
- * library would only be worth it if we needed mid-string editing.
+ * A custom control for `[formField]`: it owns what the input shows, so the
+ * field binds its `value` rather than the element's, and the native
+ * `disabled`, `required` and `name` are said here. Deliberately simple: it
+ * reformats on input and leaves the caret at the end, which is fine for a
+ * short, append-mostly field — a mask library would only be worth it if we
+ * needed mid-string editing.
  */
 @Directive({
   selector: 'input[appDigitMask]',
-  providers: [
-    {
-      provide: NG_VALUE_ACCESSOR,
-      useExisting: forwardRef(() => DigitMask),
-      multi: true,
-    },
-  ],
+  host: {
+    '(input)': 'handleInput()',
+    '(blur)': 'touch.emit()',
+    '[disabled]': 'disabled()',
+    '[required]': 'required()',
+    '[attr.name]': 'name() || null',
+  },
 })
-export class DigitMask implements ControlValueAccessor {
+export class DigitMask implements FormValueControl<string> {
   readonly mask = input('');
   /** The fixed prefix the form shows beside this field, e.g. `+49`. Used only
    * to recognise and remove one that arrives inside the value. */
   readonly prefix = input('');
 
+  readonly value = model('');
+  readonly disabled = input(false);
+  readonly required = input(false);
+  readonly name = input('');
+  readonly touch = output<void>();
+
   private readonly el =
     inject<ElementRef<HTMLInputElement>>(ElementRef).nativeElement;
-  private onChange: (value: string) => void = () => undefined;
-  private onTouched: () => void = () => undefined;
   /**
    * The last value this field was given, before any mask was applied to it —
    * what the form wrote, or what was typed. The screen is not that source: a
@@ -63,53 +70,50 @@ export class DigitMask implements ControlValueAccessor {
    * would keep whatever the previous mask had already dropped.
    */
   private source = '';
+  /** What this field last wrote itself, so its own write is not read back
+   * as one from the form. */
+  private written: string | null = null;
+  private lastMask: string | null = null;
 
   constructor() {
-    // Reads the mask, so it re-runs whenever the chosen format changes.
+    // One effect for both: a form that sets the value and the format together
+    // (a whole address, country and postal code) delivers them in one pass,
+    // and two effects would each find the other's half already on screen.
     effect(() => {
-      const formatted = applyMask(this.source, this.mask());
-      if (formatted === this.el.value) return;
-      this.el.value = formatted;
-      // Pushed, not just painted: a mask that takes fewer digits drops some,
-      // and a value the visitor can no longer see must not still be saved.
-      this.onChange(formatted);
+      const value = this.value();
+      const mask = this.mask();
+      untracked(() => {
+        if (value !== this.written) {
+          // The form has moved past what was typed: a later write of that
+          // same value is the form's again, and has to be painted.
+          this.written = null;
+          this.source = this.stripPrefix(value);
+        }
+        const formatted = applyMask(this.source, mask);
+        if (formatted !== this.el.value) this.el.value = formatted;
+        const maskChanged = this.lastMask !== null && mask !== this.lastMask;
+        this.lastMask = mask;
+        // A value from the form is left as it is under the mask it came with.
+        // A changed mask pushes what it shows: one that takes fewer digits
+        // drops some, and a value the visitor can no longer see must not
+        // still be saved.
+        if (maskChanged && formatted !== value) this.write(formatted);
+      });
     });
   }
 
-  @HostListener('input')
-  handleInput(): void {
+  protected handleInput(): void {
     // Autofill arrives as an `input` event like any other typing, so the
-    // prefix is taken off here as well as in `writeValue`.
+    // prefix is taken off here as well as for a value from the form.
     this.source = this.stripPrefix(this.el.value);
     const formatted = this.format(this.source);
     this.el.value = formatted;
-    this.onChange(formatted);
+    this.write(formatted);
   }
 
-  @HostListener('blur')
-  handleBlur(): void {
-    this.onTouched();
-  }
-
-  writeValue(value: string | null): void {
-    this.source = this.stripPrefix(value ?? '');
-    // Formatted with whatever mask is bound *now*. A form that sets the format
-    // and the value together sets the value first as far as this directive is
-    // concerned — the new mask arrives with the next change detection — and the
-    // effect above re-formats from `source` when it does.
-    this.el.value = this.format(this.source);
-  }
-
-  registerOnChange(fn: (value: string) => void): void {
-    this.onChange = fn;
-  }
-
-  registerOnTouched(fn: () => void): void {
-    this.onTouched = fn;
-  }
-
-  setDisabledState(isDisabled: boolean): void {
-    this.el.disabled = isDisabled;
+  private write(value: string): void {
+    this.written = value;
+    this.value.set(value);
   }
 
   private format(value: string): string {

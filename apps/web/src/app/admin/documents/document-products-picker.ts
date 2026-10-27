@@ -84,7 +84,7 @@ type View = 'all' | 'linked';
         [options]="viewOptions()"
         [value]="view()"
         [ariaLabel]="text.heading"
-        (chosen)="view.set($event)"
+        (valueChange)="view.set($event)"
       />
     </div>
 

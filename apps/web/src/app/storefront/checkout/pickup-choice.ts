@@ -101,7 +101,7 @@ export class PickupChoice {
 
   readonly pickupKey = input.required<string | null>();
   /** Set once the form has been submitted without an answer here. The group
-   * has no FormControl to carry the error, so the page passes it in. */
+   * is not a form field, so the page passes it in. */
   readonly invalid = input(false);
   readonly pickupKeyChange = output<string>();
 }

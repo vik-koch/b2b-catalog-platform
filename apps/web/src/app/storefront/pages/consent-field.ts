@@ -1,5 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormField } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { consentLabelParts } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
@@ -8,6 +8,7 @@ import { Link } from '../../shared/ui/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';
 import { ErrorText } from '../../shared/ui/error-text';
+import { FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 
 let nextId = 0;
 
@@ -24,14 +25,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-consent-field',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    Checkbox,
-    Link,
-    PrivacyNotice,
-    ErrorText,
-  ],
+  imports: [FormField, RouterLink, Checkbox, Link, PrivacyNotice, ErrorText],
   host: { class: 'block empty:hidden' },
   template: `
     @if (consent().state() === 'ready') {
@@ -42,10 +36,10 @@ let nextId = 0;
           [id]="id"
           type="checkbox"
           appCheckbox
-          [formControl]="consent().control"
+          [formField]="consent().field"
           class="mt-0.5 shrink-0"
           aria-required="true"
-          [attr.aria-invalid]="invalid() || null"
+          [attr.aria-invalid]="shown() || null"
           [attr.aria-labelledby]="id + '-text'"
         />
         <p>
@@ -79,7 +73,7 @@ let nextId = 0;
         <p appErrorText class="mt-1" role="alert">
           {{ text.changed }}
         </p>
-      } @else if (invalid()) {
+      } @else if (shown()) {
         <p appErrorText class="mt-1">{{ text.required }}</p>
       }
     } @else if (alone() && consent().state() !== 'loading') {
@@ -97,11 +91,15 @@ let nextId = 0;
 })
 export class ConsentField {
   readonly consent = input.required<ConsentRequest>();
-  readonly invalid = input(false);
   /** The privacy notice in place of the box, where none is asked. */
   readonly alone = input(true);
 
   protected readonly id = `consent-${nextId++}`;
+  private readonly attempt = inject(FIELD_ATTEMPT, { optional: true });
+  /** Required is all the box can break, so its message waits for a submit. */
+  protected readonly shown = computed(
+    () => !!this.attempt?.attempted() && this.consent().field().invalid(),
+  );
   protected readonly text = inject(STOREFRONT_TEXT).consentBox;
   protected readonly parts = computed(() => {
     const label = this.consent().label();

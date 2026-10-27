@@ -107,26 +107,28 @@ async function render(
     await fixture.whenStable();
     fixture.detectChanges();
   };
+  /** A field's control, through the label that names it. */
+  const control = (label: string) => {
+    const caption = [...el.querySelectorAll('label')].find((l) =>
+      l.textContent?.includes(label),
+    );
+    return caption?.htmlFor
+      ? el.querySelector<HTMLInputElement>(`#${caption.htmlFor}`)
+      : null;
+  };
   const type = async (label: string, value: string) => {
-    const field = [...el.querySelectorAll('label')]
-      .find((l) => l.textContent?.includes(label))
-      ?.querySelector('input');
+    const field = control(label);
     if (!field) throw new Error(`no field for ${label}`);
     field.value = value;
     field.dispatchEvent(new Event('input'));
     await settle();
   };
-  /** The two date fields are `for`-linked rather than wrapping their input —
-   * the control is the app's date field, and it reports on `change`. */
+  /** A browser reports a picked date as both input and change. */
   const pickDate = async (label: string, value: string) => {
-    const field = [...el.querySelectorAll('label')].find((l) =>
-      l.textContent?.includes(label),
-    );
-    const input = field?.htmlFor
-      ? el.querySelector<HTMLInputElement>(`#${field.htmlFor}`)
-      : null;
+    const input = control(label);
     if (!input) throw new Error(`no date field for ${label}`);
     input.value = value;
+    input.dispatchEvent(new Event('input'));
     input.dispatchEvent(new Event('change'));
     await settle();
   };
@@ -151,7 +153,8 @@ async function render(
     button?.click();
     await settle();
   };
-  const error = () => el.querySelector('[role="alert"]')?.textContent?.trim();
+  /** The first message on the page: beside a field, or the save's own. */
+  const error = () => el.querySelector('[appErrorText]')?.textContent?.trim();
 
   return {
     fixture,

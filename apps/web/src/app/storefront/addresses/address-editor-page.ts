@@ -3,7 +3,6 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Address, fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { FieldErrors } from '../../shared/core/form-errors';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -14,6 +13,7 @@ import {
   SaveAddressResult,
 } from '../../shared/addresses/addresses.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
@@ -34,6 +34,7 @@ type Status = 'idle' | 'submitting' | 'error';
   imports: [
     RouterLink,
     AddressFields,
+    FORM_FIELDS,
     Button,
     Skeleton,
     PageTitle,
@@ -48,11 +49,8 @@ type Status = 'idle' | 'submitting' | 'error';
       <p appPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (ready()) {
-        <!-- The native submit rather than Angular's: the form group lives
-             inside AddressFields, so no FormGroupDirective is attached here to
-             emit ngSubmit. -->
-        <form class="space-y-6" novalidate (submit)="submit($event)">
-          <app-address-fields [form]="form" [fieldErrors]="fieldErrors" />
+        <form [formRoot]="form.field" class="space-y-6">
+          <app-address-fields [form]="form" />
 
           <div class="flex flex-wrap items-center gap-3">
             <button appButton type="submit" [disabled]="submitting()">
@@ -91,8 +89,7 @@ export class AddressEditorPage {
   protected readonly error = signal<string | null>(null);
   protected readonly notFound = signal(false);
 
-  protected readonly form = createAddressForm();
-  protected readonly fieldErrors = new FieldErrors(this.form.group);
+  protected readonly form = createAddressForm({ action: () => this.save() });
 
   /**
    * The row being corrected. There is no read-one endpoint — the book is a
@@ -156,11 +153,7 @@ export class AddressEditorPage {
     return this.status() === 'submitting';
   }
 
-  protected async submit(event: Event): Promise<void> {
-    event.preventDefault();
-    this.fieldErrors.markSubmitted();
-    if (this.form.group.invalid) return;
-
+  private async save(): Promise<void> {
     this.status.set('submitting');
     this.error.set(null);
     const input = this.form.value();

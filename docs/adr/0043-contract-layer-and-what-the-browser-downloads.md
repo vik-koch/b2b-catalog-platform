@@ -1,6 +1,6 @@
 # 0043 — Move contracts to oRPC, and send the browser routes rather than schemas
 
-**Status:** accepted · **Date:** 2026-09-03
+**Status:** accepted (amended 2026-10-26) · **Date:** 2026-09-03
 
 Contract-first was a project-brief decision rather than an ADR, so this is the
 first record of it: the approach stands, the library implementing it changes.
@@ -120,3 +120,24 @@ has not loaded.
   guard — it walks the statically reachable chunks and fails CI when a
   validation runtime is among them, which is the rule this decision made rather
   than a number that moves with the app.
+
+## Amendment — 2026-10-26 (v1.15.2): the forms runtime in the first load
+
+The inquiry page, eager under this decision, is built on Signal Forms (ADR 0070).
+Signal Forms builds on the reactive forms classes rather than replacing them,
+so the first load now carries both: **+ 17.1 kB raw / 7.0 kB gzip** of
+JavaScript, 682.0 → 699.1 kB (the build's initial total, styles included,
+810 → 828 kB, under its 850 kB warning). That is accepted as the price of one
+form model across the app. The rule this record made still holds: no
+validation runtime is reachable from the first load, and
+`check-initial-bundle.mjs` still checks it.
+
+Four lazy pages no longer load Zod. Set-password and change-password checked a
+length with `newPasswordSchema`; the tier and attribute lists checked a key and
+a slug with `tierKeySchema` and `slugSchema`. Each pulled in 100–113 kB gzip to
+test a string. The limits and patterns now live in import-free modules
+(`auth-constants.ts`, `tier-constants.ts`, `slug-constants.ts`); the schemas
+and the forms both read them, as this record's split intends.
+
+Text typed before hydration is lost on the eager page as well, with event
+replay on. Keeping the page eager narrows that window; it does not close it.

@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormField, type FieldTree } from '@angular/forms/signals';
 import {
   PARTY_QUERY_MIN_LENGTH,
   PartySuggestion,
@@ -10,7 +10,7 @@ import {
   SuggestList,
   SuggestListText,
 } from '../core/suggest-list';
-import { FieldLabel } from '../ui/field-label';
+import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
 import { PartiesService } from './parties.service';
 
@@ -18,9 +18,10 @@ import { PartiesService } from './parties.service';
 let nextId = 0;
 
 /**
- * A field that suggests companies as it is typed (FR-AUTH-09, ADR 0041).
+ * A text input that suggests companies as it is typed (FR-AUTH-09, ADR 0041),
+ * inside a Field that names it.
  *
- * Used for **both** company fields — the name and the registration number —
+ * Used for **both** company fields, the name and the registration number,
  * because the provider takes either as its query and answers with the whole
  * party. Whichever the customer starts in, picking a row fills the other, which
  * is why neither field is ever disabled to steer them into the "right" one.
@@ -28,29 +29,14 @@ let nextId = 0;
  * An ordinary text input first: typing always works, nothing about the form
  * depends on a suggestion arriving, and a deployment with no sidecar gets an
  * empty list and therefore no dropdown.
- *
- * It draws no hint and no message: the pair shares one, under the row (see
- * `CompanyFields`).
  */
 @Component({
-  selector: 'app-party-suggest-field',
-  imports: [ReactiveFormsModule, FieldLabel, Input, HighlightedLine],
-  // See PhoneField: a custom element is inline by default, and an inline box
-  // drops the vertical margin a form's `space-y-*` puts on it.
+  selector: 'app-party-suggest-input',
+  imports: [FormField, FieldBinding, Input, HighlightedLine],
   host: { class: 'block' },
   template: `
-    <label [for]="inputId()" appFieldLabel>
-      {{ label() }}
-      @if (required()) {
-        <span class="text-accent" aria-hidden="true">*</span>
-      } @else if (optionalLabel()) {
-        <span class="font-normal text-ink-subtle">({{ optionalLabel() }})</span>
-      }
-    </label>
-
     <div class="relative">
       <input
-        [id]="inputId()"
         type="text"
         role="combobox"
         aria-autocomplete="list"
@@ -58,9 +44,7 @@ let nextId = 0;
         [attr.aria-expanded]="list.panelOpen()"
         [attr.aria-controls]="listId"
         [attr.aria-activedescendant]="activeOptionId()"
-        [attr.aria-required]="required() || null"
-        [attr.aria-invalid]="invalid() || null"
-        [formControl]="control()"
+        [formField]="field()"
         appInput
         class="w-full"
         (input)="list.type($any($event.target).value)"
@@ -119,23 +103,18 @@ let nextId = 0;
     <p aria-live="polite" class="sr-only">{{ list.announcement(text()) }}</p>
   `,
 })
-export class PartySuggestField {
+export class PartySuggestInput {
   private readonly parties = inject(PartiesService);
 
-  readonly control = input.required<FormControl<string>>();
-  readonly label = input.required<string>();
+  readonly field = input.required<FieldTree<string>>();
   readonly text = input.required<SuggestListText>();
-  readonly invalid = input(false);
-  readonly required = input(true);
-  readonly optionalLabel = input<string>();
-  readonly inputId = input('companyName');
   readonly autocomplete = input('off');
 
-  /** The whole party the customer picked — both fields fill from it. */
+  /** The whole party the customer picked: both fields fill from it. */
   readonly picked = output<PartySuggestion>();
 
   /** Wide enough for a company's registered name, which the ten-character
-   * number field beside it is nowhere near — where the form has the room. */
+   * number field beside it is nowhere near, where the form has the room. */
   protected readonly panel = `${SUGGEST_PANEL} min-w-[min(20rem,100cqw)]`;
 
   protected readonly listId = `party-suggestions-${nextId++}`;
@@ -153,7 +132,7 @@ export class PartySuggestField {
 
   /**
    * What tells two rows apart when the names look alike: the number, and where
-   * the company is registered. Absent parts are simply left out — a provider
+   * the company is registered. Absent parts are simply left out: a provider
    * answers at whatever granularity it has.
    */
   protected secondLine(item: PartySuggestion): string {

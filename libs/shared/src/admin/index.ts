@@ -11,6 +11,7 @@ export * from './product-variants';
 export * from './settings-constants';
 export * from './settings.contract';
 export * from './slug';
+export * from './slug-constants';
 export * from './slugify';
 export * from './tiers.contract';
 export * from './users.contract';

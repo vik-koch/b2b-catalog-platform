@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  ElementRef,
   inject,
   input,
   OnInit,
@@ -150,6 +151,9 @@ export class ProductPartsEditor implements OnInit {
   readonly value = input.required<readonly string[]>();
   readonly valueChange = output<string[]>();
 
+  private readonly host =
+    inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+
   protected readonly max = PRODUCT_PARTS_MAX;
   protected readonly open = signal(false);
   protected readonly draft = signal('');
@@ -180,6 +184,12 @@ export class ProductPartsEditor implements OnInit {
   /** Open where there is something to see; read once, as the pairings do. */
   ngOnInit(): void {
     this.open.set(this.value().length > 0);
+  }
+
+  /** Opened and brought into view, for a save this list stopped. */
+  reveal(): void {
+    this.open.set(true);
+    this.host.scrollIntoView({ block: 'nearest' });
   }
 
   protected type(value: string): void {

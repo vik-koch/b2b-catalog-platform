@@ -1,110 +1,84 @@
-import { Component, inject, input, output, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  newPasswordSchema,
+  Component,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { form, required } from '@angular/forms/signals';
+import {
   PASSWORD_MIN_LENGTH,
   PasswordRejectionCode,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { zodValidator } from '../../shared/core/zod-validator';
-import { FieldErrors } from '../../shared/core/form-errors';
-import { passwordsMatch } from '../../shared/core/password';
+import { confirmation, newPassword } from '../../shared/core/password';
 import { Button } from '../../shared/ui/button';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
+import { SubmitAttempt } from '../../shared/ui/submit-attempt';
 import {
   AuthService,
   ChangePasswordResult,
 } from '../../shared/auth/auth.service';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
 
 /**
- * Cross-field check: the confirmation has to match. It lives on the group
- * because neither control can see the other, and reports on the group so the
- * confirm field's own required/length errors stay independent of it.
- */
-/**
- * Reusable change-password form.
+ * Reusable change-password form. No required marks: every field is required,
+ * and marking every field on a form marks none of them.
  */
 @Component({
   selector: 'app-change-password-form',
-  imports: [ReactiveFormsModule, Button, FieldLabel, Input, ErrorText, Hint],
+  imports: [FORM_FIELDS, Button, Input, ErrorText],
   template: `
-    <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="space-y-6">
-      <div>
-        <label [for]="id('current')" appFieldLabel>
-          {{ text.currentPassword }}
-        </label>
+    <form [formRoot]="form" class="space-y-6">
+      <app-field
+        [field]="form.currentPassword"
+        [label]="text.currentPassword"
+        [marker]="false"
+        [controlId]="id('current')"
+      >
         <input
-          [id]="id('current')"
           type="password"
-          formControlName="currentPassword"
           autocomplete="current-password"
-          aria-required="true"
           appInput
           class="w-full"
-          [attr.aria-invalid]="isInvalid('currentPassword') || null"
+          [formField]="form.currentPassword"
         />
-        @if (isInvalid('currentPassword')) {
-          <p appErrorText class="mt-1">
-            {{ validation.currentPasswordRequired }}
-          </p>
-        }
-      </div>
+      </app-field>
 
-      <div>
-        <label [for]="id('new')" appFieldLabel>
-          {{ text.newPassword }}
-        </label>
+      <!-- One line, not two: the rule and the refusal are the same sentence,
+           so it changes colour rather than being printed twice. -->
+      <app-field
+        [field]="form.newPassword"
+        [label]="text.newPassword"
+        [hint]="minLengthHint"
+        [marker]="false"
+        [controlId]="id('new')"
+      >
         <input
-          [id]="id('new')"
           type="password"
-          formControlName="newPassword"
           autocomplete="new-password"
-          aria-required="true"
           appInput
           class="w-full"
-          [attr.aria-invalid]="isInvalid('newPassword') || null"
-          [attr.aria-describedby]="id('new-hint')"
+          [formField]="form.newPassword"
         />
-        <!-- One line, not two: the rule and the refusal are the same sentence,
-             so it changes colour rather than being printed twice. -->
-        @if (isInvalid('newPassword')) {
-          <p [id]="id('new-hint')" appErrorText class="mt-1">
-            {{
-              form.controls.newPassword.hasError('required')
-                ? validation.newPasswordRequired
-                : minLengthHint
-            }}
-          </p>
-        } @else {
-          <p [id]="id('new-hint')" appHint class="mt-1">
-            {{ minLengthHint }}
-          </p>
-        }
-      </div>
+      </app-field>
 
-      <div>
-        <label [for]="id('confirm')" appFieldLabel>
-          {{ text.confirmPassword }}
-        </label>
+      <app-field
+        [field]="form.confirmPassword"
+        [label]="text.confirmPassword"
+        [marker]="false"
+        [controlId]="id('confirm')"
+      >
         <input
-          [id]="id('confirm')"
           type="password"
-          formControlName="confirmPassword"
           autocomplete="new-password"
-          aria-required="true"
           appInput
           class="w-full"
-          [attr.aria-invalid]="showMismatch() || null"
+          [formField]="form.confirmPassword"
         />
-        @if (showMismatch()) {
-          <p appErrorText class="mt-1">
-            {{ validation.confirmPasswordMismatch }}
-          </p>
-        }
-      </div>
+      </app-field>
 
       @if (failure(); as message) {
         <p appErrorText role="alert">{{ message }}</p>
@@ -120,7 +94,6 @@ import { Hint } from '../../shared/ui/hint';
   `,
 })
 export class ChangePasswordForm {
-  private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
 
   private readonly authText = inject(STOREFRONT_TEXT).auth;
@@ -172,51 +145,36 @@ export class ChangePasswordForm {
       String(PASSWORD_MIN_LENGTH),
     );
 
-  protected readonly form = this.fb.nonNullable.group(
-    {
-      currentPassword: ['', Validators.required],
-      // The contract's own rule, so client and server agree on what counts as
-      // an acceptable password.
-      newPassword: [
-        '',
-        [Validators.required, zodValidator(newPasswordSchema, 'tooShort')],
-      ],
-      confirmPassword: ['', Validators.required],
+  private readonly empty = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  };
+  private readonly model = signal(this.empty);
+  protected readonly form = form(
+    this.model,
+    (change) => {
+      required(change.currentPassword, {
+        message: this.validation.currentPasswordRequired,
+      });
+      newPassword(change.newPassword, {
+        required: this.validation.newPasswordRequired,
+        length: this.minLengthHint,
+      });
+      confirmation(
+        change.confirmPassword,
+        change.newPassword,
+        this.validation.confirmPasswordMismatch,
+      );
     },
-    { validators: passwordsMatch },
+    { name: 'change-password', submission: { action: () => this.send() } },
   );
+  private readonly attempt = viewChild.required(SubmitAttempt);
 
-  /**
-   * Error visibility, not validity: revealed on blur, hidden again while the
-   * field is being retyped, and everything shown once submit is attempted.
-   */
-  protected readonly fieldErrors = new FieldErrors(this.form);
-
-  protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    return this.fieldErrors.show(this.form.controls[control]);
-  }
-
-  /**
-   * Mismatch is only worth showing once the confirmation has been engaged with —
-   * otherwise every keystroke in the new-password field would flag an empty
-   * confirmation as "does not match".
-   */
-  protected showMismatch(): boolean {
-    return this.fieldErrors.showGroupError(
-      'mismatch',
-      this.form.controls.confirmPassword,
-    );
-  }
-
-  protected async submit(): Promise<void> {
-    this.fieldErrors.markSubmitted();
-    if (this.form.invalid) {
-      return;
-    }
-
+  private async send(): Promise<void> {
     this.status.set('submitting');
     this.rejection.set(null);
-    const { currentPassword, newPassword } = this.form.getRawValue();
+    const { currentPassword, newPassword } = this.model();
     const outcome = await this.auth.changePassword({
       currentPassword,
       newPassword,
@@ -228,11 +186,11 @@ export class ChangePasswordForm {
 
     if (outcome.result === 'ok') {
       // Nothing typed here should survive a success — least of all in a form
-      // the user may leave open. The error state is reset with it: the fields
-      // are empty and required, so anything still latched from the submit
-      // would paint the form red next to its own success message.
-      this.form.reset();
-      this.fieldErrors.reset();
+      // the user may leave open. The submit is forgotten with it: the fields
+      // are empty and required, so anything still latched from it would paint
+      // the form red next to its own success message.
+      this.form().reset(this.empty);
+      this.attempt().reset();
       this.changed.emit();
     }
   }

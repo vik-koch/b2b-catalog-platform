@@ -5,8 +5,9 @@ import {
   resource,
   signal,
   Signal,
+  untracked,
 } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { form, required, type FieldTree } from '@angular/forms/signals';
 import {
   CONSENT_PAGE_SLUGS,
   CONSENT_PATHS,
@@ -19,8 +20,8 @@ import { PageService } from '../../shared/pages/page.service';
  * One form's consent box (NFR-LEGAL-09): whether it is asked, the text it
  * links and the wording it shows, and the version the form posts back.
  *
- * Owns its checkbox control, so a form adds it to its group and the required
- * rule follows whether the box is asked at all.
+ * Owns its checkbox as a field of its own, so the required rule follows
+ * whether the box is asked at all, and a form checks it beside its own fields.
  */
 export interface ConsentRequest {
   /** Where the consent text is read; the box's bracketed words link it. */
@@ -29,7 +30,7 @@ export interface ConsentRequest {
   /** `loading` until the text arrives; `unavailable` when it has none. */
   readonly state: Signal<'idle' | 'loading' | 'ready' | 'unavailable'>;
   readonly label: Signal<string | null>;
-  readonly control: FormControl<boolean>;
+  readonly field: FieldTree<boolean>;
   /**
    * What the last refusal said, beside the box: the text changed under the
    * open form, or the API has no text to hold the form to.
@@ -77,20 +78,15 @@ export function useConsent(
     return value?.consentLabel ? 'ready' : 'unavailable';
   });
 
-  const control = new FormControl(false, {
-    nonNullable: true,
-    validators: (box) => (asked() ? Validators.requiredTrue(box) : null),
-  });
-  // The rule reads `asked`, which a form validated before it changed.
-  effect(() => {
-    asked();
-    control.updateValueAndValidity({ emitEvent: false });
+  const ticked = signal(false);
+  const field = form(ticked, (box) => required(box, { when: () => asked() }), {
+    name: `consent-${purpose}`,
   });
 
   const notice = signal<'changed' | 'unavailable' | null>(null);
   // Ticked again after reading the new wording: the notice has done its job.
-  control.valueChanges.subscribe((ticked) => {
-    if (ticked && notice() === 'changed') notice.set(null);
+  effect(() => {
+    if (ticked() && untracked(notice) === 'changed') notice.set(null);
   });
 
   return {
@@ -98,13 +94,13 @@ export function useConsent(
     asked,
     state,
     label: computed(() => current()?.consentLabel ?? null),
-    control,
+    field,
     notice: notice.asReadonly(),
     sendable: computed(() => !asked() || state() === 'ready'),
     version: () => (asked() ? current()?.version : undefined),
     refused(code) {
       if (code === 'consent-stale') {
-        control.setValue(false);
+        field().reset(false);
         notice.set('changed');
         page.reload();
         return true;

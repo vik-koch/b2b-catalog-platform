@@ -1,13 +1,18 @@
 import {
+  afterNextRender,
   Component,
   computed,
   effect,
+  forwardRef,
   inject,
+  Injector,
   input,
   linkedSignal,
   output,
   signal,
 } from '@angular/core';
+import { form, hidden, maxLength, validate } from '@angular/forms/signals';
+import { filled } from '../../shared/core/field-rules';
 import {
   CONSENT_LABEL_MAX_LENGTH,
   consentLabelParts,
@@ -20,7 +25,9 @@ import { Button } from '../../shared/ui/button';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { Input } from '../../shared/ui/input';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { PageEditingService } from './page-editing.service';
@@ -28,7 +35,6 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders
@@ -41,12 +47,16 @@ import { Hint } from '../../shared/ui/hint';
     Button,
     RichTextEditor,
     AdminIcon,
-    FieldLabel,
+    FORM_FIELDS,
     Input,
     Checkbox,
     PageTitle,
     ErrorText,
-    Hint,
+  ],
+  // No <form> element: the buttons under the page save, preview or leave, so
+  // the editor says itself when the form has been sent.
+  providers: [
+    { provide: FIELD_ATTEMPT, useExisting: forwardRef(() => PageEditor) },
   ],
   // Neutralize link navigation from the preview at the host: a native click on
   // a rendered link would leave the page without the unsaved-changes guard.
@@ -88,41 +98,30 @@ import { Hint } from '../../shared/ui/hint';
            typed at one width and read at another breaks in different places,
            and where a heading lands is half of what is being edited. -->
       <div class="max-w-3xl">
-        <label class="mb-6 block">
-          <span appFieldLabel>
-            {{ text.pageTitle }}
-            <span class="text-accent" aria-hidden="true">*</span>
-          </span>
-          <input
-            type="text"
-            appInput
-            class="w-full"
-            [value]="title()"
-            (input)="onTitleInput($event)"
-          />
-        </label>
+        <app-field
+          class="mb-6"
+          [field]="form.title"
+          [label]="text.pageTitle"
+          controlId="page-title"
+        >
+          <input type="text" appInput class="w-full" [formField]="form.title" />
+        </app-field>
 
         @if (isConsent()) {
-          <div class="mb-6">
-            <label class="block">
-              <span appFieldLabel>
-                {{ text.consentLabel }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </span>
-              <textarea
-                appInput
-                rows="2"
-                class="w-full"
-                aria-describedby="consent-label-hint"
-                [attr.maxlength]="consentLabelMax"
-                [value]="consentLabel()"
-                (input)="onConsentLabelInput($event)"
-              ></textarea>
-            </label>
-            <p id="consent-label-hint" appHint class="mt-1">
-              {{ text.consentLabelHint }}
-            </p>
-          </div>
+          <app-field
+            class="mb-6"
+            [field]="form.consentLabel"
+            [label]="text.consentLabel"
+            [hint]="text.consentLabelHint"
+            controlId="consent-label"
+          >
+            <textarea
+              appInput
+              rows="2"
+              class="w-full"
+              [formField]="form.consentLabel"
+            ></textarea>
+          </app-field>
         }
 
         <app-rich-text-editor
@@ -179,7 +178,7 @@ import { Hint } from '../../shared/ui/hint';
     </div>
   `,
 })
-export class PageEditor {
+export class PageEditor implements FieldAttempt {
   private readonly pageService = inject(PageEditingService);
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).pages;
@@ -201,13 +200,33 @@ export class PageEditor {
   readonly dirtyChange = output<boolean>();
 
   // Seeded from the page, and re-seeded whenever a save replaces it.
-  protected readonly title = linkedSignal(() => this.page().title);
+  private readonly model = linkedSignal(() => ({
+    title: this.page().title,
+    consentLabel: this.page().consentLabel ?? '',
+  }));
   protected readonly body = linkedSignal(() => this.page().bodyHtml);
-  protected readonly consentLabel = linkedSignal(
-    () => this.page().consentLabel ?? '',
-  );
   protected readonly isConsent = computed(() => isConsentPage(this.slug()));
-  protected readonly consentLabelMax = CONSENT_LABEL_MAX_LENGTH;
+  protected readonly form = form(
+    this.model,
+    (page) => {
+      filled(page.title, this.text.titleRequired);
+      // Only the consent page carries the box's label.
+      hidden(page.consentLabel, { when: () => !this.isConsent() });
+      filled(page.consentLabel, this.text.consentLabelRequired);
+      maxLength(page.consentLabel, CONSENT_LABEL_MAX_LENGTH);
+      validate(page.consentLabel, ({ value }) =>
+        value().trim() && !consentLabelParts(value().trim())
+          ? { kind: 'consentLink', message: this.text.consentLabelLink }
+          : undefined,
+      );
+    },
+    { name: 'page-editor' },
+  );
+  /** Read by every field in the editor (FIELD_ATTEMPT). */
+  readonly attempted = computed(() => submitAttempt(this.form)());
+  private readonly injector = inject(Injector);
+  protected readonly title = computed(() => this.model().title);
+  protected readonly consentLabel = computed(() => this.model().consentLabel);
   protected readonly consentParts = computed(() =>
     consentLabelParts(this.consentLabel().trim()),
   );
@@ -226,14 +245,6 @@ export class PageEditor {
     effect(() => this.dirtyChange.emit(this.dirty()));
   }
 
-  protected onTitleInput(event: Event): void {
-    this.title.set((event.target as HTMLInputElement).value);
-  }
-
-  protected onConsentLabelInput(event: Event): void {
-    this.consentLabel.set((event.target as HTMLTextAreaElement).value);
-  }
-
   /**
    * Preview is a visual preview, not a live page. Its body renders real anchors
    * (text links, linked images); a native click on one would leave the page
@@ -250,16 +261,14 @@ export class PageEditor {
   }
 
   protected async save(): Promise<void> {
-    if (!this.title().trim()) {
-      this.error.set(this.text.titleRequired);
-      return;
-    }
-    if (this.isConsent() && !this.consentLabel().trim()) {
-      this.error.set(this.text.consentLabelRequired);
-      return;
-    }
-    if (this.isConsent() && !this.consentParts()) {
-      this.error.set(this.text.consentLabelLink);
+    submitAttempt(this.form).set(true);
+    if (this.form().invalid()) {
+      // Back from the preview to the field that stopped it.
+      const first = this.form().errorSummary()[0]?.fieldTree;
+      this.previewing.set(false);
+      afterNextRender(() => first?.().focusBoundControl(), {
+        injector: this.injector,
+      });
       return;
     }
     this.saving.set(true);

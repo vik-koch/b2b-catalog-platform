@@ -227,12 +227,23 @@ const priceLabel = fillText(text.priceWithList, { list: baseList.label });
 function inputByLabel(el: HTMLElement, label: string): HTMLInputElement {
   // A mandatory field's caption carries a trailing asterisk; the caption is
   // still what identifies the field.
-  const span = [...el.querySelectorAll('span')].find(
-    (s) => s.textContent?.replace(/\*$/, '').trim() === label,
+  const caption = [...el.querySelectorAll('label')].find(
+    (l) => l.textContent?.replace(/\*\s*$/, '').trim() === label,
   );
-  const input = span?.closest('label')?.querySelector('input');
+  const input = caption?.htmlFor
+    ? el.querySelector(`#${caption.htmlFor}`)
+    : caption?.querySelector('input');
   if (!input) throw new Error(`no input labelled "${label}"`);
   return input as HTMLInputElement;
+}
+
+/** Picks a category the way a person does, in the select. */
+function chooseCategory(el: HTMLElement, id: string): void {
+  const select = el.querySelector<HTMLSelectElement>('#product-category');
+  if (!select) throw new Error('no category select');
+  select.value = id;
+  select.dispatchEvent(new Event('input'));
+  select.dispatchEvent(new Event('change'));
 }
 
 function setInput(input: HTMLInputElement, value: string): void {
@@ -240,13 +251,16 @@ function setInput(input: HTMLInputElement, value: string): void {
   input.dispatchEvent(new Event('input'));
 }
 
-/** A tier's price field, found by the aria-label the editor gives it. */
+/** A tier's price field, found by its caption. */
 function tierInput(el: HTMLElement, tierLabel: string): HTMLInputElement {
-  const input = el.querySelector<HTMLInputElement>(
-    `input[aria-label="${tierLabel}"]`,
-  );
-  if (!input) throw new Error(`no price field for tier "${tierLabel}"`);
-  return input;
+  return inputByLabel(el, tierLabel);
+}
+
+/** The lock markers on screen: a marker with no reason is in the DOM but not drawn. */
+function shownLocks(el: HTMLElement): HTMLElement[] {
+  return [
+    ...el.querySelectorAll<HTMLElement>('app-locked-field-marker'),
+  ].filter((lock) => lock.style.display !== 'none');
 }
 
 function saveButton(el: HTMLElement): HTMLButtonElement {
@@ -271,11 +285,7 @@ describe('ProductEditorPage', () => {
 
     setInput(inputByLabel(el, text.name), 'New Roast');
     setInput(inputByLabel(el, priceLabel), '12.50');
-    (
-      fixture.componentInstance as unknown as {
-        categoryId: { set(v: string): void };
-      }
-    ).categoryId.set('cat-1');
+    chooseCategory(el, 'cat-1');
     saveButton(el).click();
     await fixture.whenStable();
 
@@ -296,11 +306,7 @@ describe('ProductEditorPage', () => {
     setInput(inputByLabel(el, text.name), 'New Roast');
     setInput(inputByLabel(el, priceLabel), '12.50');
     setInput(inputByLabel(el, text.slug), 'custom-slug');
-    (
-      fixture.componentInstance as unknown as {
-        categoryId: { set(v: string): void };
-      }
-    ).categoryId.set('cat-1');
+    chooseCategory(el, 'cat-1');
     saveButton(el).click();
     await fixture.whenStable();
 
@@ -313,11 +319,7 @@ describe('ProductEditorPage', () => {
     const { fixture, el, h } = await render({ slug: null });
 
     setInput(inputByLabel(el, priceLabel), '12.50');
-    (
-      fixture.componentInstance as unknown as {
-        categoryId: { set(v: string): void };
-      }
-    ).categoryId.set('cat-1');
+    chooseCategory(el, 'cat-1');
     saveButton(el).click();
     await fixture.whenStable();
     fixture.detectChanges();
@@ -1127,11 +1129,7 @@ describe('ProductEditorPage', () => {
 
       setInput(inputByLabel(el, text.name), 'New Roast');
       setInput(inputByLabel(el, priceLabel), '12.50');
-      (
-        fixture.componentInstance as unknown as {
-          categoryId: { set(v: string): void };
-        }
-      ).categoryId.set('cat-1');
+      chooseCategory(el, 'cat-1');
       h.createProduct.mockResolvedValue({
         ok: true,
         product: unpublishedProduct,
@@ -1168,11 +1166,7 @@ describe('ProductEditorPage', () => {
 
       setInput(inputByLabel(el, text.name), 'New Roast');
       setInput(inputByLabel(el, priceLabel), '12.50');
-      (
-        fixture.componentInstance as unknown as {
-          categoryId: { set(v: string): void };
-        }
-      ).categoryId.set('cat-1');
+      chooseCategory(el, 'cat-1');
       h.createProduct.mockResolvedValue({
         ok: true,
         product: unpublishedProduct,
@@ -1201,11 +1195,7 @@ describe('ProductEditorPage', () => {
 
       setInput(inputByLabel(el, text.name), 'New Roast');
       setInput(inputByLabel(el, priceLabel), '12.50');
-      (
-        fixture.componentInstance as unknown as {
-          categoryId: { set(v: string): void };
-        }
-      ).categoryId.set('cat-1');
+      chooseCategory(el, 'cat-1');
       h.createProduct.mockResolvedValue({
         ok: true,
         product: unpublishedProduct,
@@ -1277,12 +1267,32 @@ describe('ProductEditorPage', () => {
       expect(occurrences).toHaveLength(1);
     });
 
+    it('marks each locked field with a lock, and only those', async () => {
+      const { el } = await render(
+        { slug: 'coffee-beans' },
+        {},
+        { catalogOwned: true },
+      );
+
+      const locked = shownLocks(el).map((lock) =>
+        lock.closest('app-field')?.querySelector('label')?.getAttribute('for'),
+      );
+      expect(locked).toEqual(
+        expect.arrayContaining(['product-name', 'product-stock']),
+      );
+      expect(locked).not.toContain('product-slug');
+      expect(shownLocks(el)[0].querySelector('button')?.ariaLabel).toBe(
+        defaultAdminText.ownership.fieldLockedShort,
+      );
+    });
+
     it('leaves every field editable when nothing is owned', async () => {
       const { el } = await render({ slug: 'coffee-beans' });
 
       expect(inputByLabel(el, text.name).disabled).toBe(false);
       expect(inputByLabel(el, priceLabel).disabled).toBe(false);
       expect(inputByLabel(el, text.stock.pieces).disabled).toBe(false);
+      expect(shownLocks(el)).toEqual([]);
     });
   });
 

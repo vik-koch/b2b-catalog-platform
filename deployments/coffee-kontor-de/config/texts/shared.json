@@ -25,6 +25,7 @@
     "deleting": "Wird gelöscht…"
   },
   "optional": "optional",
+  "required": "erforderlich",
   "units": {
     "piece": "Stk.",
     "pack": "Pck.",

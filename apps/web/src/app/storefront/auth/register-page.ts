@@ -1,25 +1,22 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { form, hidden, required } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { CustomerType, PartySuggestion } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
+import { canonicalPhone } from '../../shared/core/contact-fields';
 import {
-  canonicalPhone,
-  companyIdValidators,
-  emailFormat,
-  phoneValidators,
-} from '../../shared/core/contact-fields';
-import { FieldErrors } from '../../shared/core/form-errors';
+  companyIdFormat,
+  completeMask,
+  emailAddress,
+} from '../../shared/core/field-rules';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { Button } from '../../shared/ui/button';
-import { EmailField } from '../../shared/ui/email-field';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
-import { PhoneField } from '../../shared/ui/phone-field';
+import { PhoneInput } from '../../shared/ui/phone-input';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
@@ -30,7 +27,19 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
 
-type Status = 'idle' | 'submitting' | 'success' | 'error';
+type Status = 'idle' | 'success' | 'error';
+
+interface Registration {
+  customerType: CustomerType;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  companyName: string;
+  companyRegistrationId: string;
+  /** Honeypot. */
+  website: string;
+}
 
 /**
  * Self-registration (FR-AUTH-01). A registration is a *request* to become a
@@ -51,14 +60,12 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
   imports: [
     AuthCard,
     ConsentField,
-    ReactiveFormsModule,
+    FORM_FIELDS,
     RouterLink,
     Button,
     CompanyFields,
-    EmailField,
-    FieldLabel,
     Input,
-    PhoneField,
+    PhoneInput,
     Segmented,
     Link,
     PageTitle,
@@ -81,98 +88,84 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
         </h1>
         <p appPageIntro class="mb-4">{{ text.register.intro }}</p>
 
-        <form
-          [formGroup]="form"
-          (ngSubmit)="submit()"
-          novalidate
-          class="space-y-6"
-        >
+        <form [formRoot]="form" class="space-y-6">
           <!-- Only where the shop sells to more than one kind of customer
                (FR-AUTH-13): with one, there is nothing to choose. -->
           @if (customerTypes.length > 1) {
-            <fieldset>
-              <legend appFieldLabel>{{ text.register.customerType }}</legend>
+            <app-field
+              group
+              [field]="form.customerType"
+              [label]="text.register.customerType"
+            >
               <app-segmented
                 [options]="customerTypes"
                 size="md"
-                formControlName="customerType"
+                [formField]="form.customerType"
               />
-            </fieldset>
+            </app-field>
           }
 
           <div class="grid gap-6 sm:grid-cols-2">
-            <div>
-              <label for="firstName" appFieldLabel>
-                {{ fields.firstName.label }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
+            <app-field
+              [field]="form.firstName"
+              [label]="fields.firstName.label"
+              controlId="firstName"
+            >
               <input
-                id="firstName"
                 type="text"
-                formControlName="firstName"
                 autocomplete="given-name"
-                aria-required="true"
                 appInput
                 class="w-full"
-                [attr.aria-invalid]="isInvalid('firstName') || null"
+                [formField]="form.firstName"
               />
-              @if (isInvalid('firstName')) {
-                <p appErrorText class="mt-1">
-                  {{ fields.firstName.required }}
-                </p>
-              }
-            </div>
+            </app-field>
 
-            <div>
-              <label for="lastName" appFieldLabel>
-                {{ fields.lastName.label }}
-                <span class="text-accent" aria-hidden="true">*</span>
-              </label>
+            <app-field
+              [field]="form.lastName"
+              [label]="fields.lastName.label"
+              controlId="lastName"
+            >
               <input
-                id="lastName"
                 type="text"
-                formControlName="lastName"
                 autocomplete="family-name"
-                aria-required="true"
                 appInput
                 class="w-full"
-                [attr.aria-invalid]="isInvalid('lastName') || null"
+                [formField]="form.lastName"
               />
-              @if (isInvalid('lastName')) {
-                <p appErrorText class="mt-1">
-                  {{ fields.lastName.required }}
-                </p>
-              }
-            </div>
+            </app-field>
           </div>
 
           @if (isCompany()) {
             <app-company-fields
               idInputId="companyRegistrationId"
-              [idControl]="form.controls.companyRegistrationId"
-              [nameControl]="form.controls.companyName"
+              [idField]="form.companyRegistrationId"
+              [nameField]="form.companyName"
               [text]="companyText"
-              [idInvalid]="isInvalid('companyRegistrationId')"
-              [nameInvalid]="isInvalid('companyName')"
               (picked)="fillFrom($event)"
             />
           }
 
-          <app-email-field
-            [control]="form.controls.email"
+          <app-field
+            [field]="form.email"
             [label]="fields.email.label"
-            [text]="emailText"
-            [required]="true"
-            [invalid]="isInvalid('email')"
-          />
+            controlId="email"
+          >
+            <input
+              type="email"
+              autocomplete="email"
+              appInput
+              class="w-full"
+              [formField]="form.email"
+            />
+          </app-field>
 
-          <app-phone-field
-            [control]="form.controls.phone"
+          <app-field
+            [field]="form.phone"
             [label]="fields.phone.label"
-            [text]="phoneText"
-            [required]="true"
-            [invalid]="isInvalid('phone')"
-          />
+            controlId="phone"
+          >
+            <app-phone-input [field]="form.phone" />
+          </app-field>
 
           <!-- Honeypot: hidden from humans. -->
           <div class="absolute left-[-9999px]" aria-hidden="true">
@@ -180,16 +173,13 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             <input
               id="website"
               type="text"
-              formControlName="website"
+              [formField]="form.website"
               tabindex="-1"
               autocomplete="off"
             />
           </div>
 
-          <app-consent-field
-            [consent]="consent"
-            [invalid]="isInvalid('consent')"
-          />
+          <app-consent-field [consent]="consent" />
 
           @if (status() === 'error') {
             <p appErrorText role="alert">
@@ -197,15 +187,9 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
             </p>
           }
 
-          <button
-            appButton
-            type="submit"
-            [disabled]="status() === 'submitting'"
-          >
+          <button appButton type="submit" [disabled]="form().submitting()">
             {{
-              status() === 'submitting'
-                ? actionText.sending
-                : text.register.submit
+              form().submitting() ? actionText.sending : text.register.submit
             }}
           </button>
         </form>
@@ -219,7 +203,6 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
   `,
 })
 export class RegisterPage {
-  private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly config = inject(DEPLOYMENT_CONFIG);
 
@@ -241,24 +224,12 @@ export class RegisterPage {
   private readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
-  // The wording each shared field puts under itself. Held as fields rather than
-  // built in the template so the object identity is stable across change
-  // detection.
-  protected readonly emailText = {
-    required: this.fields.email.required,
-    invalid: this.fields.email.invalid,
-  };
-  protected readonly phoneText = {
-    required: this.fields.phone.required,
-    incomplete: this.fields.phone.incomplete,
-  };
+  // Held as a field rather than built in the template, so its identity is
+  // stable across change detection.
   protected readonly companyText = {
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
     hint: this.text.register.companyIdHint,
-    idFormat: this.fields.companyId.format,
-    idRequired: this.fields.companyId.required,
-    nameRequired: this.fields.companyName.required,
   };
 
   /** The company the registrant picked, if they picked one. */
@@ -266,54 +237,69 @@ export class RegisterPage {
 
   protected readonly status = signal<Status>('idle');
   protected readonly consent = useConsent('account');
-  protected readonly customerType = signal<CustomerType>(this.firstType);
-  protected readonly isCompany = computed(
-    () => this.customerType() === 'company',
-  );
-
-  protected readonly form = this.fb.nonNullable.group({
-    customerType: [this.firstType],
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    // The contract's own rule, so client and server agree on what a valid
-    // address is.
-    email: ['', [Validators.required, emailFormat()]],
-    phone: ['', phoneValidators(this.phoneInput, true)],
-    companyName: [''],
-    companyRegistrationId: [''],
-    website: [''],
-    consent: this.consent.control,
+  private readonly model = signal<Registration>({
+    customerType: this.firstType,
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    companyName: '',
+    companyRegistrationId: '',
+    website: '',
   });
+  protected readonly form = form(
+    this.model,
+    (registration) => {
+      required(registration.firstName, {
+        message: this.fields.firstName.required,
+      });
+      required(registration.lastName, {
+        message: this.fields.lastName.required,
+      });
+      required(registration.email, { message: this.fields.email.required });
+      emailAddress(registration.email, this.fields.email.invalid);
+      required(registration.phone, { message: this.fields.phone.required });
+      completeMask(
+        registration.phone,
+        this.phoneInput?.mask,
+        this.fields.phone.incomplete,
+      );
+
+      // The company is asked of a company only. Hidden, its fields count for
+      // nothing, and whatever was typed is kept for a change of mind but
+      // never sent (see toRequest).
+      hidden(registration.companyName, {
+        when: ({ valueOf }) => valueOf(registration.customerType) !== 'company',
+      });
+      hidden(registration.companyRegistrationId, {
+        when: ({ valueOf }) => valueOf(registration.customerType) !== 'company',
+      });
+      required(registration.companyName, {
+        message: this.fields.companyName.required,
+      });
+      required(registration.companyRegistrationId, {
+        message: this.fields.companyId.required,
+      });
+      companyIdFormat(
+        registration.companyRegistrationId,
+        this.companyIdInput?.formats,
+        this.fields.companyId.format,
+      );
+    },
+    { name: 'register', submission: { action: () => this.send() } },
+  );
+  protected readonly isCompany = computed(
+    () => this.form.customerType().value() === 'company',
+  );
 
   constructor() {
     usePageSeo({ name: () => this.text.register.heading });
-
-    this.applyValidators(this.firstType);
-    this.form.controls.customerType.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((type) => {
-        this.customerType.set(type);
-        this.applyValidators(type);
-      });
   }
 
-  /**
-   * Error visibility, not validity: revealed on blur, hidden again while the
-   * field is being retyped, and everything shown once submit is attempted.
-   */
-  protected readonly fieldErrors = new FieldErrors(this.form);
+  private async send(): Promise<void> {
+    if (this.consent.field().invalid() || !this.consent.sendable()) return;
 
-  protected isInvalid(control: keyof typeof this.form.controls): boolean {
-    return this.fieldErrors.show(this.form.controls[control]);
-  }
-
-  protected async submit(): Promise<void> {
-    this.fieldErrors.markSubmitted();
-    if (this.form.invalid || !this.consent.sendable()) {
-      return;
-    }
-
-    this.status.set('submitting');
+    this.status.set('idle');
     const result = await this.auth.register(this.toRequest());
     if (result === 'ok') {
       this.status.set('success');
@@ -324,40 +310,16 @@ export class RegisterPage {
   }
 
   /**
-   * The company fields are required exactly when the applicant says they are a
-   * company — the contract refuses them in the other direction too, so they are
-   * cleared rather than left holding a stale value.
-   */
-  private applyValidators(type: CustomerType): void {
-    const isCompany = type === 'company';
-    const fields = [
-      [this.form.controls.companyName, [Validators.required]],
-      [
-        this.form.controls.companyRegistrationId,
-        companyIdValidators(this.companyIdInput?.formats),
-      ],
-    ] as const;
-
-    for (const [control, validators] of fields) {
-      control.setValidators(isCompany ? [...validators] : []);
-      if (!isCompany) control.setValue('', { emitEvent: false });
-      control.updateValueAndValidity({ emitEvent: false });
-    }
-  }
-
-  /**
    * A picked company, spread across both fields. Only what the provider
    * actually answered is written — a partial answer must not blank what the
    * customer already typed — and neither value is locked afterwards: the
    * registry fills the form, it does not decide it (ADR 0041).
    */
   protected fillFrom(party: PartySuggestion): void {
-    this.form.patchValue({
-      companyName: party.name,
-      ...(party.registrationId
-        ? { companyRegistrationId: party.registrationId }
-        : {}),
-    });
+    this.form.companyName().value.set(party.name);
+    if (party.registrationId) {
+      this.form.companyRegistrationId().value.set(party.registrationId);
+    }
     // Kept for the submission, not shown: the registered address becomes the
     // account's first saved one (FR-AUTH-10), and a registration form is no
     // place to review an address nobody asked to enter.
@@ -372,7 +334,7 @@ export class RegisterPage {
    */
   private billingAddress(customerType: CustomerType) {
     const party = this.picked();
-    const typed = this.form.controls.companyName.value.trim();
+    const typed = this.model().companyName.trim();
     if (customerType !== 'company' || !party?.address || party.name !== typed) {
       return undefined;
     }
@@ -380,7 +342,7 @@ export class RegisterPage {
   }
 
   private toRequest() {
-    const value = this.form.getRawValue();
+    const value = this.model();
 
     return {
       email: value.email,

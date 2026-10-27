@@ -2,6 +2,7 @@ import {
   Component,
   computed,
   effect,
+  forwardRef,
   inject,
   input,
   linkedSignal,
@@ -10,7 +11,7 @@ import {
   untracked,
 } from '@angular/core';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { apply, form, hidden, required } from '@angular/forms/signals';
 import { Router, RouterLink } from '@angular/router';
 import {
   fillText,
@@ -27,15 +28,19 @@ import {
   OrderAdjustmentPreview,
 } from '@b2b-catalog-platform/shared/admin';
 import { AddressFields } from '../../shared/addresses/address-fields';
-import { AddressForm } from '../../shared/addresses/address-form';
-import { CompanyFields } from '../../shared/parties/company-fields';
 import {
-  canonicalPhone,
+  AddressDraft,
+  AddressForm,
+  blankAddress,
+  injectAddressRules,
+} from '../../shared/addresses/address-form';
+import { CompanyFields } from '../../shared/parties/company-fields';
+import { canonicalPhone, typedPhone } from '../../shared/core/contact-fields';
+import {
   companyIdFormat,
-  emailFormat,
-  phoneValidators,
-  typedPhone,
-} from '../../shared/core/contact-fields';
+  completeMask,
+  emailAddress,
+} from '../../shared/core/field-rules';
 import {
   formatPriceMinor,
   formatPriceInput,
@@ -47,7 +52,6 @@ import { staffBlockLabels } from './staff-block-labels';
 import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { debounced } from '../../shared/core/debounced';
-import { FieldErrors } from '../../shared/core/form-errors';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
@@ -61,10 +65,12 @@ import {
   disclosureBorder,
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
-import { EmailField } from '../../shared/ui/email-field';
+import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
-import { PhoneField } from '../../shared/ui/phone-field';
+import { PhoneInput } from '../../shared/ui/phone-input';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { SegmentOption, Segmented } from '../../shared/ui/segmented';
 import { SelectField } from '../../shared/ui/select-field';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -129,6 +135,13 @@ const REFUSAL_PART: Record<AdjustmentRefusal, 'lines' | 'details'> = {
   'order-not-found': 'details',
 };
 
+interface AdjustAnswers {
+  party: { personName: string; companyName: string; companyId: string };
+  contact: { name: string; email: string; phone: string };
+  delivery: AddressDraft;
+  billing: AddressDraft;
+}
+
 /** How long a manager pauses before the draft is worth pricing again. */
 const PREVIEW_DEBOUNCE_MS = 250;
 
@@ -153,18 +166,17 @@ const PREVIEW_DEBOUNCE_MS = 250;
 @Component({
   selector: 'app-order-adjust-page',
   imports: [
+    FORM_FIELDS,
     AddressFields,
     Button,
     Checkbox,
     CompanyFields,
     DisclosureToggle,
-    EmailField,
     FieldLabel,
     Input,
     OrderAdjustChanges,
     OrderAdjustLines,
-    PhoneField,
-    ReactiveFormsModule,
+    PhoneInput,
     RouterLink,
     Segmented,
     SelectField,
@@ -175,6 +187,14 @@ const PREVIEW_DEBOUNCE_MS = 250;
     ErrorText,
     Hint,
     PageIntro,
+  ],
+  // No <form> element holds the fields: the save button sits in the aside,
+  // after the note, so the page says itself when the form has been sent.
+  providers: [
+    {
+      provide: FIELD_ATTEMPT,
+      useExisting: forwardRef(() => AdminOrderAdjustPage),
+    },
   ],
   template: `
     <!-- An order answered by an external system has nothing to propose, so
@@ -420,7 +440,6 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           </h3>
                           <app-address-fields
                             [form]="delivery"
-                            [fieldErrors]="deliveryErrors"
                             [showLabel]="false"
                           />
                         </div>
@@ -444,42 +463,30 @@ const PREVIEW_DEBOUNCE_MS = 250;
                           class="mb-4"
                           [options]="partyKinds"
                           [value]="partyKind()"
-                          (chosen)="setPartyKind($event)"
+                          (valueChange)="setPartyKind($event)"
                         />
                       }
 
                       @if (partyKind() === 'person') {
-                        <div>
-                          <label appFieldLabel for="adjust-party-person">
-                            {{ fields.name.label }}
-                            <span class="text-accent" aria-hidden="true"
-                              >*</span
-                            >
-                          </label>
+                        <app-field
+                          [field]="form.party.personName"
+                          [label]="fields.name.label"
+                          controlId="adjust-party-person"
+                        >
                           <input
                             appInput
-                            id="adjust-party-person"
                             class="w-full"
                             autocomplete="off"
-                            [formControl]="party.controls.personName"
-                            [attr.aria-invalid]="invalid('personName') || null"
+                            [formField]="form.party.personName"
                           />
-                          @if (invalid('personName')) {
-                            <p appErrorText class="mt-1">
-                              {{ fields.name.required }}
-                            </p>
-                          }
-                        </div>
+                        </app-field>
                       } @else {
                         <app-company-fields
                           idInputId="adjust-party-id"
                           nameInputId="adjust-party-name"
-                          [idControl]="party.controls.companyId"
-                          [nameControl]="party.controls.companyName"
+                          [idField]="form.party.companyId"
+                          [nameField]="form.party.companyName"
                           [text]="companyText"
-                          [required]="true"
-                          [idInvalid]="invalid('companyId')"
-                          [nameInvalid]="invalid('companyName')"
                           (picked)="pickParty($event)"
                         />
                       }
@@ -492,7 +499,6 @@ const PREVIEW_DEBOUNCE_MS = 250;
                         </h2>
                         <app-address-fields
                           [form]="billing"
-                          [fieldErrors]="billingErrors"
                           [showLabel]="false"
                         />
                       </section>
@@ -534,51 +540,46 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     <section>
                       <h2 class="mb-2 font-medium">{{ names.contact }}</h2>
                       <div class="grid gap-6 sm:grid-cols-[20rem_1fr]">
-                        <div>
-                          <label appFieldLabel for="adjust-contact-name">
-                            {{ fields.name.label }}
-                            <span class="text-accent" aria-hidden="true"
-                              >*</span
-                            >
-                          </label>
+                        <app-field
+                          [field]="form.contact.name"
+                          [label]="fields.name.label"
+                          controlId="adjust-contact-name"
+                        >
                           <input
                             appInput
-                            id="adjust-contact-name"
                             class="w-full"
                             autocomplete="off"
-                            [formControl]="contact.controls.name"
-                            [attr.aria-invalid]="invalidContact('name') || null"
+                            [formField]="form.contact.name"
                           />
-                          @if (invalidContact('name')) {
-                            <p appErrorText class="mt-1">
-                              {{ fields.name.required }}
-                            </p>
-                          }
-                        </div>
+                        </app-field>
                         <!-- A number in the deployment's own mask is as long
                              as it will ever be, and the name beside it is
                              not: the field stops where its content does and
                              leaves the rest of the column to the row below. -->
-                        <app-phone-field
-                          inputId="adjust-contact-phone"
-                          autocomplete="off"
-                          inputWidth="w-full"
+                        <app-field
+                          [field]="form.contact.phone"
                           [label]="fields.phone.label"
-                          [control]="contact.controls.phone"
-                          [text]="phoneText"
-                          [required]="true"
-                          [invalid]="invalidContact('phone')"
-                        />
-                        <app-email-field
+                          controlId="adjust-contact-phone"
+                        >
+                          <app-phone-input
+                            [field]="form.contact.phone"
+                            autocomplete="off"
+                          />
+                        </app-field>
+                        <app-field
                           class="sm:col-span-2"
-                          inputId="adjust-contact-email"
-                          autocomplete="off"
+                          [field]="form.contact.email"
                           [label]="fields.email.label"
-                          [control]="contact.controls.email"
-                          [text]="emailText"
-                          [required]="true"
-                          [invalid]="invalidContact('email')"
-                        />
+                          controlId="adjust-contact-email"
+                        >
+                          <input
+                            type="email"
+                            appInput
+                            class="w-full"
+                            autocomplete="off"
+                            [formField]="form.contact.email"
+                          />
+                        </app-field>
                       </div>
                     </section>
                   </div>
@@ -716,7 +717,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     }
   `,
 })
-export class AdminOrderAdjustPage {
+export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly tax = useTaxStatement();
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
@@ -757,44 +758,81 @@ export class AdminOrderAdjustPage {
 
   readonly reference = input.required<string>();
 
-  private readonly fb = inject(FormBuilder);
-
-  /**
-   * The party the order is invoiced to, and who to talk to about it — the same
-   * two forms the checkout asks, held to the same rules.
-   *
-   * They are `FormGroup`s rather than plain signals because that is what makes
-   * them validated: an email address the server will refuse has to be refused
-   * here, and a phone number entered through the deployment's mask has to be
-   * completed. The screen that *changes* an order cannot be laxer than the one
-   * that placed it, or a manager correcting a typo introduces one.
-   */
-  protected readonly party = this.fb.nonNullable.group({
-    personName: [''],
-    companyName: [''],
-    companyId: ['', companyIdFormat(this.config.companyIdInput?.formats)],
-  });
-  protected readonly contact = this.fb.nonNullable.group({
-    name: ['', Validators.required],
-    // The contract's own rule, not Angular's: `Validators.email` accepts a
-    // domain with no TLD, which the server then refuses.
-    email: ['', [Validators.required, emailFormat()]],
-    phone: ['', phoneValidators(this.config.phoneInput, true)],
-  });
   /** A company is a party with a registration number, which is the only thing
    * the order records. The switch is how it is asked, not a third field. */
   protected readonly partyKind = signal<'person' | 'company'>('company');
+  protected readonly fulfilmentMethod = signal<'delivery' | 'pickup'>(
+    'delivery',
+  );
 
-  protected readonly delivery = new AddressForm();
-  protected readonly billing = new AddressForm();
-  /** Which of the address messages are on screen. Nothing here marks them
-   * submitted: the server prices the draft on every pause and answers with the
-   * refusal itself, so a postcode is corrected by the rule that will refuse
-   * the save rather than by a second copy of it. */
-  protected readonly deliveryErrors = new FieldErrors(this.delivery.group);
-  protected readonly billingErrors = new FieldErrors(this.billing.group);
-  private readonly partyErrors = new FieldErrors(this.party);
-  private readonly contactErrors = new FieldErrors(this.contact);
+  private readonly countries = this.config.address?.countries;
+  private readonly addressRules = injectAddressRules();
+  private readonly model = signal<AdjustAnswers>({
+    party: { personName: '', companyName: '', companyId: '' },
+    contact: { name: '', email: '', phone: '' },
+    delivery: blankAddress(this.countries),
+    billing: blankAddress(this.countries),
+  });
+
+  /**
+   * The party the order is invoiced to, who to talk to about it and where it
+   * goes: what the checkout asks, held to the same rules. The screen that
+   * changes an order cannot be laxer than the one that placed it, or a
+   * manager correcting a typo introduces one.
+   */
+  protected readonly form = form(
+    this.model,
+    (answers) => {
+      const { party, contact } = answers;
+      // The branch that is not on screen keeps what it held, so a manager who
+      // switches to look gets the order's own answer back. Hidden, it counts
+      // for nothing and is never read (`partyValue`).
+      hidden(party.personName, { when: () => this.partyKind() !== 'person' });
+      required(party.personName, { message: this.fields.name.required });
+      hidden(party.companyName, {
+        when: () => this.partyKind() !== 'company',
+      });
+      required(party.companyName, {
+        message: this.fields.companyName.required,
+      });
+      hidden(party.companyId, { when: () => this.partyKind() !== 'company' });
+      required(party.companyId, { message: this.fields.companyId.required });
+      companyIdFormat(
+        party.companyId,
+        this.config.companyIdInput?.formats,
+        this.fields.companyId.format,
+      );
+
+      required(contact.name, { message: this.fields.name.required });
+      required(contact.email, { message: this.fields.email.required });
+      emailAddress(contact.email, this.fields.email.invalid);
+      required(contact.phone, { message: this.fields.phone.required });
+      completeMask(
+        contact.phone,
+        this.config.phoneInput?.mask,
+        this.fields.phone.incomplete,
+      );
+
+      hidden(answers.delivery, {
+        when: () => this.fulfilmentMethod() !== 'delivery',
+      });
+      apply(answers.delivery, this.addressRules);
+      hidden(answers.billing, { when: () => !this.billingEnabled });
+      apply(answers.billing, this.addressRules);
+    },
+    { name: 'order-adjust' },
+  );
+  protected readonly delivery = new AddressForm(
+    this.form.delivery,
+    this.countries,
+  );
+  protected readonly billing = new AddressForm(
+    this.form.billing,
+    this.countries,
+  );
+
+  /** Read by every field on the page (FIELD_ATTEMPT). */
+  readonly attempted = computed(() => submitAttempt(this.form)());
 
   /** The kinds the shop sells to (FR-AUTH-13), in the deployment's order. */
   protected readonly partyKinds: SegmentOption<'person' | 'company'>[] =
@@ -805,14 +843,6 @@ export class AdminOrderAdjustPage {
           ? this.text.partyKindPerson
           : this.text.partyKindCompany,
     }));
-  protected readonly emailText = {
-    required: this.fields.email.required,
-    invalid: this.fields.email.invalid,
-  };
-  protected readonly phoneText = {
-    required: this.fields.phone.required,
-    incomplete: this.fields.phone.incomplete,
-  };
   /**
    * How this order may be paid, given who it is invoiced to. A company is
    * invoiced: neither cash at the door nor a card arranged on the phone leaves
@@ -855,30 +885,9 @@ export class AdminOrderAdjustPage {
   protected readonly companyText = {
     idLabel: this.fields.companyId.label,
     nameLabel: this.fields.companyName.label,
-    idFormat: this.fields.companyId.format,
-    idRequired: this.fields.companyId.required,
-    nameRequired: this.fields.companyName.required,
   };
 
-  protected invalid(
-    field: 'personName' | 'companyName' | 'companyId',
-  ): boolean {
-    // Read through the version signal: a form control's validity is not a
-    // signal, so nothing would redraw when it changed.
-    this.formVersion();
-    return this.partyErrors.show(this.party.controls[field]);
-  }
-
-  protected invalidContact(field: 'name' | 'email' | 'phone'): boolean {
-    this.formVersion();
-    return this.contactErrors.show(this.contact.controls[field]);
-  }
-
-  /**
-   * Which of the party's fields are required, given which kind it is. The
-   * unchosen branch is cleared as well as unrequired — a hidden branch must be
-   * inert rather than merely invisible, or an abandoned answer is saved unseen.
-   */
+  /** Which kind the party is; which of its fields count follows from it. */
   protected setPartyKind(kind: 'person' | 'company'): void {
     if (kind !== this.partyKind()) {
       // The method follows the party, both ways.
@@ -886,40 +895,20 @@ export class AdminOrderAdjustPage {
       this.paymentMethod.set(this.rememberedPayment[kind]);
     }
     this.partyKind.set(kind);
-    const { personName, companyName, companyId } = this.party.controls;
-    // The branch that is not on screen keeps what it held. Only the chosen one
-    // is ever read (`partyValue`), so nothing hidden can be saved — and a
-    // manager who switches to see what the other answer looked like gets the
-    // order's own back rather than an empty field to retype.
-    personName.setValidators(kind === 'person' ? Validators.required : []);
-    companyName.setValidators(kind === 'company' ? Validators.required : []);
-    companyId.setValidators(
-      kind === 'company'
-        ? [
-            Validators.required,
-            companyIdFormat(this.config.companyIdInput?.formats),
-          ]
-        : [],
-    );
-    for (const control of [personName, companyName, companyId]) {
-      control.updateValueAndValidity();
-    }
   }
 
   /** A picked company fills both halves at once — the provider takes either as
    * its query, so whichever field was being typed in, the other follows. */
   protected pickParty(suggestion: PartySuggestion): void {
-    this.party.patchValue({
-      companyName: suggestion.name,
-      ...(suggestion.registrationId
-        ? { companyId: suggestion.registrationId }
-        : {}),
-    });
+    this.form.party.companyName().value.set(suggestion.name);
+    if (suggestion.registrationId) {
+      this.form.party.companyId().value.set(suggestion.registrationId);
+    }
   }
 
   /** What the order says its party is, whichever branch answered it. */
   private partyValue(): { name: string; registrationId: string | null } {
-    const { personName, companyName, companyId } = this.party.getRawValue();
+    const { personName, companyName, companyId } = this.model().party;
     return this.partyKind() === 'person'
       ? { name: personName.trim(), registrationId: null }
       : {
@@ -950,9 +939,6 @@ export class AdminOrderAdjustPage {
   );
 
   protected readonly lines = signal<DraftLine[]>([]);
-  protected readonly fulfilmentMethod = signal<'delivery' | 'pickup'>(
-    'delivery',
-  );
   protected readonly pickupKey = signal<string | null>(null);
   protected readonly paymentMethod = signal<PaymentMethod>('bank-transfer');
   protected readonly tierKey = signal<string | null>(null);
@@ -978,27 +964,10 @@ export class AdminOrderAdjustPage {
     this.failedAtNote() ? this.failed() : null,
   );
   protected readonly noteMissing = signal(false);
-  /**
-   * The forms are `FormGroup`s, which no signal reads. Bumped on every change
-   * so the draft — and so the preview, and the change list — depends on them:
-   * a form control read through a method never re-renders anything on its own.
-   */
-  private readonly formVersion = signal(0);
 
   constructor() {
     void this.ownership.load();
     usePageSeo({ name: () => this.title(), noindex: true });
-
-    for (const group of [
-      this.delivery.group,
-      this.billing.group,
-      this.party,
-      this.contact,
-    ]) {
-      (
-        group.valueChanges as { subscribe(next: () => void): unknown }
-      ).subscribe(() => this.formVersion.update((n) => n + 1));
-    }
 
     // Seeded once, from the version on file: everything the form starts as is
     // what the order currently says, so an untouched form saves an unchanged
@@ -1019,7 +988,7 @@ export class AdminOrderAdjustPage {
   private readonly body = computed<OrderAdjustment | null>(() => {
     const order = this.order();
     if (!order) return null;
-    this.formVersion();
+    const contact = this.model().contact;
     const delivery = this.fulfilmentMethod() === 'delivery';
     return {
       lines: this.lines().map((line) => ({
@@ -1030,15 +999,12 @@ export class AdminOrderAdjustPage {
         priceMinor: this.priceOf(line),
       })),
       contact: {
-        name: this.contact.controls.name.value.trim(),
-        email: this.contact.controls.email.value.trim(),
+        name: contact.name.trim(),
+        email: contact.email.trim(),
         // Back into the one form a number is stored in. The field holds the
         // national part; the country code is the deployment's and is never
         // typed.
-        phone: canonicalPhone(
-          this.contact.controls.phone.value,
-          this.config.phoneInput,
-        ),
+        phone: canonicalPhone(contact.phone, this.config.phoneInput),
       },
       party: this.partyValue(),
       fulfilmentMethod: this.fulfilmentMethod(),
@@ -1459,12 +1425,15 @@ export class AdminOrderAdjustPage {
     // Every field the checkout asked, held to the rules the checkout held it
     // to. The screen that changes an order cannot be laxer than the one that
     // placed it, or a manager correcting a typo introduces one.
-    this.partyErrors.markSubmitted();
-    this.contactErrors.markSubmitted();
-    this.deliveryErrors.markSubmitted();
-    this.billingErrors.markSubmitted();
-    this.formVersion.update((n) => n + 1);
-    if (this.party.invalid || this.contact.invalid) return;
+    // The addresses keep an attempt of their own (AddressFields).
+    for (const sent of [this.form, this.form.delivery, this.form.billing]) {
+      submitAttempt(sent).set(true);
+    }
+    if (this.form().invalid()) {
+      // Folded, the fields that stopped it would say so to nobody.
+      this.detailsOpen.set(true);
+      return;
+    }
 
     // Asked for by the screen, optional in the contract: a person adjusting an
     // order has just been on the phone and can say what was agreed.
@@ -1509,10 +1478,10 @@ export class AdminOrderAdjustPage {
     return {
       ...order,
       contact: {
-        name: this.contact.controls.name.value,
-        email: this.contact.controls.email.value,
+        name: this.model().contact.name,
+        email: this.model().contact.email,
         phone: canonicalPhone(
-          this.contact.controls.phone.value,
+          this.model().contact.phone,
           this.config.phoneInput,
         ),
       },
@@ -1564,16 +1533,6 @@ export class AdminOrderAdjustPage {
         fromList: false,
       })),
     );
-    this.contact.setValue(
-      {
-        name: order.contact.name,
-        email: order.contact.email,
-        // Taken apart the way the field asks it: the prefix is displayed and
-        // never typed, so what the control holds is the national part.
-        phone: typedPhone(order.contact.phone, this.config.phoneInput),
-      },
-      { emitEvent: false },
-    );
     // A party with a registration number is a company; one without is a
     // person. The order records no third thing, so the switch is read back
     // from what it recorded rather than stored beside it.
@@ -1586,14 +1545,21 @@ export class AdminOrderAdjustPage {
         ? kind
         : this.config.customerTypes[0],
     );
-    this.party.setValue(
-      {
+    this.model.update((answers) => ({
+      ...answers,
+      party: {
         personName: company ? '' : order.party.name,
         companyName: company ? order.party.name : '',
         companyId: order.party.registrationId ?? '',
       },
-      { emitEvent: false },
-    );
+      contact: {
+        name: order.contact.name,
+        email: order.contact.email,
+        // Taken apart the way the field asks it: the prefix is displayed and
+        // never typed, so what the control holds is the national part.
+        phone: typedPhone(order.contact.phone, this.config.phoneInput),
+      },
+    }));
     this.fulfilmentMethod.set(order.fulfilmentMethod);
     this.pickupKey.set(order.pickup?.key ?? this.locations[0]?.key ?? null);
     this.setPayment(order.paymentMethod);

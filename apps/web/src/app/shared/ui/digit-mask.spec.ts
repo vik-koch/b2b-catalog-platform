@@ -1,16 +1,16 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { form, FormField } from '@angular/forms/signals';
 import { DigitMask } from './digit-mask';
 
 @Component({
-  imports: [ReactiveFormsModule, DigitMask],
+  imports: [FormField, DigitMask],
   template: `
     <input
       appDigitMask
       [mask]="mask()"
       [prefix]="prefix()"
-      [formControl]="control"
+      [formField]="field"
     />
   `,
 })
@@ -19,7 +19,8 @@ class Host {
   // A signal, so changing it marks the view for check — which is what makes
   // the binding re-evaluate, as a picker changing the format does in the app.
   mask = signal('(###) ###-####');
-  control = new FormControl('');
+  readonly value = signal('');
+  readonly field = form(this.value);
 }
 
 async function render(mask?: string, prefix?: string) {
@@ -49,7 +50,7 @@ describe('DigitMask', () => {
   it('re-applies a changed mask to the value it was given', async () => {
     const { fixture, input } = await render('#####');
 
-    fixture.componentInstance.control.setValue('1234567890');
+    fixture.componentInstance.value.set('1234567890');
     fixture.detectChanges();
     await fixture.whenStable();
     expect(input.value).toBe('12345');
@@ -59,16 +60,41 @@ describe('DigitMask', () => {
     await fixture.whenStable();
 
     expect(input.value).toBe('1234567890');
-    expect(fixture.componentInstance.control.value).toBe('1234567890');
+    expect(fixture.componentInstance.value()).toBe('1234567890');
   });
 
-  it('formats digits into the mask and writes the formatted value to the control', async () => {
+  it('formats digits into the mask and writes the formatted value to the field', async () => {
     const { fixture, input, type } = await render();
 
     await type('0301234567');
 
     expect(input.value).toBe('(030) 123-4567');
-    expect(fixture.componentInstance.control.value).toBe('(030) 123-4567');
+    expect(fixture.componentInstance.value()).toBe('(030) 123-4567');
+  });
+
+  it('keeps the field to what a mask that arrives with the value shows', async () => {
+    const { fixture, input } = await render('##########');
+
+    fixture.componentInstance.value.set('1234567890');
+    fixture.componentInstance.mask.set('#####');
+    await fixture.whenStable();
+
+    expect(input.value).toBe('12345');
+    expect(fixture.componentInstance.value()).toBe('12345');
+  });
+
+  it('paints a form write that matches an earlier typed value', async () => {
+    const { fixture, input, type } = await render('#####');
+
+    await type('12345');
+    fixture.componentInstance.value.set('');
+    await fixture.whenStable();
+    expect(input.value).toBe('');
+
+    fixture.componentInstance.value.set('12345');
+    await fixture.whenStable();
+
+    expect(input.value).toBe('12345');
   });
 
   it('ignores non-digits and caps at the mask length', async () => {
@@ -106,7 +132,7 @@ describe('DigitMask', () => {
 
       await type('+49 40 1234567');
       expect(input.value).toBe('(401) 234-567');
-      expect(fixture.componentInstance.control.value).toBe('(401) 234-567');
+      expect(fixture.componentInstance.value()).toBe('(401) 234-567');
 
       await type('004940 1234567');
       expect(input.value).toBe('(401) 234-567');
@@ -115,7 +141,7 @@ describe('DigitMask', () => {
     it('has it taken off when the form writes one in', async () => {
       const { input, fixture } = await render('(###) ###-####', '+49');
 
-      fixture.componentInstance.control.setValue('+49 40 1234567');
+      fixture.componentInstance.value.set('+49 40 1234567');
       await fixture.whenStable();
 
       expect(input.value).toBe('(401) 234-567');

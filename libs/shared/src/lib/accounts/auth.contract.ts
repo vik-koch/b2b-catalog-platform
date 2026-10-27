@@ -1,6 +1,7 @@
 import { oc } from '@orpc/contract';
 import {
   MAINTENANCE_REFUSED,
+  PASSWORD_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   PASSWORD_TOKEN_INVALID,
   SIGN_IN_CODE_LENGTH,
@@ -140,7 +141,10 @@ export const loginSchema = z
   .strict();
 export type LoginRequest = z.infer<typeof loginSchema>;
 
-export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
+export const newPasswordSchema = z
+  .string()
+  .min(PASSWORD_MIN_LENGTH)
+  .max(PASSWORD_MAX_LENGTH);
 
 /**
  * Why the server refused a password. One code per rule in PasswordPolicy, so
@@ -148,8 +152,9 @@ export const newPasswordSchema = z.string().min(PASSWORD_MIN_LENGTH).max(200);
  * address is told that, not "invalid password" — while the wording stays in the
  * deployment's own text file.
  *
- * Length is absent on purpose: it is in `newPasswordSchema`, so the form
- * refuses a short password before there is a request to answer.
+ * Length is absent on purpose: the form checks the same limits
+ * (`auth-constants.ts`), so it refuses a short password before there is a
+ * request to answer.
  */
 export const PASSWORD_REJECTION_CODES = [
   'password-common',

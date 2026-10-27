@@ -1,4 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, forwardRef, inject, signal } from '@angular/core';
+import { form, maxLength, required, validate } from '@angular/forms/signals';
+import { filled } from '../../shared/core/field-rules';
 import { ActivatedRoute } from '@angular/router';
 import {
   ACCEPTED_DOCUMENT_MIME_TYPES,
@@ -15,7 +17,10 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
+import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
+import { FORM_FIELDS } from '../../shared/ui/form-fields';
+import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
 import { AdminIcon } from '../../shared/ui/icons/admin-icon';
 import { DateField } from '../../shared/ui/date-field';
@@ -34,6 +39,14 @@ import { DocumentsService } from './documents.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
+
+interface DocumentDraft {
+  title: string;
+  link: string;
+  /** ISO dates as the date inputs hold them; empty is no date. */
+  issuedAt: string;
+  expiresAt: string;
+}
 
 /**
  * Add or edit a document (FR-DOC-01/02/05) at `/admin/documents/new` and
@@ -54,6 +67,7 @@ import { Hint } from '../../shared/ui/hint';
 @Component({
   selector: 'app-document-editor-page',
   imports: [
+    FORM_FIELDS,
     Button,
     IconButton,
     AdminIcon,
@@ -66,6 +80,14 @@ import { Hint } from '../../shared/ui/hint';
     PageTitle,
     ErrorText,
     Hint,
+  ],
+  // No <form> element: the buttons under the page save or leave, so the page
+  // says itself when the form has been sent.
+  providers: [
+    {
+      provide: FIELD_ATTEMPT,
+      useExisting: forwardRef(() => DocumentEditorPage),
+    },
   ],
   template: `
     <h1 appPageTitle class="mb-4">
@@ -80,21 +102,20 @@ import { Hint } from '../../shared/ui/hint';
       <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
-        <label class="block">
-          <span appFieldLabel>
-            {{ text.title }}
-            <span class="text-accent" aria-hidden="true">*</span>
-          </span>
+        <app-field
+          [field]="form.title"
+          [label]="text.title"
+          [hint]="text.titleHint"
+          controlId="document-title"
+        >
           <input
             type="text"
             appInput
             class="w-full"
             [placeholder]="text.titlePlaceholder"
-            [value]="title()"
-            (input)="title.set($any($event.target).value)"
+            [formField]="form.title"
           />
-          <span appHint class="mt-1">{{ text.titleHint }}</span>
-        </label>
+        </app-field>
 
         <div class="block">
           <span appFieldLabel>{{ text.file }}</span>
@@ -196,20 +217,24 @@ import { Hint } from '../../shared/ui/hint';
 
         <!-- Where the document is held elsewhere (FR-DOC-05). Beside the file
              rather than instead of it: both are ways to the same paper. -->
-        <div class="block">
-          <label [for]="linkId" appFieldLabel>{{ text.link }}</label>
+        <!-- No mark: what is required is a file or a link, which a star on
+             one of them would misstate. The save says it if neither is there. -->
+        <app-field
+          [field]="form.link"
+          [label]="text.link"
+          [marker]="false"
+          [hint]="text.linkHint"
+          controlId="document-link"
+        >
           <div class="flex items-center gap-2">
             <input
-              [id]="linkId"
               type="url"
               inputmode="url"
               autocomplete="off"
-              [maxLength]="linkMax"
               appInput
               class="min-w-0 flex-1"
               [placeholder]="text.linkPlaceholder"
-              [value]="link()"
-              (input)="link.set($any($event.target).value)"
+              [formField]="form.link"
             />
             @if (linkValid()) {
               <a
@@ -224,32 +249,33 @@ import { Hint } from '../../shared/ui/hint';
               </a>
             }
           </div>
-          <span appHint class="mt-1">{{ text.linkHint }}</span>
-        </div>
+        </app-field>
 
         <!-- Two dates copied off the document, side by side because that is how
              they are read off it; one per line below sm. The same field the
              checkout picks a delivery day in — one date control in the app,
              whoever is filling it in. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <div>
-            <label [for]="issuedId" appFieldLabel>{{ text.issuedAt }}</label>
+          <app-field
+            [field]="form.issuedAt"
+            [label]="text.issuedAt"
+            controlId="document-issued-at"
+          >
             <app-date-field
-              [fieldId]="issuedId"
-              [value]="issuedAt() || null"
-              [placeholder]="adminText.documents.editor.datePlaceholder"
-              (valueChange)="issuedAt.set($event ?? '')"
+              [field]="form.issuedAt"
+              [placeholder]="text.datePlaceholder"
             />
-          </div>
-          <div>
-            <label [for]="expiresId" appFieldLabel>{{ text.expiresAt }}</label>
+          </app-field>
+          <app-field
+            [field]="form.expiresAt"
+            [label]="text.expiresAt"
+            controlId="document-expires-at"
+          >
             <app-date-field
-              [fieldId]="expiresId"
-              [value]="expiresAt() || null"
-              [placeholder]="adminText.documents.editor.datePlaceholder"
-              (valueChange)="expiresAt.set($event ?? '')"
+              [field]="form.expiresAt"
+              [placeholder]="text.datePlaceholder"
             />
-          </div>
+          </app-field>
         </div>
         <p class="text-xs text-ink-subtle">{{ text.datesHint }}</p>
 
@@ -290,7 +316,7 @@ import { Hint } from '../../shared/ui/hint';
     }
   `,
 })
-export class DocumentEditorPage implements UnsavedChangesAware {
+export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   private readonly service = inject(DocumentsService);
   private readonly route = inject(ActivatedRoute);
   protected readonly text = inject(ADMIN_TEXT).documents.editor;
@@ -298,10 +324,6 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly accept = ACCEPTED_DOCUMENT_MIME_TYPES.join(',');
-  protected readonly issuedId = 'document-issued-at';
-  protected readonly expiresId = 'document-expires-at';
-  protected readonly linkId = 'document-link';
-  protected readonly linkMax = DOCUMENT_LINK_MAX_LENGTH;
 
   private readonly idParam = this.route.snapshot.paramMap.get('id');
   protected readonly isNew = this.idParam === null;
@@ -313,13 +335,45 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   protected readonly uploading = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  protected readonly title = signal('');
   protected readonly file = signal<StoredDocumentFile | null>(null);
-  protected readonly link = signal('');
-  protected readonly linkValid = computed(() => isWebLink(this.link().trim()));
   protected readonly products = signal<DocumentProduct[]>([]);
-  protected readonly issuedAt = signal('');
-  protected readonly expiresAt = signal('');
+  private readonly model = signal<DocumentDraft>({
+    title: '',
+    link: '',
+    issuedAt: '',
+    expiresAt: '',
+  });
+  protected readonly form = form(
+    this.model,
+    (document) => {
+      filled(document.title, this.text.titleRequired);
+      // The file and the link are each optional, never both missing.
+      required(document.link, {
+        when: () => !this.file(),
+        message: this.text.fileOrLinkRequired,
+      });
+      maxLength(document.link, DOCUMENT_LINK_MAX_LENGTH);
+      validate(document.link, ({ value }) => {
+        const link = value().trim();
+        return !link || isWebLink(link)
+          ? undefined
+          : { kind: 'link', message: this.text.linkInvalid };
+      });
+      // The server refuses the pair as well, but a date typed the wrong way
+      // round is a slip to answer beside the field rather than a round trip.
+      validate(document.expiresAt, ({ value, valueOf }) => {
+        const issued = valueOf(document.issuedAt);
+        return issued && value() && value() < issued
+          ? { kind: 'expiry', message: this.text.expiryBeforeIssue }
+          : undefined;
+      });
+    },
+    { name: 'document-editor' },
+  );
+  /** Read by every field on the page (FIELD_ATTEMPT). */
+  readonly attempted = computed(() => submitAttempt(this.form)());
+  protected readonly link = computed(() => this.model().link);
+  protected readonly linkValid = computed(() => isWebLink(this.link().trim()));
 
   // JSON snapshot of the form at load, for dirty detection.
   private original = '';
@@ -353,12 +407,14 @@ export class DocumentEditorPage implements UnsavedChangesAware {
     }
     const document = await this.service.get(this.idParam as string);
     if (document) {
-      this.title.set(document.title);
+      this.model.set({
+        title: document.title,
+        link: document.link ?? '',
+        issuedAt: document.issuedAt ?? '',
+        expiresAt: document.expiresAt ?? '',
+      });
       this.file.set(document.file);
-      this.link.set(document.link ?? '');
       this.products.set(document.products);
-      this.issuedAt.set(document.issuedAt ?? '');
-      this.expiresAt.set(document.expiresAt ?? '');
       this.original = this.snapshot();
       this.loaded.set(true);
     }
@@ -366,12 +422,11 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   }
 
   private snapshot(): string {
+    const draft = this.model();
     return JSON.stringify({
-      title: this.title(),
+      ...draft,
+      link: draft.link.trim(),
       file: this.file(),
-      link: this.link().trim(),
-      issuedAt: this.issuedAt(),
-      expiresAt: this.expiresAt(),
       products: this.products().map((p) => p.slug),
     });
   }
@@ -410,31 +465,19 @@ export class DocumentEditorPage implements UnsavedChangesAware {
   }
 
   protected async save(): Promise<void> {
+    submitAttempt(this.form).set(true);
+    if (this.form().invalid()) {
+      this.form().errorSummary()[0]?.fieldTree().focusBoundControl();
+      return;
+    }
     const stored = this.file();
-    if (!this.title().trim()) {
-      this.error.set(this.text.titleRequired);
-      return;
-    }
-    const link = this.link().trim() || null;
-    if (link && !isWebLink(link)) {
-      this.error.set(this.text.linkInvalid);
-      return;
-    }
-    if (!stored && !link) {
-      this.error.set(this.text.fileOrLinkRequired);
-      return;
-    }
-    const issuedAt = this.issuedAt() || null;
-    const expiresAt = this.expiresAt() || null;
-    // The server refuses the pair as well, but a date typed the wrong way round
-    // is a slip to answer beside the field rather than a round trip.
-    if (issuedAt && expiresAt && expiresAt < issuedAt) {
-      this.error.set(this.text.expiryBeforeIssue);
-      return;
-    }
+    const draft = this.model();
+    const link = draft.link.trim() || null;
+    const issuedAt = draft.issuedAt || null;
+    const expiresAt = draft.expiresAt || null;
 
     const body: DocumentInput = {
-      title: this.title().trim(),
+      title: draft.title.trim(),
       file: stored,
       link,
       issuedAt,
