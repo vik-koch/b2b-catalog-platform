@@ -125,16 +125,19 @@ has not loaded.
 
 The inquiry page, eager under this decision, is built on Signal Forms (ADR 0070).
 Signal Forms builds on the reactive forms classes rather than replacing them,
-so the first load now carries both: **+ 38.5 kB raw / 11.6 kB gzip**. That is
-accepted as the price of one form model across the app. The rule this record
-made still holds: no validation runtime is reachable from the first load, and
+so the first load now carries both: **+ 17.1 kB raw / 7.0 kB gzip** of
+JavaScript, 682.0 → 699.1 kB (the build's initial total, styles included,
+810 → 828 kB, under its 850 kB warning). That is accepted as the price of one
+form model across the app. The rule this record made still holds: no
+validation runtime is reachable from the first load, and
 `check-initial-bundle.mjs` still checks it.
 
-The password pages no longer load Zod. Their length check read
-`newPasswordSchema`, so set-password and change-password each pulled in about
-111 kB to compare a string's length. The limits are now
-`PASSWORD_MIN_LENGTH` and `PASSWORD_MAX_LENGTH` in `auth-constants.ts`; the
-schema and the form both read them, as this record's split intends.
+Four lazy pages no longer load Zod. Set-password and change-password checked a
+length with `newPasswordSchema`; the tier and attribute lists checked a key and
+a slug with `tierKeySchema` and `slugSchema`. Each pulled in 100–113 kB gzip to
+test a string. The limits and patterns now live in import-free modules
+(`auth-constants.ts`, `tier-constants.ts`, `slug-constants.ts`); the schemas
+and the forms both read them, as this record's split intends.
 
 Text typed before hydration is lost on the eager page as well, with event
 replay on. Keeping the page eager narrows that window; it does not close it.
