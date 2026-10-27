@@ -1,5 +1,5 @@
 import { computed, Directive, input } from '@angular/core';
-import { pencilIcon } from './icons/glyphs/pencil';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
 // See Button for the cursor, focus-outline and select-none reasoning.
 const base = `inline-flex cursor-pointer items-center justify-center

@@ -24,7 +24,7 @@ import { CartAddResult, CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { Button, BUTTON_SIZES } from '../ui/button';
-import { Icon } from '../ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../ui/input';
 import { NumericField } from '../ui/numeric-field';
 import { Popover } from '../ui/popover';
@@ -37,9 +37,9 @@ import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
 import { WarningNote } from '../ui/warning-note';
 import { FirstRender } from '../core/first-render';
-import { minusIcon } from '../ui/icons/glyphs/minus';
-import { plusIcon } from '../ui/icons/glyphs/plus';
-import { shoppingBasketIcon } from '../ui/icons/glyphs/shopping-basket';
+import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;

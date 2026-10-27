@@ -26,7 +26,7 @@ import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Link } from '../../shared/ui/link';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
@@ -46,9 +46,9 @@ import {
   documentLinkHost,
 } from '../../shared/core/document-file';
 import { ErrorText } from '../../shared/ui/error-text';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document

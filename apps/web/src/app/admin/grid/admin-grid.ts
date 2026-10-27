@@ -22,7 +22,7 @@ import {
 } from '../../shared/core/narrow-screen';
 import { IconButton } from '../../shared/ui/icon-button';
 import { TextButton } from '../../shared/ui/text-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import {
   columnMinWidth,
   flexibleColumns,
@@ -39,7 +39,7 @@ import { GridSortHeader } from './grid-sort-header';
 import { GridCardTemplate } from './grid-card-template';
 import { GridRowTemplate } from './grid-row-template';
 import { GridWidths, GridWidthsStore } from './grid-widths';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** How far one press of an arrow key moves a column boundary. Coarse enough to
  * be worth pressing, fine enough to land on a width. */

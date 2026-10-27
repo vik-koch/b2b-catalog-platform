@@ -27,7 +27,7 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -46,12 +46,12 @@ import {
 } from './category-tree';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,

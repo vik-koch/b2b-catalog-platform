@@ -10,12 +10,12 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPhone } from '../../shared/core/contact-fields';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { adminMomentFormat } from '../grid/admin-date';
 import { RecordRow } from '../records/record-row';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 
 /**
  * Consent records as evidence reads them (NFR-LEGAL-09): what was consented

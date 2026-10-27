@@ -18,10 +18,10 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { anyStatus } from '../../shared/catalog/product-status-line';
 import { ProductTile } from '../../shared/catalog/product-tile';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { FeaturedRowService } from './featured-row.service';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
  * One card width at every window width: a listing's column, 15rem, which is

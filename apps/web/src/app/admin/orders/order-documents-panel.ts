@@ -28,14 +28,14 @@ import {
   ConfirmService,
   confirmRequest,
 } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { adminDayFormat } from '../grid/admin-date';
 import { AdminOrdersService } from './orders.service';
 import { ErrorText } from '../../shared/ui/error-text';
-import { externalLinkIcon } from '../../shared/ui/icons/glyphs/external-link';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
-import { sendIcon } from '../../shared/ui/icons/glyphs/send';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /** One line of the list: a document that exists, or a kind that could. */
 interface DocumentRow {

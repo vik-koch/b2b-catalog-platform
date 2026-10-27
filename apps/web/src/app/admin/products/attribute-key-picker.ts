@@ -16,11 +16,11 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
 import { HintBadge } from '../../shared/ui/hint-badge';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AttributeHint } from './attribute-hints';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /**
  * "Add attributes" — the names the catalog already uses, in a dialog opened

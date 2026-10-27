@@ -24,7 +24,7 @@ import { SHARED_TEXT } from '../config/shared-text';
 import { trustedRichText } from '../core/trusted-rich-text';
 import { disclosureState } from '../ui/disclosure-state';
 import { ShowMoreToggle } from '../ui/show-more-toggle';
-import { Icon } from '../ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../ui/link';
 import { TextButton } from '../ui/text-button';
 import { ProductBuyBlock } from './product-buy-block';
@@ -32,7 +32,7 @@ import { ProductDocuments } from './product-documents';
 import { ProductVariantGallery } from './product-variant-gallery';
 import { ProductVariantList } from './product-variant-list';
 import { useProductUnits } from './product-units-view';
-import { chevronRightIcon } from '../ui/icons/glyphs/chevron-right';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
  * The product page's grid — one band of three columns at the top, and the two

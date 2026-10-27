@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { Icon } from './icons/icon';
-import { triangleAlertIcon } from './icons/glyphs/triangle-alert';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 
 /**
  * A remark the reader should weigh before going on, and that refuses nothing:

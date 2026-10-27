@@ -5,14 +5,14 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
-import { imagePlusIcon } from '../../shared/ui/icons/glyphs/image-plus';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,

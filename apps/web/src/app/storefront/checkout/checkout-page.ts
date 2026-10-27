@@ -37,7 +37,7 @@ import { Checkbox } from '../../shared/ui/checkbox';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { EmptyState } from '../../shared/ui/empty-state';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AddressPicker } from './address-picker';
 import {
@@ -64,11 +64,11 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleUserRoundIcon } from '../../shared/ui/icons/glyphs/circle-user-round';
-import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
-import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods

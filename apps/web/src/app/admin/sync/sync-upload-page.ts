@@ -19,7 +19,7 @@ import { ChoiceCard } from '../../shared/ui/choice-card';
 import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { SyncPlanView } from './sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
@@ -27,7 +27,7 @@ import { SyncService } from './sync.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /**
  * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file

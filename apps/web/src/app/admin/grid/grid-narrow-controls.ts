@@ -9,7 +9,7 @@ import {
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { SelectField } from '../../shared/ui/select-field';
 import { GridClearFilters } from './grid-clear-filters';
@@ -24,7 +24,7 @@ import {
   sortableColumns,
 } from './grid-column';
 import { DEFAULT_ADMIN_SORT, gridParam, injectGridNav } from './grid-query';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** One line of the sort picker: a column in one direction. */
 interface SortOption {

@@ -15,7 +15,7 @@ import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
 import { HintBadge } from '../../shared/ui/hint-badge';
@@ -28,13 +28,13 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
-import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =

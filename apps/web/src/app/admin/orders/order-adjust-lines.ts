@@ -21,15 +21,15 @@ import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { PriceField } from '../../shared/ui/price-field';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
-import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
-import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;

@@ -13,14 +13,14 @@ import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
 import { EmptyState } from '../../shared/ui/empty-state';
 import { Skeleton } from '../../shared/ui/skeleton';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * The account's own order requests (FR-ACC-01), newest first — the whole

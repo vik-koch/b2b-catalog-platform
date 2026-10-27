@@ -5,8 +5,8 @@ import {
   disclosureBorder,
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Glyph } from '../../shared/ui/icons/glyph';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 
 /** `aria-controls` must name one panel, and a page holds several. */
 let nextId = 0;

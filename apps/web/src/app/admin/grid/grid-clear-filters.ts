@@ -2,9 +2,9 @@ import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
-import { funnelXIcon } from '../../shared/ui/icons/glyphs/funnel-x';
+import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
 
 /**
  * One way back to the whole list, wherever a grid puts it: beside the search

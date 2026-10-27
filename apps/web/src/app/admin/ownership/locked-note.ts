@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { Icon } from '../../shared/ui/icons/icon';
-import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 
 /**
  * Why something on this screen cannot be changed here — an area handed to an

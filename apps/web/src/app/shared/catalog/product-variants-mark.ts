@@ -19,11 +19,11 @@ import { injectNarrowScreen } from '../core/narrow-screen';
 import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
 import { DialogPanel } from '../ui/dialog-panel';
-import { Icon } from '../ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LINK_BASE, LINK_TONES } from '../ui/link';
 import { Popover } from '../ui/popover';
 import { ProductVariantGallery } from './product-variant-gallery';
-import { paletteIcon } from '../ui/icons/glyphs/palette';
+import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 
 /**
  * Says a product comes in variants, where its picture is too small to label

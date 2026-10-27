@@ -2,13 +2,13 @@ import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
 import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * What can be done to one account from the list, drawn once for both shapes it

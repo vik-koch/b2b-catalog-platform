@@ -15,7 +15,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminGrid } from '../grid/admin-grid';
@@ -29,7 +29,7 @@ import { AdminListHeader } from '../list-header';
 import { RecordRow } from '../records/record-row';
 import { SyncService } from './sync.service';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /**
  * One area's runs, newest first (FR-ADM-09) — the screen

@@ -1,5 +1,5 @@
 import { GridFilterOption } from './grid-filter-select';
-import { Glyph } from '../../shared/ui/icons/glyph';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 
 /** How a column is ordered: the key each direction writes to `sort`. */
 export interface GridSort {

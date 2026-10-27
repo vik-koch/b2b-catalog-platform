@@ -3,12 +3,12 @@ import { Params, RouterLink } from '@angular/router';
 import { allowedTransitions } from '@b2b-catalog-platform/shared';
 import { TransitionTarget } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { StaffOrderSummary } from './orders.service';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
 /**
  * What can be done to one order from the list, drawn once for both shapes it

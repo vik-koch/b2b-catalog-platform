@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
-import { Icon } from './icons/icon';
-import { Glyph } from './icons/glyph';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 
 /**
  * The panel a screen draws when there is nothing on it — an empty cart, an

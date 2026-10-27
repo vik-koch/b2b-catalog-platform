@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { GridToggleGroup, GridToggleOption } from './grid-column';
 import { injectGridNav } from './grid-query';
 

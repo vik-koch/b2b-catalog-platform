@@ -34,13 +34,13 @@ import {
 } from '../../shared/ui/disclosure-toggle';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { ErrorText } from '../../shared/ui/error-text';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { imageIcon } from '../../shared/ui/icons/glyphs/image';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;

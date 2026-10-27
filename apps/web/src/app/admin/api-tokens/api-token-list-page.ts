@@ -17,7 +17,7 @@ import { filled } from '../../shared/core/field-rules';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -32,12 +32,12 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
 import { Notice } from '../../shared/ui/notice';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
-import { copyIcon } from '../../shared/ui/icons/glyphs/copy';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is

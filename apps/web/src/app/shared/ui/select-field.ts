@@ -1,6 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from './icons/icon';
-import { chevronDownIcon } from './icons/glyphs/chevron-down';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 
 const chevrons = {
   md: 'right-2.5 h-4 w-4',

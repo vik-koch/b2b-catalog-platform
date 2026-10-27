@@ -18,7 +18,7 @@ import { ChoiceCard } from '../../shared/ui/choice-card';
 import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { SettingsService } from '../settings/settings.service';
 import {
@@ -31,7 +31,7 @@ import { SyncService } from './sync.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /**
  * A manual customer import (FR-ADM-12) at `/admin/sync/customers/new`: pick

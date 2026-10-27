@@ -6,8 +6,8 @@ import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { Icon } from '../../shared/ui/icons/icon';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 
 /**
  * What a customer can open on their order (FR-ORD-05, FR-ACC-02).

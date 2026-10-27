@@ -15,14 +15,14 @@ import { SettingsService } from '../settings/settings.service';
 import { Button } from '../../shared/ui/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';
 import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { ErrorText } from '../../shared/ui/error-text';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every

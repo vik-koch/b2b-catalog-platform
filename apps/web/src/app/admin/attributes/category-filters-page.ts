@@ -25,7 +25,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { ConfirmService } from '../../shared/ui/confirm.service';
@@ -36,9 +36,9 @@ import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';

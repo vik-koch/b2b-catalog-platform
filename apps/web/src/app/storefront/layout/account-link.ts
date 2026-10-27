@@ -5,12 +5,12 @@ import { AuthService } from '../../shared/auth/auth.service';
 import { landingFor } from '../../shared/auth/auth.guard';
 import { currentUrl } from '../../shared/core/current-url';
 import { navActionClasses, NavVariant } from './nav-action';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { WorkService } from '../../shared/work/work.service';
-import { circleUserRoundDotIcon } from '../../shared/ui/icons/glyphs/circle-user-round-dot';
-import { circleUserRoundIcon } from '../../shared/ui/icons/glyphs/circle-user-round';
-import { userIcon } from '../../shared/ui/icons/glyphs/user';
+import { circleUserRoundDotIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round-dot';
+import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
+import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 
 /**
  * The account control in the main navbar — one control for every role, and a

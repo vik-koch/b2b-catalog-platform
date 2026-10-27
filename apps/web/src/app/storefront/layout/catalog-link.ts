@@ -3,8 +3,8 @@ import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { currentUrl } from '../../shared/core/current-url';
 import { navActionClasses, NavVariant } from './nav-action';
-import { Icon } from '../../shared/ui/icons/icon';
-import { storeIcon } from '../../shared/ui/icons/glyphs/store';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { storeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/store';
 
 /** Routes that count as "browsing the catalogue" for the navbar's active state. */
 const CATALOG_ROUTES = ['/catalog', '/product', '/search'];

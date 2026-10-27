@@ -32,7 +32,7 @@ import {
   confirmRequest,
   ConfirmService,
 } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -64,7 +64,7 @@ import {
   PRODUCT_FEATURE_GLYPHS,
   ProductFeatureGlyphs,
 } from './product-feature-glyphs';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /** Marks the category filter's "without subcategories" option. A category id
  * is a uuid, so it can never end this way on its own. */

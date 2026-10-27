@@ -78,7 +78,7 @@ import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { NumericField } from '../../shared/ui/numeric-field';
@@ -116,11 +116,11 @@ import {
 } from '../../shared/ui/unit-field';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { eyeIcon } from '../../shared/ui/icons/glyphs/eye';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 interface ProductDraft {
   name: string;

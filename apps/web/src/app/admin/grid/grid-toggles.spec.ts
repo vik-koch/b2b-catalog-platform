@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter, Router } from '@angular/router';
 import { GridToggleGroup } from './grid-column';
 import { GridToggles } from './grid-toggles';
-import { imageIcon } from '../../shared/ui/icons/glyphs/image';
+import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
 
 @Component({
   imports: [GridToggles],

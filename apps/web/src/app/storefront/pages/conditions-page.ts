@@ -17,14 +17,14 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { TextButton } from '../../shared/ui/text-button';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from '../../shared/pages/page.service';
 import { PageTitle } from '../../shared/ui/page-title';
-import { banknoteIcon } from '../../shared/ui/icons/glyphs/banknote';
-import { landmarkIcon } from '../../shared/ui/icons/glyphs/landmark';
-import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
+import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
+import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
+import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an

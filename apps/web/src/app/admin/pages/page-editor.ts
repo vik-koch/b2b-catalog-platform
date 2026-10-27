@@ -24,7 +24,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '../../shared/ui/button';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
@@ -35,10 +35,10 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { eyeIcon } from '../../shared/ui/icons/glyphs/eye';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * The editing surface for a static page: title, body and a preview that renders

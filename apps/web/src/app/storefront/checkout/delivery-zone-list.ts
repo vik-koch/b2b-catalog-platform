@@ -4,8 +4,8 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { mapIcon } from '../../shared/ui/icons/glyphs/map';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
 
 /**
  * How wide a card is in a row of `n`, on a twelve-column grid. Written out so

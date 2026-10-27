@@ -7,9 +7,9 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { navActionClasses, NavVariant } from './nav-action';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 
 /**
  * The cart control in the main navbar (FR-CART-01): a link to `/cart` carrying

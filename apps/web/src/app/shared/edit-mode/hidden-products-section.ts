@@ -19,14 +19,14 @@ import { PRODUCT_GRID } from '../catalog/product-tile';
 import { ADMIN_TEXT } from '../config/admin-text';
 import { Button } from '../ui/button';
 import { ConfirmService } from '../ui/confirm.service';
-import { Icon } from '../ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '../ui/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';
 import { ErrorText } from '../ui/error-text';
-import { bookCheckIcon } from '../ui/icons/glyphs/book-check';
-import { pencilIcon } from '../ui/icons/glyphs/pencil';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category

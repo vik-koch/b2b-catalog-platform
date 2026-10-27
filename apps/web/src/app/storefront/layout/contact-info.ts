@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Icon } from '../../shared/ui/icons/icon';
-import { mailIcon } from '../../shared/ui/icons/glyphs/mail';
-import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { mailIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mail';
+import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
 
 /** tel: needs dial characters only; the displayed value keeps its spacing. */
 export function telHref(phone: string): string {

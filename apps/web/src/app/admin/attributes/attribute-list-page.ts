@@ -28,7 +28,7 @@ import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '../../shared/ui/link';
 import { Input } from '../../shared/ui/input';
 import { filled } from '../../shared/core/field-rules';
@@ -48,12 +48,12 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
 import { PageIntro } from '../../shared/ui/page-intro';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** The row currently in edit mode: a definition's id, or the new-attribute form. */
 type EditTarget = { id: string } | { id: null } | null;

@@ -5,7 +5,7 @@ import { Glyph } from './glyph';
  * Draws one glyph (see `glyph.ts`). The component holds no glyphs itself, so
  * any chunk may use it: what a page downloads is the glyphs it imports.
  *
- *   import { searchIcon } from '…/icons/glyphs/search';
+ *   import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
  *   protected readonly searchIcon = searchIcon;
  *   <app-icon [glyph]="searchIcon" class="size-5" />
  *

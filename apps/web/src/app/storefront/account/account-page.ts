@@ -24,19 +24,19 @@ import {
   ConfirmService,
 } from '../../shared/ui/confirm.service';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { WorkNote } from '../../shared/work/work-note';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
-import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { userIcon } from '../../shared/ui/icons/glyphs/user';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a

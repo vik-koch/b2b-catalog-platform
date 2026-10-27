@@ -16,13 +16,13 @@ import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';
 import { DialogPanel } from '../ui/dialog-panel';
 import { FieldLabel } from '../ui/field-label';
-import { Icon } from '../ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../ui/icon-button';
 import { Input } from '../ui/input';
 import { Popover } from '../ui/popover';
 import { SHARED_TEXT } from '../config/shared-text';
-import { messageCircleCheckIcon } from '../ui/icons/glyphs/message-circle-check';
-import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
+import { messageCircleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-check';
+import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-plus';
 
 /**
  * The line note's button and its field (FR-CART-08) — a bubble on a pointer, a

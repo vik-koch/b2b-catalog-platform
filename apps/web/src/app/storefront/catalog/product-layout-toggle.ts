@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import {
   SEGMENTED_GROUP_NEUTRAL,
   segmentClass,
 } from '../../shared/ui/segmented';
 import { ProductLayout, ProductLayoutService } from './product-layout';
-import { layoutGridIcon } from '../../shared/ui/icons/glyphs/layout-grid';
-import { layoutListIcon } from '../../shared/ui/icons/glyphs/layout-list';
+import { layoutGridIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-grid';
+import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-list';
 
 /**
  * Cards or lines (FR-CAT-06), on the quiet pill the sort beside it uses: both

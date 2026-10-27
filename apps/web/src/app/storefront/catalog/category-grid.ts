@@ -44,7 +44,7 @@ import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { disclosureState } from '../../shared/ui/disclosure-state';
 import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { CategoryChip } from './category-chip';
@@ -67,7 +67,7 @@ import {
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from '../../shared/catalog/product-tile';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
  * What the collapsed chip list clips to, in px: four `h-16` chip rows, the

@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
-import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
+import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 
 /**
  * Back to the top of the page, closing the footer's action row — which is

@@ -18,11 +18,11 @@ import {
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
 import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
-import { funnelXIcon } from '../../shared/ui/icons/glyphs/funnel-x';
+import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;

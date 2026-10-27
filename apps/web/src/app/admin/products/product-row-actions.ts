@@ -2,16 +2,16 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { bookCheckIcon } from '../../shared/ui/icons/glyphs/book-check';
-import { bookDashedIcon } from '../../shared/ui/icons/glyphs/book-dashed';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { bookDashedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-dashed';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {

@@ -22,7 +22,7 @@ import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { DateField } from '../../shared/ui/date-field';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
@@ -39,12 +39,12 @@ import { DocumentsService } from './documents.service';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Hint } from '../../shared/ui/hint';
-import { externalLinkIcon } from '../../shared/ui/icons/glyphs/external-link';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 interface DocumentDraft {
   title: string;

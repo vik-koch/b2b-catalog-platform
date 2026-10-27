@@ -9,9 +9,9 @@ import {
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { FieldBinding } from './field-binding';
 import { injectCoarsePointer } from '../core/coarse-pointer';
-import { Icon } from './icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from './input';
-import { calendarIcon } from './icons/glyphs/calendar';
+import { calendarIcon } from '@b2b-catalog-platform/ui/icons/glyphs/calendar';
 
 /*
  * The day/month/year segments a date is typed into, which only the WebKit

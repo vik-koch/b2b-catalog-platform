@@ -31,7 +31,7 @@ import { CompanyFields } from '../../shared/parties/company-fields';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { PhoneInput } from '../../shared/ui/phone-input';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
@@ -45,11 +45,11 @@ import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { Glyph } from '../../shared/ui/icons/glyph';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { sendIcon } from '../../shared/ui/icons/glyphs/send';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 interface UserDraft {
   email: string;

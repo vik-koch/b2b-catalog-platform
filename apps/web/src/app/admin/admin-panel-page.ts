@@ -12,7 +12,7 @@ import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { SHARED_TEXT } from '../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
-import { Icon } from '../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '../shared/ui/status-badge';
 import { WorkNote } from '../shared/work/work-note';
 import { WorkService } from '../shared/work/work.service';
@@ -23,14 +23,14 @@ import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';
 import { PageTitle } from '../shared/ui/page-title';
-import { bookCheckIcon } from '../shared/ui/icons/glyphs/book-check';
-import { clipboardListIcon } from '../shared/ui/icons/glyphs/clipboard-list';
-import { fileTextIcon } from '../shared/ui/icons/glyphs/file-text';
-import { funnelIcon } from '../shared/ui/icons/glyphs/funnel';
-import { lockIcon } from '../shared/ui/icons/glyphs/lock';
-import { packageIcon } from '../shared/ui/icons/glyphs/package';
-import { usersIcon } from '../shared/ui/icons/glyphs/users';
-import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { clipboardListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/clipboard-list';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
+import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
+import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and

@@ -21,7 +21,7 @@ import { Skeleton } from '../../shared/ui/skeleton';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../shared/ui/button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
@@ -38,8 +38,8 @@ import { CategoryPicker } from './category-picker';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 interface CategoryDraft {
   name: string;

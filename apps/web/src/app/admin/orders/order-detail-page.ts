@@ -57,7 +57,7 @@ import {
   disclosureBorder,
   DisclosureToggle,
 } from '../../shared/ui/disclosure-toggle';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { LockedNote } from '../ownership/locked-note';
@@ -69,14 +69,14 @@ import { AdminOrdersService } from './orders.service';
 import { revisionKindLabel } from './revision-labels';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { arrowLeftIcon } from '../../shared/ui/icons/glyphs/arrow-left';
-import { arrowRightIcon } from '../../shared/ui/icons/glyphs/arrow-right';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { sendIcon } from '../../shared/ui/icons/glyphs/send';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
+import { arrowRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-right';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * One order as staff read it (FR-AUTH-03) — the customer's own page plus what

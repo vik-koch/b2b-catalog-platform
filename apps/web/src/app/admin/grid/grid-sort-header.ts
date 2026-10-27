@@ -1,8 +1,8 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { gridParam, DEFAULT_ADMIN_SORT, injectGridNav } from './grid-query';
-import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
-import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 
 /**
  * A sortable column heading for an admin grid (FR-ADM-05) — the ordering control

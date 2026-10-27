@@ -31,7 +31,7 @@ import {
   ConfirmService,
   confirmRequest,
 } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge } from '../../shared/ui/status-badge';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -41,10 +41,10 @@ import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
-import { arrowLeftIcon } from '../../shared/ui/icons/glyphs/arrow-left';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {

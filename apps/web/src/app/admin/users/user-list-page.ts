@@ -26,7 +26,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AdminGrid } from '../grid/admin-grid';
 import { GridColumn } from '../grid/grid-column';
@@ -44,7 +44,7 @@ import { StatusBadge } from '../../shared/ui/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
 import { ErrorText } from '../../shared/ui/error-text';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the

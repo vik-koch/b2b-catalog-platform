@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, formatPartList } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { Icon } from '../ui/icons/icon';
-import { layers2Icon } from '../ui/icons/glyphs/layers-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
 
 /**
  * Says a product is sold as a set of parts (FR-CAT-10) — one piece is a cup

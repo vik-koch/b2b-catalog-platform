@@ -11,9 +11,9 @@ import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
 import { debounced } from '../../shared/core/debounced';
 import { Input } from '../../shared/ui/input';
 import { injectGridNav } from './grid-query';
-import { Icon } from '../../shared/ui/icons/icon';
-import { searchIcon } from '../../shared/ui/icons/glyphs/search';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Long enough that a fast typist produces one request per word rather than one
  * per letter, short enough that a pause feels answered immediately. The same

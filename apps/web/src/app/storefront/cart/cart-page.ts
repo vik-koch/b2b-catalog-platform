@@ -34,7 +34,7 @@ import {
   ConfirmService,
 } from '../../shared/ui/confirm.service';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
@@ -42,9 +42,9 @@ import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
 import { WarningNote } from '../../shared/ui/warning-note';
 import { Notice } from '../../shared/ui/notice';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * How many lines a page of the cart holds (FR-CART-02). A cart row is a

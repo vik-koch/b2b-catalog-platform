@@ -26,6 +26,11 @@ import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 There is no `index.ts`, and lint refuses a path that names the library or a group: chunks are cut
 by module, so a barrel would carry everything behind it into the first load.
 
+<!-- prettier-ignore -->
+| Folder | Holds |
+| --- | --- |
+| `icons/` | `Icon`, the `Glyph` type and one module per glyph |
+
 ## Checking
 
 `npx nx test ui` runs the specs through the web app's development build (the library has no build

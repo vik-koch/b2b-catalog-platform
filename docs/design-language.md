@@ -173,7 +173,7 @@ lists them with what each one colours.
 ## Icons
 
 Glyphs are [Lucide](https://lucide.dev)'s (ISC), owned as data: one constant per glyph in
-[icons/glyphs/](../apps/web/src/app/shared/ui/icons/glyphs/), drawn by one `Icon` component
+[icons/glyphs/](../libs/ui/src/icons/glyphs/), drawn by one `Icon` component
 ([ADR 0008](adr/0008-tailwind-owned-primitives-runtime-theming.md)).
 
 - **One stroke weight**, 1.75 on Lucide's 24-unit grid, the same on both sides of the app. Emphasis

@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { triangleAlertIcon } from './icons/glyphs/triangle-alert';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
 
 /** How much attention the badge asks for. */
 export type HintBadgeTone = 'neutral' | 'notice' | 'warning';

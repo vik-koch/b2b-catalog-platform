@@ -1,6 +1,6 @@
 import { Component, input, output } from '@angular/core';
-import { Icon } from './icons/icon';
-import { chevronDownIcon } from './icons/glyphs/chevron-down';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 
 /**
  * The edge of the box a disclosure lives in, as its four hosts draw it — the

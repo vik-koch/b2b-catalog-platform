@@ -43,13 +43,13 @@ import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
 import { FRAME } from '../../shared/ui/frame';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { WarningNote } from '../../shared/ui/warning-note';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { searchIcon } from '../../shared/ui/icons/glyphs/search';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Long enough that a fast typist produces one request per word rather than
  * one per letter, short enough that a pause feels answered immediately. */

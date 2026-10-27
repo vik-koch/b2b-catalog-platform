@@ -7,10 +7,10 @@ import {
   documentFileSize,
   documentLinkHost,
 } from '../core/document-file';
-import { Icon } from '../ui/icons/icon';
-import { Glyph } from '../ui/icons/glyph';
-import { externalLinkIcon } from '../ui/icons/glyphs/external-link';
-import { fileTextIcon } from '../ui/icons/glyphs/file-text';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 
 /** One row as the template draws it: where the title leads, and — for a
  * document with both a file and a link — the link as a second way in. */

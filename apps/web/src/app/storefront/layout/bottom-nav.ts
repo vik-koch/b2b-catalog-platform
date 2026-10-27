@@ -12,7 +12,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currentUrl } from '../../shared/core/current-url';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AccountLink } from './account-link';
 import { CartLink } from './cart-link';
 import { CatalogLink } from './catalog-link';
@@ -20,11 +20,11 @@ import { telHref } from './contact-info';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
 import { navActionClasses, TAB_CURRENT } from './nav-action';
-import { mailIcon } from '../../shared/ui/icons/glyphs/mail';
-import { menuIcon } from '../../shared/ui/icons/glyphs/menu';
-import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
-import { searchIcon } from '../../shared/ui/icons/glyphs/search';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { mailIcon } from '@b2b-catalog-platform/ui/icons/glyphs/mail';
+import { menuIcon } from '@b2b-catalog-platform/ui/icons/glyphs/menu';
+import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
+import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Must match the exit animation in styles.css. */
 const LEAVE_MS = 150;

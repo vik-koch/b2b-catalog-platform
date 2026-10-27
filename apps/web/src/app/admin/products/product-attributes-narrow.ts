@@ -24,7 +24,7 @@ import { Button } from '../../shared/ui/button';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { HintBadge } from '../../shared/ui/hint-badge';
 import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { RecordFields } from '../records/record-fields';
 import { RecordFormActions } from '../records/record-form-actions';
@@ -35,14 +35,14 @@ import {
   attributeRowStatus,
 } from './attribute-hints';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * The product's attributes on a phone (FR-CAT-05).
