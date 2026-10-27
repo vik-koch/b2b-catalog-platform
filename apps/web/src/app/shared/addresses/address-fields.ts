@@ -152,9 +152,9 @@ let nextId = 0;
             [label]="text.postalCode"
             [controlId]="id('postalCode')"
           >
-            <!-- Two fields, one drawn at a time: the mask is a
-                 ControlValueAccessor, and an empty mask means "digits only,
-                 no limit", which would quietly strip the letters out of a
+            <!-- Two fields, one drawn at a time: the mask is a control of
+                 its own, and an empty mask means "digits only, no limit",
+                 which would quietly strip the letters out of a
                  code in a country whose codes carry them. So a deployment
                  that configured a digit mask gets a field that enforces it,
                  and everyone else gets a field that takes what is typed. -->

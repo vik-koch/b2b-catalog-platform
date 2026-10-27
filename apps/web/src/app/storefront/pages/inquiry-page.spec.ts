@@ -142,7 +142,7 @@ describe('InquiryPage', () => {
   it('rejects an address the server would reject (shared Zod email rule)', async () => {
     const { el, submit, sync } = await render();
 
-    // Passes Angular's built-in Validators.email but fails the contract's
+    // Passes Angular's built-in email rule but fails the contract's
     // emailSchema (no TLD) — the drift the shared validator closes.
     setInput(el, '#name', 'Jane Doe');
     setInput(el, '#email', 'jane@example');

@@ -12,8 +12,8 @@ const emptyToUndefined = (value: unknown): unknown =>
 /**
  * Per-field schemas. The browser checks the same rules without them: the
  * email pattern and the limits live in import-free modules, so the form
- * loads no Zod, and Angular's `Validators.email` (which accepts `a@b`) is
- * not used.
+ * loads no Zod, and Angular's own `email` rule (which accepts `a@b`) is not
+ * used.
  */
 export const nameSchema = z.string().trim().min(1).max(200);
 export const emailSchema = z.preprocess(

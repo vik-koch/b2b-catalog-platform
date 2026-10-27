@@ -33,6 +33,9 @@ let nextId = 0;
  *    it is edited: "j" is an unfinished address, not a wrong one, however
  *    often the visitor starts over.
  *
+ * After the first submit, every error shows as it stands, while typing too:
+ * the visitor is now fixing what was refused.
+ *
  *   <app-field [field]="form.name" [label]="text.name">
  *     <input appInput class="w-full" [formField]="form.name" />
  *   </app-field>

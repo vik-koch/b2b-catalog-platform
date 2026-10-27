@@ -64,8 +64,9 @@ input, so the shell's label names the element that is typed in.
 **When a message shows is the shell's rule**, the same on every form. A valid
 field shows none. A missing required value waits for the first submit. Any
 other error shows once the field is left, and hides while it is being edited.
-A refused save focuses the first field that stopped it. The line at the foot of
-a form is left for what names no field: the server's refusal.
+After the first submit, every error shows as it stands. A refused save focuses
+the first field that stopped it. The line at the foot of a form is left for
+what names no field: the server's refusal.
 
 **Some inputs are not fields, and say their errors their own way.** The list
 builders (a product's parts and variants) are a list and an add box: their
@@ -73,7 +74,9 @@ rules block the save, and their message stays in their own box. The packaging
 table rewrites neighbouring cells as one is typed in, so it keeps its own
 inputs and shows its rule on one line under the table, with `aria-invalid` on
 the rows it names. A confirmation dialog's reason is a gate on its button, not
-a form. The attribute rename and the category filters check nothing.
+a form. The rich-text editor (a page's body, a product's description) is
+read once and reports each edit; nothing in it is checked. The attribute
+rename and the category filters check nothing.
 
 ## Rationale
 
@@ -102,8 +105,7 @@ a form. The attribute rename and the category filters check nothing.
 ## Consequences
 
 - (+) Requiredness, the ARIA wiring and error visibility are each decided in
-  one place, for both sides of the app, and no form code imports
-  `@angular/forms`.
+  one place, for both sides of the app, and no form uses reactive forms.
 - (+) A form's rules read as a list, and conditional ones are a `when` or a
   `hidden`, not a subscription.
 - (+) Migrated pages mostly got smaller: checkout −5.3 kB gzip, order adjust

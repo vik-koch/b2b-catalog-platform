@@ -123,3 +123,12 @@ pointing at the catalogue should not name the deployment's domain, which
 differs between dev and prod. A protocol-relative `//host` stays refused, so a
 scheme-less link can only ever stay on the site. The storefront sends a click
 on a root-relative link through the router rather than reloading the app.
+
+## Amendment — 2026-10-27 (v1.15.2): the editor is not a form control
+
+The editor was built as a plain component, not the `ControlValueAccessor`
+the decision names. It takes its starting HTML as `value`, read once when the
+editor is created, and reports each edit through `contentChange`; the page
+holds the body in a signal. Nothing in a body is
+checked in the browser, so binding it into a form would add a control with no
+rules (ADR 0070).

@@ -8,7 +8,7 @@
  * pattern it can test itself. So the pattern is the shared thing, and the
  * schema is built from it (see `contact-format.ts`).
  *
- * Deliberately stricter than Angular's `Validators.email`, which accepts `a@b`:
+ * Deliberately stricter than Angular's own `email` rule, which accepts `a@b`:
  * a real address has a dotted domain, and an address with no TLD is a typo we
  * would rather catch in the form than bounce a day later.
  */
