@@ -13,12 +13,13 @@ import {
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
 import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { CodeInput } from '../../shared/ui/code-input';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { SubmitAttempt } from '../../shared/ui/submit-attempt';
-import { TextButton } from '../../shared/ui/text-button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { CodeInput } from '@b2b-catalog-platform/ui/inputs/code-input';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { SubmitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */
@@ -44,7 +45,7 @@ function around(line: string, placeholder: string): [string, string] {
  */
 @Component({
   selector: 'app-code-entry',
-  imports: [FORM_FIELDS, Button, Checkbox, CodeInput, TextButton],
+  imports: [FORM_FIELDS, Button, Checkbox, TickLabel, CodeInput, TextButton],
   host: { class: 'block' },
   template: `
     <!-- Each masked value is one unit: a number broken across two lines no
@@ -67,11 +68,10 @@ function around(line: string, placeholder: string): [string, string] {
            box after them would be passed before anyone reached it. -->
       @if (rememberDays() > 0) {
         <div>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label uiTickLabel>
             <input
-              appCheckbox
+              uiCheckbox
               type="checkbox"
-              class="mt-0.5"
               [formField]="form.remember"
               aria-describedby="rememberBrowserHint"
             />
@@ -83,7 +83,7 @@ function around(line: string, placeholder: string): [string, string] {
         </div>
       }
 
-      <app-field
+      <ui-field
         [field]="form.code"
         [label]="text.code"
         [marker]="false"
@@ -91,11 +91,11 @@ function around(line: string, placeholder: string): [string, string] {
         [describedBy]="inputId + '-message'"
       >
         <!-- Six digits send themselves, the way pressing Enter would. -->
-        <app-code-input
+        <ui-code-input
           [field]="form.code"
           (completed)="formElement.requestSubmit()"
         />
-      </app-field>
+      </ui-field>
 
       <p
         [id]="inputId + '-message'"
@@ -114,7 +114,7 @@ function around(line: string, placeholder: string): [string, string] {
            change the button's width. -->
       <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <button
-          appButton
+          uiButton
           type="submit"
           [disabled]="busy()"
           [attr.aria-busy]="busy() || null"
@@ -124,7 +124,7 @@ function around(line: string, placeholder: string): [string, string] {
         <!-- Counted in figures of one width, so it does not jitter. -->
         <button
           type="button"
-          appTextButton
+          uiTextButton
           class="text-sm tabular-nums"
           [disabled]="busy() || waitLeft() > 0"
           (click)="resend()"

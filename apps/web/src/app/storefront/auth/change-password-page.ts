@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { ChangePasswordForm } from './change-password-form';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 
 /**
  * Home for the change-password form, reachable by every signed-in role.
@@ -12,7 +12,7 @@ import { PageTitle } from '../../shared/ui/page-title';
   imports: [ChangePasswordForm, PageTitle],
   template: `
     <div class="max-w-xl">
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ text.heading }}
       </h1>
       <app-change-password-form />

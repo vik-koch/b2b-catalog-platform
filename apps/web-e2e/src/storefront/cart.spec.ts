@@ -235,7 +235,7 @@ test('writes a note from a listing card, beside the price', async ({
   // by its own button rather than by leaving the field.
   const panel = isMobile
     ? page.getByRole('dialog')
-    : page.locator('app-popover');
+    : page.locator('ui-popover');
   const field = panel.getByRole('textbox');
   await expect(field).toHaveAttribute(
     'placeholder',

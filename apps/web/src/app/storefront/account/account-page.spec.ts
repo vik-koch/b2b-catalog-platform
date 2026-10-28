@@ -16,7 +16,7 @@ import { plainUser } from '../../shared/auth/auth-user.fixture';
 import { AccountPage } from './account-page';
 import { AddressesService } from '../../shared/addresses/addresses.service';
 import { OrdersService } from '../orders/orders.service';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AccountService } from './account.service';
 
 const text = defaultStorefrontText.auth;
@@ -336,7 +336,7 @@ describe('AccountPage', () => {
         myPickups: 1,
       });
 
-      const notes = [...el.querySelectorAll('app-work-note a')];
+      const notes = [...el.querySelectorAll('a[uiActionLink]')];
       expect(notes[0].textContent).toContain('2 waiting to be paid');
       expect(notes[0].getAttribute('href')).toBe(
         '/account/orders?state=to-pay',
@@ -354,7 +354,7 @@ describe('AccountPage', () => {
         myPickups: 1,
       });
 
-      const notes = [...el.querySelectorAll('app-work-note a')];
+      const notes = [...el.querySelectorAll('a[uiActionLink]')];
       expect(notes).toHaveLength(1);
       expect(notes[0].textContent).toContain('1 ready to collect');
     });
@@ -362,7 +362,7 @@ describe('AccountPage', () => {
     it('says nothing when nothing waits on them', async () => {
       const { el } = await render(customer, [], true, [order('CK-2026-0001')]);
 
-      expect(el.querySelector('app-work-note')).toBeNull();
+      expect(el.querySelector('a[uiActionLink]')).toBeNull();
     });
   });
 

@@ -12,17 +12,17 @@ import {
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SettingsService } from '../settings/settings.service';
-import { Button } from '../../shared/ui/button';
-import { DialogActions } from '../../shared/ui/dialog-actions';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { Icon } from '../../shared/ui/icons/icon';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { CategoryPicker } from './category-picker';
 import { categoryDescendantIds } from './category-tree';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * Delete-a-category confirmation modal (FR-ADM-01), the single flow for every
@@ -53,7 +53,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
       #dialog
       (cancel)="cancelled.emit()"
       aria-labelledby="category-delete-heading"
-      appDialogPanel
+      uiDialogPanel
     >
       <h2
         id="category-delete-heading"
@@ -74,7 +74,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
           <p class="mt-2 text-ink-subtle">{{ reassignDeleted(deleted) }}</p>
         }
         <div class="mt-4">
-          <span appFieldLabel>{{ text.reassignLabel }}</span>
+          <span uiFieldLabel>{{ text.reassignLabel }}</span>
           <app-category-picker
             [categories]="destinations()"
             [value]="reassignTo()"
@@ -88,12 +88,12 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
       }
 
       @if (error()) {
-        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+        <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           (click)="cancelled.emit()"
@@ -106,14 +106,14 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
           mode() !== 'blocked-owned'
         ) {
           <button
-            appButton
+            uiButton
             variant="danger"
             type="button"
             class="gap-2"
             [disabled]="deleting() || (mode() === 'reassign' && !reassignTo())"
             (click)="confirm()"
           >
-            <app-icon [glyph]="trash2Icon" class="size-4" />
+            <ui-icon [glyph]="trash2Icon" class="size-4" />
             {{ deleting() ? actionText.deleting : adminText.actions.delete }}
           </button>
         }

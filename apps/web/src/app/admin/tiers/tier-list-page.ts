@@ -16,35 +16,34 @@ import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { Button } from '../../shared/ui/button';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
-import { Input } from '../../shared/ui/input';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { filled } from '../../shared/core/field-rules';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { RecordFields } from '../records/record-fields';
-import { RecordFormActions } from '../records/record-form-actions';
-import { RecordRow } from '../records/record-row';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
+import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from './tiers.service';
 import { RouterLink } from '@angular/router';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { eyeIcon } from '../../shared/ui/icons/glyphs/eye';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { eyeIcon } from '@b2b-catalog-platform/ui/icons/glyphs/eye';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /** The row currently in edit mode: an existing tier's id, or the new-tier form. */
 type EditTarget = { id: string } | { id: null } | null;
@@ -66,6 +65,7 @@ type EditTarget = { id: string } | { id: null } | null;
 @Component({
   selector: 'app-tier-list-page',
   imports: [
+    PageHeader,
     FORM_FIELDS,
     CdkDropList,
     CdkDrag,
@@ -82,36 +82,29 @@ type EditTarget = { id: string } | { id: null } | null;
     Input,
     Skeleton,
     RouterLink,
-    PageTitle,
     ErrorText,
     Hint,
-    PageIntro,
   ],
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
       <button
-        appButton
+        uiButton
         type="button"
         class="gap-2"
         [disabled]="editing() !== null"
         (click)="startAdd()"
       >
-        <app-icon [glyph]="plusIcon" class="size-4" />
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
-    </div>
-
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </ui-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
          that runs the full width of a desktop is a line nobody follows. -->
     <div class="max-w-3xl">
       @if (reorderError()) {
-        <p appErrorText class="mb-4" role="alert">
+        <p uiErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
@@ -134,7 +127,7 @@ type EditTarget = { id: string } | { id: null } | null;
                 @if (isEditing(tier.id)) {
                   <ng-container [ngTemplateOutlet]="recordForm" />
                 } @else {
-                  <app-record-row [compact]="true">
+                  <ui-record-row [compact]="true">
                     <!-- A handle, not a pair of step buttons: everything else
                          in the panel that has an order is dragged, and a button
                          that disables itself at the ends of the list flickers
@@ -142,13 +135,13 @@ type EditTarget = { id: string } | { id: null } | null;
                     <span
                       recordControl
                       cdkDragHandle
-                      appIconButton
+                      uiIconButton
                       size="lead"
                       class="cursor-grab active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                       [title]="adminText.actions.reorder"
                     >
-                      <app-icon [glyph]="gripVerticalIcon" />
+                      <ui-icon [glyph]="gripVerticalIcon" />
                     </span>
                     <span class="font-medium text-ink">{{ tier.label }}</span>
                     <!-- The sync key beside the label it belongs to, not across
@@ -175,7 +168,7 @@ type EditTarget = { id: string } | { id: null } | null;
                       <span>
                         @if (tier.priceCount) {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{ tierId: tier.id }"
                             [title]="text.seePrices"
@@ -192,7 +185,7 @@ type EditTarget = { id: string } | { id: null } | null;
                         @if (unpricedCount(tier); as missing) {
                           ·
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{
                               tierId: tier.id,
@@ -218,14 +211,14 @@ type EditTarget = { id: string } | { id: null } | null;
                            there is nowhere for the badge to go from there. -->
                       @if (!tier.isDefault) {
                         <button
-                          appIconButton
+                          uiIconButton
                           type="button"
                           [attr.aria-label]="text.setDefault"
                           [title]="text.setDefault"
                           [disabled]="busy() || editing() !== null"
                           (click)="makeDefault(tier)"
                         >
-                          <app-icon [glyph]="eyeIcon" />
+                          <ui-icon [glyph]="eyeIcon" />
                         </button>
                       } @else {
                         <!-- The badged list keeps the place rather than the
@@ -237,32 +230,32 @@ type EditTarget = { id: string } | { id: null } | null;
                         </span>
                       }
                       <button
-                        appIconButton
+                        uiIconButton
                         type="button"
                         [attr.aria-label]="adminText.actions.edit"
                         [disabled]="editing() !== null"
                         (click)="startEdit(tier)"
                       >
-                        <app-icon [glyph]="pencilIcon" />
+                        <ui-icon [glyph]="pencilIcon" />
                       </button>
                       <!-- Present on the storefront's list too, and it
                            explains rather than disappears: a control that is
                            simply absent leaves the admin wondering whether the
                            page is broken. -->
                       <button
-                        appIconButton
+                        uiIconButton
                         variant="danger"
                         type="button"
                         [attr.aria-label]="adminText.actions.delete"
                         [disabled]="busy()"
                         (click)="remove(tier)"
                       >
-                        <app-icon [glyph]="trash2Icon" />
+                        <ui-icon [glyph]="trash2Icon" />
                       </button>
                     </ng-container>
-                  </app-record-row>
+                  </ui-record-row>
                   @if (rowError()?.id === tier.id) {
-                    <p appErrorText class="mt-2" role="alert">
+                    <p uiErrorText class="mt-2" role="alert">
                       {{ rowError()?.message }}
                     </p>
                   }
@@ -280,7 +273,7 @@ type EditTarget = { id: string } | { id: null } | null;
           }
         </div>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
 
       <!-- One form for both add and edit: a tier is a name and a key either way,
@@ -291,7 +284,7 @@ type EditTarget = { id: string } | { id: null } | null;
       <ng-template #accounts let-count let-tier="tier">
         @if (count) {
           <a
-            appLink
+            uiLink
             routerLink="/admin/users"
             [queryParams]="{ tier }"
             [title]="text.seeAccounts"
@@ -307,53 +300,53 @@ type EditTarget = { id: string } | { id: null } | null;
         <!-- The label and the sync key it is stored under, side by side from
              sm up and one per line below it — the same two-column form the
              filterable attributes wear. -->
-        <form appRecordFields [formRoot]="form" (submit)="save()">
-          <app-field
+        <form uiRecordFields [formRoot]="form" (submit)="save()">
+          <ui-field
             [field]="form.label"
             [label]="text.label"
             controlId="tier-label"
           >
             <input
-              appInput
+              uiInput
               size="sm"
               class="w-full"
               autocomplete="off"
               [placeholder]="text.labelPlaceholder"
               [formField]="form.label"
             />
-          </app-field>
+          </ui-field>
           <!-- Locked only on an existing list, and only while the catalog is
                managed elsewhere: the key is that system's handle on this list.
                A list being added has no handle yet, so the add form keeps the
                field — it is how an admin answers a run that priced a key this
                deployment does not have. -->
-          <app-field [field]="form.key" [label]="text.key" controlId="tier-key">
-            <app-locked-field-marker appFieldCaption [field]="form.key" />
+          <ui-field [field]="form.key" [label]="text.key" controlId="tier-key">
+            <app-locked-field-marker uiFieldCaption [field]="form.key" />
             <input
-              appInput
+              uiInput
               size="sm"
               class="w-full font-mono"
               autocomplete="off"
               [placeholder]="text.keyPlaceholder"
               [formField]="form.key"
             />
-          </app-field>
-          <p appHint class="sm:col-span-2">
+          </ui-field>
+          <p uiHint class="sm:col-span-2">
             {{ keyLocked() ? ownershipText.tierKeyLocked : text.keyHint }}
           </p>
-          <div appRecordFormActions>
+          <div uiRecordFormActions>
             <button
-              appButton
+              uiButton
               size="sm"
               type="submit"
               class="gap-2"
               [disabled]="busy()"
             >
-              <app-icon [glyph]="saveIcon" class="size-4" />
+              <ui-icon [glyph]="saveIcon" class="size-4" />
               {{ busy() ? actionText.saving : adminText.actions.save }}
             </button>
             <button
-              appButton
+              uiButton
               variant="secondary"
               size="sm"
               type="button"
@@ -361,12 +354,12 @@ type EditTarget = { id: string } | { id: null } | null;
               [disabled]="busy()"
               (click)="cancel()"
             >
-              <app-icon [glyph]="xIcon" class="size-4" />
+              <ui-icon [glyph]="xIcon" class="size-4" />
               {{ actionText.cancel }}
             </button>
           </div>
           @if (formError()) {
-            <p appErrorText class="sm:col-span-2" role="alert">
+            <p uiErrorText class="sm:col-span-2" role="alert">
               {{ formError() }}
             </p>
           }

@@ -1,17 +1,17 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
-import { IconButton } from '../../shared/ui/icon-button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { bookCheckIcon } from '../../shared/ui/icons/glyphs/book-check';
-import { bookDashedIcon } from '../../shared/ui/icons/glyphs/book-dashed';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { bookDashedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-dashed';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /** What the list knows about a product in order to act on it. */
 export interface ProductRowState {
@@ -49,11 +49,11 @@ export interface ProductRowState {
     <a
       [routerLink]="['/admin/products', product().slug, 'edit']"
       [queryParams]="returnParams()"
-      appIconButton
+      uiIconButton
       [attr.aria-label]="editText.editProduct"
       [title]="editText.editProduct"
     >
-      <app-icon [glyph]="pencilIcon" />
+      <ui-icon [glyph]="pencilIcon" />
     </a>
 
     <!-- Three fixed places, so a column of rows reads as one grid: edit,
@@ -66,12 +66,12 @@ export interface ProductRowState {
            than hidden: the click says that only the run brings it back. -->
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [attr.aria-label]="adminText.actions.restore"
         [title]="adminText.actions.restore"
         (click)="onRestoreClick()"
       >
-        <app-icon [glyph]="rotateCcwIcon" />
+        <ui-icon [glyph]="rotateCcwIcon" />
       </button>
       <!-- On every deleted row, since the deleted state offers this step.
            Where this product cannot take it — somebody ordered it, or the
@@ -81,34 +81,34 @@ export interface ProductRowState {
            give no reason on a phone and be skipped by the keyboard. -->
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [variant]="purgeRefusal() ? 'default' : 'danger'"
         [attr.aria-label]="editText.purgeProduct"
         [title]="purgeRefusal() ?? editText.purgeProduct"
         (click)="onPurgeClick()"
       >
-        <app-icon [glyph]="trash2Icon" />
+        <ui-icon [glyph]="trash2Icon" />
       </button>
     } @else if (product().publishedAt) {
-      <span appIconButton class="invisible" aria-hidden="true">
-        <app-icon [glyph]="bookCheckIcon" />
+      <span uiIconButton class="invisible" aria-hidden="true">
+        <ui-icon [glyph]="bookCheckIcon" />
       </span>
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [disabled]="busy()"
         [attr.aria-label]="editText.unpublishProduct"
         [title]="editText.unpublishProduct"
         (click)="publishToggled.emit(product())"
       >
-        <app-icon [glyph]="bookDashedIcon" />
+        <ui-icon [glyph]="bookDashedIcon" />
       </button>
     } @else {
       <!-- Present and live on a product nothing prices: it explains instead of
            acting. A dead button says only that something is wrong with it. -->
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [disabled]="busy()"
         [attr.aria-label]="editText.publishProduct"
         [title]="
@@ -116,18 +116,18 @@ export interface ProductRowState {
         "
         (click)="onPublishClick()"
       >
-        <app-icon [glyph]="bookCheckIcon" />
+        <ui-icon [glyph]="bookCheckIcon" />
       </button>
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="danger"
         [disabled]="busy()"
         [attr.aria-label]="editText.deleteProduct"
         [title]="editText.deleteProduct"
         (click)="deleteRequested.emit(product())"
       >
-        <app-icon [glyph]="trash2Icon" />
+        <ui-icon [glyph]="trash2Icon" />
       </button>
     }
   `,

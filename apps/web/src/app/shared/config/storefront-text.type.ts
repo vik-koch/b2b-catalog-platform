@@ -223,8 +223,6 @@ export const storefrontTextSchema = z
         backToCatalog: z.string(),
         /** Gallery thumbnail label; `{n}` is substituted. */
         viewImageAria: z.string(),
-        /** Caption shown on the fallback tile when a product has no photo. */
-        imagePlaceholder: z.string(),
         /**
          * Sold-together pairings (FR-SET-05). `label` names the thing
          * everywhere it appears — the marker's accessible name, the link on a

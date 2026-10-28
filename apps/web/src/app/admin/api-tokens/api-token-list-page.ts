@@ -10,34 +10,33 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 import { filled } from '../../shared/core/field-rules';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { Input } from '../../shared/ui/input';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge } from '../../shared/ui/status-badge';
-import { RecordFields } from '../records/record-fields';
-import { RecordFormActions } from '../records/record-form-actions';
-import { RecordRow } from '../records/record-row';
-import { adminMomentFormat } from '../grid/admin-date';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { RecordFields } from '@b2b-catalog-platform/ui/lists/record-fields';
+import { RecordFormActions } from '@b2b-catalog-platform/ui/lists/record-form-actions';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { adminMomentFormat } from '../dates/admin-date';
 import { ApiTokensService } from './api-tokens.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { Notice } from '../../shared/ui/notice';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
-import { copyIcon } from '../../shared/ui/icons/glyphs/copy';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+import { copyIcon } from '@b2b-catalog-platform/ui/icons/glyphs/copy';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * What a new token starts out allowed to do: **nothing**, so a capability is
@@ -117,6 +116,7 @@ const SCOPE_ROWS: readonly {
 @Component({
   selector: 'app-api-token-list-page',
   imports: [
+    PageHeader,
     FORM_FIELDS,
     Notice,
     Button,
@@ -130,28 +130,21 @@ const SCOPE_ROWS: readonly {
     RecordRow,
     RecordFields,
     RecordFormActions,
-    PageTitle,
     ErrorText,
-    PageIntro,
   ],
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
       <button
-        appButton
+        uiButton
         type="button"
         class="gap-2"
         [disabled]="adding()"
         (click)="startAdd()"
       >
-        <app-icon [glyph]="plusIcon" class="size-4" />
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </button>
-    </div>
-
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </ui-page-header>
 
     <div class="max-w-3xl">
       <!-- The value, once. Amber rather than a plain card: this is the only
@@ -159,7 +152,7 @@ const SCOPE_ROWS: readonly {
            until it is dismissed — an admin who navigates away has not lost a
            step, they have lost the credential. -->
       @if (created(); as token) {
-        <div appNotice tone="warning" class="mb-6" role="status">
+        <div uiNotice tone="warning" class="mb-6" role="status">
           <p class="font-medium">
             {{ fill(text.createdHeading, token.name) }}
           </p>
@@ -172,14 +165,14 @@ const SCOPE_ROWS: readonly {
               >{{ token.token }}</code
             >
             <button
-              appButton
+              uiButton
               variant="secondary"
               size="sm"
               type="button"
               class="shrink-0 gap-2"
               (click)="copy(token.token)"
             >
-              <app-icon
+              <ui-icon
                 [glyph]="copied() ? circleCheckIcon : copyIcon"
                 class="size-4"
               />
@@ -187,7 +180,7 @@ const SCOPE_ROWS: readonly {
             </button>
           </div>
           <button
-            appButton
+            uiButton
             variant="secondary"
             size="sm"
             type="button"
@@ -208,7 +201,7 @@ const SCOPE_ROWS: readonly {
               <!-- Three sentences, not three figures: what this credential
                    may do, who issued it when, and whether anything has used
                    it. Each on its own line. -->
-              <app-record-row [stackMeta]="true">
+              <ui-record-row [stackMeta]="true">
                 <span
                   class="font-medium"
                   [class]="
@@ -221,9 +214,9 @@ const SCOPE_ROWS: readonly {
                 >
                 <ng-container recordBadge>
                   @if (token.revokedAt) {
-                    <span appStatusBadge tone="danger">{{ text.revoked }}</span>
+                    <span uiStatusBadge tone="danger">{{ text.revoked }}</span>
                   } @else {
-                    <span appStatusBadge tone="ok">{{ text.active }}</span>
+                    <span uiStatusBadge tone="ok">{{ text.active }}</span>
                   }
                 </ng-container>
                 <ng-container recordMeta>
@@ -234,20 +227,20 @@ const SCOPE_ROWS: readonly {
                 <ng-container recordActions>
                   @if (!token.revokedAt) {
                     <button
-                      appIconButton
+                      uiIconButton
                       variant="danger"
                       type="button"
                       [attr.aria-label]="text.revokeAria"
                       [disabled]="busy()"
                       (click)="revoke(token)"
                     >
-                      <app-icon [glyph]="circleSlashIcon" />
+                      <ui-icon [glyph]="circleSlashIcon" />
                     </button>
                   }
                 </ng-container>
-              </app-record-row>
+              </ui-record-row>
               @if (rowError() === token.id) {
-                <p appErrorText class="mt-2" role="alert">
+                <p uiErrorText class="mt-2" role="alert">
                   {{ text.revokeError }}
                 </p>
               }
@@ -259,21 +252,21 @@ const SCOPE_ROWS: readonly {
               <!-- Name and capabilities, and nothing else: a token has no
                    expiry to set (revocation is the control) and no value to
                    choose. -->
-              <form appRecordFields [formRoot]="form" (submit)="save()">
-                <app-field
+              <form uiRecordFields [formRoot]="form" (submit)="save()">
+                <ui-field
                   [field]="form.name"
                   [label]="text.name"
                   controlId="api-token-name"
                 >
                   <input
-                    appInput
+                    uiInput
                     size="sm"
                     class="w-full"
                     autocomplete="off"
                     [placeholder]="text.namePlaceholder"
                     [formField]="form.name"
                   />
-                </app-field>
+                </ui-field>
                 <!-- One token, however many capabilities: the automated
                      client a deployment runs is usually one process doing
                      several things, and two credentials for it would be two
@@ -293,7 +286,7 @@ const SCOPE_ROWS: readonly {
                      so it is stated instead; the ticks appear on their own
                      when a second one is added. -->
                 @if (scopes.length > 1) {
-                  <app-field group [field]="form.scopes" [label]="text.scope">
+                  <ui-field-group [field]="form.scopes" [label]="text.scope">
                     <!-- Columns as wide as their heading, not as wide as the
                          form: a tick belongs beside the words that name it,
                          and two stretched columns put it halfway across the
@@ -316,7 +309,7 @@ const SCOPE_ROWS: readonly {
                             @if (cell; as scope) {
                               <input
                                 type="checkbox"
-                                appCheckbox
+                                uiCheckbox
                                 [checked]="draft().scopes.includes(scope)"
                                 [attr.aria-label]="scopeLabel(scope)"
                                 (change)="toggleScope(scope)"
@@ -326,10 +319,10 @@ const SCOPE_ROWS: readonly {
                         }
                       }
                     </div>
-                  </app-field>
+                  </ui-field-group>
                 } @else {
                   <div>
-                    <span appFieldLabel>{{ text.scope }}</span>
+                    <span uiFieldLabel>{{ text.scope }}</span>
                     <p class="pt-1.5 text-sm">
                       {{ scopeList(draft().scopes) }}
                     </p>
@@ -338,19 +331,19 @@ const SCOPE_ROWS: readonly {
                 <p class="text-xs text-ink-subtle sm:col-span-full">
                   {{ text.scopeHint }}
                 </p>
-                <div appRecordFormActions>
+                <div uiRecordFormActions>
                   <button
-                    appButton
+                    uiButton
                     size="sm"
                     type="submit"
                     class="gap-2"
                     [disabled]="busy()"
                   >
-                    <app-icon [glyph]="saveIcon" class="size-4" />
+                    <ui-icon [glyph]="saveIcon" class="size-4" />
                     {{ busy() ? actionText.saving : text.create }}
                   </button>
                   <button
-                    appButton
+                    uiButton
                     variant="secondary"
                     size="sm"
                     type="button"
@@ -358,12 +351,12 @@ const SCOPE_ROWS: readonly {
                     [disabled]="busy()"
                     (click)="cancel()"
                   >
-                    <app-icon [glyph]="xIcon" class="size-4" />
+                    <ui-icon [glyph]="xIcon" class="size-4" />
                     {{ actionText.cancel }}
                   </button>
                 </div>
                 @if (formError()) {
-                  <p appErrorText class="sm:col-span-full" role="alert">
+                  <p uiErrorText class="sm:col-span-full" role="alert">
                     {{ formError() }}
                   </p>
                 }
@@ -374,7 +367,7 @@ const SCOPE_ROWS: readonly {
           }
         </div>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="3" />
+        <ui-skeleton [lines]="3" />
       }
     </div>
   `,

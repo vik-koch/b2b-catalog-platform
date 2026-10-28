@@ -87,5 +87,7 @@ The index below is generated from each record's heading and status line
 | 0068 | [Simulate the demo shop's back office as a client of the machine API](0068-simulate-the-demo-back-office-through-the-machine-api.md) | 2026-10-23 | accepted |
 | 0069 | [Split the web app, its texts and the contracts by audience](0069-split-web-texts-and-contracts-by-audience.md) | 2026-10-25 | accepted |
 | 0070 | [Build every form on Signal Forms, around one field shell](0070-build-forms-on-signal-forms.md) | 2026-10-26 | accepted |
+| 0071 | [Keep the UI building blocks in a library apart from the app](0071-a-ui-library-apart-from-the-app.md) | 2026-10-27 | accepted |
+| 0072 | [Keep the web app's views apart from what loads and changes data](0072-keep-views-apart-from-what-loads-data.md) | 2026-10-28 | accepted |
 
 <!-- /generated:adr-index -->

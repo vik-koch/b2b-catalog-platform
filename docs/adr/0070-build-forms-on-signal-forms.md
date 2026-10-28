@@ -47,9 +47,9 @@ deployment's text files; limits and patterns come from the import-free modules.
 `filled()` is `required` that takes spaces alone as nothing, for the fields a
 save trims.
 
-**Every field is an `<app-field>`.** The shell draws the caption (a `<legend>`
+**Every field is a `<ui-field>`.** The shell draws the caption (a `<legend>`
 in group mode), the required mark, the hint and the error, all read from the
-field it is given; an element marked `appFieldCaption` joins the caption.
+field it is given; an element marked `uiFieldCaption` joins the caption.
 `FieldBinding` sits on each `[formField]` control and gives it the id,
 `aria-describedby`, `aria-required` and `aria-invalid` the shell decides;
 `SubmitAttempt` on `form[formRoot]` records the first submit. A page whose save
@@ -58,7 +58,7 @@ imports the lot as `FORM_FIELDS`.
 
 **A control with its own behaviour is a control of the form.** `Segmented` and
 `DigitMask` implement `FormValueControl`: one `value` model that `[formField]`
-binds. A composite that wraps a native input (`PhoneInput`, `DateField`,
+binds. A composite that wraps a native input (`PhoneInput`, `DateInput`,
 `CategoryPicker`, the suggestion inputs) takes the `field` and binds its inner
 input, so the shell's label names the element that is typed in.
 

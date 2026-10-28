@@ -5,7 +5,7 @@ import {
   PaymentMethod,
   PaymentState,
 } from '@b2b-catalog-platform/shared';
-import { StatusTone } from '../ui/status-badge';
+import { StatusTone } from '@b2b-catalog-platform/ui/content/status-badge';
 
 /** Who is looking at the badge. */
 export type OrderAudience = 'customer' | 'staff';

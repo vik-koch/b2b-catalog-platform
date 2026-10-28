@@ -13,28 +13,27 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { useRowAnchor } from '../../shared/core/row-anchor';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { Button } from '../../shared/ui/button';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
-import { Input } from '../../shared/ui/input';
-import { HintBadge } from '../../shared/ui/hint-badge';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { RecordRow } from '../records/record-row';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { HintBadge } from '@b2b-catalog-platform/ui/content/hint-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
-import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { triangleAlertIcon } from '../../shared/ui/icons/glyphs/triangle-alert';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { triangleAlertIcon } from '@b2b-catalog-platform/ui/icons/glyphs/triangle-alert';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /** What is being renamed: a key across the catalog, or one value under a key. */
 type RenameTarget =
@@ -58,6 +57,7 @@ type RenameTarget =
 @Component({
   selector: 'app-attribute-inventory-page',
   imports: [
+    PageHeader,
     NgTemplateOutlet,
     RouterLink,
     Button,
@@ -70,21 +70,14 @@ type RenameTarget =
     HintBadge,
     Input,
     Skeleton,
-    PageTitle,
     ErrorText,
-    PageIntro,
   ],
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
-      <a appButton variant="secondary" routerLink="/admin/attributes">
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
+      <a uiButton variant="secondary" routerLink="/admin/attributes">
         {{ text.toDefinitions }}
       </a>
-    </div>
-
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </ui-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -109,7 +102,7 @@ type RenameTarget =
                     @if (isRenaming({ kind: 'key', key: entry.key })) {
                       <ng-container [ngTemplateOutlet]="form" />
                     } @else {
-                      <app-record-row [compact]="true">
+                      <ui-record-row [compact]="true">
                         <!-- Opening the key is the one thing done to the row,
                              so it leads it — where the other lists put their
                              grip or their checkbox. Chevron and name are one
@@ -128,7 +121,7 @@ type RenameTarget =
                           [attr.aria-expanded]="expanded() === entry.key"
                           (click)="toggle(entry.key)"
                         >
-                          <app-icon
+                          <ui-icon
                             class="size-5 shrink-0 md:size-4"
                             [glyph]="
                               expanded() === entry.key
@@ -146,7 +139,7 @@ type RenameTarget =
                           <span>
                             @if (entry.productCount) {
                               <a
-                                appLink
+                                uiLink
                                 routerLink="/admin/products"
                                 [queryParams]="{ attributeKey: entry.key }"
                                 [title]="text.showProducts"
@@ -165,7 +158,7 @@ type RenameTarget =
                             }
                             ·
                             <button
-                              appLink
+                              uiLink
                               type="button"
                               [attr.aria-expanded]="expanded() === entry.key"
                               (click)="toggle(entry.key)"
@@ -183,25 +176,25 @@ type RenameTarget =
                                and never offers to declare one. -->
                           @if (entry.definition) {
                             <a
-                              appIconButton
+                              uiIconButton
                               routerLink="/admin/attributes"
                               [queryParams]="{ name: entry.key }"
                               [attr.aria-label]="text.toDefinitionAria"
                             >
-                              <app-icon [glyph]="funnelIcon" />
+                              <ui-icon [glyph]="funnelIcon" />
                             </a>
                           } @else {
                             <span
-                              appIconButton
+                              uiIconButton
                               class="pointer-events-none opacity-40"
                               [attr.aria-label]="text.notFilterable"
                               [title]="text.notFilterable"
                             >
-                              <app-icon [glyph]="funnelIcon" />
+                              <ui-icon [glyph]="funnelIcon" />
                             </span>
                           }
                           <button
-                            appIconButton
+                            uiIconButton
                             type="button"
                             [attr.aria-label]="text.renameKeyAria"
                             [disabled]="busy()"
@@ -209,10 +202,10 @@ type RenameTarget =
                               startRename({ kind: 'key', key: entry.key })
                             "
                           >
-                            <app-icon [glyph]="pencilIcon" />
+                            <ui-icon [glyph]="pencilIcon" />
                           </button>
                         </ng-container>
-                      </app-record-row>
+                      </ui-record-row>
                     }
                   </div>
 
@@ -242,7 +235,7 @@ type RenameTarget =
                               ) {
                                 <ng-container [ngTemplateOutlet]="form" />
                               } @else {
-                                <app-record-row [compact]="true">
+                                <ui-record-row [compact]="true">
                                   <!-- An empty value is a row stored before
                                        valueless attributes stopped being
                                        saved. Named, or it reads as a rendering
@@ -265,23 +258,23 @@ type RenameTarget =
                                     !value.numeric &&
                                     entry.definition?.type === 'number'
                                   ) {
-                                    <app-hint-badge
+                                    <ui-hint-badge
                                       recordBadge
                                       class="shrink-0"
                                       tone="warning"
                                       [label]="text.notNumeric"
                                     >
-                                      <app-icon
+                                      <ui-icon
                                         [glyph]="triangleAlertIcon"
                                         class="size-3.5"
                                       />
-                                    </app-hint-badge>
+                                    </ui-hint-badge>
                                   }
                                   <ng-container recordMeta>
                                     <span class="mr-7">
                                       @if (value.productCount) {
                                         <a
-                                          appLink
+                                          uiLink
                                           routerLink="/admin/products"
                                           [queryParams]="{
                                             attributeKey: entry.key,
@@ -312,7 +305,7 @@ type RenameTarget =
                                   </ng-container>
                                   <ng-container recordActions>
                                     <button
-                                      appIconButton
+                                      uiIconButton
                                       type="button"
                                       [attr.aria-label]="text.renameValueAria"
                                       [disabled]="busy()"
@@ -324,10 +317,10 @@ type RenameTarget =
                                         })
                                       "
                                     >
-                                      <app-icon [glyph]="pencilIcon" />
+                                      <ui-icon [glyph]="pencilIcon" />
                                     </button>
                                   </ng-container>
-                                </app-record-row>
+                                </ui-record-row>
                               }
                             </li>
                           }
@@ -349,7 +342,7 @@ type RenameTarget =
                             track $index
                           ) {
                             <li class="py-3">
-                              <app-record-row [compact]="true">
+                              <ui-record-row [compact]="true">
                                 <!-- Each bar in a box the height of the line it
                                      stands in — 20px of text-sm, 20px of meta,
                                      a glyph's worth of button — rather than the
@@ -372,14 +365,14 @@ type RenameTarget =
                                 <ng-container recordActions>
                                   <!-- The glyph's own size, which the button
                                        hands its icon as --icon-size. -->
-                                  <span appIconButton>
+                                  <span uiIconButton>
                                     <span
                                       class="block size-(--icon-size)
                                              rounded-sm bg-skeleton"
                                     ></span>
                                   </span>
                                 </ng-container>
-                              </app-record-row>
+                              </ui-record-row>
                             </li>
                           }
                         </ul>
@@ -392,11 +385,11 @@ type RenameTarget =
           </div>
         }
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="6" />
+        <ui-skeleton [lines]="6" />
       }
 
       @if (renameError()) {
-        <p appErrorText class="mt-4" role="alert">
+        <p uiErrorText class="mt-4" role="alert">
           {{ renameError() }}
         </p>
       }
@@ -409,7 +402,7 @@ type RenameTarget =
           (submit)="save($event)"
         >
           <input
-            appInput
+            uiInput
             size="sm"
             class="w-72"
             name="rename"
@@ -419,17 +412,17 @@ type RenameTarget =
             (input)="draft.set($any($event.target).value)"
           />
           <button
-            appButton
+            uiButton
             size="sm"
             type="submit"
             class="gap-2"
             [disabled]="busy()"
           >
-            <app-icon [glyph]="saveIcon" class="size-4" />
+            <ui-icon [glyph]="saveIcon" class="size-4" />
             {{ busy() ? actionText.saving : adminText.actions.save }}
           </button>
           <button
-            appButton
+            uiButton
             variant="secondary"
             size="sm"
             type="button"
@@ -437,7 +430,7 @@ type RenameTarget =
             [disabled]="busy()"
             (click)="cancel()"
           >
-            <app-icon [glyph]="xIcon" class="size-4" />
+            <ui-icon [glyph]="xIcon" class="size-4" />
             {{ actionText.cancel }}
           </button>
         </form>

@@ -14,6 +14,7 @@ import {
   OrderStatus,
   orderStatusSchema,
   moneyFormat,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import {
   StaffOrderSort,
@@ -29,31 +30,34 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   orderStatusLabel,
   orderStatusTone,
   staffPaymentBadge,
 } from '../../shared/orders/order-status';
-import { AdminListHeader } from '../list-header';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridPagination } from '../grid/grid-pagination';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
-import { RecordRow } from '../records/record-row';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTimestamp } from '../dates/grid-timestamp';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { SettingsService } from '../settings/settings.service';
 import { OrderRowActions } from './order-row-actions';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * Every order request, for staff (FR-AUTH-03). An order is answered on its own
@@ -71,8 +75,8 @@ import { ErrorText } from '../../shared/ui/error-text';
   selector: 'app-admin-order-list-page',
   imports: [
     RouterLink,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridPagination,
@@ -84,10 +88,11 @@ import { ErrorText } from '../../shared/ui/error-text';
     ErrorText,
   ],
   template: `
-    <app-admin-list-header
+    <ui-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query()"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
@@ -95,13 +100,13 @@ import { ErrorText } from '../../shared/ui/error-text';
     />
 
     @if (pageError(); as message) {
-      <p appErrorText class="mb-4" role="alert">{{ message }}</p>
+      <p uiErrorText class="mb-4" role="alert">{{ message }}</p>
     }
 
     @if (orders.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
-      <app-admin-grid
+      <ui-data-grid
         gridId="orders"
         [columns]="columns()"
         [rows]="data.items"
@@ -115,7 +120,7 @@ import { ErrorText } from '../../shared/ui/error-text';
         [total]="data.pagination.total"
         [countLabel]="text.count"
       >
-        <ng-template appGridRow [of]="data.items" let-order>
+        <ng-template uiGridRow [of]="data.items" let-order>
           <!-- The reference opens the order as it stands to be read; the
                action at the end of the row opens the screen where it is
                answered. Two jobs, two links: most of what a manager does with
@@ -145,13 +150,13 @@ import { ErrorText } from '../../shared/ui/error-text';
                nothing about money until it is handed over. -->
           <td data-keep>
             @if (paymentBadge(order); as badge) {
-              <span appStatusBadge variant="dot" [tone]="badge.tone">
+              <span uiStatusBadge variant="dot" [tone]="badge.tone">
                 {{ badge.label }}
               </span>
             }
           </td>
           <td data-keep>
-            <span appStatusBadge [tone]="statusTone(order)">
+            <span uiStatusBadge [tone]="statusTone(order)">
               {{ statusLabel(order) }}
             </span>
           </td>
@@ -173,10 +178,10 @@ import { ErrorText } from '../../shared/ui/error-text';
              manager is looking for — when it came in and what it comes to — on
              the third. The account it came from is a detail for the order's own
              page; the name and the reference are what a phone call is about. -->
-        <ng-template appGridCard [of]="data.items" let-order>
+        <ng-template uiGridCard [of]="data.items" let-order>
           <!-- Only the order is greyed once it is over, never the badge that
                says so — the same rule the table follows cell by cell. -->
-          <app-record-row>
+          <ui-record-row>
             <a
               class="truncate font-medium"
               [class.opacity-50]="isEnded(order)"
@@ -189,7 +194,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             @if (paymentBadge(order); as badge) {
               <span
                 recordBadge
-                appStatusBadge
+                uiStatusBadge
                 variant="dot"
                 class="shrink-0"
                 [tone]="badge.tone"
@@ -199,7 +204,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             }
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="statusTone(order)"
             >
@@ -234,17 +239,18 @@ import { ErrorText } from '../../shared/ui/error-text';
               [returnParams]="editorFrom()"
               (endRequested)="end($event.order, $event.to)"
             />
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-admin-grid>
+      </ui-data-grid>
 
-      <app-grid-pagination [pagination]="data.pagination" />
+      <ui-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })
 export class AdminOrderListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   private readonly api = inject(AdminOrdersService);
   private readonly ownership = inject(SettingsService);
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));

@@ -10,8 +10,9 @@ import {
   addressDetailLines,
   addressDisplayName,
 } from '../../shared/addresses/address-format';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { ChoiceBranch } from '../../shared/ui/choice-branch';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 
 /** Ids have to be unique per instance: a delivery picker and a billing picker
  * stand on the same page. */
@@ -34,7 +35,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-address-picker',
-  imports: [AddressFields, Checkbox, ChoiceBranch, NgTemplateOutlet],
+  imports: [AddressFields, Checkbox, TickLabel, ChoiceBranch, NgTemplateOutlet],
   host: { class: 'block' },
   template: `
     <fieldset>
@@ -50,7 +51,7 @@ let nextId = 0;
       } @else {
         <div class="space-y-2" role="radiogroup">
           @for (address of addresses(); track address.id) {
-            <app-choice-branch
+            <ui-choice-branch
               [name]="group"
               [value]="address.id"
               [checked]="selectedId() === address.id"
@@ -62,13 +63,13 @@ let nextId = 0;
               <span branchLabel class="text-sm text-ink-subtle">
                 {{ lines(address) }}
               </span>
-            </app-choice-branch>
+            </ui-choice-branch>
           }
 
           <!-- Framed while it is the one chosen: the fields it reveals end in a
                tick box of their own, which without a frame would read as one
                more option in this list. -->
-          <app-choice-branch
+          <ui-choice-branch
             [name]="group"
             value="new"
             [checked]="selectedId() === null"
@@ -82,7 +83,7 @@ let nextId = 0;
                 <ng-container [ngTemplateOutlet]="addressFields" />
               </div>
             }
-          </app-choice-branch>
+          </ui-choice-branch>
         </div>
       }
 
@@ -102,11 +103,10 @@ let nextId = 0;
         <!-- Only where there is a book to save it to. Checked, because an
              address typed at checkout is one the customer orders to. -->
         @if (canSave()) {
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label uiTickLabel>
             <input
               type="checkbox"
-              appCheckbox
-              class="mt-0.5"
+              uiCheckbox
               [checked]="save()"
               (change)="saveChange.emit(!save())"
             />

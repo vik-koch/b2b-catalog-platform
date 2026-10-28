@@ -8,9 +8,9 @@ import {
 import { CART_NOTE_MAX, ProductDetail } from '@b2b-catalog-platform/shared';
 import { CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { AutoGrow } from '../ui/auto-grow';
-import { FieldLabel } from '../ui/field-label';
-import { Input } from '../ui/input';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { ProductAvailabilityBadge } from './product-availability-badge';
 import { ProductBuyControls } from './product-buy-controls';
 import { ProductPairings } from './product-pairings';
@@ -121,10 +121,10 @@ import { useTaxStatement } from './tax-statement';
                  a line under it: it says what to write, and it is read while
                  the field is empty — the only time it has anything to say. -->
             <label class="block">
-              <span appFieldLabel>{{ text.noteLabel }}</span>
+              <span uiFieldLabel>{{ text.noteLabel }}</span>
               <textarea
-                appInput
-                appAutoGrow
+                uiInput
+                uiAutoGrow
                 rows="2"
                 class="w-full"
                 [attr.maxlength]="noteMax"

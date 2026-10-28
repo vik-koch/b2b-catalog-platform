@@ -8,12 +8,12 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
 import { CodeEntry, formatWait } from './code-entry';
-import { PageTitle } from '../../shared/ui/page-title';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 export { formatWait };
 
@@ -31,14 +31,14 @@ export { formatWait };
   imports: [RouterLink, Button, CallWait, CodeEntry, PageTitle, PageIntro],
   template: `
     @if (restart()) {
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ heading() }}
       </h1>
-      <p appPageIntro role="alert">{{ text.restart }}</p>
-      <a appButton routerLink="/login" class="mt-8">{{ text.restartAction }}</a>
+      <p uiPageIntro role="alert">{{ text.restart }}</p>
+      <a uiButton routerLink="/login" class="mt-8">{{ text.restartAction }}</a>
     } @else if (step(); as step) {
       @if (step.step === 'call') {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.callHeading }}
         </h1>
         <app-call-wait
@@ -50,7 +50,7 @@ export { formatWait };
           (restart)="restart.set(true)"
         />
       } @else {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.codeHeading }}
         </h1>
         <app-code-entry

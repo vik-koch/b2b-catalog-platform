@@ -1,8 +1,8 @@
 import { Component, computed, input, signal } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Popover } from '../../shared/ui/popover';
-import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
 
 /**
  * The mark beside a field an external system owns (FR-ADM-10) — a lock the
@@ -40,13 +40,13 @@ import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
       [attr.aria-expanded]="open()"
       (click)="open.set(!open())"
     >
-      <app-icon [glyph]="lockIcon" class="size-3.5" />
+      <ui-icon [glyph]="lockIcon" class="size-3.5" />
     </button>
 
     @if (open()) {
-      <app-popover align="start" (dismissed)="open.set(false)">
+      <ui-popover align="start" (dismissed)="open.set(false)">
         <p class="text-sm">{{ reason() }}</p>
-      </app-popover>
+      </ui-popover>
     }
   `,
 })

@@ -24,7 +24,8 @@
       "@b2b-catalog-platform/shared/storefront": [
         "./libs/shared/src/storefront/index.ts"
       ],
-      "@b2b-catalog-platform/shared/sync": ["./libs/shared/src/sync/index.ts"]
+      "@b2b-catalog-platform/shared/sync": ["./libs/shared/src/sync/index.ts"],
+      "@b2b-catalog-platform/ui/*": ["./libs/ui/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

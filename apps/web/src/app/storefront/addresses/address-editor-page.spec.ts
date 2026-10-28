@@ -16,6 +16,7 @@ import { AccountService } from '../account/account.service';
 import { AddressEditorPage } from './address-editor-page';
 import { AddressSuggestInput } from '../../shared/addresses/address-suggest-input';
 import { AddressesService } from '../../shared/addresses/addresses.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultStorefrontText.account.addresses;
 const fieldText = defaultStorefrontText.address;
@@ -81,6 +82,7 @@ async function render(options: Options = {}) {
   TestBed.configureTestingModule({
     imports: [AddressEditorPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([{ path: 'account', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

@@ -198,8 +198,8 @@ test.describe('admin grids on a phone', () => {
     await page.goto('/admin/orders');
 
     // No table to scan across: one record per line, read downwards.
-    await expect(page.locator('app-admin-grid table')).toHaveCount(0);
-    await expect(page.locator('app-admin-grid li').first()).toBeVisible();
+    await expect(page.locator('ui-data-grid table')).toHaveCount(0);
+    await expect(page.locator('ui-data-grid li').first()).toBeVisible();
 
     // The filters live in the column headings, and there are none here — so
     // one disclosure carries all of them, opened in place rather than over the
@@ -219,9 +219,9 @@ test.describe('admin grids on a phone', () => {
     await logIn(page);
     await page.goto('/admin/products?availability=out');
 
-    await expect(page.locator('app-admin-grid table')).toHaveCount(0);
+    await expect(page.locator('ui-data-grid table')).toHaveCount(0);
     const record = page
-      .locator('app-admin-grid li')
+      .locator('ui-data-grid li')
       .filter({ hasText: 'Nordic Pull' })
       .first();
     await expect(record).toBeVisible();

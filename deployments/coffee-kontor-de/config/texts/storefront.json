@@ -84,7 +84,6 @@
     "categoryNotFound": "Diese Kategorie wurde nicht gefunden. Vielleicht wurde sie entfernt.",
     "backToCatalog": "Zurück zum Katalog",
     "viewImageAria": "Bild {n} anzeigen",
-    "imagePlaceholder": "Kein Bild vorhanden",
     "pairings": {
       "marker": "Wird zusammen mit anderen Produkten verkauft ({count})",
       "intro": "Diese Produkte werden zusammen mit diesem verkauft. Legen Sie in den Warenkorb, was Sie brauchen, ohne die Seite zu verlassen.",

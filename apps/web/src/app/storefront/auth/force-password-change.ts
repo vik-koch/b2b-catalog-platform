@@ -9,8 +9,8 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
 import { AuthService } from '../../shared/auth/auth.service';
 import { ChangePasswordForm } from './change-password-form';
 
@@ -48,7 +48,7 @@ import { ChangePasswordForm } from './change-password-form';
           #dialog
           (cancel)="$event.preventDefault()"
           aria-labelledby="force-password-change-heading"
-          appDialogPanel
+          uiDialogPanel
         >
           @if (changed()) {
             <h2
@@ -60,7 +60,7 @@ import { ChangePasswordForm } from './change-password-form';
             <p class="mb-6 text-sm text-ink-subtle" role="status">
               {{ text.success }}
             </p>
-            <button appButton type="button" (click)="changed.set(false)">
+            <button uiButton type="button" (click)="changed.set(false)">
               {{ text.forcedContinue }}
             </button>
           } @else {
@@ -78,7 +78,7 @@ import { ChangePasswordForm } from './change-password-form';
             />
 
             <button
-              appButton
+              uiButton
               variant="secondary"
               type="button"
               class="mt-6"

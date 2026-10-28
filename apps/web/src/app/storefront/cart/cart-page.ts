@@ -20,31 +20,32 @@ import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { debounced } from '../../shared/core/debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { EmptyState } from '../../shared/ui/empty-state';
-import { AutoGrow } from '../../shared/ui/auto-grow';
-import { Input } from '../../shared/ui/input';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { OrderSummary } from '../../shared/cart/order-summary';
 import { CartChange, CartService } from '../../shared/cart/cart.service';
-import { WarningNote } from '../../shared/ui/warning-note';
-import { Notice } from '../../shared/ui/notice';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * How many lines a page of the cart holds (FR-CART-02). A cart row is a
@@ -144,6 +145,7 @@ interface CartRow {
     ProductPairings,
     ProductRow,
     RouterLink,
+    Pagination,
   ],
   template: `
     @if (cart.isEmpty()) {
@@ -154,17 +156,17 @@ interface CartRow {
            checkout draws once one has been sent: three screens that say
            "there is nothing here, here is where to go" should not be three
            different screens. -->
-      <app-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
-        <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
-      </app-empty-state>
+      <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
+        <a uiButton routerLink="/catalog">{{ text.emptyAction }}</a>
+      </ui-empty-state>
     } @else {
       @if (cart.persistFailed()) {
-        <p appNotice tone="warning" class="mb-4">
+        <p uiNotice tone="warning" class="mb-4">
           {{ text.storageFailed }}
         </p>
       }
       @if (preview.error()) {
-        <p appNotice tone="warning" class="mb-4">
+        <p uiNotice tone="warning" class="mb-4">
           {{ text.loadError }}
         </p>
       }
@@ -190,7 +192,7 @@ interface CartRow {
            one place that says it happened *since last time*. -->
             @if (changes().length) {
               <section
-                appNotice
+                uiNotice
                 tone="warning"
                 class="mb-6"
                 [attr.aria-label]="changeText.heading"
@@ -199,12 +201,12 @@ interface CartRow {
                   <h2 class="font-medium">{{ changeText.heading }}</h2>
                   <button
                     type="button"
-                    appIconButton
+                    uiIconButton
                     class="-mt-1 -mr-1 shrink-0"
                     [attr.aria-label]="changeText.dismissAria"
                     (click)="cart.dismissChanges()"
                   >
-                    <app-icon [glyph]="xIcon" />
+                    <ui-icon [glyph]="xIcon" />
                   </button>
                 </div>
                 <ul class="mt-1 space-y-1">
@@ -232,7 +234,7 @@ interface CartRow {
               <label class="flex cursor-pointer items-center gap-2 text-accent">
                 <input
                   type="checkbox"
-                  appCheckbox
+                  uiCheckbox
                   [checked]="allSelected()"
                   [indeterminate]="someSelected() && !allSelected()"
                   (change)="toggleAll()"
@@ -255,7 +257,7 @@ interface CartRow {
                 [disabled]="selectedCount() === 0"
                 (click)="deleteSelected()"
               >
-                <app-icon [glyph]="trash2Icon" class="size-4" />
+                <ui-icon [glyph]="trash2Icon" class="size-4" />
                 <span class="group-enabled:group-hover:underline">
                   {{ text.deleteSelected }}
                 </span>
@@ -286,7 +288,7 @@ interface CartRow {
                     >
                       <input
                         type="checkbox"
-                        appCheckbox
+                        uiCheckbox
                         [checked]="isSelected(row.key)"
                         [attr.aria-label]="selectLabel(row)"
                         (change)="toggle(row.key)"
@@ -294,9 +296,9 @@ interface CartRow {
                     </label>
 
                     @for (issue of row.issues; track issue) {
-                      <app-warning-note class="mt-1">
+                      <ui-warning-note class="mt-1">
                         {{ issue }}
-                      </app-warning-note>
+                      </ui-warning-note>
                     }
 
                     @if (row.takesNote || row.pairedCount > 0) {
@@ -365,8 +367,8 @@ interface CartRow {
                              full-sized field among them reads as the thing to
                              fill in. -->
                           <textarea
-                            appInput
-                            appAutoGrow
+                            uiInput
+                            uiAutoGrow
                             size="sm"
                             rows="1"
                             class="w-full"
@@ -393,13 +395,13 @@ interface CartRow {
                     <button
                       rowActions
                       type="button"
-                      appIconButton
+                      uiIconButton
                       variant="danger"
                       class="shrink-0"
                       [attr.aria-label]="removeLabel(row)"
                       (click)="remove(row)"
                     >
-                      <app-icon [glyph]="trash2Icon" />
+                      <ui-icon [glyph]="trash2Icon" />
                     </button>
                   </app-product-row>
                 </li>
@@ -411,34 +413,12 @@ interface CartRow {
                  same three controls would read as a different one. Buttons
                  rather than links, because the page they turn is not in the
                  URL. -->
-            @if (totalPages() > 1) {
-              <nav
-                class="mt-8 flex items-center justify-center gap-4 text-sm"
-                [attr.aria-label]="pagination.status"
-              >
-                <button
-                  type="button"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  [disabled]="page() === 1"
-                  (click)="turnPage(-1)"
-                >
-                  {{ pagination.previous }}
-                </button>
-                <span class="text-ink-subtle">{{ pageStatus() }}</span>
-                <button
-                  type="button"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  [disabled]="page() === totalPages()"
-                  (click)="turnPage(1)"
-                >
-                  {{ pagination.next }}
-                </button>
-              </nav>
-            }
+            <ui-pagination
+              class="mt-8"
+              [page]="page()"
+              [totalPages]="totalPages()"
+              (turned)="turnTo($event)"
+            />
           </div>
 
           <!-- Capped at the column's own width when it sits under the lines
@@ -476,7 +456,7 @@ interface CartRow {
                  a long cart to check out reads this card, and an advisory
                  further up the page is one they scrolled past. -->
             @if (pairingSummary(); as summary) {
-              <app-warning-note class="mt-3">{{ summary }}</app-warning-note>
+              <ui-warning-note class="mt-3">{{ summary }}</ui-warning-note>
             }
 
             <!-- Inside the summary card, under the figure they act on: the
@@ -488,18 +468,18 @@ interface CartRow {
                    sending somebody to a form to be turned away there is a
                    worse way of saying the same thing. The API refuses it too
                    — this is not what makes it a rule. -->
-              <button appButton type="button" disabled class="mt-5 w-full">
+              <button uiButton type="button" disabled class="mt-5 w-full">
                 {{ text.checkout }}
               </button>
             } @else {
-              <a appButton routerLink="/checkout" class="mt-5 w-full">
+              <a uiButton routerLink="/checkout" class="mt-5 w-full">
                 {{ text.checkout }}
               </a>
             }
             <!-- Back to the shelf the visitor was standing at, with the
                  category, page and filters it was carrying. -->
             <a
-              appButton
+              uiButton
               variant="ghost"
               class="mt-2 w-full"
               [routerLink]="continueShoppingUrl"
@@ -532,7 +512,6 @@ export class CartPage {
   protected readonly changes = this.cart.changes;
   /** Only the pager's three words: the cart turns pages the way the listing
    * does, so it says it the way the listing does. */
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */
@@ -740,13 +719,6 @@ export class CartPage {
     return this.rows().slice(from, from + CART_PAGE_SIZE);
   });
 
-  protected readonly pageStatus = computed(() =>
-    fillText(this.pagination.status, {
-      page: this.page(),
-      total: this.totalPages(),
-    }),
-  );
-
   /**
    * The ticked lines, by slug. Held here rather than on the rows so a re-priced
    * cart does not drop the ticks, and intersected with the cart on every read
@@ -824,10 +796,8 @@ export class CartPage {
   /** Turns a page, from the clamped page rather than the requested one: after
    * a removal the two can differ, and stepping off the stale figure would skip
    * a page. */
-  protected turnPage(by: number): void {
-    this.requestedPage.set(
-      Math.min(Math.max(this.page() + by, 1), this.totalPages()),
-    );
+  protected turnTo(page: number): void {
+    this.requestedPage.set(page);
   }
 
   /** One line of the change summary, named by its product — the summary is

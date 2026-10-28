@@ -16,35 +16,41 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { DateField } from '../../shared/ui/date-field';
-import { Input } from '../../shared/ui/input';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import {
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { DocumentProductsPicker } from './document-products-picker';
 import { DocumentsService } from './documents.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { externalLinkIcon } from '../../shared/ui/icons/glyphs/external-link';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 interface DocumentDraft {
   title: string;
@@ -77,7 +83,7 @@ interface DocumentDraft {
     Button,
     IconButton,
     Icon,
-    DateField,
+    DateInput,
     DocumentProductsPicker,
     FieldLabel,
     FileTarget,
@@ -86,6 +92,7 @@ interface DocumentDraft {
     PageTitle,
     ErrorText,
     Hint,
+    DropZone,
   ],
   // No <form> element: the buttons under the page save or leave, so the page
   // says itself when the form has been sent.
@@ -96,19 +103,19 @@ interface DocumentDraft {
     },
   ],
   template: `
-    <h1 appPageTitle class="mb-4">
+    <h1 uiPageTitle class="mb-4">
       {{ isNew ? text.newTitle : text.editTitle }}
     </h1>
 
     @if (loading()) {
       @if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     } @else if (!isNew && !loaded()) {
       <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
     } @else {
       <div class="max-w-3xl space-y-6">
-        <app-field
+        <ui-field
           [field]="form.title"
           [label]="text.title"
           [hint]="text.titleHint"
@@ -116,15 +123,15 @@ interface DocumentDraft {
         >
           <input
             type="text"
-            appInput
+            uiInput
             class="w-full"
             [placeholder]="text.titlePlaceholder"
             [formField]="form.title"
           />
-        </app-field>
+        </ui-field>
 
         <div class="block">
-          <span appFieldLabel>{{ text.file }}</span>
+          <span uiFieldLabel>{{ text.file }}</span>
 
           <input
             #fileInput
@@ -145,7 +152,7 @@ interface DocumentDraft {
               <!-- The name keeps a readable width; on a phone the three
                    controls take the next line rather than squeeze it. -->
               <span class="flex min-w-0 flex-1 basis-48 items-center gap-3">
-                <app-icon
+                <ui-icon
                   [glyph]="fileTextIcon"
                   class="size-5 shrink-0 text-ink-subtle"
                 />
@@ -158,38 +165,38 @@ interface DocumentDraft {
               </span>
               <span class="ml-auto flex shrink-0 items-center gap-2">
                 <a
-                  appIconButton
+                  uiIconButton
                   [href]="stored.url"
                   target="_blank"
                   rel="noopener"
                   [attr.aria-label]="text.open"
                   [title]="text.open"
                 >
-                  <app-icon [glyph]="externalLinkIcon" />
+                  <ui-icon [glyph]="externalLinkIcon" />
                 </a>
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   class="shrink-0 gap-2"
-                  [appFileTarget]="accept"
+                  [uiFileTarget]="accept"
                   [disabled]="uploading()"
                   (click)="fileInput.click()"
                   (filesReceived)="upload($event[0])"
                 >
-                  <app-icon [glyph]="uploadIcon" class="size-4" />
+                  <ui-icon [glyph]="uploadIcon" class="size-4" />
                   {{ uploading() ? adminText.upload.progress : text.replace }}
                 </button>
                 <!-- Leaves the link as the document; the bytes go when the
                    sweep finds nothing pointing at them. -->
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [attr.aria-label]="text.removeFile"
                   [title]="text.removeFile"
                   (click)="file.set(null)"
                 >
-                  <app-icon [glyph]="trash2Icon" />
+                  <ui-icon [glyph]="trash2Icon" />
                 </button>
               </span>
             </div>
@@ -202,14 +209,13 @@ interface DocumentDraft {
             <button
               type="button"
               class="w-full p-4"
-              #target="appFileTarget"
-              [appFileTarget]="accept"
-              [class]="dropZoneClass(target.dragging())"
+              [uiFileTarget]="accept"
+              uiDropZone
               [disabled]="uploading()"
               (click)="fileInput.click()"
               (filesReceived)="upload($event[0])"
             >
-              <app-icon [glyph]="uploadIcon" class="size-6 mb-2" />
+              <ui-icon [glyph]="uploadIcon" class="size-6 mb-2" />
               <span class="font-medium">{{
                 uploading() ? adminText.upload.progress : text.dropHint
               }}</span>
@@ -219,14 +225,14 @@ interface DocumentDraft {
               }}</span>
             </button>
           }
-          <span appHint class="mt-1">{{ text.fileHint }}</span>
+          <span uiHint class="mt-1">{{ text.fileHint }}</span>
         </div>
 
         <!-- Where the document is held elsewhere (FR-DOC-05). Beside the file
              rather than instead of it: both are ways to the same paper. -->
         <!-- No mark: what is required is a file or a link, which a star on
              one of them would misstate. The save says it if neither is there. -->
-        <app-field
+        <ui-field
           [field]="form.link"
           [label]="text.link"
           [marker]="false"
@@ -238,51 +244,51 @@ interface DocumentDraft {
               type="url"
               inputmode="url"
               autocomplete="off"
-              appInput
+              uiInput
               class="min-w-0 flex-1"
               [placeholder]="text.linkPlaceholder"
               [formField]="form.link"
             />
             @if (linkValid()) {
               <a
-                appIconButton
+                uiIconButton
                 [href]="link().trim()"
                 target="_blank"
                 rel="noopener"
                 [attr.aria-label]="text.openLink"
                 [title]="text.openLink"
               >
-                <app-icon [glyph]="externalLinkIcon" />
+                <ui-icon [glyph]="externalLinkIcon" />
               </a>
             }
           </div>
-        </app-field>
+        </ui-field>
 
         <!-- Two dates copied off the document, side by side because that is how
              they are read off it; one per line below sm. The same field the
              checkout picks a delivery day in — one date control in the app,
              whoever is filling it in. -->
         <div class="grid gap-6 sm:grid-cols-2">
-          <app-field
+          <ui-field
             [field]="form.issuedAt"
             [label]="text.issuedAt"
             controlId="document-issued-at"
           >
-            <app-date-field
+            <ui-date-input
               [field]="form.issuedAt"
               [placeholder]="text.datePlaceholder"
             />
-          </app-field>
-          <app-field
+          </ui-field>
+          <ui-field
             [field]="form.expiresAt"
             [label]="text.expiresAt"
             controlId="document-expires-at"
           >
-            <app-date-field
+            <ui-date-input
               [field]="form.expiresAt"
               [placeholder]="text.datePlaceholder"
             />
-          </app-field>
+          </ui-field>
         </div>
         <p class="text-xs text-ink-subtle">{{ text.datesHint }}</p>
 
@@ -295,28 +301,28 @@ interface DocumentDraft {
       </div>
 
       @if (error()) {
-        <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+        <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
       }
 
       <div class="mt-6 flex max-w-3xl flex-wrap gap-3">
         <button
-          appButton
+          uiButton
           type="button"
           class="gap-2"
           [disabled]="saving()"
           (click)="save()"
         >
-          <app-icon [glyph]="saveIcon" class="size-4" />
+          <ui-icon [glyph]="saveIcon" class="size-4" />
           {{ saving() ? actionText.saving : adminText.actions.save }}
         </button>
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           class="gap-2"
           (click)="cancel()"
         >
-          <app-icon [glyph]="xIcon" class="size-4" />
+          <ui-icon [glyph]="xIcon" class="size-4" />
           {{ actionText.cancel }}
         </button>
       </div>
@@ -447,10 +453,6 @@ export class DocumentEditorPage implements UnsavedChangesAware, FieldAttempt {
   protected readonly pasteHint = fillText(this.adminText.upload.pasteHint, {
     keys: pasteKeys(),
   });
-
-  protected dropZoneClass(dragging: boolean): string {
-    return `${DROP_ZONE} ${dropZoneState(dragging)}`;
-  }
 
   protected async onFile(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;

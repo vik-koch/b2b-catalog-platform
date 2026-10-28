@@ -14,12 +14,15 @@ import {
   CustomerSyncRowError,
 } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Button } from '../../shared/ui/button';
-import { Input } from '../../shared/ui/input';
-import { Link } from '../../shared/ui/link';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Notice } from '../../shared/ui/notice';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
 /**
  * What a customer run would do, or did (FR-ADM-11): the counts, the accounts,
@@ -77,7 +80,7 @@ import { Notice } from '../../shared/ui/notice';
         <ul class="divide-y divide-edge-subtle text-sm">
           @for (account of plan().accounts; track account.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-              <span appStatusBadge [tone]="kindTone(account.kind)">
+              <span uiStatusBadge [tone]="kindTone(account.kind)">
                 {{ text.customers.count[kindCount[account.kind]] }}
               </span>
               <!-- Always the account list narrowed to this address, never the
@@ -86,7 +89,7 @@ import { Notice } from '../../shared/ui/notice';
                    right beats two that differ by row. -->
               @if (account.email; as email) {
                 <a
-                  appLink
+                  uiLink
                   class="font-medium"
                   routerLink="/admin/users"
                   [queryParams]="{ searchTerm: email }"
@@ -119,7 +122,7 @@ import { Notice } from '../../shared/ui/notice';
         <!-- An adoption changes what a key means from now on, so a reader
              about to apply one is told before they press, not after. -->
         @if (plan().summary.claimed > 0) {
-          <p appNotice tone="warning" class="mt-6" role="status">
+          <p uiNotice tone="warning" class="mt-6" role="status">
             {{ claimWarning() }}
           </p>
         }
@@ -127,7 +130,7 @@ import { Notice } from '../../shared/ui/notice';
              carry either kind or both, and the two are told apart by which
              evidence adopted the account. -->
         @if (plan().summary.claimedById > 0) {
-          <p appNotice tone="warning" class="mt-6" role="status">
+          <p uiNotice tone="warning" class="mt-6" role="status">
             {{ claimByIdWarning() }}
           </p>
         }
@@ -136,13 +139,13 @@ import { Notice } from '../../shared/ui/notice';
              typed confirmation a sweep of the catalog asks for, because it is
              the same class of act. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div appNotice tone="danger" class="mt-6">
+          <div uiNotice tone="danger" class="mt-6">
             <p>{{ disableWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
                 type="text"
-                appInput
+                uiInput
                 class="font-mono"
                 [value]="confirmation()"
                 (input)="confirmation.set($any($event.target).value)"
@@ -155,7 +158,7 @@ import { Notice } from '../../shared/ui/notice';
           <div class="mt-6 flex flex-wrap items-center gap-3">
             @if (!isNoop() && !applyBlocked()) {
               <button
-                appButton
+                uiButton
                 type="button"
                 [disabled]="!canApply() || busy()"
                 (click)="apply.emit()"
@@ -165,7 +168,7 @@ import { Notice } from '../../shared/ui/notice';
             }
             @if (discardable()) {
               <button
-                appButton
+                uiButton
                 variant="dangerOutline"
                 type="button"
                 [disabled]="busy()"
@@ -178,7 +181,7 @@ import { Notice } from '../../shared/ui/notice';
         }
 
         @if (error(); as message) {
-          <p appErrorText class="mt-3" role="alert">{{ message }}</p>
+          <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
         }
       }
     </section>

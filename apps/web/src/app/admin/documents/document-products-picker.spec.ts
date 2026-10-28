@@ -124,7 +124,7 @@ async function render(
     );
   /** The two views are a segmented pill: real radios inside their labels. */
   const chooseView = async (label: string) => {
-    [...el.querySelectorAll('app-segmented label')]
+    [...el.querySelectorAll('ui-segmented label')]
       .find((l) => l.textContent?.includes(label))
       ?.querySelector<HTMLInputElement>('input')
       ?.click();

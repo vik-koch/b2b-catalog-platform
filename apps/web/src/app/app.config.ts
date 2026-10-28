@@ -22,9 +22,11 @@ import { StaticPageReuseStrategy } from './shared/core/route-reuse';
 import { ScrollRestoration } from './shared/core/scroll-restoration';
 import { CartRepricing } from './storefront/cart/cart-repricing';
 import { provideStorefrontText } from './shared/config/storefront-text';
-import { provideSharedText } from './shared/config/shared-text';
+import { provideSharedText, provideUiText } from './shared/config/shared-text';
+import { provideGridText } from './admin/provide-grid-text';
 import { provideDeploymentConfig } from './shared/config/deployment-config';
 import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
+import { provideDigitMaskFormat } from './shared/core/contact-fields';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -58,7 +60,10 @@ export const appConfig: ApplicationConfig = {
     provideDeploymentConfig(),
     provideStorefrontText(),
     provideSharedText(),
+    provideUiText(),
+    provideGridText(),
     provideSuggestionsEnabled(),
+    provideDigitMaskFormat(),
     provideEditModeCatalog(),
     // Nothing injects it, and it has to run wherever the visitor happens to
     // be: a cart priced for somebody else is corrected as the session changes,

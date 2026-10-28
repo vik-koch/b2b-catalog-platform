@@ -1,7 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ProductAvailability } from '@b2b-catalog-platform/shared';
 import { SHARED_TEXT } from '../config/shared-text';
-import { StatusBadge, StatusTone } from '../ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 
 /**
  * Whether the product can be had, wherever its buying controls are
@@ -20,7 +23,7 @@ import { StatusBadge, StatusTone } from '../ui/status-badge';
   imports: [StatusBadge],
   template: `
     @if (availability(); as state) {
-      <span appStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
+      <span uiStatusBadge variant="dot" [tone]="tone()">{{ label() }}</span>
     } @else if (reserve()) {
       <!-- The badge's own height, held open by a space rather than a fixed
            figure, so it tracks the pill's line box if that ever changes. -->

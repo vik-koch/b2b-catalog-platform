@@ -1,6 +1,6 @@
 # Design language
 
-The rules the web app's colours and icons follow. [styles.css](../apps/web/src/styles.css) holds
+The rules the web app's colours, breakpoints, type and icons follow. [ui.css](../libs/ui/src/ui.css) holds
 the values; this page holds the reasoning, so a new screen can pick a colour by what it does
 rather than by how it looks. Lint keeps the names honest and the audit keeps the contrast honest
 ([Keeping to it](#keeping-to-it)).
@@ -26,14 +26,15 @@ order: `danger-surface`, `surface-hover`, `ink-subtle`, `primary-press`.
   lighter line.
 - **State**: `-hover` and `-press`, named for what they happen on, one and two steps from its
   resting colour; `-disabled` for a control that cannot be used. The brand's hover is its own
-  colour, `accent`.
+  colour, `accent`. A disabled control never takes its hover or press: `ui.css` redefines
+  Tailwind's `hover:` and `active:` to skip `:disabled`, so no class has to cancel them.
 
 A name says what a colour does, never which shade it is. Two roles may share a value (a hovered
 row and a recessed panel are both stone-100) and still keep two names, because they do different
 jobs and a deployment may want to tell them apart. Two roles that do the same job are one role.
 
 Tailwind's palette (`stone-200`, `red-700`) is where the values come from, not a name a template
-may use: `styles.css` switches it off and keeps the steps the roles use as private `--palette-*`
+may use: `ui.css` switches it off and keeps the steps the roles use as private `--palette-*`
 values. `white` and `black` stay: white is the text on every fill and the ground of cards and
 fields, black only ever translucent (a shadow, the dimming behind an overlay). A role at reduced
 opacity is a tint of it and keeps its name: the scrim behind a dialog (`ink/50`), the brand wash
@@ -147,9 +148,10 @@ Each colour has only the roles the app draws. Their steps are the same across th
 name is 700, `-ink` 800, `-surface` 100, `-edge` 200, `-edge-strong` 300,
 `-dot` 600, and danger's `-hover` and `-press` 800 and 900. Badges and panels share the one
 ground, a step from the page as the neutral `surface` is: a badge is `-ink` on `-surface` with
-a `-dot` (`appStatusBadge`), a panel is `-ink` on `-surface` inside an `-edge` (`appNotice`).
+a `-dot` (`uiStatusBadge`), a panel is `-ink` on `-surface` inside an `-edge` (`uiNotice`).
 The neutral badge is the one exception, on `chip`, because a grey a step from the page all but
-vanishes on it.
+vanishes on it. The neutral panel explains a state rather than stopping the reader: `ink-subtle`
+on `surface`, with no edge.
 
 ## Themes
 
@@ -170,10 +172,27 @@ lists them with what each one colours.
   on its own surface, its dot on the page, a white label on danger's fills), and a pair below its
   floor stops the app with the role named.
 
+## Breakpoints
+
+`md`, `lg` and `xl` are 49.5rem, 65.75rem and 82rem: the window widths at which the product
+listing, a grid of 15rem columns with a 1.25rem gap in the page's 82rem frame and 1rem padding,
+gains its third, fourth and fifth column (792, 1052 and 1312px). The listing is the busiest page
+and reflows there whatever the names say, so every other grid turns at the same widths: grids
+that turned 24-32px away from them read as jitter while a window edge was dragged. `sm` keeps
+Tailwind's 40rem, the line between phone and desktop rather than a column count.
+
+## Type
+
+Emphasis (a price, the one figure on a listing found without being read) is
+`font-weight-emphasis`, not `font-bold`: how heavy "heavy" is belongs to the typeface. 700 is a
+step up from the body text in the default font stack, and a shout in a face whose medium and
+semibold are barely apart, so a deployment that ships its own font sets
+`branding.font.emphasisWeight` once.
+
 ## Icons
 
 Glyphs are [Lucide](https://lucide.dev)'s (ISC), owned as data: one constant per glyph in
-[icons/glyphs/](../apps/web/src/app/shared/ui/icons/glyphs/), drawn by one `Icon` component
+[icons/glyphs/](../libs/ui/src/icons/glyphs/), drawn by one `Icon` component
 ([ADR 0008](adr/0008-tailwind-owned-primitives-runtime-theming.md)).
 
 - **One stroke weight**, 1.75 on Lucide's 24-unit grid, the same on both sides of the app. Emphasis
@@ -200,7 +219,7 @@ Glyphs are [Lucide](https://lucide.dev)'s (ISC), owned as data: one constant per
   and `surfaceSubtle` from the theme where they are hex, the defaults above otherwise.
 - **The audit** (`npx nx run web-e2e:audit`) screenshots every page on desktop and phone and
   runs axe against WCAG 2.1 AA, so a contrast slip shows up as a new finding next to its ratio.
-- **A new role** gets a name by the grammar above, a default in `styles.css`, a key of the same
+- **A new role** gets a name by the grammar above, a default in `ui.css`, a key of the same
   name in [theme-config.ts](../libs/shared/src/lib/config/theme-config.ts) so a deployment can
   set it, a row here, and a measured ratio if it carries text. A renamed role also moves its key
   in the release's config migration map.

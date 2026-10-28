@@ -13,14 +13,14 @@ import { AddressComponents } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { SHARED_TEXT } from '../config/shared-text';
-import { DigitMask } from '../ui/digit-mask';
-import { FIELD_ATTEMPT } from '../ui/field-attempt';
-import { Field } from '../ui/field';
-import { FieldBinding } from '../ui/field-binding';
-import { Input } from '../ui/input';
-import { TextButton } from '../ui/text-button';
-import { SelectField } from '../ui/select-field';
-import { submitAttempt } from '../ui/submit-attempt';
+import { DigitMask } from '@b2b-catalog-platform/ui/inputs/digit-mask';
+import { FIELD_ATTEMPT } from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
 import { AddressForm } from './address-form';
 import { AddressSuggestInput } from './address-suggest-input';
 
@@ -57,7 +57,7 @@ let nextId = 0;
     FieldBinding,
     FormField,
     Input,
-    SelectField,
+    SelectInput,
     TextButton,
   ],
   host: { class: 'block' },
@@ -74,7 +74,7 @@ let nextId = 0;
          drops into. -->
     <div class="@container space-y-4">
       @if (showLabel()) {
-        <app-field
+        <ui-field
           [field]="address.label"
           [label]="text.label"
           [hint]="text.labelHint"
@@ -83,11 +83,11 @@ let nextId = 0;
         >
           <input
             type="text"
-            appInput
+            uiInput
             class="w-full"
             [formField]="address.label"
           />
-        </app-field>
+        </ui-field>
       }
 
       <!-- Collapsed, the street and what is inside the building are the whole
@@ -98,7 +98,7 @@ let nextId = 0;
            one out. -->
       <div [class]="streetRow()">
         <div (focusout)="settleStreet()">
-          <app-field
+          <ui-field
             [field]="address.street"
             [label]="collapsed() ? text.addressLine : text.street"
             [controlId]="id('street')"
@@ -109,7 +109,7 @@ let nextId = 0;
               [country]="address.country().value()"
               (picked)="suggested($event)"
             />
-          </app-field>
+          </ui-field>
           <!-- What the provider filled in, read back. Not an aside: it is most
                of the address, and the customer is the only one who can say it
                is wrong. -->
@@ -118,7 +118,7 @@ let nextId = 0;
           }
         </div>
 
-        <app-field
+        <ui-field
           [field]="address.street2"
           [label]="text.street2"
           [optional]="optional"
@@ -127,11 +127,11 @@ let nextId = 0;
           <input
             type="text"
             autocomplete="address-line2"
-            appInput
+            uiInput
             class="w-full"
             [formField]="address.street2"
           />
-        </app-field>
+        </ui-field>
       </div>
 
       <!-- Kept in the page while collapsed rather than dropped from it, and
@@ -147,7 +147,7 @@ let nextId = 0;
            decides a field is not worth filling. -->
       <div [class]="restClass()" [attr.aria-hidden]="collapsed() || null">
         <div class="grid gap-6 sm:grid-cols-[10rem_1fr]">
-          <app-field
+          <ui-field
             [field]="address.postalCode"
             [label]="text.postalCode"
             [controlId]="id('postalCode')"
@@ -164,8 +164,8 @@ let nextId = 0;
                 inputmode="numeric"
                 autocomplete="postal-code"
                 [attr.tabindex]="collapsed() ? -1 : null"
-                appInput
-                appDigitMask
+                uiInput
+                uiDigitMask
                 [mask]="mask"
                 class="w-full"
                 [formField]="address.postalCode"
@@ -175,14 +175,14 @@ let nextId = 0;
                 type="text"
                 autocomplete="postal-code"
                 [attr.tabindex]="collapsed() ? -1 : null"
-                appInput
+                uiInput
                 class="w-full"
                 [formField]="address.postalCode"
               />
             }
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="address.city"
             [label]="text.city"
             [controlId]="id('city')"
@@ -191,16 +191,16 @@ let nextId = 0;
               type="text"
               autocomplete="address-level2"
               [attr.tabindex]="collapsed() ? -1 : null"
-              appInput
+              uiInput
               class="w-full"
               [formField]="address.city"
             />
-          </app-field>
+          </ui-field>
         </div>
 
         <!-- Always asked for, though rarely typed by hand: a suggestion fills
            it, and what it fills is printed on the address. -->
-        <app-field
+        <ui-field
           [field]="address.region"
           [label]="text.region"
           [optional]="optional"
@@ -210,25 +210,25 @@ let nextId = 0;
             type="text"
             autocomplete="address-level1"
             [attr.tabindex]="collapsed() ? -1 : null"
-            appInput
+            uiInput
             class="w-full"
             [formField]="address.region"
           />
-        </app-field>
+        </ui-field>
 
         <!-- Nothing to ask where the deployment ships to one country: the single
            configured code is used, and the server still checks it. -->
         @if (countries.length > 1) {
-          <app-field
+          <ui-field
             [field]="address.country"
             [label]="text.country"
             [controlId]="id('country')"
           >
-            <app-select-field class="max-w-72">
+            <ui-select-input class="max-w-72">
               <select
                 autocomplete="country"
                 [attr.tabindex]="collapsed() ? -1 : null"
-                appInput
+                uiInput
                 class="w-full"
                 [formField]="address.country"
               >
@@ -236,15 +236,15 @@ let nextId = 0;
                   <option [value]="option.code">{{ option.label }}</option>
                 }
               </select>
-            </app-select-field>
-          </app-field>
+            </ui-select-input>
+          </ui-field>
         }
       </div>
 
       <!-- Always on screen, not revealed by a failure: there is then no state
            a customer can be stuck in, and nothing here has to detect one. -->
       @if (collapsed()) {
-        <button type="button" appTextButton class="text-sm" (click)="expand()">
+        <button type="button" uiTextButton class="text-sm" (click)="expand()">
           {{ text.enterManually }}
         </button>
       }

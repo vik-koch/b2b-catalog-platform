@@ -6,8 +6,8 @@ import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { Icon } from '../../shared/ui/icons/icon';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
 
 /**
  * What a customer can open on their order (FR-ORD-05, FR-ACC-02).
@@ -46,7 +46,7 @@ import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
               rel="noopener"
               class="group flex items-start gap-3 py-2.5"
             >
-              <app-icon
+              <ui-icon
                 [glyph]="fileTextIcon"
                 class="mt-0.5 size-4 shrink-0 text-ink-subtle"
               />

@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ProductImage } from '@b2b-catalog-platform/shared';
-import { ImagePlaceholder } from './image-placeholder';
+import { ImagePlaceholder } from '@b2b-catalog-platform/ui/content/image-placeholder';
 import { swipeStep, touchX } from './swipe';
 
 /**
@@ -53,7 +53,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
     >
       @for (img of images(); track $index) {
         @if (failed().has(img.thumb)) {
-          <app-image-placeholder
+          <ui-image-placeholder
             [label]="productName()"
             class="absolute inset-0 transition-opacity duration-200"
             [class.opacity-100]="$index === selected()"
@@ -80,7 +80,7 @@ export type ImagePriority = 'lazy' | 'eager' | 'high';
           />
         }
       } @empty {
-        <app-image-placeholder [label]="productName()" />
+        <ui-image-placeholder [label]="productName()" />
       }
 
       @if (hasMultiple()) {

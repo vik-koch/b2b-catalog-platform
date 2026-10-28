@@ -17,16 +17,16 @@ import {
 import { PricePipe } from '../catalog/price.pipe';
 import { PRODUCT_GRID } from '../catalog/product-tile';
 import { ADMIN_TEXT } from '../config/admin-text';
-import { Button } from '../ui/button';
-import { ConfirmService } from '../ui/confirm.service';
-import { Icon } from '../ui/icons/icon';
-import { StatusBadge } from '../ui/status-badge';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { EDIT_MODE_CATALOG } from './edit-mode-catalog';
 import { injectEditorReturnParams } from './editor-return';
 import { SHARED_TEXT } from '../config/shared-text';
-import { ErrorText } from '../ui/error-text';
-import { bookCheckIcon } from '../ui/icons/glyphs/book-check';
-import { pencilIcon } from '../ui/icons/glyphs/pencil';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
 
 /**
  * The edit-mode overlay under a category grid (FR-ADM-06): what this category
@@ -71,13 +71,13 @@ import { pencilIcon } from '../ui/icons/glyphs/pencil';
                   </div>
                   <div [class]="body">
                     <p class="mb-1 flex flex-wrap gap-1">
-                      <span appStatusBadge tone="waiting">{{
+                      <span uiStatusBadge tone="waiting">{{
                         productStates.unpublished
                       }}</span>
                       <!-- The second reason, and the one the button below
                            cannot resolve: nothing prices this product. -->
                       @if (item.priceMinor === null) {
-                        <span appStatusBadge tone="danger">{{
+                        <span uiStatusBadge tone="danger">{{
                           productStates.unpriced
                         }}</span>
                       }
@@ -109,17 +109,17 @@ import { pencilIcon } from '../ui/icons/glyphs/pencil';
                          from the storefront does. -->
                     <div class="mt-3 flex flex-col items-start gap-2">
                       <a
-                        appButton
+                        uiButton
                         variant="secondary"
                         class="w-full gap-2"
                         [routerLink]="['/admin/products', item.slug, 'edit']"
                         [queryParams]="editorFrom()"
                       >
-                        <app-icon [glyph]="pencilIcon" class="size-4" />
+                        <ui-icon [glyph]="pencilIcon" class="size-4" />
                         {{ text.editProduct }}
                       </a>
                       <button
-                        appButton
+                        uiButton
                         variant="secondary"
                         type="button"
                         class="w-full gap-2"
@@ -127,7 +127,7 @@ import { pencilIcon } from '../ui/icons/glyphs/pencil';
                         [title]="cannotPublish(item) ? text.unpricedHint : null"
                         (click)="publish(item)"
                       >
-                        <app-icon [glyph]="bookCheckIcon" class="size-4" />
+                        <ui-icon [glyph]="bookCheckIcon" class="size-4" />
                         {{ actionLabel(item) }}
                       </button>
                     </div>
@@ -137,7 +137,7 @@ import { pencilIcon } from '../ui/icons/glyphs/pencil';
             }
           </ul>
           @if (error()) {
-            <p appErrorText class="mt-4" role="alert">{{ error() }}</p>
+            <p uiErrorText class="mt-4" role="alert">{{ error() }}</p>
           }
         </section>
       }

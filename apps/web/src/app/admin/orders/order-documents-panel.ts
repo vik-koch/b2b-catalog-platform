@@ -22,20 +22,20 @@ import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { Button } from '../../shared/ui/button';
-import { IconButton } from '../../shared/ui/icon-button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
-import { adminDayFormat } from '../grid/admin-date';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { adminDayFormat } from '../dates/admin-date';
 import { AdminOrdersService } from './orders.service';
-import { ErrorText } from '../../shared/ui/error-text';
-import { externalLinkIcon } from '../../shared/ui/icons/glyphs/external-link';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
-import { sendIcon } from '../../shared/ui/icons/glyphs/send';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { externalLinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/external-link';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { sendIcon } from '@b2b-catalog-platform/ui/icons/glyphs/send';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /** One line of the list: a document that exists, or a kind that could. */
 interface DocumentRow {
@@ -91,7 +91,7 @@ interface DocumentRow {
                group so they wrap as one — squeezed into the same row they took
                the name down to a letter a line. -->
           <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <app-icon
+            <ui-icon
               [glyph]="fileTextIcon"
               class="size-4 shrink-0 text-ink-subtle"
             />
@@ -114,7 +114,7 @@ interface DocumentRow {
                  group below it wraps on its own. -->
             @if (row.href; as href) {
               <a
-                appIconButton
+                uiIconButton
                 class="shrink-0"
                 [href]="href"
                 target="_blank"
@@ -122,7 +122,7 @@ interface DocumentRow {
                 [attr.aria-label]="text.open"
                 [title]="text.open"
               >
-                <app-icon [glyph]="externalLinkIcon" />
+                <ui-icon [glyph]="externalLinkIcon" />
               </a>
             }
 
@@ -133,7 +133,7 @@ interface DocumentRow {
             @if (!readOnly()) {
               <div class="flex flex-wrap items-center gap-2">
                 <button
-                  appButton
+                  uiButton
                   size="sm"
                   variant="secondary"
                   type="button"
@@ -141,7 +141,7 @@ interface DocumentRow {
                   [disabled]="busy() !== null"
                   (click)="choose(row.kind, fileInput)"
                 >
-                  <app-icon [glyph]="uploadIcon" class="size-4" />
+                  <ui-icon [glyph]="uploadIcon" class="size-4" />
                   {{
                     busy() === row.kind
                       ? adminText.upload.progress
@@ -159,7 +159,7 @@ interface DocumentRow {
                      document they cannot open. -->
                   @if (!row.behind) {
                     <button
-                      appButton
+                      uiButton
                       size="sm"
                       variant="secondary"
                       type="button"
@@ -167,12 +167,12 @@ interface DocumentRow {
                       [disabled]="busy() !== null"
                       (click)="notify(row.kind)"
                     >
-                      <app-icon [glyph]="sendIcon" class="size-4" />
+                      <ui-icon [glyph]="sendIcon" class="size-4" />
                       {{ row.sent ? text.notifySent : text.notify }}
                     </button>
                   }
                   <button
-                    appButton
+                    uiButton
                     size="sm"
                     variant="dangerOutline"
                     type="button"
@@ -205,7 +205,7 @@ interface DocumentRow {
     </ul>
 
     @if (failed()) {
-      <p appErrorText class="mt-2" role="alert">{{ text.error }}</p>
+      <p uiErrorText class="mt-2" role="alert">{{ text.error }}</p>
     }
   `,
 })

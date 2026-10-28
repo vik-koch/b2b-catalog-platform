@@ -1,14 +1,14 @@
 import { Component, inject, input } from '@angular/core';
 import { ProductFeature } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Glyph } from '../../shared/ui/icons/glyph';
-import { fileTextIcon } from '../../shared/ui/icons/glyphs/file-text';
-import { layers2Icon } from '../../shared/ui/icons/glyphs/layers-2';
-import { messageCircleIcon } from '../../shared/ui/icons/glyphs/message-circle';
-import { packagePlusIcon } from '../../shared/ui/icons/glyphs/package-plus';
-import { paletteIcon } from '../../shared/ui/icons/glyphs/palette';
-import { starIcon } from '../../shared/ui/icons/glyphs/star';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
+import { messageCircleIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle';
+import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
+import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
+import { starIcon } from '@b2b-catalog-platform/ui/icons/glyphs/star';
 
 /**
  * One glyph per thing a product can carry (FR-ADM-20), shared by the grid row,
@@ -37,7 +37,7 @@ export const PRODUCT_FEATURE_GLYPHS: Record<ProductFeature, Glyph> = {
       <ul class="flex items-center gap-1.5 text-ink-subtle">
         @for (feature of features(); track feature) {
           <li class="flex" [title]="text[feature]">
-            <app-icon [glyph]="glyphs[feature]" class="size-3.5" />
+            <ui-icon [glyph]="glyphs[feature]" class="size-3.5" />
             <span class="sr-only">{{ text[feature] }}</span>
           </li>
         }

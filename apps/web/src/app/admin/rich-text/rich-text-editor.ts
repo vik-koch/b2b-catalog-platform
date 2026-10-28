@@ -23,34 +23,34 @@ import {
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
-import { Button } from '../../shared/ui/button';
-import { DialogActions } from '../../shared/ui/dialog-actions';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { Icon } from '../../shared/ui/icons/icon';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { Input } from '../../shared/ui/input';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { RichTextImage } from './rich-text-image';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { Glyph } from '../../shared/ui/icons/glyph';
-import { boldIcon } from '../../shared/ui/icons/glyphs/bold';
-import { heading2Icon } from '../../shared/ui/icons/glyphs/heading-2';
-import { heading3Icon } from '../../shared/ui/icons/glyphs/heading-3';
-import { imageIcon } from '../../shared/ui/icons/glyphs/image';
-import { italicIcon } from '../../shared/ui/icons/glyphs/italic';
-import { linkIcon } from '../../shared/ui/icons/glyphs/link';
-import { listIcon } from '../../shared/ui/icons/glyphs/list';
-import { listOrderedIcon } from '../../shared/ui/icons/glyphs/list-ordered';
-import { quoteIcon } from '../../shared/ui/icons/glyphs/quote';
-import { removeFormattingIcon } from '../../shared/ui/icons/glyphs/remove-formatting';
-import { squareSplitVerticalIcon } from '../../shared/ui/icons/glyphs/square-split-vertical';
-import { strikethroughIcon } from '../../shared/ui/icons/glyphs/strikethrough';
-import { underlineIcon } from '../../shared/ui/icons/glyphs/underline';
-import { unlinkIcon } from '../../shared/ui/icons/glyphs/unlink';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
+import { boldIcon } from '@b2b-catalog-platform/ui/icons/glyphs/bold';
+import { heading2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/heading-2';
+import { heading3Icon } from '@b2b-catalog-platform/ui/icons/glyphs/heading-3';
+import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
+import { italicIcon } from '@b2b-catalog-platform/ui/icons/glyphs/italic';
+import { linkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/link';
+import { listIcon } from '@b2b-catalog-platform/ui/icons/glyphs/list';
+import { listOrderedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/list-ordered';
+import { quoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/quote';
+import { removeFormattingIcon } from '@b2b-catalog-platform/ui/icons/glyphs/remove-formatting';
+import { squareSplitVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/square-split-vertical';
+import { strikethroughIcon } from '@b2b-catalog-platform/ui/icons/glyphs/strikethrough';
+import { underlineIcon } from '@b2b-catalog-platform/ui/icons/glyphs/underline';
+import { unlinkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/unlink';
 
 type ImageAlign = (typeof RICH_TEXT_IMAGE_ALIGNMENTS)[number];
 
@@ -109,7 +109,7 @@ interface ToolbarAction {
               [class]="buttonClass(activeIds().includes(action.id))"
               (click)="run(action)"
             >
-              <app-icon [glyph]="action.icon" />
+              <ui-icon [glyph]="action.icon" />
             </button>
           }
         </div>
@@ -156,7 +156,7 @@ interface ToolbarAction {
       </p>
     }
     @if (uploadError()) {
-      <p appErrorText class="mt-2" role="alert">
+      <p uiErrorText class="mt-2" role="alert">
         {{ adminText.upload.error }}
       </p>
     }
@@ -169,11 +169,11 @@ interface ToolbarAction {
            takes half of what there is, so the same fields are a modal. -->
     <ng-template #linkBody>
       <label class="block">
-        <span appFieldLabel>{{ link.urlLabel }}</span>
+        <span uiFieldLabel>{{ link.urlLabel }}</span>
         <input
           #linkInput
           type="text"
-          appInput
+          uiInput
           size="sm"
           class="w-full"
           [placeholder]="link.placeholder"
@@ -182,12 +182,12 @@ interface ToolbarAction {
           (keydown.enter)="applyLink()"
           (keydown.escape)="closeLinkPanel()"
         />
-        <span appHint class="mt-1">{{ link.hint }}</span>
+        <span uiHint class="mt-1">{{ link.hint }}</span>
       </label>
-      <div appDialogActions>
+      <div uiDialogActions>
         @if (editingExistingLink()) {
           <button
-            appButton
+            uiButton
             variant="dangerOutline"
             size="sm"
             type="button"
@@ -198,7 +198,7 @@ interface ToolbarAction {
           </button>
         }
         <button
-          appButton
+          uiButton
           variant="secondary"
           size="sm"
           type="button"
@@ -207,7 +207,7 @@ interface ToolbarAction {
           {{ actionText.cancel }}
         </button>
         <button
-          appButton
+          uiButton
           size="sm"
           type="button"
           [disabled]="!linkDraft().trim()"
@@ -220,24 +220,24 @@ interface ToolbarAction {
 
     <ng-template #imageBody>
       <label class="block">
-        <span appFieldLabel>{{ image.altLabel }}</span>
+        <span uiFieldLabel>{{ image.altLabel }}</span>
         <input
           type="text"
-          appInput
+          uiInput
           size="sm"
           class="w-full"
           [placeholder]="image.altPlaceholder"
           [value]="imageAlt()"
           (input)="onImageAltInput($any($event.target).value)"
         />
-        <span appHint class="mt-1">{{ image.altHint }}</span>
+        <span uiHint class="mt-1">{{ image.altHint }}</span>
       </label>
 
       <label class="mt-3 block">
-        <span appFieldLabel>{{ image.linkLabel }}</span>
+        <span uiFieldLabel>{{ image.linkLabel }}</span>
         <input
           type="text"
-          appInput
+          uiInput
           size="sm"
           class="w-full"
           [placeholder]="image.linkPlaceholder"
@@ -247,7 +247,7 @@ interface ToolbarAction {
       </label>
 
       <div class="mt-3">
-        <span appFieldLabel>{{ image.alignLabel }}</span>
+        <span uiFieldLabel>{{ image.alignLabel }}</span>
         <div class="flex gap-1">
           <button
             type="button"
@@ -283,9 +283,9 @@ interface ToolbarAction {
         />
       </label>
 
-      <div appDialogActions>
+      <div uiDialogActions>
         <button
-          appButton
+          uiButton
           variant="dangerOutline"
           size="sm"
           type="button"
@@ -294,7 +294,7 @@ interface ToolbarAction {
         >
           {{ image.remove }}
         </button>
-        <button appButton size="sm" type="button" (click)="closeImagePanel()">
+        <button uiButton size="sm" type="button" (click)="closeImagePanel()">
           {{ actionText.done }}
         </button>
       </div>
@@ -303,7 +303,7 @@ interface ToolbarAction {
     @if (linkPanelOpen() && narrow()) {
       <dialog
         #linkDialog
-        appDialogPanel
+        uiDialogPanel
         [attr.aria-label]="link.headingAria"
         (cancel)="closeLinkPanel()"
       >
@@ -314,7 +314,7 @@ interface ToolbarAction {
     @if (imagePanelOpen() && narrow()) {
       <dialog
         #imageDialog
-        appDialogPanel
+        uiDialogPanel
         [attr.aria-label]="image.headingAria"
         (cancel)="closeImagePanel()"
       >

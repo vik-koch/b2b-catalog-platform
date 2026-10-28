@@ -7,16 +7,19 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { canonicalPhone } from '../../shared/core/contact-fields';
 import { completeMask, emailAddress } from '../../shared/core/field-rules';
-import { Button } from '../../shared/ui/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { InquiryService } from './inquiry.service';
 import { ConsentField } from './consent-field';
 import { useConsent } from './consent';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 type PreferredContact = InquiryRequest['preferredContact'];
 type Status = 'idle' | 'success' | 'error';
@@ -51,45 +54,39 @@ interface Inquiry {
   ],
   template: `
     <div class="max-w-xl">
-      <h1 appPageTitle class="mb-2">{{ heading }}</h1>
+      <h1 uiPageTitle class="mb-2">{{ heading }}</h1>
 
       @if (status() === 'success') {
         <p class="text-ink-subtle">{{ text.success }}</p>
-        <a appButton variant="secondary" routerLink="/" class="mt-8">
+        <a uiButton variant="secondary" routerLink="/" class="mt-8">
           {{ errors.notFoundBack }}
         </a>
       } @else {
         <p class="mb-4 text-ink-subtle">{{ text.intro }}</p>
 
         <form [formRoot]="form" class="space-y-6">
-          <app-field
+          <ui-field
             [field]="form.name"
             [label]="fields.name.label"
             controlId="name"
           >
-            <input
-              type="text"
-              appInput
-              class="w-full"
-              [formField]="form.name"
-            />
-          </app-field>
+            <input type="text" uiInput class="w-full" [formField]="form.name" />
+          </ui-field>
 
-          <app-field
-            group
+          <ui-field-group
             [field]="form.preferredContact"
             [label]="text.preferredContact"
           >
-            <app-segmented
+            <ui-segmented
               [options]="contactChannels"
               size="md"
               [formField]="form.preferredContact"
             />
-          </app-field>
+          </ui-field-group>
 
           <!-- Whichever channel was picked is the required one; the other stays
                offered, because a visitor who gives both is being helpful. -->
-          <app-field
+          <ui-field
             [field]="form.email"
             [label]="fields.email.label"
             controlId="email"
@@ -97,32 +94,32 @@ interface Inquiry {
             <input
               type="email"
               autocomplete="email"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.email"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.phone"
             [label]="fields.phone.label"
             controlId="phone"
           >
-            <app-phone-input [field]="form.phone" />
-          </app-field>
+            <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.message"
             [label]="text.message"
             controlId="message"
           >
             <textarea
               rows="5"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.message"
             ></textarea>
-          </app-field>
+          </ui-field>
 
           <!-- Honeypot: hidden from humans. -->
           <div class="absolute left-[-9999px]" aria-hidden="true">
@@ -139,10 +136,10 @@ interface Inquiry {
           <app-consent-field [consent]="consent" />
 
           @if (status() === 'error') {
-            <p appErrorText role="alert">{{ text.error }}</p>
+            <p uiErrorText role="alert">{{ text.error }}</p>
           }
 
-          <button appButton type="submit" [disabled]="form().submitting()">
+          <button uiButton type="submit" [disabled]="form().submitting()">
             {{ form().submitting() ? actionText.sending : text.submit }}
           </button>
         </form>
@@ -163,7 +160,7 @@ export class InquiryPage {
   protected readonly errors = inject(STOREFRONT_TEXT).errors;
   protected readonly heading = inject(SHARED_TEXT).nav['inquiry'];
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly status = signal<Status>('idle');
   protected readonly consent = useConsent('contact');
 

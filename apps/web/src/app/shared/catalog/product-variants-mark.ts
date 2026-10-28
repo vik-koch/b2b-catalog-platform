@@ -15,15 +15,15 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
-import { injectNarrowScreen } from '../core/narrow-screen';
-import { Button } from '../ui/button';
-import { DialogActions } from '../ui/dialog-actions';
-import { DialogPanel } from '../ui/dialog-panel';
-import { Icon } from '../ui/icons/icon';
-import { LINK_BASE, LINK_TONES } from '../ui/link';
-import { Popover } from '../ui/popover';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { ProductVariantGallery } from './product-variant-gallery';
-import { paletteIcon } from '../ui/icons/glyphs/palette';
+import { paletteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/palette';
 
 /**
  * Says a product comes in variants, where its picture is too small to label
@@ -49,6 +49,7 @@ import { paletteIcon } from '../ui/icons/glyphs/palette';
     Icon,
     Popover,
     ProductVariantGallery,
+    Link,
   ],
   host: { class: 'relative flex min-w-0' },
   template: `
@@ -60,15 +61,15 @@ import { paletteIcon } from '../ui/icons/glyphs/palette';
       [title]="label()"
       (click)="toggle()"
     >
-      <app-icon [glyph]="paletteIcon" class="size-3.5 shrink-0" />
-      <span [class]="word">{{ product.variants }}</span>
+      <ui-icon [glyph]="paletteIcon" class="size-3.5 shrink-0" />
+      <span uiLink class="truncate">{{ product.variants }}</span>
     </button>
 
     @if (open()) {
       @if (narrow()) {
         <dialog
           #dialog
-          appDialogPanel
+          uiDialogPanel
           [attr.aria-label]="productName()"
           (cancel)="open.set(false)"
         >
@@ -78,9 +79,9 @@ import { paletteIcon } from '../ui/icons/glyphs/palette';
             [productName]="productName()"
             shape="stack"
           />
-          <div appDialogActions>
+          <div uiDialogActions>
             <button
-              appButton
+              uiButton
               variant="secondary"
               type="button"
               (click)="open.set(false)"
@@ -90,7 +91,7 @@ import { paletteIcon } from '../ui/icons/glyphs/palette';
           </div>
         </dialog>
       } @else {
-        <app-popover
+        <ui-popover
           align="start"
           [wide]="true"
           [placement]="placement()"
@@ -102,7 +103,7 @@ import { paletteIcon } from '../ui/icons/glyphs/palette';
             [productName]="productName()"
             shape="side"
           />
-        </app-popover>
+        </ui-popover>
       }
     }
   `,
@@ -137,7 +138,6 @@ export class ProductVariantsMark {
                                 items-center gap-1 whitespace-nowrap border
                                 border-transparent py-0.5 text-xs text-primary
                                 hover:text-accent`;
-  protected readonly word = `truncate ${LINK_BASE} ${LINK_TONES.default}`;
 
   private readonly popover = viewChild(Popover, { read: ElementRef });
 

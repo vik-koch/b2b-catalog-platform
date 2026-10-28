@@ -11,8 +11,8 @@ import { PartySuggestion } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { companyIdExamples } from '../core/field-rules';
-import { ErrorText } from '../ui/error-text';
-import { Field } from '../ui/field';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
 import { PartySuggestInput } from './party-suggest-input';
 
 export interface CompanyFieldsText {
@@ -52,7 +52,7 @@ let nextId = 0;
       <!-- A container, so a suggestion panel under the ten-character number
            field may cross into the name's column but not past the row. -->
       <div class="@container grid gap-6 sm:grid-cols-[10rem_1fr]">
-        <app-field
+        <ui-field
           [field]="idField()"
           [label]="text().idLabel"
           [controlId]="idInputId()"
@@ -63,9 +63,9 @@ let nextId = 0;
             [text]="suggestText"
             (picked)="picked.emit($event)"
           />
-        </app-field>
+        </ui-field>
 
-        <app-field
+        <ui-field
           [field]="nameField()"
           [label]="text().nameLabel"
           [controlId]="nameInputId()"
@@ -77,7 +77,7 @@ let nextId = 0;
             autocomplete="organization"
             (picked)="picked.emit($event)"
           />
-        </app-field>
+        </ui-field>
       </div>
 
       <!-- Gone entirely when there is nothing to say, rather than an empty
@@ -86,7 +86,7 @@ let nextId = 0;
            person. -->
       <div [id]="lineId" class="empty:hidden mt-1">
         @for (message of messages(); track message) {
-          <p appErrorText>{{ message }}</p>
+          <p uiErrorText>{{ message }}</p>
         } @empty {
           @if (hint(); as hint) {
             <p class="text-sm text-ink-subtle">{{ hint }}</p>

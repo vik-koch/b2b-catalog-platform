@@ -1,13 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import {
-  SEGMENTED_GROUP_NEUTRAL,
-  segmentClass,
-} from '../../shared/ui/segmented';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
+import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { ProductLayout, ProductLayoutService } from './product-layout';
-import { layoutGridIcon } from '../../shared/ui/icons/glyphs/layout-grid';
-import { layoutListIcon } from '../../shared/ui/icons/glyphs/layout-list';
+import { layoutGridIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-grid';
+import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-list';
 
 /**
  * Cards or lines (FR-CAT-06), on the quiet pill the sort beside it uses: both
@@ -36,28 +34,38 @@ import { layoutListIcon } from '../../shared/ui/icons/glyphs/layout-list';
   // disappeared while the two layouts still looked different. One figure,
   // one container, no band.
   host: { class: 'hidden @min-[38rem]/listing:block' },
-  imports: [Icon],
+  imports: [Icon, Segment, SegmentGroup],
   template: `
-    <div role="group" [attr.aria-label]="text.labelAria" [class]="group">
+    <div
+      uiSegmentGroup
+      tone="neutral"
+      role="group"
+      class="h-8 items-center"
+      [attr.aria-label]="text.labelAria"
+    >
       <button
         type="button"
-        [class]="segment('grid')"
+        uiSegment
+        [state]="chosen() === 'grid' ? 'selected' : 'available'"
+        class="flex h-full items-center px-2"
         [attr.aria-pressed]="chosen() === 'grid'"
         [attr.aria-label]="text.grid"
         [title]="text.grid"
         (click)="choose('grid')"
       >
-        <app-icon [glyph]="layoutGridIcon" class="size-4" />
+        <ui-icon [glyph]="layoutGridIcon" class="size-4" />
       </button>
       <button
         type="button"
-        [class]="segment('list')"
+        uiSegment
+        [state]="chosen() === 'list' ? 'selected' : 'available'"
+        class="flex h-full items-center px-2"
         [attr.aria-pressed]="chosen() === 'list'"
         [attr.aria-label]="text.list"
         [title]="text.list"
         (click)="choose('list')"
       >
-        <app-icon [glyph]="layoutListIcon" class="size-4" />
+        <ui-icon [glyph]="layoutListIcon" class="size-4" />
       </button>
     </div>
   `,
@@ -68,11 +76,6 @@ export class ProductLayoutToggle {
   private readonly layout = inject(ProductLayoutService);
   protected readonly text = inject(STOREFRONT_TEXT).catalog.layout;
   protected readonly chosen = this.layout.layout;
-  protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
-
-  protected segment(layout: ProductLayout): string {
-    return `${segmentClass(this.chosen() === layout ? 'selected' : 'available', { tone: 'neutral' })} flex h-full items-center px-2`;
-  }
 
   protected choose(layout: ProductLayout): void {
     this.layout.set(layout);

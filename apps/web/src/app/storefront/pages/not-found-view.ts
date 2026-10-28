@@ -1,9 +1,9 @@
 import { Component, inject, input, RESPONSE_INIT } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
-import { PageTitle } from '../../shared/ui/page-title';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /**
  * The one 404 screen: the "404" eyebrow, a heading, an explanation and a way
@@ -19,11 +19,11 @@ import { PageIntro } from '../../shared/ui/page-intro';
   template: `
     <section class="py-12 text-center sm:py-20">
       <p class="text-sm font-medium tracking-widest text-accent">404</p>
-      <h1 appPageTitle class="mt-3">
+      <h1 uiPageTitle class="mt-3">
         {{ heading() ?? text.notFoundTitle }}
       </h1>
-      <p appPageIntro class="mt-4">{{ body() ?? text.notFoundBody }}</p>
-      <a appButton variant="secondary" [routerLink]="backLink()" class="mt-8">
+      <p uiPageIntro class="mt-4">{{ body() ?? text.notFoundBody }}</p>
+      <a uiButton variant="secondary" [routerLink]="backLink()" class="mt-8">
         {{ backLabel() ?? text.notFoundBack }}
       </a>
     </section>

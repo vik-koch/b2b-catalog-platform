@@ -20,6 +20,7 @@ import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
 import { UserEditorPage } from './user-editor-page';
 import { StaffUsersService } from './users.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 const text = defaultAdminText.users.editor;
 
@@ -123,6 +124,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [UserEditorPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

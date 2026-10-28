@@ -1,9 +1,9 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Facet, formatAttributeValue } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FacetSelection, selectedValues } from './facet-selection';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** One ticked value, as the chip row needs it. */
 interface AppliedFilter {
@@ -52,7 +52,7 @@ interface AppliedFilter {
               [attr.aria-label]="removeLabel(filter)"
               (click)="remove(filter)"
             >
-              <app-icon [glyph]="xIcon" class="size-3.5" />
+              <ui-icon [glyph]="xIcon" class="size-3.5" />
             </button>
           </li>
         }

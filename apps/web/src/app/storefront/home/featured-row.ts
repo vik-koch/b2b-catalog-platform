@@ -18,10 +18,10 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { anyStatus } from '../../shared/catalog/product-status-line';
 import { ProductTile } from '../../shared/catalog/product-tile';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { IconButton } from '../../shared/ui/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { FeaturedRowService } from './featured-row.service';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
  * One card width at every window width: a listing's column, 15rem, which is
@@ -69,7 +69,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
               @if (canBack() || canForward()) {
                 <div class="hidden gap-1 pointer-fine:flex">
                   <button
-                    appIconButton
+                    uiIconButton
                     size="md"
                     type="button"
                     [disabled]="!canBack()"
@@ -77,10 +77,10 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     [attr.aria-controls]="trackId"
                     (click)="page(-1)"
                   >
-                    <app-icon [glyph]="chevronRightIcon" class="rotate-180" />
+                    <ui-icon [glyph]="chevronRightIcon" class="rotate-180" />
                   </button>
                   <button
-                    appIconButton
+                    uiIconButton
                     size="md"
                     type="button"
                     [disabled]="!canForward()"
@@ -88,7 +88,7 @@ const CARD_WIDTH = 'auto-cols-[15rem]';
                     [attr.aria-controls]="trackId"
                     (click)="page(1)"
                   >
-                    <app-icon [glyph]="chevronRightIcon" />
+                    <ui-icon [glyph]="chevronRightIcon" />
                   </button>
                 </div>
               }

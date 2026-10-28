@@ -27,20 +27,23 @@ import {
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { completeMask, emailAddress } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { adminDayFormat } from '../grid/admin-date';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { adminDayFormat } from '../dates/admin-date';
 import { ConsentRecordList } from './consent-record-list';
 import { ConsentsService } from './consents.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type SearchBy = 'email' | 'phone';
 
@@ -71,19 +74,19 @@ interface ConsentSearch {
   ],
   template: `
     <div class="max-w-3xl">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
+      <h1 uiPageTitle>{{ text.page.title }}</h1>
       @if (text.page.intro; as intro) {
-        <p appPageIntro class="mt-2">{{ intro }}</p>
+        <p uiPageIntro class="mt-2">{{ intro }}</p>
       }
 
       <form [formRoot]="form" class="mt-6 space-y-4" (submit)="search()">
-        <app-segmented
+        <ui-segmented
           [options]="searchOptions"
           size="md"
           [formField]="form.by"
         />
         @if (searchBy() === 'email') {
-          <app-field
+          <ui-field
             [field]="form.email"
             [label]="text.byEmail"
             controlId="email"
@@ -91,21 +94,25 @@ interface ConsentSearch {
             <input
               type="email"
               autocomplete="off"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.email"
             />
-          </app-field>
+          </ui-field>
         } @else {
-          <app-field
+          <ui-field
             [field]="form.phone"
             [label]="text.byPhone"
             controlId="phone"
           >
-            <app-phone-input [field]="form.phone" autocomplete="off" />
-          </app-field>
+            <ui-phone-input
+              [field]="form.phone"
+              [phone]="phoneInput"
+              autocomplete="off"
+            />
+          </ui-field>
         }
-        <button appButton type="submit">{{ text.search }}</button>
+        <button uiButton type="submit">{{ text.search }}</button>
       </form>
 
       <div class="mt-8">
@@ -113,7 +120,7 @@ interface ConsentSearch {
           <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
         } @else if (results.hasValue() && query(); as asked) {
           @if (withdrawError(); as message) {
-            <p appErrorText class="mb-4" role="alert">{{ message }}</p>
+            <p uiErrorText class="mb-4" role="alert">{{ message }}</p>
           }
           @if (results.value().length > 0) {
             <app-consent-record-list
@@ -125,7 +132,7 @@ interface ConsentSearch {
             <p class="text-ink-subtle">{{ emptyLine(asked) }}</p>
           }
         } @else if (showSkeleton()) {
-          <app-skeleton [lines]="4" />
+          <ui-skeleton [lines]="4" />
         }
       </div>
     </div>
@@ -138,7 +145,7 @@ export class ConsentLookupPage {
   /** Why the last withdrawal was not saved, until the next one is tried. */
   protected readonly withdrawError = signal<string | null>(null);
   private readonly router = inject(Router);
-  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
 
   protected readonly text = inject(ADMIN_TEXT).consents;
   private readonly adminText = inject(ADMIN_TEXT);

@@ -25,22 +25,19 @@ import {
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../shared/ui/input';
-import { ErrorText } from '../../shared/ui/error-text';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { imageIcon } from '../../shared/ui/icons/glyphs/image';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { imageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -74,14 +71,12 @@ let nextId = 0;
     IconButton,
     Input,
     ErrorText,
+    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div
-      class="max-w-xl rounded-md border"
-      [class]="frame + ' ' + disclosureBorder(open())"
-    >
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="product.variants"
         [count]="value().length"
         [countLabel]="countLabel()"
@@ -89,12 +84,12 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
@@ -140,11 +135,11 @@ let nextId = 0;
                              active:cursor-grabbing"
                       [attr.aria-label]="adminText.actions.reorder"
                     >
-                      <app-icon [glyph]="gripVerticalIcon" class="size-4" />
+                      <ui-icon [glyph]="gripVerticalIcon" class="size-4" />
                     </span>
                     <input
                       type="text"
-                      appInput
+                      uiInput
                       size="sm"
                       class="min-w-0 flex-1 basis-[calc(100%-1.5rem)]
                              @min-[30rem]/variants:basis-0"
@@ -164,7 +159,7 @@ let nextId = 0;
                       [title]="picturesLabel(variant.id)"
                       [attr.aria-label]="picturesLabel(variant.id)"
                     >
-                      <app-icon [glyph]="imageIcon" class="size-3.5" />
+                      <ui-icon [glyph]="imageIcon" class="size-3.5" />
                       {{ pictureCount(variant.id) }}
                     </span>
                     <label
@@ -175,7 +170,7 @@ let nextId = 0;
                     >
                       <input
                         type="checkbox"
-                        appCheckbox
+                        uiCheckbox
                         [checked]="variant.unavailable"
                         (change)="
                           setUnavailable(
@@ -189,13 +184,13 @@ let nextId = 0;
                       }}</span>
                     </label>
                     <button
-                      appIconButton
+                      uiIconButton
                       type="button"
                       class="ml-auto @min-[30rem]/variants:ml-0"
                       [attr.aria-label]="removeLabel(variant.name)"
                       (click)="remove(variant.id)"
                     >
-                      <app-icon [glyph]="xIcon" />
+                      <ui-icon [glyph]="xIcon" />
                     </button>
                   </li>
                 }
@@ -203,7 +198,7 @@ let nextId = 0;
             </div>
           }
           @if (hasClash()) {
-            <p appErrorText class="mt-2">{{ text.duplicate }}</p>
+            <p uiErrorText class="mt-2">{{ text.duplicate }}</p>
           }
           @if (allWithheld()) {
             <p class="mt-2 text-xs text-warning">{{ text.allWithheld }}</p>
@@ -213,12 +208,12 @@ let nextId = 0;
             <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
-              <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
+              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
               <div class="flex gap-2">
                 <input
                   [id]="inputId"
                   type="text"
-                  appInput
+                  uiInput
                   class="min-w-0 flex-1"
                   autocomplete="off"
                   [attr.maxlength]="nameMax"
@@ -229,7 +224,7 @@ let nextId = 0;
                   (keydown.enter)="$event.preventDefault(); add()"
                 />
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   [disabled]="draft().trim() === ''"
@@ -239,7 +234,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p appErrorText class="mt-1">{{ text.exists }}</p>
+                <p uiErrorText class="mt-1">{{ text.exists }}</p>
               }
             </div>
           }
@@ -252,8 +247,6 @@ export class ProductVariantsEditor implements OnInit {
   protected readonly gripVerticalIcon = gripVerticalIcon;
   protected readonly imageIcon = imageIcon;
   protected readonly xIcon = xIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.variants;
   protected readonly product = inject(SHARED_TEXT).product;

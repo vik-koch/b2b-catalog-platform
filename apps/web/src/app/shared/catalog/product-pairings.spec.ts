@@ -52,7 +52,7 @@ describe('the sold-together marker (FR-SET-05)', () => {
       fillText(text.marker, { count: 2 }),
     );
     expect(button?.textContent?.trim()).toBe('');
-    expect(el.querySelector('app-icon')).not.toBeNull();
+    expect(el.querySelector('ui-icon')).not.toBeNull();
   });
 
   it('names the thing where there is a line to spare', async () => {

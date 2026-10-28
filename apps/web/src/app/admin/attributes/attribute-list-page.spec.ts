@@ -9,7 +9,7 @@ import { defaultStorefrontText } from '../../shared/config/storefront-text.fixtu
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { AttributeListPage } from './attribute-list-page';
 import { AttributesService } from './attributes.service';
 
@@ -200,7 +200,7 @@ describe('AttributeListPage', () => {
   it('creates a definition, leaving the slug to the server when blank', async () => {
     const { service, click, type, select, submit } = await render();
 
-    await click('h1 + button');
+    await click('ui-page-header button');
     await type('#attribute-name', '  Width  ');
     await select('#attribute-type', 'number');
     await type('#attribute-unit', ' cm ');
@@ -217,7 +217,7 @@ describe('AttributeListPage', () => {
   it('sends an empty unit as null rather than an empty string', async () => {
     const { service, click, type, submit } = await render();
 
-    await click('h1 + button');
+    await click('ui-page-header button');
     await type('#attribute-name', 'Colour');
     await submit();
 
@@ -232,7 +232,7 @@ describe('AttributeListPage', () => {
   it('refuses an unusable slug before the request', async () => {
     const { el, service, click, type, submit } = await render();
 
-    await click('h1 + button');
+    await click('ui-page-header button');
     await type('#attribute-name', 'Colour');
     await type('#attribute-slug', 'Not A Slug');
     await submit();
@@ -267,7 +267,7 @@ describe('AttributeListPage', () => {
       create: { ok: false, code: 'attribute-name-taken' },
     });
 
-    await click('h1 + button');
+    await click('ui-page-header button');
     await type('#attribute-name', 'Colour');
     await submit();
 

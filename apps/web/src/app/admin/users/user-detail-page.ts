@@ -26,25 +26,25 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge } from '../../shared/ui/status-badge';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { arrowLeftIcon } from '../../shared/ui/icons/glyphs/arrow-left';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { arrowLeftIcon } from '@b2b-catalog-platform/ui/icons/glyphs/arrow-left';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /** One line of a details list: a label, and the value under it. */
 interface DetailRow {
@@ -90,8 +90,8 @@ interface DetailRow {
         <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
       } @else if (user(); as person) {
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <h1 appPageTitle>{{ name() }}</h1>
-          <span appStatusBadge [tone]="statusTone(person.status)">{{
+          <h1 uiPageTitle>{{ name() }}</h1>
+          <span uiStatusBadge [tone]="statusTone(person.status)">{{
             statusLabel(person.status)
           }}</span>
         </div>
@@ -177,7 +177,7 @@ interface DetailRow {
                 @if (canExempt()) {
                   <button
                     type="button"
-                    appButton
+                    uiButton
                     variant="secondary"
                     class="mt-4"
                     [disabled]="exempting()"
@@ -187,7 +187,7 @@ interface DetailRow {
                   </button>
                 }
                 @if (exemptError(); as error) {
-                  <p appErrorText class="mt-3" role="alert">
+                  <p uiErrorText class="mt-3" role="alert">
                     {{ error }}
                   </p>
                 }
@@ -227,12 +227,12 @@ interface DetailRow {
                so nothing is offered; the way back stays either way. -->
           @if (canEdit()) {
             <a
-              appButton
+              uiButton
               class="gap-2"
               [routerLink]="['/admin/users', person.id, 'edit']"
               [queryParams]="editorFrom()"
             >
-              <app-icon
+              <ui-icon
                 [glyph]="isPending() ? circleCheckIcon : pencilIcon"
                 class="size-4"
               />
@@ -240,36 +240,36 @@ interface DetailRow {
             </a>
           }
           <a
-            appButton
+            uiButton
             variant="secondary"
             class="gap-2"
             [routerLink]="listUrl()"
           >
-            <app-icon [glyph]="arrowLeftIcon" class="size-4" />
+            <ui-icon [glyph]="arrowLeftIcon" class="size-4" />
             {{ text.back }}
           </a>
           <!-- Set apart from the two above: it cannot be taken back. -->
           @if (canDelete()) {
             <button
               type="button"
-              appButton
+              uiButton
               variant="dangerOutline"
               class="gap-2 sm:ml-auto"
               [disabled]="deleting()"
               (click)="deleteOnRequest(person)"
             >
-              <app-icon [glyph]="trash2Icon" class="size-4" />
+              <ui-icon [glyph]="trash2Icon" class="size-4" />
               {{ text.delete }}
             </button>
           }
         </div>
         @if (deleteError(); as error) {
-          <p appErrorText class="mt-3" role="alert">{{ error }}</p>
+          <p uiErrorText class="mt-3" role="alert">{{ error }}</p>
         }
       } @else if (notFound()) {
         <p class="text-ink-subtle" role="alert">{{ text.notFound }}</p>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="6" />
+        <ui-skeleton [lines]="6" />
       }
     </div>
   `,

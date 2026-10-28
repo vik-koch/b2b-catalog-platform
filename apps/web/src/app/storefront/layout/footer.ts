@@ -5,7 +5,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import type { ElsewhereLink } from '@b2b-catalog-platform/shared';
 import { ConsentService } from '../consent/consent.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { telHref } from './contact-info';
 import { ScrollToTop } from './scroll-to-top';
 
@@ -169,7 +169,7 @@ import { ScrollToTop } from './scroll-to-top';
                    however many a deployment lists, the row keeps its shape.
                    An empty list leaves the group out entirely. -->
               <div class="flex flex-wrap items-center gap-4">
-                <a appButton routerLink="/inquiry">{{ nav['inquiry'] }}</a>
+                <a uiButton routerLink="/inquiry">{{ nav['inquiry'] }}</a>
                 @for (link of elsewhere; track link.url) {
                   <a
                     [href]="link.url"

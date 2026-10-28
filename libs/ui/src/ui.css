@@ -1,0 +1,165 @@
+@import 'tailwindcss';
+
+/*
+ * The design tokens: breakpoints, the emphasis weight, the colour roles and
+ * the palette steps behind them, and what hover and press apply to. Why each
+ * value is what it is: docs/design-language.md.
+ *
+ * Tailwind compiles the utilities to var() references, so a theme set on
+ * <html> as these same custom properties re-colours a built image.
+ */
+@source '.';
+
+/*
+ * A disabled control does not answer to the pointer, so `hover:` and `active:` skip it; `:where`
+ * keeps their specificity as Tailwind's own. The rest is Tailwind's definition.
+ */
+@custom-variant hover {
+  @media (hover: hover) {
+    &:hover:where(:not(:disabled)) {
+      @slot;
+    }
+  }
+}
+@custom-variant active (&:active:where(:not(:disabled)));
+
+@theme {
+  /*
+   * Where a grid of 15rem columns gains its third, fourth and fifth column,
+   * so every grid reflows at the same widths. `sm` keeps Tailwind's 40rem.
+   */
+  --breakpoint-md: 49.5rem;
+  --breakpoint-lg: 65.75rem;
+  --breakpoint-xl: 82rem;
+
+  /*
+   * How heavy emphasis is belongs to the typeface, so a theme with its own
+   * font sets this one number.
+   */
+  --font-weight-emphasis: 700;
+
+  /*
+   * The caret a code box draws while it is the one the next digit lands in.
+   * The real input's own caret is hidden under the boxes (see CodeInput).
+   */
+  --animate-caret-blink: caret-blink 1.1s step-end infinite;
+
+  @keyframes caret-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /*
+   * Tailwind's palette is switched off: only the roles below exist, so a
+   * palette class generates nothing (and lint refuses it). A name is
+   * family · role · intensity · state.
+   */
+  --color-*: initial;
+  --color-white: #fff;
+  --color-black: #000;
+
+  --color-primary: oklch(45.39% 0.0568 55.64);
+  /*
+   * A derived role is mixed from its base rather than picked, so a theme that
+   * sets only the base gets this step to match.
+   */
+  --color-primary-press: color-mix(in oklab, var(--color-primary), black 15%);
+  --color-secondary: oklch(56.16% 0.0549 67.31);
+  --color-accent: oklch(55.53% 0.1455 49);
+  --color-accent-strong: color-mix(in oklab, var(--color-accent), black 15%);
+
+  --color-ink: var(--palette-stone-900);
+  --color-ink-subtle: color-mix(
+    in oklab,
+    var(--palette-stone-500) 75%,
+    var(--palette-stone-600)
+  );
+  --color-ink-disabled: var(--palette-stone-400);
+
+  --color-edge: var(--palette-stone-200);
+  --color-edge-strong: var(--palette-stone-300);
+  --color-edge-subtle: var(--color-surface);
+
+  /*
+   * A hover or press defaults to the ground one and two steps down, so a
+   * theme that sets the three grounds gets matching states and chips.
+   */
+  --color-surface-subtle: var(--palette-stone-50);
+  --color-surface-subtle-hover: var(--color-surface);
+  --color-surface-subtle-press: var(--color-surface-strong);
+  --color-surface: var(--palette-stone-100);
+  --color-surface-hover: var(--color-surface-strong);
+  --color-surface-press: var(--color-edge-strong);
+  --color-surface-strong: var(--palette-stone-200);
+  --color-chip: color-mix(
+    in oklab,
+    var(--color-surface) 75%,
+    var(--color-surface-strong)
+  );
+  --color-chip-hover: var(--color-surface-strong);
+  --color-skeleton: var(--color-surface-strong);
+
+  /*
+   * Only the roles the app draws. A theme sets a status colour whole: its
+   * steps only work as a set.
+   */
+  --color-danger: var(--palette-red-700);
+  --color-danger-hover: var(--palette-red-800);
+  --color-danger-press: var(--palette-red-900);
+  --color-danger-ink: var(--palette-red-800);
+  --color-danger-surface: var(--palette-red-100);
+  --color-danger-edge: var(--palette-red-200);
+  --color-danger-edge-strong: var(--palette-red-300);
+  --color-danger-dot: var(--palette-red-600);
+  --color-warning: var(--palette-amber-700);
+  --color-warning-ink: var(--palette-amber-800);
+  --color-warning-surface: var(--palette-amber-100);
+  --color-warning-edge: var(--palette-amber-200);
+  --color-warning-dot: var(--palette-amber-600);
+  --color-success: var(--palette-green-700);
+  --color-success-ink: var(--palette-green-800);
+  --color-success-surface: var(--palette-green-100);
+  --color-success-dot: var(--palette-green-600);
+  --color-info-ink: var(--palette-sky-800);
+  --color-info-surface: var(--palette-sky-100);
+  --color-info-edge: var(--palette-sky-200);
+  --color-info-dot: var(--palette-sky-600);
+}
+
+/*
+ * The palette steps the colour roles are drawn from: Tailwind 4.3's values,
+ * copied because its palette is switched off above. Outside Tailwind's
+ * namespaces, so no class can name them (lint also refuses `--palette-` in
+ * a class), and a Tailwind upgrade cannot move a colour.
+ */
+:root {
+  --palette-stone-50: oklch(98.5% 0.001 106.423);
+  --palette-stone-100: oklch(97% 0.001 106.424);
+  --palette-stone-200: oklch(92.3% 0.003 48.717);
+  --palette-stone-300: oklch(86.9% 0.005 56.366);
+  --palette-stone-400: oklch(70.9% 0.01 56.259);
+  --palette-stone-500: oklch(55.3% 0.013 58.071);
+  --palette-stone-600: oklch(44.4% 0.011 73.639);
+  --palette-stone-900: oklch(21.6% 0.006 56.043);
+  --palette-red-100: oklch(93.6% 0.032 17.717);
+  --palette-red-200: oklch(88.5% 0.062 18.334);
+  --palette-red-300: oklch(80.8% 0.114 19.571);
+  --palette-red-600: oklch(57.7% 0.245 27.325);
+  --palette-red-700: oklch(50.5% 0.213 27.518);
+  --palette-red-800: oklch(44.4% 0.177 26.899);
+  --palette-red-900: oklch(39.6% 0.141 25.723);
+  --palette-amber-100: oklch(96.2% 0.059 95.617);
+  --palette-amber-200: oklch(92.4% 0.12 95.746);
+  --palette-amber-600: oklch(66.6% 0.179 58.318);
+  --palette-amber-700: oklch(55.5% 0.163 48.998);
+  --palette-amber-800: oklch(47.3% 0.137 46.201);
+  --palette-green-100: oklch(96.2% 0.044 156.743);
+  --palette-green-600: oklch(62.7% 0.194 149.214);
+  --palette-green-700: oklch(52.7% 0.154 150.069);
+  --palette-green-800: oklch(44.8% 0.119 151.328);
+  --palette-sky-100: oklch(95.1% 0.026 236.824);
+  --palette-sky-200: oklch(90.1% 0.058 230.902);
+  --palette-sky-600: oklch(58.8% 0.158 241.966);
+  --palette-sky-800: oklch(44.3% 0.11 240.79);
+}

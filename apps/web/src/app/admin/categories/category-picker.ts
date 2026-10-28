@@ -1,9 +1,9 @@
 import { Component, computed, input, output } from '@angular/core';
 import { FormField, type FieldTree } from '@angular/forms/signals';
 import { AdminCategory } from '@b2b-catalog-platform/shared/admin';
-import { FieldBinding } from '../../shared/ui/field-binding';
-import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 import { flattenCategoryTree } from './category-tree';
 
 /**
@@ -17,12 +17,12 @@ import { flattenCategoryTree } from './category-tree';
  */
 @Component({
   selector: 'app-category-picker',
-  imports: [FormField, FieldBinding, Input, SelectField],
+  imports: [FormField, FieldBinding, Input, SelectInput],
   template: `
-    <app-select-field>
+    <ui-select-input>
       @if (field(); as field) {
         <!-- No [selected] here: the field sets the select's value itself. -->
-        <select appInput class="w-full" [formField]="field">
+        <select uiInput class="w-full" [formField]="field">
           @if (emptyLabel() !== null) {
             <option value="">{{ emptyLabel() }}</option>
           } @else {
@@ -34,7 +34,7 @@ import { flattenCategoryTree } from './category-tree';
         </select>
       } @else {
         <select
-          appInput
+          uiInput
           class="w-full"
           [attr.aria-label]="ariaLabel() || placeholder()"
           [disabled]="disabled()"
@@ -55,7 +55,7 @@ import { flattenCategoryTree } from './category-tree';
           }
         </select>
       }
-    </app-select-field>
+    </ui-select-input>
   `,
 })
 export class CategoryPicker {

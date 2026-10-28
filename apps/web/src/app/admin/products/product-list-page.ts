@@ -12,6 +12,7 @@ import {
   fillText,
   formatAttributeValue,
   ProductAvailability,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import {
   AdminProductSort,
@@ -26,35 +27,43 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
-import { Link } from '../../shared/ui/link';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { ProductCreateService } from '../ownership/product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridChip, GridColumn, GridToggleGroup } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridPagination } from '../grid/grid-pagination';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
 import {
+  GridChip,
+  GridColumn,
+  GridToggleGroup,
+} from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import {
+  DEFAULT_ADMIN_SORT,
   DEFAULT_ADMIN_STATE,
   resolveAdminAvailability,
   resolveAdminSort,
   resolveAdminState,
-} from '../grid/grid-query';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
-import { RecordRow } from '../records/record-row';
-import { AdminListHeader } from '../list-header';
+} from './product-grid-query';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTimestamp } from '../dates/grid-timestamp';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
 import { purgeWithConfirmation, PurgeText } from './product-removal';
@@ -64,7 +73,7 @@ import {
   PRODUCT_FEATURE_GLYPHS,
   ProductFeatureGlyphs,
 } from './product-feature-glyphs';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /** Marks the category filter's "without subcategories" option. A category id
  * is a uuid, so it can never end this way on its own. */
@@ -97,8 +106,8 @@ function knownValues<T extends string>(
     Button,
     Link,
     ProductRowActions,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridPagination,
@@ -108,10 +117,11 @@ function knownValues<T extends string>(
     RecordRow,
   ],
   template: `
-    <app-admin-list-header
+    <ui-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query() ?? ''"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
@@ -120,22 +130,23 @@ function knownValues<T extends string>(
       <!-- Kept while the catalog is externally owned: the click then explains
            who owns it instead of opening an editor that could only refuse the
            save. -->
-      <button appButton type="button" class="gap-2" (click)="addProduct()">
-        <app-icon [glyph]="plusIcon" class="size-4" />
+      <button uiButton type="button" class="gap-2" (click)="addProduct()">
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ editText.addProduct }}
       </button>
-    </app-admin-list-header>
+    </ui-grid-header>
 
     @if (products.error()) {
       <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
-      <app-admin-grid
+      <ui-data-grid
         gridId="products"
         [columns]="columns()"
         [rows]="data.items"
         [trackBy]="bySlug"
         [muted]="isDeleted"
         [sort]="headerSort()"
+        [defaultSort]="defaultSort"
         [defaultSortLabel]="text.bestMatch"
         [chips]="chips()"
         [toggles]="toggles()"
@@ -152,7 +163,7 @@ function knownValues<T extends string>(
           <p gridEmpty class="mt-2 text-ink-subtle">
             {{ deletedMatchesLabel(count) }}
             <a
-              appLink
+              uiLink
               [routerLink]="[]"
               [queryParams]="{ state: 'deleted', page: null }"
               queryParamsHandling="merge"
@@ -160,7 +171,7 @@ function knownValues<T extends string>(
             >
           </p>
         }
-        <ng-template appGridRow [of]="data.items" let-item>
+        <ng-template uiGridRow [of]="data.items" let-item>
           <td>
             <div
               class="size-10 overflow-hidden rounded-sm border border-edge
@@ -234,7 +245,7 @@ function knownValues<T extends string>(
               <span class="text-ink-subtle">{{ text.stockUntracked }}</span>
             } @else {
               <span
-                appStatusBadge
+                uiStatusBadge
                 variant="dot"
                 [tone]="stockTone(item)"
                 [attr.aria-label]="stockLabel(item)"
@@ -244,7 +255,7 @@ function knownValues<T extends string>(
             }
           </td>
           <td data-keep>
-            <span appStatusBadge [tone]="stateTone(item)">
+            <span uiStatusBadge [tone]="stateTone(item)">
               {{ stateLabel(item) }}
             </span>
           </td>
@@ -269,11 +280,11 @@ function knownValues<T extends string>(
              works from — the name and the sync key — sit beside it with the
              price. The category and the exact minute of the last change are
              detail for the editor. -->
-        <ng-template appGridCard [of]="data.items" let-item>
+        <ng-template uiGridCard [of]="data.items" let-item>
           <!-- Only the product is greyed once it is deleted, never the badge
                that says so nor the buttons that undo it — the same rule the
                table follows cell by cell. -->
-          <app-record-row>
+          <ui-record-row>
             <div
               recordLead
               class="size-14 shrink-0 overflow-hidden rounded-sm border
@@ -298,7 +309,7 @@ function knownValues<T extends string>(
             </a>
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="stateTone(item)"
               >{{ stateLabel(item) }}</span
@@ -323,7 +334,7 @@ function knownValues<T extends string>(
               </span>
               @if (item.stockPieces !== null) {
                 <span
-                  appStatusBadge
+                  uiStatusBadge
                   variant="dot"
                   [tone]="stockTone(item)"
                   [attr.aria-label]="stockLabel(item)"
@@ -347,13 +358,13 @@ function knownValues<T extends string>(
               (deleteRequested)="remove($event)"
               (purgeRequested)="purge($event)"
             />
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-admin-grid>
+      </ui-data-grid>
 
-      <app-grid-pagination [pagination]="data.pagination" />
+      <ui-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
 
     <!-- Under the name, in the table and in the card alike (FR-ADM-20): the
@@ -382,6 +393,7 @@ function knownValues<T extends string>(
   `,
 })
 export class ProductListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly admin = inject(AdminCatalogService);
   private readonly attributes = inject(AttributesService);
@@ -431,6 +443,7 @@ export class ProductListPage {
   );
 
   readonly sort = input('');
+  protected readonly defaultSort = DEFAULT_ADMIN_SORT;
   protected readonly sortKey = computed(() => resolveAdminSort(this.sort()));
   /**
    * The sort as the column headings should show it. `relevance` is not a column

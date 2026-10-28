@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
@@ -8,7 +8,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { defaultStorefrontText } from '../../shared/config/storefront-text.fixture';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { CartPage } from './cart-page';
 import { CartPreviewService } from './cart-preview.service';
 import { CartAddition, CartService } from '../../shared/cart/cart.service';
@@ -119,6 +119,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [CartPage],
     providers: [
+      provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -297,7 +298,7 @@ describe('CartPage', () => {
     });
 
     expect(view.text()).toContain(text.issues.quantityCorrected);
-    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+    expect(view.el.querySelector('ui-popover')?.textContent).toContain(
       text.issues.quantityCorrected,
     );
   });
@@ -312,7 +313,7 @@ describe('CartPage', () => {
       ]),
     });
 
-    expect(view.el.querySelector('app-popover')).toBeNull();
+    expect(view.el.querySelector('ui-popover')).toBeNull();
     expect(view.text()).toContain(text.issues.unavailable);
   });
 
@@ -369,7 +370,7 @@ describe('CartPage', () => {
     await view.rerender();
 
     expect(view.priced.mock.calls.length).toBeGreaterThan(1);
-    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+    expect(view.el.querySelector('ui-popover')?.textContent).toContain(
       text.issues.quantityCorrected,
     );
   });
@@ -383,7 +384,7 @@ describe('CartPage', () => {
       answer: preview([{ unit: 'piece', issues: ['unit-unavailable'] }]),
     });
 
-    expect(view.el.querySelector('app-popover')?.textContent).toContain(
+    expect(view.el.querySelector('ui-popover')?.textContent).toContain(
       text.issues.unitUnavailable,
     );
   });
@@ -394,11 +395,11 @@ describe('CartPage', () => {
       lines: [addition()],
       answer: preview([{ pieces: 18, issues: ['quantity-corrected'] }]),
     });
-    expect(view.el.querySelector('app-popover')).not.toBeNull();
+    expect(view.el.querySelector('ui-popover')).not.toBeNull();
 
     await view.pressOutside();
 
-    expect(view.el.querySelector('app-popover')).toBeNull();
+    expect(view.el.querySelector('ui-popover')).toBeNull();
   });
 
   // The figures are on the lines, so the estimate is the cart's own

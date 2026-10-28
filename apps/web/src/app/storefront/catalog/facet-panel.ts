@@ -9,20 +9,18 @@ import {
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { Collapsible } from '../../shared/ui/collapsible';
-import { disclosureState } from '../../shared/ui/disclosure-state';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
+import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
-import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
-import { funnelXIcon } from '../../shared/ui/icons/glyphs/funnel-x';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
+import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;
@@ -94,12 +92,14 @@ export const FACET_SIBLING_ALONE =
   imports: [
     NgTemplateOutlet,
     Checkbox,
+    TickLabel,
     Collapsible,
     DisclosureToggle,
     Icon,
     IconButton,
     ProductSortSelect,
     ShowMoreToggle,
+    DisclosureFrame,
   ],
   providers: [FacetSelection],
   template: `
@@ -117,16 +117,11 @@ export const FACET_SIBLING_ALONE =
         class="min-w-0 flex-1 rounded-md border
                @min-[63.75rem]/listing:rounded-none
                @min-[63.75rem]/listing:border-0"
-        [class]="
-          frame +
-          ' ' +
-          (open()
-            ? disclosureBorder(true)
-            : disclosureBorder(false) +
-              ' @min-[63.75rem]/listing:border-transparent')
-        "
+        uiDisclosureFrame
+        [open]="open()"
+        [class]="open() ? '' : '@min-[63.75rem]/listing:border-transparent'"
       >
-        <app-disclosure-toggle
+        <ui-disclosure-toggle
           class="@min-[63.75rem]/listing:hidden"
           [label]="text.title"
           [count]="selectedCount()"
@@ -206,7 +201,7 @@ export const FACET_SIBLING_ALONE =
                       }
                     </ul>
                     @if (facet.values.length > VALUES_COLLAPSED) {
-                      <app-collapsible
+                      <ui-collapsible
                         [open]="expanded(facet)"
                         [id]="'facet-rest-' + facet.slug"
                       >
@@ -224,10 +219,10 @@ export const FACET_SIBLING_ALONE =
                             />
                           }
                         </ul>
-                      </app-collapsible>
+                      </ui-collapsible>
                       <!-- Pulled out by the button's own padding, so its word
                            starts on the line the checkboxes do. -->
-                      <app-show-more-toggle
+                      <ui-show-more-toggle
                         class="mt-1 -ml-3 justify-start"
                         [expanded]="expanded(facet)"
                         [moreLabel]="catalogText.showMore"
@@ -250,15 +245,10 @@ export const FACET_SIBLING_ALONE =
           <!-- A zero-count value is disabled rather than hidden (FR-ATTR-05):
                a list that reshuffles as it is clicked cannot be read, and the
                greyed row is the answer to "why can I not combine these two?". -->
-          <label
-            class="flex cursor-pointer items-start gap-2 text-sm"
-            [class.text-ink-subtle]="disabled(value)"
-            [class.cursor-not-allowed]="disabled(value)"
-          >
+          <label uiTickLabel [class.text-ink-subtle]="disabled(value)">
             <input
               type="checkbox"
-              appCheckbox
-              class="mt-0.5"
+              uiCheckbox
               [checked]="value.selected"
               [attr.checked]="value.selected ? '' : null"
               [disabled]="disabled(value)"
@@ -300,7 +290,7 @@ export const FACET_SIBLING_ALONE =
     <ng-template #clearAll let-size="size">
       @if (selectedCount()) {
         <button
-          appIconButton
+          uiIconButton
           variant="danger"
           type="button"
           [size]="size ?? 'sm'"
@@ -308,11 +298,11 @@ export const FACET_SIBLING_ALONE =
           [title]="text.clearAll"
           (click)="selection.clearAll()"
         >
-          <app-icon [glyph]="funnelXIcon" />
+          <ui-icon [glyph]="funnelXIcon" />
         </button>
       } @else {
         <button
-          appIconButton
+          uiIconButton
           type="button"
           disabled
           class="opacity-40"
@@ -320,7 +310,7 @@ export const FACET_SIBLING_ALONE =
           [attr.aria-label]="text.clearAll"
           [title]="text.clearAll"
         >
-          <app-icon [glyph]="funnelXIcon" />
+          <ui-icon [glyph]="funnelXIcon" />
         </button>
       }
     </ng-template>
@@ -328,8 +318,6 @@ export const FACET_SIBLING_ALONE =
 })
 export class FacetPanel {
   protected readonly funnelXIcon = funnelXIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly selection = inject(FacetSelection);
   protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
   protected readonly text = this.catalogText.filters;

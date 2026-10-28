@@ -5,14 +5,17 @@ import {
   fillText,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { MediaService } from './media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
-import { imagePlusIcon } from '../../shared/ui/icons/glyphs/image-plus';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * A single catalog image — the one-image counterpart to ProductImageGallery,
@@ -23,7 +26,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
  */
 @Component({
   selector: 'app-image-picker',
-  imports: [Icon, FileTarget, ErrorText],
+  imports: [Icon, FileTarget, ErrorText, DropZone],
   template: `
     @if (value(); as image) {
       <div
@@ -43,7 +46,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
             [attr.aria-label]="actionText.remove"
             (click)="valueChange.emit(null)"
           >
-            <app-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
+            <ui-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
           </button>
         </div>
       </div>
@@ -57,14 +60,14 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
       />
       <button
         type="button"
-        #target="appFileTarget"
-        [appFileTarget]="accept"
-        [class]="tileClass(target.dragging())"
+        [uiFileTarget]="accept"
+        uiDropZone
+        class="size-26"
         [disabled]="uploading()"
         (click)="fileInput.click()"
         (filesReceived)="upload($event[0])"
       >
-        <app-icon [glyph]="imagePlusIcon" class="size-6" />
+        <ui-icon [glyph]="imagePlusIcon" class="size-6" />
         <span class="text-xs">{{
           uploading() ? adminText.upload.progress : label()
         }}</span>
@@ -76,7 +79,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
     }
 
     @if (error()) {
-      <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
+      <p uiErrorText class="mt-2" role="alert">{{ error() }}</p>
     }
   `,
 })
@@ -90,12 +93,6 @@ export class ImagePicker {
   protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),
   });
-
-  /** The shared dashed target at tile size — the same one the sync screen and
-   * the document editor wear at their own. */
-  protected tileClass(dragging: boolean): string {
-    return `h-26 w-26 ${DROP_ZONE} ${dropZoneState(dragging)}`;
-  }
 
   readonly value = input.required<CatalogImage | null>();
   /** Caption on the empty tile, e.g. "Image". */

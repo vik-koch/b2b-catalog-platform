@@ -5,15 +5,15 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { emailAddress } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
-import { TextButton } from '../../shared/ui/text-button';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'success' | 'error';
 
@@ -43,21 +43,21 @@ type Status = 'idle' | 'success' | 'error';
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.successHeading }}
         </h1>
-        <p appPageIntro role="status">{{ text.success }}</p>
-        <a appButton variant="secondary" routerLink="/login" class="mt-8">
+        <p uiPageIntro role="status">{{ text.success }}</p>
+        <a uiButton variant="secondary" routerLink="/login" class="mt-8">
           {{ text.backToLogin }}
         </a>
       } @else {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.heading }}
         </h1>
-        <p appPageIntro class="mb-4">{{ text.intro }}</p>
+        <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
         <form [formRoot]="form" class="space-y-6">
-          <app-field
+          <ui-field
             [field]="form.email"
             [label]="fields.email.label"
             controlId="email"
@@ -65,23 +65,23 @@ type Status = 'idle' | 'success' | 'error';
             <input
               type="email"
               autocomplete="email"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.email"
             />
-          </app-field>
+          </ui-field>
 
           <div class="flex flex-wrap items-center gap-4">
-            <button appButton type="submit" [disabled]="form().submitting()">
+            <button uiButton type="submit" [disabled]="form().submitting()">
               {{ form().submitting() ? actionText.sending : text.submit }}
             </button>
-            <a appTextButton routerLink="/login" class="text-sm">
+            <a uiTextButton routerLink="/login" class="text-sm">
               {{ text.backToLogin }}
             </a>
           </div>
 
           @if (status() === 'error') {
-            <p appErrorText role="alert">{{ text.error }}</p>
+            <p uiErrorText role="alert">{{ text.error }}</p>
           }
         </form>
       }

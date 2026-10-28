@@ -9,7 +9,10 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   orderPaymentLabel,
   orderPaymentTone,
@@ -57,11 +60,11 @@ import {
               <!-- Payment only where something is owed or has been paid: an
                    order with nothing due says nothing about money at all. -->
               @if (paymentLabel(order); as payment) {
-                <span appStatusBadge variant="dot" [tone]="paymentTone(order)">
+                <span uiStatusBadge variant="dot" [tone]="paymentTone(order)">
                   {{ payment }}
                 </span>
               }
-              <span appStatusBadge [tone]="statusTone(order)">
+              <span uiStatusBadge [tone]="statusTone(order)">
                 {{ statusLabel(order) }}
               </span>
               <p class="text-sm font-medium tabular-nums">

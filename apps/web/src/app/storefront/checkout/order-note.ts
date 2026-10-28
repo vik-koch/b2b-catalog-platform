@@ -1,9 +1,9 @@
 import { Component, inject, input, output } from '@angular/core';
 import { ORDER_NOTE_MAX } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { AutoGrow } from '../../shared/ui/auto-grow';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { Input } from '../../shared/ui/input';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 
 /**
@@ -23,7 +23,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
   imports: [AutoGrow, FieldLabel, Input],
   host: { class: 'block' },
   template: `
-    <label [for]="id" appFieldLabel>
+    <label [for]="id" uiFieldLabel>
       {{ text.label }}
       <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
@@ -33,8 +33,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       [attr.maxlength]="maxLength"
       [value]="note() ?? ''"
       [attr.placeholder]="text.placeholder"
-      appInput
-      appAutoGrow
+      uiInput
+      uiAutoGrow
       class="w-full"
       (input)="typed($event)"
     ></textarea>

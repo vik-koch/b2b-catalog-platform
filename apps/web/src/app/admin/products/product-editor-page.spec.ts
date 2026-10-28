@@ -22,7 +22,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { TiersService } from '../tiers/tiers.service';
 import { AttributesService } from '../attributes/attributes.service';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { ProductEditorPage } from './product-editor-page';
 
 const text = defaultAdminText.products.editor;
@@ -1275,7 +1275,7 @@ describe('ProductEditorPage', () => {
       );
 
       const locked = shownLocks(el).map((lock) =>
-        lock.closest('app-field')?.querySelector('label')?.getAttribute('for'),
+        lock.closest('ui-field')?.querySelector('label')?.getAttribute('for'),
       );
       expect(locked).toEqual(
         expect.arrayContaining(['product-name', 'product-stock']),

@@ -4,11 +4,13 @@ import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { injectNarrowScreen } from '../../shared/core/narrow-screen';
-import { ErrorText } from '../../shared/ui/error-text';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { NumericField } from '../../shared/ui/numeric-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 
 /**
  * How a product is packaged.
@@ -73,12 +75,12 @@ export function parseCount(text: string): number | null {
 
 @Component({
   selector: 'app-product-packaging-editor',
-  imports: [ErrorText, FieldLabel, NumericField, UnitField],
+  imports: [ErrorText, FieldLabel, Allow, UnitInput, UnitInputControl],
   template: `
     <!-- min-w-0 for the same reason as the attribute grid above: a <fieldset>
          will not shrink below its content's min-content width. -->
     <fieldset class="min-w-0">
-      <legend appFieldLabel>{{ packing.heading }}</legend>
+      <legend uiFieldLabel>{{ packing.heading }}</legend>
       <p class="mb-2 text-xs text-ink-subtle">{{ text.hint }}</p>
 
       @if (narrow()) {
@@ -103,13 +105,13 @@ export function parseCount(text: string): number | null {
                   row.hint
                 }}</span>
               }
-              <app-unit-field [unit]="row.suffix">
+              <ui-unit-input [unit]="row.suffix">
                 <input
                   [id]="'packaging-narrow-' + row.key"
                   type="text"
                   [attr.inputmode]="row.inputMode"
-                  [appNumericField]="row.inputMode"
-                  [class]="unitFieldInput"
+                  [uiAllow]="numericRules[row.kind]"
+                  uiUnitInputControl
                   [value]="row.value"
                   [placeholder]="row.placeholder"
                   [disabled]="row.disabled"
@@ -118,7 +120,7 @@ export function parseCount(text: string): number | null {
                   (input)="edit(row.key, $any($event.target).value)"
                   (blur)="normalize(row.key)"
                 />
-              </app-unit-field>
+              </ui-unit-input>
               @if (row.price) {
                 <span class="mt-1 block text-xs text-ink-subtle">{{
                   row.price
@@ -164,7 +166,7 @@ export function parseCount(text: string): number | null {
                       [id]="'packaging-' + row.key"
                       type="text"
                       [attr.inputmode]="row.inputMode"
-                      [appNumericField]="row.inputMode"
+                      [uiAllow]="numericRules[row.kind]"
                       class="h-10 min-w-0 flex-1 bg-transparent px-2 py-1.5
                              leading-6 outline-none
                              disabled:cursor-not-allowed"
@@ -195,13 +197,13 @@ export function parseCount(text: string): number | null {
         </table>
       }
       @if (error(); as error) {
-        <p appErrorText [id]="errorId" class="mt-1">{{ error }}</p>
+        <p uiErrorText [id]="errorId" class="mt-1">{{ error }}</p>
       }
     </fieldset>
   `,
 })
 export class ProductPackagingEditor {
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
+  protected readonly numericRules = numericRules;
   protected readonly text = inject(ADMIN_TEXT).products.editor.packaging;
   protected readonly packing = inject(SHARED_TEXT).packaging;
   private readonly unitNames = inject(SHARED_TEXT).units;
@@ -268,7 +270,9 @@ export class ProductPackagingEditor {
       suffix: opts.suffix ?? '',
       price: opts.price ?? '',
       hint: opts.hint ?? '',
-      inputMode: opts.decimal ? ('decimal' as const) : ('integer' as const),
+      kind: opts.decimal ? ('decimal' as const) : ('integer' as const),
+      // The keyboard a phone shows; `integer` is no `inputmode` value.
+      inputMode: opts.decimal ? 'decimal' : 'numeric',
       disabled: opts.enabled === false,
       invalid: this.invalidKeys().has(key),
     });

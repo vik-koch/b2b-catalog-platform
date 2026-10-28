@@ -23,23 +23,29 @@ import {
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { Button, BUTTON_SIZES } from '../ui/button';
-import { Icon } from '../ui/icons/icon';
-import { Input } from '../ui/input';
-import { NumericField } from '../ui/numeric-field';
-import { Popover } from '../ui/popover';
-import { SEGMENTED_GROUP, SegmentState, segmentClass } from '../ui/segmented';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
+import {
+  Segment,
+  type SegmentState,
+} from '@b2b-catalog-platform/ui/choices/segment';
+import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { createBuyQuantity } from './buy-quantity';
 import { formatPriceMinor } from './price';
 import { ProductNoteEditor } from './product-note-editor';
 import { ProductPairings } from './product-pairings';
 import { ProductUnitFacts } from './product-unit-facts';
 import { useProductUnits } from './product-units-view';
-import { WarningNote } from '../ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { FirstRender } from '../core/first-render';
-import { minusIcon } from '../ui/icons/glyphs/minus';
-import { plusIcon } from '../ui/icons/glyphs/plus';
-import { shoppingBasketIcon } from '../ui/icons/glyphs/shopping-basket';
+import { minusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/minus';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { numericRules } from '@b2b-catalog-platform/ui/inputs/numeric-rules';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
 
 /** How long a statement stays on screen before it fades away. */
 const NOTICE_MS = 5000;
@@ -141,14 +147,17 @@ export interface BuyableProduct {
   imports: [
     WarningNote,
     Button,
+    ButtonBox,
     Icon,
     Input,
     NgTemplateOutlet,
-    NumericField,
+    Allow,
     Popover,
     ProductNoteEditor,
     ProductPairings,
     ProductUnitFacts,
+    Segment,
+    SegmentGroup,
   ],
   host: { class: 'block' },
   template: `
@@ -206,6 +215,7 @@ export interface BuyableProduct {
          sold in is shown greyed and says so when pressed. -->
     <ng-template #unitsBlock>
       <div
+        uiSegmentGroup
         role="radiogroup"
         [attr.aria-label]="text.unitAria"
         [class]="group()"
@@ -215,7 +225,12 @@ export interface BuyableProduct {
                given: its own width plus an equal part of what is left over. -->
           <div class="relative flex flex-auto">
             @if (option.available && sellable()) {
-              <label [class]="segment(option.unit)">
+              <label
+                uiSegment
+                [state]="segmentState(option.unit)"
+                [grow]="true"
+                [locked]="!sellable()"
+              >
                 <input
                   type="radio"
                   [name]="radioName"
@@ -237,7 +252,11 @@ export interface BuyableProduct {
                    genuinely disabled. -->
               <button
                 type="button"
-                [class]="segment(option.unit) + ' w-full'"
+                uiSegment
+                [state]="segmentState(option.unit)"
+                [grow]="true"
+                [locked]="!sellable()"
+                class="w-full"
                 [disabled]="!sellable()"
                 (click)="explainUnit(option.unit)"
               >
@@ -252,13 +271,13 @@ export interface BuyableProduct {
                      and one hanging off the side of the page. The end segment
                      is the box, and its bubble is the one anybody sees: a
                      product with no box is exactly the case that greys it. -->
-                <app-popover
+                <ui-popover
                   [align]="$last ? 'end' : $first ? 'start' : 'center'"
                   [duration]="noticeMs"
                   (dismissed)="dismiss()"
                 >
                   <p role="status">{{ open.message }}</p>
-                </app-popover>
+                </ui-popover>
               }
             }
           </div>
@@ -279,12 +298,12 @@ export interface BuyableProduct {
             [disabled]="!sellable()"
             (click)="step(-1)"
           >
-            <app-icon [glyph]="minusIcon" class="size-4" />
+            <ui-icon [glyph]="minusIcon" class="size-4" />
           </button>
 
           @if (popup(); as open) {
             @if (open.at === 'remove') {
-              <app-popover align="start" (dismissed)="dismiss()">
+              <ui-popover align="start" (dismissed)="dismiss()">
                 <p>{{ open.message }}</p>
                 <!-- Keeping it first, removing it second — the order the
                      confirmation dialog puts them in everywhere else. A yes/no
@@ -293,7 +312,7 @@ export interface BuyableProduct {
                 <div class="mt-2 flex gap-2">
                   <button
                     type="button"
-                    appButton
+                    uiButton
                     variant="secondary"
                     size="sm"
                     class="flex-1"
@@ -303,7 +322,7 @@ export interface BuyableProduct {
                   </button>
                   <button
                     type="button"
-                    appButton
+                    uiButton
                     variant="danger"
                     size="sm"
                     class="flex-1"
@@ -312,7 +331,7 @@ export interface BuyableProduct {
                     {{ text.removeYes }}
                   </button>
                 </div>
-              </app-popover>
+              </ui-popover>
             }
           }
         </div>
@@ -326,8 +345,8 @@ export interface BuyableProduct {
                The value is what is being typed while the field has it, and the
                quantity otherwise — see fieldText below. -->
           <input
-            appInput
-            [appNumericField]="whole() ? 'integer' : 'decimal'"
+            uiInput
+            [uiAllow]="numericRules[whole() ? 'integer' : 'decimal']"
             [attr.inputmode]="whole() ? 'numeric' : 'decimal'"
             [class]="quantityField()"
             [attr.aria-label]="text.quantityAria"
@@ -340,9 +359,9 @@ export interface BuyableProduct {
 
           @if (popup(); as open) {
             @if (open.at === 'quantity') {
-              <app-popover [duration]="noticeMs" (dismissed)="dismiss()">
+              <ui-popover [duration]="noticeMs" (dismissed)="dismiss()">
                 <p role="status">{{ open.message }}</p>
-              </app-popover>
+              </ui-popover>
             }
           }
         </div>
@@ -354,7 +373,7 @@ export interface BuyableProduct {
           [disabled]="!sellable()"
           (click)="step(1)"
         >
-          <app-icon [glyph]="plusIcon" class="size-4" />
+          <ui-icon [glyph]="plusIcon" class="size-4" />
         </button>
       </div>
     </ng-template>
@@ -365,7 +384,9 @@ export interface BuyableProduct {
           <!-- A field, not a button: it is the same size and in the same place
                as the one it replaced, so the row does not move, but there is
                nothing left to press — the stepper is what changes the line. -->
-          <p [class]="addedField()" role="status">{{ addedMessage() }}</p>
+          <p uiButtonBox [class]="addedField()" role="status">
+            {{ addedMessage() }}
+          </p>
         } @else {
           <!-- Switched off rather than taken away where the product cannot be
                bought (FR-STOCK-04): the badge beside it already says why, and a
@@ -373,20 +394,20 @@ export interface BuyableProduct {
                it sits next to. -->
           <button
             type="button"
-            appButton
+            uiButton
             [class]="addButton()"
             [disabled]="!sellable()"
             (click)="add()"
           >
-            <app-icon [glyph]="shoppingBasketIcon" class="mr-2 size-4" />
+            <ui-icon [glyph]="shoppingBasketIcon" class="mr-2 size-4" />
             {{ text.add }}
           </button>
         }
 
         @if (feedback() === 'full') {
-          <app-warning-note class="mt-2" role="status">
+          <ui-warning-note class="mt-2" role="status">
             {{ text.full }}
-          </app-warning-note>
+          </ui-warning-note>
         }
       }
     </ng-template>
@@ -443,6 +464,7 @@ export interface BuyableProduct {
   `,
 })
 export class ProductBuyControls {
+  protected readonly numericRules = numericRules;
   protected readonly minusIcon = minusIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly shoppingBasketIcon = shoppingBasketIcon;
@@ -675,7 +697,7 @@ export class ProductBuyControls {
   /** In a row the spacing belongs to the cells, which have to space
    * themselves differently in each arrangement. */
   protected readonly group = computed(
-    () => `${SEGMENTED_GROUP} flex w-full ${this.row() ? '' : 'mt-2'}`,
+    () => `flex w-full ${this.row() ? '' : 'mt-2'}`,
   );
 
   /**
@@ -736,12 +758,6 @@ export class ProductBuyControls {
              @min-[28.5rem]/body:mt-1`,
   } as const;
 
-  protected readonly segment = (unit: ProductUnit): string =>
-    segmentClass(this.segmentState(unit), {
-      grow: true,
-      locked: !this.sellable(),
-    });
-
   /**
    * The row's height is set here rather than left to the field, so the ends can
    * be exactly as wide as they are tall. It does not clip: the keys round their
@@ -761,9 +777,8 @@ export class ProductBuyControls {
    */
   protected readonly stepperGroup = computed(
     () =>
-      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch ${
-        this.compact() ? 'h-9' : 'h-10'
-      }`,
+      `${this.row() ? '' : 'mt-1'} flex w-full items-stretch
+       ${this.compact() ? 'h-9' : 'h-10'}`,
   );
   /**
    * Square ends, so the stepper reads as a field with two keys rather than as a
@@ -775,9 +790,13 @@ export class ProductBuyControls {
    */
   protected readonly stepperButton = computed(
     () =>
-      `flex shrink-0 cursor-pointer items-center justify-center border border-edge-strong text-ink transition-colors select-none hover:bg-surface-subtle-hover hover:text-accent active:bg-surface-subtle-press active:text-primary focus-visible:-outline-offset-2 disabled:cursor-not-allowed disabled:text-ink-disabled disabled:hover:bg-transparent disabled:hover:text-ink-disabled ${
-        this.compact() ? 'w-9' : 'w-10'
-      }`,
+      `flex shrink-0 cursor-pointer items-center justify-center border
+       border-edge-strong text-ink transition-colors select-none
+       ${this.compact() ? 'w-9' : 'w-10'}
+       hover:bg-surface-subtle-hover hover:text-accent
+       active:bg-surface-subtle-press active:text-primary
+       focus-visible:-outline-offset-2
+       disabled:cursor-not-allowed disabled:text-ink-disabled`,
   );
   /**
    * Everything the ends leave over, and **no border at all**.
@@ -791,7 +810,7 @@ export class ProductBuyControls {
    * keys look outlined, when the only edge that should answer is the group's.
    *
    * **It owns both seams**, so its own edge is the whole of what lights up: an
-   * ordinary `appInput` border on all four sides, squared off, with the keys
+   * ordinary `uiInput` border on all four sides, squared off, with the keys
    * dropping their border on the side that meets it. Nothing here says how it
    * answers a pointer or a caret — accent on hover and secondary on focus are
    * what the Input directive and the app-wide focus rule already give every
@@ -799,9 +818,8 @@ export class ProductBuyControls {
    */
   protected readonly quantityField = computed(
     () =>
-      `h-full w-full min-w-0 rounded-none px-1 py-0 text-center ${
-        this.compact() ? 'text-sm' : ''
-      }`,
+      `h-full w-full min-w-0 rounded-none px-1 py-0 text-center
+       ${this.compact() ? 'text-sm' : ''}`,
   );
   /** The button's own metrics, so the row does not move when one replaces the
    * other — the size shared from Button, including how it grows when the words
@@ -812,7 +830,8 @@ export class ProductBuyControls {
    * collapses into the one above it, and the row moved up by the difference. */
   protected readonly addedField = computed(
     () =>
-      `${this.row() ? '' : 'mt-2'} inline-flex w-full animate-field-in items-center justify-center rounded-md bg-secondary text-center text-sm font-medium text-white ${BUTTON_SIZES.md}`,
+      `${this.row() ? '' : 'mt-2'} w-full animate-field-in bg-secondary
+       text-center text-white`,
   );
   protected readonly addButton = computed(
     () => `${this.row() ? '' : 'mt-2'} w-full`,
@@ -872,8 +891,8 @@ export class ProductBuyControls {
 
   /**
    * Up and down step the quantity, the way they would in a number field —
-   * which this is, minus the browser's spinner (see NumericField, which drops
-   * `type="number"` because it reports a half-typed "1." as empty).
+   * which this is, minus the browser's spinner (see Allow on why the input is
+   * text, not `type="number"`).
    *
    * They go through the same `step` the keys do, so down at the minimum asks
    * the same question the `−` key asks there: it is the same press, and a
@@ -955,7 +974,7 @@ export class ProductBuyControls {
     this.heldNotice.set(null);
   }
 
-  private segmentState(unit: ProductUnit): SegmentState {
+  protected segmentState(unit: ProductUnit): SegmentState {
     // A line that cannot be bought is not a choice any more, but it is still a
     // reading: the quantity beside the segments is in one of these units, and
     // dropping the mark would leave "12" meaning nothing in particular.

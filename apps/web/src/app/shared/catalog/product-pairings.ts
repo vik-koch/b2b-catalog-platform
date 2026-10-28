@@ -1,12 +1,12 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
-import { IconButton } from '../ui/icon-button';
-import { Icon } from '../ui/icons/icon';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { LINK_BASE, LINK_TONES } from '../ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PairingsService } from './pairings.service';
-import { packagePlusIcon } from '../ui/icons/glyphs/package-plus';
+import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
 
 /**
  * The sold-together marker (FR-SET-05) — the one place a customer meets a
@@ -27,7 +27,7 @@ import { packagePlusIcon } from '../ui/icons/glyphs/package-plus';
  */
 @Component({
   selector: 'app-product-pairings',
-  imports: [Icon, IconButton],
+  imports: [Icon, IconButton, Link],
   // Not inline: an inline host puts its contents on a text baseline and keeps
   // a descender's worth of room under them, which is what made this two pixels
   // taller than the note button beside it and left it hanging in the cart.
@@ -36,13 +36,13 @@ import { packagePlusIcon } from '../ui/icons/glyphs/package-plus';
     @if (variant() === 'marker') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="marked"
         [attr.aria-label]="label()"
         [title]="label()"
         (click)="open()"
       >
-        <app-icon [glyph]="packagePlusIcon" />
+        <ui-icon [glyph]="packagePlusIcon" />
       </button>
     } @else {
       <!-- The glyph and the word, sized like the facts around it: on a product
@@ -53,7 +53,7 @@ import { packagePlusIcon } from '../ui/icons/glyphs/package-plus';
         <!-- Nudged to the first line's optical middle rather than centred on
              the whole line: the shortfall wraps to two lines in a narrow
              column, and a glyph centred on that sits beside neither. -->
-        <app-icon [glyph]="packagePlusIcon" class="mt-0.5 size-4 shrink-0" />
+        <ui-icon [glyph]="packagePlusIcon" class="mt-0.5 size-4 shrink-0" />
         <!-- One flex item for the whole sentence, so the words wrap as words:
              the link and what follows it in two items broke between them
              first, leaving "Add 20 pc" alone on a line. Written tight and left
@@ -62,7 +62,7 @@ import { packagePlusIcon } from '../ui/icons/glyphs/package-plus';
              between the two halves is an explicit ngsp entity, which is the
              whitespace the compiler keeps. -->
         <!-- prettier-ignore -->
-        <span><button type="button" [class]="linkClass()" (click)="open()">{{ message()?.link ?? product.pairings }}</button>@if (message(); as said) {&ngsp;{{ said.rest }}}</span>
+        <span><button type="button" uiLink class="text-left" [tone]="message() ? 'warning' : 'default'" (click)="open()">{{ message()?.link ?? product.pairings }}</button>@if (message(); as said) {&ngsp;{{ said.rest }}}</span>
       </p>
     }
   `,
@@ -87,17 +87,9 @@ export class ProductPairings {
 
   protected readonly lineClass = computed(
     () =>
-      `flex items-start gap-1.5 self-start text-sm ${
-        this.message() ? 'text-warning' : 'text-primary'
-      }`,
+      `flex items-start gap-1.5 self-start text-sm
+       ${this.message() ? 'text-warning' : 'text-primary'}`,
   );
-  protected readonly linkClass = computed(
-    () =>
-      `${LINK_BASE} text-left ${
-        this.message() ? LINK_TONES.warning : LINK_TONES.default
-      }`,
-  );
-
   protected readonly label = () =>
     fillText(this.text.marker, { count: this.count() });
 

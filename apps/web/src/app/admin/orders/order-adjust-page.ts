@@ -51,30 +51,34 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { staffBlockLabels } from './staff-block-labels';
 import { staffFields } from '../staff-fields';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { debounced } from '../../shared/core/debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import {
   ConfirmService,
   confirmRequest,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
-import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { SegmentOption, Segmented } from '../../shared/ui/segmented';
-import { SelectField } from '../../shared/ui/select-field';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { WarningNote } from '../../shared/ui/warning-note';
+  FieldAttempt,
+  FIELD_ATTEMPT,
+} from '@b2b-catalog-platform/ui/fields/field-attempt';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import {
+  SegmentOption,
+  Segmented,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { TiersService } from '../tiers/tiers.service';
 import { OrderAdjustChanges, OrderChange } from './order-adjust-changes';
 import { AdjustLineRow, OrderAdjustLines } from './order-adjust-lines';
@@ -83,10 +87,10 @@ import { customerQuantity } from '../../shared/orders/order-view';
 import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { AdjustmentRefusal, AdminOrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /** One line as the form holds it, before the server has priced it. */
 interface DraftLine {
@@ -170,6 +174,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     AddressFields,
     Button,
     Checkbox,
+    TickLabel,
     CompanyFields,
     DisclosureToggle,
     FieldLabel,
@@ -179,7 +184,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     PhoneInput,
     RouterLink,
     Segmented,
-    SelectField,
+    SelectInput,
     Skeleton,
     WarningNote,
     LockedNote,
@@ -187,6 +192,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     ErrorText,
     Hint,
     PageIntro,
+    DisclosureFrame,
   ],
   // No <form> element holds the fields: the save button sits in the aside,
   // after the note, so the page says itself when the form has been sent.
@@ -204,12 +210,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
          route. -->
     @if (locked()) {
       <div class="max-w-xl">
-        <h1 appPageTitle>{{ title() }}</h1>
+        <h1 uiPageTitle>{{ title() }}</h1>
         <app-locked-note class="mt-4">{{
           ownershipText.orderLocked
         }}</app-locked-note>
         <a
-          appButton
+          uiButton
           variant="secondary"
           class="mt-5"
           [routerLink]="['/admin/orders', reference()]"
@@ -225,27 +231,27 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  @min-[63.75rem]/adjust:justify-between"
         >
           <div class="max-w-xl">
-            <h1 appPageTitle>{{ title() }}</h1>
+            <h1 uiPageTitle>{{ title() }}</h1>
             @if (text.page.intro; as intro) {
-              <p appPageIntro class="mt-2">{{ intro }}</p>
+              <p uiPageIntro class="mt-2">{{ intro }}</p>
             }
 
             <!-- Amber, not red: none of these refuses the adjustment. They
                  are what a manager should have weighed before making it. -->
             @if (loaded.paymentState === 'paid') {
-              <app-warning-note class="mt-4">
+              <ui-warning-note class="mt-4">
                 {{ text.warnPaid }}
-              </app-warning-note>
+              </ui-warning-note>
             }
             @if (loaded.status === 'ready') {
-              <app-warning-note class="mt-4">
+              <ui-warning-note class="mt-4">
                 {{ text.warnReady }}
-              </app-warning-note>
+              </ui-warning-note>
             }
             @if (ended(loaded)) {
-              <app-warning-note class="mt-4">
+              <ui-warning-note class="mt-4">
                 {{ text.warnEnded }}
-              </app-warning-note>
+              </ui-warning-note>
             }
 
             <!-- Two boxes, because an adjustment is two jobs. What was bought
@@ -256,9 +262,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
             <div class="mt-4 space-y-6">
               <section
                 class="rounded-md border"
-                [class]="frame + ' ' + disclosureBorder(itemsOpen())"
+                uiDisclosureFrame
+                [open]="itemsOpen()"
               >
-                <app-disclosure-toggle
+                <ui-disclosure-toggle
                   [label]="ordersText.items"
                   [count]="rows().length"
                   [countLabel]="lineCount()"
@@ -275,7 +282,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                          than beside the save button: the figures on these lines
                          are the ones that could not be worked out. -->
                     @if (refusalOn() === 'lines') {
-                      <p appErrorText role="alert">
+                      <p uiErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -291,7 +298,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     />
 
                     <div>
-                      <label appFieldLabel for="adjust-tier">
+                      <label uiFieldLabel for="adjust-tier">
                         {{ ordersText.tier }}
                       </label>
                       <!-- The list and the button that applies it, half the
@@ -299,9 +306,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                            button drifting to wherever the longest tier name
                            left it read as something else on the row. -->
                       <div class="grid gap-6 sm:grid-cols-2">
-                        <app-select-field>
+                        <ui-select-input>
                           <select
-                            appInput
+                            uiInput
                             id="adjust-tier"
                             class="w-full"
                             [disabled]="saving()"
@@ -317,9 +324,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                               </option>
                             }
                           </select>
-                        </app-select-field>
+                        </ui-select-input>
                         <button
-                          appButton
+                          uiButton
                           type="button"
                           variant="secondary"
                           [disabled]="saving()"
@@ -335,9 +342,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
               <section
                 class="rounded-md border"
-                [class]="frame + ' ' + disclosureBorder(detailsOpen())"
+                uiDisclosureFrame
+                [open]="detailsOpen()"
               >
-                <app-disclosure-toggle
+                <ui-disclosure-toggle
                   [label]="text.detailsHeading"
                   [open]="detailsOpen()"
                   [panelId]="detailsPanelId"
@@ -349,7 +357,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                     class="space-y-8 border-t border-edge p-4"
                   >
                     @if (refusalOn() === 'details') {
-                      <p appErrorText role="alert">
+                      <p uiErrorText role="alert">
                         {{ refusalMessage() }}
                       </p>
                     }
@@ -366,15 +374,15 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <div class="grid gap-6 sm:grid-cols-2">
                         <div>
                           <label
-                            appFieldLabel
+                            uiFieldLabel
                             for="adjust-fulfilment"
                             class="sr-only"
                           >
                             {{ sharedText.fulfilment.label }}
                           </label>
-                          <app-select-field>
+                          <ui-select-input>
                             <select
-                              appInput
+                              uiInput
                               id="adjust-fulfilment"
                               class="w-full"
                               [disabled]="saving()"
@@ -397,20 +405,20 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                 </option>
                               }
                             </select>
-                          </app-select-field>
+                          </ui-select-input>
                         </div>
                         @if (fulfilmentMethod() === 'pickup') {
                           <div>
                             <label
-                              appFieldLabel
+                              uiFieldLabel
                               for="adjust-pickup"
                               class="sr-only"
                             >
                               {{ ordersText.pickupPoint }}
                             </label>
-                            <app-select-field>
+                            <ui-select-input>
                               <select
-                                appInput
+                                uiInput
                                 id="adjust-pickup"
                                 class="w-full"
                                 [disabled]="saving()"
@@ -430,7 +438,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                                   </option>
                                 }
                               </select>
-                            </app-select-field>
+                            </ui-select-input>
                           </div>
                         }
                       </div>
@@ -460,7 +468,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       <!-- Only where the shop sells to more than one kind
                            of customer (FR-AUTH-13). -->
                       @if (partyKinds.length > 1) {
-                        <app-segmented
+                        <ui-segmented
                           name="adjust-party-kind"
                           class="mb-4"
                           [options]="partyKinds"
@@ -470,18 +478,18 @@ const PREVIEW_DEBOUNCE_MS = 250;
                       }
 
                       @if (partyKind() === 'person') {
-                        <app-field
+                        <ui-field
                           [field]="form.party.personName"
                           [label]="fields.name.label"
                           controlId="adjust-party-person"
                         >
                           <input
-                            appInput
+                            uiInput
                             class="w-full"
                             autocomplete="off"
                             [formField]="form.party.personName"
                           />
-                        </app-field>
+                        </ui-field>
                       } @else {
                         <app-company-fields
                           idInputId="adjust-party-id"
@@ -508,12 +516,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
 
                     <section>
                       <h2 class="mb-2 font-medium">{{ names.payment }}</h2>
-                      <label appFieldLabel for="adjust-payment" class="sr-only">
+                      <label uiFieldLabel for="adjust-payment" class="sr-only">
                         {{ names.payment }}
                       </label>
-                      <app-select-field>
+                      <ui-select-input>
                         <select
-                          appInput
+                          uiInput
                           id="adjust-payment"
                           class="w-full"
                           [disabled]="saving()"
@@ -536,39 +544,40 @@ const PREVIEW_DEBOUNCE_MS = 250;
                             </option>
                           }
                         </select>
-                      </app-select-field>
+                      </ui-select-input>
                     </section>
 
                     <section>
                       <h2 class="mb-2 font-medium">{{ names.contact }}</h2>
                       <div class="grid gap-6 sm:grid-cols-[20rem_1fr]">
-                        <app-field
+                        <ui-field
                           [field]="form.contact.name"
                           [label]="fields.name.label"
                           controlId="adjust-contact-name"
                         >
                           <input
-                            appInput
+                            uiInput
                             class="w-full"
                             autocomplete="off"
                             [formField]="form.contact.name"
                           />
-                        </app-field>
+                        </ui-field>
                         <!-- A number in the deployment's own mask is as long
                              as it will ever be, and the name beside it is
                              not: the field stops where its content does and
                              leaves the rest of the column to the row below. -->
-                        <app-field
+                        <ui-field
                           [field]="form.contact.phone"
                           [label]="fields.phone.label"
                           controlId="adjust-contact-phone"
                         >
-                          <app-phone-input
+                          <ui-phone-input
                             [field]="form.contact.phone"
+                            [phone]="phoneInput"
                             autocomplete="off"
                           />
-                        </app-field>
-                        <app-field
+                        </ui-field>
+                        <ui-field
                           class="sm:col-span-2"
                           [field]="form.contact.email"
                           [label]="fields.email.label"
@@ -576,12 +585,12 @@ const PREVIEW_DEBOUNCE_MS = 250;
                         >
                           <input
                             type="email"
-                            appInput
+                            uiInput
                             class="w-full"
                             autocomplete="off"
                             [formField]="form.contact.email"
                           />
-                        </app-field>
+                        </ui-field>
                       </div>
                     </section>
                   </div>
@@ -590,7 +599,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
             </div>
 
             @if (formFailure(); as message) {
-              <p appErrorText class="mt-6" role="alert">
+              <p uiErrorText class="mt-6" role="alert">
                 {{ message }}
               </p>
             }
@@ -628,7 +637,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  neither is visible in a total, so they are said once, here,
                  where the order is signed off. -->
             @for (notice of priceNotices(); track notice) {
-              <app-warning-note class="mt-4">{{ notice }}</app-warning-note>
+              <ui-warning-note class="mt-4">{{ notice }}</ui-warning-note>
             }
 
             <!-- What the shop says it changed, beside what it changed and
@@ -636,11 +645,11 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  thing written before saving, and it is what the customer's
                  mail quotes. -->
             <div class="mt-6">
-              <label appFieldLabel for="adjust-note">{{
+              <label uiFieldLabel for="adjust-note">{{
                 names.changeNote
               }}</label>
               <textarea
-                appInput
+                uiInput
                 id="adjust-note"
                 rows="3"
                 class="w-full"
@@ -650,9 +659,9 @@ const PREVIEW_DEBOUNCE_MS = 250;
                 [value]="note()"
                 (input)="note.set($any($event.target).value)"
               ></textarea>
-              <p appHint class="mt-1">{{ text.noteHint }}</p>
+              <p uiHint class="mt-1">{{ text.noteHint }}</p>
               @if (noteMissing()) {
-                <p appErrorText class="mt-1" role="alert">
+                <p uiErrorText class="mt-1" role="alert">
                   {{ text.noteRequired }}
                 </p>
               } @else if (noteFailure(); as message) {
@@ -660,7 +669,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
                      either fold to say it. It reads here, on the last thing
                      written before saving and beside the button that was
                      pressed. -->
-                <p appErrorText class="mt-1" role="alert">
+                <p uiErrorText class="mt-1" role="alert">
                   {{ message }}
                 </p>
               }
@@ -670,25 +679,24 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  the phone and then confirmed, and the confirmation is the one
                  mail worth sending; this is for the change with no move behind
                  it, which nothing else would ever mention. -->
-            <label class="mt-4 flex items-start gap-2 text-sm">
+            <label uiTickLabel class="mt-4">
               <input
-                appCheckbox
+                uiCheckbox
                 type="checkbox"
-                class="mt-0.5"
                 [disabled]="saving()"
                 [checked]="notify()"
                 (change)="notify.set($any($event.target).checked)"
               />
               <span>
                 {{ text.notify }}
-                <span appHint>
+                <span uiHint>
                   {{ text.notifyHint }}
                 </span>
               </span>
             </label>
 
             <button
-              appButton
+              uiButton
               type="button"
               class="mt-5 w-full"
               [disabled]="saving()"
@@ -697,7 +705,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
               {{ text.save }}
             </button>
             <a
-              appButton
+              uiButton
               variant="secondary"
               class="mt-3 w-full"
               [routerLink]="['/admin/orders', reference()]"
@@ -709,16 +717,16 @@ const PREVIEW_DEBOUNCE_MS = 250;
       </div>
     } @else if (missing()) {
       <p class="text-ink-subtle">{{ ordersText.notFound }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (loadFailed()) {
       <p class="text-ink-subtle" role="alert">{{ ordersText.loadError }}</p>
-      <a appButton variant="secondary" routerLink="/admin/orders" class="mt-5">
+      <a uiButton variant="secondary" routerLink="/admin/orders" class="mt-5">
         {{ detailText.back }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="8" />
+      <ui-skeleton [lines]="8" />
     }
   `,
 })
@@ -730,6 +738,7 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   private readonly confirm = inject(ConfirmService);
   private readonly router = inject(Router);
   private readonly config = inject(DEPLOYMENT_CONFIG);
+  protected readonly phoneInput = this.config.phoneInput;
   private readonly currency = moneyFormat(this.config);
 
   protected readonly text = inject(ADMIN_TEXT).orders.adjust;
@@ -751,8 +760,6 @@ export class AdminOrderAdjustPage implements FieldAttempt {
   protected readonly locations = this.config.pickup?.locations ?? [];
   protected readonly billingEnabled = this.config.billingAddressEnabled;
   protected readonly noteMax = ORDER_ADJUSTMENT_NOTE_MAX;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly itemsPanelId = 'adjust-items';
   protected readonly detailsPanelId = 'adjust-details';
   /** Both open on arrival: an adjustment starts by reading the order, and a

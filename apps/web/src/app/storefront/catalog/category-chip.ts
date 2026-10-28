@@ -4,7 +4,8 @@ import {
   CatalogImage,
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared';
-import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 
 /**
  * What the chip needs of a category — the shape both the public tree node and
@@ -62,7 +63,7 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
  */
 @Component({
   selector: 'app-category-chip',
-  imports: [RouterLink, HighlightedLine],
+  imports: [RouterLink, HighlightedLine, MatchSegmentsPipe],
   // The host is a flex item of the <li> it sits in and a flex box for the link
   // it holds. `w-full` is what carries the item's width through to the link:
   // without it the host collapses around its own content and the width the
@@ -81,20 +82,16 @@ const CHIP_SIZES: Record<CategoryChipSize, { link: string; mark: string }> = {
              small chip whole: 2 × 20px + 16px leaves 4px either side of 64. -->
         <span [class]="contextClass()">
           <span class="line-clamp-2 leading-5">
-            <app-highlighted-line
-              [line]="label()"
-              [query]="query()"
-              [alternateQuery]="alternateQuery()"
+            <ui-highlighted-line
+              [segments]="label() | matchSegments: query() : alternateQuery()"
             />
           </span>
           <span class="truncate text-xs/4 text-ink-subtle">{{ context }}</span>
         </span>
       } @else if (query()) {
         <span [class]="nameClass()">
-          <app-highlighted-line
-            [line]="label()"
-            [query]="query()"
-            [alternateQuery]="alternateQuery()"
+          <ui-highlighted-line
+            [segments]="label() | matchSegments: query() : alternateQuery()"
           />
         </span>
       } @else {

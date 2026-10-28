@@ -6,8 +6,8 @@ import {
 } from '@b2b-catalog-platform/shared/storefront';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { DateField } from '../../shared/ui/date-field';
-import { FieldLabel } from '../../shared/ui/field-label';
+import { DateInput } from '@b2b-catalog-platform/ui/inputs/date-input';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
 
 /**
  * When the customer would like the order (FR-CART-07) — a wish, not a booking.
@@ -32,16 +32,16 @@ import { FieldLabel } from '../../shared/ui/field-label';
  */
 @Component({
   selector: 'app-preferred-date',
-  imports: [DateField, FieldLabel],
+  imports: [DateInput, FieldLabel],
   host: { class: 'block' },
   template: `
-    <label [for]="id" appFieldLabel>
+    <label [for]="id" uiFieldLabel>
       {{
         method() === 'pickup' ? names.preferredPickup : names.preferredDelivery
       }}
       <span class="font-normal text-ink-subtle">({{ optional }})</span>
     </label>
-    <app-date-field
+    <ui-date-input
       class="max-w-70"
       [fieldId]="id"
       [value]="date()"

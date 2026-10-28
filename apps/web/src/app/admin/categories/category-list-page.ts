@@ -23,15 +23,15 @@ import {
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { Button } from '../../shared/ui/button';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { CategoryDeleteDialog } from './category-delete-dialog';
 import {
@@ -44,14 +44,14 @@ import {
   moveCategoryEntries,
   resolveDropTarget,
 } from './category-tree';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { funnelIcon } from '../../shared/ui/icons/glyphs/funnel';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * Pixels of indent per tree level, shared by the rows and the drop line. 1.5rem,
@@ -89,6 +89,7 @@ const EDGE_SLACK = 24;
 @Component({
   selector: 'app-category-list-page',
   imports: [
+    PageHeader,
     RouterLink,
     Button,
     IconButton,
@@ -101,7 +102,6 @@ const EDGE_SLACK = 24;
     CdkDragHandle,
     Skeleton,
     UnpublishedCount,
-    PageTitle,
     ErrorText,
   ],
   styles: `
@@ -131,30 +131,27 @@ const EDGE_SLACK = 24;
     }
   `,
   template: `
-    <div class="mb-4 flex items-start justify-between gap-4">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
-      <div class="flex flex-wrap justify-end gap-2">
-        <a
-          appButton
-          variant="secondary"
-          routerLink="/admin/catalog/filters"
-          [queryParams]="editorFrom()"
-          class="gap-2"
-        >
-          <app-icon [glyph]="funnelIcon" class="size-4" />
-          {{ text.catalogFilters }}
-        </a>
-        <a
-          appButton
-          routerLink="/admin/categories/new"
-          [queryParams]="editorFrom()"
-          class="gap-2"
-        >
-          <app-icon [glyph]="plusIcon" class="size-4" />
-          {{ text.add }}
-        </a>
-      </div>
-    </div>
+    <ui-page-header [title]="text.page.title">
+      <a
+        uiButton
+        variant="secondary"
+        routerLink="/admin/catalog/filters"
+        [queryParams]="editorFrom()"
+        class="gap-2"
+      >
+        <ui-icon [glyph]="funnelIcon" class="size-4" />
+        {{ text.catalogFilters }}
+      </a>
+      <a
+        uiButton
+        routerLink="/admin/categories/new"
+        [queryParams]="editorFrom()"
+        class="gap-2"
+      >
+        <ui-icon [glyph]="plusIcon" class="size-4" />
+        {{ text.add }}
+      </a>
+    </ui-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -168,7 +165,7 @@ const EDGE_SLACK = 24;
       <div class="mb-4 flex min-h-8 items-start justify-between gap-4">
         <p class="text-sm text-ink-subtle">{{ text.reorderHint }}</p>
         <button
-          appIconButton
+          uiIconButton
           type="button"
           class="shrink-0 mr-1"
           [class.opacity-40]="!canUndo()"
@@ -177,12 +174,12 @@ const EDGE_SLACK = 24;
           [title]="text.undo"
           (click)="undo()"
         >
-          <app-icon [glyph]="rotateCcwIcon" />
+          <ui-icon [glyph]="rotateCcwIcon" />
         </button>
       </div>
 
       @if (reorderError()) {
-        <p appErrorText class="mb-4" role="alert">
+        <p uiErrorText class="mb-4" role="alert">
           {{ text.reorderError }}
         </p>
       }
@@ -222,17 +219,17 @@ const EDGE_SLACK = 24;
                     [class.border-t]="!first"
                     [style.marginLeft.px]="node.depth * indent"
                   >
-                    <app-record-row [compact]="true">
+                    <ui-record-row [compact]="true">
                       <span
                         recordControl
                         cdkDragHandle
-                        appIconButton
+                        uiIconButton
                         size="lead"
                         class="cursor-grab active:cursor-grabbing"
                         [attr.aria-label]="adminText.actions.reorder"
                         [title]="adminText.actions.reorder"
                       >
-                        <app-icon [glyph]="gripVerticalIcon" />
+                        <ui-icon [glyph]="gripVerticalIcon" />
                       </span>
                       <!-- The whole line, and it wraps: a category's name is
                            written for the shelf it heads, not for this list,
@@ -262,7 +259,7 @@ const EDGE_SLACK = 24;
                       <ng-container recordMeta>
                         @if (node.category.productCount) {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{ categoryId: node.category.id }"
                             [title]="text.editProducts"
@@ -288,7 +285,7 @@ const EDGE_SLACK = 24;
                           node.category.directProductCount
                         ) {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{
                               categoryId: node.category.id,
@@ -311,7 +308,7 @@ const EDGE_SLACK = 24;
                       </ng-container>
                       <ng-container recordActions>
                         <a
-                          appIconButton
+                          uiIconButton
                           routerLink="/admin/categories/new"
                           [queryParams]="{
                             parent: node.category.slug,
@@ -320,10 +317,10 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="text.addChild"
                           [title]="text.addChild"
                         >
-                          <app-icon [glyph]="plusIcon" />
+                          <ui-icon [glyph]="plusIcon" />
                         </a>
                         <a
-                          appIconButton
+                          uiIconButton
                           [routerLink]="[
                             '/admin/categories',
                             node.category.slug,
@@ -333,10 +330,10 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="text.editFilters"
                           [title]="text.editFilters"
                         >
-                          <app-icon [glyph]="funnelIcon" />
+                          <ui-icon [glyph]="funnelIcon" />
                         </a>
                         <a
-                          appIconButton
+                          uiIconButton
                           [routerLink]="[
                             '/admin/categories',
                             node.category.slug,
@@ -346,20 +343,20 @@ const EDGE_SLACK = 24;
                           [attr.aria-label]="adminText.actions.edit"
                           [title]="adminText.actions.edit"
                         >
-                          <app-icon [glyph]="pencilIcon" />
+                          <ui-icon [glyph]="pencilIcon" />
                         </a>
                         <button
-                          appIconButton
+                          uiIconButton
                           variant="danger"
                           type="button"
                           [attr.aria-label]="adminText.actions.delete"
                           [title]="adminText.actions.delete"
                           (click)="deletingCategory.set(node.category)"
                         >
-                          <app-icon [glyph]="trash2Icon" />
+                          <ui-icon [glyph]="trash2Icon" />
                         </button>
                       </ng-container>
-                    </app-record-row>
+                    </ui-record-row>
                   </div>
                 </li>
               }
@@ -382,7 +379,7 @@ const EDGE_SLACK = 24;
           </div>
         }
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="5" />
+        <ui-skeleton [lines]="5" />
       }
 
       @if (deletingCategory(); as target) {

@@ -6,11 +6,14 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { Field } from '../../shared/ui/field';
-import { FieldBinding } from '../../shared/ui/field-binding';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { Field } from '@b2b-catalog-platform/ui/fields/field';
+import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 import { ContactAnswers, PartyAnswers } from './checkout-forms';
 
@@ -47,7 +50,7 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
       <!-- Only where the shop sells to more than one kind of customer
            (FR-AUTH-13): with one, there is nothing to choose. -->
       @if (kinds.length > 1) {
-        <app-segmented
+        <ui-segmented
           name="party-kind"
           [options]="kinds"
           [value]="party()"
@@ -73,7 +76,7 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
       }
 
       <ng-template #reach>
-        <app-field
+        <ui-field
           [field]="contact().name"
           [label]="party() === 'company' ? text.contactName : text.name"
           controlId="contact-name"
@@ -81,13 +84,13 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           <input
             type="text"
             autocomplete="name"
-            appInput
+            uiInput
             class="w-full"
             [formField]="contact().name"
           />
-        </app-field>
+        </ui-field>
 
-        <app-field
+        <ui-field
           [field]="contact().email"
           [label]="fields.email.label"
           controlId="contact-email"
@@ -95,19 +98,19 @@ import { ContactAnswers, PartyAnswers } from './checkout-forms';
           <input
             type="email"
             autocomplete="email"
-            appInput
+            uiInput
             class="w-full"
             [formField]="contact().email"
           />
-        </app-field>
+        </ui-field>
 
-        <app-field
+        <ui-field
           [field]="contact().phone"
           [label]="fields.phone.label"
           controlId="contact-phone"
         >
-          <app-phone-input [field]="contact().phone" />
-        </app-field>
+          <ui-phone-input [field]="contact().phone" [phone]="phoneInput" />
+        </ui-field>
 
         <p class="text-sm text-ink-subtle">{{ text.note }}</p>
       </ng-template>
@@ -119,6 +122,7 @@ export class GuestDetails {
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly text = inject(STOREFRONT_TEXT).checkout.contact;
   private readonly partyChoice = inject(STOREFRONT_TEXT).partyChoice;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   /** Typed as the whole choice, not just these two: the pill hands back
    * what the page holds, and the page also knows about the account. */
   protected readonly kinds: readonly SegmentOption<Party>[] = inject(

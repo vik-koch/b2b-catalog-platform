@@ -3,9 +3,9 @@ import { fillText, moneyFormat } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPriceMinor } from '../../shared/catalog/price';
-import { EmphasisedText } from '../../shared/ui/emphasised-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { mapIcon } from '../../shared/ui/icons/glyphs/map';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { mapIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map';
 
 /**
  * How wide a card is in a row of `n`, on a twelve-column grid. Written out so
@@ -39,7 +39,7 @@ const SPAN: Record<number, string> = {
           [class]="spread() ? 'flex gap-3 ' + spans[i] : ''"
         >
           @if (spread()) {
-            <app-icon
+            <ui-icon
               [glyph]="mapIcon"
               class="mt-0.5 size-5 shrink-0 text-ink-subtle"
             />
@@ -48,7 +48,7 @@ const SPAN: Record<number, string> = {
             <p class="font-medium">{{ zone.title }}</p>
             @if (zone.description; as description) {
               <p class="mt-1 text-sm text-ink-subtle">
-                <app-emphasised [text]="description" />
+                <ui-emphasised [text]="description" />
               </p>
             }
             <!-- Said out loud either way: a zone with no line under it would

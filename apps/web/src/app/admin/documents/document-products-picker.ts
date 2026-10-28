@@ -16,17 +16,20 @@ import {
   DocumentProduct,
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { debounced } from '../../shared/core/debounced';
+import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
-import { SegmentOption, Segmented } from '../../shared/ui/segmented';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import {
+  SegmentOption,
+  Segmented,
+} from '@b2b-catalog-platform/ui/choices/segmented';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';
-import { ErrorText } from '../../shared/ui/error-text';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /** `id`s must be unique on a page, and a form may hold more than one picker. */
 let nextId = 0;
@@ -62,7 +65,7 @@ type View = 'all' | 'linked';
     Checkbox,
     FieldLabel,
     Input,
-    SelectField,
+    SelectInput,
     Segmented,
     StatusBadge,
     ErrorText,
@@ -71,7 +74,7 @@ type View = 'all' | 'linked';
   template: `
     <div class="flex flex-nowrap items-end justify-between gap-3">
       <div>
-        <span appFieldLabel class="mb-0">{{ text.heading }}</span>
+        <span uiFieldLabel class="mb-0">{{ text.heading }}</span>
         <p class="mt-1 text-xs wrap-break-word text-ink-subtle">
           {{ text.hint }}
         </p>
@@ -79,7 +82,7 @@ type View = 'all' | 'linked';
       <!-- The app's segmented pill, as everywhere else one choice is made
            between a few: they are two views of one list, and the count in the
            second label is what an admin watches while ticking. -->
-      <app-segmented
+      <ui-segmented
         class="shrink-0"
         [options]="viewOptions()"
         [value]="view()"
@@ -90,7 +93,7 @@ type View = 'all' | 'linked';
 
     <div class="mt-3 grid gap-3 sm:grid-cols-[2fr_1fr]">
       <input
-        appInput
+        uiInput
         type="search"
         autocomplete="off"
         class="w-full"
@@ -99,9 +102,9 @@ type View = 'all' | 'linked';
         [value]="query()"
         (input)="query.set($any($event.target).value)"
       />
-      <app-select-field>
+      <ui-select-input>
         <select
-          appInput
+          uiInput
           class="w-full"
           [attr.aria-label]="text.categoryAria"
           [value]="categoryId()"
@@ -112,11 +115,11 @@ type View = 'all' | 'linked';
             <option [value]="option.id">{{ option.label }}</option>
           }
         </select>
-      </app-select-field>
+      </ui-select-input>
     </div>
 
     @if (products.error()) {
-      <p appErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
+      <p uiErrorText class="mt-3" role="alert">{{ text.loadError }}</p>
     }
 
     <!-- A fixed-height scroller: the list is up to fifty rows, and a form that
@@ -136,18 +139,18 @@ type View = 'all' | 'linked';
           >
             <input
               type="checkbox"
-              appCheckbox
+              uiCheckbox
               [id]="rowId(index)"
               [checked]="isLinked(row.slug)"
               (click)="toggle($event, index)"
             />
             <span class="min-w-0 flex-1 truncate">{{ row.name }}</span>
             @if (row.deleted) {
-              <span appStatusBadge tone="danger">{{
+              <span uiStatusBadge tone="danger">{{
                 productStates.deleted
               }}</span>
             } @else if (row.unpublished) {
-              <span appStatusBadge tone="waiting">{{
+              <span uiStatusBadge tone="waiting">{{
                 productStates.unpublished
               }}</span>
             }

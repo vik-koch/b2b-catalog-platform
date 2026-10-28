@@ -14,22 +14,25 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridPagination } from '../grid/grid-pagination';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
-import { AdminListHeader } from '../list-header';
-import { RecordRow } from '../records/record-row';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTimestamp } from '../dates/grid-timestamp';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { SyncService } from './sync.service';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
 
 /**
  * One area's runs, newest first (FR-ADM-09) — the screen
@@ -53,9 +56,9 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
   imports: [
     NgTemplateOutlet,
     RouterLink,
-    AdminGrid,
+    DataGrid,
     Icon,
-    AdminListHeader,
+    GridHeader,
     Button,
     GridCardTemplate,
     GridPagination,
@@ -67,7 +70,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
     PageIntro,
   ],
   template: `
-    <app-admin-list-header
+    <ui-grid-header
       [title]="areaText().title"
       [searchable]="false"
       [filtered]="filtered()"
@@ -79,21 +82,21 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
            arrival, which is a better place to learn it than a button that
            quietly is not there. -->
       @if (canUpload()) {
-        <a appButton class="gap-2" [routerLink]="uploadLink()">
-          <app-icon [glyph]="uploadIcon" class="size-4" />
+        <a uiButton class="gap-2" [routerLink]="uploadLink()">
+          <ui-icon [glyph]="uploadIcon" class="size-4" />
           {{ text.newRun }}
         </a>
       }
-    </app-admin-list-header>
+    </ui-grid-header>
 
-    <p appPageIntro class="mb-6 max-w-3xl">
+    <p uiPageIntro class="mb-6 max-w-3xl">
       {{ areaText().runsDescription }}
     </p>
 
     @if (runs.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
     } @else if (shown(); as data) {
-      <app-admin-grid
+      <ui-data-grid
         gridId="sync-runs"
         [columns]="columns()"
         [rows]="data.runs"
@@ -104,7 +107,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
         [total]="data.pagination.total"
         [countLabel]="text.historyCount"
       >
-        <ng-template appGridRow [of]="data.runs" let-run>
+        <ng-template uiGridRow [of]="data.runs" let-run>
           <!-- When it ran is what a run is called: there is no other name for
                it, and it is the way into the run itself. -->
           <td class="truncate">
@@ -137,8 +140,8 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 
         <!-- The same run on a phone: when it ran and how it ended, with what
              sent it and what it came to underneath. -->
-        <ng-template appGridCard [of]="data.runs" let-run>
-          <app-record-row>
+        <ng-template uiGridCard [of]="data.runs" let-run>
+          <ui-record-row>
             <a
               class="font-medium text-ink hover:text-accent"
               [routerLink]="['/admin/sync/runs', run.id]"
@@ -161,19 +164,19 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
               <span class="tabular-nums">{{ changeSummary(run) }}</span>
               <span class="truncate">{{ fieldsLine(run) }}</span>
             </span>
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-admin-grid>
+      </ui-data-grid>
 
-      <app-grid-pagination [pagination]="data.pagination" />
+      <ui-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
 
     <!-- One badge for both shapes. A run held for review says so in its title:
          the badge has room for the word, not for the reason. -->
     <ng-template #state let-run>
-      <span appStatusBadge [tone]="tone(run)" [title]="reason(run)">
+      <span uiStatusBadge [tone]="tone(run)" [title]="reason(run)">
         {{ statusLabel(run) }}
       </span>
     </ng-template>

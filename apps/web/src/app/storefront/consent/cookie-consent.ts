@@ -1,11 +1,11 @@
 import { afterNextRender, Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConsentService } from './consent.service';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
  * Cookie-consent banner. Rendered only when the deployment enables consent AND
@@ -36,14 +36,14 @@ import { Link } from '../../shared/ui/link';
         >
           <p class="text-sm text-ink-subtle">
             {{ message }}
-            <a appLink routerLink="/privacy">{{ text.policyLink }}</a
+            <a uiLink routerLink="/privacy">{{ text.policyLink }}</a
             >{{ text.policyLinkAfter }}
           </p>
           <div class="flex shrink-0 gap-3">
-            <button appButton variant="secondary" (click)="consent.reject()">
+            <button uiButton variant="secondary" (click)="consent.reject()">
               {{ text.reject }}
             </button>
-            <button appButton variant="secondary" (click)="consent.accept()">
+            <button uiButton variant="secondary" (click)="consent.accept()">
               {{ text.accept }}
             </button>
           </div>

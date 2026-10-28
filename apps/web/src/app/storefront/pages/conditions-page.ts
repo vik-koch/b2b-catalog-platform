@@ -16,15 +16,16 @@ import { DeliveryZoneList } from '../checkout/delivery-zone-list';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
-import { EmphasisedText } from '../../shared/ui/emphasised-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { TextButton } from '../../shared/ui/text-button';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from '../../shared/pages/page.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { banknoteIcon } from '../../shared/ui/icons/glyphs/banknote';
-import { landmarkIcon } from '../../shared/ui/icons/glyphs/landmark';
-import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
+import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
+import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -56,6 +57,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
     TextButton,
     LoadErrorView,
     PageTitle,
+    Skeleton,
   ],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
@@ -68,7 +70,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
     } @else if (ready()) {
       @let content = page();
       <div class="flex items-start justify-between gap-4">
-        <h1 appPageTitle class="mb-4">
+        <h1 uiPageTitle class="mb-4">
           {{ content?.title || navLabel }}
         </h1>
         @if (canEdit(); as editorText) {
@@ -115,7 +117,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
             <ul class="space-y-3">
               @for (location of pickupLocations; track location.key) {
                 <li [class]="cardClass">
-                  <app-icon [glyph]="mapPinIcon" [class]="cardMark" />
+                  <ui-icon [glyph]="mapPinIcon" [class]="cardMark" />
                   <div class="min-w-0 flex-1">
                     <div
                       class="flex flex-wrap items-baseline justify-between
@@ -124,7 +126,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
                       <p class="font-medium">{{ location.name }}</p>
                       @if (location.mapUrl) {
                         <a
-                          appTextButton
+                          uiTextButton
                           class="text-sm"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -139,7 +141,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
                     </p>
                     @if (location.description) {
                       <p class="mt-2 text-sm text-ink-subtle">
-                        <app-emphasised [text]="location.description" />
+                        <ui-emphasised [text]="location.description" />
                       </p>
                     }
                   </div>
@@ -158,7 +160,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
           </h2>
           <ul class="space-y-3">
             <li [class]="cardClass">
-              <app-icon [glyph]="banknoteIcon" [class]="cardMark" />
+              <ui-icon [glyph]="banknoteIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.cash }}</p>
                 <p class="mt-1 text-sm text-ink-subtle">
@@ -170,7 +172,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
               </div>
             </li>
             <li [class]="cardClass">
-              <app-icon [glyph]="landmarkIcon" [class]="cardMark" />
+              <ui-icon [glyph]="landmarkIcon" [class]="cardMark" />
               <div class="min-w-0 flex-1">
                 <p class="font-medium">{{ paymentNames.transfer }}</p>
                 <p class="mt-1 text-sm text-ink-subtle">
@@ -193,7 +195,7 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
           </h2>
           <div class="space-y-3 text-ink-subtle">
             @for (paragraph of pageText.goodsParagraphs; track $index) {
-              <p><app-emphasised [text]="paragraph" /></p>
+              <p><ui-emphasised [text]="paragraph" /></p>
             }
             <p>{{ taxSentence }}</p>
           </div>
@@ -208,11 +210,11 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
             </h2>
             <div class="space-y-3 text-ink-subtle">
               @for (paragraph of pageText.returnsParagraphs; track $index) {
-                <p><app-emphasised [text]="paragraph" /></p>
+                <p><ui-emphasised [text]="paragraph" /></p>
               }
               @if (withdrawalPublished) {
                 <p>
-                  <a appTextButton routerLink="/withdrawal">{{
+                  <a uiTextButton routerLink="/withdrawal">{{
                     pageText.returnsWithdrawalLink
                   }}</a>
                 </p>
@@ -222,11 +224,8 @@ import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
         }
       </div>
     } @else if (showSkeleton()) {
-      <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
-      </div>
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

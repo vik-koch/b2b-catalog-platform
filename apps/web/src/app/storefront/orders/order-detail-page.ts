@@ -23,13 +23,16 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   injectCustomerBlockLabels,
   orderBlocks,
@@ -48,8 +51,8 @@ import {
 } from '../../shared/orders/order-status';
 import { customerQuantity } from '../../shared/orders/order-view';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * One of the account's own orders (FR-ACC-01), read back exactly as it was
@@ -93,14 +96,14 @@ import { ErrorText } from '../../shared/ui/error-text';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 appPageTitle>
+              <h1 uiPageTitle>
                 {{ detail.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone(detail)">
+              <span uiStatusBadge [tone]="statusTone(detail)">
                 {{ statusLabel(detail) }}
               </span>
               @if (paymentLabel(detail); as payment) {
-                <span appStatusBadge variant="dot" [tone]="paymentTone(detail)">
+                <span uiStatusBadge variant="dot" [tone]="paymentTone(detail)">
                   {{ payment }}
                 </span>
               }
@@ -164,7 +167,7 @@ import { ErrorText } from '../../shared/ui/error-text';
                  button is never drawn for a move the server would decline. -->
             @if (cancellable()) {
               <button
-                appButton
+                uiButton
                 variant="dangerOutline"
                 type="button"
                 class="mt-5 w-full"
@@ -175,12 +178,12 @@ import { ErrorText } from '../../shared/ui/error-text';
               </button>
             }
             @if (cancelFailed()) {
-              <p appErrorText class="mt-3" role="alert">
+              <p uiErrorText class="mt-3" role="alert">
                 {{ text.cancel.error }}
               </p>
             }
             <a
-              appButton
+              uiButton
               variant="secondary"
               routerLink="/account/orders"
               class="mt-5 w-full"
@@ -200,17 +203,12 @@ import { ErrorText } from '../../shared/ui/error-text';
         [backLabel]="text.backToList"
       />
     } @else if (order.error()) {
-      <p appErrorText role="alert">{{ text.error }}</p>
-      <a
-        appButton
-        variant="secondary"
-        routerLink="/account/orders"
-        class="mt-5"
-      >
+      <p uiErrorText role="alert">{{ text.error }}</p>
+      <a uiButton variant="secondary" routerLink="/account/orders" class="mt-5">
         {{ text.backToList }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

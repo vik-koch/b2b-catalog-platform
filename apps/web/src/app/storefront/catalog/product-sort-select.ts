@@ -10,12 +10,10 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Input } from '../../shared/ui/input';
-import {
-  SEGMENTED_GROUP_NEUTRAL,
-  segmentClass,
-} from '../../shared/ui/segmented';
-import { SelectField } from '../../shared/ui/select-field';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
+import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
 
 /**
  * Ties the visible label to the field. A constant rather than a generated id:
@@ -54,7 +52,7 @@ const SORT_FIELD_ID = 'product-sort';
  */
 @Component({
   selector: 'app-product-sort-select',
-  imports: [Input, SelectField],
+  imports: [Input, SelectInput, Segment, SegmentGroup],
   template: `
     @if (enabled) {
       @if (shape() === 'segments') {
@@ -71,11 +69,13 @@ const SORT_FIELD_ID = 'product-sort';
           >
             {{ text.sort.label }}
           </span>
-          <div [class]="group">
+          <div uiSegmentGroup tone="neutral" class="h-8 items-center">
             @for (field of fields(); track field.key) {
               <button
                 type="button"
-                [class]="segment(field.active)"
+                uiSegment
+                [state]="field.active ? 'selected' : 'available'"
+                class="flex h-full items-center gap-1 px-2.5 whitespace-nowrap"
                 [attr.aria-pressed]="field.active"
                 [attr.aria-label]="text.sort[field.shows]"
                 [title]="text.sort[field.shows]"
@@ -100,7 +100,7 @@ const SORT_FIELD_ID = 'product-sort';
           class="text-sm whitespace-nowrap text-ink-subtle"
           >{{ text.sort.label }}</label
         >
-        <app-select-field class="max-w-52">
+        <ui-select-input class="max-w-52">
           <!-- Selection is marked on the option rather than bound on the <select>:
              a value binding is applied before the options exist, and the element
              silently falls back to the first one.
@@ -113,7 +113,7 @@ const SORT_FIELD_ID = 'product-sort';
              something the element is dirty and ignores it, so a later
              navigation (back/forward) needs the property. -->
           <select
-            appInput
+            uiInput
             size="sm"
             [id]="id()"
             (change)="onSelect($event)"
@@ -129,7 +129,7 @@ const SORT_FIELD_ID = 'product-sort';
               </option>
             }
           </select>
-        </app-select-field>
+        </ui-select-input>
       </div>
     }
   `,
@@ -158,7 +158,6 @@ export class ProductSortSelect {
   /** Segments above a listing, the select inside the filter disclosure. */
   readonly shape = input<'segments' | 'select'>('select');
 
-  protected readonly group = `${SEGMENTED_GROUP_NEUTRAL} h-8 items-center`;
   protected readonly selectRow = computed(
     () =>
       `flex items-center gap-2${this.shape() === 'segments' ? ' @min-[38rem]/listing:hidden' : ''}`,
@@ -185,10 +184,6 @@ export class ProductSortSelect {
       return [{ key, active, shows, arrow }];
     });
   });
-
-  protected segment(active: boolean): string {
-    return `${segmentClass(active ? 'selected' : 'available', { tone: 'neutral' })} flex h-full items-center gap-1 px-2.5 whitespace-nowrap`;
-  }
 
   /** A new field starts ascending; the chosen one turns round. */
   protected press(key: SortField): void {

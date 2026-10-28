@@ -1,4 +1,5 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   CONSENT_PAGE_SLUGS,
   CONSENT_PURPOSES,
@@ -12,25 +13,25 @@ import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { SHARED_TEXT } from '../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
-import { Icon } from '../shared/ui/icons/icon';
-import { StatusBadge } from '../shared/ui/status-badge';
-import { WorkNote } from '../shared/work/work-note';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../shared/work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
-import { adminMomentFormat } from './grid/admin-date';
+import { adminMomentFormat } from './dates/admin-date';
 import { PanelRow } from './panel-row';
 import { SettingsService } from './settings/settings.service';
 import { SyncService } from './sync/sync.service';
-import { PageTitle } from '../shared/ui/page-title';
-import { bookCheckIcon } from '../shared/ui/icons/glyphs/book-check';
-import { clipboardListIcon } from '../shared/ui/icons/glyphs/clipboard-list';
-import { fileTextIcon } from '../shared/ui/icons/glyphs/file-text';
-import { funnelIcon } from '../shared/ui/icons/glyphs/funnel';
-import { lockIcon } from '../shared/ui/icons/glyphs/lock';
-import { packageIcon } from '../shared/ui/icons/glyphs/package';
-import { usersIcon } from '../shared/ui/icons/glyphs/users';
-import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
+import { clipboardListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/clipboard-list';
+import { fileTextIcon } from '@b2b-catalog-platform/ui/icons/glyphs/file-text';
+import { funnelIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { packageIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package';
+import { usersIcon } from '@b2b-catalog-platform/ui/icons/glyphs/users';
+import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
 
 /**
  * Admin panel — a small dashboard: the two staff-facing halves (orders and
@@ -41,13 +42,21 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, Icon, PanelRow, StatusBadge, WorkNote, PageTitle],
+  imports: [
+    SignedInAs,
+    Icon,
+    PanelRow,
+    StatusBadge,
+    ActionLink,
+    PageTitle,
+    RouterLink,
+  ],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
          and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ isAdmin() ? panelText.adminPanel : panelText.staffArea }}
       </h1>
       <app-signed-in-as />
@@ -78,7 +87,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                catalog. -->
           <section class="order-1 md:order-0">
             <h2 id="admin-orders-heading" [class]="headingClass">
-              <app-icon [glyph]="clipboardListIcon" class="size-4" />
+              <ui-icon [glyph]="clipboardListIcon" class="size-4" />
               {{ panelText.orders }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-orders-heading">
@@ -94,18 +103,20 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                      sentences to read down however wide the row is. -->
                 <div class="flex flex-col items-end gap-0.5">
                   @if (waitingOrders(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workOrders, count)"
-                      link="/admin/orders"
+                    <a
+                      uiActionLink
+                      routerLink="/admin/orders"
                       [queryParams]="{ status: 'requested' }"
-                    />
+                      >{{ fill(panelText.workOrders, count) }}</a
+                    >
                   }
                   @if (unpaidOrders(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workUnpaid, count)"
-                      link="/admin/orders"
+                    <a
+                      uiActionLink
+                      routerLink="/admin/orders"
                       [queryParams]="{ status: 'completed', payment: 'unpaid' }"
-                    />
+                      >{{ fill(panelText.workUnpaid, count) }}</a
+                    >
                   }
                 </div>
               </app-panel-row>
@@ -132,7 +143,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                  button underneath. -->
             <section class="order-3 md:order-0">
               <h2 id="admin-catalog-heading" [class]="headingClass">
-                <app-icon [glyph]="packageIcon" class="size-4" />
+                <ui-icon [glyph]="packageIcon" class="size-4" />
                 {{ panelText.catalog }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-catalog-heading">
@@ -146,21 +157,23 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                 >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (waitingProducts(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workProducts, count)"
-                        link="/admin/products"
+                      <a
+                        uiActionLink
+                        routerLink="/admin/products"
                         [queryParams]="{ state: 'unpublished' }"
-                      />
+                        >{{ fill(panelText.workProducts, count) }}</a
+                      >
                     }
                     <!-- Its own note, like the documents row's pair: one is work
                        an admin finishes by looking, the other is a product
                        nobody can publish until it has a price. -->
                     @if (unpricedProducts(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workUnpricedProducts, count)"
-                        link="/admin/products"
+                      <a
+                        uiActionLink
+                        routerLink="/admin/products"
                         [queryParams]="{ missing: 'price' }"
-                      />
+                        >{{ fill(panelText.workUnpricedProducts, count) }}</a
+                      >
                     }
                   </div>
                 </app-panel-row>
@@ -174,18 +187,20 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                 >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (expiredDocuments(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workDocumentsExpired, count)"
-                        link="/admin/documents"
+                      <a
+                        uiActionLink
+                        routerLink="/admin/documents"
                         [queryParams]="{ status: 'expired' }"
-                      />
+                        >{{ fill(panelText.workDocumentsExpired, count) }}</a
+                      >
                     }
                     @if (waitingDocuments(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workDocuments, count)"
-                        link="/admin/documents"
+                      <a
+                        uiActionLink
+                        routerLink="/admin/documents"
                         [queryParams]="{ status: 'expiring' }"
-                      />
+                        >{{ fill(panelText.workDocuments, count) }}</a
+                      >
                     }
                   </div>
                 </app-panel-row>
@@ -201,11 +216,12 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                 >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (stagedCatalogRuns(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workSyncRuns, count)"
-                        link="/admin/sync/catalog"
+                      <a
+                        uiActionLink
+                        routerLink="/admin/sync/catalog"
                         [queryParams]="{ status: 'previewed' }"
-                      />
+                        >{{ fill(panelText.workSyncRuns, count) }}</a
+                      >
                     }
                     @if (lastSync(); as moment) {
                       <span class="flex text-xs text-ink-subtle">{{
@@ -225,7 +241,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                  storefront edit mode happens to be on. -->
             <section class="order-5 md:order-0">
               <h2 id="admin-pages-heading" [class]="headingClass">
-                <app-icon [glyph]="fileTextIcon" class="size-4" />
+                <ui-icon [glyph]="fileTextIcon" class="size-4" />
                 {{ panelText.pages }}
               </h2>
               <ul [class]="cardClass" aria-labelledby="admin-pages-heading">
@@ -245,7 +261,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                and last of all on a phone. -->
           <section class="order-8 md:order-0">
             <h2 id="admin-security-heading" [class]="headingClass">
-              <app-icon [glyph]="lockIcon" class="size-4" />
+              <ui-icon [glyph]="lockIcon" class="size-4" />
               {{ panelText.securityHeading }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-security-heading">
@@ -264,7 +280,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                already approved. -->
           <section class="order-2 md:order-0">
             <h2 id="admin-accounts-heading" [class]="headingClass">
-              <app-icon [glyph]="usersIcon" class="size-4" />
+              <ui-icon [glyph]="usersIcon" class="size-4" />
               {{ panelText.accounts }}
             </h2>
             <ul [class]="cardClass" aria-labelledby="admin-accounts-heading">
@@ -273,11 +289,12 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                 link="/admin/users"
               >
                 @if (waitingRegistrations(); as count) {
-                  <app-work-note
-                    [label]="fill(panelText.workRegistrations, count)"
-                    link="/admin/users"
+                  <a
+                    uiActionLink
+                    routerLink="/admin/users"
                     [queryParams]="{ status: 'pending' }"
-                  />
+                    >{{ fill(panelText.workRegistrations, count) }}</a
+                  >
                 }
               </app-panel-row>
               @if (isAdmin()) {
@@ -295,11 +312,12 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
               >
                 <div class="flex flex-col items-end gap-0.5">
                   @if (stagedCustomerRuns(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workSyncRuns, count)"
-                      link="/admin/sync/customers"
+                    <a
+                      uiActionLink
+                      routerLink="/admin/sync/customers"
                       [queryParams]="{ status: 'previewed' }"
-                    />
+                      >{{ fill(panelText.workSyncRuns, count) }}</a
+                    >
                   }
                   @if (lastCustomerSync(); as moment) {
                     <span class="flex text-xs text-ink-subtle">{{
@@ -319,7 +337,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                  same thing twice. -->
             <section class="order-4 md:order-0">
               <h2 id="admin-registries-heading" [class]="headingClass">
-                <app-icon [glyph]="funnelIcon" class="size-4" />
+                <ui-icon [glyph]="funnelIcon" class="size-4" />
                 {{ panelText.registries }}
               </h2>
               <ul
@@ -348,7 +366,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
             @if (consentPurposes.length > 0) {
               <section class="order-6 md:order-0">
                 <h2 id="admin-consents-heading" [class]="headingClass">
-                  <app-icon [glyph]="bookCheckIcon" class="size-4" />
+                  <ui-icon [glyph]="bookCheckIcon" class="size-4" />
                   {{ consentText.page.title }}
                 </h2>
                 <ul
@@ -377,7 +395,7 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                  history to sit above. -->
             <section class="order-7 md:order-0">
               <h2 id="admin-operations-heading" [class]="headingClass">
-                <app-icon [glyph]="wrenchIcon" class="size-4" />
+                <ui-icon [glyph]="wrenchIcon" class="size-4" />
                 {{ panelText.operations }}
               </h2>
               <ul
@@ -398,27 +416,27 @@ import { wrenchIcon } from '../shared/ui/icons/glyphs/wrench';
                   link="/admin/operations"
                 >
                   @if (maintenanceOn()) {
-                    <span appStatusBadge tone="danger">
+                    <span uiStatusBadge tone="danger">
                       {{ panelText.maintenanceOn }}
                     </span>
                   }
                   @if (fullyOwned()) {
-                    <span appStatusBadge tone="info">
+                    <span uiStatusBadge tone="info">
                       {{ panelText.fullyOwned }}
                     </span>
                   } @else {
                     @if (catalogOwned()) {
-                      <span appStatusBadge tone="info">
+                      <span uiStatusBadge tone="info">
                         {{ panelText.catalogOwned }}
                       </span>
                     }
                     @if (customersOwned()) {
-                      <span appStatusBadge tone="info">
+                      <span uiStatusBadge tone="info">
                         {{ panelText.customersOwned }}
                       </span>
                     }
                     @if (ordersOwned()) {
-                      <span appStatusBadge tone="info">
+                      <span uiStatusBadge tone="info">
                         {{ panelText.ordersOwned }}
                       </span>
                     }

@@ -4,7 +4,7 @@ import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { loadAdminText } from '../../shared/config/admin-text';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { ProductCreateService } from './product-create.service';
 

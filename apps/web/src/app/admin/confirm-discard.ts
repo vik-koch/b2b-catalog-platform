@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
-import { ConfirmService } from '../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 
 /**
  * The one discard-unsaved-changes prompt, shared by the editors' Cancel buttons

@@ -13,20 +13,20 @@ import {
   newPassword,
 } from '../../shared/core/password';
 import { AuthCard } from './auth-card';
-import { Button } from '../../shared/ui/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AuthService, CodeSendFailure } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
 import { landingFor } from '../../shared/auth/auth.guard';
-import { TextButton } from '../../shared/ui/text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status =
   | 'checking'
@@ -73,11 +73,11 @@ type Status =
           <app-sign-in-step (done)="land()" />
         }
         @case ('code-failed') {
-          <h1 appPageTitle class="mb-4">
+          <h1 uiPageTitle class="mb-4">
             {{ step.codeHeading }}
           </h1>
-          <p appPageIntro role="alert">{{ codeFailure() }}</p>
-          <a appButton routerLink="/login" class="mt-8">
+          <p uiPageIntro role="alert">{{ codeFailure() }}</p>
+          <a uiButton routerLink="/login" class="mt-8">
             {{ step.restartAction }}
           </a>
         }
@@ -85,39 +85,39 @@ type Status =
           <p class="text-ink-subtle">{{ text.checking }}</p>
         }
         @case ('expired') {
-          <h1 appPageTitle class="mb-4">
+          <h1 uiPageTitle class="mb-4">
             {{ text.expiredHeading }}
           </h1>
-          <p appPageIntro>{{ text.expired }}</p>
+          <p uiPageIntro>{{ text.expired }}</p>
           <!-- The copy has always told them to ask for a new link; now there
                is one to click. Primary, because it is the way out of here —
                signing in is what they could not do in the first place. -->
           <div class="mt-8 flex flex-wrap items-center gap-3">
-            <a appButton routerLink="/forgot-password">
+            <a uiButton routerLink="/forgot-password">
               {{ auth.forgotPassword.submit }}
             </a>
-            <a appButton variant="secondary" routerLink="/login">
+            <a uiButton variant="secondary" routerLink="/login">
               {{ auth.login }}
             </a>
           </div>
         }
         @case ('closed') {
-          <h1 appPageTitle class="mb-4">
+          <h1 uiPageTitle class="mb-4">
             {{ text.closedHeading }}
           </h1>
-          <p appPageIntro>{{ text.closed }}</p>
+          <p uiPageIntro>{{ text.closed }}</p>
         }
         @case ('done') {
-          <h1 appPageTitle class="mb-4">
+          <h1 uiPageTitle class="mb-4">
             {{ text.successHeading }}
           </h1>
-          <p appPageIntro>{{ text.success }}</p>
+          <p uiPageIntro>{{ text.success }}</p>
         }
         @default {
-          <h1 appPageTitle class="mb-2">
+          <h1 uiPageTitle class="mb-2">
             {{ purpose() === 'set' ? text.setHeading : text.resetHeading }}
           </h1>
-          <p appPageIntro class="mb-4">
+          <p uiPageIntro class="mb-4">
             {{ purpose() === 'set' ? text.setIntro : text.resetIntro }}
             <span class="mt-1 block">{{ text.forAccount }} {{ email() }}</span>
           </p>
@@ -127,7 +127,7 @@ type Status =
               <!-- The length rule is stated up front, as on the change-password
                    form: it is the same sentence before and after the refusal,
                    and only its colour changes. -->
-              <app-field
+              <ui-field
                 [field]="form.newPassword"
                 [label]="auth.password"
                 [hint]="tooShort"
@@ -135,9 +135,9 @@ type Status =
                 controlId="newPassword"
               >
                 <button
-                  appFieldAction
+                  uiFieldAction
                   type="button"
-                  appTextButton
+                  uiTextButton
                   class="text-sm"
                   (click)="revealed.set(!revealed())"
                 >
@@ -146,25 +146,25 @@ type Status =
                 <input
                   [type]="revealed() ? 'text' : 'password'"
                   autocomplete="new-password"
-                  appInput
+                  uiInput
                   class="w-full"
                   [formField]="form.newPassword"
                 />
-              </app-field>
+              </ui-field>
               <button
                 type="button"
-                appTextButton
+                uiTextButton
                 class="mt-2 text-sm"
                 (click)="suggest()"
               >
                 {{ text.generate }}
               </button>
               @if (suggested()) {
-                <p appHint class="mt-1">{{ text.generated }}</p>
+                <p uiHint class="mt-1">{{ text.generated }}</p>
               }
             </div>
 
-            <app-field
+            <ui-field
               [field]="form.confirmPassword"
               [label]="text.confirmPassword"
               [marker]="false"
@@ -173,21 +173,21 @@ type Status =
               <input
                 [type]="revealed() ? 'text' : 'password'"
                 autocomplete="new-password"
-                appInput
+                uiInput
                 class="w-full"
                 [formField]="form.confirmPassword"
               />
-            </app-field>
+            </ui-field>
 
             <!-- The notice only beside the box: a reset owes no consent,
                  and the account's details were collected long before. -->
             <app-consent-field [consent]="consent" [alone]="false" />
 
             @if (rejection(); as message) {
-              <p appErrorText role="alert">{{ message }}</p>
+              <p uiErrorText role="alert">{{ message }}</p>
             }
 
-            <button appButton type="submit" [disabled]="form().submitting()">
+            <button uiButton type="submit" [disabled]="form().submitting()">
               {{ form().submitting() ? actionText.saving : text.submit }}
             </button>
           </form>

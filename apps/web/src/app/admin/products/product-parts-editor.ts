@@ -17,19 +17,16 @@ import {
   PRODUCT_PARTS_MIN,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Button } from '../../shared/ui/button';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
-import { Input } from '../../shared/ui/input';
-import { ErrorText } from '../../shared/ui/error-text';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one panel, and a page may hold more than one. */
 let nextId = 0;
@@ -58,14 +55,12 @@ let nextId = 0;
     IconButton,
     Input,
     ErrorText,
+    DisclosureFrame,
   ],
   host: { class: 'block' },
   template: `
-    <div
-      class="max-w-xl rounded-md border"
-      [class]="frame + ' ' + disclosureBorder(open())"
-    >
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="text.heading"
         [count]="value().length"
         [countLabel]="countLabel()"
@@ -73,12 +68,12 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <p class="text-xs text-ink-subtle">{{ text.hint }}</p>
@@ -89,31 +84,31 @@ let nextId = 0;
                 <li class="flex items-center gap-2 py-1.5 text-sm">
                   <span class="min-w-0 flex-1 truncate">{{ part }}</span>
                   <button
-                    appIconButton
+                    uiIconButton
                     type="button"
                     [attr.aria-label]="removeLabel(part)"
                     (click)="remove(part)"
                   >
-                    <app-icon [glyph]="xIcon" />
+                    <ui-icon [glyph]="xIcon" />
                   </button>
                 </li>
               }
             </ul>
           }
           @if (tooFew()) {
-            <p appErrorText class="mt-2">{{ text.tooFew }}</p>
+            <p uiErrorText class="mt-2">{{ text.tooFew }}</p>
           }
 
           @if (value().length >= max) {
             <p class="mt-3 text-xs text-ink-subtle">{{ limitLabel() }}</p>
           } @else {
             <div class="mt-3">
-              <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
+              <label [for]="inputId" uiFieldLabel>{{ text.add }}</label>
               <div class="flex gap-2">
                 <input
                   [id]="inputId"
                   type="text"
-                  appInput
+                  uiInput
                   class="min-w-0 flex-1"
                   autocomplete="off"
                   [attr.aria-invalid]="rejected() ? true : null"
@@ -123,7 +118,7 @@ let nextId = 0;
                   (keydown.enter)="$event.preventDefault(); add()"
                 />
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   [disabled]="draft().trim() === ''"
@@ -133,7 +128,7 @@ let nextId = 0;
                 </button>
               </div>
               @if (rejected()) {
-                <p appErrorText class="mt-1">{{ rejectedLabel() }}</p>
+                <p uiErrorText class="mt-1">{{ rejectedLabel() }}</p>
               }
             </div>
           }
@@ -144,8 +139,6 @@ let nextId = 0;
 })
 export class ProductPartsEditor implements OnInit {
   protected readonly xIcon = xIcon;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly adminText = inject(ADMIN_TEXT);
   protected readonly text = inject(ADMIN_TEXT).products.editor.parts;
   protected readonly glyph = PRODUCT_FEATURE_GLYPHS.set;

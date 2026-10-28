@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Params, Router, RouterLink } from '@angular/router';
 import {
   CategoryCrumb,
   categoryDisplayName,
@@ -35,16 +35,15 @@ import { EditModeService } from '../../shared/edit-mode/edit-mode.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { HiddenProductsSection } from '../../shared/edit-mode/hidden-products-section';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
-import { Button } from '../../shared/ui/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { disclosureState } from '../../shared/ui/disclosure-state';
-import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import { CategoryChip } from './category-chip';
@@ -67,7 +66,7 @@ import {
 } from './product-sort-select';
 import { PRODUCT_GRID, ProductTile } from '../../shared/catalog/product-tile';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
-import { chevronRightIcon } from '../../shared/ui/icons/glyphs/chevron-right';
+import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 
 /**
  * What the collapsed chip list clips to, in px: four `h-16` chip rows, the
@@ -160,12 +159,12 @@ interface Listing {
     FacetPanel,
     AppliedFilters,
     CategoryChip,
-    Button,
     ShowMoreToggle,
     EditActions,
     HiddenProductsSection,
     NotFoundView,
     LoadErrorView,
+    Pagination,
   ],
   template: `
     <!-- Everything inside measures this container rather than the window, so
@@ -241,7 +240,7 @@ interface Listing {
                   </li>
                   @for (crumb of category.ancestors; track crumb.slug) {
                     <li aria-hidden="true" class="inline">
-                      <app-icon
+                      <ui-icon
                         [glyph]="chevronRightIcon"
                         class="mx-1 size-4 align-middle text-edge-strong"
                       />
@@ -259,7 +258,7 @@ interface Listing {
                     </li>
                   }
                   <li aria-hidden="true" class="inline">
-                    <app-icon
+                    <ui-icon
                       [glyph]="chevronRightIcon"
                       class="mx-1 size-4 align-middle text-edge-strong"
                     />
@@ -345,7 +344,7 @@ interface Listing {
                 }
               </ul>
               @if (subsToggle(data.subcategories.length)) {
-                <app-show-more-toggle
+                <ui-show-more-toggle
                   [class]="subsToggleClass"
                   [expanded]="showAllSubs()"
                   [moreLabel]="text.showMore"
@@ -455,52 +454,13 @@ interface Listing {
                   <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
                 }
 
-                @if (data.pagination.totalPages > 1) {
-                  <nav
-                    class="mt-8 flex items-center justify-center gap-4 text-sm"
-                    [attr.aria-label]="pagination.status"
-                  >
-                    @if (data.pagination.page > 1) {
-                      <a
-                        [routerLink]="listingLink()"
-                        [queryParams]="{
-                          page: data.pagination.page - 1,
-                          sort: sortParam(),
-                          attr: attrParam(),
-                        }"
-                        appButton
-                        variant="ghost"
-                        size="sm"
-                        >{{ pagination.previous }}</a
-                      >
-                    } @else {
-                      <span class="px-3 py-1.5 text-ink-disabled">{{
-                        pagination.previous
-                      }}</span>
-                    }
-                    <span class="text-ink-subtle">{{
-                      pageStatus(data.pagination)
-                    }}</span>
-                    @if (data.pagination.page < data.pagination.totalPages) {
-                      <a
-                        [routerLink]="listingLink()"
-                        [queryParams]="{
-                          page: data.pagination.page + 1,
-                          sort: sortParam(),
-                          attr: attrParam(),
-                        }"
-                        appButton
-                        variant="ghost"
-                        size="sm"
-                        >{{ pagination.next }}</a
-                      >
-                    } @else {
-                      <span class="px-3 py-1.5 text-ink-disabled">{{
-                        pagination.next
-                      }}</span>
-                    }
-                  </nav>
-                }
+                <ui-pagination
+                  class="mt-8"
+                  [link]="listingLink()"
+                  [page]="data.pagination.page"
+                  [totalPages]="data.pagination.totalPages"
+                  [queryParams]="pageParams"
+                />
               } @else {
                 <p class="text-ink-subtle">
                   {{
@@ -593,7 +553,6 @@ export class CategoryGrid {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();
@@ -813,9 +772,9 @@ export class CategoryGrid {
     return fillText(this.text.productCount, { count: total });
   }
 
-  protected pageStatus(p: { page: number; totalPages: number }): string {
-    return this.pagination.status
-      .replace('{page}', String(p.page))
-      .replace('{total}', String(p.totalPages));
-  }
+  protected readonly pageParams = (page: number): Params => ({
+    page,
+    sort: this.sortParam(),
+    attr: this.attrParam(),
+  });
 }

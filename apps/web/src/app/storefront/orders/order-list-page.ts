@@ -1,26 +1,26 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 import {
   fillText,
   MY_ORDER_FILTERS,
   MyOrderFilter,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
-import { EmptyState } from '../../shared/ui/empty-state';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Pagination } from '@b2b-catalog-platform/ui/lists/pagination';
+import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { OrderRows } from './order-rows';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /**
  * The account's own order requests (FR-ACC-01), newest first — the whole
@@ -38,10 +38,11 @@ import { xIcon } from '../../shared/ui/icons/glyphs/x';
     PageTitle,
     ErrorText,
     PageIntro,
+    Pagination,
   ],
   template: `
-    <h1 appPageTitle class="mb-2">{{ text.heading }}</h1>
-    <p appPageIntro class="mb-4">{{ text.intro }}</p>
+    <h1 uiPageTitle class="mb-2">{{ text.heading }}</h1>
+    <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
     <!-- What the history is narrowed to, said as the one chip that narrowed
          it (FR-WORK-03). A chip and not a dropdown: nothing on this page
@@ -62,7 +63,7 @@ import { xIcon } from '../../shared/ui/icons/glyphs/x';
                    hover:text-danger"
             [attr.aria-label]="removeLabel()"
           >
-            <app-icon [glyph]="xIcon" class="size-3.5" />
+            <ui-icon [glyph]="xIcon" class="size-3.5" />
           </a>
         </span>
       </div>
@@ -74,76 +75,45 @@ import { xIcon } from '../../shared/ui/icons/glyphs/x';
              drawn and the link being followed, which is what a count over
              current state does. The way out is the whole history, not the
              catalog. -->
-        <app-empty-state
+        <ui-empty-state
           [icon]="shoppingBasketIcon"
           [message]="text.filterEmpty"
         >
-          <a appButton routerLink="/account/orders">{{ text.action }}</a>
-        </app-empty-state>
+          <a uiButton routerLink="/account/orders">{{ text.action }}</a>
+        </ui-empty-state>
       } @else if (data.items.length === 0) {
         <!-- The cart's own empty panel, so an account with nothing on it and a
              cart with nothing in it read as the same kind of screen. The two
              actions are a row inside it rather than two buttons left touching
              each other under a sentence. -->
-        <app-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
-          <a appButton routerLink="/catalog">{{ text.emptyAction }}</a>
-          <a appButton variant="secondary" routerLink="/account">
+        <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.empty">
+          <a uiButton routerLink="/catalog">{{ text.emptyAction }}</a>
+          <a uiButton variant="secondary" routerLink="/account">
             {{ text.back }}
           </a>
-        </app-empty-state>
+        </ui-empty-state>
       } @else {
         <app-order-rows class="max-w-3xl" [orders]="data.items" />
 
-        @if (data.pagination.totalPages > 1) {
-          <nav
-            class="mt-8 flex items-center justify-center gap-4 text-sm"
-            [attr.aria-label]="pagination.status"
-          >
-            @if (data.pagination.page > 1) {
-              <a
-                routerLink="/account/orders"
-                [queryParams]="pageParams(data.pagination.page - 1)"
-                appButton
-                variant="ghost"
-                size="sm"
-                >{{ pagination.previous }}</a
-              >
-            } @else {
-              <span class="px-3 py-1.5 text-ink-disabled">{{
-                pagination.previous
-              }}</span>
-            }
-            <span class="text-ink-subtle">{{
-              pageStatus(data.pagination)
-            }}</span>
-            @if (data.pagination.page < data.pagination.totalPages) {
-              <a
-                routerLink="/account/orders"
-                [queryParams]="pageParams(data.pagination.page + 1)"
-                appButton
-                variant="ghost"
-                size="sm"
-                >{{ pagination.next }}</a
-              >
-            } @else {
-              <span class="px-3 py-1.5 text-ink-disabled">{{
-                pagination.next
-              }}</span>
-            }
-          </nav>
-        }
+        <ui-pagination
+          class="mt-8"
+          link="/account/orders"
+          [page]="data.pagination.page"
+          [totalPages]="data.pagination.totalPages"
+          [queryParams]="pageParams"
+        />
 
-        <a appButton variant="secondary" routerLink="/account" class="mt-10">
+        <a uiButton variant="secondary" routerLink="/account" class="mt-10">
           {{ text.back }}
         </a>
       }
     } @else if (orders.error()) {
-      <p appErrorText role="alert">{{ text.error }}</p>
-      <a appButton variant="secondary" routerLink="/account" class="mt-5">
+      <p uiErrorText role="alert">{{ text.error }}</p>
+      <a uiButton variant="secondary" routerLink="/account" class="mt-5">
         {{ text.back }}
       </a>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="4" />
+      <ui-skeleton [lines]="4" />
     }
   `,
 })
@@ -152,7 +122,6 @@ export class OrderListPage {
   protected readonly xIcon = xIcon;
   private readonly api = inject(OrdersService);
   protected readonly text = inject(STOREFRONT_TEXT).orders;
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
 
   /** Bound from the `state` query param. Absent — which arrives as
    * `undefined`, never as the input's default — is the whole history, and so
@@ -193,17 +162,10 @@ export class OrderListPage {
 
   /** Paging keeps whatever the list is narrowed to: a second page of "ready to
    * collect" is still that list. */
-  protected pageParams(page: number): Record<string, string | number> {
+  protected readonly pageParams = (page: number): Params => {
     const state = this.filter();
     return state ? { page, state } : { page };
-  }
-
-  protected pageStatus(p: { page: number; totalPages: number }): string {
-    return fillText(this.pagination.status, {
-      page: p.page,
-      total: p.totalPages,
-    });
-  }
+  };
 
   constructor() {
     usePageSeo({ name: () => this.text.heading });

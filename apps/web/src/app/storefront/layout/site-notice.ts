@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
  * The deployment's notice (FR-NAV-08), on a line of its own above the header:
@@ -22,7 +22,7 @@ import { Link } from '../../shared/ui/link';
           <!-- Inline-block, so a short label moves to the next line whole
                rather than breaking between its words. -->
           @if (notice.link; as link) {
-            <a appLink class="inline-block" [href]="link.url">{{
+            <a uiLink class="inline-block" [href]="link.url">{{
               link.label
             }}</a>
           }

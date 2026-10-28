@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
  * What an adjustment is about to change (FR-ORD-03) — the whole of it, and
@@ -34,7 +34,7 @@ export interface OrderChange {
          either — and the list said the second of them for as long as the
          round trip took. -->
     @if (loading()) {
-      <app-skeleton size="sm" [lines]="1" />
+      <ui-skeleton size="sm" [lines]="1" />
     } @else if (changes().length === 0 && !pending()) {
       <p class="text-sm text-ink-subtle">{{ empty() }}</p>
     } @else {

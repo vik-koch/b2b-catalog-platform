@@ -3,9 +3,9 @@ import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { ChoiceCard } from '../../shared/ui/choice-card';
+import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
  * How the goods arrive (FR-CART-07) — the row that leads the form, because it
@@ -36,7 +36,7 @@ import { Link } from '../../shared/ui/link';
         [class.sm:grid-cols-2]="hasPickup"
         role="radiogroup"
       >
-        <app-choice-card
+        <ui-choice-card
           name="fulfilment"
           value="delivery"
           [title]="names.delivery"
@@ -52,17 +52,17 @@ import { Link } from '../../shared/ui/link';
                  prints in the same place. -->
             <button
               type="button"
-              appLink
+              uiLink
               class="block text-sm"
               (click)="showConditions.set(true)"
             >
               {{ text.conditionsLink }}
             </button>
           }
-        </app-choice-card>
+        </ui-choice-card>
 
         @if (hasPickup) {
-          <app-choice-card
+          <ui-choice-card
             name="fulfilment"
             value="pickup"
             [title]="names.pickup"

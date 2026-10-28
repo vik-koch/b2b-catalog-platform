@@ -1,10 +1,10 @@
 import { Component, inject, input, output } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { EmphasisedText } from '../../shared/ui/emphasised-text';
-import { Radio } from '../../shared/ui/radio';
-import { TextButton } from '../../shared/ui/text-button';
-import { ErrorText } from '../../shared/ui/error-text';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
+import { Radio } from '@b2b-catalog-platform/ui/choices/radio';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * Which point the order is collected from — pickup's answer to the delivery
@@ -52,7 +52,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             <label class="flex flex-1 cursor-pointer items-baseline gap-2">
               <input
                 type="radio"
-                appRadio
+                uiRadio
                 class="self-center"
                 name="pickup-location"
                 [value]="location.key"
@@ -66,14 +66,14 @@ import { ErrorText } from '../../shared/ui/error-text';
                 }}</span>
                 @if (location.description) {
                   <span class="text-sm text-ink-subtle">
-                    <app-emphasised [text]="location.description" />
+                    <ui-emphasised [text]="location.description" />
                   </span>
                 }
               </span>
             </label>
             @if (location.mapUrl) {
               <a
-                appTextButton
+                uiTextButton
                 class="shrink-0 text-sm"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -87,7 +87,7 @@ import { ErrorText } from '../../shared/ui/error-text';
       </div>
 
       @if (invalid()) {
-        <p id="pickup-error" appErrorText class="mt-2">
+        <p id="pickup-error" uiErrorText class="mt-2">
           {{ text.pickupRequired }}
         </p>
       }

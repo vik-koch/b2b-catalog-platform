@@ -9,9 +9,9 @@ import {
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Button } from '../../shared/ui/button';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { TextButton } from '../../shared/ui/text-button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { DeliveryZoneList } from './delivery-zone-list';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 
@@ -31,7 +31,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
     <dialog
       #dialog
       size="lg"
-      appDialogPanel
+      uiDialogPanel
       aria-labelledby="delivery-conditions-heading"
       (cancel)="closed.emit()"
     >
@@ -49,7 +49,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
       <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
         @if (conditionsPath) {
           <a
-            appTextButton
+            uiTextButton
             class="text-sm"
             [routerLink]="conditionsPath"
             (click)="closed.emit()"
@@ -60,7 +60,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
           <span></span>
         }
         <button
-          appButton
+          uiButton
           variant="secondary"
           type="button"
           (click)="closed.emit()"

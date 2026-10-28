@@ -2,7 +2,7 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { FulfilmentMethod, PaymentMethod } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ChoiceCard } from '../../shared/ui/choice-card';
+import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 
 /**
  * How the order is paid (FR-CART-04) — **recorded, never executed**. Nothing
@@ -33,7 +33,7 @@ import { ChoiceCard } from '../../shared/ui/choice-card';
       <legend class="mb-3 font-medium">{{ text.heading }}</legend>
 
       <div class="grid gap-3 sm:grid-cols-2" role="radiogroup">
-        <app-choice-card
+        <ui-choice-card
           name="payment"
           value="cash"
           [title]="names.cash"
@@ -43,7 +43,7 @@ import { ChoiceCard } from '../../shared/ui/choice-card';
           (chosen)="methodChange.emit('cash')"
         />
 
-        <app-choice-card
+        <ui-choice-card
           name="payment"
           value="bank-transfer"
           [title]="names.transfer"

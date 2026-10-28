@@ -84,7 +84,6 @@
     "categoryNotFound": "This category could not be found. It may have been removed.",
     "backToCatalog": "Back to the catalogue",
     "viewImageAria": "Show image {n}",
-    "imagePlaceholder": "No image available",
     "pairings": {
       "marker": "Sold together with other products ({count})",
       "intro": "These are sold with this product. Add what you need without leaving the page.",

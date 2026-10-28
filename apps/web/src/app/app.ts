@@ -194,7 +194,7 @@ function themeProperties(
     }
   }
   // Not a colour, but the same seam: one custom property a deployment may
-  // override without a rebuild (see styles.css).
+  // override without a rebuild (see libs/ui/src/ui.css).
   const emphasis = branding.font?.emphasisWeight;
   if (emphasis !== undefined) {
     properties.push(['--font-weight-emphasis', String(emphasis)]);

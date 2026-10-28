@@ -14,22 +14,27 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { currencySymbol } from '../../shared/catalog/price';
-import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { currencySymbol, partialPriceRule } from '../../shared/catalog/price';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
+import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
-import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Input } from '../../shared/ui/input';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { PriceField } from '../../shared/ui/price-field';
-import { StatusBadge } from '../../shared/ui/status-badge';
-import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
-import { chevronDownIcon } from '../../shared/ui/icons/glyphs/chevron-down';
-import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
+import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
+import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
+import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
+import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** `aria-controls` must name one list, and a page may hold more than one. */
 let nextId = 0;
@@ -85,12 +90,17 @@ export interface AdjustLineRow {
     Icon,
     FieldLabel,
     HighlightedLine,
+    MatchSegmentsPipe,
     IconButton,
     Input,
-    PriceField,
+    Allow,
     Skeleton,
     StatusBadge,
-    UnitField,
+    SuggestField,
+    SuggestInput,
+    SuggestRow,
+    UnitInput,
+    UnitInputControl,
   ],
   host: { class: 'block' },
   template: `
@@ -115,9 +125,9 @@ export interface AdjustLineRow {
                hint below would be four lines for two numbers, and a form of
                forty lines is read by scrolling. -->
           <div class="mt-1 flex flex-wrap items-center gap-2">
-            <app-unit-field class="w-28" [unit]="pieceUnit">
+            <ui-unit-input class="w-28" [unit]="pieceUnit">
               <input
-                [class]="unitFieldInput"
+                uiUnitInputControl
                 type="number"
                 min="1"
                 step="1"
@@ -127,11 +137,11 @@ export interface AdjustLineRow {
                 [value]="line.pieces"
                 (input)="piecesTyped(i, $any($event.target).value)"
               />
-            </app-unit-field>
-            <app-unit-field class="w-28" [unit]="priceSuffix()">
+            </ui-unit-input>
+            <ui-unit-input class="w-28" [unit]="priceSuffix()">
               <input
-                appPriceField
-                [class]="unitFieldInput"
+                [uiAllow]="partialPrice"
+                uiUnitInputControl
                 type="text"
                 inputmode="decimal"
                 [id]="id + '-price-' + i"
@@ -140,12 +150,12 @@ export interface AdjustLineRow {
                 [value]="line.priceText"
                 (input)="priceTyped(i, $any($event.target).value)"
               />
-            </app-unit-field>
+            </ui-unit-input>
             @if (line.offList) {
-              <span appStatusBadge tone="info">{{ text.offList }}</span>
+              <span uiStatusBadge tone="info">{{ text.offList }}</span>
             }
             @for (flag of line.flags; track flag) {
-              <span appStatusBadge [tone]="tone(flag)">
+              <span uiStatusBadge [tone]="tone(flag)">
                 {{ flagLabel(flag) }}
               </span>
             }
@@ -174,12 +184,12 @@ export interface AdjustLineRow {
                        own, both hung off the right edge the figures are set
                        against. -->
                   <span class="block w-20">
-                    <app-skeleton
+                    <ui-skeleton
                       size="sm"
                       align="right"
                       [widths]="['4.5rem']"
                     />
-                    <app-skeleton
+                    <ui-skeleton
                       size="base"
                       align="right"
                       [widths]="['3.25rem']"
@@ -194,31 +204,31 @@ export interface AdjustLineRow {
                    loses its agreed price. -->
               <span class="flex shrink-0 items-center">
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [disabled]="disabled() || i === 0"
                   [attr.aria-label]="moveLabel(line, text.moveUpAria)"
                   (click)="moved.emit({ from: i, to: i - 1 })"
                 >
-                  <app-icon [glyph]="chevronUpIcon" />
+                  <ui-icon [glyph]="chevronUpIcon" />
                 </button>
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [disabled]="disabled() || i === lines().length - 1"
                   [attr.aria-label]="moveLabel(line, text.moveDownAria)"
                   (click)="moved.emit({ from: i, to: i + 1 })"
                 >
-                  <app-icon [glyph]="chevronDownIcon" />
+                  <ui-icon [glyph]="chevronDownIcon" />
                 </button>
                 <button
-                  appIconButton
+                  uiIconButton
                   type="button"
                   [disabled]="disabled()"
                   [attr.aria-label]="removeLabel(line)"
                   (click)="removed.emit(i)"
                 >
-                  <app-icon [glyph]="xIcon" />
+                  <ui-icon [glyph]="xIcon" />
                 </button>
               </span>
             </span>
@@ -233,61 +243,37 @@ export interface AdjustLineRow {
          perfectly well be filled from something the storefront does not
          offer, and a staff screen that hides it would send somebody to
          publish a product just to put it on one order. -->
-    <div class="relative mt-4">
-      <label [for]="id + '-add'" appFieldLabel>{{ text.addLabel }}</label>
-      <input
-        [id]="id + '-add'"
-        type="text"
-        role="combobox"
-        autocomplete="off"
-        aria-autocomplete="list"
-        appInput
-        class="w-full"
-        [attr.aria-expanded]="list.panelOpen()"
-        [attr.aria-controls]="listId"
-        [attr.aria-activedescendant]="activeOptionId()"
-        [disabled]="disabled()"
-        [value]="query()"
-        [placeholder]="text.addPlaceholder"
-        (input)="type($any($event.target).value)"
-        (keydown)="keydown($event)"
-        (blur)="list.close()"
-      />
-      @if (list.panelOpen()) {
-        <div [class]="panel">
-          @if (options().length === 0) {
-            <p class="px-3 py-2 text-sm text-ink-subtle">
-              {{ text.noMatches }}
-            </p>
+    <div class="mt-4">
+      <label [for]="id + '-add'" uiFieldLabel>{{ text.addLabel }}</label>
+      <ui-suggest-field
+        [list]="list"
+        [text]="suggestText"
+        (picked)="add($event)"
+      >
+        <input
+          [id]="id + '-add'"
+          autocomplete="off"
+          uiInput
+          uiSuggestInput
+          class="w-full"
+          [disabled]="disabled()"
+          [value]="query()"
+          [placeholder]="text.addPlaceholder"
+          (input)="query.set($any($event.target).value)"
+        />
+        <ng-template uiSuggestRow [of]="list" let-item let-query="query">
+          <span class="block truncate">
+            <ui-highlighted-line
+              [segments]="item.name | matchSegments: query : alternateQuery()"
+            />
+          </span>
+          @if (item.publishedAt === null) {
+            <span class="block text-xs text-ink-subtle">
+              {{ products.unpublished }}
+            </span>
           }
-          <ul [id]="listId" role="listbox" [attr.aria-label]="text.addLabel">
-            @for (item of options(); track item.slug; let i = $index) {
-              <li
-                [id]="listId + '-' + i"
-                role="option"
-                class="cursor-pointer px-3 py-2 text-sm"
-                [attr.aria-selected]="i === list.activeIndex()"
-                [class.bg-surface-subtle-hover]="i === list.activeIndex()"
-                (mouseenter)="list.activeIndex.set(i)"
-                (mousedown)="pick($event, item)"
-              >
-                <span class="block truncate">
-                  <app-highlighted-line
-                    [line]="item.name"
-                    [query]="list.query()"
-                    [alternateQuery]="alternateQuery()"
-                  />
-                </span>
-                @if (item.publishedAt === null) {
-                  <span class="block text-xs text-ink-subtle">
-                    {{ products.unpublished }}
-                  </span>
-                }
-              </li>
-            }
-          </ul>
-        </div>
-      }
+        </ng-template>
+      </ui-suggest-field>
     </div>
   `,
 })
@@ -301,10 +287,14 @@ export class OrderAdjustLines {
   protected readonly pieceUnit = inject(SHARED_TEXT).units.piece;
   private readonly availability = inject(SHARED_TEXT).product.availability;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
-  protected readonly panel = SUGGEST_PANEL;
+  protected readonly partialPrice = partialPriceRule(this.currency);
   protected readonly id = `adjust-lines-${++nextId}`;
-  protected readonly listId = `${this.id}-suggestions`;
+  /** The field's label names the list: the panel is the search's answer. */
+  protected readonly suggestText = {
+    suggestionsAria: this.text.addLabel,
+    noSuggestions: this.text.noMatches,
+    suggestionCountAria: this.text.suggestionCountAria,
+  };
 
   readonly lines = input.required<readonly AdjustLineRow[]>();
   readonly disabled = input(false);
@@ -321,26 +311,19 @@ export class OrderAdjustLines {
     load: (q) =>
       this.catalog.listProducts({ q, sort: 'relevance' }).then((r) => r.items),
     minLength: 2,
+    /** A product already on the order is not offered again: a product in a
+     * given unit is one line, and a second one would be two lines to
+     * reconcile. */
+    shown: (answer) => {
+      const taken = new Set(this.lines().map((line) => line.slug));
+      return answer
+        .filter((item) => !taken.has(item.slug))
+        .slice(0, SUGGESTIONS_SHOWN);
+    },
   });
   private readonly layout = inject(AlternateLayout);
   protected readonly alternateQuery = computed(() =>
     this.layout.of(this.list.query()),
-  );
-
-  /** A product already on the order is not offered again: a product in a given
-   * unit is one line, and a second one would be two lines to reconcile. */
-  protected readonly options = computed(() => {
-    const taken = new Set(this.lines().map((line) => line.slug));
-    return this.list
-      .suggestions()
-      .filter((item) => !taken.has(item.slug))
-      .slice(0, SUGGESTIONS_SHOWN);
-  });
-
-  protected readonly activeOptionId = computed(() =>
-    this.list.panelOpen() && this.list.activeIndex() >= 0
-      ? `${this.listId}-${this.list.activeIndex()}`
-      : null,
   );
 
   /** What the price field is per, printed inside it — the currency alone,
@@ -380,25 +363,8 @@ export class OrderAdjustLines {
     this.priceChanged.emit({ index, price });
   }
 
-  protected type(value: string): void {
-    this.query.set(value);
-    this.list.type(value);
-  }
-
-  protected keydown(event: KeyboardEvent): void {
-    const chosen = this.list.keydown(event);
-    if (chosen) this.add(chosen);
-  }
-
-  /** mousedown, not click: the field's own blur would close the panel first. */
-  protected pick(event: MouseEvent, item: AdminProductListItem): void {
-    event.preventDefault();
-    this.add(item);
-  }
-
-  private add(item: AdminProductListItem): void {
+  protected add(item: AdminProductListItem): void {
     this.added.emit(item);
     this.query.set('');
-    this.list.close();
   }
 }

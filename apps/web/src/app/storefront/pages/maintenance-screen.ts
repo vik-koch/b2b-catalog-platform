@@ -1,8 +1,8 @@
 import { Component, inject, RESPONSE_INIT } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { PageTitle } from '../../shared/ui/page-title';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /**
  * The public notice shown while maintenance mode is on (FR-ADM-04). Reached by
@@ -15,8 +15,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
   imports: [PageTitle, PageIntro],
   template: `
     <section class="py-12 text-center sm:py-20">
-      <h1 appPageTitle class="mt-3">{{ text.title }}</h1>
-      <p appPageIntro class="mx-auto mt-4 max-w-xl">{{ text.body }}</p>
+      <h1 uiPageTitle class="mt-3">{{ text.title }}</h1>
+      <p uiPageIntro class="mx-auto mt-4 max-w-xl">{{ text.body }}</p>
     </section>
   `,
 })

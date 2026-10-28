@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { Button } from '../ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { AuthService } from './auth.service';
 
 /**
@@ -29,7 +29,7 @@ import { AuthService } from './auth.service';
             <p class="text-sm text-ink-subtle">{{ user.email }}</p>
           }
         </div>
-        <button appButton variant="secondary" type="button" (click)="logout()">
+        <button uiButton variant="secondary" type="button" (click)="logout()">
           {{ text.logout }}
         </button>
       </div>

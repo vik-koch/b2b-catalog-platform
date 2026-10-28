@@ -20,23 +20,19 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge } from '../../shared/ui/status-badge';
-import { Switch } from '../../shared/ui/switch';
-import { adminMomentFormat } from '../grid/admin-date';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
+import { adminMomentFormat } from '../dates/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * The two runtime switches, and the trail of changes to both.
@@ -56,30 +52,26 @@ import { PageIntro } from '../../shared/ui/page-intro';
 @Component({
   selector: 'app-operations-page',
   imports: [
+    PageHeader,
     RouterLink,
     Button,
     DisclosureToggle,
     Skeleton,
     StatusBadge,
     Switch,
-    PageTitle,
     ErrorText,
     Hint,
-    PageIntro,
+    DisclosureFrame,
   ],
   template: `
     <!-- Wrapping, unlike the token list's heading row: this title is several
          words longer, and at 375 the pair squeezed into two ragged columns
          instead of letting the button take a line of its own. -->
-    <div class="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <h1 appPageTitle>{{ text.page.title }}</h1>
-      <a appButton variant="secondary" routerLink="/admin">
+    <ui-page-header [title]="text.page.title" [intro]="text.page.intro">
+      <a uiButton variant="secondary" routerLink="/admin">
         {{ text.backToPanel }}
       </a>
-    </div>
-    @if (text.page.intro; as intro) {
-      <p appPageIntro class="mb-6 max-w-3xl">{{ intro }}</p>
-    }
+    </ui-page-header>
 
     <div class="max-w-3xl">
       <!-- Everything here is one row in the database and arrives in one answer,
@@ -104,7 +96,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                     : maintenanceText.statusOff
                 }}
               </p>
-              <app-switch
+              <ui-switch
                 [checked]="state.maintenanceEnabled"
                 [label]="
                   state.maintenanceEnabled
@@ -120,7 +112,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
             </p>
 
             @if (maintenanceFailed()) {
-              <p appErrorText class="mt-3">
+              <p uiErrorText class="mt-3">
                 {{ maintenanceText.error }}
               </p>
             }
@@ -140,7 +132,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           <div class="mb-4 rounded-lg border border-edge px-5 py-4">
             <div class="flex items-center justify-between gap-4">
               <h3 class="text-sm font-medium">{{ allText.heading }}</h3>
-              <app-switch
+              <ui-switch
                 [checked]="allOwned()"
                 [label]="allOwned() ? allText.take : allText.hand"
                 [disabled]="pending()"
@@ -148,10 +140,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
               />
             </div>
 
-            <p appHint class="mt-1">{{ allText.description }}</p>
+            <p uiHint class="mt-1">{{ allText.description }}</p>
 
             <div class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span appStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
+              <span uiStatusBadge [tone]="allTone()">{{ allStatus() }}</span>
               @if (mixed()) {
                 <p class="text-sm text-ink-subtle">{{ mixedEffect() }}</p>
               }
@@ -164,9 +156,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
                Open when they disagree, where "partly" is not an answer. -->
           <section
             class="mb-4 rounded-md border"
-            [class]="frame + ' ' + border(areasOpen())"
+            uiDisclosureFrame
+            [open]="areasOpen()"
           >
-            <app-disclosure-toggle
+            <ui-disclosure-toggle
               [label]="allText.areasToggle"
               [open]="areasOpen()"
               [panelId]="areasPanelId"
@@ -184,7 +177,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                       <h3 class="text-sm font-medium">
                         {{ areaText(area).name }}
                       </h3>
-                      <app-switch
+                      <ui-switch
                         [checked]="isOwned(area)"
                         [label]="
                           isOwned(area)
@@ -196,7 +189,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                       />
                     </div>
 
-                    <p appHint class="mt-1">
+                    <p uiHint class="mt-1">
                       {{ areaText(area).description }}
                     </p>
 
@@ -207,7 +200,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
                       class="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1"
                     >
                       <span
-                        appStatusBadge
+                        uiStatusBadge
                         [tone]="isOwned(area) ? 'info' : 'neutral'"
                       >
                         {{
@@ -231,7 +224,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           </section>
 
           @if (ownershipFailed()) {
-            <p appErrorText>{{ ownershipText.error }}</p>
+            <p uiErrorText>{{ ownershipText.error }}</p>
           }
         </section>
         <!-- Behind a lid, and not fetched until it is opened: the switches
@@ -239,9 +232,10 @@ import { PageIntro } from '../../shared/ui/page-intro';
              when the answer to "since when" matters. -->
         <section
           class="rounded-md border"
-          [class]="frame + ' ' + border(historyOpen())"
+          uiDisclosureFrame
+          [open]="historyOpen()"
         >
-          <app-disclosure-toggle
+          <ui-disclosure-toggle
             [label]="text.historyTitle"
             [open]="historyOpen()"
             [panelId]="historyPanelId"
@@ -286,13 +280,13 @@ import { PageIntro } from '../../shared/ui/page-intro';
                      lasted a noticeable moment: an opened lid onto an empty
                      box reads as "nothing has been changed yet", which is a
                      sentence this panel can actually say. -->
-                <app-skeleton class="m-4" [lines]="3" />
+                <ui-skeleton class="m-4" [lines]="3" />
               }
             </div>
           }
         </section>
       } @else if (settings.error()) {
-        <p appErrorText>{{ text.loadError }}</p>
+        <p uiErrorText>{{ text.loadError }}</p>
       }
     </div>
   `,
@@ -316,8 +310,6 @@ export class OperationsPage {
   protected readonly actionText = inject(SHARED_TEXT).actions;
   protected readonly areas = OWNERSHIP_AREAS;
   protected readonly pageSize = SETTING_CHANGES_PAGE_SIZE;
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly border = disclosureBorder;
   protected readonly historyPanelId = 'operations-history';
   protected readonly areasPanelId = 'operations-areas';
 

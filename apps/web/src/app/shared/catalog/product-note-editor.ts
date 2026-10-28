@@ -10,19 +10,19 @@ import {
 } from '@angular/core';
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { injectNarrowScreen } from '../core/narrow-screen';
-import { AutoGrow } from '../ui/auto-grow';
-import { Button } from '../ui/button';
-import { DialogActions } from '../ui/dialog-actions';
-import { DialogPanel } from '../ui/dialog-panel';
-import { FieldLabel } from '../ui/field-label';
-import { Icon } from '../ui/icons/icon';
-import { IconButton } from '../ui/icon-button';
-import { Input } from '../ui/input';
-import { Popover } from '../ui/popover';
+import { injectNarrowScreen } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { AutoGrow } from '@b2b-catalog-platform/ui/inputs/auto-grow';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Popover } from '@b2b-catalog-platform/ui/overlay/popover';
 import { SHARED_TEXT } from '../config/shared-text';
-import { messageCircleCheckIcon } from '../ui/icons/glyphs/message-circle-check';
-import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
+import { messageCircleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-check';
+import { messageCirclePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/message-circle-plus';
 
 /**
  * The line note's button and its field (FR-CART-08) — a bubble on a pointer, a
@@ -53,10 +53,10 @@ import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
          which is the only time it has anything to say. -->
     <ng-template #field>
       <label class="block text-left">
-        <span appFieldLabel>{{ text.noteLabel }}</span>
+        <span uiFieldLabel>{{ text.noteLabel }}</span>
         <textarea
-          appInput
-          appAutoGrow
+          uiInput
+          uiAutoGrow
           rows="3"
           class="w-full"
           [attr.maxlength]="noteMax"
@@ -74,14 +74,14 @@ import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
          them it is is the glyph's job, not the colour's. -->
     <button
       type="button"
-      appIconButton
+      uiIconButton
       variant="marked"
       [attr.aria-label]="written() ? text.noteEdit : text.noteAdd"
       [title]="written() ? text.noteEdit : text.noteAdd"
       (click)="requestOpen.emit()"
     >
       <!-- The glyph says whether anything is written. -->
-      <app-icon
+      <ui-icon
         [glyph]="written() ? messageCircleCheckIcon : messageCirclePlusIcon"
       />
     </button>
@@ -95,7 +95,7 @@ import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
       @if (narrow()) {
         <dialog
           #dialog
-          appDialogPanel
+          uiDialogPanel
           [attr.aria-label]="text.noteLabel"
           (cancel)="cancelled.emit()"
         >
@@ -103,16 +103,16 @@ import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
           <!-- Two answers, because a modal took the choice the bubble made by
                being dismissed: away from it kept nothing, and there is no away
                here. -->
-          <div appDialogActions>
+          <div uiDialogActions>
             <button
-              appButton
+              uiButton
               variant="secondary"
               type="button"
               (click)="cancelled.emit()"
             >
               {{ actionText.cancel }}
             </button>
-            <button appButton type="button" (click)="done.emit()">
+            <button uiButton type="button" (click)="done.emit()">
               {{ actionText.done }}
             </button>
           </div>
@@ -121,14 +121,14 @@ import { messageCirclePlusIcon } from '../ui/icons/glyphs/message-circle-plus';
         <!-- Upwards: everything else on this block is below the price line, and
              a bubble over the stepper and the button is one the customer has to
              clear before buying. -->
-        <app-popover
+        <ui-popover
           align="end"
           placement="above"
           [roomy]="true"
           (dismissed)="dismissed.emit()"
         >
           <ng-container [ngTemplateOutlet]="field" />
-        </app-popover>
+        </ui-popover>
       }
     }
   `,

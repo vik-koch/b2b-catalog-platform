@@ -6,13 +6,14 @@ import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { EmphasisedText } from '../../shared/ui/emphasised-text';
+import { EmphasisedText } from '@b2b-catalog-platform/ui/content/emphasised-text';
 import { MapFrame } from './map-frame';
 import { PageService } from '../../shared/pages/page.service';
 import { LoadErrorView } from './load-error-view';
 import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
-import { PageTitle } from '../../shared/ui/page-title';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 
 /**
  * Contact page — a code route that renders an editable body.
@@ -33,6 +34,7 @@ import { PageTitle } from '../../shared/ui/page-title';
     EmphasisedText,
     LoadErrorView,
     PageTitle,
+    Skeleton,
   ],
   template: `
     <!-- Nothing renders before the body arrives, heading included. The office
@@ -53,7 +55,7 @@ import { PageTitle } from '../../shared/ui/page-title';
       <app-load-error-view [heading]="errorText.cannotLoadTitle" />
     } @else if (ready()) {
       <div class="flex items-start justify-between gap-4">
-        <h1 appPageTitle class="mb-4">{{ heading }}</h1>
+        <h1 uiPageTitle class="mb-4">{{ heading }}</h1>
         @if (canEdit(); as editorText) {
           <app-edit-actions
             variant="inline"
@@ -84,7 +86,7 @@ import { PageTitle } from '../../shared/ui/page-title';
             </h2>
             @if (location.description) {
               <p class="mt-1 text-ink-subtle">
-                <app-emphasised [text]="location.description" />
+                <ui-emphasised [text]="location.description" />
               </p>
             }
             <app-map-frame
@@ -97,11 +99,8 @@ import { PageTitle } from '../../shared/ui/page-title';
         }
       </div>
     } @else if (showSkeleton()) {
-      <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
-      </div>
+      <ui-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <ui-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

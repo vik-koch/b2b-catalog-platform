@@ -5,8 +5,8 @@ import {
   CategoryNode,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Collapsible } from '../../shared/ui/collapsible';
-import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
+import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
+import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
 
 /** How many subcategories stand under a chip before the rest are behind the
  * toggle. Four is what the tallest cell can carry without the row it sits in
@@ -39,7 +39,7 @@ const SHOWN = 4;
       }
     </ul>
     @if (rest().length) {
-      <app-collapsible [open]="open()" [id]="restId()">
+      <ui-collapsible [open]="open()" [id]="restId()">
         <ul [class]="listClass">
           @for (child of rest(); track child.slug) {
             <li>
@@ -49,8 +49,8 @@ const SHOWN = 4;
             </li>
           }
         </ul>
-      </app-collapsible>
-      <app-show-more-toggle
+      </ui-collapsible>
+      <ui-show-more-toggle
         class="mt-1 justify-start"
         [expanded]="open()"
         [moreLabel]="text.showMore"

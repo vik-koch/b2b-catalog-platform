@@ -5,7 +5,7 @@ import { CartService } from '../../shared/cart/cart.service';
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**
  * Which delivery area the entered address falls into, and whether this order
@@ -39,7 +39,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
           <p class="text-sm text-ink-subtle">{{ resolved.threshold }}</p>
         }
       } @else {
-        <app-warning-note>{{ text.noDelivery }}</app-warning-note>
+        <ui-warning-note>{{ text.noDelivery }}</ui-warning-note>
       }
     } @else if (hasAddress()) {
       <p class="text-sm text-ink-subtle">{{ text.unknown }}</p>

@@ -13,19 +13,22 @@ import {
   emailAddress,
 } from '../../shared/core/field-rules';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { Button } from '../../shared/ui/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'success' | 'error';
 
@@ -75,38 +78,37 @@ interface Registration {
   template: `
     <app-auth-card>
       @if (status() === 'success') {
-        <h1 appPageTitle class="mb-4">
+        <h1 uiPageTitle class="mb-4">
           {{ text.register.successHeading }}
         </h1>
-        <p appPageIntro>{{ text.register.success }}</p>
-        <a appButton variant="secondary" routerLink="/" class="mt-8">
+        <p uiPageIntro>{{ text.register.success }}</p>
+        <a uiButton variant="secondary" routerLink="/" class="mt-8">
           {{ home }}
         </a>
       } @else {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.register.heading }}
         </h1>
-        <p appPageIntro class="mb-4">{{ text.register.intro }}</p>
+        <p uiPageIntro class="mb-4">{{ text.register.intro }}</p>
 
         <form [formRoot]="form" class="space-y-6">
           <!-- Only where the shop sells to more than one kind of customer
                (FR-AUTH-13): with one, there is nothing to choose. -->
           @if (customerTypes.length > 1) {
-            <app-field
-              group
+            <ui-field-group
               [field]="form.customerType"
               [label]="text.register.customerType"
             >
-              <app-segmented
+              <ui-segmented
                 [options]="customerTypes"
                 size="md"
                 [formField]="form.customerType"
               />
-            </app-field>
+            </ui-field-group>
           }
 
           <div class="grid gap-6 sm:grid-cols-2">
-            <app-field
+            <ui-field
               [field]="form.firstName"
               [label]="fields.firstName.label"
               controlId="firstName"
@@ -114,13 +116,13 @@ interface Registration {
               <input
                 type="text"
                 autocomplete="given-name"
-                appInput
+                uiInput
                 class="w-full"
                 [formField]="form.firstName"
               />
-            </app-field>
+            </ui-field>
 
-            <app-field
+            <ui-field
               [field]="form.lastName"
               [label]="fields.lastName.label"
               controlId="lastName"
@@ -128,11 +130,11 @@ interface Registration {
               <input
                 type="text"
                 autocomplete="family-name"
-                appInput
+                uiInput
                 class="w-full"
                 [formField]="form.lastName"
               />
-            </app-field>
+            </ui-field>
           </div>
 
           @if (isCompany()) {
@@ -145,7 +147,7 @@ interface Registration {
             />
           }
 
-          <app-field
+          <ui-field
             [field]="form.email"
             [label]="fields.email.label"
             controlId="email"
@@ -153,19 +155,19 @@ interface Registration {
             <input
               type="email"
               autocomplete="email"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.email"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.phone"
             [label]="fields.phone.label"
             controlId="phone"
           >
-            <app-phone-input [field]="form.phone" />
-          </app-field>
+            <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
+          </ui-field>
 
           <!-- Honeypot: hidden from humans. -->
           <div class="absolute left-[-9999px]" aria-hidden="true">
@@ -182,12 +184,12 @@ interface Registration {
           <app-consent-field [consent]="consent" />
 
           @if (status() === 'error') {
-            <p appErrorText role="alert">
+            <p uiErrorText role="alert">
               {{ text.register.error }}
             </p>
           }
 
-          <button appButton type="submit" [disabled]="form().submitting()">
+          <button uiButton type="submit" [disabled]="form().submitting()">
             {{
               form().submitting() ? actionText.sending : text.register.submit
             }}
@@ -196,7 +198,7 @@ interface Registration {
 
         <p class="mt-8 text-sm text-ink-subtle">
           {{ text.register.haveAccount }}
-          <a appLink routerLink="/login">{{ text.login }}</a>
+          <a uiLink routerLink="/login">{{ text.login }}</a>
         </p>
       }
     </app-auth-card>
@@ -221,7 +223,7 @@ export class RegisterPage {
   private readonly firstType = this.config.customerTypes[0];
   protected readonly home = inject(STOREFRONT_TEXT).errors.notFoundBack;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly phoneInput = this.config.phoneInput;
+  protected readonly phoneInput = this.config.phoneInput;
   private readonly companyIdInput = this.config.companyIdInput;
 
   // Held as a field rather than built in the template, so its identity is

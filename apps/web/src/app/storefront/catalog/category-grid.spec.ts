@@ -10,6 +10,7 @@ import { defaultStorefrontText } from '../../shared/config/storefront-text.fixtu
 import { CategoryGrid } from './category-grid';
 import { CatalogService } from './catalog.service';
 import { productListItem } from '../../shared/catalog/product.fixture';
+import { provideUiText } from '../../shared/config/shared-text';
 
 type Products = NonNullable<
   Awaited<ReturnType<CatalogService['getCategoryProducts']>>
@@ -65,6 +66,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [CategoryGrid],
     providers: [
+      provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -240,7 +242,7 @@ describe('CategoryGrid', () => {
     // show what is already shown.
     expect(
       toggle(defaultStorefrontText.catalog.showLess)?.closest(
-        'app-show-more-toggle',
+        'ui-show-more-toggle',
       )?.className,
     ).toContain('sm:hidden');
   });
@@ -604,6 +606,7 @@ describe('CategoryGrid as the catalogue index (FR-CAT-02)', () => {
     TestBed.configureTestingModule({
       imports: [CategoryGrid],
       providers: [
+        provideUiText(),
         provideRouter([]),
         { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },

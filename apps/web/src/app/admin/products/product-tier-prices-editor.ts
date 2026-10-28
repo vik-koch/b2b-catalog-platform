@@ -2,15 +2,20 @@ import { Component, computed, inject, input } from '@angular/core';
 import { type FieldTree } from '@angular/forms/signals';
 import { moneyFormat } from '@b2b-catalog-platform/shared';
 import { CustomerTier } from '@b2b-catalog-platform/shared/admin';
-import { currencySymbol, parsePriceInput } from '../../shared/catalog/price';
+import {
+  currencySymbol,
+  parsePriceInput,
+  partialPriceRule,
+} from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { PriceField } from '../../shared/ui/price-field';
-import { UNIT_FIELD_INPUT, UnitField } from '../../shared/ui/unit-field';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Allow } from '@b2b-catalog-platform/ui/inputs/allow';
+import { UnitInput } from '@b2b-catalog-platform/ui/inputs/unit-input';
+import { UnitInputControl } from '@b2b-catalog-platform/ui/inputs/unit-input-control';
 import { LockedFieldMarker } from '../ownership/locked-field-marker';
-import { Hint } from '../../shared/ui/hint';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
 
 /** A tier's field as the form holds it: raw text, empty meaning "no override". */
 export interface TierPriceDraft {
@@ -41,13 +46,14 @@ export interface TierPriceDraft {
   imports: [
     FORM_FIELDS,
     FieldLabel,
-    PriceField,
-    UnitField,
+    Allow,
+    UnitInput,
     LockedFieldMarker,
     Hint,
+    UnitInputControl,
   ],
   template: `
-    <span appFieldLabel>
+    <span uiFieldLabel>
       {{ text.heading }}
       <app-locked-field-marker [field]="field()" />
     </span>
@@ -65,7 +71,7 @@ export interface TierPriceDraft {
              sm:gap-6 sm:rounded-none sm:border-0 sm:p-0"
     >
       @for (draft of field()().value(); track draft.tierId; let i = $index) {
-        <app-field
+        <ui-field
           class="w-full sm:w-auto"
           [field]="field()[i].value"
           [label]="labelFor(draft.tierId)"
@@ -73,31 +79,31 @@ export interface TierPriceDraft {
         >
           <!-- Text with inputmode, for the same reason as the base price
                field: a number input drops a half-typed decimal. -->
-          <app-unit-field class="w-full sm:w-43.5" [unit]="currencySuffix">
+          <ui-unit-input class="w-full sm:w-43.5" [unit]="currencySuffix">
             <input
               type="text"
               inputmode="decimal"
-              appPriceField
-              [class]="unitFieldInput"
+              [uiAllow]="partialPrice"
+              uiUnitInputControl
               [placeholder]="placeholder()"
               [formField]="field()[i].value"
               (blur)="onBlur(i)"
             />
-          </app-unit-field>
-        </app-field>
+          </ui-unit-input>
+        </ui-field>
       }
     </div>
     @if (!disabled()) {
-      <span appHint class="mt-1">{{ text.hint }}</span>
+      <span uiHint class="mt-1">{{ text.hint }}</span>
     }
   `,
 })
 export class ProductTierPricesEditor {
   protected readonly text = inject(ADMIN_TEXT).products.editor.tierPrices;
-  protected readonly unitFieldInput = UNIT_FIELD_INPUT;
   private readonly currency = moneyFormat(inject(DEPLOYMENT_CONFIG));
   /** The same mark the base price field above carries. */
   protected readonly currencySuffix = currencySymbol(this.currency);
+  protected readonly partialPrice = partialPriceRule(this.currency);
 
   readonly tiers = input.required<CustomerTier[]>();
   /** The base price as text, e.g. "18,90" — empty while none is entered. */

@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
@@ -38,6 +38,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [ProductPairingsDialog],
     providers: [
+      provideUiText(),
       provideRouter([{ path: 'product/:slug', component: Page }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -118,7 +119,7 @@ describe('the sold-together panel (FR-SET-05)', () => {
 
     // Two placeholders for two counterparts, so the panel opens at the size it
     // will settle at rather than growing under the pointer.
-    expect(el.querySelectorAll('app-skeleton')).toHaveLength(2);
+    expect(el.querySelectorAll('ui-skeleton')).toHaveLength(2);
   });
 
   it('lists the counterparts with their own way to buy them', async () => {

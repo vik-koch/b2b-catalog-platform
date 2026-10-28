@@ -163,6 +163,42 @@ describe('ProductPairingsEditor (FR-SET-01)', () => {
     expect(names).toEqual(['Large lid']);
   });
 
+  // The excluded rows come first in the answer: a key that counted them would
+  // add the product itself, and point the input at a row that is not there.
+  it('picks by keyboard among the offered rows, not the whole answer', async () => {
+    answers = [
+      listItem({ slug: 'cup', name: 'The cup itself' }),
+      listItem({ slug: 'lid-small', name: 'Small lid' }),
+      listItem({ slug: 'lid-large', name: 'Large lid' }),
+    ];
+    const { el, emitted, fixture, open, type } = await render([
+      {
+        slug: 'lid-small',
+        name: 'Small lid',
+        deleted: false,
+        unpublished: false,
+      },
+    ]);
+    await open();
+    await type('lid');
+    const input = el.querySelector<HTMLInputElement>('input[role="combobox"]');
+    const press = (key: string) =>
+      input?.dispatchEvent(new KeyboardEvent('keydown', { key }));
+
+    press('ArrowDown');
+    fixture.detectChanges();
+    const active = input?.getAttribute('aria-activedescendant');
+    expect(active && el.querySelector(`#${active}`)?.textContent).toContain(
+      'Large lid',
+    );
+
+    press('Enter');
+    expect(emitted.at(-1)?.map((p) => p.slug)).toEqual([
+      'lid-small',
+      'lid-large',
+    ]);
+  });
+
   it('does not offer a deleted product as a new counterpart', async () => {
     answers = [
       listItem({

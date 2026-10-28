@@ -180,7 +180,7 @@ describe('FacetPanel', () => {
     // Past the eighth, the values are folded rather than left out: there to
     // open in place, and out of sight and out of the tab order until then.
     const rest = (host: HTMLElement) =>
-      host.querySelector('app-collapsible') as HTMLElement;
+      host.querySelector('ui-collapsible') as HTMLElement;
     const folded = (host: HTMLElement) =>
       rest(host).className.includes('grid-rows-[0fr]') &&
       (rest(host).firstElementChild as HTMLElement).className.includes(

@@ -9,13 +9,13 @@ import { ConsentRecord } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { formatPhone } from '../../shared/core/contact-fields';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
-import { StatusBadge } from '../../shared/ui/status-badge';
-import { adminMomentFormat } from '../grid/admin-date';
-import { RecordRow } from '../records/record-row';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
+import { adminMomentFormat } from '../dates/admin-date';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 
 /**
  * Consent records as evidence reads them (NFR-LEGAL-09): what was consented
@@ -31,11 +31,11 @@ import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
     <div class="divide-y divide-edge border-y border-edge">
       @for (record of records(); track record.id) {
         <div class="py-3">
-          <app-record-row [stackMeta]="true">
+          <ui-record-row [stackMeta]="true">
             <span class="font-medium">{{ text.purposes[record.purpose] }}</span>
             <ng-container recordBadge>
               @if (record.withdrawal) {
-                <span appStatusBadge>{{ text.withdrawn }}</span>
+                <span uiStatusBadge>{{ text.withdrawn }}</span>
               }
             </ng-container>
             <!-- What was ticked, as it read: the version's own wording, its
@@ -45,7 +45,7 @@ import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
               <span>
                 {{ moment(record.givenAt) }} ·
                 <a
-                  appLink
+                  uiLink
                   [routerLink]="['/admin/pages', slugs[record.purpose], 'edit']"
                   >{{ version(record) }}</a
                 >
@@ -56,7 +56,7 @@ import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
               @if (showAccount() && record.account; as account) {
                 <span>
                   {{ text.account }}:
-                  <a appLink [routerLink]="['/admin/users', account.id]">{{
+                  <a uiLink [routerLink]="['/admin/users', account.id]">{{
                     account.name ?? record.email
                   }}</a>
                 </span>
@@ -82,18 +82,18 @@ import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
                 !record.withdrawal
               ) {
                 <button
-                  appIconButton
+                  uiIconButton
                   variant="danger"
                   type="button"
                   [attr.aria-label]="text.withdraw"
                   [title]="text.withdraw"
                   (click)="withdraw.emit(record)"
                 >
-                  <app-icon [glyph]="circleSlashIcon" />
+                  <ui-icon [glyph]="circleSlashIcon" />
                 </button>
               }
             </ng-container>
-          </app-record-row>
+          </ui-record-row>
         </div>
       }
     </div>

@@ -20,17 +20,17 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { completeMask } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { AuthService } from '../../shared/auth/auth.service';
-import { Button } from '../../shared/ui/button';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
-import { PhoneInput } from '../../shared/ui/phone-input';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { PhoneInput } from '@b2b-catalog-platform/ui/inputs/phone-input';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AccountService } from './account.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Hint } from '../../shared/ui/hint';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Hint } from '@b2b-catalog-platform/ui/fields/hint';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -61,14 +61,14 @@ type Status = 'idle' | 'submitting' | 'error';
   ],
   template: `
     <div class="max-w-xl">
-      <h1 appPageTitle class="mb-2">
+      <h1 uiPageTitle class="mb-2">
         {{ text.heading }}
       </h1>
-      <p appPageIntro class="mb-4">{{ text.intro }}</p>
+      <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (profile.hasValue()) {
         <form [formRoot]="form" class="space-y-6">
-          <app-field
+          <ui-field
             [field]="form.firstName"
             [label]="fields.firstName.label"
             controlId="firstName"
@@ -76,13 +76,13 @@ type Status = 'idle' | 'submitting' | 'error';
             <input
               type="text"
               autocomplete="given-name"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.firstName"
             />
-          </app-field>
+          </ui-field>
 
-          <app-field
+          <ui-field
             [field]="form.lastName"
             [label]="fields.lastName.label"
             controlId="lastName"
@@ -90,11 +90,11 @@ type Status = 'idle' | 'submitting' | 'error';
             <input
               type="text"
               autocomplete="family-name"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.lastName"
             />
-          </app-field>
+          </ui-field>
 
           <!-- Optional, as on the staff editor: a staff account often has no
                number, and one that is gone is not a reason to refuse the save. -->
@@ -102,41 +102,41 @@ type Status = 'idle' | 'submitting' | 'error';
                signs in, so staff change it (FR-AUTH-12): shown, not offered. -->
           @if (locked()) {
             <div>
-              <p appFieldLabel>{{ fields.phone.label }}</p>
+              <p uiFieldLabel>{{ fields.phone.label }}</p>
               <p>{{ lockedPhone() }}</p>
-              <p appHint class="mt-1">{{ text.phoneLocked }}</p>
+              <p uiHint class="mt-1">{{ text.phoneLocked }}</p>
             </div>
           } @else {
-            <app-field
+            <ui-field
               [field]="form.phone"
               [label]="fields.phone.label"
               controlId="phone"
             >
-              <app-phone-input [field]="form.phone" />
-            </app-field>
+              <ui-phone-input [field]="form.phone" [phone]="phoneInput" />
+            </ui-field>
           }
 
           <div class="flex flex-wrap items-center gap-3">
-            <button appButton type="submit" [disabled]="submitting()">
+            <button uiButton type="submit" [disabled]="submitting()">
               {{ submitting() ? actionText.saving : text.submit }}
             </button>
             <!-- A link, because it goes somewhere — styled as a button so it
                  reads as the other half of the pair rather than as prose. -->
-            <a appButton variant="secondary" routerLink="/account">
+            <a uiButton variant="secondary" routerLink="/account">
               {{ actionText.cancel }}
             </a>
           </div>
 
           @if (failure(); as line) {
-            <p appErrorText role="alert">{{ line }}</p>
+            <p uiErrorText role="alert">{{ line }}</p>
           }
         </form>
       } @else if (profile.error()) {
-        <p appErrorText role="alert">
+        <p uiErrorText role="alert">
           {{ accountText.error }}
         </p>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     </div>
   `,
@@ -150,7 +150,7 @@ export class AccountEditPage {
   protected readonly accountText = inject(STOREFRONT_TEXT).account;
   protected readonly fields = inject(SHARED_TEXT).fields;
   protected readonly actionText = inject(SHARED_TEXT).actions;
-  private readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
+  protected readonly phoneInput = inject(DEPLOYMENT_CONFIG).phoneInput;
   protected readonly status = signal<Status>('idle');
 
   protected readonly profile = resource({

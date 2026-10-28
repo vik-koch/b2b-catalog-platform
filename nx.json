@@ -15,6 +15,16 @@
     "sharedGlobals": ["{workspaceRoot}/.github/workflows/ci.yml"]
   },
   "targetDefaults": {
+    "lint": {
+      "inputs": [
+        "default",
+        "^default",
+        "{workspaceRoot}/eslint.config.mjs",
+        "{projectRoot}/eslint.config.mjs",
+        "{workspaceRoot}/tools/lint/**/*",
+        { "externalDependencies": ["eslint"] }
+      ]
+    },
     "@angular/build:application": {
       "cache": true,
       "dependsOn": ["^build"],

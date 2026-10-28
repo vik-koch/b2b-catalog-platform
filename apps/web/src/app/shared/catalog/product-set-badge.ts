@@ -1,8 +1,8 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { fillText, formatPartList } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { Icon } from '../ui/icons/icon';
-import { layers2Icon } from '../ui/icons/glyphs/layers-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { layers2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/layers-2';
 
 /**
  * Says a product is sold as a set of parts (FR-CAT-10) — one piece is a cup
@@ -30,13 +30,13 @@ import { layers2Icon } from '../ui/icons/glyphs/layers-2';
   template: `
     @if (variant() === 'short') {
       <span [class]="pill + ' whitespace-nowrap'" [title]="full()">
-        <app-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
+        <ui-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
         <span class="truncate" aria-hidden="true">{{ text.short }}</span>
         <span class="sr-only">{{ full() }}</span>
       </span>
     } @else {
       <span [class]="pill + ' items-start leading-tight'">
-        <app-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
+        <ui-icon [glyph]="layers2Icon" class="size-3.5 shrink-0" />
         <span>{{ full() }}</span>
       </span>
     }

@@ -12,8 +12,9 @@ import {
 } from '@angular/core';
 import { CallStep } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import type { CallResult, SendResult } from '../../shared/auth/auth.service';
 import { formatWait } from './code-entry';
 
@@ -44,7 +45,7 @@ function pieces(line: string, values: Record<string, string>) {
  */
 @Component({
   selector: 'app-call-wait',
-  imports: [Button, Checkbox],
+  imports: [Button, Checkbox, TickLabel],
   host: { class: 'block' },
   template: `
     <!-- Each number is one unit: a number broken across two lines no longer
@@ -66,11 +67,10 @@ function pieces(line: string, values: Record<string, string>) {
     <div class="mt-6 space-y-6">
       @if (step().rememberDays > 0) {
         <div>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label uiTickLabel>
             <input
-              appCheckbox
+              uiCheckbox
               type="checkbox"
-              class="mt-0.5"
               [checked]="remember()"
               (change)="remember.set($any($event.target).checked)"
               aria-describedby="rememberBrowserHint"
@@ -84,7 +84,7 @@ function pieces(line: string, values: Record<string, string>) {
       }
 
       @if (!byMail() && !over()) {
-        <a appButton [href]="'tel:' + step().dial" class="tabular-nums">
+        <a uiButton [href]="'tel:' + step().dial" class="tabular-nums">
           {{ text.callDial.replace('{callTo}', step().callTo) }}
         </a>
       }
@@ -101,7 +101,7 @@ function pieces(line: string, values: Record<string, string>) {
       @if (over()) {
         <!-- Counted in figures of one width, so it does not jitter. -->
         <button
-          appButton
+          uiButton
           type="button"
           class="tabular-nums"
           [disabled]="busy() || waitLeft() > 0"

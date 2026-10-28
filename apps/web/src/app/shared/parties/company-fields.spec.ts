@@ -6,7 +6,7 @@ import { defaultDeploymentConfig } from '../config/deployment-config.fixture';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { defaultStorefrontText } from '../config/storefront-text.fixture';
 import { companyIdFormat } from '../core/field-rules';
-import { FORM_FIELDS } from '../ui/form-fields';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
 import { CompanyFields } from './company-fields';
 import { PartiesService } from './parties.service';
 

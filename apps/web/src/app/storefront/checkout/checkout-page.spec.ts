@@ -31,6 +31,7 @@ import {
 import { CheckoutPage } from './checkout-page';
 import { OrdersService, SubmitOrderResult } from '../orders/orders.service';
 import { PageService } from '../../shared/pages/page.service';
+import { provideDigitMaskFormat } from '../../shared/core/contact-fields';
 
 /** A day the form actually offers, from whenever the suite is run: a literal
  * date here would be a working weekday now and a past Saturday later. */
@@ -128,6 +129,7 @@ async function render(options: Options = {}) {
   TestBed.configureTestingModule({
     imports: [CheckoutPage],
     providers: [
+      provideDigitMaskFormat(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

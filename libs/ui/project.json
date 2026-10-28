@@ -1,0 +1,27 @@
+{
+  "name": "ui",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/ui/src",
+  "projectType": "library",
+  "tags": ["scope:ui", "platform:browser"],
+  "targets": {
+    "test": {
+      "executor": "@angular/build:unit-test",
+      "outputs": ["{workspaceRoot}/coverage/libs/ui"],
+      "options": {
+        "buildTarget": "web:build:development",
+        "tsConfig": "libs/ui/tsconfig.spec.json",
+        "watch": false
+      }
+    },
+    "typecheck": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          "tsc -p libs/ui/tsconfig.lib.json --noEmit",
+          "tsc -p libs/ui/tsconfig.spec.json --noEmit"
+        ]
+      }
+    }
+  }
+}

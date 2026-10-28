@@ -1,10 +1,10 @@
 import { Component, computed, HostListener, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { withExitAnimation } from './leave-animation';
 import { MobileSearch } from './mobile-search';
 import { SearchField } from './search-field';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Must match the exit animations in styles.css. */
 const LEAVE_MS = 150;
@@ -47,7 +47,7 @@ const LEAVE_MS = 150;
                  active:text-primary-press"
           (click)="search.close()"
         >
-          <app-icon [glyph]="xIcon" class="size-6" />
+          <ui-icon [glyph]="xIcon" class="size-6" />
           <span class="sr-only">{{ text.closeSearchAria }}</span>
         </button>
       </div>

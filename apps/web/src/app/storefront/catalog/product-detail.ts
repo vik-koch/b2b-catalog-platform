@@ -14,7 +14,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { Meta } from '@angular/platform-browser';
 import { hiddenProductText } from '../../shared/edit-mode/hidden-product-text';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AuthService } from '../../shared/auth/auth.service';
 import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
@@ -27,7 +27,7 @@ import { NotFoundView } from '../pages/not-found-view';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { CatalogService } from './catalog.service';
 import {
   PRODUCT_PAGE_COLUMNS,
@@ -107,15 +107,15 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
               @if (loaded.hidden; as hidden) {
                 @if (statusText(); as status) {
                   @if (hidden.deleted) {
-                    <span appStatusBadge tone="danger">{{
+                    <span uiStatusBadge tone="danger">{{
                       status.deleted
                     }}</span>
                   } @else {
-                    <span appStatusBadge tone="waiting">{{
+                    <span uiStatusBadge tone="waiting">{{
                       status.unpublished
                     }}</span>
                     @if (hidden.unpriced) {
-                      <span appStatusBadge tone="danger">{{
+                      <span uiStatusBadge tone="danger">{{
                         status.unpriced
                       }}</span>
                     }

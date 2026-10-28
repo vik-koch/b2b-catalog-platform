@@ -16,20 +16,23 @@ import {
   ProductVariantInput,
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { SelectInput } from '@b2b-catalog-platform/ui/inputs/select-input';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
 import { ImageFramerService } from '../media/image-framer.service';
 import { MediaService } from '../media/media.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { ErrorText } from '../../shared/ui/error-text';
-import { cropIcon } from '../../shared/ui/icons/glyphs/crop';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { imagePlusIcon } from '../../shared/ui/icons/glyphs/image-plus';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { cropIcon } from '@b2b-catalog-platform/ui/icons/glyphs/crop';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { imagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * The product's ordered image gallery (FR-CAT-04/05). Uploads go through the
@@ -57,12 +60,13 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
     FieldLabel,
     FileTarget,
     Input,
-    SelectField,
+    SelectInput,
     ErrorText,
+    DropZone,
   ],
   template: `
     <fieldset class="max-w-xl">
-      <legend appFieldLabel>{{ text.heading }}</legend>
+      <legend uiFieldLabel>{{ text.heading }}</legend>
 
       <ul
         class="flex flex-wrap items-stretch gap-3.5"
@@ -96,7 +100,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                        bg-black/45 p-1"
               >
                 <span class="p-1.5 inline-flex text-white/70 md:p-1">
-                  <app-icon
+                  <ui-icon
                     [glyph]="gripVerticalIcon"
                     class="size-5 md:size-4"
                   />
@@ -114,7 +118,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                     [disabled]="uploading()"
                     (click)="reframe(image)"
                   >
-                    <app-icon [glyph]="cropIcon" class="size-5 md:size-4" />
+                    <ui-icon [glyph]="cropIcon" class="size-5 md:size-4" />
                   </button>
                   <button
                     type="button"
@@ -125,15 +129,15 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                     [attr.aria-label]="actionText.remove"
                     (click)="remove($index)"
                   >
-                    <app-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
+                    <ui-icon [glyph]="trash2Icon" class="size-5 md:size-4" />
                   </button>
                 </span>
               </div>
             </div>
             @if (variants().length) {
-              <app-select-field size="sm">
+              <ui-select-input size="sm">
                 <select
-                  appInput
+                  uiInput
                   size="sm"
                   class="w-full truncate"
                   [attr.aria-label]="text.variantAria"
@@ -152,7 +156,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
                     </option>
                   }
                 </select>
-              </app-select-field>
+              </ui-select-input>
             }
           </li>
         }
@@ -168,15 +172,15 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
           />
           <button
             type="button"
-            #target="appFileTarget"
-            [appFileTarget]="accept"
+            [uiFileTarget]="accept"
             [fileTargetMultiple]="true"
-            [class]="tileClass(target.dragging())"
+            uiDropZone
+            class="size-26"
             [disabled]="uploading()"
             (click)="fileInput.click()"
             (filesReceived)="upload($event)"
           >
-            <app-icon [glyph]="imagePlusIcon" class="size-6" />
+            <ui-icon [glyph]="imagePlusIcon" class="size-6" />
             <span class="text-xs">
               {{ uploading() ? adminText.upload.progress : text.add }}
             </span>
@@ -189,7 +193,7 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
       </p>
 
       @if (error()) {
-        <p appErrorText class="mt-2" role="alert">{{ error() }}</p>
+        <p uiErrorText class="mt-2" role="alert">{{ error() }}</p>
       }
     </fieldset>
   `,
@@ -208,12 +212,6 @@ export class ProductImageGallery {
   protected readonly tileHint = fillText(this.adminText.upload.tileHint, {
     keys: pasteKeys(),
   });
-
-  /** The shared dashed target at tile size — the same one the sync screen and
-   * the document editor wear at their own. */
-  protected tileClass(dragging: boolean): string {
-    return `h-26 w-26 ${DROP_ZONE} ${dropZoneState(dragging)}`;
-  }
 
   readonly value = input.required<ProductImageInput[]>();
   /** The variants a picture may show; none hides the picker. */

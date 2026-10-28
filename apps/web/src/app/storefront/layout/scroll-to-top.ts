@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Icon } from '../../shared/ui/icons/icon';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
-import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
+import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 
 /**
  * Back to the top of the page, closing the footer's action row — which is
@@ -35,13 +35,12 @@ import { chevronUpIcon } from '../../shared/ui/icons/glyphs/chevron-up';
              hover:border-accent hover:text-accent
              active:border-primary-press active:text-primary-press
              disabled:cursor-default disabled:border-edge
-             disabled:bg-transparent disabled:text-ink-disabled
-             disabled:hover:border-edge disabled:hover:text-ink-disabled"
+             disabled:bg-transparent disabled:text-ink-disabled"
       [disabled]="!collapsed()"
       [title]="label"
       (click)="toTop()"
     >
-      <app-icon [glyph]="chevronUpIcon" class="size-4" />
+      <ui-icon [glyph]="chevronUpIcon" class="size-4" />
       <span class="sr-only">{{ label }}</span>
     </button>
   `,

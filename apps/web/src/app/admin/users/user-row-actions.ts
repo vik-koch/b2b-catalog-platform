@@ -2,13 +2,13 @@ import { Component, inject, input, output } from '@angular/core';
 import { RouterLink, Params } from '@angular/router';
 import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Icon } from '../../shared/ui/icons/icon';
-import { IconButton } from '../../shared/ui/icon-button';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleSlashIcon } from '../../shared/ui/icons/glyphs/circle-slash';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { rotateCcwIcon } from '../../shared/ui/icons/glyphs/rotate-ccw';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { rotateCcwIcon } from '@b2b-catalog-platform/ui/icons/glyphs/rotate-ccw';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * What can be done to one account from the list, drawn once for both shapes it
@@ -34,13 +34,13 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
       <a
         [routerLink]="['/admin/users', user().id, 'edit']"
         [queryParams]="returnParams()"
-        appIconButton
+        uiIconButton
         [variant]="user().status === 'pending' ? 'marked' : 'default'"
         [attr.aria-label]="
           user().status === 'pending' ? text.approve : text.edit
         "
       >
-        <app-icon
+        <ui-icon
           [glyph]="user().status === 'pending' ? circleCheckIcon : pencilIcon"
         />
       </a>
@@ -53,31 +53,31 @@ import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
     @if (user().status === 'pending') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="danger"
         [attr.aria-label]="text.declineAria"
         (click)="declined.emit(user())"
       >
-        <app-icon [glyph]="trash2Icon" />
+        <ui-icon [glyph]="trash2Icon" />
       </button>
     } @else if (user().status === 'disabled') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [attr.aria-label]="text.reactivateAria"
         (click)="activeChanged.emit({ user: user(), active: true })"
       >
-        <app-icon [glyph]="rotateCcwIcon" />
+        <ui-icon [glyph]="rotateCcwIcon" />
       </button>
     } @else if (user().status !== 'anonymized') {
       <button
         type="button"
-        appIconButton
+        uiIconButton
         variant="danger"
         [attr.aria-label]="text.deactivateAria"
         (click)="activeChanged.emit({ user: user(), active: false })"
       >
-        <app-icon [glyph]="circleSlashIcon" />
+        <ui-icon [glyph]="circleSlashIcon" />
       </button>
     }
   `,

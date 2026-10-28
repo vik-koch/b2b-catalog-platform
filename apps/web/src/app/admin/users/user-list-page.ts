@@ -11,6 +11,7 @@ import {
   COMPANY_ID_NONE,
   formatPersonName,
   userRoleSchema,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import {
   StaffUser,
@@ -24,27 +25,27 @@ import { formatPhone } from '../../shared/core/contact-fields';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
-import { RecordRow } from '../records/record-row';
-import { AdminListHeader } from '../list-header';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTimestamp } from '../dates/grid-timestamp';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { StatusBadge } from '../../shared/ui/status-badge';
+import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { StaffUsersService } from './users.service';
 import { userStatusTone } from './user-status';
-import { ErrorText } from '../../shared/ui/error-text';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
 
 /**
  * The staff account list (FR-AUTH-03/04). One component, two views chosen by the
@@ -109,8 +110,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
     Button,
     RouterLink,
     Icon,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridTimestamp,
@@ -121,31 +122,32 @@ const typeRank = (t: StaffUser['customerType']): number =>
     ErrorText,
   ],
   template: `
-    <app-admin-list-header
+    <ui-grid-header
       [title]="page().title"
       [intro]="page().intro"
       [query]="query() ?? ''"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
-      <button appButton type="button" class="gap-2" (click)="add()">
-        <app-icon [glyph]="plusIcon" class="size-4" />
+      <button uiButton type="button" class="gap-2" (click)="add()">
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
       </button>
-    </app-admin-list-header>
+    </ui-grid-header>
 
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
     @if (pageError()) {
-      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
+      <p uiErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (users.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
-      <app-admin-grid
+      <ui-data-grid
         [gridId]="gridId()"
         [columns]="columns()"
         [rows]="data"
@@ -158,7 +160,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
         [emptyMessage]="filtered() ? text.noResults : text.empty"
         [countLabel]="text.count"
       >
-        <ng-template appGridRow [of]="data" let-user>
+        <ng-template uiGridRow [of]="data" let-user>
           <!-- Who to call, and underneath the address to write to — the same
                pair the order list draws in one cell, for the same reason: two
                columns of the same person cost a third of the table. -->
@@ -198,7 +200,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
             </td>
           }
           <td data-keep>
-            <span appStatusBadge [tone]="statusTone(user.status)">{{
+            <span uiStatusBadge [tone]="statusTone(user.status)">{{
               statusLabel(user.status)
             }}</span>
           </td>
@@ -219,10 +221,10 @@ const typeRank = (t: StaffUser['customerType']): number =>
              on the first line, then the two ways to reach them, then what
              prices they get — the tier is why a manager opens this list, and it
              is invisible to the customer themselves. -->
-        <ng-template appGridCard [of]="data" let-user>
+        <ng-template uiGridCard [of]="data" let-user>
           <!-- Only the account is greyed once it is closed, never the badge
                that says so — the same rule the table follows cell by cell. -->
-          <app-record-row>
+          <ui-record-row>
             <a
               class="truncate font-medium text-ink"
               [class.opacity-50]="isClosed(user)"
@@ -233,7 +235,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
             </a>
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="statusTone(user.status)"
               >{{ statusLabel(user.status) }}</span
@@ -265,15 +267,16 @@ const typeRank = (t: StaffUser['customerType']): number =>
               (declined)="decline($event)"
               (activeChanged)="setActive($event.user, $event.active)"
             />
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-admin-grid>
+      </ui-data-grid>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })
 export class UserListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly plusIcon = plusIcon;
   private readonly service = inject(StaffUsersService);
   private readonly ownership = inject(SettingsService);

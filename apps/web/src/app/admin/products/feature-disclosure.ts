@@ -1,12 +1,9 @@
 import { Component, inject, input, OnInit, signal } from '@angular/core';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import {
-  DISCLOSURE_FRAME,
-  disclosureBorder,
-  DisclosureToggle,
-} from '../../shared/ui/disclosure-toggle';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Glyph } from '../../shared/ui/icons/glyph';
+import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
+import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Glyph } from '@b2b-catalog-platform/ui/icons/glyph';
 
 /** `aria-controls` must name one panel, and a page holds several. */
 let nextId = 0;
@@ -23,14 +20,11 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-feature-disclosure',
-  imports: [Icon, DisclosureToggle],
+  imports: [Icon, DisclosureToggle, DisclosureFrame],
   host: { class: 'block' },
   template: `
-    <div
-      class="max-w-xl rounded-md border"
-      [class]="frame + ' ' + disclosureBorder(open())"
-    >
-      <app-disclosure-toggle
+    <div class="max-w-xl rounded-md border" uiDisclosureFrame [open]="open()">
+      <ui-disclosure-toggle
         [label]="label()"
         [count]="on() ? 1 : 0"
         [countLabel]="text.switchedOn"
@@ -38,12 +32,12 @@ let nextId = 0;
         [panelId]="panelId"
         (toggled)="open.set(!open())"
       >
-        <app-icon
+        <ui-icon
           disclosureLead
           [glyph]="glyph()"
           class="size-4 text-ink-subtle"
         />
-      </app-disclosure-toggle>
+      </ui-disclosure-toggle>
       @if (open()) {
         <div [id]="panelId" class="border-t border-edge p-4">
           <ng-content />
@@ -53,8 +47,6 @@ let nextId = 0;
   `,
 })
 export class FeatureDisclosure implements OnInit {
-  protected readonly frame = DISCLOSURE_FRAME;
-  protected readonly disclosureBorder = disclosureBorder;
   protected readonly text = inject(ADMIN_TEXT).products.editor;
   protected readonly panelId = `feature-disclosure-${nextId++}`;
 

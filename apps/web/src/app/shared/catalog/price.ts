@@ -82,6 +82,13 @@ export function isPartialPrice(
   return pattern.test(text);
 }
 
+/** `isPartialPrice` bound to a currency, for `[uiAllow]`. */
+export function partialPriceRule(
+  currency: CurrencyConfig,
+): (text: string) => boolean {
+  return (text) => isPartialPrice(text, currency);
+}
+
 /**
  * A price the admin typed → integer minor units, or `null` if it is not a
  * price at all.

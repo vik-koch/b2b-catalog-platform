@@ -7,8 +7,11 @@ import {
   OrderWriteResult,
 } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Link } from '../../shared/ui/link';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 
 /**
  * What an order run did (FR-ADM-08): the counts, the orders it answered, and
@@ -65,7 +68,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
         <ul class="divide-y divide-edge-subtle text-sm">
           @for (order of answered(); track order.reference) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-              <span appStatusBadge [tone]="kindTone(order.kind)">
+              <span uiStatusBadge [tone]="kindTone(order.kind)">
                 {{ text.orders.kind[order.kind] }}
               </span>
               <!-- The order itself, not the version this run wrote, and no
@@ -73,7 +76,7 @@ import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
                    from a log wants the order, and the order's own page says
                    what it says better than a copy of it in a log would. -->
               <a
-                appLink
+                uiLink
                 class="font-medium"
                 [routerLink]="['/admin/orders', order.reference]"
                 >{{ order.reference }}</a

@@ -4,8 +4,8 @@ import { Address, fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import { createAddressForm } from '../../shared/addresses/address-form';
 import {
@@ -13,10 +13,10 @@ import {
   SaveAddressResult,
 } from '../../shared/addresses/addresses.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'submitting' | 'error';
 
@@ -43,32 +43,32 @@ type Status = 'idle' | 'submitting' | 'error';
   ],
   template: `
     <div class="max-w-xl">
-      <h1 appPageTitle class="mb-2">
+      <h1 uiPageTitle class="mb-2">
         {{ isNew ? text.newHeading : text.editHeading }}
       </h1>
-      <p appPageIntro class="mb-4">{{ text.intro }}</p>
+      <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (ready()) {
         <form [formRoot]="form.field" class="space-y-6">
           <app-address-fields [form]="form" />
 
           <div class="flex flex-wrap items-center gap-3">
-            <button appButton type="submit" [disabled]="submitting()">
+            <button uiButton type="submit" [disabled]="submitting()">
               {{ submitting() ? actionText.saving : text.submit }}
             </button>
-            <a appButton variant="secondary" routerLink="/account">
+            <a uiButton variant="secondary" routerLink="/account">
               {{ actionText.cancel }}
             </a>
           </div>
 
           @if (error()) {
-            <p appErrorText role="alert">{{ error() }}</p>
+            <p uiErrorText role="alert">{{ error() }}</p>
           }
         </form>
       } @else if (notFound()) {
-        <p appErrorText role="alert">{{ text.error }}</p>
+        <p uiErrorText role="alert">{{ text.error }}</p>
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="6" />
+        <ui-skeleton [lines]="6" />
       }
     </div>
   `,

@@ -20,12 +20,15 @@ import {
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Button } from '../../shared/ui/button';
-import { Input } from '../../shared/ui/input';
-import { Link } from '../../shared/ui/link';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { ErrorText } from '../../shared/ui/error-text';
-import { Notice } from '../../shared/ui/notice';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
 /**
  * What a run would do, or did: the counts, the products, the categories and
@@ -127,7 +130,7 @@ import { Notice } from '../../shared/ui/notice';
         <ul class="divide-y divide-edge-subtle text-sm">
           @for (product of plan().products; track product.sourceId) {
             <li class="flex flex-wrap items-baseline gap-x-3 py-2">
-              <span appStatusBadge [tone]="kindTone(product.kind)">
+              <span uiStatusBadge [tone]="kindTone(product.kind)">
                 {{ text.count[product.kind] }}
               </span>
               <!-- Always the list narrowed to this product's sync key, never
@@ -137,7 +140,7 @@ import { Notice } from '../../shared/ui/notice';
                    shows what the run did not — its state, its stock, its
                    availability. -->
               <a
-                appLink
+                uiLink
                 class="font-medium"
                 routerLink="/admin/products"
                 [queryParams]="{ searchTerm: product.sourceId }"
@@ -166,7 +169,7 @@ import { Notice } from '../../shared/ui/notice';
         <ul class="space-y-1 text-sm">
           @for (category of plan().emptiedCategories; track category.slug) {
             <li>
-              <a appLink routerLink="/admin/categories">{{ category.name }}</a>
+              <a uiLink routerLink="/admin/categories">{{ category.name }}</a>
             </li>
           }
         </ul>
@@ -179,7 +182,7 @@ import { Notice } from '../../shared/ui/notice';
           @for (kept of plan().keptManual; track kept.sourceId) {
             <li>
               <a
-                appLink
+                uiLink
                 routerLink="/admin/products"
                 [queryParams]="{ searchTerm: kept.sourceId }"
                 >{{ kept.name }}</a
@@ -196,13 +199,13 @@ import { Notice } from '../../shared/ui/notice';
       @if (applicable()) {
         <!-- The delete gate: typed confirmation, and only when it applies. -->
         @if (plan().summary.softDelete > 0 && !applyBlocked()) {
-          <div appNotice tone="danger" class="mt-6">
+          <div uiNotice tone="danger" class="mt-6">
             <p>{{ deleteWarning() }}</p>
             <label class="mt-2 block text-sm">
               <span class="mb-1 block">{{ confirmLabel() }}</span>
               <input
                 type="text"
-                appInput
+                uiInput
                 class="font-mono"
                 [value]="confirmation()"
                 (input)="confirmation.set($any($event.target).value)"
@@ -215,7 +218,7 @@ import { Notice } from '../../shared/ui/notice';
           <div class="mt-6 flex flex-wrap items-center gap-3">
             @if (!isNoop() && !applyBlocked()) {
               <button
-                appButton
+                uiButton
                 type="button"
                 [disabled]="!canApply() || busy()"
                 (click)="apply.emit()"
@@ -225,7 +228,7 @@ import { Notice } from '../../shared/ui/notice';
             }
             @if (discardable()) {
               <button
-                appButton
+                uiButton
                 variant="dangerOutline"
                 type="button"
                 [disabled]="busy()"
@@ -238,7 +241,7 @@ import { Notice } from '../../shared/ui/notice';
         }
 
         @if (error(); as message) {
-          <p appErrorText class="mt-3" role="alert">{{ message }}</p>
+          <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
         }
       }
     </section>

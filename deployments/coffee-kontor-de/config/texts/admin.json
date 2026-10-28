@@ -1232,6 +1232,7 @@
         "addLabel": "Produkt hinzufügen",
         "addPlaceholder": "Nach Name suchen",
         "noMatches": "Nichts passt dazu.",
+        "suggestionCountAria": "Produktvorschläge: {count}",
         "empty": "Eine Bestellung braucht mindestens eine Position.",
         "offList": "Abweichend"
       },

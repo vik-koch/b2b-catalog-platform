@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../../shared/config/shared-text';
 import { defaultSharedText } from '../../shared/config/shared-text.fixture';
 import { Location } from '@angular/common';
 import { ApplicationRef, signal } from '@angular/core';
@@ -73,6 +73,7 @@ async function renderAt(url?: string) {
   TestBed.configureTestingModule({
     imports: [SearchField],
     providers: [
+      provideUiText(),
       provideRouter([{ path: '**', children: [] }]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -168,6 +169,7 @@ describe('SearchField', () => {
     TestBed.configureTestingModule({
       imports: [SearchField],
       providers: [
+        provideUiText(),
         provideRouter([{ path: '**', children: [] }]),
         { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -302,7 +304,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
     );
   const names = (el: HTMLElement) =>
     options(el).map((o) =>
-      o.querySelector('app-highlighted-line')?.textContent?.trim(),
+      o.querySelector('ui-highlighted-line')?.textContent?.trim(),
     );
   const addButtons = (el: HTMLElement) =>
     Array.from(
@@ -339,9 +341,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
 
     await typeQuery(fixture, el, 'espresso');
 
-    expect(
-      options(el)[0].querySelector('app-image-placeholder'),
-    ).not.toBeNull();
+    expect(options(el)[0].querySelector('ui-image-placeholder')).not.toBeNull();
   });
 
   it('adds the smallest order to the cart and keeps the list open', async () => {
@@ -650,7 +650,7 @@ describe('SearchField suggestions (FR-SEARCH-05/06)', () => {
       return id
         ? el
             .querySelector(`#${id}`)
-            ?.querySelector('app-highlighted-line')
+            ?.querySelector('ui-highlighted-line')
             ?.textContent?.trim()
         : null;
     };

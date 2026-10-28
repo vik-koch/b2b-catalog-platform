@@ -1,4 +1,4 @@
-import { SHARED_TEXT } from '../config/shared-text';
+import { SHARED_TEXT, provideUiText } from '../config/shared-text';
 import { defaultSharedText } from '../config/shared-text.fixture';
 import { provideRouter } from '@angular/router';
 import { TestBed } from '@angular/core/testing';
@@ -17,6 +17,7 @@ function render(images: CatalogImage[]): ComponentFixture<TileGallery> {
   TestBed.configureTestingModule({
     imports: [TileGallery],
     providers: [
+      provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -58,7 +59,7 @@ describe('TileGallery', () => {
 
     expect(root.querySelector('a')?.getAttribute('href')).toBe('/product/p1');
     expect(root.querySelector('img')).toBeNull();
-    expect(root.querySelector('app-image-placeholder')).not.toBeNull();
+    expect(root.querySelector('ui-image-placeholder')).not.toBeNull();
   });
 
   it('swaps a failed image for the placeholder in its slot', () => {
@@ -70,7 +71,7 @@ describe('TileGallery', () => {
 
     // One slot became a placeholder; the other image is still present.
     expect(root.querySelectorAll('img')).toHaveLength(1);
-    expect(root.querySelector('app-image-placeholder')).not.toBeNull();
+    expect(root.querySelector('ui-image-placeholder')).not.toBeNull();
   });
 
   it('scrubs to the image under the cursor on mouse move', () => {

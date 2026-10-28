@@ -22,23 +22,23 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
 import { UnpublishedCount } from '../products/unpublished-count';
-import { RecordRow } from '../records/record-row';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { AttributesService } from './attributes.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { gripVerticalIcon } from '../../shared/ui/icons/glyphs/grip-vertical';
-import { saveIcon } from '../../shared/ui/icons/glyphs/save';
-import { xIcon } from '../../shared/ui/icons/glyphs/x';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { gripVerticalIcon } from '@b2b-catalog-platform/ui/icons/glyphs/grip-vertical';
+import { saveIcon } from '@b2b-catalog-platform/ui/icons/glyphs/save';
+import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** Where the panel closes to when it was not opened from anywhere in-app. */
 const FALLBACK_RETURN = '/admin/categories';
@@ -96,16 +96,13 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
            later reads as the page changing its mind. A bar of the same height
            holds the row instead. -->
       @if (loaded(); as panel) {
-        <h1 appPageTitle>
+        <h1 uiPageTitle>
           {{ headingFor(panel) }}
         </h1>
       } @else {
-        <div
-          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-skeleton"
-          aria-hidden="true"
-        ></div>
+        <ui-skeleton size="title" class="w-2/3 max-w-sm" [widths]="['100%']" />
       }
-      <a appButton variant="secondary" routerLink="/admin/attributes">
+      <a uiButton variant="secondary" routerLink="/admin/attributes">
         {{ text.page.title }}
       </a>
     </div>
@@ -142,14 +139,14 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               >
                 @for (filter of draft(); track filter.attributeId) {
                   <li class="py-3" cdkDrag>
-                    <app-record-row>
+                    <ui-record-row>
                       <!-- Whether the panel offers this filter at all is the
                            one thing done to the row, so it leads it — where the
                            other lists put their grip. -->
                       <input
                         recordControl
                         type="checkbox"
-                        appCheckbox
+                        uiCheckbox
                         class="self-center"
                         [checked]="filter.visible"
                         [attr.aria-label]="filter.name"
@@ -164,7 +161,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                           <span>{{ text.notPresent }}</span>
                         } @else {
                           <a
-                            appLink
+                            uiLink
                             routerLink="/admin/products"
                             [queryParams]="{
                               categoryId: categoryIdOf(panel),
@@ -188,14 +185,14 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
                       <span
                         recordActions
                         cdkDragHandle
-                        appIconButton
+                        uiIconButton
                         class="cursor-grab active:cursor-grabbing"
                         [attr.aria-label]="text.reorder"
                         [title]="text.reorder"
                       >
-                        <app-icon [glyph]="gripVerticalIcon" />
+                        <ui-icon [glyph]="gripVerticalIcon" />
                       </span>
-                    </app-record-row>
+                    </ui-record-row>
                   </li>
                 }
               </ul>
@@ -209,29 +206,29 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
 
             <div class="mt-6 flex flex-wrap items-center gap-2">
               <button
-                appButton
+                uiButton
                 type="button"
                 class="gap-2"
                 [disabled]="busy()"
                 (click)="save()"
               >
-                <app-icon [glyph]="saveIcon" class="size-4" />
+                <ui-icon [glyph]="saveIcon" class="size-4" />
                 {{ busy() ? actionText.saving : text.save }}
               </button>
               <button
-                appButton
+                uiButton
                 variant="secondary"
                 type="button"
                 class="gap-2"
                 [disabled]="busy()"
                 (click)="cancel()"
               >
-                <app-icon [glyph]="xIcon" class="size-4" />
+                <ui-icon [glyph]="xIcon" class="size-4" />
                 {{ actionText.cancel }}
               </button>
               @if (isCategoryPanel(panel) && panel.source === 'own') {
                 <button
-                  appButton
+                  uiButton
                   variant="secondary"
                   type="button"
                   [disabled]="busy()"
@@ -248,7 +245,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
               </p>
             }
             @if (error()) {
-              <p appErrorText class="mt-4" role="alert">
+              <p uiErrorText class="mt-4" role="alert">
                 {{ error() }}
               </p>
             }
@@ -259,7 +256,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
           </p>
         }
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="4" />
+        <ui-skeleton [lines]="4" />
       }
     </div>
   `,

@@ -32,13 +32,14 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { OrderReadBack } from '../../shared/orders/order-read-back';
 import { OrdersService } from '../orders/orders.service';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { EmptyState } from '../../shared/ui/empty-state';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { submitAttempt } from '@b2b-catalog-platform/ui/fields/submit-attempt';
+import { EmptyState } from '@b2b-catalog-platform/ui/content/empty-state';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { AddressPicker } from './address-picker';
 import {
   CheckoutDraft,
@@ -56,19 +57,19 @@ import { PartyChoice } from './party-choice';
 import { PaymentChoice } from './payment-choice';
 import { PickupChoice } from './pickup-choice';
 import { PreferredDate } from './preferred-date';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PrivacyNotice } from '../pages/privacy-notice';
 import { TermsNotice } from '../pages/terms-notice';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { circleCheckIcon } from '../../shared/ui/icons/glyphs/circle-check';
-import { circleUserRoundIcon } from '../../shared/ui/icons/glyphs/circle-user-round';
-import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
-import { phoneIcon } from '../../shared/ui/icons/glyphs/phone';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
+import { circleUserRoundIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-user-round';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { phoneIcon } from '@b2b-catalog-platform/ui/icons/glyphs/phone';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
 
 /**
  * The checkout form (FR-CART-03/04/07/09): one screen covering how the goods
@@ -90,6 +91,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
     AddressPicker,
     Button,
     Checkbox,
+    TickLabel,
     DeliveryZoneHint,
     EmptyState,
     FulfilmentChoice,
@@ -114,43 +116,43 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
   ],
   template: `
     @if (placed(); as reference) {
-      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
+      <h1 uiPageTitle class="mb-4">{{ heading() }}</h1>
       <!-- The cart's and the account's own empty panel, read the other way
            round: the same shape of screen says "there is nothing here" and
            "that is done". Opening the order comes first — it is what somebody
            who has just sent one wants, and for a guest the link is the only
            copy they have besides the mail. -->
-      <app-empty-state
+      <ui-empty-state
         [icon]="circleCheckIcon"
         tone="positive"
         [message]="successMessage(reference)"
       >
         @if (placedLink(); as link) {
-          <a appButton [routerLink]="link">{{ text.successView }}</a>
+          <a uiButton [routerLink]="link">{{ text.successView }}</a>
         }
-        <a appButton variant="secondary" routerLink="/catalog">
+        <a uiButton variant="secondary" routerLink="/catalog">
           {{ text.successAction }}
         </a>
-      </app-empty-state>
+      </ui-empty-state>
 
       @if (guest()) {
         <p class="mt-8 max-w-xl text-sm text-ink-subtle">
           {{ invite.text }}
-          <a appLink routerLink="/register">
+          <a uiLink routerLink="/register">
             {{ invite.action }}
           </a>
         </p>
       }
     } @else if (cart.isEmpty()) {
-      <h1 appPageTitle class="mb-4">{{ heading() }}</h1>
-      <app-empty-state [icon]="shoppingBasketIcon" [message]="text.emptyCart">
-        <a appButton routerLink="/catalog">
+      <h1 uiPageTitle class="mb-4">{{ heading() }}</h1>
+      <ui-empty-state [icon]="shoppingBasketIcon" [message]="text.emptyCart">
+        <a uiButton routerLink="/catalog">
           {{ cartText.emptyAction }}
         </a>
-        <a appButton variant="secondary" routerLink="/cart">
+        <a uiButton variant="secondary" routerLink="/cart">
           {{ cartText.navLabel }}
         </a>
-      </app-empty-state>
+      </ui-empty-state>
     } @else {
       <!-- Form and summary, the pair the cart already draws — and at the width
            the cart draws it, not at whatever this page could get away with.
@@ -180,10 +182,10 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                  form field wraps for no reason, and the questions below want
                  the shorter measure. -->
             <div class="mb-8">
-              <h1 appPageTitle class="mb-2">
+              <h1 uiPageTitle class="mb-2">
                 {{ heading() }}
               </h1>
-              <p appPageIntro>
+              <p uiPageIntro>
                 {{ reviewing() ? text.review.intro : text.intro }}
               </p>
             </div>
@@ -199,14 +201,14 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                 class="mb-8 flex max-w-xl items-start gap-2 text-sm
                        text-ink-subtle"
               >
-                <app-icon
+                <ui-icon
                   [glyph]="circleUserRoundIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.signInPrompt }}
                   <a
-                    appLink
+                    uiLink
                     [routerLink]="['/login']"
                     [queryParams]="{ returnUrl: '/checkout' }"
                   >
@@ -228,7 +230,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                    Drawing the form without them and correcting it a moment
                    later moves the page under whoever is already reading it. -->
               @if (showFormSkeleton()) {
-                <app-skeleton class="max-w-xl" [lines]="10" />
+                <ui-skeleton class="max-w-xl" [lines]="10" />
               }
             } @else {
               <!-- A form for its fields' sake: they read from it when it was
@@ -252,9 +254,9 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                 }
 
                 @if (addressError()) {
-                  <app-warning-note>
+                  <ui-warning-note>
                     {{ addressText.loadError }}
-                  </app-warning-note>
+                  </ui-warning-note>
                 }
 
                 <!-- Whose name the invoice carries, asked before where anything
@@ -327,14 +329,10 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                      own: there is no second address for this one to be the
                      same as. -->
                     @if (billingEnabled) {
-                      <label
-                        class="mt-4 flex cursor-pointer items-start gap-2
-                               text-sm"
-                      >
+                      <label uiTickLabel class="mt-4">
                         <input
                           type="checkbox"
-                          appCheckbox
-                          class="mt-0.5"
+                          uiCheckbox
                           [checked]="draft().billingSameAsDelivery"
                           (change)="toggleSameBilling()"
                         />
@@ -442,7 +440,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
             <!-- Where the ADR says a refusal belongs: beside the button, not
                  only at the field it came from. -->
             @if (error(); as message) {
-              <p appErrorText class="mt-3" role="alert">
+              <p uiErrorText class="mt-3" role="alert">
                 {{ message }}
               </p>
             }
@@ -453,7 +451,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                  nothing and one they never start. -->
             @if (staff()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
-                <app-icon
+                <ui-icon
                   [glyph]="lockIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
@@ -461,13 +459,13 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
               </p>
             } @else if (accountPhoneMissing()) {
               <p class="mt-3 flex items-start gap-2 text-sm text-ink-subtle">
-                <app-icon
+                <ui-icon
                   [glyph]="phoneIcon"
                   class="mt-0.5 size-4 shrink-0 text-ink-subtle"
                 />
                 <span>
                   {{ text.phoneMissing }}
-                  <a appLink routerLink="/account/edit">
+                  <a uiLink routerLink="/account/edit">
                     {{ text.phoneMissingAction }}
                   </a>
                 </span>
@@ -478,7 +476,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
               <!-- Sending accepts the terms, so it is said at the button. -->
               <app-terms-notice class="mt-3 block text-sm empty:hidden" />
               <button
-                appButton
+                uiButton
                 type="button"
                 class="mt-3 w-full"
                 [disabled]="sending() || blocked()"
@@ -487,7 +485,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                 {{ sending() ? actionText.sending : text.submit }}
               </button>
               <button
-                appButton
+                uiButton
                 variant="ghost"
                 type="button"
                 class="mt-2 w-full"
@@ -497,7 +495,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
               </button>
             } @else {
               <button
-                appButton
+                uiButton
                 type="button"
                 class="mt-5 w-full"
                 (click)="review()"
@@ -505,7 +503,7 @@ import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket
                 {{ text.review.send }}
               </button>
               <a
-                appButton
+                uiButton
                 variant="ghost"
                 routerLink="/cart"
                 class="mt-2 w-full"

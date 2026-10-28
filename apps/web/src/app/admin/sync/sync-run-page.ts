@@ -20,11 +20,14 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { adminDayFormat } from '../grid/admin-date';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import { adminDayFormat } from '../dates/admin-date';
 import { SyncCustomerPlanView } from './sync-customer-plan-view';
 import { SyncOrderPlanView } from './sync-order-plan-view';
 import { SyncPlanView } from './sync-plan-view';
@@ -32,8 +35,8 @@ import { LockedNote } from '../ownership/locked-note';
 import { SettingsService } from '../settings/settings.service';
 import { SyncService } from './sync.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { Notice } from '../../shared/ui/notice';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { Notice } from '@b2b-catalog-platform/ui/content/notice';
 
 /** Whatever diff this run holds, or none: pruned, or never taken. */
 type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
@@ -65,12 +68,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
   template: `
     @if (run.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.runLoadError }}</p>
-      <a
-        appButton
-        variant="secondary"
-        [routerLink]="fallbackLog()"
-        class="mt-5"
-      >
+      <a uiButton variant="secondary" [routerLink]="fallbackLog()" class="mt-5">
         {{ text.backToRuns }}
       </a>
     } @else if (run.value(); as data) {
@@ -78,14 +76,14 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
         <!-- Title left, way back right: the same shape as every list heading,
              and the counterpart of the button that opened this page. -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
-          <h1 appPageTitle>
+          <h1 uiPageTitle>
             {{ text.runTitle }}
           </h1>
-          <span appStatusBadge [tone]="tone(data.run)">
+          <span uiStatusBadge [tone]="tone(data.run)">
             {{ statusLabel(data.run) }}
           </span>
           <a
-            appButton
+            uiButton
             variant="secondary"
             [routerLink]="['/admin/sync', data.run.area]"
             class="ml-auto"
@@ -122,7 +120,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           <!-- Why it is waiting. Said in full here, where there is room for the
              sentence the log's badge only had a word for. -->
           @if (stagedReason(data.run); as reason) {
-            <p appNotice tone="warning" class="mb-6">
+            <p uiNotice tone="warning" class="mb-6">
               {{ reason }}
             </p>
           }
@@ -133,7 +131,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
              refusal nor a reason to wait: it is shown on a run of any status,
              including one that applied itself hours ago. -->
           @if (data.run.notice; as note) {
-            <section appNotice tone="info" class="mb-6">
+            <section uiNotice tone="info" class="mb-6">
               <h2 class="mb-1 font-medium">
                 {{ text.noticeTitle }}
               </h2>
@@ -146,7 +144,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
           <!-- A failure the sending system reported: its own words, kept as a
              diagnostic rather than turned into wording of ours. -->
           @if (data.run.error; as failure) {
-            <section appNotice tone="danger" class="mb-6">
+            <section uiNotice tone="danger" class="mb-6">
               <h2 class="mb-1 font-medium">
                 {{ text.failureTitle }}
               </h2>
@@ -197,7 +195,7 @@ type AreaPlan = CatalogSyncPlan | CustomerSyncPlan | OrderSyncPlan | null;
         </div>
       </div>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="8" />
+      <ui-skeleton [lines]="8" />
     }
   `,
 })

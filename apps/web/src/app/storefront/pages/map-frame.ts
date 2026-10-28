@@ -4,7 +4,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { fillText, MapEmbed } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 
 /**
  * Renders a map as an iframe — the single place map embeds are created.
@@ -36,7 +36,7 @@ import { Button } from '../../shared/ui/button';
              answered it, can still choose to see the map. It is the same
              consent, so it is recorded the same way and the banner goes. -->
         @if (text.load; as load) {
-          <button appButton variant="secondary" (click)="consent.accept()">
+          <button uiButton variant="secondary" (click)="consent.accept()">
             {{ load }}
           </button>
         }

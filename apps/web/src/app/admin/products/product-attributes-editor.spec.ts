@@ -60,7 +60,7 @@ function render(
       [
         ...el
           .querySelectorAll('tbody tr')
-          [row].querySelectorAll('app-hint-badge [role="img"]'),
+          [row].querySelectorAll('ui-hint-badge [role="img"]'),
       ].map((badge) => badge.getAttribute('aria-label')),
     /** The declared unit shown over the value cell, if any. */
     unit: (row = 0) =>

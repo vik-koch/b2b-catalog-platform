@@ -18,25 +18,25 @@ import { formatPhone } from '../../shared/core/contact-fields';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { OrderRows } from '../orders/order-rows';
 import { OrdersService } from '../orders/orders.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
   ConfirmService,
-} from '../../shared/ui/confirm.service';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { WorkNote } from '../../shared/work/work-note';
+} from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { lockIcon } from '../../shared/ui/icons/glyphs/lock';
-import { mapPinIcon } from '../../shared/ui/icons/glyphs/map-pin';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { shoppingBasketIcon } from '../../shared/ui/icons/glyphs/shopping-basket';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
-import { userIcon } from '../../shared/ui/icons/glyphs/user';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { lockIcon } from '@b2b-catalog-platform/ui/icons/glyphs/lock';
+import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shopping-basket';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
+import { userIcon } from '@b2b-catalog-platform/ui/icons/glyphs/user';
 
 /**
  * How many of the newest orders the account page itself shows. Enough that a
@@ -83,7 +83,7 @@ interface DetailRow {
     OrderRows,
     RouterLink,
     Icon,
-    WorkNote,
+    ActionLink,
     PageTitle,
     ErrorText,
   ],
@@ -92,7 +92,7 @@ interface DetailRow {
          column of short cards, and at the full width of a desktop each one
          was a heading and half a screen of nothing beside it. -->
     <div class="max-w-3xl">
-      <h1 appPageTitle class="mb-4">
+      <h1 uiPageTitle class="mb-4">
         {{ text.account }}
       </h1>
       <app-signed-in-as />
@@ -108,7 +108,7 @@ interface DetailRow {
              still there for the rest of it. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon [glyph]="shoppingBasketIcon" class="size-4" />
+            <ui-icon [glyph]="shoppingBasketIcon" class="size-4" />
             {{ orderText.heading }}
           </h2>
           <!-- As above: the frame and its bars from the first frame. -->
@@ -123,28 +123,30 @@ interface DetailRow {
                    and a parcel on the counter are two jobs with two lists. -->
               <div class="mb-4 flex flex-col gap-1">
                 @if (waitingPayments(); as count) {
-                  <app-work-note
-                    [label]="fill(orderText.awaitingPayment, count)"
-                    link="/account/orders"
+                  <a
+                    uiActionLink
+                    routerLink="/account/orders"
                     [queryParams]="{ state: 'to-pay' }"
-                  />
+                    >{{ fill(orderText.awaitingPayment, count) }}</a
+                  >
                 }
                 @if (waitingPickups(); as count) {
-                  <app-work-note
-                    [label]="fill(orderText.awaitingPickup, count)"
-                    link="/account/orders"
+                  <a
+                    uiActionLink
+                    routerLink="/account/orders"
                     [queryParams]="{ state: 'to-collect' }"
-                  />
+                    >{{ fill(orderText.awaitingPickup, count) }}</a
+                  >
                 }
               </div>
             }
             @if (!ordersReady()) {
-              <app-skeleton [lines]="3" />
+              <ui-skeleton [lines]="3" />
             } @else if (recentOrders(); as recent) {
               @if (recent.length === 0) {
                 <p class="text-sm text-ink-subtle">{{ orderText.empty }}</p>
                 <a
-                  appButton
+                  uiButton
                   variant="secondary"
                   routerLink="/catalog"
                   class="mt-5"
@@ -158,7 +160,7 @@ interface DetailRow {
                      changes nothing. -->
                 @if (hasMoreOrders()) {
                   <a
-                    appButton
+                    uiButton
                     variant="secondary"
                     routerLink="/account/orders"
                     class="mt-5"
@@ -168,7 +170,7 @@ interface DetailRow {
                 }
               }
             } @else {
-              <p appErrorText role="alert">
+              <p uiErrorText role="alert">
                 {{ orderText.error }}
               </p>
             }
@@ -187,7 +189,7 @@ interface DetailRow {
              the section heading is that heading. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon [glyph]="userIcon" class="size-4" />
+            <ui-icon [glyph]="userIcon" class="size-4" />
             {{ accountText.detailsHeading }}
           </h2>
           <!-- The card is drawn straight away with grey bars where the values
@@ -207,7 +209,7 @@ interface DetailRow {
                        lines grow the card by that much on arrival, which is the
                        smaller error of the two — bars for rows that never come
                        would shrink it instead. -->
-                <app-skeleton [lines]="5" />
+                <ui-skeleton [lines]="5" />
               } @else if (profile.hasValue()) {
                 <dl class="grid gap-x-8 sm:grid-cols-[12rem_1fr]">
                   @for (row of rows(); track row.label) {
@@ -228,7 +230,7 @@ interface DetailRow {
                   {{ accountText.changeHint }}
                 </p>
                 <a
-                  appButton
+                  uiButton
                   variant="secondary"
                   routerLink="/account/edit"
                   class="mt-5"
@@ -236,7 +238,7 @@ interface DetailRow {
                   {{ accountText.edit.action }}
                 </a>
               } @else {
-                <p appErrorText role="alert">
+                <p uiErrorText role="alert">
                   {{ accountText.error }}
                 </p>
               }
@@ -249,13 +251,13 @@ interface DetailRow {
              used — this is where it is kept. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon [glyph]="mapPinIcon" class="size-4" />
+            <ui-icon [glyph]="mapPinIcon" class="size-4" />
             {{ addressText.heading }}
           </h2>
           <div class="rounded-lg border border-edge">
             <div class="p-5">
               @if (!profileReady()) {
-                <app-skeleton [lines]="3" />
+                <ui-skeleton [lines]="3" />
               } @else if (addresses.hasValue()) {
                 @if (addresses.value().length === 0) {
                   <p class="text-sm text-ink-subtle">{{ addressText.empty }}</p>
@@ -294,7 +296,7 @@ interface DetailRow {
                                accessible name. -->
                         <div class="flex shrink-0 gap-1">
                           <a
-                            appIconButton
+                            uiIconButton
                             [attr.aria-label]="editLabel(address)"
                             [routerLink]="[
                               '/account/addresses',
@@ -302,16 +304,16 @@ interface DetailRow {
                               'edit',
                             ]"
                           >
-                            <app-icon [glyph]="pencilIcon" />
+                            <ui-icon [glyph]="pencilIcon" />
                           </a>
                           <button
-                            appIconButton
+                            uiIconButton
                             variant="danger"
                             type="button"
                             [attr.aria-label]="removeLabel(address)"
                             (click)="remove(address)"
                           >
-                            <app-icon [glyph]="trash2Icon" />
+                            <ui-icon [glyph]="trash2Icon" />
                           </button>
                         </div>
                       </li>
@@ -319,7 +321,7 @@ interface DetailRow {
                   </ul>
                 }
                 <a
-                  appButton
+                  uiButton
                   variant="secondary"
                   routerLink="/account/addresses/new"
                   class="mt-5"
@@ -327,7 +329,7 @@ interface DetailRow {
                   {{ addressText.add }}
                 </a>
               } @else {
-                <p appErrorText role="alert">
+                <p uiErrorText role="alert">
                   {{ addressText.error }}
                 </p>
               }
@@ -341,7 +343,7 @@ interface DetailRow {
              their own page rather than being crammed in beside the link. -->
         <section>
           <h2 [class]="headingClass">
-            <app-icon [glyph]="lockIcon" class="size-4" />
+            <ui-icon [glyph]="lockIcon" class="size-4" />
             {{ text.securityHeading }}
           </h2>
           <div class="rounded-lg border border-edge">
@@ -359,7 +361,7 @@ interface DetailRow {
                 <!-- Pinned to the bottom of its own column, so the two buttons sit
                      on one line however long the sentences above them run. -->
                 <a
-                  appButton
+                  uiButton
                   variant="secondary"
                   routerLink="/change-password"
                   class="mt-auto self-start"
@@ -378,7 +380,7 @@ interface DetailRow {
                 <!-- Outlined, not solid: this only opens the page that explains what
                      would be lost. The solid red belongs to the click that confirms. -->
                 <a
-                  appButton
+                  uiButton
                   variant="dangerOutline"
                   routerLink="/account/delete"
                   class="mt-auto self-start"

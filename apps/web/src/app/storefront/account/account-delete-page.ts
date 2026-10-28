@@ -5,14 +5,14 @@ import { fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { AuthService } from '../../shared/auth/auth.service';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { FORM_FIELDS } from '../../shared/ui/form-fields';
-import { Input } from '../../shared/ui/input';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { FORM_FIELDS } from '@b2b-catalog-platform/ui/fields/form-fields';
+import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { AccountService } from './account.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
 
@@ -41,16 +41,16 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
   template: `
     <div class="max-w-xl">
       @if (deleted()) {
-        <h1 appPageTitle class="mb-4">
+        <h1 uiPageTitle class="mb-4">
           {{ text.doneHeading }}
         </h1>
-        <p appPageIntro>{{ text.done }}</p>
-        <a appButton routerLink="/" class="mt-8">{{ home }}</a>
+        <p uiPageIntro>{{ text.done }}</p>
+        <a uiButton routerLink="/" class="mt-8">{{ home }}</a>
       } @else {
-        <h1 appPageTitle class="mb-2">
+        <h1 uiPageTitle class="mb-2">
           {{ text.heading }}
         </h1>
-        <p appPageIntro class="mb-4">{{ text.intro }}</p>
+        <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
         <ul class="mb-6 list-disc space-y-2 pl-5 text-sm text-ink-subtle">
           @for (line of text.consequences; track line) {
@@ -62,13 +62,13 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
              a refusal: the orders are the shop's to fill either way, and what
              changes is that they stop carrying the customer's details. -->
         @if (openOrders(); as open) {
-          <p appErrorText class="mb-8" role="status">
+          <p uiErrorText class="mb-8" role="status">
             {{ openOrdersWarning(open) }}
           </p>
         }
 
         <form [formRoot]="form" class="space-y-6">
-          <app-field
+          <ui-field
             [field]="form.password"
             [label]="password"
             [hint]="text.passwordHint"
@@ -77,17 +77,17 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
             <input
               type="password"
               autocomplete="current-password"
-              appInput
+              uiInput
               class="w-full"
               [formField]="form.password"
             />
-          </app-field>
+          </ui-field>
 
           <div class="flex flex-wrap items-center gap-3">
             <!-- Destructive, and styled as such: this is the one control on the
                  account that cannot be taken back. -->
             <button
-              appButton
+              uiButton
               variant="danger"
               type="submit"
               [disabled]="status() === 'submitting'"
@@ -96,13 +96,13 @@ type Status = 'idle' | 'submitting' | 'wrong-password' | 'last-admin' | 'error';
                 status() === 'submitting' ? actionText.deleting : text.submit
               }}
             </button>
-            <a appButton variant="secondary" routerLink="/account">
+            <a uiButton variant="secondary" routerLink="/account">
               {{ text.cancel }}
             </a>
           </div>
 
           @if (message(); as failure) {
-            <p appErrorText role="alert">{{ failure }}</p>
+            <p uiErrorText role="alert">{{ failure }}</p>
           }
         </form>
       }

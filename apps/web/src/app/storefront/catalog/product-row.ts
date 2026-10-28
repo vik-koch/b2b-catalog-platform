@@ -5,7 +5,6 @@ import {
   ProductImage,
   ProductVariant,
 } from '@b2b-catalog-platform/shared';
-import { FRAME } from '../../shared/ui/frame';
 import {
   NARROW_BODY_IN_LINE,
   NARROW_PADDING_IN_LINE,
@@ -17,6 +16,7 @@ import {
 } from '../../shared/catalog/product-buy-controls';
 import { ProductStatusLine } from '../../shared/catalog/product-status-line';
 import { TileGallery } from '../../shared/catalog/tile-gallery';
+import { Frame } from '@b2b-catalog-platform/ui/content/frame';
 
 /** The classes a list of product rows uses: hairlines between the lines, and
  * one above and below the run, so the list reads as a single block. */
@@ -51,7 +51,13 @@ export interface RowProduct extends BuyableProduct {
  */
 @Component({
   selector: 'app-product-row',
-  imports: [RouterLink, TileGallery, ProductStatusLine, ProductBuyControls],
+  imports: [
+    RouterLink,
+    TileGallery,
+    ProductStatusLine,
+    ProductBuyControls,
+    Frame,
+  ],
   // The narrow container is the host rather than the line inside it: the line
   // asks it what room to leave, and no element can answer its own container
   // query. Same width either way — the line fills the host.
@@ -82,6 +88,7 @@ export interface RowProduct extends BuyableProduct {
              cluster in *its* corner sits on the controls. -->
         <div [class]="photoBox">
           <app-tile-gallery
+            uiFrame
             [class]="photo"
             [images]="item().images"
             [link]="link()"
@@ -159,7 +166,8 @@ export interface RowProduct extends BuyableProduct {
 })
 export class ProductRow {
   /** The frame is on the gallery itself, which is what clips the photo. */
-  protected readonly photo = `block aspect-square w-full overflow-hidden rounded-md ${FRAME}`;
+  protected readonly photo = `block aspect-square w-full overflow-hidden
+                              rounded-md`;
 
   /** Roomier in the narrow shape, where there is no frame around a product to
    * say where one ends and the next begins. */

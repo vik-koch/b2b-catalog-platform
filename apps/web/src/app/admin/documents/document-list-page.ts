@@ -13,30 +13,34 @@ import {
   DocumentExpiryState,
   fillText,
   isoToday,
+  SEARCH_QUERY_MAX_LENGTH,
 } from '@b2b-catalog-platform/shared';
 import { ProductDocument } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { adminDayFormat } from '../grid/admin-date';
+import { adminDayFormat } from '../dates/admin-date';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Link } from '../../shared/ui/link';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Skeleton } from '../../shared/ui/skeleton';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
-import { GridTimestamp } from '../grid/grid-timestamp';
-import { AdminListHeader } from '../list-header';
-import { RecordRow } from '../records/record-row';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
+import { GridTimestamp } from '../dates/grid-timestamp';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
+import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { DocumentsService } from './documents.service';
@@ -45,10 +49,10 @@ import {
   documentFileSize,
   documentLinkHost,
 } from '../../shared/core/document-file';
-import { ErrorText } from '../../shared/ui/error-text';
-import { pencilIcon } from '../../shared/ui/icons/glyphs/pencil';
-import { plusIcon } from '../../shared/ui/icons/glyphs/plus';
-import { trash2Icon } from '../../shared/ui/icons/glyphs/trash-2';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';
+import { plusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/plus';
+import { trash2Icon } from '@b2b-catalog-platform/ui/icons/glyphs/trash-2';
 
 /**
  * What the status column can be narrowed to. `due` is not a state a document
@@ -77,8 +81,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     IconButton,
     Icon,
     Link,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridTimestamp,
@@ -89,34 +93,35 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     ErrorText,
   ],
   template: `
-    <app-admin-list-header
+    <ui-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="term()"
+      [searchMaxLength]="searchMaxLength"
       [searchLabel]="text.searchAria"
       [searchPlaceholder]="text.searchPlaceholder"
       [clearSearchLabel]="text.clearSearch"
       [filtered]="filtered()"
     >
       <a
-        appButton
+        uiButton
         class="gap-2"
         routerLink="/admin/documents/new"
         [queryParams]="editorFrom()"
       >
-        <app-icon [glyph]="plusIcon" class="size-4" />
+        <ui-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </a>
-    </app-admin-list-header>
+    </ui-grid-header>
 
     @if (pageError()) {
-      <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
+      <p uiErrorText class="mb-4" role="alert">{{ pageError() }}</p>
     }
 
     @if (documents.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
-      <app-admin-grid
+      <ui-data-grid
         gridId="documents"
         [columns]="columns()"
         [rows]="data"
@@ -126,7 +131,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         [emptyMessage]="filtered() ? text.noResults : text.empty"
         [countLabel]="text.count"
       >
-        <ng-template appGridRow [of]="data" let-document>
+        <ng-template uiGridRow [of]="data" let-document>
           <!-- The title is the way to the file, or to the link where there is
                no file: what the row is called and what opening it gets you
                are the same thing. -->
@@ -168,7 +173,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                storefront. The date it runs out on is the column before it;
                this one is what that date means today. -->
           <td data-keep>
-            <span appStatusBadge [tone]="stateTone(document)">
+            <span uiStatusBadge [tone]="stateTone(document)">
               {{ stateLabel(document) }}
             </span>
           </td>
@@ -187,8 +192,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
 
         <!-- The same document on a phone: what it is called, then the file and
              the date it comes due — the pair the list is scanned for. -->
-        <ng-template appGridCard [of]="data" let-document>
-          <app-record-row>
+        <ng-template uiGridCard [of]="data" let-document>
+          <ui-record-row>
             <a
               class="wrap-break-word font-medium text-ink hover:text-accent"
               [href]="opens(document)"
@@ -213,7 +218,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                  runs out, and when it was last touched. -->
             <span
               recordBadge
-              appStatusBadge
+              uiStatusBadge
               class="shrink-0"
               [tone]="stateTone(document)"
               >{{ stateLabel(document) }}</span
@@ -238,11 +243,11 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
                 [ngTemplateOutletContext]="{ $implicit: document }"
               />
             </div>
-          </app-record-row>
+          </ui-record-row>
         </ng-template>
-      </app-admin-grid>
+      </ui-data-grid>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
 
     <!-- How many products show this document, and the way to see which. Dead
@@ -250,7 +255,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     <ng-template #productLink let-document>
       @if (document.productCount) {
         <a
-          appLink
+          uiLink
           routerLink="/admin/products"
           [queryParams]="{ documentId: document.id }"
           [title]="text.seeProducts"
@@ -273,27 +278,28 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
          Opening the file is the title itself. -->
     <ng-template #actions let-document>
       <a
-        appIconButton
+        uiIconButton
         [routerLink]="['/admin/documents', document.id, 'edit']"
         [queryParams]="editorFrom()"
         [attr.aria-label]="adminText.actions.edit"
         [title]="adminText.actions.edit"
       >
-        <app-icon [glyph]="pencilIcon" />
+        <ui-icon [glyph]="pencilIcon" />
       </a>
       <button
         type="button"
-        appIconButton
+        uiIconButton
         [attr.aria-label]="adminText.actions.delete"
         [title]="adminText.actions.delete"
         (click)="remove(document)"
       >
-        <app-icon [glyph]="trash2Icon" />
+        <ui-icon [glyph]="trash2Icon" />
       </button>
     </ng-template>
   `,
 })
 export class DocumentListPage {
+  protected readonly searchMaxLength = SEARCH_QUERY_MAX_LENGTH;
   protected readonly pencilIcon = pencilIcon;
   protected readonly plusIcon = plusIcon;
   protected readonly trash2Icon = trash2Icon;

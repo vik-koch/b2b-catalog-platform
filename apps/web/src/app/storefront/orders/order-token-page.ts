@@ -15,8 +15,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { NotFoundView } from '../pages/not-found-view';
-import { Button } from '../../shared/ui/button';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import {
   injectCustomerBlockLabels,
   orderBlocks,
@@ -28,7 +28,10 @@ import {
   ReadBackLine,
   ReviewBlock,
 } from '../../shared/orders/order-read-back';
-import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
+import {
+  StatusBadge,
+  StatusTone,
+} from '@b2b-catalog-platform/ui/content/status-badge';
 import {
   orderPaymentLabel,
   orderPaymentTone,
@@ -36,8 +39,8 @@ import {
   orderStatusTone,
 } from '../../shared/orders/order-status';
 import { OrdersService } from './orders.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
 
 /**
  * An order opened by the link its confirmation mail carries (FR-NOTIF-06).
@@ -83,14 +86,14 @@ import { ErrorText } from '../../shared/ui/error-text';
                all three. -->
           <div class="max-w-xl">
             <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-              <h1 appPageTitle>
+              <h1 uiPageTitle>
                 {{ order.reference }}
               </h1>
-              <span appStatusBadge [tone]="statusTone(order)">
+              <span uiStatusBadge [tone]="statusTone(order)">
                 {{ statusLabel(order) }}
               </span>
               @if (paymentLabel(order); as payment) {
-                <span appStatusBadge variant="dot" [tone]="paymentTone(order)">
+                <span uiStatusBadge variant="dot" [tone]="paymentTone(order)">
                   {{ payment }}
                 </span>
               }
@@ -160,7 +163,7 @@ import { ErrorText } from '../../shared/ui/error-text';
               <div class="mt-5 rounded-lg border border-edge p-5">
                 <p class="text-sm text-ink-subtle">{{ invite.text }}</p>
                 <a
-                  appButton
+                  uiButton
                   variant="secondary"
                   routerLink="/register"
                   class="mt-4 w-full"
@@ -184,9 +187,9 @@ import { ErrorText } from '../../shared/ui/error-text';
         [backLabel]="text.home"
       />
     } @else if (order.error()) {
-      <p appErrorText role="alert">{{ orderText.error }}</p>
+      <p uiErrorText role="alert">{{ orderText.error }}</p>
     } @else if (showSkeleton()) {
-      <app-skeleton [lines]="6" />
+      <ui-skeleton [lines]="6" />
     }
   `,
 })

@@ -13,21 +13,24 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminText } from '../../shared/config/admin-text.type';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { ChoiceCard } from '../../shared/ui/choice-card';
-import { DROP_ZONE, dropZoneState } from '../../shared/ui/drop-zone';
-import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
-import { FieldLabel } from '../../shared/ui/field-label';
-import { Icon } from '../../shared/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
+import { DropZone } from '@b2b-catalog-platform/ui/inputs/drop-zone';
+import {
+  FileTarget,
+  pasteKeys,
+} from '@b2b-catalog-platform/ui/inputs/file-target';
+import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { SyncPlanView } from './sync-plan-view';
 import { presetFor, SYNC_PRESETS, SyncPresetName } from './sync-presets';
 import { SyncService } from './sync.service';
-import { PageTitle } from '../../shared/ui/page-title';
-import { ErrorText } from '../../shared/ui/error-text';
-import { PageIntro } from '../../shared/ui/page-intro';
-import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
+import { ErrorText } from '@b2b-catalog-platform/ui/fields/error-text';
+import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
+import { PageHeader } from '@b2b-catalog-platform/ui/content/page-header';
 
 /**
  * A manual catalog upload (FR-ADM-02) at `/admin/sync/new`: pick what the file
@@ -49,7 +52,9 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 @Component({
   selector: 'app-sync-page',
   imports: [
+    PageHeader,
     Checkbox,
+    TickLabel,
     ChoiceCard,
     RouterLink,
     Button,
@@ -58,25 +63,15 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
     FileTarget,
     SyncPlanView,
     Link,
-    PageTitle,
     ErrorText,
-    PageIntro,
+    DropZone,
   ],
   template: `
-    <div class="mb-4 flex flex-wrap items-center gap-3">
-      <h1 appPageTitle>
-        {{ text.uploadTitle }}
-      </h1>
-      <a
-        appButton
-        variant="secondary"
-        routerLink="/admin/sync/catalog"
-        class="ml-auto"
-      >
+    <ui-page-header [title]="text.uploadTitle" [intro]="text.description">
+      <a uiButton variant="secondary" routerLink="/admin/sync/catalog">
         {{ text.backToRuns }}
       </a>
-    </div>
-    <p appPageIntro class="mb-6 max-w-3xl">{{ text.description }}</p>
+    </ui-page-header>
 
     <!-- Narrower than the heading above it: everything below is a column of
          fields and rows to read down, not a table to scan across, and a line
@@ -103,7 +98,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
            needs to be readable as the outlier it is. -->
           <div class="space-y-2">
             @for (option of presets; track option.name) {
-              <app-choice-card
+              <ui-choice-card
                 name="preset"
                 [value]="option.name"
                 [checked]="preset() === option.name"
@@ -120,11 +115,10 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
             </summary>
             <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
               @for (flag of flags; track flag.key) {
-                <label class="flex cursor-pointer items-start gap-2 text-sm">
+                <label uiTickLabel>
                   <input
                     type="checkbox"
-                    appCheckbox
-                    class="mt-0.5"
+                    uiCheckbox
                     [checked]="isFlagOn(flag.key)"
                     [disabled]="
                       flag.key === 'softDelete' &&
@@ -148,7 +142,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 
         <!-- Step 2: the file -->
         <section class="mb-8">
-          <span appFieldLabel>{{ text.file }}</span>
+          <span uiFieldLabel>{{ text.file }}</span>
 
           <!-- The picker is the drop target: a bare file input is easy to miss on
            a screen where uploading is the whole point. -->
@@ -162,13 +156,13 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
           <button
             type="button"
             class="w-full p-4"
-            #target="appFileTarget"
-            appFileTarget=".csv,text/csv"
-            [class]="dropZoneClass(target.dragging())"
+            uiFileTarget=".csv,text/csv"
+            uiDropZone
+            [filled]="!!file()"
             (click)="openPicker(fileInput)"
             (filesReceived)="setFile($event[0])"
           >
-            <app-icon [glyph]="uploadIcon" class="size-6 mb-2" />
+            <ui-icon [glyph]="uploadIcon" class="size-6 mb-2" />
             @if (file(); as chosen) {
               <span class="font-medium">{{ chosen.name }}</span>
               <span class="text-sm text-ink-subtle">{{ text.changeFile }}</span>
@@ -184,7 +178,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
 
           <div class="mt-4 flex items-center gap-3">
             <button
-              appButton
+              uiButton
               type="button"
               [disabled]="!file() || previewing()"
               (click)="runPreview()"
@@ -193,7 +187,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
             </button>
             @if (previewed()) {
               <button
-                appButton
+                uiButton
                 variant="secondary"
                 type="button"
                 (click)="reset()"
@@ -204,7 +198,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
           </div>
 
           @if (previewError(); as message) {
-            <p appErrorText class="mt-3" role="alert">{{ message }}</p>
+            <p uiErrorText class="mt-3" role="alert">{{ message }}</p>
           }
         </section>
 
@@ -224,7 +218,7 @@ import { uploadIcon } from '../../shared/ui/icons/glyphs/upload';
         @if (appliedRun(); as run) {
           <p class="mb-8 rounded-md bg-surface p-3 text-sm" role="status">
             {{ text.applied }} {{ changeSummary(run) }}
-            <a appLink routerLink="/catalog" class="ml-2">{{
+            <a uiLink routerLink="/catalog" class="ml-2">{{
               navText.catalog
             }}</a>
           </p>
@@ -304,10 +298,6 @@ export class SyncUploadPage {
   protected openPicker(input: HTMLInputElement): void {
     input.value = '';
     input.click();
-  }
-
-  protected dropZoneClass(dragging: boolean): string {
-    return `${DROP_ZONE} ${dropZoneState(dragging, !!this.file())}`;
   }
 
   protected setFile(file: File | null): void {

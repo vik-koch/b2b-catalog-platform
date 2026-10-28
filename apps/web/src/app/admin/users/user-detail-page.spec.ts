@@ -16,8 +16,8 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { AuthService } from '../../shared/auth/auth.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
-import { ConfirmService } from '../../shared/ui/confirm.service';
-import { ConfirmAnswer } from '../../shared/ui/confirm-dialog';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
+import { ConfirmAnswer } from '@b2b-catalog-platform/ui/overlay/confirm-dialog';
 import { UserDetailPage } from './user-detail-page';
 import { StaffUsersService } from './users.service';
 

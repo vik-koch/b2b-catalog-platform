@@ -5,7 +5,7 @@ import { provideRouter } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { OwnershipArea } from '@b2b-catalog-platform/shared/sync';
-import { ConfirmService } from '../../shared/ui/confirm.service';
+import { ConfirmService } from '@b2b-catalog-platform/ui/overlay/confirm.service';
 import { provideOwnership } from '../settings/settings.fixture';
 import { ProductRowActions, ProductRowState } from './product-row-actions';
 

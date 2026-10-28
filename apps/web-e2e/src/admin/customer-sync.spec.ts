@@ -99,7 +99,7 @@ test('the price-list preset asks for no invitations at all', async ({
   // the choice card lays an overlay over its whole surface, and that overlay is
   // what a hand hits — and what intercepts a click aimed at the radio.
   await page
-    .locator('app-choice-card')
+    .locator('ui-choice-card')
     .filter({ hasText: 'Price list update' })
     .locator('label')
     .click();

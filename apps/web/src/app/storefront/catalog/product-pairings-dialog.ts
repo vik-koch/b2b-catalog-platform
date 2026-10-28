@@ -15,14 +15,14 @@ import { filter } from 'rxjs';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
-import { Button } from '../../shared/ui/button';
-import { DialogActions } from '../../shared/ui/dialog-actions';
-import { DialogPanel } from '../../shared/ui/dialog-panel';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { DialogActions } from '@b2b-catalog-platform/ui/overlay/dialog-actions';
+import { DialogPanel } from '@b2b-catalog-platform/ui/overlay/dialog-panel';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { CatalogService } from './catalog.service';
 import { PairingsService } from '../../shared/catalog/pairings.service';
 import { PRODUCT_ROWS, ProductRow } from './product-row';
-import { WarningNote } from '../../shared/ui/warning-note';
+import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 
 /**
  * What a sold-together marker opens (FR-SET-05): the counterparts as product
@@ -71,7 +71,7 @@ import { WarningNote } from '../../shared/ui/warning-note';
     @if (visible()) {
       <dialog
         #dialog
-        appDialogPanel
+        uiDialogPanel
         size="xl"
         aria-labelledby="pairings-heading"
         (cancel)="close()"
@@ -92,9 +92,9 @@ import { WarningNote } from '../../shared/ui/warning-note';
             }
           </ul>
         } @else if (items.error()) {
-          <app-warning-note class="mt-4">
+          <ui-warning-note class="mt-4">
             {{ text.loadError }}
-          </app-warning-note>
+          </ui-warning-note>
         } @else if (showSkeleton()) {
           <!-- As many placeholders as the marker promised, at a row's height:
                the panel then opens at the size it will settle at instead of
@@ -102,14 +102,14 @@ import { WarningNote } from '../../shared/ui/warning-note';
           <ul [class]="rowList" class="mt-4">
             @for (row of skeletonRows(); track row) {
               <li>
-                <app-skeleton class="mt-3 mb-9.5" [lines]="5" />
+                <ui-skeleton class="mt-3 mb-9.5" [lines]="5" />
               </li>
             }
           </ul>
         }
 
-        <div appDialogActions>
-          <button appButton variant="secondary" type="button" (click)="close()">
+        <div uiDialogActions>
+          <button uiButton variant="secondary" type="button" (click)="close()">
             {{ actionText.close }}
           </button>
         </div>

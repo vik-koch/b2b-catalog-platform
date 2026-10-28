@@ -10,10 +10,10 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Skeleton } from '../../shared/ui/skeleton';
+import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { LicenseNotice, parseLicenseNotices } from './license-notice';
-import { PageTitle } from '../../shared/ui/page-title';
-import { PageIntro } from '../../shared/ui/page-intro';
+import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
+import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
 
 /**
  * Open-source attribution for the JavaScript this site sends to the browser.
@@ -46,8 +46,8 @@ import { PageIntro } from '../../shared/ui/page-intro';
          stranded at the far edge of a wide screen is a line nobody follows
          back. -->
     <div class="max-w-3xl">
-      <h1 appPageTitle class="mb-2">{{ heading }}</h1>
-      <p appPageIntro class="mb-4">{{ text.intro }}</p>
+      <h1 uiPageTitle class="mb-2">{{ heading }}</h1>
+      <p uiPageIntro class="mb-4">{{ text.intro }}</p>
 
       @if (notices(); as list) {
         @if (list.length === 0) {
@@ -77,7 +77,7 @@ import { PageIntro } from '../../shared/ui/page-intro';
           </ul>
         }
       } @else if (showSkeleton()) {
-        <app-skeleton [lines]="6" />
+        <ui-skeleton [lines]="6" />
       }
     </div>
   `,
