@@ -18,6 +18,8 @@ import { provideOwnership } from '../settings/settings.fixture';
 import { TiersService } from '../tiers/tiers.service';
 import { UserListPage } from './user-list-page';
 import { StaffUsersService } from './users.service';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 const text = defaultAdminText.users.list;
 
@@ -98,6 +100,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [UserListPage],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

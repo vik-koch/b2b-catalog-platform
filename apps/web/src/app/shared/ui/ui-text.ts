@@ -6,6 +6,12 @@ export interface UiText {
   readonly required: string;
   /** Caption and accessible name of a missing picture. */
   readonly imagePlaceholder: string;
+  /** `status` holds `{page}` and `{total}`. */
+  readonly pagination: {
+    readonly previous: string;
+    readonly next: string;
+    readonly status: string;
+  };
 }
 
 export const UI_TEXT = new InjectionToken<UiText>('UI_TEXT');

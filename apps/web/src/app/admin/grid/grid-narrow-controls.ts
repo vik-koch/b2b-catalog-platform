@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { fill } from '../../shared/ui/fill';
+import { GRID_TEXT } from './grid-text';
 import { disclosureState } from '../../shared/ui/disclosure-state';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
@@ -79,7 +79,7 @@ interface SortOption {
           [open]="open()"
         >
           <app-disclosure-toggle
-            [label]="adminText.grid.filters"
+            [label]="gridText.filters"
             [count]="activeCount()"
             [countLabel]="countLabel()"
             [open]="open()"
@@ -93,12 +93,12 @@ interface SortOption {
                 [id]="panelId"
                 class="grid gap-4 border-t border-edge p-4"
                 role="group"
-                [attr.aria-label]="adminText.grid.filters"
+                [attr.aria-label]="gridText.filters"
               >
                 @if (sortOptions().length) {
                   <label class="block">
                     <span class="mb-1 block text-sm text-ink-subtle">{{
-                      adminText.grid.sort
+                      gridText.sort
                     }}</span>
                     <app-select-field>
                       <select
@@ -215,7 +215,7 @@ interface SortOption {
 export class GridNarrowControls {
   protected readonly xIcon = xIcon;
   private readonly navigate = injectGridNav();
-  protected readonly adminText = inject(ADMIN_TEXT);
+  protected readonly gridText = inject(GRID_TEXT);
   protected readonly panelId = 'grid-filters-panel';
 
   readonly columns = input.required<readonly GridColumn[]>();
@@ -245,7 +245,7 @@ export class GridNarrowControls {
   /** The count as the deployment words it — parentheses, as the storefront's
    * facet panel has always shown it. */
   protected readonly countLabel = computed(() =>
-    fillText(this.adminText.countSuffix, { count: this.activeCount() }),
+    fill(this.gridText.countSuffix, { count: this.activeCount() }),
   );
 
   protected readonly filters = computed(() =>
@@ -271,11 +271,11 @@ export class GridNarrowControls {
       const label = column.sortName ?? column.label ?? column.key;
       const asc = {
         value: sort.asc,
-        label: fillText(this.adminText.grid.sortAscending, { column: label }),
+        label: fill(this.gridText.sortAscending, { column: label }),
       };
       const desc = {
         value: sort.desc,
-        label: fillText(this.adminText.grid.sortDescending, { column: label }),
+        label: fill(this.gridText.sortDescending, { column: label }),
       };
       return sort.descFirst ? [desc, asc] : [asc, desc];
     }),

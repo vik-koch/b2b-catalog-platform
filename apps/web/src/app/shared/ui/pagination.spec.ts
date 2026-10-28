@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Pagination } from './pagination';
+import { UI_TEXT } from './ui-text';
 
 const text = {
   previous: 'Previous',
@@ -18,13 +19,11 @@ const text = {
       [page]="page()"
       [totalPages]="total()"
       [queryParams]="params"
-      [text]="text"
     />
     <app-pagination
       class="local"
       [page]="page()"
       [totalPages]="total()"
-      [text]="text"
       (turned)="turned.set($event)"
     />
   `,
@@ -33,7 +32,6 @@ class Host {
   readonly page = signal(1);
   readonly total = signal(3);
   readonly turned = signal<number | null>(null);
-  readonly text = text;
   readonly params = (page: number) => ({ page, state: 'open' });
 }
 
@@ -41,7 +39,10 @@ async function render() {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Host],
-    providers: [provideRouter([])],
+    providers: [
+      provideRouter([]),
+      { provide: UI_TEXT, useValue: { pagination: text } },
+    ],
   });
   const fixture = TestBed.createComponent(Host);
   await fixture.whenStable();

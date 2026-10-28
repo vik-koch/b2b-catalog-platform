@@ -12,6 +12,8 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { DocumentListPage } from './document-list-page';
 import { DocumentsService } from './documents.service';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 const text = defaultAdminText.documents.list;
 
@@ -55,6 +57,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [DocumentListPage],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

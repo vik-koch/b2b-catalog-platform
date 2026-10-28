@@ -11,7 +11,6 @@ import { EditActions } from '../../shared/edit-mode/edit-actions';
 import { editAwareContent } from '../../shared/edit-mode/edit-aware-content';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -201,7 +200,6 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                 [page]="data.pagination.page"
                 [totalPages]="data.pagination.totalPages"
                 [queryParams]="pageParams"
-                [text]="pagination"
               />
             </div>
           </div>
@@ -278,7 +276,6 @@ export class SearchResults {
 
   protected readonly text = inject(STOREFRONT_TEXT).search;
   protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.catalogText.filters;
   protected readonly skeletons = Array.from({ length: 10 }, (_, i) => i);

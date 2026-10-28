@@ -13,6 +13,7 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { OrderListPage } from './order-list-page';
 import { OrdersService } from './orders.service';
+import { provideUiText } from '../../shared/config/shared-text';
 
 const text = defaultStorefrontText.orders;
 const names = defaultSharedText.order;
@@ -51,6 +52,7 @@ async function render(
   TestBed.configureTestingModule({
     imports: [OrderListPage],
     providers: [
+      provideUiText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

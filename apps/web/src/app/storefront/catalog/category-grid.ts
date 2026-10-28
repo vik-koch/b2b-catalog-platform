@@ -35,7 +35,6 @@ import { EditModeService } from '../../shared/edit-mode/edit-mode.service';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
 import { HiddenProductsSection } from '../../shared/edit-mode/hidden-products-section';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
@@ -461,7 +460,6 @@ interface Listing {
                   [page]="data.pagination.page"
                   [totalPages]="data.pagination.totalPages"
                   [queryParams]="pageParams"
-                  [text]="pagination"
                 />
               } @else {
                 <p class="text-ink-subtle">
@@ -555,7 +553,6 @@ export class CategoryGrid {
   private readonly destroyRef = inject(DestroyRef);
   protected readonly editMode = inject(EditModeService);
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly taxNote = useTaxStatement().listing();
   protected readonly filterText = this.text.filters;
   protected readonly editorFrom = injectEditorReturnParams();

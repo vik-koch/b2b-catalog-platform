@@ -1,15 +1,10 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { Button } from './button';
 import { ButtonBox } from './button-box';
-
-/** `status` holds `{page}` and `{total}`. */
-export interface PaginationText {
-  previous: string;
-  next: string;
-  status: string;
-}
+import { fill } from './fill';
+import { UI_TEXT } from './ui-text';
 
 /**
  * Previous, where we are, next. With a `link` each step is a router link, its
@@ -18,8 +13,8 @@ export interface PaginationText {
  * place. Nothing at all for a single page.
  *
  *   <app-pagination class="mt-8" link="/orders" [page]="p.page"
- *     [totalPages]="p.totalPages" [queryParams]="pageParams" [text]="text" />
- *   <app-pagination [page]="page()" [totalPages]="pages()" [text]="text"
+ *     [totalPages]="p.totalPages" [queryParams]="pageParams" />
+ *   <app-pagination [page]="page()" [totalPages]="pages()"
  *     (turned)="page.set($event)" />
  */
 @Component({
@@ -36,14 +31,14 @@ export interface PaginationText {
         <ng-container
           *ngTemplateOutlet="
             step;
-            context: { $implicit: page() - 1, label: text().previous }
+            context: { $implicit: page() - 1, label: text.previous }
           "
         />
         <span class="text-ink-subtle">{{ status() }}</span>
         <ng-container
           *ngTemplateOutlet="
             step;
-            context: { $implicit: page() + 1, label: text().next }
+            context: { $implicit: page() + 1, label: text.next }
           "
         />
       </nav>
@@ -81,7 +76,6 @@ export interface PaginationText {
 export class Pagination {
   readonly page = input.required<number>();
   readonly totalPages = input.required<number>();
-  readonly text = input.required<PaginationText>();
   readonly link = input<string | readonly unknown[]>();
   readonly queryParams = input<(page: number) => Params>((page) => ({ page }));
   /** Keeps the rest of the query (filters, search, sort) on every step. */
@@ -90,9 +84,9 @@ export class Pagination {
   /** The page asked for, where there is no link. */
   readonly turned = output<number>();
 
+  protected readonly text = inject(UI_TEXT).pagination;
+
   protected readonly status = computed(() =>
-    this.text()
-      .status.replace('{page}', String(this.page()))
-      .replace('{total}', String(this.totalPages())),
+    fill(this.text.status, { page: this.page(), total: this.totalPages() }),
   );
 }

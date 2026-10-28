@@ -14,8 +14,8 @@ import {
   viewChildren,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { fillText } from '@b2b-catalog-platform/shared';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { fill } from '../../shared/ui/fill';
+import { GRID_TEXT } from './grid-text';
 import {
   injectNarrowScreen,
   NarrowBreakpoint,
@@ -102,7 +102,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           [toggles]="toggles()"
           [sort]="sort()"
           [defaultSort]="defaultSort()"
-          [defaultSortLabel]="defaultSortLabel() || adminText.grid.sortDefault"
+          [defaultSortLabel]="defaultSortLabel() || gridText.sortDefault"
           [filtered]="filtered()"
         />
 
@@ -178,7 +178,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
           <p class="text-ink-subtle" aria-live="polite">{{ countText() }}</p>
           @if (customized()) {
             <button type="button" appTextButton (click)="resetWidths()">
-              {{ adminText.grid.resetWidths }}
+              {{ gridText.resetWidths }}
             </button>
           }
         </div>
@@ -261,7 +261,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
                                h-full w-3 translate-x-1/2 cursor-col-resize
                                touch-none items-stretch justify-center"
                         [attr.aria-label]="resizeLabel(column)"
-                        [title]="adminText.grid.resizeColumn"
+                        [title]="gridText.resizeColumn"
                         (pointerdown)="startDrag($event, handleAt()[$index])"
                         (dblclick)="resetWidths()"
                         (keydown)="onHandleKey($event, handleAt()[$index])"
@@ -307,7 +307,7 @@ const MUTED_CELLS = '[&>td:not([data-keep])]:opacity-50';
 export class AdminGrid<T> {
   protected readonly xIcon = xIcon;
   private readonly store = inject(GridWidthsStore);
-  protected readonly adminText = inject(ADMIN_TEXT);
+  protected readonly gridText = inject(GRID_TEXT);
 
   /*
    * Both widths are watched, and the input picks between them. A media query
@@ -376,7 +376,7 @@ export class AdminGrid<T> {
   protected readonly countText = computed(() => {
     const count = this.total() ?? this.rows().length;
     if (!this.countLabel() || count === 0) return '';
-    return fillText(this.countLabel(), { count });
+    return fill(this.countLabel(), { count });
   });
 
   protected readonly cells =
@@ -497,7 +497,7 @@ export class AdminGrid<T> {
   }
 
   protected resizeLabel(column: GridColumn): string {
-    return fillText(this.adminText.grid.resizeColumnOfAria, {
+    return fill(this.gridText.resizeColumnOfAria, {
       column: column.label ?? column.srLabel ?? column.key,
     });
   }

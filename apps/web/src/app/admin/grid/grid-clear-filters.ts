@@ -1,7 +1,7 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
+import { GRID_TEXT } from './grid-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { IconButton } from '../../shared/ui/icon-button';
 import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
@@ -38,8 +38,8 @@ import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
         variant="danger"
         routerLink="."
         [queryParams]="keep()"
-        [attr.aria-label]="adminText.grid.clearFilters"
-        [title]="adminText.grid.clearFilters"
+        [attr.aria-label]="gridText.clearFilters"
+        [title]="gridText.clearFilters"
       >
         <app-icon [glyph]="funnelXIcon" />
       </a>
@@ -49,8 +49,8 @@ import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
         type="button"
         disabled
         class="opacity-40"
-        [attr.aria-label]="adminText.grid.clearFilters"
-        [title]="adminText.grid.clearFilters"
+        [attr.aria-label]="gridText.clearFilters"
+        [title]="gridText.clearFilters"
       >
         <app-icon [glyph]="funnelXIcon" />
       </button>
@@ -59,7 +59,7 @@ import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
 })
 export class GridClearFilters {
   protected readonly funnelXIcon = funnelXIcon;
-  protected readonly adminText = inject(ADMIN_TEXT);
+  protected readonly gridText = inject(GRID_TEXT);
 
   /** Whether anything — a filter, a chip, the search box — is narrowing the
    * list, which is the only state in which there is something to clear. */

@@ -6,6 +6,8 @@ import { provideRouter } from '@angular/router';
 import { ADMIN_TEXT } from '../shared/config/admin-text';
 import { defaultAdminText } from '../shared/config/admin-text.fixture';
 import { AdminListHeader } from './list-header';
+import { provideUiText } from '../shared/config/shared-text';
+import { provideGridText } from './provide-grid-text';
 
 const clearLabel = defaultAdminText.grid.clearFilters;
 
@@ -31,6 +33,8 @@ function render(filtered: boolean, intro?: string) {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },
@@ -98,6 +102,8 @@ describe('AdminListHeader', () => {
     TestBed.configureTestingModule({
       imports: [Unsearchable],
       providers: [
+        provideUiText(),
+        provideGridText(),
         provideRouter([]),
         { provide: ADMIN_TEXT, useValue: defaultAdminText },
         { provide: SHARED_TEXT, useValue: defaultSharedText },

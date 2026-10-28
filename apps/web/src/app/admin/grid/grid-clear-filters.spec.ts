@@ -6,6 +6,8 @@ import { provideRouter, Router } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { GridClearFilters } from './grid-clear-filters';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 const label = defaultAdminText.grid.clearFilters;
 
@@ -22,6 +24,8 @@ async function render(url = '/admin/products') {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([{ path: '**', children: [] }]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

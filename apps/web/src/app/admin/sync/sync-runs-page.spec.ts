@@ -16,6 +16,8 @@ import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { defaultDeploymentConfig } from '../../shared/config/deployment-config.fixture';
 import { SyncRunsPage } from './sync-runs-page';
 import { SyncService } from './sync.service';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 const text = defaultAdminText.sync;
 
@@ -78,6 +80,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [SyncRunsPage],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([]),
       { provide: STOREFRONT_TEXT, useValue: defaultStorefrontText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

@@ -7,6 +7,8 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { GridChip, GridColumn } from './grid-column';
 import { GridNarrowControls } from './grid-narrow-controls';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 const adminText = defaultAdminText;
 
@@ -62,6 +64,8 @@ async function render() {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([{ path: '**', children: [] }]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

@@ -23,6 +23,7 @@ import { ScrollRestoration } from './shared/core/scroll-restoration';
 import { CartRepricing } from './storefront/cart/cart-repricing';
 import { provideStorefrontText } from './shared/config/storefront-text';
 import { provideSharedText, provideUiText } from './shared/config/shared-text';
+import { provideGridText } from './admin/provide-grid-text';
 import { provideDeploymentConfig } from './shared/config/deployment-config';
 import { provideSuggestionsEnabled } from './shared/config/suggestions-enabled';
 import { provideDigitMaskFormat } from './shared/core/contact-fields';
@@ -60,6 +61,7 @@ export const appConfig: ApplicationConfig = {
     provideStorefrontText(),
     provideSharedText(),
     provideUiText(),
+    provideGridText(),
     provideSuggestionsEnabled(),
     provideDigitMaskFormat(),
     provideEditModeCatalog(),

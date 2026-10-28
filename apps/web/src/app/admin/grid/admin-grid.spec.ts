@@ -11,6 +11,8 @@ import { GridColumn } from './grid-column';
 import { GridWidths, GRID_WIDTHS_KEY } from './grid-widths';
 import { GridCardTemplate } from './grid-card-template';
 import { GridRowTemplate } from './grid-row-template';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 interface Row {
   id: string;
@@ -123,6 +125,8 @@ function render(stored?: GridWidths) {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

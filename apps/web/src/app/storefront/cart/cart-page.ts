@@ -417,7 +417,6 @@ interface CartRow {
               class="mt-8"
               [page]="page()"
               [totalPages]="totalPages()"
-              [text]="pagination"
               (turned)="turnTo($event)"
             />
           </div>
@@ -513,7 +512,6 @@ export class CartPage {
   protected readonly changes = this.cart.changes;
   /** Only the pager's three words: the cart turns pages the way the listing
    * does, so it says it the way the listing does. */
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
   protected readonly rowList = PRODUCT_ROWS;
   protected readonly pairingText = this.text.pairing;
   /** The piece abbreviation, for the sentence that names a shortfall. */

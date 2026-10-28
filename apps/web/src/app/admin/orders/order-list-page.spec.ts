@@ -14,6 +14,8 @@ import { defaultDeploymentConfig } from '../../shared/config/deployment-config.f
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { AdminOrderListPage } from './order-list-page';
 import { AdminOrdersService, StaffOrderSummary } from './orders.service';
+import { provideUiText } from '../../shared/config/shared-text';
+import { provideGridText } from '../provide-grid-text';
 
 const text = defaultAdminText.orders.list;
 
@@ -71,6 +73,8 @@ async function render(
   TestBed.configureTestingModule({
     imports: [AdminOrderListPage],
     providers: [
+      provideUiText(),
+      provideGridText(),
       provideRouter([]),
       { provide: ADMIN_TEXT, useValue: defaultAdminText },
       { provide: SHARED_TEXT, useValue: defaultSharedText },

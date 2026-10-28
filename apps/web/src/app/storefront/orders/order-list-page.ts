@@ -6,7 +6,6 @@ import {
   MyOrderFilter,
 } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
@@ -102,7 +101,6 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
           [page]="data.pagination.page"
           [totalPages]="data.pagination.totalPages"
           [queryParams]="pageParams"
-          [text]="pagination"
         />
 
         <a appButton variant="secondary" routerLink="/account" class="mt-10">
@@ -124,7 +122,6 @@ export class OrderListPage {
   protected readonly xIcon = xIcon;
   private readonly api = inject(OrdersService);
   protected readonly text = inject(STOREFRONT_TEXT).orders;
-  protected readonly pagination = inject(SHARED_TEXT).pagination;
 
   /** Bound from the `state` query param. Absent — which arrives as
    * `undefined`, never as the input's default — is the whole history, and so
