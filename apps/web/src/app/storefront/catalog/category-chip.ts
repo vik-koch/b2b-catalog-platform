@@ -4,7 +4,7 @@ import {
   CatalogImage,
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared';
-import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { HighlightedLine } from '../../shared/ui/highlighted-line';
 
 /**
  * What the chip needs of a category — the shape both the public tree node and

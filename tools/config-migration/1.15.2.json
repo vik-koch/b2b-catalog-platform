@@ -97,6 +97,9 @@
     },
     "texts/shared.json:required": {
       "new": "required"
+    },
+    "texts/admin.json:orders.adjust.lines.suggestionCountAria": {
+      "new": "Product suggestions: {count}"
     }
   },
   "drop": [

@@ -1978,6 +1978,8 @@ export const adminTextSchema = z
                 addLabel: z.string(),
                 addPlaceholder: z.string(),
                 noMatches: z.string(),
+                /** `{count}`, for the live region. */
+                suggestionCountAria: z.string(),
                 empty: z.string(),
                 /** A line priced away from the list it would otherwise take
                  * (FR-CART-09) — allowed, and worth saying. */

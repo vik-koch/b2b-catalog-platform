@@ -14,9 +14,9 @@ import {
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { HighlightedLine } from '../../shared/core/highlighted-line';
+import { HighlightedLine } from '../../shared/ui/highlighted-line';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
-import { SUGGEST_PANEL, SuggestList } from '../../shared/core/suggest-list';
+import { SuggestList } from '../../shared/ui/suggest-list';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { FieldLabel } from '../../shared/ui/field-label';
@@ -25,6 +25,9 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';
 import { StatusBadge } from '../../shared/ui/status-badge';
+import { SuggestField } from '../../shared/ui/suggest-field';
+import { SuggestInput } from '../../shared/ui/suggest-input';
+import { SuggestRow } from '../../shared/ui/suggest-row';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
@@ -61,6 +64,9 @@ const SUGGESTIONS_SHOWN = 8;
     IconButton,
     Input,
     StatusBadge,
+    SuggestField,
+    SuggestInput,
+    SuggestRow,
     DisclosureFrame,
   ],
   host: { class: 'block' },
@@ -118,73 +124,42 @@ const SUGGESTIONS_SHOWN = 8;
           } @else {
             <div class="mt-3">
               <label [for]="inputId" appFieldLabel>{{ text.add }}</label>
-              <div class="relative">
+              <app-suggest-field
+                [list]="list"
+                [text]="text"
+                (picked)="add($event)"
+              >
                 <input
                   [id]="inputId"
-                  type="text"
-                  role="combobox"
                   autocomplete="off"
-                  aria-autocomplete="list"
-                  [attr.aria-expanded]="list.panelOpen()"
-                  [attr.aria-controls]="listId"
-                  [attr.aria-activedescendant]="activeOptionId()"
                   appInput
+                  appSuggestInput
                   class="w-full"
                   [value]="query()"
                   [placeholder]="text.addPlaceholder"
-                  (input)="type($any($event.target).value)"
-                  (keydown)="keydown($event)"
-                  (blur)="list.close()"
+                  (input)="query.set($any($event.target).value)"
                 />
-
-                @if (list.panelOpen()) {
-                  <div [class]="panel">
-                    @if (list.suggestions().length === 0) {
-                      <p class="px-3 py-2 text-sm text-ink-subtle">
-                        {{ text.noSuggestions }}
-                      </p>
-                    }
-                    <ul
-                      [id]="listId"
-                      role="listbox"
-                      [attr.aria-label]="text.suggestionsAria"
-                    >
-                      @for (
-                        item of list.suggestions();
-                        track item.slug;
-                        let i = $index
-                      ) {
-                        <li
-                          [id]="listId + '-' + i"
-                          role="option"
-                          [attr.aria-selected]="i === list.activeIndex()"
-                          class="cursor-pointer px-3 py-2 text-sm"
-                          [class.bg-surface-subtle-hover]="
-                            i === list.activeIndex()
-                          "
-                          (mouseenter)="list.activeIndex.set(i)"
-                          (mousedown)="pick($event, item)"
-                        >
-                          <span class="block truncate">
-                            <app-highlighted-line
-                              [line]="item.name"
-                              [query]="list.query()"
-                              [alternateQuery]="alternateQuery()"
-                            />
-                          </span>
-                          @if (item.publishedAt === null) {
-                            <span class="block text-xs text-ink-subtle">
-                              {{ productStates.unpublished }}
-                            </span>
-                          }
-                        </li>
-                      }
-                    </ul>
-                  </div>
-                }
-              </div>
+                <ng-template
+                  appSuggestRow
+                  [of]="list"
+                  let-item
+                  let-query="query"
+                >
+                  <span class="block truncate">
+                    <app-highlighted-line
+                      [line]="item.name"
+                      [query]="query"
+                      [alternateQuery]="alternateQuery()"
+                    />
+                  </span>
+                  @if (item.publishedAt === null) {
+                    <span class="block text-xs text-ink-subtle">
+                      {{ productStates.unpublished }}
+                    </span>
+                  }
+                </ng-template>
+              </app-suggest-field>
             </div>
-            <p aria-live="polite" class="sr-only">{{ announcement() }}</p>
           }
         </div>
       }
@@ -213,9 +188,7 @@ export class ProductPairingsEditor implements OnInit {
   protected readonly max = PRODUCT_PAIRINGS_MAX;
   protected readonly open = signal(false);
   protected readonly query = signal('');
-  protected readonly panel = SUGGEST_PANEL;
-  protected readonly listId = `pairing-suggestions-${++nextId}`;
-  protected readonly panelId = `pairings-panel-${nextId}`;
+  protected readonly panelId = `pairings-panel-${++nextId}`;
   protected readonly inputId = `pairing-search-${nextId}`;
 
   /**
@@ -258,21 +231,6 @@ export class ProductPairingsEditor implements OnInit {
     fillText(this.text.limit, { count: this.max }),
   );
 
-  protected readonly activeOptionId = computed(() =>
-    this.list.panelOpen() && this.list.activeIndex() >= 0
-      ? `${this.listId}-${this.list.activeIndex()}`
-      : null,
-  );
-
-  /** Counted after the exclusions, so it says what is on screen. */
-  protected readonly announcement = computed(() => {
-    if (!this.list.panelOpen()) return '';
-    const count = this.list.suggestions().length;
-    return count === 0
-      ? this.text.noSuggestions
-      : fillText(this.text.suggestionCountAria, { count });
-  });
-
   /** Open where there is something to see. Read once, in `ngOnInit`: a panel
    * that closed itself when the last pairing was removed would take the field
    * that puts one back with it. */
@@ -280,23 +238,7 @@ export class ProductPairingsEditor implements OnInit {
     this.open.set(this.value().length > 0);
   }
 
-  protected type(value: string): void {
-    this.query.set(value);
-    this.list.type(value);
-  }
-
-  protected keydown(event: KeyboardEvent): void {
-    const chosen = this.list.keydown(event);
-    if (chosen) this.add(chosen);
-  }
-
-  /** mousedown, not click: the field's own blur would close the panel first. */
-  protected pick(event: MouseEvent, item: AdminProductListItem): void {
-    event.preventDefault();
-    this.add(item);
-  }
-
-  private add(item: AdminProductListItem): void {
+  protected add(item: AdminProductListItem): void {
     this.valueChange.emit([
       ...this.value(),
       {
@@ -309,7 +251,6 @@ export class ProductPairingsEditor implements OnInit {
     // The field empties on a pick: the next one is a different search, and a
     // panel of matches for the name just chosen is a list of what to skip.
     this.query.set('');
-    this.list.close();
   }
 
   protected remove(slug: string): void {

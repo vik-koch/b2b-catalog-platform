@@ -1232,6 +1232,7 @@
         "addLabel": "Add a product",
         "addPlaceholder": "Search by name",
         "noMatches": "Nothing matches that.",
+        "suggestionCountAria": "Product suggestions: {count}",
         "empty": "An order needs at least one line.",
         "offList": "Off list"
       },

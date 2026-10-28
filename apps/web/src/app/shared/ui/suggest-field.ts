@@ -6,19 +6,18 @@ import {
   input,
   output,
 } from '@angular/core';
-import {
-  SUGGEST_PANEL,
-  SuggestList,
-  SuggestListText,
-} from '../core/suggest-list';
+import { SuggestList, SuggestListText } from './suggest-list';
 import { SuggestRow } from './suggest-row';
 
 /** `aria-controls` must name one list, and a form may hold several. */
 let nextId = 0;
 
+const panel = `absolute top-full left-0 z-20 mt-1 w-full overflow-hidden
+               rounded-md border border-edge-strong bg-white py-1 shadow-lg`;
+
 /**
- * The panel's width floor. `100cqw` keeps it inside the form: the panel spills
- * into the column beside a narrow field and stops at the form's own edge.
+ * A floor wider than a field that shares its row. `100cqw` stops it at the
+ * form's edge, so the form must declare itself a `@container`.
  */
 const widths = {
   /** As wide as the field. */
@@ -30,14 +29,9 @@ const widths = {
 } as const;
 
 /**
- * A type-ahead combobox (APG, editable with list autocomplete): the caller's
- * own input, projected, and a listbox under it. The caller owns the input's
- * value and the SuggestList, so it decides what to ask and what to exclude;
- * this owns the panel, the options, their ids and the live region.
- *
- * Focus never leaves the input: rows are pointed at through
- * `aria-activedescendant`, and none is active until an arrow key, so Enter
- * submits the form until the person has chosen to move into the list.
+ * A type-ahead combobox (APG, list autocomplete) around the caller's input.
+ * The caller owns the value and the SuggestList. No row is active until an
+ * arrow key, so Enter submits the form until then.
  *
  *   <app-suggest-field [list]="list" [text]="text" (picked)="apply($event)">
  *     <input appInput appSuggestInput class="w-full" [formField]="field()" />
@@ -49,8 +43,6 @@ const widths = {
 @Component({
   selector: 'app-suggest-field',
   imports: [NgTemplateOutlet],
-  // A custom element is inline by default, and an inline box drops the
-  // vertical margin a form's `space-y-*` puts on it.
   host: { class: 'block' },
   template: `
     <div class="relative">
@@ -106,9 +98,7 @@ export class SuggestField<T> {
 
   readonly listId = `suggestions-${nextId++}`;
 
-  protected readonly panel = computed(
-    () => `${SUGGEST_PANEL} ${widths[this.width()]}`,
-  );
+  protected readonly panel = computed(() => `${panel} ${widths[this.width()]}`);
 
   readonly activeOptionId = computed(() =>
     this.list().panelOpen() && this.list().activeIndex() >= 0

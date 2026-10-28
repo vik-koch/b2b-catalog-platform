@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { SEARCH_QUERY_MAX_LENGTH } from '@b2b-catalog-platform/shared';
-import { debounced } from '../../shared/core/debounced';
+import { debounced } from '../../shared/ui/debounced';
 import { Input } from '../../shared/ui/input';
 import { injectGridNav } from './grid-query';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';

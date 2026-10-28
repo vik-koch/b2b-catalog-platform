@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SuggestList } from '../core/suggest-list';
+import { SuggestList } from './suggest-list';
 import { SuggestField } from './suggest-field';
 import { SuggestInput } from './suggest-input';
 import { SuggestRow } from './suggest-row';

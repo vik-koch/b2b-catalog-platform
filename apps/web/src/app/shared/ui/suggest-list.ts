@@ -9,7 +9,6 @@ import {
 } from '@angular/core';
 import { debounced } from './debounced';
 
-/** The wording every suggesting field needs, whatever it suggests. */
 export interface SuggestListText {
   readonly suggestionsAria: string;
   readonly noSuggestions: string;
@@ -17,62 +16,26 @@ export interface SuggestListText {
   readonly suggestionCountAria: string;
 }
 
-/**
- * The dropdown itself, shared by every suggesting field so two panels are one
- * panel. Anchored under the field and at least as wide as it, and — where the
- * field shares its row with another, as the street does with what is inside
- * the building — wider than the field, since an address truncated to half a
- * row is a row nobody can choose between.
- *
- * `100cqw` is what keeps that from being wider than the form: each field's
- * width floor is spelled `min(<the width the rows want>, 100cqw)`, so the
- * panel spills into the column beside it where there is one and stops at the
- * form's own edge where there is not. It measures the form rather than the
- * window because a form is not the width of the page — the checkout draws two
- * of these in cards — and the containing form declares the container.
- */
-export const SUGGEST_PANEL = `absolute top-full left-0 z-20 mt-1 w-full
-                              overflow-hidden rounded-md border
-                              border-edge-strong bg-white py-1 shadow-lg`;
-
-/**
- * Long enough that a fast typist produces one call per word — and every call
- * behind one of these is a metered one at a provider, not a query against our
- * own index.
- */
+/** One call per word for a fast typist: a call may be a metered one. */
 const DEBOUNCE_MS = 300;
 
 /**
- * The behaviour every type-ahead field shares: when to ask, what to show while
- * the next answer is in flight, which row is active, and when the panel is
- * open. Held apart from any one field because the address and the company
- * fields need all of it and agree on none of it by accident — the keyboard
- * handling and the failure behaviour especially, which are the parts that get
- * quietly wrong in a copy.
- *
- * Construct it as a component field, so it runs in an injection context.
+ * A type-ahead's state: when to ask, what to show while the next answer is in
+ * flight, which row is active and when the panel is open. Construct it as a
+ * component field, so it runs in an injection context.
  */
 export class SuggestList<T> {
   private readonly isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
-  /**
-   * Whether the customer is composing, as opposed to looking at a value that is
-   * already filled in. Only typing opens the list: a form seeded from a saved
-   * value must not cover itself with suggestions for what it already says.
-   */
+  /** Only typing opens the list: a field seeded from a saved value must not
+   * cover itself with suggestions for what it already says. */
   readonly typing = signal(false);
   readonly activeIndex = signal(-1);
 
-  /**
-   * What has been typed, tracked here rather than read off the field:
-   * `debounced` samples its source the moment it is created, which is before
-   * a required input has a value.
-   */
+  /** Tracked here, not read off the field: `debounced` samples its source on
+   * creation, before a required input has a value. */
   private readonly typed = signal('');
-  /**
-   * The settled query — public so a field can highlight its rows against the
-   * query they answered, rather than against later keystrokes.
-   */
+  /** The settled query, which the rows answered and are highlighted against. */
   readonly query = debounced(this.typed, DEBOUNCE_MS);
 
   private readonly suggested = resource({
@@ -88,12 +51,9 @@ export class SuggestList<T> {
   });
 
   /**
-   * The latest answer. A loading `resource` reports no value, and rendering
-   * that directly makes the panel blink on every keystroke — the previous
-   * answer is a better placeholder for the next one than nothing is.
-   *
-   * A *failed* request is not an answer of "nothing", and `value()` rethrows in
-   * the error state, so neither it nor the panel below ever sees one.
+   * The previous answer stands in while the next loads, or the panel blinks
+   * on every keystroke. `value()` rethrows in the error state, so a failed
+   * request is read as no answer, never as an empty one.
    */
   private readonly answer = linkedSignal<T[] | undefined, T[]>({
     source: () => {
@@ -105,22 +65,16 @@ export class SuggestList<T> {
     computation: (value, previous) => value ?? previous?.value ?? [],
   });
 
-  /**
-   * The rows on screen, after the field's own exclusions. The keys, the
-   * active row and the count all index this list, never the raw answer, or
-   * Enter picks a row nobody sees.
-   */
+  /** The rows on screen. Keys, active row and count index this list, never
+   * the raw answer, or Enter picks a row nobody sees. */
   readonly suggestions = computed(() => {
     const answer = this.answer();
     return this.options.shown ? this.options.shown(answer) : answer;
   });
 
-  /**
-   * Up from the first answer until the field is left: anything narrower closes
-   * the panel for a beat between two replies. A request that failed never opens
-   * it — the API is a network away and the customer is not, so a call that did
-   * not arrive is invisible rather than a box saying there is nothing.
-   */
+  /** Open from the first answer until the field is left, or it closes for a
+   * beat between two replies. A failed request never opens it: a call that did
+   * not arrive is invisible, not a box saying there is nothing. */
   private readonly answered = computed(() => {
     const status = this.suggested.status();
     return (
@@ -132,11 +86,10 @@ export class SuggestList<T> {
   constructor(
     private readonly options: {
       readonly load: (query: string) => Promise<T[]>;
-      /** Too short to mean anything is a paid call for nothing. */
       readonly minLength: number;
-      /** A signal whose change re-asks — a country to bias by, say. */
+      /** A signal whose change asks again. */
       readonly dependsOn?: () => unknown;
-      /** What of an answer the field offers: exclusions and a row cap. */
+      /** Exclusions and a row cap. */
       readonly shown?: (answer: T[]) => T[];
     },
   ) {}

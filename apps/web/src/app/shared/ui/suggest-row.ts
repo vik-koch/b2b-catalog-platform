@@ -1,5 +1,5 @@
 import { Directive, inject, input, TemplateRef } from '@angular/core';
-import { SuggestList } from '../core/suggest-list';
+import { SuggestList } from './suggest-list';
 
 /** What a row template is handed: the suggestion it draws. */
 export interface SuggestRowContext<T> {

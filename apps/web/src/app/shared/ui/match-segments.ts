@@ -1,45 +1,23 @@
 import { searchTerms } from '@b2b-catalog-platform/shared';
 
-/** A run of a suggested line, flagged as matched or not. */
 export interface NameSegment {
   text: string;
   match: boolean;
 }
 
 /**
- * Splits a suggested line into the parts the query matched and the parts it did
- * not, so the template can mark the former. Segments rather than a marked-up
- * string on purpose: the lines are admin-editable content or a third party's
- * text, and turning either into markup to render it is how it becomes an
- * injection. Nothing here ever reaches `innerHTML`.
+ * Splits a line into the runs the query matched and the rest. Segments, not
+ * markup: the line is someone else's text, and markup from it is an injection.
  *
- * Shared by every type-ahead that draws its own rows — the catalog search bar
- * and the address field — so one query highlights the same way wherever it is
- * typed.
- *
- * Two things keep the highlight honest rather than merely decorative:
- *
- * - It is anchored to word starts, because that is how the things behind these
- *   fields match: the catalog's full-text half matches prefixes of words
- *   (`term:*`), and an address provider matches a street by its beginning.
- *   Marking "es" inside "Reserve" would claim a match neither one made.
- * - It only ever marks text the query literally contains. Matching is
- *   typo-tolerant on both sides, so "espreso" legitimately returns *Hafen
- *   Espresso* with nothing to mark — that line is then returned as a single
- *   unmatched segment. Highlighting degrades to plain text; it never guesses.
- *
- * Within that, a hit is marked as the visitor typed it rather than letter run
- * by letter run. Each space-separated chunk of the query is looked for whole
- * first, punctuation included — product names are full of `3.5"`, `0,5 l`,
- * `(white)` and `2+1`, and marking the digits around a point but not the point
- * reads as two hits where there was one. Only a chunk that is not in the name
- * as typed falls back to its terms. And where two hits from different chunks
- * are separated by nothing but spaces and punctuation, the gap is marked too,
- * so "cup lid" over *Cup, lid* is one run and not two islands.
- *
- * `alternate` is the query read on a second keyboard layout (FR-SEARCH-08),
- * word for word. A word is marked in its other reading only where it marks
- * nothing as typed, as the matcher reads each word either way.
+ * - Anchored to word starts, as the matchers behind the fields match prefixes.
+ * - Only text the query literally contains: a typo-tolerant hit with nothing
+ *   literal comes back as one unmatched segment.
+ * - Each space-separated chunk is tried whole first, punctuation included
+ *   (`3.5"`, `0,5 l`), then term by term.
+ * - A gap of only spaces and punctuation between hits of two chunks is marked
+ *   too, so "cup lid" over "Cup, lid" is one run.
+ * - `alternate` is the query on a second keyboard layout, word for word; a
+ *   word is marked in that reading only where it marks nothing as typed.
  */
 export function matchSegments(
   name: string,
@@ -63,8 +41,8 @@ export function matchSegments(
   if (!chunks.length) return [{ text: source, match: false }];
 
   const folded = fold(source);
-  // Which chunk marked each character, or -1 — the gap rule needs to know
-  // whether two neighbouring hits came from one chunk or two.
+  // Which chunk marked each character, or -1: the gap rule bridges only
+  // between two chunks.
   const owner = new Array<number>(source.length).fill(-1);
 
   chunks.forEach((readings, index) => {
@@ -129,9 +107,8 @@ function markAll(
   return found;
 }
 
-/** Marks what lies between two hits from different chunks, where that is
- * only separators — spaces and punctuation, never a letter or a digit. One
- * chunk's own repeats are left apart: "cup" over *Cup - Cup* is two hits. */
+/** Bridges separator-only gaps between hits of different chunks; one chunk's
+ * own repeats stay apart ("cup" over "Cup - Cup" is two hits). */
 function bridgeGaps(folded: string, owner: number[]): void {
   let lastEnd = -1;
   for (let i = 0; i < owner.length; i++) {
@@ -149,13 +126,10 @@ function bridgeGaps(folded: string, owner: number[]): void {
 }
 
 /**
- * Lower-cases and strips accents *without changing the string's length*, which
- * is what lets an offset found in the folded copy be applied to the original.
- * Any character whose folded form is not a single unit is left alone: it would
- * shift every offset after it, and a missed highlight is a far smaller defect
- * than one landing on the wrong letters. Sharp s and the ligatures are the
- * practical cases — the database's `unaccent` expands them, this does not, so
- * those names simply come back unhighlighted.
+ * Lower-cases and strips accents without changing the length, so an offset in
+ * the folded copy applies to the original. A character that folds to more than
+ * one unit (sharp s, ligatures) is left alone: a missed highlight beats one on
+ * the wrong letters.
  */
 function fold(text: string): string {
   return Array.from(text)
@@ -166,14 +140,13 @@ function fold(text: string): string {
     .join('');
 }
 
-/** Whether `at` begins a word — the start of the name, or preceded by anything
- * that is not a letter or a digit. Mirrors how the matcher treats a term. */
+/** Whether `at` begins a word: the start, or after a non-letter, non-digit. */
 function startsWord(text: string, at: number): boolean {
   return at === 0 || /[^\p{L}\p{N}]/u.test(text[at - 1]);
 }
 
-/** Turns the per-character flags back into the fewest possible runs, so the
- * template renders one element per span rather than one per letter. */
+/** The per-character flags as the fewest runs: one element per run, not per
+ * letter. */
 function collapse(source: string, matched: boolean[]): NameSegment[] {
   const segments: NameSegment[] = [];
 

@@ -5,8 +5,8 @@ import {
   AddressComponents,
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared';
-import { HighlightedLine } from '../core/highlighted-line';
-import { SuggestList, SuggestListText } from '../core/suggest-list';
+import { HighlightedLine } from '../ui/highlighted-line';
+import { SuggestList, SuggestListText } from '../ui/suggest-list';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
 import { SuggestField } from '../ui/suggest-field';

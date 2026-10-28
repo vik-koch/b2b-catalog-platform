@@ -20,7 +20,7 @@ import { PRODUCT_ROWS, ProductRow, RowProduct } from '../catalog/product-row';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { debounced } from '../../shared/core/debounced';
+import { debounced } from '../../shared/ui/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
