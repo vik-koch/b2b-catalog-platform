@@ -39,6 +39,7 @@ import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../../shared/core/current-url';
 import { debounced } from '../../shared/ui/debounced';
 import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Button } from '../../shared/ui/button';
 import { IconButton } from '../../shared/ui/icon-button';
@@ -92,6 +93,7 @@ let nextId = 0;
     RouterLink,
     Icon,
     HighlightedLine,
+    MatchSegmentsPipe,
     ImagePlaceholder,
     Button,
     WarningNote,
@@ -365,9 +367,10 @@ let nextId = 0;
                            not caught up with. -->
                           <span class="line-clamp-2 text-sm text-ink">
                             <app-highlighted-line
-                              [line]="item.name"
-                              [query]="query()"
-                              [alternateQuery]="alternateQuery()"
+                              [segments]="
+                                item.name
+                                  | matchSegments: query() : alternateQuery()
+                              "
                             />
                           </span>
                           <!-- The per-piece price, as a listing leads with it

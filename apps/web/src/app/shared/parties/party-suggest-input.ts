@@ -5,6 +5,7 @@ import {
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
 import { HighlightedLine } from '../ui/highlighted-line';
+import { MatchSegmentsPipe } from '../catalog/match-segments.pipe';
 import { SuggestList, SuggestListText } from '../ui/suggest-list';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
@@ -33,6 +34,7 @@ import { PartiesService } from './parties.service';
     FieldBinding,
     Input,
     HighlightedLine,
+    MatchSegmentsPipe,
     SuggestField,
     SuggestInput,
     SuggestRow,
@@ -56,13 +58,13 @@ import { PartiesService } from './parties.service';
       />
       <ng-template appSuggestRow [of]="list" let-item let-query="query">
         <span class="block truncate font-medium text-ink">
-          <app-highlighted-line [line]="item.name" [query]="query" />
+          <app-highlighted-line [segments]="item.name | matchSegments: query" />
         </span>
         <!-- Marked too, because the number is a query in its own right: a
              customer who typed one is looking for it in the row. -->
         @if (secondLine(item); as second) {
           <span class="block truncate text-ink-subtle">
-            <app-highlighted-line [line]="second" [query]="query" />
+            <app-highlighted-line [segments]="second | matchSegments: query" />
           </span>
         }
       </ng-template>

@@ -16,6 +16,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { currencySymbol } from '../../shared/catalog/price';
 import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SuggestList } from '../../shared/ui/suggest-list';
 import { AdminCatalogService } from '../admin-catalog.service';
@@ -89,6 +90,7 @@ export interface AdjustLineRow {
     Icon,
     FieldLabel,
     HighlightedLine,
+    MatchSegmentsPipe,
     IconButton,
     Input,
     PriceField,
@@ -262,9 +264,7 @@ export interface AdjustLineRow {
         <ng-template appSuggestRow [of]="list" let-item let-query="query">
           <span class="block truncate">
             <app-highlighted-line
-              [line]="item.name"
-              [query]="query"
-              [alternateQuery]="alternateQuery()"
+              [segments]="item.name | matchSegments: query : alternateQuery()"
             />
           </span>
           @if (item.publishedAt === null) {

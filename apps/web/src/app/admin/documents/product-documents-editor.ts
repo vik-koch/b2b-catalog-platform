@@ -16,6 +16,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { adminDayFormat } from '../grid/admin-date';
 import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SuggestList } from '../../shared/ui/suggest-list';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
@@ -62,6 +63,7 @@ const SUGGESTIONS_SHOWN = 8;
     DisclosureToggle,
     FieldLabel,
     HighlightedLine,
+    MatchSegmentsPipe,
     IconButton,
     Input,
     Link,
@@ -139,9 +141,9 @@ const SUGGESTIONS_SHOWN = 8;
               <ng-template appSuggestRow [of]="list" let-item let-query="query">
                 <span class="block truncate">
                   <app-highlighted-line
-                    [line]="item.title"
-                    [query]="query"
-                    [alternateQuery]="alternateQuery()"
+                    [segments]="
+                      item.title | matchSegments: query : alternateQuery()
+                    "
                   />
                 </span>
                 <span class="block text-xs text-ink-subtle">

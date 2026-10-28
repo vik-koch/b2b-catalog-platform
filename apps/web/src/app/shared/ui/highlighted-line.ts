@@ -1,10 +1,13 @@
-import { Component, computed, input } from '@angular/core';
-import { matchSegments } from './match-segments';
+import { Component, input } from '@angular/core';
+
+export interface HighlightSegment {
+  text: string;
+  match: boolean;
+}
 
 /**
- * One line of a suggestion with the matched runs marked. The runs are
- * elements built from `matchSegments`, never markup: nothing reaches
- * `innerHTML`.
+ * A line drawn from its runs, the matched ones marked. Each run is an element,
+ * never markup: nothing reaches `innerHTML`.
  *
  * Every part must be an element: a run can end mid-word, and only
  * whitespace-only nodes between parts are dropped, so bare interpolation
@@ -21,13 +24,5 @@ import { matchSegments } from './match-segments';
   }`,
 })
 export class HighlightedLine {
-  readonly line = input.required<string>();
-  /** The settled query, not the one being typed. */
-  readonly query = input.required<string>();
-  /** The same query read on a second keyboard layout. */
-  readonly alternateQuery = input<string | null>(null);
-
-  protected readonly segments = computed(() =>
-    matchSegments(this.line(), this.query(), this.alternateQuery()),
-  );
+  readonly segments = input.required<readonly HighlightSegment[]>();
 }

@@ -1,13 +1,10 @@
 import { searchTerms } from '@b2b-catalog-platform/shared';
-
-export interface NameSegment {
-  text: string;
-  match: boolean;
-}
+import { HighlightSegment } from '../ui/highlighted-line';
 
 /**
- * Splits a line into the runs the query matched and the rest. Segments, not
- * markup: the line is someone else's text, and markup from it is an injection.
+ * Splits a line into the runs the query matched and the rest, by the rules the
+ * search matchers use. Segments, not markup: the line is someone else's text,
+ * and markup from it is an injection.
  *
  * - Anchored to word starts, as the matchers behind the fields match prefixes.
  * - Only text the query literally contains: a typo-tolerant hit with nothing
@@ -23,7 +20,7 @@ export function matchSegments(
   name: string,
   query: string,
   alternate: string | null = null,
-): NameSegment[] {
+): HighlightSegment[] {
   // Composed form throughout: offsets are computed on the folded copy and
   // applied to this string, so the two must agree on how an accented letter is
   // spelled. Rendering the composed form is visually identical.
@@ -147,8 +144,8 @@ function startsWord(text: string, at: number): boolean {
 
 /** The per-character flags as the fewest runs: one element per run, not per
  * letter. */
-function collapse(source: string, matched: boolean[]): NameSegment[] {
-  const segments: NameSegment[] = [];
+function collapse(source: string, matched: boolean[]): HighlightSegment[] {
+  const segments: HighlightSegment[] = [];
 
   for (let i = 0; i < source.length; i++) {
     const last = segments[segments.length - 1];

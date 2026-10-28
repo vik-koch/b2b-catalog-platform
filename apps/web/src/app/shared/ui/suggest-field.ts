@@ -36,7 +36,7 @@ const widths = {
  *   <app-suggest-field [list]="list" [text]="text" (picked)="apply($event)">
  *     <input appInput appSuggestInput class="w-full" [formField]="field()" />
  *     <ng-template appSuggestRow [of]="list" let-item let-query="query">
- *       <app-highlighted-line [line]="item.name" [query]="query" />
+ *       {{ item.name }}
  *     </ng-template>
  *   </app-suggest-field>
  */

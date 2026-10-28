@@ -6,6 +6,7 @@ import {
   AddressSuggestion,
 } from '@b2b-catalog-platform/shared';
 import { HighlightedLine } from '../ui/highlighted-line';
+import { MatchSegmentsPipe } from '../catalog/match-segments.pipe';
 import { SuggestList, SuggestListText } from '../ui/suggest-list';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
@@ -32,6 +33,7 @@ import { AddressesService } from './addresses.service';
     FieldBinding,
     Input,
     HighlightedLine,
+    MatchSegmentsPipe,
     SuggestField,
     SuggestInput,
     SuggestRow,
@@ -53,7 +55,9 @@ import { AddressesService } from './addresses.service';
       />
       <ng-template appSuggestRow [of]="list" let-item let-query="query">
         <span class="block truncate text-ink">
-          <app-highlighted-line [line]="item.label" [query]="query" />
+          <app-highlighted-line
+            [segments]="item.label | matchSegments: query"
+          />
         </span>
         <!-- The province under the line, where the provider named one: it is
              the part the line itself leaves out, and two streets of the same

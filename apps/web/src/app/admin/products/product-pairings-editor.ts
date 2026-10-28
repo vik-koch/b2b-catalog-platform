@@ -15,6 +15,7 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { SuggestList } from '../../shared/ui/suggest-list';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
@@ -61,6 +62,7 @@ const SUGGESTIONS_SHOWN = 8;
     DisclosureToggle,
     FieldLabel,
     HighlightedLine,
+    MatchSegmentsPipe,
     IconButton,
     Input,
     StatusBadge,
@@ -147,9 +149,9 @@ const SUGGESTIONS_SHOWN = 8;
                 >
                   <span class="block truncate">
                     <app-highlighted-line
-                      [line]="item.name"
-                      [query]="query"
-                      [alternateQuery]="alternateQuery()"
+                      [segments]="
+                        item.name | matchSegments: query : alternateQuery()
+                      "
                     />
                   </span>
                   @if (item.publishedAt === null) {
