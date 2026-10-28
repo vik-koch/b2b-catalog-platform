@@ -13,13 +13,10 @@ import {
   viewChild,
   viewChildren,
 } from '@angular/core';
-import { fill } from '@b2b-catalog-platform/ui/core/fill';
+import { fill } from '../core/fill';
 import { GRID_TEXT } from './grid-text';
-import {
-  injectNarrowScreen,
-  NarrowBreakpoint,
-} from '@b2b-catalog-platform/ui/core/narrow-screen';
-import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
+import { injectNarrowScreen, NarrowBreakpoint } from '../core/narrow-screen';
+import { TextButton } from '../actions/text-button';
 import {
   columnMinWidth,
   flexibleColumns,

@@ -11,7 +11,10 @@ export default [
   ...nx.configs['flat/angular-template'],
   ...baseConfig,
   ...classLines,
-  tailwindChecks(`${import.meta.dirname}/src/ui.css`),
+  tailwindChecks(`${import.meta.dirname}/src/ui.css`, [
+    // The argument of a `[class.text-right]` comparison reads as one.
+    '^right$',
+  ]),
   {
     files: ['**/*.ts'],
     rules: {

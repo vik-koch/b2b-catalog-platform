@@ -7,12 +7,12 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { Input } from '@b2b-catalog-platform/ui/inputs/input';
+import { debounced } from '../core/debounced';
+import { Input } from '../inputs/input';
 import { injectGridNav } from './grid-nav';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
+import { Icon } from '../icons/icon';
+import { searchIcon } from '../icons/glyphs/search';
+import { xIcon } from '../icons/glyphs/x';
 
 /** One request per word for a fast typist; the storefront search waits as long. */
 const SEARCH_DEBOUNCE_MS = 200;

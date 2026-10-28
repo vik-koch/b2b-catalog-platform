@@ -129,7 +129,7 @@ the schemas, which keeps the validation library out of the first page load
 code in the contract, never as a message to match on.
 
 **Storefront, admin and shared, at every level.** In the web app, `storefront/` is what buyers use, `admin/` what staff use, and `shared/` what
-both render or call: the UI primitives, configuration, the session, and the product views the
+both render or call: configuration, the session, and the product views the
 admin preview shows. The storefront and the admin each import shared code and never each other;
 only the root files (`app.ts`, `app.config.ts`, `app.routes.ts`) compose both. Edit mode, the
 admin's controls on storefront pages, reaches admin code through an injection token the root

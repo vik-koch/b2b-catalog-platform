@@ -33,13 +33,13 @@ import {
   StatusBadge,
   StatusTone,
 } from '@b2b-catalog-platform/ui/content/status-badge';
-import { DataGrid } from '../../shared/ui/grid/data-grid';
-import { GridColumn } from '../../shared/ui/grid/grid-column';
-import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
-import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
-import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
+import { GridColumn } from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
-import { GridHeader } from '../../shared/ui/grid/grid-header';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';

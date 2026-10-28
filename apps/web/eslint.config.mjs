@@ -45,8 +45,6 @@ export default [
     '^elsewhere-mark$',
     '^listing-held$',
     '^cart-(count|total)$',
-    // The argument of a `[class.text-right]` comparison reads as one.
-    '^right$',
   ]),
   {
     files: ['**/*.ts'],

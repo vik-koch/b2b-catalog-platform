@@ -1,8 +1,8 @@
 import { Component, computed, input } from '@angular/core';
-import { NarrowBreakpoint } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { NarrowBreakpoint } from '../core/narrow-screen';
 import { GridClearFilters } from './grid-clear-filters';
 import { GridSearchField } from './grid-search-field';
-import { PageIntro } from '@b2b-catalog-platform/ui/content/page-intro';
+import { PageIntro } from '../content/page-intro';
 
 /** Below the grid's breakpoint the narrow controls carry clear-filters.
  * Written out: Tailwind cannot see an interpolated class. */

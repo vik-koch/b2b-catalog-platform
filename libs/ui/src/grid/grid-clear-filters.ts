@@ -2,9 +2,9 @@ import { Component, computed, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { GRID_TEXT } from './grid-text';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
+import { Icon } from '../icons/icon';
+import { IconButton } from '../actions/icon-button';
+import { funnelXIcon } from '../icons/glyphs/funnel-x';
 
 /**
  * Back to the whole list: a glyph, so it sits on the search box's line. Always

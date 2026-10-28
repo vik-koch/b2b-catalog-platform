@@ -44,14 +44,14 @@ import { ProductCreateService } from '../ownership/product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { DataGrid } from '../../shared/ui/grid/data-grid';
+import { DataGrid } from '@b2b-catalog-platform/ui/grid/data-grid';
 import {
   GridChip,
   GridColumn,
   GridToggleGroup,
-} from '../../shared/ui/grid/grid-column';
-import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
-import { GridPagination } from '../../shared/ui/grid/grid-pagination';
+} from '@b2b-catalog-platform/ui/grid/grid-column';
+import { GridFilterOption } from '@b2b-catalog-platform/ui/grid/grid-filter-select';
+import { GridPagination } from '@b2b-catalog-platform/ui/grid/grid-pagination';
 import {
   DEFAULT_ADMIN_SORT,
   DEFAULT_ADMIN_STATE,
@@ -59,11 +59,11 @@ import {
   resolveAdminSort,
   resolveAdminState,
 } from './product-grid-query';
-import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
-import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
+import { GridCardTemplate } from '@b2b-catalog-platform/ui/grid/grid-card-template';
+import { GridRowTemplate } from '@b2b-catalog-platform/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '@b2b-catalog-platform/ui/lists/record-row';
-import { GridHeader } from '../../shared/ui/grid/grid-header';
+import { GridHeader } from '@b2b-catalog-platform/ui/grid/grid-header';
 import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
 import { purgeWithConfirmation, PurgeText } from './product-removal';

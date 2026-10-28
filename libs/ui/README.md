@@ -52,12 +52,13 @@ by module, so a barrel would carry everything behind it into the first load.
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
 | `disclosure/` | What opens and closes: `DisclosureToggle`, `appDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |
 | `fields/` | The labelled unit around an input: `Field`, `FieldGroup`, `FieldStatus`, `FieldBinding`, `appFieldLabel`, `appFieldAction`, `SubmitAttempt`, `appErrorText`, `appHint`, and `FORM_FIELDS` to import them with Signal Forms |
+| `grid/` | A list as a table on a wide screen and records below: `DataGrid` with its column model, `appGridRow` and `appGridCard`, `GridHeader`, `GridPagination`, the `GRID_TEXT` token |
 | `icons/` | `Icon`, the `Glyph` type and one module per glyph |
 | `inputs/` | What holds a typed value: `appInput`, `SelectInput`, `DateInput`, `UnitInput` with `appUnitInputControl`, `CodeInput`, `PhoneInput`, `appInputPrefix`; and what shapes a control: `appAllow` with `numericRules`, `appDigitMask`, `appAutoGrow`, `appFileTarget`, `appDropZone` |
 | `lists/` | Short lists and paging: `RecordRow`, `appRecordFields`, `appRecordFormActions`, `Pagination` |
 | `overlay/` | What opens over the page: `ConfirmService` with `ConfirmDialog`, `DialogPanel`, `appDialogActions`, `Popover` |
 | `suggest/` | The type-ahead combobox: `SuggestField` with `appSuggestInput` and `appSuggestRow`, the `SuggestList` state behind it, `HighlightedLine` for a matched row |
-| `ui.css` | Tailwind, the breakpoints, the type weight and the colour roles; the app's stylesheet imports it |
+| `ui.css` | Tailwind, the breakpoints, the type weight, the colour roles and the pieces' own animations; the app's stylesheet imports it |
 
 ## Checking
 

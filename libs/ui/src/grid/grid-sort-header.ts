@@ -1,8 +1,8 @@
 import { Component, computed, input } from '@angular/core';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { Icon } from '../icons/icon';
 import { gridParam, injectGridNav } from './grid-nav';
-import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
-import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
+import { chevronDownIcon } from '../icons/glyphs/chevron-down';
+import { chevronUpIcon } from '../icons/glyphs/chevron-up';
 
 /** A sortable column heading (FR-ADM-05), writing its own `sort` parameter. */
 @Component({

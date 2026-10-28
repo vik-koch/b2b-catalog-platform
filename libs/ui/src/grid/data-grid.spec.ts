@@ -2,7 +2,7 @@ import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { NARROW_SCREEN_QUERIES } from '@b2b-catalog-platform/ui/core/narrow-screen';
+import { NARROW_SCREEN_QUERIES } from '../core/narrow-screen';
 import { DataGrid } from './data-grid';
 import { GridColumn } from './grid-column';
 import { GridWidths, GRID_WIDTHS_KEY } from './grid-widths';
