@@ -13,6 +13,7 @@ import { LoadErrorView } from './load-error-view';
 import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { PageTitle } from '../../shared/ui/page-title';
+import { Skeleton } from '../../shared/ui/skeleton';
 
 /**
  * Contact page — a code route that renders an editable body.
@@ -33,6 +34,7 @@ import { PageTitle } from '../../shared/ui/page-title';
     EmphasisedText,
     LoadErrorView,
     PageTitle,
+    Skeleton,
   ],
   template: `
     <!-- Nothing renders before the body arrives, heading included. The office
@@ -97,11 +99,8 @@ import { PageTitle } from '../../shared/ui/page-title';
         }
       </div>
     } @else if (showSkeleton()) {
-      <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
-      </div>
+      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <app-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

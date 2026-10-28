@@ -56,6 +56,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import {
   ConfirmService,
   confirmRequest,
@@ -167,6 +168,7 @@ const PREVIEW_DEBOUNCE_MS = 250;
     AddressFields,
     Button,
     Checkbox,
+    TickLabel,
     CompanyFields,
     DisclosureToggle,
     FieldLabel,
@@ -670,11 +672,10 @@ const PREVIEW_DEBOUNCE_MS = 250;
                  the phone and then confirmed, and the confirmation is the one
                  mail worth sending; this is for the change with no move behind
                  it, which nothing else would ever mention. -->
-            <label class="mt-4 flex items-start gap-2 text-sm">
+            <label appTickLabel class="mt-4">
               <input
                 appCheckbox
                 type="checkbox"
-                class="mt-0.5"
                 [disabled]="saving()"
                 [checked]="notify()"
                 (change)="notify.set($any($event.target).checked)"

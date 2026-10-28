@@ -100,10 +100,7 @@ function isCategoryPanel(panel: Panel): panel is CategoryFilters {
           {{ headingFor(panel) }}
         </h1>
       } @else {
-        <div
-          class="h-9 w-2/3 max-w-sm animate-pulse rounded-sm bg-skeleton"
-          aria-hidden="true"
-        ></div>
+        <app-skeleton size="title" class="w-2/3 max-w-sm" [widths]="['100%']" />
       }
       <a appButton variant="secondary" routerLink="/admin/attributes">
         {{ text.page.title }}

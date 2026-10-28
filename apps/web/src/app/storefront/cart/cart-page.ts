@@ -25,6 +25,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
+import { Pagination } from '../../shared/ui/pagination';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { EmptyState } from '../../shared/ui/empty-state';
 import { AutoGrow } from '../../shared/ui/auto-grow';
@@ -144,6 +145,7 @@ interface CartRow {
     ProductPairings,
     ProductRow,
     RouterLink,
+    Pagination,
   ],
   template: `
     @if (cart.isEmpty()) {
@@ -411,34 +413,13 @@ interface CartRow {
                  same three controls would read as a different one. Buttons
                  rather than links, because the page they turn is not in the
                  URL. -->
-            @if (totalPages() > 1) {
-              <nav
-                class="mt-8 flex items-center justify-center gap-4 text-sm"
-                [attr.aria-label]="pagination.status"
-              >
-                <button
-                  type="button"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  [disabled]="page() === 1"
-                  (click)="turnPage(-1)"
-                >
-                  {{ pagination.previous }}
-                </button>
-                <span class="text-ink-subtle">{{ pageStatus() }}</span>
-                <button
-                  type="button"
-                  appButton
-                  variant="ghost"
-                  size="sm"
-                  [disabled]="page() === totalPages()"
-                  (click)="turnPage(1)"
-                >
-                  {{ pagination.next }}
-                </button>
-              </nav>
-            }
+            <app-pagination
+              class="mt-8"
+              [page]="page()"
+              [totalPages]="totalPages()"
+              [text]="pagination"
+              (turned)="turnTo($event)"
+            />
           </div>
 
           <!-- Capped at the column's own width when it sits under the lines
@@ -740,13 +721,6 @@ export class CartPage {
     return this.rows().slice(from, from + CART_PAGE_SIZE);
   });
 
-  protected readonly pageStatus = computed(() =>
-    fillText(this.pagination.status, {
-      page: this.page(),
-      total: this.totalPages(),
-    }),
-  );
-
   /**
    * The ticked lines, by slug. Held here rather than on the rows so a re-priced
    * cart does not drop the ticks, and intersected with the cart on every read
@@ -824,10 +798,8 @@ export class CartPage {
   /** Turns a page, from the clamped page rather than the requested one: after
    * a removal the two can differ, and stepping off the stale figure would skip
    * a page. */
-  protected turnPage(by: number): void {
-    this.requestedPage.set(
-      Math.min(Math.max(this.page() + by, 1), this.totalPages()),
-    );
+  protected turnTo(page: number): void {
+    this.requestedPage.set(page);
   }
 
   /** One line of the change summary, named by its product — the summary is

@@ -26,7 +26,7 @@ import {
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
-import { WorkNote } from '../../shared/work/work-note';
+import { ActionLink } from '../../shared/ui/action-link';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '../../shared/ui/page-title';
@@ -83,7 +83,7 @@ interface DetailRow {
     OrderRows,
     RouterLink,
     Icon,
-    WorkNote,
+    ActionLink,
     PageTitle,
     ErrorText,
   ],
@@ -123,18 +123,20 @@ interface DetailRow {
                    and a parcel on the counter are two jobs with two lists. -->
               <div class="mb-4 flex flex-col gap-1">
                 @if (waitingPayments(); as count) {
-                  <app-work-note
-                    [label]="fill(orderText.awaitingPayment, count)"
-                    link="/account/orders"
+                  <a
+                    appActionLink
+                    routerLink="/account/orders"
                     [queryParams]="{ state: 'to-pay' }"
-                  />
+                    >{{ fill(orderText.awaitingPayment, count) }}</a
+                  >
                 }
                 @if (waitingPickups(); as count) {
-                  <app-work-note
-                    [label]="fill(orderText.awaitingPickup, count)"
-                    link="/account/orders"
+                  <a
+                    appActionLink
+                    routerLink="/account/orders"
                     [queryParams]="{ state: 'to-collect' }"
-                  />
+                    >{{ fill(orderText.awaitingPickup, count) }}</a
+                  >
                 }
               </div>
             }

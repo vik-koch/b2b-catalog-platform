@@ -11,7 +11,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Params, Router, RouterLink } from '@angular/router';
 import {
   CategoryCrumb,
   categoryDisplayName,
@@ -40,7 +40,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
 import { NotFoundView } from '../pages/not-found-view';
-import { Button } from '../../shared/ui/button';
+import { Pagination } from '../../shared/ui/pagination';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { disclosureState } from '../../shared/ui/disclosure-state';
 import { ShowMoreToggle } from '../../shared/ui/show-more-toggle';
@@ -160,12 +160,12 @@ interface Listing {
     FacetPanel,
     AppliedFilters,
     CategoryChip,
-    Button,
     ShowMoreToggle,
     EditActions,
     HiddenProductsSection,
     NotFoundView,
     LoadErrorView,
+    Pagination,
   ],
   template: `
     <!-- Everything inside measures this container rather than the window, so
@@ -455,52 +455,14 @@ interface Listing {
                   <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
                 }
 
-                @if (data.pagination.totalPages > 1) {
-                  <nav
-                    class="mt-8 flex items-center justify-center gap-4 text-sm"
-                    [attr.aria-label]="pagination.status"
-                  >
-                    @if (data.pagination.page > 1) {
-                      <a
-                        [routerLink]="listingLink()"
-                        [queryParams]="{
-                          page: data.pagination.page - 1,
-                          sort: sortParam(),
-                          attr: attrParam(),
-                        }"
-                        appButton
-                        variant="ghost"
-                        size="sm"
-                        >{{ pagination.previous }}</a
-                      >
-                    } @else {
-                      <span class="px-3 py-1.5 text-ink-disabled">{{
-                        pagination.previous
-                      }}</span>
-                    }
-                    <span class="text-ink-subtle">{{
-                      pageStatus(data.pagination)
-                    }}</span>
-                    @if (data.pagination.page < data.pagination.totalPages) {
-                      <a
-                        [routerLink]="listingLink()"
-                        [queryParams]="{
-                          page: data.pagination.page + 1,
-                          sort: sortParam(),
-                          attr: attrParam(),
-                        }"
-                        appButton
-                        variant="ghost"
-                        size="sm"
-                        >{{ pagination.next }}</a
-                      >
-                    } @else {
-                      <span class="px-3 py-1.5 text-ink-disabled">{{
-                        pagination.next
-                      }}</span>
-                    }
-                  </nav>
-                }
+                <app-pagination
+                  class="mt-8"
+                  [link]="listingLink()"
+                  [page]="data.pagination.page"
+                  [totalPages]="data.pagination.totalPages"
+                  [queryParams]="pageParams"
+                  [text]="pagination"
+                />
               } @else {
                 <p class="text-ink-subtle">
                   {{
@@ -813,9 +775,9 @@ export class CategoryGrid {
     return fillText(this.text.productCount, { count: total });
   }
 
-  protected pageStatus(p: { page: number; totalPages: number }): string {
-    return this.pagination.status
-      .replace('{page}', String(p.page))
-      .replace('{total}', String(p.totalPages));
-  }
+  protected readonly pageParams = (page: number): Params => ({
+    page,
+    sort: this.sortParam(),
+    attr: this.attrParam(),
+  });
 }

@@ -34,6 +34,7 @@ import { OrderReadBack } from '../../shared/orders/order-read-back';
 import { OrdersService } from '../orders/orders.service';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { EmptyState } from '../../shared/ui/empty-state';
@@ -90,6 +91,7 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
     AddressPicker,
     Button,
     Checkbox,
+    TickLabel,
     DeliveryZoneHint,
     EmptyState,
     FulfilmentChoice,
@@ -327,14 +329,10 @@ import { shoppingBasketIcon } from '@b2b-catalog-platform/ui/icons/glyphs/shoppi
                      own: there is no second address for this one to be the
                      same as. -->
                     @if (billingEnabled) {
-                      <label
-                        class="mt-4 flex cursor-pointer items-start gap-2
-                               text-sm"
-                      >
+                      <label appTickLabel class="mt-4">
                         <input
                           type="checkbox"
                           appCheckbox
-                          class="mt-0.5"
                           [checked]="draft().billingSameAsDelivery"
                           (change)="toggleSameBilling()"
                         />

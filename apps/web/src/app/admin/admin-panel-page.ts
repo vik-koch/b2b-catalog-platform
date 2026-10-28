@@ -1,4 +1,5 @@
 import { Component, computed, inject, resource, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import {
   CONSENT_PAGE_SLUGS,
   CONSENT_PURPOSES,
@@ -14,7 +15,7 @@ import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '../shared/ui/status-badge';
-import { WorkNote } from '../shared/work/work-note';
+import { ActionLink } from '../shared/ui/action-link';
 import { WorkService } from '../shared/work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';
@@ -41,7 +42,15 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
  */
 @Component({
   selector: 'app-admin-panel-page',
-  imports: [SignedInAs, Icon, PanelRow, StatusBadge, WorkNote, PageTitle],
+  imports: [
+    SignedInAs,
+    Icon,
+    PanelRow,
+    StatusBadge,
+    ActionLink,
+    PageTitle,
+    RouterLink,
+  ],
   template: `
     <!-- Narrower than the shell allows. The panel is a column of short lists,
          and at the full width of a desktop each card was a name on the left
@@ -94,18 +103,20 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                      sentences to read down however wide the row is. -->
                 <div class="flex flex-col items-end gap-0.5">
                   @if (waitingOrders(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workOrders, count)"
-                      link="/admin/orders"
+                    <a
+                      appActionLink
+                      routerLink="/admin/orders"
                       [queryParams]="{ status: 'requested' }"
-                    />
+                      >{{ fill(panelText.workOrders, count) }}</a
+                    >
                   }
                   @if (unpaidOrders(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workUnpaid, count)"
-                      link="/admin/orders"
+                    <a
+                      appActionLink
+                      routerLink="/admin/orders"
                       [queryParams]="{ status: 'completed', payment: 'unpaid' }"
-                    />
+                      >{{ fill(panelText.workUnpaid, count) }}</a
+                    >
                   }
                 </div>
               </app-panel-row>
@@ -146,21 +157,23 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (waitingProducts(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workProducts, count)"
-                        link="/admin/products"
+                      <a
+                        appActionLink
+                        routerLink="/admin/products"
                         [queryParams]="{ state: 'unpublished' }"
-                      />
+                        >{{ fill(panelText.workProducts, count) }}</a
+                      >
                     }
                     <!-- Its own note, like the documents row's pair: one is work
                        an admin finishes by looking, the other is a product
                        nobody can publish until it has a price. -->
                     @if (unpricedProducts(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workUnpricedProducts, count)"
-                        link="/admin/products"
+                      <a
+                        appActionLink
+                        routerLink="/admin/products"
                         [queryParams]="{ missing: 'price' }"
-                      />
+                        >{{ fill(panelText.workUnpricedProducts, count) }}</a
+                      >
                     }
                   </div>
                 </app-panel-row>
@@ -174,18 +187,20 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (expiredDocuments(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workDocumentsExpired, count)"
-                        link="/admin/documents"
+                      <a
+                        appActionLink
+                        routerLink="/admin/documents"
                         [queryParams]="{ status: 'expired' }"
-                      />
+                        >{{ fill(panelText.workDocumentsExpired, count) }}</a
+                      >
                     }
                     @if (waitingDocuments(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workDocuments, count)"
-                        link="/admin/documents"
+                      <a
+                        appActionLink
+                        routerLink="/admin/documents"
                         [queryParams]="{ status: 'expiring' }"
-                      />
+                        >{{ fill(panelText.workDocuments, count) }}</a
+                      >
                     }
                   </div>
                 </app-panel-row>
@@ -201,11 +216,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 >
                   <div class="flex flex-col items-end gap-0.5">
                     @if (stagedCatalogRuns(); as count) {
-                      <app-work-note
-                        [label]="fill(panelText.workSyncRuns, count)"
-                        link="/admin/sync/catalog"
+                      <a
+                        appActionLink
+                        routerLink="/admin/sync/catalog"
                         [queryParams]="{ status: 'previewed' }"
-                      />
+                        >{{ fill(panelText.workSyncRuns, count) }}</a
+                      >
                     }
                     @if (lastSync(); as moment) {
                       <span class="flex text-xs text-ink-subtle">{{
@@ -273,11 +289,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
                 link="/admin/users"
               >
                 @if (waitingRegistrations(); as count) {
-                  <app-work-note
-                    [label]="fill(panelText.workRegistrations, count)"
-                    link="/admin/users"
+                  <a
+                    appActionLink
+                    routerLink="/admin/users"
                     [queryParams]="{ status: 'pending' }"
-                  />
+                    >{{ fill(panelText.workRegistrations, count) }}</a
+                  >
                 }
               </app-panel-row>
               @if (isAdmin()) {
@@ -295,11 +312,12 @@ import { wrenchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/wrench';
               >
                 <div class="flex flex-col items-end gap-0.5">
                   @if (stagedCustomerRuns(); as count) {
-                    <app-work-note
-                      [label]="fill(panelText.workSyncRuns, count)"
-                      link="/admin/sync/customers"
+                    <a
+                      appActionLink
+                      routerLink="/admin/sync/customers"
                       [queryParams]="{ status: 'previewed' }"
-                    />
+                      >{{ fill(panelText.workSyncRuns, count) }}</a
+                    >
                   }
                   @if (lastCustomerSync(); as moment) {
                     <span class="flex text-xs text-ink-subtle">{{

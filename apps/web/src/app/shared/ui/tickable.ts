@@ -1,4 +1,8 @@
-import { Directive } from '@angular/core';
+import { Directive, inject } from '@angular/core';
+import { TickLabel } from './tick-label';
+
+/** Onto the first 20px line of `text-sm`, which the 16px box is shorter than. */
+const inRow = 'mt-0.5';
 
 /**
  * What Checkbox and Radio share: a native control painted by us, because a
@@ -20,6 +24,11 @@ import { Directive } from '@angular/core';
             [@media(hover:hover)]:[label:hover_&:not(:disabled)]:border-accent
             [@media(hover:hover)]:[label:hover_&:checked:not(:disabled)]:bg-accent
             disabled:cursor-not-allowed disabled:opacity-60`,
+    '[class]': 'alignment',
   },
 })
-export class Tickable {}
+export class Tickable {
+  protected readonly alignment = inject(TickLabel, { optional: true })
+    ? inRow
+    : '';
+}

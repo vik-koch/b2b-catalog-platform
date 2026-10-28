@@ -41,6 +41,17 @@ describe('Notice', () => {
     expect(notice.classList).not.toContain('bg-warning-surface');
   });
 
+  it('draws the neutral tone quiet, with no line around it', async () => {
+    const { fixture, notice } = await render();
+
+    fixture.componentInstance.tone.set('neutral');
+    fixture.detectChanges();
+
+    expect(notice.classList).toContain('bg-surface');
+    expect(notice.classList).toContain('text-ink-subtle');
+    expect(notice.classList).toContain('border-transparent');
+  });
+
   it('leaves the page its own spacing and role', async () => {
     const { notice } = await render();
 

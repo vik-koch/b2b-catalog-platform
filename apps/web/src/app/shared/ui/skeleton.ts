@@ -8,8 +8,9 @@ const WIDTHS = ['100%', '83%', '66%'] as const;
  * with air between them. The text sizes stand in for lines of actual text: the
  * row is the line box that text would occupy and the bar is thinner inside it,
  * so what arrives lands exactly where the bar was and nothing under it moves.
+ * `title` is a page title's line.
  */
-export type SkeletonSize = 'block' | 'sm' | 'base';
+export type SkeletonSize = 'block' | 'sm' | 'base' | 'title';
 
 const row = 'flex items-center';
 
@@ -18,6 +19,7 @@ const rowHeights: Record<SkeletonSize, string> = {
   block: 'h-4',
   sm: 'h-5',
   base: 'h-6',
+  title: 'h-9',
 };
 
 /** The edge the replaced text is set against. */
@@ -32,6 +34,7 @@ const barHeights: Record<SkeletonSize, string> = {
   block: 'h-4',
   sm: 'h-3',
   base: 'h-3.5',
+  title: 'h-7',
 };
 
 /**

@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 import {
   encodeAttributeParams,
   fillText,
@@ -16,6 +16,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { LoadErrorView } from '../pages/load-error-view';
 import { Button } from '../../shared/ui/button';
+import { Pagination } from '../../shared/ui/pagination';
 import { AppliedFilters } from './applied-filters';
 import { CatalogService } from './catalog.service';
 import {
@@ -55,6 +56,7 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
     AppliedFilters,
     Button,
     LoadErrorView,
+    Pagination,
   ],
   template: `
     <!-- Everything inside measures this container rather than the window, so
@@ -193,54 +195,14 @@ import { useTaxStatement } from '../../shared/catalog/tax-statement';
                 <p class="mt-4 text-xs text-ink-subtle">{{ taxNote }}</p>
               }
 
-              @if (data.pagination.totalPages > 1) {
-                <nav
-                  class="mt-8 flex items-center justify-center gap-4 text-sm"
-                  [attr.aria-label]="pagination.status"
-                >
-                  @if (data.pagination.page > 1) {
-                    <a
-                      routerLink="/search"
-                      [queryParams]="{
-                        q: query(),
-                        page: data.pagination.page - 1,
-                        sort: sortParam(),
-                        attr: attrParam(),
-                      }"
-                      appButton
-                      variant="ghost"
-                      size="sm"
-                      >{{ pagination.previous }}</a
-                    >
-                  } @else {
-                    <span class="px-3 py-1.5 text-ink-disabled">{{
-                      pagination.previous
-                    }}</span>
-                  }
-                  <span class="text-ink-subtle">{{
-                    pageStatus(data.pagination)
-                  }}</span>
-                  @if (data.pagination.page < data.pagination.totalPages) {
-                    <a
-                      routerLink="/search"
-                      [queryParams]="{
-                        q: query(),
-                        page: data.pagination.page + 1,
-                        sort: sortParam(),
-                        attr: attrParam(),
-                      }"
-                      appButton
-                      variant="ghost"
-                      size="sm"
-                      >{{ pagination.next }}</a
-                    >
-                  } @else {
-                    <span class="px-3 py-1.5 text-ink-disabled">{{
-                      pagination.next
-                    }}</span>
-                  }
-                </nav>
-              }
+              <app-pagination
+                class="mt-8"
+                link="/search"
+                [page]="data.pagination.page"
+                [totalPages]="data.pagination.totalPages"
+                [queryParams]="pageParams"
+                [text]="pagination"
+              />
             </div>
           </div>
         } @else if (query()) {
@@ -415,9 +377,10 @@ export class SearchResults {
     return fillText(this.text.resultCount, { count: total });
   }
 
-  protected pageStatus(p: { page: number; totalPages: number }): string {
-    return this.pagination.status
-      .replace('{page}', String(p.page))
-      .replace('{total}', String(p.totalPages));
-  }
+  protected readonly pageParams = (page: number): Params => ({
+    q: this.query(),
+    page,
+    sort: this.sortParam(),
+    attr: this.attrParam(),
+  });
 }

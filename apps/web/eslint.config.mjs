@@ -43,13 +43,14 @@ export default [
           style: 'camelCase',
         },
       ],
+      // An attribute component keeps a native element and its semantics, as
+      // `a[appActionLink]` keeps the anchor, its router link and its query.
       '@angular-eslint/component-selector': [
         'error',
-        {
-          type: 'element',
-          prefix: 'app',
-          style: 'kebab-case',
-        },
+        [
+          { type: 'element', prefix: 'app', style: 'kebab-case' },
+          { type: 'attribute', prefix: 'app', style: 'camelCase' },
+        ],
       ],
       'no-restricted-imports': [
         'error',

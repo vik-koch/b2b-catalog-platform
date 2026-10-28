@@ -22,6 +22,7 @@ import {
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Button } from '../../shared/ui/button';
+import { Notice } from '../../shared/ui/notice';
 import { RichTextEditor } from '../rich-text/rich-text-editor';
 import { injectConfirmDiscard } from '../confirm-discard';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -30,6 +31,7 @@ import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { Input } from '../../shared/ui/input';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { PageEditingService } from './page-editing.service';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
@@ -54,8 +56,10 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     FORM_FIELDS,
     Input,
     Checkbox,
+    TickLabel,
     PageTitle,
     ErrorText,
+    Notice,
   ],
   // No <form> element: the buttons under the page save, preview or leave, so
   // the editor says itself when the form has been sent.
@@ -67,10 +71,7 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
   host: { '(click)': 'onPreviewClick($event)' },
   template: `
     @if (previewing()) {
-      <p
-        class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
-        role="status"
-      >
+      <p appNotice tone="neutral" class="mb-6" role="status">
         {{ text.previewNotice }}
       </p>
       <h1 appPageTitle class="mb-4">{{ title() }}</h1>
@@ -80,8 +81,8 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
       @if (isConsent()) {
         <div class="mt-8 max-w-3xl border-t border-edge pt-4">
           <p class="mb-2 text-sm text-ink-subtle">{{ text.consentPreview }}</p>
-          <label class="flex items-start gap-2 text-sm">
-            <input type="checkbox" appCheckbox class="mt-0.5" disabled />
+          <label appTickLabel>
+            <input type="checkbox" appCheckbox disabled />
             @if (consentParts(); as parts) {
               <span
                 >{{ parts.before

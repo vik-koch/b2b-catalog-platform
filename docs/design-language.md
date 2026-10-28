@@ -150,7 +150,8 @@ name is 700, `-ink` 800, `-surface` 100, `-edge` 200, `-edge-strong` 300,
 ground, a step from the page as the neutral `surface` is: a badge is `-ink` on `-surface` with
 a `-dot` (`appStatusBadge`), a panel is `-ink` on `-surface` inside an `-edge` (`appNotice`).
 The neutral badge is the one exception, on `chip`, because a grey a step from the page all but
-vanishes on it.
+vanishes on it. The neutral panel explains a state rather than stopping the reader: `ink-subtle`
+on `surface`, with no edge.
 
 ## Themes
 

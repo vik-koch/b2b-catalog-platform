@@ -1,20 +1,16 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
+import { imageOffIcon } from '@b2b-catalog-platform/ui/icons/glyphs/image-off';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 
 /**
- * Fallback tile for a product (or product image) that has no photo yet. A view
- * concern only — the API models absence as an empty `images` array; the galleries
- * render this in its place. Fills its container (`aspect-square` framings on the
- * grid tile and the product page alike), so one component covers a tiny thumb and
- * the large product image. The caption is deployment text
- * (`catalog.imagePlaceholder`), shown from the width where the box can hold it —
- * measured on the box, since the same component is a 4rem thumbnail and a
- * full-width product image on one screen. The glyph is the owned Lucide
- * `image-off` (ISC), inlined as page-level chrome rather than pulled from the
- * editor-only icon set.
+ * What stands in for a product photo that is not there. Fills its box, from a
+ * thumbnail to the product page's image; the caption shows from the width
+ * that holds it, measured on the box rather than the window.
  */
 @Component({
   selector: 'app-image-placeholder',
+  imports: [Icon],
   host: {
     role: 'img',
     '[attr.aria-label]': 'ariaLabel()',
@@ -22,26 +18,11 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
             justify-center gap-2 bg-surface text-ink-subtle`,
   },
   template: `
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      stroke-width="1.5"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="size-8"
+    <app-icon
+      [glyph]="imageOffIcon"
+      class="size-8 [--icon-stroke-width:1.5]"
       aria-hidden="true"
-    >
-      <line x1="2" x2="22" y1="2" y2="22" />
-      <path d="M10.41 10.41a2 2 0 1 1-2.83-2.83" />
-      <line x1="13.5" x2="6" y1="13.5" y2="21" />
-      <line x1="18" x2="21" y1="12" y2="15" />
-      <path
-        d="M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59"
-      />
-      <path d="M21 15V5a2 2 0 0 0-2-2H9" />
-    </svg>
+    />
     <!-- 6rem holds the glyph, the gap and two wrapped lines of caption in a
          box as tall as it is wide. Below that it is a thumbnail, and the
          glyph says the same thing on its own. -->
@@ -53,12 +34,12 @@ import { STOREFRONT_TEXT } from '../config/storefront-text';
   `,
 })
 export class ImagePlaceholder {
+  protected readonly imageOffIcon = imageOffIcon;
   protected readonly text = inject(STOREFRONT_TEXT).catalog;
 
-  /** Product name — the placeholder's accessible label, matching a real image's alt. */
+  /** The product's name, as a real image's alt would carry it. */
   label = input<string>('');
 
-  /** "<product> — no image available", or just the caption when unlabelled. */
   protected ariaLabel = computed(() => {
     const name = this.label();
     return name

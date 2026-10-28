@@ -27,6 +27,7 @@ import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { LockedNote } from '../ownership/locked-note';
 import { Button } from '../../shared/ui/button';
+import { Notice } from '../../shared/ui/notice';
 import { CompanyFields } from '../../shared/parties/company-fields';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
@@ -99,6 +100,7 @@ interface UserDraft {
     WarningNote,
     PageTitle,
     ErrorText,
+    Notice,
   ],
   template: `
     <!-- One narrow column for the whole screen, heading included: a full-width
@@ -138,10 +140,7 @@ interface UserDraft {
         }
 
         @if (closed()) {
-          <p
-            class="mb-6 rounded-md bg-surface px-4 py-2 text-sm
-                   text-ink-subtle"
-          >
+          <p appNotice tone="neutral" class="mb-6">
             {{ text.closed }}
           </p>
         }

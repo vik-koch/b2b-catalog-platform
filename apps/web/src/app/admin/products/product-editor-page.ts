@@ -72,7 +72,9 @@ import { filled } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { Button } from '../../shared/ui/button';
+import { Notice } from '../../shared/ui/notice';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';
@@ -166,6 +168,7 @@ interface ProductDraft {
     ProductImageGallery,
     ProductDetailView,
     Checkbox,
+    TickLabel,
     FieldLabel,
     Input,
     PriceField,
@@ -176,6 +179,7 @@ interface ProductDraft {
     PageTitle,
     ErrorText,
     UnitFieldInput,
+    Notice,
   ],
   // No <form> element: the buttons under the page save, publish or preview,
   // so the page says itself when the form has been sent.
@@ -228,10 +232,7 @@ interface ProductDraft {
            product here") land on this route. -->
       <app-locked-note>{{ ownershipText.productCreate }}</app-locked-note>
     } @else if (previewing()) {
-      <p
-        class="mb-6 rounded-md bg-surface px-4 py-2 text-sm text-ink-subtle"
-        role="status"
-      >
+      <p appNotice tone="neutral" class="mb-6" role="status">
         {{ text.previewNotice }}
       </p>
       <app-product-detail-view [item]="previewItem()" [canAdd]="false" />
@@ -515,11 +516,10 @@ interface ProductDraft {
           [on]="featured()"
         >
           <p class="mb-2 text-xs text-ink-subtle">{{ text.featured.hint }}</p>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label appTickLabel>
             <input
               type="checkbox"
               appCheckbox
-              class="mt-0.5"
               [checked]="featured()"
               (change)="featured.set($any($event.target).checked)"
             />
@@ -542,11 +542,10 @@ interface ProductDraft {
           [on]="lineNoteEnabled()"
         >
           <p class="mb-2 text-xs text-ink-subtle">{{ text.lineNote.hint }}</p>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label appTickLabel>
             <input
               type="checkbox"
               appCheckbox
-              class="mt-0.5"
               [checked]="lineNoteEnabled()"
               (change)="onLineNoteToggle($any($event.target).checked)"
             />

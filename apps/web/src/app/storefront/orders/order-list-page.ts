@@ -1,5 +1,5 @@
 import { Component, computed, inject, input, resource } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Params, RouterLink } from '@angular/router';
 import {
   fillText,
   MY_ORDER_FILTERS,
@@ -11,6 +11,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
 import { Button } from '../../shared/ui/button';
+import { Pagination } from '../../shared/ui/pagination';
 import { EmptyState } from '../../shared/ui/empty-state';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
@@ -38,6 +39,7 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
     PageTitle,
     ErrorText,
     PageIntro,
+    Pagination,
   ],
   template: `
     <h1 appPageTitle class="mb-2">{{ text.heading }}</h1>
@@ -94,44 +96,14 @@ import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
       } @else {
         <app-order-rows class="max-w-3xl" [orders]="data.items" />
 
-        @if (data.pagination.totalPages > 1) {
-          <nav
-            class="mt-8 flex items-center justify-center gap-4 text-sm"
-            [attr.aria-label]="pagination.status"
-          >
-            @if (data.pagination.page > 1) {
-              <a
-                routerLink="/account/orders"
-                [queryParams]="pageParams(data.pagination.page - 1)"
-                appButton
-                variant="ghost"
-                size="sm"
-                >{{ pagination.previous }}</a
-              >
-            } @else {
-              <span class="px-3 py-1.5 text-ink-disabled">{{
-                pagination.previous
-              }}</span>
-            }
-            <span class="text-ink-subtle">{{
-              pageStatus(data.pagination)
-            }}</span>
-            @if (data.pagination.page < data.pagination.totalPages) {
-              <a
-                routerLink="/account/orders"
-                [queryParams]="pageParams(data.pagination.page + 1)"
-                appButton
-                variant="ghost"
-                size="sm"
-                >{{ pagination.next }}</a
-              >
-            } @else {
-              <span class="px-3 py-1.5 text-ink-disabled">{{
-                pagination.next
-              }}</span>
-            }
-          </nav>
-        }
+        <app-pagination
+          class="mt-8"
+          link="/account/orders"
+          [page]="data.pagination.page"
+          [totalPages]="data.pagination.totalPages"
+          [queryParams]="pageParams"
+          [text]="pagination"
+        />
 
         <a appButton variant="secondary" routerLink="/account" class="mt-10">
           {{ text.back }}
@@ -193,17 +165,10 @@ export class OrderListPage {
 
   /** Paging keeps whatever the list is narrowed to: a second page of "ready to
    * collect" is still that list. */
-  protected pageParams(page: number): Record<string, string | number> {
+  protected readonly pageParams = (page: number): Params => {
     const state = this.filter();
     return state ? { page, state } : { page };
-  }
-
-  protected pageStatus(p: { page: number; totalPages: number }): string {
-    return fillText(this.pagination.status, {
-      page: p.page,
-      total: p.totalPages,
-    });
-  }
+  };
 
   constructor() {
     usePageSeo({ name: () => this.text.heading });

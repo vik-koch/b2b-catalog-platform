@@ -25,6 +25,7 @@ import { PageTitle } from '../../shared/ui/page-title';
 import { banknoteIcon } from '@b2b-catalog-platform/ui/icons/glyphs/banknote';
 import { landmarkIcon } from '@b2b-catalog-platform/ui/icons/glyphs/landmark';
 import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
+import { Skeleton } from '../../shared/ui/skeleton';
 
 /**
  * Payment and delivery conditions (FR-NAV-03) — a code route that renders an
@@ -56,6 +57,7 @@ import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
     TextButton,
     LoadErrorView,
     PageTitle,
+    Skeleton,
   ],
   template: `
     <!-- Nothing renders before the body arrives, and a body that failed or was
@@ -222,11 +224,8 @@ import { mapPinIcon } from '@b2b-catalog-platform/ui/icons/glyphs/map-pin';
         }
       </div>
     } @else if (showSkeleton()) {
-      <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
-      </div>
+      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <app-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

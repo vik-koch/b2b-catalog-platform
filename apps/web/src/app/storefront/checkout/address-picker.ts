@@ -11,6 +11,7 @@ import {
   addressDisplayName,
 } from '../../shared/addresses/address-format';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { ChoiceBranch } from '../../shared/ui/choice-branch';
 
 /** Ids have to be unique per instance: a delivery picker and a billing picker
@@ -34,7 +35,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'app-address-picker',
-  imports: [AddressFields, Checkbox, ChoiceBranch, NgTemplateOutlet],
+  imports: [AddressFields, Checkbox, TickLabel, ChoiceBranch, NgTemplateOutlet],
   host: { class: 'block' },
   template: `
     <fieldset>
@@ -102,11 +103,10 @@ let nextId = 0;
         <!-- Only where there is a book to save it to. Checked, because an
              address typed at checkout is one the customer orders to. -->
         @if (canSave()) {
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label appTickLabel>
             <input
               type="checkbox"
               appCheckbox
-              class="mt-0.5"
               [checked]="save()"
               (change)="saveChange.emit(!save())"
             />

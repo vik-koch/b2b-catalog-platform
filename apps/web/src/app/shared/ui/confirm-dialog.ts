@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { Button } from './button';
 import { Checkbox } from './checkbox';
+import { TickLabel } from './tick-label';
 import { AutoGrow } from './auto-grow';
 import { FieldLabel } from './field-label';
 import { Input } from './input';
@@ -52,6 +53,7 @@ export interface ConfirmAnswer {
     AutoGrow,
     Button,
     Checkbox,
+    TickLabel,
     DialogActions,
     DialogPanel,
     FieldLabel,
@@ -104,14 +106,14 @@ export interface ConfirmAnswer {
 
       @for (check of checks(); track check.key) {
         <label
-          class="mt-4 flex items-start gap-2 text-sm"
+          appTickLabel
+          class="mt-4"
           [class.ml-6]="check.requires"
           [class.opacity-50]="blocked(check)"
         >
           <input
             appCheckbox
             type="checkbox"
-            class="mt-0.5"
             [checked]="ticked()[check.key]"
             [disabled]="blocked(check)"
             (change)="tick(check.key, $any($event.target).checked)"

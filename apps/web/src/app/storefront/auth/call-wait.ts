@@ -14,6 +14,7 @@ import { CallStep } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import type { CallResult, SendResult } from '../../shared/auth/auth.service';
 import { formatWait } from './code-entry';
 
@@ -44,7 +45,7 @@ function pieces(line: string, values: Record<string, string>) {
  */
 @Component({
   selector: 'app-call-wait',
-  imports: [Button, Checkbox],
+  imports: [Button, Checkbox, TickLabel],
   host: { class: 'block' },
   template: `
     <!-- Each number is one unit: a number broken across two lines no longer
@@ -66,11 +67,10 @@ function pieces(line: string, values: Record<string, string>) {
     <div class="mt-6 space-y-6">
       @if (step().rememberDays > 0) {
         <div>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label appTickLabel>
             <input
               appCheckbox
               type="checkbox"
-              class="mt-0.5"
               [checked]="remember()"
               (change)="remember.set($any($event.target).checked)"
               aria-describedby="rememberBrowserHint"

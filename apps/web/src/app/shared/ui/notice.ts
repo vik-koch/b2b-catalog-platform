@@ -8,6 +8,8 @@ const base = 'block rounded-md border p-3 text-sm';
  * page it stops the reader on. Only the tones a notice is drawn in.
  */
 const tones = {
+  /** A state explained rather than a stop: quiet, and with no line around it. */
+  neutral: 'border-transparent bg-surface text-ink-subtle',
   danger: 'border-danger-edge bg-danger-surface text-danger-ink',
   warning: 'border-warning-edge bg-warning-surface text-warning-ink',
   info: 'border-info-edge bg-info-surface text-info-ink',

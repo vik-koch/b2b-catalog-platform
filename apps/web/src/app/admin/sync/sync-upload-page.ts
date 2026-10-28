@@ -15,6 +15,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { ChoiceCard } from '../../shared/ui/choice-card';
 import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
@@ -50,6 +51,7 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
   selector: 'app-sync-page',
   imports: [
     Checkbox,
+    TickLabel,
     ChoiceCard,
     RouterLink,
     Button,
@@ -121,11 +123,10 @@ import { uploadIcon } from '@b2b-catalog-platform/ui/icons/glyphs/upload';
             </summary>
             <div class="mt-3 space-y-2 border-l-2 border-edge-subtle pl-4">
               @for (flag of flags; track flag.key) {
-                <label class="flex cursor-pointer items-start gap-2 text-sm">
+                <label appTickLabel>
                   <input
                     type="checkbox"
                     appCheckbox
-                    class="mt-0.5"
                     [checked]="isFlagOn(flag.key)"
                     [disabled]="
                       flag.key === 'softDelete' &&

@@ -12,10 +12,18 @@ import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { LoadErrorView } from './load-error-view';
 import { PageUpdated } from './page-updated';
 import { PageTitle } from '../../shared/ui/page-title';
+import { Skeleton } from '../../shared/ui/skeleton';
 
 @Component({
   selector: 'app-static-page',
-  imports: [RichTextLinks, EditActions, LoadErrorView, PageUpdated, PageTitle],
+  imports: [
+    RichTextLinks,
+    EditActions,
+    LoadErrorView,
+    PageUpdated,
+    PageTitle,
+    Skeleton,
+  ],
   template: `
     <!-- A published page with no row yet: an admin gets the shell and the
          pencil so they can write it, everyone else gets the load error rather
@@ -60,11 +68,8 @@ import { PageTitle } from '../../shared/ui/page-title';
         <p class="text-ink-subtle">{{ editorText.emptyNotice }}</p>
       }
     } @else if (showSkeleton()) {
-      <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-5/6 rounded-sm bg-skeleton"></div>
-      </div>
+      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <app-skeleton [widths]="['100%', '83%']" />
     }
   `,
 })

@@ -10,6 +10,7 @@ import { PageHistory } from './page-history';
 import { PageService } from '../../shared/pages/page.service';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
 import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
+import { Skeleton } from '../../shared/ui/skeleton';
 
 /**
  * Edit a static page (FR-ADM-03) on its own screen at
@@ -22,7 +23,7 @@ import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
  */
 @Component({
   selector: 'app-page-editor-page',
-  imports: [PageEditor, PageHistory],
+  imports: [PageEditor, PageHistory, Skeleton],
   template: `
     @if (page.hasValue()) {
       <app-page-editor
@@ -37,10 +38,8 @@ import { injectEditorReturn } from '../../shared/edit-mode/editor-return';
     } @else if (page.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.saveError }}</p>
     } @else if (showSkeleton()) {
-      <div class="animate-pulse space-y-4" aria-hidden="true">
-        <div class="h-8 w-1/3 rounded-sm bg-skeleton"></div>
-        <div class="h-4 w-full rounded-sm bg-skeleton"></div>
-      </div>
+      <app-skeleton size="title" class="mb-4" [widths]="['33%']" />
+      <app-skeleton [widths]="['100%']" />
     }
   `,
 })

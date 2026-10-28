@@ -21,9 +21,13 @@ export default [
         'error',
         { type: 'attribute', prefix: 'app', style: 'camelCase' },
       ],
+      // Attribute components on native elements, as in the app.
       '@angular-eslint/component-selector': [
         'error',
-        { type: 'element', prefix: 'app', style: 'kebab-case' },
+        [
+          { type: 'element', prefix: 'app', style: 'kebab-case' },
+          { type: 'attribute', prefix: 'app', style: 'camelCase' },
+        ],
       ],
       // The library knows Angular and itself: no domain, no deployment, no
       // app. What a piece needs from them (its words, a locale) it is given.

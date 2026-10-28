@@ -15,6 +15,7 @@ import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Button } from '../../shared/ui/button';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { CodeInput } from '../../shared/ui/code-input';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { SubmitAttempt } from '../../shared/ui/submit-attempt';
@@ -44,7 +45,7 @@ function around(line: string, placeholder: string): [string, string] {
  */
 @Component({
   selector: 'app-code-entry',
-  imports: [FORM_FIELDS, Button, Checkbox, CodeInput, TextButton],
+  imports: [FORM_FIELDS, Button, Checkbox, TickLabel, CodeInput, TextButton],
   host: { class: 'block' },
   template: `
     <!-- Each masked value is one unit: a number broken across two lines no
@@ -67,11 +68,10 @@ function around(line: string, placeholder: string): [string, string] {
            box after them would be passed before anyone reached it. -->
       @if (rememberDays() > 0) {
         <div>
-          <label class="flex cursor-pointer items-start gap-2 text-sm">
+          <label appTickLabel>
             <input
               appCheckbox
               type="checkbox"
-              class="mt-0.5"
               [formField]="form.remember"
               aria-describedby="rememberBrowserHint"
             />

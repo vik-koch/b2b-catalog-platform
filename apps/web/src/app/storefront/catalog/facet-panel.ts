@@ -10,6 +10,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { NgTemplateOutlet } from '@angular/common';
 import { Checkbox } from '../../shared/ui/checkbox';
+import { TickLabel } from '../../shared/ui/tick-label';
 import { Collapsible } from '../../shared/ui/collapsible';
 import { disclosureState } from '../../shared/ui/disclosure-state';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
@@ -91,6 +92,7 @@ export const FACET_SIBLING_ALONE =
   imports: [
     NgTemplateOutlet,
     Checkbox,
+    TickLabel,
     Collapsible,
     DisclosureToggle,
     Icon,
@@ -243,15 +245,10 @@ export const FACET_SIBLING_ALONE =
           <!-- A zero-count value is disabled rather than hidden (FR-ATTR-05):
                a list that reshuffles as it is clicked cannot be read, and the
                greyed row is the answer to "why can I not combine these two?". -->
-          <label
-            class="flex cursor-pointer items-start gap-2 text-sm"
-            [class.text-ink-subtle]="disabled(value)"
-            [class.cursor-not-allowed]="disabled(value)"
-          >
+          <label appTickLabel [class.text-ink-subtle]="disabled(value)">
             <input
               type="checkbox"
               appCheckbox
-              class="mt-0.5"
               [checked]="value.selected"
               [attr.checked]="value.selected ? '' : null"
               [disabled]="disabled(value)"

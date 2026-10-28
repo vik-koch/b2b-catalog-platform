@@ -336,7 +336,7 @@ describe('AccountPage', () => {
         myPickups: 1,
       });
 
-      const notes = [...el.querySelectorAll('app-work-note a')];
+      const notes = [...el.querySelectorAll('a[appActionLink]')];
       expect(notes[0].textContent).toContain('2 waiting to be paid');
       expect(notes[0].getAttribute('href')).toBe(
         '/account/orders?state=to-pay',
@@ -354,7 +354,7 @@ describe('AccountPage', () => {
         myPickups: 1,
       });
 
-      const notes = [...el.querySelectorAll('app-work-note a')];
+      const notes = [...el.querySelectorAll('a[appActionLink]')];
       expect(notes).toHaveLength(1);
       expect(notes[0].textContent).toContain('1 ready to collect');
     });
@@ -362,7 +362,7 @@ describe('AccountPage', () => {
     it('says nothing when nothing waits on them', async () => {
       const { el } = await render(customer, [], true, [order('CK-2026-0001')]);
 
-      expect(el.querySelector('app-work-note')).toBeNull();
+      expect(el.querySelector('a[appActionLink]')).toBeNull();
     });
   });
 
