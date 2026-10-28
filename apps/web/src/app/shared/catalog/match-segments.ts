@@ -1,5 +1,5 @@
 import { searchTerms } from '@b2b-catalog-platform/shared';
-import { HighlightSegment } from '../ui/highlighted-line';
+import { HighlightSegment } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 
 /**
  * Splits a line into the runs the query matched and the rest, by the rules the

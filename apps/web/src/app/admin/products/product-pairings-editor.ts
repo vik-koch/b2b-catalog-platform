@@ -14,10 +14,10 @@ import {
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
-import { SuggestList } from '../../shared/ui/suggest-list';
+import { SuggestList } from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { FieldLabel } from '@b2b-catalog-platform/ui/fields/field-label';
@@ -26,9 +26,9 @@ import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { SuggestField } from '../../shared/ui/suggest-field';
-import { SuggestInput } from '../../shared/ui/suggest-input';
-import { SuggestRow } from '../../shared/ui/suggest-row';
+import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
+import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
+import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 

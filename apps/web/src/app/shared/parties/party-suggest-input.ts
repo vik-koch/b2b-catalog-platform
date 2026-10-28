@@ -4,14 +4,17 @@ import {
   PARTY_QUERY_MIN_LENGTH,
   PartySuggestion,
 } from '@b2b-catalog-platform/shared';
-import { HighlightedLine } from '../ui/highlighted-line';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../catalog/match-segments.pipe';
-import { SuggestList, SuggestListText } from '../ui/suggest-list';
+import {
+  SuggestList,
+  SuggestListText,
+} from '@b2b-catalog-platform/ui/suggest/suggest-list';
 import { FieldBinding } from '@b2b-catalog-platform/ui/fields/field-binding';
 import { Input } from '@b2b-catalog-platform/ui/inputs/input';
-import { SuggestField } from '../ui/suggest-field';
-import { SuggestInput } from '../ui/suggest-input';
-import { SuggestRow } from '../ui/suggest-row';
+import { SuggestField } from '@b2b-catalog-platform/ui/suggest/suggest-field';
+import { SuggestInput } from '@b2b-catalog-platform/ui/suggest/suggest-input';
+import { SuggestRow } from '@b2b-catalog-platform/ui/suggest/suggest-row';
 import { PartiesService } from './parties.service';
 
 /**

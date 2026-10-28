@@ -38,7 +38,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { MobileSearch } from './mobile-search';
 import { currentUrl } from '../../shared/core/current-url';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
-import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';

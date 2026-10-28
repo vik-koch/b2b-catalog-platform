@@ -4,7 +4,7 @@ import {
   CatalogImage,
   categoryDisplayName,
 } from '@b2b-catalog-platform/shared';
-import { HighlightedLine } from '../../shared/ui/highlighted-line';
+import { HighlightedLine } from '@b2b-catalog-platform/ui/suggest/highlighted-line';
 import { MatchSegmentsPipe } from '../../shared/catalog/match-segments.pipe';
 
 /**
