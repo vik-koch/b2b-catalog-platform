@@ -47,6 +47,7 @@ by module, so a barrel would carry everything behind it into the first load.
 | Folder | Holds |
 | --- | --- |
 | `actions/` | Buttons and links: `appButton`, `appIconButton`, `appTextButton`, `appDiscButton`, `appLink`, `appActionLink` and the shared `ButtonBox` |
+| `choices/` | Inputs that pick a value: `appCheckbox`, `appRadio`, `appSwitch`, `appTickable`, `appTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `Segment` and `SegmentGroup` |
 | `content/` | What a page shows rather than asks: `PageHeader`, `appPageTitle`, `appPageIntro`, `appNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `appStatusBadge`, `HintBadge`, `EmphasisedText`, `appFrame`, `ImagePlaceholder` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
 | `disclosure/` | What opens and closes: `DisclosureToggle`, `appDisclosureFrame`, `disclosureState`, `Collapsible`, `ShowMoreToggle` |

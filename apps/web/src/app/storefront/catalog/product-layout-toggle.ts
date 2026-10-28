@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Segment } from '../../shared/ui/segment';
-import { SegmentGroup } from '../../shared/ui/segment-group';
+import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
+import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { ProductLayout, ProductLayoutService } from './product-layout';
 import { layoutGridIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-grid';
 import { layoutListIcon } from '@b2b-catalog-platform/ui/icons/glyphs/layout-list';

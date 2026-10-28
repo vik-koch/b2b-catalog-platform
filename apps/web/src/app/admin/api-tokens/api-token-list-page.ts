@@ -18,7 +18,7 @@ import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Checkbox } from '../../shared/ui/checkbox';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { Input } from '../../shared/ui/input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';

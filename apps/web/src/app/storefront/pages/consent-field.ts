@@ -3,7 +3,7 @@ import { FormField } from '@angular/forms/signals';
 import { RouterLink } from '@angular/router';
 import { consentLabelParts } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Checkbox } from '../../shared/ui/checkbox';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';

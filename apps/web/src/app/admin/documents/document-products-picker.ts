@@ -18,11 +18,14 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { AlternateLayout } from '../../shared/core/alternate-layout';
-import { Checkbox } from '../../shared/ui/checkbox';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Input } from '../../shared/ui/input';
 import { SelectInput } from '../../shared/ui/select-input';
-import { SegmentOption, Segmented } from '../../shared/ui/segmented';
+import {
+  SegmentOption,
+  Segmented,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { AdminCatalogService } from '../admin-catalog.service';
 import { flattenCategoryTree } from '../categories/category-tree';

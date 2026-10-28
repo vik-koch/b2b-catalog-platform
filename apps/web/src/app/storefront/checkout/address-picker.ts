@@ -10,9 +10,9 @@ import {
   addressDetailLines,
   addressDisplayName,
 } from '../../shared/addresses/address-format';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { TickLabel } from '../../shared/ui/tick-label';
-import { ChoiceBranch } from '../../shared/ui/choice-branch';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
+import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 
 /** Ids have to be unique per instance: a delivery picker and a billing picker
  * stand on the same page. */

@@ -11,7 +11,10 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { InquiryService } from './inquiry.service';
 import { ConsentField } from './consent-field';
 import { useConsent } from './consent';

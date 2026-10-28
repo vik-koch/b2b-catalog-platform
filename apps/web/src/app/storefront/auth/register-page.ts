@@ -17,7 +17,10 @@ import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

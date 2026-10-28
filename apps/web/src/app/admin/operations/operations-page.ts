@@ -26,7 +26,7 @@ import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
-import { Switch } from '../../shared/ui/switch';
+import { Switch } from '@b2b-catalog-platform/ui/choices/switch';
 import { adminMomentFormat } from '../dates/admin-date';
 import { SettingsService } from '../settings/settings.service';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

@@ -28,8 +28,11 @@ import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../ui/input';
 import { Popover } from '../ui/popover';
-import { Segment, type SegmentState } from '../ui/segment';
-import { SegmentGroup } from '../ui/segment-group';
+import {
+  Segment,
+  type SegmentState,
+} from '@b2b-catalog-platform/ui/choices/segment';
+import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { createBuyQuantity } from './buy-quantity';
 import { formatPriceMinor } from './price';
 import { ProductNoteEditor } from './product-note-editor';

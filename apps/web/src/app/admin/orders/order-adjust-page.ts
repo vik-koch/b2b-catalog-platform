@@ -55,8 +55,8 @@ import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '../../shared/ui/checkbox';
-import { TickLabel } from '../../shared/ui/tick-label';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
+import { TickLabel } from '@b2b-catalog-platform/ui/choices/tick-label';
 import {
   ConfirmService,
   confirmRequest,
@@ -69,7 +69,10 @@ import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import { submitAttempt } from '../../shared/ui/submit-attempt';
-import { SegmentOption, Segmented } from '../../shared/ui/segmented';
+import {
+  SegmentOption,
+  Segmented,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { SelectInput } from '../../shared/ui/select-input';
 import { Skeleton } from '@b2b-catalog-platform/ui/content/skeleton';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';

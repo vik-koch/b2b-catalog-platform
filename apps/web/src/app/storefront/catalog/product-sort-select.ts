@@ -11,8 +11,8 @@ import {
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { Input } from '../../shared/ui/input';
-import { Segment } from '../../shared/ui/segment';
-import { SegmentGroup } from '../../shared/ui/segment-group';
+import { Segment } from '@b2b-catalog-platform/ui/choices/segment';
+import { SegmentGroup } from '@b2b-catalog-platform/ui/choices/segment-group';
 import { SelectInput } from '../../shared/ui/select-input';
 
 /**

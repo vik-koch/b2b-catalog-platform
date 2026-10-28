@@ -10,7 +10,10 @@ import { Field } from '../../shared/ui/field';
 import { FieldBinding } from '../../shared/ui/field-binding';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 import { ContactAnswers, PartyAnswers } from './checkout-forms';
 

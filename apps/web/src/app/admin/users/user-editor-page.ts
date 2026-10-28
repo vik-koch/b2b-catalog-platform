@@ -42,7 +42,10 @@ import { StaffUsersService } from './users.service';
 import { SelectInput } from '../../shared/ui/select-input';
 import { StatusBadge } from '@b2b-catalog-platform/ui/content/status-badge';
 import { userStatusTone } from './user-status';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';
 import { PageTitle } from '@b2b-catalog-platform/ui/content/page-title';
 import { ErrorText } from '../../shared/ui/error-text';

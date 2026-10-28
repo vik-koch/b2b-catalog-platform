@@ -6,11 +6,14 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { ChoiceBranch } from '../../shared/ui/choice-branch';
+import { ChoiceBranch } from '@b2b-catalog-platform/ui/choices/choice-branch';
 import { Field } from '../../shared/ui/field';
 import { FieldBinding } from '../../shared/ui/field-binding';
 import { Input } from '../../shared/ui/input';
-import { Segmented, SegmentOption } from '../../shared/ui/segmented';
+import {
+  Segmented,
+  SegmentOption,
+} from '@b2b-catalog-platform/ui/choices/segmented';
 import { PartyChoice as Party } from './checkout-draft.service';
 import { PartyAnswers } from './checkout-forms';
 import { WarningNote } from '@b2b-catalog-platform/ui/content/warning-note';

@@ -23,7 +23,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { Button } from '@b2b-catalog-platform/ui/actions/button';
-import { Checkbox } from '../../shared/ui/checkbox';
+import { Checkbox } from '@b2b-catalog-platform/ui/choices/checkbox';
 import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';

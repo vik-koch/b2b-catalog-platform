@@ -3,7 +3,7 @@ import { FulfilmentMethod } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { ChoiceCard } from '../../shared/ui/choice-card';
+import { ChoiceCard } from '@b2b-catalog-platform/ui/choices/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
 import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
