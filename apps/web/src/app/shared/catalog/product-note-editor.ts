@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { CART_NOTE_MAX } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { injectNarrowScreen } from '../core/narrow-screen';
+import { injectNarrowScreen } from '../ui/narrow-screen';
 import { AutoGrow } from '../ui/auto-grow';
 import { Button } from '../ui/button';
 import { DialogActions } from '../ui/dialog-actions';

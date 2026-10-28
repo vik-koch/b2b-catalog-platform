@@ -7,44 +7,27 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
-import { debounced } from '../../shared/ui/debounced';
-import { Input } from '../../shared/ui/input';
+import { debounced } from '../debounced';
+import { Input } from '../input';
 import { injectGridNav } from './grid-nav';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { searchIcon } from '@b2b-catalog-platform/ui/icons/glyphs/search';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
-/** Long enough that a fast typist produces one request per word rather than one
- * per letter, short enough that a pause feels answered immediately. The same
- * number the storefront's search field uses. */
+/** One request per word for a fast typist; the storefront search waits as long. */
 const SEARCH_DEBOUNCE_MS = 200;
 
 /**
- * A grid's find-a-row box (FR-ADM-05): typing filters the table after a pause,
- * with no submit. The query goes into the URL like every other grid parameter —
- * so a filtered view is shareable — but as a *replaced* history entry, since one
- * back-button step per keystroke would make the back button useless.
- *
- * Deliberately a plain field, not the storefront's search bar with its submit
- * button and suggestion dropdown: this one filters a table already on screen and
- * must not out-shout the "Add" action beside it, nor cover the rows it produces.
- *
- * The wording is passed in rather than injected, so the same field serves any
- * admin grid — its labels are the caller's.
- *
- * It fills whatever column it is given rather than carrying a width of its own:
- * stacked on a phone that is the line, and from `md` up it is the wide middle
- * column of the heading. A fixed width left a phone with a field ending halfway
- * across the screen, and a desktop with one shrinking while the row beside it
- * had space to spare.
+ * A grid's find-a-row box (FR-ADM-05): filters after a pause, no submit. The
+ * query goes into the URL as a replaced entry, one per keystroke being no
+ * history. It fills the column it is given; the wording is the caller's.
  */
 @Component({
   selector: 'app-grid-search-field',
   imports: [Input, Icon],
   template: `
     <div class="relative w-full min-w-0 flex-1">
-      <!-- Leading glyph: a label for the field rather than a control, so it is
-           muted and takes no pointer events. -->
+      <!-- A label for the field, not a control: muted, no pointer events. -->
       <app-icon
         [glyph]="searchIcon"
         class="pointer-events-none absolute top-1/2 left-2.5 size-4
@@ -95,16 +78,10 @@ export class GridSearchField {
   readonly clearLabel = input('');
 
   /**
-   * Seeded from the URL rather than bound to it: the field is the admin's to
-   * edit between navigations, and re-reading the parameter this component just
-   * wrote would fight the cursor. A query that changed elsewhere — a shared
-   * link, the back button — still takes it back, while the navigation this
-   * field itself caused leaves the typed text exactly as typed (trailing space
-   * included, which the URL does not carry).
-   *
-   * "This field caused it" is the query it sent, not the query matching the
-   * text: letters typed while a navigation is in flight make the two differ,
-   * and taking the arriving query then swallowed them.
+   * Seeded from the URL, not bound to it: re-reading what this field just wrote
+   * would fight the cursor. A query changed elsewhere (a link, Back) still
+   * takes over. "This field caused it" is the query it sent, not one matching
+   * the text: letters typed mid-navigation would otherwise be swallowed.
    */
   protected readonly value = linkedSignal<string, string>({
     source: () => this.query(),
@@ -129,18 +106,15 @@ export class GridSearchField {
   constructor() {
     effect(() => {
       const q = this.settled().trim();
-      // Guarded, because this effect also runs on the navigation it caused (and
-      // on arrival at an already-filtered URL) — navigating again there would
-      // be a redundant round trip, and would reset the page of a URL that was
-      // just opened on page 3.
+      // Also runs on its own navigation and on arrival at a filtered URL:
+      // navigating again would reset the page of a URL opened on page 3.
       if (untracked(this.value).trim() === untracked(this.query).trim()) return;
       this.sent.push(q);
       this.navigate({ searchTerm: q || null }, { replaceUrl: true });
     });
   }
 
-  /** Empties the field and hands focus back, so the next query can be typed
-   * without reaching for the input again. */
+  /** Empties the field and keeps focus for the next query. */
   protected clear(): void {
     this.value.set('');
     this.input()?.nativeElement.focus();

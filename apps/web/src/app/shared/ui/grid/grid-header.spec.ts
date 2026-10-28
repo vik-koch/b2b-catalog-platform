@@ -1,27 +1,18 @@
-import { SHARED_TEXT } from '../shared/config/shared-text';
-import { defaultSharedText } from '../shared/config/shared-text.fixture';
+import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ADMIN_TEXT } from '../shared/config/admin-text';
-import { defaultAdminText } from '../shared/config/admin-text.fixture';
-import { AdminListHeader } from './list-header';
-import { provideUiText } from '../shared/config/shared-text';
-import { provideGridText } from './provide-grid-text';
+import { GridHeader } from './grid-header';
 
-const clearLabel = defaultAdminText.grid.clearFilters;
+const clearLabel = testGridText.clearFilters;
 
 /** A caller, since the actions are projected rather than configured. */
 @Component({
-  imports: [AdminListHeader],
+  imports: [GridHeader],
   template: `
-    <app-admin-list-header
-      title="Products"
-      [intro]="intro"
-      [filtered]="filtered"
-    >
+    <app-grid-header title="Products" [intro]="intro" [filtered]="filtered">
       <a href="/admin/products/new">Add product</a>
-    </app-admin-list-header>
+    </app-grid-header>
   `,
 })
 class Host {
@@ -32,13 +23,7 @@ class Host {
 function render(filtered: boolean, intro?: string) {
   TestBed.configureTestingModule({
     imports: [Host],
-    providers: [
-      provideUiText(),
-      provideGridText(),
-      provideRouter([]),
-      { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: SHARED_TEXT, useValue: defaultSharedText },
-    ],
+    providers: [...provideTestGridText(), provideRouter([])],
   });
   const fixture = TestBed.createComponent(Host);
   fixture.componentInstance.filtered = filtered;
@@ -50,7 +35,7 @@ function render(filtered: boolean, intro?: string) {
   return { fixture, el, clear };
 }
 
-describe('AdminListHeader', () => {
+describe('GridHeader', () => {
   it('shows the title, the search box and the projected actions', () => {
     const { el } = render(false);
 
@@ -94,20 +79,14 @@ describe('AdminListHeader', () => {
 
   it('gives the title the search column when the grid has no search box', () => {
     @Component({
-      imports: [AdminListHeader],
-      template: `<app-admin-list-header title="Runs" [searchable]="false" />`,
+      imports: [GridHeader],
+      template: `<app-grid-header title="Runs" [searchable]="false" />`,
     })
     class Unsearchable {}
 
     TestBed.configureTestingModule({
       imports: [Unsearchable],
-      providers: [
-        provideUiText(),
-        provideGridText(),
-        provideRouter([]),
-        { provide: ADMIN_TEXT, useValue: defaultAdminText },
-        { provide: SHARED_TEXT, useValue: defaultSharedText },
-      ],
+      providers: [...provideTestGridText(), provideRouter([])],
     });
     const fixture = TestBed.createComponent(Unsearchable);
     fixture.detectChanges();

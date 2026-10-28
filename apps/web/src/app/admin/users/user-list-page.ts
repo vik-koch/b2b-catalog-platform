@@ -29,14 +29,14 @@ import { Button } from '../../shared/ui/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
+import { DataGrid } from '../../shared/ui/grid/data-grid';
+import { GridColumn } from '../../shared/ui/grid/grid-column';
+import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
+import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
+import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '../../shared/ui/record-row';
-import { AdminListHeader } from '../list-header';
+import { GridHeader } from '../../shared/ui/grid/grid-header';
 import { SettingsService } from '../settings/settings.service';
 import { TiersService } from '../tiers/tiers.service';
 import { UserRowActions } from './user-row-actions';
@@ -110,8 +110,8 @@ const typeRank = (t: StaffUser['customerType']): number =>
     Button,
     RouterLink,
     Icon,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridTimestamp,
@@ -122,7 +122,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     ErrorText,
   ],
   template: `
-    <app-admin-list-header
+    <app-grid-header
       [title]="page().title"
       [intro]="page().intro"
       [query]="query() ?? ''"
@@ -136,7 +136,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
         <app-icon [glyph]="plusIcon" class="size-4" />
         {{ isStaff() ? text.addStaff : text.addCustomer }}
       </button>
-    </app-admin-list-header>
+    </app-grid-header>
 
     <!-- Where a decline that raced with another change reports itself: every
          other action is a navigation, and reports from the editor. -->
@@ -147,7 +147,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
     @if (users.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
-      <app-admin-grid
+      <app-data-grid
         [gridId]="gridId()"
         [columns]="columns()"
         [rows]="data"
@@ -269,7 +269,7 @@ const typeRank = (t: StaffUser['customerType']): number =>
             />
           </app-record-row>
         </ng-template>
-      </app-admin-grid>
+      </app-data-grid>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }

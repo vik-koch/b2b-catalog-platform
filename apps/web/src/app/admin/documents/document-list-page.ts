@@ -30,13 +30,13 @@ import { Link } from '../../shared/ui/link';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
+import { DataGrid } from '../../shared/ui/grid/data-grid';
+import { GridColumn } from '../../shared/ui/grid/grid-column';
+import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
+import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
+import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
-import { AdminListHeader } from '../list-header';
+import { GridHeader } from '../../shared/ui/grid/grid-header';
 import { RecordRow } from '../../shared/ui/record-row';
 import { UnpublishedCount } from '../products/unpublished-count';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -78,8 +78,8 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     IconButton,
     Icon,
     Link,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridTimestamp,
@@ -90,7 +90,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     ErrorText,
   ],
   template: `
-    <app-admin-list-header
+    <app-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="term()"
@@ -109,7 +109,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
         <app-icon [glyph]="plusIcon" class="size-4" />
         {{ text.add }}
       </a>
-    </app-admin-list-header>
+    </app-grid-header>
 
     @if (pageError()) {
       <p appErrorText class="mb-4" role="alert">{{ pageError() }}</p>
@@ -118,7 +118,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
     @if (documents.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (rows(); as data) {
-      <app-admin-grid
+      <app-data-grid
         gridId="documents"
         [columns]="columns()"
         [rows]="data"
@@ -242,7 +242,7 @@ type DocumentStatusFilter = (typeof STATUS_FILTERS)[number];
             </div>
           </app-record-row>
         </ng-template>
-      </app-admin-grid>
+      </app-data-grid>
     } @else if (showSkeleton()) {
       <app-skeleton [lines]="6" />
     }

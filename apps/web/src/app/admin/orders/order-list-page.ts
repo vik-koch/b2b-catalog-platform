@@ -37,13 +37,13 @@ import {
   orderStatusTone,
   staffPaymentBadge,
 } from '../../shared/orders/order-status';
-import { AdminListHeader } from '../list-header';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridColumn } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridPagination } from '../grid/grid-pagination';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
+import { GridHeader } from '../../shared/ui/grid/grid-header';
+import { DataGrid } from '../../shared/ui/grid/data-grid';
+import { GridColumn } from '../../shared/ui/grid/grid-column';
+import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
+import { GridPagination } from '../../shared/ui/grid/grid-pagination';
+import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
+import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '../../shared/ui/record-row';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
@@ -72,8 +72,8 @@ import { ErrorText } from '../../shared/ui/error-text';
   selector: 'app-admin-order-list-page',
   imports: [
     RouterLink,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridPagination,
@@ -85,7 +85,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     ErrorText,
   ],
   template: `
-    <app-admin-list-header
+    <app-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query()"
@@ -103,7 +103,7 @@ import { ErrorText } from '../../shared/ui/error-text';
     @if (orders.error()) {
       <p class="text-ink-subtle" role="alert">{{ text.loadError }}</p>
     } @else if (shown(); as data) {
-      <app-admin-grid
+      <app-data-grid
         gridId="orders"
         [columns]="columns()"
         [rows]="data.items"
@@ -238,7 +238,7 @@ import { ErrorText } from '../../shared/ui/error-text';
             />
           </app-record-row>
         </ng-template>
-      </app-admin-grid>
+      </app-data-grid>
 
       <app-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {

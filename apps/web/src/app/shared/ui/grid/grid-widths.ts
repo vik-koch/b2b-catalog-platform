@@ -2,22 +2,13 @@ import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
 /**
- * The column widths an admin dragged, per grid (FR-ADM-05).
- *
- * localStorage rather than a cookie, which is where the catalogue's layout
- * preference lives: that one is a cookie because the listing is server-rendered
- * and the layout is markup, so the server has to know it before the first
- * paint. Every admin screen is client-rendered, so there is no server pass to
- * inform and nothing to gain from sending these to it on every request.
- *
- * Stored as **fractions of the table's width**, not pixels: the same grid is
- * read on a laptop and on a wide monitor, and a column pinned to 380px would be
- * two thirds of the one and a quarter of the other.
+ * Dragged column widths, per grid (FR-ADM-05), in localStorage: the grids are
+ * client-rendered, so no server needs them. Stored as fractions of the table,
+ * not pixels, so a laptop and a wide monitor agree.
  */
 export const GRID_WIDTHS_KEY = 'admin_grid_widths';
 
-/** Bumped when the stored shape changes; anything else is dropped rather than
- * migrated — a column width is not worth a migration. */
+/** Bumped when the shape changes; older data is dropped, not migrated. */
 const VERSION = 1;
 
 export type GridWidths = Record<string, number>;
@@ -28,13 +19,8 @@ interface StoredFile {
 }
 
 /**
- * The widths for one grid, or null where there are none to use.
- *
- * Null rather than a partial answer whenever the stored keys are not exactly
- * this grid's: a release that adds or renames a column leaves widths that no
- * longer describe the table, and re-measuring gives a better answer than
- * guessing at the missing one. The customers and staff lists are the everyday
- * case — one component, two column sets, two entries.
+ * One grid's widths, or null unless the stored keys are exactly its columns: a
+ * release that changed a column re-measures rather than guess.
  */
 export function readGridWidths(
   raw: string | null,
@@ -100,8 +86,7 @@ export class GridWidthsStore {
     this.write(writeGridWidths(this.raw(), gridId, null));
   }
 
-  /** Every access is guarded: storage throws outright where a browser is set
-   * to block site data, and a column width is not worth a broken grid. */
+  /** Guarded: storage throws where site data is blocked. */
   private raw(): string | null {
     if (!this.isBrowser) return null;
     try {

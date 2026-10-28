@@ -1,15 +1,10 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { GridClearFilters } from './grid-clear-filters';
-import { provideUiText } from '../../shared/config/shared-text';
-import { provideGridText } from '../provide-grid-text';
 
-const label = defaultAdminText.grid.clearFilters;
+const label = testGridText.clearFilters;
 
 @Component({
   imports: [GridClearFilters],
@@ -24,11 +19,8 @@ async function render(url = '/admin/products') {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
-      provideUiText(),
-      provideGridText(),
+      ...provideTestGridText(),
       provideRouter([{ path: '**', children: [] }]),
-      { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
   const router = TestBed.inject(Router);

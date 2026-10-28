@@ -23,7 +23,7 @@ import {
   RICH_TEXT_LINK_SCHEMES,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { injectNarrowScreen } from '../../shared/ui/narrow-screen';
 import { HeaderCollapse } from '../../shared/layout/header-collapse';
 import { Button } from '../../shared/ui/button';
 import { DialogActions } from '../../shared/ui/dialog-actions';

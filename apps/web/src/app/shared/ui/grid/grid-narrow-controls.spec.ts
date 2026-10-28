@@ -1,16 +1,9 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
 import { GridChip, GridColumn } from './grid-column';
 import { GridNarrowControls } from './grid-narrow-controls';
-import { provideUiText } from '../../shared/config/shared-text';
-import { provideGridText } from '../provide-grid-text';
-
-const adminText = defaultAdminText;
 
 const columns: GridColumn[] = [
   { key: 'name', label: 'Name', sort: { asc: 'name', desc: 'name_desc' } },
@@ -64,11 +57,8 @@ async function render() {
   TestBed.configureTestingModule({
     imports: [Host],
     providers: [
-      provideUiText(),
-      provideGridText(),
+      ...provideTestGridText(),
       provideRouter([{ path: '**', children: [] }]),
-      { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: SHARED_TEXT, useValue: defaultSharedText },
     ],
   });
   const fixture = TestBed.createComponent(Host);
@@ -144,7 +134,7 @@ describe('GridNarrowControls (FR-ADM-05)', () => {
     const { el } = await render();
     const button = el.querySelector('button');
 
-    expect(button?.textContent).toContain(adminText.grid.filters);
+    expect(button?.textContent).toContain(testGridText.filters);
     expect(button?.textContent).toContain('2');
   });
 

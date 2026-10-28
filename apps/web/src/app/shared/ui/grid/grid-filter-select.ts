@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { SelectField } from '../../shared/ui/select-field';
+import { SelectField } from '../select-field';
 import { filterParams, GridFilter } from './grid-column';
 import { injectGridNav } from './grid-nav';
 
@@ -7,28 +7,15 @@ export interface GridFilterOption {
   /** The URL value; the empty string means "no filter" and is left out. */
   value: string;
   label: string;
-  /** Tree depth, for the category filter's indented options. */
+  /** Tree depth, for indented options. */
   depth?: number;
 }
 
 /**
- * A filter that lives in its own column heading (FR-ADM-05) — publication state
- * and category, the two things the grid narrows by.
- *
- * A native `<select>` rather than a popover menu: a handful of mutually
- * exclusive values is what the element is for, and it arrives with keyboard
- * support, an accessible name and a usable mobile picker. Styled down to header
- * weight — no border until it is hovered or focused — so a row of filters reads
- * as column headings rather than as a form sitting on top of the table.
- *
- * Like the sort headers, it owns its own navigation: the filter is a query
- * parameter, and merging one parameter is the same operation wherever it is
- * used, so the host never has to know how the URL is built.
- *
- * The padding that draws its hover box is pulled back out on the left, so the
- * heading's text starts exactly where the column's own content starts. Without
- * that the filtered columns sat a few pixels right of every value under them —
- * invisible on its own, obvious in a row of headings.
+ * A column heading's filter (FR-ADM-05): a native `<select>`, styled to
+ * heading weight until hovered or focused, writing its own query parameter.
+ * Its hover padding is pulled back on the left, so the text lines up with the
+ * column's values.
  */
 @Component({
   selector: 'app-grid-filter-select',
@@ -80,8 +67,7 @@ export class GridFilterSelect {
   /** What a choice writes, when it is more than `param`. */
   readonly toParams = input<GridFilter['toParams']>();
 
-  /** An empty choice clears the parameter rather than writing `?x=`, so the
-   * unfiltered grid keeps the one plain URL it started with. */
+  /** An empty choice clears the parameter: one plain URL unfiltered. */
   protected onSelect(event: Event): void {
     const selected = (event.target as HTMLSelectElement).value;
     this.navigate(

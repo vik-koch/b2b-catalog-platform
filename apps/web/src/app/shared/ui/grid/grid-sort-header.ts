@@ -4,15 +4,7 @@ import { gridParam, injectGridNav } from './grid-nav';
 import { chevronDownIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-down';
 import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up';
 
-/**
- * A sortable column heading for an admin grid (FR-ADM-05) — the ordering control
- * lives in the header the column belongs to, which is where a table's sort
- * belongs and where an admin looks for it.
- *
- * The sort keys are plain strings so the same header serves any grid; the
- * default (the key written as an *absent* parameter) is the product grid's
- * unless a caller names its own.
- */
+/** A sortable column heading (FR-ADM-05), writing its own `sort` parameter. */
 @Component({
   selector: 'app-grid-sort',
   imports: [Icon],
@@ -28,10 +20,8 @@ import { chevronUpIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-up'
       (click)="toggle()"
     >
       {{ label() }}
-      <!-- Present in every sortable header, but only inked when the column is
-           the one in effect (or under the pointer): a row of permanent arrows
-           reads as noise, and a header that gains an icon on hover says
-           "clickable" without claiming to be sorted. -->
+      <!-- Inked only for the sort in effect or under the pointer: a row of
+           permanent arrows is noise. -->
       <app-icon
         [glyph]="descending() ? chevronDownIcon : chevronUpIcon"
         [class]="iconClass()"
@@ -47,17 +37,13 @@ export class GridSortHeader {
   /** The sort key this column applies when first clicked, and its reverse. */
   readonly asc = input.required<string>();
   readonly desc = input.required<string>();
-  /** The sort in effect, already resolved — null when no column owns it. */
+  /** The sort in effect, resolved; null where no column owns it. */
   readonly sort = input.required<string | null>();
   readonly label = input.required<string>();
   /** The key written as an absent parameter, so its column reads as unsorted. */
   readonly defaultSort = input('');
-  /**
-   * Which direction a first click takes. Ascending everywhere except recency,
-   * where "most recently updated" is the whole reason to sort by the column and
-   * oldest-first would be a step nobody wants. Only the first click moves —
-   * `asc`/`desc` keep naming the directions, so what is announced stays true.
-   */
+  /** A first click sorts descending (recency). `asc`/`desc` still name the
+   * directions, so what is announced stays true. */
   readonly descFirst = input(false);
 
   protected readonly active = computed(

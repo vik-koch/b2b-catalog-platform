@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { Pagination } from '../../shared/ui/pagination';
+import { Pagination } from '../pagination';
 
 /** Where a paged list stands. */
 export interface GridPage {

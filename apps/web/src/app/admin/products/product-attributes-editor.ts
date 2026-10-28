@@ -29,7 +29,7 @@ import {
   AttributeKeyUsage,
 } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { injectNarrowScreen } from '../../shared/core/narrow-screen';
+import { injectNarrowScreen } from '../../shared/ui/narrow-screen';
 import { IconButton } from '../../shared/ui/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { HintBadge } from '../../shared/ui/hint-badge';

@@ -1,15 +1,13 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { fill } from '../../shared/ui/fill';
+import { fill } from '../fill';
 import { GRID_TEXT } from './grid-text';
-import { disclosureState } from '../../shared/ui/disclosure-state';
-import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
-import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
-import { IconButton } from '../../shared/ui/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Input } from '../../shared/ui/input';
-import { SelectField } from '../../shared/ui/select-field';
+import { disclosureState } from '../disclosure-state';
+import { DisclosureToggle } from '../disclosure-toggle';
+import { DisclosureFrame } from '../disclosure-frame';
+import { Input } from '../input';
+import { SelectField } from '../select-field';
 import { GridClearFilters } from './grid-clear-filters';
+import { GridChips } from './grid-chips';
 import { GridToggles } from './grid-toggles';
 import {
   activeFilterCount,
@@ -21,7 +19,6 @@ import {
   sortableColumns,
 } from './grid-column';
 import { gridParam, injectGridNav } from './grid-nav';
-import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
 
 /** One line of the sort picker: a column in one direction. */
 interface SortOption {
@@ -30,35 +27,16 @@ interface SortOption {
 }
 
 /**
- * The filters and the sort, for a screen with no table to hang them on.
- *
- * On a desktop both live in the column heading they belong to, which is where a
- * table's controls belong. A phone has no headings — the grid is a list of
- * records there — and the controls used to disappear with them, which made the
- * two questions a manager opens these lists with ("what is still unanswered?",
- * "where is the one they are asking about?") unanswerable on the device they
- * are usually asked from.
- *
- * So the same columns are drawn a second way, and in **one row**: a disclosure
- * carrying how many filters are in effect, and the way back to the whole list
- * beside it. Everything it opens — the sort, every column filter, and the
- * filters that never had a column — is inside the panel, so narrowing the list
- * costs one line of a screen that has few to spare.
- *
- * A disclosure rather than a modal sheet, matching the storefront's facet panel:
- * a filter is chosen while looking at what it did to the list, and a sheet over
- * the rows hides exactly that.
- *
- * Everything here writes the same query parameters the headings do, so a view
- * narrowed on a phone is the same URL as one narrowed at a desk.
+ * The filters and the sort where there are no headings to hold them: one row,
+ * a disclosure counting the filters in effect and clear-filters beside it. A
+ * disclosure, not a sheet, so the list stays visible while it narrows. It
+ * writes the same query parameters as the headings: one URL per view.
  */
 @Component({
   selector: 'app-grid-narrow-controls',
   imports: [
-    RouterLink,
-    Icon,
+    GridChips,
     DisclosureToggle,
-    IconButton,
     Input,
     SelectField,
     GridClearFilters,
@@ -68,11 +46,8 @@ interface SortOption {
   template: `
     @if (anything()) {
       <div class="mb-4 flex items-start gap-2">
-        <!-- One box: the lid and everything it opens share a border, so it is
-             visible which fields belong to it. It grows and shrinks rather than
-             appearing, which is what says the two are one thing — a grid whose
-             single row goes from 0fr to 1fr, since a height cannot be
-             transitioned to "as tall as the content". -->
+        <!-- One bordered box for lid and panel; it grows by a 0fr → 1fr grid
+             row, since a height cannot transition to the content's. -->
         <div
           class="min-w-0 flex-1 rounded-md border"
           appDisclosureFrame
@@ -106,10 +81,8 @@ interface SortOption {
                         class="w-full text-sm"
                         (change)="onSort($event)"
                       >
-                        <!-- Only where the ordering in effect belongs to no
-                             column — the product grid's relevance ranking — so
-                             the picker never silently claims the list is
-                             sorted by its first column. -->
+                        <!-- Only for an ordering no column owns, or the picker
+                             would claim the first column. -->
                         @if (unsorted()) {
                           <option value="" selected>
                             {{ defaultSortLabel() }}
@@ -165,46 +138,17 @@ interface SortOption {
                   <app-grid-toggles [groups]="toggles()" />
                 }
 
-                <!-- The narrowings with no column of their own, arrived at from
-                     the screen that asks the question — the attribute
-                     inventory, the tier list. They are counted with the rest,
-                     and each carries its own way out. -->
                 @if (chips().length) {
-                  <ul class="flex flex-wrap gap-2">
-                    @for (chip of chips(); track chip.label) {
-                      <li
-                        class="flex items-center gap-2 rounded-full bg-surface
-                               px-3 py-1 text-sm"
-                      >
-                        <span class="text-ink-subtle">{{ chip.label }}</span>
-                        <span class="font-medium">{{ chip.value }}</span>
-                        <a
-                          appIconButton
-                          variant="danger"
-                          routerLink="."
-                          [queryParams]="chip.clearParams"
-                          queryParamsHandling="merge"
-                          [attr.aria-label]="chip.clearLabel"
-                        >
-                          <app-icon [glyph]="xIcon" />
-                        </a>
-                      </li>
-                    }
-                  </ul>
+                  <app-grid-chips [chips]="chips()" />
                 }
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Beside the box rather than inside it: it undoes what the box holds
-             and the search box above, so it belongs to neither. -->
-        <!-- Centred on the toggle row rather than on the box, which grows as
-             the panel opens — the storefront's facet panel carries the same
-             two lines for the same reason. h-10 is the toggle's own height
-             (py-2.5 around a text-sm line), and the mt-px is the frame's
-             border, which the toggle sits below and this does not. A nudge in
-             its place only landed at one of the two heights. -->
+        <!-- Beside the box: it also clears the search. Centred on the toggle,
+             not the growing box: h-10 is the toggle's height, mt-px the frame's
+             border above it. -->
         <div class="mt-px flex h-10 items-center">
           <app-grid-clear-filters [filtered]="filtered()" />
         </div>
@@ -213,7 +157,6 @@ interface SortOption {
   `,
 })
 export class GridNarrowControls {
-  protected readonly xIcon = xIcon;
   private readonly navigate = injectGridNav();
   protected readonly gridText = inject(GRID_TEXT);
   protected readonly panelId = 'grid-filters-panel';
@@ -221,20 +164,19 @@ export class GridNarrowControls {
   readonly columns = input.required<readonly GridColumn[]>();
   readonly chips = input<readonly GridChip[]>([]);
   readonly toggles = input<readonly GridToggleGroup[]>([]);
-  /** The sort in effect, already resolved — null where no column owns it. */
+  /** The sort in effect, resolved; null where no column owns it. */
   readonly sort = input.required<string | null>();
   /** The key written as an absent parameter. */
   readonly defaultSort = input('');
   /** What to call the ordering that belongs to no column. */
   readonly defaultSortLabel = input<string>('');
-  /** Whether anything at all — including the search box — narrows the list. */
+  /** Whether anything narrows the list, the search included. */
   readonly filtered = input(false);
 
   protected readonly disclosure = disclosureState(200);
   protected readonly open = this.disclosure.open;
 
-  /** See FacetPanel: the transition is armed by the toggle, so the filters do
-   * not play their opening while a window edge is being dragged. */
+  /** Armed by the toggle, so resizing the window does not play the opening. */
   protected readonly panelRow = computed(() => {
     const move = this.disclosure.animated()
       ? 'transition-[grid-template-rows] duration-200 ease-out '
@@ -242,8 +184,6 @@ export class GridNarrowControls {
     return `grid ${move}${this.open() ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`;
   });
 
-  /** The count as the deployment words it — parentheses, as the storefront's
-   * facet panel has always shown it. */
   protected readonly countLabel = computed(() =>
     fill(this.gridText.countSuffix, { count: this.activeCount() }),
   );
@@ -255,15 +195,13 @@ export class GridNarrowControls {
     activeFilterCount(this.columns(), this.chips(), this.toggles()),
   );
 
-  /** Nothing to open and nothing to clear means no row at all: the sync
-   * history has neither a filter nor a sort. */
+  /** No filter and no sort: no row at all. */
   protected readonly anything = computed(
     () => this.filters().length > 0 || this.sortOptions().length > 0,
   );
 
-  /** Every sortable column in both directions, named as the heading names it.
-   * The direction is spelled out rather than drawn as an arrow: this is a
-   * `<select>`, and an option is read aloud as often as it is looked at. */
+  /** Every sortable column both ways, the direction in words: an option is
+   * read aloud as often as it is seen. */
   protected readonly sortOptions = computed<SortOption[]>(() =>
     sortableColumns(this.columns()).flatMap((column) => {
       const sort = column.sort;

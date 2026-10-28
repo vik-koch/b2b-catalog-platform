@@ -1,18 +1,9 @@
 import { GridWidths } from './grid-widths';
 
 /**
- * Moving one boundary between two neighbouring columns, which is the whole of
- * the resize gesture (FR-ADM-05).
- *
- * The table always fills its container: a drag takes width from one column and
- * gives it to the one beside it, so nothing else on the row moves and no grid
- * ever grows a horizontal scrollbar the admin has to reach into to see the last
- * column. The alternative — a column that grows and pushes the table wider — is
- * how a spreadsheet behaves, but a spreadsheet is the document and this is a
- * panel inside a page.
- *
- * Both sides keep their minimum, so a boundary dragged to the far edge stops
- * where the narrower of the two would disappear.
+ * Moves one boundary between neighbouring columns (FR-ADM-05): width passes
+ * from one to the other, so the table always fills its container, and both
+ * keep their minimum.
  */
 export function resizeBoundary(
   widths: GridWidths,
@@ -41,8 +32,7 @@ export function resizeBoundary(
   };
 }
 
-/** Content-derived widths, as fractions: what the browser laid the table out
- * to before it was frozen. */
+/** The browser's laid-out widths, as fractions. */
 export function measuredWidths(
   keys: readonly string[],
   pixels: readonly number[],
@@ -53,18 +43,10 @@ export function measuredWidths(
 }
 
 /**
- * The measured widths, fitted to the room there actually is.
- *
- * A percentage column in a fixed-layout table is a share of the *table*, so
- * once the shares add up to more than the table can give, every column is
- * scaled down together — including the ones already at their minimum, which is
- * how a column headed by a filter ended up too narrow to read the filter. The
- * surplus has to come from somewhere specific instead: from the columns with
- * slack above their minimum, in proportion to how much slack each has.
- *
- * Where even the minimums do not fit, they are kept anyway and the table is
- * left wider than its container — the grid scrolls, which is honest, rather
- * than showing seven columns of nothing.
+ * The measured widths fitted to the room there is. A surplus comes from the
+ * columns with slack above their minimum, in proportion: scaling all together
+ * squeezed columns already at their minimum. Where even the minimums do not
+ * fit they are kept, and the table scrolls.
  */
 export function fitWidths(
   keys: readonly string[],

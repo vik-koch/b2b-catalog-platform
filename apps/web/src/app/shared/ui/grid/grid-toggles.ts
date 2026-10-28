@@ -6,23 +6,16 @@ import { injectGridNav } from './grid-nav';
 const PILL = `inline-flex cursor-pointer items-center gap-1.5 rounded-full
               border px-3 py-1 text-sm whitespace-nowrap transition-colors`;
 
-/** Off and on. Only colour changes between the two — never the weight — so a
- * chip keeps its width and its neighbours stay put. */
+/** Only the colour changes, never the weight: a chip keeps its width. */
 const OFF = `${PILL} border-edge bg-white text-ink-subtle
              hover:border-edge-strong hover:text-accent`;
 const ON = `${PILL} border-primary bg-primary text-white
             hover:border-accent hover:bg-accent`;
 
 /**
- * The toggle chips of a grid (FR-ADM-20): every option in view, each switched
- * on and off by itself, rather than hidden in a select that holds one.
- *
- * One row per group, so a window's width never breaks a group in the middle.
- * The group's name is read to a screen reader but not drawn: its row and its
- * wording already say which question a chip belongs to.
- *
- * Like the column filters it owns its navigation: a click rewrites the one
- * parameter as a list, and an empty list clears it.
+ * A grid's toggle chips (FR-ADM-20): every option in view, each on or off by
+ * itself, one row per group. The group's name is for screen readers only. A
+ * click rewrites the parameter as a list; an empty list clears it.
  */
 @Component({
   selector: 'app-grid-toggles',

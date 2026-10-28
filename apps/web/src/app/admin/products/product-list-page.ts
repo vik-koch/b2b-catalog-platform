@@ -41,10 +41,14 @@ import { ProductCreateService } from '../ownership/product-create.service';
 import { AttributesService } from '../attributes/attributes.service';
 import { flattenCategoryTree } from '../categories/category-tree';
 import { injectEditorReturnParams } from '../../shared/edit-mode/editor-return';
-import { AdminGrid } from '../grid/admin-grid';
-import { GridChip, GridColumn, GridToggleGroup } from '../grid/grid-column';
-import { GridFilterOption } from '../grid/grid-filter-select';
-import { GridPagination } from '../grid/grid-pagination';
+import { DataGrid } from '../../shared/ui/grid/data-grid';
+import {
+  GridChip,
+  GridColumn,
+  GridToggleGroup,
+} from '../../shared/ui/grid/grid-column';
+import { GridFilterOption } from '../../shared/ui/grid/grid-filter-select';
+import { GridPagination } from '../../shared/ui/grid/grid-pagination';
 import {
   DEFAULT_ADMIN_SORT,
   DEFAULT_ADMIN_STATE,
@@ -52,11 +56,11 @@ import {
   resolveAdminSort,
   resolveAdminState,
 } from './product-grid-query';
-import { GridCardTemplate } from '../grid/grid-card-template';
-import { GridRowTemplate } from '../grid/grid-row-template';
+import { GridCardTemplate } from '../../shared/ui/grid/grid-card-template';
+import { GridRowTemplate } from '../../shared/ui/grid/grid-row-template';
 import { GridTimestamp } from '../dates/grid-timestamp';
 import { RecordRow } from '../../shared/ui/record-row';
-import { AdminListHeader } from '../list-header';
+import { GridHeader } from '../../shared/ui/grid/grid-header';
 import { DocumentsService } from '../documents/documents.service';
 import { TiersService } from '../tiers/tiers.service';
 import { purgeWithConfirmation, PurgeText } from './product-removal';
@@ -99,8 +103,8 @@ function knownValues<T extends string>(
     Button,
     Link,
     ProductRowActions,
-    AdminListHeader,
-    AdminGrid,
+    GridHeader,
+    DataGrid,
     GridRowTemplate,
     GridCardTemplate,
     GridPagination,
@@ -110,7 +114,7 @@ function knownValues<T extends string>(
     RecordRow,
   ],
   template: `
-    <app-admin-list-header
+    <app-grid-header
       [title]="text.page.title"
       [intro]="text.page.intro"
       [query]="query() ?? ''"
@@ -127,12 +131,12 @@ function knownValues<T extends string>(
         <app-icon [glyph]="plusIcon" class="size-4" />
         {{ editText.addProduct }}
       </button>
-    </app-admin-list-header>
+    </app-grid-header>
 
     @if (products.error()) {
       <p class="text-ink-subtle" role="alert">{{ adminText.loadError }}</p>
     } @else if (shown(); as data) {
-      <app-admin-grid
+      <app-data-grid
         gridId="products"
         [columns]="columns()"
         [rows]="data.items"
@@ -353,7 +357,7 @@ function knownValues<T extends string>(
             />
           </app-record-row>
         </ng-template>
-      </app-admin-grid>
+      </app-data-grid>
 
       <app-grid-pagination [pagination]="data.pagination" />
     } @else if (showSkeleton()) {

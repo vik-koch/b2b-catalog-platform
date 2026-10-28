@@ -1,18 +1,13 @@
-import { SHARED_TEXT } from '../../shared/config/shared-text';
-import { defaultSharedText } from '../../shared/config/shared-text.fixture';
+import { provideTestGridText, testGridText } from './grid-text.testing';
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { NARROW_SCREEN_QUERIES } from '../../shared/core/narrow-screen';
-import { defaultAdminText } from '../../shared/config/admin-text.fixture';
-import { AdminGrid } from './admin-grid';
+import { NARROW_SCREEN_QUERIES } from '../narrow-screen';
+import { DataGrid } from './data-grid';
 import { GridColumn } from './grid-column';
 import { GridWidths, GRID_WIDTHS_KEY } from './grid-widths';
 import { GridCardTemplate } from './grid-card-template';
 import { GridRowTemplate } from './grid-row-template';
-import { provideUiText } from '../../shared/config/shared-text';
-import { provideGridText } from '../provide-grid-text';
 
 interface Row {
   id: string;
@@ -45,9 +40,9 @@ const columns: GridColumn[] = [
 ];
 
 @Component({
-  imports: [AdminGrid, GridRowTemplate, GridCardTemplate],
+  imports: [DataGrid, GridRowTemplate, GridCardTemplate],
   template: `
-    <app-admin-grid
+    <app-data-grid
       gridId="test"
       [columns]="columns"
       [rows]="rows()"
@@ -65,7 +60,7 @@ const columns: GridColumn[] = [
       <ng-template appGridCard [of]="rows()" let-row>
         <span class="card-row">{{ row.name }} — {{ row.status }}</span>
       </ng-template>
-    </app-admin-grid>
+    </app-data-grid>
   `,
 })
 class Host {
@@ -124,13 +119,7 @@ function render(stored?: GridWidths) {
   TestBed.resetTestingModule();
   TestBed.configureTestingModule({
     imports: [Host],
-    providers: [
-      provideUiText(),
-      provideGridText(),
-      provideRouter([]),
-      { provide: ADMIN_TEXT, useValue: defaultAdminText },
-      { provide: SHARED_TEXT, useValue: defaultSharedText },
-    ],
+    providers: [...provideTestGridText(), provideRouter([])],
   });
   const fixture = TestBed.createComponent(Host);
   fixture.detectChanges();
@@ -139,7 +128,7 @@ function render(stored?: GridWidths) {
 
 afterEach(() => localStorage.clear());
 
-describe('AdminGrid on a desktop (FR-ADM-05)', () => {
+describe('DataGrid on a desktop (FR-ADM-05)', () => {
   beforeEach(() => screen(false));
 
   it('draws a table with one heading per declared column', () => {
@@ -189,13 +178,13 @@ describe('AdminGrid on a desktop (FR-ADM-05)', () => {
     // One boundary: the last column owns none, and a fixed column has no share
     // to trade with the one before it.
     expect(el.querySelectorAll('[role="separator"]').length).toBe(1);
-    expect(el.textContent).toContain(defaultAdminText.grid.resetWidths);
+    expect(el.textContent).toContain(testGridText.resetWidths);
   });
 
   it('offers no reset where the widths are the measured ones', () => {
     const { el } = render();
 
-    expect(el.textContent).not.toContain(defaultAdminText.grid.resetWidths);
+    expect(el.textContent).not.toContain(testGridText.resetWidths);
   });
 
   // An unpaged list holds exactly what it shows; a paged one says how many
@@ -222,7 +211,7 @@ describe('AdminGrid on a desktop (FR-ADM-05)', () => {
   });
 });
 
-describe('AdminGrid on a phone', () => {
+describe('DataGrid on a phone', () => {
   beforeEach(() => screen(true));
 
   it('draws the records as a list, not as a table', () => {
@@ -240,8 +229,8 @@ describe('AdminGrid on a phone', () => {
   it('carries the filters and the sort the headings would have held', () => {
     const { el } = render();
 
-    expect(el.textContent).toContain(defaultAdminText.grid.filters);
-    expect(el.textContent).toContain(defaultAdminText.grid.sort);
+    expect(el.textContent).toContain(testGridText.filters);
+    expect(el.textContent).toContain(testGridText.sort);
     // Both the sortable column and the filtered one, in one disclosure.
     const selects = el.querySelectorAll('select');
     expect(selects.length).toBe(2);
