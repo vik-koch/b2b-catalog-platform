@@ -15,12 +15,10 @@ import { Collapsible } from '@b2b-catalog-platform/ui/disclosure/collapsible';
 import { disclosureState } from '@b2b-catalog-platform/ui/disclosure/disclosure-state';
 import { DisclosureToggle } from '@b2b-catalog-platform/ui/disclosure/disclosure-toggle';
 import { DisclosureFrame } from '@b2b-catalog-platform/ui/disclosure/disclosure-frame';
-import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
-import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';
 import { ShowMoreToggle } from '@b2b-catalog-platform/ui/disclosure/show-more-toggle';
-import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
+import { ClearFiltersButton } from '@b2b-catalog-platform/ui/actions/clear-filters-button';
 
 /** Values a facet shows before its own "show more" reveals the rest. */
 const VALUES_COLLAPSED = 8;
@@ -90,13 +88,12 @@ export const FACET_SIBLING_ALONE =
 @Component({
   selector: 'app-facet-panel',
   imports: [
+    ClearFiltersButton,
     NgTemplateOutlet,
     Checkbox,
     TickLabel,
     Collapsible,
     DisclosureToggle,
-    Icon,
-    IconButton,
     ProductSortSelect,
     ShowMoreToggle,
     DisclosureFrame,
@@ -163,7 +160,11 @@ export const FACET_SIBLING_ALONE =
                 >
                   {{ text.title }}
                 </h2>
-                <ng-container [ngTemplateOutlet]="clearAll" />
+                <ui-clear-filters-button
+                  [label]="text.clearAll"
+                  [filtered]="selectedCount() > 0"
+                  (cleared)="selection.clearAll()"
+                />
               </div>
 
               <!-- The ordering, for as long as there is no room for the row
@@ -280,44 +281,17 @@ export const FACET_SIBLING_ALONE =
              which a container query decides and the viewport-based default
              cannot see: on a thousand-pixel window this is still the phone's
              layout. -->
-        <ng-container
-          [ngTemplateOutlet]="clearAll"
-          [ngTemplateOutletContext]="{ size: 'touch' }"
+        <ui-clear-filters-button
+          size="touch"
+          [label]="text.clearAll"
+          [filtered]="selectedCount() > 0"
+          (cleared)="selection.clearAll()"
         />
       </div>
     </div>
-
-    <ng-template #clearAll let-size="size">
-      @if (selectedCount()) {
-        <button
-          uiIconButton
-          variant="danger"
-          type="button"
-          [size]="size ?? 'sm'"
-          [attr.aria-label]="text.clearAll"
-          [title]="text.clearAll"
-          (click)="selection.clearAll()"
-        >
-          <ui-icon [glyph]="funnelXIcon" />
-        </button>
-      } @else {
-        <button
-          uiIconButton
-          type="button"
-          disabled
-          class="opacity-40"
-          [size]="size ?? 'sm'"
-          [attr.aria-label]="text.clearAll"
-          [title]="text.clearAll"
-        >
-          <ui-icon [glyph]="funnelXIcon" />
-        </button>
-      }
-    </ng-template>
   `,
 })
 export class FacetPanel {
-  protected readonly funnelXIcon = funnelXIcon;
   protected readonly selection = inject(FacetSelection);
   protected readonly catalogText = inject(STOREFRONT_TEXT).catalog;
   protected readonly text = this.catalogText.filters;

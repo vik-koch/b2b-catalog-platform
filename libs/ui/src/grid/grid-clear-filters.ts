@@ -1,59 +1,39 @@
-import { Component, computed, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Params, RouterLink } from '@angular/router';
+import { Component, inject, input } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GRID_TEXT } from './grid-text';
-import { Icon } from '../icons/icon';
-import { IconButton } from '../actions/icon-button';
-import { funnelXIcon } from '../icons/glyphs/funnel-x';
+import { ClearFiltersButton } from '../actions/clear-filters-button';
 
 /**
- * Back to the whole list: a glyph, so it sits on the search box's line. Always
- * on screen and a real `<button disabled>` until there is something to undo,
- * so nothing beside it moves. It keeps the sort, which is no filter, and reads
- * it off the route, so its two places cannot disagree.
+ * Clear-filters for a grid, whose state is its URL. It keeps the sort, which
+ * is no filter, and reads it off the route when pressed, so its two places
+ * cannot disagree.
  */
 @Component({
   selector: 'ui-grid-clear-filters',
-  imports: [RouterLink, Icon, IconButton],
+  imports: [ClearFiltersButton],
   template: `
-    @if (filtered()) {
-      <a
-        uiIconButton
-        variant="danger"
-        routerLink="."
-        [queryParams]="keep()"
-        [attr.aria-label]="gridText.clearFilters"
-        [title]="gridText.clearFilters"
-      >
-        <ui-icon [glyph]="funnelXIcon" />
-      </a>
-    } @else {
-      <button
-        uiIconButton
-        type="button"
-        disabled
-        class="opacity-40"
-        [attr.aria-label]="gridText.clearFilters"
-        [title]="gridText.clearFilters"
-      >
-        <ui-icon [glyph]="funnelXIcon" />
-      </button>
-    }
+    <ui-clear-filters-button
+      [label]="gridText.clearFilters"
+      [filtered]="filtered()"
+      (cleared)="clear()"
+    />
   `,
 })
 export class GridClearFilters {
-  protected readonly funnelXIcon = funnelXIcon;
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   protected readonly gridText = inject(GRID_TEXT);
 
   /** Whether anything narrows the list, the search included. */
   readonly filtered = input(false);
 
-  /** The live query: a snapshot would keep the first sort forever. */
-  private readonly query = toSignal(inject(ActivatedRoute).queryParamMap);
-
   /** Everything goes but the ordering, which the URL keeps as it was. */
-  protected readonly keep = computed<Params>(() => {
-    const sort = this.query()?.get('sort');
-    return sort ? { sort } : {};
-  });
+  protected clear(): void {
+    const sort = this.route.snapshot.queryParamMap.get('sort');
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: sort ? { sort } : {},
+      scroll: 'manual',
+    });
+  }
 }

@@ -72,9 +72,7 @@ describe('GridHeader', () => {
   it('turns it into a real control once the list is filtered', () => {
     const { clear } = render(true);
 
-    expect(clear.tagName).toBe('A');
-    // Same route, no query parameters: everything narrowing the list goes.
-    expect(clear.getAttribute('href')).toBe('/');
+    expect(clear.hasAttribute('disabled')).toBe(false);
   });
 
   it('gives the title the search column when the grid has no search box', () => {

@@ -46,7 +46,7 @@ by module, so a barrel would carry everything behind it into the first load.
 <!-- prettier-ignore -->
 | Folder | Holds |
 | --- | --- |
-| `actions/` | Buttons and links: `uiButton`, `uiIconButton`, `uiTextButton`, `uiDiscButton`, `uiLink`, `uiActionLink` and the shared `uiButtonBox` |
+| `actions/` | Buttons and links: `uiButton`, `uiIconButton`, `uiTextButton`, `uiDiscButton`, `uiLink`, `uiActionLink`, `ClearFiltersButton` and the shared `uiButtonBox` |
 | `choices/` | Inputs that pick a value: `uiCheckbox`, `uiRadio`, `Switch`, `uiTickable`, `uiTickLabel`, `ChoiceCard`, `ChoiceBranch`, `Segmented` with `uiSegment` and `uiSegmentGroup` |
 | `content/` | What a page shows rather than asks: `PageHeader`, `uiPageTitle`, `uiPageIntro`, `uiNotice`, `WarningNote`, `EmptyState`, `Skeleton`, `uiStatusBadge`, `HintBadge`, `EmphasisedText`, `uiCard`, `uiFrame`, `ImagePlaceholder` |
 | `core/` | What the pieces share and draw nothing: `fill`, the `UI_TEXT` token, `debounced`, the narrow-screen query |
