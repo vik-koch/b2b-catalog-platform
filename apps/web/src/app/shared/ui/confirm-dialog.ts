@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Button } from './button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from './checkbox';
 import { TickLabel } from './tick-label';
 import { AutoGrow } from './auto-grow';

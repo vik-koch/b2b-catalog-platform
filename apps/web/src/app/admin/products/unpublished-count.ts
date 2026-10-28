@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
 import { fillText } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
  * How many of a product count are not on the storefront, beside that count:

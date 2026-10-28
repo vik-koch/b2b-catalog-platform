@@ -5,7 +5,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ChoiceCard } from '../../shared/ui/choice-card';
 import { DeliveryConditionsDialog } from './delivery-conditions-dialog';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
  * How the goods arrive (FR-CART-07) — the row that leads the form, because it

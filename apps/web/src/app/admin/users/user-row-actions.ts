@@ -3,7 +3,7 @@ import { RouterLink, Params } from '@angular/router';
 import { StaffUser } from '@b2b-catalog-platform/shared/admin';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { circleCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-check';
 import { circleSlashIcon } from '@b2b-catalog-platform/ui/icons/glyphs/circle-slash';
 import { pencilIcon } from '@b2b-catalog-platform/ui/icons/glyphs/pencil';

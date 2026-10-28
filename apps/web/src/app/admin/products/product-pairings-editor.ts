@@ -21,7 +21,7 @@ import { SuggestList } from '../../shared/ui/suggest-list';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
 import { FieldLabel } from '../../shared/ui/field-label';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { PRODUCT_FEATURE_GLYPHS } from './product-feature-glyphs';
 import { Input } from '../../shared/ui/input';

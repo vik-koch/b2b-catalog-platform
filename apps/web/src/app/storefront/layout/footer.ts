@@ -5,7 +5,7 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import type { ElsewhereLink } from '@b2b-catalog-platform/shared';
 import { ConsentService } from '../consent/consent.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { telHref } from './contact-info';
 import { ScrollToTop } from './scroll-to-top';
 

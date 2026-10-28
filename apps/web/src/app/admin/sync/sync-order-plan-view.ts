@@ -7,7 +7,7 @@ import {
   OrderWriteResult,
 } from '@b2b-catalog-platform/shared/sync';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 
 /**

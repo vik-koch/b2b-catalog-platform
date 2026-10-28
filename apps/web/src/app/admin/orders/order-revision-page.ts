@@ -26,7 +26,7 @@ import {
   customerQuantity,
   orderDateTimeFormat,
 } from '../../shared/orders/order-view';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { AdminOrdersService } from './orders.service';

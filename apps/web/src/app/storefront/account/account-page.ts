@@ -18,15 +18,15 @@ import { formatPhone } from '../../shared/core/contact-fields';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { OrderRows } from '../orders/order-rows';
 import { OrdersService } from '../orders/orders.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   confirmRequest,
   ConfirmService,
 } from '../../shared/ui/confirm.service';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Skeleton } from '../../shared/ui/skeleton';
-import { ActionLink } from '../../shared/ui/action-link';
+import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../../shared/work/work.service';
 import { AccountService } from './account.service';
 import { PageTitle } from '../../shared/ui/page-title';

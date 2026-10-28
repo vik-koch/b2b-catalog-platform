@@ -12,7 +12,7 @@ import {
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { AdminText } from '../../shared/config/admin-text.type';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { TickLabel } from '../../shared/ui/tick-label';
 import { ChoiceCard } from '../../shared/ui/choice-card';
@@ -20,7 +20,7 @@ import { DropZone } from '../../shared/ui/drop-zone';
 import { FileTarget, pasteKeys } from '../../shared/ui/file-target';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { SettingsService } from '../settings/settings.service';
 import {
   CUSTOMER_SYNC_PRESETS,

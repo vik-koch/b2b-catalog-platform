@@ -4,7 +4,7 @@ import { Address, fillText } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { AddressFields } from '../../shared/addresses/address-fields';
 import { createAddressForm } from '../../shared/addresses/address-form';

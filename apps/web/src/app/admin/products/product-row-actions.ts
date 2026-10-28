@@ -3,7 +3,7 @@ import { Params, RouterLink } from '@angular/router';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { SettingsService } from '../settings/settings.service';
 import { mayRestore, purgeRefusal } from './product-removal';
 import { SHARED_TEXT } from '../../shared/config/shared-text';

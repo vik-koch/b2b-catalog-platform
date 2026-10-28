@@ -13,13 +13,13 @@ import {
 import { form, maxLength, pattern, required } from '@angular/forms/signals';
 import { CodeSent, SIGN_IN_CODE_LENGTH } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { TickLabel } from '../../shared/ui/tick-label';
 import { CodeInput } from '../../shared/ui/code-input';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { SubmitAttempt } from '../../shared/ui/submit-attempt';
-import { TextButton } from '../../shared/ui/text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import type { CodeResult, SendResult } from '../../shared/auth/auth.service';
 
 /** A wait as minutes and seconds: `0:42`, `27:05`. */

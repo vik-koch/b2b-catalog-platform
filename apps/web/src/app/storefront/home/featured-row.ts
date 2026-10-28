@@ -19,7 +19,7 @@ import { anyStatus } from '../../shared/catalog/product-status-line';
 import { ProductTile } from '../../shared/catalog/product-tile';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { FeaturedRowService } from './featured-row.service';
 import { chevronRightIcon } from '@b2b-catalog-platform/ui/icons/glyphs/chevron-right';
 

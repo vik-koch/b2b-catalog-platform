@@ -15,7 +15,7 @@ import { DEPLOYMENT_CONFIG } from '../shared/config/deployment-config';
 import { usePageSeo } from '../shared/core/page-seo';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { StatusBadge } from '../shared/ui/status-badge';
-import { ActionLink } from '../shared/ui/action-link';
+import { ActionLink } from '@b2b-catalog-platform/ui/actions/action-link';
 import { WorkService } from '../shared/work/work.service';
 import { BuildInfoService } from './build-info.service';
 import { injectEditorReturnParams } from '../shared/edit-mode/editor-return';

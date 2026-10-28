@@ -22,8 +22,8 @@ import {
   documentFileLabel,
   documentFileSize,
 } from '../../shared/core/document-file';
-import { Button } from '../../shared/ui/button';
-import { IconButton } from '../../shared/ui/icon-button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import {
   ConfirmService,
   confirmRequest,

@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { AuthService } from '../../shared/auth/auth.service';
 import { CallWait } from './call-wait';
 import { CodeEntry, formatWait } from './code-entry';

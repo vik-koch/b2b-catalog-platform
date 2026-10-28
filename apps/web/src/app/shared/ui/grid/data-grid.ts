@@ -19,7 +19,7 @@ import {
   injectNarrowScreen,
   NarrowBreakpoint,
 } from '@b2b-catalog-platform/ui/core/narrow-screen';
-import { TextButton } from '../text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import {
   columnMinWidth,
   flexibleColumns,

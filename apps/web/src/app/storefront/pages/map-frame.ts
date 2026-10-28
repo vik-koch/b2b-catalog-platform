@@ -4,7 +4,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { fillText, MapEmbed } from '@b2b-catalog-platform/shared';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { ConsentService } from '../consent/consent.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 
 /**
  * Renders a map as an iframe — the single place map embeds are created.

@@ -1,10 +1,10 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { SHARED_TEXT } from '../config/shared-text';
-import { IconButton } from '../ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { fillText } from '@b2b-catalog-platform/shared';
-import { Link } from '../ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { PairingsService } from './pairings.service';
 import { packagePlusIcon } from '@b2b-catalog-platform/ui/icons/glyphs/package-plus';
 

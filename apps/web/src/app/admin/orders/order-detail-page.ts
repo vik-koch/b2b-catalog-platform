@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { useTaxStatement } from '../../shared/catalog/tax-statement';
 import { RouterLink } from '@angular/router';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   allowedTransitions,
   fillText,
@@ -45,7 +45,7 @@ import {
   orderStatusTone,
 } from '../../shared/orders/order-status';
 import { orderDateTimeFormat } from '../../shared/orders/order-view';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmCheck } from '../../shared/ui/confirm-dialog';
 import {
   ConfirmService,

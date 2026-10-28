@@ -20,10 +20,10 @@ import {
   strayPart,
 } from '@b2b-catalog-platform/shared';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { HintBadge } from '../../shared/ui/hint-badge';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../../shared/ui/input';
 import { RecordFields } from '../../shared/ui/record-fields';

@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { consentLabelParts } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { Checkbox } from '../../shared/ui/checkbox';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentRequest } from './consent';
 import { PrivacyNotice } from './privacy-notice';
 import { ErrorText } from '../../shared/ui/error-text';

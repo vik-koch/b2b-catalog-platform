@@ -23,8 +23,8 @@ import {
 import { CartAddResult, CartService } from '../cart/cart.service';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../config/deployment-config';
-import { Button } from '../ui/button';
-import { ButtonBox } from '../ui/button-box';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { ButtonBox } from '@b2b-catalog-platform/ui/actions/button-box';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { Input } from '../ui/input';
 import { Popover } from '../ui/popover';

@@ -20,7 +20,7 @@ import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { ConfirmService } from '../../shared/ui/confirm.service';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';

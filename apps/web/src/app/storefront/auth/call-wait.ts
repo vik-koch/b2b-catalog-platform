@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { CallStep } from '@b2b-catalog-platform/shared';
 import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { TickLabel } from '../../shared/ui/tick-label';
 import type { CallResult, SendResult } from '../../shared/auth/auth.service';

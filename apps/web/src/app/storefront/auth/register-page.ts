@@ -13,14 +13,14 @@ import {
   emailAddress,
 } from '../../shared/core/field-rules';
 import { CompanyFields } from '../../shared/parties/company-fields';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { PhoneInput } from '../../shared/ui/phone-input';
 import { Segmented, SegmentOption } from '../../shared/ui/segmented';
 import { AuthCard } from './auth-card';
 import { AuthService } from '../../shared/auth/auth.service';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { ConsentField } from '../pages/consent-field';
 import { useConsent } from '../pages/consent';
 import { PageTitle } from '../../shared/ui/page-title';

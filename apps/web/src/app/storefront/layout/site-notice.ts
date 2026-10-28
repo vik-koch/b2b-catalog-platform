@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 
 /**
  * The deployment's notice (FR-NAV-08), on a line of its own above the header:

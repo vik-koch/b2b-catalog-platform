@@ -20,7 +20,7 @@ import { LockedNote } from '../ownership/locked-note';
 import { Skeleton } from '../../shared/ui/skeleton';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { FieldAttempt, FIELD_ATTEMPT } from '../../shared/ui/field-attempt';
 import { FieldLabel } from '../../shared/ui/field-label';

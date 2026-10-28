@@ -20,9 +20,9 @@ import {
 import { formatPriceMinor } from '../../shared/catalog/price';
 import { ADMIN_TEXT } from '../../shared/config/admin-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Input } from '../../shared/ui/input';
-import { Link } from '../../shared/ui/link';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import { StatusBadge, StatusTone } from '../../shared/ui/status-badge';
 import { ErrorText } from '../../shared/ui/error-text';
 import { Notice } from '../../shared/ui/notice';

@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { STOREFRONT_TEXT } from '../config/storefront-text';
-import { Button } from '../ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { AuthService } from './auth.service';
 
 /**

@@ -20,7 +20,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { completeMask } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { AuthService } from '../../shared/auth/auth.service';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FieldLabel } from '../../shared/ui/field-label';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';

@@ -15,7 +15,7 @@ import { Collapsible } from '../../shared/ui/collapsible';
 import { disclosureState } from '../../shared/ui/disclosure-state';
 import { DisclosureToggle } from '../../shared/ui/disclosure-toggle';
 import { DisclosureFrame } from '../../shared/ui/disclosure-frame';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { ProductSortSelect } from './product-sort-select';
 import { FacetSelection, selectedValues } from './facet-selection';

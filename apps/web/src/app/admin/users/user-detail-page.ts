@@ -26,7 +26,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { LockedNote } from '../ownership/locked-note';
 import { ConsentRecordList } from '../consents/consent-record-list';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import {
   ConfirmService,
   confirmRequest,

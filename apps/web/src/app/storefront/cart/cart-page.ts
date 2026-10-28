@@ -24,7 +24,7 @@ import { debounced } from '@b2b-catalog-platform/ui/core/debounced';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Pagination } from '../../shared/ui/pagination';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { EmptyState } from '../../shared/ui/empty-state';
@@ -34,7 +34,7 @@ import {
   confirmRequest,
   ConfirmService,
 } from '../../shared/ui/confirm.service';
-import { IconButton } from '../../shared/ui/icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { LastListingService } from '../catalog/last-listing.service';
 import { CartPreviewService } from './cart-preview.service';

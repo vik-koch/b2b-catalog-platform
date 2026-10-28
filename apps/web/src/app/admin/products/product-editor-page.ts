@@ -74,7 +74,7 @@ import { delayedLoading } from '../../shared/core/delayed-loading';
 import { filled } from '../../shared/core/field-rules';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { UnsavedChangesAware } from '../unsaved-changes.guard';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { Notice } from '../../shared/ui/notice';
 import { Checkbox } from '../../shared/ui/checkbox';
 import { TickLabel } from '../../shared/ui/tick-label';

@@ -1,6 +1,6 @@
 import { Component, computed, input, output } from '@angular/core';
 import { Params, RouterLink } from '@angular/router';
-import { DiscButton } from '../ui/disc-button';
+import { DiscButton } from '@b2b-catalog-platform/ui/actions/disc-button';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { bookCheckIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-check';
 import { bookDashedIcon } from '@b2b-catalog-platform/ui/icons/glyphs/book-dashed';

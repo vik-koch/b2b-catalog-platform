@@ -18,7 +18,7 @@ import { FIELD_ATTEMPT } from '../ui/field-attempt';
 import { Field } from '../ui/field';
 import { FieldBinding } from '../ui/field-binding';
 import { Input } from '../ui/input';
-import { TextButton } from '../ui/text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { SelectInput } from '../ui/select-input';
 import { submitAttempt } from '../ui/submit-attempt';
 import { AddressForm } from './address-form';

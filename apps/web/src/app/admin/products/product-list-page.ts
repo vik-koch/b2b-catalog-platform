@@ -27,8 +27,8 @@ import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { delayedLoading } from '../../shared/core/delayed-loading';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { stableValue } from '../../shared/core/stable-value';
-import { Button } from '../../shared/ui/button';
-import { Link } from '../../shared/ui/link';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
+import { Link } from '@b2b-catalog-platform/ui/actions/link';
 import {
   confirmRequest,
   ConfirmService,

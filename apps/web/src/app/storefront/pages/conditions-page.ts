@@ -18,7 +18,7 @@ import { RichTextLinks } from '../../shared/core/rich-text-links';
 import { trustedRichText } from '../../shared/core/trusted-rich-text';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { TextButton } from '../../shared/ui/text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { LoadErrorView } from './load-error-view';
 import { PageService } from '../../shared/pages/page.service';
 import { PageTitle } from '../../shared/ui/page-title';

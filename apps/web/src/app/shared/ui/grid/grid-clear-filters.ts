@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Params, RouterLink } from '@angular/router';
 import { GRID_TEXT } from './grid-text';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
-import { IconButton } from '../icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { funnelXIcon } from '@b2b-catalog-platform/ui/icons/glyphs/funnel-x';
 
 /**

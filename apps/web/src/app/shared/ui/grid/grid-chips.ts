@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Icon } from '@b2b-catalog-platform/ui/icons/icon';
 import { xIcon } from '@b2b-catalog-platform/ui/icons/glyphs/x';
-import { IconButton } from '../icon-button';
+import { IconButton } from '@b2b-catalog-platform/ui/actions/icon-button';
 import { GridChip } from './grid-column';
 
 /** The narrowings with no column, each with its own way out. */

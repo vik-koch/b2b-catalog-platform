@@ -5,14 +5,14 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { SHARED_TEXT } from '../../shared/config/shared-text';
 import { usePageSeo } from '../../shared/core/page-seo';
 import { emailAddress } from '../../shared/core/field-rules';
-import { Button } from '../../shared/ui/button';
+import { Button } from '@b2b-catalog-platform/ui/actions/button';
 import { FORM_FIELDS } from '../../shared/ui/form-fields';
 import { Input } from '../../shared/ui/input';
 import { AuthCard } from './auth-card';
 import { landingFor } from '../../shared/auth/auth.guard';
 import { AuthService, LoginResult } from '../../shared/auth/auth.service';
 import { formatWait, SignInStepPanel } from './sign-in-step';
-import { TextButton } from '../../shared/ui/text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { PageTitle } from '../../shared/ui/page-title';
 import { ErrorText } from '../../shared/ui/error-text';
 

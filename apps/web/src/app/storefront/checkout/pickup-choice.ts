@@ -3,7 +3,7 @@ import { STOREFRONT_TEXT } from '../../shared/config/storefront-text';
 import { DEPLOYMENT_CONFIG } from '../../shared/config/deployment-config';
 import { EmphasisedText } from '../../shared/ui/emphasised-text';
 import { Radio } from '../../shared/ui/radio';
-import { TextButton } from '../../shared/ui/text-button';
+import { TextButton } from '@b2b-catalog-platform/ui/actions/text-button';
 import { ErrorText } from '../../shared/ui/error-text';
 
 /**
